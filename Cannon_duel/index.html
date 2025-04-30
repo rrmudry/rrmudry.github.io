@@ -1,1 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Cannon Duel – Rolling Hills</title>
+  <style>
+    body { margin:0; background:#000; color:#fff; font-family:Arial,sans-serif; text-align:center; }
+    h1 { margin:1rem 0; }
+    #scoreboard { font-size:1.2rem; margin-bottom:0.5rem; }
+    canvas { display:block; margin:0 auto; background:#87CEEB; border:2px solid #FF6600; width:90vw; height:70vh; }
+    #controls { margin:1rem auto; max-width:400px; }
+    label { display:block; margin:0.5rem 0; color:#FF6600; }
+    .slider-label { font-weight:bold; margin-bottom:0.25rem; }
+    input[type=range] { width:100%; }
+    button { margin-top:0.5rem; padding:0.5rem 1rem; background:#FF6600; border:none; color:#000; font-weight:bold; cursor:pointer; border-radius:4px; }
+    button:disabled { background:#555; color:#333; cursor:not-allowed; }
+    #message { margin-top:1rem; font-weight:bold; }
+    #splash { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); color:#fff; display:flex; align-items:center; justify-content:center; flex-direction:column; z-index:10; display:none; }
+    #splash h2 { font-size:3rem; margin-bottom:1rem; }
+    #continueBtn { padding:0.5rem 1rem; font-size:1.2rem; }
+  </style>
+</head>
+<body>
+  <h1>Cannon Duel</h1>
+  <div id="scoreboard">Player 1: 0   |   Player 2: 0</div>
+  <canvas id="gameCanvas"></canvas>
+  <div id="controls">
+    <label><div class="slider-label">Angle: <span id="angleValue">45°</span></div><input type="range" id="angleInput" min="30" max="90" value="45"/></label>
+    <label><div class="slider-label">Power: <span id="powerValue">100</span></div><input type="range" id="powerInput" min="0" max="200" value="100"/></label>
+    <button id="launchBtn">Launch</button>
+    <div id="message">Player 1's turn</div>
+  </div>
+  <div id="splash"><h2 id="splashText"></h2><button id="continueBtn">Continue</button></div>
+  <script>
+  (function(){
+    const canvas = document.getElementById('gameCanvas'), ctx = canvas.getContext('2d');
+    const scoreEl = document.getElementById('scoreboard'), msgEl = document.getElementById('message');
+    const angleIn=document.getElementById('angleInput'), powerIn=document.getElementById('powerInput');
+    const angleVal=document.getElementById('angleValue'), powerVal=document.getElementById('powerValue');
+    const btn=document.getElementById('launchBtn'), splash=document.getElementById('splash');
+    const splashText=document.getElementById('splashText'), continueBtn=document.getElementById('continueBtn');
+
+    let W, H;
+    function resizeCanvas(){
+      canvas.width = window.innerWidth * 0.9;
+      canvas.height = window.innerHeight * 0.7;
+      W = canvas.width; H = canvas.height;
+    }
+    window.addEventListener('resize', () => { if(proj===null){
+      resizeCanvas(); generateTerrain(); positionTowers(); drawScene(); }
+    });
+    resizeCanvas();
+
+    angleIn.oninput = ()=> angleVal.textContent=angleIn.value+'°';
+    powerIn.oninput = ()=> powerVal.textContent=powerIn.value;
+
+    const m2px=2, g=0.2, towerH=25*m2px, towerW=20;
+    const marginM=50, marginPx=marginM*m2px;
+    const minSep=150, reqMax=500, pwrMax=200;
+    const maxRangePx=(pwrMax/10)**2/g;
+    const trueMaxM=maxRangePx/m2px;
+    const maxSep=Math.min(reqMax,trueMaxM);
+
+    let terrain=[], towers=[{},{}], wind=0;
+    let proj=null, trail=[];
+    let score1=0, score2=0, player=1, turns=0, animId;
+
+    function updateScore(){ scoreEl.textContent=`Player 1: ${score1}   |   Player 2: ${score2}`; }
+
+    function generateTerrain(){ terrain=[]; const waves=4, amps=[], freqs=[], phases=[];
+      for(let i=0;i<waves;i++){ amps.push(H/8+Math.random()*(H/8)); freqs.push(0.002+Math.random()*0.004); phases.push(Math.random()*2*Math.PI); }
+      for(let x=0;x<W;x++){ let y=H*0.75; for(let i=0;i<waves;i++) y+=amps[i]*Math.sin(freqs[i]*x+phases[i]); terrain[x]=y;} }
+
+    function positionTowers(){ let sepM; do{ sepM=minSep+Math.random()*(maxSep-minSep); }
+      while(turns>0&&Math.abs(sepM-(towers[1].x-towers[0].x)/m2px)<20);
+      const sepPx=sepM*m2px;
+      const halfW=towerW/2, minX=marginPx+halfW;
+      const maxX=W-marginPx-halfW-sepPx;
+      const x1=minX+Math.random()*(maxX-minX);
+      towers[0].x=x1; towers[1].x=x1+sepPx;
+      towers.forEach(t=>t.y=terrain[Math.floor(t.x)]-towerH);
+      wind=(Math.random()-0.5)*0.1;
+    }
+
+    function drawScene(){ ctx.clearRect(0,0,W,H);
+      ctx.fillStyle='#228B22'; ctx.beginPath(); ctx.moveTo(0,H);
+      terrain.forEach((y,x)=>ctx.lineTo(x,y)); ctx.lineTo(W,H); ctx.fill();
+      ctx.fillStyle='rgba(255,215,0,0.7)'; trail.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,2,0,2*Math.PI);ctx.fill();});
+      if(proj){ctx.fillStyle='#FFD700';ctx.beginPath();ctx.arc(proj.x,proj.y,5,0,2*Math.PI);ctx.fill();}
+      ctx.fillStyle='#808080'; towers.forEach(t=>ctx.fillRect(t.x-towerW/2,t.y,towerW,towerH));
+      const active=towers[player-1], col=player===1?'red':'blue';
+      ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(active.x,active.y);ctx.lineTo(active.x,active.y-towerH);ctx.stroke();
+      ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(active.x,active.y-towerH);
+      if(player===1){ctx.lineTo(active.x+20,active.y-towerH+10);ctx.lineTo(active.x,active.y-towerH+20);} else{ctx.lineTo(active.x-20,active.y-towerH+10);ctx.lineTo(active.x,active.y-towerH+20);}ctx.closePath();ctx.fill();
+      ctx.fillStyle='#fff';ctx.fillText(`Wind: ${wind.toFixed(3)}`,W-160,20);
+      const bx=W-80,by=40;ctx.strokeStyle='#FFA500';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(bx,by-10);ctx.lineTo(bx,by+10);ctx.stroke();
+      const tilt=wind*200;ctx.fillStyle='#FFA500';ctx.beginPath();ctx.moveTo(bx,by);ctx.lineTo(bx+tilt,by-8);ctx.lineTo(bx+tilt,by+8);ctx.closePath();ctx.fill(); }
+
+    function carveCrater(cx){ const r=20; for(let dx=-r;dx<=r;dx++){ const x=Math.round(cx+dx); if(x<0||x>=W) continue; const dy=Math.sqrt(r*r-dx*dx); terrain[x]=Math.max(terrain[x],proj.y+dy);} }
+    function segmentHitsTower(x0,y0,x1,y1){const t=towers[player===1?1:0],rect={x:t.x-towerW/2,y:t.y,w:towerW,h:towerH},steps=Math.ceil(Math.hypot(x1-x0,y1-y0)/2);for(let i=0;i<=steps;i++){const u=i/steps,x=x0+(x1-x0)*u,y=y0+(y1-y0)*u; if(x>=rect.x&&x<=rect.x+rect.w&&y>=rect.y&&y<=rect.y+rect.h) return true;} return false;}
+
+    function endTurn(hit){cancelAnimationFrame(animId);carveCrater(proj.x);drawScene();
+      if(hit){ splashText.textContent=`Player ${player} Wins!`; splash.style.display='flex'; }
+      else{ setTimeout(()=>{player=3-player;msgEl.textContent=`Miss! Player ${player}'s turn`;btn.disabled=false;drawScene();turns++;},100);}
+      proj=null;trail=[]; }
+
+    function animate(){animId=requestAnimationFrame(animate);const px=proj.x,py=proj.y;proj.vx+=wind;proj.vy+=g;proj.x+=proj.vx;proj.y+=proj.vy;trail.push({x:proj.x,y:proj.y});const hitPath=segmentHitsTower(px,py,proj.x,proj.y);const idx=Math.round(proj.x);const groundHit=idx>=0&&idx<W&&proj.y>=terrain[idx];if(hitPath||groundHit||proj.y>H||idx<0||idx>=W)endTurn(hitPath);else drawScene();}
+
+    function launch(){proj={x:towers[player-1].x,y:towers[player-1].y,vx:(player===1?1:-1)*Math.cos(angleIn.value*Math.PI/180)*(powerIn.value/10),vy:-Math.sin(angleIn.value*Math.PI/180)*(powerIn.value/10)};trail=[];btn.disabled=true;msgEl.textContent='';animate();}
+
+    continueBtn.onclick=()=>{splash.style.display='none';turns=0;startRound();};
+    function startRound(){generateTerrain();positionTowers();proj=null;trail=[];drawScene();updateScore();msgEl.textContent=`Player ${player}'s turn`;btn.disabled=false;}
+    updateScore();startRound();btn.onclick=launch;
+  })();</script>
+</body>
+</html>
 
