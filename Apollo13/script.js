@@ -1,3 +1,15 @@
+function shuffleArray(array) {
+    const result = array.slice();
+    let currentIndex = result.length, randomIndex;
+    while (currentIndex > 0) {
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+        [result[currentIndex], result[randomIndex]] = [result[randomIndex], result[currentIndex]];
+    }
+    return result;
+}
+
+if (typeof document !== 'undefined') {
 document.addEventListener('DOMContentLoaded', () => {
     // --- Configuration ---
     const MAX_POWER = 560;
@@ -64,15 +76,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeSystems = new Set();
 
     // --- Utility Functions --- (shuffleArray, formatTime, logMessage remain the same)
-    function shuffleArray(array) { /* ... */
-        let currentIndex = array.length, randomIndex;
-        while (currentIndex > 0) {
-            randomIndex = Math.floor(Math.random() * currentIndex);
-            currentIndex--;
-            [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
-        }
-        return array;
-     }
     function formatTime(seconds) { /* ... */
         const minutes = Math.floor(seconds / 60);
         const secs = seconds % 60;
@@ -430,3 +433,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initGame();
 
 }); // End DOMContentLoaded
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports.shuffleArray = shuffleArray;
+}
