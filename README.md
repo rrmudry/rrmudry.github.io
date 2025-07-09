@@ -17,4 +17,4 @@ deployment.
 
 Visit <https://rrmudry.github.io> for the live site.
 
-A simple Tic Tac Toe game is included in `TicTacToe/index.html`.
+A simple Tic Tac Toe game is included in `tic-tac-toe/index.html`.
