@@ -1,121 +1,234 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Cannon Duel – Rolling Hills</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Artillery Duel — v3.7.2</title>
   <style>
-    body { margin:0; background:#000; color:#fff; font-family:Arial,sans-serif; text-align:center; }
-    h1 { margin:1rem 0; }
-    #scoreboard { font-size:1.2rem; margin-bottom:0.5rem; }
-    canvas { display:block; margin:0 auto; background:#87CEEB; border:2px solid #FF6600; width:90vw; height:70vh; }
-    #controls { margin:1rem auto; max-width:400px; }
-    label { display:block; margin:0.5rem 0; color:#FF6600; }
-    .slider-label { font-weight:bold; margin-bottom:0.25rem; }
-    input[type=range] { width:100%; }
-    button { margin-top:0.5rem; padding:0.5rem 1rem; background:#FF6600; border:none; color:#000; font-weight:bold; cursor:pointer; border-radius:4px; }
-    button:disabled { background:#555; color:#333; cursor:not-allowed; }
-    #message { margin-top:1rem; font-weight:bold; }
-    #splash { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); color:#fff; display:flex; align-items:center; justify-content:center; flex-direction:column; z-index:10; display:none; }
-    #splash h2 { font-size:3rem; margin-bottom:1rem; }
-    #continueBtn { padding:0.5rem 1rem; font-size:1.2rem; }
+    :root{--bg:#0b1020;--panel:#0e1726;--muted:#94a3b8;--p1:#38bdf8;--p2:#f472b6;--text:#e5e7eb}
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:linear-gradient(#0b1020,#06141b);color:var(--text);display:flex;flex-direction:column}
+    header,footer{background:var(--panel);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #1f2937}
+    footer{border-top:1px solid #1f2937;border-bottom:none;color:var(--muted)}
+    #stage{flex:1;display:grid;grid-template-rows:1fr auto}
+    canvas{width:100%;height:100%;display:block}
+    .controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;background:var(--panel);padding:10px;border-top:1px solid #1f2937}
+    .panel{border:1px solid #1f2937;border-radius:10px;padding:10px}
+    .panel h3{margin:0 0 6px 0;font-size:14px;display:flex;align-items:center;gap:8px}
+    .badge{padding:2px 8px;border-radius:999px;border:1px solid #374151;background:#0b1220;font-weight:800}
+    .p1{color:var(--p1)}.p2{color:var(--p2)}
+    .row{display:flex;align-items:center;gap:8px;margin:6px 0}
+    input[type=range]{flex:1}
+    button{cursor:pointer;border:1px solid #374151;background:#0b1220;color:#fff;padding:6px 10px;border-radius:8px;font-weight:700}
+    button:disabled{opacity:.5;cursor:not-allowed}
   </style>
 </head>
 <body>
-  <h1>Cannon Duel</h1>
-  <div id="scoreboard">Player 1: 0   |   Player 2: 0</div>
-  <canvas id="gameCanvas"></canvas>
-  <div id="controls">
-    <label><div class="slider-label">Angle: <span id="angleValue">45°</span></div><input type="range" id="angleInput" min="30" max="90" value="45"/></label>
-    <label><div class="slider-label">Power: <span id="powerValue">100</span></div><input type="range" id="powerInput" min="0" max="200" value="100"/></label>
-    <button id="launchBtn">Launch</button>
-    <div id="message">Player 1's turn</div>
-  </div>
-  <div id="splash"><h2 id="splashText"></h2><button id="continueBtn">Continue</button></div>
-  <script>
-  (function(){
-    const canvas = document.getElementById('gameCanvas'), ctx = canvas.getContext('2d');
-    const scoreEl = document.getElementById('scoreboard'), msgEl = document.getElementById('message');
-    const angleIn=document.getElementById('angleInput'), powerIn=document.getElementById('powerInput');
-    const angleVal=document.getElementById('angleValue'), powerVal=document.getElementById('powerValue');
-    const btn=document.getElementById('launchBtn'), splash=document.getElementById('splash');
-    const splashText=document.getElementById('splashText'), continueBtn=document.getElementById('continueBtn');
+  <header>
+    <div>Artillery Duel — v3.7.2</div>
+    <div id="status">Loading…</div>
+    <div id="score"><span class="badge p1">P1</span> <span id="s1">0</span> : <span id="s2">0</span> <span class="badge p2">P2</span></div>
+  </header>
 
-    let W, H;
-    function resizeCanvas(){
-      canvas.width = window.innerWidth * 0.9;
-      canvas.height = window.innerHeight * 0.7;
-      W = canvas.width; H = canvas.height;
+  <section id="stage">
+    <canvas id="game"></canvas>
+    <div class="controls">
+      <div class="panel">
+        <h3><span class="badge p1">Player 1</span><small id="p1turn" style="margin-left:6px;color:var(--muted)"></small></h3>
+        <div class="row">Angle <span id="angleVal1">45</span>° <input id="angle1" type="range" min="-80" max="80" value="45"></div>
+        <div class="row">Power <span id="powerVal1">50</span> <input id="power1" type="range" min="20" max="100" value="50"></div>
+        <div class="row"><button id="fire1">Fire (Space)</button> <button id="newRound">New Round</button></div>
+      </div>
+      <div class="panel">
+        <h3><span class="badge p2">Player 2</span><small id="p2turn" style="margin-left:6px;color:var(--muted)"></small></h3>
+        <div class="row">Angle <span id="angleVal2">45</span>° <input id="angle2" type="range" min="-80" max="80" value="45"></div>
+        <div class="row">Power <span id="powerVal2">50</span> <input id="power2" type="range" min="20" max="100" value="50"></div>
+        <div class="row"><button id="fire2">Fire (Space)</button> <div class="row" style="margin-left:auto">Wind: <span id="windVal">0</span> m/s²</div></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>Use ←/→ to adjust angle and ↓/↑ for power for the player whose turn it is. Shots start from the center of the cannon. First to 3 wins.</footer>
+
+<script>
+const cvs=document.getElementById('game');
+const ctx=cvs.getContext('2d');
+const statusEl=document.getElementById('status');
+const s1El=document.getElementById('s1');
+const s2El=document.getElementById('s2');
+const a1=document.getElementById('angle1');
+const p1=document.getElementById('power1');
+const a2=document.getElementById('angle2');
+const p2=document.getElementById('power2');
+const av1=document.getElementById('angleVal1');
+const pv1=document.getElementById('powerVal1');
+const av2=document.getElementById('angleVal2');
+const pv2=document.getElementById('powerVal2');
+const fire1=document.getElementById('fire1');
+const fire2=document.getElementById('fire2');
+const newBtn=document.getElementById('newRound');
+const p1turn=document.getElementById('p1turn');
+const p2turn=document.getElementById('p2turn');
+const windVal=document.getElementById('windVal');
+
+const G=9.81;
+let PPM=7;
+const state={
+  pts:500,
+  terrain:[],
+  cannons:[{x:0,y:0,color:'#38bdf8'},{x:0,y:0,color:'#f472b6'}],
+  radius:1.6,
+  barrelLen:2.0,
+  angles:[45,45],
+  powers:[50,50],
+  current:0,
+  wind:0,
+  proj:null,
+  score:[0,0],
+  target:3,
+  over:false,
+  last:0,
+  fx:[],
+  splash:null
+};
+
+function m2p(m){return m*PPM}
+function p2m(px){return px/PPM}
+
+function resize(){
+  const dpr=devicePixelRatio||1;
+  const w=cvs.parentElement.clientWidth;
+  const h=Math.max(420,Math.min(innerHeight-220,720));
+  cvs.style.width=w+'px';
+  cvs.style.height=h+'px';
+  cvs.width=Math.floor(w*dpr);
+  cvs.height=Math.floor(h*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  PPM=Math.max(5,Math.min(10,Math.round(w/150)));
+}
+addEventListener('resize',()=>{resize();state.terrain=genTerrain();placeCannons();draw();});
+
+function genTerrain(){
+  const w=cvs.clientWidth,h=cvs.clientHeight,pts=state.pts;
+  const arr=new Array(pts);
+  const cycles=0.8+Math.random()*0.6;
+  const phase=Math.random()*Math.PI*2;
+  const phase2=Math.random()*Math.PI*2;
+  const A1=h*(0.18+Math.random()*0.08);
+  const A2=h*(0.05+Math.random()*0.05);
+  const base=h*0.60;
+  for(let i=0;i<pts;i++){
+    const x=i/(pts-1);
+    let y=base + Math.sin(x*cycles*2*Math.PI + phase)*A1 + Math.sin(x*(cycles*2.7)*2*Math.PI + phase2)*A2;
+    y += (Math.random()-0.5)*h*0.02;
+    y=Math.max(h*0.25,Math.min(h*0.85,y));
+    arr[i]=y;
+  }
+  for(let i=1;i<pts-1;i++) arr[i]=(arr[i-1]+arr[i]+arr[i+1])/3;
+  return arr;
+}
+function terrainY(px){const idx=Math.max(0,Math.min(state.pts-1,Math.floor((px/cvs.clientWidth)*(state.pts-1))));return state.terrain[idx]}
+
+function findFlatX(start,end){const step=6;let bestX=start,best=1e9;for(let x=start;x<=end;x+=step){const s=Math.abs(terrainY(x+4)-terrainY(x-4));if(s<best){best=s;bestX=x}}return bestX}
+function placeCannons(){const w=cvs.clientWidth;const rpx=m2p(state.radius);const leftX=findFlatX(30,w*(0.25+Math.random()*0.1));const rightX=findFlatX(w*(0.65+Math.random()*0.1),w-30);state.cannons[0].x=leftX;state.cannons[1].x=rightX;state.cannons[0].y=terrainY(leftX)-rpx;state.cannons[1].y=terrainY(rightX)-rpx}
+
+function updateScore(){s1El.textContent=state.score[0];s2El.textContent=state.score[1]}
+function updateTurnUI(){const c=state.current;fire1.disabled=c!==0;fire2.disabled=c!==1;a1.disabled=c!==0;p1.disabled=c!==0;a2.disabled=c!==1;p2.disabled=c!==1;p1turn.textContent=c===0?'— Your turn':'';p2turn.textContent=c===1?'— Your turn':''}
+
+function startRound(reset=false){
+  if(reset){state.score=[0,0];updateScore()}
+  state.over=false;state.proj=null;state.splash=null;state.current=Math.random()<.5?0:1;updateTurnUI();
+  a1.value=state.angles[0];av1.textContent=a1.value;p1.value=state.powers[0];pv1.textContent=p1.value;
+  a2.value=state.angles[1];av2.textContent=a2.value;p2.value=state.powers[1];pv2.textContent=p2.value;
+  state.wind=+(Math.random()*2-1).toFixed(1);windVal.textContent=state.wind;
+  state.terrain=genTerrain();placeCannons();
+  statusEl.textContent=`Round start — Wind ${state.wind} m/s²`;
+}
+
+function endRound(winner){
+  state.over=true;state.proj=null;state.score[winner]++;updateScore();
+  const matchWon=state.score[winner]>=state.target;
+  if(matchWon){
+    statusEl.textContent=`Player ${winner+1} wins the match!`;
+    state.splash={winner,win:true};
+  }else{
+    statusEl.textContent=`Hit! Player ${winner+1} scores.`;
+    state.splash={winner,win:false};
+    setTimeout(()=>{state.splash=null;startRound(false)},1200);
+  }
+}
+
+function onAngle(idx,val){state.angles[idx]=+val;(idx?av2:av1).textContent=val;draw()}
+function onPower(idx,val){state.powers[idx]=+val;(idx?pv2:pv1).textContent=val;draw()}
+a1.addEventListener('input',e=>onAngle(0,e.target.value));a2.addEventListener('input',e=>onAngle(1,e.target.value));
+p1.addEventListener('input',e=>onPower(0,e.target.value));p2.addEventListener('input',e=>onPower(1,e.target.value));
+fire1.addEventListener('click',()=>{if(state.current===0)fire(0)});
+fire2.addEventListener('click',()=>{if(state.current===1)fire(1)});
+newBtn.addEventListener('click',()=>startRound(true));
+addEventListener('keydown',e=>{if(e.key===' '){fire()}if(e.key==='ArrowLeft'){const idx=state.current;const s=idx?a2:a1;s.value=Math.max(-80,+s.value-1);s.dispatchEvent(new Event('input'))}if(e.key==='ArrowRight'){const idx=state.current;const s=idx?a2:a1;s.value=Math.min(80,+s.value+1);s.dispatchEvent(new Event('input'))}if(e.key==='ArrowUp'){const idx=state.current;const s=idx?p2:p1;s.value=Math.min(100,+s.value+1);s.dispatchEvent(new Event('input'))}if(e.key==='ArrowDown'){const idx=state.current;const s=idx?p2:p1;s.value=Math.max(20,+s.value-1);s.dispatchEvent(new Event('input'))}});
+
+function fire(i=state.current){if(state.over||state.proj)return;const c=state.cannons[i];const ang=state.angles[i]*Math.PI/180;const theta=i===0?ang:Math.PI-ang;const t=(state.powers[i]-20)/80;const v0=18+Math.pow(Math.max(0,Math.min(1,t)),0.85)*37;state.proj={x:c.x,y:c.y,vx:Math.cos(theta)*v0,vy:-Math.sin(theta)*v0,owner:i,age:0};statusEl.textContent=`Player ${i+1} fired!`}
+
+function makeCrater(px){const w=cvs.clientWidth,h=cvs.clientHeight;const pts=state.pts;const cx=Math.max(0,Math.min(pts-1,Math.floor((px/w)*(pts-1))));const rPx=Math.max(24,w*0.035);const dPx=Math.max(10,h*0.03);const r=Math.max(2,Math.floor((rPx/w)*(pts-1)));for(let j=-r;j<=r;j++){const i=cx+j;if(i<0||i>=pts)continue;const t=j/r;const fall=0.5*(1+Math.cos(Math.PI*t));state.terrain[i]=Math.min(h*0.96,state.terrain[i]+dPx*fall)}for(let k=0;k<2;k++){for(let i=Math.max(1,cx-r);i<Math.min(pts-1,cx+r);i++){state.terrain[i]=(state.terrain[i-1]+state.terrain[i]+state.terrain[i+1])/3}}}
+
+function spawnBurst(x,y,color){const n=28;for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2;const sp=60+Math.random()*90;state.fx.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:0.6,ttl:0.6,size:2+Math.random()*2,color,ay:300})}}
+function spawnExplosion(x,y){const n=48;for(let i=0;i<n;i++){const a=-Math.PI+Math.random()*Math.PI;const sp=120+Math.random()*180;state.fx.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:0.9,ttl:0.9,size:3+Math.random()*3,color:'#ffd166',ay:300})}}
+function spawnSmoke(x,y){const n=30;for(let i=0;i<n;i++){const a=-Math.PI/2+(Math.random()-0.5)*1.2;const sp=10+Math.random()*35;state.fx.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp*2,life:1.4,ttl:1.4,size:6+Math.random()*4,color:'rgba(200,200,200,0.85)',ay:-20,grow:10})}}
+
+function updateEffects(dt){for(let i=state.fx.length-1;i>=0;i--){const p=state.fx[i];p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=((p.ay!=null)?p.ay:260)*dt;if(p.grow)p.size+=p.grow*dt;if(p.life<=0)state.fx.splice(i,1)}}
+
+function step(dt){
+  if(!state.proj){updateEffects(dt);return}
+  const p=state.proj;
+  p.age+=dt;p.vx+=state.wind*dt;p.vy+=G*dt;p.x+=m2p(p.vx*dt);p.y+=m2p(p.vy*dt);
+  const hitIdxAir=checkHit(p.x,p.y);
+  if(hitIdxAir!==-1&&(hitIdxAir!==p.owner||p.age>0.12)){
+    spawnExplosion(p.x,p.y);spawnSmoke(p.x,p.y);
+    const shooter=state.current;const winner=hitIdxAir===shooter?(shooter^1):shooter;endRound(winner);return
+  }
+  if(p.x<-40||p.x>cvs.clientWidth+40||p.y>cvs.clientHeight+40){state.proj=null;changeTurn();updateEffects(dt);return}
+  const ty=terrainY(p.x);
+  if(p.y>=ty){
+    const hitIdx=checkHit(p.x,p.y);
+    if(hitIdx!==-1&&(hitIdx!==p.owner||p.age>0.12)){
+      spawnExplosion(p.x,p.y);spawnSmoke(p.x,p.y);
+      const shooter=state.current;const winner=hitIdx===shooter?(shooter^1):shooter;endRound(winner)
+    }else{
+      spawnBurst(p.x,ty,'#eab308');
+      makeCrater(p.x);
+      state.proj=null;changeTurn()
     }
-    window.addEventListener('resize', () => { if(proj===null){
-      resizeCanvas(); generateTerrain(); positionTowers(); drawScene(); }
-    });
-    resizeCanvas();
+  }
+  updateEffects(dt);
+}
 
-    angleIn.oninput = ()=> angleVal.textContent=angleIn.value+'°';
-    powerIn.oninput = ()=> powerVal.textContent=powerIn.value;
+function changeTurn(){state.current^=1;updateTurnUI();statusEl.textContent=`Player ${state.current+1}'s turn`}
+function checkHit(px,py){for(let i=0;i<2;i++){const c=state.cannons[i];if(Math.hypot(px-c.x,py-c.y)<m2p(state.radius))return i}return-1}
 
-    const m2px=2, g=0.2, towerH=25*m2px, towerW=20;
-    const marginM=50, marginPx=marginM*m2px;
-    const minSep=150, reqMax=500, pwrMax=200;
-    const maxRangePx=(pwrMax/10)**2/g;
-    const trueMaxM=maxRangePx/m2px;
-    const maxSep=Math.min(reqMax,trueMaxM);
+function draw(){const w=cvs.clientWidth,h=cvs.clientHeight;ctx.clearRect(0,0,w,h);ctx.beginPath();for(let i=0;i<state.pts;i++){const x=i/(state.pts-1)*w;const y=state.terrain[i];if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)}ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.closePath();ctx.fillStyle='#143';ctx.fill();const rpx=m2p(state.radius),bl=m2p(state.barrelLen);state.cannons.forEach((c,i)=>{ctx.fillStyle=c.color;ctx.beginPath();ctx.arc(c.x,c.y,rpx,0,Math.PI*2);ctx.fill();const a=state.angles[i]*Math.PI/180;const theta=i===0?a:Math.PI-a;const bx=c.x+Math.cos(theta)*rpx*0.9;const by=c.y-Math.sin(theta)*rpx*0.9;ctx.strokeStyle='#e5e7eb';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(bx,by);ctx.lineTo(bx+Math.cos(theta)*bl,by-Math.sin(theta)*bl);ctx.stroke()});if(state.proj){ctx.fillStyle='#ffd166';ctx.beginPath();ctx.arc(state.proj.x,state.proj.y,3,0,Math.PI*2);ctx.fill()}if(!state.proj&&!state.over){const i=state.current;const c=state.cannons[i];const a=state.angles[i]*Math.PI/180;const theta=i===0?a:Math.PI-a;const v0=18+Math.pow(Math.max(0,Math.min(1,(state.powers[i]-20)/80)),0.85)*37;let x=c.x,y=c.y,vx=Math.cos(theta)*v0,vy=-Math.sin(theta)*v0;ctx.save();ctx.setLineDash([4,6]);ctx.strokeStyle='#94a3b8';ctx.beginPath();ctx.moveTo(x,y);for(let t=0;t<4/9;t+=0.05){vx+=state.wind*0.05;vy+=G*0.05;x+=m2p(vx*0.05);y+=m2p(vy*0.05);if(y>=terrainY(x)||x<0||x>w||y>h)break;ctx.lineTo(x,y)}ctx.stroke();ctx.restore()}for(const p of state.fx){const a=Math.max(0,p.life/p.ttl);ctx.globalAlpha=a;ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1}if(state.splash){ctx.save();ctx.globalAlpha=0.7;ctx.fillStyle='#000';ctx.fillRect(0,0,w,h);ctx.globalAlpha=1;ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='bold 48px system-ui, sans-serif';const title=state.splash.win?`Player ${state.splash.winner+1} Wins!`:`Player ${state.splash.winner+1} Scores!`;ctx.fillText(title,w/2,h/2-26);ctx.font='800 64px system-ui, sans-serif';ctx.fillText(`${state.score[0]} : ${state.score[1]}`,w/2,h/2+26);ctx.restore()}ctx.fillStyle='#e5e7eb';ctx.font='12px system-ui, sans-serif';ctx.fillText(`Wind: ${state.wind} m/s² (→ positive)`,8,16)}
 
-    let terrain=[], towers=[{},{}], wind=0;
-    let proj=null, trail=[];
-    let score1=0, score2=0, player=1, turns=0, animId;
+function loop(ts){if(!state.last)state.last=ts;const dt=Math.min(0.03,(ts-state.last)/1000);state.last=ts;step(dt);draw();requestAnimationFrame(loop)}
 
-    function updateScore(){ scoreEl.textContent=`Player 1: ${score1}   |   Player 2: ${score2}`; }
+function runSanity(){
+  const snap=JSON.stringify(state);
+  try{
+    console.assert(typeof fire==='function');
+    console.assert(typeof step==='function');
+    console.assert(typeof makeCrater==='function');
+    const tBefore=state.terrain.slice();
+    makeCrater(cvs.clientWidth*0.5);
+    const tAfter=state.terrain.slice();
+    console.assert(tBefore.some((v,i)=>v!==tAfter[i]));
+    state.terrain=tBefore;
+    const saved=state.proj; state.current=0; state.proj={x:state.cannons[0].x,y:state.cannons[0].y,vx:20,vy:-20,owner:0,age:0.2};
+    step(0.016);
+    state.proj=saved;
+  }catch(e){console.warn('Sanity failed',e)}
+  Object.assign(state, JSON.parse(snap));
+}
 
-    function generateTerrain(){ terrain=[]; const waves=4, amps=[], freqs=[], phases=[];
-      for(let i=0;i<waves;i++){ amps.push(H/8+Math.random()*(H/8)); freqs.push(0.002+Math.random()*0.004); phases.push(Math.random()*2*Math.PI); }
-      for(let x=0;x<W;x++){ let y=H*0.75; for(let i=0;i<waves;i++) y+=amps[i]*Math.sin(freqs[i]*x+phases[i]); terrain[x]=y;} }
-
-    function positionTowers(){ let sepM; do{ sepM=minSep+Math.random()*(maxSep-minSep); }
-      while(turns>0&&Math.abs(sepM-(towers[1].x-towers[0].x)/m2px)<20);
-      const sepPx=sepM*m2px;
-      const halfW=towerW/2, minX=marginPx+halfW;
-      const maxX=W-marginPx-halfW-sepPx;
-      const x1=minX+Math.random()*(maxX-minX);
-      towers[0].x=x1; towers[1].x=x1+sepPx;
-      towers.forEach(t=>t.y=terrain[Math.floor(t.x)]-towerH);
-      wind=(Math.random()-0.5)*0.1;
-    }
-
-    function drawScene(){ ctx.clearRect(0,0,W,H);
-      ctx.fillStyle='#228B22'; ctx.beginPath(); ctx.moveTo(0,H);
-      terrain.forEach((y,x)=>ctx.lineTo(x,y)); ctx.lineTo(W,H); ctx.fill();
-      ctx.fillStyle='rgba(255,215,0,0.7)'; trail.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,2,0,2*Math.PI);ctx.fill();});
-      if(proj){ctx.fillStyle='#FFD700';ctx.beginPath();ctx.arc(proj.x,proj.y,5,0,2*Math.PI);ctx.fill();}
-      ctx.fillStyle='#808080'; towers.forEach(t=>ctx.fillRect(t.x-towerW/2,t.y,towerW,towerH));
-      const active=towers[player-1], col=player===1?'red':'blue';
-      ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(active.x,active.y);ctx.lineTo(active.x,active.y-towerH);ctx.stroke();
-      ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(active.x,active.y-towerH);
-      if(player===1){ctx.lineTo(active.x+20,active.y-towerH+10);ctx.lineTo(active.x,active.y-towerH+20);} else{ctx.lineTo(active.x-20,active.y-towerH+10);ctx.lineTo(active.x,active.y-towerH+20);}ctx.closePath();ctx.fill();
-      ctx.fillStyle='#fff';ctx.fillText(`Wind: ${wind.toFixed(3)}`,W-160,20);
-      const bx=W-80,by=40;ctx.strokeStyle='#FFA500';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(bx,by-10);ctx.lineTo(bx,by+10);ctx.stroke();
-      const tilt=wind*200;ctx.fillStyle='#FFA500';ctx.beginPath();ctx.moveTo(bx,by);ctx.lineTo(bx+tilt,by-8);ctx.lineTo(bx+tilt,by+8);ctx.closePath();ctx.fill(); }
-
-    function carveCrater(cx){ const r=20; for(let dx=-r;dx<=r;dx++){ const x=Math.round(cx+dx); if(x<0||x>=W) continue; const dy=Math.sqrt(r*r-dx*dx); terrain[x]=Math.max(terrain[x],proj.y+dy);} }
-    function segmentHitsTower(x0,y0,x1,y1){const t=towers[player===1?1:0],rect={x:t.x-towerW/2,y:t.y,w:towerW,h:towerH},steps=Math.ceil(Math.hypot(x1-x0,y1-y0)/2);for(let i=0;i<=steps;i++){const u=i/steps,x=x0+(x1-x0)*u,y=y0+(y1-y0)*u; if(x>=rect.x&&x<=rect.x+rect.w&&y>=rect.y&&y<=rect.y+rect.h) return true;} return false;}
-
-    function endTurn(hit){cancelAnimationFrame(animId);carveCrater(proj.x);drawScene();
-      if(hit){
-        if(player===1&&hit) score1++; else if(player===2&&hit) score2++;
-        updateScore();
-        splashText.textContent=`Player ${player} Wins!`; splash.style.display='flex'; }
-      else{ setTimeout(()=>{player=3-player;msgEl.textContent=`Miss! Player ${player}'s turn`;btn.disabled=false;drawScene();turns++;},100);}
-      proj=null;trail=[]; }
-
-    function animate(){animId=requestAnimationFrame(animate);const px=proj.x,py=proj.y;proj.vx+=wind;proj.vy+=g;proj.x+=proj.vx;proj.y+=proj.vy;trail.push({x:proj.x,y:proj.y});const hitPath=segmentHitsTower(px,py,proj.x,proj.y);const idx=Math.round(proj.x);const groundHit=idx>=0&&idx<W&&proj.y>=terrain[idx];if(hitPath||groundHit||proj.y>H||idx<0||idx>=W)endTurn(hitPath);else drawScene();}
-
-    function launch(){proj={x:towers[player-1].x,y:towers[player-1].y,vx:(player===1?1:-1)*Math.cos(angleIn.value*Math.PI/180)*(powerIn.value/10),vy:-Math.sin(angleIn.value*Math.PI/180)*(powerIn.value/10)};trail=[];btn.disabled=true;msgEl.textContent='';animate();}
-
-    continueBtn.onclick=()=>{splash.style.display='none';turns=0;startRound();};
-    function startRound(){generateTerrain();positionTowers();proj=null;trail=[];drawScene();updateScore();msgEl.textContent=`Player ${player}'s turn`;btn.disabled=false;}
-    updateScore();startRound();btn.onclick=launch;
-  })();</script>
+(function(){resize();state.terrain=genTerrain();placeCannons();updateScore();startRound(true);runSanity();requestAnimationFrame(loop)})();
+</script>
 </body>
 </html>
-
