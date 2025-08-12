@@ -1,292 +1,68 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Unit Plan: Measurement in Physics</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Chosen Palette: Calm Harmony (Warm Neutrals with Muted Blue Accent) -->
-    <!-- Application Structure Plan: A tabbed SPA with 'At-a-Glance', 'Pacing Guide', and 'Resources' sections. This non-linear dashboard structure allows teachers to quickly access specific information (like a single day's plan or a list of labs) more efficiently than a linear document. The core interaction is clicking a day card in the Pacing Guide to open a modal with details, keeping the main view uncluttered. -->
-    <!-- Visualization & Content Choices: Report Info: DOK level progression -> Goal: Show cognitive arc -> Viz: Bar Chart (Chart.js) -> Interaction: Hover for details -> Justification: Provides a quick visual summary of the unit's rigor over time. Report Info: Daily lesson plans -> Goal: Organize & Detail -> Presentation: Interactive Cards + Modal -> Interaction: Click to reveal -> Justification: Cleaner UI than a long list, focuses user attention. -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        .nav-active {
-            border-bottom-color: #3b82f6;
-            color: #3b82f6;
-            font-weight: 600;
-        }
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 900px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 250px;
-            max-height: 300px;
-        }
-        @media (min-width: 768px) {
-            .chart-container {
-                height: 300px;
-                max-height: 350px;
-            }
-        }
-    </style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Unit 1: Intro to Physics • Mr. Mudry’s Physics</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml"/>
+  <link rel="apple-touch-icon" href="apple-touch-icon.svg"/>
+  <link rel="stylesheet" href="assets/theme.css"/>
 </head>
-<body class="bg-slate-50 text-slate-800">
+<body>
+<header class="site-header" role="banner">
+  <div class="container nav">
+    <a class="brand" href="index.html"><img src="panther-logo.svg" alt="Orange High Panthers logo"><span>Mr. Mudry’s Physics</span></a>
+    <nav class="menu" aria-label="Primary">
+      <a href="index.html">Home</a>
+      <a href="lesson-plans.html">Lesson Plans</a>
+      <a href="resources.html">Resources</a>
+      <a href="circuit-game.html">Circuit Game</a>
+      <a href="games.html">Games</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </div>
+</header>
 
-    <div id="app-container" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        <header class="text-center mb-8">
-            <h1 class="text-3xl md:text-4xl font-bold text-slate-900">Interactive Unit Plan</h1>
-            <p class="text-lg text-slate-600 mt-1">Measurement in Physics</p>
-        </header>
-
-        <nav class="flex justify-center border-b border-slate-200 mb-8">
-            <button data-target="at-a-glance" class="nav-btn py-4 px-6 text-slate-600 border-b-2 border-transparent hover:border-blue-500 hover:text-blue-500 transition-colors duration-200 nav-active">At a Glance</button>
-            <button data-target="pacing-guide" class="nav-btn py-4 px-6 text-slate-600 border-b-2 border-transparent hover:border-blue-500 hover:text-blue-500 transition-colors duration-200">Pacing Guide</button>
-            <button data-target="resources" class="nav-btn py-4 px-6 text-slate-600 border-b-2 border-transparent hover:border-blue-500 hover:text-blue-500 transition-colors duration-200">Resources</button>
-        </nav>
-
-        <main id="main-content">
-            
-            <section id="at-a-glance" class="content-section">
-                <div class="space-y-8">
-                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
-                        <h2 class="text-2xl font-semibold mb-3 text-slate-900">Unit Overview</h2>
-                        <p class="text-slate-700">This unit establishes the fundamental language of physics: measurement. Students will begin by understanding the critical need for a standardized system of units (SI) and will learn to identify and use base and derived units. They will develop skills in unit conversion, scientific notation, and assessing the quality of measurements (accuracy, precision, and significant figures). The unit culminates in students applying these skills to solve complex problems and design their own scientific investigations, building a strong foundation for all future physics topics.</p>
-                    </div>
-
-                    <div class="grid md:grid-cols-2 gap-8">
-                        <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
-                            <h2 class="text-2xl font-semibold mb-3 text-slate-900">Essential Questions</h2>
-                            <ul class="list-disc list-inside space-y-2 text-slate-700">
-                                <li>Why is a universal standard for measurement essential for science and society?</li>
-                                <li>How does the way we measure something affect what we know about it?</li>
-                                <li>How can we mathematically represent and communicate quantities that are incredibly large or small?</li>
-                                <li>When is a measurement "good enough"?</li>
-                            </ul>
-                        </div>
-                        <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
-                            <h2 class="text-2xl font-semibold mb-3 text-slate-900">Key Vocabulary</h2>
-                            <ul class="list-disc list-inside space-y-2 text-slate-700">
-                                <li>SI System & Base Units (m, kg, s, A, K, mol, cd)</li>
-                                <li>Derived Units (N, J, m/s, g/cm³)</li>
-                                <li>Scientific Notation & Factor-Label Method</li>
-                                <li>Accuracy, Precision, & Significant Figures</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
-                        <h2 class="text-2xl font-semibold mb-3 text-slate-900">Learning Objectives</h2>
-                        <p class="text-slate-700 mb-4">By the end of this unit, students will be able to:</p>
-                        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
-                            <div class="bg-slate-50 p-3 rounded-md"><strong>DOK 1:</strong> Identify the seven SI base units and their corresponding quantities.</div>
-                            <div class="bg-slate-50 p-3 rounded-md"><strong>DOK 2:</strong> Convert between units using the factor-label method.</div>
-                            <div class="bg-slate-50 p-3 rounded-md"><strong>DOK 2:</strong> Differentiate between accuracy and precision.</div>
-                            <div class="bg-slate-50 p-3 rounded-md"><strong>DOK 3:</strong> Justify the choice of appropriate SI units for calculating derived quantities.</div>
-                            <div class="bg-slate-50 p-3 rounded-md"><strong>DOK 4:</strong> Design a valid experiment to determine a physical constant.</div>
-                            <div class="bg-slate-50 p-3 rounded-md"><strong>DOK 4:</strong> Construct an evidence-based argument for the SI system.</div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="pacing-guide" class="content-section hidden">
-                <div class="text-center mb-8">
-                    <h2 class="text-2xl font-semibold text-slate-900">Unit Pacing & Cognitive Demand</h2>
-                    <p class="text-slate-600 mt-1">This chart shows the primary Depth of Knowledge (DOK) level for each day's main activity, illustrating the unit's progression.</p>
-                </div>
-                <div class="chart-container mb-12">
-                    <canvas id="dokChart"></canvas>
-                </div>
-                <div class="text-center mb-8">
-                    <h2 class="text-2xl font-semibold text-slate-900">Daily Lesson Cards</h2>
-                    <p class="text-slate-600 mt-1">Click on a card to view the detailed plan for that day.</p>
-                </div>
-                <div id="pacing-cards-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                </div>
-            </section>
-
-            <section id="resources" class="content-section hidden">
-                <div class="space-y-8">
-                    <div>
-                        <h2 class="text-2xl font-semibold mb-4 text-slate-900">Hands-On Labs & Activities</h2>
-                        <p class="text-slate-600 mb-4">These activities provide students with practical, hands-on experience with the concepts of measurement, accuracy, and experimental design.</p>
-                        <ul id="labs-list" class="space-y-3"></ul>
-                    </div>
-                    <div>
-                        <h2 class="text-2xl font-semibold mb-4 text-slate-900">Assessments & Check-Ins</h2>
-                        <p class="text-slate-600 mb-4">Use these tools to gauge student understanding at key points throughout the unit.</p>
-                        <ul id="assessments-list" class="space-y-3"></ul>
-                    </div>
-                </div>
-            </section>
-
-        </main>
+<main role="main">
+  <section class="hero">
+    <div class="container">
+      <h1>Unit 1 • Intro to Physics</h1>
+      <div class="energy-bar" aria-hidden="true"></div>
+      <p class="subtitle">Measurement, safety, error analysis, and modeling. SEL: team norms + daily check-ins.</p>
     </div>
+  </section>
 
-    <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div class="p-6">
-                <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <h3 id="modal-title" class="text-2xl font-bold text-slate-900"></h3>
-                        <p id="modal-subtitle" class="text-slate-500"></p>
-                    </div>
-                    <button id="close-modal" class="text-slate-400 hover:text-slate-800 transition-colors">&times;</button>
-                </div>
-                <div id="modal-content" class="text-slate-700 space-y-4"></div>
-            </div>
-        </div>
+  <section class="container section angle-bottom" aria-labelledby="u1-scope">
+    <h2 id="u1-scope">Scope & Sequence</h2>
+    <div class="grid">
+      <article class="card">
+        <h3>U1D1: Welcome & Safety</h3>
+        <p>Intro norms, lab safety tour, expectations. SEL: “Rose/Bud/Thorn” opener.</p>
+        <a class="btn" href="#">Open</a>
+      </article>
+      <article class="card">
+        <h3>U1D2: Measuring Like a Scientist</h3>
+        <p>Rulers, uncertainty, significant figures; quick timed stations.</p>
+        <a class="btn" href="#">Open</a>
+      </article>
+      <article class="card">
+        <h3>U1D3: Error & Averaging</h3>
+        <p>Systematic vs. random error; 3× trials lab with class share-out.</p>
+        <a class="btn" href="#">Open</a>
+      </article>
     </div>
+  </section>
+</main>
 
-    <script>
-        const unitData = [
-            { day: 1, week: 1, topic: 'Why Standardize?', dok: 1, activity: 'Students measure an object with non-standard units (their hand, a pencil) and then a standard unit (a ruler). Discuss the variation and the need for the SI system. Introduce the 7 base units.', type: 'Activity' },
-            { day: 2, week: 1, topic: 'The Language of SI', dok: 1, activity: 'Guided notes and practice on SI base units and metric prefixes. Use a mnemonic device. Low-stakes recall games (Quizlet, Kahoot) on matching units to quantities.', type: 'Practice' },
-            { day: 3, week: 1, topic: 'Unit Conversions', dok: 2, activity: '"I do, We do, You do" guided practice. Students work through converting single-step and multi-step problems (e.g., km/h to m/s) using the factor-label method.', type: 'Practice' },
-            { day: 4, week: 1, topic: 'Quality of Measurement', dok: 2, activity: 'Use the "dartboard" analogy for accuracy vs. precision. Lab: Students perform a simple measurement (e.g., length of a block) and analyze their data for accuracy and precision.', type: 'Lab' },
-            { day: 5, week: 1, topic: 'Practice & Check-In', dok: 2, activity: 'Station rotation with practice problems on conversions and significant figures. A short formative quiz to check understanding.', type: 'Assessment' },
-            { day: 6, week: 2, topic: 'Derived Units', dok: 3, activity: 'Lab: Students are given blocks of known materials. They measure mass and dimensions, calculate density, and compare to the known value. They must justify their choice of units.', type: 'Lab' },
-            { day: 7, week: 2, topic: 'Complex Measurement Lab', dok: 3, activity: 'Lab: "Find the Density of a Rock." Students design a procedure using water displacement, choose the correct tools, and justify their unit choices to find the density in SI units.', type: 'Lab' },
-            { day: 8, week: 2, topic: 'Experimental Design', dok: 4, activity: 'Challenge: Design an experiment to determine g using only a meter stick and a stopwatch. Groups outline procedure, variables, measurements, and formula.', type: 'Activity' },
-            { day: 9, week: 2, topic: 'The "Why" of the SI System', dok: 4, activity: 'Group research or jigsaw activity on the history of the SI system. Conclude with a structured debate or a written argument on why a standard system is crucial for global science.', type: 'Activity' },
-            { day: 10, week: 2, topic: 'Unit Review & Assessment', dok: 3, activity: 'Review game followed by a summative test that includes a mix of DOK 1-3 problems and one DOK 4-level question (e.g., the experimental design or argumentation prompt).', type: 'Assessment' },
-        ];
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const mainContent = document.getElementById('main-content');
-            const navButtons = document.querySelectorAll('.nav-btn');
-            const contentSections = document.querySelectorAll('.content-section');
-            const pacingCardsContainer = document.getElementById('pacing-cards-container');
-            const modal = document.getElementById('modal');
-            const closeModalBtn = document.getElementById('close-modal');
-            
-            const modalTitle = document.getElementById('modal-title');
-            const modalSubtitle = document.getElementById('modal-subtitle');
-            const modalContent = document.getElementById('modal-content');
-
-            const labsList = document.getElementById('labs-list');
-            const assessmentsList = document.getElementById('assessments-list');
-
-            function switchTab(targetId) {
-                contentSections.forEach(section => {
-                    section.classList.toggle('hidden', section.id !== targetId);
-                });
-                navButtons.forEach(button => {
-                    button.classList.toggle('nav-active', button.dataset.target === targetId);
-                });
-            }
-
-            navButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    switchTab(button.dataset.target);
-                });
-            });
-
-            function openModal(dayData) {
-                modalTitle.textContent = `Day ${dayData.day}: ${dayData.topic}`;
-                modalSubtitle.textContent = `Week ${dayData.week} • DOK Level: ${dayData.dok}`;
-                modalContent.innerHTML = `<p>${dayData.activity}</p>`;
-                modal.classList.remove('hidden');
-            }
-
-            closeModalBtn.addEventListener('click', () => modal.classList.add('hidden'));
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    modal.classList.add('hidden');
-                }
-            });
-
-            unitData.forEach(day => {
-                const card = document.createElement('div');
-                card.className = 'bg-white p-4 rounded-lg shadow-sm border border-slate-200 hover:shadow-md hover:-translate-y-1 transition-all duration-200 cursor-pointer';
-                card.innerHTML = `
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="font-bold text-slate-800">Day ${day.day}</span>
-                        <span class="text-xs font-semibold bg-blue-100 text-blue-800 px-2 py-1 rounded-full">DOK ${day.dok}</span>
-                    </div>
-                    <p class="text-slate-600 text-sm">${day.topic}</p>
-                `;
-                card.addEventListener('click', () => openModal(day));
-                pacingCardsContainer.appendChild(card);
-                
-                const resourceItem = document.createElement('li');
-                resourceItem.className = 'bg-white p-4 rounded-lg shadow-sm border border-slate-200';
-                resourceItem.innerHTML = `
-                    <p class="font-semibold text-slate-800">Day ${day.day}: ${day.topic}</p>
-                    <p class="text-sm text-slate-600 mt-1">${day.activity}</p>
-                `;
-
-                if (day.type === 'Lab') {
-                    labsList.appendChild(resourceItem);
-                } else if (day.type === 'Assessment') {
-                    assessmentsList.appendChild(resourceItem);
-                }
-            });
-
-            const dokCtx = document.getElementById('dokChart').getContext('2d');
-            new Chart(dokCtx, {
-                type: 'bar',
-                data: {
-                    labels: unitData.map(d => `Day ${d.day}`),
-                    datasets: [{
-                        label: 'DOK Level',
-                        data: unitData.map(d => d.dok),
-                        backgroundColor: 'rgba(59, 130, 246, 0.5)',
-                        borderColor: 'rgba(59, 130, 246, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 4,
-                            ticks: {
-                                stepSize: 1
-                            },
-                            title: {
-                                display: true,
-                                text: 'Depth of Knowledge (DOK)'
-                            }
-                        },
-                        x: {
-                           title: {
-                                display: true,
-                                text: 'Lesson Day'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            callbacks: {
-                                title: function(context) {
-                                    const index = context[0].dataIndex;
-                                    return `Day ${unitData[index].day}: ${unitData[index].topic}`;
-                                },
-                                label: function(context) {
-                                    return `DOK Level: ${context.raw}`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        });
-    </script>
+<footer class="site-footer" role="contentinfo">
+  <div class="container foot">
+    <p>© 2025 Mr. Mudry • Orange High School Panthers</p>
+    <nav class="foot-links" aria-label="Footer">
+      <a href="contact.html">Contact</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="accessibility.html">Accessibility</a>
+    </nav>
+  </div>
+</footer>
 </body>
 </html>
