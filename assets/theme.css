@@ -1,5 +1,6 @@
 :root{
-  --brand:#ff6a00; /* your orange (swap if needed) */
+  --brand:#ff6a00; /* your orange */
+  --brand-dark:#cc5200;
   --ink:#0f0f0f;
   --ink-dim:#4a4a4a;
   --bg:#ffffff;
@@ -17,20 +18,14 @@ a,button{outline:none}
 a:focus-visible,button:focus-visible{box-shadow:0 0 0 3px var(--ring); border-radius:12px}
 .container{max-width:1120px; margin:auto; padding:0 var(--space-3)}
 
-/* Header */
+/* Header / Nav */
 .site-header{position:sticky; top:0; background:#fff; border-bottom:1px solid #eee; z-index:50; backdrop-filter:saturate(1.2) blur(4px)}
 .nav{display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) 0}
 .brand{display:flex; align-items:center; gap:.65rem; text-decoration:none; color:var(--ink); font-weight:800}
-.brand .logo{width:44px; height:44px; border-radius:50%; background:var(--brand); display:grid; place-items:center; color:#fff; font-weight:900}
-.menu{display:flex; gap:.25rem}
+.brand img{width:44px; height:44px}
+.menu{display:flex; gap:.25rem; margin-left:auto; flex-wrap:wrap}
 .menu a{padding:.6rem .9rem; border-radius:12px; text-decoration:none; color:var(--ink-dim)}
 .menu a:hover,.menu a.active{background:var(--bg-muted); color:var(--ink)}
-.nav-toggle{display:none; margin-left:auto; padding:.5rem .75rem; border-radius:10px; border:1px solid #ddd; background:#fff}
-@media (max-width: 840px){
-  .menu{display:none; flex-direction:column; background:#fff; padding:var(--space-3); border:1px solid #eee; border-radius:12px; position:absolute; right:1rem; top:72px; box-shadow:var(--shadow)}
-  .nav-toggle{display:inline-flex}
-  .menu[data-open="true"]{display:flex}
-}
 
 /* Hero: immersive panther background */
 .hero{
@@ -45,19 +40,19 @@ a:focus-visible,button:focus-visible{box-shadow:0 0 0 3px var(--ring); border-ra
 }
 .hero::after{
   content:""; position:absolute; inset:0; z-index:-1;
-  background: linear-gradient(180deg, rgba(0,0,0,.25), rgba(0,0,0,0) 60%);
+  background: linear-gradient(180deg, rgba(0,0,0,.20), rgba(0,0,0,0) 60%);
   mix-blend-mode:multiply;
 }
 .hero h1{margin:0 0 .35rem; font-size:clamp(30px, 5.2vw, 56px); letter-spacing:.3px; color:#111}
-.hero .energy-bar{width:80px; height:4px; border-radius:999px; background:var(--brand); margin:.25rem 0 var(--space-3); overflow:hidden; position:relative}
+.hero .energy-bar{width:90px; height:4px; border-radius:999px; background:var(--brand); margin:.25rem 0 var(--space-3); overflow:hidden; position:relative}
 .hero .energy-bar::after{content:""; position:absolute; inset:0; transform:translateX(-100%); background:linear-gradient(90deg, transparent, #fff8, transparent); animation: sweep 2.2s ease-in-out infinite}
 @keyframes sweep{50%{transform:translateX(0)} 100%{transform:translateX(100%)}}
-.hero .subtitle{margin:0 0 var(--space-4); color:#222; max-width:46ch}
+.hero .subtitle{margin:0 0 var(--space-4); color:#222; max-width:60ch}
+.cta-row{display:flex; flex-wrap:wrap; gap:var(--space-2)}
 
 /* Sections & angled dividers */
 .section{padding: var(--space-6) 0; position:relative}
-.section.angle-top{--cut: 5vw; clip-path: polygon(0 var(--cut), 100% 0, 100% 100%, 0 100%); background:#fff}
-.section.angle-bottom{--cut: 5vw; clip-path: polygon(0 0, 100% var(--cut), 100% 100%, 0 100%)}
+.angle-bottom{--cut: 5vw; clip-path: polygon(0 0, 100% var(--cut), 100% 100%, 0 100%); background:#fff}
 
 /* Buttons */
 .btn{display:inline-block; padding:.85rem 1.1rem; border-radius:999px; border:1px solid #ddd; text-decoration:none; color:var(--ink); transition:transform .12s ease, box-shadow .12s ease}
@@ -69,7 +64,7 @@ a:focus-visible,button:focus-visible{box-shadow:0 0 0 3px var(--ring); border-ra
 .announcements li{background:var(--card); border:1px solid #eee; border-radius:16px; padding:var(--space-3); display:flex; gap:1rem; align-items:flex-start; box-shadow: var(--shadow)}
 .announcements time{background:var(--bg-muted); border-radius:999px; padding:.25rem .6rem; font-variant-numeric: tabular-nums; color:var(--ink); white-space:nowrap}
 
-/* Cards with glow */
+/* Cards */
 .grid{display:grid; gap:var(--space-3); grid-template-columns: repeat(12, 1fr)}
 .card{grid-column: span 12; padding:var(--space-4); border:1px solid #eee; border-radius:var(--radius); box-shadow:var(--shadow); background:var(--card); position:relative}
 .card:hover{transform:translateY(-2px); box-shadow: 0 18px 42px rgba(255,106,0,.18)}
@@ -78,7 +73,7 @@ a:focus-visible,button:focus-visible{box-shadow:0 0 0 3px var(--ring); border-ra
 @media(min-width:720px){ .card{grid-column: span 6} }
 @media(min-width:1024px){ .card{grid-column: span 4} }
 
-/* Footer with subtle mascot pattern */
+/* Footer */
 .site-footer{border-top:1px solid #eee; background:
   radial-gradient(600px 300px at 80% 0%, rgba(255,106,0,.08), transparent 70%),
   #fff;
