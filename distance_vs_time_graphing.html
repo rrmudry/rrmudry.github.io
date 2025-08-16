@@ -5,33 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Interactive Distance vs. Time Grapher</title>
   <style>
-    body {font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;margin:0;padding:20px;background-color:#eef1f5;color:#333;display:flex;flex-direction:column;align-items:center}
-    .container {background-color:#fff;padding:25px;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,0.1);width:95%;max-width:850px;margin-bottom:25px}
+    body {font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;margin:0;padding:20px;background:#eef1f5;color:#333;display:flex;flex-direction:column;align-items:center}
+    .container {background:#fff;padding:25px;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,.1);width:95%;max-width:880px;margin-bottom:25px}
     h1,h2 {color:#2c3e50;text-align:center;margin-top:0} h1{margin-bottom:20px} h2{margin-bottom:15px}
-    .controls,.simulation-area,.graph-area,.explanation,.llm-interaction {margin-bottom:25px;padding:20px;border:1px solid #dbe0e6;border-radius:8px;background-color:#f9fafb}
-    label {display:inline-block;margin-right:8px;margin-bottom:8px;font-weight:500}
-    input[type="number"], input[type="text"] {padding:10px;margin-right:10px;margin-bottom:10px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box}
-    input[type="number"]{width:90px} input[type="text"]#llmQuery{width:calc(100% - 120px)}
-    button {padding:10px 18px;background-color:#3498db;color:#fff;border:none;border-radius:6px;cursor:pointer;margin-right:8px;transition:background-color .2s ease-in-out;font-weight:500}
-    button:hover {background-color:#2980b9}
-    #resetBtn{background-color:#e74c3c} #resetBtn:hover{background-color:#c0392b}
-    #askLLMBtn{background-color:#2ecc71} #askLLMBtn:hover{background-color:#27ae60}
-    #segmentsList{list-style-type:decimal;padding-left:25px}
-    #segmentsList li{margin-bottom:6px;background-color:#e9edf0;padding:8px;border-radius:4px;font-size:.95em}
-    .simulation-area{height:70px;position:relative;background-color:#e0e4e8;border:1px solid #c8cdd3;overflow:hidden}
-    #object{width:22px;height:22px;background-color:#e74c3c;border-radius:50%;position:absolute;left:10px;top:50%;transform:translateY(-50%);transition:left .05s linear}
-    #simInfo{position:absolute;top:5px;right:10px;font-size:.9em;background-color:rgba(255,255,255,.7);padding:5px;border-radius:4px}
-    canvas{border:1px solid #b0b8c0;background-color:#fff;display:block;margin:10px auto 0;cursor:crosshair}
-    #hoverInfo{position:absolute;background-color:rgba(0,0,0,.75);color:#fff;padding:5px 8px;border-radius:4px;font-size:.85em;pointer-events:none;display:none}
-    .llm-interaction textarea{width:calc(100% - 22px);height:120px;margin-top:10px;padding:10px;border:1px solid #ccc;border-radius:6px;font-family:inherit;font-size:.95em;resize:vertical;white-space:pre-wrap}
-    .llm-interaction small{display:block;margin-top:5px;color:#777;font-style:italic}
-    .status{font-size:.9em;color:#555;margin-top:6px}
-    .model-select {display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:6px}
-    .pill {display:inline-flex;align-items:center;gap:6px;background:#e9edf0;border:1px solid #d1d6dc;padding:6px 10px;border-radius:999px;font-size:.85em}
-    .pill input {margin:0}
+    .controls,.simulation-area,.graph-area,.explanation,.helper {margin-bottom:25px;padding:20px;border:1px solid #dbe0e6;border-radius:8px;background:#f9fafb}
+    label{display:inline-block;margin-right:8px;margin-bottom:8px;font-weight:500}
+    input[type="number"],input[type="text"]{padding:10px;margin-right:10px;margin-bottom:10px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box}
+    input[type="number"]{width:90px}
+    button{padding:10px 18px;background:#3498db;color:#fff;border:none;border-radius:6px;cursor:pointer;margin-right:8px;transition:background-color .2s ease-in-out;font-weight:500}
+    button:hover{background:#2980b9}
+    #resetBtn{background:#e74c3c} #resetBtn:hover{background:#c0392b}
+    #explainBtn{background:#2ecc71} #explainBtn:hover{background:#27ae60}
+    #segmentsList{list-style:decimal;padding-left:25px}
+    #segmentsList li{margin-bottom:6px;background:#e9edf0;padding:8px;border-radius:4px;font-size:.95em}
+    .simulation-area{height:70px;position:relative;background:#e0e4e8;border:1px solid #c8cdd3;overflow:hidden}
+    #object{width:22px;height:22px;background:#e74c3c;border-radius:50%;position:absolute;left:10px;top:50%;transform:translateY(-50%);transition:left .05s linear}
+    #simInfo{position:absolute;top:5px;right:10px;font-size:.9em;background:rgba(255,255,255,.7);padding:5px;border-radius:4px}
+    canvas{border:1px solid #b0b8c0;background:#fff;display:block;margin:10px auto 0;cursor:crosshair}
+    #hoverInfo{position:absolute;background:rgba(0,0,0,.75);color:#fff;padding:5px 8px;border-radius:4px;font-size:.85em;pointer-events:none;display:none}
+    .helper textarea{width:calc(100% - 22px);min-height:140px;margin-top:10px;padding:10px;border:1px solid #ccc;border-radius:6px;font-family:inherit;font-size:.95em;resize:vertical;white-space:pre-wrap}
+    details{background:#eef2f6;border:1px solid #dbe0e6;border-radius:6px;padding:10px;margin:8px 0}
+    details summary{cursor:pointer;font-weight:600}
+    .badge{display:inline-block;vertical-align:middle;border:1px solid #ccd2da;background:#f1f5f9;border-radius:999px;padding:2px 8px;font-size:.8em;margin-left:6px}
   </style>
-  <!-- WebLLM (on-device LLM via WebGPU). No API keys, works on GitHub Pages over HTTPS. -->
-  <script src="https://unpkg.com/@mlc-ai/web-llm@0.2.73/dist/index.min.js"></script>
 </head>
 <body>
   <div id="hoverInfo"></div>
@@ -52,6 +48,8 @@
       <div>
         <button id="runBtn">Run Simulation & Graph</button>
         <button id="resetBtn">Reset All</button>
+        <button id="explainBtn" title="Generate a plain‑English summary for students">Explain My Run</button>
+        <span class="badge" id="perfBadge" title="No downloads or servers required">Lightweight</span>
       </div>
     </div>
 
@@ -69,53 +67,60 @@
       <canvas id="dvtGraph" width="700" height="400"></canvas>
     </div>
 
-    <div class="llm-interaction">
-      <h2>Ask a Question (On‑Device AI)</h2>
-      <input type="text" id="llmQuery" placeholder="e.g., What does slope mean?" />
-      <button id="askLLMBtn">Ask</button>
-      <small>Runs 100% in your browser using WebGPU (no internet key or server). First load may download model weights.</small>
-      <div class="model-select">
-        <span>Model:</span>
-        <label class="pill"><input type="radio" name="model" value="Qwen2.5-0.5B-Instruct-q4f16_1-MLC" checked> Qwen2.5 0.5B (fastest)</label>
-        <label class="pill"><input type="radio" name="model" value="Qwen2.5-1.5B-Instruct-q4f16_1-MLC"> Qwen2.5 1.5B (better)</label>
-      </div>
-      <textarea id="llmResponse" readonly placeholder="AI response will appear here..."></textarea>
-      <div class="status" id="llmStatus">Status: idle</div>
-      <div class="status" id="gpuStatus"></div>
+    <div class="helper">
+      <h2>Smart, Model‑Free Help (no downloads)</h2>
+      <p>This helper generates explanations using rules and your inputs—<em>not</em> a large model. It’s instant and works on any device.</p>
+      <textarea id="helperOutput" readonly placeholder="Click ‘Explain My Run’ for a tailored summary…"></textarea>
+
+      <details>
+        <summary>FAQ: Interpreting Distance–Time Graphs</summary>
+        <ul>
+          <li><strong>Slope = velocity.</strong> Steeper = faster. Flat = 0 m/s (rest). Negative slope = moving toward the start.</li>
+          <li><strong>Straight line</strong> means constant velocity. <strong>Curved line</strong> means changing velocity (acceleration).</li>
+          <li><strong>Average velocity</strong> over an interval: Δdistance ÷ Δtime.</li>
+          <li><strong>Total distance</strong> adds signed changes; if you need <em>path length</em>, use absolute values.</li>
+        </ul>
+      </details>
     </div>
 
     <div class="explanation">
-      <h2>How to Interpret the Graph:</h2>
-      <p>This tool helps you understand how an object's motion relates to a distance-time graph.</p>
+      <h2>How to Use This Page</h2>
       <ul>
-        <li><strong>Hover over the graph</strong> after running a simulation to see specific time and distance values.</li>
-        <li><strong>Horizontal Line:</strong> The object is <strong>at rest</strong> (velocity = 0).</li>
-        <li><strong>Straight Sloped Line:</strong> <strong>constant velocity</strong> (steeper = faster; positive = away; negative = toward origin).</li>
-        <li><strong>Curved Line:</strong> changing velocity (acceleration).</li>
+        <li>Add one or more segments with a velocity (m/s) and a duration (s).</li>
+        <li>Click <em>Run Simulation & Graph</em> to animate and plot distance vs. time.</li>
+        <li>Hover the graph to read exact (time, distance) values.</li>
+        <li>Click <em>Explain My Run</em> to generate a tailored, student‑friendly explanation.</li>
       </ul>
     </div>
   </div>
 
   <script>
-    // ---------- Simulation + Graph (from your original) ----------
+    // ======= Simulation & Graph (based on your original) =======
     const velocityInput = document.getElementById('velocity');
     const durationInput = document.getElementById('duration');
     const addSegmentBtn = document.getElementById('addSegmentBtn');
     const segmentsListEl = document.getElementById('segmentsList');
     const runBtn = document.getElementById('runBtn');
     const resetBtn = document.getElementById('resetBtn');
+    const explainBtn = document.getElementById('explainBtn');
+    const perfBadge = document.getElementById('perfBadge');
+
     const canvas = document.getElementById('dvtGraph');
     const ctx = canvas.getContext('2d');
     const animatedObject = document.getElementById('object');
     const timeDisplay = document.getElementById('timeDisplay');
     const distanceDisplay = document.getElementById('distanceDisplay');
     const hoverInfo = document.getElementById('hoverInfo');
+    const helperOutput = document.getElementById('helperOutput');
 
     let segments = [];
     let animationFrameId = null;
     const objectStartOffset = 10; // px
-    const padding = 60; const tickSize = 6;
-    let allDataPoints = []; let currentMaxTime = 0; let currentMaxDistance = 0;
+    const padding = 60; // graph padding
+    const tickSize = 6;
+    let allDataPoints = []; // {time, distance}
+    let currentMaxTime = 0;
+    let currentMaxDistance = 0;
 
     addSegmentBtn.addEventListener('click', () => {
       const velocity = parseFloat(velocityInput.value);
@@ -125,45 +130,47 @@
       segments.push({ velocity, duration });
       renderSegmentsList();
     });
+
     runBtn.addEventListener('click', () => {
       if (!segments.length) { alert('Please add at least one motion segment.'); return; }
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
       generateDataAndAnimate();
     });
+
     resetBtn.addEventListener('click', () => {
       segments = []; allDataPoints = []; currentMaxTime = 0; currentMaxDistance = 0;
-      renderSegmentsList(); clearCanvasAndResetState(); resetAnimation();
+      renderSegmentsList(); clearCanvasAndResetState(); resetAnimation(); helperOutput.value='';
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
       timeDisplay.textContent = '0.0'; distanceDisplay.textContent = '0.0';
-      llmQueryInput.value = ''; llmResponseTextarea.value = ''; llmStatus.textContent = 'Status: idle';
     });
 
     function renderSegmentsList(){
       segmentsListEl.innerHTML = '';
-      segments.forEach((seg, index) => {
+      segments.forEach((seg, i) => {
         const li = document.createElement('li');
-        li.textContent = `Segment ${index + 1}: Velocity = ${seg.velocity.toFixed(1)} m/s, Duration = ${seg.duration.toFixed(1)} s`;
+        li.textContent = `Segment ${i+1}: Velocity = ${seg.velocity.toFixed(1)} m/s, Duration = ${seg.duration.toFixed(1)} s`;
         segmentsListEl.appendChild(li);
       });
     }
+
     function clearCanvasAndResetState(){
       ctx.clearRect(0,0,canvas.width,canvas.height);
       drawAxes(10,10);
-      hoverInfo.style.display = 'none';
+      hoverInfo.style.display='none';
     }
     function resetAnimation(){
-      animatedObject.style.transition = 'none';
+      animatedObject.style.transition='none';
       animatedObject.style.left = `${objectStartOffset}px`;
-      setTimeout(()=>{ animatedObject.style.transition = 'left 0.05s linear'; }, 50);
+      setTimeout(()=> animatedObject.style.transition='left .05s linear', 50);
     }
 
     function drawAxes(maxTime, maxDistance){
       ctx.clearRect(0,0,canvas.width,canvas.height);
       ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5; ctx.font = "12px 'Segoe UI', Arial"; ctx.fillStyle = '#333'; ctx.textAlign='center';
-      // Y-axis
+      // y axis
       ctx.beginPath(); ctx.moveTo(padding, padding); ctx.lineTo(padding, canvas.height - padding); ctx.stroke();
       ctx.save(); ctx.translate(padding/2 - 15, canvas.height/2); ctx.rotate(-Math.PI/2); ctx.fillText('Distance (m)', 0, 0); ctx.restore();
-      // X-axis
+      // x axis
       ctx.beginPath(); ctx.moveTo(padding, canvas.height - padding); ctx.lineTo(canvas.width - padding, canvas.height - padding); ctx.stroke();
       ctx.fillText('Time (s)', canvas.width/2, canvas.height - padding/2 + 5);
       ctx.textAlign='right'; ctx.fillText('0', padding-5, canvas.height - padding + 15);
@@ -174,40 +181,41 @@
       let effectiveMaxDistance = Math.max(1, Math.abs(maxDistance));
       let effectiveMinDistance = 0;
       let minDataDistance = 0;
-      if (allDataPoints.length > 0) { minDataDistance = allDataPoints.reduce((min,p)=>Math.min(min,p.distance),0); }
-      if (minDataDistance < 0) {
+      if (allDataPoints.length){ minDataDistance = allDataPoints.reduce((m,p)=>Math.min(m,p.distance),0); }
+      if (minDataDistance < 0){
         effectiveMinDistance = minDataDistance;
-        effectiveMaxDistance = allDataPoints.reduce((max,p)=>Math.max(max,p.distance),0);
+        effectiveMaxDistance = allDataPoints.reduce((M,p)=>Math.max(M,p.distance),0);
         if (effectiveMaxDistance < Math.abs(effectiveMinDistance)) effectiveMaxDistance = Math.abs(effectiveMinDistance);
-        else if (effectiveMaxDistance === 0 && effectiveMinDistance < 0) effectiveMaxDistance = 0.001;
+        else if (effectiveMaxDistance===0 && effectiveMinDistance<0) effectiveMaxDistance = 0.001;
       }
       const yRange = effectiveMaxDistance - effectiveMinDistance;
 
-      if (maxTime > 0){
+      // x ticks
+      if (maxTime>0){
         for (let i=0;i<=numXTicks;i++){
-          const t = (maxTime/numXTicks)*i;
-          const x = padding + (t/maxTime) * (canvas.width - 2*padding);
-          ctx.beginPath(); ctx.moveTo(x, canvas.height - padding); ctx.lineTo(x, canvas.height - padding + 6); ctx.stroke();
+          const t = (maxTime/numXTicks)*i; const x = padding + (t/maxTime) * (canvas.width - 2*padding);
+          ctx.beginPath(); ctx.moveTo(x, canvas.height - padding); ctx.lineTo(x, canvas.height - padding + tickSize); ctx.stroke();
           if (i>0 || maxTime===0) ctx.fillText(t.toFixed(1), x, canvas.height - padding + 20);
         }
       } else {
-        ctx.beginPath(); ctx.moveTo(padding, canvas.height - padding); ctx.lineTo(padding, canvas.height - padding + 6); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(padding, canvas.height - padding); ctx.lineTo(padding, canvas.height - padding + tickSize); ctx.stroke();
       }
 
-      if (yRange > 0){
+      // y ticks
+      if (yRange>0){
         for (let i=0;i<=numYTicks;i++){
           const dVal = effectiveMinDistance + (yRange/numYTicks)*i;
           const y = canvas.height - padding - ((dVal - effectiveMinDistance)/yRange) * (canvas.height - 2*padding);
-          ctx.beginPath(); ctx.moveTo(padding, y); ctx.lineTo(padding - 6, y); ctx.stroke();
-          ctx.textAlign='right'; if (i>0 || effectiveMinDistance!==0 || numYTicks===0) ctx.fillText(dVal.toFixed(1), padding-10, y+4);
+          ctx.beginPath(); ctx.moveTo(padding, y); ctx.lineTo(padding - tickSize, y); ctx.stroke();
+          ctx.textAlign='right'; if (i>0 || effectiveMinDistance!==0 || numYTicks===0) ctx.fillText(dVal.toFixed(1), padding - 10, y + 4);
         }
         if (effectiveMinDistance < 0 && effectiveMaxDistance > 0){
           const yZero = canvas.height - padding - ((0 - effectiveMinDistance)/yRange) * (canvas.height - 2*padding);
-          ctx.beginPath(); ctx.moveTo(padding, yZero); ctx.lineTo(padding - 6, yZero); ctx.stroke();
-          ctx.textAlign='right'; ctx.fillText('0.0', padding-10, yZero+4);
+          ctx.beginPath(); ctx.moveTo(padding, yZero); ctx.lineTo(padding - tickSize, yZero); ctx.stroke();
+          ctx.textAlign='right'; ctx.fillText('0.0', padding-10, yZero + 4);
         }
       } else {
-        const y = canvas.height - padding; ctx.beginPath(); ctx.moveTo(padding,y); ctx.lineTo(padding-6,y); ctx.stroke(); ctx.textAlign='right'; ctx.fillText('0.0', padding-10, y+4);
+        const y = canvas.height - padding; ctx.beginPath(); ctx.moveTo(padding, y); ctx.lineTo(padding - tickSize, y); ctx.stroke(); ctx.textAlign='right'; ctx.fillText('0.0', padding-10, y+4);
       }
     }
 
@@ -215,15 +223,13 @@
       if (allDataPoints.length < 2) return;
       let minD = allDataPoints.reduce((m,p)=>Math.min(m,p.distance), allDataPoints[0].distance);
       let maxD = allDataPoints.reduce((m,p)=>Math.max(m,p.distance), allDataPoints[0].distance);
-      let yRange = maxD - minD; if (yRange===0) yRange = Math.max(1, Math.abs(maxD)*2); if (yRange===0 && maxD===0) yRange = 1;
-      let minY = (minD >= 0) ? 0 : minD;
-      let maxY = (maxD <= 0 && minD < 0) ? 0 : maxD;
-      yRange = maxY - minY;
-      if (yRange === 0){ if (minY === 0){ yRange = 1; } else { yRange = Math.abs(minY*2) || 1; } }
-      if (minY === maxY && minY !== 0){ minY = Math.min(0, minY - Math.abs(minY*0.5) || -1); maxY = Math.max(0, maxY + Math.abs(maxY*0.5) || 1); yRange = maxY - minY; }
-      else if (minY===0 && maxY===0){ minY = -0.5; maxY = 0.5; yRange = 1; }
+      let yRange = maxD - minD; if (yRange===0) yRange = Math.max(1, Math.abs(maxD)*2); if (yRange===0 && maxD===0) yRange=1;
+      let minY = (minD>=0) ? 0 : minD; let maxY = (maxD<=0 && minD<0) ? 0 : maxD; yRange = maxY - minY;
+      if (yRange===0){ if (minY===0){ yRange=1; } else { yRange = Math.abs(minY*2) || 1; } }
+      if (minY===maxY && minY!==0){ minY = Math.min(0, minY - Math.abs(minY*0.5) || -1); maxY = Math.max(0, maxY + Math.abs(maxY*0.5) || 1); yRange = maxY - minY; }
+      else if (minY===0 && maxY===0){ minY=-0.5; maxY=0.5; yRange=1; }
 
-      ctx.beginPath(); ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.strokeStyle='#e74c3c'; ctx.lineWidth=2.5;
       allDataPoints.forEach((pt,i)=>{
         const x = padding + (pt.time/currentMaxTime) * (canvas.width - 2*padding);
         const y = canvas.height - padding - ((pt.distance - minY)/yRange) * (canvas.height - 2*padding);
@@ -233,17 +239,18 @@
     }
 
     function generateDataAndAnimate(){
-      allDataPoints = [{time:0, distance:0}];
-      let cumulativeTime = 0; let cumulativeDistance = 0; currentMaxTime = 0; let minDist = 0; let maxDist = 0;
+      allDataPoints = [{ time:0, distance:0 }];
+      let cumulativeTime = 0; let cumulativeDistance = 0; currentMaxTime=0; let minDist=0; let maxDist=0;
       segments.forEach(seg=>{
         currentMaxTime += seg.duration; const step = 0.1;
         for (let t=step; t<=seg.duration; t+=step){
-          let interimTime = cumulativeTime + t; let interimDistance = cumulativeDistance + seg.velocity * t; allDataPoints.push({ time: interimTime, distance: interimDistance });
+          const interimTime = cumulativeTime + t; const interimDistance = cumulativeDistance + seg.velocity * t;
+          allDataPoints.push({ time: interimTime, distance: interimDistance });
         }
-        cumulativeTime += seg.duration; cumulativeDistance += seg.velocity * seg.duration; allDataPoints.push({ time:cumulativeTime, distance:cumulativeDistance });
+        cumulativeTime += seg.duration; cumulativeDistance += seg.velocity * seg.duration; allDataPoints.push({ time: cumulativeTime, distance: cumulativeDistance });
         minDist = Math.min(minDist, cumulativeDistance); maxDist = Math.max(maxDist, cumulativeDistance);
       });
-      // De-dup times (keep last at same t)
+      // keep last of duplicate times
       allDataPoints = allDataPoints.filter((p,i,self)=> i===self.findIndex(q=>q.time===p.time) || i===self.length-1);
       currentMaxDistance = (minDist<0 && maxDist<=0) ? Math.abs(minDist) : (minDist<0 && maxDist>0) ? Math.max(Math.abs(minDist), maxDist) : maxDist;
       if (currentMaxTime===0) currentMaxTime=1; if (currentMaxDistance===0 && minDist===0) currentMaxDistance=1;
@@ -258,115 +265,102 @@
         if (segmentIndex >= segments.length || totalTimeElapsed > currentMaxTime){
           totalTimeElapsed = currentMaxTime; let finalDist = 0; segments.forEach(s=> finalDist += s.velocity * s.duration); currentObjectDistance = finalDist;
           timeDisplay.textContent = totalTimeElapsed.toFixed(1); distanceDisplay.textContent = currentObjectDistance.toFixed(1);
-          let minD = allDataPoints.reduce((m,p)=>Math.min(m,p.distance),0); let maxD = allDataPoints.reduce((m,p)=>Math.max(m,p.distance),0); let range = maxD - minD; if (range===0) range=1; let rp = (currentObjectDistance - minD)/range;
-          animatedObject.style.left = `${objectStartOffset + rp * simulationAreaWidth}px`; return;
+          let minD = allDataPoints.reduce((m,p)=>Math.min(m,p.distance),0); let maxD = allDataPoints.reduce((m,p)=>Math.max(m,p.distance),0); let range = maxD - minD; if (range===0) range=1; let ratio = (currentObjectDistance - minD)/range;
+          animatedObject.style.left = `${objectStartOffset + ratio * simulationAreaWidth}px`; return;
         }
-        let timePrev = 0; for (let i=0;i<segmentIndex;i++) timePrev += segments[i].duration; let timeWithin = totalTimeElapsed - timePrev;
-        const seg = segments[segmentIndex];
-        if (timeWithin > seg.duration){
-          segmentIndex++; requestAnimationFrame(step); return;
-        } else {
-          let distAtStart = 0; for (let i=0;i<segmentIndex;i++) distAtStart += segments[i].velocity * segments[i].duration;
-          currentObjectDistance = distAtStart + seg.velocity * timeWithin;
-        }
+        let timePrev = 0; for (let i=0;i<segmentIndex;i++) timePrev += segments[i].duration; const seg = segments[segmentIndex]; const timeWithin = totalTimeElapsed - timePrev;
+        if (timeWithin > seg.duration){ segmentIndex++; requestAnimationFrame(step); return; }
+        let distAtStart = 0; for (let i=0;i<segmentIndex;i++) distAtStart += segments[i].velocity * segments[i].duration; currentObjectDistance = distAtStart + seg.velocity * timeWithin;
         timeDisplay.textContent = totalTimeElapsed.toFixed(1); distanceDisplay.textContent = currentObjectDistance.toFixed(1);
-        let minS = allDataPoints.reduce((m,p)=>Math.min(m,p.distance),0); let maxS = allDataPoints.reduce((m,p)=>Math.max(m,p.distance),0); let simRange = maxS - minS; let ratio = (simRange>0)? (currentObjectDistance - minS)/simRange : 0.5;
-        animatedObject.style.left = `${objectStartOffset + ratio * simulationAreaWidth}px`;
+        let minS = allDataPoints.reduce((m,p)=>Math.min(m,p.distance),0); let maxS = allDataPoints.reduce((m,p)=>Math.max(m,p.distance),0); let simRange = maxS - minS; let rp = (simRange>0)? (currentObjectDistance - minS)/simRange : 0.5;
+        animatedObject.style.left = `${objectStartOffset + rp * simulationAreaWidth}px`;
         animationFrameId = requestAnimationFrame(step);
       }
       animationFrameId = requestAnimationFrame(step);
     }
 
+    // Hover logic
     canvas.addEventListener('mousemove', (e)=>{
-      if (allDataPoints.length < 2) return;
+      if (allDataPoints.length<2) return;
       const rect = canvas.getBoundingClientRect(); const mouseX = e.clientX - rect.left; const mouseY = e.clientY - rect.top;
       if (mouseX < padding || mouseX > canvas.width - padding || mouseY < padding || mouseY > canvas.height - padding){
-        hoverInfo.style.display='none'; drawAxes(currentMaxTime,currentMaxDistance); drawGraphLine(); return;
-      }
+        hoverInfo.style.display='none'; drawAxes(currentMaxTime,currentMaxDistance); drawGraphLine(); return; }
       const timeAtMouse = (mouseX - padding) / (canvas.width - 2*padding) * currentMaxTime;
-      let distanceAtMouse = 0; for (let i=0;i<allDataPoints.length-1;i++){ const p1=allDataPoints[i], p2=allDataPoints[i+1]; if (timeAtMouse>=p1.time && timeAtMouse<=p2.time){ const slope = (p2.distance - p1.distance)/(p2.time - p1.time || 1e-9); distanceAtMouse = p1.distance + slope * (timeAtMouse - p1.time); break; }}
+      let distanceAtMouse = 0; for (let i=0;i<allDataPoints.length-1;i++){ const p1=allDataPoints[i], p2=allDataPoints[i+1]; if (timeAtMouse>=p1.time && timeAtMouse<=p2.time){ const slope=(p2.distance-p1.distance)/(p2.time-p1.time||1e-9); distanceAtMouse = p1.distance + slope*(timeAtMouse - p1.time); break; }}
       drawAxes(currentMaxTime,currentMaxDistance); drawGraphLine();
       let minD = allDataPoints.reduce((m,p)=>Math.min(m,p.distance),0); let maxD = allDataPoints.reduce((m,p)=>Math.max(m,p.distance),0);
       let minY = (minD>=0)?0:minD; let maxY = (maxD<=0 && minD<0)?0:maxD; let yRange = maxY - minY; if (yRange===0){ if (minY===0){ minY=-0.5; maxY=0.5; yRange=1; } else { yRange = Math.abs(minY*2) || 1; }} if (minY===maxY && minY!==0){ minY=Math.min(0, minY - Math.abs(minY*0.5) || -1); maxY=Math.max(0, maxY + Math.abs(maxY*0.5) || 1); yRange=maxY-minY; }
       const hoverX = padding + (timeAtMouse/currentMaxTime) * (canvas.width - 2*padding);
       const hoverY = canvas.height - padding - ((distanceAtMouse - minY)/yRange) * (canvas.height - 2*padding);
-      ctx.beginPath(); ctx.arc(hoverX, hoverY, 5, 0, 2*Math.PI); ctx.fillStyle='rgba(0,100,255,0.8)'; ctx.fill(); ctx.strokeStyle='white'; ctx.lineWidth=1.5; ctx.stroke();
-      hoverInfo.style.display='block'; hoverInfo.style.left=`${e.clientX + 15}px`; hoverInfo.style.top=`${e.clientY - 15}px`; hoverInfo.innerHTML = `Time: ${timeAtMouse.toFixed(2)}s<br>Dist: ${distanceAtMouse.toFixed(2)}m`;
+      ctx.beginPath(); ctx.arc(hoverX, hoverY, 5, 0, 2*Math.PI); ctx.fillStyle='rgba(0,100,255,.8)'; ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
+      hoverInfo.style.display='block'; hoverInfo.style.left=`${e.clientX+15}px`; hoverInfo.style.top=`${e.clientY-15}px`; hoverInfo.innerHTML = `Time: ${timeAtMouse.toFixed(2)}s<br>Dist: ${distanceAtMouse.toFixed(2)}m`;
     });
-    canvas.addEventListener('mouseout', ()=>{ hoverInfo.style.display='none'; if (allDataPoints.length>0){ drawAxes(currentMaxTime,currentMaxDistance); drawGraphLine(); }});
+    canvas.addEventListener('mouseout', ()=>{ hoverInfo.style.display='none'; if (allDataPoints.length){ drawAxes(currentMaxTime,currentMaxDistance); drawGraphLine(); }});
 
-    // Initial setup
-    clearCanvasAndResetState(); renderSegmentsList();
+    // ======= Lightweight, model‑free "Explain My Run" =======
+    explainBtn.addEventListener('click', () => {
+      if (!segments.length){ helperOutput.value = 'Add at least one segment first.'; return; }
+      const summary = buildExplanation(segments, allDataPoints);
+      helperOutput.value = summary;
+      helperOutput.scrollTop = 0;
+    });
 
-    // ---------- On‑device AI via WebLLM ----------
-    const llmQueryInput = document.getElementById('llmQuery');
-    const askLLMBtn = document.getElementById('askLLMBtn');
-    const llmResponseTextarea = document.getElementById('llmResponse');
-    const llmStatus = document.getElementById('llmStatus');
-    const gpuStatus = document.getElementById('gpuStatus');
+    function buildExplanation(segs, points){
+      let totalT = segs.reduce((s,v)=>s+v.duration,0);
+      let totalD = segs.reduce((s,v)=>s+v.velocity*v.duration,0);
+      let pathLen = segs.reduce((s,v)=>s+Math.abs(v.velocity*v.duration),0);
+      let avgV = totalT>0 ? totalD/totalT : 0;
+      let maxSpeed = 0, maxIdx = -1; segs.forEach((s,i)=>{ if (Math.abs(s.velocity) > Math.abs(maxSpeed)){ maxSpeed = s.velocity; maxIdx = i; } });
+      const dirChanges = segs.slice(1).filter((s,i)=> Math.sign(s.velocity) !== Math.sign(segs[i].velocity) && s.velocity !== 0).length;
+      const rests = segs.filter(s=> s.velocity === 0).length;
 
-    let engine = null; let selectedModel = document.querySelector('input[name="model"]:checked').value; let initializing = false;
+      const bullet = (t)=>`• ${t}`;
+      let lines = [];
+      lines.push('What this run shows:');
+      lines.push(bullet(`Total time = ${round(totalT)} s`));
+      lines.push(bullet(`Net distance (signed) = ${round(totalD)} m`));
+      lines.push(bullet(`Path length (how far traveled in total) = ${round(pathLen)} m`));
+      lines.push(bullet(`Average velocity = ${round(avgV)} m/s`));
+      if (maxIdx>=0) lines.push(bullet(`Top speed at Segment ${maxIdx+1} = ${round(maxSpeed)} m/s (${speedWord(maxSpeed)})`));
+      if (rests>0) lines.push(bullet(`${rests} at‑rest segment${rests>1?'s':''} (flat parts on the graph)`));
+      if (dirChanges>0) lines.push(bullet(`${dirChanges} direction change${dirChanges>1?'s':''} (slope sign flips)`));
 
-    function hasWebGPU(){ return !!(navigator.gpu); }
-    gpuStatus.textContent = hasWebGPU() ? 'WebGPU detected ✅ (best performance). If disabled, enable “Use hardware acceleration” in your browser.' : 'WebGPU not detected ⚠️ — it may still run with WASM, but will be slower.';
+      // Segment-by-segment description
+      lines.push('\nSegment-by-segment:');
+      segs.forEach((s,i)=>{
+        const kind = s.velocity===0? 'rest' : `constant velocity (${speedWord(s.velocity)})`;
+        const delta = s.velocity*s.duration; const sign = delta===0? '' : delta>0? 'away from start' : 'toward start';
+        lines.push(bullet(`S${i+1}: ${kind} for ${round(s.duration)} s → Δd = ${round(delta)} m ${sign}`));
+      });
 
-    async function initEngine(){
-      if (initializing) return; initializing = true; llmStatus.textContent = 'Status: loading model… (first load may take a bit)'; askLLMBtn.disabled = true;
-      try {
-        const chatConfig = { temperature: 0.4, top_p: 0.9, max_gen_len: 256 };
-        engine = await webllm.CreateMLCEngine(selectedModel, {
-          initProgressCallback: (info)=>{ llmStatus.textContent = 'Loading: ' + Math.round((info?.progress || 0)*100) + '%'; }
-        });
-        // Light system prompt for classroom tone
-        await engine.chat.completions.create({
-          messages: [
-            { role: 'system', content: 'You are a patient high-school physics tutor. Focus on interpreting distance–time graphs (slope=velocity, flat=rest, negative slope=toward origin). Use short, clear steps, basic algebra only.' },
-            { role: 'user', content: 'Briefly confirm readiness.' }
-          ],
-          stream: false, temperature: chatConfig.temperature, top_p: chatConfig.top_p, max_tokens: 32
-        });
-        llmStatus.textContent = 'Status: ready';
-      } catch (e) {
-        console.error(e); llmStatus.textContent = 'Status: failed to load model. Try the smaller model or another browser.';
-      } finally { askLLMBtn.disabled = false; initializing = false; }
+      // One-sentence graph description
+      const oneLiner = graphOneLiner(segs);
+      if (oneLiner) { lines.push('\nGraph in words:'); lines.push(bullet(oneLiner)); }
+
+      // Quick checks
+      lines.push('\nQuick checks:');
+      lines.push(bullet('Flat parts = rest (slope 0).'));
+      lines.push(bullet('Steeper line = faster speed (|slope|).'));
+      lines.push(bullet('Negative slope = moving toward the origin.'));
+      return lines.join('\n');
     }
 
-    // Model change
-    document.querySelectorAll('input[name="model"]').forEach(r => r.addEventListener('change', async (e)=>{
-      selectedModel = e.target.value; engine = null; await initEngine();
-    }));
+    function graphOneLiner(segs){
+      if (!segs.length) return '';
+      const phrases = [];
+      segs.forEach((s,i)=>{
+        if (s.velocity===0) phrases.push('flat');
+        else if (s.velocity>0) phrases.push('rising straight');
+        else phrases.push('falling straight');
+      });
+      return phrases.join(' → ') + ' line segments (no curves because velocity is constant in each segment).';
+    }
 
-    // Auto‑init on first interaction
-    askLLMBtn.addEventListener('click', async ()=>{
-      const q = llmQueryInput.value.trim(); if (!q){ llmResponseTextarea.value = 'Please type a question first.'; return; }
-      if (!engine) await initEngine(); if (!engine){ return; }
+    function round(x){ return Math.round(x*100)/100; }
+    function speedWord(v){ return v>0? 'away (+)' : v<0? 'toward (−)' : 'rest'; }
 
-      // Optional context: summarize segments to help answers stay grounded
-      const context = segments.length ? `Segments: ${segments.map((s,i)=>`#${i+1} v=${s.velocity} m/s, t=${s.duration} s`).join('; ')}` : 'No segments yet.';
-
-      llmResponseTextarea.value = ''; llmStatus.textContent = 'Status: answering…'; askLLMBtn.disabled = true;
-      try {
-        const stream = await engine.chat.completions.create({
-          stream: true,
-          messages: [
-            { role: 'system', content: 'You are a patient high-school physics tutor. Stick to distance–time graphs. Keep answers under 150 words unless asked for more.' },
-            { role: 'user', content: `${q}\n\nContext: ${context}` }
-          ],
-          temperature: 0.4, top_p: 0.9, max_tokens: 256
-        });
-        for await (const chunk of stream) {
-          const delta = chunk?.choices?.[0]?.delta?.content || '';
-          if (delta) { llmResponseTextarea.value += delta; llmResponseTextarea.scrollTop = llmResponseTextarea.scrollHeight; }
-        }
-        llmStatus.textContent = 'Status: done';
-      } catch (e) {
-        console.error(e); llmStatus.textContent = 'Status: error answering';
-        llmResponseTextarea.value = 'Sorry, I hit a problem generating the answer.';
-      } finally { askLLMBtn.disabled = false; }
-    });
-
-    // Enter key submits
-    document.getElementById('llmQuery').addEventListener('keypress', (e)=>{ if (e.key==='Enter'){ e.preventDefault(); askLLMBtn.click(); }});
+    // Initial
+    clearCanvasAndResetState(); renderSegmentsList();
   </script>
 </body>
 </html>
