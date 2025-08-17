@@ -59,6 +59,8 @@ function endGame(draw, winningCombination) {
             cellElements[index].classList.add('win');
         });
         confetti(); // Start confetti animation
+        const winnerName = prompt('Name for high scores?', oTurn ? 'O' : 'X');
+        Scoreboard.addWin('ticTacToe', winnerName);
     }
     cellElements.forEach(cell => {
         cell.removeEventListener('click', handleClick);

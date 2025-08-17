@@ -4,7 +4,7 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Games • Mr. Mudry’s Physics</title>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml"/>
+  <link rel="icon" type="image/png" href="head.png"/>
   <link rel="apple-touch-icon" href="apple-touch-icon.svg"/>
   <link rel="stylesheet" href="assets/theme.css"/>
 </head>
@@ -49,9 +49,48 @@
       </article>
     </div>
   </section>
+
+  <section class="container section" aria-labelledby="top-scores">
+    <h2 id="top-scores">Top Scores</h2>
+    <div id="scoreboard"></div>
+    <button id="clear-scores" class="btn">Clear Scores</button>
+  </section>
 </main>
 
   <div data-include="footer"></div>
+  <script src="assets/scoreboard.js"></script>
   <script src="assets/partials.js"></script>
+  <script>
+    const board=document.getElementById('scoreboard');
+    function render(){
+      board.innerHTML='';
+      const data={
+        'Tic-Tac-Toe':Scoreboard.getTop('ticTacToe'),
+        'Cannon Duel':Scoreboard.getTop('cannonDuel')
+      };
+      Object.entries(data).forEach(([game,entries])=>{
+        const section=document.createElement('div');
+        const h3=document.createElement('h3');
+        h3.textContent=game;
+        section.appendChild(h3);
+        if(entries.length===0){
+          const p=document.createElement('p');
+          p.textContent='No scores yet.';
+          section.appendChild(p);
+        }else{
+          const ol=document.createElement('ol');
+          entries.forEach(([name,score])=>{
+            const li=document.createElement('li');
+            li.textContent=`${name} – ${score}`;
+            ol.appendChild(li);
+          });
+          section.appendChild(ol);
+        }
+        board.appendChild(section);
+      });
+    }
+    render();
+    document.getElementById('clear-scores').addEventListener('click',()=>{Scoreboard.clear();render();});
+  </script>
 </body>
 </html>
