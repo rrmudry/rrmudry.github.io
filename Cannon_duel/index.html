@@ -51,6 +51,7 @@
 
   <footer>Use ←/→ to adjust angle and ↓/↑ for power for the player whose turn it is. Shots start from the center of the cannon. First to 3 wins.</footer>
 
+<script src="../assets/scoreboard.js"></script>
 <script>
 const cvs=document.getElementById('game');
 const ctx=cvs.getContext('2d');
@@ -152,6 +153,8 @@ function endRound(winner){
   if(matchWon){
     statusEl.textContent=`Player ${winner+1} wins the match!`;
     state.splash={winner,win:true};
+    const name=prompt('Winner name for high scores?');
+    Scoreboard.addWin('cannonDuel', name || `Player ${winner+1}`);
   }else{
     statusEl.textContent=`Hit! Player ${winner+1} scores.`;
     state.splash={winner,win:false};
