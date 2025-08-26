@@ -1,0 +1,174 @@
+Game Dev Prompt: “Physics Defense (Missile Command-style)”
+
+You are a senior HTML5/Canvas game engineer. Build a small, production-ready browser game called Physics Defense from scratch, using vanilla JavaScript (ES6 modules), HTML, and CSS—no libraries, no build tools.
+
+Core Loop & Rules
+
+Playfield: single HTML5 <canvas> that scales to the window (maintain aspect ratio; convert mouse coords correctly).
+
+Three ground bases:
+
+Left = Distance (fires with key A)
+
+Center = Speed (fires with key S)
+
+Right = Time (fires with key D)
+
+Mouse sets the target point; pressing A/S/D fires a missile from that base toward the mouse.
+
+Meteors spawn at the top and fall downward. Each meteor has a type: distance | speed | time.
+
+Match rule: Only an explosion from the matching base type destroys the meteor.
+
+Mismatch rule: If hit by the wrong type, the meteor splits into two smaller meteors that diverge and keep falling. Each meteor may split at most splitLimit times (default 1).
+
+Lives/Cities: If any meteor reaches the ground, lose 1 Life. Game over at 0 Lives.
+
+Leveling: Each level is a finite wave (budget of meteors). When cleared, advance to the next level with increased difficulty.
+
+Feel & Defaults (tuning targets)
+
+Meteor size: 80px diameter (radius 40).
+
+Meteor fall: slow/easy baseline. Start vy ~ 0.1–0.25 px/ms, gravity acceleration ~ 0.005–0.007 px/ms² (adjust to your timestep).
+
+Spawn cadence: every ~2.6–3.0s on Level 1; increase slightly each level.
+
+Missile speed: ~ 400–600 px/s; visible trail.
+
+Explosion: radial blast grows to ~40–45px radius, then decays; has a short TTL.
+
+Wrong-type split: two children at ±splitAngle (~0.55 rad) from the parent’s velocity; ~70–75% size/speed adjusted.
+
+Scoring & UI
+
+HUD (top): Score, Level, Lives, Streak.
+
+Score: +100 for correct-type destroy × (1 + streak bonus up to +100%). −25 on wrong-type hit that causes a split.
+
+Bonuses (implement later if time permits): precision (+25 if near center), level clear bonus per city remaining.
+
+Pause P, Restart R, Mute M.
+
+Start Menu: “Start Game” and “Endless Mode”.
+
+Game Over overlay with final score and “Play Again”.
+
+Power-Ups (phase 2)
+
+Appear occasionally as falling capsules; shoot with any missile to collect:
+
+Freeze (10s): heavily reduce meteor velocity/accel.
+
+Slow-Mo (8s): global timescale 0.6.
+
+Shield (1 charge): ignore next ground hit.
+
+Double Points (15s).
+
+Smart Detonator (5 shots): explode at best intercept automatically.
+
+EMP (instant): clears only split children.
+
+Architecture
+
+Files: index.html, styles.css, main.js, game.js, entities.js, levels.js, input.js, ui.js, audio.js, util.js.
+
+Game states: BOOT → MENU → PLAYING → PAUSED → LEVEL_COMPLETE → GAME_OVER → (ENDLESS optional).
+
+Entities:
+
+Base { id, type, x, y, cooldownMs, readyAt }
+
+Meteor { id, type, x, y, vx, vy, radius, splitCount, value }
+
+Missile { id, baseId, type, x, y, vx, vy, targetX, targetY }
+
+Explosion { id, x, y, radius, maxRadius, growthRate, decayRate, ttl, ownerType }
+
+PowerUp { id, kind, x, y, vy, radius, ttl } (phase 2)
+
+Physics update at requestAnimationFrame; compute dt and clamp (e.g., ≤50 ms).
+
+Use object pools for missiles & explosions to reduce GC.
+
+Algorithms (requirements)
+
+Missile impact: when near its target, spawn an Explosion (don’t require exact equality to avoid tunneling).
+
+Explosion–Meteor collision: circle–circle test. If ownerType === meteor.type → destroy. Else if meteor.splitCount < splitLimit → split; else ignore.
+
+Split: two children positioned at parent’s position, angles baseAngle ± splitAngle, reduced radius, slightly faster speed, splitCount+1.
+
+Ground collision: if meteor.y >= groundY → remove meteor and decrement Lives.
+
+Accessibility & Classroom Options
+
+Color + shape cues for types (e.g., Distance=triangle badge, Speed=circle, Time=square) to support color-blind students.
+
+Big fonts, high contrast; key remapping option (JSON in localStorage is fine).
+
+Difficulty slider in Options to scale gravity, spawn rate, meteor size, and missile speed with one parameter.
+Level Data (example)
+
+Create levels.js exporting an array:
+
+export const LEVELS = [
+  { id:1, spawnRateMs: 2800, wave: 8, gravity: 0.005, baseCooldownMs: 520, explosionRadius: 42, splitLimit: 1, mix: {distance: .4, speed:.35, time:.25} },
+  { id:2, spawnRateMs: 2600, wave:10, gravity: 0.006, baseCooldownMs: 500, explosionRadius: 42, splitLimit: 1, mix: {distance: .34, speed:.33, time:.33} },
+  { id:3, spawnRateMs: 2400, wave:12, gravity: 0.007, baseCooldownMs: 480, explosionRadius: 44, splitLimit: 1, mix: {distance: .33, speed:.33, time:.34} },
+];
+
+Rendering
+
+One <canvas> draw per frame; draw order: background/ground → bases → missiles → meteors → explosions → HUD (HTML overlay).
+
+Responsive scaling; always translate mouse to canvas coordinates.
+
+Add cooldown rings above each base during recharge.
+
+Error Handling & Robustness
+
+Protect all arrays during mutation (iterate backwards on removal).
+
+Clamp velocities; clamp dt.
+
+When pausing, freeze timers and spawns; resume cleanly.
+
+Performance Targets
+
+60 FPS on mid-tier school Chromebooks.
+
+≤2 MB total assets; prefer procedural shapes over images.
+
+No network calls after load.
+
+Deliverables
+
+Working prototype with the core loop, levels 1–3, scoring, streak, lives, split rule, and overlays.
+
+Clean, commented code with small pure functions where possible.
+
+README with controls, tuning constants, and how to host statically.
+
+Acceptance Tests (manual)
+
+Pressing A/S/D fires from correct base toward mouse; cooldown visible.
+
+Correct-type explosion destroys a meteor; wrong-type causes 2-way split (once).
+
+Meteors reach ground reduce Lives and can end game.
+
+Level completes when wave budget is exhausted and sky is clear.
+
+Difficulty slider meaningfully slows/speeds gameplay without breaking collisions.
+
+Mouse targeting remains accurate after window resize.
+
+Nice-to-Haves (optional)
+
+Endless mode that ramps spawn rate and gravity slowly.
+
+Screenshotable end-of-level summary (score, accuracy, cities saved).
+
+Optional Quiz Labels mode later: display “D/S/T” or topic badges; future extension to question prompts.reve
