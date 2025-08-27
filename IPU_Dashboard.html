@@ -182,7 +182,17 @@
                 ] 
             },
             { day: 2, week: 1, topic: 'Making the Standard & The Language of SI', dok: 2, activity: '1. The Meter Stick Challenge: As a bridge from Day 1, groups get a 1-meter paper strip to turn into a useful measuring tool by subdividing it. 2. Introducing Prefixes: The teacher uses the student-made meter sticks to introduce formal metric prefixes (centi-, milli-). 3. Guided Notes & Practice: Formal instruction on the 7 SI base units and common prefixes, reinforced with recall games.', type: 'Activity' },
-            { day: 3, week: 1, topic: 'Unit Conversions', dok: 2, activity: '"I do, We do, You do" guided practice. Students work through converting single-step and multi-step problems (e.g., km/h to m/s) using the factor-label method.', type: 'Practice' },
+            { 
+                day: 3, 
+                week: 1, 
+                topic: 'Unit Conversions', 
+                dok: 2, 
+                activity: '"I do, We do, You do" guided practice. Students work through converting single-step and multi-step problems (e.g., km/h to m/s) using the factor-label method.', 
+                type: 'Practice',
+                links: [
+                    { label: 'Practice Worksheet', url: 'https://docs.google.com/document/d/19L0sKqt97x8hOCWEDIpL3pkUmgLGjwcYPnmkPXi8wnM/edit?usp=sharing' }
+                ]
+            },
             { day: 4, week: 1, topic: 'Quality of Measurement', dok: 2, activity: 'Use the "dartboard" analogy for accuracy vs. precision. Lab: Students perform a simple measurement (e.g., length of a block) and analyze their data for accuracy and precision.', type: 'Lab' },
             { day: 5, week: 1, topic: 'Practice & Check-In', dok: 2, activity: 'Station rotation with practice problems on conversions and significant figures. A short formative quiz to check understanding.', type: 'Assessment' },
             { day: 6, week: 2, topic: 'Derived Units', dok: 3, activity: 'Lab: Students are given blocks of known materials. They measure mass and dimensions, calculate density, and compare to the known value. They must justify their choice of units.', type: 'Lab' },
@@ -229,14 +239,18 @@
                         body: JSON.stringify(payload)
                     });
                     const result = await response.json();
-                    if (result.candidates && result.candidates[0] && result.candidates[0].content.parts[0]) {
+                    
+                    if (result.candidates && result.candidates.length > 0 && result.candidates[0].content && result.candidates[0].content.parts && result.candidates[0].content.parts.length > 0) {
                         return result.candidates[0].content.parts[0].text;
+                    } else if (result.candidates && result.candidates.length > 0 && result.candidates[0].finishReason === 'SAFETY') {
+                        return "The response was blocked for safety reasons. Please try a different prompt.";
                     } else {
-                        return "Sorry, I couldn't generate a response right now.";
+                        console.error("Unexpected API response structure:", result);
+                        return "Sorry, I received an unexpected response from the AI.";
                     }
                 } catch (error) {
                     console.error("Gemini API call failed:", error);
-                    return "An error occurred while contacting the AI. Please check the console.";
+                    return "An error occurred while contacting the AI. Please check your network connection and the console for details.";
                 } finally {
                     button.disabled = false;
                     button.innerHTML = originalText;
@@ -335,7 +349,7 @@
                         <p class="text-sm text-slate-600 mt-1">${day.activity}</p>
                     `;
 
-                    if (day.type === 'Lab' || day.type === 'Activity') {
+                    if (day.type === 'Lab' || day.type === 'Activity' || day.type === 'Practice') {
                         labsList.appendChild(resourceItem);
                     } else if (day.type === 'Assessment') {
                         assessmentsList.appendChild(resourceItem);
