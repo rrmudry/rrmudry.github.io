@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Interactive Acceleration Grapher</title>
+<style>
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;margin:0;padding:16px;background:#eef1f5;color:#333;display:flex;flex-direction:column;align-items:center}
+.container{background:#fff;padding:20px;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,.1);width:98%;max-width:1600px;margin-bottom:25px}
+.main-layout-grid{display:grid;grid-template-columns:1fr;gap:24px;align-items:start;margin-bottom:24px}
+@media (min-width:992px){.main-layout-grid{grid-template-columns:1fr 1fr}}
+.left-column,.right-column{display:flex;flex-direction:column;gap:24px}
+.card{padding:20px;border:1px solid #dbe0e6;border-radius:10px;background:#f9fafb}
+h1,h2{color:#2c3e50;text-align:center;margin-top:0}h1{margin-bottom:20px;font-size:28px}h2{margin-bottom:15px;font-size:20px}
+label{display:inline-block;margin-right:8px;margin-bottom:8px;font-weight:500}
+input[type="number"]{padding:10px;margin-right:10px;margin-bottom:10px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;width:100px}
+button{padding:10px 18px;background:#3498db;color:#fff;border:none;border-radius:6px;cursor:pointer;margin-right:8px;transition:background-color .2s ease-in-out;font-weight:500}
+button:hover{background:#2980b9}
+#resetBtn{background:#e74c3c}#resetBtn:hover{background:#c0392b}
+#explainBtn{background:#2ecc71}#explainBtn:hover{background:#27ae60}
+#segmentsList{list-style:decimal;padding-left:25px;margin-top:0}
+#segmentsList li{margin-bottom:6px;background:#e9edf0;padding:8px;border-radius:4px;font-size:.95em;cursor:move;display:flex;justify-content:space-between;align-items:center}
+#segmentsList li.dragging{opacity:.5}
+#segmentsList li.drag-over{border-top:2px solid #3498db}
+.delete-segment-btn{background:#e74c3c;color:white;border:none;border-radius:4px;cursor:pointer;padding:4px 8px;font-size:0.8em;margin-left:10px}
+.delete-segment-btn:hover{background:#c0392b}
+canvas.graph{border:1px solid #b0b8c0;background:#fff;display:block;margin:6px auto 0;cursor:crosshair;width:100%;box-sizing:border-box}
+.simulation-area{position:relative;background:#f9fafb;border:1px solid #c8cdd3;overflow:hidden;padding-bottom:10px;}
+#simCanvas{border:1px solid #b0b8c0;background:#fff;display:block;margin:8px auto 0;width:100%;height:90px;box-sizing:border-box}
+#speedometerCanvas{display:block;margin:8px auto 0;width:100%;max-width:250px;height:auto;aspect-ratio:1.25/1}
+#simInfo{text-align:center;padding:4px;font-size:.9em;background:#eef1f5;border-radius:4px;margin-top:4px}
+.helper textarea{width:calc(100% - 22px);min-height:140px;margin-top:10px;padding:10px;border:1px solid #ccc;border-radius:6px;font-family:inherit;font-size:.95em;resize:vertical;white-space:pre-wrap}
+*,*::before,*::after{box-sizing:border-box}
+/* Modal Styles */
+#modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);z-index:1000;cursor:pointer;transition:opacity .3s ease}
+#instructions-modal{background:#fff;padding:30px;border-radius:12px;box-shadow:0 5px 20px rgba(0,0,0,.2);max-width:500px;width:90%;cursor:default;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
+#instructions-modal h2{margin-top:0}
+#instructions-modal ul{padding-left:20px}
+#instructions-modal p{text-align:center;margin-top:20px;color:#777}
+/* View Switcher Styles - Segmented Control */
+.view-switcher{display:flex;justify-content:center;margin-bottom:16px}
+.view-switcher button{padding:9px 16px;border:1px solid #b0b8c0;background-color:#f9fafb;color:#444;font-weight:500;cursor:pointer;transition:all .2s ease;margin-right:-1px;flex:1;border-radius:0}
+.view-switcher button:first-child{border-radius:8px 0 0 8px}
+.view-switcher button:last-child{border-radius:0 8px 8px 0;margin-right:0}
+.view-switcher button:hover:not(.active){background-color:#e9edf0;z-index:2;position:relative}
+.view-switcher button.active{background-color:#3498db;color:white;font-weight:600;border-color:#2980b9;position:relative;z-index:1}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div id="modal-overlay">
+<div id="instructions-modal">
+<h2>How to Use This Tool</h2>
+<ul>
+<li>Set an initial velocity to start with.</li>
+<li>Add segments with a constant acceleration (m/s²) and a duration (s).</li>
+<li>Click <em>Run Simulation</em> to see the graphs for velocity and distance.</li>
+<li>Use the tabs to switch between the <strong>Speedometer</strong>, <strong>Velocity Graph</strong>, and <strong>Distance Graph</strong>.</li>
+<li>Use the <em>Smart Helper</em> for a step-by-step breakdown of the motion.</li>
+</ul>
+<p>(Click anywhere outside this box to close)</p>
+</div>
+</div>
+<div class="container">
+<h1>Interactive Acceleration Graph Simulator</h1>
+<div class="main-layout-grid">
+<div class="left-column">
+<div class="controls card">
+<h2>Define Motion</h2>
+<div>
+<label for="initialVelocity">Initial Velocity (m/s):</label>
+<input type="number" id="initialVelocity" value="0" step="0.5">
+</div>
+<hr style="margin: 16px 0;">
+<div>
+<label for="acceleration">Acceleration (m/s²):</label>
+<input type="number" id="acceleration" value="1" step="0.1">
+<label for="duration">Duration (s):</label>
+<input type="number" id="duration" value="5" min="0.1" step="0.1">
+<button id="addSegmentBtn">Add Segment</button>
+</div>
+<h3>Current Segments:</h3>
+<ul id="segmentsList"></ul>
+<div>
+<button id="runBtn">Run Simulation & Graph</button>
+<button id="resetBtn">Reset All</button>
+<button id="explainBtn">Explain My Run</button>
+</div>
+</div>
+<div class="helper card">
+<h2>Smart Helper Explanation</h2>
+<textarea id="helperOutput" readonly placeholder="Click ‘Explain My Run’ for a tailored summary…"></textarea>
+</div>
+</div>
+<div class="right-column">
+<div class="simulation-area card">
+<h2>Live Simulation</h2>
+<canvas id="simCanvas"></canvas>
+<div id="simInfo">Time: 0.0s | Position: 0.0m | Velocity: 0.0m/s</div>
+</div>
+<div class="card">
+<div class="view-switcher">
+<button id="showSpeedometerBtn" class="active">Speedometer</button>
+<button id="showVtGraphBtn">V-t Graph</button>
+<button id="showDtGraphBtn">D-t Graph</button>
+</div>
+<div id="speedometer-container" class="view-container">
+<canvas id="speedometerCanvas"></canvas>
+</div>
+<div id="vt-graph-container" class="view-container hidden">
+<canvas id="vtGraph" class="graph"></canvas>
+</div>
+<div id="dt-graph-container" class="view-container hidden">
+<canvas id="dtGraph" class="graph"></canvas>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+// DOM Elements
+const initialVelocityInput = document.getElementById('initialVelocity');
+const accelerationInput = document.getElementById('acceleration');
+const durationInput = document.getElementById('duration');
+const addSegmentBtn = document.getElementById('addSegmentBtn');
+const segmentsListEl = document.getElementById('segmentsList');
+const runBtn = document.getElementById('runBtn');
+const resetBtn = document.getElementById('resetBtn');
+const explainBtn = document.getElementById('explainBtn');
+const vtGraphCanvas = document.getElementById('vtGraph');
+const vtx = vtGraphCanvas.getContext('2d');
+const dtGraphCanvas = document.getElementById('dtGraph');
+const dtx = dtGraphCanvas.getContext('2d');
+const helperOutput = document.getElementById('helperOutput');
+const simCanvas = document.getElementById('simCanvas');
+const simCtx = simCanvas.getContext('2d');
+const speedometerCanvas = document.getElementById('speedometerCanvas');
+const speedCtx = speedometerCanvas.getContext('2d');
+const simInfo = document.getElementById('simInfo');
+const modalOverlay = document.getElementById('modal-overlay');
+const instructionsModal = document.getElementById('instructions-modal');
+
+// View Switcher Elements
+const showSpeedometerBtn = document.getElementById('showSpeedometerBtn');
+const showVtGraphBtn = document.getElementById('showVtGraphBtn');
+const showDtGraphBtn = document.getElementById('showDtGraphBtn');
+const viewContainers = document.querySelectorAll('.view-container');
+const switcherBtns = document.querySelectorAll('.view-switcher button');
+
+// State
+let segments = [];
+let dragStartIndex;
+let allPoints = []; // Will store {t, v, d} for time, velocity, distance
+let vBoundsForDial = { min: -10, max: 10 };
+let animationFrameId;
+const padding = 60;
+const tickSize = 6;
+
+// Sizing and Drawing Setup
+function setupCanvases() {
+    const canvases = [vtGraphCanvas, dtGraphCanvas, simCanvas, speedometerCanvas];
+    const dpr = window.devicePixelRatio || 1;
+    
+    canvases.forEach(canvas => {
+        if (!canvas.getContext || canvas.offsetParent === null) return; 
+
+        const isGraph = canvas.classList.contains('graph');
+        let cssH;
+        const cssW = canvas.clientWidth;
+
+        if (isGraph) {
+            cssH = Math.max(250, Math.min(400, Math.round(cssW * 0.75)));
+        } else if (canvas.id === 'simCanvas') {
+            cssH = 90;
+        } else if (canvas.id === 'speedometerCanvas') {
+            cssH = cssW / 1.25; // FIX: Calculate height from aspect ratio
+        } else {
+            cssH = canvas.clientHeight;
+        }
+        
+        canvas.style.height = `${cssH}px`;
+        canvas.width = Math.floor(cssW * dpr);
+        canvas.height = Math.floor(cssH * dpr);
+        const ctx = canvas.getContext('2d');
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    });
+    drawFullPlot();
+}
+
+window.addEventListener('resize', setupCanvases);
+document.addEventListener('DOMContentLoaded', () => {
+    showView('speedometer-container');
+    // Initial draw for visible elements
+    const initialV = parseFloat(initialVelocityInput.value) || 0;
+    setupCanvases();
+    drawSimNumberLine(0, 0);
+    drawSpeedometer(initialV, vBoundsForDial.min, vBoundsForDial.max);
+    updateSimInfo(0, 0, initialV);
+});
+
+// Event Listeners
+addSegmentBtn.addEventListener('click', () => {
+    const acceleration = parseFloat(accelerationInput.value);
+    const duration = parseFloat(durationInput.value);
+    if (isNaN(duration) || duration <= 0) { return; }
+    if (isNaN(acceleration)) { return; }
+    segments.push({ acceleration, duration });
+    renderSegmentsList();
+});
+
+runBtn.addEventListener('click', () => {
+    if (!segments.length) { return; }
+    generateData();
+    drawFullPlot();
+    startAnimation();
+});
+
+resetBtn.addEventListener('click', () => {
+    if(animationFrameId) cancelAnimationFrame(animationFrameId);
+    segments = [];
+    allPoints = [];
+    initialVelocityInput.value = "0";
+    accelerationInput.value = "1";
+    durationInput.value = "5";
+    renderSegmentsList();
+    helperOutput.value = '';
+    drawFullPlot();
+    updateSimInfo(0,0, parseFloat(initialVelocityInput.value) || 0);
+    drawSimNumberLine(0, 0);
+    vBoundsForDial = { min: -10, max: 10 };
+    drawSpeedometer(parseFloat(initialVelocityInput.value) || 0, vBoundsForDial.min, vBoundsForDial.max);
+});
+
+explainBtn.addEventListener('click', () => {
+    if (allPoints.length < 2) { helperOutput.value = 'Add segments and run the simulation first.'; return; }
+    helperOutput.value = buildExplanation();
+    helperOutput.scrollTop = 0;
+});
+
+modalOverlay.addEventListener('click', (e) => {
+    if (e.target === modalOverlay) {
+        modalOverlay.classList.add('hidden');
+    }
+});
+
+// View Switcher Logic
+function showView(viewId) {
+    viewContainers.forEach(container => container.classList.add('hidden'));
+    switcherBtns.forEach(btn => btn.classList.remove('active'));
+
+    const activeContainer = document.getElementById(viewId);
+    if (activeContainer) {
+        activeContainer.classList.remove('hidden');
+        
+        const btnIdMap = {
+            'speedometer-container': 'showSpeedometerBtn',
+            'vt-graph-container': 'showVtGraphBtn',
+            'dt-graph-container': 'showDtGraphBtn'
+        };
+        const activeBtn = document.getElementById(btnIdMap[viewId]);
+        if(activeBtn) activeBtn.classList.add('active');
+
+        // Now that it's visible, size its canvas and redraw
+        setupCanvases();
+        drawFullPlot();
+    }
+}
+showSpeedometerBtn.addEventListener('click', () => showView('speedometer-container'));
+showVtGraphBtn.addEventListener('click', () => showView('vt-graph-container'));
+showDtGraphBtn.addEventListener('click', () => showView('dt-graph-container'));
+
+// Segment List Drag-and-Drop and Delete
+function renderSegmentsList() {
+    segmentsListEl.innerHTML = '';
+    segments.forEach((seg, i) => {
+        const li = document.createElement('li');
+        li.draggable = true;
+        li.dataset.index = i;
+
+        const textSpan = document.createElement('span');
+        textSpan.textContent = `Accel: ${seg.acceleration.toFixed(1)} m/s², Dur: ${seg.duration.toFixed(1)} s`;
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = '×';
+        deleteBtn.className = 'delete-segment-btn';
+        deleteBtn.onclick = (e) => {
+            e.stopPropagation();
+            segments.splice(i, 1);
+            renderSegmentsList();
+        };
+
+        li.appendChild(textSpan);
+        li.appendChild(deleteBtn);
+
+        li.addEventListener('dragstart', (e) => { dragStartIndex = i; li.classList.add('dragging'); });
+        li.addEventListener('dragend', () => li.classList.remove('dragging'));
+        li.addEventListener('dragover', (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; li.classList.add('drag-over'); });
+        li.addEventListener('dragleave', () => li.classList.remove('drag-over'));
+        li.addEventListener('drop', (e) => {
+            e.stopPropagation();
+            document.querySelectorAll('#segmentsList li.drag-over').forEach(item => item.classList.remove('drag-over'));
+            const dragEndIndex = i;
+            if (dragStartIndex !== dragEndIndex) {
+                const item = segments.splice(dragStartIndex, 1)[0];
+                segments.splice(dragEndIndex, 0, item);
+            }
+            renderSegmentsList();
+        });
+
+        segmentsListEl.appendChild(li);
+    });
+}
+
+// Core Physics Calculation
+function generateData() {
+    allPoints = [];
+    let time = 0;
+    let velocity = parseFloat(initialVelocityInput.value) || 0;
+    let distance = 0;
+    const timeStep = 0.05;
+
+    allPoints.push({ t: 0, v: velocity, d: distance });
+
+    segments.forEach(seg => {
+        const initialSegmentVelocity = velocity;
+        const initialSegmentDistance = distance;
+        const initialSegmentTime = time;
+
+        for (let t_seg = timeStep; t_seg <= seg.duration; t_seg += timeStep) {
+            const newTime = initialSegmentTime + t_seg;
+            const newVelocity = initialSegmentVelocity + seg.acceleration * t_seg;
+            const newDistance = initialSegmentDistance + initialSegmentVelocity * t_seg + 0.5 * seg.acceleration * t_seg * t_seg;
+            allPoints.push({ t: newTime, v: newVelocity, d: newDistance });
+        }
+        
+        time = initialSegmentTime + seg.duration;
+        velocity = initialSegmentVelocity + seg.acceleration * seg.duration;
+        distance = initialSegmentDistance + initialSegmentVelocity * seg.duration + 0.5 * seg.acceleration * seg.duration * seg.duration;
+        // Ensure the last point is exactly at the end time
+        const lastPoint = allPoints[allPoints.length-1];
+        if(lastPoint.t !== time) {
+             allPoints.push({ t: time, v: velocity, d: distance });
+        } else {
+            lastPoint.v = velocity;
+            lastPoint.d = distance;
+        }
+    });
+
+    vBoundsForDial = getBounds(allPoints.map(p => p.v), 10);
+    let maxAbsV = Math.max(Math.abs(vBoundsForDial.min), Math.abs(vBoundsForDial.max));
+    maxAbsV = Math.ceil(maxAbsV / 5) * 5; // Round up to nearest 5
+    if (maxAbsV === 0) maxAbsV = 10;
+    vBoundsForDial = { min: -maxAbsV, max: maxAbsV };
+}
+
+// Drawing Logic
+function drawFullPlot() {
+    const hasData = allPoints.length > 1;
+    const totalTime = hasData ? allPoints[allPoints.length - 1].t : 10;
+    
+    const vBounds = getBounds(allPoints.map(p => p.v), 5);
+    const dBounds = getBounds(allPoints.map(p => p.d), 10);
+
+    drawAxes(vtx, 'Velocity (m/s)', totalTime, vBounds.min, vBounds.max);
+    drawAxes(dtx, 'Distance (m)', totalTime, dBounds.min, dBounds.max);
+    
+    if (hasData) {
+        drawGraphLine(vtx, allPoints.map(p => ({ x: p.t, y: p.v })), totalTime, vBounds.min, vBounds.max);
+        drawGraphLine(dtx, allPoints.map(p => ({ x: p.t, y: p.d })), totalTime, dBounds.min, dBounds.max);
+    }
+    const lastV = hasData ? allPoints[allPoints.length - 1].v : parseFloat(initialVelocityInput.value) || 0;
+    drawSpeedometer(lastV, vBoundsForDial.min, vBoundsForDial.max);
+}
+
+function getBounds(data, fallback) {
+    if (data.length === 0) return { min: -fallback/2, max: fallback };
+    let min = data.length > 0 ? data[0] : 0, max = data.length > 0 ? data[0] : 0;
+    data.forEach(val => {
+        if (val < min) min = val;
+        if (val > max) max = val;
+    });
+    if (min === max) {
+        min -= fallback / 2;
+        max += fallback / 2;
+    }
+    const range = max-min;
+    return { min: min - range*0.1, max: max + range*0.1 };
+}
+
+function drawAxes(ctx, yLabel, maxTime, yMin, yMax) {
+    const cw = ctx.canvas.clientWidth;
+    const ch = ctx.canvas.clientHeight;
+    if (cw === 0 || ch === 0) return;
+    ctx.clearRect(0, 0, cw, ch);
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 1;
+    ctx.font = "12px 'Segoe UI', Arial";
+    ctx.fillStyle = '#333';
+    ctx.textAlign = 'center';
+
+    const yRange = yMax - yMin;
+    let yZeroPos = ch - padding; 
+    if (yRange !== 0) yZeroPos = ch - padding - ((0 - yMin) / yRange) * (ch - 2 * padding);
+    const xAxisY = Math.max(padding, Math.min(ch - padding, yZeroPos));
+
+    ctx.beginPath();
+    ctx.moveTo(padding, padding);
+    ctx.lineTo(padding, ch - padding);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(padding, xAxisY);
+    ctx.lineTo(cw - padding, xAxisY);
+    ctx.stroke();
+
+    ctx.save();
+    ctx.translate(padding / 2 - 15, ch / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText(yLabel, 0, 0);
+    ctx.restore();
+    ctx.fillText('Time (s)', cw / 2, ch - padding / 2 + 15);
+
+    const numXTicks = 8;
+    for (let i = 0; i <= numXTicks; i++) {
+        const t = maxTime / numXTicks * i;
+        const x = padding + (t / maxTime) * (cw - 2 * padding);
+        ctx.beginPath();
+        ctx.moveTo(x, xAxisY - tickSize/2);
+        ctx.lineTo(x, xAxisY + tickSize/2);
+        ctx.stroke();
+        ctx.fillText(t.toFixed(1), x, xAxisY + 20);
+    }
+
+    if (yRange === 0) return;
+    const numYTicks = 6;
+    ctx.textAlign = 'right';
+    for (let i = 0; i <= numYTicks; i++) {
+        const v = yMin + (yRange / numYTicks) * i;
+        const y = ch - padding - ((v - yMin) / yRange) * (ch - 2 * padding);
+        ctx.beginPath();
+        ctx.moveTo(padding - tickSize/2, y);
+        ctx.lineTo(padding + tickSize/2, y);
+        ctx.stroke();
+        ctx.fillText(v.toFixed(1), padding - 10, y + 4);
+    }
+}
+
+function drawGraphLine(ctx, points, maxTime, yMin, yMax) {
+    if (points.length < 2) return;
+    const cw = ctx.canvas.clientWidth;
+    const ch = ctx.canvas.clientHeight;
+    if (cw === 0 || ch === 0) return;
+    const yRange = yMax - yMin;
+    if (yRange === 0) return;
+
+    ctx.beginPath();
+    ctx.strokeStyle = '#e74c3c';
+    ctx.lineWidth = 2.5;
+
+    points.forEach((pt, i) => {
+        const x = padding + (pt.x / maxTime) * (cw - 2 * padding);
+        const y = ch - padding - ((pt.y - yMin) / yRange) * (ch - 2 * padding);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+}
+
+function drawSpeedometer(velocity, minV, maxV) {
+    const ctx = speedCtx;
+    const cw = speedometerCanvas.clientWidth;
+    const ch = speedometerCanvas.clientHeight;
+    if (cw === 0 || ch === 0) return;
+    ctx.clearRect(0, 0, cw, ch);
+
+    const cx = cw / 2;
+    const cy = ch * 0.8;
+    const radius = Math.min(cw / 2, ch) * 0.85;
+    
+    const startAngle = 0.75 * Math.PI;
+    const endAngle = 0.25 * Math.PI;
+    const angleRange = 1.5 * Math.PI;
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, startAngle, endAngle, false);
+    ctx.lineWidth = 20;
+    ctx.strokeStyle = '#e9edf0';
+    ctx.stroke();
+    
+    const valueRatio = (maxV === minV) ? 0.5 : Math.max(0, Math.min(1, (velocity - minV) / (maxV - minV)));
+    const needleAngle = startAngle + valueRatio * angleRange;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(needleAngle);
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(0, -radius * 0.9);
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = '#e74c3c';
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+    ctx.fillStyle = '#2c3e50';
+    ctx.fill();
+
+    ctx.font = `bold ${Math.max(16, radius * 0.2)}px Segoe UI`;
+    ctx.fillStyle = '#2c3e50';
+    ctx.textAlign = 'center';
+    ctx.fillText(velocity.toFixed(1), cx, cy - radius * 0.4);
+    ctx.font = `normal ${Math.max(12, radius * 0.1)}px Segoe UI`;
+    ctx.fillText('m/s', cx, cy - radius * 0.4 + 18);
+}
+
+function drawTimeCursor(ctx, currentTime, totalTime) {
+    const cw = ctx.canvas.clientWidth;
+    const ch = ctx.canvas.clientHeight;
+    if (cw === 0 || ch === 0 || totalTime <= 0) return;
+
+    // Calculate the x-position based on the current time
+    const x = padding + (currentTime / totalTime) * (cw - 2 * padding);
+
+    // Draw the vertical line
+    ctx.beginPath();
+    ctx.moveTo(x, padding);
+    ctx.lineTo(x, ch - padding);
+    ctx.strokeStyle = 'rgba(0, 119, 255, 0.7)'; // A semi-transparent blue
+    ctx.lineWidth = 2;
+    ctx.stroke();
+}
+
+
+// Animation Logic
+function startAnimation() {
+    if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    if (allPoints.length < 2) return;
+
+    const totalSimTime = allPoints[allPoints.length - 1].t;
+    const animationDuration = Math.max(2000, Math.min(8000, totalSimTime * 400));
+    let startTime = performance.now();
+
+    function animate(currentTime) {
+        const elapsedTime = currentTime - startTime;
+        const progress = Math.min(elapsedTime / animationDuration, 1);
+        const simTime = progress * totalSimTime;
+        
+        let currentPoint = allPoints.find(p => p.t >= simTime) || allPoints[allPoints.length - 1];
+
+        // Redraw the static graphs on each frame to clear the old cursor
+        drawFullPlot();
+
+        // Draw the new time cursor on top of the graphs
+        drawTimeCursor(vtx, simTime, totalSimTime);
+        drawTimeCursor(dtx, simTime, totalSimTime);
+
+        // Update the live simulation elements
+        drawSimNumberLine(currentPoint.d, currentPoint.v);
+        drawSpeedometer(currentPoint.v, vBoundsForDial.min, vBoundsForDial.max);
+        updateSimInfo(currentPoint.t, currentPoint.d, currentPoint.v);
+
+        if (progress < 1) {
+            animationFrameId = requestAnimationFrame(animate);
+        } else {
+             const finalPoint = allPoints[allPoints.length - 1];
+             drawFullPlot(); // Final redraw
+             drawTimeCursor(vtx, finalPoint.t, totalSimTime); // Final cursor position
+             drawTimeCursor(dtx, finalPoint.t, totalSimTime); // Final cursor position
+             drawSimNumberLine(finalPoint.d, finalPoint.v);
+             drawSpeedometer(finalPoint.v, vBoundsForDial.min, vBoundsForDial.max);
+             updateSimInfo(finalPoint.t, finalPoint.d, finalPoint.v);
+        }
+    }
+    animationFrameId = requestAnimationFrame(animate);
+}
+
+function drawSimNumberLine(currentPos, currentVel) {
+    const cw = simCanvas.clientWidth;
+    const ch = simCanvas.clientHeight;
+    if (cw === 0 || ch === 0) return;
+    simCtx.clearRect(0, 0, cw, ch);
+    
+    const viewWidth = 100;
+    const simPadding = 20;
+
+    simCtx.beginPath();
+    simCtx.moveTo(simPadding, ch / 2);
+    simCtx.lineTo(cw - simPadding, ch / 2);
+    simCtx.strokeStyle = '#333';
+    simCtx.stroke();
+
+    simCtx.font = "10px 'Segoe UI', Arial";
+    simCtx.textAlign = 'center';
+
+    const tickInterval = 10;
+    const firstTick = Math.ceil((currentPos - viewWidth / 2) / tickInterval) * tickInterval;
+
+    for (let val = firstTick; val <= (currentPos + viewWidth / 2); val += tickInterval) {
+        const x = (cw / 2) - ((currentPos - val) / viewWidth) * (cw - 2 * simPadding);
+
+        if (x >= simPadding && x <= cw - simPadding) {
+            simCtx.beginPath();
+            simCtx.moveTo(x, ch / 2 - 5);
+            simCtx.lineTo(x, ch / 2 + 5);
+            simCtx.stroke();
+            simCtx.fillText(val.toFixed(0), x, ch / 2 + 20);
+        }
+    }
+    
+    const objX = cw / 2;
+
+    const maxAbsV = vBoundsForDial.max;
+    const maxBlurLength = cw / 4;
+    let blurLength = 0;
+    if (maxAbsV > 0 && currentVel !== undefined) {
+        blurLength = (Math.abs(currentVel) / maxAbsV) * maxBlurLength;
+    }
+    blurLength = Math.min(blurLength, maxBlurLength);
+
+    if (blurLength > 1 && Math.abs(currentVel) > 0.1) {
+        simCtx.save();
+        const blurHeight = 14;
+        const blurStartY = ch / 2 - blurHeight / 2;
+        let grad;
+        
+        if (currentVel > 0) {
+            grad = simCtx.createLinearGradient(objX - blurLength, 0, objX, 0);
+            grad.addColorStop(0, 'rgba(52, 152, 219, 0)');
+            grad.addColorStop(1, 'rgba(52, 152, 219, 0.6)');
+        } else {
+            grad = simCtx.createLinearGradient(objX, 0, objX + blurLength, 0);
+            grad.addColorStop(0, 'rgba(52, 152, 219, 0.6)');
+            grad.addColorStop(1, 'rgba(52, 152, 219, 0)');
+        }
+        
+        simCtx.fillStyle = grad;
+        simCtx.fillRect(currentVel > 0 ? objX - blurLength : objX, blurStartY, blurLength, blurHeight);
+        simCtx.restore();
+    }
+
+    simCtx.beginPath();
+    simCtx.arc(objX, ch / 2, 8, 0, 2 * Math.PI);
+    simCtx.fillStyle = '#3498db';
+    simCtx.fill();
+    simCtx.strokeStyle = '#2980b9';
+    simCtx.stroke();
+}
+
+function updateSimInfo(time, pos, vel) {
+    simInfo.textContent = `Time: ${time.toFixed(1)}s | Position: ${pos.toFixed(1)}m | Velocity: ${vel.toFixed(1)}m/s`;
+}
+
+// Smart Helper
+function buildExplanation() {
+    let lines = ['Analysis of your motion:\n'];
+    const initialV = parseFloat(initialVelocityInput.value) || 0;
+    const finalPoint = allPoints.length > 1 ? allPoints[allPoints.length - 1] : {t:0, v:initialV, d:0};
+
+    lines.push(`• Starting Velocity: ${initialV.toFixed(2)} m/s`);
+    lines.push(`• Total Time: ${finalPoint.t.toFixed(2)} s`);
+    lines.push(`• Final Velocity: ${finalPoint.v.toFixed(2)} m/s`);
+    lines.push(`• Final Displacement (position): ${finalPoint.d.toFixed(2)} m`);
+
+    lines.push('\n--- Velocity vs. Time Graph ---');
+    lines.push('This graph shows how your speed and direction change.');
+    segments.forEach((seg, i) => {
+        let desc;
+        if (seg.acceleration > 0) desc = `speeding up (if moving forward) or slowing down (if moving backward).`;
+        else if (seg.acceleration < 0) desc = `slowing down (if moving forward) or speeding up (if moving backward).`;
+        else desc = `moving at a constant velocity.`;
+        lines.push(`• Segment ${i+1}: The line has a slope of ${seg.acceleration.toFixed(1)}, meaning you are ${desc}`);
+    });
+     lines.push('Remember: The slope of this graph is acceleration.');
+
+    lines.push('\n--- Distance vs. Time Graph ---');
+    lines.push('This graph shows your position over time.');
+     segments.forEach((seg, i) => {
+        let desc;
+        if (seg.acceleration > 0) desc = 'curves upwards (like a smile)';
+        else if (seg.acceleration < 0) desc = 'curves downwards (like a frown)';
+        else desc = 'is a straight line';
+        lines.push(`• Segment ${i+1}: The graph ${desc}, showing the effect of acceleration.`);
+    });
+    lines.push('Remember: The slope at any point on this graph is your instantaneous velocity.');
+
+    return lines.join('\n');
+}
+
+</script>
+</body>
+</html>
+
+
