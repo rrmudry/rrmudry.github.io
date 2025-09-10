@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="description" content="Browse all 30 animated Eureka! physics episodes with a searchable gallery and playlist player."/>
+  <title>Eureka! Videos • Mr. Mudry’s Physics</title>
+  <link rel="icon" type="image/png" href="head.png"/>
+  <link rel="apple-touch-icon" href="apple-touch-icon.svg"/>
+  <link rel="stylesheet" href="assets/theme.css"/>
+
+  <style>
+    :root { --maxw: 1100px; }
+    .container-narrow { max-width: var(--maxw); margin: 0 auto; padding: 0 var(--space-3); }
+    .stack-lg { display: grid; gap: var(--space-5); }
+
+    .player-wrap {
+      position: relative; width: 100%; aspect-ratio: 16/9;
+      background: var(--bg); border-radius: var(--radius); overflow: hidden;
+    }
+    .player-wrap > #player, .player-wrap iframe {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      border: 0; display: block;
+    }
+
+    .toolbar { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-3); align-items: center; justify-content: space-between; }
+    .search input {
+      width: 16rem; max-width: 60vw;
+      padding: .55rem .7rem; border-radius: 12px; border: 1px solid #444;
+      background: var(--bg-muted); color: var(--ink);
+    }
+
+    .video-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--space-3);
+    }
+    .card {
+      background: var(--card); border: 1px solid #222;
+      border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column;
+      transition: transform .08s ease, box-shadow .08s ease, border-color .08s ease;
+    }
+    .card:hover { transform: translateY(-2px); border-color: #2c2c2c; box-shadow: var(--shadow); }
+    .thumb-btn { border: 0; padding: 0; background: none; cursor: pointer; line-height: 0; position: relative; width: 100%; aspect-ratio: 16/9; }
+    .thumb { position: absolute; inset: 0; background-size: cover; background-position: center; }
+    .play { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+    .play svg { width: 60px; height: 60px; filter: drop-shadow(0 2px 6px rgba(0,0,0,.6)); }
+    .play svg path:first-child { fill: var(--brand); }
+    .meta { padding: var(--space-3); display: grid; gap: .25rem; }
+    .title { margin: 0; font-size: 1rem; line-height: 1.3; }
+    .small { font-size: .85rem; }
+    .small a { color: var(--brand); text-decoration: none; }
+    .small a:hover { text-decoration: underline; }
+
+    iframe { position: relative; z-index: 1; }
+    header, nav { position: relative; z-index: 10; }
+    .hero, .energy-bar { pointer-events: none; }
+
+    @media (prefers-color-scheme: light) {
+      .card { background: #fff; border-color: #e5e7eb; color: #111; }
+      .search input { background: #fff; border-color: #e5e7eb; color: #000; }
+      .small a { color: var(--brand-dark); }
+    }
+
+    .visually-hidden {
+      position: absolute !important;
+      height: 1px; width: 1px;
+      overflow: hidden; clip: rect(1px, 1px, 1px, 1px);
+      white-space: nowrap; border: 0; padding: 0; margin: -1px;
+    }
+  </style>
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Eureka! Videos • Mr. Mudry’s Physics">
+  <meta property="og:description" content="Animated explanations of key physics concepts, pulled live from the playlist.">
+  <meta property="og:image" content="https://rrmudry.github.io/head.png">
+  <meta property="og:url" content="https://rrmudry.github.io/eureka-videos.html">
+  <meta name="twitter:card" content="summary_large_image">
+</head>
+<body>
+  <div data-include="header"></div>
+
+  <main role="main" class="stack-lg">
+    <section class="hero">
+      <div class="container">
+        <h1>Eureka! Videos</h1>
+        <div class="energy-bar" aria-hidden="true"></div>
+        <p class="subtitle">Animated explanations of key physics concepts.</p>
+      </div>
+    </section>
+
+    <section class="container-narrow stack-lg" aria-labelledby="video-gallery">
+      <h2 id="video-gallery">Gallery</h2>
+
+      <div class="player-wrap">
+        <div id="player" aria-label="YouTube playlist player"></div>
+      </div>
+
+      <p><a id="openOnYT" class="btn primary" href="https://www.youtube.com/playlist?list=PLjFc2AYbYsNmjqtm-wlVXpgFaDvpPCMHx" target="_blank" rel="noopener">Open the full playlist on YouTube</a></p>
+
+      <div class="toolbar">
+        <div class="search">
+          <label for="q" class="visually-hidden">Search videos</label>
+          <input id="q" type="search" placeholder="Search titles… (e.g., inertia, pulley)">
+        </div>
+      </div>
+
+      <div id="grid" class="video-grid" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <div data-include="footer"></div>
+  <script src="assets/partials.js"></script>
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script>
+    const PLAYLIST_ID = "PLjFc2AYbYsNmjqtm-wlVXpgFaDvpPCMHx";
+    let player;
+    let items = [];
+    const thumb = id => `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+    const watchUrl = id => `https://www.youtube.com/watch?v=${id}&list=${PLAYLIST_ID}`;
+    const embedSingle = id => `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
+
+    async function fetchTitleFor(id) {
+      try {
+        const url = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("oEmbed error");
+        const data = await res.json();
+        return data.title || `YouTube Video (${id})`;
+      } catch {
+        return `YouTube Video (${id})`;
+      }
+    }
+
+    function renderGrid(filterTerm = "") {
+      const grid = document.getElementById("grid");
+      const term = filterTerm.trim().toLowerCase();
+      const list = term ? items.filter(v => v.title.toLowerCase().includes(term)) : items;
+
+      grid.innerHTML = list.map(v => `
+        <article class="card">
+          <button class="thumb-btn" data-id="${v.id}" aria-label="Play ${v.title}">
+            <div class="thumb" style="background-image:url('${thumb(v.id)}')"></div>
+            <div class="play" aria-hidden="true">
+              <svg viewBox="0 0 68 48" role="img" aria-label="Play">
+                <path d="M66.52 7.74a8 8 0 0 0-5.62-5.66C55.6.67 34 .67 34 .67s-21.6 0-26.9 1.41A8 8 0 0 0 1.48 7.74 83.4 83.4 0 0 0 0 24a83.4 83.4 0 0 0 1.48 16.26 8 8 0 0 0 5.62 5.66C12.4 47.33 34 47.33 34 47.33s21.6 0 26.9-1.41a8 8 0 0 0 5.62-5.66A83.4 83.4 0 0 0 68 24a83.4 83.4 0 0 0-1.48-16.26z"></path>
+                <path d="M45 24 27 14v20l18-10z" fill="#fff"></path>
+              </svg>
+            </div>
+          </button>
+          <div class="meta">
+            <h3 class="title">${v.title}</h3>
+            <div class="small"><a href="${watchUrl(v.id)}" target="_blank" rel="noopener">Open on YouTube</a></div>
+          </div>
+        </article>
+      `).join("");
+
+      if (!list.length) grid.innerHTML = `<p>No videos match your search.</p>`;
+    }
+
+    document.addEventListener("click", (e) => {
+      const btn = e.target.closest(".thumb-btn");
+      if (!btn) return;
+      const id = btn.dataset.id;
+      if (player && player.loadVideoById) {
+        player.loadVideoById(id);
+        document.getElementById("openOnYT").href = watchUrl(id);
+        document.getElementById("player").scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    });
+
+    document.addEventListener("input", (e) => {
+      if (e.target && e.target.id === "q") renderGrid(e.target.value);
+    });
+
+    function onPlayerReady() {
+      const poll = async () => {
+        try {
+          const ids = (player.getPlaylist && player.getPlaylist()) || [];
+          if (ids.length) {
+            const seen = new Set();
+            const uniqueIds = ids.filter(id => (seen.has(id) ? false : seen.add(id)));
+            const titles = await Promise.all(uniqueIds.map(fetchTitleFor));
+            items = uniqueIds.map((id, i) => ({ id, title: titles[i] }));
+            renderGrid("");
+            return;
+          }
+        } catch {}
+        setTimeout(poll, 300);
+      };
+      poll();
+    }
+
+    window.onYouTubeIframeAPIReady = function () {
+      player = new YT.Player('player', {
+        host: 'https://www.youtube-nocookie.com',
+        playerVars: {
+          listType: 'playlist',
+          list: PLAYLIST_ID,
+          rel: 0,
+          modestbranding: 1,
+          iv_load_policy: 3,
+          playsinline: 1
+        },
+        events: { onReady: onPlayerReady }
+      });
+    };
+  </script>
+</body>
+</html>
