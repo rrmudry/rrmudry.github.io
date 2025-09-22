@@ -7,6 +7,7 @@ import ProgressBar from './components/ProgressBar';
 import { Question, Value, Variable } from './types';
 import SpeakButton from './components/SpeakButton';
 import HelpModal from './components/HelpModal';
+import CalculatorPanel from './components/CalculatorPanel';
 
 type Feedback = {
   message: string;
@@ -74,6 +75,15 @@ const App: React.FC = () => {
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(true); // Open on first load
   const [hasSeenHelp, setHasSeenHelp] = useState(false);
   const [animateHelpButton, setAnimateHelpButton] = useState(false);
+  const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
+  const [calculatorPosition, setCalculatorPosition] = useState(() => {
+    if (typeof window === 'undefined') {
+      return { x: 24, y: 120 };
+    }
+    return { x: Math.max(24, window.innerWidth - 320), y: 140 };
+  });
+  const CALC_WIDTH = 288;
+  const CALC_HEIGHT = 360;
 
 
   useEffect(() => {
@@ -175,7 +185,31 @@ const App: React.FC = () => {
       handleDrop(variable, { type: 'unknown', variable: selectedUnknown });
     }
   };
-  
+
+  useEffect(() => {
+    if (!isCalculatorOpen) return;
+    setCalculatorPosition(prev => {
+      const maxX = Math.max(16, width - CALC_WIDTH - 16);
+      const maxY = Math.max(16, height - CALC_HEIGHT - 16);
+      return {
+        x: Math.min(Math.max(prev.x, 16), maxX),
+        y: Math.min(Math.max(prev.y, 16), maxY),
+      };
+    });
+  }, [width, height, isCalculatorOpen]);
+
+  const moveCalculator = useCallback(
+    (position: { x: number; y: number }) => {
+      const maxX = Math.max(16, width - CALC_WIDTH - 16);
+      const maxY = Math.max(16, height - CALC_HEIGHT - 16);
+      setCalculatorPosition({
+        x: Math.min(Math.max(position.x, 16), maxX),
+        y: Math.min(Math.max(position.y, 16), maxY),
+      });
+    },
+    [width, height],
+  );
+
   const handleCheckAnswer = () => {
     const question = questions[currentQuestionIndex];
     if (!question) return;
@@ -359,6 +393,17 @@ const App: React.FC = () => {
                   selectedUnknown={selectedUnknown}
                 />
             </div>
+
+            <div className="mt-6 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setIsCalculatorOpen(prev => !prev)}
+                className="flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-100"
+              >
+                <span aria-hidden="true">🧮</span>
+                {isCalculatorOpen ? 'Hide calculator' : 'Open calculator'}
+              </button>
+            </div>
             
             <div className="mt-8">
               <FeedbackDisplay feedback={feedback} />
@@ -436,6 +481,13 @@ const App: React.FC = () => {
         `}</style>
       </div>
       <HelpModal isOpen={isHelpModalOpen} onClose={handleCloseHelpModal} />
+      {isCalculatorOpen && (
+        <CalculatorPanel
+          position={calculatorPosition}
+          onPositionChange={moveCalculator}
+          onClose={() => setIsCalculatorOpen(false)}
+        />
+      )}
     </>
   );
 };
