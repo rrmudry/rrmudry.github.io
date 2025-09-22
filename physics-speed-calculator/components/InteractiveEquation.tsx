@@ -13,6 +13,9 @@ interface InteractiveEquationProps {
   level: 1 | 2;
   userAnswer: string;
   onAnswerChange: (value: string) => void;
+  onZoneTap: (variable: Variable) => void;
+  selectedValue: Value | null;
+  selectedUnknown: Variable | null;
 }
 
 const InteractiveEquation: React.FC<InteractiveEquationProps> = ({
@@ -25,6 +28,9 @@ const InteractiveEquation: React.FC<InteractiveEquationProps> = ({
   level,
   userAnswer,
   onAnswerChange,
+  onZoneTap,
+  selectedValue,
+  selectedUnknown,
 }) => {
 
   const renderSlotContent = (variable: Variable) => {
@@ -69,19 +75,40 @@ const InteractiveEquation: React.FC<InteractiveEquationProps> = ({
     return <span className="text-slate-400 text-5xl font-mono">{variable}</span>;
   };
 
+  const activeValueVariable = selectedValue?.variable ?? null;
+  const unknownSelected = selectedUnknown !== null;
+
   return (
     <div className="flex flex-col items-center space-y-8 w-full">
       <div className="flex justify-center items-center text-7xl font-mono text-slate-700 space-x-6">
-        <DropZone variable={Variable.Velocity} onDrop={onDrop}>
+        <DropZone
+          variable={Variable.Velocity}
+          onDrop={onDrop}
+          onTap={onZoneTap}
+          isActive={activeValueVariable === Variable.Velocity || unknownSelected}
+          selectionType={activeValueVariable === Variable.Velocity ? 'value' : unknownSelected ? 'unknown' : null}
+        >
             {renderSlotContent(Variable.Velocity)}
         </DropZone>
         <span className="font-sans text-slate-800">=</span>
         <div className="flex flex-col items-center">
-          <DropZone variable={Variable.Distance} onDrop={onDrop}>
+          <DropZone
+            variable={Variable.Distance}
+            onDrop={onDrop}
+            onTap={onZoneTap}
+            isActive={activeValueVariable === Variable.Distance || unknownSelected}
+            selectionType={activeValueVariable === Variable.Distance ? 'value' : unknownSelected ? 'unknown' : null}
+          >
             {renderSlotContent(Variable.Distance)}
           </DropZone>
           <div className="w-40 h-2 bg-slate-800 my-2 rounded"></div>
-          <DropZone variable={Variable.Time} onDrop={onDrop}>
+          <DropZone
+            variable={Variable.Time}
+            onDrop={onDrop}
+            onTap={onZoneTap}
+            isActive={activeValueVariable === Variable.Time || unknownSelected}
+            selectionType={activeValueVariable === Variable.Time ? 'value' : unknownSelected ? 'unknown' : null}
+          >
             {renderSlotContent(Variable.Time)}
           </DropZone>
         </div>
