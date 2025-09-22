@@ -10,7 +10,7 @@ interface InteractiveEquationProps {
   calculatedAnswer: number | null;
   droppedUnknown: Variable | null;
   unknownText: string;
-  level: 1 | 2;
+  level: 1 | 2 | 3;
   userAnswer: string;
   onAnswerChange: (value: string) => void;
   onZoneTap: (variable: Variable) => void;
@@ -41,7 +41,7 @@ const InteractiveEquation: React.FC<InteractiveEquationProps> = ({
 
     if (droppedUnknown === variable) {
         // In Level 2, if this is the answer slot, show an input field.
-        if (level === 2 && variable === solveFor) {
+        if (level !== 1 && variable === solveFor) {
             return (
                  <input
                     type="number"
