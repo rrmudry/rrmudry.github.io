@@ -51,6 +51,8 @@ const InteractiveEquation: React.FC<InteractiveEquationProps> = ({
                     placeholder="0.00"
                     aria-label="Enter your calculated answer"
                     className="w-full text-center bg-purple-50 text-purple-800 text-3xl font-bold border-b-2 border-purple-300 focus:outline-none focus:border-purple-500 rounded-t-md p-2"
+                    inputMode="decimal"
+                    onWheel={(event) => event.currentTarget.blur()}
                  />
             );
         }
