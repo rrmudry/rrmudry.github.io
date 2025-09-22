@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 
 type Operator = '+' | '-' | '×' | '÷';
 
@@ -31,41 +31,30 @@ const CalculatorPanel: React.FC<CalculatorPanelProps> = ({ position, onPositionC
   const dragOffsetRef = useRef({ x: 0, y: 0 });
   const draggingRef = useRef(false);
 
-  const handlePointerMove = useCallback(
-    (event: PointerEvent) => {
-      if (!draggingRef.current) return;
-      const newX = event.clientX - dragOffsetRef.current.x;
-      const newY = event.clientY - dragOffsetRef.current.y;
-      onPositionChange({ x: newX, y: newY });
-    },
-    [onPositionChange],
-  );
-
-  const handlePointerUp = useCallback(() => {
-    draggingRef.current = false;
-    window.removeEventListener('pointermove', handlePointerMove);
-    window.removeEventListener('pointerup', handlePointerUp);
-  }, [handlePointerMove]);
-
-  const beginDrag = useCallback(
-    (event: React.PointerEvent<HTMLDivElement>) => {
-      draggingRef.current = true;
-      dragOffsetRef.current = {
-        x: event.clientX - position.x,
-        y: event.clientY - position.y,
-      };
-      window.addEventListener('pointermove', handlePointerMove);
-      window.addEventListener('pointerup', handlePointerUp);
-    },
-    [handlePointerMove, handlePointerUp, position.x, position.y],
-  );
-
-  useEffect(() => {
-    return () => {
-      window.removeEventListener('pointermove', handlePointerMove);
-      window.removeEventListener('pointerup', handlePointerUp);
+  const beginDrag = (event: React.PointerEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    draggingRef.current = true;
+    dragOffsetRef.current = {
+      x: event.clientX - position.x,
+      y: event.clientY - position.y,
     };
-  }, [handlePointerMove, handlePointerUp]);
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!draggingRef.current) return;
+    const newX = event.clientX - dragOffsetRef.current.x;
+    const newY = event.clientY - dragOffsetRef.current.y;
+    onPositionChange({ x: newX, y: newY });
+  };
+
+  const endDrag = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!draggingRef.current) return;
+    draggingRef.current = false;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+  };
 
   const appendDigit = (digit: string) => {
     setDisplayValue(prev => {
@@ -194,8 +183,11 @@ const CalculatorPanel: React.FC<CalculatorPanelProps> = ({ position, onPositionC
     >
       <div className="w-72 rounded-2xl shadow-2xl border border-slate-200 bg-white overflow-hidden">
         <div
-          className="flex items-center justify-between bg-slate-800 text-slate-50 px-4 py-2 cursor-move"
+          className="flex items-center justify-between bg-slate-800 text-slate-50 px-4 py-2 cursor-move touch-none"
           onPointerDown={beginDrag}
+          onPointerMove={handlePointerMove}
+          onPointerUp={endDrag}
+          onPointerCancel={endDrag}
         >
           <span className="text-sm font-semibold tracking-wide uppercase">Calculator</span>
           <button
