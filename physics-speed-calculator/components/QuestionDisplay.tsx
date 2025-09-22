@@ -1,6 +1,6 @@
 import React from 'react';
 import DraggableValue from './DraggableValue';
-import { Question, Value } from '../types';
+import { Question, Value, Variable } from '../types';
 import DraggableUnknown from './DraggableUnknown';
 import SpeakButton from './SpeakButton';
 
@@ -8,10 +8,22 @@ interface QuestionDisplayProps {
   question: Question;
   placedValues: Value[];
   isUnknownPlaced: boolean;
+  onValueSelect: (value: Value) => void;
+  onUnknownSelect: (variable: Variable) => void;
+  selectedValueId: string | null;
+  selectedUnknown: Variable | null;
 }
 
-const QuestionDisplay: React.FC<QuestionDisplayProps> = ({ question, placedValues, isUnknownPlaced }) => {
-  const findValueForVariable = (variable: string) => {
+const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
+  question,
+  placedValues,
+  isUnknownPlaced,
+  onValueSelect,
+  onUnknownSelect,
+  selectedValueId,
+  selectedUnknown,
+}) => {
+  const findValueForVariable = (variable: Variable) => {
     return question.values.find(v => v.variable === variable);
   };
 
@@ -61,6 +73,8 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({ question, placedValue
                 text={question.unknownText}
                 variable={question.solveFor}
                 isPlaced={isUnknownPlaced}
+                onSelect={onUnknownSelect}
+                isSelected={selectedUnknown === question.solveFor}
               />
             );
           } else if ('variable' in part) {
@@ -74,7 +88,15 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({ question, placedValue
                 </span>
               );
             }
-            return <DraggableValue key={value.id} value={value} isPlaced={false} />;
+            return (
+              <DraggableValue
+                key={value.id}
+                value={value}
+                isPlaced={false}
+                onSelect={onValueSelect}
+                isSelected={selectedValueId === value.id}
+              />
+            );
           }
           return null;
         })}

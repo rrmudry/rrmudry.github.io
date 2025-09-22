@@ -61,6 +61,8 @@ const App: React.FC = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [droppedValues, setDroppedValues] = useState<{ [key: string]: Value | null }>({});
   const [droppedUnknown, setDroppedUnknown] = useState<Variable | null>(null);
+  const [selectedValue, setSelectedValue] = useState<Value | null>(null);
+  const [selectedUnknown, setSelectedUnknown] = useState<Variable | null>(null);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [showAnswer, setShowAnswer] = useState(false);
   const [calculatedAnswer, setCalculatedAnswer] = useState<number | null>(null);
@@ -96,6 +98,8 @@ const App: React.FC = () => {
     setShowAnswer(false);
     setCalculatedAnswer(null);
     setUserAnswer('');
+    setSelectedValue(null);
+    setSelectedUnknown(null);
   }, []);
 
   const handleLevelChange = (newLevel: 1 | 2) => {
@@ -114,28 +118,61 @@ const App: React.FC = () => {
     }
   };
 
-  const handleDrop = (targetVariable: Variable, payload: { type: 'value', value: Value } | { type: 'unknown', variable: Variable }) => {
+  const handleDrop = (
+    targetVariable: Variable,
+    payload: { type: 'value'; value: Value } | { type: 'unknown'; variable: Variable }
+  ) => {
     if (payload.type === 'value') {
       const { value } = payload;
       const isValueAlreadyPlaced = Object.values(droppedValues).some(v => v?.id === value.id);
-      if(isValueAlreadyPlaced) return;
-      
+      if (isValueAlreadyPlaced) {
+        setSelectedValue(null);
+        setSelectedUnknown(null);
+        return;
+      }
+
       if (droppedUnknown === targetVariable) {
         setDroppedUnknown(null);
       }
-      
+
       setDroppedValues(prev => ({
         ...prev,
         [targetVariable]: value,
       }));
-
     } else if (payload.type === 'unknown') {
-      const newDroppedValues = {...droppedValues};
+      const newDroppedValues = { ...droppedValues };
       if (newDroppedValues[targetVariable]) {
-          newDroppedValues[targetVariable] = null;
-          setDroppedValues(newDroppedValues);
+        newDroppedValues[targetVariable] = null;
+        setDroppedValues(newDroppedValues);
       }
       setDroppedUnknown(targetVariable);
+    }
+
+    setSelectedValue(null);
+    setSelectedUnknown(null);
+  };
+
+  const handleValueSelect = useCallback((value: Value) => {
+    const isValueAlreadyPlaced = Object.values(droppedValues).some(v => v?.id === value.id);
+    if (isValueAlreadyPlaced) {
+      setSelectedValue(null);
+      return;
+    }
+
+    setSelectedUnknown(null);
+    setSelectedValue(prev => (prev?.id === value.id ? null : value));
+  }, [droppedValues]);
+
+  const handleUnknownSelect = useCallback((variable: Variable) => {
+    setSelectedValue(null);
+    setSelectedUnknown(prev => (prev === variable ? null : variable));
+  }, []);
+
+  const handleZoneTap = (variable: Variable) => {
+    if (selectedValue) {
+      handleDrop(variable, { type: 'value', value: selectedValue });
+    } else if (selectedUnknown) {
+      handleDrop(variable, { type: 'unknown', variable: selectedUnknown });
     }
   };
   
@@ -251,7 +288,7 @@ const App: React.FC = () => {
   const currentQuestion = questions[currentQuestionIndex];
   const placedValues = Object.values(droppedValues).filter(v => v !== null) as Value[];
   const allCompleted = completedQuestions.size === questions.length;
-  const instructionText = "Drag the values and the unknown term from the problem into the equation.";
+  const instructionText = "Drag or tap the values and the unknown term from the problem into the equation.";
 
   return (
     <>
@@ -300,6 +337,10 @@ const App: React.FC = () => {
               question={currentQuestion}
               placedValues={placedValues}
               isUnknownPlaced={droppedUnknown !== null}
+              onValueSelect={handleValueSelect}
+              onUnknownSelect={handleUnknownSelect}
+              selectedValueId={selectedValue?.id ?? null}
+              selectedUnknown={selectedUnknown}
             />
 
             <div className="mt-12 flex justify-center items-center">
@@ -313,6 +354,9 @@ const App: React.FC = () => {
                   level={level}
                   userAnswer={userAnswer}
                   onAnswerChange={setUserAnswer}
+                  onZoneTap={handleZoneTap}
+                  selectedValue={selectedValue}
+                  selectedUnknown={selectedUnknown}
                 />
             </div>
             
