@@ -85,8 +85,7 @@ const InteractiveEquation: React.FC<InteractiveEquationProps> = ({
           variable={Variable.Velocity}
           onDrop={onDrop}
           onTap={onZoneTap}
-          isActive={activeValueVariable === Variable.Velocity || unknownSelected}
-          selectionType={activeValueVariable === Variable.Velocity ? 'value' : unknownSelected ? 'unknown' : null}
+          isActive={activeValueVariable !== null || unknownSelected}
         >
             {renderSlotContent(Variable.Velocity)}
         </DropZone>
@@ -96,8 +95,7 @@ const InteractiveEquation: React.FC<InteractiveEquationProps> = ({
             variable={Variable.Distance}
             onDrop={onDrop}
             onTap={onZoneTap}
-            isActive={activeValueVariable === Variable.Distance || unknownSelected}
-            selectionType={activeValueVariable === Variable.Distance ? 'value' : unknownSelected ? 'unknown' : null}
+            isActive={activeValueVariable !== null || unknownSelected}
           >
             {renderSlotContent(Variable.Distance)}
           </DropZone>
@@ -106,8 +104,7 @@ const InteractiveEquation: React.FC<InteractiveEquationProps> = ({
             variable={Variable.Time}
             onDrop={onDrop}
             onTap={onZoneTap}
-            isActive={activeValueVariable === Variable.Time || unknownSelected}
-            selectionType={activeValueVariable === Variable.Time ? 'value' : unknownSelected ? 'unknown' : null}
+            isActive={activeValueVariable !== null || unknownSelected}
           >
             {renderSlotContent(Variable.Time)}
           </DropZone>
