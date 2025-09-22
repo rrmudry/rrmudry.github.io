@@ -7,7 +7,6 @@ interface DropZoneProps {
   children: ReactNode;
   onTap?: (variable: Variable) => void;
   isActive?: boolean;
-  selectionType?: 'value' | 'unknown' | null;
 }
 
 const DropZone: React.FC<DropZoneProps> = ({
@@ -16,7 +15,6 @@ const DropZone: React.FC<DropZoneProps> = ({
   children,
   onTap,
   isActive = false,
-  selectionType = null,
 }) => {
   const [isOver, setIsOver] = useState(false);
   const pointerTypeRef = useRef<string | null>(null);
@@ -83,11 +81,7 @@ const DropZone: React.FC<DropZoneProps> = ({
   const baseClasses = "w-40 h-28 rounded-lg border-2 border-dashed flex items-center justify-center transition-all duration-200 p-2";
   const stateClasses = 'border-slate-300 bg-slate-50';
   const hoverClasses = isOver ? 'border-sky-500 bg-sky-50 scale-105' : '';
-  const selectionClasses = !isActive
-    ? ''
-    : selectionType === 'unknown'
-      ? 'ring-2 ring-purple-400 ring-offset-2 bg-purple-50 border-purple-200'
-      : 'ring-2 ring-sky-400 ring-offset-2 bg-sky-50 border-sky-200';
+  const selectionClasses = !isActive ? '' : 'ring-2 ring-slate-300 ring-offset-2';
 
 
   return (
