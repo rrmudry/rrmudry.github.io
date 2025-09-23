@@ -4,7 +4,7 @@ Personal classroom site with HTML5 games and lesson materials.
 
 ## Highlights
 
-- New: Physics Speed Calculator (`physics-speed-calculator/` → builds to `assets/physics-speed-calculator/`).
+- New: Physics Speed Calculator (`physics_speed_calculator/dist/index.html`).
 
 ## Local Setup
 
