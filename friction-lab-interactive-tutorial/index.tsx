@@ -371,13 +371,39 @@ const ResultsScreen: React.FC<{ studentId: string; score: number; total: number 
     React.useEffect(() => {
         if (qrCodeRef.current) {
             qrCodeRef.current.innerHTML = '';
-            new QRCode(qrCodeRef.current, {
+            const container = qrCodeRef.current;
+            new QRCode(container, {
                 text: JSON.stringify({ studentId, score: score.toFixed(2) }),
-                width: 200,
-                height: 200,
+                width: 220,
+                height: 220,
                 colorDark: "#000000",
                 colorLight: "#ffffff",
                 correctLevel: QRCode.CorrectLevel.H
+            });
+
+            // Pad the generated QR canvas with additional white space to ensure scanners detect it reliably
+            requestAnimationFrame(() => {
+                const originalCanvas = container.querySelector('canvas');
+                if (!originalCanvas) {
+                    return;
+                }
+
+                const padding = 40; // pixels of white space on each side
+                const paddedCanvas = document.createElement('canvas');
+                paddedCanvas.width = originalCanvas.width + padding * 2;
+                paddedCanvas.height = originalCanvas.height + padding * 2;
+
+                const ctx = paddedCanvas.getContext('2d');
+                if (!ctx) {
+                    return;
+                }
+
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, paddedCanvas.width, paddedCanvas.height);
+                ctx.drawImage(originalCanvas, padding, padding);
+
+                container.innerHTML = '';
+                container.appendChild(paddedCanvas);
             });
         }
     }, [studentId, score]);
@@ -399,7 +425,9 @@ const ResultsScreen: React.FC<{ studentId: string; score: number; total: number 
                 <p className="text-slate-600 mt-4 text-lg">
                     Your final score is: <span className="font-bold text-blue-600">{score.toFixed(2)} / {total.toFixed(2)}</span>
                 </p>
-                <div className="my-6 flex justify-center" ref={qrCodeRef}></div>
+                <div className="my-6 flex justify-center">
+                    <div ref={qrCodeRef} className="p-4 bg-white rounded-lg shadow-inner"></div>
+                </div>
                 <div className="bg-amber-100 border-l-4 border-amber-500 text-amber-700 p-4 text-left rounded-r-lg">
                     <p className="font-bold">Instructions for Submission:</p>
                     <ol className="list-decimal list-inside mt-2 space-y-1">
