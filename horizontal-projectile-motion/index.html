@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horizontal Projectile Motion Explorer</title>
+    <!-- Chosen Palette: "Warm Neutral" (Amber/Beige background, Stone/Gray text, Amber accents) -->
+    <!-- Application Structure Plan: A single-page dashboard layout. The screen is split into two main columns (on desktop): 'Controls' (left) and 'Results & Visualization' (right). The 'Controls' column allows users to select a "Calculation Mode" (either solving for Range given Velocity, or Velocity given Range, both based on the two problem types in the source report). It also features interactive sliders for "Initial Height," "Initial Velocity," and "Range." The UI dynamically enables/disables inputs based on the selected mode. The 'Results' column displays the calculated outputs (Time, Range, Velocity, etc.) in clear "stat cards" and features a dynamic Chart.js scatter plot that visualizes the projectile's trajectory. A final 'About' section explains the underlying physics formulas. This structure was chosen because it transforms the static examples from the report into an interactive, exploratory learning tool, allowing users to understand the *relationship* between variables, which is more powerful than just seeing two static solutions. -->
+    <!-- Visualization & Content Choices: 
+        1. Report Info: Two types of projectile problems (Given H, Vx -> find T, Dx; Given H, Dx -> find T, Vx).
+           Goal: Allow users to solve both types of problems with variable inputs.
+           Viz/Method: Radio buttons for "Mode Select" (HTML). JS logic to show/hide relevant input sliders.
+           Interaction: Clicking radios updates which sliders are active.
+           Justification: Directly maps to the two problem structures in the source, creating a unified tool.
+        2. Report Info: Key variables (Height, Velocity, Range).
+           Goal: Allow easy, interactive input of these variables.
+           Viz/Method: `<input type="range">` sliders with accompanying text output (HTML/JS).
+           Interaction: Users drag sliders to change values.
+           Justification: Sliders encourage exploration and "what-if" scenarios more than static number fields.
+        3. Report Info: Calculated results (Time, Range, Velocity).
+           Goal: Clearly display the answers.
+           Viz/Method: "Stat Cards" (Styled HTML/Tailwind divs) with large text.
+           Interaction: Values are dynamically updated by JS on calculation.
+           Justification: Provides immediate, clear feedback to the user.
+        4. Report Info: The trajectory/path of the projectile (implied by the problems).
+           Goal: Visualize the parabolic path and how it changes with different inputs.
+           Viz/Method: Chart.js Scatter Plot with `showLine: true` (Canvas).
+           Interaction: The chart data is recalculated and re-rendered by JS on every calculation.
+           Justification: This is the "wow factor" that visually connects the inputs to the outcome, making the physics concept tangible.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            outline: none;
+            opacity: 0.9;
+            -webkit-transition: .2s;
+            transition: opacity .2s;
+            border-radius: 9999px;
+        }
+        input[type="range"]:hover {
+            opacity: 1;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #d97706;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #d97706;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        input[type="range"]:disabled::-webkit-slider-thumb {
+            background: #94a3b8;
+        }
+        input[type="range"]:disabled::-moz-range-thumb {
+            background: #94a3b8;
+        }
+        /* Style for the formula <pre> tags */
+        pre.formula {
+            background-color: #f8fafc; /* bg-gray-50 slightly adjusted */
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 8px;
+            font-family: 'Inter', sans-serif; /* Match body font */
+            font-size: 0.9rem; /* text-sm */
+            color: #374151; /* text-gray-700 */
+            line-height: 1.6;
+            white-space: pre-wrap; /* Allow wrapping */
+        }
+        /* Style for subscripts in formulas */
+        pre.formula sub {
+            font-size: 0.7em;
+            vertical-align: sub;
+        }
+        /* Style for superscripts in formulas */
+        pre.formula sup {
+            font-size: 0.7em;
+            vertical-align: super;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        amber: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            200: '#fde68a',
+                            300: '#fcd34d',
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                            700: '#b45309',
+                            800: '#92400e',
+                            900: '#78350f',
+                        },
+                        stone: {
+                            800: '#292524',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-amber-50 text-stone-800 antialiased">
+
+    <div class="container mx-auto p-4 py-8 md:p-12">
+
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-amber-800">
+                Horizontal Projectile Motion Explorer
+            </h1>
+            <p class="text-lg text-amber-700 mt-2">
+                An interactive tool to explore the physics of projectiles.
+            </p>
+        </header>
+
+        <main class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+
+            <!-- Controls Column -->
+            <section id="controls-panel" class="bg-white p-6 rounded-2xl shadow-lg">
+                <h2 class="text-2xl font-bold text-amber-800 mb-4 border-b border-amber-200 pb-2">Controls & Inputs</h2>
+                <p class="text-gray-600 mb-6">
+                    Welcome to the projectile motion explorer. This tool, based on the physics principles from the report, lets you simulate horizontal launches. Choose a calculation mode, adjust the inputs using the sliders, and see the results and trajectory update instantly.
+                </p>
+
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-lg font-semibold mb-2">1. Select Calculation Mode</label>
+                        <div class="flex space-x-4">
+                            <label class="flex-1">
+                                <input type="radio" name="mode" value="calculate-range" class="sr-only" checked>
+                                <div class="mode-option p-4 border-2 border-amber-500 rounded-lg cursor-pointer text-center bg-amber-50">
+                                    <span class="font-semibold">Calculate Range</span>
+                                    <span class="block text-sm text-gray-500">(Given x<sub>o</sub> & v<sub>ox</sub>)</span>
+                                </div>
+                            </label>
+                            <label class="flex-1">
+                                <input type="radio" name="mode" value="calculate-velocity" class="sr-only">
+                                <div class="mode-option p-4 border-2 border-gray-300 rounded-lg cursor-pointer text-center">
+                                    <span class="font-semibold">Calculate Velocity</span>
+                                    <span class="block text-sm text-gray-500">(Given x<sub>o</sub> & x<sub>range</sub>)</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="height-input-container" class="space-y-2">
+                        <label for="height-slider" class="flex justify-between text-lg font-semibold">
+                            <span>2. Initial Height (x<sub>o</sub>)</span>
+                            <span id="height-value" class="font-bold text-amber-700">50 m</span>
+                        </label>
+                        <input type="range" id="height-slider" min="1" max="500" value="50" step="1">
+                    </div>
+
+                    <div id="velocity-input-container" class="space-y-2">
+                        <label for="velocity-slider" class="flex justify-between text-lg font-semibold">
+                            <span>3. Initial H. Velocity (v<sub>ox</sub>)</span>
+                            <span id="velocity-value" class="font-bold text-amber-700">20 m/s</span>
+                        </label>
+                        <input type="range" id="velocity-slider" min="1" max="100" value="20" step="1">
+                    </div>
+
+                    <div id="range-input-container" class="space-y-2">
+                        <label for="range-slider" class="flex justify-between text-lg font-semibold">
+                            <span>4. Horizontal Range (x<sub>range</sub>)</span>
+                            <span id="range-value" class="font-bold text-amber-700">50 m</span>
+                        </label>
+                        <input type="range" id="range-slider" min="1" max="500" value="50" step="1">
+                    </div>
+
+                    <button id="calculate-btn" class="w-full bg-amber-600 text-white font-bold text-lg py-3 px-6 rounded-lg shadow-md hover:bg-amber-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-opacity-50">
+                        Calculate & Visualize
+                    </button>
+                </div>
+            </section>
+
+            <!-- Results Column -->
+            <section id="results-panel" class="bg-white p-6 rounded-2xl shadow-lg">
+                <h2 class="text-2xl font-bold text-amber-800 mb-4 border-b border-amber-200 pb-2">Results & Visualization</h2>
+                <p class="text-gray-600 mb-6">
+                    This panel displays the calculated outcomes of your simulation. Below the key metrics, a dynamic chart visualizes the projectile's parabolic path from its launch point (0, x<sub>o</sub>) to the ground.
+                </p>
+
+                <div id="results-container" class="grid grid-cols-2 gap-4 mb-8">
+                    <div class="bg-amber-50 p-4 rounded-lg text-center shadow">
+                        <span class="text-sm text-amber-800 block">Time in Air (t)</span>
+                        <span id="output-time" class="text-2xl font-bold text-amber-700">-- s</span>
+                    </div>
+                    <div class="bg-amber-50 p-4 rounded-lg text-center shadow">
+                        <span class="text-sm text-amber-800 block">Horizontal Range (x<sub>range</sub>)</span>
+                        <span id="output-range" class="text-2xl font-bold text-amber-700">-- m</span>
+                    </div>
+                    <div class="bg-amber-50 p-4 rounded-lg text-center shadow">
+                        <span class="text-sm text-amber-800 block">Initial H. Velocity (v<sub>ox</sub>)</span>
+                        <span id="output-velocity" class="text-2xl font-bold text-amber-700">-- m/s</span>
+                    </div>
+                    <div class="bg-amber-50 p-4 rounded-lg text-center shadow">
+                        <span class="text-sm text-amber-800 block">Final Vertical Velocity (v<sub>fy</sub>)</span>
+                        <span id="output-final-velocity" class="text-2xl font-bold text-amber-700">-- m/s</span>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="trajectory-chart"></canvas>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- About Section -->
+        <footer id="about-section" class="bg-white p-6 rounded-2xl shadow-lg mt-8 lg:mt-12">
+            <h2 class="text-2xl font-bold text-amber-800 mb-4 border-b border-amber-200 pb-2">About the Physics</h2>
+            <p class="text-gray-600 mb-4">
+                The calculations in this simulator are governed by the fundamental principle of projectile motion: horizontal and vertical motion are independent. We can analyze them separately using a constant vertical acceleration (a = -10 m/s²) and zero horizontal acceleration.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="font-semibold text-lg text-amber-700">Vertical Motion</h3>
+                    <p class="text-gray-600">Used to find the time in the air. The initial vertical velocity (v<sub>o</sub>) is 0.</p>
+                    <pre class="formula">x<sub>f</sub> = x<sub>o</sub> + v<sub>o</sub>t + (1/2)at<sup>2</sup></pre>
+                    
+                </div>
+                <div>
+                    <h3 class="font-semibold text-lg text-amber-700">Horizontal Motion</h3>
+                    <p class="text-gray-600">Used to find the range or velocity.</p>
+                    <pre class="formula">v = x<sub>range</sub>/t</pre>
+                
+              
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+        let trajectoryChart;
+        let currentMode = 'calculate-range';
+        const g = 10; 
+
+        function wrapText(context, text, x, y, maxWidth, lineHeight) {
+            const words = text.split(' ');
+            let line = '';
+            for (let n = 0; n < words.length; n++) {
+                const testLine = line + words[n] + ' ';
+                const metrics = context.measureText(testLine);
+                const testWidth = metrics.width;
+                if (testWidth > maxWidth && n > 0) {
+                    context.fillText(line, x, y);
+                    line = words[n] + ' ';
+                    y += lineHeight;
+                } else {
+                    line = testLine;
+                }
+            }
+            context.fillText(line, x, y);
+        }
+        
+        const chartLabelWrapper = (tooltipItems) => {
+            const item = tooltipItems[0];
+            const label = item.chart.data.labels[item.dataIndex] || '';
+            const lines = [];
+            const max = 16;
+            for (let i = 0; i < label.length; i += max) {
+                lines.push(label.substring(i, i + max));
+            }
+            return lines;
+        };
+
+        function initChart() {
+            const ctx = document.getElementById('trajectory-chart').getContext('2d');
+            trajectoryChart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Trajectory',
+                        data: [],
+                        borderColor: '#d97706',
+                        backgroundColor: '#d97706',
+                        showLine: true,
+                        fill: false,
+                        pointRadius: 2,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Range (m)',
+                                font: {
+                                    weight: 'bold'
+                                }
+                            },
+                            beginAtZero: true,
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Height (m)',
+                                font: {
+                                    weight: 'bold'
+                                }
+                            },
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let xLabel = context.parsed.x.toFixed(2);
+                                    let yLabel = context.parsed.y.toFixed(2);
+                                    return `(Range: ${xLabel} m, Height: ${yLabel} m)`;
+                                }
+                            }
+                        },
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateSliderValue(sliderId, outputId) {
+            const slider = document.getElementById(sliderId);
+            const output = document.getElementById(outputId);
+            let unit = ' m';
+            if (sliderId === 'velocity-slider') {
+                unit = ' m/s';
+            }
+            output.textContent = slider.value + unit;
+        }
+
+        function updateUIBasedOnMode() {
+            currentMode = document.querySelector('input[name="mode"]:checked').value;
+            const velocityInput = document.getElementById('velocity-input-container');
+            const rangeInput = document.getElementById('range-input-container');
+            const velocitySlider = document.getElementById('velocity-slider');
+            const rangeSlider = document.getElementById('range-slider');
+
+            const modeOptions = document.querySelectorAll('.mode-option');
+            modeOptions.forEach(opt => {
+                opt.classList.remove('border-amber-500', 'bg-amber-50', 'border-gray-300');
+                if (opt.parentElement.querySelector('input').value === currentMode) {
+                    opt.classList.add('border-amber-500', 'bg-amber-50');
+                } else {
+                    opt.classList.add('border-gray-300');
+                }
+            });
+
+            if (currentMode === 'calculate-range') {
+                velocityInput.classList.remove('opacity-50');
+                rangeInput.classList.add('opacity-50');
+                velocitySlider.disabled = false;
+                rangeSlider.disabled = true;
+            } else {
+                velocityInput.classList.add('opacity-50');
+                rangeInput.classList.remove('opacity-50');
+                velocitySlider.disabled = true;
+                rangeSlider.disabled = false;
+            }
+        }
+
+        function calculateProjectileMotion() {
+            const height = parseFloat(document.getElementById('height-slider').value);
+            const velocity = parseFloat(document.getElementById('velocity-slider').value);
+            const range = parseFloat(document.getElementById('range-slider').value);
+
+            let time, calculatedRange, calculatedVelocity, finalVerticalVelocity;
+
+            time = Math.sqrt((2 * height) / g);
+
+            if (currentMode === 'calculate-range') {
+                calculatedRange = velocity * time;
+                calculatedVelocity = velocity;
+            } else {
+                calculatedVelocity = range / time;
+                calculatedRange = range;
+            }
+
+            finalVerticalVelocity = g * time;
+
+            document.getElementById('output-time').textContent = time.toFixed(2) + ' s';
+            document.getElementById('output-range').textContent = calculatedRange.toFixed(2) + ' m';
+            document.getElementById('output-velocity').textContent = calculatedVelocity.toFixed(2) + ' m/s';
+            document.getElementById('output-final-velocity').textContent = finalVerticalVelocity.toFixed(2) + ' m/s';
+
+            updateChart(height, calculatedRange, calculatedVelocity, time);
+        }
+
+        function updateChart(initialHeight, totalRange, horizontalVelocity, timeInAir) {
+            const dataPoints = [];
+            const steps = 30;
+
+            for (let i = 0; i <= steps; i++) {
+                let t = (timeInAir / steps) * i;
+                let x = horizontalVelocity * t;
+                let y = initialHeight - (0.5 * g * t * t);
+                
+                if (y < 0) {
+                    y = 0;
+                }
+                
+                dataPoints.push({ x: x, y: y });
+
+                if (y === 0) {
+                    break;
+                }
+            }
+            
+            if (dataPoints.length > 0 && dataPoints[dataPoints.length - 1].y !== 0) {
+                dataPoints.push({ x: totalRange, y: 0 });
+            }
+
+            trajectoryChart.data.datasets[0].data = dataPoints;
+
+            // Calculate 'nice' maximum values for axes
+            const roundUpToNearest = (val, step) => {
+                if (val <= 0) return step;
+                return Math.ceil(val / step) * step;
+            }
+            
+            const xMax = roundUpToNearest(totalRange, 10);
+            const yMax = roundUpToNearest(initialHeight, 10);
+
+            trajectoryChart.options.scales.y.max = yMax;
+            trajectoryChart.options.scales.x.max = xMax;
+            
+            trajectoryChart.update();
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initChart();
+
+            document.getElementById('calculate-btn').addEventListener('click', calculateProjectileMotion);
+            
+            document.querySelectorAll('input[name="mode"]').forEach(radio => {
+                radio.addEventListener('change', updateUIBasedOnMode);
+            });
+
+            document.getElementById('height-slider').addEventListener('input', () => updateSliderValue('height-slider', 'height-value'));
+            document.getElementById('velocity-slider').addEventListener('input', () => updateSliderValue('velocity-slider', 'velocity-value'));
+            document.getElementById('range-slider').addEventListener('input', () => updateSliderValue('range-slider', 'range-value'));
+
+            updateUIBasedOnMode();
+            calculateProjectileMotion();
+        });
+
+    </script>
+</body>
+</html>
