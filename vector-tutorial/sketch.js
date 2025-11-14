@@ -231,10 +231,10 @@ function drawGrid() {
     strokeWeight(1);
 
     for (let x = floor(worldTopLeft.x / 20) * 20; x < worldBottomRight.x; x += 20) {
-        line(x, worldTopLeft.y, x, worldBottomRight.y);
+        line(x, -worldTopLeft.y, x, -worldBottomRight.y);
     }
     for (let y = floor(worldBottomRight.y / 20) * 20; y < worldTopLeft.y; y += 20) {
-        line(worldTopLeft.x, y, worldBottomRight.x, y);
+        line(worldTopLeft.x, -y, worldBottomRight.x, -y);
     }
 }
 
@@ -245,7 +245,7 @@ function drawAxes() {
     stroke(0);
     strokeWeight(2);
     line(worldTopLeft.x, 0, worldBottomRight.x, 0);
-    line(0, worldTopLeft.y, 0, worldBottomRight.y);
+    line(0, -worldTopLeft.y, 0, -worldBottomRight.y);
 }
 
 function windowResized() {
