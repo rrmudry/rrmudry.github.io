@@ -3,10 +3,22 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>All Lessons • Mr. Mudry’s Physics</title>
+  <title>Lessons & Archive • Mr. Mudry’s Physics</title>
   <link rel="icon" type="image/png" href="head.png"/>
   <link rel="apple-touch-icon" href="apple-touch-icon.svg"/>
   <link rel="stylesheet" href="assets/theme.css"/>
+  <style>
+    .lesson-meta {
+      font-family: var(--font-tech);
+      font-size: 0.8rem;
+      color: var(--accent-neon);
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+    .archive-section {
+      margin-top: 4rem;
+    }
+  </style>
 </head>
 <body>
   <div data-include="header"></div>
@@ -14,35 +26,96 @@
 <main role="main">
   <section class="hero">
     <div class="container">
-      <h1>All Lessons</h1>
+      <h1>Classroom Sync</h1>
       <div class="energy-bar" aria-hidden="true"></div>
-      <p class="subtitle">Browse every plan, handouts, and assessments across units.</p>
+      <p class="subtitle">Semester 2: Momentum, Thermodynamics, E&M, and Waves. Stay synced with daily updates and archives.</p>
     </div>
   </section>
 
-  <section class="container section angle-bottom" aria-labelledby="lesson-index">
-    <h2 id="lesson-index">Lesson Index</h2>
+  <section class="container section" aria-labelledby="today-title">
+    <h2 id="today-title">Latest from Class</h2>
+    <div id="latest-lesson-container">
+      <!-- Dynamically filled -->
+    </div>
+  </section>
+
+  <section class="container section archive-section" aria-labelledby="archive-title">
+    <h2 id="archive-title">Lesson Archive</h2>
+    <div class="grid" id="archive-grid">
+      <!-- Dynamically filled -->
+    </div>
+  </section>
+
+  <section class="container section" aria-labelledby="unit-index">
+    <h2 id="unit-index">Unit Resources</h2>
     <div class="grid">
-      <article class="card" id="u1">
-        <h3>Unit 1 • Intro to Physics</h3>
-        <p>U1D1–U1D10: Measurement, error, modeling, safety.</p>
-        <a class="btn primary" href="unit1.html">Open Unit 1</a>
+      <article class="card">
+        <h3>Unit 4 • Momentum & Impulse</h3>
+        <p>Current focus. Collisions, explosions, and impact forces.</p>
+        <a class="btn primary" href="unit4-dashboard.html">Explore Unit Dashboard</a>
       </article>
-      <article class="card" id="u2">
-        <h3>Unit 2 • Motion & Forces</h3>
-        <p>U2D1–U2D12: Motion graphs, Newton’s Laws, friction labs.</p>
-        <a class="btn" href="#">Open Unit 2</a>
+      <article class="card">
+        <h3>Unit 5 • Thermodynamics</h3>
+        <p>Heat, temperature, and energy transfer.</p>
+        <a class="btn" href="#">Upcoming</a>
       </article>
-      <article class="card" id="u3">
-        <h3>Unit 3 • Work, Energy & Power</h3>
-        <p>U3D1–U3D10: Energy Skate Park, conservation, power.</p>
-        <a class="btn" href="#">Open Unit 3</a>
+      <article class="card">
+        <h3>Unit 6 • Electricity & Magnetism</h3>
+        <p>Fields, circuits, and electromagnetic waves.</p>
+        <a class="btn" href="#">Upcoming</a>
+      </article>
+      <article class="card">
+        <h3>Unit 7 • Waves & Sound</h3>
+        <p>Vibrations, wave properties, and optics.</p>
+        <a class="btn" href="#">Upcoming</a>
+      </article>
+      <article class="card">
+        <h3>Archive • Physics Foundations</h3>
+        <p>Units 1-3: Kinematics, Dynamics, and Energy.</p>
+        <a class="btn" href="unit1.html">Semester 1 Materials</a>
       </article>
     </div>
   </section>
 </main>
 
   <div data-include="footer"></div>
+  <script src="assets/lessons-data.js"></script>
   <script src="assets/partials.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const latestContainer = document.getElementById('latest-lesson-container');
+      const archiveGrid = document.getElementById('archive-grid');
+      
+      if (typeof lessonsData !== 'undefined') {
+        // Latest Lesson
+        const latest = lessonsData[0];
+        if (latest) {
+          latestContainer.innerHTML = `
+            <article class="card highlight" style="max-width: 800px;">
+              <span class="lesson-meta">Day ${latest.day} • Unit ${latest.unit} • ${latest.date}</span>
+              <h3>${latest.title}</h3>
+              <p>${latest.summary}</p>
+              <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                <p><strong>In-Class Activities:</strong><br>${latest.details}</p>
+              </div>
+            </article>
+          `;
+        }
+
+        // Archive (excluding the very latest)
+        lessonsData.slice(1).forEach(lesson => {
+          const card = document.createElement('article');
+          card.className = 'card';
+          card.innerHTML = `
+            <span class="lesson-meta">Unit ${lesson.unit} • Day ${lesson.day}</span>
+            <h3>${lesson.title}</h3>
+            <p>${lesson.summary}</p>
+            <a class="btn" href="#" style="margin-top: auto;">View Notes</a>
+          `;
+          archiveGrid.appendChild(card);
+        });
+      }
+    });
+  </script>
 </body>
 </html>
