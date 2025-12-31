@@ -14,6 +14,16 @@
  */
 const lessonsData = [
   {
+    date: "2025-01-13",
+    title: "This is a test",
+    unit: 4,
+    day: 2,
+    summary: "This is just a test, I want to know how to do this.",
+    details: "We updated the site.",
+    semester: 2,
+    isFeatured: true
+  },
+  {
     date: "2025-01-12",
     title: "Semester 2 Kickoff: Momentum & Impulse",
     unit: 4,
