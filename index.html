@@ -96,22 +96,30 @@
 </main>
 
   <div data-include="footer"></div>
-  <script src="assets/lessons-data.js"></script>
+  <script>
+    // Cache-busting for lesson data
+    const script = document.createElement('script');
+    script.src = 'assets/lessons-data.js?v=' + Date.now();
+    document.head.appendChild(script);
+  </script>
   <script src="assets/partials.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const container = document.getElementById('today-widget-container');
       if (typeof lessonsData !== 'undefined' && lessonsData.length > 0) {
         const today = lessonsData[0];
-        container.innerHTML = `
-          <article class="card today-card">
-            <span class="today-tag">Newest Lesson</span>
-            <span style="display:block; font-size: 0.8rem; opacity: 0.7; margin-bottom: 0.25rem;">Day ${today.day} • ${today.date}</span>
-            <h3>${today.title}</h3>
-            <p>${today.summary}</p>
-            <a class="btn primary" href="lessons.html" style="margin-top: 1rem;">View Full Details</a>
-          </article>
-        `;
+          container.innerHTML = `
+            <article class="card today-card">
+              <span class="today-tag">Newest Lesson</span>
+              <span style="display:block; font-size: 0.8rem; opacity: 0.7; margin-bottom: 0.25rem;">Day ${today.day} • ${today.date}</span>
+              <h3>${today.title}</h3>
+              <p>${today.summary}</p>
+              <div style="display: flex; gap: 0.75rem; margin-top: 1rem; flex-wrap: wrap;">
+                <a class="btn primary" href="lessons.html">Full Details</a>
+                ${today.pdfLink ? `<a class="btn" href="${today.pdfLink}" target="_blank">📄 View Worksheet</a>` : ''}
+              </div>
+            </article>
+          `;
       } else {
         container.innerHTML = `<p>No lessons posted yet for Semester 2.</p>`;
       }
