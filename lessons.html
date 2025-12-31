@@ -79,7 +79,12 @@
 </main>
 
   <div data-include="footer"></div>
-  <script src="assets/lessons-data.js"></script>
+  <script>
+    // Cache-busting for lesson data
+    const script = document.createElement('script');
+    script.src = 'assets/lessons-data.js?v=' + Date.now();
+    document.head.appendChild(script);
+  </script>
   <script src="assets/partials.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -97,6 +102,7 @@
               <p>${latest.summary}</p>
               <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
                 <p><strong>In-Class Activities:</strong><br>${latest.details}</p>
+                ${latest.pdfLink ? `<a href="${latest.pdfLink}" class="btn primary" style="margin-top: 1rem;" target="_blank">📄 View Worksheet</a>` : ''}
               </div>
             </article>
           `;
@@ -110,7 +116,10 @@
             <span class="lesson-meta">Unit ${lesson.unit} • Day ${lesson.day}</span>
             <h3>${lesson.title}</h3>
             <p>${lesson.summary}</p>
-            <a class="btn" href="#" style="margin-top: auto;">View Notes</a>
+            <div style="margin-top: auto; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <a class="btn" href="#">View Notes</a>
+              ${lesson.pdfLink ? `<a class="btn secondary" href="${lesson.pdfLink}" target="_blank">📄 PDF</a>` : ''}
+            </div>
           `;
           archiveGrid.appendChild(card);
         });
