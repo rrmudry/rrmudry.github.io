@@ -7,6 +7,33 @@
   <link rel="icon" type="image/png" href="head.png"/>
   <link rel="apple-touch-icon" href="head.png"/>
   <link rel="stylesheet" href="assets/theme.css"/>
+  <style>
+    .today-card {
+      background: rgba(255, 255, 255, 0.02); /* Extremely subtle */
+      border: 1px solid rgba(0, 243, 255, 0.15);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); /* Depth without obscuring background */
+      position: relative;
+    }
+    .today-tag {
+      font-family: var(--font-tech);
+      font-size: 0.7rem;
+      background: var(--accent-neon);
+      color: #000;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+      display: inline-block;
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+    /* Fully clear the section container */
+    #today-section {
+      background: none !important;
+      border: none !important;
+      box-shadow: none !important;
+      padding-top: 1rem; /* Tighter integration */
+    }
+  </style>
 </head>
 <body>
   <div data-include="header"></div>
@@ -16,20 +43,28 @@
     <div class="container">
       <h1>Let's GO Physics HEROES!</h1>
       <div class="energy-bar" aria-hidden="true"></div>
-      <p class="subtitle">Explore. Experiment. Excel. Hands-on physics aligned to NGSS with real-world context.</p>
+      <p class="subtitle">Semester 2 begins Jan 12. Get ready for Momentum, Impulse, and the physics of impact!</p>
       <div class="cta-row">
-        <a class="btn primary" href="lesson-plans.html">NGSS Lesson Plans</a>
+        <a class="btn primary" href="lessons.html">Today's Lesson</a>
+        <a class="btn" href="unit4-dashboard.html">Unit Roadmap</a>
         <a class="btn" href="circuit-game.html">Play Circuit Game</a>
       </div>
     </div>
   </section>
 
+  <section class="container section" id="today-section" aria-labelledby="today-title">
+    <h2 id="today-title">Today in Class</h2>
+    <div id="today-widget-container">
+      <!-- Dynamically filled -->
+    </div>
+  </section>
+
   <section class="container section angle-bottom" aria-labelledby="whats-happening">
-    <h2 id="whats-happening">What’s Happening</h2>
+    <h2 id="whats-happening">Upcoming Events</h2>
     <ul class="announcements">
-      <li><time datetime="2025-09-02">Sep 2</time> Lab Safety Day — contracts due & safety demos.</li>
-      <li><time datetime="2025-09-15">Sep 15</time> Project Checkpoint — bring your data and sketches.</li>
-      <li><time datetime="2025-10-03">Oct 3</time> Circuit Challenge Week — prizes for the brightest builds ⚡</li>
+      <li><time datetime="2025-01-12">Jan 12</time> Semester 2 Kickoff — Momentum & Impulse.</li>
+      <li><time datetime="2025-01-20">Jan 20</time> Martin Luther King Jr. Day — No School.</li>
+      <li><time datetime="2025-02-14">Feb 14</time> Momentum Crash Lab — reports due.</li>
     </ul>
   </section>
 
@@ -37,9 +72,9 @@
     <h2 id="quick-action">Quick Action</h2>
     <div class="grid">
       <article class="card">
-        <h3>NGSS Lesson Plans</h3>
-        <p>Dive into hands-on, real-world physics challenges.</p>
-        <a class="btn primary" href="lesson-plans.html">Get Started</a>
+        <h3>Lesson Archive</h3>
+        <p>Missed a day? Catch up on Semester 2 materials here.</p>
+        <a class="btn primary" href="lessons.html">Open Archive</a>
       </article>
       <article class="card">
         <h3>⚡ Circuit Game</h3>
@@ -56,21 +91,31 @@
         <p>News, videos, and classroom-ready links.</p>
         <a class="btn" href="resources.html">Explore</a>
       </article>
-      <article class="card">
-        <h3>IPU Dashboard</h3>
-        <p>Interactive Unit Plan for Measurement in Physics.</p>
-        <a class="btn" href="IPU_Dashboard">Open Dashboard</a>
-      </article>
-      <article class="card">
-        <h3>Motion IUP</h3>
-        <p>Interactive Unit Plan for Speed & Velocity.</p>
-        <a class="btn" href="motion_IUP.html">Open Plan</a>
-      </article>
     </div>
   </section>
 </main>
 
   <div data-include="footer"></div>
+  <script src="assets/lessons-data.js"></script>
   <script src="assets/partials.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const container = document.getElementById('today-widget-container');
+      if (typeof lessonsData !== 'undefined' && lessonsData.length > 0) {
+        const today = lessonsData[0];
+        container.innerHTML = `
+          <article class="card today-card">
+            <span class="today-tag">Newest Lesson</span>
+            <span style="display:block; font-size: 0.8rem; opacity: 0.7; margin-bottom: 0.25rem;">Day ${today.day} • ${today.date}</span>
+            <h3>${today.title}</h3>
+            <p>${today.summary}</p>
+            <a class="btn primary" href="lessons.html" style="margin-top: 1rem;">View Full Details</a>
+          </article>
+        `;
+      } else {
+        container.innerHTML = `<p>No lessons posted yet for Semester 2.</p>`;
+      }
+    });
+  </script>
 </body>
 </html>
