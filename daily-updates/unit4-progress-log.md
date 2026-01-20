@@ -35,11 +35,12 @@ Use this file to track what was completed each day. You can also list any new fi
 ---
 
 ## 2026-01-15
-- **Lesson Title**: Stopping Moving Masses (Impulse)
+- **Lesson Title**: Hey! Stop that thing!! (Impulse)
 - **Planned Activities**:
-  - Design a bumper that protects a raw egg during a 1m crash.
+  - Describe, draw, and calculate:
 - **Actual Activities**:
-  - Applied the concept that forces must be applied over time (Impulse) to reduce the momentum of moving masses to zero.
+  - Create a scenario where an object with momentum is brought to a stop by an impulse. Draw a simple picture of the situation and then write a short word problem describing it. Keep it fun and straightforward!  You will need an object with mass that is moving with a velocity and something that will stop your object by applying a force for some time.
+  
   - Completed the lab worksheet: https://docs.google.com/document/d/1S_9AbUsIyIVDCooBL63XZ5qcB95RGBQCnODqmRtfD3Y/edit?usp=sharing
 - **Files Added**: 
   - [None]
@@ -49,9 +50,9 @@ Use this file to track what was completed each day. You can also list any new fi
 ## 2026-01-16
 - **Lesson Title**: Momentum & Impulse Quiz
 - **Planned Activities**:
-  - Analyzing momentum in car crashes where direction changes.
+  - Quiz Day.
 - **Actual Activities**:
-  - Completed the Momentum and Impulse summation quiz.
+  - Completed the Momentum and Impulse quiz.
 - **Files Added**: 
   - [None]
 
@@ -64,6 +65,17 @@ Use this file to track what was completed each day. You can also list any new fi
 ---
 
 ## 2026-01-20
+- **Lesson Title**: Project Launch: Operation Safe Heeler
+- **Planned Activities**:
+  - Present instructions for a crash attenuation barrier project ("Operation Safe Heeler").
+- **Actual Activities**:
+  - [TBD]
+- **Files Added**: 
+  - [None]
+
+---
+
+## 2026-01-21
 - **Lesson Title**: 
 - **Planned Activities**:
   - [TBD]
