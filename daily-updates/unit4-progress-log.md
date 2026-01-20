@@ -72,6 +72,7 @@ Use this file to track what was completed each day. You can also list any new fi
   - Introduced the "Operation Safe Heeler" project.
   - Project Website: operation-safe-heeler.html
   - Project Worksheet: https://docs.google.com/document/d/1hn4Wwx4MjXH5IWOp-Md69w7-nHm6eNq7SO1o1MgSFYA/edit?usp=sharing
+  - Day 7 Link: https://docs.google.com/forms/d/e/1FAIpQLSe43Z06ocBI9LJXwOOFsx4zbF6SfLm73l5uQvU-l76Lpu8bEw/viewform?usp=publish-editor
 - **Files Added**: 
   - [None]
 
