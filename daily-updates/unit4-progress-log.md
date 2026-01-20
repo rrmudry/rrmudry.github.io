@@ -35,6 +35,18 @@ Use this file to track what was completed each day. You can also list any new fi
 ---
 
 ## 2026-01-15
+- **Lesson Title**: Stopping Moving Masses (Impulse)
+- **Planned Activities**:
+  - Design a bumper that protects a raw egg during a 1m crash.
+- **Actual Activities**:
+  - Applied the concept that forces must be applied over time (Impulse) to reduce the momentum of moving masses to zero.
+  - Completed the lab worksheet: https://docs.google.com/document/d/1S_9AbUsIyIVDCooBL63XZ5qcB95RGBQCnODqmRtfD3Y/edit?usp=sharing
+- **Files Added**: 
+  - [None]
+
+---
+
+## 2026-01-16
 - **Lesson Title**: 
 - **Planned Activities**:
   - [TBD]
