@@ -14,6 +14,16 @@
  */
 const lessonsData = [
   {
+    date: "2026-01-21",
+    title: "Rocket Cart Lab: Impulse & Momentum",
+    unit: 4,
+    day: 8,
+    summary: "Interactive lab exploring impulse and momentum with rocket-powered carts.",
+    details: "Students use the Rocket Cart Lab webapp to investigate the relationship between impulse and momentum. Lab Worksheet available on dashboard.",
+    semester: 2,
+    isFeatured: true
+  },
+  {
     date: "2026-01-20",
     title: "Project Launch: Operation Safe Heeler",
     unit: 4,
@@ -21,7 +31,7 @@ const lessonsData = [
     summary: "Today we launch our Unit 4 project: Operation Safe Heeler!",
     details: "Introduction to crash attenuation barriers. Students will design and build a safety system for a cart. Project Worksheet and Day 7 Link available on dashboard.",
     semester: 2,
-    isFeatured: true
+    isFeatured: false
   },
   {
     date: "2025-01-12",
