@@ -6,7 +6,7 @@ Use this file to track what was completed each day. You can also list any new fi
 > Use the **Lesson Title** field to customize what appears on the dashboard cards. If left blank, I will suggest a title based on your activities.
 
 ## 2026-01-12
-- **Lesson Title**: Intro to Momentum: p=mv
+- **Lesson Title**: Understanding Car Crashes
 - **Activities**: 
   - Watched the YouTube video: https://www.youtube.com/watch?v=2XKOzibVqJg
   - Completed the Google Doc: https://docs.google.com/document/d/1-byPZiH6PZ6kOckrk3-35An7i1IDFM6GL_S3jvvXqNs/edit?usp=sharing
@@ -24,6 +24,17 @@ Use this file to track what was completed each day. You can also list any new fi
 ---
 
 ## 2026-01-14
+- **Lesson Title**: Momentum and Impulse Worksheet
+- **Planned Activities**:
+  - Complete PowerPoint lecture notes.
+- **Actual Activities**:
+  - Worked on the Momentum and Impulse worksheet: https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQCwJD7mmYGORJTobad0Q3FjAZ70FTiLHMdqRQNOBAPoVOk?e=P4qdky
+- **Files Added**: 
+  - [None]
+
+---
+
+## 2026-01-15
 - **Lesson Title**: 
 - **Planned Activities**:
   - [TBD]
