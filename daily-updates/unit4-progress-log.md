@@ -47,6 +47,17 @@ Use this file to track what was completed each day. You can also list any new fi
 ---
 
 ## 2026-01-16
+- **Lesson Title**: Momentum & Impulse Quiz
+- **Planned Activities**:
+  - Analyzing momentum in car crashes where direction changes.
+- **Actual Activities**:
+  - Completed the Momentum and Impulse summation quiz.
+- **Files Added**: 
+  - [None]
+
+---
+
+## 2026-01-19
 - **Lesson Title**: 
 - **Planned Activities**:
   - [TBD]
