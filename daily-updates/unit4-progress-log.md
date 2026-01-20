@@ -69,7 +69,9 @@ Use this file to track what was completed each day. You can also list any new fi
 - **Planned Activities**:
   - Present instructions for a crash attenuation barrier project ("Operation Safe Heeler").
 - **Actual Activities**:
-  - [TBD]
+  - Introduced the "Operation Safe Heeler" project.
+  - Project Website: operation-safe-heeler.html
+  - Project Worksheet: https://docs.google.com/document/d/1hn4Wwx4MjXH5IWOp-Md69w7-nHm6eNq7SO1o1MgSFYA/edit?usp=sharing
 - **Files Added**: 
   - [None]
 
