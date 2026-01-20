@@ -79,10 +79,11 @@ Use this file to track what was completed each day. You can also list any new fi
 ---
 
 ## 2026-01-21
-- **Lesson Title**: 
+- **Lesson Title**: Rocket Cart Lab: Impulse & Momentum
 - **Planned Activities**:
-  - [TBD]
+  - Students will use the Rocket Cart Lab webapp and complete the associated worksheet.
 - **Actual Activities**:
-  - [TBD]
+  - Rocket Cart Lab Webapp: https://rrmudry.github.io/rocket-cart-lab/index.html
+  - Lab Worksheet: https://docs.google.com/document/d/1Wdb2nz8V71ER6nSFD-mLFTPlBpVAbEQP86q2BWbG1EQ/edit?usp=sharing
 - **Files Added**: 
   - [None]
