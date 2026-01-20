@@ -14,6 +14,16 @@
  */
 const lessonsData = [
   {
+    date: "2026-01-20",
+    title: "Project Launch: Operation Safe Heeler",
+    unit: 4,
+    day: 7,
+    summary: "Today we launch our Unit 4 project: Operation Safe Heeler!",
+    details: "Introduction to crash attenuation barriers. Students will design and build a safety system for a cart. Project Worksheet and Day 7 Link available on dashboard.",
+    semester: 2,
+    isFeatured: true
+  },
+  {
     date: "2025-01-12",
     title: "Semester 2 Kickoff: Momentum & Impulse",
     unit: 4,
