@@ -58,6 +58,12 @@ Use this file to track what was completed each day. You can also list any new fi
 ---
 
 ## 2026-01-19
+- **Lesson Title**: MLK Day - No School
+- **Notes**: Holiday observed.
+
+---
+
+## 2026-01-20
 - **Lesson Title**: 
 - **Planned Activities**:
   - [TBD]
