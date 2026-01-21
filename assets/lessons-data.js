@@ -29,7 +29,7 @@ const lessonsData = [
     unit: 4,
     day: 7,
     summary: "Today we launch our Unit 4 project: Operation Safe Heeler!",
-    details: "Introduction to crash attenuation barriers. Students will design and build a safety system for a cart. Project Worksheet and Day 7 Link available on dashboard.",
+    details: "Introduction to crash attenuation barriers. Students will design and build a safety system for a cart. Project Worksheet and Day 7 Link available on dashboard. Video: https://www.youtube.com/watch?v=w6CKltZfToY&t=61s",
     semester: 2,
     isFeatured: false
   },
