@@ -29,12 +29,62 @@ const lessonsData = [
     unit: 4,
     day: 7,
     summary: "Today we launch our Unit 4 project: Operation Safe Heeler!",
-    details: "Introduction to crash attenuation barriers. Students will design and build a safety system for a cart. Project Worksheet and Day 7 Link available on dashboard. Video: https://www.youtube.com/watch?v=w6CKltZfToY&t=61s",
+    details: "Introduction to crash attenuation barriers. Students will design and build a safety system for a cart. Project Worksheet and Day 7 Link available on dashboard.",
     semester: 2,
     isFeatured: false
   },
   {
-    date: "2025-01-12",
+    date: "2026-01-19",
+    title: "MLK Day - No School",
+    unit: 4,
+    day: 6,
+    summary: "Holiday observed. No school activities scheduled.",
+    details: "Martin Luther King Jr. Day observed.",
+    semester: 2,
+    isFeatured: false
+  },
+  {
+    date: "2026-01-16",
+    title: "Momentum & Impulse Quiz",
+    unit: 4,
+    day: 5,
+    summary: "Quiz covering momentum foundations and the impulse-momentum theorem.",
+    details: "Summative assessment on the first week's concepts.",
+    semester: 2,
+    isFeatured: false
+  },
+  {
+    date: "2026-01-15",
+    title: "Hey! Stop that thing!! (Impulse)",
+    unit: 4,
+    day: 4,
+    summary: "Scenario-based lab calculating the impulse needed to stop an object.",
+    details: "Students create scenarios where objects with momentum are brought to a stop, calculating force and time requirements. Lab worksheet available on dashboard.",
+    semester: 2,
+    isFeatured: false
+  },
+  {
+    date: "2026-01-14",
+    title: "Momentum and Impulse Practice",
+    unit: 4,
+    day: 3,
+    summary: "Numerical practice with p=mv and J=Ft equations.",
+    details: "Computational worksheet to solidify the mathematical relationship between force, time, and momentum change.",
+    semester: 2,
+    isFeatured: false
+  },
+  {
+    date: "2026-01-13",
+    title: "Momentum (PowerPoint Intro)",
+    unit: 4,
+    day: 2,
+    summary: "Formal introduction to the mathematical definition of momentum.",
+    details: "Lecture and demonstration covering p=mv. Students began notes using the class presentation.",
+    semester: 2,
+    isFeatured: false
+  },
+  {
+    date: "2026-01-12",
     title: "Semester 2 Kickoff: Momentum & Impulse",
     unit: 4,
     day: 1,
