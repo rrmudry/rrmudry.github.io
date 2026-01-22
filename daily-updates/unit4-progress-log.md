@@ -85,5 +85,20 @@ Use this file to track what was completed each day. You can also list any new fi
 - **Actual Activities**:
   - Rocket Cart Lab Webapp: https://rrmudry.github.io/rocket-cart-lab/index.html
   - Lab Worksheet: https://docs.google.com/document/d/1Wdb2nz8V71ER6nSFD-mLFTPlBpVAbEQP86q2BWbG1EQ/edit?usp=sharing
-- **Files Added**: 
-  - [None]
+- [None]
+
+---
+
+## 2026-01-22
+- **Lesson Title**: Project Build: Operation Safe Heeler
+- **Activities**: 
+  - Students worked on building their crash attenuation barriers for the "Operation Safe Heeler" project.
+- **Notes**: Focus on practical application of impulse reduction.
+
+---
+
+## 2026-01-23
+- **Lesson Title**: Project Testing: Operation Safe Heeler (Crash Test Day)
+- **Activities**: 
+  - Crash test day for the "Operation Safe Heeler" project. Students tested their barriers and analyzed the results.
+- **Notes**: Final project verification and analysis.
