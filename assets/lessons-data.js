@@ -14,6 +14,16 @@
  */
 const lessonsData = [
   {
+    date: "2026-01-22",
+    title: "Project Build: Operation Safe Heeler",
+    unit: 4,
+    day: 9,
+    summary: "Hands-on construction day for building crash attenuation barriers.",
+    details: "Students apply their knowledge of impulse and momentum to engineer safety systems for the 'Operation Safe Heeler' project.",
+    semester: 2,
+    isFeatured: true
+  },
+  {
     date: "2026-01-21",
     title: "Rocket Cart Lab: Impulse & Momentum",
     unit: 4,
