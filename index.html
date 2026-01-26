@@ -54,18 +54,26 @@
 
   <section class="container section" id="today-section" aria-labelledby="today-title">
     <h2 id="today-title">Today in Class</h2>
-    <div id="today-widget-container">
+    <div id="today-widget-container" class="grid" style="grid-template-columns: 1fr; gap: 2rem;">
       <!-- Dynamically filled -->
     </div>
   </section>
 
-  <section class="container section angle-bottom" aria-labelledby="whats-happening">
-    <h2 id="whats-happening">Upcoming Events</h2>
-    <ul class="announcements">
-      <li><time datetime="2025-01-12">Jan 12</time> Semester 2 Kickoff — Momentum & Impulse.</li>
-      <li><time datetime="2025-01-20">Jan 20</time> Martin Luther King Jr. Day — No School.</li>
-      <li><time datetime="2025-02-14">Feb 14</time> Momentum Crash Lab — reports due.</li>
-    </ul>
+  <section class="container section angle-bottom" id="events-section" aria-labelledby="whats-happening">
+    <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 2rem;">
+      <div>
+        <h2 id="whats-happening">Upcoming Events</h2>
+        <ul class="announcements" id="upcoming-list">
+          <!-- Dynamically filled -->
+        </ul>
+      </div>
+      <div>
+        <h2 id="recent-lessons-title">Recent Lessons</h2>
+        <ul class="announcements" id="recent-list">
+          <!-- Dynamically filled -->
+        </ul>
+      </div>
+    </div>
   </section>
 
   <section class="container section" aria-labelledby="quick-action">
@@ -105,23 +113,61 @@
   <script src="assets/partials.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const container = document.getElementById('today-widget-container');
+      const todayContainer = document.getElementById('today-widget-container');
+      const upcomingList = document.getElementById('upcoming-list');
+      const recentList = document.getElementById('recent-list');
+
       if (typeof lessonsData !== 'undefined' && lessonsData.length > 0) {
-        const today = lessonsData[0];
-          container.innerHTML = `
+        const now = new Date();
+        const todayStr = now.toISOString().split('T')[0];
+        
+        // Find today's lesson or the most recent past lesson
+        const sortedLessons = [...lessonsData].sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        let todayLesson = sortedLessons.find(l => l.date <= todayStr);
+        let upcomingLessons = sortedLessons.filter(l => l.date > todayStr).reverse();
+        let pastLessons = sortedLessons.filter(l => l.date < (todayLesson ? todayLesson.date : todayStr));
+
+        // 1. Render Today's Lesson
+        if (todayLesson) {
+          todayContainer.innerHTML = `
             <article class="card today-card">
-              <span class="today-tag">Newest Lesson</span>
-              <span style="display:block; font-size: 0.8rem; opacity: 0.7; margin-bottom: 0.25rem;">Day ${today.day} • ${today.date}</span>
-              <h3>${today.title}</h3>
-              <p>${today.summary}</p>
+              <span class="today-tag">${todayLesson.date === todayStr ? "Today's Lesson" : "Latest Lesson"}</span>
+              <span style="display:block; font-size: 0.8rem; opacity: 0.7; margin-bottom: 0.25rem;">Day ${todayLesson.day} • ${todayLesson.date}</span>
+              <h3>${todayLesson.title}</h3>
+              <p>${todayLesson.summary}</p>
               <div style="display: flex; gap: 0.75rem; margin-top: 1rem; flex-wrap: wrap;">
                 <a class="btn primary" href="lessons.html">Full Details</a>
-                ${today.pdfLink ? `<a class="btn" href="${today.pdfLink}" target="_blank">📄 View Worksheet</a>` : ''}
+                <a class="btn" href="unit4-dashboard.html">Unit Dashboard</a>
               </div>
             </article>
           `;
+        } else {
+          todayContainer.innerHTML = `<p>Check back soon for today's lesson!</p>`;
+        }
+
+        // 2. Render Upcoming Events
+        if (upcomingLessons.length > 0) {
+          upcomingList.innerHTML = upcomingLessons.map(l => `
+            <li><time datetime="${l.date}">${l.date.split('-').slice(1).join('/')}</time> ${l.title}</li>
+          `).join('');
+        } else {
+          upcomingList.innerHTML = `<li>No upcoming events scheduled.</li>`;
+        }
+
+        // 3. Render Recent Lessons
+        if (pastLessons.length > 0) {
+          recentList.innerHTML = pastLessons.slice(0, 3).map(l => `
+            <li><time datetime="${l.date}">${l.date.split('-').slice(1).join('/')}</time> <a href="lessons.html" style="color: inherit; text-decoration: none; border-bottom: 1px dashed var(--accent-neon);">${l.title}</a></li>
+          `).join('');
+        } else {
+          recentList.innerHTML = `<li>No recent lessons found.</li>`;
+        }
+
       } else {
-        container.innerHTML = `<p>No lessons posted yet for Semester 2.</p>`;
+        todayContainer.innerHTML = `<p>No lessons posted yet for Semester 2.</p>`;
+        upcomingList.innerHTML = `<li>No upcoming events.</li>`;
+        recentList.innerHTML = `<li>No recent lessons.</li>`;
       }
     });
   </script>
