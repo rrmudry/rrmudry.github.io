@@ -106,7 +106,7 @@ Use this file to track what was completed each day. You can also list any new fi
 ---
  
 ## 2026-01-26
-- **Lesson Title**: Explosions in Physics
+- **Lesson Title**: FINAL ENGINEERING REPORT
 - **Activities**: 
   - Internal forces driving objects apart. Video analysis.
   - Activity: https://docs.google.com/document/d/15eeYq-2sPEcbqNAOQ0AN9TQ_3i-XIMWXb9Nx_q_w0ps/edit?usp=sharing
