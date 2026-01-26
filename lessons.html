@@ -80,51 +80,84 @@
 
   <div data-include="footer"></div>
   <script>
-    // Cache-busting for lesson data
-    const script = document.createElement('script');
-    script.src = 'assets/lessons-data.js?v=' + Date.now();
-    document.head.appendChild(script);
-  </script>
-  <script src="assets/partials.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    function renderLessons() {
       const latestContainer = document.getElementById('latest-lesson-container');
       const archiveGrid = document.getElementById('archive-grid');
       
-      if (typeof lessonsData !== 'undefined') {
-        // Latest Lesson
-        const latest = lessonsData[0];
-        if (latest) {
-          latestContainer.innerHTML = `
-            <article class="card highlight" style="max-width: 800px;">
-              <span class="lesson-meta">Day ${latest.day} • Unit ${latest.unit} • ${latest.date}</span>
-              <h3>${latest.title}</h3>
-              <p>${latest.summary}</p>
-              <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
-                <p><strong>In-Class Activities:</strong><br>${latest.details}</p>
-                ${latest.pdfLink ? `<a href="${latest.pdfLink}" class="btn primary" style="margin-top: 1rem;" target="_blank">📄 View Worksheet</a>` : ''}
-              </div>
-            </article>
-          `;
-        }
+      if (!latestContainer || !archiveGrid) return;
+      if (typeof lessonsData === 'undefined' || !lessonsData.length) {
+          latestContainer.innerHTML = '<p>No lessons posted yet for Semester 2.</p>';
+          archiveGrid.innerHTML = '<p>The archive will appear once lessons are added.</p>';
+          return;
+      }
 
-        // Archive (excluding the very latest)
-        lessonsData.slice(1).forEach(lesson => {
+      // Sort with local date awareness
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      const todayStr = `${y}-${m}-${d}`;
+      
+      const sortedLessons = [...lessonsData].sort((a, b) => new Date(b.date) - new Date(a.date));
+      const latest = sortedLessons.find(l => l.date <= todayStr);
+      
+      // 1. Render Latest Lesson
+      if (latest) {
+        latestContainer.innerHTML = `
+          <article class="card highlight animate-in fade-in duration-500" style="max-width: 800px;">
+            <span class="lesson-meta">Day ${latest.day} • Unit ${latest.unit} • ${latest.date}</span>
+            <h3>${latest.title}</h3>
+            <p>${latest.summary}</p>
+            <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
+              <p><strong>In-Class Activities:</strong><br>${latest.details}</p>
+              <div style="display: flex; gap: 0.75rem; margin-top: 1rem; flex-wrap: wrap;">
+                ${latest.pdfLink ? `<a href="${latest.pdfLink}" class="btn primary" target="_blank">📄 View Worksheet</a>` : ''}
+                <a class="btn" href="unit${latest.unit}-dashboard.html">Unit ${latest.unit} Dashboard</a>
+                <a class="btn" href="index.html">Back to Home</a>
+              </div>
+            </div>
+          </article>
+        `;
+      }
+
+      // 2. Render Archive (grouped or filtered)
+      archiveGrid.innerHTML = '';
+      const archiveLessons = sortedLessons.filter(l => l !== latest && l.date <= todayStr);
+      
+      if (archiveLessons.length === 0) {
+        archiveGrid.innerHTML = '<p style="grid-column: 1/-1; opacity: 0.5;">Older lessons will be listed here.</p>';
+      } else {
+        archiveLessons.forEach(lesson => {
           const card = document.createElement('article');
-          card.className = 'card';
+          card.className = 'card animate-in slide-in-from-bottom-4 duration-300';
           card.innerHTML = `
-            <span class="lesson-meta">Unit ${lesson.unit} • Day ${lesson.day}</span>
+            <span class="lesson-meta">Unit ${lesson.unit} • Day ${lesson.day} • ${lesson.date}</span>
             <h3>${lesson.title}</h3>
             <p>${lesson.summary}</p>
-            <div style="margin-top: auto; display: flex; gap: 0.5rem; flex-wrap: wrap;">
-              <a class="btn" href="#">View Notes</a>
+            <div style="margin-top: auto; display: flex; gap: 0.5rem; flex-wrap: wrap; padding-top: 1rem;">
+              <a class="btn" href="unit${lesson.unit}-dashboard.html">Dashboard</a>
               ${lesson.pdfLink ? `<a class="btn secondary" href="${lesson.pdfLink}" target="_blank">📄 PDF</a>` : ''}
             </div>
           `;
           archiveGrid.appendChild(card);
         });
       }
+    }
+
+    // Load with cache-buster
+    const lessonScript = document.createElement('script');
+    lessonScript.src = 'assets/lessons-data.js?v=' + Date.now();
+    lessonScript.onload = () => {
+      if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        renderLessons();
+      }
+    };
+    document.head.appendChild(lessonScript);
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderLessons();
     });
   </script>
+  <script src="assets/partials.js"></script>
 </body>
 </html>
