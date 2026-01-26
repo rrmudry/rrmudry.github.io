@@ -14,6 +14,26 @@
  */
 const lessonsData = [
   {
+    date: "2026-01-26",
+    title: "Explosions in Physics",
+    unit: 4,
+    day: 11,
+    summary: "Internal forces driving objects apart. Video analysis.",
+    details: "Students analyze the physics of explosions and internal forces. Worksheet available on dashboard.",
+    semester: 2,
+    isFeatured: true
+  },
+  {
+    date: "2026-01-23",
+    title: "Project Testing: Operation Safe Heeler (Crash Test Day)",
+    unit: 4,
+    day: 10,
+    summary: "Crash test day! Testing barriers and analyzing impulse results.",
+    details: "Final testing day for the crash attenuation barriers. Results available on the project dashboard.",
+    semester: 2,
+    isFeatured: true
+  },
+  {
     date: "2026-01-22",
     title: "Project Build: Operation Safe Heeler",
     unit: 4,
