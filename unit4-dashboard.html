@@ -12,6 +12,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/theme.css" />
     <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
         :root {
             --accent-neon: #00f3ff;
             --font-tech: 'Inter', sans-serif;
@@ -100,6 +104,16 @@
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
         }
+
+        .content-section {
+            scroll-margin-top: 100px;
+            padding-bottom: 4rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .content-section:last-child {
+            border-bottom: none;
+        }
     </style>
 </head>
 
@@ -115,7 +129,8 @@
             <div class="w-32 h-1 bg-orange-500 mx-auto mt-4 rounded-full shadow-[0_0_15px_rgba(249,115,22,0.5)]"></div>
         </header>
 
-        <nav class="flex justify-center border-b border-white/10 mb-10">
+        <nav
+            class="flex justify-center border-b border-white/10 mb-10 sticky top-[73px] bg-slate-950/80 backdrop-blur-md z-40">
             <button data-target="at-a-glance" class="nav-btn active">At a Glance</button>
             <button data-target="pacing-guide" class="nav-btn">Pacing Guide</button>
             <button data-target="resources" class="nav-btn">Resources</button>
@@ -203,7 +218,7 @@
             </section>
 
             <!-- Pacing Guide Section -->
-            <section id="pacing-guide" class="content-section hidden">
+            <section id="pacing-guide" class="content-section">
                 <div class="text-center mb-10">
                     <h2 class="text-3xl font-bold">Cognitive Progression Chart</h2>
                     <p class="text-blue-300/70 mt-2">DOK levels by lesson day. Watch the complexity ramp up!</p>
@@ -218,7 +233,7 @@
             </section>
 
             <!-- Resources Section -->
-            <section id="resources" class="content-section hidden">
+            <section id="resources" class="content-section">
                 <div class="grid md:grid-cols-2 gap-10">
                     <div>
                         <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
@@ -283,10 +298,10 @@
             if (!dateStr) return 'planned';
             const now = new Date();
             const lessonDate = new Date(dateStr + 'T00:00:00'); // Ensure local date interp
-            
+
             // Strip time for clean date comparison
             const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            
+
             if (lessonDate < today) {
                 return 'completed';
             } else if (lessonDate.getTime() === today.getTime()) {
@@ -312,20 +327,41 @@
             const labsList = document.getElementById('labs-list');
             const assessmentsList = document.getElementById('assessments-list');
 
-            // Tab Navigation
+            // Scroll Navigation
             navButtons.forEach(btn => {
                 btn.addEventListener('click', () => {
-                    const target = btn.dataset.target;
-                    navButtons.forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    contentSections.forEach(s => s.classList.toggle('hidden', s.id !== target));
+                    const targetId = btn.dataset.target;
+                    const targetEl = document.getElementById(targetId);
+                    if (targetEl) {
+                        targetEl.scrollIntoView({ behavior: 'smooth' });
+                    }
                 });
             });
+
+            // Intersection Observer for active nav state
+            const observerOptions = {
+                root: null,
+                rootMargin: '-150px 0px -50% 0px',
+                threshold: 0
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.getAttribute('id');
+                        navButtons.forEach(btn => {
+                            btn.classList.toggle('active', btn.dataset.target === id);
+                        });
+                    }
+                });
+            }, observerOptions);
+
+            contentSections.forEach(section => observer.observe(section));
 
             // Initialize App Data
             unitData.forEach(day => {
                 const status = getLessonStatus(day.date);
-                
+
                 // Card for Pacing
                 const statusStyles = {
                     'completed': 'border-green-500/50 hover:border-green-400',
