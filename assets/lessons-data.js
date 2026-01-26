@@ -15,7 +15,7 @@
 const lessonsData = [
   {
     date: "2026-01-26",
-    title: "Explosions in Physics",
+    title: "FINAL ENGINEERING REPORT",
     unit: 4,
     day: 11,
     summary: "Internal forces driving objects apart. Video analysis.",
