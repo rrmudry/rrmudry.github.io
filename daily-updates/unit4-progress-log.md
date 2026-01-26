@@ -102,3 +102,12 @@ Use this file to track what was completed each day. You can also list any new fi
 - **Activities**: 
   - Crash test day for the "Operation Safe Heeler" project. Students tested their barriers and analyzed the results.
 - **Notes**: Final project verification and analysis.
+ 
+---
+ 
+## 2026-01-26
+- **Lesson Title**: Explosions in Physics
+- **Activities**: 
+  - Internal forces driving objects apart. Video analysis.
+  - Activity: https://docs.google.com/document/d/15eeYq-2sPEcbqNAOQ0AN9TQ_3i-XIMWXb9Nx_q_w0ps/edit?usp=sharing
+- **Notes**: Transition from momentum conservation in collisions to explosions.
