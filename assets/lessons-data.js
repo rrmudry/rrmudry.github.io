@@ -14,6 +14,16 @@
  */
 const lessonsData = [
   {
+    date: "2026-01-27",
+    title: "Conservation of Momentum Day 1 Explosions in 1D",
+    unit: 4,
+    day: 12,
+    summary: "Simulated explosions! Applying conservation laws to 1D system. ⚠ SUB PRESENT",
+    details: "In-class investigation using the new simulation. Links: <a href='https://rrmudry.github.io/physics-momentum-lab-report/index.html'>Lab Report</a> | <a href='https://rrmudry.github.io/conservation-of-momentum/index.html'>Simulation</a>",
+    semester: 2,
+    isFeatured: true
+  },
+  {
     date: "2026-01-26",
     title: "FINAL ENGINEERING REPORT",
     unit: 4,
