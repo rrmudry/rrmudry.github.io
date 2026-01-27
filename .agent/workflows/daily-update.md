@@ -9,7 +9,11 @@ Follow these steps each day to update your classroom site.
 Simply type this command in the chat box:
 > **/daily-update**
 
-I will then ask you for the new lesson details and handle everything else (file updates, local preview, and GitHub sync) for you.
+I will then handle the following:
+1. **Sync**: Perform a `git fetch` and `reset` to ensure I have your latest work from GitHub.
+2. **Setup**: Update the lesson data and file logs as you request.
+3. **Verify**: Run a local server for you to preview the changes.
+4. **Deploy**: Push everything back up to GitHub.
 
 ## Option B: Terminal Commands
 If you prefer to run things yourself in the terminal:
