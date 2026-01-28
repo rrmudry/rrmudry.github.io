@@ -142,169 +142,73 @@ const SectionThree: React.FC<SectionThreeProps> = ({ data, updateData }) => {
       </div>
       
       {/* VISUALIZATION */}
-      <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 mt-8">
-        <h4 className="text-cyan-400 font-bold mb-6 uppercase tracking-widest text-center text-sm">Momentum Analysis</h4>
+      <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 mt-8 flex flex-col items-center">
+        <h4 className="text-cyan-400 font-bold mb-4 uppercase tracking-widest text-sm">Momentum Vector Diagram</h4>
+        
+        {/* SVG Container */}
+        <div className="relative w-64 h-64 border border-gray-800 rounded-full bg-gray-900/50 shadow-inner">
+           {/* Crosshairs */}
+           <div className="absolute top-1/2 left-0 right-0 h-px bg-gray-800"></div>
+           <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gray-800"></div>
 
-        <div className="flex flex-col md:flex-row gap-8 items-center justify-center">
-            
-            {/* Main 2D Diagram */}
-            <div className="flex flex-col items-center">
-                <span className="text-gray-400 text-xs mb-2">2D Spatial View</span>
-                <div className="relative w-48 h-48 border border-gray-800 rounded-full bg-gray-900/50 shadow-inner">
-                    <div className="absolute top-1/2 left-0 right-0 h-px bg-gray-800"></div>
-                    <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gray-800"></div>
-                    <svg viewBox="-100 -100 200 200" className="w-full h-full overflow-visible">
-                        <defs>
-                            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                            <polygon points="0 0, 10 3.5, 0 7" fill="currentColor" />
-                            </marker>
-                        </defs>
-                        {(() => {
-                            const maxVal = Math.max(
-                                Math.sqrt(p1x**2 + p1y**2), 
-                                Math.sqrt(p2x**2 + p2y**2), 
-                                Math.sqrt(p3x**2 + p3y**2), 
-                                0.1
-                            );
-                            const scale = 80 / maxVal;
-                            // Helper to draw standard vector
-                            const drawV = (x: number, y: number, color: string) => (
-                                <line x1="0" y1="0" x2={x * scale} y2={-y * scale} stroke="currentColor" strokeWidth="3" markerEnd="url(#arrowhead)" className={color} />
-                            );
-                            return (
-                                <>
-                                    {drawV(p1x, p1y, "text-blue-500")}
-                                    {drawV(p2x, p2y, "text-purple-500")}
-                                    {drawV(p3x, p3y, "text-yellow-500")}
-                                    {/* Net 2D */}
-                                    <line x1="0" y1="0" x2={totalPx * scale} y2={-totalPy * scale} stroke="currentColor" strokeWidth="4" strokeDasharray="4 2" className="text-red-500 opacity-80" />
-                                    <circle cx={totalPx * scale} cy={-totalPy * scale} r="3" fill="currentColor" className="text-red-500" />
-                                </>
-                            );
-                        })()}
-                    </svg>
-                </div>
-            </div>
+           <svg viewBox="-100 -100 200 200" className="w-full h-full overflow-visible">
+              {/* Arrow Marker Def */}
+              <defs>
+                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                  <polygon points="0 0, 10 3.5, 0 7" fill="currentColor" />
+                </marker>
+              </defs>
 
-            {/* Component Breakdowns */}
-            <div className="flex gap-4">
-                {/* X-Component Head-to-Tail */}
-                <div className="flex flex-col items-center">
-                    <span className="text-gray-400 text-xs mb-2">X-Balance (Head-to-Tail)</span>
-                    <div className="w-24 h-48 border border-gray-800 bg-gray-900/50 relative">
-                        <div className="absolute top-0 bottom-0 left-1/2 w-px bg-gray-700"></div> {/* Center Axis */}
-                        <svg viewBox="-50 -100 100 200" className="w-full h-full overflow-visible">
-                             {(() => {
-                                 // Scale based on X max extents
-                                 const maxX = Math.max(Math.abs(p1x)+Math.abs(p2x)+Math.abs(p3x), 0.1);
-                                 const scaleX = 90 / maxX; // fit in 100 height (since we rotate 90deg effectively or just draw vertically)
-                                 
-                                 // Actually for X (Horizontal), we usually draw horizontally. 
-                                 // But to save specific space, let's draw X vectors vertically? No that's confusing.
-                                 // Let's draw X horizontally in a wider box.
-                                 return null; 
-                             })()}
-                             {/* Retrying with better layout logic below in the main return for this block */}
-                        </svg>
-                        {/* RE-IMPLEMENTING X-CHART CORRECTLY BELOW */}
-                    </div>
-                </div>
-            </div>
-        </div>
+              {(() => {
+                 // Visualization Logic inside Render
+                 const p1 = { x: p1x, y: -p1y }; // Invert Y for SVG coord system
+                 const p2 = { x: p2x, y: -p2y };
+                 const p3 = { x: p3x, y: -p3y };
+                 const total = { x: totalPx, y: -totalPy };
 
-        {/* Separate X and Y Linear Charts */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 w-full">
-            
-            {/* X-Axis Chart */}
-            <div className="bg-gray-800/50 p-4 rounded border border-gray-700">
-                <h5 className="text-xs font-bold text-gray-400 uppercase mb-2 text-center">X-Momentum Sum (Should = 0)</h5>
-                <div className="h-16 relative flex items-center">
-                    <div className="absolute left-0 right-0 h-px bg-gray-600 top-1/2"></div>
-                    <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gray-600"></div>
-                    <svg className="w-full h-full overflow-visible" viewBox="-100 -20 200 40">
-                        {(() => {
-                             // Scale for Component Charts
-                             const range = Math.max(Math.abs(p1x) + Math.abs(p2x) + Math.abs(p3x), Math.abs(p1y) + Math.abs(p2y) + Math.abs(p3y), 0.1) * 1.2;
-                             const scale = 90 / range;
-                             
-                             // Head to Tail X
-                             let cx = 0;
-                             return (
-                                 <g transform="translate(0,0)">
-                                     {/* P1X */}
-                                     <line x1={cx} y1="-5" x2={cx + p1x*scale} y2="-5" stroke="currentColor" strokeWidth="4" className="text-blue-500" markerEnd="url(#arrowhead)" />
-                                     {/* P2X */}
-                                     <line x1={cx + p1x*scale} y1="0" x2={cx + (p1x+p2x)*scale} y2="0" stroke="currentColor" strokeWidth="4" className="text-purple-500" markerEnd="url(#arrowhead)" />
-                                     {/* P3X */}
-                                     <line x1={cx + (p1x+p2x)*scale} y1="5" x2={cx + (p1x+p2x+p3x)*scale} y2="5" stroke="currentColor" strokeWidth="4" className="text-yellow-500" markerEnd="url(#arrowhead)" />
-                                     
-                                     {/* Net X (Result) */}
-                                     {Math.abs(totalPx) > 0.1 && (
-                                         <rect x={totalPx > 0 ? 0 : totalPx*scale} y="-10" width={Math.abs(totalPx*scale)} height="20" fill="currentColor" className="text-red-500 opacity-20" />
-                                     )}
-                                 </g>
-                             );
-                        })()}
-                    </svg>
-                </div>
-                <div className="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>-X</span>
-                    <span>0</span>
-                    <span>+X</span>
-                </div>
-            </div>
+                 // Auto-scale: Find max magnitude to fit in 80px radius
+                 const mag = (p: {x:number, y:number}) => Math.sqrt(p.x**2 + p.y**2);
+                 const maxMag = Math.max(mag(p1), mag(p2), mag(p3), 0.1); // prevent div/0
+                 const scale = 80 / maxMag;
 
-            {/* Y-Axis Chart */}
-            <div className="bg-gray-800/50 p-4 rounded border border-gray-700">
-                <h5 className="text-xs font-bold text-gray-400 uppercase mb-2 text-center">Y-Momentum Sum (Should = 0)</h5>
-                <div className="h-16 relative flex items-center">
-                    <div className="absolute left-0 right-0 h-px bg-gray-600 top-1/2"></div>
-                    <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gray-600"></div>
-                    <svg className="w-full h-full overflow-visible" viewBox="-100 -20 200 40">
-                       {(() => {
-                             const range = Math.max(Math.abs(p1x) + Math.abs(p2x) + Math.abs(p3x), Math.abs(p1y) + Math.abs(p2y) + Math.abs(p3y), 0.1) * 1.2;
-                             const scale = 90 / range;
-                             
-                             let cy = 0;
-                             // We draw Y horizontally here for layout consistency? 
-                             // Or should we draw it vertically?
-                             // User asked to see X and Y separately. 
-                             // Representing Y as a horizontal bar chart of magnitude is often easier to read than a tall vertical one.
-                             // But "Right" usually means +X. "Up" means +Y.
-                             // Let's stick to horizontal representation for the SUM logic (Number line), but maybe label it well.
-                             // Actually, let's keep X Horizontal and Y Horizontal (as number lines) seems easiest to compare magnitudes.
-                             
-                             return (
-                                 <g transform="translate(0,0)">
-                                     <line x1={cy} y1="-5" x2={cy + p1y*scale} y2="-5" stroke="currentColor" strokeWidth="4" className="text-blue-500" markerEnd="url(#arrowhead)" />
-                                     <line x1={cy + p1y*scale} y1="0" x2={cy + (p1y+p2y)*scale} y2="0" stroke="currentColor" strokeWidth="4" className="text-purple-500" markerEnd="url(#arrowhead)" />
-                                     <line x1={cy + (p1y+p2y)*scale} y1="5" x2={cy + (p1y+p2y+p3y)*scale} y2="5" stroke="currentColor" strokeWidth="4" className="text-yellow-500" markerEnd="url(#arrowhead)" />
-                                     
-                                     {Math.abs(totalPy) > 0.1 && (
-                                         <rect x={totalPy > 0 ? 0 : totalPy*scale} y="-10" width={Math.abs(totalPy*scale)} height="20" fill="currentColor" className="text-red-500 opacity-20" />
-                                     )}
-                                 </g>
-                             );
-                        })()}
-                    </svg>
-                </div>
-                <div className="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>-Y</span>
-                    <span>0</span>
-                    <span>+Y</span>
-                </div>
-            </div>
+                 const drawArrow = (p: {x:number, y:number}, color: string) => (
+                    <g className={color}>
+                      <line x1="0" y1="0" x2={p.x * scale} y2={p.y * scale} 
+                            stroke="currentColor" strokeWidth="3" markerEnd="url(#arrowhead)" />
+                    </g>
+                 );
 
+                 return (
+                    <>
+                       {mag(p1) > 0.1 && drawArrow(p1, "text-blue-500")}
+                       {mag(p2) > 0.1 && drawArrow(p2, "text-purple-500")}
+                       {mag(p3) > 0.1 && drawArrow(p3, "text-yellow-500")}
+                       
+                       {/* Resultant / Net Momentum (Should be small/dot if conserved) */}
+                       {mag(total) > 0.1 && (
+                         <g className="text-red-500 opacity-80">
+                            <line x1="0" y1="0" x2={total.x * scale} y2={total.y * scale} 
+                                  stroke="currentColor" strokeWidth="4" strokeDasharray="4 2" />
+                            <circle cx={total.x * scale} cy={total.y * scale} r="3" fill="currentColor" />
+                         </g>
+                       )}
+                    </>
+                 );
+              })()}
+           </svg>
         </div>
 
         {/* Legend */}
-        <div className="flex flex-wrap justify-center gap-4 mt-6 text-xs font-bold uppercase">
+        <div className="flex gap-4 mt-4 text-xs font-bold uppercase">
           <div className="flex items-center gap-1 text-blue-400"><div className="w-3 h-3 bg-blue-500 rounded-full"></div> Part 1</div>
           <div className="flex items-center gap-1 text-purple-400"><div className="w-3 h-3 bg-purple-500 rounded-full"></div> Part 2</div>
           <div className="flex items-center gap-1 text-yellow-400"><div className="w-3 h-3 bg-yellow-500 rounded-full"></div> Part 3</div>
-          <div className="flex items-center gap-1 text-red-500"><div className="w-3 h-3 bg-red-500 rounded-full opacity-50"></div> Net Error</div>
+          <div className="flex items-center gap-1 text-red-500"><div className="w-3 h-3 bg-red-500 rounded-full"></div> Net (Sum)</div>
         </div>
-        
+        <p className="text-gray-500 text-xs mt-2 text-center max-w-sm">
+           The <b>Net Momentum (Red)</b> is the sum of all parts. If momentum is conserved, it should stay close to the center (Zero).
+        </p>
+
       </div>
     </div>
   );
