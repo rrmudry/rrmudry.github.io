@@ -15,9 +15,11 @@ const SectionThree: React.FC<SectionThreeProps> = ({ data, updateData }) => {
   const p1y = getVal('m1') * getVal('vy1');
   const p2x = getVal('m2') * getVal('vx2');
   const p2y = getVal('m2') * getVal('vy2');
+  const p3x = getVal('m3') * getVal('vx3');
+  const p3y = getVal('m3') * getVal('vy3');
   
-  const totalPx = p1x + p2x;
-  const totalPy = p1y + p2y;
+  const totalPx = p1x + p2x + p3x;
+  const totalPy = p1y + p2y + p3y;
 
   const handleChange = (field: string, val: string) => {
     updateData('section3', field, val);
@@ -30,57 +32,92 @@ const SectionThree: React.FC<SectionThreeProps> = ({ data, updateData }) => {
         SECTION 3: DATA ANALYSIS (2D)
       </h2>
 
-      <p className="text-gray-300 mb-4 text-sm">
-        Record the Mass (kg) and Velocity components (m/s) for both fragments after the explosion. 
-        The calculated Momentum ($p$) should be nearly zero in both directions.
-      </p>
+      <div className="mb-6 bg-gray-900 p-4 rounded border border-gray-600 text-sm">
+         <p className="text-gray-300 mb-2">
+            Record the Mass (kg) and Velocity components (m/s) for all 3 fragments after the explosion.
+            <br/>
+            <span className="text-cyan-400 font-bold">⚠️ HINT:</span> In the simulator data view, velocity is shown as <code className="bg-gray-800 px-1 rounded text-green-400">(vx, vy)</code>. 
+            The first number is X, the second is Y.
+         </p>
+         <img src="https://rrmudry.github.io/Screenshot%20data%20xy.png" alt="Data Hint" className="mt-2 h-16 object-contain opacity-80" />
+      </div>
 
       {/* Part 1 */}
-      <h3 className="text-blue-400 font-bold mb-2">PART #1</h3>
-      <div className="grid grid-cols-3 gap-4 mb-4">
-        <div>
-          <label className="block text-gray-400 text-xs uppercase">Mass (kg)</label>
-          <input type="number" step="0.1" className="w-full bg-gray-900 border border-gray-600 rounded p-2 text-white" 
-            value={data.m1 || ''} onChange={(e) => handleChange('m1', e.target.value)} />
+      <div className="border-b border-gray-700 pb-4 mb-4">
+        <h3 className="text-blue-400 font-bold mb-2">PART #1</h3>
+        <div className="grid grid-cols-3 gap-4 mb-2">
+            <div>
+            <label className="block text-gray-400 text-xs uppercase">Mass (kg)</label>
+            <input type="number" step="0.1" className="w-full bg-gray-900 border border-gray-600 rounded p-2 text-white" 
+                value={data.m1 || ''} onChange={(e) => handleChange('m1', e.target.value)} />
+            </div>
+            <div>
+            <label className="block text-gray-400 text-xs uppercase">Vel X (m/s)</label>
+            <input type="number" step="0.1" className="w-full bg-gray-900 border border-gray-600 rounded p-2 text-white" 
+                value={data.vx1 || ''} onChange={(e) => handleChange('vx1', e.target.value)} />
+            </div>
+            <div>
+            <label className="block text-gray-400 text-xs uppercase">Vel Y (m/s)</label>
+            <input type="number" step="0.1" className="w-full bg-gray-900 border border-gray-600 rounded p-2 text-white" 
+                value={data.vy1 || ''} onChange={(e) => handleChange('vy1', e.target.value)} />
+            </div>
         </div>
-        <div>
-          <label className="block text-gray-400 text-xs uppercase">Vel X (m/s)</label>
-          <input type="number" step="0.1" className="w-full bg-gray-900 border border-gray-600 rounded p-2 text-white" 
-            value={data.vx1 || ''} onChange={(e) => handleChange('vx1', e.target.value)} />
+        <div className="flex gap-4 text-xs text-gray-500 font-mono">
+            <span>Px = {p1x.toFixed(2)}</span>
+            <span>Py = {p1y.toFixed(2)}</span>
         </div>
-        <div>
-          <label className="block text-gray-400 text-xs uppercase">Vel Y (m/s)</label>
-          <input type="number" step="0.1" className="w-full bg-gray-900 border border-gray-600 rounded p-2 text-white" 
-            value={data.vy1 || ''} onChange={(e) => handleChange('vy1', e.target.value)} />
-        </div>
-      </div>
-      <div className="flex gap-4 mb-6 text-sm text-gray-500 font-mono">
-        <span>Px = {p1x.toFixed(2)}</span>
-        <span>Py = {p1y.toFixed(2)}</span>
       </div>
 
       {/* Part 2 */}
-      <h3 className="text-purple-400 font-bold mb-2">PART #2</h3>
-      <div className="grid grid-cols-3 gap-4 mb-4">
-        <div>
-          <label className="block text-gray-400 text-xs uppercase">Mass (kg)</label>
-          <input type="number" step="0.1" className="w-full bg-gray-900 border border-gray-600 rounded p-2 text-white" 
-            value={data.m2 || ''} onChange={(e) => handleChange('m2', e.target.value)} />
+      <div className="border-b border-gray-700 pb-4 mb-4">
+        <h3 className="text-purple-400 font-bold mb-2">PART #2</h3>
+        <div className="grid grid-cols-3 gap-4 mb-2">
+            <div>
+            <label className="block text-gray-400 text-xs uppercase">Mass (kg)</label>
+            <input type="number" step="0.1" className="w-full bg-gray-900 border border-gray-600 rounded p-2 text-white" 
+                value={data.m2 || ''} onChange={(e) => handleChange('m2', e.target.value)} />
+            </div>
+            <div>
+            <label className="block text-gray-400 text-xs uppercase">Vel X (m/s)</label>
+            <input type="number" step="0.1" className="w-full bg-gray-900 border border-gray-600 rounded p-2 text-white" 
+                value={data.vx2 || ''} onChange={(e) => handleChange('vx2', e.target.value)} />
+            </div>
+            <div>
+            <label className="block text-gray-400 text-xs uppercase">Vel Y (m/s)</label>
+            <input type="number" step="0.1" className="w-full bg-gray-900 border border-gray-600 rounded p-2 text-white" 
+                value={data.vy2 || ''} onChange={(e) => handleChange('vy2', e.target.value)} />
+            </div>
         </div>
-        <div>
-          <label className="block text-gray-400 text-xs uppercase">Vel X (m/s)</label>
-          <input type="number" step="0.1" className="w-full bg-gray-900 border border-gray-600 rounded p-2 text-white" 
-            value={data.vx2 || ''} onChange={(e) => handleChange('vx2', e.target.value)} />
-        </div>
-        <div>
-          <label className="block text-gray-400 text-xs uppercase">Vel Y (m/s)</label>
-          <input type="number" step="0.1" className="w-full bg-gray-900 border border-gray-600 rounded p-2 text-white" 
-            value={data.vy2 || ''} onChange={(e) => handleChange('vy2', e.target.value)} />
+        <div className="flex gap-4 text-xs text-gray-500 font-mono">
+            <span>Px = {p2x.toFixed(2)}</span>
+            <span>Py = {p2y.toFixed(2)}</span>
         </div>
       </div>
-      <div className="flex gap-4 mb-6 text-sm text-gray-500 font-mono">
-        <span>Px = {p2x.toFixed(2)}</span>
-        <span>Py = {p2y.toFixed(2)}</span>
+
+      {/* Part 3 */}
+      <div className="border-b border-gray-700 pb-4 mb-4">
+        <h3 className="text-yellow-400 font-bold mb-2">PART #3</h3>
+        <div className="grid grid-cols-3 gap-4 mb-2">
+            <div>
+            <label className="block text-gray-400 text-xs uppercase">Mass (kg)</label>
+            <input type="number" step="0.1" className="w-full bg-gray-900 border border-gray-600 rounded p-2 text-white" 
+                value={data.m3 || ''} onChange={(e) => handleChange('m3', e.target.value)} />
+            </div>
+            <div>
+            <label className="block text-gray-400 text-xs uppercase">Vel X (m/s)</label>
+            <input type="number" step="0.1" className="w-full bg-gray-900 border border-gray-600 rounded p-2 text-white" 
+                value={data.vx3 || ''} onChange={(e) => handleChange('vx3', e.target.value)} />
+            </div>
+            <div>
+            <label className="block text-gray-400 text-xs uppercase">Vel Y (m/s)</label>
+            <input type="number" step="0.1" className="w-full bg-gray-900 border border-gray-600 rounded p-2 text-white" 
+                value={data.vy3 || ''} onChange={(e) => handleChange('vy3', e.target.value)} />
+            </div>
+        </div>
+        <div className="flex gap-4 text-xs text-gray-500 font-mono">
+            <span>Px = {p3x.toFixed(2)}</span>
+            <span>Py = {p3y.toFixed(2)}</span>
+        </div>
       </div>
 
       {/* TOTALS */}

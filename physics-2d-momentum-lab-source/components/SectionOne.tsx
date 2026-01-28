@@ -6,6 +6,34 @@ type SectionOneProps = {
 };
 
 const SectionOne: React.FC<SectionOneProps> = ({ data, updateData }) => {
+  const questions = [
+    {
+      id: "q1",
+      label: "1. What defines an 'explosion' in the context of physics as discussed in the video?",
+      placeholder: "Explain what happens to the object..."
+    },
+    {
+      id: "q2",
+      label: "2. Why is momentum conserved during an explosion, according to the video?",
+      placeholder: "Consider outside forces..."
+    },
+    {
+      id: "q3",
+      label: "3. The video states that an explosion is a 'reverse inelastic collision.' What does this mean for the properties of energy during an explosion?",
+      placeholder: "Is kinetic energy conserved? Why or why not?"
+    },
+    {
+      id: "q4",
+      label: "4. If a watermelon explodes, and its initial momentum was zero, what can be said about the total momentum of all the pieces after the explosion?",
+      placeholder: "Describe the total sum..."
+    },
+    {
+      id: "q5",
+      label: "5. When two objects of different masses explode from a stationary position, which object will move faster, and why?",
+      placeholder: "Explain using the relationship between mass and velocity..."
+    }
+  ];
+
   return (
     <div className="bg-gray-800 p-6 rounded-lg border border-gray-700 shadow-xl mb-8">
       <h2 className="text-2xl font-bold text-cyan-400 mb-4 tracking-wider flex items-center">
@@ -29,19 +57,19 @@ const SectionOne: React.FC<SectionOneProps> = ({ data, updateData }) => {
         </div>
 
         <div className="bg-gray-900/50 p-4 rounded border border-gray-700">
-          <p className="text-gray-300 italic mb-2">Watch the video above and verify your understanding of 2D momentum vectors.</p>
+          <p className="text-gray-300 italic mb-2">Watch the video above and answer the following questions based on the content.</p>
         </div>
 
         {/* 5 Questions */}
-        {[1, 2, 3, 4, 5].map((num) => (
-          <div key={num}>
-            <label className="block text-cyan-300 text-sm font-bold mb-2">Question #{num} (Placeholder)</label>
+        {questions.map((q) => (
+          <div key={q.id}>
+            <label className="block text-cyan-300 text-sm font-bold mb-2">{q.label}</label>
             <textarea
               className="w-full bg-gray-900 text-white border border-gray-600 rounded p-3 focus:outline-none focus:border-cyan-500 transition-colors"
-              rows={2}
-              placeholder="Enter your answer here..."
-              value={data[`q${num}`] || ''}
-              onChange={(e) => updateData('section1', `q${num}`, e.target.value)}
+              rows={3}
+              placeholder={q.placeholder}
+              value={data[q.id] || ''}
+              onChange={(e) => updateData('section1', q.id, e.target.value)}
             />
           </div>
         ))}
