@@ -23,7 +23,7 @@ export const SectionTwo: React.FC<SectionTwoProps> = ({ answers, onUpdate }) => 
           </label>
           <textarea
             value={answers.q1}
-            onChange={(e) => onUpdate('conceptualAnswers.q1', e.target.value)}
+            onChange={(e) => onUpdate('q1', e.target.value)}
             placeholder="Analytical response required..."
             rows={4}
             className="w-full bg-[#0a0e17] border border-[#1e293b] rounded-lg p-4 text-white focus:outline-none focus:border-purple-500 transition-colors font-mono text-sm"
@@ -36,7 +36,7 @@ export const SectionTwo: React.FC<SectionTwoProps> = ({ answers, onUpdate }) => 
           </label>
           <textarea
             value={answers.q2}
-            onChange={(e) => onUpdate('conceptualAnswers.q2', e.target.value)}
+            onChange={(e) => onUpdate('q2', e.target.value)}
             placeholder="Analytical response required..."
             rows={4}
             className="w-full bg-[#0a0e17] border border-[#1e293b] rounded-lg p-4 text-white focus:outline-none focus:border-purple-500 transition-colors font-mono text-sm"
