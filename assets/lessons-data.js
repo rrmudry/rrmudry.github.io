@@ -15,6 +15,19 @@
 const lessonsData = [
   // --- Unit 4: Momentum & Impulse ---
   {
+    date: "2026-01-28",
+    day: 13,
+    unit: 4,
+    title: "PHYSICS LAB: 2D MOMENTUM",
+    summary: "Analyzing conservation of momentum in two dimensions using vector addition.",
+    details: "Students conduct a 2D explosion lab, recording masses and (vx, vy) components to verify conservation rules. Links: <a href='https://rrmudry.github.io/physics-2d-momentum-lab/index.html'>Lab Report Webapp</a> | <a href='https://rrmudry.github.io/conservation-of-momentum/index.html'>Simulation</a>",
+    type: "Lab",
+    dok: 3,
+    links: { 'Lab Report Webapp': 'https://rrmudry.github.io/physics-2d-momentum-lab/index.html', 'Simulation': 'https://rrmudry.github.io/conservation-of-momentum/index.html' },
+    semester: 2,
+    isFeatured: true
+  },
+  {
     date: "2026-01-27",
     day: 12,
     unit: 4,
