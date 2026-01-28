@@ -139,6 +139,8 @@ const SectionThree: React.FC<SectionThreeProps> = ({ data, updateData }) => {
                <div className="text-xs text-gray-500">(Target: ~0)</div>
             </div>
          </div>
+      </div>
+      
       {/* VISUALIZATION */}
       <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 mt-8 flex flex-col items-center">
         <h4 className="text-cyan-400 font-bold mb-4 uppercase tracking-widest text-sm">Momentum Vector Diagram</h4>
