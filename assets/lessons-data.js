@@ -19,7 +19,7 @@ const lessonsData = [
     day: 13,
     unit: 4,
     title: "PHYSICS LAB: 2D MOMENTUM",
-    summary: "Analyzing conservation of momentum in two dimensions using vector addition.",
+    summary: "Analyzing conservation of momentum in two dimensions using vector addition. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
     details: "Students conduct a 2D explosion lab, recording masses and (vx, vy) components to verify conservation rules. Links: <a href='https://rrmudry.github.io/physics-2d-momentum-lab/index.html'>Lab Report Webapp</a> | <a href='https://rrmudry.github.io/conservation-of-momentum/index.html'>Simulation</a>",
     type: "Lab",
     dok: 3,
