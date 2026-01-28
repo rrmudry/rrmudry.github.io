@@ -1,0 +1,111 @@
+import React from 'react';
+
+type SectionThreeProps = {
+  data: any;
+  updateData: (section: string, field: string, value: any) => void;
+};
+
+const SectionThree: React.FC<SectionThreeProps> = ({ data, updateData }) => {
+  
+  // Helper to safely get number or 0
+  const getVal = (key: string) => parseFloat(data[key]) || 0;
+
+  // Calculate momenta
+  const p1x = getVal('m1') * getVal('vx1');
+  const p1y = getVal('m1') * getVal('vy1');
+  const p2x = getVal('m2') * getVal('vx2');
+  const p2y = getVal('m2') * getVal('vy2');
+  
+  const totalPx = p1x + p2x;
+  const totalPy = p1y + p2y;
+
+  const handleChange = (field: string, val: string) => {
+    updateData('section3', field, val);
+  };
+
+  return (
+    <div className="bg-gray-800 p-6 rounded-lg border border-gray-700 shadow-xl mb-8">
+      <h2 className="text-2xl font-bold text-cyan-400 mb-4 tracking-wider flex items-center">
+        <span className="bg-cyan-900 text-cyan-300 w-8 h-8 rounded-full flex items-center justify-center mr-3 text-sm">03</span>
+        SECTION 3: DATA ANALYSIS (2D)
+      </h2>
+
+      <p className="text-gray-300 mb-4 text-sm">
+        Record the Mass (kg) and Velocity components (m/s) for both fragments after the explosion. 
+        The calculated Momentum ($p$) should be nearly zero in both directions.
+      </p>
+
+      {/* Part 1 */}
+      <h3 className="text-blue-400 font-bold mb-2">PART #1</h3>
+      <div className="grid grid-cols-3 gap-4 mb-4">
+        <div>
+          <label className="block text-gray-400 text-xs uppercase">Mass (kg)</label>
+          <input type="number" step="0.1" className="w-full bg-gray-900 border border-gray-600 rounded p-2 text-white" 
+            value={data.m1 || ''} onChange={(e) => handleChange('m1', e.target.value)} />
+        </div>
+        <div>
+          <label className="block text-gray-400 text-xs uppercase">Vel X (m/s)</label>
+          <input type="number" step="0.1" className="w-full bg-gray-900 border border-gray-600 rounded p-2 text-white" 
+            value={data.vx1 || ''} onChange={(e) => handleChange('vx1', e.target.value)} />
+        </div>
+        <div>
+          <label className="block text-gray-400 text-xs uppercase">Vel Y (m/s)</label>
+          <input type="number" step="0.1" className="w-full bg-gray-900 border border-gray-600 rounded p-2 text-white" 
+            value={data.vy1 || ''} onChange={(e) => handleChange('vy1', e.target.value)} />
+        </div>
+      </div>
+      <div className="flex gap-4 mb-6 text-sm text-gray-500 font-mono">
+        <span>Px = {p1x.toFixed(2)}</span>
+        <span>Py = {p1y.toFixed(2)}</span>
+      </div>
+
+      {/* Part 2 */}
+      <h3 className="text-purple-400 font-bold mb-2">PART #2</h3>
+      <div className="grid grid-cols-3 gap-4 mb-4">
+        <div>
+          <label className="block text-gray-400 text-xs uppercase">Mass (kg)</label>
+          <input type="number" step="0.1" className="w-full bg-gray-900 border border-gray-600 rounded p-2 text-white" 
+            value={data.m2 || ''} onChange={(e) => handleChange('m2', e.target.value)} />
+        </div>
+        <div>
+          <label className="block text-gray-400 text-xs uppercase">Vel X (m/s)</label>
+          <input type="number" step="0.1" className="w-full bg-gray-900 border border-gray-600 rounded p-2 text-white" 
+            value={data.vx2 || ''} onChange={(e) => handleChange('vx2', e.target.value)} />
+        </div>
+        <div>
+          <label className="block text-gray-400 text-xs uppercase">Vel Y (m/s)</label>
+          <input type="number" step="0.1" className="w-full bg-gray-900 border border-gray-600 rounded p-2 text-white" 
+            value={data.vy2 || ''} onChange={(e) => handleChange('vy2', e.target.value)} />
+        </div>
+      </div>
+      <div className="flex gap-4 mb-6 text-sm text-gray-500 font-mono">
+        <span>Px = {p2x.toFixed(2)}</span>
+        <span>Py = {p2y.toFixed(2)}</span>
+      </div>
+
+      {/* TOTALS */}
+      <div className="bg-gray-700/50 p-4 rounded border border-gray-600 mt-6">
+         <h4 className="text-white font-bold mb-2 uppercase tracking-widest text-center">Totals</h4>
+         <div className="grid grid-cols-2 gap-4 text-center">
+            <div>
+               <div className="text-gray-400 text-xs">Total X Momentum</div>
+               <div className={`text-xl font-mono font-bold ${Math.abs(totalPx) < 0.5 ? 'text-green-400' : 'text-red-400'}`}>
+                 {totalPx.toFixed(2)} kg·m/s
+               </div>
+               <div className="text-xs text-gray-500">(Target: ~0)</div>
+            </div>
+            <div>
+               <div className="text-gray-400 text-xs">Total Y Momentum</div>
+               <div className={`text-xl font-mono font-bold ${Math.abs(totalPy) < 0.5 ? 'text-green-400' : 'text-red-400'}`}>
+                 {totalPy.toFixed(2)} kg·m/s
+               </div>
+               <div className="text-xs text-gray-500">(Target: ~0)</div>
+            </div>
+         </div>
+      </div>
+
+    </div>
+  );
+};
+
+export default SectionThree;
