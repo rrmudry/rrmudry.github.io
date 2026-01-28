@@ -15,6 +15,30 @@
 const lessonsData = [
   // --- Unit 4: Momentum & Impulse ---
   {
+    date: "2026-01-30",
+    day: 15,
+    unit: 4,
+    title: "Project Launch: Egg Drop Challenge",
+    summary: "Instructions & constraints for the classic Egg Drop project.",
+    details: "Introduction to the Egg Drop Challenge. Students will review the project guidelines, material constraints, and the physics of impulse reduction required to keep their egg safe.",
+    type: "Activity",
+    dok: 2,
+    semester: 2,
+    isFeatured: true
+  },
+  {
+    date: "2026-01-29",
+    day: 14,
+    unit: 4,
+    title: "Collisions in 1D",
+    summary: "Differentiating between Elastic and Inelastic collisions.",
+    details: "Lecture and practice on 1D collisions. We'll define the equations for perfectly inelastic (sticking together) vs elastic (bouncing) interactions.",
+    type: "Activity",
+    dok: 2,
+    semester: 2,
+    isFeatured: true
+  },
+  {
     date: "2026-01-28",
     day: 13,
     unit: 4,
