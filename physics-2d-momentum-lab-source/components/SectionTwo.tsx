@@ -1,63 +1,48 @@
 import React from 'react';
 
-type SectionTwoProps = {
-  data: any;
-  updateData: (section: string, field: string, value: any) => void;
-};
+interface SectionTwoProps {
+  answers: {
+    q1: string;
+    q2: string;
+  };
+  onUpdate: (field: string, val: string) => void;
+}
 
-const SectionTwo: React.FC<SectionTwoProps> = ({ data, updateData }) => {
+export const SectionTwo: React.FC<SectionTwoProps> = ({ answers, onUpdate }) => {
   return (
-    <div className="bg-gray-800 p-6 rounded-lg border border-gray-700 shadow-xl mb-8">
-      <h2 className="text-2xl font-bold text-cyan-400 mb-4 tracking-wider flex items-center">
-        <span className="bg-cyan-900 text-cyan-300 w-8 h-8 rounded-full flex items-center justify-center mr-3 text-sm">02</span>
-        SECTION 2: 2D SIMULATOR OBSERVATIONS
-      </h2>
-
-      <div className="mb-6 bg-gray-900/80 p-4 rounded border-l-4 border-blue-500">
-        <h3 className="text-blue-400 font-bold mb-2 uppercase">Instructions</h3>
-        <p className="text-gray-300 mb-4">
-          Open the simulator instructions below. Switch to <span className="text-white font-bold">2D Mode</span>. 
-          Create several explosions and observe the fragments.
-        </p>
-        <a 
-          href="https://rrmudry.github.io/conservation-of-momentum/index.html" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="inline-block bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded transition-colors"
-        >
-          LAUNCH SIMULATOR 
-          <svg className="w-4 h-4 inline-block ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-        </a>
+    <section className="bg-[#161b2e] border border-[#1e293b] rounded-xl p-6 shadow-xl space-y-8">
+      <div className="flex items-center space-x-3 mb-2">
+        <div className="w-2 h-8 bg-purple-600 rounded-full shadow-[0_0_10px_rgba(147,51,234,0.5)]"></div>
+        <h2 className="text-xl font-orbitron text-white uppercase">Section 3: Conclusion & Synthesis</h2>
       </div>
 
       <div className="space-y-6">
-        <div>
-          <label className="block text-cyan-300 text-sm font-bold mb-2">
-            Observation 1: How is the explosion balanced in the X-direction (Left/Right)?
+        <div className="space-y-4">
+          <label className="text-sm font-semibold text-slate-300 block leading-snug">
+            1. Based on your vector diagram, did the net momentum of the fragments truly sum to zero? Explain any discrepancies (friction, air resistance, rounding).
           </label>
-          <p className="text-xs text-gray-500 mb-2">Does one side seem to have more momentum, or do they cancel out?</p>
           <textarea
-            className="w-full bg-gray-900 text-white border border-gray-600 rounded p-3 focus:outline-none focus:border-cyan-500 transition-colors"
+            value={answers.q1}
+            onChange={(e) => onUpdate('conceptualAnswers.q1', e.target.value)}
+            placeholder="Analytical response required..."
             rows={4}
-            value={data.obsX || ''}
-            onChange={(e) => updateData('section2', 'obsX', e.target.value)}
+            className="w-full bg-[#0a0e17] border border-[#1e293b] rounded-lg p-4 text-white focus:outline-none focus:border-purple-500 transition-colors font-mono text-sm"
           />
         </div>
 
-        <div>
-          <label className="block text-cyan-300 text-sm font-bold mb-2">
-             Observation 2: How is the explosion balanced in the Y-direction (Up/Down)?
+        <div className="space-y-4">
+          <label className="text-sm font-semibold text-slate-300 block leading-snug">
+            2. In a 2D explosion, can momentum be conserved in the X-direction but NOT in the Y-direction? Explain why or why not.
           </label>
           <textarea
-            className="w-full bg-gray-900 text-white border border-gray-600 rounded p-3 focus:outline-none focus:border-cyan-500 transition-colors"
+            value={answers.q2}
+            onChange={(e) => onUpdate('conceptualAnswers.q2', e.target.value)}
+            placeholder="Analytical response required..."
             rows={4}
-            value={data.obsY || ''}
-            onChange={(e) => updateData('section2', 'obsY', e.target.value)}
+            className="w-full bg-[#0a0e17] border border-[#1e293b] rounded-lg p-4 text-white focus:outline-none focus:border-purple-500 transition-colors font-mono text-sm"
           />
         </div>
       </div>
-    </div>
+    </section>
   );
 };
-
-export default SectionTwo;

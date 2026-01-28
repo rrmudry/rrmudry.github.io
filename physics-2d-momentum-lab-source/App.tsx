@@ -1,83 +1,127 @@
-import React, { useState } from 'react';
-import SectionOne from './components/SectionOne';
-import SectionTwo from './components/SectionTwo';
-import SectionThree from './components/SectionThree';
-import SectionFour from './components/SectionFour';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
-import QRCode from 'react-qr-code';
+import React, { useState, useCallback } from 'react';
+import { LabHeader } from './components/LabHeader';
+import { VideoSection } from './components/VideoSection';
+import { SectionOne } from './components/SectionOne';
+import { SectionTwo } from './components/SectionTwo';
+import { LabState } from './types';
 
-function App() {
-  const [studentName, setStudentName] = useState('');
-  const [studentID, setStudentID] = useState('');
+const App: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
-  
-  // centralized state for all sections
-  const [labData, setLabData] = useState({
-    section1: {},
-    section2: {},
-    section3: {},
-    section4: {}
+  const [showWarning, setShowWarning] = useState(false);
+  const [state, setState] = useState<LabState>({
+    studentName: '',
+    studentId: '',
+    classPeriod: '',
+    videoAnswers: { q1: '', q2: '', q3: '', q4: '', q5: '' },
+    trial2D: { 
+      m1: '', vx1: '', vy1: '', 
+      m2: '', vx2: '', vy2: '', 
+      m3: '', vx3: '', vy3: '' 
+    },
+    conceptualAnswers: {
+      q1: '',
+      q2: '',
+    },
   });
 
-  const updateData = (section: string, field: string, value: any) => {
-    setLabData(prev => ({
-      ...prev,
-      [section]: {
-        ...prev[section as keyof typeof prev],
-        [field]: value
+  const updateState = (path: string, value: any) => {
+    setState((prev) => {
+      const parts = path.split('.');
+      const newState = { ...prev };
+
+      if (parts.length === 1) {
+        // @ts-ignore
+        newState[parts[0]] = value;
+      } else if (parts.length === 2) {
+        const [p1, p2] = parts;
+        // @ts-ignore
+        newState[p1] = { ...prev[p1], [p2]: value };
       }
-    }));
+      return newState;
+    });
   };
 
-  const generatePDF = async () => {
-    setIsGenerating(true);
-    const element = document.getElementById('lab-report');
+  const handleFinalizeClick = () => {
+    if (!state.studentName.trim() || !state.studentId.trim()) {
+      alert("SYSTEM ERROR: Identification required. Please enter Student Name and ID.");
+      return;
+    }
+    setShowWarning(true);
+  };
+
+  const handleExportPDF = useCallback(async () => {
+    setShowWarning(false);
+    const element = document.getElementById('report-paper');
     if (!element) return;
 
+    setIsGenerating(true);
     element.classList.add('is-printing');
 
-    // --- DIV SWAP LOGIC START ---
+    // --- DIV SWAP LOGIC ---
     // @ts-ignore
     const textareas = element.querySelectorAll('textarea');
     const replacements: { div: HTMLDivElement; ta: HTMLTextAreaElement }[] = [];
 
     textareas.forEach((ta) => {
       const div = document.createElement('div');
-      div.innerText = ta.value;
-      
       const style = window.getComputedStyle(ta);
-      div.style.cssText = style.cssText;
       div.style.width = style.width;
-      div.style.minHeight = style.height; 
-      div.style.whiteSpace = 'pre-wrap'; 
+      div.style.minHeight = style.height;
+      div.style.padding = style.padding;
+      div.style.fontSize = style.fontSize;
+      div.style.fontFamily = style.fontFamily;
+      div.style.lineHeight = style.lineHeight;
+      div.style.color = style.color;
+      div.style.backgroundColor = style.backgroundColor;
+      div.style.border = style.border;
+      div.style.borderRadius = style.borderRadius;
+      div.style.whiteSpace = 'pre-wrap';
+      div.style.wordWrap = 'break-word';
       div.style.overflow = 'hidden';
-
+      div.innerText = ta.value;
       ta.parentNode?.insertBefore(div, ta);
       ta.style.display = 'none';
       replacements.push({ div, ta });
     });
-    // --- EXPANSION LOGIC END ---
+
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    const captureWidth = 900;
+    const captureHeight = element.scrollHeight; 
+    const mmWidth = captureWidth * 0.264583;
+    const mmHeight = (captureHeight * 0.264583) + 10; 
+
+    const opt = {
+      margin: 0,
+      filename: `2D_Momentum_Lab_${state.studentName.trim().replace(/\s+/g, '_')}.pdf`,
+      image: { type: 'jpeg', quality: 0.95 },
+      html2canvas: { 
+        scale: 1.5,
+        useCORS: true, 
+        backgroundColor: '#0a0e17',
+        width: captureWidth,
+        height: captureHeight,
+        windowWidth: captureWidth,
+        scrollY: 0,
+        x: 0,
+        y: 0,
+        logging: false
+      },
+      jsPDF: { 
+        unit: 'mm', 
+        format: [mmWidth, mmHeight], 
+        orientation: 'portrait',
+        compress: true
+      }
+    };
 
     try {
-      // Force scroll to top to ensure header capture
-      window.scrollTo(0, 0);
-      
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        backgroundColor: '#111827', // dark bg
-        useCORS: true
-      });
-
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`2D_Momentum_Lab_${studentName || 'Student'}.pdf`);
+      // @ts-ignore
+      await window.html2pdf().set(opt).from(element).save();
+    } catch (err) {
+      console.error('EXPORT FAILED:', err);
+      alert('Data export failed.');
     } finally {
-      // Cleanup
       replacements.forEach(({ div, ta }) => {
         div.remove();
         ta.style.display = '';
@@ -85,129 +129,103 @@ function App() {
       element.classList.remove('is-printing');
       setIsGenerating(false);
     }
-  };
-
-  // SID Validation (6 digits)
-  const isSidValid = /^\d{6}$/.test(studentID);
+  }, [state]);
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100 font-sans selection:bg-cyan-500/30">
+    <div className="min-h-screen bg-[#030712] flex flex-col items-center py-0 md:py-10 selection:bg-cyan-500/30 relative">
       
-      {/* Background Effects */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl"></div>
-      </div>
-
-      <div className="max-w-4xl mx-auto px-4 py-12 relative z-10" id="lab-report">
-        
-        {/* Header */}
-        <header className="mb-12 text-center border-b border-gray-800 pb-8 relative">
-          <div className="inline-block p-4 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 shadow-2xl mb-6 relative group">
-             <div className="absolute inset-0 bg-cyan-500/20 blur-xl rounded-full group-hover:bg-cyan-400/30 transition-all duration-500"></div>
-             <svg className="w-16 h-16 text-cyan-400 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-             </svg>
-          </div>
-          
-          <h1 className="text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent mb-4 tracking-tight">
-            2D MOMENTUM LAB
-          </h1>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-            Analyze the vectors of explosions using conservation principles.
-          </p>
-
-          {/* QR Code Display (Hidden in UI usually, but we want it visible for PDF) */}
-          {studentID && (
-            <div className="absolute top-0 right-0 p-2 bg-white rounded shadow-lg hidden md:block">
-               <QRCode value={`SID:${studentID}`} size={64} />
-               <div className="text-black text-xs font-mono font-bold mt-1 text-center">SID:{studentID}</div>
+      {showWarning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md no-print">
+          <div className="bg-[#0f172a] border-2 border-cyan-500/50 rounded-2xl p-8 max-w-md w-full shadow-[0_0_50px_rgba(34,211,238,0.3)] space-y-6">
+            <div className="flex items-center space-x-3 text-cyan-400">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <h3 className="text-xl font-orbitron font-bold uppercase tracking-wider">Finalize 2D Report?</h3>
             </div>
-          )}
-        </header>
-
-        {/* Student Info */}
-        <div className="bg-gray-800/50 p-6 rounded-xl border border-gray-700/50 backdrop-blur-sm mb-12 flex flex-col gap-6">
-          <div className="flex flex-col md:flex-row gap-6">
-              <div className="w-full md:w-2/3">
-                <label className="block text-cyan-400 text-sm font-bold mb-2 uppercase tracking-wider">Student Name</label>
-                <input
-                  type="text"
-                  placeholder="Enter your full name (Required)"
-                  className="w-full bg-gray-900/80 border-2 border-gray-700 rounded-lg p-4 text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/10 transition-all outline-none text-lg"
-                  value={studentName}
-                  onChange={(e) => setStudentName(e.target.value)}
-                />
+            <div className="space-y-4 text-slate-300">
+              <p className="text-sm leading-relaxed text-red-400 font-bold">
+                NOTICE: You are about to finalize a 2D CONSERVATION report.
+              </p>
+              <div className="bg-red-500/10 border-l-4 border-red-500 p-4 rounded">
+                <p className="text-sm text-white">Upload this PDf to Classroom for credit.</p>
               </div>
-              <div className="w-full md:w-1/3">
-                <label className="block text-cyan-400 text-sm font-bold mb-2 uppercase tracking-wider">Student ID</label>
-                <div className="relative">
-                    <input
-                    type="text"
-                    maxLength={6}
-                    placeholder="6 Digits"
-                    className={`w-full bg-gray-900/80 border-2 rounded-lg p-4 text-white placeholder-gray-600 focus:ring-4 transition-all outline-none text-lg font-mono tracking-widest ${isSidValid ? 'border-green-500 focus:border-green-500 focus:ring-green-500/10' : 'border-gray-700 focus:border-red-500 focus:ring-red-500/10'}`}
-                    value={studentID}
-                    onChange={(e) => setStudentID(e.target.value.replace(/\D/g, ''))}
-                    />
-                    {isSidValid && (
-                        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-green-500">
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                        </div>
-                    )}
-                </div>
-              </div>
+            </div>
+            <div className="flex flex-col space-y-3">
+              <button onClick={handleExportPDF} className="w-full py-4 bg-cyan-600 hover:bg-cyan-500 text-white font-orbitron font-bold rounded-xl transition-all shadow-lg uppercase tracking-widest">
+                Download PDF
+              </button>
+              <button onClick={() => setShowWarning(false)} className="w-full py-2 text-slate-500 hover:text-white text-xs font-orbitron uppercase transition-colors">
+                Cancel
+              </button>
+            </div>
           </div>
-          
-          {/* Mobile QR check (visible everywhere since layout can shift) */}
-          <div className="md:hidden flex justify-center">
-             {studentID && (
-                <div className="bg-white p-2 rounded">
-                    <QRCode value={`SID:${studentID}`} size={80} />
-                    <div className="text-black text-xs font-mono font-bold mt-1 text-center">SID:{studentID}</div>
-                </div>
-             )}
+        </div>
+      )}
+
+      <div id="report-paper" className="w-full max-w-[900px] p-6 md:p-12 space-y-12 relative overflow-hidden border-x border-[#1e293b]/30">
+        <div className="hud-corner top-l no-print"></div>
+        <div className="hud-corner top-r no-print"></div>
+        <div className="hud-corner bot-l no-print"></div>
+        <div className="hud-corner bot-r no-print"></div>
+
+        <LabHeader 
+          studentName={state.studentName} 
+          studentId={state.studentId}
+          classPeriod={state.classPeriod}
+          onUpdate={(field, val) => updateState(field, val)}
+        />
+
+        <VideoSection 
+          answers={state.videoAnswers}
+          onUpdate={(field, val) => updateState(field, val)}
+        />
+
+        <SectionOne 
+          data={state.trial2D}
+          onUpdate={(field, val) => updateState('trial2D.' + field, val)}
+        />
+
+        <SectionTwo 
+          answers={state.conceptualAnswers}
+          onUpdate={(field, val) => updateState('conceptualAnswers.' + field, val)}
+        />
+
+        <div className="no-print py-4 flex flex-col items-center space-y-4">
+          <div className="flex items-center space-x-2 text-cyan-400 font-orbitron text-xs tracking-[0.2em] font-bold">
+            <span className="opacity-50">----------------</span>
+            <span>2D LAB COMPLETE</span>
+            <span className="opacity-50">----------------</span>
+          </div>
+          <div className="flex flex-col items-center space-y-2 animate-bounce">
+            <svg className="w-5 h-5 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
           </div>
         </div>
 
-        {/* Sections */}
-        <SectionOne data={labData.section1} updateData={updateData} />
-        <SectionTwo data={labData.section2} updateData={updateData} />
-        <SectionThree data={labData.section3} updateData={updateData} />
-        <SectionFour data={labData.section4} updateData={updateData} />
-
-        {/* Footer / Submit */}
-        <div className="mt-16 text-center">
-            <button
-              onClick={generatePDF}
-              disabled={isGenerating || !studentName || !isSidValid}
-              className={`
-                group relative px-12 py-5 rounded-full font-bold text-xl tracking-wider transition-all duration-300 transform hover:-translate-y-1
-                ${(!studentName || !isSidValid)
-                  ? 'bg-gray-700 text-gray-500 cursor-not-allowed' 
-                  : 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50'
-                }
-              `}
-            >
-              <span className={`flex items-center gap-3 ${isGenerating ? 'animate-pulse' : ''}`}>
-                {isGenerating ? (
-                  <>GENERATING PDF...</>
-                ) : (
-                  <>
-                    FINALIZE REPORT
-                    <svg className="w-6 h-6 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                  </>
-                )}
-              </span>
-            </button>
-            <p className="mt-4 text-gray-500 text-sm">
-              {!studentName || !isSidValid ? "Enter Name and 6-digit ID to unlock." : "Downloads a PDF to submit for grading."}
+        <div className="pt-10 border-t border-[#1e293b]/50 text-center">
+            <p className="text-[#334155] font-orbitron text-[9px] tracking-[0.4em] uppercase opacity-60">
+                2D Momentum System v5.0 // Document Secure
             </p>
         </div>
 
+        <div className="flex justify-center pt-8 pb-12 no-print">
+          <button
+            onClick={handleFinalizeClick}
+            disabled={isGenerating}
+            className={`
+              ${isGenerating ? 'opacity-50 cursor-not-allowed bg-slate-800' : 'btn-glow hover:bg-[#1d4ed8] active:scale-95 bg-[#2563eb]'}
+              text-white font-orbitron font-bold py-5 px-20 rounded-xl 
+              shadow-[0_0_30px_rgba(37,99,235,0.4)] border border-blue-400/50 transition-all text-lg tracking-widest
+            `}
+          >
+            {isGenerating ? 'SCANNING SYSTEM...' : 'FINALIZE 2D REPORT'}
+          </button>
+        </div>
       </div>
     </div>
   );
-}
+};
 
 export default App;
