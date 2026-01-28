@@ -139,8 +139,75 @@ const SectionThree: React.FC<SectionThreeProps> = ({ data, updateData }) => {
                <div className="text-xs text-gray-500">(Target: ~0)</div>
             </div>
          </div>
-      </div>
+      {/* VISUALIZATION */}
+      <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 mt-8 flex flex-col items-center">
+        <h4 className="text-cyan-400 font-bold mb-4 uppercase tracking-widest text-sm">Momentum Vector Diagram</h4>
+        
+        {/* SVG Container */}
+        <div className="relative w-64 h-64 border border-gray-800 rounded-full bg-gray-900/50 shadow-inner">
+           {/* Crosshairs */}
+           <div className="absolute top-1/2 left-0 right-0 h-px bg-gray-800"></div>
+           <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gray-800"></div>
 
+           <svg viewBox="-100 -100 200 200" className="w-full h-full overflow-visible">
+              {/* Arrow Marker Def */}
+              <defs>
+                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                  <polygon points="0 0, 10 3.5, 0 7" fill="currentColor" />
+                </marker>
+              </defs>
+
+              {(() => {
+                 // Visualization Logic inside Render
+                 const p1 = { x: p1x, y: -p1y }; // Invert Y for SVG coord system
+                 const p2 = { x: p2x, y: -p2y };
+                 const p3 = { x: p3x, y: -p3y };
+                 const total = { x: totalPx, y: -totalPy };
+
+                 // Auto-scale: Find max magnitude to fit in 80px radius
+                 const mag = (p: {x:number, y:number}) => Math.sqrt(p.x**2 + p.y**2);
+                 const maxMag = Math.max(mag(p1), mag(p2), mag(p3), 0.1); // prevent div/0
+                 const scale = 80 / maxMag;
+
+                 const drawArrow = (p: {x:number, y:number}, color: string) => (
+                    <g className={color}>
+                      <line x1="0" y1="0" x2={p.x * scale} y2={p.y * scale} 
+                            stroke="currentColor" strokeWidth="3" markerEnd="url(#arrowhead)" />
+                    </g>
+                 );
+
+                 return (
+                    <>
+                       {mag(p1) > 0.1 && drawArrow(p1, "text-blue-500")}
+                       {mag(p2) > 0.1 && drawArrow(p2, "text-purple-500")}
+                       {mag(p3) > 0.1 && drawArrow(p3, "text-yellow-500")}
+                       
+                       {/* Resultant / Net Momentum (Should be small/dot if conserved) */}
+                       {mag(total) > 0.1 && (
+                         <g className="text-red-500 opacity-80">
+                            <line x1="0" y1="0" x2={total.x * scale} y2={total.y * scale} 
+                                  stroke="currentColor" strokeWidth="4" strokeDasharray="4 2" />
+                            <circle cx={total.x * scale} cy={total.y * scale} r="3" fill="currentColor" />
+                         </g>
+                       )}
+                    </>
+                 );
+              })()}
+           </svg>
+        </div>
+
+        {/* Legend */}
+        <div className="flex gap-4 mt-4 text-xs font-bold uppercase">
+          <div className="flex items-center gap-1 text-blue-400"><div className="w-3 h-3 bg-blue-500 rounded-full"></div> Part 1</div>
+          <div className="flex items-center gap-1 text-purple-400"><div className="w-3 h-3 bg-purple-500 rounded-full"></div> Part 2</div>
+          <div className="flex items-center gap-1 text-yellow-400"><div className="w-3 h-3 bg-yellow-500 rounded-full"></div> Part 3</div>
+          <div className="flex items-center gap-1 text-red-500"><div className="w-3 h-3 bg-red-500 rounded-full"></div> Net (Sum)</div>
+        </div>
+        <p className="text-gray-500 text-xs mt-2 text-center max-w-sm">
+           The <b>Net Momentum (Red)</b> is the sum of all parts. If momentum is conserved, it should stay close to the center (Zero).
+        </p>
+
+      </div>
     </div>
   );
 };
