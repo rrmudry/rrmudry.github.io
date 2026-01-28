@@ -39,7 +39,7 @@ const SectionThree: React.FC<SectionThreeProps> = ({ data, updateData }) => {
             <span className="text-cyan-400 font-bold">⚠️ HINT:</span> In the simulator data view, velocity is shown as <code className="bg-gray-800 px-1 rounded text-green-400">(vx, vy)</code>. 
             The first number is X, the second is Y.
          </p>
-         <img src="https://rrmudry.github.io/Screenshot%20data%20xy.png" alt="Data Hint" className="mt-2 h-16 object-contain opacity-80" />
+         <img src="https://rrmudry.github.io/data-hint.png" alt="Data Hint" className="mt-2 h-16 object-contain opacity-80" />
       </div>
 
       {/* Part 1 */}
