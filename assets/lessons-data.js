@@ -37,7 +37,7 @@ const lessonsData = [
     dok: 2,
     links: {
       'PhET Simulation': 'https://phet.colorado.edu/sims/html/collision-lab/latest/collision-lab_all.html',
-      'Lab Worksheet': 'https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBqZra85A4SSK1ZmAvZcPY-ASLOQK3ArJx-cqWamoCeOBc?e=tHrura'
+      worksheet: 'https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBqZra85A4SSK1ZmAvZcPY-ASLOQK3ArJx-cqWamoCeOBc?e=tHrura'
     },
     semester: 2,
     isFeatured: true
