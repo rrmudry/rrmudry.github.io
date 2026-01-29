@@ -30,11 +30,15 @@ const lessonsData = [
     date: "2026-01-29",
     day: 14,
     unit: 4,
-    title: "Collisions in 1D",
-    summary: "Differentiating between Elastic and Inelastic collisions.",
-    details: "Lecture and practice on 1D collisions. We'll define the equations for perfectly inelastic (sticking together) vs elastic (bouncing) interactions.",
-    type: "Activity",
+    title: "Collisions in 1D Lab (PhET Simulation)",
+    summary: "Investigating elastic and inelastic collisions using PhET simulation. Partners allowed.",
+    details: "Students used the PhET Collision Lab to collect data and verify conservation of momentum in 1D. Links provided for the simulation and lab worksheet.",
+    type: "Lab",
     dok: 2,
+    links: {
+      'PhET Simulation': 'https://phet.colorado.edu/sims/html/collision-lab/latest/collision-lab_all.html',
+      'Lab Worksheet': 'https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBqZra85A4SSK1ZmAvZcPY-ASLOQK3ArJx-cqWamoCeOBc?e=tHrura'
+    },
     semester: 2,
     isFeatured: true
   },

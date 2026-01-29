@@ -111,3 +111,33 @@ Use this file to track what was completed each day. You can also list any new fi
   - Internal forces driving objects apart. Video analysis.
   - Activity: https://docs.google.com/document/d/15eeYq-2sPEcbqNAOQ0AN9TQ_3i-XIMWXb9Nx_q_w0ps/edit?usp=sharing
 - **Notes**: Transition from momentum conservation in collisions to explosions.
+---
+
+## 2026-01-27
+- **Lesson Title**: Conservation of Momentum Day 1 Explosions in 1D
+- **Activities**: 
+  - In-class investigation of 1D explosions using the simulator.
+  - Lab Report Webapp: https://rrmudry.github.io/physics-momentum-lab-report/index.html
+  - Simulation: https://rrmudry.github.io/conservation-of-momentum/index.html
+- **Notes**: Sub Present.
+
+---
+
+## 2026-01-28
+- **Lesson Title**: PHYSICS LAB: 2D MOMENTUM
+- **Activities**: 
+  - 2D explosion lab, recording masses and (vx, vy) components to verify conservation rules.
+  - Lab Report Webapp: https://rrmudry.github.io/physics-2d-momentum-lab/index.html
+  - Simulation: https://rrmudry.github.io/conservation-of-momentum/index.html
+- **Notes**: Sub Present.
+
+---
+
+## 2026-01-29
+- **Lesson Title**: Collisions in 1D Lab (PhET Simulation)
+- **Activities**: 
+  - Investigated elastic and inelastic collisions using the PhET Simulation.
+  - Students were allowed to work with a partner.
+  - PhET Simulation: https://phet.colorado.edu/sims/html/collision-lab/latest/collision-lab_all.html
+  - Lab Worksheet: https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBqZra85A4SSK1ZmAvZcPY-ASLOQK3ArJx-cqWamoCeOBc?e=tHrura
+- **Notes**: Focus on conservation of momentum in 1D.
