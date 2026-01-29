@@ -413,12 +413,24 @@
                             `;
                         }
 
-                        if (day.links.worksheet && day.links.worksheet.includes('docs.google.com/document')) {
-                            embedHtml += `
-                                <div class="w-full h-[400px] rounded-xl overflow-hidden border border-white/10 mb-6 bg-white/5 shadow-inner">
-                                    <iframe class="w-full h-full" src="${day.links.worksheet.replace('/edit', '/preview')}"></iframe>
-                                </div>
-                            `;
+                        if (day.links.worksheet) {
+                            if (day.links.worksheet.includes('docs.google.com/document')) {
+                                embedHtml += `
+                                    <div class="w-full h-[400px] rounded-xl overflow-hidden border border-white/10 mb-6 bg-white/5 shadow-inner">
+                                        <iframe class="w-full h-full" src="${day.links.worksheet.replace('/edit', '/preview')}"></iframe>
+                                    </div>
+                                `;
+                            } else if (day.links.worksheet.includes('sharepoint.com')) {
+                                // SharePoint/OneDrive embedding logic
+                                const embedLink = day.links.worksheet.includes('?')
+                                    ? `${day.links.worksheet}&action=embedview`
+                                    : `${day.links.worksheet}?action=embedview`;
+                                embedHtml += `
+                                    <div class="w-full h-[500px] rounded-xl overflow-hidden border border-white/10 mb-6 bg-white/5 shadow-inner">
+                                        <iframe class="w-full h-full" src="${embedLink}" frameborder="0"></iframe>
+                                    </div>
+                                `;
+                            }
                         }
                     }
 
