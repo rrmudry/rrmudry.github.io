@@ -13,11 +13,11 @@ interface VideoSectionProps {
 
 export const VideoSection: React.FC<VideoSectionProps> = ({ answers, onUpdate }) => {
   const questions = [
-    { id: 'q1', label: '1. What happens to the momentum of the bullet when it hits the water?' },
-    { id: 'q2', label: '2. Explain the relationship between the bullet\'s velocity and the water\'s displacement.' },
-    { id: 'q3', label: '3. Why does the bullet shatter upon impact at high speeds?' },
-    { id: 'q4', label: '4. How is the total momentum of the system conserved in this collision?' },
-    { id: 'q5', label: '5. Describe the transfer of energy from the bullet to the water molecules.' }
+    { id: 'q1', label: '1. What is an explosion in the context of physics?' },
+    { id: 'q2', label: '2. Why is initial momentum equal to final momentum in an explosion?' },
+    { id: 'q3', label: '3. What does the use of parentheses signify in the momentum equation for combined objects?' },
+    { id: 'q4', label: '4. What happens to kinetic energy during an explosion?' },
+    { id: 'q5', label: '5. If two objects of different masses explode, which object moves faster?' }
   ];
 
   return (
