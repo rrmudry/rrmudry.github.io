@@ -15,6 +15,21 @@
 const lessonsData = [
   // --- Unit 4: Momentum & Impulse ---
   {
+    date: "2026-02-02",
+    day: 17,
+    unit: 4,
+    title: "Practice: Elastic & Inelastic Collisions",
+    summary: "Guided review of collision calculations followed by independent practice.",
+    details: "We reviewed the PowerPoint slides on collision types and worked through example problems. Students then completed the practice worksheet.",
+    type: "Practice",
+    dok: 2,
+    links: {
+      worksheet: 'https://docs.google.com/document/d/1oPYECLlG-p7O3gOdFiw0aGqtdZxQLd9OvZ5jA0VVzSA/edit?usp=sharing'
+    },
+    semester: 2,
+    isFeatured: true
+  },
+  {
     date: "2026-02-01",
     day: 16,
     unit: 4,
