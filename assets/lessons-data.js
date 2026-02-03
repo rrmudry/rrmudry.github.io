@@ -18,13 +18,13 @@ const lessonsData = [
     date: "2026-02-01",
     day: 16,
     unit: 4,
-    title: "Egg Drop Research & Design",
-    summary: "AVID annotations of research materials and review of Egg Drop project instructions.",
-    details: "Students annotated the 'Science of Egg Drops' article to identify successful design strategies. Detailed project instructions and constraints were distributed.",
+    title: "Reading: Elastic vs. Inelastic Collisions",
+    summary: "AVID annotations of reading material & Egg Drop project kickoff.",
+    details: "Students annotated the text on Elastic and Inelastic Collisions. We also reviewed the instructions for the upcoming Egg Drop challenge.",
     type: "Activity",
     dok: 2,
     links: {
-      'AVID Annotations': 'https://docs.google.com/document/d/1SSEvaA1CjvFzp_syOhSzLdmLxeYmgo4XvjxS0VEK-6Q/edit?usp=sharing',
+      worksheet: 'https://docs.google.com/document/d/1SSEvaA1CjvFzp_syOhSzLdmLxeYmgo4XvjxS0VEK-6Q/edit?usp=sharing',
       'Egg Drop Instructions': 'https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQCK_YeyS2K9R6Rpf-S4iTzOAe736fEhXKILK4262BaDQbY?e=FbF2YO'
     },
     semester: 2,
