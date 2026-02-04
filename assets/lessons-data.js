@@ -15,6 +15,21 @@
 const lessonsData = [
   // --- Unit 4: Momentum & Impulse ---
   {
+    date: "2026-02-03",
+    day: 18,
+    unit: 4,
+    title: "Impulse, Momentum, and Collisions Review",
+    summary: "Students will work on an impulse, momentum, and collisions review.",
+    details: "Review session covering key concepts of Unit 4 including impulse, momentum, and collision types.",
+    type: "Practice",
+    dok: 2,
+    links: {
+      worksheet: 'https://docs.google.com/document/d/1NTlmnUfAbc-M5DIXjM16fddZQ4kT22gp/edit?usp=drive_link&ouid=111972921986195834260&rtpof=true&sd=true'
+    },
+    semester: 2,
+    isFeatured: true
+  },
+  {
     date: "2026-02-02",
     day: 17,
     unit: 4,
