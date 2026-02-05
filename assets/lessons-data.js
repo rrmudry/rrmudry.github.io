@@ -15,6 +15,30 @@
 const lessonsData = [
   // --- Unit 4: Momentum & Impulse ---
   {
+    date: "2026-02-07",
+    day: 17,
+    unit: 4,
+    title: "Egg Drop: Test Day",
+    summary: "Drop day! Testing egg containers and analyzing impulse reduction effectiveness.",
+    details: "Students drop their egg containers from designated height and analyze which designs were most effective at reducing impulse to protect the egg.",
+    type: "Activity",
+    dok: 3,
+    semester: 2,
+    isFeatured: true
+  },
+  {
+    date: "2026-02-06",
+    day: 16,
+    unit: 4,
+    title: "Egg Drop: Building Day",
+    summary: "Hands-on construction of egg drop protection containers.",
+    details: "Students build their egg drop protection containers using approved materials, applying impulse reduction principles to protect the egg during impact.",
+    type: "Activity",
+    dok: 3,
+    semester: 2,
+    isFeatured: true
+  },
+  {
     date: "2026-01-30",
     day: 15,
     unit: 4,
