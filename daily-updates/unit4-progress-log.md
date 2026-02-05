@@ -141,3 +141,21 @@ Use this file to track what was completed each day. You can also list any new fi
   - PhET Simulation: https://phet.colorado.edu/sims/html/collision-lab/latest/collision-lab_all.html
   - Lab Worksheet: https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBqZra85A4SSK1ZmAvZcPY-ASLOQK3ArJx-cqWamoCeOBc?e=tHrura
 - **Notes**: Focus on conservation of momentum in 1D.
+
+---
+
+## 2026-02-06
+- **Lesson Title**: Egg Drop: Building Day
+- **Activities**: 
+  - Students build their egg drop protection containers using approved materials.
+  - Focus on applying impulse reduction principles to protect the egg during impact.
+- **Notes**: Preparation for Friday's drop test.
+
+---
+
+## 2026-02-07
+- **Lesson Title**: Egg Drop: Test Day
+- **Activities**: 
+  - Students drop their egg containers from designated height.
+  - Analyze results and discuss which designs were most effective at reducing impulse.
+- **Notes**: Final testing and evaluation of egg drop project.
