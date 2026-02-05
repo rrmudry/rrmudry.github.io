@@ -16,7 +16,7 @@ const lessonsData = [
   // --- Unit 4: Momentum & Impulse ---
   {
     date: "2026-02-07",
-    day: 17,
+    day: 20,
     unit: 4,
     title: "Egg Drop: Test Day",
     summary: "Drop day! Testing egg containers and analyzing impulse reduction effectiveness.",
@@ -28,13 +28,59 @@ const lessonsData = [
   },
   {
     date: "2026-02-06",
-    day: 16,
+    day: 19,
     unit: 4,
     title: "Egg Drop: Building Day",
     summary: "Hands-on construction of egg drop protection containers.",
     details: "Students build their egg drop protection containers using approved materials, applying impulse reduction principles to protect the egg during impact.",
     type: "Activity",
     dok: 3,
+    semester: 2,
+    isFeatured: true
+  },
+  {
+    date: "2026-02-03",
+    day: 18,
+    unit: 4,
+    title: "Impulse, Momentum, and Collisions Review",
+    summary: "Students will work on an impulse, momentum, and collisions review.",
+    details: "Review session covering key concepts of Unit 4 including impulse, momentum, and collision types.",
+    type: "Practice",
+    dok: 2,
+    links: {
+      worksheet: 'https://docs.google.com/document/d/1NTlmnUfAbc-M5DIXjM16fddZQ4kT22gp/edit?usp=drive_link&ouid=111972921986195834260&rtpof=true&sd=true'
+    },
+    semester: 2,
+    isFeatured: true
+  },
+  {
+    date: "2026-02-02",
+    day: 17,
+    unit: 4,
+    title: "Practice: Elastic & Inelastic Collisions",
+    summary: "Guided review of collision calculations followed by independent practice.",
+    details: "We reviewed the PowerPoint slides on collision types and worked through example problems. Students then completed the practice worksheet.",
+    type: "Practice",
+    dok: 2,
+    links: {
+      worksheet: 'https://docs.google.com/document/d/1oPYECLlG-p7O3gOdFiw0aGqtdZxQLd9OvZ5jA0VVzSA/edit?usp=sharing'
+    },
+    semester: 2,
+    isFeatured: true
+  },
+  {
+    date: "2026-02-01",
+    day: 16,
+    unit: 4,
+    title: "Reading: Elastic vs. Inelastic Collisions",
+    summary: "AVID annotations of reading material & Egg Drop project kickoff.",
+    details: "Students annotated the text on Elastic and Inelastic Collisions. We also reviewed the instructions for the upcoming Egg Drop challenge.",
+    type: "Activity",
+    dok: 2,
+    links: {
+      worksheet: 'https://docs.google.com/document/d/1SSEvaA1CjvFzp_syOhSzLdmLxeYmgo4XvjxS0VEK-6Q/edit?usp=sharing',
+      'Egg Drop Instructions': 'https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQCK_YeyS2K9R6Rpf-S4iTzOAe736fEhXKILK4262BaDQbY?e=FbF2YO'
+    },
     semester: 2,
     isFeatured: true
   },
