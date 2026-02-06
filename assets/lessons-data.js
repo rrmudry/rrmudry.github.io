@@ -15,7 +15,7 @@
 const lessonsData = [
   // --- Unit 4: Momentum & Impulse ---
   {
-    date: "2026-02-07",
+    date: "2026-02-06",
     day: 20,
     unit: 4,
     title: "Egg Drop: Test Day",
@@ -27,7 +27,7 @@ const lessonsData = [
     isFeatured: true
   },
   {
-    date: "2026-02-06",
+    date: "2026-02-05",
     day: 19,
     unit: 4,
     title: "Egg Drop: Building Day",
@@ -39,7 +39,7 @@ const lessonsData = [
     isFeatured: true
   },
   {
-    date: "2026-02-03",
+    date: "2026-02-04",
     day: 18,
     unit: 4,
     title: "Impulse, Momentum, and Collisions Review",
@@ -54,7 +54,7 @@ const lessonsData = [
     isFeatured: true
   },
   {
-    date: "2026-02-02",
+    date: "2026-02-03",
     day: 17,
     unit: 4,
     title: "Practice: Elastic & Inelastic Collisions",
@@ -69,7 +69,7 @@ const lessonsData = [
     isFeatured: true
   },
   {
-    date: "2026-02-01",
+    date: "2026-02-02",
     day: 16,
     unit: 4,
     title: "Reading: Elastic vs. Inelastic Collisions",
