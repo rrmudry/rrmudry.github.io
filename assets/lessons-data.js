@@ -247,12 +247,15 @@ const lessonsData = [
     day: 1,
     unit: 5,
     title: "Temperature vs. Heat",
-    summary: "Unit 5 Kickoff! kinetic Energy vs. Energy Transfer.",
-    details: "Introduction to Thermodynamics. distinguishing between the microscopic average KE (Temperature) and the macroscopic transfer of energy (Heat).",
+    summary: "Unit 5 Kickoff! Kinetic Energy vs. Energy Transfer.",
+    details: "Introduction to Thermodynamics. Students will read and annotate a Google Doc exploring the distinction between temperature (microscopic average KE) and heat (macroscopic energy transfer).",
     type: "Activity",
     dok: 1,
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    links: {
+      reading: 'https://docs.google.com/document/d/1B2MmWi6uCSIEM9hKdQufnxnwlf1sqyod420oX_KwyBg/edit?usp=sharing'
+    }
   },
 
   // --- Unit 4: Momentum & Impulse ---
