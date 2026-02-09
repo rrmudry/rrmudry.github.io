@@ -1,12 +1,13 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Lessons & Archive • Mr. Mudry’s Physics</title>
-  <link rel="icon" type="image/png" href="head.png"/>
-  <link rel="apple-touch-icon" href="apple-touch-icon.svg"/>
-  <link rel="stylesheet" href="assets/theme.css"/>
+  <link rel="icon" type="image/png" href="head.png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.svg" />
+  <link rel="stylesheet" href="assets/theme.css" />
   <style>
     .lesson-meta {
       font-family: var(--font-tech);
@@ -15,80 +16,83 @@
       margin-bottom: 0.5rem;
       display: block;
     }
+
     .archive-section {
       margin-top: 4rem;
     }
   </style>
 </head>
+
 <body>
   <div data-include="header"></div>
 
-<main role="main">
-  <section class="hero">
-    <div class="container">
-      <h1>Classroom Sync</h1>
-      <div class="energy-bar" aria-hidden="true"></div>
-      <p class="subtitle">Semester 2: Momentum, Thermodynamics, E&M, and Waves. Stay synced with daily updates and archives.</p>
-    </div>
-  </section>
+  <main role="main">
+    <section class="hero">
+      <div class="container">
+        <h1>Classroom Sync</h1>
+        <div class="energy-bar" aria-hidden="true"></div>
+        <p class="subtitle">Semester 2: Momentum, Thermodynamics, E&M, and Waves. Stay synced with daily updates and
+          archives.</p>
+      </div>
+    </section>
 
-  <section class="container section" aria-labelledby="today-title">
-    <h2 id="today-title">Latest from Class</h2>
-    <div id="latest-lesson-container">
-      <!-- Dynamically filled -->
-    </div>
-  </section>
+    <section class="container section" aria-labelledby="today-title">
+      <h2 id="today-title">Latest from Class</h2>
+      <div id="latest-lesson-container">
+        <!-- Dynamically filled -->
+      </div>
+    </section>
 
-  <section class="container section archive-section" aria-labelledby="archive-title">
-    <h2 id="archive-title">Lesson Archive</h2>
-    <div class="grid" id="archive-grid">
-      <!-- Dynamically filled -->
-    </div>
-  </section>
+    <section class="container section archive-section" aria-labelledby="archive-title">
+      <h2 id="archive-title">Lesson Archive</h2>
+      <div class="grid" id="archive-grid">
+        <!-- Dynamically filled -->
+      </div>
+    </section>
 
-  <section class="container section" aria-labelledby="unit-index">
-    <h2 id="unit-index">Unit Resources</h2>
-    <div class="grid">
-      <article class="card">
-        <h3>Unit 4 • Momentum & Impulse</h3>
-        <p>Current focus. Collisions, explosions, and impact forces.</p>
-        <a class="btn primary" href="unit4-dashboard.html">Explore Unit Dashboard</a>
-      </article>
-      <article class="card">
-        <h3>Unit 5 • Thermodynamics</h3>
-        <p>Heat, temperature, and energy transfer.</p>
-        <a class="btn" href="#">Upcoming</a>
-      </article>
-      <article class="card">
-        <h3>Unit 6 • Electricity & Magnetism</h3>
-        <p>Fields, circuits, and electromagnetic waves.</p>
-        <a class="btn" href="#">Upcoming</a>
-      </article>
-      <article class="card">
-        <h3>Unit 7 • Waves & Sound</h3>
-        <p>Vibrations, wave properties, and optics.</p>
-        <a class="btn" href="#">Upcoming</a>
-      </article>
-      <article class="card">
-        <h3>Archive • Physics Foundations</h3>
-        <p>Units 1-3: Kinematics, Dynamics, and Energy.</p>
-        <a class="btn" href="unit1.html">Semester 1 Materials</a>
-      </article>
-    </div>
-  </section>
-</main>
+    <section class="container section" aria-labelledby="unit-index">
+      <h2 id="unit-index">Unit Resources</h2>
+      <div class="grid">
+        <article class="card">
+          <h3>Unit 4 • Momentum & Impulse</h3>
+          <p>Current focus. Collisions, explosions, and impact forces.</p>
+          <a class="btn primary" href="unit4-dashboard.html">Explore Unit Dashboard</a>
+        </article>
+        <article class="card">
+          <h3>Unit 5 • Thermodynamics</h3>
+          <p>Heat, temperature, and energy transfer.</p>
+          <a class="btn primary" href="unit5-dashboard.html">Explore Unit Dashboard</a>
+        </article>
+        <article class="card">
+          <h3>Unit 6 • Electricity & Magnetism</h3>
+          <p>Fields, circuits, and electromagnetic waves.</p>
+          <a class="btn" href="#">Upcoming</a>
+        </article>
+        <article class="card">
+          <h3>Unit 7 • Waves & Sound</h3>
+          <p>Vibrations, wave properties, and optics.</p>
+          <a class="btn" href="#">Upcoming</a>
+        </article>
+        <article class="card">
+          <h3>Archive • Physics Foundations</h3>
+          <p>Units 1-3: Kinematics, Dynamics, and Energy.</p>
+          <a class="btn" href="unit1.html">Semester 1 Materials</a>
+        </article>
+      </div>
+    </section>
+  </main>
 
   <div data-include="footer"></div>
   <script>
     function renderLessons() {
       const latestContainer = document.getElementById('latest-lesson-container');
       const archiveGrid = document.getElementById('archive-grid');
-      
+
       if (!latestContainer || !archiveGrid) return;
       if (typeof lessonsData === 'undefined' || !lessonsData.length) {
-          latestContainer.innerHTML = '<p>No lessons posted yet for Semester 2.</p>';
-          archiveGrid.innerHTML = '<p>The archive will appear once lessons are added.</p>';
-          return;
+        latestContainer.innerHTML = '<p>No lessons posted yet for Semester 2.</p>';
+        archiveGrid.innerHTML = '<p>The archive will appear once lessons are added.</p>';
+        return;
       }
 
       // Sort with local date awareness
@@ -97,10 +101,10 @@
       const m = String(now.getMonth() + 1).padStart(2, '0');
       const d = String(now.getDate()).padStart(2, '0');
       const todayStr = `${y}-${m}-${d}`;
-      
+
       const sortedLessons = [...lessonsData].sort((a, b) => new Date(b.date) - new Date(a.date));
       const latest = sortedLessons.find(l => l.date <= todayStr);
-      
+
       // 1. Render Latest Lesson
       if (latest) {
         latestContainer.innerHTML = `
@@ -123,7 +127,7 @@
       // 2. Render Archive (grouped or filtered)
       archiveGrid.innerHTML = '';
       const archiveLessons = sortedLessons.filter(l => l !== latest && l.date <= todayStr);
-      
+
       if (archiveLessons.length === 0) {
         archiveGrid.innerHTML = '<p style="grid-column: 1/-1; opacity: 0.5;">Older lessons will be listed here.</p>';
       } else {
@@ -160,4 +164,5 @@
   </script>
   <script src="assets/partials.js"></script>
 </body>
+
 </html>
