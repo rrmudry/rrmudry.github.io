@@ -15,8 +15,8 @@
 const lessonsData = [
   // --- Unit 5: Thermodynamics ---
   {
-    date: "2026-03-06",
-    day: 20,
+    date: "2026-03-09",
+    day: 21,
     unit: 5,
     title: "Efficiency & Unit Review",
     summary: "Calculating engine efficiency and reviewing all thermodynamic concepts.",
@@ -27,8 +27,8 @@ const lessonsData = [
     isFeatured: true
   },
   {
-    date: "2026-03-05",
-    day: 19,
+    date: "2026-03-06",
+    day: 20,
     unit: 5,
     title: "Heat Engines: Turning Heat into Work",
     summary: "Analyzing how engines use heat flow to perform mechanical work.",
@@ -39,8 +39,8 @@ const lessonsData = [
     isFeatured: true
   },
   {
-    date: "2026-03-04",
-    day: 18,
+    date: "2026-03-05",
+    day: 19,
     unit: 5,
     title: "PV Diagrams: Visualizing Work",
     summary: "Interpreting Pressure-Volume graphs to calculate work done.",
@@ -51,8 +51,8 @@ const lessonsData = [
     isFeatured: true
   },
   {
-    date: "2026-03-03",
-    day: 17,
+    date: "2026-03-04",
+    day: 18,
     unit: 5,
     title: "Lab: Ideal Gas Law",
     summary: "Experimental verification of the relationship between P, V, and T.",
@@ -63,8 +63,8 @@ const lessonsData = [
     isFeatured: true
   },
   {
-    date: "2026-03-02",
-    day: 16,
+    date: "2026-03-03",
+    day: 17,
     unit: 5,
     title: "Adiabatic Processes",
     summary: "Rapid expansion and compression where no heat is exchanged.",
@@ -75,8 +75,8 @@ const lessonsData = [
     isFeatured: true
   },
   {
-    date: "2026-02-27",
-    day: 15,
+    date: "2026-03-02",
+    day: 16,
     unit: 5,
     title: "Isobaric & Isochoric Processes",
     summary: "Constant pressure vs. constant volume processes.",
@@ -87,8 +87,8 @@ const lessonsData = [
     isFeatured: true
   },
   {
-    date: "2026-02-26",
-    day: 14,
+    date: "2026-02-27",
+    day: 15,
     unit: 5,
     title: "Intro to Ideal Gases & Isothermal Processes",
     summary: "The Ideal Gas Law (PV=nRT) and constant temperature changes.",
@@ -99,8 +99,8 @@ const lessonsData = [
     isFeatured: true
   },
   {
-    date: "2026-02-25",
-    day: 13,
+    date: "2026-02-26",
+    day: 14,
     unit: 5,
     title: "Entropy in the Real World",
     summary: "From melting ice to time's arrow: Entropy is everywhere.",
@@ -111,8 +111,8 @@ const lessonsData = [
     isFeatured: true
   },
   {
-    date: "2026-02-24",
-    day: 12,
+    date: "2026-02-25",
+    day: 13,
     unit: 5,
     title: "The Second Law: Entropy",
     summary: "The universe tends toward disorder. Why efficiency is never 100%.",
@@ -123,8 +123,8 @@ const lessonsData = [
     isFeatured: true
   },
   {
-    date: "2026-02-23",
-    day: 11,
+    date: "2026-02-24",
+    day: 12,
     unit: 5,
     title: "Systems & Energy Conservation",
     summary: "Applying the First Law (ΔU = Q + W) to closed systems.",
@@ -135,8 +135,8 @@ const lessonsData = [
     isFeatured: true
   },
   {
-    date: "2026-02-20",
-    day: 10,
+    date: "2026-02-23",
+    day: 11,
     unit: 5,
     title: "The Zeroth & First Laws",
     summary: "Defining temperature and the conservation of energy.",
@@ -147,8 +147,8 @@ const lessonsData = [
     isFeatured: true
   },
   {
-    date: "2026-02-19",
-    day: 9,
+    date: "2026-02-20",
+    day: 10,
     unit: 5,
     title: "Thermal Expansion",
     summary: "Why bridges have gaps: Solids and liquids expanding with heat.",
@@ -159,8 +159,8 @@ const lessonsData = [
     isFeatured: true
   },
   {
-    date: "2026-02-18",
-    day: 8,
+    date: "2026-02-19",
+    day: 9,
     unit: 5,
     title: "Latent Heat: Phase Changes",
     summary: "Energy hidden in the change of state (melting/boiling).",
@@ -171,14 +171,26 @@ const lessonsData = [
     isFeatured: true
   },
   {
-    date: "2026-02-17",
-    day: 7,
+    date: "2026-02-18",
+    day: 8,
     unit: 5,
     title: "Lab: Specific Heat of Metals",
     summary: "Using calorimetry to identify unknown metals.",
     details: "Hands-on lab using calorimeters. Students heat metal samples and measure the temp change of water to find specific heat.",
     type: "Lab",
     dok: 3,
+    semester: 2,
+    isFeatured: true
+  },
+  {
+    date: "2026-02-17",
+    day: 7,
+    unit: 5,
+    title: "Specific Heat Capacity",
+    summary: "Why does water take so long to boil? Introduction to q=mcΔT.",
+    details: "Defining specific heat capacity (c). Calculations involving heat transfer and temperature change.",
+    type: "Activity",
+    dok: 2,
     semester: 2,
     isFeatured: true
   },
@@ -210,18 +222,6 @@ const lessonsData = [
     date: "2026-02-12",
     day: 4,
     unit: 5,
-    title: "Specific Heat Capacity",
-    summary: "Why does water take so long to boil? Introduction to q=mcΔT.",
-    details: "Defining specific heat capacity (c). Calculations involving heat transfer and temperature change.",
-    type: "Activity",
-    dok: 2,
-    semester: 2,
-    isFeatured: true
-  },
-  {
-    date: "2026-02-11",
-    day: 3,
-    unit: 5,
     title: "Systems vs. Surroundings",
     summary: "Defining the boundary of our study.",
     details: "Vocabulary drill: Open vs. Closed vs. Isolated systems. Identifying the system in various scenarios.",
@@ -231,8 +231,8 @@ const lessonsData = [
     isFeatured: true
   },
   {
-    date: "2026-02-10",
-    day: 2,
+    date: "2026-02-11",
+    day: 3,
     unit: 5,
     title: "Thermal Equilibrium",
     summary: "When hot meets cold: The inevitable balance.",
@@ -243,8 +243,8 @@ const lessonsData = [
     isFeatured: true
   },
   {
-    date: "2026-02-09",
-    day: 1,
+    date: "2026-02-10",
+    day: 2,
     unit: 5,
     title: "Properties of Matter",
     summary: "Unit 5 Kickoff! Understanding matter and its thermal properties.",
@@ -256,6 +256,18 @@ const lessonsData = [
     links: {
       reading: 'https://docs.google.com/document/d/1B2MmWi6uCSIEM9hKdQufnxnwlf1sqyod420oX_KwyBg/edit?usp=sharing'
     }
+  },
+  {
+    date: "2026-02-09",
+    day: 1,
+    unit: 5,
+    title: "Wrap up of previous week",
+    summary: "Wrapping up Unit 4 concepts and finalizing outstanding work.",
+    details: "Review and wrap up of concepts from the previous week to ensure a smooth transition into Thermodynamics.",
+    type: "Activity",
+    dok: 1,
+    semester: 2,
+    isFeatured: true
   },
 
   // --- Unit 4: Momentum & Impulse ---
