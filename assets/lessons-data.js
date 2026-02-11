@@ -246,15 +246,16 @@ const lessonsData = [
     date: "2026-02-11",
     day: 3,
     unit: 5,
-    title: "AVID Phase 2: One-Sentence Summary Royale",
-    summary: "Polishing our 'Gist Statements' into academic summary sentences.",
-    details: "Students will complete Phase 2 of Focused Note-Taking by participating in a 'One-Sentence Summary Royale,' transforming their marginal annotations from the 'Properties of Matter' reading into concise, high-level summaries.",
+    title: "AVID Phase 2: Summary Royale & Inquiry Brainstorming",
+    summary: "Polishing academic summaries and brainstorming real-world inquiries.",
+    details: "Students will complete Phase 2 of Focused Note-Taking by participating in a 'One-Sentence Summary Royale' and then engage in 'Thermodynamics Inquiry Brainstorming' to connect internal energy concepts to real-world physics questions.",
     type: "Activity",
     dok: 2,
     semester: 2,
     isFeatured: true,
     links: {
-      activity: 'https://docs.google.com/document/d/1kSFyF15v-Tt88gu7mtea4GaI1fBkv3-KE4_LSSUMd9Q/edit?usp=sharing'
+      'Summary Royale': 'https://docs.google.com/document/d/1kSFyF15v-Tt88gu7mtea4GaI1fBkv3-KE4_LSSUMd9Q/edit?usp=sharing',
+      'Inquiry Brainstorming': 'https://docs.google.com/document/d/1XTEO6ncpElDBpQgjSdGQpPz5QILXsP7VolV-HCa0l5w/edit?usp=sharing'
     }
   },
   {
