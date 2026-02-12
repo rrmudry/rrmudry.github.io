@@ -195,6 +195,18 @@ const lessonsData = [
     isFeatured: true
   },
   {
+    date: "2026-02-17",
+    day: 7,
+    unit: 5,
+    title: "Systems vs. Surroundings",
+    summary: "Defining the boundary of our study.",
+    details: "Vocabulary drill: Open vs. Closed vs. Isolated systems. Identifying the system in various scenarios.",
+    type: "Activity",
+    dok: 1,
+    semester: 2,
+    isFeatured: true
+  },
+  {
     date: "2026-02-16",
     day: 6,
     unit: 5,
@@ -222,9 +234,9 @@ const lessonsData = [
     date: "2026-02-17",
     day: 7,
     unit: 5,
-    title: "Systems vs. Surroundings",
-    summary: "Defining the boundary of our study.",
-    details: "Vocabulary drill: Open vs. Closed vs. Isolated systems. Identifying the system in various scenarios.",
+    title: "Wrap up of article annotations we read",
+    summary: "Finalizing and reviewing our analysis of thermodynamic readings.",
+    details: "Students wrap up their annotated readings on Thermodynamics and Matter, synthesizing key concepts before moving into systems.",
     type: "Activity",
     dok: 1,
     semester: 2,
