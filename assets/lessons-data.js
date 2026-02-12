@@ -231,8 +231,8 @@ const lessonsData = [
     isFeatured: false
   },
   {
-    date: "2026-02-17",
-    day: 7,
+    date: "2026-02-12",
+    day: 4,
     unit: 5,
     title: "Wrap up of article annotations we read",
     summary: "Finalizing and reviewing our analysis of thermodynamic readings.",
@@ -243,8 +243,8 @@ const lessonsData = [
     isFeatured: true
   },
   {
-    date: "2026-02-12",
-    day: 4,
+    date: "2026-02-11",
+    day: 3,
     unit: 5,
     title: "Thermal Equilibrium",
     summary: "When hot meets cold: The inevitable balance.",
@@ -253,22 +253,6 @@ const lessonsData = [
     dok: 1,
     semester: 2,
     isFeatured: true
-  },
-  {
-    date: "2026-02-11",
-    day: 3,
-    unit: 5,
-    title: "AVID Phase 2: Summary Royale & Inquiry Brainstorming",
-    summary: "Polishing academic summaries and brainstorming real-world inquiries.",
-    details: "Students will complete Phase 2 of Focused Note-Taking by participating in a 'One-Sentence Summary Royale' and then engage in 'Thermodynamics Inquiry Brainstorming' to connect internal energy concepts to real-world physics questions.",
-    type: "Activity",
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    links: {
-      'Summary Royale': 'https://docs.google.com/document/d/1kSFyF15v-Tt88gu7mtea4GaI1fBkv3-KE4_LSSUMd9Q/edit?usp=sharing',
-      'Inquiry Brainstorming': 'https://docs.google.com/document/d/1XTEO6ncpElDBpQgjSdGQpPz5QILXsP7VolV-HCa0l5w/edit?usp=sharing'
-    }
   },
   {
     date: "2026-02-10",
