@@ -215,13 +215,21 @@ const lessonsData = [
     date: "2026-02-17",
     day: 7,
     unit: 5,
-    title: "Systems vs. Surroundings",
-    summary: "Defining the boundary of our study.",
-    details: "Vocabulary drill: Open vs. Closed vs. Isolated systems. Identifying the system in various scenarios.",
-    type: "Activity",
-    dok: 1,
+    title: "Food Coloring Lab + Temp Scales",
+    summary: "Inquiry: Predicting motion based on previous reading. Organization: Conversion Practice Worksheet.",
+    details: "Predicting motion based on previous reading. Practicing temperature scale conversions.",
+    type: "Lab",
+    dok: 2,
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    wicor: {
+      inquiry: "Predicting motion based on previous reading.",
+      organization: "Conversion Practice Worksheet."
+    },
+    links: {
+      'Lab Worksheet': 'https://docs.google.com/document/d/1onqDNCSUDJi4u-oreNEpD4egYqTfwLuH8jObR6BUdwU/edit?usp=sharing',
+      'Class Presentation': 'https://docs.google.com/presentation/d/1hIh64bCJDzl2VfIUFaMOoDsfsF9F7vvSPdYArvxsAFk/edit?usp=sharing'
+    }
   },
   {
     date: "2026-02-16",
@@ -248,35 +256,12 @@ const lessonsData = [
     isFeatured: false
   },
   {
-<<<<<<< HEAD
-=======
-    date: "2026-02-17",
-    day: 7,
-    unit: 5,
-    title: "Food Coloring Lab + Temp Scales",
-    summary: "Inquiry: Predicting motion based on previous reading. Organization: Conversion Practice Worksheet.",
-    details: "Predicting motion based on previous reading. Practicing temperature scale conversions.",
-    type: "Lab",
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    wicor: {
-      inquiry: "Predicting motion based on previous reading.",
-      organization: "Conversion Practice Worksheet."
-    },
-    links: {
-      'Lab Worksheet': 'https://docs.google.com/document/d/1onqDNCSUDJi4u-oreNEpD4egYqTfwLuH8jObR6BUdwU/edit?usp=sharing',
-      'Class Presentation': 'https://docs.google.com/presentation/d/1hIh64bCJDzl2VfIUFaMOoDsfsF9F7vvSPdYArvxsAFk/edit?usp=sharing'
-    }
-  },
-  {
->>>>>>> 02e9632 (Update Unit 5 schedule and dashboard for Feb 16-20 with WICOR/AVID strategies and lesson links)
     date: "2026-02-12",
     day: 4,
     unit: 5,
-    title: "Wrap up of article annotations we read",
-    summary: "Finalizing and reviewing our analysis of thermodynamic readings.",
-    details: "Students wrap up their annotated readings on Thermodynamics and Matter, synthesizing key concepts before moving into systems.",
+    title: "Systems vs. Surroundings",
+    summary: "Defining the boundary of our study.",
+    details: "Vocabulary drill: Open vs. Closed vs. Isolated systems. Identifying the system in various scenarios.",
     type: "Activity",
     dok: 1,
     semester: 2,
