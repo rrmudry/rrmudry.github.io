@@ -301,6 +301,7 @@
 
     <script src="assets/partials.js"></script>
     <script>
+<<<<<<< HEAD
         const lessonScript = document.createElement('script');
         lessonScript.src = 'assets/lessons-data.js?v=' + Date.now();
         document.head.appendChild(lessonScript);
@@ -316,6 +317,36 @@
                         initDashboard();
                     }
                 }, 50);
+=======
+        // Adapter: Filter for Unit 5
+        const unitData = (typeof lessonsData !== 'undefined' ? lessonsData : [])
+            .filter(lesson => lesson.unit === 5)
+            .sort((a, b) => new Date(a.date) - new Date(b.date))
+            .map(lesson => ({
+                ...lesson,
+                topic: lesson.title,
+                activity: lesson.summary,
+                wicor: lesson.wicor
+            }));
+
+        // Automated status calculation (same as Unit 4)
+        function getLessonStatus(dateStr) {
+            if (!dateStr) return 'planned';
+            const now = new Date();
+            const lessonDate = new Date(dateStr + 'T00:00:00');
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+            if (lessonDate < today) {
+                return 'completed';
+            } else if (lessonDate.getTime() === today.getTime()) {
+                const currentHour = now.getHours();
+                const currentMinute = now.getMinutes();
+                if (currentHour > 15 || (currentHour === 15 && currentMinute >= 30)) {
+                    return 'completed';
+                } else {
+                    return 'in-progress';
+                }
+>>>>>>> 02e9632 (Update Unit 5 schedule and dashboard for Feb 16-20 with WICOR/AVID strategies and lesson links)
             } else {
                 initDashboard();
             }
@@ -444,6 +475,27 @@
 
                 let embedHtml = '';
                 let linksHtml = '';
+                let wicorHtml = '';
+
+                // Handle WICOR Data
+                if (day.wicor) {
+                    wicorHtml = `
+                        <div class="bg-gradient-to-br from-orange-500/10 to-red-600/10 p-5 rounded-xl border border-orange-500/20 mb-4 shadow-inner">
+                            <h4 class="text-orange-400 font-bold mb-3 text-xs uppercase tracking-widest flex items-center gap-2">
+                                <span class="w-2 h-2 bg-orange-500 rounded-full"></span>
+                                WICOR / AVID Strategies
+                            </h4>
+                            <div class="grid grid-cols-1 gap-3">
+                                ${Object.entries(day.wicor).map(([key, value]) => `
+                                    <div class="flex items-start gap-3">
+                                        <span class="text-xs font-bold text-orange-300 uppercase w-24 pt-0.5">${key}:</span>
+                                        <p class="text-sm text-red-100/70">${value}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
 
                 // Check for Google Docs links and create iframe preview
                 if (day.links) {
@@ -511,6 +563,7 @@
 
                 modalContent.innerHTML = `
                     <div class="space-y-4">
+                        ${wicorHtml}
                         ${embedHtml}
                         <div class="bg-white/5 p-4 rounded-xl border border-white/5">
                             <h4 class="text-orange-400 font-bold mb-2 text-xs uppercase tracking-widest">Activity Insight</h4>

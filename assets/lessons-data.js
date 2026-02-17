@@ -162,37 +162,54 @@ const lessonsData = [
     date: "2026-02-20",
     day: 10,
     unit: 5,
-    title: "Latent Heat: Phase Changes",
-    summary: "Energy hidden in the change of state (melting/boiling).",
-    details: "Calculating energy required for phase changes using Q = mL. Heating curves graph analysis.",
+    title: "Specific Heat Intro (Q=mcΔT)",
+    summary: "Writing: Quick-Write (The Beach Analogy). Organization: Formula breakdown and variable mapping.",
+    details: "Introduction to the main thermodynamics formula using the beach analogy for specific heat.",
     type: "Activity",
     dok: 2,
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    wicor: {
+      writing: "Quick-Write (The Beach Analogy).",
+      organization: "Formula breakdown and variable mapping."
+    }
   },
   {
     date: "2026-02-19",
     day: 9,
     unit: 5,
-    title: "Lab: Specific Heat of Metals",
-    summary: "Using calorimetry to identify unknown metals.",
-    details: "Hands-on lab using calorimeters. Students heat metal samples and measure the temp change of water to find specific heat.",
+    title: "Ice Cube / Heatsink Lab (WICOR Walk)",
+    summary: "Collaboration: Table group inquiry & data collection. Inquiry: Discrepant event (Predicting vs. Observing).",
+    details: "Extensive lab for visitor walk. Focus on inquiry hooks, assigned roles, and CER writing.",
     type: "Lab",
     dok: 3,
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    wicor: {
+      collaboration: "Structured table groups with assigned roles (Lead Scientist, Data Recorder, Timekeeper).",
+      inquiry: "Essential Question Hook and Prediction in notebooks.",
+      writing: "CER Statement: Claim (Metal is better conductor), Evidence (Melt times), Reasoning (Momentum transfer).",
+      organization: "Binder/Notebook check for Wednesday's annotated reading."
+    }
   },
   {
     date: "2026-02-18",
     day: 8,
     unit: 5,
-    title: "Specific Heat Capacity",
-    summary: "Why does water take so long to boil? Introduction to q=mcΔT.",
-    details: "Defining specific heat capacity (c). Calculations involving heat transfer and temperature change.",
+    title: "Annotated Reading: 3 Modes of Heat Transfer",
+    summary: "Reading: Focused Annotation & Marking the Text. Writing: Summarizing the 'Micro-View' of each mode.",
+    details: "Focused annotation of text on conduction, convection, and radiation. Writing summaries of microscopic energy transfer.",
     type: "Activity",
     dok: 2,
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    wicor: {
+      reading: "Focused Annotation & Marking the Text.",
+      writing: "Summarizing the 'Micro-View' of each mode."
+    },
+    links: {
+      '3 Modes of Heat Transfer Reading': 'https://docs.google.com/document/d/1l2lmOQW4ekqVNpc30GCE69UrxQnn1oShPBXC_snQ7rk/edit?usp=sharing'
+    }
   },
   {
     date: "2026-02-17",
@@ -211,8 +228,8 @@ const lessonsData = [
     day: 6,
     unit: 5,
     title: "Presidents' Day - No School",
-    summary: "Holiday observed.",
-    details: "No school.",
+    summary: "Holiday observed. No school activities scheduled.",
+    details: "Martin Luther King Jr. Day observed.",
     type: "Activity",
     dok: 0,
     semester: 2,
@@ -231,6 +248,29 @@ const lessonsData = [
     isFeatured: false
   },
   {
+<<<<<<< HEAD
+=======
+    date: "2026-02-17",
+    day: 7,
+    unit: 5,
+    title: "Food Coloring Lab + Temp Scales",
+    summary: "Inquiry: Predicting motion based on previous reading. Organization: Conversion Practice Worksheet.",
+    details: "Predicting motion based on previous reading. Practicing temperature scale conversions.",
+    type: "Lab",
+    dok: 2,
+    semester: 2,
+    isFeatured: true,
+    wicor: {
+      inquiry: "Predicting motion based on previous reading.",
+      organization: "Conversion Practice Worksheet."
+    },
+    links: {
+      'Lab Worksheet': 'https://docs.google.com/document/d/1onqDNCSUDJi4u-oreNEpD4egYqTfwLuH8jObR6BUdwU/edit?usp=sharing',
+      'Class Presentation': 'https://docs.google.com/presentation/d/1hIh64bCJDzl2VfIUFaMOoDsfsF9F7vvSPdYArvxsAFk/edit?usp=sharing'
+    }
+  },
+  {
+>>>>>>> 02e9632 (Update Unit 5 schedule and dashboard for Feb 16-20 with WICOR/AVID strategies and lesson links)
     date: "2026-02-12",
     day: 4,
     unit: 5,
