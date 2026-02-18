@@ -208,7 +208,8 @@ const lessonsData = [
       writing: "Summarizing the 'Micro-View' of each mode."
     },
     links: {
-      '3 Modes of Heat Transfer Reading': 'https://docs.google.com/document/d/1l2lmOQW4ekqVNpc30GCE69UrxQnn1oShPBXC_snQ7rk/edit?usp=sharing'
+      '3 Modes of Heat Transfer Reading': 'https://docs.google.com/document/d/1l2lmOQW4ekqVNpc30GCE69UrxQnn1oShPBXC_snQ7rk/edit?usp=sharing',
+      'Class Presentation': 'https://docs.google.com/presentation/d/12PEKCsPVp568VA8rfx8KKHJlrR2sRCQR3ffCJ4YhWjA/edit?usp=sharing'
     }
   },
   {
