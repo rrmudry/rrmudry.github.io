@@ -472,14 +472,16 @@
                 // Check for Google Docs links and create iframe preview
                 if (day.links) {
                     Object.entries(day.links).forEach(([label, url]) => {
-                        // Check if it's a Google Doc
-                        if (url.includes('docs.google.com/document')) {
+                        // Check if it's a Google Doc or Presentation
+                        if (url.includes('docs.google.com/document') || url.includes('docs.google.com/presentation')) {
+                            const isDoc = url.includes('docs.google.com/document');
+                            const icon = isDoc ? '📄' : '📽️';
                             // Convert edit link to embed link
                             const embedUrl = url.replace('/edit', '/preview');
                             embedHtml += `
                                 <div class="bg-white/5 rounded-xl border border-white/10 overflow-hidden mb-4">
                                     <div class="bg-orange-500/10 px-4 py-2 border-b border-white/10">
-                                        <h4 class="text-orange-400 font-bold text-xs uppercase tracking-widest">📄 ${label}</h4>
+                                        <h4 class="text-orange-400 font-bold text-xs uppercase tracking-widest">${icon} ${label}</h4>
                                     </div>
                                     <iframe src="${embedUrl}" class="w-full h-96 bg-white" frameborder="0"></iframe>
                                 </div>
