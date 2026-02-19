@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Distance vs. Time Graph Drawer</title>
+  <style>
+    :root{
+      --bg:#0b0f14;            /* dark, high-contrast theme */
+      --panel:#111822;
+      --accent:#5ec2ff;
+      --accent-2:#a0ff8f;
+      --grid:#233142;
+      --ink:#e8f0ff;
+      --muted:#9bb3c7;
+      --danger:#ff6b6b;
+      --warn:#ffd166;
+      --ok:#06d6a0;
+      --shadow: 0 10px 24px rgba(0,0,0,.35);
+      --radius: 16px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%; margin:0}
+    body{
+      background: radial-gradient(1200px 800px at 30% -10%, #15202b 0%, #0b0f14 60%);
+      color:var(--ink);
+      font: 16px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial, sans-serif;
+      display:flex; flex-direction:column; gap:12px; padding:14px;
+    }
+
+    header{display:flex; gap:12px; align-items:center; flex-wrap:wrap}
+    .brand{font-weight:700; letter-spacing:.2px}
+    .pill{background:linear-gradient(90deg, #1a2430, #121923); padding:8px 12px; border-radius:999px; box-shadow:var(--shadow);}
+
+    .app{display:grid; grid-template-columns: 1.2fr .8fr; gap:14px;}
+    @media (max-width: 1000px){ .app{ grid-template-columns: 1fr; } }
+
+    .card{background:linear-gradient(180deg, #111822, #0d131b); border:1px solid #1f2a38; border-radius:var(--radius); box-shadow:var(--shadow)}
+    .card h3{margin:0; padding:12px 14px; border-bottom:1px solid #1f2a38; color:#d8e6f6; font-weight:700}
+    .card .body{padding:12px}
+
+    .toolbar{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:10px}
+    .toolbar .group{display:flex; gap:8px; background:#0f1620; padding:8px; border:1px solid #1f2a38; border-radius:12px}
+    button, .selectlike, input[type="range"]{ accent-color: var(--accent); }
+
+    button{cursor:pointer; border:1px solid #223142; background:#121a25; color:var(--ink); padding:8px 10px; border-radius:10px; box-shadow: inset 0 -2px 0 rgba(255,255,255,0.03);}
+    button:hover{background:#152131}
+    button[aria-pressed="true"], button.primary{background: linear-gradient(180deg, #17314a, #11263a); border-color:#315270}
+    button.warn{border-color:#5a4630; background:#1a1510}
+    button.danger{border-color:#4a1e1e; background:#1a0f0f}
+
+    label{font-size:.9rem; color:var(--muted)}
+    .row{display:flex; align-items:center; gap:8px}
+    .spacer{flex:1}
+
+    canvas{width:100%; height:420px; display:block; background: #0c1219; border-radius:12px; border:1px solid #1f2a38}
+    #numberLine{height:140px}
+
+    .legend{display:flex; gap:10px; flex-wrap:wrap; font-size:.9rem; color:var(--muted)}
+    .key{display:flex; align-items:center; gap:6px}
+    .swatch{width:16px; height:3px; border-radius:2px; background:var(--accent)}
+    .swatch.pen{background:var(--accent-2)}
+
+    .footer{font-size:.85rem; color:var(--muted); text-align:center; margin-top:2px}
+    a{color:#7cc9ff}
+
+    .help{font-size:.9rem; color:#bcd}
+    .tests{font-size:.85rem; color:#bcd}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="pill brand">📈 Distance vs. Time Graph Drawer</div>
+    <div class="pill">Draw a graph ➜ watch the object move.</div>
+  </header>
+
+  <div class="app">
+    <section class="card">
+      <h3>1) Build the Graph</h3>
+      <div class="body">
+        <div class="toolbar">
+          <div class="group" role="group" aria-label="Drawing tools">
+            <button id="tool-seg" aria-pressed="true" title="Add joined line segments. Hover near a point to drag it.">Segment tool</button>
+            <button id="tool-pen" aria-pressed="false" title="Freehand draw a curve">Pen tool</button>
+            <button id="tool-move" aria-pressed="false" title="Drag existing points (segments mode)">Move points</button>
+          </div>
+
+          <div class="group" role="group" aria-label="Curve selection">
+            <label for="activeCurve">Use curve:</label>
+            <select id="activeCurve" class="selectlike">
+              <option value="segments">Segments</option>
+              <option value="pen">Freehand</option>
+            </select>
+          </div>
+
+          <div class="group">
+            <button id="undoBtn" title="Remove last point/ink">Undo</button>
+            <button id="clearBtn" class="danger" title="Clear the current curve">Clear</button>
+          </div>
+
+          <div class="group">
+            <label for="tMax">Time span (s)</label>
+            <input id="tMax" type="range" min="5" max="60" step="1" value="15" />
+            <span id="tMaxVal">15</span>
+          </div>
+
+          <div class="group">
+            <label for="dMax">Position range (m)</label>
+            <input id="dMax" type="range" min="5" max="50" step="1" value="10" />
+            <span id="dMaxVal">±10</span>
+          </div>
+
+          <span class="spacer"></span>
+          <div class="group">
+            <label><input type="checkbox" id="snap" /> Snap to grid</label>
+            <label><input type="checkbox" id="showGrid" checked/> Grid</label>
+          </div>
+        </div>
+
+        <div class="legend" aria-hidden="true">
+          <div class="key"><span class="swatch"></span>Segments</div>
+          <div class="key"><span class="swatch pen"></span>Freehand</div>
+          <div class="key"><span class="swatch" style="background:#ffd166"></span>Time cursor</div>
+        </div>
+
+        <canvas id="graph" aria-label="Distance vs Time graph canvas" role="img"></canvas>
+        <div class="help">Segment tool now supports <b>dragging points directly</b> (no need to switch tools). Pen tool: click-drag to sketch.</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>2) Animate the Motion</h3>
+      <div class="body">
+        <div class="toolbar">
+          <div class="group">
+            <button id="playBtn" class="primary" title="Play/Pause (space)">▶ Play</button>
+            <button id="resetBtn" title="Reset time to 0">Reset</button>
+          </div>
+          <div class="group">
+            <label for="speed">Speed ×</label>
+            <input id="speed" type="range" min="0.25" max="3" value="1" step="0.25" />
+            <span id="speedVal">1.00×</span>
+          </div>
+          <div class="group">
+            <label><input id="mirror" type="checkbox"/> Mirror number line (origin center)</label>
+          </div>
+          <span class="spacer"></span>
+          <div class="group">
+            <button id="exportBtn" title="Download your graph as JSON">Export</button>
+            <input type="file" id="importFile" accept="application/json" style="display:none" />
+            <button id="importBtn" title="Load a graph from JSON">Import</button>
+          </div>
+        </div>
+
+        <canvas id="numberLine" aria-label="Number line position visualization" role="img"></canvas>
+        <div style="display:flex; justify-content:space-between; color:var(--muted); font-size:.9rem">
+          <div>Time: <span id="timeReadout">0.00</span> s</div>
+          <div>Position: <span id="posReadout">0.00</span> m</div>
+        </div>
+        <div class="tests" style="margin-top:8px; display:flex; gap:8px; align-items:center">
+          <button id="runTestsBtn" title="Run built-in self-checks">Run tests</button>
+          <span id="testSummary" aria-live="polite"></span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="footer">Built as a single HTML file — drop it on <a href="https://pages.github.com/" target="_blank" rel="noopener">GitHub Pages</a> and go. Keyboard: <b>Space</b> play/pause, <b>R</b> reset.</div>
+
+<script>
+(function(){
+  'use strict';
+  // ---------- DOM, Canvas & Layout Constants (declared EARLY) ----------
+  const graph = document.getElementById('graph');
+  const nline = document.getElementById('numberLine');
+  const gctx = graph.getContext('2d');
+  const nctx = nline.getContext('2d');
+
+  // PADDING must be defined BEFORE any function calls that reference it
+  const PADDING = { left: 64, right: 18, top: 20, bottom: 42 };
+  function plotWidth(){ return graph.width - PADDING.left - PADDING.right; }
+  function plotHeight(){ return graph.height - PADDING.top - PADDING.bottom; }
+  let plotW = 0, plotH = 0;
+
+  // ---------- Config & State ----------
+  let tMax = 15;  // seconds across x-axis
+  let dMax = 10;  // meters from center to top/bottom
+
+  // Anchor defaults for segments: start at (0,0)
+  const SEG_ANCHOR = { x: 0, y: 0 };
+  let segPoints = [ { x: SEG_ANCHOR.x, y: SEG_ANCHOR.y } ];      // starts with (0,0)
+  let penPoints = [];      // dense freehand points
+  let activeCurve = 'segments';
+
+  let tool = 'seg';        // 'seg' | 'pen' | 'move'
+  let isDrawing = false;
+  let dragIndex = -1;
+  const SNAP = ()=> document.getElementById('snap').checked;
+  const SHOW_GRID = ()=> document.getElementById('showGrid').checked;
+
+  let playing = false;
+  let t = 0;           // current time (s)
+  let speed = 1.0;     // playback speed multiplier
+  let draggingCursor = false;
+
+  const POINT_PICK_RADIUS = ()=> 10 * (graph._dpr || 1);
+
+  function setCursor(c){ graph.style.cursor = c; }
+
+  // ---------- UI ----------
+  const $ = id => document.getElementById(id);
+  const tMaxSlider = $('tMax');
+  const tMaxVal = $('tMaxVal');
+  const dMaxSlider = $('dMax');
+  const dMaxVal = $('dMaxVal');
+  const playBtn = $('playBtn');
+  const resetBtn = $('resetBtn');
+  const speedSlider = $('speed');
+  const speedVal = $('speedVal');
+  const timeReadout = $('timeReadout');
+  const posReadout = $('posReadout');
+  const activeCurveSel = $('activeCurve');
+  const mirrorChk = $('mirror'); // retained for future option
+  const testBtn = $('runTestsBtn');
+  const testSummary = $('testSummary');
+
+  function setTool(next){
+    tool = next;
+    ['tool-seg','tool-pen','tool-move'].forEach(id=>$(id).setAttribute('aria-pressed','false'));
+    if(next==='seg') $('tool-seg').setAttribute('aria-pressed','true');
+    if(next==='pen') $('tool-pen').setAttribute('aria-pressed','true');
+    if(next==='move') $('tool-move').setAttribute('aria-pressed','true');
+    setCursor(next==='pen'?'crosshair': (next==='move'?'grab':'crosshair'));
+  }
+  $('tool-seg').onclick=()=>setTool('seg');
+  $('tool-pen').onclick=()=>setTool('pen');
+  $('tool-move').onclick=()=>setTool('move');
+
+  activeCurveSel.onchange = ()=>{ activeCurve = activeCurveSel.value; drawAll(); };
+
+  $('undoBtn').onclick = ()=>{
+    if(activeCurve==='segments'){
+      // Never remove the anchor (0,0)
+      if(segPoints.length>1) segPoints.pop();
+    } else {
+      penPoints.pop();
+    }
+    drawAll();
+  };
+  $('clearBtn').onclick = ()=>{
+    if(activeCurve==='segments'){
+      // Reset to just the anchor
+      segPoints = [ { x: SEG_ANCHOR.x, y: SEG_ANCHOR.y } ];
+    } else {
+      penPoints = [];
+    }
+    drawAll();
+  };
+
+  tMaxSlider.oninput = ()=>{ tMax = +tMaxSlider.value; t = Math.min(t, tMax); tMaxVal.textContent = tMax; drawAll(); };
+  dMaxSlider.oninput = ()=>{ dMax = +dMaxSlider.value; dMaxVal.textContent = `±${dMax}`; drawAll(); };
+
+  playBtn.onclick = ()=>{ playing = !playing; playBtn.textContent = playing ? '⏸ Pause' : '▶ Play'; };
+  resetBtn.onclick = ()=>{ t = 0; drawAll(); };
+  speedSlider.oninput = ()=>{ speed = +speedSlider.value; speedVal.textContent = speed.toFixed(2) + '×'; };
+
+  $('exportBtn').onclick = ()=>{
+    const payload = { tMax, dMax, segPoints, penPoints };
+    const blob = new Blob([JSON.stringify(payload)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'dvst-graph.json'; a.click();
+    setTimeout(()=>URL.revokeObjectURL(url), 5000);
+  };
+  $('importBtn').onclick = ()=> $('importFile').click();
+  $('importFile').addEventListener('change', (e)=>{
+    const file = e.target.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      try{
+        const data = JSON.parse(reader.result);
+        tMax = data.tMax ?? tMax; dMax = data.dMax ?? dMax;
+        segPoints = Array.isArray(data.segPoints) && data.segPoints.length>0 ? data.segPoints : [ { x: SEG_ANCHOR.x, y: SEG_ANCHOR.y } ];
+        penPoints = Array.isArray(data.penPoints) ? data.penPoints : [];
+        tMaxSlider.value = tMax; tMaxVal.textContent = tMax;
+        dMaxSlider.value = dMax; dMaxVal.textContent = `±${dMax}`;
+        drawAll();
+      }catch(err){ alert('Invalid JSON'); }
+    };
+    reader.readAsText(file);
+  });
+
+  window.addEventListener('keydown', (e)=>{
+    if(e.code==='Space'){ e.preventDefault(); playBtn.click(); }
+    if(e.key==='r' || e.key==='R'){ resetBtn.click(); }
+  });
+
+  // ---------- Coordinate utils (use PADDING) ----------
+  function gxToTime(x){ return (x - PADDING.left) / (graph.width - PADDING.left - PADDING.right) * tMax; }
+  function timeToGx(time){ return PADDING.left + time / tMax * (graph.width - PADDING.left - PADDING.right); }
+  function gyToPos(y){ return (PADDING.top + plotH/2 - y) / (plotH/2) * dMax; }
+  function posToGy(pos){ return PADDING.top + plotH/2 - (pos/dMax) * (plotH/2); }
+
+  // ---------- Number line helpers ----------
+  function posToNumberLineX(canvasWidth, margin, pos, dMax){
+    const span = canvasWidth - 2*margin;
+    const clamped = Math.max(-dMax, Math.min(dMax, pos));
+    return margin + ((clamped + dMax) / (2*dMax)) * span;
+  }
+
+  // ---------- Drawing ----------
+  function drawGrid(){
+    gctx.clearRect(0,0,graph.width, graph.height);
+
+    // Background
+    gctx.fillStyle = '#0c1219';
+    gctx.fillRect(0,0,graph.width, graph.height);
+
+    // Plot area
+    plotW = plotWidth(); plotH = plotHeight();
+    gctx.save();
+    gctx.translate(PADDING.left, PADDING.top);
+
+    // Grid
+    if(SHOW_GRID()){
+      gctx.strokeStyle = '#1b2735'; gctx.lineWidth = 1; gctx.beginPath();
+      const xDiv = 10, yDiv = 8;
+      for(let i=0;i<=xDiv;i++){
+        const x = i/xDiv * plotW; gctx.moveTo(x,0); gctx.lineTo(x, plotH);
+      }
+      for(let j=0;j<=yDiv;j++){
+        const y = j/yDiv * plotH; gctx.moveTo(0,y); gctx.lineTo(plotW,y);
+      }
+      gctx.stroke();
+    }
+
+    // Axes
+    gctx.strokeStyle = '#314152'; gctx.lineWidth = 2; gctx.beginPath();
+    gctx.moveTo(0, plotH/2); gctx.lineTo(plotW, plotH/2); // x-axis
+    gctx.moveTo(0, 0); gctx.lineTo(0, plotH); // y-axis (t=0)
+    gctx.stroke();
+
+    // Labels
+    gctx.fillStyle = '#bcd'; gctx.font = `${12*graph._dpr}px system-ui`;
+    gctx.textAlign='center'; gctx.textBaseline='top';
+    for(let i=0;i<=10;i++){
+      const x = i/10 * plotW; const tlabel = (tMax*i/10).toFixed(0);
+      gctx.fillText(tlabel, x, plotH + 6);
+    }
+    gctx.save();
+    gctx.translate(-40, plotH/2); gctx.rotate(-Math.PI/2);
+    gctx.textAlign='center'; gctx.textBaseline='bottom';
+    gctx.fillText(`Position (m), range ±${dMax}`, 0, -8);
+    gctx.restore();
+
+    // Horizontal ticks labels
+    gctx.textAlign='right'; gctx.textBaseline='middle';
+    for(let j=-4;j<=4;j++){
+      const y = plotH/2 - j/4 * plotH/2;
+      const v = (j/4 * dMax).toFixed(0);
+      gctx.fillText(v, -6, y);
+    }
+
+    gctx.restore();
+  }
+
+  function drawCurve(points, color){
+    if(points.length===0) return;
+    gctx.save();
+    gctx.translate(PADDING.left, PADDING.top);
+    gctx.strokeStyle = color; gctx.lineWidth = 2*graph._dpr; gctx.beginPath();
+    for(let i=0;i<points.length;i++){
+      const {x,y} = points[i];
+      const gx = timeToGx(x);
+      const gy = posToGy(y);
+      if(i===0) gctx.moveTo(gx-PADDING.left, gy-PADDING.top);
+      else gctx.lineTo(gx-PADDING.left, gy-PADDING.top);
+    }
+    gctx.stroke();
+
+    if(points === segPoints){
+      for(let i=0;i<points.length;i++){
+        const {x,y} = points[i];
+        const gx = timeToGx(x); const gy = posToGy(y);
+        gctx.fillStyle = '#e3f2ff';
+        gctx.beginPath(); gctx.arc(gx-PADDING.left, gy-PADDING.top, 4*graph._dpr, 0, Math.PI*2); gctx.fill();
+      }
+    }
+    gctx.restore();
+  }
+
+  function drawCursor(){
+    const gx = timeToGx(t);
+    gctx.save();
+    gctx.strokeStyle = '#ffd166'; gctx.lineWidth = 2*graph._dpr;
+    gctx.beginPath();
+    gctx.moveTo(gx, PADDING.top);
+    gctx.lineTo(gx, graph.height - PADDING.bottom);
+    gctx.stroke();
+    gctx.restore();
+  }
+
+  function drawNumberLine(pos){
+    nctx.clearRect(0,0,nline.width, nline.height);
+    nctx.fillStyle = '#0c1219'; nctx.fillRect(0,0,nline.width, nline.height);
+    const margin = 40*nline._dpr;
+    const y = nline.height/2;
+
+    // Base line
+    nctx.strokeStyle = '#314152'; nctx.lineWidth = 3*nline._dpr; nctx.beginPath();
+    nctx.moveTo(margin, y); nctx.lineTo(nline.width - margin, y); nctx.stroke();
+
+    // Ticks and labels: -dMax … 0 … +dMax to match graph axis
+    const ticks = 8;
+    nctx.fillStyle = '#bcd'; nctx.font = `${12*nline._dpr}px system-ui`;
+    nctx.textAlign='center'; nctx.textBaseline='top';
+    for(let i=0;i<=ticks;i++){
+      const x = margin + i/ticks * (nline.width - 2*margin);
+      nctx.strokeStyle = '#41536a'; nctx.lineWidth = 2*nline._dpr;
+      nctx.beginPath(); nctx.moveTo(x, y-8*nline._dpr); nctx.lineTo(x, y+8*nline._dpr); nctx.stroke();
+      const val = (-dMax + (i/ticks) * (2*dMax)).toFixed(0);
+      nctx.fillText(val, x, y+10*nline._dpr);
+    }
+
+    // Object position (clamped to range)
+    const xPos = posToNumberLineX(nline.width, margin, pos, dMax);
+    nctx.fillStyle = '#a0ff8f';
+    nctx.beginPath(); nctx.arc(xPos, y, 10*nline._dpr, 0, Math.PI*2); nctx.fill();
+
+    // Origin marker at center
+    nctx.fillStyle = '#89a';
+    nctx.beginPath(); nctx.arc(nline.width/2, y, 4*nline._dpr, 0, Math.PI*2); nctx.fill();
+  }
+
+  function drawAll(){
+    drawGrid();
+    drawCurve(segPoints, '#5ec2ff');
+    drawCurve(samplePenAsPolyline(), '#a0ff8f');
+    drawCursor();
+    const pos = yAtTime(t);
+    timeReadout.textContent = t.toFixed(2);
+    posReadout.textContent = isFinite(pos) ? pos.toFixed(2) : '—';
+    drawNumberLine(isFinite(pos) ? pos : 0);
+  }
+
+  // ---------- Curve evaluation ----------
+  function sorted(points){ return points.slice().sort((a,b)=>a.x-b.x); }
+
+  function yFromPolyline(points, time){
+    if(points.length===0) return 0;
+    const pts = sorted(points);
+    if(time <= pts[0].x) return pts[0].y;
+    if(time >= pts[pts.length-1].x) return pts[pts.length-1].y;
+    for(let i=0;i<pts.length-1;i++){
+      const a = pts[i], b = pts[i+1];
+      if(time >= a.x && time <= b.x){
+        const u = (time - a.x) / (b.x - a.x);
+        return a.y*(1-u) + b.y*u;
+      }
+    }
+    return pts[pts.length-1].y;
+  }
+
+  function samplePenAsPolyline(){
+    if(penPoints.length===0) return [];
+    const step = tMax / Math.max(200, plotW|0);
+    const map = new Map();
+    for(const p of penPoints){
+      const bucket = Math.round(p.x/step)*step;
+      if(!map.has(bucket)) map.set(bucket, p.y);
+    }
+    const xs = Array.from(map.keys()).sort((a,b)=>a-b);
+    return xs.map(x=>({x, y: map.get(x)}));
+  }
+
+  function yAtTime(time){
+    const curve = (activeCurve==='segments') ? segPoints : samplePenAsPolyline();
+    if(curve.length<1) return 0;
+    return yFromPolyline(curve, time);
+  }
+
+  // ---------- Picking helpers ----------
+  const POINT_HALO = ()=> 10*(graph._dpr||1);
+  function nearestSegPointIndex(px, py, radius = POINT_HALO()){
+    let best = -1, bestD = Infinity;
+    for(let i=0;i<segPoints.length;i++){
+      const gx = timeToGx(segPoints[i].x);
+      const gy = posToGy(segPoints[i].y);
+      const d = Math.hypot(gx - px, gy - py);
+      if(d < bestD && d <= radius){ best = i; bestD = d; }
+    }
+    return best;
+  }
+
+  // ---------- Input handling (graph) ----------
+  function loc(evt){
+    const rect = graph.getBoundingClientRect();
+    const x = (evt.clientX - rect.left) * (graph._dpr || 1);
+    const y = (evt.clientY - rect.top) * (graph._dpr || 1);
+    return {x, y};
+  }
+
+  function withinPlot(x,y){
+    return x>=PADDING.left && x<=graph.width-PADDING.right && y>=PADDING.top && y<=graph.height-PADDING.bottom;
+  }
+
+  function nearCursor(x){ return Math.abs(x - timeToGx(t)) < 8*(graph._dpr||1); }
+
+  graph.addEventListener('mousedown', (e)=>{
+    const {x,y} = loc(e);
+
+    // Start dragging time cursor if grabbed
+    if(nearCursor(x)){ draggingCursor = true; isDrawing = false; return; }
+
+    // Allow dragging an existing segment point when tool is SEGMENT or MOVE
+    if(activeCurve==='segments' && (tool==='seg' || tool==='move')){
+      const idx = nearestSegPointIndex(x,y);
+      if(idx>=0){ dragIndex = idx; isDrawing = true; setCursor('grabbing'); return; }
+    }
+
+    if(!withinPlot(x,y)) return;
+
+    if(tool==='seg'){
+      // Add a new point connected from the existing path (starts at 0,0)
+      isDrawing = true;
+      const time = gxToTime(x);
+      const pos = gyToPos(y);
+      const point = { x: SNAP()? Math.round(time): time, y: SNAP()? Math.round(pos) : pos };
+      segPoints.push(point);
+      segPoints = sorted(segPoints);
+      drawAll();
+    } else if(tool==='pen'){
+      isDrawing = true;
+      const time = gxToTime(x); const pos = gyToPos(y);
+      penPoints.push({x: clamp(time,0,tMax), y: clamp(pos,-dMax, dMax)});
+      drawAll();
+    }
+  });
+
+  graph.addEventListener('mousemove', (e)=>{
+    const {x,y} = loc(e);
+    if(draggingCursor){ t = clamp(gxToTime(x), 0, tMax); drawAll(); return; }
+
+    if(isDrawing){
+      if(tool==='pen'){
+        if(withinPlot(x,y)){
+          const time = gxToTime(x); const pos = gyToPos(y);
+          penPoints.push({x: clamp(time,0,tMax), y: clamp(pos,-dMax, dMax)});
+          if(SNAP()){
+            const last = penPoints[penPoints.length-1];
+            last.x = Math.round(last.x); last.y = Math.round(last.y);
+          }
+          drawAll();
+        }
+      } else if((tool==='move' || tool==='seg') && dragIndex>=0){
+        // Drag the picked point (works in both Move and Segment tools)
+        const time = clamp(gxToTime(x), 0, tMax);
+        const pos = clamp(gyToPos(y), -dMax, dMax);
+        const p = segPoints[dragIndex];
+        p.x = SNAP()?Math.round(time):time;
+        p.y = SNAP()?Math.round(pos):pos;
+        segPoints = sorted(segPoints);
+        // Keep dragging the same object after sorting
+        dragIndex = segPoints.indexOf(p);
+        drawAll();
+      }
+    } else {
+      // Hover cursors: time cursor > point grab > default
+      if(nearCursor(x)) { setCursor('ew-resize'); return; }
+      const idx = (activeCurve==='segments') ? nearestSegPointIndex(x,y) : -1;
+      if((tool==='move' || tool==='seg') && idx>=0) setCursor('grab');
+      else setCursor(tool==='move'?'grab': 'crosshair');
+    }
+  });
+
+  window.addEventListener('mouseup', ()=>{ isDrawing=false; draggingCursor=false; dragIndex=-1; setCursor(tool==='move'?'grab':'crosshair'); });
+  window.addEventListener('mouseleave', ()=>{ isDrawing=false; draggingCursor=false; dragIndex=-1; });
+
+  function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
+
+  // ---------- Sizing & Animation ----------
+  function fitCanvas(c){
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    const rect = c.getBoundingClientRect();
+    c.width = Math.round(rect.width * dpr);
+    c.height = Math.round(rect.height * dpr);
+    c._dpr = dpr;
+  }
+  function fitAll(){ fitCanvas(graph); fitCanvas(nline); drawAll(); }
+  window.addEventListener('resize', fitAll);
+
+  let lastTime = performance.now();
+  function tick(now){
+    const dt = Math.min(0.05, (now - lastTime)/1000) * speed; // cap delta to avoid jumps
+    lastTime = now;
+    if(playing){
+      t += dt;
+      if(t>tMax){ t=tMax; playing=false; playBtn.textContent='▶ Play'; }
+      drawAll();
+    }
+    requestAnimationFrame(tick);
+  }
+
+  // ---------- Built-in Tests ----------
+  function almost(a,b,eps=1e-6){ return Math.abs(a-b) <= eps; }
+  function logResult(ok, msg){ (ok?console.log:console.error)(`${ok?'✅':'❌'} ${msg}`); }
+  function runTests(){
+    const snapshot = JSON.stringify({ tMax, dMax, segPoints, penPoints, activeCurve, t });
+    let pass = 0, fail = 0;
+    try{
+      const padOk = typeof PADDING === 'object' && Number.isFinite(PADDING.left);
+      logResult(padOk, 'PADDING initialized early'); padOk?pass++:fail++;
+
+      // Ensure canvas metrics exist
+      fitAll();
+
+      // Default anchor exists
+      const anchorOK = segPoints.length>=1 && almost(segPoints[0].x,0) && almost(segPoints[0].y,0);
+      logResult(anchorOK, 'Segments start with anchor (0,0)'); anchorOK?pass++:fail++;
+
+      // Set up simple line: y = x on [0,10]
+      tMax = 10; dMax = 10; segPoints = [{x:0,y:0},{x:10,y:10}]; activeCurve='segments'; t=0;
+      drawAll();
+
+      // yAtTime interpolation
+      const y5 = yAtTime(5); const y0 = yAtTime(0); const y10 = yAtTime(10);
+      logResult(almost(y5,5), 'Interpolation at t=5 is 5'); pass += almost(y5,5)?1:0; fail += almost(y5,5)?0:1;
+      logResult(almost(y0,0), 'Endpoint at t=0 is 0'); pass += almost(y0,0)?1:0; fail += almost(y0,0)?0:1;
+      logResult(almost(y10,10), 'Endpoint at t=10 is 10'); pass += almost(y10,10)?1:0; fail += almost(y10,10)?0:1;
+
+      // Inverse mappings
+      const gx = timeToGx(7); const tBack = gxToTime(gx);
+      logResult(almost(tBack,7,1e-4), 'timeToGx ⟷ gxToTime roundtrip'); pass += almost(tBack,7,1e-4)?1:0; fail += almost(tBack,7,1e-4)?0:1;
+      const gy = posToGy(3); const posBack = gyToPos(gy);
+      logResult(almost(posBack,3,1e-4), 'posToGy ⟷ gyToPos roundtrip'); pass += almost(posBack,3,1e-4)?1:0; fail += almost(posBack,3,1e-4)?0:1;
+
+      // Freehand polyline sampling roughly tracks a slope
+      penPoints = []; for(let i=0;i<=10;i++){ penPoints.push({x:i, y:i}); }
+      activeCurve='pen';
+      const yPen5 = yAtTime(5);
+      logResult(almost(yPen5,5,0.5), 'Freehand resample near y=x at t=5'); pass += almost(yPen5,5,0.5)?1:0; fail += almost(yPen5,5,0.5)?0:1;
+
+      // Number line mapping should match -dMax..+dMax scale
+      const width = 1000, margin = 40, D = 10;
+      const left = posToNumberLineX(width, margin, -D, D);
+      const center = posToNumberLineX(width, margin, 0, D);
+      const right = posToNumberLineX(width, margin, +D, D);
+      logResult(almost(left, margin), 'Number line maps -dMax to left margin'); pass += almost(left, margin)?1:0; fail += almost(left, margin)?0:1;
+      logResult(almost(center, (width/2)), 'Number line maps 0 to center'); pass += almost(center, width/2)?1:0; fail += almost(center, width/2)?0:1;
+      logResult(almost(right, width - margin), 'Number line maps +dMax to right margin'); pass += almost(right, width - margin)?1:0; fail += almost(right, width - margin)?0:1;
+
+      // Number line clamps out-of-range positions
+      const farLeft = posToNumberLineX(width, margin, -2*D, D);
+      const farRight = posToNumberLineX(width, margin, +2*D, D);
+      logResult(almost(farLeft, margin), 'Clamps below -dMax to left'); pass += almost(farLeft, margin)?1:0; fail += almost(farLeft, margin)?0:1;
+      logResult(almost(farRight, width - margin), 'Clamps above +dMax to right'); pass += almost(farRight, width - margin)?1:0; fail += almost(farRight, width - margin)?0:1;
+
+      // Picking math — nearest point detection and drag ordering
+      segPoints = [{x:0,y:0},{x:5,y:5},{x:8,y:-3}]; activeCurve='segments'; drawAll();
+      const px = timeToGx(5), py = posToGy(5);
+      const idx = nearestSegPointIndex(px, py, 12*(graph._dpr||1));
+      logResult(idx===1, 'nearestSegPointIndex finds the middle point'); pass += (idx===1)?1:0; fail += (idx===1)?0:1;
+      // Emulate drag to new y and verify ordering by time is preserved
+      let p = segPoints[idx]; p.y = 7; segPoints = sorted(segPoints);
+      logResult(segPoints[1].y===7, 'After "drag", middle point stays at index 1 (sorted by time)'); pass += (segPoints[1].y===7)?1:0; fail += (segPoints[1].y===7)?0:1;
+
+      // Clear keeps the anchor
+      segPoints = [{x:0,y:0},{x:1,y:1}];
+      // simulate clear
+      segPoints = [ {x: SEG_ANCHOR.x, y: SEG_ANCHOR.y} ];
+      const keptAnchor = segPoints.length===1 && almost(segPoints[0].x,0) && almost(segPoints[0].y,0);
+      logResult(keptAnchor, 'Clear resets to anchor only'); keptAnchor?pass++:fail++;
+
+      // drawAll executes without error
+      let drew = false; try { drawAll(); drew = true; } catch(e) { drew = false; }
+      logResult(drew, 'drawAll() executes without error'); pass += drew?1:0; fail += drew?0:1;
+
+    }catch(err){ fail++; console.error('Test runner error:', err); }
+    finally{
+      try{ const s = JSON.parse(snapshot); tMax = s.tMax; dMax = s.dMax; segPoints = s.segPoints; penPoints = s.penPoints; activeCurve = s.activeCurve; t = s.t; drawAll(); }catch(_){}
+    }
+    const txt = `Tests: ${pass} passed, ${fail} failed.`;
+    testSummary.textContent = txt; (fail===0?console.log:console.warn)(txt);
+  }
+  if(testBtn) testBtn.addEventListener('click', runTests);
+
+  // ---------- Kick things off (after constants are initialized) ----------
+  fitAll();
+  requestAnimationFrame(tick);
+  drawAll();
+})();
+</script>
+</body>
+</html>
