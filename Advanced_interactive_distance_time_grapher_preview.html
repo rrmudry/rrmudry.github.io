@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Interactive Distance vs. Time Grapher</title>
+<link rel="icon" type="image/png" href="head.png"/>
+<style>
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;margin:0;padding:16px;background:#eef1f5;color:#333;display:flex;flex-direction:column;align-items:center}
+.container{background:#fff;padding:20px;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,.1);width:98%;max-width:1600px;margin-bottom:25px}
+.grid{display:grid;grid-template-columns:1fr;gap:24px;align-items:start}
+@media (min-width:960px){.grid{grid-template-columns:1fr 1fr}}
+.col{display:flex;flex-direction:column;gap:24px;min-width:0}
+.col>*{width:100%}
+.card{padding:20px;border:1px solid #dbe0e6;border-radius:10px;background:#f9fafb}
+.tight{padding:14px}
+.no-mb>*{margin-bottom:0}
+.title{font-weight:700}
+.subtle{opacity:.85}
+h1,h2{color:#2c3e50;text-align:center;margin-top:0}h1{margin-bottom:20px;font-size:28px}h2{margin-bottom:15px;font-size:20px}
+.controls,.simulation-area,.graph-area,.explanation,.helper{padding:20px;border:1px solid #dbe0e6;border-radius:8px;background:#f9fafb}
+label{display:inline-block;margin-right:8px;margin-bottom:8px;font-weight:500}
+input[type="number"],input[type="text"],input[type="color"],select{padding:10px;margin-right:10px;margin-bottom:10px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box}
+input[type="number"]{width:120px}
+button{padding:10px 18px;background:#3498db;color:#fff;border:none;border-radius:6px;cursor:pointer;margin-right:8px;transition:background-color .2s ease-in-out;font-weight:500}
+button:hover{background:#2980b9}
+#resetBtn{background:#e74c3c}#resetBtn:hover{background:#c0392b}
+#explainBtn{background:#2ecc71}#explainBtn:hover{background:#27ae60}
+#segmentsList{list-style:decimal;padding-left:25px}
+#segmentsList li{margin-bottom:6px;background:#e9edf0;padding:8px;border-radius:4px;font-size:.95em;display:flex;justify-content:space-between;align-items:center;cursor:move}
+#segmentsList li.dragging{opacity:.5}
+#segmentsList li.drag-over{border-top:2px solid #3498db}
+.delete-segment-btn{background:#e74c3c;color:white;border:none;border-radius:4px;cursor:pointer;padding:4px 8px;font-size:0.8em;margin-left:10px}
+.delete-segment-btn:hover{background:#c0392b}
+.simulation-area{position:relative;background:#f9fafb;border:1px solid #c8cdd3;overflow:hidden}
+#simCanvas{border:1px solid #b0b8c0;background:#fff;display:block;margin:8px auto 0;width:100%;height:110px;box-sizing:border-box}
+#simInfo{position:absolute;top:5px;right:10px;font-size:.9em;background:rgba(255,255,255,.85);padding:5px 8px;border-radius:4px}
+canvas.graph{border:1px solid #b0b8c0;background:#fff;display:block;margin:6px auto 0;cursor:crosshair;width:100%;min-height:320px;box-sizing:border-box}
+#hoverInfo{position:absolute;background:rgba(0,0,0,.85);color:#fff;padding:6px 8px;border-radius:6px;font-size:.85em;pointer-events:none;display:none;max-width:260px;line-height:1.25}
+.helper textarea{width:calc(100% - 22px);min-height:140px;margin-top:10px;padding:10px;border:1px solid #ccc;border-radius:6px;font-family:inherit;font-size:.95em;resize:vertical;white-space:pre-wrap}
+details{background:#eef2f6;border:1px solid #dbe0e6;border-radius:6px;padding:10px;margin:8px 0}
+details summary{cursor:pointer;font-weight:600}
+.badge{display:inline-block;vertical-align:middle;border:1px solid #ccd2da;background:#f1f5f9;border-radius:999px;padding:2px 8px;font-size:.8em;margin-left:6px}
+*,*::before,*::after{box-sizing:border-box}
+.small{font-size:.9em;opacity:.9}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.legend .item{display:flex;align-items:center;gap:6px;padding:2px 8px;border:1px solid #e1e6ee;border-radius:999px;background:#f8fafc}
+.legend .swatch{width:12px;height:12px;border-radius:3px;border:1px solid #cbd5e1}
+.subtle-note{font-size:.85em;opacity:.8}
+</style>
+</head>
+<body>
+<div id="hoverInfo"></div>
+<div class="container">
+<h1>Interactive Distance vs. Time Graph Simulator</h1>
+<div class="grid">
+<div class="col left">
+<div class="explanation card">
+<h2>How to Use This Page</h2>
+<ul>
+<li>Create one or more <strong>objects</strong>. Each object has its own list of segments defined by <strong>Δx (m)</strong> and <strong>Δt (s)</strong>.</li>
+<li>Click <em>Run Simulation & Graph</em> to animate all objects together and overlay their distance–time lines.</li>
+<li>Hover the graph to see the time and each object's distance at that time.</li>
+<li>Click <em>Explain My Run</em> to generate a summary for the <em>active object</em> shown in the selector.</li>
+</ul>
+<p class="small">Velocity per segment is computed as Δx ÷ Δt. All objects start at position 0 at t = 0.</p>
+</div>
+<div class="controls card">
+<h2>Objects</h2>
+<div>
+<label for="objectSelect">Active object:</label>
+<select id="objectSelect"></select>
+<button id="removeObjectBtn" type="button" title="Remove the active object">Remove</button>
+</div>
+<div>
+<label>Name:</label>
+<input type="text" id="objName" value="Object 1">
+<label>Color:</label>
+<input type="color" id="objColor" value="#e74c3c">
+<button id="addObjectBtn" type="button">Add Object</button>
+</div>
+<hr>
+<h2>Define Motion Segments (for active object)</h2>
+<div>
+<label for="delta">Distance change Δx (m):</label>
+<input type="number" id="delta" value="10" step="0.5">
+<label for="duration">Duration Δt (s):</label>
+<input type="number" id="duration" value="5" min="0.1" step="0.1">
+<button id="addSegmentBtn" type="button">Add Segment</button>
+</div>
+<h3>Current Segments:</h3>
+<ul id="segmentsList"></ul>
+<div>
+<button id="runBtn" type="button">Run Simulation & Graph</button>
+<button id="resetBtn" type="button">Reset All</button>
+<button id="explainBtn" type="button" title="Summary for the active object">Explain My Run</button>
+<span class="badge" title="No downloads or servers required">Lightweight</span>
+</div>
+</div>
+<div class="faq card">
+<h2>FAQ: Interpreting Distance–Time Graphs</h2>
+<ul>
+<li><strong>Slope = velocity.</strong> Steeper = faster. Flat = 0 m/s (rest). Negative slope = returning toward the start.</li>
+<li><strong>Straight line</strong> ⇒ constant velocity. <strong>Curved line</strong> ⇒ changing velocity (acceleration).</li>
+<li><strong>Average velocity</strong> over an interval: Δdistance ÷ Δtime.</li>
+<li><strong>Total distance</strong> adds signed changes; for <em>path length</em>, use absolute values.</li>
+</ul>
+</div>
+</div>
+<div class="col right">
+<div class="simulation-area card tight">
+<h2>Animation</h2>
+<canvas id="simCanvas" height="110"></canvas>
+<div id="simInfo">
+<div>Time: <span id="timeDisplay">0.0</span>s</div>
+<div>Active distance: <span id="distanceDisplay">0.0</span>m</div>
+</div>
+<div id="simLegend" class="legend" aria-label="Object legend (simulation)"></div>
+</div>
+<div class="graph-area card">
+<h2>Distance vs. Time Graph</h2>
+<canvas id="dvtGraph" class="graph"></canvas>
+<div id="graphLegend" class="legend" aria-label="Object legend (graph)"></div>
+<p class="subtle-note">Hover the graph to see all objects' distances at that time.</p>
+</div>
+<div class="helper card">
+<h2>Smart Helper Explanation</h2>
+<p>This helper generates explanations using rules and your inputs (for the <em>active object</em>).</p>
+<textarea id="helperOutput" readonly placeholder="Click ‘Explain My Run’ for a tailored summary…"></textarea>
+</div>
+</div>
+</div>
+</div>
+<script>
+// === Elements ===
+const deltaInput=document.getElementById('delta');
+const durationInput=document.getElementById('duration');
+const addSegmentBtn=document.getElementById('addSegmentBtn');
+const segmentsListEl=document.getElementById('segmentsList');
+const runBtn=document.getElementById('runBtn');
+const resetBtn=document.getElementById('resetBtn');
+const explainBtn=document.getElementById('explainBtn');
+const simCanvas=document.getElementById('simCanvas');
+const snl=simCanvas.getContext('2d');
+const graphCanvas=document.getElementById('dvtGraph');
+const ctx=graphCanvas.getContext('2d');
+const timeDisplay=document.getElementById('timeDisplay');
+const distanceDisplay=document.getElementById('distanceDisplay');
+const hoverInfo=document.getElementById('hoverInfo');
+const helperOutput=document.getElementById('helperOutput');
+const objectSelect=document.getElementById('objectSelect');
+const addObjectBtn=document.getElementById('addObjectBtn');
+const removeObjectBtn=document.getElementById('removeObjectBtn');
+const objNameInput=document.getElementById('objName');
+const objColorInput=document.getElementById('objColor');
+const graphLegend=document.getElementById('graphLegend');
+const simLegend=document.getElementById('simLegend');
+
+// === State ===
+let timeCursor=0;
+let segments=[]; // alias of active object's segments (kept for backward-compat/tests)
+let animationFrameId=null;
+let dragStartIndex;
+const padding=60;const tickSize=6;
+let currentMaxTime=0;let currentMaxDistance=0;
+let allDataPoints=[]; // points for active object (for backward-compat)
+let lastSimState=null;
+
+const palette=['#e74c3c','#2ecc71','#3498db','#9b59b6','#f1c40f','#e67e22','#1abc9c','#34495e','#ff6b6b','#6c5ce7'];
+
+function genId(){return Math.random().toString(36).slice(2,9)}
+function makeObject(name,color){return{ id:genId(), name, color, segments:[], points:[], minDist:0, maxDist:0, totalTime:0 }}
+let objects=[ makeObject('Object 1', palette[0]) ];
+let activeObjIndex=0;
+segments=objects[activeObjIndex].segments;
+
+// === Sizing ===
+function sizeSimCanvas(){const dpr=window.devicePixelRatio||1;const cssW=simCanvas.clientWidth;const cssH=simCanvas.clientHeight;simCanvas.width=Math.max(1,Math.floor(cssW*dpr));simCanvas.height=Math.max(1,Math.floor(cssH*dpr));snl.setTransform(dpr,0,0,dpr,0,0)}
+function sizeGraphCanvas(){const dpr=window.devicePixelRatio||1;const cssW=graphCanvas.clientWidth;const cssH=parseFloat(getComputedStyle(graphCanvas).height)||420;graphCanvas.width=Math.max(1,Math.floor(cssW*dpr));graphCanvas.height=Math.max(1,Math.floor(cssH*dpr));ctx.setTransform(dpr,0,0,dpr,0,0);if(currentMaxTime>0){drawAxes(currentMaxTime,currentMaxDistance);drawGraphLinesAll();drawTimeCursor()}}
+function layoutGraphSize(){const colW=graphCanvas.parentElement.clientWidth||900;const targetH=Math.max(320,Math.min(540,Math.round(colW*0.5)));graphCanvas.style.height=`${targetH}px`;sizeGraphCanvas()}
+window.addEventListener('resize',()=>{layoutGraphSize();sizeSimCanvas();if(lastSimState)drawSimNumberLineMulti(lastSimState.min,lastSimState.max,lastSimState.currentById)});
+if('ResizeObserver'in window){const ro=new ResizeObserver(()=>{layoutGraphSize()});ro.observe(graphCanvas.parentElement)}
+sizeSimCanvas();
+layoutGraphSize();
+
+// === Object UI ===
+function renderObjectSelect(){objectSelect.innerHTML='';objects.forEach((o,idx)=>{const opt=document.createElement('option');opt.value=String(idx);opt.textContent=o.name;objectSelect.appendChild(opt)});objectSelect.value=String(activeObjIndex)}
+function renderLegends(){function fill(el){el.innerHTML='';objects.forEach(o=>{const d=document.createElement('div');d.className='item';const s=document.createElement('span');s.className='swatch';s.style.background=o.color;const t=document.createElement('span');t.textContent=o.name;d.appendChild(s);d.appendChild(t);el.appendChild(d)})}fill(graphLegend);fill(simLegend)}
+function setActive(idx){activeObjIndex=idx;segments=objects[idx].segments;objNameInput.value=objects[idx].name;objColorInput.value=objects[idx].color;renderObjectSelect();renderSegmentsList();renderLegends()}
+
+objectSelect.addEventListener('change',()=>{setActive(parseInt(objectSelect.value,10))});
+addObjectBtn.addEventListener('click',()=>{const name=objNameInput.value.trim()||`Object ${objects.length+1}`;const color=objColorInput.value||palette[objects.length%palette.length];objects.push(makeObject(name,color));renderObjectSelect();renderLegends();setActive(objects.length-1)});
+removeObjectBtn.addEventListener('click',()=>{if(objects.length<=1){alert('At least one object is required.');return}objects.splice(activeObjIndex,1);setActive(Math.max(0,activeObjIndex-1))});
+objNameInput.addEventListener('change',()=>{objects[activeObjIndex].name=objNameInput.value.trim()||objects[activeObjIndex].name;renderObjectSelect();renderLegends()});
+objColorInput.addEventListener('change',()=>{objects[activeObjIndex].color=objColorInput.value;renderLegends();drawGraphLinesAll();if(lastSimState)drawSimNumberLineMulti(lastSimState.min,lastSimState.max,lastSimState.currentById)});
+
+// === UI: add/reset/run ===
+function addSegment(delta,duration){
+  if(!Number.isFinite(duration)||duration<=0){alert('Please enter a valid positive duration.');return false}
+  if(!Number.isFinite(delta)){alert('Please enter a valid distance change.');return false}
+  objects[activeObjIndex].segments.push({delta,duration});
+  // keep alias in sync
+  segments=objects[activeObjIndex].segments;
+  renderSegmentsList();
+  return true
+}
+addSegmentBtn.addEventListener('click',e=>{e.preventDefault();const d=parseFloat(deltaInput.value);const t=parseFloat(durationInput.value);addSegment(d,t)});
+[deltaInput,durationInput].forEach(inp=>inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();const d=parseFloat(deltaInput.value);const t=parseFloat(durationInput.value);addSegment(d,t)}}));
+
+runBtn.addEventListener('click',e=>{e.preventDefault();if(objects.every(o=>o.segments.length===0)){alert('Add at least one segment to any object.');return}if(animationFrameId)cancelAnimationFrame(animationFrameId);generateDataAndAnimateAll()});
+
+resetBtn.addEventListener('click',e=>{e.preventDefault();objects=[makeObject('Object 1',palette[0])];setActive(0);allDataPoints=[];currentMaxTime=0;currentMaxDistance=0;clearGraph();helperOutput.value='';if(animationFrameId)cancelAnimationFrame(animationFrameId);timeDisplay.textContent='0.0';distanceDisplay.textContent='0.0';drawSimNumberLineMulti(0,10,{[objects[0].id]:0});renderLegends()});
+
+// === Drag to reorder segments ===
+function handleDragStart(e){dragStartIndex=parseInt(this.dataset.index,10);this.classList.add('dragging');e.dataTransfer.effectAllowed='move'}
+function handleDragEnd(e){this.classList.remove('dragging');document.querySelectorAll('#segmentsList li').forEach(item=>item.classList.remove('drag-over'))}
+function handleDragOver(e){e.preventDefault();this.classList.add('drag-over');e.dataTransfer.dropEffect='move'}
+function handleDragLeave(e){this.classList.remove('drag-over')}
+function handleDrop(e){e.stopPropagation();const dragEndIndex=parseInt(this.dataset.index,10);this.classList.remove('drag-over');const arr=objects[activeObjIndex].segments;const draggedItem=arr.splice(dragStartIndex,1)[0];arr.splice(dragEndIndex,0,draggedItem);renderSegmentsList()}
+function renderSegmentsList(){segmentsListEl.innerHTML='';objects[activeObjIndex].segments.forEach((seg,i)=>{const li=document.createElement('li');li.draggable=true;li.dataset.index=i;const textSpan=document.createElement('span');const v=seg.delta/seg.duration;textSpan.textContent=`Segment ${i+1}: Δx = ${seg.delta.toFixed(2)} m, Δt = ${seg.duration.toFixed(2)} s (v = ${v.toFixed(2)} m/s)`;const deleteBtn=document.createElement('button');deleteBtn.textContent='Delete';deleteBtn.className='delete-segment-btn';deleteBtn.title='Delete this segment';deleteBtn.addEventListener('click',e=>{e.stopPropagation();objects[activeObjIndex].segments.splice(i,1);renderSegmentsList()});li.appendChild(textSpan);li.appendChild(deleteBtn);li.addEventListener('dragstart',handleDragStart);li.addEventListener('dragend',handleDragEnd);li.addEventListener('dragover',handleDragOver);li.addEventListener('dragleave',handleDragLeave);li.addEventListener('drop',handleDrop);segmentsListEl.appendChild(li)});segments=objects[activeObjIndex].segments}
+
+// === Graphing ===
+function clearGraph(){ctx.clearRect(0,0,graphCanvas.width,graphCanvas.height);drawAxes(10,10);hoverInfo.style.display='none'}
+function computeYBounds(minD,maxD,fallbackMax){if(Number.isFinite(minD)&&Number.isFinite(maxD)){if(minD===maxD){return{yMin:minD-1,yMax:maxD+1}}return{yMin:minD,yMax:maxD}}else{const fm=Number.isFinite(fallbackMax)&&fallbackMax>0?fallbackMax:10;return{yMin:0,yMax:fm}}}
+function drawAxes(maxTime,maxDistance){const cw=graphCanvas.clientWidth;const ch=parseFloat(getComputedStyle(graphCanvas).height)||graphCanvas.clientHeight;ctx.clearRect(0,0,cw,ch);ctx.strokeStyle='#333';ctx.lineWidth=1.5;ctx.setLineDash([]);ctx.font="12px 'Segoe UI', Arial";ctx.fillStyle='#333';ctx.textAlign='center';ctx.beginPath();ctx.moveTo(padding,padding);ctx.lineTo(padding,ch-padding);ctx.stroke();ctx.beginPath();ctx.moveTo(padding,ch-padding);ctx.lineTo(cw-padding,ch-padding);ctx.stroke();ctx.save();ctx.translate(padding/2-15,ch/2);ctx.rotate(-Math.PI/2);ctx.fillText('Distance (m)',0,0);ctx.restore();ctx.fillText('Time (s)',cw/2,ch-padding/2+5);const numXTicks=Math.max(5,Math.min(10,Math.ceil(maxTime)));if(maxTime>0){for(let i=0;i<=numXTicks;i++){const t=maxTime/numXTicks*i;const x=padding+(t/maxTime)*(cw-2*padding);ctx.beginPath();ctx.moveTo(x,ch-padding);ctx.lineTo(x,ch-padding+tickSize);ctx.stroke();if(i>0||maxTime===0)ctx.fillText(t.toFixed(1),x,ch-padding+20)}}else{ctx.beginPath();ctx.moveTo(padding,ch-padding);ctx.lineTo(padding,ch-padding+tickSize);ctx.stroke()}const {yMin,yMax}=computeYBounds(globalMinDist,globalMaxDist,maxDistance);let yRange=yMax-yMin;if(yRange<=0)yRange=1;const yStep=niceStep(yRange/6);const firstYTick=Math.ceil(yMin/yStep)*yStep;const fmt=v=>Math.abs(v-Math.round(v))<1e-6?String(Math.round(v)):(Math.abs(yStep)<1?v.toFixed(1):v.toFixed(0));ctx.textAlign='right';for(let v=firstYTick;v<=yMax+1e-9;v+=yStep){const y=ch-padding-((v-yMin)/yRange)*(ch-2*padding);ctx.beginPath();ctx.moveTo(padding,y);ctx.lineTo(padding-tickSize,y);ctx.stroke();ctx.fillText(fmt(v),padding-10,y+4)}if(yMin<0&&yMax>0){const yZero=ch-padding-((0-yMin)/yRange)*(ch-2*padding);ctx.beginPath();ctx.moveTo(padding,yZero);ctx.lineTo(padding-tickSize,yZero);ctx.stroke();ctx.fillText('0',padding-10,yZero+4)}}
+function drawGraphLinesAll(){objects.forEach(o=>{if(o.points.length<2)return;const cw=graphCanvas.clientWidth;const ch=parseFloat(getComputedStyle(graphCanvas).height)||graphCanvas.clientHeight;const yMin=globalMinDist;const yMax=globalMaxDist;let yRange=yMax-yMin;if(yRange<=0)yRange=1;ctx.beginPath();ctx.strokeStyle=o.color;ctx.lineWidth=2.5;ctx.setLineDash([]);o.points.forEach((pt,i)=>{const x=padding+(pt.time/Math.max(1e-9,currentMaxTime))*(cw-2*padding);const y=ch-padding-((pt.distance-yMin)/yRange)*(ch-2*padding);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)});ctx.stroke()})}
+function drawTimeCursor(){if(!isFinite(currentMaxTime)||currentMaxTime<=0)return;const cw=graphCanvas.clientWidth;const ch=parseFloat(getComputedStyle(graphCanvas).height)||graphCanvas.clientHeight;const clamped=Math.max(0,Math.min(currentMaxTime,timeCursor));const x=padding+(clamped/currentMaxTime)*(cw-2*padding);ctx.save();ctx.strokeStyle='rgba(0,120,255,0.9)';ctx.lineWidth=2;ctx.setLineDash([]);ctx.beginPath();ctx.moveTo(x,padding);ctx.lineTo(x,ch-padding);ctx.stroke();ctx.restore()}
+function niceStep(x){if(x<=0)return 1;const pow10=Math.pow(10,Math.floor(Math.log10(x)));const n=x/pow10;let m;if(n<1.5)m=1;else if(n<3.5)m=2;else if(n<7.5)m=5;else m=10;return m*pow10}
+
+// globals for axes bounds
+let globalMinDist=0, globalMaxDist=0;
+
+// === Data + animation (multi-object) ===
+function computePointsForObject(obj){obj.points=[{time:0,distance:0}];let cumulativeTime=0;let cumulativeDistance=0;obj.totalTime=0;obj.minDist=0;obj.maxDist=0;obj.segments.forEach(seg=>{obj.totalTime+=seg.duration;const v=seg.delta/seg.duration;const step=0.1;for(let t=step;t<=seg.duration+1e-9;t+=step){const interimTime=cumulativeTime+t;const interimDistance=cumulativeDistance+v*t;obj.points.push({time:interimTime,distance:interimDistance})}cumulativeTime+=seg.duration;cumulativeDistance+=seg.delta;obj.points.push({time:cumulativeTime,distance:cumulativeDistance});obj.minDist=Math.min(obj.minDist,cumulativeDistance);obj.maxDist=Math.max(obj.maxDist,cumulativeDistance)});}
+
+function generateDataAndAnimateAll(){
+  // compute for each object
+  objects.forEach(o=>computePointsForObject(o));
+  // active object's points for backward compat
+  allDataPoints = objects[activeObjIndex].points;
+  // global extents
+  currentMaxTime = Math.max(1, ...objects.map(o=>o.totalTime||0));
+  const mins=objects.map(o=>o.minDist); const maxs=objects.map(o=>o.maxDist);
+  globalMinDist=Math.min(0,...mins); globalMaxDist=Math.max(0,...maxs);
+  if(globalMinDist===globalMaxDist){globalMaxDist=globalMinDist+1}
+  drawAxes(currentMaxTime,globalMaxDist);
+  drawGraphLinesAll();
+  timeCursor=0;drawTimeCursor();
+  sizeSimCanvas();
+  const currentById={}; objects.forEach(o=>currentById[o.id]=0);
+  drawSimNumberLineMulti(globalMinDist,globalMaxDist,currentById);
+  animateMovementAll();
+}
+
+function animateMovementAll(){
+  const simStart=performance.now();
+  function distanceAtTimeFor(obj,t){ // piecewise linear
+    let accTime=0; let accDist=0; for(const seg of obj.segments){const t0=accTime; const t1=accTime+seg.duration; if(t<=t0){return accDist} if(t<t1){const v=seg.delta/seg.duration; return accDist + v*(t-t0)} accTime=t1; accDist+=seg.delta} return accDist}
+  function step(ts){
+    const elapsed=(ts-simStart)/1000; const t=Math.min(elapsed,currentMaxTime);
+    timeDisplay.textContent=t.toFixed(1);
+    const currentById={};
+    objects.forEach((o,idx)=>{const d=distanceAtTimeFor(o,t);currentById[o.id]=d; if(idx===activeObjIndex){distanceDisplay.textContent=d.toFixed(1)}});
+    drawSimNumberLineMulti(globalMinDist,globalMaxDist,currentById);
+    drawAxes(currentMaxTime,globalMaxDist); drawGraphLinesAll(); timeCursor=t; drawTimeCursor();
+    if(elapsed<currentMaxTime){animationFrameId=requestAnimationFrame(step)}
+  }
+  animationFrameId=requestAnimationFrame(step)
+}
+
+// === Number line helper (multi) ===
+const simPad=26;
+function drawSimNumberLineMulti(minVal,maxVal,currentById){if(minVal===maxVal){minVal-=1;maxVal+=1}lastSimState={min:minVal,max:maxVal,currentById:{...currentById}};snl.clearRect(0,0,simCanvas.width,simCanvas.height);const w=simCanvas.clientWidth;const h=simCanvas.clientHeight;const y=Math.round(h/2)+12;snl.strokeStyle='#333';snl.lineWidth=1.5;snl.setLineDash([]);snl.beginPath();snl.moveTo(simPad,y);snl.lineTo(w-simPad,y);snl.stroke();const range=maxVal-minVal;const targetTicks=6;const rawStep=range/targetTicks;const step=niceStep(rawStep);snl.font="12px 'Segoe UI', Arial";snl.fillStyle='#333';snl.textAlign='center';const firstTick=Math.ceil(minVal/step)*step;for(let v=firstTick;v<=maxVal+1e-9;v+=step){const x=simPad+((v-minVal)/range)*(w-2*simPad);snl.beginPath();snl.moveTo(x,y-10);snl.lineTo(x,y+10);snl.stroke();const lbl=(Math.abs(v)<1e-9)?'0':round(v).toString();snl.fillText(lbl,x,y+24)}if(minVal<0&&maxVal>0){const x0=simPad+((0-minVal)/range)*(w-2*simPad);snl.strokeStyle='#666';snl.beginPath();snl.moveTo(x0,y-14);snl.lineTo(x0,y+14);snl.stroke();snl.fillText('0',x0,y+24)}
+  // dots per object
+  objects.forEach(o=>{const val=currentById[o.id]??0;const x=simPad+((val-minVal)/range)*(w-2*simPad);snl.beginPath();snl.arc(x,y,6,0,2*Math.PI);snl.fillStyle=o.color;snl.fill();snl.strokeStyle='#fff';snl.lineWidth=1.5;snl.stroke()})}
+
+// === Hover readout (multi) ===
+graphCanvas.addEventListener('mousemove',e=>{if(currentMaxTime<=0)return;const rect=graphCanvas.getBoundingClientRect();const mouseX=e.clientX-rect.left;const mouseY=e.clientY-rect.top;const cw=graphCanvas.clientWidth;const ch=parseFloat(getComputedStyle(graphCanvas).height)||graphCanvas.clientHeight;if(mouseX<padding||mouseX>cw-padding||mouseY<padding||mouseY>ch-padding){hoverInfo.style.display='none';drawAxes(currentMaxTime,globalMaxDist);drawGraphLinesAll();drawTimeCursor();return}const timeAtMouse=(mouseX-padding)/(cw-2*padding)*currentMaxTime;const lines=[];objects.forEach(o=>{const d=distanceAt(o.points,timeAtMouse);lines.push(`<span style="display:inline-flex;align-items:center;gap:6px"><span style="width:10px;height:10px;background:${o.color};display:inline-block;border-radius:2px;border:1px solid #fff"></span>${o.name}: ${d.toFixed(2)} m</span>`)});drawAxes(currentMaxTime,globalMaxDist);drawGraphLinesAll();drawTimeCursor();hoverInfo.style.display='block';hoverInfo.style.left=`${e.clientX+15}px`;hoverInfo.style.top=`${e.clientY-15}px`;hoverInfo.innerHTML=`<div><strong>t = ${timeAtMouse.toFixed(2)} s</strong></div>${lines.join('<br>')}`});
+
+graphCanvas.addEventListener('mouseout',()=>{hoverInfo.style.display='none';if(currentMaxTime){drawAxes(currentMaxTime,globalMaxDist);drawGraphLinesAll();drawTimeCursor()}});
+
+function distanceAt(points,t){if(!points||points.length<2)return 0;for(let i=0;i<points.length-1;i++){const p1=points[i],p2=points[i+1];if(t>=p1.time&&t<=p2.time){const slope=(p2.distance-p1.distance)/(p2.time-p1.time||1e-9);return p1.distance+slope*(t-p1.time)}}const last=points[points.length-1];return last.distance}
+
+// === Explanation helper ===
+explainBtn.addEventListener('click',()=>{const segs=objects[activeObjIndex].segments;if(!segs.length){helperOutput.value='Add at least one segment first.';return}const summary=buildExplanation(segs);helperOutput.value=summary;helperOutput.scrollTop=0});
+
+function buildExplanation(segs){let totalT=segs.reduce((s,v)=>s+v.duration,0);let totalD=segs.reduce((s,v)=>s+v.delta,0);let pathLen=segs.reduce((s,v)=>s+Math.abs(v.delta),0);let avgV=totalT>0?totalD/totalT:0;let maxSpeed=0,maxIdx=-1;segs.forEach((s,i)=>{const v=s.delta/s.duration;if(Math.abs(v)>Math.abs(maxSpeed)){maxSpeed=v;maxIdx=i}});const dirChanges=segs.slice(1).filter((s,i)=>Math.sign(s.delta)!==Math.sign(segs[i].delta)&&s.delta!==0).length;const rests=segs.filter(s=>s.delta===0).length;const bullet=t=>`• ${t}`;let lines=[];lines.push('Here\'s what your graph shows:');lines.push(bullet(`Total time for the trip: ${round(totalT)} seconds`));lines.push(bullet(`Ending position: ${round(totalD)} meters from the start`));lines.push(bullet(`Total ground covered: ${round(pathLen)} meters`));lines.push(bullet(`Average velocity (end position ÷ time): ${round(avgV)} m/s`));if(maxIdx>=0){lines.push(bullet(`Fastest part was Segment ${maxIdx+1}, at ${round(maxSpeed)} m/s`))}if(rests>0){lines.push(bullet(`You stopped ${rests} time${rests>1?'s':''}.`))}if(dirChanges>0){lines.push(bullet(`You changed direction ${dirChanges} time${dirChanges>1?'s':''}.`))}lines.push('\nStep-by-step trip:');let cum=0;segs.forEach((s,i)=>{const movement=s.delta===0?'stayed still':`moved at a steady speed`;const direction=s.delta===0?'':s.delta>0?'forward':'backward';cum+=s.delta;lines.push(bullet(`Part ${i+1}: You ${movement} for ${round(s.duration)}s, covering ${round(s.delta)}m ${direction}. Position now: ${round(cum)}m.`))});const oneLiner=graphOneLiner(segs);if(oneLiner){lines.push('\nHow to read the graph:');lines.push(bullet(oneLiner))}lines.push('\nRemember:');lines.push(bullet('A flat line means standing still.'));lines.push(bullet('A steep line means going fast.'));lines.push(bullet('A line going down means heading back to the start.'));return lines.join('\n')}
+
+function graphOneLiner(segs){if(!segs.length)return'';const phrases=[];segs.forEach(s=>{if(s.delta===0)phrases.push('a flat line');else if(s.delta>0)phrases.push('a line going up');else phrases.push('a line going down')});return'Your graph is made of '+phrases.join(', then ')+'.'}
+function round(x){return Math.round(x*100)/100}
+
+// === Init ===
+renderObjectSelect();renderLegends();renderSegmentsList();clearGraph();drawSimNumberLineMulti(0,10,{[objects[0].id]:0});
+
+// === Tests (keep existing intent; add multi-object tests) ===
+(function selfTests(){
+  console.assert(typeof drawAxes==='function','drawAxes exists');
+  console.assert(typeof drawGraphLinesAll==='function','drawGraphLinesAll exists');
+  console.assert(typeof drawTimeCursor==='function','drawTimeCursor exists');
+  // legacy-style axis bounds check using local example
+  const example=[{delta:10,duration:5},{delta:-50,duration:5}];
+  let pts=[{time:0,distance:0}],t=0,d=0;
+  example.forEach(seg=>{const v=seg.delta/seg.duration;const step=0.5;for(let k=step;k<=seg.duration;k+=step){pts.push({time:t+k,distance:d+v*k})}t+=seg.duration;d+=seg.delta;pts.push({time:t,distance:d})});
+  let mn=pts[0].distance,mx=pts[0].distance;pts.forEach(p=>{mn=Math.min(mn,p.distance);mx=Math.max(mx,p.distance)});
+  console.assert(Math.abs(mn+40)<0.6&&Math.abs(mx-10)<0.6,'axis bounds');
+  // Explanation formatting tests (escaped newlines only)
+  const ex2=[{delta:6,duration:3},{delta:-3,duration:3},{delta:0,duration:2}];
+  const expl=buildExplanation(ex2);
+  console.assert(expl.includes('Step-by-step trip:'),'explanation includes step-by-step header');
+  console.assert(expl.includes('How to read the graph:'),'explanation includes how-to-read header');
+  console.assert(expl.includes('Remember:'),'explanation includes remember header');
+  console.assert(expl.indexOf('\n')!==-1,'explanation uses escaped newlines');
+  // addSegment tests (active object)
+  const savedAlert=window.alert; window.alert=()=>{};
+  try{const before=objects[activeObjIndex].segments.length;console.assert(addSegment(2,2)===true,'addSegment accepts valid');console.assert(objects[activeObjIndex].segments.length===before+1,'segments length increments');objects[activeObjIndex].segments.pop();renderSegmentsList();console.assert(addSegment(NaN,2)===false,'reject NaN distance');console.assert(addSegment(1,0)===false,'reject zero duration')}finally{window.alert=savedAlert}
+  // Multi-object tests
+  const startLen=objects.length;objects.push(makeObject('T2','#000000'));renderObjectSelect();console.assert(objects.length===startLen+1,'object added');
+  // compute + verify totals for two simple segments
+  const o=objects[activeObjIndex];
+  o.segments=[{delta:5,duration:2},{delta:5,duration:1}];
+  computePointsForObject(o);
+  const last=o.points[o.points.length-1];
+  console.assert(Math.abs(last.distance-10)<1e-6,'last distance equals sum of deltas');
+  console.assert(Math.abs(o.totalTime-3)<1e-6,'total time equals sum of durations');
+  setActive(0); // restore
+})();
+</script>
+</body>
+</html>

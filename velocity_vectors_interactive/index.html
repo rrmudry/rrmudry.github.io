@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Velocity Vector Components Tutorial</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #1a1a2e;
+            --container-bg: #16213e;
+            --primary-color: #0f3460;
+            --secondary-color: #e94560;
+            --text-color: #dcdcdc;
+            --accent-color: #53bf9d;
+            --error-color: #e94560;
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 600px;
+            background-color: var(--container-bg);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .view {
+            display: none;
+        }
+
+        h1, h2 {
+            color: var(--accent-color);
+            margin-bottom: 1.5rem;
+        }
+
+        p {
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .formula {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: var(--primary-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            font-size: 1.1rem;
+            color: white;
+            white-space: pre-wrap;
+            line-height: 1.8;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 0.8rem;
+            background-color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            color: var(--text-color);
+            font-size: 1rem;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .button {
+            display: inline-block;
+            width: 100%;
+            padding: 1rem;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            margin-top: 1rem;
+        }
+        
+        .button.secondary {
+            background-color: #0f3460;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            padding: 0.7rem;
+            font-size: 0.9rem;
+        }
+        
+        .button.secondary:hover:not(:disabled) {
+            background-color: #1a4a8a;
+        }
+
+        .button:hover:not(:disabled) {
+            background-color: #c73b53;
+            transform: translateY(-2px);
+        }
+
+        .button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .diagram {
+            margin: 2rem 0;
+            width: 100%;
+            max-width: 300px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .problem-statement {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            text-align: left;
+        }
+        
+        .problem-statement .diagram {
+            flex-shrink: 0;
+            width: 150px;
+            margin: 0;
+        }
+
+        .problem-text {
+            flex-grow: 1;
+        }
+        
+        .answer-inputs {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .answer-inputs .input-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .feedback {
+            font-weight: bold;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin-top: 1.5rem;
+        }
+        .feedback.correct {
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+        }
+        .feedback.incorrect {
+            background-color: var(--error-color);
+            color: white;
+        }
+
+        .progress-indicator {
+            font-style: italic;
+            color: #aaa;
+            margin-bottom: 1rem;
+        }
+
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 2rem auto;
+            width: fit-content;
+        }
+
+        .results-info {
+            background: var(--primary-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+        }
+
+        .results-info p {
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Calculator Styles */
+        .calculator-tool {
+            background-color: #2c2c44;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .calculator-display {
+            width: 100%;
+            background-color: #1a1a2e;
+            color: #fff;
+            text-align: right;
+            font-size: 1.5rem;
+            padding: 0.8rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            border: 1px solid #0f3460;
+        }
+        .calculator-buttons {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.5rem;
+        }
+        .calc-btn {
+            padding: 1rem 0.5rem;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            transition: background-color 0.2s;
+        }
+        .calc-btn:hover {
+            filter: brightness(1.2);
+        }
+        /* Number buttons */
+        .calc-btn-num {
+             background-color: #3d3d5c;
+        }
+        /* Operator buttons */
+        .calc-btn-op {
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+        }
+        /* Function buttons */
+        .calc-btn-func {
+            background-color: #0f3460;
+        }
+        /* Control buttons */
+        .calc-btn-control {
+            background-color: #5a5a7a;
+        }
+        /* Equal button */
+        .calc-btn-equal {
+            grid-column: span 2;
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+    </style>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body>
+
+    <div class="app-container">
+
+        <!-- View 1: Student ID Entry -->
+        <div id="id-entry" class="view" style="display: block;">
+            <h1>Velocity Vector Tutorial</h1>
+            <p>Welcome! Please enter your 6-digit student ID to begin.</p>
+            <div class="input-group">
+                <label for="student-id-input">Student ID</label>
+                <input type="text" id="student-id-input" placeholder="e.g., 123456" maxlength="6" pattern="\d{6}">
+            </div>
+            <button id="start-tutorial-btn" class="button" disabled>Start Tutorial</button>
+        </div>
+
+        <!-- View 2: Introduction -->
+        <div id="level-intro" class="view">
+            <h2>Introduction to Velocity Components</h2>
+            <p>A velocity vector, <strong>v</strong>, can be broken down into horizontal (x) and vertical (y) components. Given a magnitude <strong>v</strong> and an angle <strong>θ</strong> (theta), we can form a right-angle triangle.</p>
+            
+            <svg class="diagram" viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="3" markerHeight="3" orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#e94560" />
+                    </marker>
+                    <marker id="arrow-comp" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="3" markerHeight="3" orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#53bf9d" />
+                    </marker>
+                </defs>
+                <!-- Triangle fill -->
+                <path d="M 10 70 L 100 70 L 100 10 Z" fill="rgba(83, 191, 157, 0.1)" stroke="none"/>
+                <!-- Hypotenuse -->
+                <line x1="10" y1="70" x2="100" y2="10" stroke="#e94560" stroke-width="2" marker-end="url(#arrow)" />
+                <!-- Adjacent side -->
+                <line x1="10" y1="70" x2="100" y2="70" stroke="#53bf9d" stroke-width="1.5" marker-end="url(#arrow-comp)" />
+                <!-- Opposite side -->
+                <line x1="100" y1="70" x2="100" y2="10" stroke="#53bf9d" stroke-width="1.5" marker-end="url(#arrow-comp)" />
+                <!-- Angle arc -->
+                <path d="M 30 70 A 20 20 0 0 0 26.64 58.92" fill="none" stroke="#dcdcdc" stroke-width="1" />
+                <!-- Labels -->
+                <text x="45" y="35" fill="#e94560" font-size="8" font-weight="bold">v</text>
+                <text x="55" y="65" fill="#53bf9d" font-size="8">v<tspan baseline-shift="sub" font-size="6">x</tspan></text>
+                <text x="106" y="35" fill="#53bf9d" font-size="8">v<tspan baseline-shift="sub" font-size="6">y</tspan></text>
+                <text x="23" y="68" fill="#dcdcdc" font-size="8">&theta;</text>
+            </svg>
+            
+            <p>Using trigonometry, we find the components with these formulas:</p>
+            <div class="formula">v<sub>x</sub> = v * cos(&theta;)<br>v<sub>y</sub> = v * sin(&theta;)</div>
+            <p><strong>Important:</strong> Remember to convert the angle from degrees to radians before using it in calculations, as most programming functions require radians.</p>
+            <button id="go-to-practice-btn" class="button">Go to Practice</button>
+        </div>
+
+        <!-- View 3: Practice -->
+        <div id="level-practice" class="view">
+            <h2>Practice Problems</h2>
+            <p>Answer at least 2 out of 3 questions correctly to proceed to the assessment.</p>
+            <div class="progress-indicator" id="practice-progress">Problem 1 of 3</div>
+            <div class="formula">v<sub>x</sub> = v ⋅ cos(&theta;)<br>v<sub>y</sub> = v ⋅ sin(&theta;)</div>
+            <div class="problem-statement" id="practice-problem-statement">
+                <div class="problem-text"></div>
+                <svg class="diagram" id="practice-diagram" viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
+                     <defs>
+                        <marker id="arrow-practice" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="3" markerHeight="3" orient="auto-start-reverse">
+                            <path d="M 0 0 L 10 5 L 0 10 z" fill="#e94560" />
+                        </marker>
+                    </defs>
+                    <path d="M 10 70 L 100 70 L 100 10 Z" fill="rgba(83, 191, 157, 0.1)" stroke="#dcdcdc" stroke-width="0.5"/>
+                    <line x1="10" y1="70" x2="100" y2="10" stroke="#e94560" stroke-width="2" marker-end="url(#arrow-practice)" />
+                    <path d="M 30 70 A 20 20 0 0 0 26.64 58.92" fill="none" stroke="#dcdcdc" stroke-width="1" />
+                    <text x="45" y="35" fill="#e94560" font-size="8" font-weight="bold" id="practice-v-label"></text>
+                    <text x="55" y="65" fill="#53bf9d" font-size="8">v<tspan baseline-shift="sub" font-size="6">x</tspan></text>
+                    <text x="106" y="35" fill="#53bf9d" font-size="8">v<tspan baseline-shift="sub" font-size="6">y</tspan></text>
+                    <text x="26" y="66" fill="#dcdcdc" font-size="7" id="practice-theta-label"></text>
+                </svg>
+            </div>
+            
+            <button id="toggle-calculator-practice" class="button secondary">Show Calculator</button>
+            <div id="calculator-practice" class="calculator-tool" style="display: none;">
+                <input type="text" class="calculator-display" readonly>
+                <div class="calculator-buttons">
+                    <!-- Row 1 -->
+                    <button class="calc-btn calc-btn-func" data-action="sin(">sin</button>
+                    <button class="calc-btn calc-btn-func" data-action="cos(">cos</button>
+                    <button class="calc-btn calc-btn-func" data-action="tan(">tan</button>
+                    <button class="calc-btn calc-btn-func" data-action="(">(</button>
+                    <button class="calc-btn calc-btn-func" data-action=")">)</button>
+                    <!-- Row 2 -->
+                    <button class="calc-btn calc-btn-num" data-action="7">7</button>
+                    <button class="calc-btn calc-btn-num" data-action="8">8</button>
+                    <button class="calc-btn calc-btn-num" data-action="9">9</button>
+                    <button class="calc-btn calc-btn-control" data-action="Del">Del</button>
+                    <button class="calc-btn calc-btn-control" data-action="C">C</button>
+                    <!-- Row 3 -->
+                    <button class="calc-btn calc-btn-num" data-action="4">4</button>
+                    <button class="calc-btn calc-btn-num" data-action="5">5</button>
+                    <button class="calc-btn calc-btn-num" data-action="6">6</button>
+                    <button class="calc-btn calc-btn-op" data-action="*">×</button>
+                    <button class="calc-btn calc-btn-op" data-action="/">÷</button>
+                    <!-- Row 4 -->
+                    <button class="calc-btn calc-btn-num" data-action="1">1</button>
+                    <button class="calc-btn calc-btn-num" data-action="2">2</button>
+                    <button class="calc-btn calc-btn-num" data-action="3">3</button>
+                    <button class="calc-btn calc-btn-op" data-action="+">+</button>
+                    <button class="calc-btn calc-btn-op" data-action="-">-</button>
+                    <!-- Row 5 -->
+                    <button class="calc-btn calc-btn-num" data-action="0">0</button>
+                    <button class="calc-btn calc-btn-num" data-action=".">.</button>
+                    <button class="calc-btn calc-btn-op" data-action="^">^</button>
+                    <button class="calc-btn calc-btn-equal" data-action="=">=</button>
+                </div>
+            </div>
+
+            <div class="answer-inputs">
+                <div class="input-group">
+                    <label for="practice-vx-input">v<sub>x</sub> (m/s)</label>
+                    <input type="number" id="practice-vx-input" placeholder="Horizontal component">
+                </div>
+                <div class="input-group">
+                    <label for="practice-vy-input">v<sub>y</sub> (m/s)</label>
+                    <input type="number" id="practice-vy-input" placeholder="Vertical component">
+                </div>
+            </div>
+            <button id="check-answer-btn" class="button">Check Answer</button>
+            <div id="practice-feedback" class="feedback" style="display: none;"></div>
+            <button id="practice-next-btn" class="button" style="display: none;">Next Problem</button>
+        </div>
+
+        <!-- View 4: Assessment -->
+        <div id="level-assessment" class="view">
+            <h2>Final Assessment</h2>
+             <button id="go-back-to-practice-btn" class="button secondary" style="width: auto; padding: 0.6rem 1.2rem; font-size: 0.9rem; margin-top: -1rem; margin-bottom: 1rem;">
+                Go Back to Practice
+            </button>
+            <p>Complete these 5 questions. Your results will be shown at the end.</p>
+            <div class="progress-indicator" id="assessment-progress">Question 1 of 5</div>
+            <div class="problem-statement" id="assessment-problem-statement">
+                <div class="problem-text"></div>
+                 <svg class="diagram" id="assessment-diagram" viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
+                     <defs>
+                        <marker id="arrow-assessment" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="3" markerHeight="3" orient="auto-start-reverse">
+                            <path d="M 0 0 L 10 5 L 0 10 z" fill="#e94560" />
+                        </marker>
+                    </defs>
+                    <path d="M 10 70 L 100 70 L 100 10 Z" fill="rgba(83, 191, 157, 0.1)" stroke="#dcdcdc" stroke-width="0.5"/>
+                    <line x1="10" y1="70" x2="100" y2="10" stroke="#e94560" stroke-width="2" marker-end="url(#arrow-assessment)" />
+                    <path d="M 30 70 A 20 20 0 0 0 26.64 58.92" fill="none" stroke="#dcdcdc" stroke-width="1" />
+                    <text x="45" y="35" fill="#e94560" font-size="8" font-weight="bold" id="assessment-v-label"></text>
+                    <text x="55" y="65" fill="#53bf9d" font-size="8">v<tspan baseline-shift="sub" font-size="6">x</tspan></text>
+                    <text x="106" y="35" fill="#53bf9d" font-size="8">v<tspan baseline-shift="sub" font-size="6">y</tspan></text>
+                    <text x="26" y="66" fill="#dcdcdc" font-size="7" id="assessment-theta-label"></text>
+                </svg>
+            </div>
+            
+            <button id="toggle-calculator-assessment" class="button secondary">Show Calculator</button>
+             <div id="calculator-assessment" class="calculator-tool" style="display: none;">
+                <input type="text" class="calculator-display" readonly>
+                <div class="calculator-buttons">
+                    <!-- Row 1 -->
+                    <button class="calc-btn calc-btn-func" data-action="sin(">sin</button>
+                    <button class="calc-btn calc-btn-func" data-action="cos(">cos</button>
+                    <button class="calc-btn calc-btn-func" data-action="tan(">tan</button>
+                    <button class="calc-btn calc-btn-func" data-action="(">(</button>
+                    <button class="calc-btn calc-btn-func" data-action=")">)</button>
+                    <!-- Row 2 -->
+                    <button class="calc-btn calc-btn-num" data-action="7">7</button>
+                    <button class="calc-btn calc-btn-num" data-action="8">8</button>
+                    <button class="calc-btn calc-btn-num" data-action="9">9</button>
+                    <button class="calc-btn calc-btn-control" data-action="Del">Del</button>
+                    <button class="calc-btn calc-btn-control" data-action="C">C</button>
+                    <!-- Row 3 -->
+                    <button class="calc-btn calc-btn-num" data-action="4">4</button>
+                    <button class="calc-btn calc-btn-num" data-action="5">5</button>
+                    <button class="calc-btn calc-btn-num" data-action="6">6</button>
+                    <button class="calc-btn calc-btn-op" data-action="*">×</button>
+                    <button class="calc-btn calc-btn-op" data-action="/">÷</button>
+                    <!-- Row 4 -->
+                    <button class="calc-btn calc-btn-num" data-action="1">1</button>
+                    <button class="calc-btn calc-btn-num" data-action="2">2</button>
+                    <button class="calc-btn calc-btn-num" data-action="3">3</button>
+                    <button class="calc-btn calc-btn-op" data-action="+">+</button>
+                    <button class="calc-btn calc-btn-op" data-action="-">-</button>
+                    <!-- Row 5 -->
+                    <button class="calc-btn calc-btn-num" data-action="0">0</button>
+                    <button class="calc-btn calc-btn-num" data-action=".">.</button>
+                    <button class="calc-btn calc-btn-op" data-action="^">^</button>
+                    <button class="calc-btn calc-btn-equal" data-action="=">=</button>
+                </div>
+            </div>
+
+            <div class="answer-inputs">
+                <div class="input-group">
+                    <label for="assessment-vx-input">v<sub>x</sub> (m/s)</label>
+                    <input type="number" id="assessment-vx-input" placeholder="Horizontal component">
+                </div>
+                <div class="input-group">
+                    <label for="assessment-vy-input">v<sub>y</sub> (m/s)</label>
+                    <input type="number" id="assessment-vy-input" placeholder="Vertical component">
+                </div>
+            </div>
+            <button id="assessment-next-btn" class="button">Next</button>
+        </div>
+
+        <!-- View 5: Results -->
+        <div id="results-screen" class="view">
+            <h2>Assessment Complete!</h2>
+            <div class="results-info">
+                <p>Student ID: <strong id="result-student-id"></strong></p>
+                <p>Your Score: <strong id="result-score"></strong></p>
+            </div>
+            <p>Success! Download your QR code image and submit the file to the Google Classroom assignment for your grade.</p>
+            <div id="qrcode"></div>
+            <button id="download-qr-btn" class="button">Download QR Code</button>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- STATE VARIABLES ---
+            let studentID = '';
+            let practiceProblems = [];
+            let currentPracticeIndex = 0;
+            let practiceScore = 0;
+            let assessmentProblems = [];
+            let currentAssessmentIndex = 0;
+            let assessmentScore = 0;
+
+            // --- DOM ELEMENTS ---
+            const views = document.querySelectorAll('.view');
+            
+            // ID Entry
+            const studentIdInput = document.getElementById('student-id-input');
+            const startTutorialBtn = document.getElementById('start-tutorial-btn');
+            
+            // Intro
+            const goToPracticeBtn = document.getElementById('go-to-practice-btn');
+
+            // Practice
+            const practiceProgress = document.getElementById('practice-progress');
+            const practiceProblemStatement = document.getElementById('practice-problem-statement').querySelector('.problem-text');
+            const practiceVLabel = document.getElementById('practice-v-label');
+            const practiceThetaLabel = document.getElementById('practice-theta-label');
+            const practiceVxInput = document.getElementById('practice-vx-input');
+            const practiceVyInput = document.getElementById('practice-vy-input');
+            const checkAnswerBtn = document.getElementById('check-answer-btn');
+            const practiceFeedback = document.getElementById('practice-feedback');
+            const practiceNextBtn = document.getElementById('practice-next-btn');
+
+            // Assessment
+            const assessmentProgress = document.getElementById('assessment-progress');
+            const assessmentProblemStatement = document.getElementById('assessment-problem-statement').querySelector('.problem-text');
+            const assessmentVLabel = document.getElementById('assessment-v-label');
+            const assessmentThetaLabel = document.getElementById('assessment-theta-label');
+            const assessmentVxInput = document.getElementById('assessment-vx-input');
+            const assessmentVyInput = document.getElementById('assessment-vy-input');
+            const assessmentNextBtn = document.getElementById('assessment-next-btn');
+            const goBackToPracticeBtn = document.getElementById('go-back-to-practice-btn');
+            
+            // Results
+            const resultStudentId = document.getElementById('result-student-id');
+            const resultScore = document.getElementById('result-score');
+            const qrCodeContainer = document.getElementById('qrcode');
+            const downloadQrBtn = document.getElementById('download-qr-btn');
+            
+            // Calculator
+            const toggleCalculatorPracticeBtn = document.getElementById('toggle-calculator-practice');
+            const calculatorPractice = document.getElementById('calculator-practice');
+            const toggleCalculatorAssessmentBtn = document.getElementById('toggle-calculator-assessment');
+            const calculatorAssessment = document.getElementById('calculator-assessment');
+
+            // --- UTILITY FUNCTIONS ---
+            const showView = (viewId) => {
+                views.forEach(view => {
+                    view.style.display = view.id === viewId ? 'block' : 'none';
+                });
+            };
+
+            const degreesToRadians = (degrees) => {
+                return degrees * (Math.PI / 180);
+            };
+
+            const generateProblem = () => {
+                const v = Math.floor(Math.random() * 91) + 10; // Integer 10 to 100
+                const theta = Math.floor(Math.random() * 71) + 10; // Integer 10 to 80
+                const thetaRad = degreesToRadians(theta);
+                const vx = parseFloat((v * Math.cos(thetaRad)).toFixed(1));
+                const vy = parseFloat((v * Math.sin(thetaRad)).toFixed(1));
+                return { v, theta, vx, vy };
+            };
+            
+            const clearInputs = (...inputs) => {
+                inputs.forEach(input => input.value = '');
+            };
+
+            // --- VIEW LOGIC ---
+
+            // 1. ID Entry Logic
+            studentIdInput.addEventListener('input', () => {
+                const isValid = /^\d{6}$/.test(studentIdInput.value);
+                startTutorialBtn.disabled = !isValid;
+            });
+
+            startTutorialBtn.addEventListener('click', () => {
+                studentID = studentIdInput.value;
+                showView('level-intro');
+            });
+
+            // 2. Intro Logic
+            goToPracticeBtn.addEventListener('click', () => {
+                startPractice();
+                showView('level-practice');
+            });
+
+            // 3. Practice Logic
+            const startPractice = () => {
+                practiceProblems = [generateProblem(), generateProblem(), generateProblem()];
+                currentPracticeIndex = 0;
+                practiceScore = 0;
+                displayPracticeProblem();
+            };
+
+            const displayPracticeProblem = () => {
+                const problem = practiceProblems[currentPracticeIndex];
+                practiceProblemStatement.innerHTML = `A vector has a magnitude of <strong>${problem.v} m/s</strong> at an angle of <strong>${problem.theta}°</strong>. Calculate its components.`;
+                practiceVLabel.textContent = `${problem.v} m/s`;
+                practiceThetaLabel.textContent = `${problem.theta}°`;
+                practiceProgress.textContent = `Problem ${currentPracticeIndex + 1} of 3`;
+                clearInputs(practiceVxInput, practiceVyInput);
+                checkAnswerBtn.style.display = 'inline-block';
+                practiceNextBtn.style.display = 'none';
+                practiceFeedback.style.display = 'none';
+                practiceVxInput.disabled = false;
+                practiceVyInput.disabled = false;
+            };
+
+            checkAnswerBtn.addEventListener('click', () => {
+                const problem = practiceProblems[currentPracticeIndex];
+                const userVx = parseFloat(practiceVxInput.value);
+                const userVy = parseFloat(practiceVyInput.value);
+                
+                const isVxCorrect = Math.abs(userVx - problem.vx) <= 0.1;
+                const isVyCorrect = Math.abs(userVy - problem.vy) <= 0.1;
+
+                practiceVxInput.disabled = true;
+                practiceVyInput.disabled = true;
+
+                if (isVxCorrect && isVyCorrect) {
+                    practiceScore++;
+                    practiceFeedback.textContent = 'Correct!';
+                    practiceFeedback.className = 'feedback correct';
+                } else {
+                    practiceFeedback.innerHTML = `Incorrect. The correct answers are:<br>v<sub>x</sub> = ${problem.vx} m/s, v<sub>y</sub> = ${problem.vy} m/s`;
+                    practiceFeedback.className = 'feedback incorrect';
+                }
+
+                practiceFeedback.style.display = 'block';
+                checkAnswerBtn.style.display = 'none';
+                
+                if (currentPracticeIndex < 2) { // Still more practice problems
+                    practiceNextBtn.textContent = 'Next Problem';
+                } else { // Last practice problem
+                    if (practiceScore >= 2) {
+                        practiceNextBtn.textContent = 'Start Assessment';
+                    } else {
+                        practiceNextBtn.textContent = 'Try Practice Again';
+                    }
+                }
+                practiceNextBtn.style.display = 'inline-block';
+            });
+
+            practiceNextBtn.addEventListener('click', () => {
+                currentPracticeIndex++;
+                if (currentPracticeIndex < 3) {
+                    displayPracticeProblem();
+                } else {
+                    if (practiceScore >= 2) {
+                        startAssessment();
+                        showView('level-assessment');
+                    } else {
+                        startPractice(); // Reset and try again
+                    }
+                }
+            });
+
+            // 4. Assessment Logic
+            const startAssessment = () => {
+                assessmentProblems = [generateProblem(), generateProblem(), generateProblem(), generateProblem(), generateProblem()];
+                currentAssessmentIndex = 0;
+                assessmentScore = 0;
+                assessmentNextBtn.textContent = 'Next';
+                displayAssessmentProblem();
+            };
+
+            const displayAssessmentProblem = () => {
+                const problem = assessmentProblems[currentAssessmentIndex];
+                assessmentProblemStatement.innerHTML = `A vector has a magnitude of <strong>${problem.v} m/s</strong> at an angle of <strong>${problem.theta}°</strong>. Calculate its components.`;
+                assessmentVLabel.textContent = `${problem.v} m/s`;
+                assessmentThetaLabel.textContent = `${problem.theta}°`;
+                assessmentProgress.textContent = `Question ${currentAssessmentIndex + 1} of 5`;
+                clearInputs(assessmentVxInput, assessmentVyInput);
+
+                if (currentAssessmentIndex === 4) {
+                    assessmentNextBtn.textContent = 'View Results';
+                }
+            };
+            
+            assessmentNextBtn.addEventListener('click', () => {
+                const problem = assessmentProblems[currentAssessmentIndex];
+                const userVx = parseFloat(assessmentVxInput.value);
+                const userVy = parseFloat(assessmentVyInput.value);
+
+                const isVxCorrect = Math.abs(userVx - problem.vx) <= 0.1;
+                const isVyCorrect = Math.abs(userVy - problem.vy) <= 0.1;
+
+                if (isVxCorrect && isVyCorrect) {
+                    assessmentScore++;
+                }
+
+                currentAssessmentIndex++;
+
+                if (currentAssessmentIndex < 5) {
+                    displayAssessmentProblem();
+                } else {
+                    showResults();
+                    showView('results-screen');
+                }
+            });
+            
+            goBackToPracticeBtn.addEventListener('click', () => {
+                startPractice();
+                showView('level-practice');
+            });
+
+            // 5. Results Logic
+            const showResults = () => {
+                resultStudentId.textContent = studentID;
+                resultScore.textContent = `${assessmentScore} / 5`;
+                generateQRCode();
+            };
+
+            const generateQRCode = () => {
+                qrCodeContainer.innerHTML = ''; // Clear previous QR code
+                const qrData = `student_id:${studentID}, score:${assessmentScore}/5`;
+                new QRCode(qrCodeContainer, {
+                    text: qrData,
+                    width: 200,
+                    height: 200,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            };
+
+            downloadQrBtn.addEventListener('click', () => {
+                const canvas = qrCodeContainer.querySelector('canvas');
+                if (canvas) {
+                    const link = document.createElement('a');
+                    link.download = `physics_assessment_${studentID}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                } else {
+                    alert('QR Code could not be downloaded. Please try again.');
+                }
+            });
+
+            // 6. Calculator Logic
+            
+            // Custom trig functions that operate in degrees
+            const sin_deg = (d) => Math.sin(d * (Math.PI / 180));
+            const cos_deg = (d) => Math.cos(d * (Math.PI / 180));
+            const tan_deg = (d) => Math.tan(d * (Math.PI / 180));
+
+            const handleCalculator = (calculatorContainer) => {
+                const display = calculatorContainer.querySelector('.calculator-display');
+                const buttons = calculatorContainer.querySelector('.calculator-buttons');
+                
+                buttons.addEventListener('click', (e) => {
+                    if (!e.target.matches('button')) return;
+                    
+                    const btn = e.target;
+                    const action = btn.dataset.action;
+                    
+                    if (action === '=') {
+                        try {
+                            // Security note: eval() is used for simplicity in this sandboxed educational tool.
+                            // It should be avoided in production applications with user-provided input.
+                            let expression = display.value
+                                .replace(/sin\(/g, 'sin_deg(')
+                                .replace(/cos\(/g, 'cos_deg(')
+                                .replace(/tan\(/g, 'tan_deg(')
+                                .replace(/\^/g, '**');
+
+                            let result = eval(expression);
+                            display.value = parseFloat(result.toFixed(4));
+                        } catch {
+                            display.value = 'Error';
+                        }
+                    } else if (action === 'C') {
+                        display.value = '';
+                    } else if (action === 'Del') {
+                         display.value = display.value.slice(0, -1);
+                    } else {
+                        display.value += action;
+                    }
+                });
+            };
+            
+            handleCalculator(calculatorPractice);
+            handleCalculator(calculatorAssessment);
+
+            toggleCalculatorPracticeBtn.addEventListener('click', () => {
+                const isVisible = calculatorPractice.style.display === 'block';
+                 if (!isVisible) {
+                    alert("For best results and to prepare for exams, we recommend using your physical calculator. This in-app tool is provided for convenience.");
+                }
+                calculatorPractice.style.display = isVisible ? 'none' : 'block';
+                toggleCalculatorPracticeBtn.textContent = isVisible ? 'Show Calculator' : 'Hide Calculator';
+            });
+            
+            toggleCalculatorAssessmentBtn.addEventListener('click', () => {
+                const isVisible = calculatorAssessment.style.display === 'block';
+                if (!isVisible) {
+                    alert("For best results and to prepare for exams, we recommend using your physical calculator. This in-app tool is provided for convenience.");
+                }
+                calculatorAssessment.style.display = isVisible ? 'none' : 'block';
+                toggleCalculatorAssessmentBtn.textContent = isVisible ? 'Show Calculator' : 'Hide Calculator';
+            });
+
+            // --- INITIALIZATION ---
+            showView('id-entry');
+        });
+    </script>
+
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>

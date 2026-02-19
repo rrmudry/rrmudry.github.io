@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en" class="dark-theme">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 5 Dashboard: Thermodynamics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Using same favicon for now, or could change if user provides one -->
+    <link rel="icon" type="image/svg+xml" href="assets/unit5-favicon.svg">
+    <link rel="stylesheet" href="assets/theme.css" />
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        :root {
+            /* Thermo Theme: Hotter colors (Red/Orange/Yellow) */
+            --accent-heat: #ff4500;
+            --accent-warm: #ff8c00;
+            --font-tech: 'Inter', sans-serif;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0505;
+            /* Very dark red/black background */
+            color: #fffaf0;
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: rgba(40, 13, 13, 0.6);
+            /* Reddish tint */
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 100, 100, 0.16);
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-heat);
+        }
+
+        .nav-btn {
+            position: relative;
+            padding: 1rem 1.5rem;
+            color: #ffdcd5;
+            transition: color 0.3s ease;
+        }
+
+        .nav-btn.active {
+            color: var(--accent-warm);
+            font-weight: 700;
+        }
+
+        .nav-btn.active::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--accent-warm);
+            box-shadow: 0 0 10px var(--accent-warm);
+        }
+
+        .chart-bg {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .gemini-loader {
+            display: inline-block;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-top: 2px solid var(--accent-warm);
+            border-radius: 50%;
+            width: 14px;
+            height: 14px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Modal Scrollbar */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255, 100, 100, 0.2);
+            border-radius: 10px;
+        }
+
+        .content-section {
+            scroll-margin-top: 100px;
+            padding-bottom: 4rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .content-section:last-child {
+            border-bottom: none;
+        }
+
+        /* Piston Animation */
+        @keyframes piston-move {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(20px);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-black">
+    <div data-include="header"></div>
+
+    <div id="app-container" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <header class="text-center mb-12">
+            <h1
+                class="text-4xl md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-red-500 via-orange-500 to-yellow-400">
+                Interactive Unit Plan</h1>
+            <p class="text-xl text-red-200 mt-2 font-medium">Unit 5: Thermodynamics</p>
+            <div class="w-32 h-1 bg-red-600 mx-auto mt-4 rounded-full shadow-[0_0_20px_rgba(220,38,38,0.6)]"></div>
+        </header>
+
+        <nav
+            class="flex justify-center border-b border-orange-900/30 mb-10 sticky top-[73px] bg-black/80 backdrop-blur-md z-40">
+            <button data-target="at-a-glance" class="nav-btn active">At a Glance</button>
+            <button data-target="pacing-guide" class="nav-btn">Pacing Guide</button>
+            <button data-target="resources" class="nav-btn">Resources</button>
+        </nav>
+
+        <main id="main-content">
+            <!-- At a Glance Section -->
+            <section id="at-a-glance" class="content-section space-y-8">
+                <div class="glass-card p-8">
+                    <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
+                        <h2 class="text-2xl font-bold text-red-100">Unit Overview</h2>
+                        <button id="suggest-project-btn"
+                            class="bg-gradient-to-r from-red-600 to-orange-600 text-white font-bold px-5 py-2.5 rounded-full hover:shadow-[0_0_20px_rgba(220,38,38,0.5)] transition-all flex items-center gap-2">
+                            🔥 Suggest Project
+                        </button>
+                    </div>
+                    <p class="text-red-100/80 leading-relaxed text-lg">
+                        In this unit, we explore the powerful relationship between heat, energy, and work. Starting from
+                        the microscopic motion of particles (**kinetic theory**), we scale up to the laws that govern
+                        the entire universe. We'll investigate how energy flows, why it spreads out (**entropy**), and
+                        how we harness it to power the modern world through **heat engines**. From melting ice to car
+                        engines, thermodynamics explains the rules of energy transfer.
+                    </p>
+                    <div id="project-idea-container" class="mt-6 hidden"></div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="glass-card p-8">
+                        <h2 class="text-2xl font-bold mb-4 text-orange-400">Essential Questions</h2>
+                        <ul class="space-y-3 text-red-100/70">
+                            <li class="flex items-start gap-3"><span class="text-red-500 mt-1">▹</span> What is the
+                                difference between "hot" and "heat"?</li>
+                            <li class="flex items-start gap-3"><span class="text-red-500 mt-1">▹</span> Why does heat
+                                always flow from hot to cold?</li>
+                            <li class="flex items-start gap-3"><span class="text-red-500 mt-1">▹</span> Can we ever
+                                build a 100% efficient machine?</li>
+                            <li class="flex items-start gap-3"><span class="text-red-500 mt-1">▹</span> How does the
+                                motion of invisible particles create the pressure we feel?</li>
+                        </ul>
+                    </div>
+                    <div class="glass-card p-8">
+                        <h2 class="text-2xl font-bold mb-4 text-orange-400">Key Concepts</h2>
+                        <div class="flex flex-wrap gap-2">
+                            <span
+                                class="px-3 py-1 bg-red-900/30 border border-red-500/30 rounded-full text-sm">Temperature
+                                vs. Heat</span>
+                            <span class="px-3 py-1 bg-red-900/30 border border-red-500/30 rounded-full text-sm">Specific
+                                Heat (q=mcΔT)</span>
+                            <span class="px-3 py-1 bg-red-900/30 border border-red-500/30 rounded-full text-sm">Latent
+                                Heat</span>
+                            <span class="px-3 py-1 bg-red-900/30 border border-red-500/30 rounded-full text-sm">1st Law
+                                of Thermodynamics</span>
+                            <span class="px-3 py-1 bg-red-900/30 border border-red-500/30 rounded-full text-sm">Entropy
+                                (2nd Law)</span>
+                            <span class="px-3 py-1 bg-red-900/30 border border-red-500/30 rounded-full text-sm">PV
+                                Diagrams</span>
+                            <span class="px-3 py-1 bg-red-900/30 border border-red-500/30 rounded-full text-sm">Heat
+                                Engines</span>
+                            <span class="px-3 py-1 bg-red-900/30 border border-red-500/30 rounded-full text-sm">Ideal
+                                Gas Law</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-8">
+                    <h2 class="text-2xl font-bold mb-6 text-red-100">Learning Objectives</h2>
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div
+                            class="bg-red-950/30 p-4 rounded-xl border border-red-500/20 hover:border-orange-500/40 transition-colors">
+                            <div class="text-orange-400 font-bold mb-1">DOK 1</div>
+                            <p class="text-sm text-red-100/60">Define systems, surroundings, and state the Laws of
+                                Thermodynamics.</p>
+                        </div>
+                        <div
+                            class="bg-red-950/30 p-4 rounded-xl border border-red-500/20 hover:border-orange-500/40 transition-colors">
+                            <div class="text-orange-400 font-bold mb-1">DOK 2</div>
+                            <p class="text-sm text-red-100/60">Calculate heat transfer (Q), work (W), and efficiency
+                                using standard formulas.</p>
+                        </div>
+                        <div
+                            class="bg-red-950/30 p-4 rounded-xl border border-red-500/20 hover:border-orange-500/40 transition-colors">
+                            <div class="text-orange-400 font-bold mb-1">DOK 3</div>
+                            <p class="text-sm text-red-100/60">Analyze PV diagrams to determine the work done in cyclic
+                                processes and predict engine efficiency.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pacing Guide Section -->
+            <section id="pacing-guide" class="content-section">
+                <div class="text-center mb-10">
+                    <h2 class="text-3xl font-bold text-red-100">Cognitive Progression Chart</h2>
+                    <p class="text-red-300/70 mt-2">DOK levels by lesson day. Heating up the complexity!</p>
+                </div>
+                <div class="chart-bg h-80 mb-12 border border-red-900/30">
+                    <canvas id="dokChart"></canvas>
+                </div>
+                <div id="pacing-cards-container"
+                    class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                    <!-- Filled by JS -->
+                </div>
+            </section>
+
+            <!-- Resources Section -->
+            <section id="resources" class="content-section">
+                <div class="grid md:grid-cols-2 gap-10">
+                    <div>
+                        <h2 class="text-2xl font-bold mb-6 flex items-center gap-3 text-red-100">
+                            <span
+                                class="w-8 h-8 bg-purple-500/20 text-purple-400 rounded-lg flex items-center justify-center text-sm">🧪</span>
+                            Labs & Activities
+                        </h2>
+                        <ul id="labs-list" class="space-y-4"></ul>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold mb-6 flex items-center gap-3 text-red-100">
+                            <span
+                                class="w-8 h-8 bg-blue-500/20 text-blue-400 rounded-lg flex items-center justify-center text-sm">📝</span>
+                            Assessments
+                        </h2>
+                        <ul id="assessments-list" class="space-y-4"></ul>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Footer Partial -->
+    <div data-include="footer"></div>
+
+    <!-- Modal -->
+    <div id="modal" class="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 hidden z-50">
+        <div
+            class="glass-card w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-300 border-red-500/30">
+            <div class="p-8">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <h3 id="modal-title"
+                            class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-400 to-yellow-200">
+                        </h3>
+                        <p id="modal-subtitle" class="text-orange-300 font-medium mt-1"></p>
+                    </div>
+                    <button id="close-modal"
+                        class="text-white/40 hover:text-white transition-colors text-3xl">&times;</button>
+                </div>
+                <div id="modal-content" class="text-red-100/80 space-y-4 custom-scroll overflow-y-auto max-h-[60vh]">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/partials.js"></script>
+    <script>
+        const lessonScript = document.createElement('script');
+        lessonScript.src = 'assets/lessons-data.js?v=' + Date.now();
+        document.head.appendChild(lessonScript);
+
+        // Wait for lessons-data.js to load before running logic
+        window.addEventListener('load', () => {
+            // Check if lessonsData is loaded
+            if (typeof lessonsData === 'undefined') {
+                const checkInterval = setInterval(() => {
+                    if (typeof lessonsData !== 'undefined') {
+                        clearInterval(checkInterval);
+                        initDashboard();
+                    }
+                }, 50);
+            } else {
+                initDashboard();
+            }
+        });
+
+        function initDashboard() {
+            // Adapter: Filter for Unit 5
+            const unitData = (typeof lessonsData !== 'undefined' ? lessonsData : [])
+                .filter(lesson => lesson.unit === 5)
+                .sort((a, b) => new Date(a.date) - new Date(b.date))
+                .map(lesson => ({
+                    ...lesson,
+                    topic: lesson.title,
+                    activity: lesson.summary,
+                    wicor: lesson.wicor
+                }));
+
+
+            // Automated status calculation (same as Unit 4)
+            function getLessonStatus(dateStr) {
+                if (!dateStr) return 'planned';
+                const now = new Date();
+                const lessonDate = new Date(dateStr + 'T00:00:00');
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+                if (lessonDate < today) {
+                    return 'completed';
+                } else if (lessonDate.getTime() === today.getTime()) {
+                    const currentHour = now.getHours();
+                    const currentMinute = now.getMinutes();
+                    if (currentHour > 15 || (currentHour === 15 && currentMinute >= 30)) {
+                        return 'completed';
+                    } else {
+                        return 'in-progress';
+                    }
+                } else {
+                    return 'planned';
+                }
+            }
+
+            const navButtons = document.querySelectorAll('.nav-btn');
+            const contentSections = document.querySelectorAll('.content-section');
+            const pacingCards = document.getElementById('pacing-cards-container');
+            const modal = document.getElementById('modal');
+            const closeModal = document.getElementById('close-modal');
+            const labsList = document.getElementById('labs-list');
+            const assessmentsList = document.getElementById('assessments-list');
+
+            // Scroll Navigation
+            navButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const targetId = btn.dataset.target;
+                    const targetEl = document.getElementById(targetId);
+                    if (targetEl) {
+                        targetEl.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            });
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.getAttribute('id');
+                        navButtons.forEach(btn => {
+                            btn.classList.toggle('active', btn.dataset.target === id);
+                        });
+                    }
+                });
+            }, { rootMargin: '-150px 0px -50% 0px' });
+
+            contentSections.forEach(section => observer.observe(section));
+
+            if (unitData.length === 0) {
+                pacingCards.innerHTML = '<div class="col-span-full text-center text-gray-500 italic py-10">Unit 5 lessons coming soon!</div>';
+            }
+
+            // Initialize App Data
+            unitData.forEach(day => {
+                const status = getLessonStatus(day.date);
+
+                const statusStyles = {
+                    'completed': 'border-green-500/50 hover:border-green-400',
+                    'in-progress': 'border-yellow-500/50 hover:border-yellow-400 shadow-[0_0_15px_rgba(234,179,8,0.2)]',
+                    'planned': 'hover:border-red-500/50'
+                };
+                const statusLabel = {
+                    'completed': '<span class="text-green-400 text-[10px] font-bold">✓ DONE</span>',
+                    'in-progress': '<span class="text-yellow-400 text-[10px] font-bold animate-pulse">● IN PROGRESS</span>',
+                    'planned': '<span class="text-red-300/40 text-[10px] font-bold">SCHEDULED</span>'
+                };
+
+                const card = document.createElement('div');
+                card.className = `glass-card p-5 cursor-pointer transition-all ${statusStyles[status]}`;
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <span class="text-orange-500 font-bold block">Day ${day.day}</span>
+                            <span class="text-[10px] text-red-300/60 uppercase tracking-wider">${day.date || ''}</span>
+                        </div>
+                        <div class="flex flex-col items-end gap-1">
+                            <span class="text-[10px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full border border-red-500/30">DOK ${day.dok || 1}</span>
+                            ${statusLabel[status]}
+                        </div>
+                    </div>
+                    <p class="text-sm font-semibold text-white/90 leading-tight">${day.topic}</p>
+                `;
+
+                card.onclick = () => openLessonModal(day);
+                pacingCards.appendChild(card);
+
+                const li = document.createElement('li');
+                li.className = 'glass-card p-4 hover:bg-white/5 transition-colors border-l-4 border-l-transparent hover:border-l-orange-500';
+                li.innerHTML = `<span class="text-orange-500 font-bold mr-2">D${day.day}</span> ${day.topic}`;
+                if (day.type === 'Assessment') assessmentsList.appendChild(li);
+                else labsList.appendChild(li);
+            });
+
+            closeModal.onclick = () => modal.classList.add('hidden');
+
+            function openLessonModal(day) {
+                const modalTitle = document.getElementById('modal-title');
+                const modalSubtitle = document.getElementById('modal-subtitle');
+                const modalContent = document.getElementById('modal-content');
+
+                modalTitle.textContent = `Day ${day.day}: ${day.topic}`;
+                modalSubtitle.textContent = `${day.date ? day.date + ' • ' : ''}DOK Level ${day.dok}`;
+
+                let embedHtml = '';
+                let linksHtml = '';
+                let wicorHtml = '';
+
+                // Handle WICOR Data
+                if (day.wicor) {
+                    wicorHtml = `
+                        <div class="bg-gradient-to-br from-orange-500/10 to-red-600/10 p-5 rounded-xl border border-orange-500/20 mb-4 shadow-inner">
+                            <h4 class="text-orange-400 font-bold mb-3 text-xs uppercase tracking-widest flex items-center gap-2">
+                                <span class="w-2 h-2 bg-orange-500 rounded-full"></span>
+                                WICOR / AVID Strategies
+                            </h4>
+                            <div class="grid grid-cols-1 gap-3">
+                                ${Object.entries(day.wicor).map(([key, value]) => `
+                                    <div class="flex items-start gap-3">
+                                        <span class="text-xs font-bold text-orange-300 uppercase w-24 pt-0.5">${key}:</span>
+                                        <p class="text-sm text-red-100/70">${value}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // Check for Google Docs links and create iframe preview
+                if (day.links) {
+                    Object.entries(day.links).forEach(([label, url]) => {
+                        // Check if it's a Google Doc or Presentation
+                        if (url.includes('docs.google.com/document') || url.includes('docs.google.com/presentation')) {
+                            const isDoc = url.includes('docs.google.com/document');
+                            const icon = isDoc ? '📄' : '📽️';
+                            // Convert edit link to embed link
+                            const embedUrl = url.replace('/edit', '/preview');
+                            embedHtml += `
+                                <div class="bg-white/5 rounded-xl border border-white/10 overflow-hidden mb-4">
+                                    <div class="bg-orange-500/10 px-4 py-2 border-b border-white/10">
+                                        <h4 class="text-orange-400 font-bold text-xs uppercase tracking-widest">${icon} ${label}</h4>
+                                    </div>
+                                    <iframe src="${embedUrl}" class="w-full h-96 bg-white" frameborder="0"></iframe>
+                                </div>
+                            `;
+                        }
+
+                        // Add link button for all links
+                        linksHtml += `
+                            <a href="${url}" target="_blank" class="text-xs bg-white/5 hover:bg-white/10 px-4 py-2 rounded-lg transition-colors border border-white/10 inline-block capitalize">
+                                Open ${label} ↗
+                            </a>
+                        `;
+                    });
+                }
+
+                // Interactive Element (Ideal Gas Simulator) for Day 12 (approx start of Ideal Gas Phase)
+                if (day.title.includes("Ideal Gas") || day.title.includes("Boyle") || day.title.includes("Charle")) {
+                    embedHtml += `
+                        <div class="bg-red-950/40 p-6 rounded-xl border border-red-500/30 mb-6 shadow-lg">
+                            <h4 class="text-orange-400 font-bold text-xs uppercase tracking-widest mb-4 flex items-center gap-2">
+                                <span class="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></span>
+                                Interactive: Ideal Gas Law (PV = T)
+                            </h4>
+                            <div class="grid grid-cols-2 gap-8 items-center">
+                                <div class="space-y-6">
+                                    <div>
+                                        <label class="text-[10px] text-red-300 block mb-1">Temperature (T): <span id="temp-val" class="text-white font-bold ml-1">300</span> K</label>
+                                        <input type="range" id="temp-slider" min="100" max="600" value="300" class="w-full accent-orange-500 h-1.5 bg-red-900/50 rounded-lg appearance-none cursor-pointer">
+                                        <div class="text-[9px] text-red-400/50 mt-1">Particles move faster -> Hit walls harder</div>
+                                    </div>
+                                    <div>
+                                        <label class="text-[10px] text-red-300 block mb-1">Volume (V): <span id="vol-val" class="text-white font-bold ml-1">5.0</span> L</label>
+                                        <input type="range" id="vol-slider" min="1" max="10" value="5" step="0.1" class="w-full accent-blue-500 h-1.5 bg-red-900/50 rounded-lg appearance-none cursor-pointer">
+                                        <div class="text-[9px] text-red-400/50 mt-1">Smaller box -> More collisions</div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col items-center justify-center p-6 bg-black/40 rounded-lg border border-white/5 relative h-32">
+                                    <div class="text-[10px] text-orange-400 uppercase font-bold absolute top-2 left-2">Pressure Modeled</div>
+                                    <div id="pressure-display" class="text-4xl font-black text-white transform transition-transform duration-200">1.00</div>
+                                    <div class="text-xs text-red-300/50">atm</div>
+                                    
+                                    <!-- Visual Piston Representation -->
+                                    <div class="absolute bottom-0 right-0 w-8 bg-red-500/20 h-full border-l border-white/10">
+                                         <div id="piston-head" class="w-full bg-red-500/60 absolute top-0 h-1 transition-all duration-300"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    // Init logic needs call after render
+                    setTimeout(() => initGasSim(), 100);
+                }
+
+                modalContent.innerHTML = `
+                    <div class="space-y-4">
+                        ${wicorHtml}
+                        ${embedHtml}
+                        <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+                            <h4 class="text-orange-400 font-bold mb-2 text-xs uppercase tracking-widest">Activity Insight</h4>
+                            <p class="text-lg leading-relaxed text-red-50/90">${day.activity}</p>
+                        </div>
+                        <div class="pt-6 border-t border-white/10 flex flex-wrap gap-3">
+                            <button onclick="generateAnalogy('${day.topic}')" class="text-xs bg-gradient-to-r from-orange-500/20 to-red-600/20 text-orange-400 px-4 py-2 rounded-lg hover:from-orange-500/30 hover:to-red-600/30 transition-colors border border-orange-500/30 shadow-lg shadow-orange-500/10">✨ Generate Analogy</button>
+                            ${linksHtml}
+                        </div>
+                    </div>
+                `;
+                modal.classList.remove('hidden');
+            }
+
+
+            // Chart initialization
+            const pacingCtx = document.getElementById('dokChart').getContext('2d');
+            new Chart(pacingCtx, {
+                type: 'line', // Switched to line for "ramp up" visual
+                data: {
+                    labels: unitData.map(d => `Day ${d.day}`),
+                    datasets: [{
+                        label: 'Cognitive Demand (DOK)',
+                        data: unitData.map(d => d.dok),
+                        backgroundColor: 'rgba(255, 69, 0, 0.2)',
+                        borderColor: '#ff4500',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#000'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, max: 4, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                        x: { grid: { display: false }, ticks: { color: '#94a3b8', maxTicksLimit: 10 } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // Project Suggestion Engine (Thermo Edition)
+            const projectIdeas = [
+                { title: "Solar Oven Challenge", description: "Design a box that captures solar radiation to melt a marshmallow, utilizing insulation and reflection.", icon: "☀️" },
+                { title: "Sterling Engine Build", description: "Build a simple heat engine using a soda can and balloon to demonstrate thermodynamic cycles.", icon: "⚙️" },
+                { title: "The Perfect Thermos", description: "Engineer a container that minimizes conduction, convection, and radiation to keep water hot for 24 hours.", icon: "☕" },
+                { title: "Entropy Art", description: "Create a visual representation of the Second Law, demonstrating the transition from order to disorder.", icon: "🎨" }
+            ];
+
+            let projectIndex = 0;
+            document.getElementById('suggest-project-btn').onclick = () => {
+                const container = document.getElementById('project-idea-container');
+                const project = projectIdeas[projectIndex];
+
+                container.innerHTML = `
+                <div class="bg-white/5 p-6 rounded-2xl border border-orange-500/30 animate-in zoom-in duration-300">
+                    <div class="flex items-center gap-4 mb-3">
+                        <span class="text-3xl">${project.icon}</span>
+                        <h3 class="text-xl font-bold text-orange-400">${project.title}</h3>
+                    </div>
+                    <p class="text-red-100/70 text-sm leading-relaxed">${project.description}</p>
+                </div>
+            `;
+                container.classList.remove('hidden');
+                projectIndex = (projectIndex + 1) % projectIdeas.length;
+            };
+        }
+
+        // Thermodynamics Analogy Engine
+        function generateAnalogy(topic) {
+            const analogies = {
+                'Temperature': "Temperature is like the 'jiggliness' of a dance floor; the faster people dance (particles move), the hotter the club is.",
+                'Specific Heat': "Specific heat is like a sponge's ability to hold water. A dry sponge (low specific heat) gets wet instantly, but a huge towel (high specific heat) takes forever to soak through.",
+                'Equilibrium': "Thermal equilibrium is like mixing hot chocolate and cold milk; eventually, everything becomes one lukewarm temperature and stays there.",
+                'Entropy': "Entropy is like your bedroom; it naturally gets messy over time unless you put in work to clean it up. Disorder is the natural state.",
+                'Engine': "A heat engine is like a water wheel; it needs a flow from high to low (hot to cold) to turn the wheel (do work). If the pool is flat, nothing moves.",
+                'Ideal Gas': "Gas particles are like hyperactive puppies in a box; shrinking the box makes them bump into the walls more often (pressure increases)."
+            };
+
+            const key = Object.keys(analogies).find(k => topic.includes(k)) || 'Entropy';
+            const analogy = analogies[key];
+
+            const btn = event.target;
+            const originalText = btn.innerText;
+            btn.innerHTML = `<span class="gemini-loader mr-2"></span> Thinking...`;
+            btn.disabled = true;
+
+            setTimeout(() => {
+                const container = document.createElement('div');
+                container.className = 'mt-4 p-4 bg-orange-500/10 border border-orange-500/20 rounded-xl animate-in slide-in-from-top-4 duration-500';
+                container.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <span class="text-orange-400 text-xl">💡</span>
+                        <div>
+                            <h4 class="text-orange-400 font-bold text-xs uppercase tracking-widest mb-1">AI Analogy</h4>
+                            <p class="text-red-100/90 italic">"${analogy}"</p>
+                        </div>
+                    </div>
+                `;
+                btn.parentElement.after(container);
+                btn.innerText = originalText;
+                btn.disabled = false;
+                btn.onclick = null;
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+            }, 800);
+        }
+
+        // Ideal Gas Simulator Logic
+        function initGasSim() {
+            const tempSlider = document.getElementById('temp-slider');
+            const volSlider = document.getElementById('vol-slider');
+            const tempVal = document.getElementById('temp-val');
+            const volVal = document.getElementById('vol-val');
+            const pDisplay = document.getElementById('pressure-display');
+            const piston = document.getElementById('piston-head');
+
+            if (!tempSlider) return;
+
+            function update() {
+                const T = parseInt(tempSlider.value);
+                const V = parseFloat(volSlider.value);
+
+                // PV ~ T => P = k * T / V. Let k = 0.05 for scaling
+                const P = (0.05 * T) / V;
+
+                tempVal.innerText = T;
+                volVal.innerText = V.toFixed(1);
+                pDisplay.innerText = P.toFixed(2);
+
+                // Visual feedback
+                // Piston height relative to volume? V=1 (small box) -> Piston high? 
+                // Let's visualize Volume as the height of the container available
+                // Actually, piston position represents Volume. High Volume = Piston at top (or bottom if container expands)
+                // Let's map Volume 1-10 to 10%-100% height from top
+                const heightPct = (V / 10) * 100;
+                piston.style.top = `${heightPct}%`;
+
+                // Color shift for pressure
+                const pColor = P > 2.0 ? '#ef4444' : (P > 1.0 ? '#f97316' : '#fff');
+                pDisplay.style.color = pColor;
+            }
+
+            tempSlider.addEventListener('input', update);
+            volSlider.addEventListener('input', update);
+            update();
+        }
+    </script>
+</body>
+
+</html>
