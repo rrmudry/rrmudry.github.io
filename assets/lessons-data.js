@@ -186,10 +186,15 @@ const lessonsData = [
     semester: 2,
     isFeatured: true,
     wicor: {
-      collaboration: "Structured table groups with assigned roles (Lead Scientist, Data Recorder, Timekeeper).",
-      inquiry: "Essential Question Hook and Prediction in notebooks.",
       writing: "CER Statement: Claim (Metal is better conductor), Evidence (Melt times), Reasoning (Momentum transfer).",
-      organization: "Binder/Notebook check for Wednesday's annotated reading."
+      inquiry: "Discrepant Event: Predicting vs. Observing ice melt rates on different materials.",
+      collaboration: "Structured table groups with assigned roles (Lead Scientist, Data Recorder, Timekeeper).",
+      organization: "Double Bubble Thinking Map comparing heat sink and wood block.",
+      reading: "Lab instructions and background on thermal conductivity."
+    },
+    links: {
+      'Lab Worksheet': 'https://docs.google.com/document/d/10UjF46bf5btNcFKzQqmEh9uEDaFugH-_k53kA50hL6c/edit?usp=sharing',
+      'Class Presentation': 'https://docs.google.com/presentation/d/1P0ULnY6GGiIC9oxKiCnBeBTUQQMCPUCEZuYK_T3Tp-E/edit?usp=sharing'
     }
   },
   {
