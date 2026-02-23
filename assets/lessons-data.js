@@ -15,8 +15,8 @@
 const lessonsData = [
   // --- Unit 5: Thermodynamics ---
   {
-    date: "2026-03-11",
-    day: 23,
+    date: "2026-03-16",
+    day: 26,
     unit: 5,
     title: "Efficiency & Unit Review",
     summary: "Calculating engine efficiency and reviewing all thermodynamic concepts.",
@@ -27,8 +27,8 @@ const lessonsData = [
     isFeatured: true
   },
   {
-    date: "2026-03-10",
-    day: 22,
+    date: "2026-03-13",
+    day: 25,
     unit: 5,
     title: "Heat Engines: Turning Heat into Work",
     summary: "Analyzing how engines use heat flow to perform mechanical work.",
@@ -39,8 +39,8 @@ const lessonsData = [
     isFeatured: true
   },
   {
-    date: "2026-03-09",
-    day: 21,
+    date: "2026-03-12",
+    day: 24,
     unit: 5,
     title: "PV Diagrams: Visualizing Work",
     summary: "Interpreting Pressure-Volume graphs to calculate work done.",
@@ -51,8 +51,8 @@ const lessonsData = [
     isFeatured: true
   },
   {
-    date: "2026-03-06",
-    day: 20,
+    date: "2026-03-11",
+    day: 23,
     unit: 5,
     title: "Lab: Ideal Gas Law",
     summary: "Experimental verification of the relationship between P, V, and T.",
@@ -63,8 +63,8 @@ const lessonsData = [
     isFeatured: true
   },
   {
-    date: "2026-03-05",
-    day: 19,
+    date: "2026-03-10",
+    day: 22,
     unit: 5,
     title: "Adiabatic Processes",
     summary: "Rapid expansion and compression where no heat is exchanged.",
@@ -75,8 +75,8 @@ const lessonsData = [
     isFeatured: true
   },
   {
-    date: "2026-03-04",
-    day: 18,
+    date: "2026-03-09",
+    day: 21,
     unit: 5,
     title: "Isobaric & Isochoric Processes",
     summary: "Constant pressure vs. constant volume processes.",
@@ -87,8 +87,8 @@ const lessonsData = [
     isFeatured: true
   },
   {
-    date: "2026-03-03",
-    day: 17,
+    date: "2026-03-06",
+    day: 20,
     unit: 5,
     title: "Intro to Ideal Gases & Isothermal Processes",
     summary: "The Ideal Gas Law (PV=nRT) and constant temperature changes.",
@@ -99,8 +99,8 @@ const lessonsData = [
     isFeatured: true
   },
   {
-    date: "2026-03-02",
-    day: 16,
+    date: "2026-03-05",
+    day: 19,
     unit: 5,
     title: "Entropy in the Real World",
     summary: "From melting ice to time's arrow: Entropy is everywhere.",
@@ -111,8 +111,8 @@ const lessonsData = [
     isFeatured: true
   },
   {
-    date: "2026-02-27",
-    day: 15,
+    date: "2026-03-04",
+    day: 18,
     unit: 5,
     title: "The Second Law: Entropy",
     summary: "The universe tends toward disorder. Why efficiency is never 100%.",
@@ -123,8 +123,8 @@ const lessonsData = [
     isFeatured: true
   },
   {
-    date: "2026-02-26",
-    day: 14,
+    date: "2026-03-03",
+    day: 17,
     unit: 5,
     title: "Systems & Energy Conservation",
     summary: "Applying the First Law (ΔU = Q + W) to closed systems.",
@@ -135,8 +135,8 @@ const lessonsData = [
     isFeatured: true
   },
   {
-    date: "2026-02-25",
-    day: 13,
+    date: "2026-03-02",
+    day: 16,
     unit: 5,
     title: "The Zeroth & First Laws",
     summary: "Defining temperature and the conservation of energy.",
@@ -147,20 +147,8 @@ const lessonsData = [
     isFeatured: true
   },
   {
-    date: "2026-02-24",
-    day: 12,
-    unit: 5,
-    title: "Thermal Expansion",
-    summary: "Why bridges have gaps: Solids and liquids expanding with heat.",
-    details: "Investigating linear and volumetric expansion. Calculation of length change ΔL = αL₀ΔT.",
-    type: "Activity",
-    dok: 2,
-    semester: 2,
-    isFeatured: true
-  },
-  {
-    date: "2026-02-23",
-    day: 11,
+    date: "2026-02-27",
+    day: 15,
     unit: 5,
     title: "Specific Heat Intro (Q=mcΔT)",
     summary: "Writing: Quick-Write (The Beach Analogy). Organization: Formula breakdown and variable mapping.",
@@ -173,6 +161,54 @@ const lessonsData = [
       writing: "Quick-Write (The Beach Analogy).",
       organization: "Formula breakdown and variable mapping."
     }
+  },
+  {
+    date: "2026-02-26",
+    day: 14,
+    unit: 5,
+    title: "Lab: Penny Boat Activity (Day 2)",
+    summary: "Testing boat designs and maximizing carrying capacity.",
+    details: "Students iterate on their designs and compete to see which boat can hold the most pennies before sinking.",
+    type: "Lab",
+    dok: 3,
+    semester: 2,
+    isFeatured: true
+  },
+  {
+    date: "2026-02-25",
+    day: 13,
+    unit: 5,
+    title: "Lab: Penny Boat Activity (Day 1)",
+    summary: "Engineering challenge: Designing a folder-paper boat to hold weight.",
+    details: "Introduction to buoyancy through hands-on construction. Designing and prototyping boats.",
+    type: "Lab",
+    dok: 3,
+    semester: 2,
+    isFeatured: true
+  },
+  {
+    date: "2026-02-24",
+    day: 12,
+    unit: 5,
+    title: "Buoyancy and Buoyant Force",
+    summary: "Archimedes' Principle: Why things float (or sink).",
+    details: "Study of buoyant force and how it relates to displaced fluid volume. Introduction to Archimedes' Principle.",
+    type: "Activity",
+    dok: 2,
+    semester: 2,
+    isFeatured: true
+  },
+  {
+    date: "2026-02-23",
+    day: 11,
+    unit: 5,
+    title: "Thermal Expansion & Convection",
+    summary: "Why bridges have gaps and how heat fluids move.",
+    details: "Investigating linear and volumetric expansion and the movement of energy through fluid currents (convection).",
+    type: "Activity",
+    dok: 2,
+    semester: 2,
+    isFeatured: true
   },
   {
     date: "2026-02-20",
