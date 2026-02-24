@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+
+  <title>Events test - Scenery</title>
+
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+
+  <!-- runs in full-screen mode on iOS devices -->
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <!-- No jQuery needed -->
+  <script src="../../../sherpa/lib/lodash-4.17.4.min.js"></script>
+  <script src="../../../sherpa/lib/linebreak-1.1.0.js"></script>
+  <script src="../../../sherpa/lib/he-1.1.1.js"></script>
+
+  <style>
+    html {
+      -ms-touch-action: none; /* Direct all pointer events to JavaScript code. */
+    }
+  </style>
+</head>
+<body>
+
+<div id="output"></div>
+<!-- eslint-disable --> <!--TODO: fix lint https://github.com/phetsims/chipper/issues/1405-->
+
+<script type="text/javascript">
+
+  function addMessage( str ) {
+    var output = document.getElementById( 'output' );
+    while ( output.children.length > 20 ) {
+      output.removeChild( output.children[ 0 ] );
+    }
+    var div = document.createElement( 'div' );
+    div.textContent = new Date().getMilliseconds() + '  ' + str;
+    output.appendChild( div );
+  }
+
+  addMessage( 'window.navigator.msPointerEnabled: ' + window.navigator.msPointerEnabled );
+  addMessage( 'window.navigator.msMaxTouchPoints: ' + window.navigator.msMaxTouchPoints );
+
+  // see http://www.w3.org/TR/DOM-Level-3-Events/
+  var mouseEvents = [ 'mousedown', 'mouseup', 'mousemove', 'mouseover', 'mouseout' ];
+
+  // see http://www.w3.org/TR/touch-events/
+  var touchEvents = [ 'touchstart', 'touchend', 'touchmove', 'touchcancel' ];
+
+  // see http://www.w3.org/TR/pointerevents/
+  // see http://msdn.microsoft.com/en-us/library/ie/hh673557(v=vs.85).aspx
+  var pointerEvents = [
+    // MSPointerMove (see http://msdn.microsoft.com/en-us/library/windows/apps/hh441233.aspx)
+    'MSPointerDown',
+    'MSPointerUp',
+    'MSPointerCancel',
+    'MSPointerMove',
+    'MSPointerOver',
+    'MSPointerOut',
+    'MSPointerEnter', // not seen
+    'MSPointerLeave', // not seen
+    'MSGotPointerCapture', // see http://msdn.microsoft.com/en-us/library/windows/apps/hh465850.aspx
+    'MSLostPointerCapture',
+
+    'pointerdown', 'pointerup', 'pointercancel', 'pointermove', 'pointerover', 'pointerout', 'pointerenter', 'pointerleave', 'gotpointercapture', 'lostpointercapture',
+
+    'MSPointerHover'
+  ];
+
+  _.each( mouseEvents, function( mouseEvent ) {
+    document.addEventListener( mouseEvent, function( event ) {
+      addMessage( event.type );
+      event.preventDefault();
+    } );
+  } );
+
+  _.each( touchEvents, function( touchEvent ) {
+    document.addEventListener( touchEvent, function( event ) {
+      var str = event.type;
+      for ( var i = 0; i < event.changedTouches.length; i++ ) {
+        str += ' ' + event.changedTouches.item( i ).identifier
+      }
+      addMessage( str );
+      event.preventDefault();
+    } );
+  } );
+
+  _.each( pointerEvents, function( pointerEvent ) {
+    document.addEventListener( pointerEvent, function( event ) {
+      var pointerType = event.pointerType;
+      if ( window.navigator.msPointerEnabled ) {
+        if ( event.pointerType === event.MSPOINTER_TYPE_TOUCH ) {
+          pointerType = 'touch';
+        }
+        else if ( event.pointerType === event.MSPOINTER_TYPE_PEN ) {
+          pointerType = 'pen';
+        }
+        else if ( event.pointerType === event.MSPOINTER_TYPE_MOUSE ) {
+          pointerType = 'mouse';
+        }
+      }
+
+      // pressure
+      // tiltX
+      // tiltY
+      // isPrimary
+      // use pointerId as the identifier!
+      addMessage( event.type + ' ' + event.pointerId + ' ' + pointerType + ' ' + event.isPrimary );
+      event.preventDefault();
+    } );
+  } );
+
+</script>
+
+</body>
+</html>
