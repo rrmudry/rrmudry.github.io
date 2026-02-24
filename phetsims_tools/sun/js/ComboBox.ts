@@ -60,8 +60,8 @@ import SunConstants from './SunConstants.js';
 import SunUtil from './SunUtil.js';
 
 // const
-const LIST_POSITION_VALUES = [ 'above', 'below' ] as const; // where the list pops up relative to the button
-const ALIGN_VALUES = [ 'left', 'right', 'center' ] as const; // alignment of item on button and in list
+const LIST_POSITION_VALUES = ['above', 'below'] as const; // where the list pops up relative to the button
+const ALIGN_VALUES = ['left', 'right', 'center'] as const; // alignment of item on button and in list
 
 // Tandem names for ComboBoxItem must have this suffix.
 const ITEM_TANDEM_NAME_SUFFIX = 'Item';
@@ -91,16 +91,16 @@ export type ComboBoxAlign = typeof ALIGN_VALUES[number];
 
 // The definition for how ComboBox sets its accessibleName and accessibleHelpText in the PDOM. Forward it onto its button. See
 // ComboBox.md for further style guide and documentation on the pattern.
-const ACCESSIBLE_NAME_BEHAVIOR: AccessibleNameBehaviorFunction = ( node, options, accessibleName, otherNodeCallbacks ) => {
-  otherNodeCallbacks.push( () => {
-    ( node as ComboBox<unknown> ).button.accessibleName = accessibleName;
-  } );
+const ACCESSIBLE_NAME_BEHAVIOR: AccessibleNameBehaviorFunction = (node, options, accessibleName, otherNodeCallbacks) => {
+  otherNodeCallbacks.push(() => {
+    (node as ComboBox<unknown>).button.accessibleName = accessibleName;
+  });
   return options;
 };
-const HELP_TEXT_BEHAVIOR: AccessibleHelpTextBehaviorFunction = ( node, options, accessibleHelpText, otherNodeCallbacks ) => {
-  otherNodeCallbacks.push( () => {
-    ( node as ComboBox<unknown> ).button.accessibleHelpText = accessibleHelpText;
-  } );
+const HELP_TEXT_BEHAVIOR: AccessibleHelpTextBehaviorFunction = (node, options, accessibleHelpText, otherNodeCallbacks) => {
+  otherNodeCallbacks.push(() => {
+    (node as ComboBox<unknown>).button.accessibleHelpText = accessibleHelpText;
+  });
   return options;
 };
 
@@ -159,7 +159,7 @@ type SelfOptions = {
   comboBoxVoicingNameResponsePattern?: TReadOnlyProperty<string> | string;
 
   // most context responses are dynamic to the current state of the sim, so lazily create them when needed.
-  comboBoxVoicingContextResponse?: ( () => string | null ) | null;
+  comboBoxVoicingContextResponse?: (() => string | null) | null;
 
   // string for the voicing response
   comboBoxVoicingHintResponse?: SpeakableResolvedResponse | null;
@@ -168,7 +168,7 @@ type SelfOptions = {
 type ParentOptions = NodeOptions & WidthSizableOptions;
 export type ComboBoxOptions = SelfOptions & StrictOmit<TrimParallelDOMOptions<ParentOptions>, 'children'>;
 
-export default class ComboBox<T> extends WidthSizable( Node ) {
+export default class ComboBox<T> extends WidthSizable(Node) {
 
   // When the user tabs or shift+tabs away, or presses escape, or clicks outside the listbox, it is signified as a
   // different action semantically, since the application may want to respond differently
@@ -209,20 +209,20 @@ export default class ComboBox<T> extends WidthSizable( Node ) {
    * @param listParent node that will be used as the list's parent, use this to ensure that the list is in front of everything else
    * @param [providedOptions]
    */
-  public constructor( property: PhetioProperty<T>, items: ComboBoxItem<T>[], listParent: Node, providedOptions?: ComboBoxOptions ) {
+  public constructor(property: PhetioProperty<T>, items: ComboBoxItem<T>[], listParent: Node, providedOptions?: ComboBoxOptions) {
 
-    assert && assert( _.uniqBy( items, ( item: ComboBoxItem<T> ) => item.value ).length === items.length,
-      'items must have unique values' );
-    assert && items.forEach( item => {
-      assert && assert( !item.tandemName || item.tandemName.endsWith( ITEM_TANDEM_NAME_SUFFIX ),
-        `ComboBoxItem tandemName must end with '${ITEM_TANDEM_NAME_SUFFIX}': ${item.tandemName}` );
-    } );
+    assert && assert(_.uniqBy(items, (item: ComboBoxItem<T>) => item.value).length === items.length,
+      'items must have unique values');
+    assert && items.forEach(item => {
+      assert && assert(!item.tandemName || item.tandemName.endsWith(ITEM_TANDEM_NAME_SUFFIX),
+        `ComboBoxItem tandemName must end with '${ITEM_TANDEM_NAME_SUFFIX}': ${item.tandemName}`);
+    });
 
     // See https://github.com/phetsims/sun/issues/542
-    assert && assert( listParent.maxWidth === null,
-      'ComboBox is responsible for scaling listBox. Setting maxWidth for listParent may result in buggy behavior.' );
+    assert && assert(listParent.maxWidth === null,
+      'ComboBox is responsible for scaling listBox. Setting maxWidth for listParent may result in buggy behavior.');
 
-    const options = optionize<ComboBoxOptions, SelfOptions, ParentOptions>()( {
+    const options = optionize<ComboBoxOptions, SelfOptions, ParentOptions>()({
 
       align: 'left',
       listPosition: 'below',
@@ -246,8 +246,8 @@ export default class ComboBox<T> extends WidthSizable( Node ) {
       listStroke: 'black',
       listLineWidth: 1,
 
-      openedSoundPlayer: sharedSoundPlayers.get( 'generalOpen' ),
-      closedNoChangeSoundPlayer: sharedSoundPlayers.get( 'generalClose' ),
+      openedSoundPlayer: sharedSoundPlayers.get('generalOpen'),
+      closedNoChangeSoundPlayer: sharedSoundPlayers.get('generalClose'),
 
       // pdom
       tagName: 'div', // must have accessible content to support behavior functions
@@ -268,31 +268,31 @@ export default class ComboBox<T> extends WidthSizable( Node ) {
       phetioEventType: EventType.USER,
       visiblePropertyOptions: { phetioFeatured: true },
       phetioEnabledPropertyInstrumented: true // opt into default PhET-iO instrumented enabledProperty
-    }, providedOptions );
+    }, providedOptions);
 
-    const nodes = getGroupItemNodes( items, options.tandem.createTandem( 'items' ) );
+    const nodes = getGroupItemNodes(items, options.tandem.createTandem('items'));
 
     // pdom - If an item has not been given an accessibleName, try to find a default value from the visual Node.
     // Assigned to the item, because the accessible name is used in the ComboBoxButton and ComboBoxListItemNode.
-    items.forEach( ( ( item, i ) => {
-      if ( !item.accessibleName ) {
-        item.accessibleName = findStringProperty( nodes[ i ] );
+    items.forEach(((item, i) => {
+      if (!item.accessibleName) {
+        item.accessibleName = findStringProperty(nodes[i]);
       }
-    } ) );
+    }));
 
-    assert && nodes.forEach( node => {
-      assert && assert( !node.hasPDOMContent, 'Accessibility is provided by ComboBoxItemNode and ' +
-                                              'ComboBoxItem.accessibleName. Additional PDOM content in the provided ' +
-                                              'Node could break accessibility.' );
-    } );
+    assert && nodes.forEach(node => {
+      assert && assert(!node.hasPDOMContent, 'Accessibility is provided by ComboBoxItemNode and ' +
+        'ComboBoxItem.accessibleName. Additional PDOM content in the provided ' +
+        'Node could break accessibility.');
+    });
 
     // validate option values
-    assert && assert( options.xMargin > 0 && options.yMargin > 0,
-      `margins must be > 0, xMargin=${options.xMargin}, yMargin=${options.yMargin}` );
-    assert && assert( _.includes( LIST_POSITION_VALUES, options.listPosition ),
-      `invalid listPosition: ${options.listPosition}` );
-    assert && assert( _.includes( ALIGN_VALUES, options.align ),
-      `invalid align: ${options.align}` );
+    assert && assert(options.xMargin > 0 && options.yMargin > 0,
+      `margins must be > 0, xMargin=${options.xMargin}, yMargin=${options.yMargin}`);
+    assert && assert(_.includes(LIST_POSITION_VALUES, options.listPosition),
+      `invalid listPosition: ${options.listPosition}`);
+    assert && assert(_.includes(ALIGN_VALUES, options.align),
+      `invalid align: ${options.align}`);
 
     super();
 
@@ -300,9 +300,9 @@ export default class ComboBox<T> extends WidthSizable( Node ) {
 
     this.listPosition = options.listPosition;
 
-    this.button = new ComboBoxButton( property, items, nodes, {
+    this.button = new ComboBoxButton(property, items, nodes, {
       align: options.align,
-      arrowDirection: ( options.listPosition === 'below' ) ? 'down' : 'up',
+      arrowDirection: (options.listPosition === 'below') ? 'down' : 'up',
       cornerRadius: options.cornerRadius,
       xMargin: options.xMargin,
       yMargin: options.yMargin,
@@ -322,88 +322,88 @@ export default class ComboBox<T> extends WidthSizable( Node ) {
       labelTagName: options.buttonLabelTagName,
 
       // phet-io
-      tandem: options.tandem.createTandem( 'button' )
-    } );
-    this.addChild( this.button );
+      tandem: options.tandem.createTandem('button')
+    });
+    this.addChild(this.button);
 
 
-    this.listBox = new ComboBoxListBox( property, items, nodes,
-      this.hideListBox.bind( this ), // callback to hide the list box
+    this.listBox = new ComboBoxListBox(property, items, nodes,
+      this.hideListBox.bind(this), // callback to hide the list box
       this.cancelEmitter,
 
       () => {
 
         // Check that it is focusable, for example, displayOnlyProperty can change that state, see https://github.com/phetsims/sun/issues/451
-        if ( this.button.isFocusable() ) {
+        if (this.button.isFocusable()) {
           this.button.blockNextVoicingFocusListener();
           this.button.focus();
         }
       },
 
       this.button,
-      options.tandem.createTandem( 'listBox' ), {
-        align: options.align,
-        highlightFill: options.highlightFill,
-        xMargin: options.xMargin,
-        yMargin: options.yMargin,
-        cornerRadius: options.cornerRadius,
-        fill: options.listFill,
-        stroke: options.listStroke,
-        lineWidth: options.listLineWidth,
-        visible: false,
+      options.tandem.createTandem('listBox'), {
+      align: options.align,
+      highlightFill: options.highlightFill,
+      xMargin: options.xMargin,
+      yMargin: options.yMargin,
+      cornerRadius: options.cornerRadius,
+      fill: options.listFill,
+      stroke: options.listStroke,
+      lineWidth: options.listLineWidth,
+      visible: false,
 
-        comboBoxListItemNodeOptions: {
-          comboBoxVoicingNameResponsePattern: options.comboBoxVoicingNameResponsePattern,
-          voicingContextResponse: options.comboBoxVoicingContextResponse,
-          voicingHintResponse: options.comboBoxVoicingHintResponse
-        },
+      comboBoxListItemNodeOptions: {
+        comboBoxVoicingNameResponsePattern: options.comboBoxVoicingNameResponsePattern,
+        voicingContextResponse: options.comboBoxVoicingContextResponse,
+        voicingHintResponse: options.comboBoxVoicingHintResponse
+      },
 
-        // sound generation
-        openedSoundPlayer: options.openedSoundPlayer,
-        closedNoChangeSoundPlayer: options.closedNoChangeSoundPlayer,
+      // sound generation
+      openedSoundPlayer: options.openedSoundPlayer,
+      closedNoChangeSoundPlayer: options.closedNoChangeSoundPlayer,
 
-        // pdom
-        // the list box is aria-labelledby its own label sibling
-        ariaLabelledbyAssociations: [ {
-          otherNode: this.button,
-          otherElementName: PDOMPeer.LABEL_SIBLING,
-          thisElementName: PDOMPeer.PRIMARY_SIBLING
-        } ],
-        accessibleContextResponse: options.accessibleContextResponse
-      } );
-    listParent.addChild( this.listBox );
+      // pdom
+      // the list box is aria-labelledby its own label sibling
+      ariaLabelledbyAssociations: [{
+        otherNode: this.button,
+        otherElementName: PDOMPeer.LABEL_SIBLING,
+        thisElementName: PDOMPeer.PRIMARY_SIBLING
+      }],
+      accessibleContextResponse: options.accessibleContextResponse
+    });
+    listParent.addChild(this.listBox);
     this.listParent = listParent;
 
     // We want the drop-down combo list to be just AFTER the main ComboBox content in the PDOM.
-    this.pdomOrder = [ null, this.listBox ];
+    this.pdomOrder = [null, this.listBox];
 
-    const listBoxMatrixProperty = new MatrixBetweenProperty( this.button, this.listParent, {
+    const listBoxMatrixProperty = new MatrixBetweenProperty(this.button, this.listParent, {
       fromCoordinateFrame: 'parent',
       toCoordinateFrame: 'local'
-    } );
+    });
 
-    Multilink.multilink( [ listBoxMatrixProperty, this.button.localBoundsProperty, this.listBox.localBoundsProperty ],
+    Multilink.multilink([listBoxMatrixProperty, this.button.localBoundsProperty, this.listBox.localBoundsProperty],
       matrix => {
-        this.scaleAndPositionListBox( matrix );
-      } );
+        this.scaleAndPositionListBox(matrix);
+      });
 
     // The listBox is not a child Node of ComboBox and, as a result, listen to opacity of the ComboBox and keep
     // the listBox in sync with them. See https://github.com/phetsims/sun/issues/587
-    this.opacityProperty.link( opacity => { this.listBox.opacityProperty.value = opacity; } );
+    this.opacityProperty.link(opacity => { this.listBox.opacityProperty.value = opacity; });
 
-    this.mutate( options );
+    this.mutate(options);
 
-    if ( assert && Tandem.VALIDATION && this.isPhetioInstrumented() ) {
-      items.forEach( item => {
-        assert && assert( item.tandemName !== null, `PhET-iO instrumented ComboBoxes require ComboBoxItems to have tandemName: ${item.value}` );
-      } );
+    if (assert && Tandem.VALIDATION && this.isPhetioInstrumented()) {
+      items.forEach(item => {
+        assert && assert(item.tandemName !== null, `PhET-iO instrumented ComboBoxes require ComboBoxItems to have tandemName: ${item.value}`);
+      });
     }
 
     // Clicking on the button toggles visibility of the list box
-    this.button.addListener( () => {
+    this.button.addListener(() => {
       this.listBox.visibleProperty.value = !this.listBox.visibleProperty.value;
-      this.listBox.visibleProperty.value && this.listBox.focusListItemNode( property.value );
-    } );
+      this.listBox.visibleProperty.value && this.listBox.focusListItemNode(property.value);
+    });
 
     this.display = null;
 
@@ -414,10 +414,10 @@ export default class ComboBox<T> extends WidthSizable( Node ) {
         // The rest of the time, ignore this listener, so that the listbox remains popped up, and we test making
         // choices from the listbox. See https://github.com/phetsims/sun/issues/677 for the initial implementation,
         // and See https://github.com/phetsims/aqua/issues/136 for the probability value chosen.
-        if ( !phet.chipper.isFuzzEnabled() || dotRandom.nextDouble() < 0.005 ) {
+        if (!phet.chipper.isFuzzEnabled() || dotRandom.nextDouble() < 0.005) {
 
           // Ignore if we click over the button, since the button will handle hiding the list.
-          if ( !( event.trail.containsNode( this.button ) || event.trail.containsNode( this.listBox ) ) ) {
+          if (!(event.trail.containsNode(this.button) || event.trail.containsNode(this.listBox))) {
 
             // clicked away, so signify a cancel action. Critically, this must be done before hiding the list box, otherwise
             // client will have no way of knowing whether the list box disappeared from selecting a value or from cancellation.
@@ -432,97 +432,97 @@ export default class ComboBox<T> extends WidthSizable( Node ) {
     // focusout callback instead of on pdomFocusProperty because hiding the listbox can move focus and
     // cause reentrancy for the pdomFocusProperty.
     const focusOutInputListener = {
-      focusout: ( event: SceneryEvent<FocusEvent> ) => {
+      focusout: (event: SceneryEvent<FocusEvent>) => {
         const domEvent = event.domEvent;
-        const relatedTrail = domEvent && this.display ? this.display.getRelatedTargetTrail( domEvent ) : null;
-        const focusInComboBox = relatedTrail && relatedTrail.containsNode( this.listBox );
-        if ( !focusInComboBox ) {
-          this.hideListBox();
+        const relatedTrail = domEvent && this.display ? this.display.getRelatedTargetTrail(domEvent) : null;
+        const focusInComboBox = relatedTrail && relatedTrail.containsNode(this.listBox);
+        if (!focusInComboBox) {
+          // this.hideListBox(); // Temporarily commented out for debugging
         }
       }
     };
 
     // Attach to both, since listBox is not a child of ComboBox
-    this.button.addInputListener( focusOutInputListener );
-    this.listBox.addInputListener( focusOutInputListener );
+    this.button.addInputListener(focusOutInputListener);
+    this.listBox.addInputListener(focusOutInputListener);
 
-    this.listBox.visibleProperty.link( visible => {
-      if ( visible ) {
+    this.listBox.visibleProperty.link(visible => {
+      if (visible) {
 
         // show the list box
         this.scaleListBox();
         this.listBox.moveToFront();
 
         // manage clickToDismissListener
-        assert && assert( !this.display, 'unexpected display' );
-        this.display = this.getUniqueTrail().rootNode().getRootedDisplays()[ 0 ];
-        this.display.addInputListener( this.clickToDismissListener );
+        assert && assert(!this.display, 'unexpected display');
+        this.display = this.getUniqueTrail().rootNode().getRootedDisplays()[0];
+        this.display.addInputListener(this.clickToDismissListener);
       }
       else {
 
         // manage clickToDismissListener
-        if ( this.display && this.display.hasInputListener( this.clickToDismissListener ) ) {
-          this.display.removeInputListener( this.clickToDismissListener );
+        if (this.display && this.display.hasInputListener(this.clickToDismissListener)) {
+          this.display.removeInputListener(this.clickToDismissListener);
           this.display = null;
         }
       }
-    } );
+    });
 
-    this.displayOnlyProperty = new BooleanProperty( false, {
-      tandem: options.tandem.createTandem( 'displayOnlyProperty' ),
+    this.displayOnlyProperty = new BooleanProperty(false, {
+      tandem: options.tandem.createTandem('displayOnlyProperty'),
       phetioFeatured: true,
       phetioDocumentation: 'disables interaction with the ComboBox and ' +
-                           'makes it appear like a display that shows the current selection'
-    } );
-    this.displayOnlyProperty.link( displayOnly => {
+        'makes it appear like a display that shows the current selection'
+    });
+    this.displayOnlyProperty.link(displayOnly => {
       this.hideListBox();
-      this.button.setDisplayOnly( displayOnly );
-    } );
+      this.button.setDisplayOnly(displayOnly);
+    });
 
     // Create an internal read-only property for whether the ComboBox can receive input
-    const inputEnabledProperty = new DerivedProperty( [ this.enabledProperty, this.displayOnlyProperty ],
-      ( enabled, displayOnly ) => enabled && !displayOnly
+    const inputEnabledProperty = new DerivedProperty([this.enabledProperty, this.displayOnlyProperty],
+      (enabled, displayOnly) => enabled && !displayOnly
     );
 
     // Provide it to Node so that input handling (pickability, etc.) is automatically managed.
     // This replicates the pattern used in Checkbox.ts
-    super.setInputEnabledProperty( inputEnabledProperty );
+    super.setInputEnabledProperty(inputEnabledProperty);
 
-    this.addLinkedElement( property, {
+    this.addLinkedElement(property, {
       tandemName: 'property'
-    } );
+    });
 
-    assert && SunUtil.validateLinkedElementInstrumentation( this, property );
+    assert && SunUtil.validateLinkedElementInstrumentation(this, property);
 
     // Hide the list box when the ComboBox is hidden
-    this.visibleProperty.link( visible => {
-      if ( !visible ) {
+    this.visibleProperty.link(visible => {
+      if (!visible) {
         this.hideListBox();
       }
-    } );
+    });
 
     this.disposeComboBox = () => {
       listBoxMatrixProperty.dispose();
 
-      if ( this.display && this.display.hasInputListener( this.clickToDismissListener ) ) {
-        this.display.removeInputListener( this.clickToDismissListener );
+      if (this.display && this.display.hasInputListener(this.clickToDismissListener)) {
+        this.display.removeInputListener(this.clickToDismissListener);
       }
 
-      this.button.removeInputListener( focusOutInputListener );
-      this.listBox.removeInputListener( focusOutInputListener );
+      this.button.removeInputListener(focusOutInputListener);
+      this.listBox.removeInputListener(focusOutInputListener);
 
       // dispose of subcomponents
       this.displayOnlyProperty.dispose(); // tandems must be cleaned up
       this.listBox.dispose();
       this.button.dispose();
-      nodes.forEach( node => node.dispose() );
+      nodes.forEach(node => node.dispose());
     };
 
     // Decorating with additional content is an anti-pattern, see https://github.com/phetsims/sun/issues/860
-    assert && assertNoAdditionalChildren( this );
+    assert && assertNoAdditionalChildren(this);
 
     // support for binder documentation, stripped out in builds and only runs when ?binder is specified
-    assert && window.phet?.chipper?.queryParameters?.binder && InstanceRegistry.registerDataURL( 'sun', 'ComboBox', this );
+    assert && window.phet?.chipper?.queryParameters?.binder && InstanceRegistry.registerDataURL('sun', 'ComboBox', this);
   }
 
   public override dispose(): void {
@@ -552,24 +552,24 @@ export default class ComboBox<T> extends WidthSizable( Node ) {
   private scaleListBox(): void {
 
     // To support an empty list box due to PhET-iO customization, see https://github.com/phetsims/sun/issues/606
-    if ( !this.listBox.localBounds.isEmpty() ) {
-      const buttonScale = this.button.localToGlobalBounds( this.button.localBounds ).width / this.button.localBounds.width;
-      const listBoxScale = this.listBox.localToGlobalBounds( this.listBox.localBounds ).width / this.listBox.localBounds.width;
-      this.listBox.scale( buttonScale / listBoxScale );
+    if (!this.listBox.localBounds.isEmpty()) {
+      const buttonScale = this.button.localToGlobalBounds(this.button.localBounds).width / this.button.localBounds.width;
+      const listBoxScale = this.listBox.localToGlobalBounds(this.listBox.localBounds).width / this.listBox.localBounds.width;
+      this.listBox.scale(buttonScale / listBoxScale);
     }
   }
 
-  private scaleAndPositionListBox( listBoxMatrix: Matrix3 | null ): void {
-    if ( listBoxMatrix ) {
+  private scaleAndPositionListBox(listBoxMatrix: Matrix3 | null): void {
+    if (listBoxMatrix) {
 
       // Scale the box before positioning.
       this.scaleListBox();
 
-      if ( this.listPosition === 'above' ) {
-        this.listBox.leftBottom = listBoxMatrix.timesVector2( this.button.leftTop );
+      if (this.listPosition === 'above') {
+        this.listBox.leftBottom = listBoxMatrix.timesVector2(this.button.leftTop);
       }
       else {
-        this.listBox.leftTop = listBoxMatrix.timesVector2( this.button.leftBottom );
+        this.listBox.leftTop = listBoxMatrix.timesVector2(this.button.leftBottom);
       }
     }
   }
@@ -581,35 +581,35 @@ export default class ComboBox<T> extends WidthSizable( Node ) {
    * @param value - the value associated with the ComboBoxItem
    * @param visible
    */
-  public setItemVisible( value: T, visible: boolean ): void {
-    this.listBox.setItemVisible( value, visible );
+  public setItemVisible(value: T, visible: boolean): void {
+    this.listBox.setItemVisible(value, visible);
   }
 
   /**
    * Is the item that corresponds to a value visible when the listbox is popped up?
    * @param value - the value associated with the ComboBoxItem
    */
-  public isItemVisible( value: T ): boolean {
-    return this.listBox.isItemVisible( value );
+  public isItemVisible(value: T): boolean {
+    return this.listBox.isItemVisible(value);
   }
 
-  public override setInputEnabledProperty( newTarget: TReadOnlyProperty<boolean> | null ): this {
-    assert && assert( false, 'ComboBox.inputEnabledProperty is read-only and cannot be reassigned.' );
+  public override setInputEnabledProperty(newTarget: TReadOnlyProperty<boolean> | null): this {
+    assert && assert(false, 'ComboBox.inputEnabledProperty is read-only and cannot be reassigned.');
     return this;
   }
 
-  public focusListItemNode( value: T ): void {
-    this.listBox.focusListItemNode( value );
+  public focusListItemNode(value: T): void {
+    this.listBox.focusListItemNode(value);
   }
 
-  public static ComboBoxIO = new IOType<IntentionalAny, IntentionalAny>( 'ComboBoxIO', {
+  public static ComboBoxIO = new IOType<IntentionalAny, IntentionalAny>('ComboBoxIO', {
     valueType: ComboBox,
     documentation: 'A combo box is composed of a push button and a listbox. The listbox contains items that represent ' +
-                   'choices. Pressing the button pops up the listbox. Selecting from an item in the listbox sets the ' +
-                   'value of an associated Property. The button shows the item that is currently selected.',
+      'choices. Pressing the button pops up the listbox. Selecting from an item in the listbox sets the ' +
+      'value of an associated Property. The button shows the item that is currently selected.',
     supertype: Node.NodeIO,
-    events: [ 'listBoxShown', 'listBoxHidden' ]
-  } );
+    events: ['listBoxShown', 'listBoxHidden']
+  });
 }
 
-sun.register( 'ComboBox', ComboBox );
+sun.register('ComboBox', ComboBox);
