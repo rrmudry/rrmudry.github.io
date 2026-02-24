@@ -196,7 +196,12 @@ const lessonsData = [
     type: "Activity",
     dok: 2,
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    links: {
+      'Reading': 'https://docs.google.com/document/d/1e1Cwzw_ZKKNy2roVR3oCfLnWNxiGaqZaq77qNkj7fpg/edit?usp=sharing',
+      'Worksheet': 'https://docs.google.com/document/d/1IdLCxbYPBPB3RsRsxvp4UjFD1nPYD-4RXy-5t6UIXCI/edit?usp=sharing',
+      'Buoyancy Basics Simulation': 'https://rrmudry.github.io/Buoyancy_Basics/buoyancy-basics_en.html'
+    }
   },
   {
     date: "2026-02-23",
