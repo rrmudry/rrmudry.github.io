@@ -1,0 +1,884 @@
+// Copyright 2015-2026, University of Colorado Boulder
+
+/**
+ * A carousel UI component.
+ *
+ * A set of N items is divided into M 'pages', based on how many items are visible in the carousel.
+ * Pressing the next and previous buttons moves through the pages.
+ * Movement through the pages is animated, so that items appear to scroll by.
+ *
+ * Note that Carousel wraps each item (Node) in an alignBox to ensure all items have an equal "footprint" dimension.
+ *
+ * The Carousel handles dynamic layout as far as carousel items changing sizes - it will resize to fit all of the items.
+ * If you want to align or stretch item content, that can be done with CarouselItem's alignBoxOptions
+ * (align:stretch will cause the item to be expanded to its section in the Carousel).
+ *
+ * Carousel currently is not sizable on its own (you can't set a preferred width/height that causes it to expand).
+ *
+ * @author Chris Malley (PixelZoom, Inc.)
+ * @author Sam Reid (PhET Interactive Simulations)
+ */
+
+import BooleanProperty from '../../axon/js/BooleanProperty.js';
+import DerivedProperty, { type UnknownDerivedProperty } from '../../axon/js/DerivedProperty.js';
+import Multilink from '../../axon/js/Multilink.js';
+import NumberProperty from '../../axon/js/NumberProperty.js';
+import PatternStringProperty from '../../axon/js/PatternStringProperty.js';
+import type Property from '../../axon/js/Property.js';
+import type ReadOnlyProperty from '../../axon/js/ReadOnlyProperty.js';
+import stepTimer from '../../axon/js/stepTimer.js';
+import Bounds2 from '../../dot/js/Bounds2.js';
+import Dimension2 from '../../dot/js/Dimension2.js';
+import Range from '../../dot/js/Range.js';
+import Shape from '../../kite/js/Shape.js';
+import InstanceRegistry from '../../phet-core/js/documentation/InstanceRegistry.js';
+import optionize, { combineOptions } from '../../phet-core/js/optionize.js';
+import Orientation from '../../phet-core/js/Orientation.js';
+import type StrictOmit from '../../phet-core/js/types/StrictOmit.js';
+import ParallelDOM, { PDOMValueType, TrimParallelDOMOptions } from '../../scenery/js/accessibility/pdom/ParallelDOM.js';
+import PDOMPeer from '../../scenery/js/accessibility/pdom/PDOMPeer.js';
+import { getPDOMFocusedNode } from '../../scenery/js/accessibility/pdomFocusProperty.js';
+import AlignGroup from '../../scenery/js/layout/constraints/AlignGroup.js';
+import LayoutConstraint from '../../scenery/js/layout/constraints/LayoutConstraint.js';
+import { type LayoutOrientation } from '../../scenery/js/layout/LayoutOrientation.js';
+import type AlignBox from '../../scenery/js/layout/nodes/AlignBox.js';
+import { type AlignBoxOptions } from '../../scenery/js/layout/nodes/AlignBox.js';
+import FlowBox, { type FlowBoxOptions } from '../../scenery/js/layout/nodes/FlowBox.js';
+import Separator, { type SeparatorOptions } from '../../scenery/js/layout/nodes/Separator.js';
+import KeyboardListener from '../../scenery/js/listeners/KeyboardListener.js';
+import IndexedNodeIO, { type IndexedNodeIOParent } from '../../scenery/js/nodes/IndexedNodeIO.js';
+import Node, { type NodeOptions } from '../../scenery/js/nodes/Node.js';
+import Rectangle from '../../scenery/js/nodes/Rectangle.js';
+import assertNoAdditionalChildren from '../../scenery/js/util/assertNoAdditionalChildren.js';
+import type TPaint from '../../scenery/js/util/TPaint.js';
+import sharedSoundPlayers from '../../tambo/js/sharedSoundPlayers.js';
+import isSettingPhetioStateProperty from '../../tandem/js/isSettingPhetioStateProperty.js';
+import Tandem from '../../tandem/js/Tandem.js';
+import Animation, { type AnimationOptions } from '../../twixt/js/Animation.js';
+import Easing from '../../twixt/js/Easing.js';
+import type ButtonNode from './buttons/ButtonNode.js';
+import CarouselButton, { type CarouselButtonOptions } from './buttons/CarouselButton.js';
+import ColorConstants from './ColorConstants.js';
+import type GroupItemOptions from './GroupItemOptions.js';
+import { getGroupItemNodes } from './GroupItemOptions.js';
+import type PageControl from './PageControl.js';
+import sun from './sun.js';
+import SunStrings from './SunStrings.js';
+
+const DEFAULT_ARROW_SIZE = new Dimension2( 20, 7 );
+
+export type CarouselItem = GroupItemOptions & {
+
+  // Item-specific options take precedence over general alignBoxOptions
+  alignBoxOptions?: AlignBoxOptions;
+};
+
+type SelfOptions = {
+
+  // container
+  orientation?: LayoutOrientation;
+  fill?: TPaint; // background color of the carousel
+  stroke?: TPaint; // color used to stroke the border of the carousel
+  lineWidth?: number; // width of the border around the carousel
+  cornerRadius?: number; // radius applied to the carousel and next/previous buttons
+  defaultPageNumber?: number; // page that is initially visible
+
+  // items
+  itemsPerPage?: number; // number of items per page, or how many items are visible at a time in the carousel
+  spacing?: number; // spacing between items, between items and optional separators, and between items and buttons
+  margin?: number; // margin between items and the edges of the carousel
+
+  // options for the AlignBoxes (particularly if alignment of items should be changed, or if specific margins are desired)
+  alignBoxOptions?: AlignBoxOptions;
+
+  // next/previous button options
+  buttonOptions?: CarouselButtonOptions;
+
+  // item separator options
+  separatorsVisible?: boolean; // whether to put separators between items
+  separatorOptions?: SeparatorOptions;
+
+  // animation, scrolling between pages
+  animationEnabled?: boolean; // is animation enabled when scrolling between pages?
+  animationOptions?: StrictOmit<AnimationOptions<number>, 'to' | 'setValue' | 'getValue'>; // We override to/setValue/getValue
+};
+
+export type CarouselOptions = SelfOptions & TrimParallelDOMOptions<StrictOmit<NodeOptions, 'children'>>;
+
+export default class Carousel extends Node {
+
+  // Items hold the data to create the carouselItemNode
+  private readonly items: CarouselItem[];
+
+  // each AlignBox holds a carouselItemNode and ensures proper sizing in the Carousel
+  private readonly alignBoxes: AlignBox[];
+
+  // Stores the visible align boxes
+  private readonly visibleAlignBoxesProperty: UnknownDerivedProperty<AlignBox[]>;
+
+  // created from createNode() in CarouselItem
+  public readonly carouselItemNodes: Node[];
+
+  private readonly itemsPerPage: number;
+  private readonly defaultPageNumber: number;
+
+  // A logical container for contents, used just for PDOM (accessibility) organization. See
+  // the implementation for additional notes.
+  private readonly carouselPDOMParentNode: Node;
+
+  // A logical container for contents of a page, used just for PDOM (accessibility) organization.
+  private readonly pagePDOMParentNode: Node;
+
+  private readonly previousButton: Node;
+  private readonly nextButton: Node;
+
+  // number of pages in the carousel
+  public readonly numberOfPagesProperty: ReadOnlyProperty<number>;
+
+  // page number that is currently visible
+  public readonly pageNumberProperty: Property<number>;
+
+  // enables animation when scrolling between pages
+  public animationEnabled: boolean;
+
+  // These are public for layout - NOTE: These are mutated if the size changes after construction
+  declare public backgroundWidth: number;
+  declare public backgroundHeight: number;
+
+  private readonly disposeCarousel: () => void;
+  private readonly scrollingNode: FlowBox;
+  private readonly carouselConstraint: CarouselConstraint;
+
+  public readonly isAnimatingProperty = new BooleanProperty( false );
+
+  /**
+   * NOTE: This will dispose the item Nodes when the carousel is disposed
+   */
+  public constructor( items: CarouselItem[], providedOptions?: CarouselOptions ) {
+
+    // Don't animate during initialization
+    let isInitialized = false;
+
+    // Override defaults with specified options
+    const options = optionize<CarouselOptions, SelfOptions, NodeOptions>()( {
+
+      // container
+      orientation: 'horizontal',
+      fill: 'white',
+      stroke: 'black',
+      lineWidth: 1,
+      cornerRadius: 4,
+      defaultPageNumber: 0,
+
+      // items
+      itemsPerPage: 4,
+      spacing: 12,
+      margin: 6,
+
+      alignBoxOptions: {
+        phetioType: IndexedNodeIO,
+        phetioState: true,
+        visiblePropertyOptions: {
+          phetioFeatured: true
+        }
+      },
+
+      // next/previous buttons
+      buttonOptions: {
+        xMargin: 5,
+        yMargin: 5,
+
+        // for dilating pointer areas of next/previous buttons such that they do not overlap with Carousel content
+        touchAreaXDilation: 0,
+        touchAreaYDilation: 0,
+        mouseAreaXDilation: 0,
+        mouseAreaYDilation: 0,
+
+        baseColor: 'rgba( 200, 200, 200, 0.5 )',
+        disabledColor: ColorConstants.LIGHT_GRAY,
+        lineWidth: 1,
+
+        arrowPathOptions: {
+          stroke: 'black',
+          lineWidth: 3
+        },
+        arrowSize: DEFAULT_ARROW_SIZE,
+
+        enabledPropertyOptions: {
+          phetioReadOnly: true,
+          phetioFeatured: false
+        },
+
+        soundPlayer: sharedSoundPlayers.get( 'pushButton' )
+      },
+
+      // item separators
+      separatorsVisible: false,
+      separatorOptions: {
+        stroke: 'rgb( 180, 180, 180 )',
+        lineWidth: 0.5,
+        pickable: false
+      },
+
+      // animation, scrolling between pages
+      animationEnabled: true,
+      animationOptions: {
+        duration: 0.4,
+        stepEmitter: stepTimer,
+        easing: Easing.CUBIC_IN_OUT
+      },
+
+      // phet-io
+      tandem: Tandem.OPTIONAL,
+      visiblePropertyOptions: {
+        phetioFeatured: true
+      }
+    }, providedOptions );
+
+    super();
+
+    this.animationEnabled = options.animationEnabled;
+    this.items = items;
+    this.itemsPerPage = options.itemsPerPage;
+    this.defaultPageNumber = options.defaultPageNumber;
+
+    const orientation = Orientation.fromLayoutOrientation( options.orientation );
+    const alignGroup = new AlignGroup();
+
+    const itemsTandem = options.tandem.createTandem( 'items' );
+    this.carouselItemNodes = getGroupItemNodes( items, itemsTandem );
+
+    // All items are wrapped in AlignBoxes to ensure consistent sizing
+    this.alignBoxes = items.map( ( item, index ) => {
+      return alignGroup.createBox( this.carouselItemNodes[ index ], combineOptions<AlignBoxOptions>( {
+          tandem: item.tandemName ? itemsTandem.createTandem( item.tandemName ) : Tandem.OPTIONAL
+        }, options.alignBoxOptions,
+
+        // Item-specific options take precedence
+        item.alignBoxOptions ) );
+    } );
+
+    // scrollingNode will contain all items, arranged in the proper orientation, with margins and spacing.
+    // NOTE: We'll need to handle updates to the order (for phet-io IndexedNodeIO).
+    // Horizontal carousel arrange items left-to-right, vertical is top-to-bottom.
+    // Translation of this node will be animated to give the effect of scrolling through the items.
+    this.scrollingNode = new ScrollingFlowBox( this, {
+      children: this.alignBoxes,
+      orientation: options.orientation,
+      spacing: options.spacing,
+      [ `${orientation.opposite.coordinate}Margin` ]: options.margin
+    } );
+
+    // Visible AlignBoxes (these are the ones we lay out and base everything on)
+    this.visibleAlignBoxesProperty = DerivedProperty.deriveAny( this.alignBoxes.map( alignBox => alignBox.visibleProperty ), () => {
+      return this.getVisibleAlignBoxes();
+    } );
+
+    // When the AlignBoxes are reordered, we need to recompute the visibleAlignBoxesProperty
+    this.scrollingNode.childrenReorderedEmitter.addListener( () => this.visibleAlignBoxesProperty.recomputeDerivation() );
+
+    // Options common to both buttons
+    const buttonOptions = combineOptions<CarouselButtonOptions>( {
+      cornerRadius: options.cornerRadius
+    }, options.buttonOptions );
+
+    assert && assert( options.spacing >= options.margin, 'The spacing must be >= the margin, or you will see ' +
+                                                         'page 2 items at the end of page 1' );
+
+    // In order to make it easy for phet-io to re-order items, the separators should not participate
+    // in the layout and have indices that get moved around.  Therefore, we add a separate layer to
+    // show the separators.
+    const separatorLayer = options.separatorsVisible ? new Node( {
+      pickable: false
+    } ) : null;
+
+    // Contains the scrolling node and the associated separators, if any
+    const scrollingNodeContainer = new Node( {
+      children: options.separatorsVisible ? [ separatorLayer!, this.scrollingNode ] : [ this.scrollingNode ]
+    } );
+
+    // Have to have at least one page, even if it is blank
+    const countPages = ( items: AlignBox[] ) => Math.max( Math.ceil( items.length / options.itemsPerPage ), 1 );
+
+    // Number of pages is derived from the total number of items and the number of items per page
+    this.numberOfPagesProperty = new DerivedProperty( [ this.visibleAlignBoxesProperty ], visibleAlignBoxes => {
+      return countPages( visibleAlignBoxes );
+    }, {
+      isValidValue: v => v > 0
+    } );
+
+    const maxPages = countPages( this.alignBoxes );
+
+    assert && assert( options.defaultPageNumber >= 0 && options.defaultPageNumber <= this.numberOfPagesProperty.value - 1,
+      `defaultPageNumber is out of range: ${options.defaultPageNumber}` );
+
+    // Number of the page that is visible in the carousel.
+    this.pageNumberProperty = new NumberProperty( options.defaultPageNumber, {
+      tandem: options.tandem.createTandem( 'pageNumberProperty' ),
+      numberType: 'Integer',
+      isValidValue: ( value: number ) => value < this.numberOfPagesProperty.value && value >= 0,
+
+      // Based on the total number of possible alignBoxes, not just the ones visible on startup
+      range: new Range( 0, maxPages - 1 ),
+      phetioFeatured: true
+    } );
+
+    const buttonsVisibleProperty = new DerivedProperty( [ this.numberOfPagesProperty ], numberOfPages => {
+      // always show the buttons if there is more than one page, and always hide the buttons if there is only one page
+      return numberOfPages > 1;
+    } );
+
+    // The number of visible items on the selected page
+    const visibleItemsOnSelectedPageProperty = new DerivedProperty( [ this.pageNumberProperty, this.visibleAlignBoxesProperty ], () => {
+      return this.getVisibleItemsOnSelectedPage();
+    } );
+
+    // Accessible context response for the next button, describing the number of new items on the page.
+    const nextButtonContextResponseProperty = new PatternStringProperty(
+      SunStrings.a11y.carousel.nextPreviousButtons.nextButton.accessibleContextResponseStringProperty, {
+        number: visibleItemsOnSelectedPageProperty
+      }
+    );
+
+    // Accessible context response for the previous button, describing the number of new items on the page.
+    const previousButtonContextResponseProperty = new PatternStringProperty(
+      SunStrings.a11y.carousel.nextPreviousButtons.previousButton.accessibleContextResponseStringProperty, {
+        number: visibleItemsOnSelectedPageProperty
+      }
+    );
+
+    // Next button
+    const nextButton = new CarouselButton( combineOptions<CarouselButtonOptions>( {
+      arrowDirection: orientation === Orientation.HORIZONTAL ? 'right' : 'down',
+      tandem: options.tandem.createTandem( 'nextButton' ),
+      listener: () => this.pageNumberProperty.set( this.pageNumberProperty.get() + 1 ),
+      enabledProperty: new DerivedProperty( [ this.pageNumberProperty, this.numberOfPagesProperty ], ( pageNumber, numberofPages ) => {
+        return pageNumber < numberofPages - 1;
+      } ),
+      visibleProperty: buttonsVisibleProperty,
+
+      // pdom
+      accessibleName: SunStrings.a11y.carousel.nextPreviousButtons.nextButton.accessibleNameStringProperty,
+      accessibleContextResponse: nextButtonContextResponseProperty
+    }, buttonOptions ) );
+
+    // Previous button
+    const previousButton = new CarouselButton( combineOptions<CarouselButtonOptions>( {
+      arrowDirection: orientation === Orientation.HORIZONTAL ? 'left' : 'up',
+      tandem: options.tandem.createTandem( 'previousButton' ),
+      listener: () => this.pageNumberProperty.set( this.pageNumberProperty.get() - 1 ),
+      enabledProperty: new DerivedProperty( [ this.pageNumberProperty ], pageNumber => {
+        return pageNumber > 0;
+      } ),
+      visibleProperty: buttonsVisibleProperty,
+
+      // pdom
+      accessibleName: SunStrings.a11y.carousel.nextPreviousButtons.previousButton.accessibleNameStringProperty,
+      accessibleContextResponse: previousButtonContextResponseProperty
+    }, buttonOptions ) );
+
+    // Window with clipping area, so that the scrollingNodeContainer can be scrolled
+    const windowNode = new Node( { children: [ scrollingNodeContainer ] } );
+
+    // Background - displays the carousel's fill color
+    const backgroundNode = new Rectangle( {
+      cornerRadius: options.cornerRadius,
+      fill: options.fill
+    } );
+
+    // Foreground - displays the carousel's outline, created as a separate node so that it can be placed on top of
+    // everything, for a clean look.
+    const foregroundNode = new Rectangle( {
+      cornerRadius: options.cornerRadius,
+      stroke: options.stroke,
+      pickable: false
+    } );
+
+    // Top-level layout (based on background changes).
+    this.carouselConstraint = new CarouselConstraint(
+      this,
+      backgroundNode,
+      foregroundNode,
+      windowNode,
+      previousButton,
+      nextButton,
+      scrollingNodeContainer,
+      this.alignBoxes,
+      orientation,
+      this.scrollingNode,
+      this.itemsPerPage,
+      options.margin,
+      alignGroup,
+      separatorLayer,
+      options.separatorOptions );
+
+    // Handle changing pages (or if the content changes)
+    let scrollAnimation: Animation | null = null;
+    const lastScrollBounds = new Bounds2( 0, 0, 0, 0 ); // used mutably
+    Multilink.multilink( [ this.pageNumberProperty, scrollingNodeContainer.localBoundsProperty ], ( pageNumber, scrollBounds ) => {
+
+      // We might temporarily hit this value. Bail out now instead of an assertion (it will get fired again)
+      if ( pageNumber >= this.numberOfPagesProperty.value ) {
+        return;
+      }
+
+      // stop any animation that's in progress
+      scrollAnimation && scrollAnimation.stop();
+
+      // Find the item at the top of pageNumber page
+      const firstItemOnPage = this.visibleAlignBoxesProperty.value[ pageNumber * options.itemsPerPage ];
+
+      // Place we want to scroll to
+      const targetValue = firstItemOnPage ? ( ( -firstItemOnPage[ orientation.minSide ] ) + options.margin ) : 0;
+
+      const scrollBoundsChanged = lastScrollBounds === null || !lastScrollBounds.equals( scrollBounds );
+      lastScrollBounds.set( scrollBounds ); // scrollBounds is mutable, we get the same reference, don't store it
+
+      // Only animate if animation is enabled and PhET-iO state is not being set.  When PhET-iO state is being set (as
+      // in loading a customized state), the carousel should immediately reflect the desired page
+      // Do not animate during initialization.
+      // Do not animate when our scrollBounds have changed (our content probably resized)
+      if ( this.animationEnabled && !isSettingPhetioStateProperty?.value && isInitialized && !scrollBoundsChanged ) {
+
+        // create and start the scroll animation
+        scrollAnimation = new Animation( combineOptions<AnimationOptions<number>>( {}, options.animationOptions, {
+          to: targetValue,
+
+          // options that are specific to orientation
+          getValue: () => scrollingNodeContainer[ orientation.coordinate ],
+          setValue: ( value: number ) => { scrollingNodeContainer[ orientation.coordinate ] = value; }
+
+        } ) );
+        scrollAnimation.endedEmitter.addListener( () => this.isAnimatingProperty.set( false ) );
+        scrollAnimation.start();
+        this.isAnimatingProperty.value = true;
+      }
+      else {
+
+        // animation disabled, move immediate to new page
+        scrollingNodeContainer[ orientation.coordinate ] = targetValue;
+      }
+    } );
+
+    // Only allow focusing items visible on the current page
+    const updateFocusableItems = Multilink.multilink( [ this.pageNumberProperty, this.visibleAlignBoxesProperty ], ( pageNumber, visibleAlignBoxes ) => {
+      this.alignBoxes.forEach( alignBox => {
+        const visibleIndex = visibleAlignBoxes.indexOf( alignBox );
+
+        // If the alignbox itself is invisible, then the content should be invisible in the PDOM. Otherwise, only
+        // show the content if it is on the current page.
+        alignBox.accessibleVisible = visibleIndex > -1 &&
+                                     ( Math.floor( visibleIndex / this.itemsPerPage ) === pageNumber );
+      } );
+    } );
+
+    // Don't stay on a page that doesn't exist
+    this.visibleAlignBoxesProperty.link( () => {
+      // if the only element in the last page is removed, remove the page and autoscroll to the new final page
+      this.pageNumberProperty.value = Math.min( this.pageNumberProperty.value, this.numberOfPagesProperty.value - 1 );
+    } );
+
+    // This is the logical parent for the actual carousel. It contains the heading and description for the carousel,
+    // and is the accessible parent for all interactive content of the Carousel including the previous/next buttons.
+    const carouselPDOMParentNode = new Node( {
+      tagName: 'div',
+      accessibleNameBehavior: ParallelDOM.HEADING_ACCESSIBLE_NAME_BEHAVIOR,
+      accessibleHelpTextBehavior: ParallelDOM.HELP_TEXT_BEFORE_CONTENT
+    } );
+
+    // So that the carousel container is labelled by its own heading with an aria association.
+    carouselPDOMParentNode.addAriaLabelledbyAssociation( {
+      thisElementName: PDOMPeer.PRIMARY_SIBLING,
+
+      otherNode: carouselPDOMParentNode,
+      otherElementName: PDOMPeer.HEADING_SIBLING
+    } );
+
+    // The logical parent for each page within the carousel. Creates important markup and attributes
+    // for a screen reader.
+    const pagePDOMParentNode = new Node( {
+      tagName: 'div',
+      ariaRole: 'region',
+      accessibleRoleDescription: SunStrings.a11y.carousel.accessibleRoleDescriptionStringProperty,
+      ariaLabel: SunStrings.a11y.carousel.page.accessibleNameStringProperty
+    } );
+
+    options.children = [
+      backgroundNode,
+      windowNode,
+      nextButton,
+      previousButton,
+      foregroundNode,
+      carouselPDOMParentNode,
+      pagePDOMParentNode
+    ];
+
+    pagePDOMParentNode.pdomOrder = [ windowNode ];
+    carouselPDOMParentNode.pdomOrder = [ pagePDOMParentNode, previousButton, nextButton ];
+
+    // A keyboard listener to support left/right and up/down keys that change the page number.
+    // A global listener is added so that the carousel will respond even when an arrow button is disabled.
+    const keyboardListener = KeyboardListener.createGlobal( this, {
+
+      // Allow overlap because this global listener checks to make sure that focus is on one of the buttons.
+      overlapBehavior: 'allow',
+      keys: [ 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown' ],
+      fire: ( event, keysPressed ) => {
+
+        // the keys depend on orientation - left/down is previous for horizontal while left/up is previous for vertical
+        const previousKeys = orientation === Orientation.HORIZONTAL ?
+          [ 'arrowLeft', 'arrowDown' ] : [ 'arrowLeft', 'arrowUp' ];
+
+        // So that this listener only works when focus is on one of the buttons (even though it is global).
+        const focusedNode = getPDOMFocusedNode();
+        if ( focusedNode === nextButton || focusedNode === previousButton ) {
+          if ( previousKeys.includes( keysPressed ) ) {
+            previousButton.pdomClick();
+          }
+          else {
+            nextButton.pdomClick();
+          }
+        }
+      }
+    } );
+
+    this.disposeCarousel = () => {
+      this.visibleAlignBoxesProperty.dispose();
+      this.pageNumberProperty.dispose();
+      this.alignBoxes.forEach( alignBox => {
+
+        assert && assert( alignBox.children.length === 1, 'Carousel AlignBox instances should have only one child' );
+        assert && assert( this.carouselItemNodes.includes( alignBox.children[ 0 ] ), 'Carousel AlignBox instances should wrap a content node' );
+
+        alignBox.dispose();
+      } );
+      this.scrollingNode.dispose();
+      this.carouselConstraint.dispose();
+      this.carouselItemNodes.forEach( node => node.dispose() );
+      updateFocusableItems.dispose();
+
+      keyboardListener.dispose();
+      visibleItemsOnSelectedPageProperty.dispose();
+      nextButtonContextResponseProperty.dispose();
+      previousButtonContextResponseProperty.dispose();
+    };
+
+    this.carouselPDOMParentNode = carouselPDOMParentNode;
+    this.pagePDOMParentNode = pagePDOMParentNode;
+    this.previousButton = previousButton;
+    this.nextButton = nextButton;
+
+    this.mutate( options );
+
+    // Decorating with additional content is an anti-pattern, see https://github.com/phetsims/sun/issues/860
+    assert && assertNoAdditionalChildren( this );
+
+    // Will allow potential animation after this
+    isInitialized = true;
+
+    // support for binder documentation, stripped out in builds and only runs when ?binder is specified
+    assert && window.phet?.chipper?.queryParameters?.binder && InstanceRegistry.registerDataURL( 'sun', 'Carousel', this );
+  }
+
+  /**
+   * NOTE: This will dispose the item Nodes
+   */
+  public override dispose(): void {
+    this.disposeCarousel();
+    super.dispose();
+  }
+
+  /**
+   * Returns the Nodes that are focusable in the PDOM (those on the currently visible page).
+   */
+  public getFocusableItems(): Node[] {
+    return this.alignBoxes.filter( alignBox => alignBox.accessibleVisible ).map( alignBox => alignBox.children[ 0 ] );
+  }
+
+  /**
+   * When you set the accessibleName on this Carousel, it forwards to the parent Node that holds
+   * the carousel contents with important accessibility attributes. The accessibleNameBehavior
+   * for the parent Node creates a heading for the carousel.
+   */
+  public override setAccessibleName( value: PDOMValueType ): void {
+    this.carouselPDOMParentNode.accessibleName = value;
+  }
+
+  /**
+   * When you set the accessibleHelpText on this Carousel, it forwards to the parent Node that holds
+   * the carousel contents with important accessibility attributes.
+   */
+  public override setAccessibleHelpText( accessibleHelpText: PDOMValueType ): void {
+    this.carouselPDOMParentNode.accessibleHelpText = accessibleHelpText;
+  }
+
+  /**
+   * Inserts a PageControl into the Carousel’s PDOM order. This only affects PDOM structure; callers handle visual
+   * layout.
+   *
+   * @param pageControl
+   * @param beforePages - when true, place before the pages; when false, place after the previous/next buttons
+   */
+  public insertPageControl( pageControl: PageControl, beforePages = true ): void {
+    this.carouselPDOMParentNode.pdomOrder = beforePages ?
+      [ pageControl, this.pagePDOMParentNode, this.previousButton, this.nextButton ] :
+      [ this.pagePDOMParentNode, this.previousButton, this.nextButton, pageControl ];
+  }
+
+  /**
+   * Resets the carousel to its initial state.
+   * @param animationEnabled - whether to enable animation during reset
+   */
+  public reset( animationEnabled = false ): void {
+    const saveAnimationEnabled = this.animationEnabled;
+    this.animationEnabled = animationEnabled;
+
+    // Reset the page number to the default page number if possible (if things are hidden, it might not be possible)
+    this.pageNumberProperty.value = Math.min( this.defaultPageNumber, this.numberOfPagesProperty.value - 1 );
+
+    this.animationEnabled = saveAnimationEnabled;
+  }
+
+  /**
+   * Given an item's visible index, scrolls the carousel to the page that contains that item.
+   */
+  private scrollToItemVisibleIndex( itemVisibleIndex: number ): void {
+    this.pageNumberProperty.set( this.itemVisibleIndexToPageNumber( itemVisibleIndex ) );
+  }
+
+  /**
+   * Given an item, scrolls the carousel to the page that contains that item. This will only scroll if item is in the
+   * Carousel and visible.
+   */
+  public scrollToItem( item: CarouselItem ): void {
+    this.scrollToAlignBox( this.getAlignBoxForItem( item ) );
+  }
+
+  /**
+   * Public for ScrollingFlowBox only
+   */
+  public scrollToAlignBox( alignBox: AlignBox ): void {
+
+    // If the layout is dynamic, then only account for the visible items
+    const alignBoxIndex = this.visibleAlignBoxesProperty.value.indexOf( alignBox );
+
+    assert && assert( alignBoxIndex >= 0, 'item not present or visible' );
+    if ( alignBoxIndex >= 0 ) {
+      this.scrollToItemVisibleIndex( alignBoxIndex );
+    }
+  }
+
+  /**
+   * Set the visibility of an item in the Carousel. This toggles visibility and will reflow the layout, such that hidden
+   * items do not leave a gap in the layout.
+   */
+  public setItemVisible( item: CarouselItem, visible: boolean ): void {
+    this.getAlignBoxForItem( item ).visible = visible;
+  }
+
+  /**
+   * Gets the AlignBox that wraps an item's Node.
+   */
+  private getAlignBoxForItem( item: CarouselItem ): AlignBox {
+    const alignBox = this.alignBoxes[ this.items.indexOf( item ) ];
+
+    assert && assert( alignBox, 'item does not have corresponding alignBox' );
+    return alignBox;
+  }
+
+  /**
+   * Returns the Node that was created for a given item.
+   */
+  public getNodeForItem( item: CarouselItem ): Node {
+    const node = this.carouselItemNodes[ this.items.indexOf( item ) ];
+
+    assert && assert( node, 'item does not have corresponding node' );
+    return node;
+  }
+
+  private itemVisibleIndexToPageNumber( itemIndex: number ): number {
+    assert && assert( itemIndex >= 0 && itemIndex < this.items.length, `itemIndex out of range: ${itemIndex}` );
+    return Math.floor( itemIndex / this.itemsPerPage );
+  }
+
+  /**
+   * Computes how many items are visible on the currently selected page.
+   */
+  private getVisibleItemsOnSelectedPage(): number {
+    const visibleAlignBoxes = this.visibleAlignBoxesProperty.value;
+    const startIndex = this.pageNumberProperty.value * this.itemsPerPage;
+    const endIndex = Math.min( startIndex + this.itemsPerPage, visibleAlignBoxes.length );
+    return Math.max( 0, endIndex - startIndex );
+  }
+
+  // The order of alignBoxes might be tweaked in scrollingNode's children. We need to respect this order
+  public getVisibleAlignBoxes(): AlignBox[] {
+    return _.sortBy( this.alignBoxes.filter( alignBox => alignBox.visible ), alignBox => this.scrollingNode.children.indexOf( alignBox ) );
+  }
+}
+
+/**
+ * When moveChildToIndex is called, scrolls the Carousel to that item. For use in PhET-iO when the order of items is
+ * changed.
+ */
+class ScrollingFlowBox extends FlowBox implements IndexedNodeIOParent {
+  private readonly carousel: Carousel;
+
+  public constructor( carousel: Carousel, options?: FlowBoxOptions ) {
+    super( options );
+    this.carousel = carousel;
+  }
+
+  public onIndexedNodeIOChildMoved( child: Node ): void {
+    this.carousel.scrollToAlignBox( child as AlignBox );
+  }
+}
+
+
+class CarouselConstraint extends LayoutConstraint {
+  public constructor(
+    private readonly carousel: Carousel,
+    private readonly backgroundNode: Rectangle,
+    private readonly foregroundNode: Rectangle,
+    private readonly windowNode: Node,
+    private readonly previousButton: ButtonNode,
+    private readonly nextButton: ButtonNode,
+    private readonly scrollingNodeContainer: Node,
+    private readonly alignBoxes: Node[],
+    private readonly orientation: Orientation,
+    private readonly scrollingNode: FlowBox,
+    private readonly itemsPerPage: number,
+    private readonly margin: number,
+    private readonly alignGroup: AlignGroup,
+    private readonly separatorLayer: Node | null,
+    private readonly separatorOptions: SeparatorOptions ) {
+    super( carousel );
+
+    // Hook up to listen to these nodes (will be handled by LayoutConstraint disposal)
+    [ this.backgroundNode,
+      this.foregroundNode,
+      this.windowNode,
+      this.previousButton,
+      this.nextButton,
+      this.scrollingNodeContainer,
+      ...this.alignBoxes ].forEach( node => this.addNode( node, false ) );
+
+    // Whenever layout happens in the scrolling node, it's the perfect time to update the separators
+    if ( this.separatorLayer ) {
+
+      // We do not need to remove this listener because it is internal to Carousel and will get garbage collected
+      // when Carousel is disposed.
+      this.scrollingNode.constraint.finishedLayoutEmitter.addListener( () => {
+        this.updateSeparators();
+      } );
+    }
+
+    this.updateLayout();
+  }
+
+  private updateSeparators(): void {
+    const visibleChildren = this.carousel.getVisibleAlignBoxes();
+
+    // Add separators between the visible children
+    const range = visibleChildren.length >= 2 ? _.range( 1, visibleChildren.length ) : [];
+    this.separatorLayer!.children = range.map( index => {
+
+      // Find the location between adjacent nodes
+      const inbetween = ( visibleChildren[ index - 1 ][ this.orientation.maxSide ] +
+                          visibleChildren[ index ][ this.orientation.minSide ] ) / 2;
+
+      return new Separator( combineOptions<SeparatorOptions>( {
+        [ `${this.orientation.coordinate}1` ]: inbetween,
+        [ `${this.orientation.coordinate}2` ]: inbetween,
+        [ `${this.orientation.opposite.coordinate}2` ]: this.scrollingNode[ this.orientation.opposite.size ]
+      }, this.separatorOptions ) );
+    } );
+  }
+
+  // Returns the clip area dimension for our Carousel based off of how many items we want to see per Carousel page.
+  private computeClipArea(): Dimension2 {
+    const orientation = this.orientation;
+
+    const visibleAlignBoxes = this.carousel.getVisibleAlignBoxes();
+
+    if ( visibleAlignBoxes.length === 0 ) {
+      return new Dimension2( 0, 0 );
+    }
+    else {
+
+      // This doesn't fill one page in number play preferences dialog when you forget locales=*,
+      // so take the last item, even if it is not a full page
+      const lastBox = visibleAlignBoxes[ this.itemsPerPage - 1 ] || visibleAlignBoxes[ visibleAlignBoxes.length - 1 ];
+
+      const horizontalSize = new Dimension2(
+        // Measure from the beginning of the first item to the end of the last item on the 1st page
+        lastBox[ orientation.maxSide ] - visibleAlignBoxes[ 0 ][ orientation.minSide ] + ( 2 * this.margin ),
+
+        this.scrollingNodeContainer.boundsProperty.value[ orientation.opposite.size ]
+      );
+      return this.orientation === Orientation.HORIZONTAL ? horizontalSize : horizontalSize.swapped();
+    }
+  }
+
+  private getBackgroundDimension(): Dimension2 {
+    let backgroundWidth;
+    let backgroundHeight;
+    if ( this.orientation === Orientation.HORIZONTAL ) {
+
+      // For horizontal orientation, buttons contribute to width, if they are visible.
+      const nextButtonWidth = this.nextButton.visible ? this.nextButton.width : 0;
+      const previousButtonWidth = this.previousButton.visible ? this.previousButton.width : 0;
+      backgroundWidth = this.windowNode.width + nextButtonWidth + previousButtonWidth;
+      backgroundHeight = this.windowNode.height;
+    }
+    else {
+
+      // For vertical orientation, buttons contribute to height, if they are visible.
+      const nextButtonHeight = this.nextButton.visible ? this.nextButton.height : 0;
+      const previousButtonHeight = this.previousButton.visible ? this.previousButton.height : 0;
+      backgroundWidth = this.windowNode.width;
+      backgroundHeight = this.windowNode.height + nextButtonHeight + previousButtonHeight;
+    }
+    return new Dimension2( backgroundWidth, backgroundHeight );
+  }
+
+  public override layout(): void {
+    super.layout();
+
+    const orientation = this.orientation;
+
+    // Resize next/previous buttons dynamically
+    const maxOppositeSize = this.alignGroup.getMaxSizeProperty( orientation.opposite ).value;
+    const buttonOppositeSize = maxOppositeSize + ( 2 * this.margin );
+    this.nextButton[ orientation.opposite.preferredSize ] = buttonOppositeSize;
+    this.previousButton[ orientation.opposite.preferredSize ] = buttonOppositeSize;
+
+    this.nextButton[ orientation.opposite.centerCoordinate ] = this.backgroundNode[ orientation.opposite.centerCoordinate ];
+    this.previousButton[ orientation.opposite.centerCoordinate ] = this.backgroundNode[ orientation.opposite.centerCoordinate ];
+    this.windowNode[ orientation.opposite.centerCoordinate ] = this.backgroundNode[ orientation.opposite.centerCoordinate ];
+    this.previousButton[ orientation.minSide ] = this.backgroundNode[ orientation.minSide ];
+    this.nextButton[ orientation.maxSide ] = this.backgroundNode[ orientation.maxSide ];
+    this.windowNode[ orientation.centerCoordinate ] = this.backgroundNode[ orientation.centerCoordinate ];
+
+    const clipBounds = this.computeClipArea().toBounds();
+    this.windowNode.clipArea = Shape.bounds( clipBounds );
+
+    // Specify the local bounds in order to ensure centering. For full pages, this is not necessary since the scrollingNodeContainer
+    // already spans the full area. But for a partial page, this is necessary so the window will be centered.
+    this.windowNode.localBounds = clipBounds;
+
+    const backgroundDimension = this.getBackgroundDimension();
+
+    this.carousel.backgroundWidth = backgroundDimension.width;
+    this.carousel.backgroundHeight = backgroundDimension.height;
+
+    const backgroundBounds = backgroundDimension.toBounds();
+    this.backgroundNode.rectBounds = backgroundBounds;
+    this.foregroundNode.rectBounds = backgroundBounds;
+
+    // Only update separators if they are visible
+    this.separatorLayer && this.updateSeparators();
+  }
+}
+
+sun.register( 'Carousel', Carousel );
