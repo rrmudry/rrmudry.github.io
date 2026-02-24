@@ -1,0 +1,145 @@
+// Copyright 2017-2025, University of Colorado Boulder
+
+/**
+ * TextKeyNode is a KeyNode with a text icon. It has layout, spacing, and defaults for KeyNode that are suited for text.
+ *
+ * @author Jesse Greenberg
+ */
+
+import PhetioProperty from '../../../axon/js/PhetioProperty.js';
+import { TReadOnlyProperty } from '../../../axon/js/TReadOnlyProperty.js';
+import optionize, { combineOptions } from '../../../phet-core/js/optionize.js';
+import platform from '../../../phet-core/js/platform.js';
+import RichText from '../../../scenery/js/nodes/RichText.js';
+import Font from '../../../scenery/js/util/Font.js';
+import TColor from '../../../scenery/js/util/TColor.js';
+import PhetFont from '../PhetFont.js';
+import sceneryPhet from '../sceneryPhet.js';
+import SceneryPhetFluent from '../SceneryPhetFluent.js';
+import KeyNode, { KeyNodeOptions } from './KeyNode.js';
+
+type SelfOptions = {
+  font?: Font;
+  fill?: TColor;
+  textMaxWidth?: number;
+};
+
+export type TextKeyNodeOptions = SelfOptions & KeyNodeOptions;
+
+export default class TextKeyNode extends KeyNode {
+
+  public constructor( string: string | TReadOnlyProperty<string>, providedOptions?: TextKeyNodeOptions ) {
+
+    // margins, width, and height in ScreenView coordinates
+    const options = optionize<TextKeyNodeOptions, SelfOptions, KeyNodeOptions>()( {
+
+      // text options
+      font: new PhetFont( { size: 16 } ),
+      fill: 'black',
+      textMaxWidth: 55, // Long keys like Space, Enter, Tab, Shift are all smaller than this.
+
+      // by default, key should tightly surround the text, with a bit more horizontal space
+      xPadding: 11
+    }, providedOptions );
+
+    // use RichText because some keys (like page up/page down/caps lock) might span multiple lines
+    const text = new RichText( string, {
+      font: options.font,
+      fill: options.fill,
+      maxWidth: options.textMaxWidth
+    } );
+
+    super( text, options );
+    this.addDisposable( text );
+  }
+
+  /**
+   * Returns the correct string for the 'alt' key for the platform. "Option" on Mac, "Alt" elsewhere.
+   */
+  public static getAltKeyString(): PhetioProperty<string> {
+    return platform.mac ?
+           SceneryPhetFluent.key.optionStringProperty :
+           SceneryPhetFluent.key.altStringProperty;
+  }
+
+  /**
+   * Returns the correct string for the 'enter' key for the platform. "Return" on Mac, "Enter" elsewhere.
+   */
+  public static getEnterKeyString(): TReadOnlyProperty<string> {
+    return platform.mac ?
+           SceneryPhetFluent.key.returnStringProperty :
+           SceneryPhetFluent.key.enterStringProperty;
+  }
+
+  //-------------------------------------------------------------------------------------------------
+  // Static factory methods for specific text strings. For brevity, these methods have the same names
+  // as their string keys. For example SceneryPhetFluent.key.esc is rendered by the esc method.
+  //-------------------------------------------------------------------------------------------------
+
+  // Note that this will render "Alt" OR "Options", depending on platform. If there is a description of this icon
+  // in the PDOM please use getAltKeyString().
+  public static altOrOption( providedOptions?: KeyNodeOptions ): KeyNode {
+    return new TextKeyNode( TextKeyNode.getAltKeyString(), providedOptions );
+  }
+
+  public static capsLock( providedOptions?: KeyNodeOptions ): KeyNode {
+    return new TextKeyNode( SceneryPhetFluent.key.capsLockStringProperty, providedOptions );
+  }
+
+  public static esc( providedOptions?: KeyNodeOptions ): KeyNode {
+    return new TextKeyNode( SceneryPhetFluent.key.escStringProperty, providedOptions );
+  }
+
+  public static end( providedOptions?: KeyNodeOptions ): KeyNode {
+    return new TextKeyNode( SceneryPhetFluent.key.endStringProperty, providedOptions );
+  }
+
+  public static enter( providedOptions?: KeyNodeOptions ): KeyNode {
+    return new TextKeyNode( TextKeyNode.getEnterKeyString(), providedOptions );
+  }
+
+  public static backspace( providedOptions?: TextKeyNodeOptions ): KeyNode {
+    return new TextKeyNode( SceneryPhetFluent.key.backspaceStringProperty, combineOptions<TextKeyNodeOptions>(
+      {},
+      {
+        // This is a longer key name in english, so it is allowed to grow.
+        textMaxWidth: 80
+      },
+      providedOptions
+    ) );
+  }
+
+  public static delete( providedOptions?: TextKeyNodeOptions ): KeyNode {
+    return new TextKeyNode( SceneryPhetFluent.key.deleteStringProperty, providedOptions );
+  }
+
+  public static fn( providedOptions?: KeyNodeOptions ): KeyNode {
+    return new TextKeyNode( SceneryPhetFluent.key.fnStringProperty, providedOptions );
+  }
+
+  public static home( providedOptions?: KeyNodeOptions ): KeyNode {
+    return new TextKeyNode( SceneryPhetFluent.key.homeStringProperty, providedOptions );
+  }
+
+  public static pageDown( providedOptions?: KeyNodeOptions ): KeyNode {
+    return new TextKeyNode( SceneryPhetFluent.key.pageDownStringProperty, providedOptions );
+  }
+
+  public static pageUp( providedOptions?: KeyNodeOptions ): KeyNode {
+    return new TextKeyNode( SceneryPhetFluent.key.pageUpStringProperty, providedOptions );
+  }
+
+  public static space( providedOptions?: KeyNodeOptions ): KeyNode {
+    return new TextKeyNode( SceneryPhetFluent.key.spaceStringProperty, providedOptions );
+  }
+
+  public static shift( providedOptions?: KeyNodeOptions ): KeyNode {
+    return new TextKeyNode( SceneryPhetFluent.key.shiftStringProperty, providedOptions );
+  }
+
+  public static tab( providedOptions?: KeyNodeOptions ): KeyNode {
+    return new TextKeyNode( SceneryPhetFluent.key.tabStringProperty, providedOptions );
+  }
+}
+
+sceneryPhet.register( 'TextKeyNode', TextKeyNode );
