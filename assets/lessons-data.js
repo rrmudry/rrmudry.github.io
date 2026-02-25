@@ -178,13 +178,21 @@ const lessonsData = [
     date: "2026-02-25",
     day: 13,
     unit: 5,
-    title: "Lab: Penny Boat Activity (Day 1)",
-    summary: "Engineering challenge: Designing a folder-paper boat to hold weight.",
-    details: "Introduction to buoyancy through hands-on construction. Designing and prototyping boats.",
-    type: "Lab",
+    title: "Connections: Reading and Lab",
+    summary: "Making connections between the reading and the lab.",
+    details: "Students will collaborate with their group to make connections between the reading materials and the recent lab using a shared document.",
+    type: "Activity",
     dok: 3,
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    wicor: {
+      collaboration: "Students will collaborate with their group.",
+      reading: "Making connections to the reading materials.",
+      writing: "Documenting connections in the shared document."
+    },
+    links: {
+      'Collaborative Document': 'https://docs.google.com/document/d/1dCXH40YVvT2zvgQBGSn-YRu4R8j7p8ardLDmhJd7KPU/edit?usp=sharing'
+    }
   },
   {
     date: "2026-02-24",
