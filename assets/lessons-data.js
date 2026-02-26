@@ -166,7 +166,7 @@ const lessonsData = [
     date: "2026-02-26",
     day: 14,
     unit: 5,
-    title: "Lab: Penny Boat Activity (Day 2)",
+    title: "Lab: Penny Boat Activity",
     summary: "Testing boat designs and maximizing carrying capacity.",
     details: "Students iterate on their designs and compete to see which boat can hold the most pennies before sinking.",
     type: "Lab",
