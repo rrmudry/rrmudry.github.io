@@ -172,7 +172,11 @@ const lessonsData = [
     type: "Lab",
     dok: 3,
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    links: {
+      '3D Simulator': 'penny-boat-lab/index.html',
+      'Lab Worksheet': 'https://docs.google.com/document/d/1VQUuUUDHWyi3-RyGK4vMBHEynfavdPs9/edit?usp=sharing&ouid=111972921986195834260&rtpof=true&sd=true'
+    }
   },
   {
     date: "2026-02-25",
