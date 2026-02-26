@@ -6,11 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3D Penny Boat Physics Lab</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Three.js and OrbitControls -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
         body {
             font-family: 'Inter', sans-serif;
@@ -19,7 +16,6 @@
             overflow: hidden;
         }
 
-        /* Custom slider styling */
         input[type=range] {
             -webkit-appearance: none;
             width: 100%;
@@ -67,595 +63,467 @@
         <!-- Boat Dimensions -->
         <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-700/50">
             <h2 class="text-sm font-semibold text-slate-300 mb-4 uppercase tracking-wider">Design Boat</h2>
-
             <div class="mb-4">
-                <div class="flex justify-between text-sm mb-1">
-                    <label class="text-slate-400">Length (cm)</label>
-                    <span id="length-val" class="font-mono text-sky-300">15 cm</span>
-                </div>
-                <input type="range" id="boat-length" min="2" max="23" value="15" step="1">
+                <div class="flex justify-between text-sm mb-1"><label class="text-slate-400">Length (cm)</label><span
+                        id="v-len" class="font-mono text-sky-300">15 cm</span></div>
+                <input type="range" id="b-len" min="2" max="23" value="15" step="1">
             </div>
-
             <div class="mb-4">
-                <div class="flex justify-between text-sm mb-1">
-                    <label class="text-slate-400">Width (cm)</label>
-                    <span id="width-val" class="font-mono text-sky-300">7 cm</span>
-                </div>
-                <input type="range" id="boat-width" min="2" max="13" value="7" step="1">
+                <div class="flex justify-between text-sm mb-1"><label class="text-slate-400">Width (cm)</label><span
+                        id="v-wid" class="font-mono text-sky-300">7 cm</span></div>
+                <input type="range" id="b-wid" min="2" max="13" value="7" step="1">
             </div>
-
             <div>
-                <div class="flex justify-between text-sm mb-1">
-                    <label class="text-slate-400">Height (cm)</label>
-                    <span id="height-val" class="font-mono text-sky-300">4 cm</span>
-                </div>
-                <input type="range" id="boat-height" min="1" max="6" value="4" step="1">
+                <div class="flex justify-between text-sm mb-1"><label class="text-slate-400">Height (cm)</label><span
+                        id="v-hgt" class="font-mono text-sky-300">4 cm</span></div>
+                <input type="range" id="b-hgt" min="1" max="6" value="4" step="1">
             </div>
 
             <div class="mt-4 bg-slate-800 p-3 rounded-lg border border-slate-700">
                 <div class="flex justify-between items-end mb-1">
-                    <p class="text-[11px] text-slate-400 font-semibold uppercase">Foil Sheet Used</p>
-                    <p id="foil-text" class="text-xs font-mono text-sky-300">0 x 0 cm</p>
+                    <p class="text-[11px] text-slate-400 font-semibold uppercase">Foil Sheet</p>
+                    <p id="f-txt" class="text-xs font-mono text-sky-300">0 x 0 cm</p>
                 </div>
                 <div class="space-y-1.5 mt-2">
                     <div class="flex items-center gap-2">
                         <span class="text-[10px] text-slate-500 w-10">Width</span>
                         <div class="flex-1 bg-slate-900 rounded-full h-1.5">
-                            <div id="foil-bar-w" class="bg-sky-400 h-1.5 rounded-full transition-all" style="width: 0%">
-                            </div>
+                            <div id="f-bw" class="bg-sky-400 h-1.5 rounded-full transition-all" style="width: 0%"></div>
                         </div>
                         <span class="text-[10px] text-slate-500 w-6 text-right">15</span>
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="text-[10px] text-slate-500 w-10">Length</span>
                         <div class="flex-1 bg-slate-900 rounded-full h-1.5">
-                            <div id="foil-bar-l" class="bg-indigo-400 h-1.5 rounded-full transition-all"
-                                style="width: 0%"></div>
+                            <div id="f-bl" class="bg-indigo-400 h-1.5 rounded-full transition-all" style="width: 0%">
+                            </div>
                         </div>
                         <span class="text-[10px] text-slate-500 w-6 text-right">25</span>
                     </div>
                 </div>
-                <p id="foil-warning" class="text-[10px] text-amber-500 mt-2 hidden leading-tight">Max foil size reached!
-                </p>
+                <p id="f-wrn" class="text-[10px] text-amber-500 mt-2 hidden leading-tight">Max foil size reached!</p>
             </div>
-
-            <p class="text-[10px] text-slate-500 mt-3 italic">* Changing dimensions resets lab. Left-click/drag to
-                rotate.</p>
         </div>
 
         <!-- Actions -->
         <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-700/50">
             <h2 class="text-sm font-semibold text-slate-300 mb-4 uppercase tracking-wider">Add Mass</h2>
-
             <div class="grid grid-cols-2 gap-2 mb-3">
-                <button id="btn-add-1"
-                    class="bg-amber-600 hover:bg-amber-500 text-white py-2 rounded-lg font-medium transition-colors shadow-lg shadow-amber-900/20 active:scale-95">
-                    +1 Penny
-                </button>
-                <button id="btn-add-10"
-                    class="bg-amber-700 hover:bg-amber-600 text-white py-2 rounded-lg font-medium transition-colors shadow-lg shadow-amber-900/20 active:scale-95">
-                    +10 Pennies
-                </button>
+                <button id="b-add1"
+                    class="bg-amber-600 hover:bg-amber-500 text-white py-2 rounded-lg font-medium transition-colors shadow-lg active:scale-95">+1
+                    Random</button>
+                <button id="b-add10"
+                    class="bg-amber-700 hover:bg-amber-600 text-white py-2 rounded-lg font-medium transition-colors shadow-lg active:scale-95">+10
+                    Random</button>
             </div>
-
-            <button id="btn-reset"
-                class="w-full bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-lg font-medium transition-colors active:scale-95 flex items-center justify-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                    viewBox="0 0 256 256">
-                    <path
-                        d="M224,128a96,96,0,0,1-94.71,96H128A95.38,95.38,0,0,1,62.1,197.8a8,8,0,0,1,11.8-10.9A79.44,79.44,0,0,0,128,208h1.29A80,80,0,1,0,71.43,71.39l14.86,14.86a8,8,0,0,1-5.66,13.66H32a8,8,0,0,1-8-8V44a8,8,0,0,1,13.66-5.66L53.8,54.48A96,96,0,0,1,224,128Z">
-                    </path>
-                </svg>
-                Reset Lab
-            </button>
+            <p class="text-[11px] text-sky-400 mb-3 text-center bg-sky-900/30 py-2 rounded border border-sky-800/50">💡
+                Click inside boat to place pennies!</p>
+            <button id="b-rst"
+                class="w-full bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-lg font-medium transition-colors active:scale-95">Reset
+                Lab</button>
         </div>
 
-        <!-- Physics Telemetry -->
+        <!-- Telemetry -->
         <div class="flex-1 bg-slate-900/50 p-4 rounded-xl border border-slate-700/50 flex flex-col">
-            <h2 class="text-sm font-semibold text-slate-300 mb-3 uppercase tracking-wider">Live Telemetry</h2>
-
+            <h2 class="text-sm font-semibold text-slate-300 mb-3 uppercase tracking-wider">Telemetry</h2>
             <div class="space-y-2 text-sm">
-                <div class="flex justify-between items-center border-b border-slate-700/50 pb-1">
-                    <span class="text-slate-400">Total Mass:</span>
-                    <span id="stat-mass" class="font-mono text-white">0 g</span>
-                </div>
-                <div class="flex justify-between items-center border-b border-slate-700/50 pb-1">
-                    <span class="text-slate-400">Submerged Depth:</span>
-                    <span id="stat-draft" class="font-mono text-white">0.0 cm</span>
-                </div>
-                <div class="flex justify-between items-center border-b border-slate-700/50 pb-1">
-                    <span class="text-slate-400">Displaced Vol:</span>
-                    <span id="stat-vol" class="font-mono text-white">0.0 cm³</span>
-                </div>
-                <div class="flex justify-between items-center border-b border-slate-700/50 pb-1">
-                    <span class="text-slate-400">Pennies:</span>
-                    <span id="stat-pennies" class="font-mono text-amber-400 font-bold">0</span>
-                </div>
+                <div class="flex justify-between items-center border-b border-slate-700/50 pb-1"><span
+                        class="text-slate-400">Total Mass:</span><span id="s-mass" class="font-mono text-white">0
+                        g</span></div>
+                <div class="flex justify-between items-center border-b border-slate-700/50 pb-1"><span
+                        class="text-slate-400">Draft (Depth):</span><span id="s-drft" class="font-mono text-white">0.0
+                        cm</span></div>
+                <div class="flex justify-between items-center border-b border-slate-700/50 pb-1"><span
+                        class="text-slate-400">Displaced Vol:</span><span id="s-vol" class="font-mono text-white">0.0
+                        cm³</span></div>
+                <div class="flex justify-between items-center"><span class="text-slate-400">Pennies:</span><span
+                        id="s-cnt" class="font-mono text-amber-400 font-bold">0</span></div>
             </div>
-
         </div>
     </div>
-    </div>
 
-    <!-- Simulation Container for Three.js -->
+    <!-- Simulation -->
     <div class="flex-1 relative" id="sim-container">
-        <!-- Sunk Overlay -->
-        <div id="sunk-overlay"
+        <!-- Sunk Modal -->
+        <div id="s-ovr"
             class="absolute inset-0 bg-red-900/20 backdrop-blur-[2px] flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-500 z-20">
             <div class="bg-slate-900 p-8 rounded-2xl border border-red-500/50 text-center shadow-2xl transform scale-95 transition-transform duration-500"
-                id="sunk-modal">
+                id="s-mod">
                 <h2 class="text-4xl font-black text-red-500 mb-2 uppercase tracking-widest">Sunk!</h2>
-                <p class="text-slate-300 mb-6">The total mass exceeded the maximum displacement volume.</p>
+                <p id="s-rsn" class="text-slate-300 mb-6">Mass exceeded displacement limits.</p>
                 <div class="flex justify-center gap-4 text-left">
                     <div class="bg-slate-800 p-3 rounded-lg border border-slate-700">
-                        <p class="text-xs text-slate-400">Final Pennies</p>
-                        <p id="final-pennies" class="text-2xl font-mono text-amber-400">0</p>
+                        <p class="text-xs text-slate-400">Pennies Hold</p>
+                        <p id="f-cnt" class="text-2xl font-mono text-amber-400">0</p>
                     </div>
                 </div>
-                <button onclick="lab.reset()"
-                    class="mt-6 bg-red-600 hover:bg-red-500 text-white px-8 py-3 rounded-lg font-bold transition-colors">
-                    Try Again
-                </button>
+                <button onclick="window.lab.reset()"
+                    class="mt-6 bg-red-600 hover:bg-red-500 text-white px-8 py-3 rounded-lg font-bold transition-colors">Try
+                    Again</button>
             </div>
         </div>
     </div>
 
-    <script>
-        /**
-         * 3D Penny Boat Physics Engine using Three.js
-         */
+    <!-- Module Script ensuring no 'Unexpected end of input' via robust ESM setup -->
+    <script type="module">
+        import * as THREE from 'https://esm.sh/three@0.128.0';
+        import { OrbitControls } from 'https://esm.sh/three@0.128.0/examples/jsm/controls/OrbitControls.js';
+        import * as CANNON from 'https://esm.sh/cannon-es@0.20.0';
+
         class PennyBoatLab3D {
             constructor() {
-                // Constants
-                this.WATER_DENSITY = 1.0; // g/cm^3
-                this.PENNY_MASS = 2.5; // grams
-                this.FOIL_AREA_DENSITY = 0.05; // g/cm^2
+                // Physics constants
+                this.WATER_DENSITY = 1.0;
+                this.PENNY_MASS = 2.5;
+                this.FOIL_AREA_DENSITY = 0.05;
 
-                // State
-                this.length = 15; // cm
-                this.width = 7; // cm
-                this.height = 4; // cm
-                this.pennies = 0;
-                this.floatingPennies = 0;
+                // Lab State
+                this.len = 15; this.wid = 7; this.hgt = 4;
+                this.pennies = 0; this.floatingPennies = 0;
                 this.isSunk = false;
+                this.targetPitch = 0; this.targetRoll = 0;
+                this.massBoat = 0; this.massTotal = 0; this.draft = 0;
 
-                // Physics state
-                this.massBoat = 0;
-                this.massTotal = 0;
-                this.draft = 0; // submerged depth
-                this.maxPennies = 0;
-
-                // Three.js State
-                this.pennyMeshes = [];
+                this.pennyMeshes = []; this.pennyBodies = [];
                 this.container = document.getElementById('sim-container');
 
-                this.initThreeJS();
-                this.bindEvents();
+                this.initPhys();
+                this.init3D();
+                this.bindEvts();
+                this.updateFoilUI();
 
-                // Initialize UI
-                this.updateFoilUsageUI();
-
-                // Event listener for window resize
                 window.addEventListener('resize', () => this.resize());
-
-                this.updatePhysics();
-                this.animate();
+                this.updatePhys();
+                this.anim();
             }
 
-            initThreeJS() {
-                // Scene setup
-                this.scene = new THREE.Scene();
-                this.scene.background = new THREE.Color('#0f172a'); // Matches Tailwind slate-900
+            initPhys() {
+                this.world = new CANNON.World({ gravity: new CANNON.Vec3(0, -40, 0) });
+                this.world.broadphase = new CANNON.SAPBroadphase(this.world);
+                this.world.solver.iterations = 20; // Increase solver iterations for stability
+                this.mat = new CANNON.Material();
+                this.world.addContactMaterial(new CANNON.ContactMaterial(this.mat, this.mat, { friction: 0.5, restitution: 0.0 })); // Less bounce
 
-                // Camera setup
+                const floor = new CANNON.Body({ type: CANNON.Body.STATIC, shape: new CANNON.Plane(), material: this.mat });
+                floor.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
+                floor.position.y = -10;
+                this.world.addBody(floor);
+            }
+
+            init3D() {
+                this.scene = new THREE.Scene();
+                this.scene.background = new THREE.Color('#0f172a');
+
                 this.camera = new THREE.PerspectiveCamera(45, this.container.clientWidth / this.container.clientHeight, 0.1, 1000);
                 this.camera.position.set(20, 15, 20);
 
-                // Renderer setup
                 this.renderer = new THREE.WebGLRenderer({ antialias: true });
                 this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
                 this.renderer.shadowMap.enabled = true;
-                this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
                 this.container.appendChild(this.renderer.domElement);
 
-                // Controls setup
-                this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+                this.controls = new OrbitControls(this.camera, this.renderer.domElement);
                 this.controls.enableDamping = true;
-                this.controls.dampingFactor = 0.05;
-                this.controls.maxPolarAngle = Math.PI / 2 - 0.05; // Don't allow going below the water surface too far
-                this.controls.minDistance = 10;
-                this.controls.maxDistance = 100;
+                this.controls.maxPolarAngle = Math.PI / 2 - 0.05;
 
-                // Lighting
-                const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-                this.scene.add(ambientLight);
-
+                this.scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+                this.scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 0.6));
                 const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
                 dirLight.position.set(20, 40, 20);
                 dirLight.castShadow = true;
-                dirLight.shadow.camera.left = -20;
-                dirLight.shadow.camera.right = 20;
-                dirLight.shadow.camera.top = 20;
-                dirLight.shadow.camera.bottom = -20;
                 this.scene.add(dirLight);
 
-                // Water Materials
-                const waterMat = new THREE.MeshPhysicalMaterial({
-                    color: 0x0284c7, // Tailwind sky-600
-                    transparent: true,
-                    opacity: 0.6,
-                    roughness: 0.1,
-                    transmission: 0.5,
-                    depthWrite: false, // Prevents Z-fighting
-                    side: THREE.DoubleSide
-                });
+                const waterMat = new THREE.MeshPhysicalMaterial({ color: 0x0284c7, transparent: true, opacity: 0.6, depthWrite: false, side: THREE.DoubleSide });
 
-                // Floating Water (4 Planes creating a hole)
                 this.waterGroup = new THREE.Group();
-                this.waterNorth = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), waterMat);
-                this.waterSouth = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), waterMat);
-                this.waterWest = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), waterMat);
-                this.waterEast = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), waterMat);
-
-                this.waterNorth.rotation.x = -Math.PI / 2;
-                this.waterSouth.rotation.x = -Math.PI / 2;
-                this.waterWest.rotation.x = -Math.PI / 2;
-                this.waterEast.rotation.x = -Math.PI / 2;
-
-                this.waterNorth.receiveShadow = true;
-                this.waterSouth.receiveShadow = true;
-                this.waterWest.receiveShadow = true;
-                this.waterEast.receiveShadow = true;
-
-                this.waterGroup.add(this.waterNorth);
-                this.waterGroup.add(this.waterSouth);
-                this.waterGroup.add(this.waterWest);
-                this.waterGroup.add(this.waterEast);
+                ['N', 'S', 'W', 'E'].forEach(d => {
+                    let m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), waterMat);
+                    m.rotation.x = -Math.PI / 2;
+                    this.waterGroup.add(m);
+                    this['w' + d] = m;
+                });
                 this.scene.add(this.waterGroup);
 
-                // Sunk Water (Solid Plane)
                 this.waterSolid = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), waterMat);
                 this.waterSolid.rotation.x = -Math.PI / 2;
-                this.waterSolid.receiveShadow = true;
                 this.waterSolid.visible = false;
                 this.scene.add(this.waterSolid);
 
-                // Grid Helper underneath water
-                const gridHelper = new THREE.GridHelper(200, 40, 0x334155, 0x1e293b);
-                gridHelper.position.y = -10; // "Pool floor"
-                this.scene.add(gridHelper);
+                const grid = new THREE.GridHelper(200, 40, 0x334155, 0x1e293b);
+                grid.position.y = -10;
+                this.scene.add(grid);
 
-                // Boat Group (Holds boat hull, pennies, and vectors)
                 this.boatGroup = new THREE.Group();
                 this.scene.add(this.boatGroup);
 
-                // Materials
-                this.foilMat = new THREE.MeshStandardMaterial({
-                    color: 0xcccccc,
-                    metalness: 0.7,
-                    roughness: 0.3,
-                    side: THREE.DoubleSide
-                });
+                this.foilMat = new THREE.MeshStandardMaterial({ color: 0xcccccc, metalness: 0.6, roughness: 0.5, side: THREE.DoubleSide });
+                this.pennyMat = new THREE.MeshStandardMaterial({ color: 0xb45309, metalness: 0.6, roughness: 0.4 });
 
-                this.pennyMat = new THREE.MeshStandardMaterial({
-                    color: 0xb45309, // Tailwind amber-700
-                    metalness: 0.6,
-                    roughness: 0.4
-                });
-
-                // Force Arrows
-                this.arrowBuoyancy = new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 0, 0), 5, 0x4ade80, 1, 0.5);
-                this.arrowGravity = new THREE.ArrowHelper(new THREE.Vector3(0, -1, 0), new THREE.Vector3(0, 0, 0), 5, 0xf87171, 1, 0.5);
-                this.boatGroup.add(this.arrowBuoyancy);
-                this.boatGroup.add(this.arrowGravity);
+                this.aBuoy = new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 0, 0), 5, 0x4ade80);
+                this.aGrav = new THREE.ArrowHelper(new THREE.Vector3(0, -1, 0), new THREE.Vector3(0, 0, 0), 5, 0xf87171);
+                this.boatGroup.add(this.aBuoy, this.aGrav);
 
                 this.buildBoat();
             }
 
             buildBoat() {
-                // Remove existing hull parts
-                const toRemove = [];
-                this.boatGroup.children.forEach(child => {
-                    if (child.isMesh && child.geometry.type === "BoxGeometry") {
-                        toRemove.push(child);
-                    }
-                });
-                toRemove.forEach(child => {
-                    this.boatGroup.remove(child);
-                    child.geometry.dispose();
-                });
+                // Clear old visual walls
+                const toRem = this.boatGroup.children.filter(c => c.isMesh);
+                toRem.forEach(c => { this.boatGroup.remove(c); c.geometry.dispose(); });
 
-                const t = 0.2; // Thickness of the foil walls for 3D representation
+                const t = 0.2, w = this.wid, l = this.len, h = this.hgt;
 
-                // Bottom
-                const bottomGeo = new THREE.BoxGeometry(this.width, t, this.length);
-                const bottom = new THREE.Mesh(bottomGeo, this.foilMat);
-                bottom.position.y = t / 2;
-                bottom.castShadow = true;
-                bottom.receiveShadow = true;
-                this.boatGroup.add(bottom);
+                const addWall = (geo, x, y, z) => {
+                    let m = new THREE.Mesh(geo, this.foilMat);
+                    m.position.set(x, y, z);
+                    m.castShadow = true;
+                    this.boatGroup.add(m);
+                };
 
-                // Front and Back Walls (Along Width, Offset by Length)
-                const fbGeo = new THREE.BoxGeometry(this.width, this.height, t);
-                const frontWall = new THREE.Mesh(fbGeo, this.foilMat);
-                frontWall.position.set(0, this.height / 2, this.length / 2 - t / 2);
-                frontWall.castShadow = true;
-                this.boatGroup.add(frontWall);
+                addWall(new THREE.BoxGeometry(w, t, l), 0, t / 2, 0); // Bottom
+                const fb = new THREE.BoxGeometry(w, h, t);
+                addWall(fb, 0, h / 2, l / 2 - t / 2); // Front
+                addWall(fb, 0, h / 2, -l / 2 + t / 2); // Back
+                const lr = new THREE.BoxGeometry(t, h, l - t * 2);
+                addWall(lr, -w / 2 + t / 2, h / 2, 0); // Left
+                addWall(lr, w / 2 - t / 2, h / 2, 0); // Right
 
-                const backWall = new THREE.Mesh(fbGeo, this.foilMat);
-                backWall.position.set(0, this.height / 2, -this.length / 2 + t / 2);
-                backWall.castShadow = true;
-                this.boatGroup.add(backWall);
+                // Refresh Physics body
+                if (this.boatPhys) this.world.removeBody(this.boatPhys);
+                this.boatPhys = new CANNON.Body({ type: CANNON.Body.KINEMATIC, position: new CANNON.Vec3().copy(this.boatGroup.position) });
 
-                // Left and Right Walls (Along Length, Offset by Width)
-                const lrGeo = new THREE.BoxGeometry(t, this.height, this.length - t * 2);
-                const leftWall = new THREE.Mesh(lrGeo, this.foilMat);
-                leftWall.position.set(-this.width / 2 + t / 2, this.height / 2, 0);
-                leftWall.castShadow = true;
-                this.boatGroup.add(leftWall);
+                // Anti-tunneling: Give the bottom physical shape extra thickness downwards
+                const physT = 2.0;
+                this.boatPhys.addShape(new CANNON.Box(new CANNON.Vec3(w / 2, physT / 2, l / 2)), new CANNON.Vec3(0, t - physT / 2, 0));
 
-                const rightWall = new THREE.Mesh(lrGeo, this.foilMat);
-                rightWall.position.set(this.width / 2 - t / 2, this.height / 2, 0);
-                rightWall.castShadow = true;
-                this.boatGroup.add(rightWall);
+                let fbs = new CANNON.Box(new CANNON.Vec3(w / 2, h / 2, t / 2));
+                this.boatPhys.addShape(fbs, new CANNON.Vec3(0, h / 2, l / 2 - t / 2));
+                this.boatPhys.addShape(fbs, new CANNON.Vec3(0, h / 2, -l / 2 + t / 2));
+                let lrs = new CANNON.Box(new CANNON.Vec3(t / 2, h / 2, l / 2 - t));
+                this.boatPhys.addShape(lrs, new CANNON.Vec3(-w / 2 + t / 2, h / 2, 0));
+                this.boatPhys.addShape(lrs, new CANNON.Vec3(w / 2 - t / 2, h / 2, 0));
 
-                // Position force vectors in the center of the boat
-                this.arrowBuoyancy.position.set(0, this.height / 2, 0);
-                this.arrowGravity.position.set(0, this.height / 2, 0);
+                this.world.addBody(this.boatPhys);
+                this.aBuoy.position.set(0, h / 2, 0);
+                this.aGrav.position.set(0, h / 2, 0);
 
-                this.updateWaterHole();
+                this.updateHole();
             }
 
-            updateWaterHole() {
-                const holeW = this.width - 0.1; // Slightly smaller to hide seams inside foil thickness
-                const holeL = this.length - 0.1;
-                const poolSize = 200;
-
-                const nDepth = (poolSize - holeL) / 2;
-                this.waterNorth.geometry.dispose();
-                this.waterNorth.geometry = new THREE.PlaneGeometry(poolSize, nDepth);
-                this.waterNorth.position.set(0, 0, -holeL / 2 - nDepth / 2);
-
-                const sDepth = (poolSize - holeL) / 2;
-                this.waterSouth.geometry.dispose();
-                this.waterSouth.geometry = new THREE.PlaneGeometry(poolSize, sDepth);
-                this.waterSouth.position.set(0, 0, holeL / 2 + sDepth / 2);
-
-                const wWidth = (poolSize - holeW) / 2;
-                this.waterWest.geometry.dispose();
-                this.waterWest.geometry = new THREE.PlaneGeometry(wWidth, holeL);
-                this.waterWest.position.set(-holeW / 2 - wWidth / 2, 0, 0);
-
-                const eWidth = (poolSize - holeW) / 2;
-                this.waterEast.geometry.dispose();
-                this.waterEast.geometry = new THREE.PlaneGeometry(eWidth, holeL);
-                this.waterEast.position.set(holeW / 2 + eWidth / 2, 0, 0);
+            updateHole() {
+                const p = 200, hw = this.wid - 0.1, hl = this.len - 0.1;
+                const setP = (m, pw, ph, px, pz) => {
+                    m.geometry.dispose();
+                    m.geometry = new THREE.PlaneGeometry(pw, ph);
+                    m.position.set(px, 0, pz);
+                };
+                setP(this.wN, p, (p - hl) / 2, 0, -hl / 2 - (p - hl) / 4);
+                setP(this.wS, p, (p - hl) / 2, 0, hl / 2 + (p - hl) / 4);
+                setP(this.wW, (p - hw) / 2, hl, -hw / 2 - (p - hw) / 4, 0);
+                setP(this.wE, (p - hw) / 2, hl, hw / 2 + (p - hw) / 4, 0);
             }
 
-            bindEvents() {
-                const enforceFoilLimit = (changedProp) => {
-                    let L = parseFloat(document.getElementById('boat-length').value);
-                    let W = parseFloat(document.getElementById('boat-width').value);
-                    let H = parseFloat(document.getElementById('boat-height').value);
+            bindEvts() {
+                const enforce = (prop) => {
+                    let L = +document.getElementById('b-len').value, W = +document.getElementById('b-wid').value, H = +document.getElementById('b-hgt').value;
+                    let warn = false;
 
-                    let showWarning = false;
-
-                    // Foil math: 2 height walls per side.
-                    if (changedProp === 'length' && L + 2 * H > 25) {
-                        L = 25 - 2 * H; showWarning = true;
-                    } else if (changedProp === 'width' && W + 2 * H > 15) {
-                        W = 15 - 2 * H; showWarning = true;
-                    } else if (changedProp === 'height') {
-                        if (L + 2 * H > 25) { L = 25 - 2 * H; showWarning = true; }
-                        if (W + 2 * H > 15) { W = 15 - 2 * H; showWarning = true; }
+                    if (prop === 'l' && L + 2 * H > 25) { L = 25 - 2 * H; warn = true; }
+                    else if (prop === 'w' && W + 2 * H > 15) { W = 15 - 2 * H; warn = true; }
+                    else if (prop === 'h') {
+                        if (L + 2 * H > 25) { L = 25 - 2 * H; warn = true; }
+                        if (W + 2 * H > 15) { W = 15 - 2 * H; warn = true; }
                     }
 
-                    this.length = L;
-                    this.width = W;
-                    this.height = H;
-
-                    document.getElementById('boat-length').value = L;
-                    document.getElementById('boat-width').value = W;
-                    document.getElementById('boat-height').value = H;
-
-                    document.getElementById('length-val').innerText = `${L} cm`;
-                    document.getElementById('width-val').innerText = `${W} cm`;
-                    document.getElementById('height-val').innerText = `${H} cm`;
-
-                    this.updateFoilUsageUI(showWarning);
+                    this.len = L; this.wid = W; this.hgt = H;
+                    document.getElementById('b-len').value = L; document.getElementById('b-wid').value = W; document.getElementById('b-hgt').value = H;
+                    document.getElementById('v-len').innerText = `${L} cm`; document.getElementById('v-wid').innerText = `${W} cm`; document.getElementById('v-hgt').innerText = `${H} cm`;
+                    this.updateFoilUI(warn);
                     this.reset();
                 };
 
-                document.getElementById('boat-length').addEventListener('input', () => enforceFoilLimit('length'));
-                document.getElementById('boat-width').addEventListener('input', () => enforceFoilLimit('width'));
-                document.getElementById('boat-height').addEventListener('input', () => enforceFoilLimit('height'));
+                ['len', 'wid', 'hgt'].forEach(p => document.getElementById(`b-${p}`).addEventListener('input', () => enforce(p[0])));
+                document.getElementById('b-add1').addEventListener('click', () => this.addP(1));
+                document.getElementById('b-add10').addEventListener('click', () => this.addP(10));
+                document.getElementById('b-rst').addEventListener('click', () => this.reset());
 
-                document.getElementById('btn-add-1').addEventListener('click', () => this.addPennies(1));
-                document.getElementById('btn-add-10').addEventListener('click', () => this.addPennies(10));
-                document.getElementById('btn-reset').addEventListener('click', () => this.reset());
+                let pt = new THREE.Vector2();
+                this.container.addEventListener('pointerdown', e => pt.set(e.clientX, e.clientY));
+                this.container.addEventListener('pointerup', e => {
+                    if (Math.hypot(e.clientX - pt.x, e.clientY - pt.y) < 5) this.click(e);
+                });
             }
 
-            updateFoilUsageUI(showWarning = false) {
-                const foilW = this.width + 2 * this.height;
-                const foilL = this.length + 2 * this.height;
+            click(e) {
+                if (this.isSunk) return;
+                const r = this.container.getBoundingClientRect();
+                const m = new THREE.Vector2(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
 
-                document.getElementById('foil-text').innerText = `${foilW} x ${foilL} cm`;
+                const rc = new THREE.Raycaster();
+                rc.setFromCamera(m, this.camera);
 
-                const wPct = Math.min(100, (foilW / 15) * 100);
-                const lPct = Math.min(100, (foilL / 25) * 100);
+                const hit = rc.intersectObjects([...this.boatGroup.children, ...this.pennyMeshes]).find(i => i.object.geometry.type.includes('Box') || i.object.geometry.type.includes('Cylinder'));
 
-                document.getElementById('foil-bar-w').style.width = `${wPct}%`;
-                document.getElementById('foil-bar-l').style.width = `${lPct}%`;
-
-                document.getElementById('foil-bar-w').className = foilW >= 15 ? 'bg-amber-500 h-1.5 rounded-full transition-all' : 'bg-sky-400 h-1.5 rounded-full transition-all';
-                document.getElementById('foil-bar-l').className = foilL >= 25 ? 'bg-amber-500 h-1.5 rounded-full transition-all' : 'bg-indigo-400 h-1.5 rounded-full transition-all';
-
-                const warningEl = document.getElementById('foil-warning');
-                if (showWarning || foilW >= 15 || foilL >= 25) {
-                    warningEl.classList.remove('hidden');
-                } else {
-                    warningEl.classList.add('hidden');
+                if (hit) {
+                    let loc = this.boatGroup.worldToLocal(hit.point.clone());
+                    let maxW = this.wid / 2 - 0.5, maxL = this.len / 2 - 0.5;
+                    this.dropP(Math.max(-maxW, Math.min(maxW, loc.x)), this.hgt + 0.5, Math.max(-maxL, Math.min(maxL, loc.z)));
                 }
+            }
+
+            updateFoilUI(warn = false) {
+                let w = this.wid + 2 * this.hgt, l = this.len + 2 * this.hgt;
+                document.getElementById('f-txt').innerText = `${w} x ${l} cm`;
+                document.getElementById('f-bw').style.width = `${Math.min(100, (w / 15) * 100)}%`;
+                document.getElementById('f-bl').style.width = `${Math.min(100, (l / 25) * 100)}%`;
+                document.getElementById('f-bw').className = w >= 15 ? 'bg-amber-500 h-1.5 rounded-full transition-all' : 'bg-sky-400 h-1.5 rounded-full transition-all';
+                document.getElementById('f-bl').className = l >= 25 ? 'bg-amber-500 h-1.5 rounded-full transition-all' : 'bg-indigo-400 h-1.5 rounded-full transition-all';
+                document.getElementById('f-wrn').classList.toggle('hidden', !(warn || w >= 15 || l >= 25));
             }
 
             resize() {
-                const width = this.container.clientWidth;
-                const height = this.container.clientHeight;
-                this.camera.aspect = width / height;
+                this.camera.aspect = this.container.clientWidth / this.container.clientHeight;
                 this.camera.updateProjectionMatrix();
-                this.renderer.setSize(width, height);
+                this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
             }
 
             reset() {
-                this.pennies = 0;
-                this.floatingPennies = 0;
+                this.pennies = this.floatingPennies = this.targetPitch = this.targetRoll = 0;
                 this.isSunk = false;
+                this.boatGroup.rotation.set(0, 0, 0);
 
-                // Clear pennies
-                this.pennyMeshes.forEach(mesh => {
-                    this.boatGroup.remove(mesh);
-                    mesh.geometry.dispose();
-                });
+                this.pennyMeshes.forEach(m => { this.scene.remove(m); m.geometry.dispose(); });
                 this.pennyMeshes = [];
 
-                // Reset UI
-                const overlay = document.getElementById('sunk-overlay');
-                overlay.classList.remove('opacity-100', 'pointer-events-auto');
-                overlay.classList.add('opacity-0', 'pointer-events-none');
-                document.getElementById('sunk-modal').classList.remove('scale-100');
-                document.getElementById('sunk-modal').classList.add('scale-95');
+                this.pennyBodies.forEach(b => this.world.removeBody(b));
+                this.pennyBodies = [];
+
+                document.getElementById('s-ovr').classList.replace('opacity-100', 'opacity-0');
+                document.getElementById('s-ovr').classList.replace('pointer-events-auto', 'pointer-events-none');
+                document.getElementById('s-mod').classList.replace('scale-100', 'scale-95');
 
                 this.buildBoat();
-                this.updatePhysics();
+                this.updatePhys();
             }
 
-            addPennies(count) {
+            dropP(x, y, z) {
                 if (this.isSunk) return;
+                this.pennies++;
 
-                const pennyGeo = new THREE.CylinderGeometry(0.5, 0.5, 0.1, 16);
+                const mesh = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.1, 16), this.pennyMat);
+                mesh.castShadow = true;
+                const wp = this.boatGroup.localToWorld(new THREE.Vector3(x, y, z));
+                mesh.position.copy(wp);
+                this.scene.add(mesh);
+                this.pennyMeshes.push(mesh);
 
-                for (let i = 0; i < count; i++) {
+                const body = new CANNON.Body({ mass: this.PENNY_MASS, material: this.mat, position: new CANNON.Vec3(wp.x, wp.y, wp.z) });
+
+                // cannon-es Cylinder is natively Y-aligned (matching Three.js)! Removing the offset fixes the resting orientation.
+                body.addShape(new CANNON.Cylinder(0.5, 0.5, 0.1, 16));
+
+                // Start the pennies laying completely flat, with a random horizontal rotation
+                body.quaternion.setFromEuler(0, Math.random() * Math.PI * 2, 0);
+
+                // Add damping so pennies settle into a neat stack quickly
+                body.angularDamping = 0.5;
+                body.linearDamping = 0.1;
+
+                this.world.addBody(body);
+                this.pennyBodies.push(body);
+
+                this.updatePhys();
+                if (!this.isSunk) this.floatingPennies = this.pennies;
+            }
+
+            addP(n) {
+                for (let i = 0; i < n; i++) {
                     if (this.isSunk) break;
+                    this.dropP((Math.random() - 0.5) * (this.wid - 1), this.hgt + 0.5 + i * 0.2, (Math.random() - 0.5) * (this.len - 1));
+                }
+            }
 
-                    this.pennies++;
+            updatePhys() {
+                this.massBoat = ((this.wid * this.len) + 2 * this.wid * this.hgt + 2 * this.len * this.hgt) * this.FOIL_AREA_DENSITY;
+                this.massTotal = this.massBoat + this.pennies * this.PENNY_MASS;
 
-                    const penny = new THREE.Mesh(pennyGeo, this.pennyMat);
-                    penny.castShadow = true;
+                let cx = 0, cz = 0;
+                this.pennyMeshes.forEach(p => {
+                    let loc = this.boatGroup.worldToLocal(p.position.clone());
+                    cx += loc.x * this.PENNY_MASS; cz += loc.z * this.PENNY_MASS;
+                });
 
-                    // Random position inside the boat bounds
-                    const padding = 1.0;
-                    const px = (Math.random() - 0.5) * (this.width - padding);
-                    const pz = (Math.random() - 0.5) * (this.length - padding);
+                cx /= this.massTotal || 1; cz /= this.massTotal || 1;
+                this.targetRoll = -(cx / (this.wid / 2)) * (Math.PI / 6);
+                this.targetPitch = (cz / (this.len / 2)) * (Math.PI / 6);
 
-                    // Visual stack height approx
-                    const py = 0.2 + (Math.random() * 0.5) + (this.pennies / (this.width * this.length)) * 0.4;
+                let vol = this.massTotal / this.WATER_DENSITY;
+                this.draft = vol / (this.wid * this.len);
 
-                    penny.position.set(px, py, pz);
-
-                    // Random messy pile rotation
-                    penny.rotation.x = (Math.random() - 0.5) * 0.5;
-                    penny.rotation.z = (Math.random() - 0.5) * 0.5;
-                    penny.rotation.y = Math.random() * Math.PI;
-
-                    this.boatGroup.add(penny);
-                    this.pennyMeshes.push(penny);
-
-                    this.updatePhysics();
-
-                    if (!this.isSunk) {
-                        this.floatingPennies = this.pennies;
+                if (!this.isSunk) {
+                    if (this.draft > this.hgt) this.sink("Too heavy! Max displacement exceeded.");
+                    else {
+                        let cap = false;
+                        [[this.wid / 2, this.len / 2], [-this.wid / 2, this.len / 2], [this.wid / 2, -this.len / 2], [-this.wid / 2, -this.len / 2]].forEach(([x, z]) => {
+                            let v = new THREE.Vector3(x, this.hgt, z).applyEuler(new THREE.Euler(this.targetPitch, 0, this.targetRoll));
+                            if (v.y - this.draft < 0) cap = true;
+                        });
+                        if (cap) this.sink("Capsized! Uneven weight caused it to take on water.");
                     }
                 }
+
+                document.getElementById('s-mass').innerText = `${this.massTotal.toFixed(1)} g`;
+                document.getElementById('s-drft').innerText = `${this.draft.toFixed(2)} cm`;
+                document.getElementById('s-vol').innerText = `${vol.toFixed(1)} cm³`;
+                document.getElementById('s-cnt').innerText = this.pennies;
             }
 
-            updatePhysics() {
-                // ... logic same ...
-                // Surface area = Bottom + 2*Front/Back + 2*Sides
-                const surfaceArea = (this.width * this.length) + (2 * this.width * this.height) + (2 * this.length * this.height);
-                this.massBoat = surfaceArea * this.FOIL_AREA_DENSITY;
-                this.massTotal = this.massBoat + (this.pennies * this.PENNY_MASS);
-
-                // 2. Archimedes Principle: F_b = F_g -> Vol_disp * rho * g = Mass_total * g
-                // Required displaced volume to float:
-                const reqDispVol = this.massTotal / this.WATER_DENSITY;
-
-                // 3. Calculate Draft (Submerged Depth)
-                // Volume = length * width * draft
-                this.draft = reqDispVol / (this.width * this.length);
-
-                // ... check sink ...
-                if (this.draft > this.height && !this.isSunk) {
-                    this.triggerSink();
-                }
-
-                this.updateUI(reqDispVol);
-            }
-
-            triggerSink() {
+            sink(rsn) {
                 this.isSunk = true;
+                this.aBuoy.visible = this.aGrav.visible = false;
+                document.getElementById('f-cnt').innerText = this.floatingPennies;
+                document.getElementById('s-rsn').innerText = rsn;
 
-                // Hide arrows
-                this.arrowBuoyancy.visible = false;
-                this.arrowGravity.visible = false;
-
-                const overlay = document.getElementById('sunk-overlay');
-                document.getElementById('final-pennies').innerText = this.floatingPennies;
-
-                // Show UI after a short delay
                 setTimeout(() => {
-                    overlay.classList.remove('opacity-0', 'pointer-events-none');
-                    overlay.classList.add('opacity-100', 'pointer-events-auto');
-                    document.getElementById('sunk-modal').classList.remove('scale-95');
-                    document.getElementById('sunk-modal').classList.add('scale-100');
+                    document.getElementById('s-ovr').classList.replace('opacity-0', 'opacity-100');
+                    document.getElementById('s-ovr').classList.replace('pointer-events-none', 'pointer-events-auto');
+                    document.getElementById('s-mod').classList.replace('scale-95', 'scale-100');
                 }, 1000);
             }
 
-            updateUI(vol) {
-                document.getElementById('stat-mass').innerText = `${this.massTotal.toFixed(1)} g`;
-                document.getElementById('stat-draft').innerText = `${this.draft.toFixed(2)} cm`;
-                document.getElementById('stat-vol').innerText = `${vol.toFixed(1)} cm³`;
-                document.getElementById('stat-pennies').innerText = this.pennies;
-            }
-
-            animate() {
-                requestAnimationFrame(() => this.animate());
-
-                // Update orbit controls
+            anim() {
+                requestAnimationFrame(() => this.anim());
                 this.controls.update();
 
-                // Animate boat sinking or floating
-                let targetY = 0;
+                if (this.world) this.world.step(1 / 60);
 
-                if (this.isSunk) {
-                    // Sunk! Drop to the bottom of the "pool"
-                    targetY = -10 + (this.height / 2);
-
-                    this.waterGroup.visible = false;
-                    this.waterSolid.visible = true;
-                } else {
-                    // Floating: water level is 0, so bottom of boat sits at -draft
-                    targetY = -this.draft;
-
-                    this.waterGroup.visible = true;
-                    this.waterSolid.visible = false;
-
-                    // Make arrows visible
-                    this.arrowBuoyancy.visible = true;
-                    this.arrowGravity.visible = true;
+                if (this.boatPhys) {
+                    this.boatPhys.position.copy(this.boatGroup.position);
+                    this.boatPhys.quaternion.copy(this.boatGroup.quaternion);
                 }
 
-                // Smoothly interpolate Y position (pseudo-physics easing)
-                this.boatGroup.position.y += (targetY - this.boatGroup.position.y) * 0.05;
+                this.pennyMeshes.forEach((m, i) => {
+                    m.position.copy(this.pennyBodies[i].position);
+                    m.quaternion.copy(this.pennyBodies[i].quaternion);
+                });
 
-                // Render scene
+                let ty = this.isSunk ? -10 + this.hgt / 2 : -this.draft;
+                this.waterGroup.visible = !this.isSunk;
+                this.waterSolid.visible = this.isSunk;
+
+                if (!this.isSunk) this.aBuoy.visible = this.aGrav.visible = true;
+
+                this.boatGroup.position.y += (ty - this.boatGroup.position.y) * 0.05;
+                this.boatGroup.rotation.x += (this.targetPitch - this.boatGroup.rotation.x) * 0.05;
+                this.boatGroup.rotation.z += (this.targetRoll - this.boatGroup.rotation.z) * 0.05;
+
+                if (!this.isSunk && this.pennies > 0) this.updatePhys();
                 this.renderer.render(this.scene, this.camera);
             }
         }
 
-        // Initialize Lab when window loads
-        window.onload = () => {
-            window.lab = new PennyBoatLab3D();
-        };
+        // Attach to window so the HTML onclick="window.lab.reset()" works!
+        window.lab = new PennyBoatLab3D();
     </script>
 </body>
 
