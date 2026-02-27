@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digitalcules: Fossil Record Lab</title>
+
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+    <!-- Babel for in-browser JSX transpilation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // Extract hooks from React global
+        const { useState, useRef, useEffect } = React;
+
+        // --- INLINE SVG COMPONENTS (replacing lucide-react) ---
+        const Info = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>;
+        const LinkIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>;
+        const Trash2 = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>;
+        const Clock = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>;
+        const Play = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>;
+        const RotateCcw = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>;
+        const CheckCircle = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>;
+        const X = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>;
+        const Shuffle = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>;
+        const Camera = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg>;
+
+        // --- DIGITALCULES DATA & EVOLUTIONARY LOGIC ---
+        const eras = [
+            { mya: 0, label: "Present Day" },
+            { mya: 15, label: "15 MYA" },
+            { mya: 30, label: "30 MYA" },
+            { mya: 50, label: "50 MYA" },
+            { mya: 74, label: "74 MYA" },
+        ];
+
+        // --- PROCEDURAL GENERATION ---
+        const SHAPES = ['round', 'oval', 'long'];
+        const COLORS = ['#84cc16', '#3b82f6', '#ef4444', '#eab308', '#a855f7', '#f97316', '#14b8a6'];
+        const PATTERNS = ['solid', 'spots', 'stripes'];
+        const EYES = [0, 1, 2];
+        const LIMBS = ['none', 'fins', 'legs'];
+
+        const randomOtherElement = (arr, current) => {
+            const others = arr.filter(x => x !== current);
+            if (others.length === 0) return current;
+            return others[Math.floor(Math.random() * others.length)];
+        };
+
+        const mutateTraits = (parentTraits) => {
+            const newTraits = { ...parentTraits };
+            // 70% chance of 1 mutation, 30% chance of 2 mutations
+            const numMutations = Math.random() < 0.7 ? 1 : 2;
+
+            // Determine which traits are eligible to mutate.
+            // Structural traits (limbs, eyes, tail) now evolve progressively so they don't vanish and reappear.
+            const eligibleKeys = ['shape', 'color', 'pattern'];
+            if (!newTraits.tail) eligibleKeys.push('tail'); // false -> true
+            if (newTraits.eyes < 2) eligibleKeys.push('eyes'); // 0 -> 1 -> 2
+            if (newTraits.limbs !== 'legs') eligibleKeys.push('limbs'); // none -> fins -> legs
+
+            const shuffledKeys = eligibleKeys.sort(() => 0.5 - Math.random());
+            const actualMutations = Math.min(numMutations, shuffledKeys.length);
+
+            for (let i = 0; i < actualMutations; i++) {
+                const traitToMutate = shuffledKeys[i];
+                if (traitToMutate === 'shape') newTraits.shape = randomOtherElement(SHAPES, newTraits.shape);
+                if (traitToMutate === 'color') newTraits.color = randomOtherElement(COLORS, newTraits.color);
+                if (traitToMutate === 'pattern') newTraits.pattern = randomOtherElement(PATTERNS, newTraits.pattern);
+
+                // Progressive structural mutations
+                if (traitToMutate === 'eyes') newTraits.eyes += 1;
+                if (traitToMutate === 'tail') newTraits.tail = true;
+                if (traitToMutate === 'limbs') {
+                    if (newTraits.limbs === 'none') newTraits.limbs = 'fins';
+                    else if (newTraits.limbs === 'fins') newTraits.limbs = 'legs';
+                }
+            }
+            return newTraits;
+        };
+
+        const generateTreeData = () => {
+            const newSpecies = [];
+            const newEdges = [];
+
+            const ancestor = {
+                id: '74-A',
+                era: 74,
+                traits: {
+                    shape: randomOtherElement(SHAPES, null),
+                    color: randomOtherElement(COLORS, null),
+                    pattern: 'solid',
+                    eyes: 0,
+                    limbs: 'none',
+                    tail: false
+                }
+            };
+            newSpecies.push(ancestor);
+            let prevEraNodes = [ancestor];
+
+            const eraCounts = [
+                { mya: 50, count: 2 },
+                { mya: 30, count: 3 },
+                { mya: 15, count: 4 },
+                { mya: 0, count: 5 }
+            ];
+
+            eraCounts.forEach(eraInfo => {
+                const currentEraNodes = [];
+                // Ensure every parent has at least 1 child to keep the tree connected
+                const childrenAssignment = prevEraNodes.map(p => ({ parent: p, childrenCount: 1 }));
+                let remaining = eraInfo.count - prevEraNodes.length;
+
+                // Distribute remaining children randomly among the parents
+                while (remaining > 0) {
+                    const randomParent = childrenAssignment[Math.floor(Math.random() * childrenAssignment.length)];
+                    randomParent.childrenCount++;
+                    remaining--;
+                }
+
+                let charCode = 65; // Start with 'A'
+                childrenAssignment.forEach(assignment => {
+                    for (let i = 0; i < assignment.childrenCount; i++) {
+                        const childId = `${eraInfo.mya}-${String.fromCharCode(charCode++)}`;
+                        const childNode = {
+                            id: childId,
+                            era: eraInfo.mya,
+                            traits: mutateTraits(assignment.parent.traits)
+                        };
+                        newSpecies.push(childNode);
+                        currentEraNodes.push(childNode);
+                        newEdges.push({ from: assignment.parent.id, to: childId });
+                    }
+                });
+                prevEraNodes = currentEraNodes;
+            });
+
+            return { speciesDatabase: newSpecies, correctEdges: newEdges };
+        };
+
+
+        // --- SVG GENERATOR COMPONENT ---
+        const CreatureSVG = ({ traits, size = 60 }) => {
+            const { shape, color, pattern, eyes, limbs, tail } = traits;
+
+            return (
+                <svg width={size} height={size} viewBox="0 0 100 100" className="drop-shadow-md overflow-visible">
+                    <g transform="translate(50, 50)">
+                        {/* Tail */}
+                        {tail && (
+                            <path d="M 0 35 Q 0 60 -20 70" fill="none" stroke={color} strokeWidth="8" strokeLinecap="round" />
+                        )}
+
+                        {/* Limbs */}
+                        {limbs === 'fins' && (
+                            <React.Fragment>
+                                <path d="M -30 0 Q -50 -10 -40 20 Z" fill={color} />
+                                <path d="M 30 0 Q 50 -10 40 20 Z" fill={color} />
+                            </React.Fragment>
+                        )}
+                        {limbs === 'legs' && (
+                            <React.Fragment>
+                                <rect x="-25" y="20" width="8" height="25" rx="4" fill={color} />
+                                <rect x="17" y="20" width="8" height="25" rx="4" fill={color} />
+                                <rect x="-30" y="40" width="15" height="6" rx="3" fill={color} />
+                                <rect x="15" y="40" width="15" height="6" rx="3" fill={color} />
+                            </React.Fragment>
+                        )}
+
+                        {/* Body Shape */}
+                        {shape === 'round' && <circle cx="0" cy="0" r="35" fill={color} />}
+                        {shape === 'oval' && <ellipse cx="0" cy="0" rx="45" ry="30" fill={color} />}
+                        {shape === 'long' && <ellipse cx="0" cy="0" rx="25" ry="45" fill={color} />}
+
+                        {/* Patterns */}
+                        {pattern === 'spots' && (
+                            <g fill="rgba(0,0,0,0.2)">
+                                <circle cx="-15" cy="-15" r="5" />
+                                <circle cx="15" cy="-5" r="7" />
+                                <circle cx="-5" cy="15" r="6" />
+                                <circle cx="20" cy="20" r="4" />
+                            </g>
+                        )}
+                        {pattern === 'stripes' && (
+                            <g stroke="rgba(0,0,0,0.2)" strokeWidth="6" strokeLinecap="round">
+                                {shape === 'long' ? (
+                                    <React.Fragment>
+                                        <line x1="-15" y1="-20" x2="15" y2="-20" />
+                                        <line x1="-20" y1="0" x2="20" y2="0" />
+                                        <line x1="-15" y1="20" x2="15" y2="20" />
+                                    </React.Fragment>
+                                ) : (
+                                    <React.Fragment>
+                                        <line x1="-20" y1="-20" x2="-20" y2="20" />
+                                        <line x1="0" y1="-25" x2="0" y2="25" />
+                                        <line x1="20" y1="-20" x2="20" y2="20" />
+                                    </React.Fragment>
+                                )}
+                            </g>
+                        )}
+
+                        {/* Eyes */}
+                        {eyes === 1 && (
+                            <g>
+                                <circle cx="0" cy="-10" r="10" fill="white" />
+                                <circle cx="0" cy="-10" r="4" fill="black" />
+                            </g>
+                        )}
+                        {eyes === 2 && (
+                            <g>
+                                <circle cx="-12" cy="-10" r="8" fill="white" />
+                                <circle cx="-12" cy="-10" r="3" fill="black" />
+                                <circle cx="12" cy="-10" r="8" fill="white" />
+                                <circle cx="12" cy="-10" r="3" fill="black" />
+                            </g>
+                        )}
+                    </g>
+                </svg>
+            );
+        };
+
+        function App() {
+            // Initialize game data once per session, uniquely generated
+            const [gameData, setGameData] = useState(() => generateTreeData());
+            const { speciesDatabase, correctEdges } = gameData;
+
+            const [placedNodes, setPlacedNodes] = useState({}); // { id: { x: percentage, y: eraIndex } }
+            const [connections, setConnections] = useState([]); // [ { from: id, to: id } ]
+            const [timePhase, setTimePhase] = useState(0); // 0 = Present only, 4 = All eras
+
+            const [connectingFrom, setConnectingFrom] = useState(null);
+            const [draggingNode, setDraggingNode] = useState(null);
+            const [showInstructions, setShowInstructions] = useState(true);
+            const [validation, setValidation] = useState(null);
+            const [modalConfig, setModalConfig] = useState(null);
+            const [isCapturing, setIsCapturing] = useState(false);
+
+            const canvasRef = useRef(null);
+            const dragStartPos = useRef(null);
+
+            // Clear validation styling when user edits the board
+            useEffect(() => {
+                setValidation(null);
+            }, [connections, placedNodes]);
+
+            // Filter available species based on the "Time Machine" phase
+            // Phase 0: only era 0. Phase 1: era 0, 15. etc.
+            const visibleEras = eras.slice(0, timePhase + 1).map(e => e.mya);
+
+            const unplacedSpecies = speciesDatabase.filter(
+                s => visibleEras.includes(s.era) && !placedNodes[s.id]
+            );
+
+            // --- INTERACTION HANDLERS ---
+
+            const handleDragStartTray = (e, species) => {
+                e.dataTransfer.setData('speciesId', species.id);
+                e.dataTransfer.setData('source', 'tray');
+            };
+
+            const handleDragOverCanvas = (e) => {
+                e.preventDefault(); // allow drop
+            };
+
+            const handleDropCanvas = (e, targetEraIndex) => {
+                e.preventDefault();
+                const speciesId = e.dataTransfer.getData('speciesId');
+                const source = e.dataTransfer.getData('source');
+
+                if (!speciesId) return;
+
+                const species = speciesDatabase.find(s => s.id === speciesId);
+
+                // Validate era! Organisms MUST be placed in their correct geological stratum
+                const correctEraIndex = eras.findIndex(era => era.mya === species.era);
+                if (correctEraIndex !== targetEraIndex) {
+                    setModalConfig({ type: 'alert', message: `This fossil belongs in the ${species.era} MYA stratum!` });
+                    return;
+                }
+
+                const canvasRect = canvasRef.current.getBoundingClientRect();
+                let xPercentage = ((e.clientX - canvasRect.left) / canvasRect.width) * 100;
+
+                // Clamp
+                xPercentage = Math.max(5, Math.min(95, xPercentage));
+
+                setPlacedNodes(prev => ({
+                    ...prev,
+                    [speciesId]: { x: xPercentage, eraIndex: correctEraIndex }
+                }));
+            };
+
+            const handleNodePointerDown = (e, id) => {
+                e.stopPropagation();
+                setDraggingNode(id);
+                dragStartPos.current = { x: e.clientX, y: e.clientY };
+                e.target.setPointerCapture(e.pointerId);
+            };
+
+            const handleNodePointerMove = (e) => {
+                if (!draggingNode || !canvasRef.current) return;
+
+                const canvasRect = canvasRef.current.getBoundingClientRect();
+                let xPercentage = ((e.clientX - canvasRect.left) / canvasRect.width) * 100;
+                xPercentage = Math.max(2, Math.min(98, xPercentage));
+
+                setPlacedNodes(prev => ({
+                    ...prev,
+                    [draggingNode]: { ...prev[draggingNode], x: xPercentage }
+                }));
+            };
+
+            const handleNodePointerUp = (e, id) => {
+                e.stopPropagation();
+                if (draggingNode) {
+                    e.target.releasePointerCapture(e.pointerId);
+
+                    // Distinguish between a drag and a click based on movement distance
+                    if (dragStartPos.current) {
+                        const dx = e.clientX - dragStartPos.current.x;
+                        const dy = e.clientY - dragStartPos.current.y;
+
+                        if (Math.abs(dx) < 5 && Math.abs(dy) < 5) {
+                            // It was a click!
+                            if (connectingFrom) {
+                                // Complete a connection
+                                if (connectingFrom !== id) {
+                                    const fromNode = speciesDatabase.find(s => s.id === connectingFrom);
+                                    const toNode = speciesDatabase.find(s => s.id === id);
+
+                                    if (fromNode.era === toNode.era) {
+                                        setModalConfig({ type: 'alert', message: "Cannot connect organisms from the same era directly. They must share an ancestor." });
+                                    } else {
+                                        const newConn = { from: connectingFrom, to: id };
+                                        const exists = connections.some(c =>
+                                            (c.from === newConn.from && c.to === newConn.to) ||
+                                            (c.from === newConn.to && c.to === newConn.from)
+                                        );
+                                        if (!exists) setConnections([...connections, newConn]);
+                                    }
+                                }
+                                setConnectingFrom(null);
+                            } else {
+                                // Start a connection
+                                setConnectingFrom(id);
+                            }
+                        }
+                    }
+
+                    setDraggingNode(null);
+                    dragStartPos.current = null;
+                }
+            };
+
+            const handleRemoveNode = (id) => {
+                // Remove node
+                const newPlaced = { ...placedNodes };
+                delete newPlaced[id];
+                setPlacedNodes(newPlaced);
+
+                // Remove associated connections
+                setConnections(connections.filter(c => c.from !== id && c.to !== id));
+
+                if (connectingFrom === id) setConnectingFrom(null);
+            };
+
+            const advanceTime = () => {
+                if (timePhase < eras.length - 1) setTimePhase(prev => prev + 1);
+            };
+
+            const resetActivity = () => {
+                setModalConfig({
+                    type: 'confirm',
+                    message: "Are you sure you want to clear your connections and reset the board? Your organisms will remain the same.",
+                    onConfirm: () => {
+                        setPlacedNodes({});
+                        setConnections([]);
+                        setTimePhase(0);
+                        setConnectingFrom(null);
+                        setValidation(null);
+                        setModalConfig(null);
+                    }
+                });
+            };
+
+            const generateNewLab = () => {
+                setModalConfig({
+                    type: 'confirm',
+                    message: "Are you sure you want to generate a completely new evolutionary tree? This will erase all your current progress.",
+                    onConfirm: () => {
+                        setGameData(generateTreeData());
+                        setPlacedNodes({});
+                        setConnections([]);
+                        setTimePhase(0);
+                        setConnectingFrom(null);
+                        setValidation(null);
+                        setModalConfig(null);
+                    }
+                });
+            };
+
+            const handleCheckWork = () => {
+                // Make sure all organisms for current eras are placed
+                const allExpectedNodesPlaced = unplacedSpecies.length === 0;
+                if (!allExpectedNodesPlaced) {
+                    setModalConfig({ type: 'alert', message: "Please place all discovered specimens on the board before checking your work." });
+                    return;
+                }
+
+                // Helper to ensure connection strings are always ordered "Older_Newer" for safe comparisons
+                const makeEdgeId = (a, b) => {
+                    const eraA = speciesDatabase.find(s => s.id === a).era;
+                    const eraB = speciesDatabase.find(s => s.id === b).era;
+                    return eraA > eraB ? `${a}_${b}` : `${b}_${a}`;
+                };
+
+                const correctSet = new Set(correctEdges.map(e => makeEdgeId(e.from, e.to)));
+
+                let correctCount = 0;
+                let incorrectCount = 0;
+
+                // Check drawn connections against the master key
+                const validatedConnections = connections.map(conn => {
+                    const edgeId = makeEdgeId(conn.from, conn.to);
+                    const isCorrect = correctSet.has(edgeId);
+                    if (isCorrect) correctCount++;
+                    else incorrectCount++;
+                    return { ...conn, isCorrect };
+                });
+
+                // Count how many total edges they *should* have drawn by this phase
+                const expectedEdgesCount = correctEdges.filter(e => {
+                    const eraA = speciesDatabase.find(s => s.id === e.from).era;
+                    const eraB = speciesDatabase.find(s => s.id === e.to).era;
+                    return visibleEras.includes(eraA) && visibleEras.includes(eraB);
+                }).length;
+
+                const missingCount = expectedEdgesCount - correctCount;
+
+                setValidation({
+                    checkedConnections: validatedConnections,
+                    correctCount,
+                    incorrectCount,
+                    missingCount: Math.max(0, missingCount),
+                    isPerfect: incorrectCount === 0 && missingCount <= 0
+                });
+            };
+
+            const takeScreenshot = async (e) => {
+                e.stopPropagation();
+                setIsCapturing(true);
+                try {
+                    // Dynamically load html2canvas to avoid external dependency issues
+                    if (!window.html2canvas) {
+                        await new Promise((resolve, reject) => {
+                            const script = document.createElement('script');
+                            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+                            script.onload = resolve;
+                            script.onerror = reject;
+                            document.head.appendChild(script);
+                        });
+                    }
+
+                    // Capture the main workspace area
+                    const captureElement = document.getElementById('lab-workspace');
+                    if (!captureElement) return;
+
+                    const canvas = await window.html2canvas(captureElement, {
+                        backgroundColor: '#f1f5f9', // match slate-100 background
+                        scale: 2, // High resolution
+                        logging: false
+                    });
+
+                    // Trigger download
+                    const image = canvas.toDataURL('image/png');
+                    const link = document.createElement('a');
+                    link.href = image;
+                    link.download = 'fossil-record-results.png';
+                    link.click();
+                } catch (err) {
+                    console.error("Screenshot error:", err);
+                    setModalConfig({ type: 'alert', message: "Sorry, there was an error capturing the screenshot." });
+                } finally {
+                    setIsCapturing(false);
+                }
+            };
+
+            // --- RENDER HELPERS ---
+
+            // Calculate pixel coordinates for the SVG lines based on percentage state
+            const getLineCoordinates = (fromId, toId) => {
+                const fromNode = placedNodes[fromId];
+                const toNode = placedNodes[toId];
+                if (!fromNode || !toNode) return null;
+
+                // Y is based on the eraIndex (row)
+                // There are eras.length rows. Each row is 100% / eras.length height.
+                // Center of row is (index + 0.5) * (100 / eras.length)
+                const rowHeight = 100 / eras.length;
+
+                return {
+                    x1: `${fromNode.x}%`,
+                    y1: `${(fromNode.eraIndex + 0.5) * rowHeight}%`,
+                    x2: `${toNode.x}%`,
+                    y2: `${(toNode.eraIndex + 0.5) * rowHeight}%`,
+                };
+            };
+
+            return (
+                <div className="flex flex-col h-screen bg-slate-50 font-sans overflow-hidden text-slate-800">
+
+                    {/* HEADER */}
+                    <header className="bg-slate-800 text-white p-4 shadow-md flex justify-between items-center z-10">
+                        <div>
+                            <h1 className="text-2xl font-bold flex items-center gap-2">
+                                <Clock className="w-6 h-6 text-emerald-400" />
+                                Digitalcules: Fossil Record Lab
+                            </h1>
+                            <p className="text-slate-300 text-sm">Trace the evolutionary history using morphology and strata.</p>
+                        </div>
+
+                        <div className="flex items-center gap-4">
+                            <button
+                                onClick={handleCheckWork}
+                                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-1.5 px-3 rounded-lg transition-colors text-sm shadow-md"
+                            >
+                                <CheckCircle className="w-4 h-4" /> Check Work
+                            </button>
+
+                            <div className="flex items-center gap-2 bg-slate-700 p-2 rounded-lg shadow-inner">
+                                <span className="text-sm font-semibold uppercase tracking-wider text-slate-300">Time Machine:</span>
+                                <div className="flex gap-1">
+                                    {eras.map((era, idx) => (
+                                        <div
+                                            key={era.mya}
+                                            className={`h-3 w-8 rounded-full transition-colors ${idx <= timePhase ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]' : 'bg-slate-600'}`}
+                                            title={era.label}
+                                        />
+                                    ))}
+                                </div>
+                                {timePhase < eras.length - 1 ? (
+                                    <button
+                                        onClick={advanceTime}
+                                        className="ml-2 flex items-center gap-1 bg-emerald-500 hover:bg-emerald-400 text-slate-900 text-xs font-bold py-1 px-3 rounded shadow-md"
+                                    >
+                                        Dig Deeper <Play className="w-3 h-3" />
+                                    </button>
+                                ) : (
+                                    <span className="ml-2 text-xs text-emerald-400 font-bold px-2">All Eras Found</span>
+                                )}
+                            </div>
+
+                            <button onClick={() => setShowInstructions(true)} className="p-2 hover:bg-slate-700 rounded-full transition-colors">
+                                <Info className="w-6 h-6" />
+                            </button>
+                        </div>
+                    </header>
+
+                    {/* MAIN CONTENT */}
+                    <div className="flex flex-1 overflow-hidden">
+
+                        {/* LEFT SIDEBAR: FIELD NOTEBOOK / TRAY */}
+                        <aside className="w-80 bg-white border-r border-slate-200 shadow-lg flex flex-col z-10">
+                            <div className="p-4 bg-slate-100 border-b border-slate-200 flex justify-between items-center">
+                                <h2 className="font-bold text-lg text-slate-700">Specimen Tray</h2>
+                                <div className="flex gap-1">
+                                    <button onClick={resetActivity} className="p-1.5 text-slate-500 hover:text-rose-500 hover:bg-slate-200 rounded transition-colors" title="Clear Canvas & Reset Connections">
+                                        <RotateCcw className="w-5 h-5" />
+                                    </button>
+                                    <button onClick={generateNewLab} className="p-1.5 text-slate-500 hover:text-purple-600 hover:bg-slate-200 rounded transition-colors" title="Generate New Evolutionary Tree">
+                                        <Shuffle className="w-5 h-5" />
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-6">
+                                {eras.slice(0, timePhase + 1).reverse().map((era) => {
+                                    const eraSpecies = unplacedSpecies.filter(s => s.era === era.mya);
+                                    if (eraSpecies.length === 0) return null;
+
+                                    return (
+                                        <div key={era.mya} className="border border-slate-200 rounded-lg p-3 bg-slate-50 shadow-sm">
+                                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 border-b border-slate-200 pb-1">
+                                                {era.label}
+                                            </h3>
+                                            <div className="flex flex-wrap gap-2 justify-center">
+                                                {eraSpecies.map(species => (
+                                                    <div
+                                                        key={species.id}
+                                                        draggable
+                                                        onDragStart={(e) => handleDragStartTray(e, species)}
+                                                        className="cursor-grab hover:scale-110 hover:shadow-lg transition-all bg-white p-2 rounded-xl border border-slate-200 shadow-sm"
+                                                        title={`Drag to ${era.label} stratum`}
+                                                    >
+                                                        <CreatureSVG traits={species.traits} size={50} />
+                                                        <div className="text-[10px] text-center text-slate-400 mt-1 font-mono">{species.id}</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+
+                                {unplacedSpecies.length === 0 && (
+                                    <div className="text-center text-slate-400 mt-10 p-4 italic">
+                                        All discovered specimens have been placed on the tree!
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Connection Instructions Card */}
+                            <div className="p-4 bg-blue-50 border-t border-blue-100">
+                                <h4 className="font-bold text-blue-800 text-sm mb-2 flex items-center gap-1">
+                                    <LinkIcon className="w-4 h-4" /> Tools
+                                </h4>
+                                <div className="text-xs text-blue-700 space-y-2">
+                                    <p><strong>To connect:</strong> Click one organism, then click another.</p>
+                                    <p><strong>To move:</strong> Drag placed organisms horizontally.</p>
+                                    <p><strong>To remove line:</strong> Click the line itself.</p>
+                                </div>
+                            </div>
+                        </aside>
+
+                        {/* RIGHT AREA: PHYLOGENETIC CANVAS */}
+                        <main id="lab-workspace" className="flex-1 bg-slate-100 relative overflow-hidden flex flex-col">
+                            {/* Canvas container with absolute positioning for free X movement, but strict Y rows */}
+                            <div
+                                ref={canvasRef}
+                                className="flex-1 relative w-full h-full"
+                                style={{
+                                    backgroundImage: 'linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px)',
+                                    backgroundSize: `100% ${100 / eras.length}%`
+                                }}
+                                onPointerDown={() => setConnectingFrom(null)}
+                            >
+                                {/* Validation Feedback Banner (Z-50 to stay well above everything, with explicit Close button) */}
+                                {validation && (
+                                    <div className={`absolute top-4 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-full shadow-2xl font-bold text-sm text-white flex items-center gap-4 transition-all border-2 ${validation.isPerfect ? 'bg-emerald-500 border-emerald-400' : 'bg-rose-500 border-rose-400'}`}>
+                                        <span>
+                                            {validation.isPerfect
+                                                ? "Perfect tree! You successfully navigated convergent evolution."
+                                                : `Checked: ${validation.correctCount} correct | ${validation.incorrectCount} incorrect | ${validation.missingCount} missing`}
+                                        </span>
+                                        <div className="flex items-center gap-2 border-l border-white/30 pl-4">
+                                            <button
+                                                onClick={takeScreenshot}
+                                                disabled={isCapturing}
+                                                className="bg-black/20 hover:bg-black/40 px-3 py-1.5 rounded-full transition-colors flex-shrink-0 flex items-center gap-2 disabled:opacity-50"
+                                                title="Save Screenshot"
+                                            >
+                                                <Camera className="w-4 h-4" />
+                                                <span className="hidden sm:inline">{isCapturing ? 'Saving...' : 'Save Image'}</span>
+                                            </button>
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setValidation(null);
+                                                }}
+                                                className="bg-black/20 hover:bg-black/40 p-1.5 rounded-full transition-colors flex-shrink-0"
+                                                title="Dismiss Feedback"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Render Strata Rows FIRST so they sit behind lines */}
+                                {eras.map((era, index) => (
+                                    <div
+                                        key={era.mya}
+                                        className="absolute w-full border-b border-slate-300 flex items-end pb-2 pl-4 z-0"
+                                        style={{
+                                            height: `${100 / eras.length}%`,
+                                            top: `${index * (100 / eras.length)}%`,
+                                            backgroundColor: index % 2 === 0 ? 'rgba(255,255,255,0.3)' : 'transparent'
+                                        }}
+                                        onDragOver={handleDragOverCanvas}
+                                        onDrop={(e) => handleDropCanvas(e, index)}
+                                    >
+                                        <span className="text-slate-400 font-bold uppercase tracking-widest text-sm bg-white/50 px-2 rounded">
+                                            {era.label} Stratum
+                                        </span>
+                                    </div>
+                                ))}
+
+                                {/* Draw Lines via SVG overlay (z-10 so they are clickable above strata) */}
+                                <svg className="absolute inset-0 w-full h-full pointer-events-none z-10">
+                                    {connections.map((conn, idx) => {
+                                        const coords = getLineCoordinates(conn.from, conn.to);
+                                        if (!coords) return null;
+
+                                        // Determine stroke color based on validation state
+                                        let strokeColor = "#94a3b8"; // default slate
+                                        if (validation) {
+                                            const validatedConn = validation.checkedConnections.find(
+                                                c => c.from === conn.from && c.to === conn.to
+                                            );
+                                            strokeColor = validatedConn?.isCorrect ? "#10b981" : "#ef4444"; // emerald (correct) or red (incorrect)
+                                        }
+
+                                        return (
+                                            <g
+                                                key={`${conn.from}-${conn.to}`}
+                                                className="pointer-events-auto cursor-pointer group"
+                                                onPointerDown={(e) => {
+                                                    e.stopPropagation();
+                                                    setConnections(connections.filter(c => c.from !== conn.from || c.to !== conn.to));
+                                                }}
+                                            >
+                                                {/* Invisible thicker line for easier clicking to delete */}
+                                                <line
+                                                    x1={coords.x1} y1={coords.y1} x2={coords.x2} y2={coords.y2}
+                                                    stroke="rgba(0,0,0,0.01)" strokeWidth="20"
+                                                />
+                                                <line
+                                                    x1={coords.x1} y1={coords.y1} x2={coords.x2} y2={coords.y2}
+                                                    stroke={strokeColor} strokeWidth="3" strokeDasharray="6 6"
+                                                    className="group-hover:stroke-red-400 group-hover:stroke-[4px] transition-all"
+                                                />
+                                            </g>
+                                        );
+                                    })}
+                                </svg>
+
+                                {/* Render Placed Nodes (z-20 so they sit above lines) */}
+                                {Object.entries(placedNodes).map(([id, pos]) => {
+                                    const species = speciesDatabase.find(s => s.id === id);
+                                    const isConnecting = connectingFrom === id;
+
+                                    return (
+                                        <div
+                                            key={id}
+                                            onPointerDown={(e) => handleNodePointerDown(e, id)}
+                                            onPointerMove={handleNodePointerMove}
+                                            onPointerUp={(e) => handleNodePointerUp(e, id)}
+                                            className={`absolute transform -translate-x-1/2 -translate-y-1/2 cursor-move z-20 
+                            ${isConnecting ? 'ring-4 ring-emerald-400 ring-offset-2 rounded-full' : ''}
+                            hover:scale-110 transition-transform`}
+                                            style={{
+                                                left: `${pos.x}%`,
+                                                top: `${(pos.eraIndex + 0.5) * (100 / eras.length)}%`,
+                                                touchAction: 'none' // Prevent scrolling while dragging on touch devices
+                                            }}
+                                        >
+                                            <div className="relative group">
+                                                <div className="bg-white rounded-full p-2 shadow-lg border-2 border-slate-200">
+                                                    <CreatureSVG traits={species.traits} size={60} />
+                                                </div>
+
+                                                {/* Tooltip & Controls */}
+                                                <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs py-1 px-3 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20 flex items-center gap-2">
+                                                    <span>ID: {id}</span>
+                                                    <button
+                                                        onPointerDown={(e) => { e.stopPropagation(); handleRemoveNode(id); }}
+                                                        className="pointer-events-auto bg-red-500 hover:bg-red-600 p-1 rounded ml-2"
+                                                        title="Remove from tree"
+                                                    >
+                                                        <Trash2 className="w-3 h-3" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </main>
+                    </div>
+
+                    {/* INSTRUCTIONS MODAL */}
+                    {showInstructions && (
+                        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                            <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden flex flex-col max-h-[90vh]">
+                                <div className="bg-slate-800 text-white p-6">
+                                    <h2 className="text-2xl font-bold flex items-center gap-2">
+                                        <Info className="w-6 h-6 text-emerald-400" />
+                                        Welcome to the Digitalcules Lab
+                                    </h2>
+                                </div>
+
+                                <div className="p-6 overflow-y-auto text-slate-700 space-y-4">
+                                    <p>
+                                        In this simulation, you are a taxonomist and paleontologist. Your goal is to construct a <strong>phylogenetic tree</strong> (a family tree) showing how a group of fictional organisms evolved over 74 million years.
+                                    </p>
+
+                                    <div className="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r">
+                                        <h3 className="font-bold text-amber-800 mb-1">Phase 1: Present Day</h3>
+                                        <p className="text-sm text-amber-900">
+                                            Start by dragging the <strong>Present Day (0 MYA)</strong> organisms from the tray onto the top row of the canvas. Group them horizontally based on shared physical traits (morphology) like body shape, patterns, and limbs.
+                                        </p>
+                                    </div>
+
+                                    <div className="bg-emerald-50 border-l-4 border-emerald-400 p-4 rounded-r">
+                                        <h3 className="font-bold text-emerald-800 mb-1">Phase 2: The Fossil Record</h3>
+                                        <p className="text-sm text-emerald-900">
+                                            Once you've grouped the living species, click <strong>"Dig Deeper"</strong> in the top bar. This acts like a time machine, revealing older fossil strata (15 MYA, 30 MYA, etc.). Drag these ancestors to their correct row.
+                                        </p>
+                                    </div>
+
+                                    <div className="bg-purple-50 border-l-4 border-purple-400 p-4 rounded-r mt-4">
+                                        <h3 className="font-bold text-purple-800 mb-1">Beware of Convergent Evolution!</h3>
+                                        <p className="text-sm text-purple-900">
+                                            Just because two organisms share a trait (like legs or a tail) doesn't mean they are closely related. Similar traits can evolve independently in completely different family lines! If a connection seems right but doesn't fit the fossil record, break it and look for an older ancestor.
+                                        </p>
+                                    </div>
+
+                                    <h3 className="font-bold text-lg mt-4 border-b pb-2">How to use the tools:</h3>
+                                    <ul className="list-disc pl-5 space-y-2 text-sm">
+                                        <li><strong>Drag and Drop:</strong> Drag organisms from the tray to their corresponding Era row on the canvas.</li>
+                                        <li><strong>Organize:</strong> Drag placed organisms left or right to align lineages.</li>
+                                        <li><strong>Connect:</strong> Click an ancestor, then click a descendant to draw an evolutionary line.</li>
+                                        <li><strong>Disconnect:</strong> Click directly on a dashed line to remove it.</li>
+                                        <li><strong>Remove:</strong> Hover over an organism on the canvas and click the red trash can to return it to the tray.</li>
+                                    </ul>
+
+                                    <p className="italic text-sm text-slate-500 mt-4">
+                                        *Hint: Sometimes the fossil record will force you to redraw the connections you originally guessed!
+                                    </p>
+                                </div>
+
+                                <div className="p-4 bg-slate-100 border-t border-slate-200 flex justify-end">
+                                    <button
+                                        onClick={() => setShowInstructions(false)}
+                                        className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 px-6 rounded-lg transition-colors"
+                                    >
+                                        Start Lab
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* CUSTOM MODAL (Replaces window.alert/confirm) */}
+                    {modalConfig && (
+                        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
+                            <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full overflow-hidden flex flex-col">
+                                <div className={`p-4 text-white font-bold flex items-center gap-2 ${modalConfig.type === 'alert' ? 'bg-amber-500' : 'bg-rose-500'}`}>
+                                    <Info className="w-5 h-5" />
+                                    {modalConfig.type === 'alert' ? 'Notice' : 'Confirm Action'}
+                                </div>
+                                <div className="p-6 text-slate-700 leading-relaxed">
+                                    {modalConfig.message}
+                                </div>
+                                <div className="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-3">
+                                    {modalConfig.type === 'confirm' && (
+                                        <button
+                                            onClick={() => setModalConfig(null)}
+                                            className="px-4 py-2 text-slate-600 hover:bg-slate-200 rounded-lg transition-colors font-medium"
+                                        >
+                                            Cancel
+                                        </button>
+                                    )}
+                                    <button
+                                        onClick={() => {
+                                            if (modalConfig.onConfirm) modalConfig.onConfirm();
+                                            else setModalConfig(null);
+                                        }}
+                                        className={`px-4 py-2 text-white rounded-lg transition-colors font-bold ${modalConfig.type === 'alert' ? 'bg-amber-500 hover:bg-amber-600' : 'bg-rose-500 hover:bg-rose-600'}`}
+                                    >
+                                        {modalConfig.type === 'alert' ? 'OK' : 'Yes, Do It'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+
+</html>
