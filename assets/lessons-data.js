@@ -150,11 +150,11 @@ const lessonsData = [
     date: "2026-02-27",
     day: 15,
     unit: 5,
-    title: "Specific Heat Intro (Q=mcΔT)",
-    summary: "Writing: Quick-Write (The Beach Analogy). Organization: Formula breakdown and variable mapping.",
-    details: "Introduction to the main thermodynamics formula using the beach analogy for specific heat.",
+    title: "Work Catchup & Turn In Day",
+    summary: "Time to finalize boat designs, finish lab reports, and submit all pending Unit 5 assignments.",
+    details: "Students will have the full period to complete their Penny Boat Lab analysis, finalize any missing work from the previous two weeks, and ensure all digital assignments are turned in.",
     type: "Activity",
-    dok: 2,
+    dok: 1,
     semester: 2,
     isFeatured: true,
     wicor: {
@@ -174,7 +174,7 @@ const lessonsData = [
     semester: 2,
     isFeatured: true,
     links: {
-      '3D Simulator': 'penny-boat-lab/index.html',
+      'Penny Boat Lab Simulation': 'penny-boat-lab/index.html',
       'Lab Worksheet': 'https://docs.google.com/document/d/1VQUuUUDHWyi3-RyGK4vMBHEynfavdPs9/edit?usp=sharing&ouid=111972921986195834260&rtpof=true&sd=true'
     }
   },
