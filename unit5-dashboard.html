@@ -429,8 +429,28 @@
                 pacingCards.appendChild(card);
 
                 const li = document.createElement('li');
-                li.className = 'glass-card p-4 hover:bg-white/5 transition-colors border-l-4 border-l-transparent hover:border-l-orange-500';
-                li.innerHTML = `<span class="text-orange-500 font-bold mr-2">D${day.day}</span> ${day.topic}`;
+                li.className = 'glass-card p-4 hover:bg-white/5 transition-colors border-l-4 border-l-transparent hover:border-l-orange-500 flex flex-col gap-2';
+
+                let linkItems = '';
+                if (day.links) {
+                    linkItems = Object.entries(day.links).map(([lbl, u]) => `
+                        <a href="${u}" target="_blank" class="text-[10px] bg-red-950/40 hover:bg-red-500/20 px-2 py-1 rounded border border-red-500/20 text-red-200 transition-colors inline-flex items-center gap-1">
+                            ${lbl} ↗
+                        </a>
+                    `).join('');
+                }
+
+                li.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-orange-500">Day ${day.day}</span>
+                        <span class="text-[9px] text-red-100/40 uppercase">${day.type}</span>
+                    </div>
+                    <p class="text-sm font-semibold text-white/90 leading-tight">${day.topic}</p>
+                    <div class="flex flex-wrap gap-2 mt-1">
+                        ${linkItems}
+                    </div>
+                `;
+
                 if (day.type === 'Assessment') assessmentsList.appendChild(li);
                 else labsList.appendChild(li);
             });
@@ -472,18 +492,25 @@
                 // Check for Google Docs links and create iframe preview
                 if (day.links) {
                     Object.entries(day.links).forEach(([label, url]) => {
-                        // Check if it's a Google Doc or Presentation
-                        if (url.includes('docs.google.com/document') || url.includes('docs.google.com/presentation')) {
+                        const isGoogle = url.includes('docs.google.com/document') || url.includes('docs.google.com/presentation');
+                        const isLocalHtml = url.endsWith('.html');
+
+                        if (isGoogle || isLocalHtml) {
                             const isDoc = url.includes('docs.google.com/document');
-                            const icon = isDoc ? '📄' : '📽️';
-                            // Convert edit link to embed link
-                            const embedUrl = url.replace('/edit', '/preview');
+                            const icon = isDoc ? '📄' : (isLocalHtml ? '🛠️' : '📽️');
+
+                            // For Google Docs, convert edit link to preview link
+                            const embedUrl = isGoogle ? url.replace('/edit', '/preview') : url;
+
                             embedHtml += `
-                                <div class="bg-white/5 rounded-xl border border-white/10 overflow-hidden mb-4">
-                                    <div class="bg-orange-500/10 px-4 py-2 border-b border-white/10">
+                                <div class="bg-white/5 rounded-xl border border-white/10 overflow-hidden mb-4 shadow-xl">
+                                    <div class="bg-orange-500/10 px-4 py-2 border-b border-white/10 flex justify-between items-center">
                                         <h4 class="text-orange-400 font-bold text-xs uppercase tracking-widest">${icon} ${label}</h4>
+                                        <a href="${url}" target="_blank" class="text-[9px] bg-orange-500/20 hover:bg-orange-500/40 text-orange-300 px-2 py-0.5 rounded transition-colors">↗ Full Screen</a>
                                     </div>
-                                    <iframe src="${embedUrl}" class="w-full h-96 bg-white" frameborder="0"></iframe>
+                                    <div class="relative w-full overflow-hidden" style="padding-top: 56.25%;">
+                                        <iframe src="${embedUrl}" class="absolute top-0 left-0 w-full h-full bg-white border-none" loading="lazy"></iframe>
+                                    </div>
                                 </div>
                             `;
                         }

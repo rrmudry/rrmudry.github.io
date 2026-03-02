@@ -127,7 +127,8 @@ const lessonsData = [
     semester: 2,
     isFeatured: true,
     links: {
-      'Virtual Radiation Lab': 'Radiation_Lab/index.html'
+      'Virtual Radiation Lab': 'Radiation_Lab/index.html',
+      'Albedo Simulation': 'Radiation_Lab/albedo_sim.html'
     },
     wicor: {
       inquiry: "Testing variables (Distance vs. Absorption).",
@@ -138,16 +139,19 @@ const lessonsData = [
     date: "2026-03-03",
     day: 17,
     unit: 5,
-    title: "Demostration: The Inverse Square Law",
-    summary: "Live data collection to observe how light intensity drops with distance.",
-    details: "Inquiry & Organization: Predict/Observe/Explain cycle with live data collection. Introduction to the inverse square relationship.",
+    title: "Demonstration: Absorption & Albedo",
+    summary: "Predicting and tracking temperature changes in black vs. white surfaces.",
+    details: "Inquiry & Organization: Predict/Observe/Explain cycle. Live data collection comparing a black can and a white can under a heat source to observe differential absorption.",
     type: "Activity",
     dok: 2,
     semester: 2,
     isFeatured: true,
+    links: {
+      'Live Demo Tracker': 'Radiation_Lab/demo_tracker.html'
+    },
     wicor: {
-      inquiry: "Predicting intensity at varying distances.",
-      organization: "Graphic organizer for inverse square law."
+      inquiry: "Predicting heating rates based on surface color.",
+      organization: "Data table & Graphing of live temperatures."
     }
   },
   {
@@ -162,7 +166,9 @@ const lessonsData = [
     semester: 2,
     isFeatured: true,
     links: {
-      'Radiation Reading': 'Radiation_Lab/reading.html'
+      'Radiation Reading (English)': 'https://docs.google.com/document/d/16y1kJZq4Rafpjyqr0EvsMSPGIB4eLmo9IiJBKGKgWXY/edit?usp=sharing',
+      'Radiation Reading (Spanish)': 'https://docs.google.com/document/d/1q-3hxNYXSkdU6HIvrrGyLSqfclUkX4alEuqBnIXoQFg/edit?usp=sharing',
+      'Web App Reading Version': 'Radiation_Lab/reading.html'
     },
     wicor: {
       reading: "Focused Annotation & Marking the Text.",
