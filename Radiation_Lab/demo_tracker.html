@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Demo Tracker: Absorption & Albedo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            overflow: hidden;
+        }
+
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body class="h-screen flex flex-col p-6 gap-6">
+    <header class="flex justify-between items-center shrink-0">
+        <div>
+            <h1 class="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-rose-500">
+                Live Science Demo: Absorption & Albedo
+            </h1>
+            <p class="text-slate-400 text-sm font-medium">Tracking Temperature Change over Time</p>
+        </div>
+        <div class="flex gap-4 items-center">
+            <div id="timer" class="text-4xl font-mono font-black text-amber-400">00:00</div>
+            <button id="startBtn"
+                class="bg-emerald-600 hover:bg-emerald-500 px-6 py-2 rounded-xl font-bold transition-all shadow-lg shadow-emerald-600/20">Start
+                Clock</button>
+            <button id="resetBtn"
+                class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-xl font-bold transition-all">Reset</button>
+        </div>
+    </header>
+
+    <main class="flex-1 grid grid-cols-12 gap-6 min-h-0">
+        <!-- Input Panel -->
+        <div class="col-span-4 flex flex-col gap-4 overflow-y-auto pr-2 custom-scroll">
+            <div class="glass p-6 rounded-3xl flex flex-col gap-4">
+                <h2 class="text-lg font-bold text-slate-200 border-b border-white/10 pb-2">Record Data</h2>
+
+                <div class="grid grid-cols-2 gap-4 text-center">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[10px] uppercase font-black text-slate-500">Black Can (°C)</label>
+                        <input type="number" id="blackTemp" step="0.1" placeholder="--"
+                            class="bg-slate-900 border border-slate-700 text-white text-2xl font-black rounded-2xl p-4 text-center focus:border-orange-500 outline-none transition-all">
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[10px] uppercase font-black text-slate-500">White Can (°C)</label>
+                        <input type="number" id="whiteTemp" step="0.1" placeholder="--"
+                            class="bg-slate-900 border border-slate-700 text-white text-2xl font-black rounded-2xl p-4 text-center focus:border-blue-500 outline-none transition-all">
+                    </div>
+                </div>
+
+                <button id="logBtn"
+                    class="w-full py-4 bg-orange-500 hover:bg-orange-400 text-slate-900 font-black rounded-2xl text-xl uppercase tracking-widest shadow-lg shadow-orange-500/20 transition-all">
+                    Capture Data Point
+                </button>
+            </div>
+
+            <div class="glass p-4 rounded-3xl flex-1 overflow-hidden flex flex-col">
+                <h3 class="text-xs font-bold text-slate-500 uppercase mb-3 px-2">Data History</h3>
+                <div class="overflow-y-auto flex-1 h-full pr-2">
+                    <table class="w-full text-sm">
+                        <thead class="sticky top-0 bg-slate-800 text-slate-400 text-left text-[10px] uppercase">
+                            <tr>
+                                <th class="p-2">Time</th>
+                                <th class="p-2">Black</th>
+                                <th class="p-2">White</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dataTable">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Graph Panel -->
+        <div class="col-span-8 glass rounded-3xl p-6 flex flex-col overflow-hidden">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-bold text-slate-200">Comparison Graph</h2>
+                <div class="flex gap-4 text-[10px] font-bold uppercase tracking-widest">
+                    <span class="flex items-center gap-2">
+                        <div class="w-3 h-3 rounded-full bg-orange-500"></div> Black Can
+                    </span>
+                    <span class="flex items-center gap-2">
+                        <div class="w-3 h-3 rounded-full bg-blue-400"></div> White Can
+                    </span>
+                </div>
+            </div>
+            <div class="flex-1 bg-slate-950/50 rounded-2xl border border-white/5 p-4 box-border min-h-0">
+                <canvas id="mainChart"></canvas>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let seconds = 0;
+        let timerInterval = null;
+        let data = { labels: [], black: [], white: [] };
+
+        const timerDisplay = document.getElementById('timer');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const logBtn = document.getElementById('logBtn');
+        const blackInput = document.getElementById('blackTemp');
+        const whiteInput = document.getElementById('whiteTemp');
+        const tableBody = document.getElementById('dataTable');
+
+        // Chart.js Setup
+        const ctx = document.getElementById('mainChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'Black Can',
+                        data: [],
+                        borderColor: '#f97316',
+                        backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                        borderWidth: 4,
+                        pointRadius: 6,
+                        pointBackgroundColor: '#f97316',
+                        tension: 0.2
+                    },
+                    {
+                        label: 'White Can',
+                        data: [],
+                        borderColor: '#60a5fa',
+                        backgroundColor: 'rgba(96, 165, 250, 0.1)',
+                        borderWidth: 4,
+                        pointRadius: 6,
+                        pointBackgroundColor: '#60a5fa',
+                        tension: 0.2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Time Elapsed (mm:ss)', color: '#94a3b8' },
+                        ticks: { color: '#64748b' },
+                        grid: { color: 'rgba(255,255,255,0.05)' }
+                    },
+                    y: {
+                        title: { display: true, text: 'Temperature (°C)', color: '#94a3b8' },
+                        ticks: { color: '#64748b' },
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        suggestedMin: 20
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        startBtn.onclick = () => {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                startBtn.innerText = 'Resume Clock';
+                startBtn.classList.replace('bg-rose-600', 'bg-emerald-600');
+            } else {
+                timerInterval = setInterval(() => {
+                    seconds++;
+                    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+                    const s = (seconds % 60).toString().padStart(2, '0');
+                    timerDisplay.innerText = `${m}:${s}`;
+                }, 1000);
+                startBtn.innerText = 'Pause Clock';
+                startBtn.className = startBtn.className.replace('emerald', 'rose');
+            }
+        };
+
+        resetBtn.onclick = () => {
+            if (confirm("Are you sure you want to clear all data and reset the clock?")) {
+                location.reload();
+            }
+        };
+
+        logBtn.onclick = () => {
+            const b = parseFloat(blackInput.value);
+            const w = parseFloat(whiteInput.value);
+
+            if (isNaN(b) || isNaN(w)) {
+                alert("Please enter values for both cans before logging.");
+                return;
+            }
+
+            const timeLabel = timerDisplay.innerText;
+
+            // Update Internal Data
+            data.labels.push(timeLabel);
+            data.black.push(b);
+            data.white.push(w);
+
+            // Update Chart
+            chart.data.labels = data.labels;
+            chart.data.datasets[0].data = data.black;
+            chart.data.datasets[1].data = data.white;
+            chart.update();
+
+            // Update Table
+            const row = document.createElement('tr');
+            row.className = "border-b border-white/5 animate-in slide-in-from-left-4";
+            row.innerHTML = `
+                <td class="p-2 font-mono text-slate-400">${timeLabel}</td>
+                <td class="p-2 font-black text-orange-400">${b}°C</td>
+                <td class="p-2 font-black text-blue-400">${w}°C</td>
+            `;
+            tableBody.prepend(row);
+
+            // Clear inputs and flash success
+            blackInput.value = '';
+            whiteInput.value = '';
+            logBtn.innerText = "COPIED!";
+            logBtn.classList.replace('bg-orange-500', 'bg-emerald-500');
+            setTimeout(() => {
+                logBtn.innerText = "Capture Data Point";
+                logBtn.classList.replace('bg-emerald-500', 'bg-orange-500');
+            }, 1000);
+        };
+
+        // Hotkey for logging (Enter key)
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') logBtn.click();
+        });
+    </script>
+</body>
+
+</html>
