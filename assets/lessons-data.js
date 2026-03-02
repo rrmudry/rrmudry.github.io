@@ -90,10 +90,10 @@ const lessonsData = [
     date: "2026-03-06",
     day: 20,
     unit: 5,
-    title: "Intro to Ideal Gases & Isothermal Processes",
-    summary: "The Ideal Gas Law (PV=nRT) and constant temperature changes.",
-    details: "Introduction to the microscopic model of gases. Defining the Ideal Gas Law and studying isothermal expansion/compression.",
-    type: "Activity",
+    title: "Specific Heat Wrap-Up & Unit Transition",
+    summary: "Finalizing specific heat calculations and preparing for the Ideal Gas Law.",
+    details: "Organization: Practice worksheet on Q=mc∆T. Students connect specific heat concepts to the laws of thermodynamics.",
+    type: "Practice",
     dok: 2,
     semester: 2,
     isFeatured: true
@@ -102,49 +102,72 @@ const lessonsData = [
     date: "2026-03-05",
     day: 19,
     unit: 5,
-    title: "Entropy in the Real World",
-    summary: "From melting ice to time's arrow: Entropy is everywhere.",
-    details: "Discussion of the 'Heat Death' of the universe and why perpetual motion machines are impossible due to the Second Law.",
+    title: "Synthesis: The Physics of Radiation",
+    summary: "Connecting Reading, Demo, and Lab data to build a CER argument. <span class='inline-flex items-center gap-1 bg-blue-950/40 text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded border border-blue-500/30 ml-2 animate-pulse'>★ VISITOR DAY</span>",
+    details: "Writing & Organization: Students synthesize their observations from the week into a cohesive scientific argument. Visitors will observe AVID strategies in action.",
     type: "Activity",
-    dok: 1,
+    dok: 3,
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    wicor: {
+      writing: "CER Statement: How does distance and albedo affect thermal energy transfer?",
+      organization: "Data Matrix connecting previous 3 days of evidence.",
+      collaboration: "Peer review of arguments."
+    }
   },
   {
     date: "2026-03-04",
     day: 18,
     unit: 5,
-    title: "The Second Law: Entropy",
-    summary: "The universe tends toward disorder. Why efficiency is never 100%.",
-    details: "Introduction to the concept of Entropy (S) as a measure of disorder. The Second Law of Thermodynamics.",
-    type: "Activity",
-    dok: 2,
+    title: "Virtual Lab: Radiation & Albedo",
+    summary: "Using a digital simulation to test variables that affect radiative heat transfer.",
+    details: "Inquiry & Collaboration: Groups use the Virtual Lab webapp to test how different materials and distances affect heat absorption.",
+    type: "Lab",
+    dok: 3,
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    links: {
+      'Virtual Radiation Lab': 'Radiation_Lab/index.html'
+    },
+    wicor: {
+      inquiry: "Testing variables (Distance vs. Absorption).",
+      collaboration: "Group data analysis."
+    }
   },
   {
     date: "2026-03-03",
     day: 17,
     unit: 5,
-    title: "Systems & Energy Conservation",
-    summary: "Applying the First Law (ΔU = Q + W) to closed systems.",
-    details: "Calculations involving internal energy change, heat added, and work done on/by the system.",
-    type: "Practice",
+    title: "Demostration: The Inverse Square Law",
+    summary: "Live data collection to observe how light intensity drops with distance.",
+    details: "Inquiry & Organization: Predict/Observe/Explain cycle with live data collection. Introduction to the inverse square relationship.",
+    type: "Activity",
     dok: 2,
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    wicor: {
+      inquiry: "Predicting intensity at varying distances.",
+      organization: "Graphic organizer for inverse square law."
+    }
   },
   {
     date: "2026-03-02",
     day: 16,
     unit: 5,
-    title: "The Zeroth & First Laws",
-    summary: "Defining temperature and the conservation of energy.",
-    details: "Formal introduction to the First Law of Thermodynamics: Energy cannot be created or destroyed, only transferred.",
+    title: "Reading: Heat Transfer by Radiation",
+    summary: "Focused annotation of text on electromagnetic waves and thermal energy.",
+    details: "Reading & Writing: Students use marking-the-text strategies to identify key concepts in radiative heat transfer.",
     type: "Activity",
-    dok: 1,
+    dok: 2,
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    links: {
+      'Radiation Reading': 'Radiation_Lab/reading.html'
+    },
+    wicor: {
+      reading: "Focused Annotation & Marking the Text.",
+      writing: "Quick-summary of the Stefan-Boltzmann relationship."
+    }
   },
   {
     date: "2026-02-27",
