@@ -1,279 +1,388 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Radiation & Albedo Virtual Lab</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap"
+      rel="stylesheet"
+    />
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0f172a;
-            color: #f8fafc;
-        }
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #0f172a;
+        color: #f8fafc;
+      }
 
-        .glass {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
+      .glass {
+        background: rgba(30, 41, 59, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
 
-        .lamp-glow {
-            filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.5));
-        }
+      .lamp-glow {
+        filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.5));
+      }
 
-        input[type="range"] {
-            accent-color: #fbbf24;
-        }
+      input[type="range"] {
+        accent-color: #fbbf24;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+      const { useState, useEffect, useRef } = React;
 
-        const MATERIALS = {
-            black: { name: 'Matte Black', color: '#111827', absorption: 0.95, reflection: 0.05 },
-            white: { name: 'Glossy White', color: '#f8fafc', absorption: 0.20, reflection: 0.80 },
-            silver: { name: 'Polished Silver', color: '#e2e8f0', absorption: 0.05, reflection: 0.95 },
-            wood: { name: 'Natural Wood', color: '#78350f', absorption: 0.60, reflection: 0.40 }
-        };
+      const MATERIALS = {
+        black: {
+          name: "Matte Black",
+          color: "#111827",
+          absorption: 0.95,
+          reflection: 0.05,
+        },
+        white: {
+          name: "Glossy White",
+          color: "#f8fafc",
+          absorption: 0.2,
+          reflection: 0.8,
+        },
+        silver: {
+          name: "Polished Silver",
+          color: "#e2e8f0",
+          absorption: 0.05,
+          reflection: 0.95,
+        },
+        wood: {
+          name: "Natural Wood",
+          color: "#78350f",
+          absorption: 0.6,
+          reflection: 0.4,
+        },
+      };
 
-        const App = () => {
-            const [distance, setDistance] = useState(20); // cm
-            const [material, setMaterial] = useState('black');
-            const [lampPower, setLampPower] = useState(100); // Watts
-            const [isRunning, setIsRunning] = useState(false);
-            const [elapsedTime, setElapsedTime] = useState(0); // seconds
-            const [temperature, setTemperature] = useState(22.0); // Celsius
-            const [history, setHistory] = useState([]);
+      const App = () => {
+        const [distance, setDistance] = useState(20); // cm
+        const [material, setMaterial] = useState("black");
+        const [lampPower, setLampPower] = useState(100); // Watts
+        const [isRunning, setIsRunning] = useState(false);
+        const [elapsedTime, setElapsedTime] = useState(0); // seconds
+        const [temperature, setTemperature] = useState(22.0); // Celsius
+        const [history, setHistory] = useState([]);
 
-            const chartRef = useRef(null);
-            const chartInstance = useRef(null);
-            const timerRef = useRef(null);
+        const chartRef = useRef(null);
+        const chartInstance = useRef(null);
+        const timerRef = useRef(null);
 
-            const ambientTemp = 22.0;
+        const ambientTemp = 22.0;
 
-            // Physics calculation: change in temperature per second
-            // Simplified for high school: ΔT = (Intensity * Area * Absorption - Cooling) / Heat Capacity
-            useEffect(() => {
-                if (isRunning) {
-                    timerRef.current = setInterval(() => {
-                        setElapsedTime(prev => prev + 1);
-                        setTemperature(prev => {
-                            // Inverse Square Law for Intensity (scaled for visualization)
-                            const intensity = (lampPower * 500) / (distance * distance);
-                            const absorptivity = MATERIALS[material].absorption;
+        // Physics calculation: change in temperature per second
+        // Simplified for high school: ΔT = (Intensity * Area * Absorption - Cooling) / Heat Capacity
+        useEffect(() => {
+          if (isRunning) {
+            timerRef.current = setInterval(() => {
+              setElapsedTime((prev) => prev + 1);
+              setTemperature((prev) => {
+                // Inverse Square Law for Intensity (scaled for visualization)
+                const intensity = (lampPower * 500) / (distance * distance);
+                const absorptivity = MATERIALS[material].absorption;
 
-                            // Heating gain
-                            const heatGain = (intensity * absorptivity) * 0.02;
+                // Heating gain
+                const heatGain = intensity * absorptivity * 0.02;
 
-                            // Simple cooling to ambient (Newton's Law of Cooling)
-                            const cooling = (prev - ambientTemp) * 0.05;
+                // Simple cooling to ambient (Newton's Law of Cooling)
+                const cooling = (prev - ambientTemp) * 0.05;
 
-                            const nextT = prev + heatGain - cooling;
+                const nextT = prev + heatGain - cooling;
 
-                            setHistory(h => {
-                                const newH = [...h, { time: elapsedTime + 1, temp: nextT }];
-                                updateChart(newH);
-                                return newH;
-                            });
-
-                            return nextT;
-                        });
-                    }, 500); // update every 0.5s for "smoothness"
-                } else {
-                    clearInterval(timerRef.current);
-                }
-                return () => clearInterval(timerRef.current);
-            }, [isRunning, distance, material, lampPower, elapsedTime]);
-
-            const updateChart = (data) => {
-                if (chartInstance.current) {
-                    chartInstance.current.data.labels = data.map(d => d.time);
-                    chartInstance.current.data.datasets[0].data = data.map(d => d.temp);
-                    chartInstance.current.update('none');
-                }
-            };
-
-            const resetLab = () => {
-                setIsRunning(false);
-                setElapsedTime(0);
-                setTemperature(22.0);
-                setHistory([]);
-                if (chartInstance.current) {
-                    chartInstance.current.data.labels = [];
-                    chartInstance.current.data.datasets[0].data = [];
-                    chartInstance.current.update();
-                }
-            };
-
-            useEffect(() => {
-                const ctx = chartRef.current.getContext('2d');
-                chartInstance.current = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: [],
-                        datasets: [{
-                            label: 'Surface Temp (°C)',
-                            data: [],
-                            borderColor: '#fbbf24',
-                            backgroundColor: 'rgba(251, 191, 36, 0.1)',
-                            borderWidth: 3,
-                            fill: true,
-                            tension: 0.3,
-                            pointRadius: 0
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        animation: false,
-                        scales: {
-                            x: { title: { display: true, text: 'Time (s)', color: '#94a3b8' }, ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                            y: { title: { display: true, text: 'Temperature (°C)', color: '#94a3b8' }, ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' }, min: 20, max: 60 }
-                        },
-                        plugins: { legend: { display: false } }
-                    }
+                setHistory((h) => {
+                  const newH = [...h, { time: elapsedTime + 1, temp: nextT }];
+                  updateChart(newH);
+                  return newH;
                 });
-                return () => chartInstance.current.destroy();
-            }, []);
 
-            return (
-                <div className="min-h-screen p-4 md:p-8 max-w-6xl mx-auto flex flex-col gap-6">
-                    <header className="flex justify-between items-center">
-                        <div>
-                            <h1 className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-orange-500">
-                                Radiation & Albedo Lab
-                            </h1>
-                            <p className="text-slate-400 text-sm font-medium italic">Virtual Heat Transfer Simulation</p>
-                        </div>
-                        <div className="flex gap-2">
-                            <span className="bg-amber-500/10 text-amber-500 px-3 py-1 rounded-full text-xs font-bold border border-amber-500/20 shadow-[0_0_15px_rgba(251,191,36,0.1)]">WICOR: Inquiry</span>
-                            <span className="bg-blue-500/10 text-blue-500 px-3 py-1 rounded-full text-xs font-bold border border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.1)]">AVID: Collaboration</span>
-                        </div>
-                    </header>
+                return nextT;
+              });
+            }, 500); // update every 0.5s for "smoothness"
+          } else {
+            clearInterval(timerRef.current);
+          }
+          return () => clearInterval(timerRef.current);
+        }, [isRunning, distance, material, lampPower, elapsedTime]);
 
-                    <main className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                        {/* Simulation Viewport */}
-                        <div className="lg:col-span-8 glass rounded-3xl p-6 flex flex-col gap-6 relative overflow-hidden">
-                            <div className="h-64 rounded-2xl bg-slate-950 flex relative items-center justify-between px-20 border border-slate-800 shadow-inner">
-                                {/* Floor/Table */}
-                                <div className="absolute bottom-0 left-0 w-full h-8 bg-slate-900 border-t border-slate-800"></div>
-
-                                {/* Heat Lamp */}
-                                <div className="flex flex-col items-center transition-all duration-300" style={{ transform: `translateX(${(distance / 100) * -100}px)` }}>
-                                    <div className={`w-16 h-16 rounded-full bg-slate-700 relative flex items-center justify-center border-4 border-slate-600 ${isRunning ? 'lamp-glow' : ''}`}>
-                                        <div className={`w-8 h-8 rounded-full transition-colors duration-500 ${isRunning ? 'bg-amber-300 shadow-[0_0_30px_#fcd34d]' : 'bg-slate-800'}`}></div>
-                                    </div>
-                                    <div className="w-1 h-32 bg-slate-600"></div>
-                                    <div className="text-[10px] text-slate-500 font-bold uppercase mt-2">Heat Source</div>
-                                </div>
-
-                                {/* Test Block */}
-                                <div className="flex flex-col items-center">
-                                    <div className="w-20 h-20 rounded-xl shadow-2xl transition-colors duration-500 border-2 border-slate-700/50" style={{ backgroundColor: MATERIALS[material].color }}></div>
-                                    <div className="text-[10px] text-slate-400 font-bold uppercase mt-4">{MATERIALS[material].name}</div>
-                                    <div className="mt-2 bg-slate-900/80 px-4 py-1 rounded-full border border-slate-800 text-amber-400 font-mono text-xl">
-                                        {temperature.toFixed(1)}°C
-                                    </div>
-                                </div>
-
-                                {/* Measurement visualization */}
-                                <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center opacity-40">
-                                    <div className="w-full border-t border-dashed border-slate-600"></div>
-                                    <div className="text-[10px] text-slate-500 mt-1 font-mono">{distance}cm</div>
-                                </div>
-                            </div>
-
-                            <div className="h-64 chart-bg rounded-2xl p-4 bg-slate-950/50 border border-slate-800">
-                                <canvas ref={chartRef}></canvas>
-                            </div>
-                        </div>
-
-                        {/* Controls Sidebar */}
-                        <div className="lg:col-span-4 flex flex-col gap-6">
-                            <div className="glass rounded-3xl p-6 flex flex-col gap-6 shadow-xl">
-                                <h2 className="text-lg font-bold text-slate-200 border-b border-slate-700 pb-2">Lab Controls</h2>
-
-                                <div className="space-y-4">
-                                    <div>
-                                        <div className="flex justify-between text-xs font-bold text-slate-400 uppercase mb-2">
-                                            <span>Lamp Distance</span>
-                                            <span className="text-amber-400 font-mono">{distance} cm</span>
-                                        </div>
-                                        <input type="range" min="10" max="100" value={distance} onChange={(e) => setDistance(e.target.value)} className="w-full h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer" />
-                                        <p className="text-[9px] text-slate-500 mt-1">Increasing distance reduces intensity by $1/d^2$</p>
-                                    </div>
-
-                                    <div>
-                                        <div className="flex justify-between text-xs font-bold text-slate-400 uppercase mb-2">
-                                            <span>Lamp Power</span>
-                                            <span className="text-amber-400 font-mono">{lampPower} W</span>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            {[60, 100, 250].map(w => (
-                                                <button key={w} onClick={() => setLampPower(w)} className={`flex-1 py-1 rounded-lg text-xs font-bold border transition-all ${lampPower === w ? 'bg-amber-500 border-amber-400 text-slate-950 shadow-lg shadow-amber-500/20' : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700'}`}>
-                                                    {w}W
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <div className="flex justify-between text-xs font-bold text-slate-400 uppercase mb-2">
-                                            <span>Surface Material (Albedo)</span>
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-2">
-                                            {Object.keys(MATERIALS).map(m => (
-                                                <button key={m} onClick={() => setMaterial(m)} className={`p-2 rounded-xl text-[10px] font-bold border flex items-center gap-2 transition-all ${material === m ? 'bg-slate-700 border-amber-500/50 text-white shadow-lg' : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:bg-slate-800'}`}>
-                                                    <div className="w-4 h-4 rounded-sm border border-white/10" style={{ background: MATERIALS[m].color }}></div>
-                                                    {MATERIALS[m].name}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="flex gap-3 pt-4 border-t border-slate-700">
-                                    <button onClick={() => setIsRunning(!isRunning)} className={`flex-1 py-3 rounded-2xl font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${isRunning ? 'bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-600/20' : 'bg-amber-500 hover:bg-amber-400 text-slate-900 shadow-lg shadow-amber-500/20'}`}>
-                                        {isRunning ? 'Stop Clock' : 'Turn Lamp On'}
-                                    </button>
-                                    <button onClick={resetLab} className="p-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-2xl border border-slate-700 transition-all">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="glass rounded-3xl p-6 bg-gradient-to-br from-blue-900/20 to-purple-900/20">
-                                <h3 className="text-blue-400 font-bold text-xs uppercase tracking-widest mb-2 flex items-center gap-2">
-                                    <span className="animate-pulse">💡</span> Scientific Challenge
-                                </h3>
-                                <p className="text-xs text-slate-300 leading-relaxed italic">
-                                    "Which material reaches 40°C the fastest at 20cm? Use your Field Notebook to record the time and explain your reasoning using the concept of Absorption vs. Reflection."
-                                </p>
-                            </div>
-                        </div>
-                    </main>
-
-                    <footer className="text-center text-[10px] text-slate-500 uppercase tracking-widest mt-auto pb-4">
-                        Unit 5 Thermodynamics • Curated Virtual Interactive • Mr. Mudry
-                    </footer>
-                </div>
+        const updateChart = (data) => {
+          if (chartInstance.current) {
+            chartInstance.current.data.labels = data.map((d) => d.time);
+            chartInstance.current.data.datasets[0].data = data.map(
+              (d) => d.temp,
             );
+            chartInstance.current.update("none");
+          }
         };
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
-</body>
+        const resetLab = () => {
+          setIsRunning(false);
+          setElapsedTime(0);
+          setTemperature(22.0);
+          setHistory([]);
+          if (chartInstance.current) {
+            chartInstance.current.data.labels = [];
+            chartInstance.current.data.datasets[0].data = [];
+            chartInstance.current.update();
+          }
+        };
 
+        useEffect(() => {
+          const ctx = chartRef.current.getContext("2d");
+          chartInstance.current = new Chart(ctx, {
+            type: "line",
+            data: {
+              labels: [],
+              datasets: [
+                {
+                  label: "Surface Temp (°C)",
+                  data: [],
+                  borderColor: "#fbbf24",
+                  backgroundColor: "rgba(251, 191, 36, 0.1)",
+                  borderWidth: 3,
+                  fill: true,
+                  tension: 0.3,
+                  pointRadius: 0,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              animation: false,
+              scales: {
+                x: {
+                  title: { display: true, text: "Time (s)", color: "#94a3b8" },
+                  ticks: { color: "#64748b" },
+                  grid: { color: "rgba(255,255,255,0.05)" },
+                },
+                y: {
+                  title: {
+                    display: true,
+                    text: "Temperature (°C)",
+                    color: "#94a3b8",
+                  },
+                  ticks: { color: "#64748b" },
+                  grid: { color: "rgba(255,255,255,0.05)" },
+                  min: 20,
+                  max: 60,
+                },
+              },
+              plugins: { legend: { display: false } },
+            },
+          });
+          return () => chartInstance.current.destroy();
+        }, []);
+
+        return (
+          <div className="min-h-screen p-4 md:p-8 max-w-6xl mx-auto flex flex-col gap-6">
+            <header className="flex justify-between items-center">
+              <div>
+                <h1 className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-orange-500">
+                  Radiation & Albedo Lab
+                </h1>
+                <p className="text-slate-400 text-sm font-medium italic">
+                  Virtual Heat Transfer Simulation
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <span className="bg-amber-500/10 text-amber-500 px-3 py-1 rounded-full text-xs font-bold border border-amber-500/20 shadow-[0_0_15px_rgba(251,191,36,0.1)]">
+                  WICOR: Inquiry
+                </span>
+                <span className="bg-blue-500/10 text-blue-500 px-3 py-1 rounded-full text-xs font-bold border border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.1)]">
+                  AVID: Collaboration
+                </span>
+              </div>
+            </header>
+
+            <main className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              {/* Simulation Viewport */}
+              <div className="lg:col-span-8 glass rounded-3xl p-6 flex flex-col gap-6 relative overflow-hidden">
+                <div className="h-64 rounded-2xl bg-slate-950 flex relative items-center justify-end pr-12 lg:pr-24 border border-slate-800 shadow-inner overflow-hidden">
+                  {/* Floor/Table */}
+                  <div className="absolute bottom-0 left-0 w-full h-8 bg-slate-900 border-t border-slate-800"></div>
+
+                  {/* Heat Lamp */}
+                  <div className="flex flex-col items-center w-24 z-10 transition-all duration-300">
+                    <div
+                      className={`w-16 h-16 rounded-full bg-slate-700 relative flex items-center justify-center border-4 border-slate-600 ${isRunning ? "lamp-glow" : ""}`}
+                    >
+                      <div
+                        className={`w-8 h-8 rounded-full transition-colors duration-500 ${isRunning ? "bg-amber-300 shadow-[0_0_30px_#fcd34d]" : "bg-slate-800"}`}
+                      ></div>
+                    </div>
+                    <div className="w-1 h-32 bg-slate-600"></div>
+                    <div className="text-[10px] text-slate-400 font-bold uppercase mt-2 bg-slate-950/80 px-2 rounded">
+                      Heat Source
+                    </div>
+                  </div>
+
+                  {/* Dynamic Distance Spacer/Connector */}
+                  <div
+                    className="flex flex-col items-center justify-center opacity-60 transition-all duration-300 z-10 -translate-y-8"
+                    style={{ width: `${Math.max(40, distance * 4)}px` }}
+                  >
+                    <div className="w-full border-t-2 border-dashed border-slate-400"></div>
+                    <div className="absolute text-[10px] font-bold text-slate-300 font-mono bg-slate-900 border border-slate-700 px-2 py-0.5 rounded shadow-sm">
+                      {distance} cm
+                    </div>
+                  </div>
+
+                  {/* Test Block */}
+                  <div className="flex flex-col items-center w-32 z-10 relative">
+                    <div
+                      className="w-20 h-20 rounded-xl shadow-2xl transition-colors duration-500 border-2 border-slate-700/50"
+                      style={{ backgroundColor: MATERIALS[material].color }}
+                    ></div>
+                    <div className="text-[10px] text-slate-300 font-bold uppercase mt-4 bg-slate-950/80 px-2 rounded text-center">
+                      {MATERIALS[material].name}
+                    </div>
+                    <div className="mt-2 bg-slate-900 border border-slate-700 px-4 py-1 rounded-full text-amber-400 font-mono text-xl shadow-lg">
+                      {temperature.toFixed(1)}°C
+                    </div>
+                  </div>
+                </div>
+
+                <div className="h-64 chart-bg rounded-2xl p-4 bg-slate-950/50 border border-slate-800">
+                  <canvas ref={chartRef}></canvas>
+                </div>
+              </div>
+
+              {/* Controls Sidebar */}
+              <div className="lg:col-span-4 flex flex-col gap-6">
+                <div className="glass rounded-3xl p-6 flex flex-col gap-6 shadow-xl">
+                  <h2 className="text-lg font-bold text-slate-200 border-b border-slate-700 pb-2">
+                    Lab Controls
+                  </h2>
+
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between text-xs font-bold text-slate-400 uppercase mb-2">
+                        <span>Lamp Distance</span>
+                        <span className="text-amber-400 font-mono">
+                          {distance} cm
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="10"
+                        max="100"
+                        value={distance}
+                        onChange={(e) => setDistance(e.target.value)}
+                        className="w-full h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer"
+                      />
+                      <p className="text-[9px] text-slate-500 mt-1">
+                        Increasing distance reduces intensity by $1/d^2$
+                      </p>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between text-xs font-bold text-slate-400 uppercase mb-2">
+                        <span>Lamp Power</span>
+                        <span className="text-amber-400 font-mono">
+                          {lampPower} W
+                        </span>
+                      </div>
+                      <div className="flex gap-2">
+                        {[60, 100, 250].map((w) => (
+                          <button
+                            key={w}
+                            onClick={() => setLampPower(w)}
+                            className={`flex-1 py-1 rounded-lg text-xs font-bold border transition-all ${lampPower === w ? "bg-amber-500 border-amber-400 text-slate-950 shadow-lg shadow-amber-500/20" : "bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700"}`}
+                          >
+                            {w}W
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between text-xs font-bold text-slate-400 uppercase mb-2">
+                        <span>Surface Material (Albedo)</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {Object.keys(MATERIALS).map((m) => (
+                          <button
+                            key={m}
+                            onClick={() => setMaterial(m)}
+                            className={`p-2 rounded-xl text-[10px] font-bold border flex items-center gap-2 transition-all ${material === m ? "bg-slate-700 border-amber-500/50 text-white shadow-lg" : "bg-slate-800/50 border-slate-700 text-slate-400 hover:bg-slate-800"}`}
+                          >
+                            <div
+                              className="w-4 h-4 rounded-sm border border-white/10"
+                              style={{ background: MATERIALS[m].color }}
+                            ></div>
+                            {MATERIALS[m].name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3 pt-4 border-t border-slate-700">
+                    <button
+                      onClick={() => setIsRunning(!isRunning)}
+                      className={`flex-1 py-3 rounded-2xl font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${isRunning ? "bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-600/20" : "bg-amber-500 hover:bg-amber-400 text-slate-900 shadow-lg shadow-amber-500/20"}`}
+                    >
+                      {isRunning ? "Stop Clock" : "Turn Lamp On"}
+                    </button>
+                    <button
+                      onClick={resetLab}
+                      className="p-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-2xl border border-slate-700 transition-all"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                        <path d="M3 3v5h5" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="glass rounded-3xl p-6 bg-gradient-to-br from-blue-900/20 to-purple-900/20">
+                  <h3 className="text-blue-400 font-bold text-xs uppercase tracking-widest mb-2 flex items-center gap-2">
+                    <span className="animate-pulse">💡</span> Scientific
+                    Challenge
+                  </h3>
+                  <p className="text-xs text-slate-300 leading-relaxed italic">
+                    "Which material reaches 40°C the fastest at 20cm? Use your
+                    Field Notebook to record the time and explain your reasoning
+                    using the concept of Absorption vs. Reflection."
+                  </p>
+                </div>
+              </div>
+            </main>
+
+            <footer className="text-center text-[10px] text-slate-500 uppercase tracking-widest mt-auto pb-4">
+              Unit 5 Thermodynamics • Curated Virtual Interactive • Mr. Mudry
+            </footer>
+          </div>
+        );
+      };
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<App />);
+    </script>
+  </body>
 </html>
