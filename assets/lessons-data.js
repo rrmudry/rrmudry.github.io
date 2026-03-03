@@ -149,6 +149,8 @@ const lessonsData = [
     links: {
       'Live Demo Tracker': 'Radiation_Lab/demo_tracker.html',
       'Albedo Simulation': 'Radiation_Lab/albedo_sim.html',
+      'Interactive: Inverse Square Law': 'Inverse_Square_Law/index.html',
+      'Inverse Square Law Notes': 'https://docs.google.com/document/d/1HYCiVSm_oczVIswpvDMwy9FBXZT0Aw4KEypgDabVfs0/edit?usp=sharing',
       'Video: Albedo explained': 'https://www.youtube.com/watch?v=8SG5hxx2RH4'
     },
     wicor: {
