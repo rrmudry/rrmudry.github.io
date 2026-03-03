@@ -139,18 +139,20 @@ const lessonsData = [
     date: "2026-03-03",
     day: 17,
     unit: 5,
-    title: "Demonstration: Absorption & Albedo",
-    summary: "Predicting and tracking temperature changes in black vs. white surfaces.",
-    details: "Inquiry & Organization: Predict/Observe/Explain cycle. Live data collection comparing a black can and a white can under a heat source to observe differential absorption.",
+    title: "Demonstration: Albedo & Inverse Square Law",
+    summary: "Predicting and tracking temperature changes in black vs. white surfaces. Discussing Albedo and the Inverse Square Law.",
+    details: "Inquiry & Organization: Predict/Observe/Explain cycle. Live data collection comparing a black can and a white can under a heat source to observe differential absorption and how distance affects intensity via the Inverse Square Law.",
     type: "Activity",
     dok: 2,
     semester: 2,
     isFeatured: true,
     links: {
-      'Live Demo Tracker': 'Radiation_Lab/demo_tracker.html'
+      'Live Demo Tracker': 'Radiation_Lab/demo_tracker.html',
+      'Albedo Simulation': 'Radiation_Lab/albedo_sim.html',
+      'Video: Albedo explained': 'https://www.youtube.com/watch?v=8SG5hxx2RH4'
     },
     wicor: {
-      inquiry: "Predicting heating rates based on surface color.",
+      inquiry: "Predicting heating rates based on surface color and distance.",
       organization: "Data table & Graphing of live temperatures."
     }
   },
