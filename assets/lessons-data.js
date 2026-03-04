@@ -127,6 +127,7 @@ const lessonsData = [
     semester: 2,
     isFeatured: true,
     links: {
+      'Virtual Lab Worksheet': 'https://docs.google.com/document/d/1GhgcEpqwD06hJCLF0XsDtxKn1F2LjeIhoBKjFEs2G1M/edit?usp=sharing',
       'Virtual Radiation Lab': 'Radiation_Lab/index.html',
       'Albedo Simulation': 'Radiation_Lab/albedo_sim.html'
     },
