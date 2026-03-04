@@ -36,6 +36,30 @@ html_boilerplate = """<!DOCTYPE html>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        @keyframes pulse-glow {
+            0% { 
+                box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.8);
+                transform: scale(1);
+                background-color: #10b981; /* emerald-500 */
+            }
+            50% { 
+                box-shadow: 0 0 25px 15px rgba(52, 211, 153, 0.6);
+                transform: scale(1.1);
+                background-color: #6ee7b7; /* emerald-300 */
+            }
+            100% { 
+                box-shadow: 0 0 0 0 rgba(52, 211, 153, 0);
+                transform: scale(1);
+                background-color: #10b981; /* emerald-500 */
+            }
+        }
+        .animate-pulse-glow {
+            animation: pulse-glow 1.2s infinite ease-in-out;
+            z-index: 50;
+        }
+    </style>
 </head>
 
 <body>
