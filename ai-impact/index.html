@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Future of Electronics Careers in the Age of AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: #fdfbf7;
+            color: #333333;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+
+        .tab-btn.active {
+            border-bottom-color: #0d9488;
+            color: #0d9488;
+            font-weight: 600;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="antialiased selection:bg-teal-200 selection:text-teal-900">
+
+    <!-- Chosen Palette: Warm Neutrals with Teal and Rose Accents (Background: #fdfbf7, Accents: Teal-600, Rose-600) -->
+    <!-- Application Structure Plan: A centralized dashboard approach. It begins with a hero section establishing the 'Great Decoupling' concept. This flows into a high-level visual summary (Risk Matrix Chart) to immediately orient the user on which jobs are safe vs. at risk. Following the chart is an interactive 'Career Explorer' tabbed interface, allowing users to drill down into specific career categories (At Risk, Resistant, Augmented) at their own pace without overwhelming them with text. Finally, a 'Strategy' grid provides actionable takeaways. This structure prioritizes immediate visual understanding followed by user-directed deep dives. -->
+    <!-- Visualization & Content Choices: 
+1. Risk Matrix Data -> Goal: Compare automation risk across roles -> Viz: Chart.js Horizontal Bar Chart -> Interaction: Hover tooltips for context -> Justification: Easiest way to quickly compare relative risk levels visually. 
+2. Career Path Details -> Goal: Organize and inform on specific roles -> Viz: Interactive Tabbed Interface -> Interaction: Click tabs to swap content panels -> Justification: Breaks dense text into digestible, thematic chunks. 
+3. Takeaways -> Goal: Inform on next steps -> Viz: CSS Grid Cards -> Interaction: Hover states -> Justification: Actionable, distinct blocks of advice. 
+Confirming NO SVG graphics used. NO Mermaid JS used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <nav class="sticky top-0 z-50 bg-[#fdfbf7]/90 backdrop-blur border-b border-stone-200 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <div class="text-xl font-bold text-teal-800 tracking-tight">⚡ ElectroFuture AI</div>
+            <div class="text-sm font-medium text-stone-500">2026 Outlook</div>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+
+        <header class="mb-16 text-center max-w-3xl mx-auto">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-stone-900 mb-6 leading-tight">
+                The Great Decoupling: Electronics Careers in the Age of AI
+            </h1>
+            <p class="text-lg md:text-xl text-stone-600 leading-relaxed">
+                As Artificial Intelligence matures into a tool for physical world interaction, the traditional
+                electronics role is bifurcating. Routine optimization is becoming automated labor, while roles requiring
+                multi-disciplinary synthesis and physical orchestration are seeing record demand. Explore the
+                interactive dashboard below to understand where your skills fit in the 2026 landscape.
+            </p>
+        </header>
+
+        <section class="mb-20 bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-stone-100">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-bold text-stone-800 mb-3">AI Automation Risk Matrix</h2>
+                <p class="text-stone-600 max-w-2xl mx-auto">
+                    This chart visualizes the vulnerability of various electronics engineering paths to AI automation.
+                    Roles highly dependent on standard layout or boilerplate coding are at extreme risk, while
+                    system-level and physical roles remain secure. Hover over the bars to see the evolving modern
+                    requirements for each role.
+                </p>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="riskChart"></canvas>
+            </div>
+        </section>
+
+        <section class="mb-20">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-bold text-stone-800 mb-4">Deep Dive: Career Archetypes</h2>
+                <p class="text-stone-600 max-w-2xl mx-auto">
+                    Select a category below to explore the detailed breakdown of high-risk, AI-resistant, and
+                    AI-augmented careers. Understand *why* certain roles are changing and what skills define the future
+                    of that sector.
+                </p>
+            </div>
+
+            <div class="flex flex-wrap justify-center border-b border-stone-200 mb-8" id="tab-controls">
+                <button
+                    class="tab-btn active px-6 py-3 text-lg font-medium text-stone-500 border-b-4 border-transparent hover:text-stone-800 transition-colors"
+                    data-target="risk">
+                    ⚠️ High-Risk (Automated)
+                </button>
+                <button
+                    class="tab-btn px-6 py-3 text-lg font-medium text-stone-500 border-b-4 border-transparent hover:text-stone-800 transition-colors"
+                    data-target="resistant">
+                    🛡️ AI-Resistant (Safe)
+                </button>
+                <button
+                    class="tab-btn px-6 py-3 text-lg font-medium text-stone-500 border-b-4 border-transparent hover:text-stone-800 transition-colors"
+                    data-target="augmented">
+                    🚀 AI-Augmented (Growth)
+                </button>
+            </div>
+
+            <div id="tab-content-container" class="min-h-[400px]">
+
+                <div id="risk" class="tab-pane fade-in block">
+                    <div class="bg-rose-50 border border-rose-100 rounded-xl p-6 md:p-8">
+                        <h3 class="text-2xl font-bold text-rose-900 mb-6">Automation Candidates</h3>
+                        <p class="text-rose-800 mb-8">These roles are in jeopardy because their primary value
+                            proposition is based on rule-following and data processing—areas where AI excels rapidly.
+                        </p>
+
+                        <div class="grid md:grid-cols-3 gap-6">
+                            <div class="bg-white p-5 rounded-lg shadow-sm border border-rose-100">
+                                <h4 class="font-bold text-lg text-stone-800 mb-2">Junior PCB/CAD Drafters</h4>
+                                <p class="text-sm text-stone-600 mb-3"><strong class="text-stone-800">Why:</strong>
+                                    AI-driven EDA handles 90% of trace routing, signal integrity, and thermal
+                                    management.</p>
+                                <p class="text-sm text-stone-600"><strong class="text-stone-800">The Shift:</strong>
+                                    Shift from an "army of drafters" to a single architect supervising an AI suite.</p>
+                            </div>
+                            <div class="bg-white p-5 rounded-lg shadow-sm border border-rose-100">
+                                <h4 class="font-bold text-lg text-stone-800 mb-2">Standard Firmware "Coders"</h4>
+                                <p class="text-sm text-stone-600 mb-3"><strong class="text-stone-800">Why:</strong> AI
+                                    models generate boilerplate C, C++, and Python for microcontrollers instantly.</p>
+                                <p class="text-sm text-stone-600"><strong class="text-stone-800">The Shift:</strong>
+                                    Pure coding is a commodity. Value moves to OS security and system debugging.</p>
+                            </div>
+                            <div class="bg-white p-5 rounded-lg shadow-sm border border-rose-100">
+                                <h4 class="font-bold text-lg text-stone-800 mb-2">Routine QA & Test Techs</h4>
+                                <p class="text-sm text-stone-600 mb-3"><strong class="text-stone-800">Why:</strong>
+                                    Automated Optical Inspection (AOI) and predictive modeling catch defects early.</p>
+                                <p class="text-sm text-stone-600"><strong class="text-stone-800">The Shift:</strong>
+                                    Less manual multimeter testing, more managing of predictive simulation data.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="resistant" class="tab-pane hidden">
+                    <div class="bg-stone-100 border border-stone-200 rounded-xl p-6 md:p-8">
+                        <h3 class="text-2xl font-bold text-stone-800 mb-6">Human-Centric Roles</h3>
+                        <p class="text-stone-600 mb-8">These careers require attributes AI lacks: physical presence,
+                            physical accountability, ethical judgment, and navigating real-world chaos.</p>
+
+                        <div class="space-y-6">
+                            <div
+                                class="bg-white p-6 rounded-lg shadow-sm border border-stone-200 flex flex-col md:flex-row gap-6 items-center">
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-xl text-stone-800 mb-2">Power Electronics & Energy Systems
+                                    </h4>
+                                    <p class="text-stone-600 mb-2">Designing EV drivetrains or Smart Grids requires
+                                        physical accountability. AI cannot be liable for catastrophic hardware failures
+                                        in high-voltage systems.</p>
+                                    <p class="text-sm text-stone-500">Managing SiC and GaN transistors requires deep
+                                        intuition regarding thermal modeling.</p>
+                                </div>
+                                <div class="bg-stone-50 p-4 rounded border border-stone-200 text-center min-w-[280px]">
+                                    <span class="block text-xs text-stone-500 uppercase tracking-wide mb-2">Core
+                                        Equation: Total Power Loss</span>
+                                    <code
+                                        class="text-sm font-bold text-teal-700">P<sub>loss</sub> = P<sub>cond</sub> + P<sub>sw</sub> + P<sub>gate</sub></code>
+                                    <div
+                                        class="mt-3 grid grid-cols-2 gap-x-2 gap-y-1 text-[10px] text-stone-500 border-t border-stone-200 pt-2 text-left">
+                                        <div><strong class="text-teal-700">P<sub>cond</sub></strong>: Conduction Loss
+                                        </div>
+                                        <div><strong class="text-teal-700">P<sub>sw</sub></strong>: Switching Loss</div>
+                                        <div><strong class="text-teal-700">P<sub>gate</sub></strong>: Gate Drive Loss
+                                        </div>
+                                        <div><strong class="text-teal-700">P<sub>loss</sub></strong>: Total Heat
+                                            Generated</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-white p-5 rounded-lg shadow-sm border border-stone-200">
+                                    <h4 class="font-bold text-lg text-stone-800 mb-2">Hardware-Software "Bridge"</h4>
+                                    <p class="text-sm text-stone-600">Defines how products work across mechanical,
+                                        electrical, and software domains. AI optimizes circuits but doesn't understand
+                                        "human desirability" or market trade-offs.</p>
+                                </div>
+                                <div class="bg-white p-5 rounded-lg shadow-sm border border-stone-200">
+                                    <h4 class="font-bold text-lg text-stone-800 mb-2">Field Diagnostic Engineers</h4>
+                                    <p class="text-sm text-stone-600">Troubleshooting machinery in unconstrained
+                                        environments (factories, wind farms). AI cannot navigate the physical chaos of
+                                        non-standard settings or perform manual repairs.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="augmented" class="tab-pane hidden">
+                    <div class="bg-teal-50 border border-teal-100 rounded-xl p-6 md:p-8">
+                        <h3 class="text-2xl font-bold text-teal-900 mb-6">The High-Quality Growth Zone</h3>
+                        <p class="text-teal-800 mb-8">These are the most lucrative paths. They use AI as a force
+                            multiplier to solve problems that were previously impossible, orchestrating the interaction
+                            between digital brains and physical bodies.</p>
+
+                        <div class="grid md:grid-cols-3 gap-6">
+                            <div class="bg-white p-6 rounded-lg shadow-sm border-t-4 border-teal-500">
+                                <div class="text-3xl mb-3">🧠</div>
+                                <h4 class="font-bold text-lg text-stone-800 mb-2">AI Silicon Design</h4>
+                                <p class="text-sm text-stone-600 mb-3">Designing Neural Processing Units (NPUs). Using
+                                    AI tools to build better AI hardware at 3nm nodes.</p>
+                                <span
+                                    class="inline-block bg-teal-100 text-teal-800 text-xs px-2 py-1 rounded font-semibold">Massive
+                                    LLM Demand</span>
+                            </div>
+                            <div class="bg-white p-6 rounded-lg shadow-sm border-t-4 border-teal-500">
+                                <div class="text-3xl mb-3">📡</div>
+                                <h4 class="font-bold text-lg text-stone-800 mb-2">Edge AI Specialists</h4>
+                                <p class="text-sm text-stone-600 mb-3">Designing ultra-low-power electronics running AI
+                                    locally (smart glasses, implants) rather than in the cloud.</p>
+                                <span
+                                    class="inline-block bg-teal-100 text-teal-800 text-xs px-2 py-1 rounded font-semibold">TinyML
+                                    Expertise</span>
+                            </div>
+                            <div class="bg-white p-6 rounded-lg shadow-sm border-t-4 border-teal-500">
+                                <div class="text-3xl mb-3">🦾</div>
+                                <h4 class="font-bold text-lg text-stone-800 mb-2">Robotics Integrators</h4>
+                                <p class="text-sm text-stone-600 mb-3">Orchestrating the "body" for the AI "brain."
+                                    Merging sensor fusion (Lidar, Vision) with actuator control.</p>
+                                <span
+                                    class="inline-block bg-teal-100 text-teal-800 text-xs px-2 py-1 rounded font-semibold">Mech
+                                    + Elec Fusion</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="mb-12">
+            <div class="bg-stone-900 text-stone-50 rounded-2xl p-8 md:p-12 text-center">
+                <h2 class="text-3xl font-bold mb-6">The Strategy for Success</h2>
+                <p class="text-stone-300 max-w-2xl mx-auto mb-10 text-lg">To remain in a high-quality career path, move
+                    away from "Component-Level" thinking and transition strictly to "System-Level" orchestration.</p>
+
+                <div class="grid md:grid-cols-3 gap-6 text-left">
+                    <div
+                        class="bg-stone-800 p-6 rounded-xl border border-stone-700 hover:border-teal-500 transition-colors">
+                        <div class="text-2xl mb-2 text-teal-400">01</div>
+                        <h3 class="text-xl font-bold mb-2">Embrace the Co-pilot</h3>
+                        <p class="text-stone-400 text-sm">Use AI tools heavily for standard routing and boilerplate code
+                            generation. Reallocate that saved time to system architecture and safety considerations.</p>
+                    </div>
+                    <div
+                        class="bg-stone-800 p-6 rounded-xl border border-stone-700 hover:border-teal-500 transition-colors">
+                        <div class="text-2xl mb-2 text-teal-400">02</div>
+                        <h3 class="text-xl font-bold mb-2">Focus on Physics</h3>
+                        <p class="text-stone-400 text-sm">AI struggles immensely with the messiness of physical hardware
+                            realities—EMI, heat dissipation, and mechanical stress. Double down on these fundamentals.
+                        </p>
+                    </div>
+                    <div
+                        class="bg-stone-800 p-6 rounded-xl border border-stone-700 hover:border-teal-500 transition-colors">
+                        <div class="text-2xl mb-2 text-teal-400">03</div>
+                        <h3 class="text-xl font-bold mb-2">Learn Python</h3>
+                        <p class="text-stone-400 text-sm">Treat Python as the universal language. It is essential for
+                            interfacing AI algorithms with hardware testing frameworks and data analysis.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-stone-100 border-t border-stone-200 py-8 text-center text-stone-500 text-sm">
+        <p>Based on the 2026 Report: "The Future of Electronics Careers in the Age of AI"</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const chartData = [
+                { role: 'PCB Designer', risk: 90, action: 'Replaces routing', requirement: 'System-level oversight', color: '#f43f5e' },
+                { role: 'Firmware Eng.', risk: 65, action: 'Writes boilerplate', requirement: 'Security & OS expertise', color: '#fb923c' },
+                { role: 'Silicon Eng.', risk: 20, action: 'Optimizes layout', requirement: 'Physics & Logic expertise', color: '#14b8a6' },
+                { role: 'Robotics Eng.', risk: 15, action: 'Acts as the Brain', requirement: 'Mechanical + Electrical fusion', color: '#0d9488' },
+                { role: 'Power Eng.', risk: 5, action: 'Predictive maintenance', requirement: 'High-voltage safety/design', color: '#0f766e' }
+            ];
+
+            const ctx = document.getElementById('riskChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartData.map(d => d.role),
+                    datasets: [{
+                        label: 'Automation Risk Level (%)',
+                        data: chartData.map(d => d.risk),
+                        backgroundColor: chartData.map(d => d.color),
+                        borderRadius: 6,
+                        borderSkipped: false,
+                        barThickness: 'flex',
+                        maxBarThickness: 40
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: '#1c1917',
+                            titleFont: { size: 14, family: 'system-ui' },
+                            bodyFont: { size: 13, family: 'system-ui' },
+                            padding: 12,
+                            callbacks: {
+                                label: function (context) {
+                                    return `Risk Level: ${context.raw}%`;
+                                },
+                                afterLabel: function (context) {
+                                    const dataObj = chartData[context.dataIndex];
+                                    return [
+                                        `AI Role: ${dataObj.action}`,
+                                        `Modern Requirement: ${dataObj.requirement}`
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: {
+                                color: '#e7e5e4',
+                                drawBorder: false
+                            },
+                            title: {
+                                display: true,
+                                text: 'Risk of Automation (%)',
+                                color: '#78716c',
+                                font: { weight: 'bold' }
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#44403c',
+                                font: { weight: '600' }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabPanes = document.querySelectorAll('.tab-pane');
+
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    tabBtns.forEach(b => b.classList.remove('active'));
+
+                    tabPanes.forEach(p => {
+                        p.classList.remove('block', 'fade-in');
+                        p.classList.add('hidden');
+                    });
+
+                    btn.classList.add('active');
+                    const targetId = btn.getAttribute('data-target');
+                    const targetPane = document.getElementById(targetId);
+                    targetPane.classList.remove('hidden');
+                    targetPane.classList.add('block', 'fade-in');
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
