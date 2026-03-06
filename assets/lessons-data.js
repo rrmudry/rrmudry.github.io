@@ -112,7 +112,8 @@ const lessonsData = [
     links: {
       'CER: The Physics of Radiation': 'https://docs.google.com/document/d/17auQmJ0RMZ8FiMe9m6arPO1T7Mh-AwGfP39jidER6NY/edit?usp=sharing',
       'Radiation Lab Worksheet': 'https://docs.google.com/document/d/1GhgcEpqwD06hJCLF0XsDtxKn1F2LjeIhoBKjFEs2G1M/edit?usp=sharing',
-      'Synthesis Discussion Slides': 'https://docs.google.com/presentation/d/1b0NVmEJQjWIlre7w85iYGDkQF8Cx-0GJrplIvzE1FmI/edit?usp=sharing'
+      'Synthesis Discussion Slides': 'https://docs.google.com/presentation/d/1b0NVmEJQjWIlre7w85iYGDkQF8Cx-0GJrplIvzE1FmI/edit?usp=sharing',
+      'AI Career Outlook': 'ai-impact/index.html'
     },
     wicor: {
       writing: "CER Statement: How does distance and albedo affect thermal energy transfer?",
