@@ -129,28 +129,46 @@ Use this file to track what was completed each day. You can also list any new fi
 ---
 
 ---
- 
- ## 2026-03-03
- - **Lesson Title**: Demonstration: Albedo & Inverse Square Law
- - **Activities**: 
-   - Predicting and tracking temperature changes in black vs. white surfaces.
-   - Live Demo Tracker: Radiation_Lab/demo_tracker.html
- - **Notes**: Inquiry & Organization focus.
- 
- ---
- 
- ## 2026-03-04
- - **Lesson Title**: Virtual Lab: Radiation & Albedo
- - **Activities**: 
-   - Using a digital simulation to test variables.
-   - Virtual Radiation Lab: Radiation_Lab/index.html
- - **Notes**: Inquiry & Collaboration focus.
- 
- ---
- 
- ## 2026-03-05
- - **Lesson Title**: Synthesis: The Physics of Radiation
- - **Activities**: 
-   - Connecting Reading, Demo, and Lab data to build a CER argument.
-   - AI Career Outlook Integration: ai-impact/index.html
- - **Notes**: Visitor Day.
+
+## 2026-03-02
+- **Lesson Title**: Reading: Heat Transfer by Radiation
+- **Activities**: 
+  - Focused annotation of text on electromagnetic waves and thermal energy.
+  - Web App Reading: Radiation_Lab/reading.html
+- **Notes**: Reading & Writing focus.
+
+---
+
+## 2026-03-03
+- **Lesson Title**: Demonstration: Albedo & Inverse Square Law
+- **Activities**: 
+  - Predicting and tracking temperature changes in black vs. white surfaces.
+  - Live Demo Tracker: Radiation_Lab/demo_tracker.html
+- **Notes**: Inquiry & Organization focus.
+
+---
+
+## 2026-03-04
+- **Lesson Title**: Virtual Lab: Radiation & Albedo
+- **Activities**: 
+  - Using a digital simulation to test variables.
+  - Virtual Radiation Lab: Radiation_Lab/index.html
+- **Notes**: Inquiry & Collaboration focus.
+
+---
+
+## 2026-03-05
+- **Lesson Title**: Synthesis: The Physics of Radiation
+- **Activities**: 
+  - Connecting Reading, Demo, and Lab data to build a CER argument.
+  - AI Career Outlook Integration: ai-impact/index.html
+- **Notes**: Visitor Day.
+
+---
+
+## 2026-03-06
+- **Lesson Title**: Specific Heat Wrap-Up & Unit Transition
+- **Activities**: 
+  - Finalizing specific heat calculations ($Q=mc\Delta T$).
+  - Preparing for the Ideal Gas Law.
+- **Notes**: Organization & Inquiry focus.
