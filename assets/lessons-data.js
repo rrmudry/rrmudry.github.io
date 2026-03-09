@@ -104,13 +104,14 @@ const lessonsData = [
     unit: 5,
     title: "Radiation Week Wrap-Up & Turn In",
     summary: "Finalizing Radiation Lab analysis and turning in the week's work.",
-    details: "Organization: Finishing CER arguments and data matrices from Radiation Week. Students submitted their complete lab reports and worksheets for credit.",
+    details: "Organization: Finishing CER arguments and data matrices from Radiation Week. Students submitted their complete lab reports and worksheets for credit. This includes wrapping up the study of radiative heat transfer using the interactive Virtual Radiation Lab simulation.",
     type: "Activity",
-    dok: 2,
+    dok: 3,
     semester: 2,
     isFeatured: true,
     links: {
-      'Turn In: Radiation Week Work': 'https://docs.google.com/document/d/1EJcKSlydN5ovtlp496SewBpOR_eqeMN2bZCXyISU1gU/edit?usp=sharing'
+      'Turn In: Radiation Week Work': 'https://docs.google.com/document/d/1EJcKSlydN5ovtlp496SewBpOR_eqeMN2bZCXyISU1gU/edit?usp=sharing',
+      'Virtual Radiation Lab': 'Radiation_Lab/index.html'
     }
   },
   {
