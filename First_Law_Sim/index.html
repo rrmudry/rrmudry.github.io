@@ -94,8 +94,8 @@
             const animationRef = useRef(null);
 
             // Calculate derived visual properties
-            // Speed correlates to sqrt(U) conceptually, but linear is fine for visual
-            const particleSpeedMultipler = Math.max(0.1, U / BASE_U);
+            // Speed correlates to sqrt(U) conceptually, but we use an exponent to exaggerate visual changes
+            const particleSpeedMultipler = Math.max(0.05, Math.pow(U / BASE_U, 1.5));
             const canvasHeight = 300;
             const canvasWidth = 200;
             const pistonPixelHeight = 20 + (pistonHeight / 100) * (canvasHeight - 60); // Piston y-position
@@ -152,16 +152,16 @@
 
                     if (U > BASE_U) {
                         // Interpolate towards red rgb(248, 113, 113)
-                        const t = clamp((U - BASE_U) / 400, 0, 1);
+                        const t = clamp((U - BASE_U) / 300, 0, 1); // Max red at +300J
                         r = Math.round(148 + t * (248 - 148));
                         g = Math.round(163 + t * (113 - 163));
                         b = Math.round(184 + t * (113 - 184));
                     } else {
-                        // Interpolate towards blue rgb(56, 189, 248)
-                        const t = clamp((BASE_U - U) / 400, 0, 1);
-                        r = Math.round(148 + t * (56 - 148));
-                        g = Math.round(163 + t * (189 - 163));
-                        b = Math.round(184 + t * (248 - 184));
+                        // Interpolate towards deep icy blue rgb(14, 165, 233)
+                        const t = clamp((BASE_U - U) / 150, 0, 1); // Max blue at -150J
+                        r = Math.round(148 + t * (14 - 148));
+                        g = Math.round(163 + t * (165 - 163));
+                        b = Math.round(184 + t * (233 - 184));
                     }
                     const pColor = `rgb(${r}, ${g}, ${b})`;
 
