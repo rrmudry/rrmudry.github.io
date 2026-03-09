@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>First Law of Thermodynamics Simulator</title>
+    <!-- React & Tailwind -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet" />
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            background-color: #0f172a;
+            /* Slate 900 */
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        .glass {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .gradient-text {
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            background-image: linear-gradient(to right, #3bf6ff, #b24bf3);
+        }
+
+        .fire-glow {
+            box-shadow: 0 0 50px rgba(239, 68, 68, 0.8), inset 0 0 20px rgba(249, 115, 22, 0.8);
+            border-bottom: 4px solid #ef4444;
+        }
+
+        .ice-glow {
+            box-shadow: 0 0 50px rgba(56, 189, 248, 0.8), inset 0 0 20px rgba(14, 165, 233, 0.8);
+            border-bottom: 4px solid #38bdf8;
+        }
+
+        /* Number transition animations */
+        .value-change {
+            animation: pop 0.3s ease-out;
+        }
+
+        @keyframes pop {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+                color: #fff;
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useMemo } = React;
+
+        const PARTICLES_COUNT = 80;
+        const BASE_SPEED = 2; // pixel speed representing baseline Internal Energy
+        const BASE_U = 500; // Baseline Internal Energy in Joules
+
+        const App = () => {
+            // Thermodynamic State
+            const [U, setU] = useState(BASE_U); // Internal Energy
+            const [Q, setQ] = useState(0); // Net Heat added
+            const [W, setW] = useState(0); // Net Work done ON system
+
+            // Visual State
+            const [pistonHeight, setPistonHeight] = useState(50); // percentage 0-100 (100 is fully compressed)
+            const [heatState, setHeatState] = useState('neutral'); // 'neutral', 'heating', 'cooling'
+
+            const canvasRef = useRef(null);
+            const particlesRef = useRef([]);
+            const animationRef = useRef(null);
+
+            // Calculate derived visual properties
+            // Speed correlates to sqrt(U) conceptually, but linear is fine for visual
+            const particleSpeedMultipler = Math.max(0.1, U / BASE_U);
+            const canvasHeight = 300;
+            const canvasWidth = 200;
+            const pistonPixelHeight = 20 + (pistonHeight / 100) * (canvasHeight - 60); // Piston y-position
+
+            // Initialize Particles
+            useEffect(() => {
+                const initParticles = () => {
+                    const parts = [];
+                    for (let i = 0; i < PARTICLES_COUNT; i++) {
+                        parts.push({
+                            x: Math.random() * (canvasWidth - 10) + 5,
+                            y: pistonPixelHeight + Math.random() * (canvasHeight - pistonPixelHeight - 10) + 5,
+                            vx: (Math.random() - 0.5) * 2,
+                            vy: (Math.random() - 0.5) * 2,
+                            radius: 3 + Math.random() * 2
+                        });
+                    }
+                    particlesRef.current = parts;
+                };
+                initParticles();
+            }, []); // Run once
+
+            // Animation Loop
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+
+                const render = () => {
+                    // Clear exactly to container size
+                    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+                    // Draw Cylinder background
+                    ctx.fillStyle = 'rgba(15, 23, 42, 0.4)';
+                    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+                    // Determine particle color based on U
+                    let pColor = '#94a3b8'; // neutral
+                    if (U > BASE_U + 200) pColor = '#f87171'; // hot (red)
+                    else if (U < BASE_U - 100) pColor = '#7dd3fc'; // cold (blue)
+
+                    // Update & Draw Particles
+                    particlesRef.current.forEach(p => {
+                        // Apply current speed multiplier
+                        let currentVx = p.vx * particleSpeedMultipler * BASE_SPEED;
+                        let currentVy = p.vy * particleSpeedMultipler * BASE_SPEED;
+
+                        p.x += currentVx;
+                        p.y += currentVy;
+
+                        // Bounce off walls
+                        if (p.x - p.radius < 0) { p.x = p.radius; p.vx *= -1; }
+                        if (p.x + p.radius > canvasWidth) { p.x = canvasWidth - p.radius; p.vx *= -1; }
+
+                        // Bounce off bottom
+                        if (p.y + p.radius > canvasHeight) { p.y = canvasHeight - p.radius; p.vy *= -1; }
+
+                        // Bounce off movable piston (ceiling)
+                        if (p.y - p.radius < pistonPixelHeight) {
+                            p.y = pistonPixelHeight + p.radius;
+                            // If piston is actively moving down, add energy to particles (Work!)
+                            // Visually simulate by just bouncing naturally
+                            p.vy = Math.abs(p.vy); // Force downward
+                        }
+
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                        ctx.fillStyle = pColor;
+                        // Glow effect
+                        ctx.shadowBlur = 10;
+                        ctx.shadowColor = pColor;
+                        ctx.fill();
+                        ctx.shadowBlur = 0; // reset
+                    });
+
+                    // Draw Piston
+                    ctx.fillStyle = '#475569'; // Slate 600
+                    ctx.fillRect(0, pistonPixelHeight - 20, canvasWidth, 20);
+                    // Piston Rod
+                    ctx.fillStyle = '#94a3b8'; // Slate 400
+                    ctx.fillRect(canvasWidth / 2 - 5, 0, 10, pistonPixelHeight - 20);
+
+                    // Pressure indicator lines (closer particles = higher pressure visual)
+                    ctx.strokeStyle = '#334155';
+                    ctx.lineWidth = 4;
+                    ctx.strokeRect(0, 0, canvasWidth, canvasHeight);
+
+                    animationRef.current = requestAnimationFrame(render);
+                };
+
+                animationRef.current = requestAnimationFrame(render);
+                return () => cancelAnimationFrame(animationRef.current);
+            }, [pistonPixelHeight, particleSpeedMultipler, U]);
+
+            // Heat Timers
+            useEffect(() => {
+                let timer;
+                if (heatState !== 'neutral') {
+                    timer = setTimeout(() => setHeatState('neutral'), 1000);
+                }
+                return () => clearTimeout(timer);
+            }, [heatState]);
+
+            // Handlers
+            const addHeat = () => {
+                const amount = 50;
+                setQ(prev => prev + amount);
+                setU(prev => prev + amount);
+                setHeatState('heating');
+            };
+
+            const removeHeat = () => {
+                const amount = 50;
+                if (U - amount < 50) return; // absolute zero prevent
+                setQ(prev => prev - amount);
+                setU(prev => prev - amount);
+                setHeatState('cooling');
+            };
+
+            const compressGas = () => {
+                if (pistonHeight >= 90) return; // Max compression
+                const workAmount = 50;
+                setW(prev => prev + workAmount);
+                setU(prev => prev + workAmount); // Work done ON increases U
+                setPistonHeight(prev => prev + 15);
+            };
+
+            const expandGas = () => {
+                if (pistonHeight <= 10) return; // Max expansion
+                const workAmount = -50; // Work done BY system is negative work ON system
+                if (U + workAmount < 50) return;
+                setW(prev => prev + workAmount);
+                setU(prev => prev + workAmount); // U decreases
+                setPistonHeight(prev => prev - 15);
+            };
+
+            const resetSim = () => {
+                setU(BASE_U);
+                setQ(0);
+                setW(0);
+                setPistonHeight(50);
+                setHeatState('neutral');
+                // scatter particles back to middle
+                particlesRef.current.forEach(p => {
+                    p.y = (canvasHeight + (20 + 50 / 100 * (canvasHeight - 60))) / 2;
+                });
+            };
+
+            // Dynamic classes for the cylinder bottom
+            const cylinderBottomClass =
+                heatState === 'heating' ? 'fire-glow transition-all duration-300' :
+                    heatState === 'cooling' ? 'ice-glow transition-all duration-300' :
+                        'border-b-4 border-slate-700 transition-all duration-1000';
+
+            return (
+                <div className="min-h-screen py-8 px-4 flex flex-col items-center">
+
+                    {/* Header */}
+                    <header className="max-w-4xl w-full text-center mb-10">
+                        <div className="inline-flex items-center gap-3 px-4 py-1 rounded-full bg-blue-900/30 border border-blue-500/30 text-blue-400 text-sm font-bold tracking-widest uppercase mb-4 shadow-[0_0_15px_rgba(59,130,246,0.2)]">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            Interactive Model
+                        </div>
+                        <h1 className="text-4xl md:text-5xl font-black mb-3 tracking-tight text-white">
+                            The <span className="gradient-text">First Law</span> of Thermodynamics
+                        </h1>
+                        <p className="text-slate-400 font-medium">Observe how Heat ($Q$) and Work ($W$) change the Internal Energy ($U$) of a gas.</p>
+                    </header>
+
+                    <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+                        {/* LEFT COLUMN: Controls & Equations */}
+                        <div className="lg:col-span-7 flex flex-col gap-6">
+
+                            {/* Equation Dashboard */}
+                            <div className="glass rounded-3xl p-6 relative overflow-hidden group">
+                                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-600 opacity-20 group-hover:opacity-30 blur transition duration-500"></div>
+                                <div className="relative">
+                                    <h2 className="text-center text-slate-400 text-xs uppercase tracking-widest font-bold mb-4">The First Law Equation</h2>
+
+                                    <div className="flex justify-center items-center gap-2 md:gap-6 text-2xl md:text-4xl font-black font-mono">
+                                        <div className="flex flex-col items-center">
+                                            <span className="text-blue-400 mb-1">ΔU</span>
+                                            <span className={`text-lg md:text-2xl ${U !== BASE_U ? 'value-change text-white' : 'text-slate-300'}`}>
+                                                {(U - BASE_U) > 0 ? '+' : ''}{U - BASE_U} J
+                                            </span>
+                                        </div>
+                                        <span className="text-slate-600">=</span>
+
+                                        <div className="flex flex-col items-center">
+                                            <span className="text-rose-400 mb-1">Q</span>
+                                            <span className={`text-lg md:text-2xl ${Q !== 0 ? 'value-change text-white' : 'text-slate-300'}`}>
+                                                {Q > 0 ? '+' : ''}{Q} J
+                                            </span>
+                                        </div>
+                                        <span className="text-slate-600">+</span>
+
+                                        <div className="flex flex-col items-center">
+                                            <span className="text-emerald-400 mb-1">W</span>
+                                            <span className={`text-lg md:text-2xl ${W !== 0 ? 'value-change text-white' : 'text-slate-300'}`}>
+                                                {W > 0 ? '+' : ''}{W} J
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-6 flex justify-between text-[10px] text-slate-500 uppercase font-bold px-4">
+                                        <span>Change in Energy</span>
+                                        <span>Heat added</span>
+                                        <span>Work done ON gas</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Controls */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* Heat Controls */}
+                                <div className="glass rounded-2xl p-5">
+                                    <h3 className="text-rose-400 font-bold mb-4 flex items-center gap-2">
+                                        🔥 Thermal Energy (Heat)
+                                    </h3>
+                                    <div className="space-y-3">
+                                        <button onClick={addHeat} className="w-full py-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 hover:bg-rose-500 hover:text-white hover:shadow-[0_0_20px_rgba(244,63,94,0.4)] transition-all font-bold flex justify-between px-4">
+                                            <span>Add Heat (+Q)</span>
+                                            <span className="font-mono bg-rose-950 px-2 py-0.5 rounded">+50 J</span>
+                                        </button>
+                                        <button onClick={removeHeat} className="w-full py-3 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-300 hover:bg-sky-500 hover:text-white hover:shadow-[0_0_20px_rgba(14,165,233,0.4)] transition-all font-bold flex justify-between px-4">
+                                            <span>Remove Heat (-Q)</span>
+                                            <span className="font-mono bg-sky-950 px-2 py-0.5 rounded">-50 J</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Work Controls */}
+                                <div className="glass rounded-2xl p-5">
+                                    <h3 className="text-emerald-400 font-bold mb-4 flex items-center gap-2">
+                                        ⚙️ Mechanical Energy (Work)
+                                    </h3>
+                                    <div className="space-y-3">
+                                        <button onClick={compressGas} disabled={pistonHeight >= 90} className="w-full py-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500 hover:text-white hover:shadow-[0_0_20px_rgba(16,185,129,0.4)] disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-emerald-300 disabled:cursor-not-allowed transition-all font-bold flex justify-between px-4">
+                                            <span>Compress Gas (+W)</span>
+                                            <span className="font-mono bg-emerald-950 px-2 py-0.5 rounded">+50 J</span>
+                                        </button>
+                                        <button onClick={expandGas} disabled={pistonHeight <= 10} className="w-full py-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 hover:bg-amber-500 hover:text-white hover:shadow-[0_0_20px_rgba(245,158,11,0.4)] disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-amber-300 disabled:cursor-not-allowed transition-all font-bold flex justify-between px-4">
+                                            <span>Expand Gas (-W)</span>
+                                            <span className="font-mono bg-amber-950 px-2 py-0.5 rounded">-50 J</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button onClick={resetSim} className="text-slate-500 hover:text-white text-xs font-bold uppercase tracking-widest py-3 transition-colors flex items-center justify-center gap-2">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                Reset Simulator
+                            </button>
+
+                        </div>
+
+                        {/* RIGHT COLUMN: Canvas & Cylinder */}
+                        <div className="lg:col-span-5 flex justify-center mt-8 lg:mt-0 relative">
+
+                            {/* Cylinder Wrapper for styling */}
+                            <div className={`relative p-2 rounded-2xl bg-slate-800 border-x-4 border-slate-700 shadow-2xl ${cylinderBottomClass}`}>
+                                {/* The Canvas */}
+                                <canvas
+                                    ref={canvasRef}
+                                    width={200}
+                                    height={300}
+                                    className="block bg-slate-900 rounded-lg shadow-inner"
+                                ></canvas>
+
+                                {/* Heat Source Visuals (Overlay) */}
+                                {heatState === 'heating' && (
+                                    <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-3xl animate-bounce">🔥</div>
+                                )}
+                                {heatState === 'cooling' && (
+                                    <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-3xl animate-bounce">❄️</div>
+                                )}
+                            </div>
+
+                            {/* Absolute position readouts relative to cylinder */}
+                            <div className="absolute right-0 top-1/4 translate-x-full pl-6 flex flex-col gap-4">
+                                <div className="glass px-4 py-2 rounded-xl border border-slate-700 w-32">
+                                    <div className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mb-1">Total Internal Eng.</div>
+                                    <div className="text-blue-400 font-mono text-xl font-bold">{U} J</div>
+                                </div>
+                                <div className="glass px-4 py-2 rounded-xl border border-slate-700 w-32">
+                                    <div className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mb-1">Particle Speed</div>
+                                    <div className="text-orange-400 font-mono text-xl font-bold">{particleSpeedMultipler.toFixed(2)}x</div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById("root"));
+        root.render(<App />);
+    </script>
+</body>
+
+</html>
