@@ -175,15 +175,24 @@
                         p.y += currentVy;
 
                         // Bounce off walls
-                        if (p.x - p.radius < 0) { p.x = p.radius; p.vx *= -1; }
-                        if (p.x + p.radius > canvasWidth) { p.x = canvasWidth - p.radius; p.vx *= -1; }
+                        if (p.x - p.radius <= 0) {
+                            p.x = p.radius + 1;
+                            p.vx *= -1;
+                        }
+                        if (p.x + p.radius >= canvasWidth) {
+                            p.x = canvasWidth - p.radius - 1;
+                            p.vx *= -1;
+                        }
 
                         // Bounce off bottom
-                        if (p.y + p.radius > canvasHeight) { p.y = canvasHeight - p.radius; p.vy *= -1; }
+                        if (p.y + p.radius >= canvasHeight) {
+                            p.y = canvasHeight - p.radius - 1;
+                            p.vy *= -1;
+                        }
 
                         // Bounce off movable piston (ceiling)
-                        if (p.y - p.radius < pistonPixelHeight) {
-                            p.y = pistonPixelHeight + p.radius;
+                        if (p.y - p.radius <= pistonPixelHeight) {
+                            p.y = pistonPixelHeight + p.radius + 1;
                             // If piston is actively moving down, add energy to particles (Work!)
                             // Visually simulate by just bouncing naturally
                             p.vy = Math.abs(p.vy); // Force downward
