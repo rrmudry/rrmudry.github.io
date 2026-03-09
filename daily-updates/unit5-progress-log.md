@@ -167,9 +167,9 @@ Use this file to track what was completed each day. You can also list any new fi
 ---
 
 ## 2026-03-06
-- **Lesson Title**: Specific Heat Wrap-Up & Unit Transition
+- **Lesson Title**: Radiation Week Wrap-Up & Turn In
 - **Activities**: 
-  - Finalizing specific heat calculations ($Q=mc\Delta T$).
+  - Finalizing Radiation Lab analysis and CER statements.
   - Finished completing the work of the week and turned it in.
   - Turn In Link: https://docs.google.com/document/d/1EJcKSlydN5ovtlp496SewBpOR_eqeMN2bZCXyISU1gU/edit?usp=sharing
-- **Notes**: Organization & Turn-In focus.
+- **Notes**: Organization & Turn-In focus (Radiation Week).

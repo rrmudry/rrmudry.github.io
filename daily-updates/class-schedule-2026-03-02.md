@@ -49,9 +49,9 @@
 ---
 
 ## Friday, Mar 6
-- **Lesson Title**: Work Catchup & Turn In Day
+- **Lesson Title**: Radiation Week Wrap-Up & Turn In
 - **WICOR / AVID**:
   - **Organization**: Completing and submitting Radiation Week work.
-  - **Writing**: Finalizing CER statements.
+  - **Writing**: Finalizing CER statements (Radiation).
 - **Resources**:
   - [Turn In: Radiation Week Work](https://docs.google.com/document/d/1EJcKSlydN5ovtlp496SewBpOR_eqeMN2bZCXyISU1gU/edit?usp=sharing)
