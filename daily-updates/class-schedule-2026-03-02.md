@@ -49,7 +49,9 @@
 ---
 
 ## Friday, Mar 6
-- **Lesson Title**: Specific Heat Wrap-Up & Unit Transition
+- **Lesson Title**: Work Catchup & Turn In Day
 - **WICOR / AVID**:
-  - **Organization**: Practice worksheet on $Q=mc\Delta T$.
-  - **Inquiry**: Connecting specific heat to real-world material selection.
+  - **Organization**: Completing and submitting Radiation Week work.
+  - **Writing**: Finalizing CER statements.
+- **Resources**:
+  - [Turn In: Radiation Week Work](https://docs.google.com/document/d/1EJcKSlydN5ovtlp496SewBpOR_eqeMN2bZCXyISU1gU/edit?usp=sharing)
