@@ -91,12 +91,15 @@ const lessonsData = [
     day: 20,
     unit: 5,
     title: "Specific Heat Wrap-Up & Unit Transition",
-    summary: "Finalizing specific heat calculations and preparing for the Ideal Gas Law.",
-    details: "Organization: Practice worksheet on Q=mc∆T. Students connect specific heat concepts to the laws of thermodynamics.",
-    type: "Practice",
+    summary: "Finalizing specific heat calculations and turning in the week's work.",
+    details: "Organization: Practice worksheet on Q=mc∆T. Students finished all Radiation Week activities and submitted their work for credit.",
+    type: "Activity",
     dok: 2,
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    links: {
+      'Turn In: Radiation Week Work': 'https://docs.google.com/document/d/1EJcKSlydN5ovtlp496SewBpOR_eqeMN2bZCXyISU1gU/edit?usp=sharing'
+    }
   },
   {
     date: "2026-03-05",

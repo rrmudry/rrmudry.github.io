@@ -170,5 +170,6 @@ Use this file to track what was completed each day. You can also list any new fi
 - **Lesson Title**: Specific Heat Wrap-Up & Unit Transition
 - **Activities**: 
   - Finalizing specific heat calculations ($Q=mc\Delta T$).
-  - Preparing for the Ideal Gas Law.
-- **Notes**: Organization & Inquiry focus.
+  - Finished completing the work of the week and turned it in.
+  - Turn In Link: https://docs.google.com/document/d/1EJcKSlydN5ovtlp496SewBpOR_eqeMN2bZCXyISU1gU/edit?usp=sharing
+- **Notes**: Organization & Turn-In focus.
