@@ -92,7 +92,10 @@ const lessonsData = [
     semester: 2,
     isFeatured: true,
     links: {
-      'Presentation: Temp vs. Internal Energy': 'https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDZATPiyvvPR4J3orI6Kv85AY7a8qbPR-NCTCusDW9_dXQ?e=MzCXqr'
+      'Presentation: Temp vs. Internal Energy': 'https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDZATPiyvvPR4J3orI6Kv85AY7a8qbPR-NCTCusDW9_dXQ?e=MzCXqr',
+      'Heat Engine Research': 'https://docs.google.com/presentation/d/1n7nqFHerCyZs3wRiW2Aj633TNEDT_MCpJwWWih13XRs/edit?usp=sharing',
+      'Thermodynamics: First Law Reading (English)': 'https://docs.google.com/document/d/10VUp5VlLS08d7J85TxhYlACc3BvctmfZIrUWwqKoMlk/edit?usp=sharing',
+      'Thermodynamics: First Law Reading (Spanish)': 'https://docs.google.com/document/d/1fezNGOy_SmsX2H3Iaf4L75OUl0XI_pqBlIbHZXIKjYY/edit?usp=sharing'
     }
   },
   {
