@@ -75,7 +75,10 @@ const lessonsData = [
     type: "Activity",
     dok: 2,
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    links: {
+      'Interactive Model: The Cylinder & Piston': 'First_Law_Sim/index.html'
+    }
   },
   {
     date: "2026-03-09",
