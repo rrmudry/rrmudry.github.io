@@ -100,6 +100,12 @@
             const canvasWidth = 200;
             const pistonPixelHeight = 20 + (pistonHeight / 100) * (canvasHeight - 60); // Piston y-position
 
+            // Calculate Pressure conceptually (P ~ T/V) -> P ~ U / Volume
+            // Baseline Volume is proportional to 300 - baselinePistonPixelHeight (140) = 160
+            const currentVolume = canvasHeight - pistonPixelHeight;
+            const normalizedVolume = currentVolume / 160;
+            const pressure = (U / BASE_U) / normalizedVolume;
+
             // Ref for animation loop to avoid dependency restarts
             const stateRef = useRef({
                 U, heatState, pistonPixelHeight, particleSpeedMultipler
@@ -480,6 +486,10 @@
                                 <div className="glass px-4 py-2 rounded-xl border border-slate-700 w-32 shadow-xl">
                                     <div className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mb-1">Total Internal Eng.</div>
                                     <div className="text-blue-400 font-mono text-xl font-bold">{U} J</div>
+                                </div>
+                                <div className="glass px-4 py-2 rounded-xl border border-slate-700 w-32 shadow-xl">
+                                    <div className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mb-1">Gas Pressure</div>
+                                    <div className="text-rose-400 font-mono text-xl font-bold">{pressure.toFixed(2)} atm</div>
                                 </div>
                                 <div className="glass px-4 py-2 rounded-xl border border-slate-700 w-32 shadow-xl">
                                     <div className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mb-1">Particle Speed</div>
