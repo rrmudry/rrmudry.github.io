@@ -100,6 +100,16 @@
             const canvasWidth = 200;
             const pistonPixelHeight = 20 + (pistonHeight / 100) * (canvasHeight - 60); // Piston y-position
 
+            // Ref for animation loop to avoid dependency restarts
+            const stateRef = useRef({
+                U, heatState, pistonPixelHeight, particleSpeedMultipler
+            });
+
+            // Sync state to ref for the animation loop
+            useEffect(() => {
+                stateRef.current = { U, heatState, pistonPixelHeight, particleSpeedMultipler };
+            }, [U, heatState, pistonPixelHeight, particleSpeedMultipler]);
+
             // Initialize Particles
             useEffect(() => {
                 const initParticles = () => {
@@ -126,6 +136,9 @@
                 const hCtx = heatCanvas ? heatCanvas.getContext('2d') : null;
 
                 const render = () => {
+                    // Extract current values from ref so we don't restart the loop
+                    const { U, heatState, pistonPixelHeight, particleSpeedMultipler } = stateRef.current;
+
                     // Clear exactly to container size
                     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
@@ -273,7 +286,7 @@
 
                 animationRef.current = requestAnimationFrame(render);
                 return () => cancelAnimationFrame(animationRef.current);
-            }, [pistonPixelHeight, particleSpeedMultipler, U, heatState]);
+            }, []); // Empty dependency array, loop relies on stateRef
 
             // Heat Timers
             useEffect(() => {
