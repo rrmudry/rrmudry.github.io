@@ -77,6 +77,56 @@
         const BASE_SPEED = 2; // pixel speed representing baseline Internal Energy
         const BASE_U = 500; // Baseline Internal Energy in Joules
 
+        // SVG Analog Gauge Component
+        const AnalogPressureGauge = ({ pressure }) => {
+            // Pressure ranges roughly from 0.4 to roughly 3.0 in this sim.
+            // Let's map 0 atm to -135deg and 4 atm to +135deg
+            const clamp = (val, min, max) => Math.min(Math.max(val, min), max);
+            const displayPressure = clamp(pressure, 0, 4);
+            // 0 atm = -135 deg, 4 atm = 135 deg. Range is 270 deg total.
+            const angle = -135 + (displayPressure / 4) * 270;
+
+            return (
+                <div className="flex flex-col items-center">
+                    <div className="relative w-24 h-24 mb-2">
+                        <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-md">
+                            {/* Dial Background */}
+                            <circle cx="50" cy="50" r="45" fill="#1e293b" stroke="#334155" strokeWidth="4" />
+                            {/* Color Arc (Green to Red) */}
+                            <path d="M 18.18 81.82 A 45 45 0 1 1 81.82 81.82" fill="none" stroke="url(#pressureGradient)" strokeWidth="6" strokeLinecap="round" />
+
+                            {/* Tick Marks */}
+                            {[0, 1, 2, 3, 4].map(tick => {
+                                const tickAngle = -135 + (tick / 4) * 270;
+                                const rad = (tickAngle - 90) * (Math.PI / 180);
+                                const x1 = 50 + 35 * Math.cos(rad);
+                                const y1 = 50 + 35 * Math.sin(rad);
+                                const x2 = 50 + 42 * Math.cos(rad);
+                                const y2 = 50 + 42 * Math.sin(rad);
+                                return <line key={tick} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#64748b" strokeWidth="2" />;
+                            })}
+
+                            {/* Needle */}
+                            <g transform={`rotate(${angle} 50 50)`} className="transition-transform duration-300 ease-out">
+                                <path d="M 46 50 C 46 52.2 47.8 54 50 54 C 52.2 54 54 52.2 54 50 L 51 15 L 49 15 Z" fill="#f43f5e" />
+                                <circle cx="50" cy="50" r="4" fill="#cbd5e1" />
+                            </g>
+
+                            {/* Gradient Def */}
+                            <defs>
+                                <linearGradient id="pressureGradient" x1="0%" y1="100%" x2="100%" y2="100%">
+                                    <stop offset="0%" stopColor="#10b981" /> {/* Emerald */}
+                                    <stop offset="50%" stopColor="#f59e0b" /> {/* Amber */}
+                                    <stop offset="100%" stopColor="#ef4444" /> {/* Red */}
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                    <div className="text-rose-400 font-mono text-xl font-bold">{pressure.toFixed(2)} atm</div>
+                </div>
+            );
+        };
+
         const App = () => {
             // Thermodynamic State
             const [U, setU] = useState(BASE_U); // Internal Energy
@@ -487,9 +537,9 @@
                                     <div className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mb-1">Total Internal Eng.</div>
                                     <div className="text-blue-400 font-mono text-xl font-bold">{U} J</div>
                                 </div>
-                                <div className="glass px-4 py-2 rounded-xl border border-slate-700 w-32 shadow-xl">
-                                    <div className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mb-1">Gas Pressure</div>
-                                    <div className="text-rose-400 font-mono text-xl font-bold">{pressure.toFixed(2)} atm</div>
+                                <div className="glass px-4 py-4 rounded-xl border border-slate-700 w-32 shadow-xl flex flex-col items-center">
+                                    <div className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mb-2 text-center">Gas Pressure</div>
+                                    <AnalogPressureGauge pressure={pressure} />
                                 </div>
                                 <div className="glass px-4 py-2 rounded-xl border border-slate-700 w-32 shadow-xl">
                                     <div className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mb-1">Particle Speed</div>
