@@ -129,10 +129,24 @@
                     ctx.fillStyle = 'rgba(15, 23, 42, 0.4)';
                     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-                    // Determine particle color based on U
-                    let pColor = '#94a3b8'; // neutral
-                    if (U > BASE_U + 200) pColor = '#f87171'; // hot (red)
-                    else if (U < BASE_U - 100) pColor = '#7dd3fc'; // cold (blue)
+                    // Determine particle color smoothly based on U
+                    const clamp = (val, min, max) => Math.min(Math.max(val, min), max);
+                    let r = 148, g = 163, b = 184; // neutral slate rgb(148, 163, 184)
+
+                    if (U > BASE_U) {
+                        // Interpolate towards red rgb(248, 113, 113)
+                        const t = clamp((U - BASE_U) / 400, 0, 1);
+                        r = Math.round(148 + t * (248 - 148));
+                        g = Math.round(163 + t * (113 - 163));
+                        b = Math.round(184 + t * (113 - 184));
+                    } else {
+                        // Interpolate towards blue rgb(56, 189, 248)
+                        const t = clamp((BASE_U - U) / 400, 0, 1);
+                        r = Math.round(148 + t * (56 - 148));
+                        g = Math.round(163 + t * (189 - 163));
+                        b = Math.round(184 + t * (248 - 184));
+                    }
+                    const pColor = `rgb(${r}, ${g}, ${b})`;
 
                     // Update & Draw Particles
                     particlesRef.current.forEach(p => {
@@ -259,7 +273,7 @@
                         <h1 className="text-4xl md:text-5xl font-black mb-3 tracking-tight text-white">
                             The <span className="gradient-text">First Law</span> of Thermodynamics
                         </h1>
-                        <p className="text-slate-400 font-medium">Observe how Heat ($Q$) and Work ($W$) change the Internal Energy ($U$) of a gas.</p>
+                        <p className="text-slate-400 font-medium">Observe how Heat (Q) and Work (W) change the Internal Energy (U) of a gas.</p>
                     </header>
 
                     <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -365,10 +379,18 @@
 
                                 {/* Heat Source Visuals (Overlay) */}
                                 {heatState === 'heating' && (
-                                    <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-3xl animate-bounce">🔥</div>
+                                    <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex items-end gap-1">
+                                        <div className="text-3xl animate-[bounce_1s_infinite_100ms] opacity-80">🔥</div>
+                                        <div className="text-4xl animate-bounce">🔥</div>
+                                        <div className="text-3xl animate-[bounce_1s_infinite_200ms] opacity-80">🔥</div>
+                                    </div>
                                 )}
                                 {heatState === 'cooling' && (
-                                    <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-3xl animate-bounce">❄️</div>
+                                    <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex items-end gap-2">
+                                        <div className="text-3xl animate-[bounce_1s_infinite_100ms] opacity-80">❄️</div>
+                                        <div className="text-4xl animate-bounce">❄️</div>
+                                        <div className="text-3xl animate-[bounce_1s_infinite_200ms] opacity-80">❄️</div>
+                                    </div>
                                 )}
                             </div>
 
