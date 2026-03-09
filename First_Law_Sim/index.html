@@ -88,6 +88,7 @@
             const [heatState, setHeatState] = useState('neutral'); // 'neutral', 'heating', 'cooling'
 
             const canvasRef = useRef(null);
+            const heatCanvasRef = useRef(null); // External heat source
             const particlesRef = useRef([]);
             const heatParticlesRef = useRef([]); // Fire/Ice particles
             const animationRef = useRef(null);
@@ -121,6 +122,8 @@
             useEffect(() => {
                 const canvas = canvasRef.current;
                 const ctx = canvas.getContext('2d');
+                const heatCanvas = heatCanvasRef.current;
+                const hCtx = heatCanvas ? heatCanvas.getContext('2d') : null;
 
                 const render = () => {
                     // Clear exactly to container size
@@ -195,74 +198,75 @@
                     ctx.lineWidth = 4;
                     ctx.strokeRect(0, 0, canvasWidth, canvasHeight);
 
-                    // --- Custom Heat Particle System ---
-                    if (heatState === 'heating') {
-                        // Add fire particles
-                        if (Math.random() > 0.2) {
-                            for (let i = 0; i < 3; i++) {
-                                heatParticlesRef.current.push({
-                                    x: canvasWidth / 2 + (Math.random() - 0.5) * 80,
-                                    y: canvasHeight - 2,
-                                    vx: (Math.random() - 0.5) * 1.5,
-                                    vy: -Math.random() * 3 - 2,
-                                    life: 1.0,
-                                    decay: Math.random() * 0.04 + 0.03, // fade rate
-                                    type: 'fire',
-                                    size: Math.random() * 15 + 8 // bigger flames
-                                });
+                    // --- Custom Heat Particle System (External Canvas) ---
+                    if (hCtx) {
+                        hCtx.clearRect(0, 0, 220, 150);
+
+                        if (heatState === 'heating') {
+                            // Add fire particles coming UP from the bottom
+                            if (Math.random() > 0.1) {
+                                for (let i = 0; i < 4; i++) {
+                                    heatParticlesRef.current.push({
+                                        x: 110 + (Math.random() - 0.5) * 160,
+                                        y: 150, // spawn at bottom
+                                        vx: (Math.random() - 0.5) * 1.5,
+                                        vy: -Math.random() * 3 - 2, // move UP
+                                        life: 1.0,
+                                        decay: Math.random() * 0.03 + 0.02,
+                                        type: 'fire',
+                                        size: Math.random() * 15 + 10
+                                    });
+                                }
+                            }
+                        } else if (heatState === 'cooling') {
+                            // Add ice/mist particles falling DOWN from the cylinder
+                            if (Math.random() > 0.1) {
+                                for (let i = 0; i < 4; i++) {
+                                    heatParticlesRef.current.push({
+                                        x: 110 + (Math.random() - 0.5) * 180,
+                                        y: 10, // spawn at top (right below cylinder)
+                                        vx: (Math.random() - 0.5) * 2.5,
+                                        vy: Math.random() * 2.0 + 1.0, // move DOWN
+                                        life: 1.0,
+                                        decay: Math.random() * 0.02 + 0.015,
+                                        type: 'ice',
+                                        size: Math.random() * 12 + 6
+                                    });
+                                }
                             }
                         }
-                    } else if (heatState === 'cooling') {
-                        // Add ice/mist particles
-                        if (Math.random() > 0.2) {
-                            for (let i = 0; i < 3; i++) {
-                                heatParticlesRef.current.push({
-                                    x: canvasWidth / 2 + (Math.random() - 0.5) * 100,
-                                    y: canvasHeight - 2,
-                                    vx: (Math.random() - 0.5) * 2.5,
-                                    vy: -Math.random() * 1.5 - 0.5,
-                                    life: 1.0,
-                                    decay: Math.random() * 0.02 + 0.015,
-                                    type: 'ice',
-                                    size: Math.random() * 10 + 5
-                                });
+
+                        hCtx.globalCompositeOperation = 'lighter';
+                        for (let i = heatParticlesRef.current.length - 1; i >= 0; i--) {
+                            let hp = heatParticlesRef.current[i];
+                            hp.x += hp.vx;
+                            hp.y += hp.vy;
+                            hp.life -= hp.decay;
+
+                            if (hp.life <= 0) {
+                                heatParticlesRef.current.splice(i, 1);
+                                continue;
                             }
+
+                            hCtx.beginPath();
+                            hCtx.arc(hp.x, hp.y, Math.max(0.1, hp.size * hp.life), 0, Math.PI * 2);
+                            if (hp.type === 'fire') {
+                                let g = Math.floor(200 * hp.life);
+                                hCtx.fillStyle = `rgba(255, ${g}, 0, ${hp.life * 0.6})`;
+                                hCtx.shadowBlur = 20;
+                                hCtx.shadowColor = `rgba(255, 100, 0, ${hp.life})`;
+                            } else {
+                                let r = 100 + Math.floor(100 * hp.life);
+                                let g = 200 + Math.floor(55 * hp.life);
+                                hCtx.fillStyle = `rgba(${r}, ${g}, 255, ${hp.life * 0.4})`;
+                                hCtx.shadowBlur = 15;
+                                hCtx.shadowColor = `rgba(100, 200, 255, ${hp.life})`;
+                            }
+                            hCtx.fill();
                         }
+                        hCtx.shadowBlur = 0;
+                        hCtx.globalCompositeOperation = 'source-over';
                     }
-
-                    // Draw Heat Particles
-                    ctx.globalCompositeOperation = 'lighter'; // blend mode for glow
-                    for (let i = heatParticlesRef.current.length - 1; i >= 0; i--) {
-                        let hp = heatParticlesRef.current[i];
-                        hp.x += hp.vx;
-                        hp.y += hp.vy;
-                        hp.life -= hp.decay;
-
-                        if (hp.life <= 0) {
-                            heatParticlesRef.current.splice(i, 1);
-                            continue;
-                        }
-
-                        ctx.beginPath();
-                        ctx.arc(hp.x, hp.y, Math.max(0.1, hp.size * hp.life), 0, Math.PI * 2);
-                        if (hp.type === 'fire') {
-                            // Yellow -> Orange -> Red fading
-                            let g = Math.floor(200 * hp.life);
-                            ctx.fillStyle = `rgba(255, ${g}, 0, ${hp.life * 0.6})`;
-                            ctx.shadowBlur = 20;
-                            ctx.shadowColor = `rgba(255, 100, 0, ${hp.life})`;
-                        } else {
-                            // Light blue mist
-                            let r = 100 + Math.floor(100 * hp.life);
-                            let g = 200 + Math.floor(55 * hp.life);
-                            ctx.fillStyle = `rgba(${r}, ${g}, 255, ${hp.life * 0.4})`;
-                            ctx.shadowBlur = 15;
-                            ctx.shadowColor = `rgba(100, 200, 255, ${hp.life})`;
-                        }
-                        ctx.fill();
-                    }
-                    ctx.shadowBlur = 0; // reset
-                    ctx.globalCompositeOperation = 'source-over'; // restore standard drawing
 
                     animationRef.current = requestAnimationFrame(render);
                 };
@@ -435,10 +439,10 @@
                         </div>
 
                         {/* RIGHT COLUMN: Canvas & Cylinder */}
-                        <div className="lg:col-span-5 flex justify-center mt-8 lg:mt-0 relative">
+                        <div className="lg:col-span-5 flex flex-col items-center justify-start mt-8 lg:mt-0 relative">
 
                             {/* Cylinder Wrapper for styling */}
-                            <div className={`relative p-2 rounded-2xl bg-slate-800 border-x-4 border-slate-700 shadow-2xl ${cylinderBottomClass}`}>
+                            <div className={`relative p-2 rounded-2xl bg-slate-800 border-x-4 border-slate-700 shadow-2xl z-10 ${cylinderBottomClass}`}>
                                 {/* The Canvas */}
                                 <canvas
                                     ref={canvasRef}
@@ -446,17 +450,25 @@
                                     height={300}
                                     className="block bg-slate-900 rounded-lg shadow-inner"
                                 ></canvas>
-
-                                {/* Heat Source Visuals (Overlay) */}
                             </div>
 
-                            {/* Absolute position readouts relative to cylinder */}
-                            <div className="absolute right-0 top-1/4 translate-x-full pl-6 flex flex-col gap-4">
-                                <div className="glass px-4 py-2 rounded-xl border border-slate-700 w-32">
+                            {/* External Heat Particle System */}
+                            <div className="relative w-[220px] h-[150px] -mt-2 z-0 pointer-events-none">
+                                <canvas
+                                    ref={heatCanvasRef}
+                                    width={220}
+                                    height={150}
+                                    className="block w-full h-full"
+                                ></canvas>
+                            </div>
+
+                            {/* Absolute position readouts relative to column */}
+                            <div className="absolute right-0 top-[100px] translate-x-full pr-4 md:pr-0 pl-4 flex flex-col gap-4 z-20 hidden md:flex">
+                                <div className="glass px-4 py-2 rounded-xl border border-slate-700 w-32 shadow-xl">
                                     <div className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mb-1">Total Internal Eng.</div>
                                     <div className="text-blue-400 font-mono text-xl font-bold">{U} J</div>
                                 </div>
-                                <div className="glass px-4 py-2 rounded-xl border border-slate-700 w-32">
+                                <div className="glass px-4 py-2 rounded-xl border border-slate-700 w-32 shadow-xl">
                                     <div className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mb-1">Particle Speed</div>
                                     <div className="text-orange-400 font-mono text-xl font-bold">{particleSpeedMultipler.toFixed(2)}x</div>
                                 </div>
