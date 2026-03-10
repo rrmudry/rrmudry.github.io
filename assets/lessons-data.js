@@ -77,6 +77,8 @@ const lessonsData = [
     semester: 2,
     isFeatured: true,
     links: {
+      'Presentation: First Law of Thermodynamics': 'https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDZATPiyvvPR4J3orI6Kv85AY7a8qbPR-NCTCusDW9_dXQ?e=blosae',
+      'Worksheet: The First Law': 'https://orangeusdorg-my.sharepoint.com/:b:/g/personal/rmudry_orangeusd_org/IQDDLo9r5BE4RYLXfENSHuFgATTddX3SJRYqYsTJsdXkIQI?e=LVtN99',
       'Interactive Model: The Cylinder & Piston': 'First_Law_Sim/index.html'
     }
   },
