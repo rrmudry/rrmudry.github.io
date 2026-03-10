@@ -127,6 +127,27 @@
             );
         };
 
+        const CHALLENGES = [
+            {
+                text: "Scenario: You add 50J of Heat (+Q) and prevent the gas from moving (Work = 0). What is the change in Internal Energy (ΔU)?",
+                options: ["0 J", "+50 J", "-50 J", "+100 J"],
+                correctIndex: 1,
+                explanation: "Since ΔU = Q + W, and Work is 0, the change in energy equals the heat added: +50J + 0J = +50J."
+            },
+            {
+                text: "Scenario: You compress the gas (+50J Work) while simultaneously removing 50J of Heat (-Q). What happens to ΔU?",
+                options: ["Increases by 100J", "Decreases by 100J", "Remains at 0J", "Increases by 50J"],
+                correctIndex: 2,
+                explanation: "Here, Q = -50 and W = +50. Thus, ΔU = -50 + 50 = 0J. The energy added by work is exactly cancelled by the heat removed."
+            },
+            {
+                text: "Scenario: The gas expands (-50J Work) and you add 100J of Heat. What is the final ΔU?",
+                options: ["+50 J", "+150 J", "0 J", "-50 J"],
+                correctIndex: 0,
+                explanation: "ΔU = Q + W. If Q = +100 and W = -50, then ΔU = 100 - 50 = +50J."
+            }
+        ];
+
         const App = () => {
             // Thermodynamic State
             const [U, setU] = useState(BASE_U); // Internal Energy
@@ -136,6 +157,11 @@
             // Visual State
             const [pistonHeight, setPistonHeight] = useState(50); // percentage 0-100 (100 is fully compressed)
             const [heatState, setHeatState] = useState('neutral'); // 'neutral', 'heating', 'cooling'
+
+            // Challenge State
+            const [currentChallenge, setCurrentChallenge] = useState(0);
+            const [selectedOption, setSelectedOption] = useState(null);
+            const [showFeedback, setShowFeedback] = useState(false);
 
             const canvasRef = useRef(null);
             const heatCanvasRef = useRef(null); // External heat source
@@ -404,6 +430,7 @@
                     heatState === 'cooling' ? 'ice-glow transition-all duration-300' :
                         'border-b-4 border-slate-700 transition-all duration-1000';
 
+
             return (
                 <div className="min-h-screen py-8 px-4 flex flex-col items-center">
 
@@ -419,10 +446,10 @@
                         <p className="text-slate-400 font-medium">Observe how Heat (Q) and Work (W) change the Internal Energy (U) of a gas.</p>
                     </header>
 
-                    <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                    <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
                         {/* LEFT COLUMN: Controls & Equations */}
-                        <div className="lg:col-span-7 flex flex-col gap-6">
+                        <div className="lg:col-span-6 flex flex-col gap-6">
 
                             {/* Equation Dashboard */}
                             <div className="glass rounded-3xl p-6 relative overflow-hidden group">
@@ -504,49 +531,50 @@
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                                 Reset Simulator
                             </button>
-
                         </div>
 
-                        {/* RIGHT COLUMN: Canvas & Cylinder */}
-                        <div className="lg:col-span-5 flex flex-col items-center justify-start mt-8 lg:mt-0 relative">
+                        {/* RIGHT COLUMN: Canvas & Readouts */}
+                        <div className="lg:col-span-6 flex flex-col items-center justify-center">
 
-                            {/* Cylinder Wrapper for styling */}
-                            <div className={`relative p-2 rounded-2xl bg-slate-800 border-x-4 border-slate-700 shadow-2xl z-10 ${cylinderBottomClass}`}>
-                                {/* The Canvas */}
-                                <canvas
-                                    ref={canvasRef}
-                                    width={200}
-                                    height={300}
-                                    className="block bg-slate-900 rounded-lg shadow-inner"
-                                ></canvas>
-                            </div>
+                            <div className="flex flex-col sm:flex-row items-center sm:items-start justify-center gap-8 w-full max-w-2xl px-4">
+                                {/* Piston Area */}
+                                <div className="flex flex-col items-center">
+                                    <div className={`relative p-2 rounded-2xl bg-slate-800 border-x-4 border-slate-700 shadow-2xl z-10 ${cylinderBottomClass}`}>
+                                        <canvas
+                                            ref={canvasRef}
+                                            width={200}
+                                            height={300}
+                                            className="block bg-slate-900 rounded-lg shadow-inner"
+                                        ></canvas>
+                                    </div>
 
-                            {/* External Heat Particle System */}
-                            <div className="relative w-[220px] h-[150px] -mt-2 z-0 pointer-events-none">
-                                <canvas
-                                    ref={heatCanvasRef}
-                                    width={220}
-                                    height={150}
-                                    className="block w-full h-full"
-                                ></canvas>
-                            </div>
-
-                            {/* Absolute position readouts relative to column */}
-                            <div className="absolute right-0 top-[100px] translate-x-full pr-4 md:pr-0 pl-4 flex flex-col gap-5 z-20 hidden md:flex">
-                                <div className="glass px-5 py-3 rounded-xl border border-slate-700 w-48 shadow-xl">
-                                    <div className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Total Internal Eng.</div>
-                                    <div className="text-blue-400 font-mono text-2xl font-bold">{U} J</div>
+                                    {/* External Heat Particle System */}
+                                    <div className="relative w-[220px] h-[150px] -mt-2 z-0 pointer-events-none">
+                                        <canvas
+                                            ref={heatCanvasRef}
+                                            width={220}
+                                            height={150}
+                                            className="block w-full h-full"
+                                        ></canvas>
+                                    </div>
                                 </div>
-                                <div className="glass px-5 py-5 rounded-xl border border-slate-700 w-48 shadow-xl flex flex-col items-center">
-                                    <div className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-3 text-center">Gas Pressure</div>
-                                    <AnalogPressureGauge pressure={pressure} />
-                                </div>
-                                <div className="glass px-5 py-3 rounded-xl border border-slate-700 w-48 shadow-xl">
-                                    <div className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Particle Speed</div>
-                                    <div className="text-orange-400 font-mono text-2xl font-bold">{particleSpeedMultipler.toFixed(2)}x</div>
+
+                                {/* Readouts Column */}
+                                <div className="flex flex-col gap-4 w-full max-w-[200px] mt-2">
+                                    <div className="glass px-5 py-3 rounded-xl border border-slate-700 shadow-xl">
+                                        <div className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Total Internal Eng.</div>
+                                        <div className="text-blue-400 font-mono text-xl font-bold">{U} J</div>
+                                    </div>
+                                    <div className="glass px-5 py-5 rounded-xl border border-slate-700 shadow-xl flex flex-col items-center">
+                                        <div className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-3 text-center">Gas Pressure</div>
+                                        <AnalogPressureGauge pressure={pressure} />
+                                    </div>
+                                    <div className="glass px-5 py-3 rounded-xl border border-slate-700 shadow-xl">
+                                        <div className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Particle Speed</div>
+                                        <div className="text-orange-400 font-mono text-xl font-bold">{particleSpeedMultipler.toFixed(2)}x</div>
+                                    </div>
                                 </div>
                             </div>
-
                         </div>
 
                     </div>
