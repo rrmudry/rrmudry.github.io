@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Solar 3D Building Simulator</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #030712;
+      --panel: rgba(17, 24, 39, 0.45);
+      --panel-2: rgba(31, 41, 55, 0.35);
+      --line: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #0ea5e9;
+      --accent-glow: rgba(14, 165, 233, 0.4);
+      --good: #10b981;
+      --warn: #f59e0b;
+      --heat: #ef4444;
+      --glass-border: rgba(255, 255, 255, 0.05);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at 50% -20%, #1e293b 0%, #020617 100%);
+      color: var(--text);
+      height: 100vh;
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      overflow: hidden;
+    }
+
+    aside {
+      background: var(--panel);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-right: 1px solid var(--glass-border);
+      padding: 24px;
+      overflow-y: auto;
+      box-shadow: 10px 0 30px rgba(0, 0, 0, 0.3);
+      z-index: 20;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.4rem;
+      background: linear-gradient(to right, #38bdf8, #818cf8);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    p, li, label, button, select, input {
+      font-size: 0.95rem;
+    }
+
+    .muted { color: var(--muted); }
+
+    .section {
+      margin-top: 24px;
+      padding: 16px;
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      background: var(--panel-2);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .section h2 {
+      font-size: 1rem;
+      margin: 0 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .controls {
+      display: grid;
+      gap: 10px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .stack {
+      display: grid;
+      gap: 6px;
+    }
+
+    input[type="range"], select, button {
+      width: 100%;
+    }
+
+    select, button {
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(15, 23, 42, 0.6);
+      color: var(--text);
+      padding: 10px 14px;
+      font-weight: 500;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    input[type="range"] {
+      accent-color: var(--accent);
+    }
+
+    button {
+      cursor: pointer;
+      transition: transform 0.05s ease, background 0.2s ease;
+    }
+
+    button:hover { 
+      background: rgba(30, 41, 59, 0.8); 
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    button:active { transform: translateY(1px) scale(0.98); }
+
+    .button-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .button-grid-1 {
+      display: grid;
+      gap: 8px;
+    }
+
+    .active-mode {
+      outline: 2px solid var(--accent);
+      border-color: var(--accent);
+    }
+
+    main {
+      position: relative;
+      overflow: hidden;
+      background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: crosshair;
+    }
+
+    .overlay {
+      pointer-events: none;
+      position: absolute;
+      left: 20px;
+      top: 20px;
+      background: var(--panel);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 16px;
+      max-width: 480px;
+      line-height: 1.5;
+      z-index: 10;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    .overlay strong { color: white; }
+
+    .dashboard {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      width: 320px;
+      background: var(--panel);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 24px;
+      z-index: 10;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    .temp-readout {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .temp-value {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--warn);
+      text-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+    }
+
+    .chart-container {
+      height: 180px;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .footer-note {
+      margin-top: 12px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #082f49;
+      color: #bae6fd;
+      font-size: 0.8rem;
+      margin-left: 6px;
+    }
+  </style>
+</head>
+<body>
+  <aside>
+    <h1>Solar 3D Simulator</h1>
+    <p class="muted">Design a structure and analyze its thermal performance based on orientation and solar radiation.</p>
+
+    <div class="section">
+      <h2>Simulation Controls</h2>
+      <div class="controls">
+        <div class="stack">
+          <div class="row"><label for="timeOfDay">Time of Day</label><span id="timeValue">12:00</span></div>
+          <input id="timeOfDay" type="range" min="0" max="23.9" step="0.1" value="12" />
+        </div>
+        <div class="stack">
+          <label for="latitude">Latitude</label>
+          <select id="latitude">
+            <option value="0">Equator (0°)</option>
+            <option value="34" selected>California (34°N)</option>
+            <option value="45">France (45°N)</option>
+            <option value="-33">Australia (33°S)</option>
+          </select>
+        </div>
+        <button id="togglePlay">▶ Start Day Cycle</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Roof & Structure</h2>
+      <div class="controls">
+        <div class="stack">
+          <label for="roofType">Roof Type</label>
+          <select id="roofType">
+            <option value="flat">Flat</option>
+            <option value="gable-x">Gable (E-W Ridge)</option>
+            <option value="gable-y">Gable (N-S Ridge)</option>
+            <option value="shed-n">Shed (High North)</option>
+            <option value="shed-s">Shed (High South)</option>
+            <option value="hip">Hip Roof</option>
+          </select>
+        </div>
+        <div class="stack">
+          <div class="row"><label for="roofHeight">Roof height</label><span id="roofHeightValue">60</span></div>
+          <input id="roofHeight" type="range" min="0" max="200" value="60" />
+        </div>
+        <div class="stack">
+          <div class="row"><label for="wallHeight">Wall height</label><span id="wallHeightValue">140</span></div>
+          <input id="wallHeight" type="range" min="40" max="240" value="140" />
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Display & Performance</h2>
+      <div class="button-grid">
+        <button id="planModeBtn" class="active-mode">Plan Edit</button>
+        <button id="view3dModeBtn">3D View</button>
+      </div>
+      <div class="controls" style="margin-top: 10px;">
+        <div class="stack">
+          <div class="row"><label for="insulation">Insulation Level</label><span id="insulationValue">Standard</span></div>
+          <input id="insulation" type="range" min="1" max="5" value="3" />
+        </div>
+        <div class="stack">
+          <label for="wallMaterial">Surface Material</label>
+          <select id="wallMaterial">
+            <option value="brick">Dark Brick (High Abs.)</option>
+            <option value="concrete">Concrete (Med Abs.)</option>
+            <option value="wood">Wood (Low Abs.)</option>
+            <option value="stucco" selected>White Stucco (Reflection)</option>
+            <option value="glass">Glass (Transparency)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Design Tools</h2>
+      <div class="button-grid">
+        <button id="drawModeBtn" class="active-mode">Draw Walls</button>
+        <button id="editModeBtn">Edit Points</button>
+        <button id="closeShapeBtn">Finish Layout</button>
+        <button id="seedRectangleBtn">Add Box</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Design Data</h2>
+      <div class="controls">
+        <div class="row"><span>Status</span><strong id="shapeState">Open</strong></div>
+        <div class="row"><span>Avg. Gain</span><strong id="avgGain">0 W/m²</strong></div>
+      </div>
+    </div>
+
+    <div class="footer-note">
+      * Orientation matters! Design windows and orientation to optimize heat gain.
+    </div>
+  </aside>
+
+  <main>
+    <canvas id="canvas"></canvas>
+    
+    <div class="overlay">
+      <strong>Design Tip:</strong> Use 3D View to see how the sun hits your building. North is up in Plan View.
+      <span class="pill" id="modeLabel">Plan Edit</span>
+    </div>
+
+    <div class="dashboard">
+      <div class="temp-readout">
+        <div class="muted" style="font-size: 0.8rem; font-weight: bold; text-transform: uppercase;">Internal Temperature</div>
+        <div class="temp-value" id="currentTemp">22.0°C</div>
+      </div>
+      <div class="chart-container">
+        <canvas id="tempChart"></canvas>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    const els = {
+      planModeBtn: document.getElementById('planModeBtn'),
+      view3dModeBtn: document.getElementById('view3dModeBtn'),
+      drawModeBtn: document.getElementById('drawModeBtn'),
+      editModeBtn: document.getElementById('editModeBtn'),
+      closeShapeBtn: document.getElementById('closeShapeBtn'),
+      seedRectangleBtn: document.getElementById('seedRectangleBtn'),
+      timeOfDay: document.getElementById('timeOfDay'),
+      timeValue: document.getElementById('timeValue'),
+      latitude: document.getElementById('latitude'),
+      togglePlay: document.getElementById('togglePlay'),
+      wallHeight: document.getElementById('wallHeight'),
+      wallHeightValue: document.getElementById('wallHeightValue'),
+      roofType: document.getElementById('roofType'),
+      roofHeight: document.getElementById('roofHeight'),
+      roofHeightValue: document.getElementById('roofHeightValue'),
+      insulation: document.getElementById('insulation'),
+      insulationValue: document.getElementById('insulationValue'),
+      wallMaterial: document.getElementById('wallMaterial'),
+      currentTemp: document.getElementById('currentTemp'),
+      avgGain: document.getElementById('avgGain'),
+      shapeState: document.getElementById('shapeState'),
+      modeLabel: document.getElementById('modeLabel')
+    };
+
+    const state = {
+      viewMode: 'plan',
+      editMode: 'draw',
+      points: [],
+      closed: false,
+      dragIndex: -1,
+      hoverPoint: -1,
+      planCamera: { x: 0, y: 0, zoom: 0.8 },
+      time: 12.0,
+      latitude: 34,
+      isPlaying: false,
+      internalTemp: 22.0,
+      wallHeight: 140,
+      roofType: 'flat',
+      roofHeight: 60,
+      insulation: 3,
+      wallMaterial: 'stucco',
+      externalTemp: 22.0,
+      tempHistory: [],
+      textures: {},
+      camera3d: {
+        yaw: 2.74, // Default looking North-West (N is Far, W is Left)
+        pitch: -0.55,
+        distance: 750,
+        target: { x: 0, y: 70, z: 0 }
+      },
+      drag3d: null
+    };
+
+    // --- Chart Setup ---
+    let chart;
+    function initChart() {
+      const ctxChart = document.getElementById('tempChart').getContext('2d');
+      chart = new Chart(ctxChart, {
+        type: 'line',
+        data: {
+          labels: Array.from({length: 24}, (_, i) => i + ":00"),
+          datasets: [
+            {
+              label: 'Internal',
+              data: [],
+              borderColor: '#f59e0b',
+              backgroundColor: 'rgba(245, 158, 11, 0.1)',
+              borderWidth: 2,
+              pointRadius: 0,
+              fill: true,
+              tension: 0.4
+            },
+            {
+              label: 'Ambient',
+              data: [],
+              borderColor: '#38bdf8',
+              borderDash: [5, 5],
+              borderWidth: 1,
+              pointRadius: 0,
+              tension: 0.4
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { display: false },
+            y: { 
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#64748b', font: { size: 10 } }
+            }
+          },
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    // --- Physics Engine ---
+    function getSunVector(time, lat) {
+      const hourAngle = (time - 12) * 15 * (Math.PI / 180);
+      const latRad = lat * (Math.PI / 180);
+      const alt = Math.asin(Math.cos(latRad) * Math.cos(hourAngle));
+      const azi = Math.atan2(Math.sin(hourAngle), -Math.sin(latRad) * Math.cos(hourAngle));
+
+      return {
+        x: -Math.cos(alt) * Math.sin(azi), // East is +X (Sunset at azi=90/West should be -X)
+        y: Math.sin(alt),
+        z: -Math.cos(alt) * Math.cos(azi)  // South is +Z (Noon azi=180 -> -cos*(-1) = +cos)
+      };
+    }
+
+    function distance3D(p1, p2) {
+      return Math.hypot(p1.x - p2.x, p1.y - p2.y, p1.z - p2.z);
+    }
+
+    function distance3D(p1, p2) {
+      return Math.hypot(p1.x - p2.x, p1.y - p2.y, p1.z - p2.z);
+    }
+    
+    function rayIntersectsPolygon(ro, rd, poly) {
+      const v0 = poly[0], v1 = poly[1], v2 = poly[2];
+      const e1 = { x: v1.x - v0.x, y: v1.y - v0.y, z: v1.z - v0.z };
+      const e2 = { x: v2.x - v0.x, y: v2.y - v0.y, z: v2.z - v0.z };
+      const h = { x: rd.y*e2.z - rd.z*e2.y, y: rd.z*e2.x - rd.x*e2.z, z: rd.x*e2.y - rd.y*e2.x };
+      const a = e1.x*h.x + e1.y*h.y + e1.z*h.z;
+      
+      if (a > -0.00001 && a < 0.00001) return false;
+      const f = 1.0 / a;
+      const s = { x: ro.x - v0.x, y: ro.y - v0.y, z: ro.z - v0.z };
+      const u = f * (s.x*h.x + s.y*h.y + s.z*h.z);
+      if (u < 0.0 || u > 1.0) return false;
+      
+      const q = { x: s.y*e1.z - s.z*e1.y, y: s.z*e1.x - s.x*e1.z, z: s.x*e1.y - s.y*e1.x };
+      const v = f * (rd.x*q.x + rd.y*q.y + rd.z*q.z);
+      if (v < 0.0 || u + v > 1.0) return false;
+      
+      const t = f * (e2.x*q.x + e2.y*q.y + e2.z*q.z);
+      return t > 0.001; 
+    }
+    
+    function rayIntersectsFace(ro, rd, facePts) {
+      if (rayIntersectsPolygon(ro, rd, [facePts[0], facePts[1], facePts[2]])) return true;
+      if (facePts.length === 4 && rayIntersectsPolygon(ro, rd, [facePts[0], facePts[2], facePts[3]])) return true;
+      return false;
+    }
+
+    // Ear Clipping Triangulator for Concave Roofs
+    function triangulateRoof(points) {
+      if (points.length < 3) return [];
+      const res = [];
+      const pts = points.map(p => ({x: p.x, y: p.y, z: p.z}));
+      
+      let sum = 0;
+      for (let i=0; i<pts.length; i++) sum += (pts[i].x * pts[(i+1)%pts.length].z - pts[(i+1)%pts.length].x * pts[i].z);
+      if (sum < 0) pts.reverse(); // Force CCW for ear clipping
+
+      let failsafe = 1000;
+      while (pts.length > 3 && failsafe-- > 0) {
+        for (let i=0; i<pts.length; i++) {
+          const prev = pts[(i-1+pts.length)%pts.length];
+          const curr = pts[i];
+          const next = pts[(i+1)%pts.length];
+          
+          const cp = (curr.x - prev.x) * (next.z - curr.z) - (curr.z - prev.z) * (next.x - curr.x);
+          if (cp <= 0) continue; // Concave reflex angle
+
+          let isEar = true;
+          for (let j=0; j<pts.length; j++) {
+            if (pts[j] === prev || pts[j] === curr || pts[j] === next) continue;
+            let b1 = (pts[j].x - curr.x) * (prev.z - curr.z) - (prev.x - curr.x) * (pts[j].z - curr.z) < 0;
+            let b2 = (pts[j].x - next.x) * (curr.z - next.z) - (curr.x - next.x) * (pts[j].z - next.z) < 0;
+            let b3 = (pts[j].x - prev.x) * (next.z - prev.z) - (next.x - prev.x) * (pts[j].z - prev.z) < 0;
+            if ((b1 == b2) && (b2 == b3)) { isEar = false; break; }
+          }
+          
+          if (isEar) {
+            res.push([prev, curr, next]);
+            pts.splice(i, 1);
+            break; 
+          }
+        }
+      }
+      if (pts.length === 3) res.push([pts[0], pts[1], pts[2]]);
+      return res;
+    }
+
+    function buildBuildingFaces() {
+      if (!state.closed || state.points.length < 3) return [];
+      const faces = [];
+      const h = Number(els.wallHeight.value);
+      const basePoints = state.points.map(p => ({ x: p.x, y: 0, z: p.y }));
+      const roofPoints = buildRoofTopPoints();
+      
+      // Walls
+      for (let i=0; i<state.points.length; i++) {
+        const next = (i+1)%state.points.length;
+        const quad = [ basePoints[i], basePoints[next], roofPoints[next], roofPoints[i] ];
+        
+        const dx = quad[1].x - quad[0].x, dz = quad[1].z - quad[0].z;
+        
+        let areaSum = 0;
+        for (let j = 0; j < state.points.length; j++) {
+          const a = state.points[j], b = state.points[(j+1)%state.points.length];
+          areaSum += a.x * b.y - b.x * a.y;
+        }
+        
+        let nx = areaSum > 0 ? dz : -dz;
+        let nz = areaSum > 0 ? -dx : dx;
+        
+        const mag = Math.sqrt(nx*nx + nz*nz);
+        const normal = { x: nx/mag, y: 0, z: nz/mag };
+
+        const o = roofPoints[i];
+        let ux = roofPoints[next].x - roofPoints[i].x, uz = roofPoints[next].z - roofPoints[i].z;
+        let uLen = Math.hypot(ux, uz);
+        let uVec = { x: (ux/(uLen||1))*64, y: 0, z: (uz/(uLen||1))*64 }, vVec = { x: 0, y: -64, z: 0 }; 
+
+        // Subdivide long walls for perfect Painter's Algorithm sorting
+        const len = Math.hypot(dx, dz);
+        const segments = Math.max(1, Math.min(25, Math.ceil(len / 30)));
+        
+        for (let s = 0; s < segments; s++) {
+          const f1 = s / segments;
+          const f2 = (s + 1) / segments;
+          
+          const subQuad = [
+            { x: quad[0].x + dx*f1, y: 0, z: quad[0].z + dz*f1 },
+            { x: quad[0].x + dx*f2, y: 0, z: quad[0].z + dz*f2 },
+            { x: quad[3].x + dx*f2, y: quad[3].y + (quad[2].y - quad[3].y)*f2, z: quad[3].z + dz*f2 },
+            { x: quad[3].x + dx*f1, y: quad[3].y + (quad[2].y - quad[3].y)*f1, z: quad[3].z + dz*f1 }
+          ];
+          
+          const subO = subQuad[3]; 
+          faces.push({ pts: subQuad, type: 'wall', normal, o: subO, u: uVec, v: vVec, uOffset: (len * f1) });
+        }
+      }
+
+      // Roof
+      if (els.roofType.value === 'flat') {
+        const tris = triangulateRoof(roofPoints);
+        tris.forEach(tri => {
+          faces.push({ pts: tri, type: 'roof', normal: {x:0, y:1, z:0}, o: {x:0, y:h, z:0}, u: {x:64, y:0, z:0}, v: {x:0, y:0, z:64} });
+        });
+      } else {
+        const bounds = getBounds(state.points);
+        const center = { x: (bounds.minX + bounds.maxX)/2, y: h + Number(els.roofHeight.value), z: (bounds.minY + bounds.maxY)/2 };
+
+        for (let i=0; i<state.points.length; i++) {
+          const next = (i+1)%state.points.length;
+          const tri = [roofPoints[i], roofPoints[next], center];
+          const normal = getFacetNormal(tri[0], tri[1], tri[2]);
+          
+          let o = roofPoints[i];
+          let ux = roofPoints[next].x - roofPoints[i].x, uy = roofPoints[next].y - roofPoints[i].y, uz = roofPoints[next].z - roofPoints[i].z;
+          let uLen = Math.hypot(ux, uy, uz);
+          let uVec = { x: (ux/(uLen||1))*64, y: (uy/(uLen||1))*64, z: (uz/(uLen||1))*64 };
+          
+          let vx = center.x - o.x, vy = center.y - o.y, vz = center.z - o.z;
+          let proj = (vx*ux + vy*uy + vz*uz) / (uLen*uLen || 1);
+          vx -= proj*ux; vy -= proj*uy; vz -= proj*uz;
+          let vLen = Math.hypot(vx, vy, vz);
+          let vVec = { x: (vx/(vLen||1))*64, y: (vy/(vLen||1))*64, z: (vz/(vLen||1))*64 };
+
+          faces.push({ pts: tri, type: 'roof', normal, o, u: uVec, v: vVec });
+        }
+      }
+      return faces;
+    }
+
+    function calculateThermalGain() {
+      if (!state.closed || state.points.length < 3) return 0;
+      
+      const sun = getSunVector(state.time, state.latitude);
+      if (sun.y <= 0) return 0; // Night
+
+      let totalGain = 0;
+      let totalArea = 0;
+
+      const materials = {
+        brick: { alpha: 0.85, u: 0.6 },
+        concrete: { alpha: 0.65, u: 0.8 },
+        wood: { alpha: 0.45, u: 0.3 },
+        stucco: { alpha: 0.15, u: 0.4 },
+        glass: { alpha: 0.95, u: 1.4 }
+      };
+      const mat = materials[els.wallMaterial.value] || materials.stucco;
+
+      const faces = buildBuildingFaces();
+
+      faces.forEach((f, i) => {
+        const dot = sun.x * f.normal.x + sun.y * f.normal.y + sun.z * f.normal.z;
+        if (dot <= 0) return; // Facing away from sun
+
+        // Ray-trace to check for self-shadowing
+        let cx = 0, cy = 0, cz = 0;
+        f.pts.forEach(p => { cx += p.x; cy += p.y; cz += p.z; });
+        cx /= f.pts.length; cy /= f.pts.length; cz /= f.pts.length;
+        
+        // Push slightly off the face towards the normal
+        const ro = { x: cx + f.normal.x*0.1, y: cy + f.normal.y*0.1, z: cz + f.normal.z*0.1 };
+
+        let shadowed = false;
+        for (let j = 0; j < faces.length; j++) {
+           if (i === j) continue;
+           if (rayIntersectsFace(ro, sun, faces[j].pts)) { shadowed = true; break; }
+        }
+
+        if (shadowed) return; // Blocked by another part of the building
+
+        const incident = dot * 1000;
+        let area = 0;
+        if (f.pts.length === 4) {
+           area = distance3D(f.pts[0], f.pts[1]) * Number(els.wallHeight.value) / 100;
+        } else if (f.pts.length === 3) {
+           const a = distance3D(f.pts[0], f.pts[1]), b = distance3D(f.pts[1], f.pts[2]), c = distance3D(f.pts[2], f.pts[0]);
+           const s = (a + b + c) / 2;
+           area = Math.sqrt(Math.max(0, s * (s - a) * (s - b) * (s - c))) / 100;
+        } else {
+           area = polygonArea(state.points) / 100;
+        }
+
+        totalGain += incident * mat.alpha * area;
+        totalArea += area;
+      });
+
+      return totalGain / (totalArea || 1);
+    }
+
+    function updateSimulation() {
+      const ambient = 15 + 10 * Math.sin((state.time - 9) * Math.PI / 12);
+      state.externalTemp = ambient;
+
+      const gain = calculateThermalGain();
+      els.avgGain.textContent = gain.toFixed(0) + " W/m²";
+
+      // Scaled for real-time educational speed (approx 1 deg per few seconds at max gain)
+      const insulationK = 0.005 / Math.pow(Number(els.insulation.value), 1.2);
+      const netHeat = (gain * 0.0001) - insulationK * (state.internalTemp - ambient);
+      state.internalTemp += netHeat;
+
+      // Convergence bounds
+      if (state.internalTemp < -10) state.internalTemp = -10;
+      if (state.internalTemp > 60) state.internalTemp = 60;
+
+      els.currentTemp.textContent = state.internalTemp.toFixed(1) + "°C";
+      els.currentTemp.style.color = state.internalTemp > 30 ? "#f87171" : (state.internalTemp > 24 ? "#fbbf24" : "#60a5fa");
+
+      // Update Chart
+      const h = Math.floor(state.time);
+      if (!state.tempHistory[h] || Math.abs(state.time - h) < 0.1) {
+        state.tempHistory[h] = state.internalTemp;
+        chart.data.datasets[0].data = state.tempHistory;
+        chart.data.datasets[1].data = Array.from({length:24}, (_, i) => 15 + 10 * Math.sin((i - 9) * Math.PI / 12));
+        chart.update('none');
+      }
+
+      if (state.isPlaying) {
+        state.time = (state.time + 0.1) % 24;
+        els.timeOfDay.value = state.time;
+        updateTimeLabel();
+        draw();
+      }
+    }
+
+    function updateTimeLabel() {
+      const h = Math.floor(state.time);
+      const m = Math.floor((state.time % 1) * 60);
+      els.timeValue.textContent = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+    }
+
+    // --- 3D Engine Fixes & Integration ---
+    function resizeCanvas() {
+      canvas.width = canvas.clientWidth * window.devicePixelRatio;
+      canvas.height = canvas.clientHeight * window.devicePixelRatio;
+      ctx.setTransform(window.devicePixelRatio, 0, 0, window.devicePixelRatio, 0, 0);
+      draw();
+    }
+
+    function setViewMode(mode) {
+      state.viewMode = mode;
+      els.planModeBtn.classList.toggle('active-mode', mode === 'plan');
+      els.view3dModeBtn.classList.toggle('active-mode', mode === '3d');
+      els.modeLabel.textContent = mode === 'plan' ? 'Plan Edit' : '3D View';
+      canvas.style.cursor = mode === '3d' ? 'grab' : 'crosshair';
+      draw();
+    }
+
+    function setEditMode(mode) {
+      state.editMode = mode;
+      [els.drawModeBtn, els.editModeBtn].forEach(btn => btn.classList.remove('active-mode'));
+      if (mode === 'draw') els.drawModeBtn.classList.add('active-mode');
+      else els.editModeBtn.classList.add('active-mode');
+      draw();
+    }
+
+    function screenToWorldPlan(x, y) {
+      return {
+        x: (x - canvas.clientWidth / 2 - state.planCamera.x) / state.planCamera.zoom,
+        y: (y - canvas.clientHeight / 2 - state.planCamera.y) / state.planCamera.zoom
+      };
+    }
+
+    function worldToScreenPlan(x, y) {
+      return {
+        x: x * state.planCamera.zoom + canvas.clientWidth / 2 + state.planCamera.x,
+        y: y * state.planCamera.zoom + canvas.clientHeight / 2 + state.planCamera.y
+      };
+    }
+
+    function distance2(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+
+    function snapOrthogonal(last, pt) {
+      if (!last) return pt;
+      const dx = pt.x - last.x, dy = pt.y - last.y;
+      return Math.abs(dx) >= Math.abs(dy) ? { x: pt.x, y: last.y } : { x: last.x, y: pt.y };
+    }
+
+    function findPointNear(world, radius = 15 / state.planCamera.zoom) {
+      let best = -1, bestDist = Infinity;
+      state.points.forEach((p, i) => {
+        const d = distance2(p, world);
+        if (d < radius && d < bestDist) { best = i; bestDist = d; }
+      });
+      return best;
+    }
+
+    function polygonArea(points) {
+      if (points.length < 3) return 0;
+      let sum = 0;
+      for (let i = 0; i < points.length; i++) {
+        const a = points[i], b = points[(i+1)%points.length];
+        sum += a.x * b.y - b.x * a.y;
+      }
+      return Math.abs(sum) / 2;
+    }
+
+    function getBounds(points) {
+      if (!points.length) return { minX: -100, maxX: 100, minY: -100, maxY: 100 };
+      const xs = points.map(p => p.x), ys = points.map(p => p.y);
+      return { minX: Math.min(...xs), maxX: Math.max(...xs), minY: Math.min(...ys), maxY: Math.max(...ys) };
+    }
+
+    function patternCanvas(kind) {
+      const off = document.createElement('canvas');
+      off.width = 64; off.height = 64;
+      const g = off.getContext('2d');
+      const map = {
+        brick: '#a04438', concrete: '#9ca3af', wood: '#8b5a2b', stucco: '#f8fafc', glass: '#7dd3fc',
+        'solid-roof': '#334155' // Dark slate for premium roof
+      };
+      g.fillStyle = map[kind] || '#94a3b8'; g.fillRect(0, 0, 64, 64);
+      g.strokeStyle = 'rgba(0,0,0,0.1)';
+      if (kind === 'brick') {
+        for(let y=0; y<64; y+=16) {
+          g.strokeRect(0, y, 64, 16);
+          for(let x=(y%32?0:16); x<64; x+=32) g.strokeRect(x, y, 32, 16);
+        }
+      }
+      return off;
+    }
+
+    function getPattern(kind) {
+      if (!state.textures[kind]) state.textures[kind] = ctx.createPattern(patternCanvas(kind), 'repeat');
+      return state.textures[kind];
+    }
+
+    function project3D(point) {
+      const cam = state.camera3d;
+      const dx = point.x - cam.target.x, dy = point.y - cam.target.y, dz = point.z - cam.target.z;
+      const cy = Math.cos(cam.yaw), sy = Math.sin(cam.yaw);
+      const cp = Math.cos(cam.pitch), sp = Math.sin(cam.pitch);
+      const x1 = -(cy * dx - sy * dz); // MUST BE NEGATIVE to un-mirror coordinates
+      const z1 = sy * dx + cy * dz;
+      const y2 = cp * dy - sp * z1, z2 = sp * dy + cp * z1;
+      const scale = 800 / Math.max(80, z2 + cam.distance);
+      return { x: canvas.clientWidth/2 + x1*scale, y: canvas.clientHeight/2 - y2*scale, depth: z2 + cam.distance };
+    }
+
+    function buildRoofTopPoints() {
+      const h = Number(els.wallHeight.value);
+      const rh = Number(els.roofHeight.value);
+      const type = els.roofType.value;
+      const bounds = getBounds(state.points);
+      const midX = (bounds.minX + bounds.maxX) / 2;
+      const midY = (bounds.minY + bounds.maxY) / 2;
+      const width = bounds.maxX - bounds.minX;
+      const depth = bounds.maxY - bounds.minY;
+
+      return state.points.map(p => {
+        let py = h;
+        if (type === 'gable-x') {
+          const dist = Math.abs(p.y - midY);
+          py += Math.max(0, 1 - dist / (depth / 2)) * rh;
+        } else if (type === 'gable-y') {
+          const dist = Math.abs(p.x - midX);
+          py += Math.max(0, 1 - dist / (width / 2)) * rh;
+        } else if (type === 'shed-n') {
+          py += Math.max(0, (midY + depth/2 - p.y) / depth) * rh;
+        } else if (type === 'shed-s') {
+          py += Math.max(0, (p.y - (midY - depth/2)) / depth) * rh;
+        } else if (type === 'hip') {
+          const dx = Math.abs(p.x - midX) / (width / 2);
+          const dy = Math.abs(p.y - midY) / (depth / 2);
+          py += Math.max(0, 1 - Math.max(dx, dy)) * rh;
+        }
+        return { x: p.x, y: py, z: p.y };
+      });
+    }
+
+    function getFacetNormal(p1, p2, p3) {
+      const v1 = { x: p2.x - p1.x, y: p2.y - p1.y, z: p2.z - p1.z };
+      const v2 = { x: p3.x - p1.x, y: p3.y - p1.y, z: p3.z - p1.z };
+      let nx = v1.y * v2.z - v1.z * v2.y;
+      let ny = v1.z * v2.x - v1.x * v2.z;
+      let nz = v1.x * v2.y - v1.y * v2.x;
+      // Roof facets must always face upwards regardless of drawing order (CW/CCW)
+      if (ny < 0) { nx = -nx; ny = -ny; nz = -nz; }
+      
+      const len = Math.sqrt(nx*nx + ny*ny + nz*nz);
+      if (len < 0.001) return { x: 0, y: 1, z: 0 };
+      return { x: nx / len, y: ny / len, z: nz / len };
+    }
+
+    function draw() {
+      if (state.viewMode === 'plan') {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Grid
+        ctx.strokeStyle = '#334155'; ctx.lineWidth = 1;
+        const spacing = 50 * state.planCamera.zoom;
+        for (let x=(state.planCamera.x % spacing); x<canvas.width; x+=spacing) {
+          ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+        }
+        for (let y=(state.planCamera.y % spacing); y<canvas.height; y+=spacing) {
+          ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+        }
+
+        if (state.points.length > 0) {
+          ctx.beginPath();
+          const first = worldToScreenPlan(state.points[0].x, state.points[0].y);
+          ctx.moveTo(first.x, first.y);
+          state.points.forEach(p => {
+             const s = worldToScreenPlan(p.x, p.y);
+             ctx.lineTo(s.x, s.y);
+          });
+          
+          // Preview next line
+          if (!state.closed && state.previewPoint) {
+            const last = worldToScreenPlan(state.points[state.points.length-1].x, state.points[state.points.length-1].y);
+            const next = worldToScreenPlan(state.previewPoint.x, state.previewPoint.y);
+            ctx.lineTo(next.x, next.y);
+          }
+
+          if (state.closed) ctx.closePath();
+          ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 3; ctx.stroke();
+          if (state.closed) { ctx.fillStyle = 'rgba(56,189,248,0.2)'; ctx.fill(); }
+        }
+
+        state.points.forEach((p, i) => {
+          const s = worldToScreenPlan(p.x, p.y);
+          ctx.beginPath(); ctx.arc(s.x, s.y, 6, 0, Math.PI*2);
+          ctx.fillStyle = i === state.hoverPoint ? '#fbbf24' : '#38bdf8';
+          ctx.fill();
+          
+          // Special highlight for first point if closeable
+          if (i === 0 && !state.closed && state.points.length >= 3) {
+            ctx.beginPath(); ctx.arc(s.x, s.y, 15, 0, Math.PI*2);
+            ctx.strokeStyle = 'rgba(56,189,248,0.4)'; ctx.setLineDash([2,2]); ctx.stroke(); ctx.setLineDash([]);
+            if (state.hoverPoint === 0) {
+                ctx.fillStyle = 'rgba(56,189,248,0.2)'; ctx.fill();
+            }
+          }
+        });
+      } else {
+        // 3D Rendering
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Holographic Blueprint Ground
+        ctx.lineWidth = 1.5;
+        const fadeRadius = 1500;
+        
+        for (let i=-2000; i<=2000; i+=100) {
+          const a = project3D({x:i, y:0, z:-2000}), b = project3D({x:i, y:0, z:2000});
+          if (a.depth > 0 || b.depth > 0) {
+            const grad = ctx.createLinearGradient(a.x, a.y, b.x, b.y);
+            grad.addColorStop(0, 'rgba(14, 165, 233, 0)');
+            grad.addColorStop(0.5, 'rgba(14, 165, 233, 0.15)');
+            grad.addColorStop(1, 'rgba(14, 165, 233, 0)');
+            ctx.strokeStyle = grad;
+            ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+          }
+
+          const c = project3D({x:-2000, y:0, z:i}), d = project3D({x:2000, y:0, z:i});
+          if (c.depth > 0 || d.depth > 0) {
+            const grad = ctx.createLinearGradient(c.x, c.y, d.x, d.y);
+            grad.addColorStop(0, 'rgba(14, 165, 233, 0)');
+            grad.addColorStop(0.5, 'rgba(14, 165, 233, 0.15)');
+            grad.addColorStop(1, 'rgba(14, 165, 233, 0)');
+            ctx.strokeStyle = grad;
+            ctx.beginPath(); ctx.moveTo(c.x, c.y); ctx.lineTo(d.x, d.y); ctx.stroke();
+          }
+        }
+        
+        // Center Origin Glow
+        const origin = project3D({x:0, y:0, z:0});
+        if (origin.depth > 0) {
+          ctx.beginPath(); ctx.arc(origin.x, origin.y, 4, 0, Math.PI*2);
+          ctx.fillStyle = '#0ea5e9'; ctx.shadowBlur = 10; ctx.shadowColor = '#0ea5e9'; ctx.fill(); ctx.shadowBlur = 0;
+        }
+
+        // Compass Rose (N=-Z, S=+Z, E=+X, W=-X)
+        const labels = [{t:'N', x:0, z:-550}, {t:'S', x:0, z:550}, {t:'E', x:550, z:0}, {t:'W', x:-550, z:0}];
+        ctx.font = 'bold 16px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        labels.forEach(l => {
+            const p = project3D({x:l.x, y:0, z:l.z});
+            if (p.depth > 0) {
+                ctx.fillStyle = l.t === 'N' ? '#f87171' : 'rgba(255,255,255,0.3)';
+                ctx.fillText(l.t, p.x, p.y);
+            }
+        });
+
+        // Sun on Sky Sphere
+        const sunVec = getSunVector(state.time, state.latitude);
+        const cam = state.camera3d;
+        const skyDist = 2000; // Push sun far away
+        const sunProj = project3D({
+           x: cam.target.x + sunVec.x * skyDist, 
+           y: cam.target.y + sunVec.y * skyDist, 
+           z: cam.target.z + sunVec.z * skyDist
+        });
+        if (sunVec.y > -0.1) { // Visible slightly below horizon
+          // Outer Glow
+          ctx.beginPath(); ctx.arc(sunProj.x, sunProj.y, 100, 0, Math.PI*2);
+          ctx.fillStyle = 'rgba(251, 191, 36, 0.05)'; ctx.fill();
+          // Inner Glow
+          ctx.beginPath(); ctx.arc(sunProj.x, sunProj.y, 60, 0, Math.PI*2);
+          ctx.fillStyle = 'rgba(251, 191, 36, 0.15)'; ctx.fill();
+          // Core
+          ctx.beginPath(); ctx.arc(sunProj.x, sunProj.y, 25, 0, Math.PI*2);
+          ctx.fillStyle = '#fde68a'; ctx.shadowBlur = 30; ctx.shadowColor = '#f59e0b'; ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+
+        if (state.points.length < 3 || !state.closed) {
+          // Show ghost footprint in 3D
+          if (state.points.length > 0) {
+            ctx.beginPath();
+            const s0 = project3D({x:state.points[0].x, y:0, z:state.points[0].y});
+            ctx.moveTo(s0.x, s0.y);
+            state.points.forEach(p => { const s = project3D({x:p.x, y:0, z:p.y}); ctx.lineTo(s.x, s.y); });
+            ctx.strokeStyle = 'rgba(56,189,248,0.5)'; ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]);
+          }
+          return;
+        }
+
+        const h = Number(els.wallHeight.value);
+        const faces = [];
+        const roofPoints = buildRoofTopPoints();
+        const basePoints = state.points.map(p => ({x: p.x, y: 0, z: p.y}));
+
+        // Shadows (Projection on Y=0)
+        if (sunVec.y > 0) {
+          const sX = sunVec.x / sunVec.y, sZ = sunVec.z / sunVec.y;
+          const projectShadow = (p) => ({ x: p.x - p.y * sX, y: 0, z: p.z - p.y * sZ });
+          ctx.fillStyle = 'rgba(2, 6, 23, 0.6)'; // Deep dark shadow
+
+          // Project walls
+          for (let i=0; i<state.points.length; i++) {
+            const next = (i+1)%state.points.length;
+            const quad = [basePoints[i], basePoints[next], roofPoints[next], roofPoints[i]];
+            const sq = quad.map(projectShadow).map(p => project3D(p));
+            ctx.beginPath(); ctx.moveTo(sq[0].x, sq[0].y);
+            sq.forEach(p => ctx.lineTo(p.x, p.y));
+            ctx.fill();
+          }
+          // Project roof facets
+          if (els.roofType.value === 'flat') {
+            const sq = roofPoints.map(projectShadow).map(p => project3D(p));
+            ctx.beginPath(); ctx.moveTo(sq[0].x, sq[0].y);
+            sq.forEach(p => ctx.lineTo(p.x, p.y));
+            ctx.fill();
+          } else {
+            const bounds = getBounds(state.points);
+            const midX = (bounds.minX + bounds.maxX) / 2;
+            const midY = (bounds.minY + bounds.maxY) / 2;
+            const rh = Number(els.roofHeight.value);
+            const center = { x: midX, y: h + rh, z: midY };
+            for (let i=0; i<state.points.length; i++) {
+              const next = (i+1)%state.points.length;
+              const tri = [roofPoints[i], roofPoints[next], center].map(projectShadow).map(p => project3D(p));
+              ctx.beginPath(); ctx.moveTo(tri[0].x, tri[0].y);
+              tri.forEach(p => ctx.lineTo(p.x, p.y));
+              ctx.fill();
+            }
+          }
+        }
+        
+        // Use shared face builder
+        const buildingFaces = buildBuildingFaces();
+        
+        // Camera Pos for 3D Backface Culling
+        const cp = Math.cos(cam.pitch), sp = Math.sin(cam.pitch);
+        const cy = Math.cos(cam.yaw), sy = Math.sin(cam.yaw);
+        const camPos = {
+          x: cam.target.x - sy * cp * cam.distance,
+          y: cam.target.y - sp * cam.distance,
+          z: cam.target.z - cy * cp * cam.distance
+        };
+
+        buildingFaces.forEach((f, i) => {
+          // Centroid for depth sorting
+          let cx = 0, cy2 = 0, cz = 0;
+          f.pts.forEach(p => { cx += p.x; cy2 += p.y; cz += p.z; });
+          cx /= f.pts.length; cy2 /= f.pts.length; cz /= f.pts.length;
+          
+          // 3D Backface culling
+          const viewDot = (camPos.x - cx) * f.normal.x + (camPos.y - cy2) * f.normal.y + (camPos.z - cz) * f.normal.z;
+          if (viewDot <= 0) return; 
+
+          let intensity = 0.1;
+          if (sunVec.y > 0) {
+            let dot = sunVec.x * f.normal.x + sunVec.y * f.normal.y + sunVec.z * f.normal.z;
+            intensity = Math.max(0.1, dot);
+
+            // Ray trace self-shadowing
+            if (dot > 0) {
+              const ro = { x: cx + f.normal.x*0.1, y: cy2 + f.normal.y*0.1, z: cz + f.normal.z*0.1 };
+              let shadowed = false;
+              for (let j = 0; j < buildingFaces.length; j++) {
+                 if (i === j) continue;
+                 if (rayIntersectsFace(ro, sunVec, buildingFaces[j].pts)) { shadowed = true; break; }
+              }
+              if (shadowed) intensity = 0.1;
+            }
+          }
+
+          let depth = project3D({x: cx, y: cy2, z: cz}).depth;
+          // Slight depth bias for roofs to cleanly overlap walls at their seams
+          if (f.type === 'roof') depth -= 1.0;
+
+          faces.push({ 
+            pts: f.pts, 
+            color: f.type === 'roof' ? 'solid-roof' : els.wallMaterial.value, 
+            depth,
+            intensity,
+            o: f.o, u: f.u, v: f.v
+          });
+        });
+
+        faces.sort((a,b) => b.depth - a.depth);
+
+        faces.forEach(f => {
+          ctx.beginPath();
+          const s0 = project3D(f.pts[0]);
+          ctx.moveTo(s0.x, s0.y);
+          f.pts.forEach(p => { const s = project3D(p); ctx.lineTo(s.x, s.y); });
+          ctx.closePath();
+          
+          const pattern = getPattern(f.color);
+          
+          if (f.u && f.v && f.o && typeof DOMMatrix !== 'undefined') {
+            const o2d = project3D(f.o);
+            const u2d = project3D({ x: f.o.x + f.u.x, y: f.o.y + f.u.y, z: f.o.z + f.u.z });
+            const v2d = project3D({ x: f.o.x + f.v.x, y: f.o.y + f.v.y, z: f.o.z + f.v.z });
+            
+            const a = (u2d.x - o2d.x) / 64;
+            const b = (u2d.y - o2d.y) / 64;
+            const c = (v2d.x - o2d.x) / 64;
+            const d = (v2d.y - o2d.y) / 64;
+            
+            let matrix = new DOMMatrix([a, b, c, d, o2d.x, o2d.y]);
+            if (f.uOffset) matrix = matrix.translate(-f.uOffset, 0);
+            pattern.setTransform(matrix);
+          } else if (pattern.setTransform) {
+             pattern.setTransform(new DOMMatrix([1, 0, 0, 1, 0, 0]));
+          }
+
+          ctx.fillStyle = pattern;
+          ctx.fill();
+          
+          // Hide seams between chunks
+          ctx.strokeStyle = pattern;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+          ctx.fillStyle = `rgba(0,0,0,${1 - f.intensity})`;
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.stroke();
+        });
+        
+        // Reset pattern transforms to avoid leaking
+        if (typeof DOMMatrix !== 'undefined') {
+          Object.values(state.textures).forEach(p => {
+             if (p.setTransform) p.setTransform(new DOMMatrix([1, 0, 0, 1, 0, 0]));
+          });
+        }
+      }
+    }
+
+    // --- Events ---
+    window.addEventListener('resize', resizeCanvas);
+    canvas.addEventListener('mousedown', e => {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left, y = e.clientY - rect.top;
+      if (state.viewMode === 'plan') {
+        const world = screenToWorldPlan(x, y);
+        if (state.editMode === 'draw') {
+          if (state.closed) { state.points = []; state.closed = false; els.shapeState.textContent = "Open"; }
+          
+          // Snap to start point to close
+          if (state.points.length >= 3 && distance2(world, state.points[0]) < 20 / state.planCamera.zoom) {
+            state.closed = true;
+            els.shapeState.textContent = "Closed";
+          } else {
+            // Use preview point (snapped) if available
+            state.points.push(state.previewPoint || world);
+          }
+        } else {
+          state.dragIndex = findPointNear(world);
+        }
+      } else {
+        state.drag3d = { x, y, startYaw: state.camera3d.yaw, startPitch: state.camera3d.pitch, button: e.button };
+      }
+      draw();
+    });
+
+    canvas.addEventListener('mousemove', e => {
+       const rect = canvas.getBoundingClientRect();
+       const x = e.clientX - rect.left, y = e.clientY - rect.top;
+       if (state.viewMode === 'plan') {
+         const world = screenToWorldPlan(x, y);
+         state.hoverPoint = findPointNear(world);
+         
+         if (state.editMode === 'draw' && !state.closed && state.points.length > 0) {
+           state.previewPoint = snapOrthogonal(state.points[state.points.length-1], world);
+         } else {
+           state.previewPoint = null;
+         }
+
+         if (state.dragIndex >= 0) state.points[state.dragIndex] = world;
+       } else if (state.drag3d) {
+         state.camera3d.yaw = state.drag3d.startYaw - (x - state.drag3d.x) * 0.01;
+         state.camera3d.pitch = state.drag3d.startPitch + (y - state.drag3d.y) * 0.01;
+       }
+       draw();
+    });
+
+    window.addEventListener('mouseup', () => { state.dragIndex = -1; state.drag3d = null; });
+
+    els.closeShapeBtn.onclick = () => { if(state.points.length >= 3) { state.closed = true; els.shapeState.textContent = "Closed"; draw(); } };
+    els.seedRectangleBtn.onclick = () => {
+      state.points = [{x:-100, y:-100}, {x:100, y:-100}, {x:100, y:100}, {x:-100, y:100}];
+      state.closed = true; els.shapeState.textContent = "Closed"; draw();
+    };
+    els.togglePlay.onclick = () => { state.isPlaying = !state.isPlaying; els.togglePlay.textContent = state.isPlaying ? "⏸ Pause Day Cycle" : "▶ Start Day Cycle"; };
+    els.timeOfDay.oninput = () => { state.time = parseFloat(els.timeOfDay.value); updateTimeLabel(); draw(); };
+    els.latitude.onchange = () => { state.latitude = parseInt(els.latitude.value); draw(); };
+    els.wallHeight.oninput = () => { els.wallHeightValue.textContent = els.wallHeight.value; draw(); };
+    els.roofHeight.oninput = () => { els.roofHeightValue.textContent = els.roofHeight.value; draw(); };
+    els.roofType.onchange = () => draw();
+    els.insulation.oninput = () => {
+      const labels = ["None", "Minimal", "Standard", "High", "Military Grade"];
+      els.insulationValue.textContent = labels[els.insulation.value - 1]; 
+    };
+
+    els.planModeBtn.onclick = () => setViewMode('plan');
+    els.view3dModeBtn.onclick = () => setViewMode('3d');
+    els.drawModeBtn.onclick = () => setEditMode('draw');
+    els.editModeBtn.onclick = () => setEditMode('edit');
+
+    // --- Init ---
+    resizeCanvas();
+    initChart();
+    setInterval(updateSimulation, 100);
+  </script>
+</body>
+</html>

@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>First Law of Thermodynamics - Assessment</title>
+    <!-- React and Tailwind CSS -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@700&display=swap');
+
+        :root {
+            --bg-dark: #0f172a;
+            --panel-bg: rgba(30, 41, 59, 0.7);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .glass {
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #60a5fa 0%, #a855f7 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .piston-container {
+            position: relative;
+            width: 200px;
+            height: 300px;
+            background: #1e293b;
+            border-radius: 0 0 16px 16px;
+        }
+
+        .fire-glow {
+            box-shadow: 0 20px 50px -10px rgba(244, 63, 94, 0.5);
+            border-bottom: 4px solid #f43f5e !important;
+        }
+
+        .ice-glow {
+            box-shadow: 0 20px 50px -10px rgba(14, 165, 233, 0.5);
+            border-bottom: 4px solid #0ea5e9 !important;
+        }
+
+        @keyframes pulse-value {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); color: #fff; }
+            100% { transform: scale(1); }
+        }
+
+        .value-change {
+            animation: pulse-value 0.4s ease-out;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useMemo } = React;
+
+        // Constants
+        const BASE_U = 500; // Baseline internal energy
+        const PARTICLES_COUNT = 45;
+        const BASE_SPEED = 1.5;
+
+        // Pressure Gauge Component
+        const AnalogPressureGauge = ({ pressure }) => {
+            const angle = useMemo(() => {
+                // Map pressure 0-4 to -135 to 135 degrees
+                return Math.min(Math.max((pressure / 4) * 270 - 135, -135), 135);
+            }, [pressure]);
+
+            return (
+                <div className="relative w-32 h-32 flex flex-col items-center justify-center">
+                    <div className="absolute inset-0">
+                        <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-lg">
+                            {/* Gauge Background */}
+                            <circle cx="50" cy="50" r="45" fill="#0f172a" stroke="#334155" strokeWidth="2" />
+                            {/* Gradient Arc */}
+                            <path d="M 18.2 81.8 A 45 45 0 1 1 81.8 81.8" fill="none" stroke="url(#pressureGradient)" strokeWidth="8" strokeLinecap="round" />
+                            
+                            {/* Ticks */}
+                            {[0, 1, 2, 3, 4].map(tick => {
+                                const tickAngle = -135 + (tick / 4) * 270;
+                                const rad = (tickAngle - 90) * (Math.PI / 180);
+                                const x1 = 50 + 35 * Math.cos(rad);
+                                const y1 = 50 + 35 * Math.sin(rad);
+                                const x2 = 50 + 42 * Math.cos(rad);
+                                const y2 = 50 + 42 * Math.sin(rad);
+                                return <line key={tick} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#64748b" strokeWidth="2" />;
+                            })}
+
+                            {/* Needle */}
+                            <g style={{ transformOrigin: '50px 50px', transform: `rotate(${angle}deg)` }} className="transition-transform duration-300 ease-out">
+                                <path d="M 46 50 C 46 52.2 47.8 54 50 54 C 52.2 54 54 52.2 54 50 L 51 15 L 49 15 Z" fill="#f43f5e" />
+                                <circle cx="50" cy="50" r="4" fill="#cbd5e1" />
+                            </g>
+
+                            {/* Gradient Def */}
+                            <defs>
+                                <linearGradient id="pressureGradient" x1="0%" y1="100%" x2="100%" y2="100%">
+                                    <stop offset="0%" stopColor="#10b981" /> {/* Emerald */}
+                                    <stop offset="50%" stopColor="#f59e0b" /> {/* Amber */}
+                                    <stop offset="100%" stopColor="#ef4444" /> {/* Red */}
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                    <div className="text-rose-400 font-mono text-xl font-bold mt-12">{pressure.toFixed(2)} atm</div>
+                </div>
+            );
+        };
+
+        const CHALLENGES = [
+            {
+                text: "Scenario: You add 50J of Heat (+Q) and prevent the gas from moving (Work = 0). What is the change in Internal Energy (ΔU)?",
+                options: ["0 J", "+50 J", "-50 J", "+100 J"],
+                correctIndex: 1,
+                explanation: "Since ΔU = Q + W, and Work is 0, the change in energy equals the heat added: +50J + 0J = +50J."
+            },
+            {
+                text: "Scenario: You compress the gas (+50J Work) while simultaneously removing 50J of Heat (-Q). What happens to ΔU?",
+                options: ["Increases by 100J", "Decreases by 100J", "Remains at 0J", "Increases by 50J"],
+                correctIndex: 2,
+                explanation: "Here, Q = -50 and W = +50. Thus, ΔU = -50 + 50 = 0J. The energy added by work is exactly cancelled by the heat removed."
+            },
+            {
+                text: "Scenario: The gas expands (-50J Work) and you add 100J of Heat. What is the final ΔU?",
+                options: ["+50 J", "+150 J", "0 J", "-50 J"],
+                correctIndex: 0,
+                explanation: "ΔU = Q + W. If Q = +100 and W = -50, then ΔU = 100 - 50 = +50J."
+            }
+        ];
+
+        const App = () => {
+            // Thermodynamic State
+            const [U, setU] = useState(BASE_U); // Internal Energy
+            const [Q, setQ] = useState(0); // Net Heat added
+            const [W, setW] = useState(0); // Net Work done ON system
+
+            // Visual State
+            const [pistonHeight, setPistonHeight] = useState(50); // percentage 0-100 (100 is fully compressed)
+            const [heatState, setHeatState] = useState('neutral'); // 'neutral', 'heating', 'cooling'
+
+            // Assessment State
+            const [currentChallenge, setCurrentChallenge] = useState(0);
+            const [selectedOption, setSelectedOption] = useState(null);
+            const [showFeedback, setShowFeedback] = useState(false);
+
+            const canvasRef = useRef(null);
+            const heatCanvasRef = useRef(null); // External heat source
+            const particlesRef = useRef([]);
+            const heatParticlesRef = useRef([]); // Fire/Ice particles
+            const animationRef = useRef(null);
+            const [isFullscreen, setIsFullscreen] = useState(false);
+
+            // Fullscreen listener
+            useEffect(() => {
+                const handleFullscreenChange = () => {
+                    setIsFullscreen(!!document.fullscreenElement);
+                };
+                document.addEventListener('fullscreenchange', handleFullscreenChange);
+                return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+            }, []);
+
+            const toggleFullscreen = () => {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(err => {
+                        console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+                    });
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    }
+                }
+            };
+
+
+            // Calculate derived visual properties
+            const particleSpeedMultipler = Math.max(0.05, Math.pow(U / BASE_U, 1.5));
+            const canvasHeight = 250;
+            const canvasWidth = 200;
+            const pistonPixelHeight = 20 + (pistonHeight / 100) * (canvasHeight - 60);
+
+            // Pressure (P ~ U / Volume)
+            const currentVolume = canvasHeight - pistonPixelHeight;
+            const normalizedVolume = currentVolume / 160;
+            const pressure = (U / BASE_U) / normalizedVolume;
+
+            const stateRef = useRef({ U, heatState, pistonPixelHeight, particleSpeedMultipler });
+
+            useEffect(() => {
+                stateRef.current = { U, heatState, pistonPixelHeight, particleSpeedMultipler };
+            }, [U, heatState, pistonPixelHeight, particleSpeedMultipler]);
+
+            useEffect(() => {
+                const initParticles = () => {
+                    const parts = [];
+                    for (let i = 0; i < PARTICLES_COUNT; i++) {
+                        parts.push({
+                            x: Math.random() * (canvasWidth - 10) + 5,
+                            y: pistonPixelHeight + Math.random() * (canvasHeight - pistonPixelHeight - 10) + 5,
+                            vx: (Math.random() - 0.5) * 2,
+                            vy: (Math.random() - 0.5) * 2,
+                            radius: 3 + Math.random() * 2
+                        });
+                    }
+                    particlesRef.current = parts;
+                };
+                initParticles();
+            }, []);
+
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+                const heatCanvas = heatCanvasRef.current;
+                const hCtx = heatCanvas ? heatCanvas.getContext('2d') : null;
+
+                const render = () => {
+                    const { U, heatState, pistonPixelHeight, particleSpeedMultipler } = stateRef.current;
+                    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+                    ctx.fillStyle = 'rgba(15, 23, 42, 0.4)';
+                    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+                    const clamp = (val, min, max) => Math.min(Math.max(val, min), max);
+                    let r = 148, g = 163, b = 184; 
+                    if (U > BASE_U) {
+                        const t = clamp((U - BASE_U) / 300, 0, 1);
+                        r = Math.round(148 + t * (248 - 148));
+                        g = Math.round(163 + t * (113 - 163));
+                        b = Math.round(184 + t * (113 - 184));
+                    } else {
+                        const t = clamp((BASE_U - U) / 150, 0, 1);
+                        r = Math.round(148 + t * (14 - 148));
+                        g = Math.round(163 + t * (165 - 163));
+                        b = Math.round(184 + t * (233 - 184));
+                    }
+                    const pColor = `rgb(${r}, ${g}, ${b})`;
+
+                    particlesRef.current.forEach(p => {
+                        let currentVx = p.vx * particleSpeedMultipler * BASE_SPEED;
+                        let currentVy = p.vy * particleSpeedMultipler * BASE_SPEED;
+                        p.x += currentVx;
+                        p.y += currentVy;
+
+                        if (p.x - p.radius <= 0) { p.x = p.radius + 1; p.vx *= -1; }
+                        if (p.x + p.radius >= canvasWidth) { p.x = canvasWidth - p.radius - 1; p.vx *= -1; }
+                        if (p.y + p.radius >= canvasHeight) { p.y = canvasHeight - p.radius - 1; p.vy *= -1; }
+                        if (p.y - p.radius <= pistonPixelHeight) { p.y = pistonPixelHeight + p.radius + 1; p.vy = Math.abs(p.vy); }
+
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                        ctx.fillStyle = pColor;
+                        ctx.fill();
+                    });
+
+                    ctx.fillStyle = '#475569';
+                    ctx.fillRect(0, pistonPixelHeight - 20, canvasWidth, 20);
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.fillRect(canvasWidth / 2 - 5, 0, 10, pistonPixelHeight - 20);
+
+                    ctx.strokeStyle = '#334155';
+                    ctx.lineWidth = 4;
+                    ctx.strokeRect(0, 0, canvasWidth, canvasHeight);
+
+                    if (hCtx) {
+                        hCtx.clearRect(0, 0, 220, 50);
+                        if (heatState === 'heating') {
+                            if (Math.random() > 0.1) {
+                                for (let i = 0; i < 4; i++) {
+                                    heatParticlesRef.current.push({
+                                        x: 110 + (Math.random() - 0.5) * 160,
+                                        y: 50, vx: (Math.random() - 0.5) * 1.5,
+                                        vy: -Math.random() * 3 - 2, life: 1.0, decay: 0.03, type: 'fire', size: 15
+                                    });
+                                }
+                            }
+                        } else if (heatState === 'cooling') {
+                            if (Math.random() > 0.1) {
+                                for (let i = 0; i < 4; i++) {
+                                    heatParticlesRef.current.push({
+                                        x: 110 + (Math.random() - 0.5) * 180,
+                                        y: 10, vx: (Math.random() - 0.5) * 2.5,
+                                        vy: 1.0, life: 1.0, decay: 0.02, type: 'ice', size: 12
+                                    });
+                                }
+                            }
+                        }
+                        hCtx.globalCompositeOperation = 'lighter';
+                        for (let i = heatParticlesRef.current.length - 1; i >= 0; i--) {
+                            let hp = heatParticlesRef.current[i];
+                            hp.x += hp.vx; hp.y += hp.vy; hp.life -= hp.decay;
+                            if (hp.life <= 0) { heatParticlesRef.current.splice(i, 1); continue; }
+                            hCtx.beginPath();
+                            hCtx.arc(hp.x, hp.y, Math.max(0.1, hp.size * hp.life), 0, Math.PI * 2);
+                            if (hp.type === 'fire') hCtx.fillStyle = `rgba(255, ${Math.floor(200 * hp.life)}, 0, ${hp.life * 0.6})`;
+                            else hCtx.fillStyle = `rgba(${100 + Math.floor(100 * hp.life)}, ${200 + Math.floor(55 * hp.life)}, 255, ${hp.life * 0.4})`;
+                            hCtx.fill();
+                        }
+                        hCtx.globalCompositeOperation = 'source-over';
+                    }
+                    animationRef.current = requestAnimationFrame(render);
+                };
+                animationRef.current = requestAnimationFrame(render);
+                return () => cancelAnimationFrame(animationRef.current);
+            }, []);
+
+            useEffect(() => {
+                let timer;
+                if (heatState !== 'neutral') {
+                    timer = setTimeout(() => setHeatState('neutral'), 1000);
+                }
+                return () => clearTimeout(timer);
+            }, [heatState]);
+
+            // Simulation Handlers
+            const addHeat = () => {
+                const amount = 50; setQ(prev => prev + amount); setU(prev => prev + amount); setHeatState('heating');
+            };
+            const removeHeat = () => {
+                const amount = 50; if (U - amount < 50) return;
+                setQ(prev => prev - amount); setU(prev => prev - amount); setHeatState('cooling');
+            };
+            const compressGas = () => {
+                if (pistonHeight >= 90) return;
+                const workAmount = 50; setW(prev => prev + workAmount); setU(prev => prev + workAmount); setPistonHeight(prev => prev + 15);
+            };
+            const expandGas = () => {
+                if (pistonHeight <= 10) return;
+                const workAmount = -50; if (U + workAmount < 50) return;
+                setW(prev => prev + workAmount); setU(prev => prev + workAmount); setPistonHeight(prev => prev - 15);
+            };
+            const resetSim = () => {
+                setU(BASE_U); setQ(0); setW(0); setPistonHeight(50); setHeatState('neutral');
+            };
+
+            // Assessment Handlers
+            const handleOptionSelect = (index) => {
+                if (showFeedback) return;
+                setSelectedOption(index);
+                setShowFeedback(true);
+            };
+
+            const nextChallenge = () => {
+                setSelectedOption(null);
+                setShowFeedback(false);
+                setCurrentChallenge((prev) => (prev + 1) % CHALLENGES.length);
+            };
+
+            const ChallengePanel = () => {
+                const challenge = CHALLENGES[currentChallenge];
+                const isCorrect = selectedOption === challenge.correctIndex;
+
+                return (
+                    <div className="glass rounded-xl p-3 flex flex-col h-full border border-blue-500/20">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-blue-400 font-black tracking-widest text-sm uppercase">Assessment Question</h3>
+                            <span className="text-slate-500 font-mono text-xs">0{currentChallenge + 1} / 0{CHALLENGES.length}</span>
+                        </div>
+                        
+                        <p className="text-slate-200 text-xs font-medium mb-3 leading-tight">
+                            {challenge.text}
+                        </p>
+
+                        <div className="space-y-1 mb-2">
+                            {challenge.options.map((opt, i) => {
+                                let bgColor = "bg-slate-800/40 border-slate-700 text-slate-300 hover:border-blue-500/50";
+                                if (showFeedback) {
+                                    if (i === challenge.correctIndex) bgColor = "bg-emerald-500/20 border-emerald-500 text-emerald-300";
+                                    else if (i === selectedOption) bgColor = "bg-rose-500/20 border-rose-500 text-rose-300";
+                                    else bgColor = "bg-slate-800/20 border-slate-800 text-slate-600";
+                                }
+
+                                return (
+                                    <button
+                                        key={opt}
+                                        onClick={() => handleOptionSelect(i)}
+                                        disabled={showFeedback}
+                                        className={`w-full text-left px-3 py-2 rounded-lg border transition-all text-xs font-semibold ${bgColor}`}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <span className="w-6 h-6 rounded-full bg-slate-900/50 flex items-center justify-center text-[10px] border border-white/5">
+                                                {String.fromCharCode(65 + i)}
+                                            </span>
+                                            {opt}
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                        {/* Feedback removed from here and moved to right column */}
+                    </div>
+                );
+            };
+
+            const cylinderBottomClass = 
+                heatState === 'heating' ? 'fire-glow transition-all duration-300' :
+                heatState === 'cooling' ? 'ice-glow transition-all duration-300' :
+                'border-b-4 border-slate-700 transition-all duration-1000';
+
+            return (
+                <div className="min-h-screen py-1 px-4 flex flex-col items-center">
+                    <div className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+                        
+                        {/* LEFT COLUMN: Status, Controls, and Assessment */}
+                        <div className="lg:col-span-7 flex flex-col gap-3">
+                            {/* Status Header & Fullscreen Row */}
+                            <div className="flex gap-2 items-stretch">
+                                {/* Fullscreen Recommended Button */}
+                                <button 
+                                    onClick={toggleFullscreen}
+                                    className={`w-24 group glass rounded-xl p-2 flex flex-col items-center justify-center gap-2 border transition-all ${
+                                        isFullscreen 
+                                        ? 'border-emerald-500/50 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400' 
+                                        : 'border-blue-500/30 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 hover:border-blue-400'
+                                    }`}
+                                >
+                                    <svg className="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        {isFullscreen ? (
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                        ) : (
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                                        )}
+                                    </svg>
+                                    <div className="text-center">
+                                        <div className="text-[9px] font-black uppercase tracking-widest">{isFullscreen ? 'Exit' : 'Enter'}</div>
+                                        <div className="text-[8px] text-slate-400 font-medium leading-tight mt-0.5">{isFullscreen ? 'Fullscreen' : 'Fullscreen (Rec.)'}</div>
+                                    </div>
+                                </button>
+
+                                {/* Equation Dashboard (Status) - Flex to fill */}
+                                <div className="flex-1 glass rounded-xl p-3 relative overflow-hidden group">
+                                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-600 opacity-20 group-hover:opacity-30 blur transition duration-500"></div>
+                                    <div className="relative">
+                                        <h2 className="text-center text-slate-400 text-[10px] uppercase tracking-widest font-bold mb-3">Live Thermodynamics Status</h2>
+                                        <div className="flex justify-center items-center gap-6 text-2xl md:text-3xl font-black font-mono">
+                                            <div className="flex flex-col items-center">
+                                                <span className="text-blue-400 text-[10px] mb-1">ΔU</span>
+                                                <span className="text-white">{U - BASE_U} J</span>
+                                            </div>
+                                            <span className="text-slate-600">=</span>
+                                            <div className="flex flex-col items-center">
+                                                <span className="text-rose-400 text-[10px] mb-1">Q</span>
+                                                <span className="text-white">{Q} J</span>
+                                            </div>
+                                            <span className="text-slate-600">+</span>
+                                            <div className="flex flex-col items-center">
+                                                <span className="text-emerald-400 text-[10px] mb-1">W</span>
+                                                <span className="text-white">{W} J</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Controls Grid - Extra Shrunk */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                <div className="glass rounded-lg p-2">
+                                    <h3 className="text-rose-400 text-[10px] font-bold mb-1 uppercase tracking-widest flex items-center gap-1">🔥 Heat</h3>
+                                    <div className="space-y-1">
+                                        <button onClick={addHeat} className="w-full py-1.5 rounded-md bg-rose-500/10 border border-rose-500/30 text-rose-300 text-[10px] font-bold transition-all hover:bg-rose-500 hover:text-white">Add (+50 J)</button>
+                                        <button onClick={removeHeat} className="w-full py-1.5 rounded-md bg-sky-500/10 border border-sky-500/30 text-sky-300 text-[10px] font-bold transition-all hover:bg-sky-500 hover:text-white">Remove (-50 J)</button>
+                                    </div>
+                                </div>
+                                <div className="glass rounded-lg p-2">
+                                    <h3 className="text-amber-400 text-[10px] font-bold mb-1 uppercase tracking-widest flex items-center gap-1">⚙️ Work</h3>
+                                    <div className="space-y-1">
+                                        <button onClick={compressGas} className="w-full py-1.5 rounded-md bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[10px] font-bold transition-all hover:bg-amber-500 hover:text-white">Compress (+50 J)</button>
+                                        <button onClick={expandGas} className="w-full py-1.5 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[10px] font-bold transition-all hover:bg-emerald-500 hover:text-white">Expand (-50 J)</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button onClick={resetSim} className="text-slate-600 hover:text-slate-400 text-[9px] font-bold uppercase tracking-widest py-1 transition-colors self-center">Reset Simulator</button>
+
+                            {/* Assessment Question Panel */}
+                            <div className="w-full">
+                                <ChallengePanel />
+                            </div>
+                        </div>
+
+                        <div className="lg:col-span-5 flex flex-col gap-3">
+                            
+                            {/* Header (Aligned Right) - Extra Shrunk */}
+                            <header className="flex flex-col items-end text-right">
+                                <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-purple-900/40 border border-purple-500/30 text-purple-400 text-[9px] font-bold tracking-widest uppercase mb-1 shadow-[0_0_15px_rgba(168,85,247,0.15)]">
+                                    Thermodynamics Assessment
+                                </div>
+                                <h1 className="text-xl font-black tracking-tight text-white">
+                                    Interactive <span className="gradient-text">Lab Quiz</span>
+                                </h1>
+                                <p className="text-slate-500 text-[9px] font-medium leading-tight">Explore thermodynamics and answer the questions below.</p>
+                            </header>
+
+                            {/* Piston Simulation & Readouts */}
+                            <div className="flex flex-col items-center gap-8">
+                                <div className="flex items-start gap-8">
+                                    {/* Piston Cylinder - Refined Proportions */}
+                                    <div className="flex flex-col items-center origin-top">
+                                        <div className={`relative p-2 rounded-2xl bg-slate-800 border-x-4 border-slate-700 shadow-2xl z-10 ${cylinderBottomClass}`}>
+                                            <canvas ref={canvasRef} width={200} height={250} className="block bg-slate-900 rounded-lg shadow-inner"></canvas>
+                                        </div>
+                                        <div className="relative w-[220px] h-[50px] -mt-2 z-0 pointer-events-none">
+                                            <canvas ref={heatCanvasRef} width={220} height={50} className="block w-full h-full"></canvas>
+                                        </div>
+                                    </div>
+
+                                    {/* Readouts Stack - Compact */}
+                                    <div className="flex flex-col gap-2 w-[140px] origin-top">
+                                        <div className="glass px-4 py-3 rounded-xl border border-slate-700 shadow-xl">
+                                            <div className="text-[9px] text-slate-400 font-bold uppercase mb-1">Energy (U)</div>
+                                            <div className="text-blue-400 font-mono text-xl font-bold">{U} J</div>
+                                        </div>
+                                        <div className="glass p-2 rounded-xl border border-slate-700 shadow-xl flex flex-col items-center">
+                                            <AnalogPressureGauge pressure={pressure} />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Feedback Panel (Relocated to Right Column) */}
+                            {showFeedback && (
+                                <div className={`glass rounded-xl p-3 border animate-in fade-in slide-in-from-right-2 duration-300 ${
+                                    selectedOption === CHALLENGES[currentChallenge].correctIndex 
+                                    ? 'bg-emerald-500/5 border-emerald-500/30' 
+                                    : 'bg-rose-500/5 border-rose-500/30'
+                                }`}>
+                                    <div className="flex items-center justify-between mb-2">
+                                        <div className={`font-black uppercase text-[10px] tracking-widest ${
+                                            selectedOption === CHALLENGES[currentChallenge].correctIndex ? 'text-emerald-400' : 'text-rose-400'
+                                        }`}>
+                                            {selectedOption === CHALLENGES[currentChallenge].correctIndex ? "✓ Correct" : "✗ Incorrect"}
+                                        </div>
+                                    </div>
+                                    <p className="text-[10px] text-slate-300 leading-tight mb-3 italic">
+                                        {CHALLENGES[currentChallenge].explanation}
+                                    </p>
+                                    <button 
+                                        onClick={nextChallenge}
+                                        className="w-full py-1.5 rounded-md bg-blue-500 text-white font-bold text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-colors"
+                                    >
+                                        Next Question
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById("root"));
+        root.render(<App />);
+    </script>
+</body>
+</html>
