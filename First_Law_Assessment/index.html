@@ -60,9 +60,18 @@
         }
 
         @keyframes pulse-value {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); color: #fff; }
-            100% { transform: scale(1); }
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+                color: #fff;
+            }
+
+            100% {
+                transform: scale(1);
+            }
         }
 
         .value-change {
@@ -71,6 +80,24 @@
 
         canvas {
             display: block;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(96, 165, 250, 0.2);
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(96, 165, 250, 0.4);
         }
     </style>
 </head>
@@ -101,7 +128,7 @@
                             <circle cx="50" cy="50" r="45" fill="#0f172a" stroke="#334155" strokeWidth="2" />
                             {/* Gradient Arc */}
                             <path d="M 18.2 81.8 A 45 45 0 1 1 81.8 81.8" fill="none" stroke="url(#pressureGradient)" strokeWidth="8" strokeLinecap="round" />
-                            
+
                             {/* Ticks */}
                             {[0, 1, 2, 3, 4].map(tick => {
                                 const tickAngle = -135 + (tick / 4) * 270;
@@ -135,23 +162,158 @@
         };
 
         const CHALLENGES = [
+            // Level 1: Simulation Proficiency
             {
-                text: "Scenario: You add 50J of Heat (+Q) and prevent the gas from moving (Work = 0). What is the change in Internal Energy (ΔU)?",
-                options: ["0 J", "+50 J", "-50 J", "+100 J"],
-                correctIndex: 1,
-                explanation: "Since ΔU = Q + W, and Work is 0, the change in energy equals the heat added: +50J + 0J = +50J."
-            },
-            {
-                text: "Scenario: You compress the gas (+50J Work) while simultaneously removing 50J of Heat (-Q). What happens to ΔU?",
-                options: ["Increases by 100J", "Decreases by 100J", "Remains at 0J", "Increases by 50J"],
+                type: "multiple-choice",
+                text: "1. You click THE 'Add Heat' button twice (+100 J). If the piston does not move (Work = 0), what should the Internal Energy change (ΔU) read?",
+                options: ["0 J", "+50 J", "+100 J", "-100 J"],
                 correctIndex: 2,
-                explanation: "Here, Q = -50 and W = +50. Thus, ΔU = -50 + 50 = 0J. The energy added by work is exactly cancelled by the heat removed."
+                explanation: "ΔU = Q + W. If Q = 100 and W = 0, then ΔU = 100 J."
             },
             {
-                text: "Scenario: The gas expands (-50J Work) and you add 100J of Heat. What is the final ΔU?",
-                options: ["+50 J", "+150 J", "0 J", "-50 J"],
+                type: "true-false",
+                text: "2. Compressing the gas (clicking the 'Compress' button) results in a positive Work (+W) value on the dashboard.",
+                options: ["True", "False"],
                 correctIndex: 0,
-                explanation: "ΔU = Q + W. If Q = +100 and W = -50, then ΔU = 100 - 50 = +50J."
+                explanation: "Work is positive (+) when work is done ON the system by compressing it."
+            },
+            {
+                type: "multiple-choice",
+                text: "3. What happens to the 'Internal Energy (U)' readout when you click the 'Remove Heat' button?",
+                options: ["It increases", "It decreases", "It stays the same", "It fluctuates randomly"],
+                correctIndex: 1,
+                explanation: "Removing heat lowers the internal energy of the system."
+            },
+            {
+                type: "multiple-choice",
+                text: "4. When the gas is allowed to 'Expand,' what is the sign of the Work (W) shown on the dashboard?",
+                options: ["Positive (+)", "Negative (-)", "Neutral (0)"],
+                correctIndex: 1,
+                explanation: "Expansion means the gas is doing work on the surroundings, which we define as negative work (-W)."
+            },
+            {
+                type: "numerical",
+                text: "5. If you click 'Add Heat' (+50 J) and then 'Compress' (+50 J), what is the total change in Internal Energy (ΔU) in Joules?",
+                options: ["0", "50", "100", "-100"],
+                correctIndex: 2,
+                explanation: "ΔU = 50 (Q) + 50 (W) = 100 J."
+            },
+            {
+                type: "matching",
+                text: "6. Match the action to the sign convention:",
+                pairs: [
+                    { left: "Adding Heat", right: "+Q" },
+                    { left: "Removing Heat", right: "-Q" },
+                    { left: "Compressing", right: "+W" },
+                    { left: "Expanding", right: "-W" }
+                ],
+                correctIndex: 0,
+                explanation: "Heat added (+Q), Heat removed (-Q), Compression (+W), Expansion (-W)."
+            },
+            // Level 2: Problem Solving
+            {
+                type: "multiple-choice",
+                text: "7. A student adds 200J of heat. To keep the Internal Energy change (ΔU) at exactly 100J, what must the gas do?",
+                options: ["Expand (-100J Work)", "Compress (+100J Work)", "Expand (-300J Work)", "Nothing (W = 0)"],
+                correctIndex: 0,
+                explanation: "100 (ΔU) = 200 (Q) + W. Solving for W gives -100 J (Expansion)."
+            },
+            {
+                type: "numerical",
+                text: "8. The dashboard shows ΔU = -50 J and Q = -150 J. What is the value of W in Joules?",
+                options: ["+100", "-100", "+200", "-200"],
+                correctIndex: 0,
+                explanation: "-50 = -150 + W. Adding 150 to both sides gives W = 100 J."
+            },
+            {
+                type: "true-false",
+                text: "9. If a process is 'Adiabatic' (meaning Q = 0), then any work done on the gas will be equal to the total change in internal energy.",
+                options: ["True", "False"],
+                correctIndex: 0,
+                explanation: "In an adiabatic process (Q=0), all internal energy change comes from work: ΔU = W."
+            },
+            {
+                type: "numerical",
+                text: "10. In an isothermal process (ΔU = 0), if 75 J of heat is added (+Q), how much work (W) must the gas perform in Joules?",
+                options: ["+75", "0", "-75", "-150"],
+                correctIndex: 2,
+                explanation: "0 = 75 + W, so W = -75 J."
+            },
+            {
+                type: "multiple-choice",
+                text: "11. You observe the particle speed increasing significantly. This visual change corresponds to:",
+                options: ["A decrease in ΔU", "An increase in ΔU", "Work being done by the gas", "System at absolute zero"],
+                correctIndex: 1,
+                explanation: "Internal energy is directly related to the kinetic energy (speed) of the particles."
+            },
+            {
+                type: "numerical",
+                text: "12. If Q = +500 J and W = -500 J, what is the resulting change in internal energy (ΔU) in Joules?",
+                options: ["+1000", "-1000", "0", "+500"],
+                correctIndex: 2,
+                explanation: "500 + (-500) = 0 J."
+            },
+            {
+                type: "numerical",
+                text: "13. The piston is compressed with 120 J of work (+W). 40 J of heat is lost to the environment (-Q). What is the final ΔU in Joules?",
+                options: ["160", "120", "80", "40"],
+                correctIndex: 2,
+                explanation: "ΔU = 120 (W) - 40 (Q) = 80 J."
+            },
+            // Level 3: Application & Extension
+            {
+                type: "multiple-choice",
+                text: "14. Bicycle Pump: Rapidly pumping air makes the pump hot. If Q ≈ 0 and you do work on the gas (+W), what happens to U?",
+                options: ["U decreases (cools)", "U increases (heats up)", "U stays the same", "Pressure drops"],
+                correctIndex: 1,
+                explanation: "For a quick stroke (Q ≈ 0), +W leads to +ΔU, raising the temperature."
+            },
+            {
+                type: "multiple-choice",
+                text: "15. Aerosol Can: Spraying a can makes it feel cold because the gas expands (-W). If Q ≈ 0, why does it cool down?",
+                options: ["Energy is added to can", "Work is done BY the gas, pulling from U", "The can is absorbing heat", "The gas molecules stopped"],
+                correctIndex: 1,
+                explanation: "ΔU = 0 + (-W). ΔU is negative, so temperature drops."
+            },
+            {
+                type: "true-false",
+                text: "16. In a 'Heat Engine,' heat is added (+Q) to do useful work (-W). It is impossible for a heat engine to convert 100% of added heat into work.",
+                options: ["True", "False"],
+                correctIndex: 0,
+                explanation: "While energy is conserved (1st Law), the 2nd Law states you must always exhaust some waste heat."
+            },
+            {
+                type: "numerical",
+                text: "17. A miniature steam engine takes in 1000 J of heat and produces 300 J of work. How much 'waste heat' is exhausted in Joules?",
+                options: ["1300", "700", "300", "1000"],
+                correctIndex: 1,
+                explanation: "1000 total in = 300 out to work + 700 out as exhaust heat."
+            },
+            {
+                type: "multiple-choice",
+                text: "18. Which of these is an example of an 'Isochoric' process (where Work = 0)?",
+                options: ["Balloon in the sun", "Heating a rigid steel tank", "Moving car piston", "Squeezing a sponge"],
+                correctIndex: 1,
+                explanation: "Isochoric means 'constant volume,' so the gas cannot expand or compress to do work."
+            },
+            {
+                type: "matching",
+                text: "19. Car Engine: Match the part of a car engine stroke to the energy change:",
+                pairs: [
+                    { left: "Compression", right: "+W" },
+                    { left: "Power stroke", right: "+Q" },
+                    { left: "Exhaust", right: "-Q" },
+                    { left: "Expansion work", right: "-W" }
+                ],
+                correctIndex: 0,
+                explanation: "Compression (+W), Power stroke explosion (+Q), Exhaust (-Q), Expansion work output (-W)."
+            },
+            {
+                type: "multiple-choice",
+                text: "20. Challenge: If you want to increase Pressure as much as possible with only TWO clicks, which is best?",
+                options: ["Add Heat + Expand", "Add Heat + Compress", "Remove Heat + Compress", "Remove Heat + Expand"],
+                correctIndex: 1,
+                explanation: "Pressure increases both when temperature (Heat) rises and when volume (Compression) decreases."
             }
         ];
 
@@ -169,6 +331,11 @@
             const [currentChallenge, setCurrentChallenge] = useState(0);
             const [selectedOption, setSelectedOption] = useState(null);
             const [showFeedback, setShowFeedback] = useState(false);
+            
+            // Matching Specific State
+            const [selectedMatch, setSelectedMatch] = useState({ side: null, id: null });
+            const [matches, setMatches] = useState({}); // { leftId: rightId }
+            const [shuffledRight, setShuffledRight] = useState([]);
 
             const canvasRef = useRef(null);
             const heatCanvasRef = useRef(null); // External heat source
@@ -176,6 +343,15 @@
             const heatParticlesRef = useRef([]); // Fire/Ice particles
             const animationRef = useRef(null);
             const [isFullscreen, setIsFullscreen] = useState(false);
+
+            // Shuffler for Matching
+            useEffect(() => {
+                const challenge = CHALLENGES[currentChallenge];
+                if (challenge.type === 'matching') {
+                    const rightItems = challenge.pairs.map((p, i) => ({ text: p.right, id: i }));
+                    setShuffledRight([...rightItems].sort(() => Math.random() - 0.5));
+                }
+            }, [currentChallenge]);
 
             // Fullscreen listener
             useEffect(() => {
@@ -246,7 +422,7 @@
                     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
                     const clamp = (val, min, max) => Math.min(Math.max(val, min), max);
-                    let r = 148, g = 163, b = 184; 
+                    let r = 148, g = 163, b = 184;
                     if (U > BASE_U) {
                         const t = clamp((U - BASE_U) / 300, 0, 1);
                         r = Math.round(148 + t * (248 - 148));
@@ -364,79 +540,211 @@
                 setShowFeedback(true);
             };
 
+            const handleMatchingSelect = (side, id) => {
+                if (showFeedback) return;
+                if (selectedMatch.side === side) {
+                    setSelectedMatch({ side, id }); // Re-select on same side
+                    return;
+                }
+                if (!selectedMatch.side) {
+                    setSelectedMatch({ side, id });
+                    return;
+                }
+                
+                // Pair them up
+                const leftId = side === 'left' ? id : selectedMatch.id;
+                const rightId = side === 'right' ? id : selectedMatch.id;
+                
+                setMatches(prev => ({ ...prev, [leftId]: rightId }));
+                setSelectedMatch({ side: null, id: null });
+            };
+
             const nextChallenge = () => {
                 setSelectedOption(null);
                 setShowFeedback(false);
+                setMatches({});
+                setSelectedMatch({ side: null, id: null });
                 setCurrentChallenge((prev) => (prev + 1) % CHALLENGES.length);
+            };
+
+            const checkMatching = () => {
+                const challenge = CHALLENGES[currentChallenge];
+                let allCorrect = true;
+                const matchCount = Object.keys(matches).length;
+                if (matchCount < challenge.pairs.length) return;
+
+                Object.entries(matches).forEach(([leftId, rightId]) => {
+                    if (parseInt(leftId) !== rightId) allCorrect = false;
+                });
+                
+                setSelectedOption(allCorrect ? 0 : 1); // Mock selectedOption for feedback logic
+                setShowFeedback(true);
             };
 
             const ChallengePanel = () => {
                 const challenge = CHALLENGES[currentChallenge];
                 const isCorrect = selectedOption === challenge.correctIndex;
 
+                const getBadgeColor = (type) => {
+                    switch (type) {
+                        case 'true-false': return 'text-amber-400 bg-amber-400/10 border-amber-400/20';
+                        case 'matching': return 'text-purple-400 bg-purple-400/10 border-purple-400/20';
+                        case 'numerical': return 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20';
+                        default: return 'text-blue-400 bg-blue-400/10 border-blue-400/20';
+                    }
+                };
+
                 return (
-                    <div className="glass rounded-xl p-3 flex flex-col h-full border border-blue-500/20">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-blue-400 font-black tracking-widest text-sm uppercase">Assessment Question</h3>
-                            <span className="text-slate-500 font-mono text-xs">0{currentChallenge + 1} / 0{CHALLENGES.length}</span>
+                    <div className="glass rounded-xl p-4 flex flex-col h-[400px] border border-blue-500/20 shadow-2xl relative overflow-hidden">
+                        <div className="flex justify-between items-center mb-4 flex-shrink-0">
+                            <div className="flex items-center gap-3">
+                                <h3 className="text-blue-400 font-black tracking-widest text-xs uppercase flex items-center gap-2">
+                                    <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                                    Assessment
+                                </h3>
+                                <span className={`text-[9px] px-2 py-0.5 rounded border uppercase font-bold ${getBadgeColor(challenge.type)}`}>
+                                    {challenge.type.replace('-', ' ')}
+                                </span>
+                            </div>
+                            <span className="text-slate-500 font-mono text-[10px] bg-slate-900/50 px-2 py-0.5 rounded border border-white/5">
+                                {currentChallenge + 1} OF {CHALLENGES.length}
+                            </span>
                         </div>
-                        
-                        <p className="text-slate-200 text-xs font-medium mb-3 leading-tight">
-                            {challenge.text}
-                        </p>
 
-                        <div className="space-y-1 mb-2">
-                            {challenge.options.map((opt, i) => {
-                                let bgColor = "bg-slate-800/40 border-slate-700 text-slate-300 hover:border-blue-500/50";
-                                if (showFeedback) {
-                                    if (i === challenge.correctIndex) bgColor = "bg-emerald-500/20 border-emerald-500 text-emerald-300";
-                                    else if (i === selectedOption) bgColor = "bg-rose-500/20 border-rose-500 text-rose-300";
-                                    else bgColor = "bg-slate-800/20 border-slate-800 text-slate-600";
-                                }
+                        <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar">
+                            <p className="text-slate-200 text-sm font-medium mb-4 leading-relaxed border-l-2 border-blue-500/30 pl-3">
+                                {challenge.text}
+                            </p>
+                            {challenge.type !== 'matching' && (
+                                <div className={`${challenge.type === 'true-false' ? 'grid grid-cols-2 gap-3' : 'space-y-2'} mb-4`}>
+                                    {challenge.options?.map((opt, i) => {
+                                        let bgColor = "bg-slate-800/40 border-slate-700 text-slate-300 hover:border-blue-500/50 hover:bg-slate-800/60";
+                                        if (showFeedback) {
+                                            if (i === challenge.correctIndex) bgColor = "bg-emerald-500/20 border-emerald-500 text-emerald-300";
+                                            else if (i === selectedOption) bgColor = "bg-rose-500/20 border-rose-500 text-rose-300";
+                                            else bgColor = "bg-slate-800/20 border-slate-800 text-slate-600";
+                                        }
 
-                                return (
-                                    <button
-                                        key={opt}
-                                        onClick={() => handleOptionSelect(i)}
-                                        disabled={showFeedback}
-                                        className={`w-full text-left px-3 py-2 rounded-lg border transition-all text-xs font-semibold ${bgColor}`}
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <span className="w-6 h-6 rounded-full bg-slate-900/50 flex items-center justify-center text-[10px] border border-white/5">
-                                                {String.fromCharCode(65 + i)}
-                                            </span>
-                                            {opt}
+                                        return (
+                                            <button
+                                                key={opt}
+                                                onClick={() => handleOptionSelect(i)}
+                                                disabled={showFeedback}
+                                                className={`w-full text-left px-4 py-3 rounded-xl border transition-all text-xs font-semibold group ${bgColor} shadow-sm flex items-center gap-3`}
+                                            >
+                                                <span className="w-7 h-7 flex-shrink-0 rounded-lg bg-slate-900/50 flex items-center justify-center text-[11px] border border-white/5 group-hover:border-blue-500/30 transition-colors">
+                                                    {challenge.type === 'true-false' ? (i === 0 ? 'T' : 'F') : String.fromCharCode(65 + i)}
+                                                </span>
+                                                <span className="flex-1 leading-tight">{opt}</span>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            )}
+
+                            {challenge.type === 'matching' && (
+                                <div className="flex flex-col gap-4">
+                                    <div className="flex gap-4 items-start">
+                                        {/* Left Side (Terms) */}
+                                        <div className="flex-1 flex flex-col gap-2">
+                                            {challenge.pairs.map((p, i) => {
+                                                const isSelected = selectedMatch.side === 'left' && selectedMatch.id === i;
+                                                const isMatched = matches[i] !== undefined;
+                                                return (
+                                                    <button
+                                                        key={i}
+                                                        onClick={() => handleMatchingSelect('left', i)}
+                                                        disabled={showFeedback || isMatched}
+                                                        className={`p-2 text-[10px] font-bold rounded-lg border transition-all h-12 flex items-center justify-center text-center
+                                                            ${isSelected ? 'bg-blue-500 border-blue-400 text-white shadow-[0_0_10px_rgba(59,130,246,0.5)]' : 
+                                                              isMatched ? 'bg-slate-700/30 border-slate-600 text-slate-500' :
+                                                              'bg-slate-800/60 border-slate-700 text-slate-300 hover:border-blue-500/50'}`}
+                                                    >
+                                                        {p.left}
+                                                    </button>
+                                                );
+                                            })}
                                         </div>
-                                    </button>
-                                );
-                            })}
+
+                                        {/* Connector SVG Area */}
+                                        <div className="w-12 h-[200px] relative pointer-events-none">
+                                            <svg className="w-full h-full">
+                                                {Object.entries(matches).map(([lId, rId], idx) => {
+                                                    const rIndex = shuffledRight.findIndex(item => item.id === rId);
+                                                    const y1 = 24 + parseInt(lId) * 48; // Center of left box (h-12 is 48px)
+                                                    const y2 = 24 + rIndex * 48;
+                                                    return (
+                                                        <line key={idx} x1="0" y1={y1} x2="100%" y2={y2} 
+                                                            stroke={showFeedback ? (parseInt(lId) === rId ? '#10b981' : '#f43f5e') : '#60a5fa'} 
+                                                            strokeWidth="2" strokeDasharray="4" opacity="0.6" />
+                                                    );
+                                                })}
+                                            </svg>
+                                        </div>
+
+                                        {/* Right Side (Definitions) */}
+                                        <div className="flex-1 flex flex-col gap-2">
+                                            {shuffledRight.map((item, idx) => {
+                                                const isSelected = selectedMatch.side === 'right' && selectedMatch.id === item.id;
+                                                const isMatched = Object.values(matches).includes(item.id);
+                                                return (
+                                                    <button
+                                                        key={idx}
+                                                        onClick={() => handleMatchingSelect('right', item.id)}
+                                                        disabled={showFeedback || isMatched}
+                                                        className={`p-2 text-[10px] font-bold rounded-lg border transition-all h-12 flex items-center justify-center text-center
+                                                            ${isSelected ? 'bg-blue-500 border-blue-400 text-white shadow-[0_0_10px_rgba(59,130,246,0.5)]' : 
+                                                              isMatched ? 'bg-slate-700/30 border-slate-600 text-slate-500' :
+                                                              'bg-slate-800/60 border-slate-700 text-slate-300 hover:border-blue-500/50'}`}
+                                                    >
+                                                        {item.text}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                    
+                                    {!showFeedback && (
+                                        <button 
+                                            onClick={checkMatching}
+                                            disabled={Object.keys(matches).length < challenge.pairs.length}
+                                            className={`w-full py-2 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all
+                                                ${Object.keys(matches).length < challenge.pairs.length 
+                                                    ? 'bg-slate-800 text-slate-600 border border-slate-700 cursor-not-allowed' 
+                                                    : 'bg-emerald-500 hover:bg-emerald-400 text-white shadow-lg shadow-emerald-500/20'}`}
+                                        >
+                                            Check Answer
+                                        </button>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Feedback placeholder removed from here - moved to right column */}
                         </div>
-                        {/* Feedback removed from here and moved to right column */}
                     </div>
                 );
             };
 
-            const cylinderBottomClass = 
+            const cylinderBottomClass =
                 heatState === 'heating' ? 'fire-glow transition-all duration-300' :
-                heatState === 'cooling' ? 'ice-glow transition-all duration-300' :
-                'border-b-4 border-slate-700 transition-all duration-1000';
+                    heatState === 'cooling' ? 'ice-glow transition-all duration-300' :
+                        'border-b-4 border-slate-700 transition-all duration-1000';
 
             return (
                 <div className="min-h-screen py-1 px-4 flex flex-col items-center">
                     <div className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-                        
+
                         {/* LEFT COLUMN: Status, Controls, and Assessment */}
                         <div className="lg:col-span-7 flex flex-col gap-3">
                             {/* Status Header & Fullscreen Row */}
                             <div className="flex gap-2 items-stretch">
                                 {/* Fullscreen Recommended Button */}
-                                <button 
+                                <button
                                     onClick={toggleFullscreen}
-                                    className={`w-24 group glass rounded-xl p-2 flex flex-col items-center justify-center gap-2 border transition-all ${
-                                        isFullscreen 
-                                        ? 'border-emerald-500/50 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400' 
-                                        : 'border-blue-500/30 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 hover:border-blue-400'
-                                    }`}
+                                    className={`w-24 group glass rounded-xl p-2 flex flex-col items-center justify-center gap-2 border transition-all ${isFullscreen
+                                            ? 'border-emerald-500/50 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400'
+                                            : 'border-blue-500/30 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 hover:border-blue-400'
+                                        }`}
                                 >
                                     <svg className="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         {isFullscreen ? (
@@ -458,17 +766,17 @@
                                         <h2 className="text-center text-slate-400 text-[10px] uppercase tracking-widest font-bold mb-3">Live Thermodynamics Status</h2>
                                         <div className="flex justify-center items-center gap-6 text-2xl md:text-3xl font-black font-mono">
                                             <div className="flex flex-col items-center">
-                                                <span className="text-blue-400 text-[10px] mb-1">ΔU</span>
+                                                <span className="text-blue-400 text-[18px] mb-1">ΔU</span>
                                                 <span className="text-white">{U - BASE_U} J</span>
                                             </div>
                                             <span className="text-slate-600">=</span>
                                             <div className="flex flex-col items-center">
-                                                <span className="text-rose-400 text-[10px] mb-1">Q</span>
+                                                <span className="text-rose-400 text-[18px] mb-1">Q</span>
                                                 <span className="text-white">{Q} J</span>
                                             </div>
                                             <span className="text-slate-600">+</span>
                                             <div className="flex flex-col items-center">
-                                                <span className="text-emerald-400 text-[10px] mb-1">W</span>
+                                                <span className="text-emerald-400 text-[18px] mb-1">W</span>
                                                 <span className="text-white">{W} J</span>
                                             </div>
                                         </div>
@@ -476,25 +784,48 @@
                                 </div>
                             </div>
 
-                            {/* Controls Grid - Extra Shrunk */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                <div className="glass rounded-lg p-2">
-                                    <h3 className="text-rose-400 text-[10px] font-bold mb-1 uppercase tracking-widest flex items-center gap-1">🔥 Heat</h3>
-                                    <div className="space-y-1">
-                                        <button onClick={addHeat} className="w-full py-1.5 rounded-md bg-rose-500/10 border border-rose-500/30 text-rose-300 text-[10px] font-bold transition-all hover:bg-rose-500 hover:text-white">Add (+50 J)</button>
-                                        <button onClick={removeHeat} className="w-full py-1.5 rounded-md bg-sky-500/10 border border-sky-500/30 text-sky-300 text-[10px] font-bold transition-all hover:bg-sky-500 hover:text-white">Remove (-50 J)</button>
+                            {/* Controls Grid - Redesigned for Readability */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                {/* Heat Group */}
+                                <div className="glass rounded-xl p-3 border border-rose-500/10">
+                                    <h3 className="text-rose-400 text-[11px] font-black mb-2 uppercase tracking-widest flex items-center gap-2">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.6)]"></span>
+                                        Heat Energy
+                                    </h3>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <button onClick={addHeat} className="flex flex-col items-center justify-center gap-1 h-20 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 transition-all hover:bg-rose-500 hover:text-white hover:scale-[1.02] active:scale-95 group">
+                                            <span className="text-[10px] font-bold uppercase tracking-tighter opacity-60 group-hover:opacity-100">Add</span>
+                                            <span className="text-lg font-black">+50 J</span>
+                                        </button>
+                                        <button onClick={removeHeat} className="flex flex-col items-center justify-center gap-1 h-20 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-300 transition-all hover:bg-sky-500 hover:text-white hover:scale-[1.02] active:scale-95 group">
+                                            <span className="text-[10px] font-bold uppercase tracking-tighter opacity-60 group-hover:opacity-100">Remove</span>
+                                            <span className="text-lg font-black">-50 J</span>
+                                        </button>
                                     </div>
                                 </div>
-                                <div className="glass rounded-lg p-2">
-                                    <h3 className="text-amber-400 text-[10px] font-bold mb-1 uppercase tracking-widest flex items-center gap-1">⚙️ Work</h3>
-                                    <div className="space-y-1">
-                                        <button onClick={compressGas} className="w-full py-1.5 rounded-md bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[10px] font-bold transition-all hover:bg-amber-500 hover:text-white">Compress (+50 J)</button>
-                                        <button onClick={expandGas} className="w-full py-1.5 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[10px] font-bold transition-all hover:bg-emerald-500 hover:text-white">Expand (-50 J)</button>
+                                {/* Work Group */}
+                                <div className="glass rounded-xl p-3 border border-amber-500/10">
+                                    <h3 className="text-amber-400 text-[11px] font-black mb-2 uppercase tracking-widest flex items-center gap-2">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)]"></span>
+                                        Mechanical Work
+                                    </h3>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <button onClick={compressGas} className="flex flex-col items-center justify-center gap-1 h-20 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 transition-all hover:bg-amber-500 hover:text-white hover:scale-[1.02] active:scale-95 group">
+                                            <span className="text-[10px] font-bold uppercase tracking-tighter opacity-60 group-hover:opacity-100">Compress</span>
+                                            <span className="text-lg font-black">+50 J</span>
+                                        </button>
+                                        <button onClick={expandGas} className="flex flex-col items-center justify-center gap-1 h-20 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 transition-all hover:bg-emerald-500 hover:text-white hover:scale-[1.02] active:scale-95 group">
+                                            <span className="text-[10px] font-bold uppercase tracking-tighter opacity-60 group-hover:opacity-100">Expand</span>
+                                            <span className="text-lg font-black">-50 J</span>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
 
-                            <button onClick={resetSim} className="text-slate-600 hover:text-slate-400 text-[9px] font-bold uppercase tracking-widest py-1 transition-colors self-center">Reset Simulator</button>
+                            <button onClick={resetSim} className="text-slate-500 hover:text-rose-400 text-[10px] font-black uppercase tracking-[0.2em] py-2 transition-all self-center flex items-center gap-2 group">
+                                <svg className="w-3 h-3 group-hover:rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                                Reset Simulation
+                            </button>
 
                             {/* Assessment Question Panel */}
                             <div className="w-full">
@@ -503,7 +834,7 @@
                         </div>
 
                         <div className="lg:col-span-5 flex flex-col gap-3">
-                            
+
                             {/* Header (Aligned Right) - Extra Shrunk */}
                             <header className="flex flex-col items-end text-right">
                                 <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-purple-900/40 border border-purple-500/30 text-purple-400 text-[9px] font-bold tracking-widest uppercase mb-1 shadow-[0_0_15px_rgba(168,85,247,0.15)]">
@@ -531,7 +862,7 @@
                                     {/* Readouts Stack - Compact */}
                                     <div className="flex flex-col gap-2 w-[140px] origin-top">
                                         <div className="glass px-4 py-3 rounded-xl border border-slate-700 shadow-xl">
-                                            <div className="text-[9px] text-slate-400 font-bold uppercase mb-1">Energy (U)</div>
+                                            <div className="text-[9px] text-slate-400 font-bold uppercase mb-1">Internal Energy (U)</div>
                                             <div className="text-blue-400 font-mono text-xl font-bold">{U} J</div>
                                         </div>
                                         <div className="glass p-2 rounded-xl border border-slate-700 shadow-xl flex flex-col items-center">
@@ -543,22 +874,20 @@
 
                             {/* Feedback Panel (Relocated to Right Column) */}
                             {showFeedback && (
-                                <div className={`glass rounded-xl p-3 border animate-in fade-in slide-in-from-right-2 duration-300 ${
-                                    selectedOption === CHALLENGES[currentChallenge].correctIndex 
-                                    ? 'bg-emerald-500/5 border-emerald-500/30' 
-                                    : 'bg-rose-500/5 border-rose-500/30'
-                                }`}>
+                                <div className={`glass rounded-xl p-3 border animate-in fade-in slide-in-from-right-2 duration-300 ${selectedOption === CHALLENGES[currentChallenge].correctIndex
+                                        ? 'bg-emerald-500/5 border-emerald-500/30'
+                                        : 'bg-rose-500/5 border-rose-500/30'
+                                    }`}>
                                     <div className="flex items-center justify-between mb-2">
-                                        <div className={`font-black uppercase text-[10px] tracking-widest ${
-                                            selectedOption === CHALLENGES[currentChallenge].correctIndex ? 'text-emerald-400' : 'text-rose-400'
-                                        }`}>
+                                        <div className={`font-black uppercase text-[10px] tracking-widest ${selectedOption === CHALLENGES[currentChallenge].correctIndex ? 'text-emerald-400' : 'text-rose-400'
+                                            }`}>
                                             {selectedOption === CHALLENGES[currentChallenge].correctIndex ? "✓ Correct" : "✗ Incorrect"}
                                         </div>
                                     </div>
                                     <p className="text-[10px] text-slate-300 leading-tight mb-3 italic">
                                         {CHALLENGES[currentChallenge].explanation}
                                     </p>
-                                    <button 
+                                    <button
                                         onClick={nextChallenge}
                                         className="w-full py-1.5 rounded-md bg-blue-500 text-white font-bold text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-colors"
                                     >
@@ -577,4 +906,5 @@
         root.render(<App />);
     </script>
 </body>
+
 </html>
