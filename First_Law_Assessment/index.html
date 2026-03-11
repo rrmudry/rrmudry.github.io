@@ -755,10 +755,10 @@
                                         </div>
 
                                         {/* Connector SVG Area - Bezier Curves */}
-                                        <div className="absolute inset-x-0 h-[220px] pointer-events-none z-20">
-                                            <svg className="w-full h-full overflow-visible" viewBox="0 0 100 220" preserveAspectRatio="none">
+                                        <div className="absolute inset-x-0 h-[300px] pointer-events-none z-20">
+                                            <svg className="w-full h-full overflow-visible" viewBox="0 0 100 300" preserveAspectRatio="none">
                                                 <defs>
-                                                    <filter id="glow">
+                                                    <filter id="glow" filterUnits="userSpaceOnUse" x="-10" y="-10" width="120" height="320">
                                                         <feGaussianBlur stdDeviation="1" result="coloredBlur"/>
                                                         <feMerge>
                                                             <feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/>
@@ -775,14 +775,16 @@
                                                     const defaultColor = pairStrokeColors[lIndex % pairStrokeColors.length];
                                                     const color = showFeedback ? (lIndex === rId ? '#10b981' : '#f43f5e') : defaultColor;
                                                     
-                                                    // x=0 is left edge, x=100 is right edge of container
-                                                    // left col ends at approx 45%, right starts at 55%
                                                     const xStarts = 43;
                                                     const xEnds = 57;
                                                     
+                                                    // If straight, add a tiny bit of curvature to avoid 0-height bounding boxes
+                                                    const cp1y = y1 === y2 ? y1 - 1 : y1;
+                                                    const cp2y = y1 === y2 ? y2 + 1 : y2;
+                                                    
                                                     return (
                                                         <path key={idx} 
-                                                            d={`M ${xStarts},${y1} C 50,${y1} 50,${y2} ${xEnds},${y2}`} 
+                                                            d={`M ${xStarts},${y1} C 50,${cp1y} 50,${cp2y} ${xEnds},${y2}`} 
                                                             fill="none" stroke={color} strokeWidth="1.5" 
                                                             strokeLinecap="round" filter="url(#glow)" opacity="0.9" 
                                                             className="transition-all duration-500" 
