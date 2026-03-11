@@ -54,15 +54,15 @@ const lessonsData = [
     date: "2026-03-11",
     day: 23,
     unit: 5,
-    title: "Sealed Containers & Gas Processes",
-    summary: "How internal energy changes during expansion and compression.",
-    details: "Analyzing isobaric (expansion/compression) and isochoric (sealed, rigid container) processes. Practice calculations for ΔU using Q and W.",
+    title: "Heat Engine Report",
+    summary: "Researching and reporting on 5 different heat engines.",
+    details: "Students will find information about the 5 listed heat engines and fill in the requested information for each.",
     type: "Activity",
     dok: 2,
     semester: 2,
     isFeatured: true,
     links: {
-      'Worksheet: Internal Energy & The 1st Law': 'Unit_5_Thermodynamics/internal_energy_worksheet.html'
+      'Heat Engine Report Slides': 'https://docs.google.com/presentation/d/1n7nqFHerCyZs3wRiW2Aj633TNEDT_MCpJwWWih13XRs/edit?usp=sharing'
     }
   },
   {
