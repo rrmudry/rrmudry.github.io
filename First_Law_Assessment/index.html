@@ -730,19 +730,22 @@
 
                             {challenge.type === 'matching' && (
                                 <div className="flex flex-col gap-4">
-                                    <div className="flex gap-4 items-start relative">
+                                    <div className="flex gap-10 items-start relative px-2">
                                         {/* Left Side (Terms) */}
                                         <div className="flex-1 flex flex-col gap-2 z-10">
                                             {challenge.pairs.map((p, i) => {
                                                 const isSelected = selectedMatch.side === 'left' && selectedMatch.id === i;
                                                 const isMatched = matches[i] !== undefined;
+                                                const pairColors = ['border-blue-500/50 text-blue-400 bg-blue-500/10', 'border-purple-500/50 text-purple-400 bg-purple-500/10', 'border-amber-500/50 text-amber-400 bg-amber-500/10', 'border-pink-500/50 text-pink-400 bg-pink-500/10'];
+                                                const matchColor = pairColors[i % pairColors.length];
+
                                                 return (
                                                     <button
                                                         key={i}
                                                         onClick={() => handleMatchingSelect('left', i)}
                                                         className={`p-2 text-[10px] font-bold rounded-lg border transition-all h-12 flex items-center justify-center text-center
                                                             ${isSelected ? 'bg-blue-500 border-blue-400 text-white shadow-[0_0_15px_rgba(59,130,246,0.4)]' : 
-                                                              isMatched ? (showFeedback ? (i === matches[i] ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300' : 'bg-rose-500/20 border-rose-500/50 text-rose-300') : 'bg-blue-500/10 border-blue-500/30 text-blue-300 cursor-pointer hover:bg-rose-500/10 hover:border-rose-500/30') :
+                                                              isMatched ? (showFeedback ? (i === matches[i] ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300' : 'bg-rose-500/20 border-rose-500 text-rose-300') : `${matchColor} cursor-pointer hover:border-white/40`) :
                                                               'bg-slate-800/60 border-slate-700 text-slate-300 hover:border-blue-500/50'}`}
                                                     >
                                                         {p.left}
@@ -752,29 +755,38 @@
                                         </div>
 
                                         {/* Connector SVG Area - Bezier Curves */}
-                                        <div className="w-16 h-[220px] absolute left-1/2 -translate-x-1/2 pointer-events-none z-0">
-                                            <svg className="w-full h-full overflow-visible">
+                                        <div className="absolute inset-x-0 h-[220px] pointer-events-none z-20">
+                                            <svg className="w-full h-full overflow-visible" viewBox="0 0 100 220" preserveAspectRatio="none">
                                                 <defs>
                                                     <filter id="glow">
-                                                        <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+                                                        <feGaussianBlur stdDeviation="1" result="coloredBlur"/>
                                                         <feMerge>
                                                             <feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/>
                                                         </feMerge>
                                                     </filter>
                                                 </defs>
                                                 {Object.entries(matches).map(([lId, rId], idx) => {
+                                                    const lIndex = parseInt(lId);
                                                     const rIndex = shuffledRight.findIndex(item => item.id === rId);
-                                                    const y1 = 24 + parseInt(lId) * 48;
+                                                    const y1 = 24 + lIndex * 48;
                                                     const y2 = 24 + rIndex * 48;
-                                                    const color = showFeedback ? (parseInt(lId) === rId ? '#10b981' : '#f43f5e') : '#3b82f6';
                                                     
-                                                    // Cubic Bezier curve calculation
-                                                    const path = `M 0,${y1} C 32,${y1} 32,${y2} 64,${y2}`;
+                                                    const pairStrokeColors = ['#3b82f6', '#a855f7', '#f59e0b', '#ec4899'];
+                                                    const defaultColor = pairStrokeColors[lIndex % pairStrokeColors.length];
+                                                    const color = showFeedback ? (lIndex === rId ? '#10b981' : '#f43f5e') : defaultColor;
+                                                    
+                                                    // x=0 is left edge, x=100 is right edge of container
+                                                    // left col ends at approx 45%, right starts at 55%
+                                                    const xStarts = 43;
+                                                    const xEnds = 57;
                                                     
                                                     return (
-                                                        <path key={idx} d={path} fill="none" stroke={color} strokeWidth="3" 
-                                                            strokeLinecap="round" filter="url(#glow)" opacity="0.8" 
-                                                            className="transition-all duration-500" />
+                                                        <path key={idx} 
+                                                            d={`M ${xStarts},${y1} C 50,${y1} 50,${y2} ${xEnds},${y2}`} 
+                                                            fill="none" stroke={color} strokeWidth="1.5" 
+                                                            strokeLinecap="round" filter="url(#glow)" opacity="0.9" 
+                                                            className="transition-all duration-500" 
+                                                        />
                                                     );
                                                 })}
                                             </svg>
@@ -787,13 +799,16 @@
                                                 const matchedLeftId = Object.keys(matches).find(k => matches[k] === item.id);
                                                 const isMatched = matchedLeftId !== undefined;
                                                 
+                                                const pairColors = ['border-blue-500/50 text-blue-400 bg-blue-500/10', 'border-purple-500/50 text-purple-400 bg-purple-500/10', 'border-amber-500/50 text-amber-400 bg-amber-500/10', 'border-pink-500/50 text-pink-400 bg-pink-500/10'];
+                                                const matchColor = isMatched ? pairColors[parseInt(matchedLeftId) % pairColors.length] : '';
+
                                                 return (
                                                     <button
                                                         key={idx}
                                                         onClick={() => handleMatchingSelect('right', item.id)}
                                                         className={`p-2 text-[10px] font-bold rounded-lg border transition-all h-12 flex items-center justify-center text-center
                                                             ${isSelected ? 'bg-blue-500 border-blue-400 text-white shadow-[0_0_15px_rgba(59,130,246,0.4)]' : 
-                                                              isMatched ? (showFeedback ? (parseInt(matchedLeftId) === item.id ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300' : 'bg-rose-500/20 border-rose-500/50 text-rose-300') : 'bg-blue-500/10 border-blue-500/30 text-blue-300 cursor-pointer hover:bg-rose-500/10 hover:border-rose-500/30') :
+                                                              isMatched ? (showFeedback ? (parseInt(matchedLeftId) === item.id ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300' : 'bg-rose-500/20 border-rose-500 text-rose-300') : `${matchColor} cursor-pointer hover:border-white/40`) :
                                                               'bg-slate-800/60 border-slate-700 text-slate-300 hover:border-blue-500/50'}`}
                                                     >
                                                         {item.text}
