@@ -331,6 +331,8 @@
             const [currentChallenge, setCurrentChallenge] = useState(0);
             const [selectedOption, setSelectedOption] = useState(null);
             const [showFeedback, setShowFeedback] = useState(false);
+            const [score, setScore] = useState(0);
+            const [isFinished, setIsFinished] = useState(false);
             
             // Matching Specific State
             const [selectedMatch, setSelectedMatch] = useState({ side: null, id: null });
@@ -347,7 +349,7 @@
             // Shuffler for Matching
             useEffect(() => {
                 const challenge = CHALLENGES[currentChallenge];
-                if (challenge.type === 'matching') {
+                if (challenge && challenge.type === 'matching') {
                     const rightItems = challenge.pairs.map((p, i) => ({ text: p.right, id: i }));
                     setShuffledRight([...rightItems].sort(() => Math.random() - 0.5));
                 }
@@ -537,13 +539,37 @@
             const handleOptionSelect = (index) => {
                 if (showFeedback) return;
                 setSelectedOption(index);
+                if (index === CHALLENGES[currentChallenge].correctIndex) {
+                    setScore(prev => prev + 1);
+                }
                 setShowFeedback(true);
             };
 
             const handleMatchingSelect = (side, id) => {
                 if (showFeedback) return;
+
+                // Handle clicking a matched item to UNLINK it
+                if (side === 'left' && matches[id] !== undefined) {
+                    const newMatches = { ...matches };
+                    delete newMatches[id];
+                    setMatches(newMatches);
+                    setSelectedMatch({ side: null, id: null });
+                    return;
+                }
+                if (side === 'right') {
+                    const leftId = Object.keys(matches).find(k => matches[k] === id);
+                    if (leftId !== undefined) {
+                        const newMatches = { ...matches };
+                        delete newMatches[leftId];
+                        setMatches(newMatches);
+                        setSelectedMatch({ side: null, id: null });
+                        return;
+                    }
+                }
+
+                // Normal selection logic
                 if (selectedMatch.side === side) {
-                    setSelectedMatch({ side, id }); // Re-select on same side
+                    setSelectedMatch({ side, id }); 
                     return;
                 }
                 if (!selectedMatch.side) {
@@ -560,11 +586,16 @@
             };
 
             const nextChallenge = () => {
+                if (currentChallenge === CHALLENGES.length - 1) {
+                    setIsFinished(true);
+                    setShowFeedback(false);
+                    return;
+                }
                 setSelectedOption(null);
                 setShowFeedback(false);
                 setMatches({});
                 setSelectedMatch({ side: null, id: null });
-                setCurrentChallenge((prev) => (prev + 1) % CHALLENGES.length);
+                setCurrentChallenge((prev) => prev + 1);
             };
 
             const checkMatching = () => {
@@ -577,8 +608,63 @@
                     if (parseInt(leftId) !== rightId) allCorrect = false;
                 });
                 
-                setSelectedOption(allCorrect ? 0 : 1); // Mock selectedOption for feedback logic
+                if (allCorrect) setScore(prev => prev + 1);
+                setSelectedOption(allCorrect ? 0 : 1); 
                 setShowFeedback(true);
+            };
+
+            const resetAssessment = () => {
+                setScore(0);
+                setCurrentChallenge(0);
+                setSelectedOption(null);
+                setShowFeedback(false);
+                setMatches({});
+                setSelectedMatch({ side: null, id: null });
+                setIsFinished(false);
+            };
+
+            const ResultsScreen = () => {
+                const percentage = Math.round((score / CHALLENGES.length) * 100);
+                const getBadge = () => {
+                    if (percentage >= 90) return { text: "Thermodynamics Master", icon: "🏆", color: "text-amber-400 border-amber-400/30 bg-amber-400/10" };
+                    if (percentage >= 70) return { text: "Energy Expert", icon: "⭐", color: "text-blue-400 border-blue-400/30 bg-blue-400/10" };
+                    return { text: "System Apprentice", icon: "⚙️", color: "text-slate-400 border-slate-400/30 bg-slate-400/10" };
+                };
+                const badge = getBadge();
+
+                return (
+                    <div className="glass rounded-xl p-8 flex flex-col items-center justify-center text-center h-[500px] border border-purple-500/30 shadow-[0_0_30px_rgba(168,85,247,0.1)] relative overflow-hidden animate-in fade-in zoom-in duration-500">
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-purple-500/10 blur-[100px] -z-10 rotate-45"></div>
+                        
+                        <div className="mb-6">
+                            <div className="text-6xl mb-4 animate-bounce">{badge.icon}</div>
+                            <h2 className="text-3xl font-black text-white mb-2 uppercase tracking-tighter">Assessment Complete</h2>
+                            <p className="text-slate-400 text-sm font-medium">You've mastered the Laws of Thermodynamics!</p>
+                        </div>
+
+                        <div className="flex gap-4 mb-8">
+                            <div className="glass p-4 rounded-2xl border border-white/5 min-w-[120px]">
+                                <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Final Score</div>
+                                <div className="text-4xl font-black text-white">{score}<span className="text-slate-600 text-xl font-medium">/{CHALLENGES.length}</span></div>
+                            </div>
+                            <div className="glass p-4 rounded-2xl border border-white/5 min-w-[120px]">
+                                <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Percentage</div>
+                                <div className="text-4xl font-black text-white">{percentage}<span className="text-slate-600 text-xl font-medium">%</span></div>
+                            </div>
+                        </div>
+
+                        <div className={`px-4 py-2 rounded-full border text-sm font-black uppercase tracking-widest mb-10 ${badge.color}`}>
+                            Rank: {badge.text}
+                        </div>
+
+                        <button 
+                            onClick={resetAssessment}
+                            className="px-8 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-xl shadow-purple-500/20"
+                        >
+                            Restart Assessment
+                        </button>
+                    </div>
+                );
             };
 
             const ChallengePanel = () => {
@@ -644,9 +730,9 @@
 
                             {challenge.type === 'matching' && (
                                 <div className="flex flex-col gap-4">
-                                    <div className="flex gap-4 items-start">
+                                    <div className="flex gap-4 items-start relative">
                                         {/* Left Side (Terms) */}
-                                        <div className="flex-1 flex flex-col gap-2">
+                                        <div className="flex-1 flex flex-col gap-2 z-10">
                                             {challenge.pairs.map((p, i) => {
                                                 const isSelected = selectedMatch.side === 'left' && selectedMatch.id === i;
                                                 const isMatched = matches[i] !== undefined;
@@ -654,10 +740,9 @@
                                                     <button
                                                         key={i}
                                                         onClick={() => handleMatchingSelect('left', i)}
-                                                        disabled={showFeedback || isMatched}
                                                         className={`p-2 text-[10px] font-bold rounded-lg border transition-all h-12 flex items-center justify-center text-center
-                                                            ${isSelected ? 'bg-blue-500 border-blue-400 text-white shadow-[0_0_10px_rgba(59,130,246,0.5)]' : 
-                                                              isMatched ? 'bg-slate-700/30 border-slate-600 text-slate-500' :
+                                                            ${isSelected ? 'bg-blue-500 border-blue-400 text-white shadow-[0_0_15px_rgba(59,130,246,0.4)]' : 
+                                                              isMatched ? (showFeedback ? (i === matches[i] ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300' : 'bg-rose-500/20 border-rose-500/50 text-rose-300') : 'bg-blue-500/10 border-blue-500/30 text-blue-300 cursor-pointer hover:bg-rose-500/10 hover:border-rose-500/30') :
                                                               'bg-slate-800/60 border-slate-700 text-slate-300 hover:border-blue-500/50'}`}
                                                     >
                                                         {p.left}
@@ -666,35 +751,49 @@
                                             })}
                                         </div>
 
-                                        {/* Connector SVG Area */}
-                                        <div className="w-12 h-[200px] relative pointer-events-none">
-                                            <svg className="w-full h-full">
+                                        {/* Connector SVG Area - Bezier Curves */}
+                                        <div className="w-16 h-[220px] absolute left-1/2 -translate-x-1/2 pointer-events-none z-0">
+                                            <svg className="w-full h-full overflow-visible">
+                                                <defs>
+                                                    <filter id="glow">
+                                                        <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+                                                        <feMerge>
+                                                            <feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/>
+                                                        </feMerge>
+                                                    </filter>
+                                                </defs>
                                                 {Object.entries(matches).map(([lId, rId], idx) => {
                                                     const rIndex = shuffledRight.findIndex(item => item.id === rId);
-                                                    const y1 = 24 + parseInt(lId) * 48; // Center of left box (h-12 is 48px)
+                                                    const y1 = 24 + parseInt(lId) * 48;
                                                     const y2 = 24 + rIndex * 48;
+                                                    const color = showFeedback ? (parseInt(lId) === rId ? '#10b981' : '#f43f5e') : '#3b82f6';
+                                                    
+                                                    // Cubic Bezier curve calculation
+                                                    const path = `M 0,${y1} C 32,${y1} 32,${y2} 64,${y2}`;
+                                                    
                                                     return (
-                                                        <line key={idx} x1="0" y1={y1} x2="100%" y2={y2} 
-                                                            stroke={showFeedback ? (parseInt(lId) === rId ? '#10b981' : '#f43f5e') : '#60a5fa'} 
-                                                            strokeWidth="2" strokeDasharray="4" opacity="0.6" />
+                                                        <path key={idx} d={path} fill="none" stroke={color} strokeWidth="3" 
+                                                            strokeLinecap="round" filter="url(#glow)" opacity="0.8" 
+                                                            className="transition-all duration-500" />
                                                     );
                                                 })}
                                             </svg>
                                         </div>
 
                                         {/* Right Side (Definitions) */}
-                                        <div className="flex-1 flex flex-col gap-2">
+                                        <div className="flex-1 flex flex-col gap-2 z-10">
                                             {shuffledRight.map((item, idx) => {
                                                 const isSelected = selectedMatch.side === 'right' && selectedMatch.id === item.id;
-                                                const isMatched = Object.values(matches).includes(item.id);
+                                                const matchedLeftId = Object.keys(matches).find(k => matches[k] === item.id);
+                                                const isMatched = matchedLeftId !== undefined;
+                                                
                                                 return (
                                                     <button
                                                         key={idx}
                                                         onClick={() => handleMatchingSelect('right', item.id)}
-                                                        disabled={showFeedback || isMatched}
                                                         className={`p-2 text-[10px] font-bold rounded-lg border transition-all h-12 flex items-center justify-center text-center
-                                                            ${isSelected ? 'bg-blue-500 border-blue-400 text-white shadow-[0_0_10px_rgba(59,130,246,0.5)]' : 
-                                                              isMatched ? 'bg-slate-700/30 border-slate-600 text-slate-500' :
+                                                            ${isSelected ? 'bg-blue-500 border-blue-400 text-white shadow-[0_0_15px_rgba(59,130,246,0.4)]' : 
+                                                              isMatched ? (showFeedback ? (parseInt(matchedLeftId) === item.id ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300' : 'bg-rose-500/20 border-rose-500/50 text-rose-300') : 'bg-blue-500/10 border-blue-500/30 text-blue-300 cursor-pointer hover:bg-rose-500/10 hover:border-rose-500/30') :
                                                               'bg-slate-800/60 border-slate-700 text-slate-300 hover:border-blue-500/50'}`}
                                                     >
                                                         {item.text}
@@ -711,9 +810,9 @@
                                             className={`w-full py-2 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all
                                                 ${Object.keys(matches).length < challenge.pairs.length 
                                                     ? 'bg-slate-800 text-slate-600 border border-slate-700 cursor-not-allowed' 
-                                                    : 'bg-emerald-500 hover:bg-emerald-400 text-white shadow-lg shadow-emerald-500/20'}`}
+                                                    : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-xl shadow-blue-500/20'}`}
                                         >
-                                            Check Answer
+                                            {Object.keys(matches).length === 0 ? "Connect the items" : "Check Answer"}
                                         </button>
                                     )}
                                 </div>
@@ -829,7 +928,7 @@
 
                             {/* Assessment Question Panel */}
                             <div className="w-full">
-                                <ChallengePanel />
+                                {isFinished ? <ResultsScreen /> : <ChallengePanel />}
                             </div>
                         </div>
 
@@ -891,7 +990,7 @@
                                         onClick={nextChallenge}
                                         className="w-full py-1.5 rounded-md bg-blue-500 text-white font-bold text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-colors"
                                     >
-                                        Next Question
+                                        {currentChallenge === CHALLENGES.length - 1 ? "Finish Assessment →" : "Next Question"}
                                     </button>
                                 </div>
                             )}
