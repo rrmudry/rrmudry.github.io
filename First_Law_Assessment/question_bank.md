@@ -208,11 +208,11 @@ This document tracks the questions for the interactive assessment. Questions are
     - C) Energy created by the increase in volume
     - D) The piston's own thermal energy
     - *Explanation: In an adiabatic expansion (Q=0), the work is done at the expense of internal energy (ΔU = -W).*
-39. **[Matching]** Match the variable to its simulation button:
-    - 1. Add Heat / Remove Heat -> A. Q (Heat)
-    - 2. Compress / Expand Buttons -> B. W (Work)
-    - 3. Dashboard Display -> C. ΔU (Change in Energy)
-    - 4. Piston Movement -> D. Volume Change
+39. **[Matching]** Match the visual observation to its thermodynamic meaning:
+    - 1. Particles speed up -> A. Internal Energy (ΔU) increases
+    - 2. Piston moves downward -> B. Positive Work (+W)
+    - 3. Flame appears at bottom -> C. Heat input (+Q)
+    - 4. Pressure needle moves -> D. Pressure change
 
 40. **[Multiple Choice]** To decrease the pressure as much as possible with 2 clicks:
     - A) Remove Heat + Expand (Correct)
