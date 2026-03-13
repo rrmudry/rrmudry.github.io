@@ -105,9 +105,9 @@ This document tracks the questions for the interactive assessment. Questions are
     - Answer: True
     - *Explanation: In an adiabatic expansion (Q=0), the work is done at the expense of internal energy (ΔU = -W), causing a temperature drop.*
 
-17. **[Numerical Response]** A miniature steam engine takes in 1000 J of heat and produces 300 J of mechanical work. How much "waste heat" is exhausted (Q exhaust)?
+17. **[Numerical Response]** A machine takes in 1000 J of heat and performs 300 J of work. How much "waste heat" is exhausted back into the environment?
     - Answer: 700
-    - *Explanation: 1000 total in = 300 out to work + 700 out as exhaust heat.*
+    - *Explanation: 1000 total in = 300 out as work + 700 out as wasted heat.*
 
 18. **[Multiple Choice]** Which of these is an example of an "Isochoric" process (Work = 0)?
     - A) A balloon expanding in the sun
@@ -170,14 +170,14 @@ This document tracks the questions for the interactive assessment. Questions are
     - B) Fall
     - C) Stay the same (Correct)
 
-30. **[Numerical Response]** A machine takes in 500 J of heat and exhausts 400 J of waste heat. How much work was performed?
+30. **[Numerical Response]** A device takes in 500 J of heat and exhausts 400 J of wasted heat. How much useful work was performed?
     - Answer: 100
 
 31. **[Matching]** Match the physical state to the energy description:
     - 1. High Temperature -> A. High Internal Energy (U)
     - 2. Rigid Container -> B. Zero Work (W = 0)
-    - 3. Vacuum Expansion -> C. No resistance work
-    - 4. Absolute Zero -> D. No particle motion
+    - 3. Expansion -> C. Negative Work (-W)
+    - 4. Compression -> D. Positive Work (+W)
 
 32. **[True/False]** If the "ΔU" value is negative, the gas particles must be moving slower than when they started.
     - Answer: True
