@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Missing Work Recovery</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & Babel -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Custom Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            200: '#99f6e4',
+                            300: '#5eead4',
+                            400: '#2dd4bf',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@700&display=swap');
+        
+        body {
+            background-color: #0f172a; /* Tailwind slate-900 */
+            color: #f8fafc; /* Tailwind slate-50 */
+            font-family: 'Inter', sans-serif;
+            background-image: radial-gradient(circle at top right, rgba(30, 41, 59, 0.8) 0%, transparent 40%),
+                              radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.1) 0%, transparent 40%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7); /* slate-800 */
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .animated-gradient-text {
+            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: gradient-flow 3s linear infinite;
+        }
+        
+        @keyframes gradient-flow {
+            to { background-position: 200% center; }
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-brand-500/30">
+
+    <!-- Navbar Container (Maintains consistency with dashboard) -->
+    <nav class="fixed top-0 w-full z-50 glass-panel border-b border-white/10 shadow-lg shadow-black/20">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Brand / Logo -->
+                <div class="flex-shrink-0 flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-400 to-blue-600 flex items-center justify-center shadow-lg shadow-brand-500/30">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <span class="font-bold text-lg tracking-tight">Missing Work Tool</span>
+                </div>
+                <!-- Navigation Links -->
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="index.html" class="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Main Hub</a>
+                        <a href="unit5-dashboard.html" class="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Current Unit</a>
+                        <a href="resources.html" class="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Resources</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main React Mount -->
+    <div id="root" class="pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto min-h-screen flex flex-col"></div>
+
+    <!-- Data Import via global script -->
+    <script src="assets/lessons-data.js"></script>
+    
+    <!-- React Component Logic -->
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        const App = () => {
+            const [startDate, setStartDate] = useState('');
+            const [endDate, setEndDate] = useState('');
+            const [filteredLessons, setFilteredLessons] = useState([]);
+            const [hasSearched, setHasSearched] = useState(false);
+
+            // Format "YYYY-MM-DD" back into readable format e.g., "Mon, Mar 16"
+            const formatDate = (dateString) => {
+                const options = { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' }; // Force UTC interpretation to avoid JS offset bugs
+                return new Date(dateString + 'T00:00:00Z').toLocaleDateString('en-US', options);
+            };
+
+            const handleSearch = () => {
+                setHasSearched(true);
+                
+                if (!startDate || !endDate) {
+                    setFilteredLessons([]);
+                    return;
+                }
+
+                if (startDate > endDate) {
+                    alert("Start Date must be before or equal to the End Date.");
+                    setFilteredLessons([]);
+                    return;
+                }
+
+                // Filtering the globally accessible lessonsData array from lessons-data.js
+                // Filtering relies on YYYY-MM-DD string comparison which is lexicographically safe.
+                const results = window.lessonsData.filter(lesson => {
+                    return lesson.date >= startDate && lesson.date <= endDate;
+                }).sort((a, b) => (a.date < b.date ? -1 : 1)); // Chronological sort (oldest first)
+
+                setFilteredLessons(results);
+            };
+            
+            // Helpful clear logic
+            const clearSearch = () => {
+                setStartDate('');
+                setEndDate('');
+                setHasSearched(false);
+                setFilteredLessons([]);
+            }
+
+            return (
+                <div className="flex-1 flex flex-col">
+                    {/* Header */}
+                    <div className="text-center mb-10 mt-4">
+                        <div className="inline-block mb-3 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-bold uppercase tracking-widest shadow-[0_0_15px_rgba(20,184,166,0.15)]">
+                            Catch Up Module
+                        </div>
+                        <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-4">
+                            Were You <span className="animated-gradient-text">Absent?</span>
+                        </h1>
+                        <p className="text-slate-400 max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
+                            Select the dates you were not in class to generate a custom list of the activities, notes, and assignments you missed.
+                        </p>
+                    </div>
+
+                    {/* Date Picker Control Panel */}
+                    <div className="glass-panel rounded-2xl p-6 sm:p-8 mb-8 shadow-2xl relative overflow-hidden border-t border-t-white/10 shrink-0">
+                        {/* Subtle background flair */}
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-brand-500/5 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none"></div>
+                        
+                        <div className="flex flex-col md:flex-row gap-6 items-end relative z-10">
+                            
+                            {/* Start Date */}
+                            <div className="flex-1 w-full">
+                                <label className="block text-xs font-bold text-slate-300 uppercase tracking-widest mb-2 flex items-center gap-2">
+                                    <svg className="w-4 h-4 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                    First Day Absent
+                                </label>
+                                <input 
+                                    type="date" 
+                                    value={startDate} 
+                                    onChange={(e) => setStartDate(e.target.value)}
+                                    className="w-full bg-slate-900/60 border border-slate-700 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 outline-none transition-all shadow-inner font-mono"
+                                />
+                            </div>
+
+                            {/* Divider arrow visible on md+ */}
+                            <div className="hidden md:flex pb-3 text-slate-500 justify-center items-center">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                            </div>
+
+                            {/* End Date */}
+                            <div className="flex-1 w-full">
+                                <label className="block text-xs font-bold text-slate-300 uppercase tracking-widest mb-2 flex items-center gap-2">
+                                    <svg className="w-4 h-4 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                    Last Day Absent
+                                </label>
+                                <input 
+                                    type="date" 
+                                    value={endDate} 
+                                    onChange={(e) => setEndDate(e.target.value)}
+                                    min={startDate} // Prevent choosing end date before start date
+                                    className="w-full bg-slate-900/60 border border-slate-700 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 outline-none transition-all shadow-inner font-mono"
+                                />
+                            </div>
+
+                            {/* Generate Button */}
+                            <button 
+                                onClick={handleSearch}
+                                disabled={!startDate || !endDate}
+                                className="w-full md:w-auto h-12 px-8 rounded-xl font-bold uppercase tracking-wider text-xs transition-all duration-300 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed
+                                           bg-gradient-to-r from-brand-500 to-blue-600 hover:from-brand-400 hover:to-blue-500 text-white shadow-brand-500/20 active:scale-95 flex items-center justify-center gap-2 shrink-0 border border-brand-400/30"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                                Generate Missing Work
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Results Container */}
+                    <div className="flex-1 flex flex-col relative w-full mb-8">
+                        {hasSearched && (
+                            <div className="flex justify-between items-end mb-6 border-b border-white/10 pb-4">
+                                <div>
+                                    <h2 className="text-xl font-bold text-white tracking-tight">Your Missing Work</h2>
+                                    <p className="text-slate-400 text-sm mt-1">Showing results for {formatDate(startDate)} through {formatDate(endDate)}</p>
+                                </div>
+                                <button onClick={clearSearch} className="text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-rose-400 transition-colors">
+                                    Clear Results
+                                </button>
+                            </div>
+                        )}
+
+                        {hasSearched && filteredLessons.length === 0 ? (
+                            <div className="glass-panel flex-1 rounded-2xl flex flex-col items-center justify-center py-16 px-4 text-center border border-rose-500/20 shadow-[0_0_30px_rgba(244,63,94,0.05)]">
+                                <div className="w-16 h-16 rounded-full bg-rose-500/10 flex items-center justify-center mb-4 text-rose-400">
+                                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                </div>
+                                <h3 className="text-lg font-bold text-white mb-2">No Lessons Found</h3>
+                                <p className="text-slate-400 text-sm max-w-sm">
+                                    We couldn't find any recorded lessons matching your selected date range. Please verify the dates were school days.
+                                </p>
+                            </div>
+                        ) : hasSearched && filteredLessons.length > 0 ? (
+                            <div className="space-y-6 flex-1 w-full mx-auto">
+                                {filteredLessons.map((lesson, index) => {
+                                    
+                                    const hasLinks = lesson.links && Object.keys(lesson.links).length > 0;
+                                    
+                                    // Style badge based on Dok or type (Holiday fallback matching dashboard logic)
+                                    let badgeColor = "bg-blue-500/10 text-blue-400 border-blue-500/20";
+                                    let badgeLabel = lesson.type || "Activity";
+                                    
+                                    if(lesson.dok === 0) { badgeColor = "bg-amber-500/10 text-amber-400 border-amber-500/20"; badgeLabel = "No School"; }
+                                    else if(lesson.title.toLowerCase().includes("assessment") || lesson.title.toLowerCase().includes("quiz")) { badgeColor = "bg-rose-500/10 text-rose-400 border-rose-500/20"; }
+                                    else if(lesson.type === "Lab") { badgeColor = "bg-purple-500/10 text-purple-400 border-purple-500/20"; }
+
+                                    return (
+                                        <div key={index} className="glass-panel rounded-2xl border border-white/10 hover:border-brand-500/30 transition-colors p-6 flex flex-col md:flex-row gap-6 hover:shadow-[0_0_30px_rgba(20,184,166,0.08)]">
+                                            {/* Date Banner */}
+                                            <div className="md:w-32 shrink-0 flex flex-col md:items-end md:text-right border-b md:border-b-0 md:border-r border-slate-700 pb-4 md:pb-0 md:pr-6">
+                                                <div className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Day {lesson.day}</div>
+                                                <div className="text-lg font-bold text-white mb-1">{formatDate(lesson.date).split(',')[0]}</div>
+                                                <div className="text-sm text-brand-400 font-medium">{formatDate(lesson.date).split(',')[1].trim()}</div>
+                                            </div>
+                                            
+                                            {/* Content */}
+                                            <div className="flex-1">
+                                                <div className="flex items-center gap-3 mb-2 flex-wrap">
+                                                    <h3 className="text-lg font-bold text-white leading-tight">{lesson.title}</h3>
+                                                    <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${badgeColor}`}>
+                                                        {badgeLabel}
+                                                    </span>
+                                                </div>
+                                                
+                                                <p className="text-slate-300 text-sm mb-4 leading-relaxed line-clamp-2 hover:line-clamp-none transition-all cursor-alias" title={lesson.details}>
+                                                    {lesson.summary} 
+                                                </p>
+                                                
+                                                {/* Links Box */}
+                                                {hasLinks ? (
+                                                    <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-800">
+                                                        <h4 className="text-[10px] uppercase font-bold text-slate-500 tracking-widest mb-3 flex items-center gap-2">
+                                                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                                                            Attached Materials
+                                                        </h4>
+                                                        <ul className="space-y-2">
+                                                            {Object.entries(lesson.links).map(([title, url], linkIdx) => (
+                                                                <li key={linkIdx} className="flex items-start gap-2 text-sm group">
+                                                                    <div className="mt-1 w-1.5 h-1.5 rounded-full bg-slate-600 group-hover:bg-brand-400 transition-colors shrink-0"></div>
+                                                                    <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-brand-300 hover:underline transition-colors font-medium break-all sm:break-normal">
+                                                                        {title}
+                                                                    </a>
+                                                                </li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+                                                ) : lesson.dok === 0 ? (
+                                                    <div className="text-xs text-slate-500 italic">No makeup materials required.</div>
+                                                ) : (
+                                                    <div className="bg-slate-900/30 rounded-xl px-4 py-2 text-xs text-slate-500 font-medium italic border border-slate-800/50">
+                                                        Verify makeup directions directly with the teacher.
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        ) : null}
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
