@@ -113,6 +113,7 @@
         const BASE_U = 500; // Baseline internal energy
         const PARTICLES_COUNT = 45;
         const BASE_SPEED = 1.5;
+        const DATABASE_URL = ""; // PASTE YOUR GOOGLE APPS SCRIPT URL HERE
 
         // Pressure Gauge Component
         const AnalogPressureGauge = ({ pressure }) => {
@@ -489,6 +490,10 @@
             const [studentId, setStudentId] = useState("");
             const [isStarted, setIsStarted] = useState(false);
             
+            // Database Specific State
+            const [isSubmitting, setIsSubmitting] = useState(false);
+            const [submitStatus, setSubmitStatus] = useState('idle'); // 'idle', 'loading', 'success', 'error'
+            
             // Matching Specific State
             const [selectedMatch, setSelectedMatch] = useState({ side: null, id: null });
             const [matches, setMatches] = useState({}); // { leftId: rightId }
@@ -788,7 +793,52 @@
                 setMatches({});
                 setSelectedMatch({ side: null, id: null });
                 setIsFinished(false);
+                setSubmitStatus('idle');
+                setIsSubmitting(false);
                 initializeChallenges(); // Re-shuffle challenges for a new assessment
+            };
+
+            const submitAssessment = async (percentage) => {
+                if (!DATABASE_URL) {
+                    alert("Developer Note: DATABASE_URL is not set. Please follow the instructions in the implementation plan to set it up.");
+                    return;
+                }
+                
+                setIsSubmitting(true);
+                setSubmitStatus('loading');
+                
+                const results = {
+                    name: studentName,
+                    id: studentId,
+                    score: score,
+                    percentage: percentage,
+                    badge: getBadge(percentage).name,
+                    timestamp: new Date().toISOString()
+                };
+
+                try {
+                    const response = await fetch(DATABASE_URL, {
+                        method: 'POST',
+                        mode: 'no-cors', // Apps Script requires no-cors if not handling preflight
+                        cache: 'no-cache',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(results)
+                    });
+                    
+                    setSubmitStatus('success');
+                } catch (error) {
+                    console.error("Submission error:", error);
+                    setSubmitStatus('error');
+                } finally {
+                    setIsSubmitting(false);
+                }
+            };
+
+            const getBadge = (percentage) => {
+                if (percentage >= 90) return { name: "Thermodynamics Master", color: "text-purple-400" };
+                if (percentage >= 75) return { name: "Energy Expert", color: "text-blue-400" };
+                if (percentage >= 60) return { name: "System Apprentice", color: "text-emerald-400" };
+                return { name: "Novice Observer", color: "text-slate-400" };
             };
 
             const ResultsScreen = () => {
@@ -848,12 +898,40 @@
                             </div>
                         </div>
 
-                        <button 
-                            onClick={resetAssessment}
-                            className="px-8 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-lg shadow-purple-500/20"
-                        >
-                            Restart Assessment
-                        </button>
+                        <div className="flex flex-col gap-2 w-full max-w-[280px]">
+                            {submitStatus === 'success' ? (
+                                <div className="py-2 px-4 rounded-xl bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 text-[10px] font-bold uppercase tracking-widest animate-in fade-in slide-in-from-bottom-2">
+                                    ✓ Results Sent to Teacher
+                                </div>
+                            ) : (
+                                <button 
+                                    onClick={() => submitAssessment(percentage)}
+                                    disabled={isSubmitting || !studentName || !studentId}
+                                    className={`w-full py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-2
+                                        ${isSubmitting ? 'bg-slate-700 text-slate-400 cursor-not-allowed' : 
+                                          submitStatus === 'error' ? 'bg-rose-600 hover:bg-rose-500 text-white' :
+                                          'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-500/20'}`}
+                                >
+                                    {isSubmitting ? (
+                                        <>
+                                            <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            Sending...
+                                        </>
+                                    ) : submitStatus === 'error' ? 'Retry Submission' : 'Submit Results to Teacher'}
+                                </button>
+                            )}
+
+                            <button 
+                                onClick={resetAssessment}
+                                disabled={isSubmitting}
+                                className="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 text-[9px] font-bold uppercase tracking-widest transition-all border border-white/5 disabled:opacity-50"
+                            >
+                                Restart Assessment
+                            </button>
+                        </div>
                     </div>
                 );
             };
