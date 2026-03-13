@@ -202,10 +202,12 @@ This document tracks the questions for the interactive assessment. Questions are
 37. **[Numerical Response]** You click "Compress" 4 times (+200 J total). To return the system to its original Internal Energy (ΔU = 0), how much heat must be removed?
     - Answer: 200
 
-38. **[Multiple Choice]** Why does a tire feel warm after you let the air out of the valve? (Trick question: The VALVE feels cold, but why?) If the gas expands it does work:
-    - A) On the surroundings (Correct)
-    - B) On itself
-
+38. **[Multiple Choice]** When a gas pushes a piston outward (expansion) without any heat being added, what is the source of the energy used to move that piston?
+    - A) The internal energy of the gas (Correct)
+    - B) Heat pulled from the surroundings
+    - C) Energy created by the increase in volume
+    - D) The piston's own thermal energy
+    - *Explanation: In an adiabatic expansion (Q=0), the work is done at the expense of internal energy (ΔU = -W).*
 39. **[Matching]** Match the variable to its simulation button:
     - 1. Add Heat / Remove Heat -> A. Q (Heat)
     - 2. Up / Down Arrows -> B. W (Work)
