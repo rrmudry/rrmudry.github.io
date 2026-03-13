@@ -210,7 +210,7 @@ This document tracks the questions for the interactive assessment. Questions are
     - *Explanation: In an adiabatic expansion (Q=0), the work is done at the expense of internal energy (ΔU = -W).*
 39. **[Matching]** Match the variable to its simulation button:
     - 1. Add Heat / Remove Heat -> A. Q (Heat)
-    - 2. Up / Down Arrows -> B. W (Work)
+    - 2. Compress / Expand Buttons -> B. W (Work)
     - 3. Dashboard Display -> C. ΔU (Change in Energy)
     - 4. Piston Movement -> D. Volume Change
 
