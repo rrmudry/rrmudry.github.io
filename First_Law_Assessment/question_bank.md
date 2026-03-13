@@ -128,3 +128,93 @@ This document tracks the questions for the interactive assessment. Questions are
     - C) Remove Heat + Compress
     - D) Remove Heat + Expand
     - *Explanation: Pressure increases with heat and with decreasing volume (compression).*
+---
+
+## Level 4: Pool Variations (Academic Integrity)
+*Goal: Provide alternate versions of Levels 1-3 to prevent neighbor-copying.*
+
+21. **[Multiple Choice]** You click "Remove Heat" twice (-100 J). If the piston does not move (W = 0), what should the "ΔU" value read?
+    - A) 0 J
+    - B) -50 J
+    - C) -100 J (Correct)
+    - D) +100 J
+
+22. **[True/False]** Allowing the gas to expand (clicking the "Expand" button) results in a negative Work (-W) value on the dashboard.
+    - Answer: True
+
+23. **[Multiple Choice]** What happens to the particle speed (and temperature) when you click "Add Heat"?
+    - A) They decrease
+    - B) They increase (Correct)
+    - C) They stay fixed
+
+24. **[Numerical Response]** If you click "Remove Heat" (-50 J) and then "Expand" (-50 J), what is the total change in Internal Energy (ΔU)?
+    - Answer: -100
+
+25. **[Multiple Choice]** A system removes 300J of heat. To keep the Internal Energy change (ΔU) at 0J, what must happen?
+    - A) Gas must be compressed (+300J Work) (Correct)
+    - B) Gas must expand (-300J Work)
+    - C) Gas must do nothing
+
+26. **[True/False]** In an "Isothermal" process (ΔU = 0), any heat added to the system must be balanced by the gas doing an equal amount of expansion work.
+    - Answer: True
+
+27. **[Multiple Choice]** The dashboard shows ΔU = +150 J and Q = +50 J. What is the value of W?
+    - A) +100 J (Correct)
+    - B) -100 J
+    - C) +200 J
+
+28. **[Numerical Response]** A system performs 200 J of expansion work (-200J). If the internal energy ΔU increases by 100 J, how much heat was added?
+    - Answer: 300
+
+29. **[Multiple Choice]** If you compress a gas (+W) but also remove an equal amount of heat (-Q), the temperature will:
+    - A) Rise
+    - B) Fall
+    - C) Stay the same (Correct)
+
+30. **[Numerical Response]** A machine takes in 500 J of heat and exhausts 400 J of waste heat. How much work was performed?
+    - Answer: 100
+
+31. **[Matching]** Match the physical state to the energy description:
+    - 1. High Temperature -> A. High Internal Energy (U)
+    - 2. Rigid Container -> B. Zero Work (W = 0)
+    - 3. Vacuum Expansion -> C. No resistance work
+    - 4. Absolute Zero -> D. No particle motion
+
+32. **[True/False]** If the "ΔU" value is negative, the gas particles must be moving slower than when they started.
+    - Answer: True
+
+33. **[Multiple Choice]** Which combination leads to the LARGEST possible increase in Internal Energy?
+    - A) Fire + Compress (Correct)
+    - B) Fire + Expand
+    - C) Ice + Compress
+    - D) Ice + Expand
+
+34. **[Multiple Choice]** "Adiabatic Compression" (Work done ON a system with no heat loss) always results in:
+    - A) A temperature decrease
+    - B) A temperature increase (Correct)
+    - C) No change in temperature
+
+35. **[Numerical Response]** A system has 500 J of work done on it (+500). If it also absorbs 250 J of heat (+250), what is the final ΔU?
+    - Answer: 750
+
+36. **[True/False]** If a gas is compressed (+W) while being cooled (-Q), and the cooling is GREATER than the compression, ΔU will be negative.
+    - Answer: True
+
+37. **[Numerical Response]** You click "Compress" 4 times (+200 J total). To return the system to its original Internal Energy (ΔU = 0), how much heat must be removed?
+    - Answer: 200
+
+38. **[Multiple Choice]** Why does a tire feel warm after you let the air out of the valve? (Trick question: The VALVE feels cold, but why?) If the gas expands it does work:
+    - A) On the surroundings (Correct)
+    - B) On itself
+
+39. **[Matching]** Match the variable to its simulation button:
+    - 1. Fire / Ice -> A. Q (Heat)
+    - 2. Up / Down Arrows -> B. W (Work)
+    - 3. Dashboard Display -> C. ΔU (Change in Energy)
+    - 4. Piston Movement -> D. Volume Change
+
+40. **[Multiple Choice]** To decrease the pressure as much as possible with 2 clicks:
+    - A) Ice + Expand (Correct)
+    - B) Ice + Compress
+    - C) Fire + Expand
+    - D) Fire + Compress
