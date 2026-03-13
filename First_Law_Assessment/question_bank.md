@@ -101,9 +101,9 @@ This document tracks the questions for the interactive assessment. Questions are
     - B) Work is being done by the gas, pulling energy from U (Correct)
     *Explanation: ΔU = 0 + (-W). ΔU is negative, so temperature drops.*
 
-16. **[True/False]** In a "Heat Engine," heat is added (+Q) to do useful work (-W). It is impossible for a heat engine to convert 100% of added heat into work.
+16. **[True/False]** If a system is perfectly insulated (Q = 0) and the gas expands against a piston (Work done by the gas), the internal energy of the system MUST decrease.
     - Answer: True
-    - *Explanation: This is the Second Law, but relevant to the First Law's energy balance.*
+    - *Explanation: In an adiabatic expansion (Q=0), the work is done at the expense of internal energy (ΔU = -W), causing a temperature drop.*
 
 17. **[Numerical Response]** A miniature steam engine takes in 1000 J of heat and produces 300 J of mechanical work. How much "waste heat" is exhausted (Q exhaust)?
     - Answer: 700
