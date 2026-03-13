@@ -116,11 +116,11 @@ This document tracks the questions for the interactive assessment. Questions are
     - D) Squeezing a sponge
     - *Explanation: Isochoric means "constant volume," so no work is done.*
 
-19. **[Matching]** Logic of Cycles: Match the part of a car engine stroke to the energy change:
-    - 1. Compression Stroke -> A. +W (Work done on gas)
-    - 2. Power Stroke (Explosion) -> B. +Q (Heat added)
-    - 3. Exhaust Stroke -> C. -Q (Heat removed)
-    - 4. Expansion Work -> D. -W (Work done by gas)
+19. **[Matching]** Sign Conventions: Match the physical action to the correct energy sign convention:
+    - 1. System gains heat (Fire) -> A. +Q
+    - 2. System loses heat (Ice) -> B. -Q
+    - 3. Piston compresses gas -> C. +W
+    - 4. Gas expands piston -> D. -W
 
 20. **[Multiple Choice]** If you want to increase the pressure in the cylinder as much as possible with only TWO clicks, which combination is best?
     - A) Add Heat + Expand
