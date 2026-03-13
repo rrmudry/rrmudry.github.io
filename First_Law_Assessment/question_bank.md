@@ -116,9 +116,8 @@ This document tracks the questions for the interactive assessment. Questions are
     - D) Squeezing a sponge
     - *Explanation: Isochoric means "constant volume," so no work is done.*
 
-19. **[Matching]** Sign Conventions: Match the physical action to the correct energy sign convention:
-    - 1. System gains heat (Fire) -> A. +Q
-    - 2. System loses heat (Ice) -> B. -Q
+    - 1. System gains heat (Add Heat) -> A. +Q
+    - 2. System loses heat (Remove Heat) -> B. -Q
     - 3. Piston compresses gas -> C. +W
     - 4. Gas expands piston -> D. -W
 
@@ -184,10 +183,10 @@ This document tracks the questions for the interactive assessment. Questions are
     - Answer: True
 
 33. **[Multiple Choice]** Which combination leads to the LARGEST possible increase in Internal Energy?
-    - A) Fire + Compress (Correct)
-    - B) Fire + Expand
-    - C) Ice + Compress
-    - D) Ice + Expand
+    - A) Add Heat + Compress (Correct)
+    - B) Add Heat + Expand
+    - C) Remove Heat + Compress
+    - D) Remove Heat + Expand
 
 34. **[Multiple Choice]** "Adiabatic Compression" (Work done ON a system with no heat loss) always results in:
     - A) A temperature decrease
@@ -208,13 +207,13 @@ This document tracks the questions for the interactive assessment. Questions are
     - B) On itself
 
 39. **[Matching]** Match the variable to its simulation button:
-    - 1. Fire / Ice -> A. Q (Heat)
+    - 1. Add Heat / Remove Heat -> A. Q (Heat)
     - 2. Up / Down Arrows -> B. W (Work)
     - 3. Dashboard Display -> C. ΔU (Change in Energy)
     - 4. Piston Movement -> D. Volume Change
 
 40. **[Multiple Choice]** To decrease the pressure as much as possible with 2 clicks:
-    - A) Ice + Expand (Correct)
-    - B) Ice + Compress
-    - C) Fire + Expand
-    - D) Fire + Compress
+    - A) Remove Heat + Expand (Correct)
+    - B) Remove Heat + Compress
+    - C) Add Heat + Expand
+    - D) Add Heat + Compress
