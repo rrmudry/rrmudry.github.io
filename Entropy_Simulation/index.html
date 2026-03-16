@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entropy Lab | Interactive Science</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Scripts -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.4);
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --border: rgba(255, 255, 255, 0.1);
+            --accent-red: #ef4444;
+            --accent-blue: #3b82f6;
+            --text: #f8fafc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+        }
+
+        .glass {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+        }
+
+        .container {
+            width: 1000px;
+            max-width: 95vw;
+            height: 700px;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+            padding: 24px;
+            border-radius: 24px;
+        }
+
+        .simulation-area {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #000;
+            border: 2px solid rgba(255, 255, 255, 0.05);
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .divider {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 8px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            cursor: ns-resize;
+            transform: translateX(-50%);
+            transition: opacity 0.3s;
+            z-index: 10;
+        }
+
+        .divider.removed {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .divider-handle {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            width: 24px;
+            height: 48px;
+            background: #fff;
+            border-radius: 12px;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+        }
+
+        .divider-handle span {
+            width: 12px;
+            height: 2px;
+            background: #000;
+            border-radius: 1px;
+        }
+
+        .dashboard {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .stat-card {
+            padding: 20px;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #94a3b8;
+            font-weight: 900;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 900;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .entropy-progress {
+            width: 100%;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .entropy-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #6366f1, #ef4444);
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .controls {
+            margin-top: auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        button {
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            background: var(--primary);
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 11px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--primary-glow);
+            filter: brightness(1.1);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: #94a3b8;
+        }
+
+        button.outline:hover {
+            border-color: var(--primary);
+            color: white;
+        }
+
+        button.active {
+            background: white;
+            color: var(--bg);
+            border-color: white;
+        }
+
+        .header {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .header h1 {
+            font-size: 38px;
+            font-weight: 900;
+            letter-spacing: -0.05em;
+            line-height: 0.9;
+        }
+
+        .header span {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.4em;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .mode-toggles {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .mode-button {
+            padding: 10px;
+            font-size: 10px;
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.05);
+            color: #94a3b8;
+        }
+
+        .mode-button.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useMemo } = React;
+
+        const CANVAS_WIDTH = 650;
+        const CANVAS_HEIGHT = 650;
+        const PARTICLE_COUNT = 150;
+        const PARTICLE_RADIUS = 5;
+
+        // --- 3D Brick Wall Component ---
+        const BrickWallSim = ({ onEntropyUpdate }) => {
+            const containerRef = useRef(null);
+            const sceneRef = useRef(null);
+            const worldRef = useRef(null);
+            const bricksRef = useRef([]);
+            const initialStatesRef = useRef([]);
+            const [isCollapsing, setIsCollapsing] = useState(false);
+            const requestRef = useRef();
+
+            useEffect(() => {
+                // Initialize Three.js
+                const scene = new THREE.Scene();
+                sceneRef.current = scene;
+                const camera = new THREE.PerspectiveCamera(75, CANVAS_WIDTH / CANVAS_HEIGHT, 0.1, 1000);
+                const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+                renderer.setSize(CANVAS_WIDTH, CANVAS_HEIGHT);
+                renderer.setPixelRatio(window.devicePixelRatio);
+                containerRef.current.appendChild(renderer.domElement);
+
+                // Lighting
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+                scene.add(ambientLight);
+                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+                directionalLight.position.set(5, 10, 7);
+                scene.add(directionalLight);
+
+                // Physics World
+                const world = new CANNON.World();
+                world.gravity.set(0, -9.82, 0);
+                worldRef.current = world;
+
+                // Materials
+                const groundMatPhysics = new CANNON.Material("groundMaterial");
+                const brickMatPhysics = new CANNON.Material("brickMaterial");
+                
+                // Define how they interact
+                const contactMaterial = new CANNON.ContactMaterial(groundMatPhysics, brickMatPhysics, {
+                    friction: 0.05, // Super slippery ice-like floor
+                    restitution: 0.6, // Bouncy
+                });
+                const brickBrickContact = new CANNON.ContactMaterial(brickMatPhysics, brickMatPhysics, {
+                    friction: 0.1,
+                    restitution: 0.4,
+                });
+                world.addContactMaterial(contactMaterial);
+                world.addContactMaterial(brickBrickContact);
+
+                // Ground
+                const groundBody = new CANNON.Body({
+                    mass: 0,
+                    shape: new CANNON.Plane(),
+                    material: groundMatPhysics
+                });
+                groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
+                world.addBody(groundBody);
+
+                const groundGeo = new THREE.PlaneGeometry(50, 50);
+                const groundMat = new THREE.MeshStandardMaterial({ 
+                    color: 0x1e293b,
+                    transparent: true,
+                    opacity: 0.5
+                });
+                const groundMesh = new THREE.Mesh(groundGeo, groundMat);
+                groundMesh.rotation.x = -Math.PI / 2;
+                scene.add(groundMesh);
+
+                // Grid helper for order
+                const gridHelper = new THREE.GridHelper(20, 20, 0x475569, 0x1e293b);
+                scene.add(gridHelper);
+
+                // Bricks setup
+                const brickSize = { w: 1, h: 0.5, d: 0.5 };
+                const rows = 8;
+                const cols = 6;
+                const bricks = [];
+                const initialStates = [];
+
+                for (let y = 0; y < rows; y++) {
+                    for (let x = 0; x < cols; x++) {
+                        const posX = (x - cols / 2) * (brickSize.w + 0.02) + (y % 2 === 0 ? 0 : 0.5);
+                        const posY = y * (brickSize.h + 0.01) + brickSize.h / 2;
+                        const posZ = 0;
+
+                        // Cannon Body
+                        const body = new CANNON.Body({
+                            mass: 1,
+                            shape: new CANNON.Box(new CANNON.Vec3(brickSize.w / 2, brickSize.h / 2, brickSize.d / 2)),
+                            position: new CANNON.Vec3(posX, posY, posZ),
+                            material: brickMatPhysics
+                        });
+                        world.addBody(body);
+
+                        // Three.js Mesh
+                        const geometry = new THREE.BoxGeometry(brickSize.w, brickSize.h, brickSize.d);
+                        const material = new THREE.MeshStandardMaterial({ 
+                            color: (x + y) % 2 === 0 ? 0xef4444 : 0x3b82f6 
+                        });
+                        const mesh = new THREE.Mesh(geometry, material);
+                        scene.add(mesh);
+
+                        bricks.push({ body, mesh });
+                        initialStates.push({ 
+                            pos: new CANNON.Vec3(posX, posY, posZ),
+                            rot: body.quaternion.clone()
+                        });
+                    }
+                }
+                bricksRef.current = bricks;
+                initialStatesRef.current = initialStates;
+
+                camera.position.set(0, 5, 12);
+                camera.lookAt(0, 3, 0);
+
+                const animate = () => {
+                    world.step(1 / 60);
+
+                    let disorder = 0;
+                    bricks.forEach((b, i) => {
+                        b.mesh.position.copy(b.body.position);
+                        b.mesh.quaternion.copy(b.body.quaternion);
+
+                        const initial = initialStates[i];
+                        const dist = Math.sqrt(
+                            Math.pow(b.body.position.x - initial.pos.x, 2) +
+                            Math.pow(b.body.position.y - initial.pos.y, 2) +
+                            Math.pow(b.body.position.z - initial.pos.z, 2)
+                        );
+                        const rotDiff = 1 - (
+                            b.body.quaternion.x * initial.rot.x +
+                            b.body.quaternion.y * initial.rot.y +
+                            b.body.quaternion.z * initial.rot.z +
+                            b.body.quaternion.w * initial.rot.w
+                        );
+                        disorder += Math.min(1, dist * 0.4 + Math.abs(rotDiff) * 3);
+                    });
+
+                    const entropy = (disorder / bricks.length) * 100;
+                    onEntropyUpdate(Math.min(100, Math.round(entropy)));
+
+                    renderer.render(scene, camera);
+                    requestRef.current = requestAnimationFrame(animate);
+                };
+                requestRef.current = requestAnimationFrame(animate);
+
+                return () => {
+                    cancelAnimationFrame(requestRef.current);
+                    if (containerRef.current) containerRef.current.innerHTML = '';
+                };
+            }, []);
+
+            const triggerCollapse = () => {
+                if (isCollapsing) return;
+                setIsCollapsing(true);
+                
+                // Shuffle bricks for random crumbling order
+                const shuffledIndices = [...Array(bricksRef.current.length).keys()]
+                    .sort(() => Math.random() - 0.5);
+                
+                let currentIndex = 0;
+                const batchSize = 4;
+                const interval = setInterval(() => {
+                    for (let i = 0; i < batchSize; i++) {
+                        if (currentIndex < shuffledIndices.length) {
+                            const brick = bricksRef.current[shuffledIndices[currentIndex]];
+                            
+                            // Apply a "pop" impulse that pushes the brick out of alignment
+                            const popImpulse = new CANNON.Vec3(
+                                (Math.random() - 0.5) * 5,
+                                (Math.random() - 0.5) * 2,
+                                (Math.random() * 8) + 2 // Mostly forward/backward
+                            );
+                            
+                            // Apply at an offset to induce rotation
+                            const offset = new CANNON.Vec3(
+                                (Math.random() - 0.5) * 0.5,
+                                (Math.random() - 0.5) * 0.25,
+                                0
+                            );
+                            
+                            brick.body.applyImpulse(popImpulse, brick.body.pointToWorldFrame(offset));
+                            currentIndex++;
+                        } else {
+                            clearInterval(interval);
+                        }
+                    }
+                }, 100); // Crumble over several seconds
+            };
+
+            const reset = () => {
+                setIsCollapsing(false);
+                bricksRef.current.forEach((b, i) => {
+                    const initial = initialStatesRef.current[i];
+                    b.body.position.copy(initial.pos);
+                    b.body.quaternion.copy(initial.rot);
+                    b.body.velocity.set(0, 0, 0);
+                    b.body.angularVelocity.set(0, 0, 0);
+                });
+            };
+
+            return (
+                <div style={{width: '100%', height: '100%'}}>
+                    <div ref={containerRef} style={{width: '100%', height: '100%'}} />
+                    <div style={{position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '10px'}}>
+                        <button onClick={triggerCollapse}>Tip the Wall</button>
+                        <button className="outline" onClick={reset}>Rebuild Wall</button>
+                    </div>
+                </div>
+            );
+        };
+
+        const ParticleSim = ({ temp, isDividerActive, onEntropyUpdate }) => {
+            const canvasRef = useRef(null);
+            const particlesRef = useRef([]);
+            const requestIdRef = useRef(null);
+
+            useEffect(() => {
+                const initialParticles = [];
+                for (let i = 0; i < PARTICLE_COUNT / 2; i++) {
+                    initialParticles.push({
+                        x: Math.random() * (CANVAS_WIDTH / 2 - 20) + 10,
+                        y: Math.random() * (CANVAS_HEIGHT - 20) + 10,
+                        vx: (Math.random() - 0.5) * 2,
+                        vy: (Math.random() - 0.5) * 2,
+                        type: 'cold'
+                    });
+                }
+                for (let i = 0; i < PARTICLE_COUNT / 2; i++) {
+                    initialParticles.push({
+                        x: Math.random() * (CANVAS_WIDTH / 2 - 20) + (CANVAS_WIDTH / 2 + 10),
+                        y: Math.random() * (CANVAS_HEIGHT - 20) + 10,
+                        vx: (Math.random() - 0.5) * 2,
+                        vy: (Math.random() - 0.5) * 2,
+                        type: 'hot'
+                    });
+                }
+                particlesRef.current = initialParticles;
+            }, []);
+
+            const update = () => {
+                const pts = particlesRef.current;
+                const dividerX = CANVAS_WIDTH / 2;
+
+                pts.forEach(p => {
+                    p.x += p.vx * temp;
+                    p.y += p.vy * temp;
+
+                    if (p.x < PARTICLE_RADIUS) { p.x = PARTICLE_RADIUS; p.vx *= -1; }
+                    if (p.x > CANVAS_WIDTH - PARTICLE_RADIUS) { p.x = CANVAS_WIDTH - PARTICLE_RADIUS; p.vx *= -1; }
+                    if (p.y < PARTICLE_RADIUS) { p.y = PARTICLE_RADIUS; p.vy *= -1; }
+                    if (p.y > CANVAS_HEIGHT - PARTICLE_RADIUS) { p.y = CANVAS_HEIGHT - PARTICLE_RADIUS; p.vy *= -1; }
+
+                    if (isDividerActive) {
+                        if (p.x > dividerX - 4 - PARTICLE_RADIUS && p.x < dividerX) {
+                            p.x = dividerX - 4 - PARTICLE_RADIUS;
+                            p.vx *= -1;
+                        }
+                        if (p.x < dividerX + 4 + PARTICLE_RADIUS && p.x > dividerX) {
+                            p.x = dividerX + 4 + PARTICLE_RADIUS;
+                            p.vx *= -1;
+                        }
+                    }
+                });
+
+                // Calculate Entropy
+                let disordered = 0;
+                pts.forEach(p => {
+                    const inRightHalf = p.x > CANVAS_WIDTH / 2;
+                    if (p.type === 'cold' && inRightHalf) disordered++;
+                    if (p.type === 'hot' && !inRightHalf) disordered++;
+                });
+                const score = (disordered / (PARTICLE_COUNT / 2)) * 100;
+                onEntropyUpdate(Math.min(100, Math.round(score)));
+                
+                draw();
+                requestIdRef.current = requestAnimationFrame(update);
+            };
+
+            const draw = () => {
+                const canvas = canvasRef.current;
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+                ctx.lineWidth = 1;
+                for (let i = 0; i < CANVAS_WIDTH; i += 50) {
+                    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, CANVAS_HEIGHT); ctx.stroke();
+                }
+                for (let i = 0; i < CANVAS_HEIGHT; i += 50) {
+                    ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(CANVAS_WIDTH, i); ctx.stroke();
+                }
+
+                particlesRef.current.forEach(p => {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, PARTICLE_RADIUS, 0, Math.PI * 2);
+                    ctx.fillStyle = p.type === 'cold' ? '#3b82f6' : '#ef4444';
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = ctx.fillStyle;
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                });
+            };
+
+            useEffect(() => {
+                requestIdRef.current = requestAnimationFrame(update);
+                return () => cancelAnimationFrame(requestIdRef.current);
+            }, [isDividerActive, temp]);
+
+            return <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} />;
+        };
+
+        const EntropyLab = () => {
+            const [mode, setMode] = useState('micro'); // 'micro' or 'macro'
+            const [isDividerActive, setIsDividerActive] = useState(true);
+            const [entropyScore, setEntropyScore] = useState(0);
+            const [temp, setTemp] = useState(1);
+            const [resetKey, setResetKey] = useState(0);
+
+            const reset = () => {
+                setIsDividerActive(true);
+                setEntropyScore(0);
+                setTemp(1);
+                setResetKey(prev => prev + 1);
+            };
+
+            return (
+                <div className="glass container">
+                    <div className="simulation-area">
+                        <div className="header">
+                            <span>Statistical Physics</span>
+                            <h1>ENTROPY<br/>LAB_</h1>
+                        </div>
+
+                        {mode === 'micro' ? (
+                            <>
+                                <ParticleSim 
+                                    key={resetKey}
+                                    temp={temp} 
+                                    isDividerActive={isDividerActive} 
+                                    onEntropyUpdate={setEntropyScore} 
+                                />
+                                <div 
+                                    className={`divider ${!isDividerActive ? 'removed' : ''}`}
+                                    onClick={() => setIsDividerActive(false)}
+                                >
+                                    <div className="divider-handle">
+                                        <span></span><span></span><span></span>
+                                    </div>
+                                </div>
+                            </>
+                        ) : (
+                            <BrickWallSim key={resetKey} onEntropyUpdate={setEntropyScore} />
+                        )}
+                    </div>
+                    
+                    <div className="dashboard">
+                        <div className="glass stat-card">
+                            <span className="stat-label">Subject Level</span>
+                            <div className="mode-toggles">
+                                <button 
+                                    className={`mode-button ${mode === 'micro' ? 'active' : ''}`}
+                                    onClick={() => { setMode('micro'); reset(); }}
+                                >
+                                    Microscopic
+                                </button>
+                                <button 
+                                    className={`mode-button ${mode === 'macro' ? 'active' : ''}`}
+                                    onClick={() => { setMode('macro'); reset(); }}
+                                >
+                                    Macroscopic
+                                </button>
+                            </div>
+                            
+                            <p style={{fontSize: '11px', color: '#94a3b8', lineHeight: '1.4', marginBottom: '12px'}}>
+                                {mode === 'micro' 
+                                    ? "Explore entropy at the atomic level. Watch particles diffuse from order into chaotic mixing."
+                                    : "Observe entropy in the visible world. See how a structured wall disintegrates into a random pile."}
+                            </p>
+
+                            <span className="stat-label">System Entropy</span>
+                            <div className="stat-value">{entropyScore}%</div>
+                            <div className="stat-label">Level of Disorder</div>
+                            <div className="entropy-progress">
+                                <div className="entropy-fill" style={{width: `${entropyScore}%`}}></div>
+                            </div>
+                        </div>
+
+                        {mode === 'micro' && (
+                            <div className="glass stat-card">
+                                <span className="stat-label">Molecular Energy</span>
+                                <div className="stat-value">x{temp.toFixed(1)}</div>
+                                <span className="stat-label">Thermal Excitation</span>
+                            </div>
+                        )}
+
+                        <div className="controls">
+                            {mode === 'micro' && (
+                                <>
+                                    <button onClick={() => setIsDividerActive(!isDividerActive)}>
+                                        {isDividerActive ? 'Open Barrier' : 'Barrier Disabled'}
+                                    </button>
+                                    <button className="outline" onClick={() => setTemp(prev => Math.min(prev + 0.5, 5))}>
+                                        Increase Excitation +
+                                    </button>
+                                    <button className="outline" onClick={() => setTemp(prev => Math.max(prev - 0.5, 0.5))}>
+                                        Decrease Excitation -
+                                    </button>
+                                </>
+                            )}
+                            <button className="outline" onClick={reset}>
+                                Reset System
+                            </button>
+                        </div>
+
+                        <div style={{marginTop: 'auto', padding: '10px', fontSize: '11px', color: '#64748b', textAlign: 'center'}}>
+                            Statistical Mechanic Engine v1.2
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<EntropyLab />);
+    </script>
+</body>
+</html>
