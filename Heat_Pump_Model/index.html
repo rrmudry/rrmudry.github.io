@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heat Pump Dynamics | Interactive Simulation</title>
+    <!-- Scripts -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-950">
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        const Icons = {
+            Play: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>,
+            Pause: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>,
+            Sun: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>,
+            Snowflake: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="2" y1="12" x2="22" y2="12"></line><line x1="12" y1="2" x2="12" y2="22"></line><path d="m20 16-4-4 4-4"></path><path d="m4 8 4 4-4 4"></path><path d="m16 4-4 4-4-4"></path><path d="m8 20 4-4 4 4"></path></svg>,
+            Zap: () => <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-yellow-500"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>,
+            Home: () => <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>,
+            Tree: () => <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-500"><path d="M12 2L4 12h3l-3 8h16l-3-8h3L12 2z"></path><path d="M12 22v-2"></path></svg>,
+            Valve: () => <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-300"><polygon points="2 6 12 12 2 18"></polygon><polygon points="22 6 12 12 22 18"></polygon><line x1="12" y1="2" x2="12" y2="22"></line></svg>
+        };
+
+        function App() {
+            const [isRunning, setIsRunning] = useState(true);
+            const [mode, setMode] = useState('heating');
+            const [selectedComponent, setSelectedComponent] = useState(null);
+            const canvasRef = useRef(null);
+            const ambientParticlesRef = useRef([]);
+            
+            const particlesRef = useRef(
+                Array.from({ length: 350 }).map(() => ({
+                    progress: Math.random(),
+                    speed: Math.random() * 0.3 + 0.7,
+                    offset: (Math.random() - 0.5) * 24
+                }))
+            );
+
+            const componentsData = {
+                compressor: {
+                    id: 'compressor',
+                    name: 'Compressor',
+                    icon: <Icons.Zap />,
+                    desc: 'The heart of the system. It squeezes the low-pressure refrigerant gas, drastically increasing its pressure and temperature. Think of how a bicycle pump gets hot as you use it to squish air into a tire!'
+                },
+                valve: {
+                    id: 'valve',
+                    name: 'Expansion Valve',
+                    icon: <Icons.Valve />,
+                    desc: 'This valve acts like a tiny nozzle. It restricts the flow, causing the warm, high-pressure liquid to rapidly expand and drop in pressure. This rapid expansion makes the refrigerant incredibly cold.'
+                },
+                indoor: {
+                    id: 'indoor',
+                    name: 'Indoor Coil',
+                    icon: <Icons.Home />,
+                    getDesc: (m) => m === 'heating' 
+                        ? 'Acts as the Condenser. The hot, compressed gas flows through here. Because it is hotter than your house, it releases its heat into the indoor air. As it cools, it condenses back into a liquid.' 
+                        : 'Acts as the Evaporator. The super-cold refrigerant flows through here. It absorbs heat from the warm air inside your house, boiling back into a gas and cooling your home down.'
+                },
+                outdoor: {
+                    id: 'outdoor',
+                    name: 'Outdoor Unit',
+                    icon: <Icons.Tree />,
+                    getDesc: (m) => m === 'heating' 
+                        ? 'Acts as the Evaporator. The super-cold refrigerant flows through these outside coils. Because it is even colder than the outside winter air, it absorbs heat from the environment and boils into a gas.' 
+                        : 'Acts as the Condenser. The hot gas (which absorbed heat from inside your house) releases that heat into the hot outside air. It then condenses back into a liquid.'
+                }
+            };
+
+            const getParticleProps = (progress, currentMode) => {
+                let p = ((progress % 1) + 1) % 1;
+                let isHighPressure, color, jitter, size, label;
+
+                if (currentMode === 'heating') {
+                    isHighPressure = p >= 0 && p < 0.5;
+                    if (p >= 0 && p < 0.25) { color = '#ef4444'; jitter = 1.5; size = 4; label = 'Hot Gas'; }
+                    else if (p >= 0.25 && p < 0.5) { color = '#f97316'; jitter = 0.5; size = 3; label = 'Warm Liquid'; }
+                    else if (p >= 0.5 && p < 0.75) { color = '#38bdf8'; jitter = 4; size = 3.5; label = 'Cold Mix'; }
+                    else { color = '#3b82f6'; jitter = 3; size = 4.5; label = 'Cool Gas'; }
+                } else {
+                    isHighPressure = p > 0.5;
+                    if (p > 0.75 || p === 0) { color = '#ef4444'; jitter = 1.5; size = 4; label = 'Hot Gas'; } 
+                    else if (p > 0.5 && p <= 0.75) { color = '#f97316'; jitter = 0.5; size = 3; label = 'Warm Liquid'; } 
+                    else if (p > 0.25 && p <= 0.5) { color = '#38bdf8'; jitter = 4; size = 3.5; label = 'Cold Mix'; } 
+                    else { color = '#3b82f6'; jitter = 3; size = 4.5; label = 'Cool Gas'; } 
+                }
+
+                return {
+                    color, jitter, size, label,
+                    speedMod: isHighPressure ? 0.35 : 1.8,
+                    spreadMod: isHighPressure ? 0.4 : 1.6
+                };
+            };
+
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                let animationFrameId;
+
+                const renderLoop = () => {
+                    const rect = canvas.parentElement.getBoundingClientRect();
+                    if (canvas.width !== rect.width || canvas.height !== rect.height) {
+                        canvas.width = rect.width;
+                        canvas.height = rect.height;
+                    }
+
+                    const cx = canvas.width / 2;
+                    const cy = canvas.height / 2;
+                    const rx = (canvas.width / 2) - 120;
+                    const ry = (canvas.height / 2) - 120;
+
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    if (isRunning) {
+                        if (Math.random() < 0.4) {
+                            const side = Math.random() > 0.5 ? 'left' : 'right';
+                            const isHot = (mode === 'heating' && side === 'right') || (mode === 'cooling' && side === 'left');
+                            const xBase = side === 'left' ? cx - rx : cx + rx;
+                            const yBase = cy + (Math.random() - 0.5) * ry * 1.5; 
+                            const xOffset = side === 'left' ? -20 - Math.random() * 20 : 20 + Math.random() * 20;
+
+                            ambientParticlesRef.current.push({
+                                x: xBase + xOffset,
+                                y: yBase,
+                                vx: (side === 'left' ? -1 : 1) * (Math.random() * 1 + 0.2),
+                                vy: isHot ? -Math.random() * 2 - 0.5 : Math.random() * 1.5 + 0.5,
+                                life: 0,
+                                maxLife: 80 + Math.random() * 40,
+                                type: isHot ? 'heat' : 'cold'
+                            });
+                        }
+                    }
+
+                    ambientParticlesRef.current = ambientParticlesRef.current.filter(p => p.life < p.maxLife);
+                    ambientParticlesRef.current.forEach(p => {
+                        p.life += (isRunning ? 1 : 0);
+                        if (isRunning) {
+                            p.x += p.vx;
+                            p.y += p.vy;
+                            if (p.type === 'heat') p.x += Math.sin(p.life / 5) * 1.5;
+                        }
+                        const alpha = Math.max(0, 1 - (p.life / p.maxLife));
+                        ctx.beginPath();
+                        if (p.type === 'heat') {
+                            ctx.fillStyle = `rgba(239, 68, 68, ${alpha * 0.3})`;
+                            ctx.arc(p.x, p.y, 8 + (p.life / 6), 0, Math.PI * 2);
+                            ctx.fill();
+                        } else {
+                            ctx.fillStyle = `rgba(186, 230, 253, ${alpha * 0.5})`;
+                            ctx.arc(p.x, p.y, 3 + Math.random() * 2, 0, Math.PI * 2);
+                            ctx.fill();
+                            ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.7})`;
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.moveTo(p.x - 4, p.y); ctx.lineTo(p.x + 4, p.y);
+                            ctx.moveTo(p.x, p.y - 4); ctx.lineTo(p.x, p.y + 4);
+                            ctx.stroke();
+                        }
+                    });
+
+                    ctx.beginPath();
+                    ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
+                    ctx.strokeStyle = '#1e293b';
+                    ctx.lineWidth = 36;
+                    ctx.stroke();
+                    
+                    ctx.beginPath();
+                    ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
+                    ctx.strokeStyle = '#0f172a';
+                    ctx.lineWidth = 28;
+                    ctx.stroke();
+
+                    const topX = cx;
+                    const topY = cy - ry;
+                    const botX = cx;
+                    const botY = cy + ry;
+
+                    ctx.fillStyle = '#1e293b';
+                    ctx.fillRect(botX - 55, botY - 40, 110, 80);
+                    ctx.fillStyle = '#0f172a';
+                    ctx.fillRect(botX - 45, botY - 30, 90, 60);
+
+                    const baseSpeed = 0.0012;
+                    const direction = mode === 'heating' ? 1 : -1;
+
+                    particlesRef.current.forEach(p => {
+                        const props = getParticleProps(p.progress, mode);
+                        if (isRunning) {
+                            p.progress = (p.progress + baseSpeed * p.speed * props.speedMod * direction + 1) % 1;
+                        }
+
+                        const theta = p.progress * 2 * Math.PI;
+                        const baseX = cx + rx * Math.sin(theta);
+                        const baseY = cy + ry * Math.cos(theta);
+                        const dx_dt = rx * Math.cos(theta);
+                        const dy_dt = -ry * Math.sin(theta);
+                        const len = Math.sqrt(dx_dt * dx_dt + dy_dt * dy_dt);
+                        const nx = dy_dt / len;
+                        const ny = -dx_dt / len;
+
+                        let activeOffset = p.offset * props.spreadMod;
+                        const distToValve = Math.abs(p.progress - 0.5);
+                        let pinchFactor = 1;
+                        if (distToValve < 0.035) {
+                           pinchFactor = 0.15 + 0.85 * (distToValve / 0.035);
+                        }
+                        activeOffset *= pinchFactor;
+
+                        const x = baseX + nx * activeOffset + (Math.random() - 0.5) * props.jitter * pinchFactor * (isRunning ? 1 : 0);
+                        const y = baseY + ny * activeOffset + (Math.random() - 0.5) * props.jitter * pinchFactor * (isRunning ? 1 : 0);
+
+                        ctx.fillStyle = props.color;
+                        ctx.beginPath();
+                        ctx.arc(x, y, props.size, 0, 2 * Math.PI);
+                        ctx.fill();
+                        
+                        ctx.fillStyle = props.color + '40';
+                        ctx.beginPath();
+                        ctx.arc(x, y, props.size * 2, 0, 2 * Math.PI);
+                        ctx.fill();
+                    });
+
+                    ctx.fillStyle = '#334155';
+                    ctx.strokeStyle = '#475569';
+                    ctx.lineWidth = 2;
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(topX - 32, topY - 26);
+                    ctx.lineTo(topX - 6, topY - 5);
+                    ctx.lineTo(topX - 6, topY + 5);
+                    ctx.lineTo(topX - 32, topY + 26);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(topX + 32, topY - 26);
+                    ctx.lineTo(topX + 6, topY - 5);
+                    ctx.lineTo(topX + 6, topY + 5);
+                    ctx.lineTo(topX + 32, topY + 26);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+
+                    ctx.fillStyle = '#94a3b8'; 
+                    ctx.fillRect(topX - 3, topY - 45, 6, 38);
+                    ctx.fillRect(topX - 3, topY + 7, 6, 20);
+                    
+                    ctx.fillStyle = '#ef4444'; 
+                    ctx.beginPath();
+                    ctx.ellipse(topX, topY - 45, 18, 5, 0, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    const time = performance.now();
+                    const cycleSpeed = 120;
+                    const crankAngle = (time / cycleSpeed) * (isRunning ? 1 : 0) * (mode === 'heating' ? 1 : -1);
+                    const crankX = botX - 25;
+
+                    ctx.fillStyle = '#1e293b';
+                    ctx.beginPath();
+                    ctx.arc(crankX, botY, 28, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.strokeStyle = '#334155';
+                    ctx.lineWidth = 4;
+                    ctx.stroke();
+
+                    ctx.save();
+                    ctx.translate(crankX, botY);
+                    ctx.rotate(crankAngle);
+                    ctx.fillStyle = '#64748b';
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 16, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#cbd5e1';
+                    ctx.beginPath();
+                    ctx.arc(10, 0, 5, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+
+                    const pinX = crankX + Math.cos(crankAngle) * 10;
+                    const pinY = botY + Math.sin(crankAngle) * 10;
+                    const rodLength = 35;
+                    const dy = pinY - botY;
+                    const dx = Math.sqrt(Math.max(0, rodLength * rodLength - dy * dy));
+                    const headX = pinX + dx;
+
+                    ctx.strokeStyle = '#94a3b8';
+                    ctx.lineWidth = 7;
+                    ctx.lineCap = 'round';
+                    ctx.beginPath();
+                    ctx.moveTo(pinX, pinY);
+                    ctx.lineTo(headX, botY);
+                    ctx.stroke();
+
+                    ctx.fillStyle = '#cbd5e1';
+                    ctx.fillRect(headX - 4, botY - 28, 18, 56);
+                    ctx.fillStyle = '#475569';
+                    ctx.fillRect(headX + 2, botY - 28, 2, 56);
+                    ctx.fillRect(headX + 6, botY - 28, 2, 56);
+
+                    animationFrameId = requestAnimationFrame(renderLoop);
+                };
+
+                renderLoop();
+                return () => cancelAnimationFrame(animationFrameId);
+            }, [isRunning, mode]);
+
+            const ComponentNode = ({ compKey, positionClasses }) => {
+                const comp = componentsData[compKey];
+                const isSelected = selectedComponent === compKey;
+                
+                return (
+                    <button
+                        onClick={() => setSelectedComponent(compKey)}
+                        className={`absolute flex flex-col items-center justify-center p-4 w-32 h-32 rounded-2xl transition-all duration-300 z-20 shadow-xl border-4 ${positionClasses} 
+                        ${isSelected ? 'border-white bg-slate-800 scale-110 shadow-white/10' : 'border-slate-700 bg-slate-900 hover:border-slate-500 hover:scale-105'}`}
+                    >
+                        <div className="mb-2 p-2 bg-slate-800 rounded-full shadow-inner">
+                            {comp.icon}
+                        </div>
+                        <span className="text-sm font-bold text-center leading-tight text-slate-200">{comp.name}</span>
+                    </button>
+                );
+            };
+
+            return (
+                <div className="flex flex-col md:flex-row h-screen bg-slate-950 text-slate-100 font-sans overflow-hidden">
+                    
+                    {/* LEFT PANEL: Interactive Diagram (2/3 width) */}
+                    <div className="relative w-full md:w-2/3 h-[60vh] md:h-full flex items-center justify-center overflow-hidden">
+                        
+                        {/* Environment Backgrounds */}
+                        <div className="absolute inset-0 flex z-0">
+                            <div className={`w-1/2 transition-colors duration-1000 flex flex-col items-center pt-8 ${mode === 'heating' ? 'bg-blue-950/40' : 'bg-red-950/40'}`}>
+                                <span className="px-4 py-1 rounded-full bg-slate-900/80 text-slate-400 font-bold tracking-widest uppercase text-xs border border-slate-700 shadow-sm backdrop-blur-sm">
+                                    Outside Environment
+                                </span>
+                                <span className="mt-2 text-2xl opacity-50 font-bold">
+                                   {mode === 'heating' ? '-5°C / 23°F' : '35°C / 95°F'}
+                                </span>
+                            </div>
+                            <div className={`w-1/2 transition-colors duration-1000 border-l border-slate-800/50 flex flex-col items-center pt-8 ${mode === 'heating' ? 'bg-red-950/40' : 'bg-blue-950/40'}`}>
+                                <span className="px-4 py-1 rounded-full bg-slate-900/80 text-slate-400 font-bold tracking-widest uppercase text-xs border border-slate-700 shadow-sm backdrop-blur-sm">
+                                    Inside House
+                                </span>
+                                <span className="mt-2 text-2xl opacity-50 font-bold">
+                                   {mode === 'heating' ? '22°C / 72°F' : '20°C / 68°F'}
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* The Animated Canvas */}
+                        <div className="absolute inset-0 z-10 p-12">
+                           <canvas ref={canvasRef} className="w-full h-full" />
+                        </div>
+
+                        {/* Components */}
+                        <ComponentNode compKey="outdoor" positionClasses="left-2 md:left-8 top-1/2 -translate-y-1/2" />
+                        <ComponentNode compKey="indoor" positionClasses="right-2 md:right-8 top-1/2 -translate-y-1/2" />
+                        <ComponentNode compKey="compressor" positionClasses="bottom-2 md:bottom-6 left-1/2 -translate-x-1/2" />
+                        <ComponentNode compKey="valve" positionClasses="top-2 md:top-6 left-1/2 -translate-x-1/2" />
+                    </div>
+
+
+                    {/* RIGHT PANEL: Controls & Information (1/3 width) */}
+                    <div className="w-full md:w-1/3 bg-slate-900 border-t md:border-t-0 md:border-l border-slate-800 p-6 md:p-8 flex flex-col z-30 shadow-2xl">
+                        
+                        <div className="mb-8">
+                            <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-red-400 mb-2">
+                                Heat Pump Dynamics
+                            </h1>
+                            <p className="text-slate-400 text-sm">
+                                Interactive system model. Click components to learn how they move heat.
+                            </p>
+                        </div>
+
+                        {/* Global Controls */}
+                        <div className="bg-slate-800/50 rounded-2xl p-4 border border-slate-700 mb-8 space-y-4">
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm font-semibold text-slate-300">System Mode</span>
+                                <div className="flex bg-slate-900 rounded-lg p-1 border border-slate-700">
+                                    <button 
+                                        onClick={() => setMode('heating')}
+                                        className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-bold transition-all ${mode === 'heating' ? 'bg-red-500/20 text-red-400 shadow-inner' : 'text-slate-500 hover:text-slate-300'}`}
+                                    >
+                                        <Icons.Sun /> Heating
+                                    </button>
+                                    <button 
+                                        onClick={() => setMode('cooling')}
+                                        className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-bold transition-all ${mode === 'cooling' ? 'bg-blue-500/20 text-blue-400 shadow-inner' : 'text-slate-500 hover:text-slate-300'}`}
+                                    >
+                                        <Icons.Snowflake /> Cooling
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-between border-t border-slate-700/50 pt-4">
+                                <span className="text-sm font-semibold text-slate-300">Simulation</span>
+                                <button 
+                                    onClick={() => setIsRunning(!isRunning)}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold transition-all ${isRunning ? 'bg-slate-700 text-white hover:bg-slate-600' : 'bg-emerald-600 text-white hover:bg-emerald-500'}`}
+                                >
+                                    {isRunning ? <><Icons.Pause /> Pause Flow</> : <><Icons.Play /> Resume Flow</>}
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Dynamic Information Box */}
+                        <div className="flex-grow flex flex-col">
+                            <h2 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4">Component Data</h2>
+                            
+                            {selectedComponent ? (
+                                <div className="bg-slate-800 rounded-2xl p-6 border border-slate-600 shadow-lg flex-grow">
+                                    <div className="flex items-center gap-4 mb-4 border-b border-slate-700 pb-4">
+                                        <div className="p-3 bg-slate-900 rounded-xl">
+                                            {componentsData[selectedComponent].icon}
+                                        </div>
+                                        <h3 className="text-2xl font-bold text-white">
+                                            {componentsData[selectedComponent].name}
+                                        </h3>
+                                    </div>
+                                    
+                                    <p className="text-slate-300 text-lg leading-relaxed">
+                                        {typeof componentsData[selectedComponent].desc === 'string' 
+                                            ? componentsData[selectedComponent].desc 
+                                            : componentsData[selectedComponent].getDesc(mode)}
+                                    </p>
+
+                                    {/* Mini state hint */}
+                                    <div className="mt-8 p-4 bg-slate-900/80 rounded-xl border border-slate-700">
+                                        <span className="text-xs text-slate-500 uppercase tracking-wider font-bold block mb-2">Cycle Phase Here</span>
+                                        <div className="flex items-center gap-3">
+                                           {selectedComponent === 'compressor' && <><div className="w-4 h-4 rounded-full bg-blue-500"></div>➔<div className="w-4 h-4 rounded-full bg-red-500"></div><span className="text-sm text-slate-300">Gas compression (Heating)</span></>}
+                                           {selectedComponent === 'valve' && <><div className="w-4 h-4 rounded-full bg-orange-500"></div>➔<div className="w-4 h-4 rounded-full bg-sky-400"></div><span className="text-sm text-slate-300">Liquid expansion (Cooling)</span></>}
+                                           {selectedComponent === 'indoor' && <span className="text-sm text-slate-300">{mode === 'heating' ? 'Releasing heat inside' : 'Absorbing indoor heat'}</span>}
+                                           {selectedComponent === 'outdoor' && <span className="text-sm text-slate-300">{mode === 'heating' ? 'Extracting environmental heat' : 'Expelling heat outside'}</span>}
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50 flex flex-col items-center justify-center text-center flex-grow opacity-70">
+                                    <Icons.Zap />
+                                    <p className="mt-4 text-slate-400 text-lg">
+                                        A heat pump doesn't burn fuel to create heat; it uses electricity to <strong className="text-white">move heat</strong> from one place to another.
+                                        <br/><br/>
+                                        Select a component to begin.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
