@@ -133,6 +133,10 @@
                 transform: translateY(20px);
             }
         }
+
+        .no-scroll {
+            overflow: hidden !important;
+        }
     </style>
 </head>
 
@@ -455,7 +459,17 @@
                 else labsList.appendChild(li);
             });
 
-            closeModal.onclick = () => modal.classList.add('hidden');
+            closeModal.onclick = () => {
+                modal.classList.add('hidden');
+                document.body.classList.remove('no-scroll');
+            };
+
+            modal.onclick = (e) => {
+                if (e.target === modal) {
+                    modal.classList.add('hidden');
+                    document.body.classList.remove('no-scroll');
+                }
+            };
 
             function openLessonModal(day) {
                 const modalTitle = document.getElementById('modal-title');
@@ -583,17 +597,18 @@
                 modalContent.innerHTML = `
                     <div class="space-y-4">
                         ${wicorHtml}
+                        <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+                            <h4 class="text-orange-400 font-bold mb-2 text-xs uppercase tracking-widest">Activity Insight</h4>
+                            <p class="text-lg leading-relaxed text-red-50/90">${day.activity}</p>
+                        </div>
                         <div class="flex flex-wrap gap-3 mb-2">
                             <button onclick="generateAnalogy('${day.topic}')" class="text-xs bg-gradient-to-r from-orange-500/20 to-red-600/20 text-orange-400 px-4 py-2 rounded-lg hover:from-orange-500/30 hover:to-red-600/30 transition-colors border border-orange-500/30 shadow-lg shadow-orange-500/10">✨ Generate Analogy</button>
                             ${linksHtml}
                         </div>
                         ${embedHtml}
-                        <div class="bg-white/5 p-4 rounded-xl border border-white/5">
-                            <h4 class="text-orange-400 font-bold mb-2 text-xs uppercase tracking-widest">Activity Insight</h4>
-                            <p class="text-lg leading-relaxed text-red-50/90">${day.activity}</p>
-                        </div>
                     </div>
                 `;
+                document.body.classList.add('no-scroll');
                 modal.classList.remove('hidden');
             }
 
