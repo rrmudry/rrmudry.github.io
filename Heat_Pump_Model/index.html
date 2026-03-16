@@ -341,19 +341,34 @@
                         
                         {/* Environment Backgrounds */}
                         <div className="absolute inset-0 flex z-0">
-                            <div className={`w-1/2 transition-colors duration-1000 flex flex-col items-center pt-8 ${mode === 'heating' ? 'bg-blue-950/40' : 'bg-red-950/40'}`}>
-                                <span className="px-4 py-1 rounded-full bg-slate-900/80 text-slate-400 font-bold tracking-widest uppercase text-xs border border-slate-700 shadow-sm backdrop-blur-sm">
+                            {/* Left Side: Outside Environment */}
+                            <div className="relative w-1/2 overflow-hidden flex flex-col items-center pt-8 border-r border-slate-800/30">
+                                <img 
+                                    src={mode === 'heating' ? 'Outdoor winter.png' : 'Outdoor summer.png'} 
+                                    alt="Outdoor"
+                                    className="absolute inset-0 w-full h-full object-cover opacity-60 transition-opacity duration-1000"
+                                />
+                                <div className="absolute inset-0 bg-blue-950/20 mix-blend-multiply transition-colors duration-1000" />
+                                <span className="relative px-4 py-1 rounded-full bg-slate-900/80 text-slate-100 font-bold tracking-widest uppercase text-xs border border-white/20 shadow-sm backdrop-blur-md">
                                     Outside Environment
                                 </span>
-                                <span className="mt-2 text-2xl opacity-50 font-bold">
+                                <span className="relative mt-2 text-2xl font-black text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                                    {mode === 'heating' ? '-5°C / 23°F' : '35°C / 95°F'}
                                 </span>
                             </div>
-                            <div className={`w-1/2 transition-colors duration-1000 border-l border-slate-800/50 flex flex-col items-center pt-8 ${mode === 'heating' ? 'bg-red-950/40' : 'bg-blue-950/40'}`}>
-                                <span className="px-4 py-1 rounded-full bg-slate-900/80 text-slate-400 font-bold tracking-widest uppercase text-xs border border-slate-700 shadow-sm backdrop-blur-sm">
+
+                            {/* Right Side: Inside House */}
+                            <div className="relative w-1/2 overflow-hidden flex flex-col items-center pt-8">
+                                <img 
+                                    src={mode === 'heating' ? 'Indoor winter.png' : 'Indoor summer.png'} 
+                                    alt="Indoor"
+                                    className="absolute inset-0 w-full h-full object-cover opacity-40 transition-opacity duration-1000"
+                                />
+                                <div className="absolute inset-0 bg-red-950/10 mix-blend-overlay transition-colors duration-1000" />
+                                <span className="relative px-4 py-1 rounded-full bg-slate-900/80 text-slate-100 font-bold tracking-widest uppercase text-xs border border-white/20 shadow-sm backdrop-blur-md">
                                     Inside House
                                 </span>
-                                <span className="mt-2 text-2xl opacity-50 font-bold">
+                                <span className="relative mt-2 text-2xl font-black text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                                    {mode === 'heating' ? '22°C / 72°F' : '20°C / 68°F'}
                                 </span>
                             </div>
