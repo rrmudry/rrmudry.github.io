@@ -15,16 +15,49 @@
 const lessonsData = [
   // --- Unit 5: Thermodynamics ---
   {
+    date: "2026-03-18",
+    day: 28,
+    unit: 5,
+    title: "Heat Pump Dynamics",
+    summary: "Exploring how heat pumps move energy against the gradient using the interactive model.",
+    details: "Students analyze the thermodynamic cycle of a heat pump. Using the interactive model, they investigate how work is used to extract heat from a cold environment and release it into a warm one.",
+    type: "Activity",
+    dok: 3,
+    semester: 2,
+    isFeatured: true,
+    links: {
+      'Heat Pump Interactive Model': 'Heat_Pump_Model/index.html'
+    }
+  },
+  {
+    date: "2026-03-17",
+    day: 27,
+    unit: 5,
+    title: "Project: Entropy and Zombies",
+    summary: "Applying entropy concepts to a survival scenario in the 'Entropy and Zombies' project.",
+    details: "Students work in groups to solve thermodynamics-based survival challenges, applying the Second Law to predict the inevitable decay of systems and resource management.",
+    type: "Activity",
+    dok: 3,
+    semester: 2,
+    isFeatured: true,
+    links: {
+      'Entropy and Zombies Project Doc': 'https://docs.google.com/document/d/1P6zTrHvILhcegkh_KdeMliKIxFxIRzz-Wh3mwSht6Yg/edit?usp=sharing'
+    }
+  },
+  {
     date: "2026-03-16",
     day: 26,
     unit: 5,
-    title: "Efficiency & Unit Review",
-    summary: "Calculating engine efficiency and reviewing all thermodynamic concepts.",
-    details: "Final review of the unit. Students calculate the efficiency of various heat engines and prepare for the unit test.",
-    type: "Activity",
+    title: "Introduction to Entropy & Entropy Lab",
+    summary: "Introducing the Second Law of Thermodynamics and the concept of disorder using the Entropy Lab.",
+    details: "Defining entropy as a measure of disorder and microstates. Students use the Entropy Lab to observe particle diffusion (Microscopic) and structural decay (Macroscopic).",
+    type: "Lab",
     dok: 2,
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    links: {
+      'Entropy Lab: Micro & Macro': 'Entropy_Simulation/index.html'
+    }
   },
   {
     date: "2026-03-13",
