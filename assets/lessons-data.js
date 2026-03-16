@@ -41,7 +41,8 @@ const lessonsData = [
     semester: 2,
     isFeatured: true,
     links: {
-      'Entropy and Zombies Project Doc': 'https://docs.google.com/document/d/1P6zTrHvILhcegkh_KdeMliKIxFxIRzz-Wh3mwSht6Yg/edit?usp=sharing'
+      'Entropy and Zombies Project Doc': 'https://docs.google.com/document/d/1P6zTrHvILhcegkh_KdeMliKIxFxIRzz-Wh3mwSht6Yg/edit?usp=sharing',
+      'Entropy and Zombies Examples': 'https://drive.google.com/file/d/1zU6kPKk03noFmwDFEidzMLBkTBjnposw/view?usp=sharing'
     }
   },
   {
@@ -56,7 +57,8 @@ const lessonsData = [
     semester: 2,
     isFeatured: true,
     links: {
-      'Entropy Lab: Micro & Macro': 'Entropy_Simulation/index.html'
+      'Entropy Lab: Micro & Macro': 'Entropy_Simulation/index.html',
+      'Entropy and Zombies Examples': 'https://drive.google.com/file/d/1zU6kPKk03noFmwDFEidzMLBkTBjnposw/view?usp=sharing'
     }
   },
   {
