@@ -42,7 +42,8 @@ const lessonsData = [
     isFeatured: true,
     links: {
       'Entropy and Zombies Project Doc': 'https://docs.google.com/document/d/1P6zTrHvILhcegkh_KdeMliKIxFxIRzz-Wh3mwSht6Yg/edit?usp=sharing',
-      'Entropy and Zombies Examples': 'https://drive.google.com/file/d/1zU6kPKk03noFmwDFEidzMLBkTBjnposw/view?usp=sharing'
+      'Entropy and Zombies Examples': 'https://drive.google.com/file/d/1zU6kPKk03noFmwDFEidzMLBkTBjnposw/view?usp=sharing',
+      'Thermodynamics: Entropy & Heat Engines': 'https://docs.google.com/document/d/18SCo219sB0k27d_VGOXa20wFp4iQk0fOInLbwq_5AHI/edit?usp=sharing'
     }
   },
   {
