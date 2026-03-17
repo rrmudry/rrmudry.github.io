@@ -20,6 +20,40 @@
     .archive-section {
       margin-top: 4rem;
     }
+
+    /* Resource Chips Styling */
+    .resource-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.4rem 0.8rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent-neon, #00f2ff);
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .chip:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--accent-neon, #00f2ff);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 242, 255, 0.2);
+    }
+
+    .chip-icon {
+      font-size: 1rem;
+    }
   </style>
 </head>
 
@@ -84,6 +118,15 @@
 
   <div data-include="footer"></div>
   <script>
+    function getIcon(name) {
+      const n = name.toLowerCase();
+      if (n.includes('presentation') || n.includes('slides')) return '📊';
+      if (n.includes('worksheet') || n.includes('reading') || n.includes('document')) return '📄';
+      if (n.includes('sim') || n.includes('interactive') || n.includes('lab') || n.includes('model')) return '🔬';
+      if (n.includes('video')) return '🎬';
+      return '🔗';
+    }
+
     function renderLessons() {
       const latestContainer = document.getElementById('latest-lesson-container');
       const archiveGrid = document.getElementById('archive-grid');
@@ -109,11 +152,11 @@
       if (latest) {
         let linksHTML = '';
         if (latest.links && Object.keys(latest.links).length > 0) {
-          linksHTML = '<div style="margin-top: 1rem;"><strong>Resources:</strong><ul style="margin-bottom: 0;">';
+          linksHTML = '<div class="resource-chips">';
           for (const [name, url] of Object.entries(latest.links)) {
-            linksHTML += `<li><a href="${url}" target="_blank" style="color: var(--accent-neon);">${name}</a></li>`;
+            linksHTML += `<a href="${url}" target="_blank" class="chip"><span class="chip-icon">${getIcon(name)}</span> ${name}</a>`;
           }
-          linksHTML += '</ul></div>';
+          linksHTML += '</div>';
         }
         
         let embedHTML = '';
@@ -152,11 +195,11 @@
         archiveLessons.forEach(lesson => {
           let archiveLinksHTML = '';
           if (lesson.links && Object.keys(lesson.links).length > 0) {
-             archiveLinksHTML = '<div style="margin-top: 0.5rem; font-size: 0.85rem;"><strong>Links:</strong><ul style="margin: 0; padding-left: 1.25rem;">';
+             archiveLinksHTML = '<div class="resource-chips">';
              for (const [name, url] of Object.entries(lesson.links)) {
-                archiveLinksHTML += `<li><a href="${url}" target="_blank" style="color: var(--accent-neon);">${name}</a></li>`;
+                archiveLinksHTML += `a href="${url}" target="_blank" class="chip" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;"><span class="chip-icon">${getIcon(name)}</span> ${name}</a>`;
              }
-             archiveLinksHTML += '</ul></div>';
+             archiveLinksHTML += '</div>';
           }
 
           let archiveEmbedHTML = '';
