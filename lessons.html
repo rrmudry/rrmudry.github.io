@@ -107,13 +107,31 @@
 
       // 1. Render Latest Lesson
       if (latest) {
+        let linksHTML = '';
+        if (latest.links && Object.keys(latest.links).length > 0) {
+          linksHTML = '<div style="margin-top: 1rem;"><strong>Resources:</strong><ul style="margin-bottom: 0;">';
+          for (const [name, url] of Object.entries(latest.links)) {
+            linksHTML += `<li><a href="${url}" target="_blank" style="color: var(--accent-neon);">${name}</a></li>`;
+          }
+          linksHTML += '</ul></div>';
+        }
+        
+        let embedHTML = '';
+        if (latest.embed) {
+           embedHTML = `<div style="margin-top: 1rem; position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+             <iframe src="${latest.embed}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" allowfullscreen></iframe>
+           </div>`;
+        }
+
         latestContainer.innerHTML = `
           <article class="card highlight animate-in fade-in duration-500" style="max-width: 800px;">
             <span class="lesson-meta">Day ${latest.day} • Unit ${latest.unit} • ${latest.date}</span>
             <h3>${latest.title}</h3>
             <p>${latest.summary}</p>
+            ${embedHTML}
             <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
               <p><strong>In-Class Activities:</strong><br>${latest.details}</p>
+              ${linksHTML}
               <div style="display: flex; gap: 0.75rem; margin-top: 1rem; flex-wrap: wrap;">
                 ${latest.pdfLink ? `<a href="${latest.pdfLink}" class="btn primary" target="_blank">📄 View Worksheet</a>` : ''}
                 <a class="btn" href="unit${latest.unit}-dashboard.html">Unit ${latest.unit} Dashboard</a>
@@ -132,12 +150,30 @@
         archiveGrid.innerHTML = '<p style="grid-column: 1/-1; opacity: 0.5;">Older lessons will be listed here.</p>';
       } else {
         archiveLessons.forEach(lesson => {
+          let archiveLinksHTML = '';
+          if (lesson.links && Object.keys(lesson.links).length > 0) {
+             archiveLinksHTML = '<div style="margin-top: 0.5rem; font-size: 0.85rem;"><strong>Links:</strong><ul style="margin: 0; padding-left: 1.25rem;">';
+             for (const [name, url] of Object.entries(lesson.links)) {
+                archiveLinksHTML += `<li><a href="${url}" target="_blank" style="color: var(--accent-neon);">${name}</a></li>`;
+             }
+             archiveLinksHTML += '</ul></div>';
+          }
+
+          let archiveEmbedHTML = '';
+          if (lesson.embed) {
+             archiveEmbedHTML = `<div style="margin-top: 0.75rem; position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1);">
+               <iframe src="${lesson.embed}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" allowfullscreen></iframe>
+             </div>`;
+          }
+
           const card = document.createElement('article');
           card.className = 'card animate-in slide-in-from-bottom-4 duration-300';
           card.innerHTML = `
             <span class="lesson-meta">Unit ${lesson.unit} • Day ${lesson.day} • ${lesson.date}</span>
             <h3>${lesson.title}</h3>
             <p>${lesson.summary}</p>
+            ${archiveEmbedHTML}
+            ${archiveLinksHTML}
             <div style="margin-top: auto; display: flex; gap: 0.5rem; flex-wrap: wrap; padding-top: 1rem;">
               <a class="btn" href="unit${lesson.unit}-dashboard.html">Dashboard</a>
               ${lesson.pdfLink ? `<a class="btn secondary" href="${lesson.pdfLink}" target="_blank">📄 PDF</a>` : ''}
