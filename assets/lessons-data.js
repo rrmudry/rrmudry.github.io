@@ -15,8 +15,20 @@
 const lessonsData = [
   // --- Unit 5: Thermodynamics ---
   {
-    date: "2026-03-18",
-    day: 28,
+    date: "2026-03-20",
+    day: 30,
+    unit: 5,
+    title: "Unit 5 Assessment",
+    summary: "Summative assessment on Thermodynamics, Entropy, and Heat Engines.",
+    details: "Students will demonstrate their understanding of the laws of thermodynamics, heat engines, and entropy in this unit assessment.",
+    type: "Assessment",
+    dok: 3,
+    semester: 2,
+    isFeatured: true
+  },
+  {
+    date: "2026-03-19",
+    day: 29,
     unit: 5,
     title: "Heat Pump Dynamics",
     summary: "Exploring how heat pumps move energy against the gradient using the interactive model.",
@@ -27,6 +39,27 @@ const lessonsData = [
     isFeatured: true,
     links: {
       'Heat Pump Interactive Model': 'Heat_Pump_Model/index.html'
+    }
+  },
+  {
+    date: "2026-03-18",
+    day: 28,
+    unit: 5,
+    title: "AVID Focused Note Taking: Entropy & Heat Engines",
+    summary: "Using AVID strategies to synthesize information on entropy and the efficiency of heat engines.",
+    details: "Focused Reading and Note Taking: Students use marking-the-text strategies to analyze the 'Entropy and the Cost of Power' reading and connect it to heat engine efficiency.",
+    type: "Activity",
+    dok: 2,
+    semester: 2,
+    isFeatured: true,
+    links: {
+      'Reading: Entropy and the Cost of Power': 'https://docs.google.com/document/d/18SCo219sB0k27d_VGOXa20wFp4iQk0fOInLbwq_5AHI/edit?usp=sharing',
+      'Presentation: Heat Engines': 'https://docs.google.com/presentation/d/1H1-IDxkyQ0MPDQ3y6Y9ebC_dmjzDTJwj9SjFLwdkmqU/edit?usp=sharing',
+      'Printed Instructions': 'https://docs.google.com/document/d/1UXZ83sRCXzGNUq2MnIk-QF7sgIUhuqS9M9M57cFeDNE/edit?usp=sharing'
+    },
+    wicor: {
+      reading: "Marking the Text & Focused Annotation.",
+      writing: "Focused Note Taking: Identifying Main Ideas & Supporting Details."
     }
   },
   {
