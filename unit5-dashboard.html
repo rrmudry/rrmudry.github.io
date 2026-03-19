@@ -479,9 +479,22 @@
                 modalTitle.textContent = `Day ${day.day}: ${day.topic}`;
                 modalSubtitle.textContent = `${day.date ? day.date + ' • ' : ''}DOK Level ${day.dok}`;
 
-                let embedHtml = '';
-                let linksHtml = '';
+                let eqHtml = '';
                 let wicorHtml = '';
+                let linksHtml = '';
+                let embedHtml = '';
+
+                if (day.essentialQuestion) {
+                    eqHtml = `
+                        <div class="bg-gradient-to-br from-yellow-500/10 to-orange-600/10 p-5 rounded-xl border border-yellow-500/20 mb-4 shadow-inner">
+                            <h4 class="text-yellow-400 font-bold mb-2 text-xs uppercase tracking-widest flex items-center gap-2">
+                                <span class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span>
+                                Essential Question
+                            </h4>
+                            <p class="text-xl font-bold text-red-50/90 leading-tight">"${day.essentialQuestion}"</p>
+                        </div>
+                    `;
+                }
 
                 // Handle WICOR Data
                 if (day.wicor) {
@@ -557,7 +570,7 @@
                 }
 
                 // Interactive Element (Ideal Gas Simulator) for Day 12 (approx start of Ideal Gas Phase)
-                if (day.title.includes("Ideal Gas") || day.title.includes("Boyle") || day.title.includes("Charle")) {
+                if (day.title && (day.title.includes("Ideal Gas") || day.title.includes("Boyle") || day.title.includes("Charle"))) {
                     embedHtml += `
                         <div class="bg-red-950/40 p-6 rounded-xl border border-red-500/30 mb-6 shadow-lg">
                             <h4 class="text-orange-400 font-bold text-xs uppercase tracking-widest mb-4 flex items-center gap-2">
@@ -594,20 +607,24 @@
                     setTimeout(() => initGasSim(), 100);
                 }
 
+                const escapedTopic = day.topic.replace(/'/g, "\\'");
+
                 modalContent.innerHTML = `
                     <div class="space-y-4">
+                        ${eqHtml}
                         ${wicorHtml}
                         <div class="bg-white/5 p-4 rounded-xl border border-white/5">
                             <h4 class="text-orange-400 font-bold mb-2 text-xs uppercase tracking-widest">Activity Insight</h4>
                             <p class="text-lg leading-relaxed text-red-50/90">${day.activity}</p>
                         </div>
                         <div class="flex flex-wrap gap-3 mb-2">
-                            <button onclick="generateAnalogy('${day.topic}')" class="text-xs bg-gradient-to-r from-orange-500/20 to-red-600/20 text-orange-400 px-4 py-2 rounded-lg hover:from-orange-500/30 hover:to-red-600/30 transition-colors border border-orange-500/30 shadow-lg shadow-orange-500/10">✨ Generate Analogy</button>
+                            <button onclick="generateAnalogy('${escapedTopic}')" class="text-xs bg-gradient-to-r from-orange-500/20 to-red-600/20 text-orange-400 px-4 py-2 rounded-lg hover:from-orange-500/30 hover:to-red-600/30 transition-colors border border-orange-500/30 shadow-lg shadow-orange-500/10">✨ Generate Analogy</button>
                             ${linksHtml}
                         </div>
                         ${embedHtml}
                     </div>
                 `;
+
                 document.body.classList.add('no-scroll');
                 modal.classList.remove('hidden');
             }
