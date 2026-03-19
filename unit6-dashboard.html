@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en" class="dark-theme">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 6 Dashboard: Waves & EM Radiation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="assets/unit6-favicon.svg">
+    <link rel="stylesheet" href="assets/theme.css" />
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        :root {
+            /* Waves Theme: Indigo, Violet, Cyan */
+            --accent-wave: #8b5cf6;
+            --accent-light: #06b6d4;
+            --accent-soft: #a855f7;
+            --font-tech: 'Inter', sans-serif;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #020617; /* Very transitionally dark blue */
+            color: #f1f5f9;
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: rgba(30, 27, 75, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(139, 92, 246, 0.16);
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-wave);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.2);
+        }
+
+        .nav-btn {
+            position: relative;
+            padding: 1rem 1.5rem;
+            color: #e2e8f0;
+            transition: color 0.3s ease;
+        }
+
+        .nav-btn.active {
+            color: var(--accent-soft);
+            font-weight: 700;
+        }
+
+        .nav-btn.active::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--accent-soft);
+            box-shadow: 0 0 10px var(--accent-soft);
+        }
+
+        .chart-bg {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .gemini-loader {
+            display: inline-block;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-top: 2px solid var(--accent-soft);
+            border-radius: 50%;
+            width: 14px;
+            height: 14px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.2);
+            border-radius: 10px;
+        }
+
+        .content-section {
+            scroll-margin-top: 100px;
+            padding-bottom: 4rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .content-section:last-child {
+            border-bottom: none;
+        }
+
+        /* Ambient Wave Motion */
+        .wave-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            opacity: 0.3;
+        }
+
+        .no-scroll {
+            overflow: hidden !important;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-950">
+    <div class="wave-bg">
+        <svg viewBox="0 0 1440 320" class="absolute bottom-0 w-full h-1/2 opacity-20">
+            <path fill="#8b5cf6" fill-opacity="1" d="M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+        </svg>
+    </div>
+
+    <div data-include="header"></div>
+
+    <div id="app-container" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-violet-500 to-cyan-400">
+                Interactive Unit Plan</h1>
+            <p class="text-xl text-indigo-200 mt-2 font-medium">Unit 6: Waves & Electromagnetic Radiation</p>
+            <div class="w-32 h-1 bg-violet-600 mx-auto mt-4 rounded-full shadow-[0_0_20px_rgba(139,92,246,0.6)]"></div>
+        </header>
+
+        <nav class="flex justify-center border-b border-indigo-900/30 mb-10 sticky top-[73px] bg-slate-950/80 backdrop-blur-md z-40">
+            <button data-target="at-a-glance" class="nav-btn active">At a Glance</button>
+            <button data-target="pacing-guide" class="nav-btn">Pacing Guide</button>
+            <button data-target="resources" class="nav-btn">Resources</button>
+        </nav>
+
+        <main id="main-content">
+            <!-- At a Glance Section -->
+            <section id="at-a-glance" class="content-section space-y-8">
+                <div class="glass-card p-8">
+                    <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
+                        <h2 class="text-2xl font-bold text-indigo-100">Unit Overview</h2>
+                        <button id="suggest-project-btn"
+                            class="bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-bold px-5 py-2.5 rounded-full hover:shadow-[0_0_20px_rgba(139,92,246,0.5)] transition-all flex items-center gap-2">
+                            📡 Wave Insight
+                        </button>
+                    </div>
+                    <p class="text-indigo-100/80 leading-relaxed text-lg">
+                        This unit transitions from the visible, mechanical behavior of energy through matter to the complex behavior of light. We begin with **Mechanical Waves**, exploring how energy propagates through slinkies and water. Then, we dive into the **Electromagnetic Spectrum**, uncovering how invisible radiation powers our world—from radio signals to life-saving medical imaging. Finally, we'll confront the strange reality of **Wave-Particle Duality** and see how these principles are encoded into modern digital technology.
+                    </p>
+                    <div id="project-idea-container" class="mt-6 hidden"></div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="glass-card p-8">
+                        <h2 class="text-2xl font-bold mb-4 text-cyan-400">Essential Questions</h2>
+                        <ul class="space-y-3 text-indigo-100/70">
+                            <li class="flex items-start gap-3"><span class="text-violet-500 mt-1">▹</span> How do waves transfer energy without transporting matter?</li>
+                            <li class="flex items-start gap-3"><span class="text-violet-500 mt-1">▹</span> What happens when two waves occupy the same space at the same time?</li>
+                            <li class="flex items-start gap-3"><span class="text-violet-500 mt-1">▹</span> Why can light travel through the vacuum of space while sound cannot?</li>
+                            <li class="flex items-start gap-3"><span class="text-violet-500 mt-1">▹</span> How does wave behavior enable modern high-speed communication?</li>
+                        </ul>
+                    </div>
+                    <div class="glass-card p-8">
+                        <h2 class="text-2xl font-bold mb-4 text-cyan-400">Key Concepts</h2>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-violet-900/30 border border-violet-500/30 rounded-full text-sm">Transverse vs. Longitudinal</span>
+                            <span class="px-3 py-1 bg-violet-900/30 border border-violet-500/30 rounded-full text-sm">Wave Equation (v=fλ)</span>
+                            <span class="px-3 py-1 bg-violet-900/30 border border-violet-500/30 rounded-full text-sm">Interference & Superposition</span>
+                            <span class="px-3 py-1 bg-violet-900/30 border border-violet-500/30 rounded-full text-sm">Standing Waves & Resonance</span>
+                            <span class="px-3 py-1 bg-violet-900/30 border border-violet-500/30 rounded-full text-sm">Electromagnetic Spectrum</span>
+                            <span class="px-3 py-1 bg-violet-900/30 border border-violet-500/30 rounded-full text-sm">Wave-Particle Duality</span>
+                            <span class="px-3 py-1 bg-violet-900/30 border border-violet-500/30 rounded-full text-sm">Analog vs. Digital Signals</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-8">
+                    <h2 class="text-2xl font-bold mb-6 text-indigo-100">Learning Objectives</h2>
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="bg-indigo-950/30 p-4 rounded-xl border border-indigo-500/20 hover:border-cyan-500/40 transition-colors">
+                            <div class="text-cyan-400 font-bold mb-1">DOK 1</div>
+                            <p class="text-sm text-indigo-100/60">Identify wave parts and recall the regions of the EM spectrum.</p>
+                        </div>
+                        <div class="bg-indigo-950/30 p-4 rounded-xl border border-indigo-500/20 hover:border-cyan-500/40 transition-colors">
+                            <div class="text-cyan-400 font-bold mb-1">DOK 2</div>
+                            <p class="text-sm text-indigo-100/60">Calculate frequency, wavelength, and speed. Compare analog and digital data storage.</p>
+                        </div>
+                        <div class="bg-indigo-950/30 p-4 rounded-xl border border-indigo-500/20 hover:border-cyan-500/40 transition-colors">
+                            <div class="text-cyan-400 font-bold mb-1">DOK 3</div>
+                            <p class="text-sm text-indigo-100/60">Analyze experimental evidence for the duality of light. Design solutions for signal interference.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pacing Guide Section -->
+            <section id="pacing-guide" class="content-section">
+                <div class="text-center mb-10">
+                    <h2 class="text-3xl font-bold text-indigo-100">Cognitive Progression Chart</h2>
+                    <p class="text-indigo-300/70 mt-2">DOK levels by lesson day. Riding the wave of complexity!</p>
+                </div>
+                <div class="chart-bg h-80 mb-12 border border-indigo-900/30">
+                    <canvas id="dokChart"></canvas>
+                </div>
+                <div id="pacing-cards-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                    <!-- Filled by JS -->
+                </div>
+            </section>
+
+            <!-- Resources Section -->
+            <section id="resources" class="content-section">
+                <div class="grid md:grid-cols-2 gap-10">
+                    <div>
+                        <h2 class="text-2xl font-bold mb-6 flex items-center gap-3 text-indigo-100">
+                            <span class="w-8 h-8 bg-violet-500/20 text-violet-400 rounded-lg flex items-center justify-center text-sm">🌊</span>
+                            Labs & Activities
+                        </h2>
+                        <ul id="labs-list" class="space-y-4"></ul>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold mb-6 flex items-center gap-3 text-indigo-100">
+                            <span class="w-8 h-8 bg-cyan-500/20 text-cyan-400 rounded-lg flex items-center justify-center text-sm">🎯</span>
+                            Assessments
+                        </h2>
+                        <ul id="assessments-list" class="space-y-4"></ul>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Footer Partial -->
+    <div data-include="footer"></div>
+
+    <!-- Modal -->
+    <div id="modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 hidden z-50">
+        <div class="glass-card w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-300 border-violet-500/30">
+            <div class="p-8">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <h3 id="modal-title" class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-cyan-200">
+                        </h3>
+                        <p id="modal-subtitle" class="text-indigo-300 font-medium mt-1"></p>
+                    </div>
+                    <button id="close-modal" class="text-white/40 hover:text-white transition-colors text-3xl">&times;</button>
+                </div>
+                <div id="modal-content" class="text-indigo-100/80 space-y-4 custom-scroll overflow-y-auto max-h-[60vh]">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/partials.js"></script>
+    <script>
+        const lessonScript = document.createElement('script');
+        lessonScript.src = 'assets/lessons-data.js?v=' + Date.now();
+        document.head.appendChild(lessonScript);
+
+        window.addEventListener('load', () => {
+            if (typeof lessonsData === 'undefined') {
+                const checkInterval = setInterval(() => {
+                    if (typeof lessonsData !== 'undefined') {
+                        clearInterval(checkInterval);
+                        initDashboard();
+                    }
+                }, 50);
+            } else {
+                initDashboard();
+            }
+        });
+
+        function initDashboard() {
+            const unitData = (typeof lessonsData !== 'undefined' ? lessonsData : [])
+                .filter(lesson => lesson.unit === 6)
+                .sort((a, b) => new Date(a.date) - new Date(b.date))
+                .map(lesson => ({
+                    ...lesson,
+                    topic: lesson.title,
+                    activity: lesson.summary,
+                    wicor: lesson.wicor
+                }));
+
+            function getLessonStatus(dateStr) {
+                if (!dateStr) return 'planned';
+                const now = new Date();
+                const lessonDate = new Date(dateStr + 'T00:00:00');
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+                if (lessonDate < today) return 'completed';
+                if (lessonDate.getTime() === today.getTime()) {
+                    const currentHour = now.getHours();
+                    if (currentHour > 15) return 'completed';
+                    return 'in-progress';
+                }
+                return 'planned';
+            }
+
+            const navButtons = document.querySelectorAll('.nav-btn');
+            const contentSections = document.querySelectorAll('.content-section');
+            const pacingCards = document.getElementById('pacing-cards-container');
+            const modal = document.getElementById('modal');
+            const closeModal = document.getElementById('close-modal');
+            const labsList = document.getElementById('labs-list');
+            const assessmentsList = document.getElementById('assessments-list');
+
+            navButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.getElementById(btn.dataset.target).scrollIntoView({ behavior: 'smooth' });
+                });
+            });
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.target === entry.target.id));
+                    }
+                });
+            }, { rootMargin: '-150px 0px -50% 0px' });
+            contentSections.forEach(section => observer.observe(section));
+
+            if (unitData.length === 0) {
+                pacingCards.innerHTML = '<div class="col-span-full text-center text-indigo-500 italic py-10">Unit 6 lessons coming soon!</div>';
+            }
+
+            unitData.forEach(day => {
+                const status = getLessonStatus(day.date);
+                const statusStyles = {
+                    'completed': 'border-emerald-500/50 hover:border-emerald-400',
+                    'in-progress': 'border-cyan-500/50 hover:border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.2)]',
+                    'planned': 'hover:border-violet-500/50'
+                };
+                const statusLabel = {
+                    'completed': '<span class="text-emerald-400 text-[10px] font-bold">✓ DONE</span>',
+                    'in-progress': '<span class="text-cyan-400 text-[10px] font-bold animate-pulse">● IN PROGRESS</span>',
+                    'planned': '<span class="text-indigo-300/40 text-[10px] font-bold">SCHEDULED</span>'
+                };
+
+                const card = document.createElement('div');
+                card.className = `glass-card p-5 cursor-pointer transition-all ${statusStyles[status]}`;
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <span class="text-violet-400 font-bold block">Day ${day.day}</span>
+                            <span class="text-[10px] text-indigo-300/60 uppercase tracking-wider">${day.date || ''}</span>
+                        </div>
+                        <div class="flex flex-col items-end gap-1">
+                            <span class="text-[10px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full border border-indigo-500/30">DOK ${day.dok || 1}</span>
+                            ${statusLabel[status]}
+                        </div>
+                    </div>
+                    <p class="text-sm font-semibold text-white/90 leading-tight">${day.topic}</p>
+                `;
+                card.onclick = () => openLessonModal(day);
+                pacingCards.appendChild(card);
+
+                const li = document.createElement('li');
+                li.className = 'glass-card p-4 hover:bg-white/5 transition-colors border-l-4 border-l-transparent hover:border-l-cyan-500 flex flex-col gap-2';
+                
+                let links = '';
+                if(day.links) {
+                    links = Object.entries(day.links).map(([lbl, u]) => `<a href="${u}" target="_blank" class="text-[10px] bg-indigo-950/40 hover:bg-indigo-500/20 px-2 py-1 rounded border border-indigo-500/20 text-indigo-200 transition-colors inline-flex items-center gap-1">${lbl} ↗</a>`).join('');
+                }
+
+                li.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-violet-400">Day ${day.day}</span>
+                        <span class="text-[9px] text-indigo-100/40 uppercase">${day.type}</span>
+                    </div>
+                    <p class="text-sm font-semibold text-white/90 leading-tight">${day.topic}</p>
+                    <div class="flex flex-wrap gap-2 mt-1">${links}</div>
+                `;
+                if (day.type === 'Assessment') assessmentsList.appendChild(li);
+                else labsList.appendChild(li);
+            });
+
+            closeModal.onclick = () => {
+                modal.classList.add('hidden');
+                document.body.classList.remove('no-scroll');
+            };
+
+            window.addEventListener('click', (e) => { if (e.target === modal) closeModal.onclick(); });
+
+            function openLessonModal(day) {
+                document.getElementById('modal-title').textContent = `Day ${day.day}: ${day.topic}`;
+                document.getElementById('modal-subtitle').textContent = `${day.date ? day.date + ' • ' : ''}DOK Level ${day.dok}`;
+                
+                const content = document.getElementById('modal-content');
+                let html = '';
+
+                if (day.essentialQuestion) {
+                    html += `<div class="bg-gradient-to-br from-cyan-500/10 to-indigo-600/10 p-5 rounded-xl border border-cyan-500/20 mb-4 shadow-inner">
+                        <h4 class="text-cyan-400 font-bold mb-2 text-xs uppercase tracking-widest flex items-center gap-2"><span class="w-2 h-2 bg-cyan-500 rounded-full animate-pulse"></span>Essential Question</h4>
+                        <p class="text-xl font-bold text-indigo-50/90 leading-tight">"${day.essentialQuestion}"</p>
+                    </div>`;
+                }
+
+                if (day.wicor) {
+                    html += `<div class="bg-gradient-to-br from-indigo-500/10 to-violet-600/10 p-5 rounded-xl border border-indigo-500/20 mb-4 shadow-inner">
+                        <h4 class="text-indigo-400 font-bold mb-3 text-xs uppercase tracking-widest flex items-center gap-2">WICOR / AVID Strategies</h4>
+                        <div class="grid gap-3">${Object.entries(day.wicor).map(([k, v]) => `<div class="flex gap-3"><span class="text-xs font-bold text-indigo-300 uppercase w-24">${k}:</span><p class="text-sm text-indigo-100/70">${v}</p></div>`).join('')}</div>
+                    </div>`;
+                }
+
+                html += `<div class="bg-white/5 p-4 rounded-xl border border-white/5"><h4 class="text-violet-400 font-bold mb-2 text-xs uppercase tracking-widest">Activity Insight</h4><p class="text-lg leading-relaxed text-indigo-50/90">${day.activity}</p></div>`;
+
+                const escapedTopic = day.topic.replace(/'/g, "\\'");
+                html += `<div class="flex flex-wrap gap-3 mb-2"><button onclick="generateAnalogy('${escapedTopic}')" class="text-xs bg-gradient-to-r from-violet-500/20 to-indigo-600/20 text-violet-400 px-4 py-2 rounded-lg hover:from-violet-500/30 hover:to-indigo-600/30 border border-violet-500/30">✨ Generate Analogy</button>`;
+                if(day.links) {
+                    html += Object.entries(day.links).map(([lbl, u]) => `<a href="${u}" target="_blank" class="text-xs bg-white/5 hover:bg-white/10 px-4 py-2 rounded-lg border border-white/10 capitalize">Open ${lbl} ↗</a>`).join('');
+                }
+                html += `</div>`;
+
+                // Interactive Wave Visualizer for early wave lessons
+                if (day.day >= 1 && day.day <= 5) {
+                    html += `<div class="bg-indigo-950/40 p-6 rounded-xl border border-indigo-500/30 mb-6 shadow-lg">
+                        <h4 class="text-cyan-400 font-bold text-xs uppercase tracking-widest mb-4 flex items-center gap-2"><span class="w-2 h-2 bg-cyan-500 rounded-full animate-pulse"></span>Interactive: Frequency vs. Wavelength</h4>
+                        <div class="grid md:grid-cols-2 gap-8 items-center">
+                            <div class="space-y-6">
+                                <div>
+                                    <label class="text-[10px] text-indigo-300 block mb-1">Frequency (f): <span id="freq-val" class="text-white font-bold ml-1">1.0</span> Hz</label>
+                                    <input type="range" id="freq-slider" min="0.5" max="5.0" step="0.1" value="1.0" class="w-full accent-violet-500 h-1.5 bg-indigo-900/50 rounded-lg appearance-none cursor-pointer">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] text-indigo-300 block mb-1">Wavelength (λ) Predicted: <span id="wave-val" class="text-white font-bold ml-1">3.0</span> m</label>
+                                    <div class="text-[11px] text-indigo-400/70 italic mt-1">Constant Speed v = 3.0 m/s</div>
+                                </div>
+                            </div>
+                            <div class="bg-black/40 rounded-lg h-32 overflow-hidden relative border border-white/5">
+                                <canvas id="waveCanvas" class="w-full h-full"></canvas>
+                            </div>
+                        </div>
+                    </div>`;
+                    setTimeout(initWaveSim, 100);
+                }
+
+                content.innerHTML = html;
+                document.body.classList.add('no-scroll');
+                modal.classList.remove('hidden');
+            }
+
+            const ctx = pacingCards.closest('#pacing-guide').querySelector('#dokChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: unitData.map(d => `Day ${d.day}`),
+                    datasets: [{
+                        data: unitData.map(d => d.dok),
+                        borderColor: '#8b5cf6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#06b6d4'
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, max: 4, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        x: { grid: { display: false }, ticks: { maxTicksLimit: 10 } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            const projectIdeas = [
+                { title: "Slinky Seismograph", description: "Design a device to record mechanical vibrations using different tensioning systems.", icon: "📉" },
+                { title: "The Musical Physics", description: "Build a string or wind instrument and map its frequency output to standing wave nodes.", icon: "🎸" },
+                { title: "EM Spectrum Mural", description: "Create a digital or physical map of the spectrum, linking every region to a modern human technology.", icon: "📡" },
+                { title: "Fiber Optic Router", description: "Model how light encodes binary data using a simple laser and light sensor setup.", icon: "💡" }
+            ];
+            let pIdx = 0;
+            document.getElementById('suggest-project-btn').onclick = (e) => {
+                const p = projectIdeas[pIdx];
+                const container = document.getElementById('project-idea-container');
+                container.innerHTML = `<div class="bg-white/5 p-6 rounded-2xl border border-violet-500/30 animate-in zoom-in duration-300"><div class="flex items-center gap-4 mb-3"><span class="text-3xl">${p.icon}</span><h3 class="text-xl font-bold text-cyan-400">${p.title}</h3></div><p class="text-indigo-100/70 text-sm leading-relaxed">${p.description}</p></div>`;
+                container.classList.remove('hidden');
+                pIdx = (pIdx + 1) % projectIdeas.length;
+            };
+        }
+
+        function generateAnalogy(topic) {
+            const analogies = {
+                'Wave': "A wave is like a rumor in a crowd; the secret (energy) moves from person to person, but everyone stays in their same general spot.",
+                'Transverse': "Transverse waves are like a stadium 'Wave'; people move up and down, but the wave travels sideways around the circle.",
+                'Frequency': "Frequency is like the speed of a drummer's beat; high frequency is a frantic solo, low frequency is a steady heartbeat.",
+                'Spectrum': "The EM Spectrum is like a giant piano keyboard; we can only 'hear' (see) a tiny octave in the middle called visible light.",
+                'Duality': "Light is like a platypus; depending on how you look at it, it seems like a mammal (particle) or a duck (wave), but it's really something unique that shares traits of both."
+            };
+            const key = Object.keys(analogies).find(k => topic.includes(k)) || 'Wave';
+            const analogy = analogies[key];
+            const btn = event.target;
+            const original = btn.innerText;
+            btn.innerHTML = `<span class="gemini-loader mr-2"></span> Thinking...`; btn.disabled = true;
+            setTimeout(() => {
+                const div = document.createElement('div');
+                div.className = 'mt-4 p-4 bg-violet-500/10 border border-violet-500/20 rounded-xl animate-in slide-in-from-top-4 duration-500';
+                div.innerHTML = `<div class="flex items-start gap-3"><span class="text-violet-400 text-xl">💡</span><div><h4 class="text-violet-400 font-bold text-xs uppercase tracking-widest mb-1">AI Analogy</h4><p class="text-indigo-100/90 italic">"${analogy}"</p></div></div>`;
+                btn.parentElement.after(div); btn.innerText = original; btn.disabled = false; btn.onclick = null; btn.classList.add('opacity-50', 'cursor-not-allowed');
+            }, 800);
+        }
+
+        function initWaveSim() {
+            const slider = document.getElementById('freq-slider');
+            const fVal = document.getElementById('freq-val');
+            const wVal = document.getElementById('wave-val');
+            const canvas = document.getElementById('waveCanvas');
+            if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let frame = 0;
+
+            function draw() {
+                const f = parseFloat(slider.value);
+                const λ = 3.0 / f;
+                fVal.innerText = f.toFixed(1);
+                wVal.innerText = λ.toFixed(2);
+
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+                
+                ctx.clearRect(0,0, canvas.width, canvas.height);
+                ctx.beginPath();
+                ctx.strokeStyle = '#06b6d4';
+                ctx.lineWidth = 3;
+
+                for(let x=0; x < canvas.width; x++) {
+                    const y = canvas.height/2 + Math.sin((x / canvas.width * 2 * Math.PI * (5/λ)) + frame) * 30;
+                    if(x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+
+                // High-freq glow
+                ctx.shadowBlur = 10; ctx.shadowColor = '#06b6d4';
+                
+                frame -= (0.05 * f);
+                requestAnimationFrame(draw);
+            }
+            draw();
+        }
+    </script>
+</body>
+</html>
