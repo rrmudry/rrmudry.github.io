@@ -9,13 +9,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="assets/unit6-favicon.svg">
     <link rel="stylesheet" href="assets/theme.css" />
     <style>
-        html {
-            scroll-behavior: smooth;
-        }
+        html { scroll-behavior: smooth; }
 
         :root {
             /* Waves Theme: Indigo, Violet, Cyan */
@@ -23,98 +21,108 @@
             --accent-light: #06b6d4;
             --accent-soft: #a855f7;
             --font-tech: 'Inter', sans-serif;
+            --font-mono: 'Fira Code', monospace;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background: #020617; /* Very transitionally dark blue */
+            background: #020617;
             color: #f1f5f9;
             min-height: 100vh;
         }
 
         .glass-card {
-            background: rgba(30, 27, 75, 0.4);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(139, 92, 246, 0.16);
-            border-radius: 20px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(to bottom, transparent, rgba(6, 182, 212, 0.15) 45%, rgba(139, 92, 246, 0.5) 50%, transparent 55%);
+            transform: translateY(-100%) rotate(30deg);
+            transition: transform 0.6s ease-out;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .glass-card:hover::after {
+            transform: translateY(100%) rotate(30deg);
         }
 
         .glass-card:hover {
             transform: translateY(-5px);
-            border-color: var(--accent-wave);
-            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.2);
+            border-color: var(--accent-light);
+            box-shadow: 0 15px 40px rgba(6, 182, 212, 0.2), inset 0 0 20px rgba(139, 92, 246, 0.15);
         }
 
-        .nav-btn {
-            position: relative;
-            padding: 1rem 1.5rem;
-            color: #e2e8f0;
-            transition: color 0.3s ease;
-        }
-
-        .nav-btn.active {
-            color: var(--accent-soft);
-            font-weight: 700;
-        }
-
+        .nav-btn { position: relative; padding: 1rem 1.5rem; color: #e2e8f0; transition: color 0.3s ease; }
+        .nav-btn.active { color: var(--accent-soft); font-weight: 700; }
         .nav-btn.active::after {
-            content: "";
+            content: ""; position: absolute; bottom: 0; left: 0; width: 100%; height: 2px;
+            background: var(--accent-soft); box-shadow: 0 0 10px var(--accent-soft);
+        }
+
+        .font-mono { font-family: var(--font-mono); }
+        .blink-cursor::after { content: '_'; animation: blink 1s step-end infinite; color: var(--accent-light); margin-left: 2px; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        .chart-bg { background: rgba(0, 0, 0, 0.4); border-radius: 12px; padding: 1rem; }
+        
+        .gemini-loader {
+            display: inline-block; border: 2px solid rgba(255, 255, 255, 0.1); border-top: 2px solid var(--accent-soft);
+            border-radius: 50%; width: 14px; height: 14px; animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(139, 92, 246, 0.2); border-radius: 10px; }
+        .content-section { scroll-margin-top: 100px; padding-bottom: 4rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .content-section:last-child { border-bottom: none; }
+
+        /* Interference Waves */
+        @keyframes wave-move {
+            0% { transform: translateX(0) translateZ(0) scaleY(1); }
+            50% { transform: translateX(-25%) translateZ(0) scaleY(0.85); }
+            100% { transform: translateX(-50%) translateZ(0) scaleY(1); }
+        }
+        .wave-layer {
             position: absolute;
             bottom: 0;
             left: 0;
-            width: 100%;
-            height: 2px;
-            background: var(--accent-soft);
-            box-shadow: 0 0 10px var(--accent-soft);
+            width: 200%;
+            height: 100%;
+            background-repeat: repeat-x;
+            background-position: 0 bottom;
+            transform-origin: center bottom;
+        }
+        .wave-1 { 
+            animation: wave-move 15s cubic-bezier(0.36, 0.45, 0.63, 0.53) infinite; 
+            opacity: 0.15; z-index: 1;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 320' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%238b5cf6' d='M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+        }
+        .wave-2 { 
+            animation: wave-move 20s cubic-bezier(0.36, 0.45, 0.63, 0.53) infinite reverse; 
+            opacity: 0.2; z-index: 2;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 320' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%2306b6d4' d='M0,128L60,149.3C120,171,240,213,360,208C480,203,600,149,720,138.7C840,128,960,160,1080,186.7C1200,213,1320,235,1380,245.3L1440,256L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+        }
+        .wave-3 { 
+            animation: wave-move 12s cubic-bezier(0.36, 0.45, 0.63, 0.53) infinite; 
+            opacity: 0.1; z-index: 3;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 320' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23c084fc' d='M0,224L80,213.3C160,203,320,181,480,181.3C640,181,800,203,960,213.3C1120,224,1280,224,1360,224L1440,224L1440,320L1360,320C1280,320,1120,320,960,320C800,320,640,320,480,320C320,320,160,320,80,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
         }
 
-        .chart-bg {
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 12px;
-            padding: 1rem;
-        }
-
-        .gemini-loader {
-            display: inline-block;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-top: 2px solid var(--accent-soft);
-            border-radius: 50%;
-            width: 14px;
-            height: 14px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .custom-scroll::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .custom-scroll::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .custom-scroll::-webkit-scrollbar-thumb {
-            background: rgba(139, 92, 246, 0.2);
-            border-radius: 10px;
-        }
-
-        .content-section {
-            scroll-margin-top: 100px;
-            padding-bottom: 4rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .content-section:last-child {
-            border-bottom: none;
-        }
-
-        /* Ambient Wave Motion */
         .wave-bg {
             position: fixed;
             top: 0;
@@ -123,20 +131,18 @@
             height: 100%;
             z-index: -1;
             overflow: hidden;
-            opacity: 0.3;
+            opacity: 0.6;
         }
 
-        .no-scroll {
-            overflow: hidden !important;
-        }
+        .no-scroll { overflow: hidden !important; }
     </style>
 </head>
 
 <body class="bg-slate-950">
     <div class="wave-bg">
-        <svg viewBox="0 0 1440 320" class="absolute bottom-0 w-full h-1/2 opacity-20">
-            <path fill="#8b5cf6" fill-opacity="1" d="M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
-        </svg>
+        <div class="wave-layer wave-1"></div>
+        <div class="wave-layer wave-2"></div>
+        <div class="wave-layer wave-3"></div>
     </div>
 
     <div data-include="header"></div>
@@ -174,24 +180,45 @@
 
                 <div class="grid md:grid-cols-2 gap-8">
                     <div class="glass-card p-8">
-                        <h2 class="text-2xl font-bold mb-4 text-cyan-400">Essential Questions</h2>
-                        <ul class="space-y-3 text-indigo-100/70">
-                            <li class="flex items-start gap-3"><span class="text-violet-500 mt-1">▹</span> How do waves transfer energy without transporting matter?</li>
-                            <li class="flex items-start gap-3"><span class="text-violet-500 mt-1">▹</span> What happens when two waves occupy the same space at the same time?</li>
-                            <li class="flex items-start gap-3"><span class="text-violet-500 mt-1">▹</span> Why can light travel through the vacuum of space while sound cannot?</li>
-                            <li class="flex items-start gap-3"><span class="text-violet-500 mt-1">▹</span> How does wave behavior enable modern high-speed communication?</li>
+                        <h2 class="text-2xl font-bold mb-4 text-cyan-400 blink-cursor">Essential_Qs</h2>
+                        <ul class="space-y-4 text-indigo-100/70">
+                            <li class="flex items-start gap-3"><span class="text-violet-500 font-mono font-bold">>_</span> How do waves transfer energy without transporting matter?</li>
+                            <li class="flex items-start gap-3"><span class="text-violet-500 font-mono font-bold">>_</span> What happens when two waves occupy the same space at the same time?</li>
+                            <li class="flex items-start gap-3"><span class="text-violet-500 font-mono font-bold">>_</span> Why can light travel through the vacuum of space while sound cannot?</li>
+                            <li class="flex items-start gap-3"><span class="text-violet-500 font-mono font-bold">>_</span> How does wave behavior enable modern high-speed communication?</li>
                         </ul>
                     </div>
                     <div class="glass-card p-8">
-                        <h2 class="text-2xl font-bold mb-4 text-cyan-400">Key Concepts</h2>
-                        <div class="flex flex-wrap gap-2">
-                            <span class="px-3 py-1 bg-violet-900/30 border border-violet-500/30 rounded-full text-sm">Transverse vs. Longitudinal</span>
-                            <span class="px-3 py-1 bg-violet-900/30 border border-violet-500/30 rounded-full text-sm">Wave Equation (v=fλ)</span>
-                            <span class="px-3 py-1 bg-violet-900/30 border border-violet-500/30 rounded-full text-sm">Interference & Superposition</span>
-                            <span class="px-3 py-1 bg-violet-900/30 border border-violet-500/30 rounded-full text-sm">Standing Waves & Resonance</span>
-                            <span class="px-3 py-1 bg-violet-900/30 border border-violet-500/30 rounded-full text-sm">Electromagnetic Spectrum</span>
-                            <span class="px-3 py-1 bg-violet-900/30 border border-violet-500/30 rounded-full text-sm">Wave-Particle Duality</span>
-                            <span class="px-3 py-1 bg-violet-900/30 border border-violet-500/30 rounded-full text-sm">Analog vs. Digital Signals</span>
+                        <h2 class="text-2xl font-bold mb-4 text-cyan-400 blink-cursor">Signal_Matrix</h2>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="flex items-center gap-3 p-3 bg-violet-900/20 border border-violet-500/20 rounded-lg shadow-inner hover:border-cyan-400/50 transition-colors">
+                                <div class="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_#06b6d4]"></div>
+                                <span class="text-xs font-mono text-cyan-100/90 tracking-wide">Transv_v_Longt</span>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 bg-violet-900/20 border border-violet-500/20 rounded-lg shadow-inner hover:border-violet-400/50 transition-colors">
+                                <div class="w-2 h-2 rounded-full bg-violet-400 shadow-[0_0_8px_#8b5cf6]"></div>
+                                <span class="text-xs font-mono text-cyan-100/90 tracking-wide">Wave_Eq_(v=fλ)</span>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 bg-violet-900/20 border border-violet-500/20 rounded-lg shadow-inner hover:border-indigo-400/50 transition-colors">
+                                <div class="w-2 h-2 rounded-full bg-indigo-400 shadow-[0_0_8px_#6366f1]"></div>
+                                <span class="text-xs font-mono text-cyan-100/90 tracking-wide">Superposition</span>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 bg-violet-900/20 border border-violet-500/20 rounded-lg shadow-inner hover:border-fuchsia-400/50 transition-colors">
+                                <div class="w-2 h-2 rounded-full bg-fuchsia-400 shadow-[0_0_8px_#e879f9]"></div>
+                                <span class="text-xs font-mono text-cyan-100/90 tracking-wide">Resonance</span>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 bg-violet-900/20 border border-violet-500/20 rounded-lg shadow-inner hover:border-amber-400/50 transition-colors">
+                                <div class="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_#fbbf24]"></div>
+                                <span class="text-xs font-mono text-cyan-100/90 tracking-wide">EM_Spectrum</span>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 bg-violet-900/20 border border-violet-500/20 rounded-lg shadow-inner hover:border-teal-400/50 transition-colors">
+                                <div class="w-2 h-2 rounded-full bg-teal-400 shadow-[0_0_8px_#2dd4bf]"></div>
+                                <span class="text-xs font-mono text-cyan-100/90 tracking-wide">Duality</span>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 bg-violet-900/20 border border-violet-500/20 rounded-lg shadow-inner col-span-2 hover:border-rose-400/50 transition-colors">
+                                <div class="w-2 h-2 rounded-full bg-rose-400 shadow-[0_0_8px_#fb7185] animate-pulse"></div>
+                                <span class="text-xs font-mono text-cyan-100/90 tracking-wide">Analog_v_Digital_Encoding</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -360,17 +387,17 @@
                 const card = document.createElement('div');
                 card.className = `glass-card p-5 cursor-pointer transition-all ${statusStyles[status]}`;
                 card.innerHTML = `
-                    <div class="flex justify-between items-start mb-3">
+                    <div class="flex justify-between items-start mb-3 relative z-10">
                         <div>
-                            <span class="text-violet-400 font-bold block">Day ${day.day}</span>
-                            <span class="text-[10px] text-indigo-300/60 uppercase tracking-wider">${day.date || ''}</span>
+                            <span class="text-cyan-400 font-mono font-bold block tracking-wider">DAY_${String(day.day).padStart(2, '0')}</span>
+                            <span class="text-[10px] text-indigo-300/60 font-mono tracking-wider">${day.date || ''}</span>
                         </div>
                         <div class="flex flex-col items-end gap-1">
-                            <span class="text-[10px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full border border-indigo-500/30">DOK ${day.dok || 1}</span>
+                            <span class="text-[10px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full border border-indigo-500/30 font-mono">DOK_${day.dok || 1}</span>
                             ${statusLabel[status]}
                         </div>
                     </div>
-                    <p class="text-sm font-semibold text-white/90 leading-tight">${day.topic}</p>
+                    <p class="text-sm font-semibold text-white/90 leading-tight relative z-10">${day.topic}</p>
                 `;
                 card.onclick = () => openLessonModal(day);
                 pacingCards.appendChild(card);
@@ -384,12 +411,12 @@
                 }
 
                 li.innerHTML = `
-                    <div class="flex justify-between items-center">
-                        <span class="text-xs font-bold text-violet-400">Day ${day.day}</span>
-                        <span class="text-[9px] text-indigo-100/40 uppercase">${day.type}</span>
+                    <div class="flex justify-between items-center relative z-10">
+                        <span class="text-xs font-bold text-cyan-400 font-mono tracking-wider">DAY_${String(day.day).padStart(2, '0')}</span>
+                        <span class="text-[9px] text-indigo-100/40 uppercase font-mono">${day.type}</span>
                     </div>
-                    <p class="text-sm font-semibold text-white/90 leading-tight">${day.topic}</p>
-                    <div class="flex flex-wrap gap-2 mt-1">${links}</div>
+                    <p class="text-sm font-semibold text-white/90 leading-tight relative z-10">${day.topic}</p>
+                    <div class="flex flex-wrap gap-2 mt-1 relative z-10">${links}</div>
                 `;
                 if (day.type === 'Assessment') assessmentsList.appendChild(li);
                 else labsList.appendChild(li);
@@ -403,8 +430,8 @@
             window.addEventListener('click', (e) => { if (e.target === modal) closeModal.onclick(); });
 
             function openLessonModal(day) {
-                document.getElementById('modal-title').textContent = `Day ${day.day}: ${day.topic}`;
-                document.getElementById('modal-subtitle').textContent = `${day.date ? day.date + ' • ' : ''}DOK Level ${day.dok}`;
+                document.getElementById('modal-title').textContent = `DAY_${String(day.day).padStart(2, '0')} // ${day.topic}`;
+                document.getElementById('modal-subtitle').textContent = `${day.date ? day.date + ' • ' : ''}DOK_${day.dok}`;
                 
                 const content = document.getElementById('modal-content');
                 let html = '';
@@ -461,17 +488,29 @@
             }
 
             const ctx = pacingCards.closest('#pacing-guide').querySelector('#dokChart').getContext('2d');
+            
+            // Dynamic Spectrum Gradient underneath the DOK line
+            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+            gradient.addColorStop(0, 'rgba(6, 182, 212, 0.6)'); // Cyan
+            gradient.addColorStop(0.5, 'rgba(139, 92, 246, 0.3)'); // Violet
+            gradient.addColorStop(1, 'rgba(15, 23, 42, 0)'); // Fade to bg
+
             new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: unitData.map(d => `Day ${d.day}`),
+                    labels: unitData.map(d => `D_${String(d.day).padStart(2,'0')}`),
                     datasets: [{
                         data: unitData.map(d => d.dok),
-                        borderColor: '#8b5cf6',
-                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        borderColor: '#06b6d4',
+                        backgroundColor: gradient,
+                        borderWidth: 3,
                         tension: 0.4,
                         fill: true,
-                        pointBackgroundColor: '#06b6d4'
+                        pointBackgroundColor: '#8b5cf6',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
                     }]
                 },
                 options: {
