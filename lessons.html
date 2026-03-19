@@ -166,13 +166,39 @@
            </div>`;
         }
 
+        let eqHTML = '';
+        if (latest.essentialQuestion) {
+          eqHTML = `
+            <div style="margin-bottom: 1rem; padding: 0.75rem 1rem; background: rgba(0, 243, 255, 0.05); border-left: 3px solid var(--accent-neon); border-radius: 0 4px 4px 0;">
+              <span style="display: block; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-neon); margin-bottom: 0.25rem;">Essential Question</span>
+              <p style="margin: 0; font-size: 1.1rem; font-weight: 600; color: #fff;">${latest.essentialQuestion}</p>
+            </div>
+          `;
+        }
+
+        let wicorHTML = '';
+        if (latest.wicor) {
+          wicorHTML = `
+            <div style="margin-bottom: 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem;">
+              ${Object.entries(latest.wicor).map(([key, val]) => `
+                <div style="font-size: 0.8rem; background: rgba(255,252,231,0.03); padding: 0.5rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.05);">
+                  <strong style="text-transform: uppercase; color: #fbbf24; font-size: 0.7rem; display: block; margin-bottom: 0.2rem;">${key}</strong>
+                  <span style="opacity: 0.8;">${val}</span>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        }
+
         latestContainer.innerHTML = `
           <article class="card highlight animate-in fade-in duration-500" style="max-width: 800px;">
             <span class="lesson-meta">Day ${latest.day} • Unit ${latest.unit} • ${latest.date}</span>
             <h3>${latest.title}</h3>
             <p>${latest.summary}</p>
+            ${eqHTML}
             ${embedHTML}
             <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
+              ${wicorHTML}
               <p><strong>In-Class Activities:</strong><br>${latest.details}</p>
               ${linksHTML}
               <div style="display: flex; gap: 0.75rem; margin-top: 1rem; flex-wrap: wrap;">
@@ -209,12 +235,22 @@
              </div>`;
           }
 
+          let archiveEqHTML = '';
+          if (lesson.essentialQuestion) {
+            archiveEqHTML = `
+              <div style="margin: 0.75rem 0; padding: 0.5rem 0.75rem; background: rgba(0, 243, 255, 0.03); border-left: 2px solid var(--accent-neon); font-size: 0.85rem;">
+                <p style="margin: 0; font-weight: 500; opacity: 0.9;">${lesson.essentialQuestion}</p>
+              </div>
+            `;
+          }
+
           const card = document.createElement('article');
           card.className = 'card animate-in slide-in-from-bottom-4 duration-300';
           card.innerHTML = `
             <span class="lesson-meta">Unit ${lesson.unit} • Day ${lesson.day} • ${lesson.date}</span>
             <h3>${lesson.title}</h3>
             <p>${lesson.summary}</p>
+            ${archiveEqHTML}
             ${archiveEmbedHTML}
             ${archiveLinksHTML}
             <div style="margin-top: auto; display: flex; gap: 0.5rem; flex-wrap: wrap; padding-top: 1rem;">

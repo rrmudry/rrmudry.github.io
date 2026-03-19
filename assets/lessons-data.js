@@ -24,7 +24,8 @@ const lessonsData = [
     type: "Assessment",
     dok: 3,
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    essentialQuestion: "How do we demonstrate mastery of thermodynamic laws and entropy concepts?"
   },
   {
     date: "2026-03-19",
@@ -39,7 +40,8 @@ const lessonsData = [
     isFeatured: true,
     links: {
       'Heat Pump Interactive Model': 'Heat_Pump_Model/index.html'
-    }
+    },
+    essentialQuestion: "How can we 'pump' heat against its natural flow from hot to cold?"
   },
   {
     date: "2026-03-18",
@@ -60,7 +62,8 @@ const lessonsData = [
     wicor: {
       reading: "Marking the Text & Focused Annotation.",
       writing: "Focused Note Taking: Identifying Main Ideas & Supporting Details."
-    }
+    },
+    essentialQuestion: "How can we use focused note-taking to analyze the relationship between entropy and engine efficiency?"
   },
   {
     date: "2026-03-17",
@@ -77,7 +80,8 @@ const lessonsData = [
       'Entropy and Zombies Project Doc': 'https://docs.google.com/document/d/1P6zTrHvILhcegkh_KdeMliKIxFxIRzz-Wh3mwSht6Yg/edit?usp=sharing',
       'Entropy and Zombies Examples': 'https://drive.google.com/file/d/1zU6kPKk03noFmwDFEidzMLBkTBjnposw/view?usp=sharing',
       'Thermodynamics: Entropy & Heat Engines': 'https://docs.google.com/document/d/18SCo219sB0k27d_VGOXa20wFp4iQk0fOInLbwq_5AHI/edit?usp=sharing'
-    }
+    },
+    essentialQuestion: "How does the Second Law of Thermodynamics predict the inevitable decay of all systems?"
   },
   {
     date: "2026-03-16",
@@ -93,7 +97,8 @@ const lessonsData = [
     links: {
       'Entropy Lab: Micro & Macro': 'Entropy_Simulation/index.html',
       'Entropy and Zombies Examples': 'https://drive.google.com/file/d/1zU6kPKk03noFmwDFEidzMLBkTBjnposw/view?usp=sharing'
-    }
+    },
+    essentialQuestion: "What is the relationship between microscopic disorder and macroscopic decay?"
   },
   {
     date: "2026-03-13",
@@ -105,7 +110,8 @@ const lessonsData = [
     type: "Assessment",
     dok: 3,
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    essentialQuestion: "How do we demonstrate mastery of the First Law of Thermodynamics?"
   },
   {
     date: "2026-03-12",
@@ -117,7 +123,8 @@ const lessonsData = [
     type: "Activity",
     dok: 2,
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    essentialQuestion: "How do we clarify the relationships between U, Q, and W before assessment?"
   },
   {
     date: "2026-03-11",
@@ -132,7 +139,8 @@ const lessonsData = [
     isFeatured: true,
     links: {
       'Heat Engine Report Slides': 'https://docs.google.com/presentation/d/1n7nqFHerCyZs3wRiW2Aj633TNEDT_MCpJwWWih13XRs/edit?usp=sharing'
-    }
+    },
+    essentialQuestion: "How do heat engines convert thermal energy into useful mechanical work?"
   },
   {
     date: "2026-03-10",
@@ -149,7 +157,8 @@ const lessonsData = [
       'Presentation: First Law of Thermodynamics': 'https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDZATPiyvvPR4J3orI6Kv85AY7a8qbPR-NCTCusDW9_dXQ?e=blosae',
       'Worksheet: The First Law': 'https://orangeusdorg-my.sharepoint.com/:b:/g/personal/rmudry_orangeusd_org/IQDDLo9r5BE4RYLXfENSHuFgATTddX3SJRYqYsTJsdXkIQI?e=LVtN99',
       'Interactive Model: The Cylinder & Piston': 'First_Law_Sim/index.html'
-    }
+    },
+    essentialQuestion: "How does the First Law of Thermodynamics relate changes in internal energy to heat and work?"
   },
   {
     date: "2026-03-09",
@@ -167,7 +176,8 @@ const lessonsData = [
       'Heat Engine Research': 'https://docs.google.com/presentation/d/1n7nqFHerCyZs3wRiW2Aj633TNEDT_MCpJwWWih13XRs/edit?usp=sharing',
       'Thermodynamics: First Law Reading (English)': 'https://docs.google.com/document/d/1fezNGOy_SmsX2H3Iaf4L75OUl0XI_pqBlIbHZXIKjYY/edit?usp=sharing',
       'Thermodynamics: First Law Reading (Spanish)': 'https://docs.google.com/document/d/10VUp5VlLS08d7J85TxhYlACc3BvctmfZIrUWwqKoMlk/edit?usp=sharing'
-    }
+    },
+    essentialQuestion: "What is the difference between average kinetic energy and the total energy of a system?"
   },
   {
     date: "2026-03-06",
@@ -183,7 +193,8 @@ const lessonsData = [
     links: {
       'Turn In: Radiation Week Work': 'https://docs.google.com/document/d/1EJcKSlydN5ovtlp496SewBpOR_eqeMN2bZCXyISU1gU/edit?usp=sharing',
       'Virtual Radiation Lab': 'Radiation_Lab/index.html'
-    }
+    },
+    essentialQuestion: "How do we finalize our analysis of radiative heat transfer?"
   },
   {
     date: "2026-03-05",
@@ -206,7 +217,8 @@ const lessonsData = [
       writing: "CER Statement: How does distance and albedo affect thermal energy transfer?",
       organization: "Data Matrix connecting previous 3 days of evidence.",
       collaboration: "Peer review of arguments."
-    }
+    },
+    essentialQuestion: "How do we build a scientific argument for heat transfer using evidence and reasoning?"
   },
   {
     date: "2026-03-04",
@@ -227,7 +239,8 @@ const lessonsData = [
     wicor: {
       inquiry: "Testing variables (Distance vs. Absorption).",
       collaboration: "Group data analysis."
-    }
+    },
+    essentialQuestion: "What variables most significantly impact the rate of heat absorption by radiation?"
   },
   {
     date: "2026-03-03",
@@ -250,7 +263,8 @@ const lessonsData = [
     wicor: {
       inquiry: "Predicting heating rates based on surface color and distance.",
       organization: "Data table & Graphing of live temperatures."
-    }
+    },
+    essentialQuestion: "How do surface color and distance affect the intensity of radiative heating?"
   },
   {
     date: "2026-03-02",
@@ -271,7 +285,8 @@ const lessonsData = [
     wicor: {
       reading: "Focused Annotation & Marking the Text.",
       writing: "Quick-summary of the Stefan-Boltzmann relationship."
-    }
+    },
+    essentialQuestion: "How is thermal energy transferred through electromagnetic waves?"
   },
   {
     date: "2026-02-27",
@@ -287,7 +302,8 @@ const lessonsData = [
     wicor: {
       writing: "Quick-Write (The Beach Analogy).",
       organization: "Formula breakdown and variable mapping."
-    }
+    },
+    essentialQuestion: "How do we summarize our understanding of buoyancy and heat transfer?"
   },
   {
     date: "2026-02-26",
@@ -303,7 +319,8 @@ const lessonsData = [
     links: {
       'Penny Boat Lab Simulation': 'penny-boat-lab/index.html',
       'Lab Worksheet': 'https://docs.google.com/document/d/1VQUuUUDHWyi3-RyGK4vMBHEynfavdPs9/edit?usp=sharing&ouid=111972921986195834260&rtpof=true&sd=true'
-    }
+    },
+    essentialQuestion: "How can we maximize buoyant force through boat design?"
   },
   {
     date: "2026-02-25",
@@ -323,7 +340,8 @@ const lessonsData = [
     },
     links: {
       'Collaborative Document': 'https://docs.google.com/document/d/1dCXH40YVvT2zvgQBGSn-YRu4R8j7p8ardLDmhJd7KPU/edit?usp=sharing'
-    }
+    },
+    essentialQuestion: "How do we synthesize lab observations with core thermodynamic principles?"
   },
   {
     date: "2026-02-24",
@@ -340,7 +358,8 @@ const lessonsData = [
       'Reading': 'https://docs.google.com/document/d/1e1Cwzw_ZKKNy2roVR3oCfLnWNxiGaqZaq77qNkj7fpg/edit?usp=sharing',
       'Worksheet': 'https://docs.google.com/document/d/1IdLCxbYPBPB3RsRsxvp4UjFD1nPYD-4RXy-5t6UIXCI/edit?usp=sharing',
       'Buoyancy Basics Simulation': 'https://rrmudry.github.io/Buoyancy_Basics/buoyancy-basics_en.html'
-    }
+    },
+    essentialQuestion: "How does Archimedes' Principle explain why objects float in a fluid?"
   },
   {
     date: "2026-02-23",
@@ -352,7 +371,8 @@ const lessonsData = [
     type: "Activity",
     dok: 2,
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    essentialQuestion: "How does thermal energy affect the volume and density of fluids and solids?"
   },
   {
     date: "2026-02-20",
@@ -367,7 +387,8 @@ const lessonsData = [
     isFeatured: true,
     links: {
       'Lab Worksheet': 'https://docs.google.com/document/d/1onqDNCSUDJi4u-oreNEpD4egYqTfwLuH8jObR6BUdwU/edit?usp=sharing'
-    }
+    },
+    essentialQuestion: "How do we convert between Celsius, Fahrenheit, and Kelvin scales?"
   },
   {
     date: "2026-02-19",
@@ -390,7 +411,8 @@ const lessonsData = [
     links: {
       'Lab Worksheet': 'https://docs.google.com/document/d/10UjF46bf5btNcFKzQqmEh9uEDaFugH-_k53kA50hL6c/edit?usp=sharing',
       'Class Presentation': 'https://docs.google.com/presentation/d/1P0ULnY6GGiIC9oxKiCnBeBTUQQMCPUCEZuYK_T3Tp-E/edit?usp=sharing'
-    }
+    },
+    essentialQuestion: "Why do different materials feel 'colder' even when at the same temperature?"
   },
   {
     date: "2026-02-18",
@@ -410,7 +432,8 @@ const lessonsData = [
     links: {
       '3 Modes of Heat Transfer Reading': 'https://docs.google.com/document/d/1l2lmOQW4ekqVNpc30GCE69UrxQnn1oShPBXC_snQ7rk/edit?usp=sharing',
       'Class Presentation': 'https://docs.google.com/presentation/d/12PEKCsPVp568VA8rfx8KKHJlrR2sRCQR3ffCJ4YhWjA/edit?usp=sharing'
-    }
+    },
+    essentialQuestion: "What are the microscopic mechanisms for conduction, convection, and radiation?"
   },
   {
     date: "2026-02-17",
@@ -429,7 +452,8 @@ const lessonsData = [
     },
     links: {
       'Class Presentation': 'https://docs.google.com/presentation/d/1hIh64bCJDzl2VfIUFaMOoDsfsF9F7vvSPdYArvxsAFk/edit?usp=sharing'
-    }
+    },
+    essentialQuestion: "How does temperature affect the rate of molecular motion?"
   },
   {
     date: "2026-02-16",
@@ -465,7 +489,8 @@ const lessonsData = [
     type: "Activity",
     dok: 1,
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    essentialQuestion: "How do we define the boundaries of a thermodynamic system?"
   },
   {
     date: "2026-02-11",
@@ -477,7 +502,8 @@ const lessonsData = [
     type: "Activity",
     dok: 1,
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    essentialQuestion: "Why does heat always flow from higher temperature to lower temperature?"
   },
   {
     date: "2026-02-10",
@@ -492,7 +518,8 @@ const lessonsData = [
     isFeatured: true,
     links: {
       reading: 'https://docs.google.com/document/d/1B2MmWi6uCSIEM9hKdQufnxnwlf1sqyod420oX_KwyBg/edit?usp=sharing'
-    }
+    },
+    essentialQuestion: "What is the distinction between temperature and heat?"
   },
   {
     date: "2026-02-09",
@@ -504,7 +531,8 @@ const lessonsData = [
     type: "Activity",
     dok: 1,
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    essentialQuestion: "How do we bridge the gap between momentum concepts and thermodynamic energy?"
   },
 
   // --- Unit 4: Momentum & Impulse ---
@@ -518,7 +546,8 @@ const lessonsData = [
     type: "Activity",
     dok: 3,
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    essentialQuestion: "Which design features are most effective at increasing impact time to protect a passenger?"
   },
   {
     date: "2026-02-05",
@@ -530,7 +559,8 @@ const lessonsData = [
     type: "Activity",
     dok: 3,
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    essentialQuestion: "How do we apply engineering constraints to maximize safety in a collision?"
   },
   {
     date: "2026-02-04",
@@ -545,7 +575,8 @@ const lessonsData = [
       worksheet: 'https://docs.google.com/document/d/1NTlmnUfAbc-M5DIXjM16fddZQ4kT22gp/edit?usp=drive_link&ouid=111972921986195834260&rtpof=true&sd=true'
     },
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    essentialQuestion: "How do we demonstrate mastery of Unit 4 concepts through comprehensive review?"
   },
   {
     date: "2026-02-03",
@@ -560,7 +591,8 @@ const lessonsData = [
       worksheet: 'https://docs.google.com/document/d/1oPYECLlG-p7O3gOdFiw0aGqtdZxQLd9OvZ5jA0VVzSA/edit?usp=sharing'
     },
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    essentialQuestion: "How do we mathematically predict the outcomes of various types of collisions?"
   },
   {
     date: "2026-02-02",
@@ -576,7 +608,8 @@ const lessonsData = [
       'Egg Drop Instructions': 'https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQCK_YeyS2K9R6Rpf-S4iTzOAe736fEhXKILK4262BaDQbY?e=FbF2YO'
     },
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    essentialQuestion: "How does the conservation of kinetic energy distinguish elastic from inelastic collisions?"
   },
   {
     date: "2026-01-30",
@@ -588,7 +621,8 @@ const lessonsData = [
     type: "Activity",
     dok: 2,
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    essentialQuestion: "How can we apply the impulse-momentum theorem to protect a fragile object from a fall?"
   },
   {
     date: "2026-01-29",
@@ -604,7 +638,8 @@ const lessonsData = [
       worksheet: 'https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBqZra85A4SSK1ZmAvZcPY-ASLOQK3ArJx-cqWamoCeOBc?e=tHrura'
     },
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    essentialQuestion: "What are the differences between elastic and inelastic collisions in terms of momentum conservation?"
   },
   {
     date: "2026-01-28",
@@ -617,7 +652,8 @@ const lessonsData = [
     dok: 3,
     links: { 'Lab Report Webapp': 'https://rrmudry.github.io/physics-2d-momentum-lab/index.html', 'Simulation': 'https://rrmudry.github.io/conservation-of-momentum/index.html' },
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    essentialQuestion: "How do we apply conservation of momentum using vector addition in two dimensions?"
   },
   {
     date: "2026-01-27",
@@ -630,7 +666,8 @@ const lessonsData = [
     dok: 3,
     links: { 'Lab Report Webapp': 'https://rrmudry.github.io/physics-momentum-lab-report/index.html', 'Simulation': 'https://rrmudry.github.io/conservation-of-momentum/index.html' },
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    essentialQuestion: "How is momentum conserved in a closed system during an explosion?"
   },
   {
     date: "2026-01-26",
@@ -643,7 +680,8 @@ const lessonsData = [
     dok: 3,
     links: { worksheet: 'https://docs.google.com/document/d/15eeYq-2sPEcbqNAOQ0AN9TQ_3i-XIMWXb9Nx_q_w0ps/edit?usp=sharing' },
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    essentialQuestion: "How do internal forces drive objects apart in an explosion?"
   },
   {
     date: "2026-01-23",
@@ -656,7 +694,8 @@ const lessonsData = [
     dok: 3,
     links: { 'project results': 'operation_safe_heeler_results.html' },
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    essentialQuestion: "Which design features are most effective at increasing impact time to protect a passenger?"
   },
   {
     date: "2026-01-22",
@@ -668,7 +707,8 @@ const lessonsData = [
     type: "Activity",
     dok: 3,
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    essentialQuestion: "How do material choices affect the time of impact and the resulting force?"
   },
   {
     date: "2026-01-21",
@@ -681,7 +721,8 @@ const lessonsData = [
     dok: 3,
     links: { webapp: 'https://rrmudry.github.io/rocket-cart-lab/index.html', worksheet: 'https://docs.google.com/document/d/1Wdb2nz8V71ER6nSFD-mLFTPlBpVAbEQP86q2BWbG1EQ/edit?usp=sharing' },
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    essentialQuestion: "What is the relationship between impulse and the change in an object's momentum?"
   },
   {
     date: "2026-01-20",
@@ -694,7 +735,8 @@ const lessonsData = [
     dok: 3,
     links: { worksheet: 'https://docs.google.com/document/d/1hn4Wwx4MjXH5IWOp-Md69w7-nHm6eNq7SO1o1MgSFYA/edit?usp=sharing', 'project website': 'operation-safe-heeler.html', 'Day 7 Link': 'https://docs.google.com/forms/d/e/1FAIpQLSe43Z06ocBI9LJXwOOFsx4zbF6SfLm73l5uQvU-l76Lpu8bEw/viewform?usp=publish-editor', 'crash barriers video': 'https://www.youtube.com/watch?v=w6CKltZfToY&t=61s' },
     semester: 2,
-    isFeatured: false
+    isFeatured: false,
+    essentialQuestion: "How can we engineer safety systems to reduce impulse during a crash?"
   },
   {
     date: "2026-01-19",
@@ -717,7 +759,8 @@ const lessonsData = [
     type: "Assessment",
     dok: 3,
     semester: 2,
-    isFeatured: false
+    isFeatured: false,
+    essentialQuestion: "How can we demonstrate mastery of momentum and the impulse-momentum theorem?"
   },
   {
     date: "2026-01-15",
@@ -730,7 +773,8 @@ const lessonsData = [
     dok: 3,
     links: { worksheet: 'https://docs.google.com/document/d/1S_9AbUsIyIVDCooBL63XZ5qcB95RGBQCnODqmRtfD3Y/edit?usp=sharing' },
     semester: 2,
-    isFeatured: false
+    isFeatured: false,
+    essentialQuestion: "What determines how much force is needed to stop a moving object?"
   },
   {
     date: "2026-01-14",
@@ -743,7 +787,8 @@ const lessonsData = [
     dok: 2,
     links: { worksheet: 'https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQCwJD7mmYGORJTobad0Q3FjAZ70FTiLHMdqRQNOBAPoVOk?e=P4qdky' },
     semester: 2,
-    isFeatured: false
+    isFeatured: false,
+    essentialQuestion: "How do we calculate momentum and impulse using p=mv and J=Ft?"
   },
   {
     date: "2026-01-13",
@@ -756,7 +801,8 @@ const lessonsData = [
     dok: 2,
     links: { notes: 'https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDAf56uDWDvRrHKm_dqPjndAaZFIsdJv1aFlRtInx7he0M?e=tpeQBO' },
     semester: 2,
-    isFeatured: false
+    isFeatured: false,
+    essentialQuestion: "What is momentum and how is it mathematically defined?"
   },
   {
     date: "2026-01-12",
@@ -769,7 +815,8 @@ const lessonsData = [
     dok: 1,
     links: { video: 'https://www.youtube.com/watch?v=2XKOzibVqJg', worksheet: 'https://docs.google.com/document/d/1-byPZiH6PZ6kOckrk3-35An7i1IDFM6GL_S3jvvXqNs/edit?usp=sharing' },
     semester: 2,
-    isFeatured: true
+    isFeatured: true,
+    essentialQuestion: "How does the physics of impact differ from static forces?"
   }
 ];
 
