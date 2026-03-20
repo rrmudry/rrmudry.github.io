@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Digital Encoder</title>
+    <!-- React and ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        body {
+            background-color: #020617; /* Slate 950 */
+            color: #f8fafc; /* Slate 50 */
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useMemo, useCallback } = React;
+
+        // --- MATH & UTILS ---
+        function generateWaveParams() {
+            // Generate a composite wave from 2 sine functions
+            // V(t) = offset + A1*sin(2pi*f1*t + phi1) + A2*sin(2pi*f2*t + phi2)
+            // Time range is 0 to 10 ms.
+            // Voltage range is 0 to 15 V (to allow 4-bit encoding 0000-1111).
+            
+            const A1 = Math.random() * 3 + 1; // 1 to 4
+            const A2 = Math.random() * 2 + 1; // 1 to 3
+            // Ensure sum of amplitudes doesn't exceed 7.5 to fit in 0-15 range
+            
+            const f1 = (Math.floor(Math.random() * 4) + 1) / 10; // 0.1 to 0.4 kHz (1 to 4 cycles per 10ms)
+            const f2 = (Math.floor(Math.random() * 5) + 3) / 10; // 0.3 to 0.7 kHz
+            
+            const phi1 = Math.random() * Math.PI * 2;
+            const phi2 = Math.random() * Math.PI * 2;
+            
+            // Randomly choose sample rate: either 1ms or 2ms
+            const sampleRate = Math.random() > 0.5 ? 1 : 2;
+
+            return {
+                A1, A2, f1, f2, phi1, phi2, offset: 7.5,
+                sampleRate: sampleRate,
+                duration: 10, // 10 ms window
+                maxVoltage: 15
+            };
+        }
+
+        function calculateVoltage(t, params) {
+            const val1 = params.A1 * Math.sin(2 * Math.PI * params.f1 * t + params.phi1);
+            const val2 = params.A2 * Math.sin(2 * Math.PI * params.f2 * t + params.phi2);
+            return params.offset + val1 + val2;
+        }
+
+        function App() {
+            const [problem, setProblem] = useState(generateWaveParams);
+            const [samples, setSamples] = useState([]); // Array of { t, v, binary: "" }
+            const [validationResult, setValidationResult] = useState(null);
+            
+            const canvasRef = useRef(null);
+
+            // Reset state when problem changes
+            useEffect(() => {
+                setSamples([]);
+                setValidationResult(null);
+            }, [problem]);
+
+            // Redraw graph when problem changes
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+                const width = canvas.width;
+                const height = canvas.height;
+
+                // Clear canvas
+                ctx.clearRect(0, 0, width, height);
+
+                // Grid background
+                ctx.fillStyle = '#0f172a'; // slate 900
+                ctx.fillRect(0, 0, width, height);
+
+                const margin = { top: 20, right: 20, bottom: 40, left: 50 };
+                const graphWidth = width - margin.left - margin.right;
+                const graphHeight = height - margin.top - margin.bottom;
+
+                // Draw Grid Lines
+                ctx.strokeStyle = '#334155'; // slate 700
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                
+                // Horizontal lines (Voltage)
+                for (let v = 0; v <= problem.maxVoltage; v++) {
+                    const y = margin.top + graphHeight - (v / problem.maxVoltage) * graphHeight;
+                    ctx.moveTo(margin.left, y);
+                    ctx.lineTo(width - margin.right, y);
+                    
+                    // Draw labels
+                    ctx.fillStyle = '#94a3b8'; // slate 400
+                    ctx.font = '12px monospace';
+                    ctx.textAlign = 'right';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(`${v}V`, margin.left - 10, y);
+                }
+
+                // Vertical lines (Time)
+                for (let t = 0; t <= problem.duration; t++) {
+                    const x = margin.left + (t / problem.duration) * graphWidth;
+                    ctx.moveTo(x, margin.top);
+                    ctx.lineTo(x, height - margin.bottom);
+                    
+                    // Draw labels
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'top';
+                    ctx.fillText(`${t}ms`, x, height - margin.bottom + 10);
+                }
+                ctx.stroke();
+
+                // Draw the Analog Wave
+                ctx.strokeStyle = '#06b6d4'; // cyan 500
+                ctx.lineWidth = 4;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.beginPath();
+
+                const steps = graphWidth; // one point per pixel
+                for (let i = 0; i <= steps; i++) {
+                    const t = (i / steps) * problem.duration;
+                    const v = calculateVoltage(t, problem);
+                    
+                    const x = margin.left + (t / problem.duration) * graphWidth;
+                    const y = margin.top + graphHeight - (v / problem.maxVoltage) * graphHeight;
+                    
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+
+                // Draw placed samples
+                samples.forEach(sample => {
+                    const x = margin.left + (sample.t / problem.duration) * graphWidth;
+                    const y = margin.top + graphHeight - (sample.v / problem.maxVoltage) * graphHeight;
+                    
+                    ctx.beginPath();
+                    ctx.arc(x, y, 6, 0, 2 * Math.PI);
+                    ctx.fillStyle = '#f43f5e'; // rose 500
+                    ctx.fill();
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    
+                    // Label the rounded voltage
+                    ctx.fillStyle = '#f1f5f9';
+                    ctx.font = 'bold 14px monospace';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'bottom';
+                    ctx.fillText(`${Math.round(sample.v)}V`, x, y - 10);
+                });
+
+            }, [problem, samples]);
+
+            const handleCanvasClick = (e) => {
+                const canvas = canvasRef.current;
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                
+                const width = canvas.width;
+                const margin = { top: 20, right: 20, bottom: 40, left: 50 };
+                const graphWidth = width - margin.left - margin.right;
+                
+                // Calculate time t from X coordinate
+                let t = ((x - margin.left) / graphWidth) * problem.duration;
+                
+                // Snap to nearest integer millisecond
+                t = Math.round(t);
+                
+                // Ensure t is within bounds
+                if (t < 0 || t > problem.duration) return;
+
+                // Check if sample already exists at time t
+                const existingIndex = samples.findIndex(s => s.t === t);
+                
+                if (existingIndex !== -1) {
+                    // Remove sample if clicked again
+                    const newSamples = [...samples];
+                    newSamples.splice(existingIndex, 1);
+                    setSamples(newSamples);
+                } else {
+                    // Add new sample
+                    const v = calculateVoltage(t, problem);
+                    setSamples([...samples, { t, v, binary: "" }].sort((a,b) => a.t - b.t));
+                }
+            };
+
+            const updateBinary = (t, value) => {
+                setSamples(samples.map(s => s.t === t ? { ...s, binary: value } : s));
+            };
+
+            const validateSamples = () => {
+                const requiredSamplesCount = (problem.duration / problem.sampleRate) + 1;
+                
+                if (samples.length !== requiredSamplesCount) {
+                    setValidationResult({ success: false, msg: `You need exactly ${requiredSamplesCount} samples based on a ${problem.sampleRate}ms sample rate.`});
+                    return;
+                }
+
+                // Check interval correctness
+                let intervalsCorrect = true;
+                for (let i = 0; i < samples.length; i++) {
+                    if (samples[i].t !== i * problem.sampleRate) {
+                        intervalsCorrect = false;
+                        break;
+                    }
+                }
+
+                if (!intervalsCorrect) {
+                    setValidationResult({ success: false, msg: `Samples are not placed at the correct ${problem.sampleRate}ms intervals.`});
+                    return;
+                }
+
+                // Check Quantization and Binary Strings (4-bit encoding for 0-15V)
+                let binaryCorrect = true;
+                for (let i = 0; i < samples.length; i++) {
+                    const quantizedV = Math.round(samples[i].v);
+                    
+                    // Clamp to 0-15 just in case
+                    const clampedV = Math.max(0, Math.min(15, quantizedV));
+                    const expectedBinary = clampedV.toString(2).padStart(4, '0');
+                    
+                    if (samples[i].binary !== expectedBinary) {
+                        binaryCorrect = false;
+                        setValidationResult({ success: false, msg: `Incorrect binary encoding at t=${samples[i].t}ms. Expected ADC conversion of ${clampedV}V.`});
+                        return;
+                    }
+                }
+
+                if (binaryCorrect) {
+                     const code = btoa(`${problem.sampleRate}-${problem.f1}-${Date.now()}`).substring(0, 8).toUpperCase();
+                     setValidationResult({ 
+                        success: true, 
+                        msg: "Analog signal successfully digitized and encoded!",
+                        code: `ENC-${code}`
+                    });
+                }
+            };
+
+            return (
+                <div className="min-h-screen py-10 px-4 md:px-8 max-w-6xl mx-auto flex flex-col gap-6">
+                    <header className="mb-2">
+                        <h1 className="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-indigo-400">
+                            The Digital Encoder
+                        </h1>
+                        <p className="text-slate-400 mt-2">
+                            Analog-to-Digital Conversion Simulation
+                        </p>
+                    </header>
+
+                    <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-2xl relative">
+                        <div className="flex justify-between items-center mb-4">
+                            <div>
+                                <h2 className="text-xl font-bold text-cyan-400 font-mono tracking-wider">ANALOG SIGNAL</h2>
+                                <p className="text-sm text-slate-400">Click on the wave line to place sample points.</p>
+                            </div>
+                            <div className="bg-indigo-950/50 border border-indigo-500/30 px-4 py-2 rounded-lg">
+                                <span className="text-xs text-indigo-300 font-bold uppercase mr-2">Target Rate:</span>
+                                <span className="text-indigo-100 font-mono font-bold">Sample every {problem.sampleRate} ms</span>
+                            </div>
+                        </div>
+
+                        <div className="relative w-full overflow-hidden rounded-xl border border-slate-700 bg-slate-950">
+                            {/* Canvas takes full width */}
+                            <canvas 
+                                ref={canvasRef} 
+                                onClick={handleCanvasClick}
+                                width={800} 
+                                height={400}
+                                className="w-full h-auto cursor-crosshair block"
+                            />
+                        </div>
+
+                        <div className="mt-4 flex justify-end">
+                            <button 
+                                onClick={() => setProblem(generateWaveParams())}
+                                className="text-slate-500 hover:text-white underline text-sm transition"
+                            >
+                                Generate New Signal
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* ADC DATA STRIP */}
+                    <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-2xl">
+                        <h2 className="text-xl font-bold text-violet-400 font-mono tracking-wider mb-4 border-b border-slate-700 pb-2">
+                            ADC SEQUENCE ENCODER (4-BIT)
+                        </h2>
+                        
+                        <div className="flex flex-wrap gap-4 mb-6 justify-center">
+                            {samples.length === 0 ? (
+                                <p className="text-slate-500 italic text-sm py-4">Place sample points on the graph above to digitize the signal.</p>
+                            ) : (
+                                samples.map((sample, idx) => (
+                                    <div key={idx} className="bg-slate-950 border border-slate-800 rounded-lg p-3 flex flex-col items-center min-w-[80px]">
+                                        <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">t = {sample.t}ms</div>
+                                        <div className="font-mono text-lg text-rose-400 font-bold mb-2">{Math.round(sample.v)}V</div>
+                                        <input 
+                                            type="text" 
+                                            maxLength="4"
+                                            value={sample.binary}
+                                            onChange={(e) => updateBinary(sample.t, e.target.value)}
+                                            placeholder="0000"
+                                            className="w-16 bg-slate-900 border border-slate-600 rounded px-2 py-1 text-center text-white font-mono text-sm focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                                        />
+                                    </div>
+                                ))
+                            )}
+                        </div>
+
+                        {validationResult && (
+                            <div className={`mb-6 p-4 rounded-xl border ${validationResult.success ? 'bg-emerald-950/40 border-emerald-500/50' : 'bg-rose-950/40 border-rose-500/50'}`}>
+                                <p className={`text-sm ${validationResult.success ? 'text-emerald-300' : 'text-rose-300'}`}>
+                                    {validationResult.msg}
+                                </p>
+                                {validationResult.success && (
+                                    <div className="mt-3 pt-3 border-t border-emerald-800/50">
+                                        <p className="text-xs text-emerald-500 font-bold uppercase tracking-wider mb-1">Verification Code</p>
+                                        <p className="font-mono text-xl text-emerald-400 tracking-widest bg-emerald-950 py-2 text-center rounded-lg border border-emerald-800">
+                                            {validationResult.code}
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        <button 
+                            onClick={validateSamples}
+                            disabled={samples.length === 0}
+                            className={`w-full py-4 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(139,92,246,0.3)] ${
+                                samples.length > 0 
+                                ? "bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white active:scale-95" 
+                                : "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700"
+                            }`}
+                        >
+                            TRANSMIT DIGITAL SIGNAL
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
