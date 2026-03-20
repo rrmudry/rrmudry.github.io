@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ripple Tank: Interference Node Hunter</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #020617; color: #f8fafc; overflow-x: hidden; }
+        .font-mono { font-family: 'Fira Code', monospace; }
+        .tank-bg {
+            background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useMemo } = React;
+
+        function generateProblem() {
+            // Wavelength between 20px and 60px
+            const lambda = Math.floor(Math.random() * 40) + 20;
+            // Distance between sources (3λ to 10λ)
+            const minD = 3 * lambda;
+            const maxD = 10 * lambda;
+            const d = Math.floor(Math.random() * (maxD - minD + 1)) + minD;
+            
+            // Generate a target
+            const isConstructive = Math.random() > 0.5;
+            // Max possible order is approx floor(d / λ)
+            const maxOrder = Math.floor(d / lambda);
+            // Pick a random order starting from 1
+            const order = Math.max(1, Math.floor(Math.random() * maxOrder) + 1);
+
+            return { lambda, d, isConstructive, order };
+        }
+
+        function App() {
+            const [problem, setProblem] = useState(() => generateProblem());
+            const [isRunning, setIsRunning] = useState(true);
+            const canvasRef = useRef(null);
+            
+            // Probe position
+            const [probe, setProbe] = useState({ x: -100, y: -100, active: false });
+
+            // Physics to Canvas mapping
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d', { alpha: false });
+                let animationFrameId;
+                let startTime = performance.now();
+
+                const renderLoop = (time) => {
+                    const rect = canvas.parentElement.getBoundingClientRect();
+                    if (canvas.width !== rect.width || canvas.height !== rect.height) {
+                        canvas.width = rect.width;
+                        canvas.height = rect.height;
+                    }
+
+                    // Background
+                    ctx.fillStyle = '#020617';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    const cx = canvas.width / 2;
+                    const cy = canvas.height / 2;
+                    
+                    // Source positions
+                    const s1x = cx - problem.d / 2;
+                    const s2x = cx + problem.d / 2;
+
+                    // Animation progression (phase)
+                    const elapsed = time - startTime;
+                    const speed = 0.05; // pixels per ms
+                    const maxRadius = Math.max(canvas.width, canvas.height) * 1.5;
+                    const phaseOffset = isRunning ? elapsed * speed : 0;
+
+                    // Drawing concentric circles
+                    // To create a visible Moiré pattern, the lines must be thick (half the wavelength)
+                    ctx.lineWidth = problem.lambda / 2;
+                    
+                    // We draw Rings from outermost in, so we just calculate based on phase
+                    let r = phaseOffset % problem.lambda;
+                    
+                    // Using additive blending to show interference
+                    ctx.globalCompositeOperation = 'lighter';
+
+                    while (r < maxRadius) {
+                        // Intensity falls off slightly with distance to make it look realistic
+                        // But keep base intensity high enough to see the overlap
+                        const alpha = Math.max(0.25, (1 - (r / maxRadius)) * 0.7);
+                        // Using a bright cyan to make the constructive nodes glow white when they overlap
+                        ctx.strokeStyle = `rgba(34, 211, 238, ${alpha})`; 
+
+                        // Source 1
+                        ctx.beginPath();
+                        ctx.arc(s1x, cy, r, 0, 2 * Math.PI);
+                        ctx.stroke();
+
+                        // Source 2
+                        ctx.beginPath();
+                        ctx.arc(s2x, cy, r, 0, 2 * Math.PI);
+                        ctx.stroke();
+
+                        r += problem.lambda;
+                    }
+                    
+                    ctx.globalCompositeOperation = 'source-over';
+
+                    // Draw sources
+                    ctx.fillStyle = '#06b6d4'; // Cyan sources
+                    ctx.beginPath(); ctx.arc(s1x, cy, 6, 0, 2*Math.PI); ctx.fill();
+                    ctx.beginPath(); ctx.arc(s2x, cy, 6, 0, 2*Math.PI); ctx.fill();
+
+                    // If probe is active, draw it and measurement lines
+                    if (probe.active) {
+                        ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+                        ctx.setLineDash([5, 5]);
+                        ctx.lineWidth = 1;
+                        
+                        // Line to S1
+                        ctx.beginPath(); ctx.moveTo(probe.x, probe.y); ctx.lineTo(s1x, cy); ctx.stroke();
+                        // Line to S2
+                        ctx.beginPath(); ctx.moveTo(probe.x, probe.y); ctx.lineTo(s2x, cy); ctx.stroke();
+                        
+                        ctx.setLineDash([]);
+                        
+                        // Draw probe target
+                        ctx.strokeStyle = '#22c55e'; // Green target
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.arc(probe.x, probe.y, 8, 0, 2*Math.PI);
+                        ctx.moveTo(probe.x - 12, probe.y); ctx.lineTo(probe.x + 12, probe.y);
+                        ctx.moveTo(probe.x, probe.y - 12); ctx.lineTo(probe.x, probe.y + 12);
+                        ctx.stroke();
+                    }
+
+                    if (isRunning) {
+                        animationFrameId = requestAnimationFrame(renderLoop);
+                    }
+                };
+
+                if (isRunning) {
+                    animationFrameId = requestAnimationFrame(renderLoop);
+                } else {
+                    animationFrameId = requestAnimationFrame(renderLoop);
+                }
+                
+                return () => cancelAnimationFrame(animationFrameId);
+            }, [problem, isRunning, probe]);
+
+            // Drag Handlers
+            const handlePointerDown = (e) => {
+                const rect = canvasRef.current.getBoundingClientRect();
+                setProbe({
+                    x: e.clientX - rect.left,
+                    y: e.clientY - rect.top,
+                    active: true,
+                    dragging: true
+                });
+                e.target.setPointerCapture(e.pointerId);
+            };
+
+            const handlePointerMove = (e) => {
+                if (!probe.dragging) return;
+                const rect = canvasRef.current.getBoundingClientRect();
+                setProbe(p => ({
+                    ...p,
+                    x: e.clientX - rect.left,
+                    y: e.clientY - rect.top
+                }));
+            };
+
+            const handlePointerUp = (e) => {
+                if (!probe.dragging) return;
+                setProbe(p => ({ ...p, dragging: false }));
+                e.target.releasePointerCapture(e.pointerId);
+            };
+
+            // Readouts
+            const cx = canvasRef.current ? canvasRef.current.parentElement.getBoundingClientRect().width / 2 : 0;
+            const cy = canvasRef.current ? canvasRef.current.parentElement.getBoundingClientRect().height / 2 : 0;
+            const s1x = cx - problem.d / 2;
+            const s2x = cx + problem.d / 2;
+            
+            const L1 = probe.active ? Math.sqrt(Math.pow(probe.x - s1x, 2) + Math.pow(probe.y - cy, 2)) : 0;
+            const L2 = probe.active ? Math.sqrt(Math.pow(probe.x - s2x, 2) + Math.pow(probe.y - cy, 2)) : 0;
+
+            // Validation State
+            const [inputPD, setInputPD] = useState("");
+            const [inputMathType, setInputMathType] = useState("");
+            const [inputOrder, setInputOrder] = useState("");
+            const [validationResult, setValidationResult] = useState(null);
+
+            const validatePlacement = () => {
+                if (!probe.active) {
+                    setValidationResult({ success: false, msg: "Deploy the detector probe first." });
+                    return;
+                }
+                
+                if (!inputPD || !inputMathType || !inputOrder) {
+                    setValidationResult({ success: false, msg: "Please complete all Analysis Report fields." });
+                    return;
+                }
+
+                const studentPD = parseFloat(inputPD);
+                const actualPD = Math.abs(L1 - L2);
+                
+                // 1. Check if their measured |L1 - L2| matches the actual delta
+                if (Math.abs(studentPD - actualPD) > 0.5) { // 0.5px tolerance
+                     setValidationResult({ success: false, msg: "Path Difference calculation is incorrect. Did you subtract L1 and L2?" });
+                     return;
+                }
+
+                // 2. Check if they selected the right formula
+                const expectedType = problem.isConstructive ? "constructive" : "destructive";
+                if (inputMathType !== expectedType) {
+                    setValidationResult({ success: false, msg: `Incorrect formula selected for a ${problem.isConstructive ? 'Constructive' : 'Destructive'} interference point.` });
+                    return;
+                }
+
+                // 3. Check if they selected the right order
+                if (parseInt(inputOrder) !== problem.order) {
+                    setValidationResult({ success: false, msg: `Incorrect order 'm' entered. You are looking for order ${problem.order}.` });
+                    return;
+                }
+
+                // 4. Check if the probe is actually on the right fringe
+                // Calculate theoretical PD for their assigned target
+                let theoreticalPD;
+                if (problem.isConstructive) {
+                    theoreticalPD = problem.order * problem.lambda;
+                } else {
+                    theoreticalPD = (problem.order - 0.5) * problem.lambda;
+                }
+
+                // Is the probe placed where the path difference matches the theoretical requirement?
+                const isPlacementCorrect = Math.abs(actualPD - theoreticalPD) < (problem.lambda * 0.15); // 15% phase tolerance
+
+                if (isPlacementCorrect) {
+                    const code = btoa(`${problem.d}-${problem.lambda}-${Date.now()}`).substring(0, 8).toUpperCase();
+                    setValidationResult({ 
+                        success: true, 
+                        msg: "Interference mapped successfully! Spatial and mathematical models align.",
+                        code: `RPL-${code}`
+                    });
+                } else {
+                    setValidationResult({ 
+                        success: false, 
+                        msg: "Probe placement is misaligned. The measured path difference doesn't match the theoretical requirement for this node." 
+                    });
+                }
+            };
+
+            return (
+                <div className="min-h-screen py-10 px-4 md:px-8 max-w-7xl mx-auto flex flex-col gap-8">
+                    <header className="mb-2 text-center md:text-left flex justify-between items-end">
+                        <div>
+                            <h1 className="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-indigo-400">Ripple Tank: Node Hunter</h1>
+                            <p className="text-slate-400 mt-2">Deploy the detector probe to map constructive and destructive interference.</p>
+                        </div>
+                        <button 
+                            onClick={() => setIsRunning(!isRunning)}
+                            className="hidden md:block px-5 py-2 rounded-full font-bold border border-slate-600 hover:bg-slate-800 transition"
+                        >
+                            {isRunning ? "❚❚ FREEZE TANK" : "▶ RESUME DRIP"}
+                        </button>
+                    </header>
+
+                    <div className="grid lg:grid-cols-3 gap-8">
+                        {/* LEFT: Ripple Tank Canvas */}
+                        <div className="lg:col-span-2 space-y-4">
+                            <div className="bg-slate-900 border border-slate-700 rounded-2xl p-4 shadow-2xl relative">
+                                <div className="flex justify-between items-center mb-3">
+                                     <h2 className="text-xl font-bold text-cyan-500 font-mono tracking-wider">INTERFERENCE CHAMBER</h2>
+                                     <button 
+                                        onClick={() => setIsRunning(!isRunning)}
+                                        className="md:hidden px-3 py-1 text-sm rounded-full font-bold border border-slate-600 hover:bg-slate-800 transition"
+                                    >
+                                        {isRunning ? "❚❚ FREEZE" : "▶ RESUME"}
+                                    </button>
+                                </div>
+                               
+                                <div className="relative w-full h-[500px] border border-slate-700 bg-slate-950 rounded-xl overflow-hidden tank-bg" style={{ touchAction: 'none' }}>
+                                    <canvas 
+                                        ref={canvasRef} 
+                                        className="absolute inset-0 w-full h-full cursor-crosshair"
+                                        onPointerDown={handlePointerDown}
+                                        onPointerMove={handlePointerMove}
+                                        onPointerUp={handlePointerUp}
+                                        onPointerCancel={handlePointerUp}
+                                    />
+                                    
+                                    {!probe.active && (
+                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-900/80 p-4 border border-violet-500/50 rounded-xl text-center pointer-events-none animate-pulse">
+                                            <p className="text-violet-300 font-bold mb-1">Click & Drag</p>
+                                            <p className="text-xs text-slate-400">to deploy detector probe</p>
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                <div className="mt-4 flex flex-wrap gap-4 justify-between items-center text-sm">
+                                    <div className="flex gap-4">
+                                        <div className="bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 font-mono">
+                                            <span className="text-slate-400 text-xs mr-2">λ:</span>
+                                            <span className="text-violet-300 font-bold">{problem.lambda} px</span>
+                                        </div>
+                                        <div className="bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 font-mono">
+                                            <span className="text-slate-400 text-xs mr-2">d:</span>
+                                            <span className="text-cyan-300 font-bold">{problem.d} px</span>
+                                        </div>
+                                    </div>
+                                    <button 
+                                        onClick={() => { 
+                                            setProblem(generateProblem()); 
+                                            setProbe({ active: false });
+                                            setInputPD(""); setInputMathType(""); setInputOrder(""); setValidationResult(null);
+                                        }}
+                                        className="text-slate-400 hover:text-white underline text-sm"
+                                    >
+                                        Initialize New Simulation
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* RIGHT: Data Entry & Validation */}
+                        <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-2xl flex flex-col relative overflow-hidden">
+                            <h2 className="text-xl font-bold text-indigo-400 mb-4 border-b border-slate-700 pb-2">Analysis Report</h2>
+                            
+                            <div className="mb-6 p-4 bg-indigo-950/40 border border-indigo-500/30 rounded-xl">
+                                <p className="text-xs text-indigo-300 font-bold uppercase tracking-wider mb-2">Current Objective:</p>
+                                <p className="text-lg font-medium">
+                                    Locate a <strong className="text-cyan-400">{problem.order}{problem.order === 1 ? 'st' : problem.order === 2 ? 'nd' : problem.order === 3 ? 'rd' : 'th'} Order</strong> 
+                                    <strong className={problem.isConstructive ? "text-emerald-400 ml-1" : "text-rose-400 ml-1"}>
+                                        {problem.isConstructive ? "ANTINODE (Constructive)" : "NODE (Destructive)"}
+                                    </strong>
+                                </p>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4 mb-6">
+                                <div className="bg-slate-950 border border-slate-800 rounded-lg p-3">
+                                    <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">L1 (Source 1)</div>
+                                    <div className="font-mono text-lg text-slate-300">{probe.active ? L1.toFixed(1) : '---'} px</div>
+                                </div>
+                                <div className="bg-slate-950 border border-slate-800 rounded-lg p-3">
+                                    <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">L2 (Source 2)</div>
+                                    <div className="font-mono text-lg text-slate-300">{probe.active ? L2.toFixed(1) : '---'} px</div>
+                                </div>
+                            </div>
+                            
+                             <div className="space-y-5 flex-grow relative z-10">
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Path Difference (|L1 - L2|)</label>
+                                    <div className="flex items-center gap-2">
+                                        <input 
+                                            type="number"
+                                            step="0.1"
+                                            value={inputPD}
+                                            onChange={(e) => setInputPD(e.target.value)}
+                                            placeholder="e.g. 45.2"
+                                            className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 text-white font-mono focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition"
+                                        />
+                                        <span className="text-slate-500 font-mono">px</span>
+                                    </div>
+                                </div>
+                                
+                                <div className="grid grid-cols-2 gap-2">
+                                    <div className="col-span-2">
+                                        <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Math Proof</label>
+                                    </div>
+                                    <select 
+                                        value={inputMathType}
+                                        onChange={(e) => setInputMathType(e.target.value)}
+                                        className="bg-slate-950 border border-slate-700 rounded-lg px-3 py-3 text-white font-mono text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none transition"
+                                    >
+                                        <option value="" disabled>Formula...</option>
+                                        <option value="constructive">|L1 - L2| = mλ</option>
+                                        <option value="destructive">|L1 - L2| = (m - 0.5)λ</option>
+                                    </select>
+                                    <input 
+                                        type="number"
+                                        value={inputOrder}
+                                        onChange={(e) => setInputOrder(e.target.value)}
+                                        placeholder="Order 'm'"
+                                        className="bg-slate-950 border border-slate-700 rounded-lg px-3 py-3 text-white font-mono text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none transition"
+                                    />
+                                </div>
+                            </div>
+
+                            {validationResult && (
+                                <div className={`mt-6 p-4 rounded-xl border ${validationResult.success ? 'bg-emerald-950/40 border-emerald-500/50' : 'bg-rose-950/40 border-rose-500/50'} relative z-10 animate-fade-in`}>
+                                    <p className={`text-sm ${validationResult.success ? 'text-emerald-300' : 'text-rose-300'}`}>
+                                        {validationResult.msg}
+                                    </p>
+                                    {validationResult.success && (
+                                        <div className="mt-3 pt-3 border-t border-emerald-800/50">
+                                            <p className="text-xs text-emerald-500 font-bold uppercase tracking-wider mb-1">Validation Code</p>
+                                            <p className="font-mono text-xl text-emerald-400 tracking-widest bg-emerald-950 py-2 text-center rounded-lg border border-emerald-800">
+                                                {validationResult.code}
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            <button 
+                                onClick={validatePlacement}
+                                className="w-full mt-6 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-bold py-4 rounded-xl shadow-[0_0_20px_rgba(99,102,241,0.3)] transition-all active:scale-95 relative z-10"
+                            >
+                                Validate Placement
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
