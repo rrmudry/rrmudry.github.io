@@ -190,6 +190,7 @@ const lessonsData = [
     title: "The EM Spectrum Map",
     summary: "Categorizing waves from Radio to Gamma by wavelength and frequency.",
     details: "Survey of the electromagnetic spectrum and its various regions.",
+    links: { "Unknown Signal Analyzer": "Unit_6_Waves_Radiation/signal_analyzer.html" },
     type: "Activity",
     dok: 2,
     semester: 2,
