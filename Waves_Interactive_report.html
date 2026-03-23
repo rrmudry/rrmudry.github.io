@@ -219,8 +219,7 @@
             setTimeout(() => { if(!el.classList.contains('active')) el.style.display = 'none'; }, 300);
         });
         document.querySelectorAll('.tab-btn').forEach(el => {
-            el.classList.remove('bg-slate-800', 'text-slate-50');
-            el.classList.add('bg-slate-200', 'text-slate-700');
+            el.className = 'tab-btn px-6 py-2 rounded-full font-medium transition-colors bg-slate-200 text-slate-700 hover:bg-slate-300';
         });
 
         const activeTab = document.getElementById(tabId);
@@ -228,8 +227,7 @@
         setTimeout(() => activeTab.classList.add('active'), 10);
         
         const activeBtn = document.getElementById('btn-' + tabId);
-        activeBtn.classList.remove('bg-slate-200', 'text-slate-700');
-        activeBtn.classList.add('bg-slate-800', 'text-slate-50');
+        activeBtn.className = 'tab-btn px-6 py-2 rounded-full font-medium transition-colors bg-slate-800 text-slate-50 hover:bg-slate-700';
     }
 
     // --- TAB 1: PARTICLES ANIMATIONS ---
@@ -358,25 +356,66 @@
         ctx.shadowBlur = 0; 
 
         if (!isPlaying) {
-            let foundCrest = false;
+            let crests = [];
             let foundTrough = false;
-            for (let x = 20; x < canvas.width - 20; x++) {
+
+            for (let x = 10; x < canvas.width - 10; x++) {
                 let currentY = (canvas.height / 2) + Math.sin((x * frequency) - time) * amplitude;
                 let nextY = (canvas.height / 2) + Math.sin(((x+1) * frequency) - time) * amplitude;
                 let prevY = (canvas.height / 2) + Math.sin(((x-1) * frequency) - time) * amplitude;
                 
-                if (!foundCrest && currentY < prevY && currentY < nextY) {
-                    ctx.fillStyle = '#fde047'; 
-                    ctx.beginPath(); ctx.arc(x, currentY, 5, 0, Math.PI*2); ctx.fill();
-                    ctx.font = "bold 12px sans-serif"; ctx.fillText("Crest", x - 15, currentY - 10);
-                    foundCrest = true;
+                // Find all crests
+                if (currentY < prevY && currentY < nextY) {
+                    crests.push({x: x, y: currentY});
                 }
-                if (!foundTrough && currentY > prevY && currentY > nextY) {
+                // Label the first trough
+                if (!foundTrough && currentY > prevY && currentY > nextY && x > 20) {
                     ctx.fillStyle = '#f472b6'; 
                     ctx.beginPath(); ctx.arc(x, currentY, 5, 0, Math.PI*2); ctx.fill();
                     ctx.font = "bold 12px sans-serif"; ctx.fillText("Trough", x - 20, currentY + 18);
                     foundTrough = true;
                 }
+            }
+
+            // Label the first crest
+            if (crests.length > 0) {
+                let firstCrest = crests[0];
+                ctx.fillStyle = '#fde047'; 
+                ctx.beginPath(); ctx.arc(firstCrest.x, firstCrest.y, 5, 0, Math.PI*2); ctx.fill();
+                ctx.font = "bold 12px sans-serif"; ctx.fillText("Crest", firstCrest.x - 15, firstCrest.y - 10);
+            }
+
+            // Draw Wavelength dimension line between first and second crests
+            if (crests.length > 1) {
+                let c1 = crests[0];
+                let c2 = crests[1];
+                let lineY = c1.y - 30; // 30 pixels above the crests
+
+                // Draw vertical guide lines
+                ctx.strokeStyle = '#94a3b8'; // slate-400
+                ctx.lineWidth = 1;
+                ctx.setLineDash([3, 3]);
+                ctx.beginPath(); ctx.moveTo(c1.x, c1.y - 5); ctx.lineTo(c1.x, lineY); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(c2.x, c2.y - 5); ctx.lineTo(c2.x, lineY); ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Draw horizontal dimension line with arrows
+                ctx.strokeStyle = '#cbd5e1'; // slate-300
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                // Left Arrow
+                ctx.moveTo(c1.x + 5, lineY - 3); ctx.lineTo(c1.x, lineY); ctx.lineTo(c1.x + 5, lineY + 3);
+                // Main Line
+                ctx.moveTo(c1.x, lineY); ctx.lineTo(c2.x, lineY);
+                // Right Arrow
+                ctx.moveTo(c2.x - 5, lineY - 3); ctx.lineTo(c2.x, lineY); ctx.lineTo(c2.x - 5, lineY + 3);
+                ctx.stroke();
+
+                // Draw Label
+                ctx.fillStyle = '#e2e8f0'; // slate-200
+                ctx.font = "bold 12px sans-serif";
+                let textWidth = ctx.measureText("Wavelength (λ)").width;
+                ctx.fillText("Wavelength (λ)", c1.x + ((c2.x - c1.x)/2) - (textWidth/2), lineY - 8);
             }
         }
 
