@@ -229,14 +229,19 @@ const lessonsData = [
     date: "2026-04-09",
     day: 9,
     unit: 6,
-    title: "Standing Waves & Resonance",
-    summary: "Physics of musical instruments, harmonics, and natural frequency.",
-    details: "Modeling standing waves on strings and in tubes. Exploring resonance.",
+    title: "Standing Waves & Ruben's Tube",
+    summary: "Modeling standing waves and nodes using fire and sound in the Ruben's Tube demonstration.",
+    details: "Physics of musical instruments, harmonics, and natural frequency. Demonstrating standing waves with the Ruben's Tube.",
     type: "Activity",
     dok: 3,
     semester: 2,
     isFeatured: true,
-    essentialQuestion: "How do standing waves and resonance explain the physics of music?"
+    essentialQuestion: "How do standing waves and resonance explain the physics of music?",
+    wicor: {
+      inquiry: "Ruben's Tube Demo: Visualizing nodes and antinodes using flammable gas and acoustic pressure.",
+      writing: "CER Statement: How does changing frequency affect the number of fire peaks?",
+      collaboration: "Harmonics Mapping: Group identification of node locations."
+    }
   },
   {
     date: "2026-04-08",
