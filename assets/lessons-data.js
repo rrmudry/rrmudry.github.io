@@ -416,6 +416,7 @@ const lessonsData = [
     isFeatured: true,
     links: {
       'Reading: Entropy and the Cost of Power': 'https://docs.google.com/document/d/18SCo219sB0k27d_VGOXa20wFp4iQk0fOInLbwq_5AHI/edit?usp=sharing',
+      'Interactive: Entropy & The Cost of Power': 'Entropy_Cost_of_power.html',
       'Presentation: Heat Engines': 'https://docs.google.com/presentation/d/1H1-IDxkyQ0MPDQ3y6Y9ebC_dmjzDTJwj9SjFLwdkmqU/edit?usp=sharing',
       'Printed Instructions': 'https://docs.google.com/document/d/1UXZ83sRCXzGNUq2MnIk-QF7sgIUhuqS9M9M57cFeDNE/edit?usp=sharing'
     },
