@@ -367,7 +367,8 @@ const lessonsData = [
     isFeatured: true,
     essentialQuestion: "How do waves transfer energy without transporting matter?",
     links: {
-      "Intro Video: What is a Wave?": "https://youtu.be/YQKIc5apEUM"
+      "Reading: Intro to Waves": "https://docs.google.com/document/d/1UJdSuMXqWDw-NatiVyo9lG93a-24oYWkZH2dACjiFLQ/edit?usp=sharing",
+      "Strategy: 3-Word Gist Statements": "https://youtu.be/YQKIc5apEUM"
     },
     wicor: {
       writing: "Quick-write: What defines a wave vs. a singular pulse?",
