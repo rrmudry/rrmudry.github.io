@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Report: Entropy & The Cost of Power</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .tab-content {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .tab-content.active {
+            display: block;
+            opacity: 1;
+        }
+        .particle {
+            transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-stone-800 font-sans antialiased">
+
+<!-- Chosen Palette: Warm Neutrals (Stone) with Action Accents (Rose for Heat/Waste, Emerald for Green/Efficiency, Blue for Work) -->
+<!-- Application Structure Plan: The SPA uses a tabbed dashboard structure to break down the highly conceptual physics text into digestible, interactive modules. Tab 1 visualizes the abstract concept of Entropy (disorder). Tab 2 makes the math of 'Efficiency' concrete using an interactive car engine model. Tab 3 charts the resulting ethical/environmental dilemma. Tab 4 provides the full original bilingual AVID reading material for direct study. This non-linear approach allows users to build conceptual understanding before reading the dense text. -->
+<!-- Visualization & Content Choices: 
+Goal: Inform (Entropy Concept) -> Viz: CSS Particle Grid to Random Scatter -> Interaction: Button click to increase disorder -> Justification: Makes a highly abstract concept visible without complex graphics -> Library: Vanilla JS/DOM (NO SVG).
+Goal: Compare (Engine Efficiency) -> Viz: Chart.js Doughnut Chart -> Interaction: Range slider to adjust fuel input, updating chart and text -> Justification: Clearly shows the 25% work vs 75% waste ratio mentioned in the text -> Library: Chart.js.
+Goal: Change (Environmental Impact) -> Viz: Chart.js Line Chart -> Interaction: Hover tooltips -> Justification: Simulates the 'race against a law of physics' by showing cumulative waste heat -> Library: Chart.js. 
+CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+<div class="max-w-5xl mx-auto px-4 py-8">
+    <header class="mb-10 text-center">
+        <h1 class="text-4xl md:text-5xl font-bold text-stone-900 mb-3">Entropy & The Cost of Power</h1>
+        <p class="text-lg text-stone-600 max-w-2xl mx-auto">An interactive exploration of the First and Second Laws of Thermodynamics, Heat Engines, and the physical necessity of going "green."</p>
+    </header>
+
+    <nav class="flex flex-wrap justify-center gap-2 mb-8 border-b border-stone-300 pb-4">
+        <button onclick="switchTab('tab-entropy')" id="btn-tab-entropy" class="tab-btn px-6 py-2 rounded-full font-medium transition-colors bg-stone-800 text-stone-50 hover:bg-stone-700">1. The Entropy Tax</button>
+        <button onclick="switchTab('tab-engine')" id="btn-tab-engine" class="tab-btn px-6 py-2 rounded-full font-medium transition-colors bg-stone-200 text-stone-700 hover:bg-stone-300">2. Heat Engines</button>
+        <button onclick="switchTab('tab-impact')" id="btn-tab-impact" class="tab-btn px-6 py-2 rounded-full font-medium transition-colors bg-stone-200 text-stone-700 hover:bg-stone-300">3. Environmental Impact</button>
+        <button onclick="switchTab('tab-reading')" id="btn-tab-reading" class="tab-btn px-6 py-2 rounded-full font-medium transition-colors bg-stone-200 text-stone-700 hover:bg-stone-300">4. AVID Study Room</button>
+    </nav>
+
+    <main>
+        <section id="tab-entropy" class="tab-content active">
+            <div class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 md:p-10">
+                <h2 class="text-2xl font-bold text-stone-900 mb-4 flex items-center gap-2"><span>🌪️</span> The Tax of the Universe</h2>
+                <p class="text-stone-700 text-lg mb-8 leading-relaxed">
+                    This section visualizes the core concept of the report: <strong>Entropy</strong>. As described in the text, the Second Law of Thermodynamics dictates that every time energy is used to do Work, a "tax" must be paid. This tax manifests as disorder or randomness in a system. Energy spreads out and becomes "useless" as heat. Interact with the simulation below to see how applying work naturally leads to a state of increased disorder over time.
+                </p>
+
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-3">The Organization Simulation</h3>
+                        <p class="mb-6 text-stone-600">Like a clean room, a system starts organized. But as energy transfers occur, some energy is always lost as waste heat, increasing randomness.</p>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between p-4 bg-stone-100 rounded-lg">
+                                <span class="font-medium text-stone-800">Current State:</span>
+                                <span id="entropy-status" class="font-bold text-blue-600 px-3 py-1 bg-blue-100 rounded-full">Highly Ordered</span>
+                            </div>
+                            
+                            <button onclick="increaseEntropy()" class="w-full py-3 bg-stone-800 text-white rounded-lg font-medium hover:bg-stone-700 transition-colors flex justify-center items-center gap-2">
+                                <span>⚡</span> Perform Work (Add Entropy)
+                            </button>
+                            <button onclick="resetEntropy()" class="w-full py-2 bg-stone-200 text-stone-700 rounded-lg font-medium hover:bg-stone-300 transition-colors text-sm">
+                                Reset System
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="relative w-full aspect-square max-w-sm mx-auto bg-stone-900 rounded-xl overflow-hidden shadow-inner border-4 border-stone-300" id="particle-container">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-engine" class="tab-content">
+            <div class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 md:p-10">
+                <h2 class="text-2xl font-bold text-stone-900 mb-4 flex items-center gap-2"><span>⚙️</span> The Efficiency Limit</h2>
+                <p class="text-stone-700 text-lg mb-8 leading-relaxed">
+                    This section translates the report's explanation of <strong>Heat Engines</strong> into a concrete, interactive model. The report notes that a car engine takes high-temperature heat, uses it to turn wheels (Work), and exhausts the rest. Most gasoline cars are only 25% efficient. This means for every dollar of gas, 75 cents is lost as waste heat. Use the slider below to simulate fuel input and observe the inescapable "Entropy Tax" in action.
+                </p>
+
+                <div class="grid md:grid-cols-12 gap-8">
+                    <div class="md:col-span-5 flex flex-col justify-center">
+                        <div class="bg-stone-50 p-6 rounded-xl border border-stone-200 mb-6">
+                            <label for="fuel-slider" class="block text-sm font-bold text-stone-700 mb-2">Input Fuel (Joules): <span id="fuel-display" class="text-emerald-600 text-lg">1000 J</span></label>
+                            <input type="range" id="fuel-slider" min="100" max="5000" step="100" value="1000" class="w-full h-2 bg-stone-300 rounded-lg appearance-none cursor-pointer accent-stone-800" oninput="updateEngineModel()">
+                            
+                            <div class="mt-6 space-y-3">
+                                <div class="flex justify-between items-center border-b border-stone-200 pb-2">
+                                    <span class="flex items-center gap-2"><span class="text-blue-500 text-xl">🚗</span> Useful Work (25%)</span>
+                                    <span id="work-output" class="font-bold text-blue-600">250 J</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="flex items-center gap-2"><span class="text-rose-500 text-xl">🔥</span> Waste Heat (75%)</span>
+                                    <span id="waste-output" class="font-bold text-rose-600">750 J</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-rose-50 border-l-4 border-rose-500 p-4 rounded-r-lg">
+                            <p class="text-sm text-rose-800"><strong>The Financial Cost:</strong> If you spent <span id="money-spent" class="font-bold">$10.00</span> on this fuel, <span id="money-wasted" class="font-bold">$7.50</span> is lost immediately to the environment as heat and noise.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="md:col-span-7 flex items-center justify-center bg-stone-50 rounded-xl border border-stone-200 p-4">
+                        <div class="chart-container">
+                            <canvas id="efficiencyChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-impact" class="tab-content">
+            <div class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 md:p-10">
+                <h2 class="text-2xl font-bold text-stone-900 mb-4 flex items-center gap-2"><span>🌍</span> The Ethical Dilemma</h2>
+                <p class="text-stone-700 text-lg mb-8 leading-relaxed">
+                    Here we explore the author's primary argument: the hidden cost of the industrial age. Because a 100% efficient machine is physically impossible, every new machine adds "disordered" heat to our planet's atmosphere. This chart visualizes the conceptual relationship described in the report: as our power usage and number of heat engines scale up over time, the cumulative "Entropy Tax" paid to the environment inevitably rises.
+                </p>
+
+                <div class="mb-8">
+                    <div class="chart-container">
+                        <canvas id="impactChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="bg-stone-100 p-5 rounded-xl border border-stone-200">
+                        <div class="text-3xl mb-2">🏭</div>
+                        <h4 class="font-bold text-stone-900 mb-2">Industrial Growth</h4>
+                        <p class="text-sm text-stone-600">As we build more machines and use more power, the total energy processed increases exponentially.</p>
+                    </div>
+                    <div class="bg-stone-100 p-5 rounded-xl border border-stone-200">
+                        <div class="text-3xl mb-2">🌡️</div>
+                        <h4 class="font-bold text-stone-900 mb-2">Waste Accumulation</h4>
+                        <p class="text-sm text-stone-600">Because energy is precious and irreversible, low-temperature waste heat is permanently added to the atmosphere.</p>
+                    </div>
+                    <div class="bg-emerald-50 p-5 rounded-xl border border-emerald-200">
+                        <div class="text-3xl mb-2">🌱</div>
+                        <h4 class="font-bold text-emerald-900 mb-2">Physical Necessity</h4>
+                        <p class="text-sm text-emerald-800">Engineers must build machines that pay the lowest "Entropy tax." Being "green" is dictated by thermodynamic laws.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-reading" class="tab-content">
+            <div class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 md:p-10">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                    <h2 class="text-2xl font-bold text-stone-900 flex items-center gap-2"><span>📚</span> AVID Critical Reading</h2>
+                    <div class="flex bg-stone-200 rounded-lg p-1">
+                        <button onclick="setLanguage('en')" id="btn-lang-en" class="px-4 py-1.5 rounded-md font-medium text-sm bg-white text-stone-800 shadow-sm transition-all">English</button>
+                        <button onclick="setLanguage('es')" id="btn-lang-es" class="px-4 py-1.5 rounded-md font-medium text-sm text-stone-600 hover:text-stone-800 transition-all">Español</button>
+                    </div>
+                </div>
+                
+                <p class="text-stone-700 text-lg mb-8 leading-relaxed">
+                    Access the complete source texts below. Use the interactive checklist to track your reading strategies.
+                </p>
+
+                <div class="grid lg:grid-cols-12 gap-8">
+                    <div class="lg:col-span-8 prose prose-stone max-w-none text-stone-800" id="reading-content-en">
+                        <h3 class="text-xl font-bold mb-4 border-b pb-2">Entropy and the Cost of Power</h3>
+                        <p class="font-medium text-stone-600 mb-4"><strong>Essential Question:</strong> Why is it impossible to create a machine that is 100% efficient?</p>
+                        
+                        <p class="mb-4"><span class="font-bold text-stone-400 mr-2">1</span>In the world of physics, every time energy is used to do <span class="bg-yellow-100 px-1 font-semibold">Work</span>, a "tax" must be paid. This tax is called <span class="bg-yellow-100 px-1 font-semibold">Entropy</span>. <span class="bg-yellow-100 px-1 font-semibold">Entropy</span> is a measure of disorder or randomness in a system. The Second Law of Thermodynamics tells us that in any energy transfer, some energy will always spread out and become "useless" as heat. This means the universe is constantly moving toward a state of more disorder. You can see this in your own room: it takes energy and <span class="bg-yellow-100 px-1 font-semibold">Work</span> to keep it organized, but if you do nothing, it naturally becomes messy and disordered over time.</p>
+                        
+                        <p class="mb-4"><span class="font-bold text-stone-400 mr-2">2</span>To turn thermal energy into movement, engineers use a device called a <span class="bg-yellow-100 px-1 font-semibold">Heat Engine</span>. A car engine is a perfect example. It takes in high-temperature heat from a small explosion, uses that energy to do <span class="bg-yellow-100 px-1 font-semibold">Work</span> (turning the wheels), and then exhausts the leftover "waste heat" out of the tailpipe. A <span class="bg-yellow-100 px-1 font-semibold">Heat Engine</span> cannot function without this exhaust. Because of <span class="bg-yellow-100 px-1 font-semibold">Entropy</span>, you can never turn all of the heat from the fuel into pure movement. Some energy must always be "wasted" into the environment to keep the engine running.</p>
+                        
+                        <p class="mb-4"><span class="font-bold text-stone-400 mr-2">3</span>This leads to a major challenge in engineering: <span class="bg-yellow-100 px-1 font-semibold">Efficiency</span>. <span class="bg-yellow-100 px-1 font-semibold">Efficiency</span> is the percentage of energy that actually does the job it was intended to do. Most gasoline car engines are only about 20% to 30% efficient. This means that for every dollar of gas you buy, 70 to 80 cents is lost immediately as waste heat and noise. Even the most advanced power plants in the world cannot escape the "tax" of <span class="bg-yellow-100 px-1 font-semibold">Entropy</span>. There is a hard limit in physics that prevents any machine from being 100% efficient, no matter how well it is designed.</p>
+                        
+                        <p class="mb-4"><span class="font-bold text-stone-400 mr-2">4</span>The existence of <span class="bg-yellow-100 px-1 font-semibold">Entropy</span> creates an ethical dilemma for our modern world. As we build more machines and use more power, we are constantly adding more "disordered" heat to our planet’s atmosphere. This is the hidden cost of the industrial age. <u class="decoration-emerald-500 decoration-2 underline-offset-2">While we can improve our technology to be more Efficient, we are essentially in a race against a law of physics that says we will always lose some energy to the environment.</u></p>
+                        
+                        <p class="mb-4"><span class="font-bold text-stone-400 mr-2">5</span>Understanding <span class="bg-yellow-100 px-1 font-semibold">Entropy</span> changes how we look at progress. It teaches us that energy is precious because once it is turned into low-temperature waste heat, we can never truly "get it back" to do <span class="bg-yellow-100 px-1 font-semibold">Work</span> again. Engineers today aren't just trying to build faster machines; they are trying to build machines that pay the lowest "Entropy tax" possible. <u class="decoration-emerald-500 decoration-2 underline-offset-2">By mastering these laws, we learn that being "green" isn't just a political choice—it is a physical necessity dictated by the laws of thermodynamics.</u></p>
+                    </div>
+
+                    <div class="lg:col-span-8 prose prose-stone max-w-none text-stone-800 hidden" id="reading-content-es">
+                        <h3 class="text-xl font-bold mb-4 border-b pb-2">Entropy y el Costo del Poder</h3>
+                        <p class="font-medium text-stone-600 mb-4"><strong>Pregunta Esencial:</strong> ¿Por qué es imposible crear una máquina que sea 100% eficiente?</p>
+                        
+                        <p class="mb-4"><span class="font-bold text-stone-400 mr-2">1</span>En el mundo de la física, cada vez que se usa energía para realizar <span class="bg-yellow-100 px-1 font-semibold">Work</span>, se debe pagar un "impuesto". Este impuesto se llama <span class="bg-yellow-100 px-1 font-semibold">Entropy</span>. La <span class="bg-yellow-100 px-1 font-semibold">Entropy</span> es una medida del desorden o la aleatoriedad en un sistema. La Segunda Ley de la Termodinámica nos dice que en cualquier transferencia de energía, parte de la energía siempre se dispersará y se volverá "inútil" en forma de calor. Esto significa que el universo se mueve constantemente hacia un estado de más desorden. Puedes ver esto en tu propio cuarto: se necesita energía y <span class="bg-yellow-100 px-1 font-semibold">Work</span> para mantenerlo organizado, pero si no haces nada, naturalmente se vuelve desordenado con el tiempo.</p>
+                        
+                        <p class="mb-4"><span class="font-bold text-stone-400 mr-2">2</span>Para convertir la energía térmica en movimiento, los ingenieros usan un dispositivo llamado <span class="bg-yellow-100 px-1 font-semibold">Heat Engine</span>. El motor de un auto es un ejemplo perfecto. Toma calor a alta temperatura de una pequeña explosión, usa esa energía para realizar <span class="bg-yellow-100 px-1 font-semibold">Work</span> (girar las ruedas) y luego expulsa el "calor residual" sobrante por el tubo de escape. Un <span class="bg-yellow-100 px-1 font-semibold">Heat Engine</span> no puede funcionar sin este escape. Debido a la <span class="bg-yellow-100 px-1 font-semibold">Entropy</span>, nunca puedes convertir todo el calor del combustible en puro movimiento. Siempre se debe "desperdiciar" algo de energía en el medio ambiente para mantener el motor en funcionamiento.</p>
+                        
+                        <p class="mb-4"><span class="font-bold text-stone-400 mr-2">3</span>Esto nos lleva a un gran desafío en la ingeniería: <span class="bg-yellow-100 px-1 font-semibold">Efficiency</span>. La <span class="bg-yellow-100 px-1 font-semibold">Efficiency</span> es el porcentaje de energía que realmente hace el trabajo para el que fue diseñada. La mayoría de los motores de gasolina tienen solo entre un 20% y un 30% de <span class="bg-yellow-100 px-1 font-semibold">Efficiency</span>. Esto significa que por cada dólar de gasolina que compras, entre 70 y 80 centavos se pierden inmediatamente como calor residual y ruido. Incluso las plantas de energía más avanzadas del mundo no pueden escapar del "impuesto" de la <span class="bg-yellow-100 px-1 font-semibold">Entropy</span>. Existe un límite estricto en la física que impide que cualquier máquina sea 100% eficiente, sin importar qué tan bien esté diseñada.</p>
+                        
+                        <p class="mb-4"><span class="font-bold text-stone-400 mr-2">4</span>La existencia de la <span class="bg-yellow-100 px-1 font-semibold">Entropy</span> crea un dilema ético para nuestro mundo moderno. A medida que construimos más máquinas y usamos más poder, agregamos constantemente más calor "desordenado" a la atmósfera de nuestro planeta. Este es el costo oculto de la era industrial. <u class="decoration-emerald-500 decoration-2 underline-offset-2">Si bien podemos mejorar nuestra tecnología para que sea más Efficient, estamos esencialmente en una carrera contra una ley de la física que dice que siempre perderemos algo de energía hacia el entorno.</u></p>
+                        
+                        <p class="mb-4"><span class="font-bold text-stone-400 mr-2">5</span>Comprender la <span class="bg-yellow-100 px-1 font-semibold">Entropy</span> cambia nuestra forma de ver el progreso. Nos enseña que la energía es preciosa porque una vez que se convierte en calor residual de baja temperatura, nunca podemos "recuperarla" realmente para realizar <span class="bg-yellow-100 px-1 font-semibold">Work</span> de nuevo. Los ingenieros de hoy no solo intentan construir máquinas más rápidas; intentan construir máquinas que paguen el "impuesto de Entropy" más bajo posible. <u class="decoration-emerald-500 decoration-2 underline-offset-2">Al dominar estas leyes, aprendemos que ser "verde" no es solo una opción política, sino una necesidad física dictada por las leyes de la termodinámica.</u></p>
+                    </div>
+
+                    <div class="lg:col-span-4">
+                        <div class="bg-stone-50 p-5 rounded-xl border border-stone-200 sticky top-6">
+                            <h4 class="font-bold text-stone-900 mb-4 text-lg border-b border-stone-200 pb-2" id="checklist-title">AVID Annotation Checklist</h4>
+                            <div class="space-y-3" id="checklist-container">
+                                <label class="flex items-start gap-3 cursor-pointer group">
+                                    <input type="checkbox" class="mt-1 w-4 h-4 text-stone-800 rounded border-stone-300 focus:ring-stone-800">
+                                    <span class="text-sm text-stone-700 group-hover:text-stone-900 transition-colors"><strong>Step 1: Number</strong> the paragraphs.</span>
+                                </label>
+                                <label class="flex items-start gap-3 cursor-pointer group">
+                                    <input type="checkbox" class="mt-1 w-4 h-4 text-stone-800 rounded border-stone-300 focus:ring-stone-800">
+                                    <span class="text-sm text-stone-700 group-hover:text-stone-900 transition-colors"><strong>Step 2: Circle</strong> key terms (Entropy, Heat Engine, Work, Efficiency).</span>
+                                </label>
+                                <label class="flex items-start gap-3 cursor-pointer group">
+                                    <input type="checkbox" class="mt-1 w-4 h-4 text-stone-800 rounded border-stone-300 focus:ring-stone-800">
+                                    <span class="text-sm text-stone-700 group-hover:text-stone-900 transition-colors"><strong>Step 3: Underline</strong> the author’s argument about why "being green" is a physical necessity.</span>
+                                </label>
+                                <label class="flex items-start gap-3 cursor-pointer group">
+                                    <input type="checkbox" class="mt-1 w-4 h-4 text-stone-800 rounded border-stone-300 focus:ring-stone-800">
+                                    <span class="text-sm text-stone-700 group-hover:text-stone-900 transition-colors"><strong>Step 4: Left Margin:</strong> Write a 3-word Gist Statement for each paragraph.</span>
+                                </label>
+                                <label class="flex items-start gap-3 cursor-pointer group">
+                                    <input type="checkbox" class="mt-1 w-4 h-4 text-stone-800 rounded border-stone-300 focus:ring-stone-800">
+                                    <span class="text-sm text-stone-700 group-hover:text-stone-900 transition-colors"><strong>Step 5: Right Margin:</strong> Based on the text, write a Level 3 question about how the world would change if Entropy didn't exist.</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script>
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(el => {
+            el.classList.remove('active');
+            setTimeout(() => { if(!el.classList.contains('active')) el.style.display = 'none'; }, 300);
+        });
+        document.querySelectorAll('.tab-btn').forEach(el => {
+            el.classList.remove('bg-stone-800', 'text-stone-50');
+            el.classList.add('bg-stone-200', 'text-stone-700');
+        });
+
+        const activeTab = document.getElementById(tabId);
+        activeTab.style.display = 'block';
+        setTimeout(() => activeTab.classList.add('active'), 10);
+        
+        const activeBtn = document.getElementById('btn-' + tabId);
+        activeBtn.classList.remove('bg-stone-200', 'text-stone-700');
+        activeBtn.classList.add('bg-stone-800', 'text-stone-50');
+    }
+
+    const particleContainer = document.getElementById('particle-container');
+    let entropyLevel = 0;
+    const maxParticles = 100;
+
+    function initParticles() {
+        particleContainer.innerHTML = '';
+        entropyLevel = 0;
+        document.getElementById('entropy-status').innerText = 'Highly Ordered';
+        document.getElementById('entropy-status').className = 'font-bold text-blue-600 px-3 py-1 bg-blue-100 rounded-full';
+        
+        const cols = 10;
+        const rows = 10;
+        const cellWidth = 100 / cols;
+        const cellHeight = 100 / rows;
+
+        for (let i = 0; i < maxParticles; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle absolute w-3 h-3 bg-blue-400 rounded-full';
+            p.id = 'p-' + i;
+            
+            const col = i % cols;
+            const row = Math.floor(i / cols);
+            
+            p.style.left = (col * cellWidth + cellWidth/2) + '%';
+            p.style.top = (row * cellHeight + cellHeight/2) + '%';
+            p.style.transform = 'translate(-50%, -50%)';
+            
+            particleContainer.appendChild(p);
+        }
+    }
+
+    function increaseEntropy() {
+        if (entropyLevel >= 5) return;
+        entropyLevel++;
+        
+        const scatterFactor = entropyLevel * 20; 
+        
+        for (let i = 0; i < maxParticles; i++) {
+            const p = document.getElementById('p-' + i);
+            
+            const randomLeft = Math.random() * 90 + 5; 
+            const randomTop = Math.random() * 90 + 5;
+            
+            p.style.left = randomLeft + '%';
+            p.style.top = randomTop + '%';
+            
+            if (Math.random() < (entropyLevel * 0.2)) {
+                p.classList.remove('bg-blue-400');
+                p.classList.add('bg-rose-500');
+            }
+        }
+
+        const statusEl = document.getElementById('entropy-status');
+        if (entropyLevel === 1) {
+            statusEl.innerText = 'Slightly Disordered';
+            statusEl.className = 'font-bold text-stone-600 px-3 py-1 bg-stone-100 rounded-full';
+        } else if (entropyLevel === 3) {
+            statusEl.innerText = 'Highly Random (Heat Loss)';
+            statusEl.className = 'font-bold text-rose-500 px-3 py-1 bg-rose-100 rounded-full';
+        } else if (entropyLevel === 5) {
+            statusEl.innerText = 'Maximum Entropy Reached';
+            statusEl.className = 'font-bold text-rose-700 px-3 py-1 bg-rose-200 rounded-full';
+        }
+    }
+
+    function resetEntropy() {
+        initParticles();
+    }
+
+    let efficiencyChartInstance = null;
+    function initEngineModel() {
+        const ctx = document.getElementById('efficiencyChart').getContext('2d');
+        efficiencyChartInstance = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Useful Work (25%)', 'Waste Heat (75%)'],
+                datasets: [{
+                    data: [250, 750],
+                    backgroundColor: ['#3b82f6', '#f43f5e'],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { font: { family: 'sans-serif', size: 14 } } },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + context.raw + ' Joules';
+                            }
+                        }
+                    }
+                },
+                cutout: '60%'
+            }
+        });
+    }
+
+    function updateEngineModel() {
+        const fuel = parseInt(document.getElementById('fuel-slider').value);
+        document.getElementById('fuel-display').innerText = fuel + ' J';
+        
+        const work = fuel * 0.25;
+        const waste = fuel * 0.75;
+        
+        document.getElementById('work-output').innerText = work + ' J';
+        document.getElementById('waste-output').innerText = waste + ' J';
+        
+        const money = fuel / 100;
+        document.getElementById('money-spent').innerText = '$' + money.toFixed(2);
+        document.getElementById('money-wasted').innerText = '$' + (money * 0.75).toFixed(2);
+
+        if(efficiencyChartInstance) {
+            efficiencyChartInstance.data.datasets[0].data = [work, waste];
+            efficiencyChartInstance.update();
+        }
+    }
+
+    let impactChartInstance = null;
+    function initImpactChart() {
+        const ctx = document.getElementById('impactChart').getContext('2d');
+        const labels = ['1800s', '1900s', '1950s', '2000s', '2020s', '2050s (Proj)'];
+        
+        impactChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Cumulative Waste Heat (Entropy Tax)',
+                        data: [5, 15, 40, 100, 180, 300],
+                        borderColor: '#f43f5e',
+                        backgroundColor: 'rgba(244, 63, 94, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Useful Work Extracted',
+                        data: [1.25, 3.75, 10, 25, 45, 75], 
+                        borderColor: '#3b82f6',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        fill: false,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.raw + ' Units';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Energy Units (Conceptual)' }
+                    },
+                    x: {
+                        title: { display: true, text: 'Era' }
+                    }
+                }
+            }
+        });
+    }
+
+    const checklists = {
+        en: [
+            '<strong>Step 1: Number</strong> the paragraphs.',
+            '<strong>Step 2: Circle</strong> key terms (Entropy, Heat Engine, Work, Efficiency).',
+            '<strong>Step 3: Underline</strong> the author’s argument about why "being green" is a physical necessity.',
+            '<strong>Step 4: Left Margin:</strong> Write a 3-word Gist Statement for each paragraph.',
+            '<strong>Step 5: Right Margin:</strong> Based on the text, write a Level 3 question about how the world would change if Entropy didn\'t exist.'
+        ],
+        es: [
+            '<strong>Paso 1: Enumerar</strong> los párrafos.',
+            '<strong>Paso 2: Circular</strong> los términos clave (Entropy, Heat Engine, Work, Efficiency).',
+            '<strong>Paso 3: Subrayar</strong> el argumento del autor sobre por qué "ser verde" es una necesidad física.',
+            '<strong>Paso 4: Margen Izquierdo:</strong> Escribe un Gist Statement de 3 palabras para cada párrafo.',
+            '<strong>Paso 5: Margen Derecho:</strong> Basado en el texto, escribe una pregunta de Nivel 3 sobre cómo cambiaría el mundo si la Entropy no existiera.'
+        ]
+    };
+
+    function setLanguage(lang) {
+        if(lang === 'en') {
+            document.getElementById('reading-content-en').classList.remove('hidden');
+            document.getElementById('reading-content-es').classList.add('hidden');
+            document.getElementById('btn-lang-en').className = 'px-4 py-1.5 rounded-md font-medium text-sm bg-white text-stone-800 shadow-sm transition-all';
+            document.getElementById('btn-lang-es').className = 'px-4 py-1.5 rounded-md font-medium text-sm text-stone-600 hover:text-stone-800 transition-all';
+            document.getElementById('checklist-title').innerText = 'AVID Annotation Checklist';
+        } else {
+            document.getElementById('reading-content-en').classList.add('hidden');
+            document.getElementById('reading-content-es').classList.remove('hidden');
+            document.getElementById('btn-lang-es').className = 'px-4 py-1.5 rounded-md font-medium text-sm bg-white text-stone-800 shadow-sm transition-all';
+            document.getElementById('btn-lang-en').className = 'px-4 py-1.5 rounded-md font-medium text-sm text-stone-600 hover:text-stone-800 transition-all';
+            document.getElementById('checklist-title').innerText = 'Lista de Verificación AVID';
+        }
+
+        const container = document.getElementById('checklist-container');
+        container.innerHTML = '';
+        checklists[lang].forEach(item => {
+            container.innerHTML += `
+                <label class="flex items-start gap-3 cursor-pointer group">
+                    <input type="checkbox" class="mt-1 w-4 h-4 text-stone-800 rounded border-stone-300 focus:ring-stone-800">
+                    <span class="text-sm text-stone-700 group-hover:text-stone-900 transition-colors">${item}</span>
+                </label>
+            `;
+        });
+    }
+
+    window.onload = () => {
+        initParticles();
+        initEngineModel();
+        initImpactChart();
+    };
+</script>
+</body>
+</html>
