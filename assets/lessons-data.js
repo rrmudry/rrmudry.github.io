@@ -288,7 +288,12 @@ const lessonsData = [
     dok: 3,
     semester: 2,
     isFeatured: true,
-    essentialQuestion: "How well can we model and calculate basic wave properties?"
+    essentialQuestion: "How well can we model and calculate basic wave properties?",
+    wicor: {
+      writing: "Self-Reflection: Which wave concept is most challenging so far?",
+      organization: "Flashcard review for wave vocabulary.",
+      collaboration: "Peer-grading of the Week 1 Review Set."
+    }
   },
   {
     date: "2026-03-26",
@@ -301,7 +306,12 @@ const lessonsData = [
     dok: 1,
     semester: 2,
     isFeatured: true,
-    essentialQuestion: "What is the inverse relationship between the period and frequency of a wave?"
+    essentialQuestion: "What is the inverse relationship between the period and frequency of a wave?",
+    wicor: {
+      inquiry: "Pendulum Swing: Measuring time for 10 swings vs. swings per second.",
+      writing: "Summary: Explaining why T = 1/f makes sense using physical units.",
+      organization: "Graphic Organizer: Period vs. Frequency."
+    }
   },
   {
     date: "2026-03-25",
@@ -314,7 +324,12 @@ const lessonsData = [
     dok: 2,
     semester: 2,
     isFeatured: true,
-    essentialQuestion: "How can we mathematically relate wave speed, frequency, and wavelength?"
+    essentialQuestion: "How can we mathematically relate wave speed, frequency, and wavelength?",
+    wicor: {
+      writing: "Variable Mapping: Defining v, f, and λ with units.",
+      organization: "The Formula Triangle for v = fλ.",
+      inquiry: "Predicting how doubling frequency affects wavelength if speed is constant."
+    }
   },
   {
     date: "2026-03-24",
@@ -327,7 +342,12 @@ const lessonsData = [
     dok: 2,
     semester: 2,
     isFeatured: true,
-    essentialQuestion: "How does the direction of particle motion distinguish transverse from longitudinal waves?"
+    essentialQuestion: "How does the direction of particle motion distinguish transverse from longitudinal waves?",
+    wicor: {
+      inquiry: "Modeling particle motion with human 'stadium waves' vs. 'domino lines'.",
+      collaboration: "Think-Pair-Share: Which wave type better models sound in air?",
+      reading: "Venn Diagram comparing transverse and longitudinal properties."
+    }
   },
   {
     date: "2026-03-23",
@@ -340,7 +360,12 @@ const lessonsData = [
     dok: 1,
     semester: 2,
     isFeatured: true,
-    essentialQuestion: "How do waves transfer energy without transporting matter?"
+    essentialQuestion: "How do waves transfer energy without transporting matter?",
+    wicor: {
+      writing: "Quick-write: What defines a wave vs. a singular pulse?",
+      inquiry: "Slinky Demo: Can we move a pulse without moving the slinky coils to the other side?",
+      organization: "Wave Anatomy Diagram (Crest, Trough, Amplitude, λ)."
+    }
   },
 
   // --- Unit 5: Thermodynamics ---
