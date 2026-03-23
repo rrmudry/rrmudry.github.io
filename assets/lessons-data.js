@@ -368,7 +368,8 @@ const lessonsData = [
     essentialQuestion: "How can energy travel across a distance without actually moving matter from one place to another?",
     links: {
       "Reading: Intro to Waves": "https://docs.google.com/document/d/1UJdSuMXqWDw-NatiVyo9lG93a-24oYWkZH2dACjiFLQ/edit?usp=sharing",
-      "Strategy: 3-Word Gist Statements": "https://youtu.be/YQKIc5apEUM"
+      "Strategy: 3-Word Gist Statements": "https://youtu.be/YQKIc5apEUM",
+      "Interactive: Waves & Energy Report": "Waves_Interactive_report.html"
     },
     wicor: {
       writing: "3-Word Gist Statements: Summarizing each of the 5 text paragraphs using exactly three words.",
