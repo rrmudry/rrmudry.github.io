@@ -358,22 +358,23 @@ const lessonsData = [
     date: "2026-03-23",
     day: 1,
     unit: 6,
-    title: "What is a Wave?",
-    summary: "Introduction to energy vs. matter transfer; Pulse vs. Periodic waves.",
-    details: "Exploring how waves transport energy without transporting matter. Pulse waves vs. continuous periodic disturbances.",
+    title: "Intro to Waves: Energy in Motion",
+    summary: "AVID Critical Reading: Exploring the fundamental rule of waves—energy transports, matter stays.",
+    details: "Students analyze a 5-paragraph text on mechanical and electromagnetic waves. The lesson focuses on the 5-part AVID annotation process, including gist statements and DOK 3 inquiry questions.",
     type: "Activity",
     dok: 1,
     semester: 2,
     isFeatured: true,
-    essentialQuestion: "How do waves transfer energy without transporting matter?",
+    essentialQuestion: "How can energy travel across a distance without actually moving matter from one place to another?",
     links: {
       "Reading: Intro to Waves": "https://docs.google.com/document/d/1UJdSuMXqWDw-NatiVyo9lG93a-24oYWkZH2dACjiFLQ/edit?usp=sharing",
       "Strategy: 3-Word Gist Statements": "https://youtu.be/YQKIc5apEUM"
     },
     wicor: {
-      writing: "Quick-write: What defines a wave vs. a singular pulse?",
-      inquiry: "Slinky Demo: Can we move a pulse without moving the slinky coils to the other side?",
-      organization: "Wave Anatomy Diagram (Crest, Trough, Amplitude, λ)."
+      writing: "3-Word Gist Statements: Summarizing each of the 5 text paragraphs using exactly three words.",
+      inquiry: "Level 3 Question: Developing a complex inquiry about Mediums vs. Vacuums.",
+      organization: "Marking-the-Text: Numbering paragraphs, circling key terms, and underlining the 'Fundamental Rule' in Para 1.",
+      reading: "Comparative Analysis: Distinguishing between mechanical waves and EM radiation."
     }
   },
 
