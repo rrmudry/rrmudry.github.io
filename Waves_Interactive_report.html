@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Report: Waves & Energy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .tab-content {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .tab-content.active {
+            display: block;
+            opacity: 1;
+        }
+        input[type=range] {
+            accent-color: #0891b2; /* cyan-600 */
+        }
+        .particle {
+            transition: transform 0.2s ease-out, background-color 0.2s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+
+<div class="max-w-5xl mx-auto px-4 py-8">
+    
+    <header class="mb-10 text-center">
+        <h1 class="text-4xl md:text-5xl font-bold text-slate-900 mb-3">Waves & Energy</h1>
+        <p class="text-lg text-slate-600 max-w-2xl mx-auto">An interactive exploration of how energy travels through space and matter without permanently moving the medium.</p>
+    </header>
+
+    <nav class="flex flex-wrap justify-center gap-2 mb-8 border-b border-slate-300 pb-4">
+        <button onclick="switchTab('tab-concept')" id="btn-tab-concept" class="tab-btn px-6 py-2 rounded-full font-medium transition-colors bg-slate-800 text-slate-50 hover:bg-slate-700">1. The Wave Concept</button>
+        <button onclick="switchTab('tab-anatomy')" id="btn-tab-anatomy" class="tab-btn px-6 py-2 rounded-full font-medium transition-colors bg-slate-200 text-slate-700 hover:bg-slate-300">2. Wave Anatomy</button>
+        <button onclick="switchTab('tab-trends')" id="btn-tab-trends" class="tab-btn px-6 py-2 rounded-full font-medium transition-colors bg-slate-200 text-slate-700 hover:bg-slate-300">3. Data & Trends</button>
+        <button onclick="switchTab('tab-reading')" id="btn-tab-reading" class="tab-btn px-6 py-2 rounded-full font-medium transition-colors bg-slate-200 text-slate-700 hover:bg-slate-300">4. AVID Study Room</button>
+    </nav>
+
+    <main>
+        
+        <!-- Tab 1: The Concept -->
+        <section id="tab-concept" class="tab-content active">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-10">
+                <h2 class="text-2xl font-bold text-slate-900 mb-4 flex items-center gap-2"><span>🌊</span> Energy Without Transport</h2>
+                <p class="text-slate-700 text-lg mb-8 leading-relaxed">
+                    This section visualizes the core concept: a <strong>Wave</strong> is a disturbance that carries <strong>Energy</strong> from one place to another without transporting matter the entire distance. Think of a "stadium wave"—people stand up and sit down, but no one leaves their seat.
+                </p>
+
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-3">Types of Waves</h3>
+                        <p class="mb-6 text-slate-600"><strong>Transverse Waves:</strong> Particles move up and down (perpendicular) as energy moves forward.<br><br><strong>Longitudinal Waves:</strong> Particles push and pull (parallel) as energy moves forward.</p>
+                        
+                        <div class="space-y-4">
+                            <button onclick="triggerTransverse()" class="w-full py-3 bg-cyan-600 text-white rounded-lg font-medium hover:bg-cyan-700 transition-colors flex justify-center items-center gap-2">
+                                <span>〰️</span> Send Transverse Pulse
+                            </button>
+                            <button onclick="triggerLongitudinal()" class="w-full py-3 bg-indigo-500 text-white rounded-lg font-medium hover:bg-indigo-600 transition-colors flex justify-center items-center gap-2">
+                                <span>🔊</span> Send Longitudinal Pulse
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="relative w-full aspect-video bg-slate-900 rounded-xl overflow-hidden shadow-inner border-4 border-slate-300 flex items-center justify-center p-4">
+                        <div id="particle-line" class="flex gap-2 relative">
+                            <!-- JS populated particles -->
+                        </div>
+                        <div class="absolute top-2 left-2 text-xs font-mono text-cyan-300 bg-black/50 px-2 py-1 rounded">Energy Flow ➔</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab 2: Wave Anatomy -->
+        <section id="tab-anatomy" class="tab-content">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-10">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                    <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2"><span>📐</span> Wave Anatomy Model</h2>
+                    <button id="playPauseBtn" onclick="togglePlay()" class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
+                        <svg id="icon-pause" class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                        <svg id="icon-play" class="w-4 h-4 fill-current hidden" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        <span id="play-text">Pause Animation</span>
+                    </button>
+                </div>
+                
+                <p class="text-slate-700 text-lg mb-8 leading-relaxed">
+                    Adjust the amplitude (height) and frequency (waves per second) to visualize a continuous transverse wave. Notice the <strong>Crest</strong> (highest point) and <strong>Trough</strong> (lowest point).
+                </p>
+
+                <div class="grid md:grid-cols-12 gap-8">
+                    <div class="md:col-span-5 flex flex-col justify-center space-y-6">
+                        <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                            <div class="flex justify-between text-sm font-semibold text-slate-700 mb-2">
+                                <span>Amplitude (Energy/Height)</span>
+                                <span id="amp-val" class="text-cyan-600 font-mono bg-cyan-50 px-2 py-0.5 rounded border border-cyan-100">Medium</span>
+                            </div>
+                            <input type="range" id="ampSlider" min="1" max="5" value="3" class="w-full cursor-pointer mb-6">
+                            
+                            <div class="flex justify-between text-sm font-semibold text-slate-700 mb-2">
+                                <span>Frequency (Waves per second)</span>
+                                <span id="freq-val" class="text-cyan-600 font-mono bg-cyan-50 px-2 py-0.5 rounded border border-cyan-100">Medium</span>
+                            </div>
+                            <input type="range" id="freqSlider" min="1" max="5" value="3" class="w-full cursor-pointer">
+                        </div>
+                    </div>
+                    
+                    <div class="md:col-span-7 relative w-full bg-slate-900 rounded-xl overflow-hidden flex justify-center items-center shadow-inner border-4 border-slate-300" style="min-height: 250px;">
+                        <canvas id="waveCanvas" width="500" height="250" class="w-full h-full object-cover"></canvas>
+                        <div class="absolute top-2 left-2 text-xs font-mono text-cyan-300 bg-black/50 px-2 py-1 rounded">Energy Flow ➔</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab 3: Data Trends -->
+        <section id="tab-trends" class="tab-content">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-10">
+                <h2 class="text-2xl font-bold text-slate-900 mb-4 flex items-center gap-2"><span>📈</span> Wavelength vs. Frequency</h2>
+                <p class="text-slate-700 text-lg mb-6 leading-relaxed">
+                    Because a wave's speed is constant in a given medium, increasing the frequency inversely decreases the wavelength. Look at the curve below. As you move right (higher frequency), the line drops (shorter wavelength).
+                </p>
+                <div class="mb-4 inline-block bg-slate-100 px-4 py-2 rounded-lg border border-slate-200 text-sm font-mono text-slate-700">
+                    <strong class="text-cyan-700">Formula:</strong> Speed = Frequency × Wavelength
+                </div>
+                
+                <div class="mt-4 bg-slate-50 rounded-xl border border-slate-200 p-4">
+                    <div class="chart-container">
+                        <canvas id="waveChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab 4: Reading Room -->
+        <section id="tab-reading" class="tab-content">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-10">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                    <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2"><span>📚</span> AVID Critical Reading</h2>
+                    <div class="flex bg-slate-200 rounded-lg p-1">
+                        <button onclick="setLanguage('en')" id="btn-lang-en" class="px-4 py-1.5 rounded-md font-medium text-sm bg-white text-slate-800 shadow-sm transition-all">English</button>
+                        <button onclick="setLanguage('es')" id="btn-lang-es" class="px-4 py-1.5 rounded-md font-medium text-sm text-slate-600 hover:text-slate-800 transition-all">Español</button>
+                    </div>
+                </div>
+                
+                <p class="text-slate-700 text-lg mb-8 leading-relaxed">
+                    Access the complete source texts below. Use the interactive checklist to track your reading strategies.
+                </p>
+
+                <div class="grid lg:grid-cols-12 gap-8">
+                    
+                    <div class="lg:col-span-8 prose prose-slate max-w-none text-slate-800" id="reading-content-en">
+                        <h3 class="text-xl font-bold mb-4 border-b pb-2">Topic: What is a Wave? (Mechanical vs. Electromagnetic)</h3>
+                        <p class="font-medium text-slate-600 mb-4"><strong>Essential Question:</strong> How can energy travel across a distance without actually moving matter from one place to another?</p>
+                        
+                        <p class="mb-4"><span class="font-bold text-slate-400 mr-2">1</span>A <span class="bg-cyan-100 px-1 font-semibold">Wave</span> is a disturbance that carries <span class="bg-cyan-100 px-1 font-semibold">Energy</span> from one place to another without moving matter the entire distance. Think of a "stadium wave" at a baseball game. Each person stands up and sits down (the disturbance), but no one actually leaves their seat to move around the stadium. Only the energy of the wave travels. <u class="decoration-cyan-500 decoration-2 underline-offset-2">This is the fundamental rule of waves: they transport energy, not atoms.</u></p>
+                        
+                        <p class="mb-4"><span class="font-bold text-slate-400 mr-2">2</span>Most waves we see every day are mechanical waves. These waves require a <span class="bg-cyan-100 px-1 font-semibold">Medium</span>, which is the material (like water, air, or a slinky) that the wave travels through. In a mechanical wave, the atoms in the <span class="bg-cyan-100 px-1 font-semibold">Medium</span> bump into each other to pass the energy along. Without a <span class="bg-cyan-100 px-1 font-semibold">Medium</span>, these waves simply cannot exist. This is why there is no sound in space; there are no air atoms to carry the sound wave to your ears.</p>
+                        
+                        <p class="mb-4"><span class="font-bold text-slate-400 mr-2">3</span>Engineers classify these movements into two main types. The first is a <span class="bg-cyan-100 px-1 font-semibold">Transverse</span> Wave, where the particles move up and down (perpendicular) while the wave moves forward. You can see this in a rope or ocean waves. The second is a <span class="bg-cyan-100 px-1 font-semibold">Longitudinal</span> Wave, where the particles push and pull in the same direction the wave travels. This creates a "pulse" of crowded atoms and spread-out atoms.</p>
+                        
+                        <p class="mb-4"><span class="font-bold text-slate-400 mr-2">4</span>However, an electromagnetic wave does not need a <span class="bg-cyan-100 px-1 font-semibold">Medium</span> to travel. It can move through a <span class="bg-cyan-100 px-1 font-semibold">Vacuum</span> (empty space). This is a critical concept in physics because it explains how light and heat from the Sun can reach Earth across millions of miles of nothingness. Whether it is a radio wave, a microwave, or visible light, all of these waves are forms of energy moving through space.</p>
+
+                        <p class="mb-4"><span class="font-bold text-slate-400 mr-2">5</span>Understanding waves is the key to modern technology. Every time you use a cell phone, listen to a speaker, or get an X-ray, you are using the physics of wave motion. By mastering how waves interact with different materials, we can control how information and power are sent across the globe.</p>
+                    </div>
+
+                    <div class="lg:col-span-8 prose prose-slate max-w-none text-slate-800 hidden" id="reading-content-es">
+                        <h3 class="text-xl font-bold mb-4 border-b pb-2">Tema: ¿Qué es una Onda? (Mecánica vs. Electromagnética)</h3>
+                        <p class="font-medium text-slate-600 mb-4"><strong>Pregunta Esencial:</strong> ¿Cómo puede viajar la energía a través de una distancia sin mover realmente la materia de un lugar a otro?</p>
+                        
+                        <p class="mb-4"><span class="font-bold text-slate-400 mr-2">1</span>Una <span class="bg-cyan-100 px-1 font-semibold">Wave</span> (onda) es una perturbación que transporta <span class="bg-cyan-100 px-1 font-semibold">Energy</span> (energía) de un lugar a otro sin mover la materia toda la distancia. Piensa en una "ola de estadio" en un partido de béisbol. Cada persona se levanta y se sienta (la perturbación), pero nadie deja realmente su asiento para moverse por el estadio. Solo viaja la energía de la ola. <u class="decoration-cyan-500 decoration-2 underline-offset-2">Esta es la regla fundamental de las ondas: transportan energía, no átomos.</u></p>
+
+                        <p class="mb-4"><span class="font-bold text-slate-400 mr-2">2</span>La mayoría de las ondas que vemos todos los días son ondas mecánicas. Estas ondas requieren un <span class="bg-cyan-100 px-1 font-semibold">Medium</span> (medio), que es el material a través del cual viaja la onda. En una onda mecánica, los átomos en el <span class="bg-cyan-100 px-1 font-semibold">Medium</span> chocan entre sí para pasar la energía. Sin un <span class="bg-cyan-100 px-1 font-semibold">Medium</span>, estas ondas no pueden existir. Es por eso que no hay sonido en el espacio.</p>
+
+                        <p class="mb-4"><span class="font-bold text-slate-400 mr-2">3</span>Los ingenieros clasifican estos movimientos en dos tipos. El primero es una Onda <span class="bg-cyan-100 px-1 font-semibold">Transverse</span> (transversal), donde las partículas se mueven hacia arriba y hacia abajo mientras la onda avanza. Puedes ver esto en una cuerda o el océano. El segundo es una Onda <span class="bg-cyan-100 px-1 font-semibold">Longitudinal</span>, donde las partículas empujan y tiran en la misma dirección en que viaja la onda. Esto crea un "pulso" de átomos agrupados y dispersos.</p>
+
+                        <p class="mb-4"><span class="font-bold text-slate-400 mr-2">4</span>Sin embargo, una onda electromagnética no necesita un <span class="bg-cyan-100 px-1 font-semibold">Medium</span> para viajar. Puede moverse a través de un <span class="bg-cyan-100 px-1 font-semibold">Vacuum</span> (espacio vacío). Este es un concepto crítico en física porque explica cómo la luz y el calor del Sol pueden llegar a la Tierra a través de millones de millas de la nada.</p>
+
+                        <p class="mb-4"><span class="font-bold text-slate-400 mr-2">5</span>Comprender las ondas es la clave de la tecnología moderna. Cada vez que usas un teléfono celular, escuchas una bocina o te haces una radiografía, estás usando la física del movimiento de ondas. Al dominar cómo las ondas interactúan, podemos controlar cómo se envía la información.</p>
+                    </div>
+
+                    <div class="lg:col-span-4">
+                        <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 sticky top-6">
+                            <h4 class="font-bold text-slate-900 mb-4 text-lg border-b border-slate-200 pb-2" id="checklist-title">AVID Annotation Checklist</h4>
+                            <div class="space-y-3" id="checklist-container">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<script>
+    // --- TAB SWITCHING ---
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(el => {
+            el.classList.remove('active');
+            setTimeout(() => { if(!el.classList.contains('active')) el.style.display = 'none'; }, 300);
+        });
+        document.querySelectorAll('.tab-btn').forEach(el => {
+            el.classList.remove('bg-slate-800', 'text-slate-50');
+            el.classList.add('bg-slate-200', 'text-slate-700');
+        });
+
+        const activeTab = document.getElementById(tabId);
+        activeTab.style.display = 'block';
+        setTimeout(() => activeTab.classList.add('active'), 10);
+        
+        const activeBtn = document.getElementById('btn-' + tabId);
+        activeBtn.classList.remove('bg-slate-200', 'text-slate-700');
+        activeBtn.classList.add('bg-slate-800', 'text-slate-50');
+    }
+
+    // --- TAB 1: PARTICLES ANIMATIONS ---
+    const particleLine = document.getElementById('particle-line');
+    const numParticles = 24;
+    for(let i=0; i<numParticles; i++) {
+        const p = document.createElement('div');
+        p.className = 'w-3 h-3 bg-cyan-400 rounded-full particle relative shadow-md shadow-cyan-500/50';
+        p.id = 'pl-' + i;
+        particleLine.appendChild(p);
+    }
+
+    function triggerTransverse() {
+        for(let i=0; i<numParticles; i++) {
+            setTimeout(() => {
+                const p = document.getElementById('pl-' + i);
+                p.style.transform = 'translateY(-30px)';
+                p.style.backgroundColor = '#fde047'; // yellow
+                setTimeout(() => {
+                    p.style.transform = 'translateY(30px)';
+                    setTimeout(() => {
+                        p.style.transform = 'translateY(0)';
+                        p.style.backgroundColor = '#22d3ee'; // cyan
+                    }, 200);
+                }, 200);
+            }, i * 60);
+        }
+    }
+
+    function triggerLongitudinal() {
+        for(let i=0; i<numParticles; i++) {
+            setTimeout(() => {
+                const p = document.getElementById('pl-' + i);
+                p.style.transform = 'translateX(15px)';
+                p.style.backgroundColor = '#f472b6'; // pink
+                p.classList.replace('shadow-cyan-500/50', 'shadow-pink-500/50');
+                setTimeout(() => {
+                    p.style.transform = 'translateX(0)';
+                    p.style.backgroundColor = '#22d3ee';
+                    p.classList.replace('shadow-pink-500/50', 'shadow-cyan-500/50');
+                }, 200);
+            }, i * 60);
+        }
+    }
+
+    // --- TAB 2: CANVAS WAVE ANIMATION & PLAY/PAUSE ---
+    const canvas = document.getElementById('waveCanvas');
+    const ctx = canvas.getContext('2d');
+    let time = 0;
+    let isPlaying = true;
+
+    const ampSlider = document.getElementById('ampSlider');
+    const freqSlider = document.getElementById('freqSlider');
+    const ampVal = document.getElementById('amp-val');
+    const freqVal = document.getElementById('freq-val');
+
+    const labelsLevel = ["Very Low", "Low", "Medium", "High", "Very High"];
+
+    function updateLabels() {
+        ampVal.innerText = labelsLevel[ampSlider.value - 1];
+        freqVal.innerText = labelsLevel[freqSlider.value - 1];
+    }
+
+    if(ampSlider && freqSlider){
+        ampSlider.addEventListener('input', updateLabels);
+        freqSlider.addEventListener('input', updateLabels);
+    }
+
+    function togglePlay() {
+        isPlaying = !isPlaying;
+        const textSpan = document.getElementById('play-text');
+        const iconPause = document.getElementById('icon-pause');
+        const iconPlay = document.getElementById('icon-play');
+        const btn = document.getElementById('playPauseBtn');
+
+        if (isPlaying) {
+            textSpan.innerText = 'Pause Animation';
+            iconPause.classList.remove('hidden');
+            iconPlay.classList.add('hidden');
+            btn.classList.replace('bg-emerald-600', 'bg-slate-800');
+            btn.classList.replace('hover:bg-emerald-700', 'hover:bg-slate-700');
+        } else {
+            textSpan.innerText = 'Play Animation';
+            iconPause.classList.add('hidden');
+            iconPlay.classList.remove('hidden');
+            btn.classList.replace('bg-slate-800', 'bg-emerald-600');
+            btn.classList.replace('hover:bg-slate-700', 'hover:bg-emerald-700');
+        }
+    }
+
+    function drawWave() {
+        const rect = canvas.getBoundingClientRect();
+        if (canvas.width !== rect.width || canvas.height !== rect.height) {
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+        }
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.beginPath();
+        ctx.moveTo(0, canvas.height / 2);
+        ctx.lineTo(canvas.width, canvas.height / 2);
+        ctx.strokeStyle = '#334155'; 
+        ctx.lineWidth = 1;
+        ctx.setLineDash([5, 5]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        const amplitude = ampSlider.value * 16; 
+        const frequency = freqSlider.value * 0.02; 
+        const speed = freqSlider.value * 0.04; 
+
+        ctx.beginPath();
+        ctx.moveTo(0, canvas.height / 2);
+        for (let x = 0; x <= canvas.width; x++) {
+            let y = (canvas.height / 2) + Math.sin((x * frequency) - time) * amplitude;
+            ctx.lineTo(x, y);
+        }
+        
+        ctx.strokeStyle = '#22d3ee'; 
+        ctx.lineWidth = 4;
+        ctx.lineJoin = 'round';
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = '#0891b2';
+        ctx.stroke();
+        ctx.shadowBlur = 0; 
+
+        if (!isPlaying) {
+            let foundCrest = false;
+            let foundTrough = false;
+            for (let x = 20; x < canvas.width - 20; x++) {
+                let currentY = (canvas.height / 2) + Math.sin((x * frequency) - time) * amplitude;
+                let nextY = (canvas.height / 2) + Math.sin(((x+1) * frequency) - time) * amplitude;
+                let prevY = (canvas.height / 2) + Math.sin(((x-1) * frequency) - time) * amplitude;
+                
+                if (!foundCrest && currentY < prevY && currentY < nextY) {
+                    ctx.fillStyle = '#fde047'; 
+                    ctx.beginPath(); ctx.arc(x, currentY, 5, 0, Math.PI*2); ctx.fill();
+                    ctx.font = "bold 12px sans-serif"; ctx.fillText("Crest", x - 15, currentY - 10);
+                    foundCrest = true;
+                }
+                if (!foundTrough && currentY > prevY && currentY > nextY) {
+                    ctx.fillStyle = '#f472b6'; 
+                    ctx.beginPath(); ctx.arc(x, currentY, 5, 0, Math.PI*2); ctx.fill();
+                    ctx.font = "bold 12px sans-serif"; ctx.fillText("Trough", x - 20, currentY + 18);
+                    foundTrough = true;
+                }
+            }
+        }
+
+        if (isPlaying) {
+            time += speed;
+        }
+        
+        requestAnimationFrame(drawWave);
+    }
+
+    // --- TAB 3: CHART.JS SETUP ---
+    function initChart() {
+        const ctxChart = document.getElementById('waveChart').getContext('2d');
+        
+        const dataPoints = [];
+        const labels = [];
+        for (let f = 1; f <= 10; f++) {
+            labels.push(f + " Hz");
+            dataPoints.push((100 / f).toFixed(1)); 
+        }
+
+        new Chart(ctxChart, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Wavelength (meters)',
+                    data: dataPoints,
+                    borderColor: '#0891b2',
+                    backgroundColor: 'rgba(8, 145, 178, 0.1)',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#0891b2',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1e293b',
+                        titleFont: { family: 'sans-serif', size: 13 },
+                        bodyFont: { family: 'sans-serif', size: 14, weight: 'bold' },
+                        padding: 10,
+                        displayColors: false,
+                        callbacks: {
+                            title: function(context) { return 'Frequency: ' + context[0].label; },
+                            label: function(context) { return 'Wavelength: ' + context.parsed.y + ' m'; }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Frequency (Hz) →', color: '#64748b', font: {weight: 'bold'} },
+                        grid: { display: false }
+                    },
+                    y: {
+                        title: { display: true, text: 'Wavelength (m)', color: '#64748b', font: {weight: 'bold'} },
+                        beginAtZero: true,
+                        grid: { color: '#f1f5f9' }
+                    }
+                }
+            }
+        });
+    }
+
+    // --- TAB 4: LANGUAGE TOGGLE LOGIC ---
+    const checklistsData = {
+        en: [
+            "<strong>Step 1: Number</strong> the paragraphs (1-5).",
+            "<strong>Step 2: Circle</strong> the key terms (<em>Wave, Medium, Transverse, Longitudinal, Vacuum</em>).",
+            "<strong>Step 3: Underline</strong> the \"fundamental rule\" of waves found in Paragraph 1.",
+            "<strong>Step 4: Left Margin:</strong> Write a 3-word Gist Statement for each paragraph.",
+            "<strong>Step 5: Right Margin:</strong> Write a Level 3 question about: mechanical and electromagnetic waves. Use the words: <em>Medium</em> and <em>Vacuum</em>."
+        ],
+        es: [
+            "<strong>Paso 1: Enumerar</strong> los párrafos (1-5).",
+            "<strong>Paso 2: Circular</strong> los términos clave (<em>Wave, Medium, Transverse, Longitudinal, Vacuum</em>).",
+            "<strong>Paso 3: Subrayar</strong> la \"regla fundamental\" de las ondas que se encuentra en el Párrafo 1.",
+            "<strong>Paso 4: Margen Izquierdo:</strong> Escribe un Gist Statement de 3 palabras para cada párrafo.",
+            "<strong>Paso 5: Margen Derecho:</strong> Escribe una pregunta de Nivel 3 sobre: mechanical y electromagnetic waves. Usa las palabras: <em>Medium</em> y <em>Vacuum</em>."
+        ]
+    };
+
+    function setLanguage(lang) {
+        if (lang === 'en') {
+            document.getElementById('reading-content-en').classList.remove('hidden');
+            document.getElementById('reading-content-es').classList.add('hidden');
+            document.getElementById('btn-lang-en').className = 'px-4 py-1.5 rounded-md font-medium text-sm bg-white text-slate-800 shadow-sm transition-all';
+            document.getElementById('btn-lang-es').className = 'px-4 py-1.5 rounded-md font-medium text-sm text-slate-600 hover:text-slate-800 transition-all';
+            document.getElementById('checklist-title').innerText = 'AVID Annotation Checklist';
+        } else {
+            document.getElementById('reading-content-en').classList.add('hidden');
+            document.getElementById('reading-content-es').classList.remove('hidden');
+            document.getElementById('btn-lang-es').className = 'px-4 py-1.5 rounded-md font-medium text-sm bg-white text-slate-800 shadow-sm transition-all';
+            document.getElementById('btn-lang-en').className = 'px-4 py-1.5 rounded-md font-medium text-sm text-slate-600 hover:text-slate-800 transition-all';
+            document.getElementById('checklist-title').innerText = 'Lista de Verificación AVID (Español)';
+        }
+
+        const container = document.getElementById('checklist-container');
+        container.innerHTML = '';
+        checklistsData[lang].forEach(item => {
+            container.innerHTML += `
+                <label class="flex items-start gap-3 cursor-pointer group">
+                    <input type="checkbox" class="mt-1 w-4 h-4 text-cyan-600 rounded border-slate-300 focus:ring-cyan-600">
+                    <span class="text-slate-700 group-hover:text-slate-900 transition-colors text-sm">${item}</span>
+                </label>
+            `;
+        });
+    }
+
+    // --- INITIALIZATION ---
+    window.onload = () => {
+        setLanguage('en');
+        drawWave();
+        initChart();
+    };
+</script>
+</body>
+</html>
