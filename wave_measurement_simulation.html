@@ -798,8 +798,8 @@
                 const checkbox = el.querySelector('.chk-box');
                 const text = el.querySelector('.chk-text');
 
-                text.textContent = `(${count}/5)`;
-                if (count >= 5) {
+                text.textContent = `(${count}/3)`;
+                if (count >= 3) {
                     el.classList.add('text-emerald-700', 'line-through', 'opacity-70');
                     checkbox.textContent = '☑';
                     checkbox.classList.add('text-emerald-600');
@@ -822,7 +822,7 @@
 
         function checkCompletion() {
             const c = state.challenges;
-            const allDone = Object.values(c).every(val => val >= 5);
+            const allDone = Object.values(c).every(val => val >= 3);
             
             if (allDone && !state.isFinished) {
                 elCompletionOverlay.classList.add('active');
@@ -976,13 +976,13 @@
                 if (!state.taskSolved) {
                     state.taskSolved = true;
                     if (state.currentTaskProp === 'wavelength') {
-                        if (state.waveType === 'transverse' && state.challenges.measWaveTrans < 5) state.challenges.measWaveTrans++;
-                        if (state.waveType === 'longitudinal' && state.challenges.measWaveLong < 5) state.challenges.measWaveLong++;
+                        if (state.waveType === 'transverse' && state.challenges.measWaveTrans < 3) state.challenges.measWaveTrans++;
+                        if (state.waveType === 'longitudinal' && state.challenges.measWaveLong < 3) state.challenges.measWaveLong++;
                     } else if (state.currentTaskProp === 'amplitude') {
-                        if (state.waveType === 'transverse' && state.challenges.measAmpTrans < 5) state.challenges.measAmpTrans++;
-                    } else if (state.currentTaskProp === 'frequency' && state.challenges.measFreq < 5) {
+                        if (state.waveType === 'transverse' && state.challenges.measAmpTrans < 3) state.challenges.measAmpTrans++;
+                    } else if (state.currentTaskProp === 'frequency' && state.challenges.measFreq < 3) {
                         state.challenges.measFreq++;
-                    } else if (state.currentTaskProp === 'period' && state.challenges.measPeriod < 5) {
+                    } else if (state.currentTaskProp === 'period' && state.challenges.measPeriod < 3) {
                         state.challenges.measPeriod++;
                     }
                     updateChecklistUI();
@@ -1005,7 +1005,7 @@
 
                 if (!state.taskSolved) {
                     state.taskSolved = true;
-                    if (state.waveType === 'transverse' && state.challenges.matchTrans < 5) state.challenges.matchTrans++;
+                    if (state.waveType === 'transverse' && state.challenges.matchTrans < 3) state.challenges.matchTrans++;
                     updateChecklistUI();
                 }
             } else {
