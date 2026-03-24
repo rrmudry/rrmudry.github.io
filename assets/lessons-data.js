@@ -348,6 +348,9 @@ const lessonsData = [
     semester: 2,
     isFeatured: true,
     essentialQuestion: "How does the direction of particle motion distinguish transverse from longitudinal waves?",
+    links: {
+      "Simulation: Wave Measurement": "wave_measurement_simulation.html"
+    },
     wicor: {
       inquiry: "Modeling particle motion with human 'stadium waves' vs. 'domino lines'.",
       collaboration: "Think-Pair-Share: Which wave type better models sound in air?",
