@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wave Measurement Simulator</title>
+    <title id="page-title">Wave Measurement Simulator v1.2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -97,7 +97,7 @@
     <!-- Header -->
     <header class="bg-blue-600 text-white p-4 shadow-md flex justify-between items-center z-10">
         <div>
-            <h1 class="text-xl font-bold">Wave Measurement Simulator</h1>
+            <h1 class="text-xl font-bold">Wave Measurement Simulator <span class="text-xs font-mono opacity-50">v1.2</span></h1>
             <p class="text-sm text-blue-200">Practice measuring Wavelength, Amplitude, Frequency, and Period</p>
         </div>
         <div class="flex gap-2 bg-blue-700 p-1 rounded-lg">
@@ -115,6 +115,7 @@
         <div class="flex-grow relative bg-white flex flex-col items-center justify-center p-4">
             <div class="w-full h-full relative rounded-lg border-2 border-slate-200 shadow-inner bg-slate-50 overflow-hidden"
                 id="canvas-container">
+                <canvas id="gridCanvas" class="absolute top-0 left-0 w-full h-full"></canvas>
                 <canvas id="waveCanvas" class="absolute top-0 left-0 w-full h-full"></canvas>
 
                 <!-- Play/Pause Button -->
@@ -425,7 +426,9 @@
 
         // --- DOM Elements ---
         const canvas = document.getElementById('waveCanvas');
-        const ctx = canvas.getContext('2d', { alpha: false }); // Optimize rendering
+        const ctx = canvas.getContext('2d'); 
+        const gridCanvas = document.getElementById('gridCanvas');
+        const gridCtx = gridCanvas.getContext('2d', { alpha: false });
         const container = document.getElementById('canvas-container');
 
         // Panels & Controls
@@ -459,15 +462,27 @@
             // Support high DPI displays for crisp rendering
             const rect = container.getBoundingClientRect();
             const dpr = window.devicePixelRatio || 1;
+            
+            // Resize Wave Canvas
             canvas.width = rect.width * dpr;
             canvas.height = rect.height * dpr;
             ctx.scale(dpr, dpr);
             canvas.style.width = `${rect.width}px`;
             canvas.style.height = `${rect.height}px`;
 
+            // Resize Grid Canvas
+            gridCanvas.width = rect.width * dpr;
+            gridCanvas.height = rect.height * dpr;
+            gridCtx.scale(dpr, dpr);
+            gridCanvas.style.width = `${rect.width}px`;
+            gridCanvas.style.height = `${rect.height}px`;
+
             // Keep ruler in bounds on resize
             if (state.ruler.x > rect.width) state.ruler.x = rect.width - 100;
             if (state.ruler.y > rect.height) state.ruler.y = rect.height - 100;
+
+            // Pre-render the grid since it's static
+            drawGridToBuffer();
         }
 
         window.addEventListener('resize', resizeCanvas);
@@ -504,11 +519,8 @@
             const width = canvas.width / (window.devicePixelRatio || 1);
             const height = canvas.height / (window.devicePixelRatio || 1);
 
-            // Background clear
-            ctx.fillStyle = '#f8fafc';
-            ctx.fillRect(0, 0, width, height);
-
-            drawGrid(width, height);
+            // Transparent clear for Wave Canvas (Grid is underneath)
+            ctx.clearRect(0, 0, width, height);
 
             if (state.waveType === 'transverse') {
                 drawTransverseWave(width, height);
@@ -521,35 +533,42 @@
             }
         }
 
-        function drawGrid(width, height) {
+        function drawGridToBuffer() {
+            const dpr = window.devicePixelRatio || 1;
+            const width = gridCanvas.width / dpr;
+            const height = gridCanvas.height / dpr;
             const ppm = state.pixelsPerMeter;
             const originY = height / 2;
 
-            ctx.lineWidth = 1;
+            // Background clear
+            gridCtx.fillStyle = '#f8fafc';
+            gridCtx.fillRect(0, 0, width, height);
+
+            gridCtx.lineWidth = 1;
 
             // Draw Minor Grid Lines (every 0.1m)
-            ctx.strokeStyle = '#e2e8f0';
-            ctx.beginPath();
-            for (let x = 0; x <= width; x += ppm / 10) { ctx.moveTo(x, 0); ctx.lineTo(x, height); }
-            for (let y = originY; y <= height; y += ppm / 10) { ctx.moveTo(0, y); ctx.lineTo(width, y); }
-            for (let y = originY; y >= 0; y -= ppm / 10) { ctx.moveTo(0, y); ctx.lineTo(width, y); }
-            ctx.stroke();
+            gridCtx.strokeStyle = '#e2e8f0';
+            gridCtx.beginPath();
+            for (let x = 0; x <= width; x += ppm / 10) { gridCtx.moveTo(x, 0); gridCtx.lineTo(x, height); }
+            for (let y = originY; y <= height; y += ppm / 10) { gridCtx.moveTo(0, y); gridCtx.lineTo(gridCanvas.width, y); }
+            for (let y = originY; y >= 0; y -= ppm / 10) { gridCtx.moveTo(0, y); gridCtx.lineTo(gridCanvas.width, y); }
+            gridCtx.stroke();
 
             // Draw Major Grid Lines (every 1m)
-            ctx.strokeStyle = '#cbd5e1';
-            ctx.beginPath();
-            for (let x = 0; x <= width; x += ppm) { ctx.moveTo(x, 0); ctx.lineTo(x, height); }
-            for (let y = originY; y <= height; y += ppm) { ctx.moveTo(0, y); ctx.lineTo(width, y); }
-            for (let y = originY; y >= 0; y -= ppm) { ctx.moveTo(0, y); ctx.lineTo(width, y); }
-            ctx.stroke();
+            gridCtx.strokeStyle = '#cbd5e1';
+            gridCtx.beginPath();
+            for (let x = 0; x <= width; x += ppm) { gridCtx.moveTo(x, 0); gridCtx.lineTo(x, height); }
+            for (let y = originY; y <= height; y += ppm) { gridCtx.moveTo(0, y); gridCtx.lineTo(gridCanvas.width, y); }
+            for (let y = originY; y >= 0; y -= ppm) { gridCtx.moveTo(0, y); gridCtx.lineTo(gridCanvas.width, y); }
+            gridCtx.stroke();
 
             // Draw Central Axis
-            ctx.strokeStyle = '#94a3b8';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(0, originY);
-            ctx.lineTo(width, originY);
-            ctx.stroke();
+            gridCtx.strokeStyle = '#94a3b8';
+            gridCtx.lineWidth = 2;
+            gridCtx.beginPath();
+            gridCtx.moveTo(0, originY);
+            gridCtx.lineTo(width, originY);
+            gridCtx.stroke();
         }
 
         function drawTransverseWave(width, height) {
@@ -563,7 +582,7 @@
             ctx.lineWidth = 3;
 
             // Draw wave line
-            for (let px = 0; px <= width; px += 4) { // Optimized: px+=4 instead of px+=2
+            for (let px = 0; px <= width; px += 2) { // Smoother: px+=2
                 const x = px / ppm; 
                 const yOffset = state.wave.amplitude * Math.sin(k * x - omega * state.globalTime);
                 const py = originY - (yOffset * ppm);
