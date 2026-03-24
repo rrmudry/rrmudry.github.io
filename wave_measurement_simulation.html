@@ -45,7 +45,7 @@
             background: rgba(15, 23, 42, 0.8);
             backdrop-filter: blur(8px);
             z-index: 1000;
-            display: flex;
+            display: none; /* Optimized: Don't render when hidden */
             align-items: center;
             justify-content: center;
             opacity: 0;
@@ -54,6 +54,7 @@
         }
 
         .overlay.active {
+            display: flex;
             opacity: 1;
             pointer-events: auto;
         }
@@ -562,9 +563,8 @@
             ctx.lineWidth = 3;
 
             // Draw wave line
-            for (let px = 0; px <= width; px += 2) {
-                const x = px / ppm; // actual physical x in meters
-                // y = A * sin(kx - wt)
+            for (let px = 0; px <= width; px += 4) { // Optimized: px+=4 instead of px+=2
+                const x = px / ppm; 
                 const yOffset = state.wave.amplitude * Math.sin(k * x - omega * state.globalTime);
                 const py = originY - (yOffset * ppm);
 
@@ -609,18 +609,17 @@
             ctx.strokeStyle = '#3b82f6';
             ctx.lineWidth = 2;
 
+            ctx.beginPath(); // Optimized: Move outside loop
             for (let i = 0; i <= numLines; i++) {
-                const x_eq = i * 0.1; // Equilibrium position in meters
-                // Displacement equation
+                const x_eq = i * 0.1; 
                 const displacement = state.wave.amplitude * Math.sin(k * x_eq - omega * state.globalTime);
                 const x_actual = x_eq + displacement;
                 const px = x_actual * ppm;
 
-                ctx.beginPath();
                 ctx.moveTo(px, height * 0.2);
                 ctx.lineTo(px, height * 0.8);
-                ctx.stroke();
             }
+            ctx.stroke(); // Optimized: One stroke call for all lines
 
             // Reference Particle
             if (state.showParticle) {
