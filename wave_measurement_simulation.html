@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">Wave Measurement Simulator v1.3</title>
+    <title id="page-title">Wave Measurement Simulator v1.4</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -97,7 +97,7 @@
     <!-- Header -->
     <header class="bg-blue-600 text-white p-4 shadow-md flex justify-between items-center z-10">
         <div>
-            <h1 class="text-xl font-bold">Wave Measurement Simulator <span class="text-xs font-mono opacity-50">v1.3</span></h1>
+            <h1 class="text-xl font-bold">Wave Measurement Simulator <span class="text-xs font-mono opacity-50">v1.4</span></h1>
             <p class="text-sm text-blue-200">Practice measuring Wavelength, Amplitude, Frequency, and Period</p>
         </div>
         <div class="flex gap-2 bg-blue-700 p-1 rounded-lg">
@@ -831,10 +831,14 @@
         }
 
         async function submitAssessment() {
-            if (!DATABASE_URL) return;
+            if (!DATABASE_URL || state.isSubmitting || state.submitStatus === 'success') return;
             
             state.isSubmitting = true;
             state.submitStatus = 'loading';
+            
+            // Hide the main button and show the status container
+            elSubmitBtn.style.display = 'none';
+            elSubmitStatus.classList.remove('hidden');
             
             elSubmitStatus.innerHTML = `
                 <div class="py-4 px-6 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-3">
@@ -865,23 +869,27 @@
                 });
                 
                 state.submitStatus = 'success';
+                // Success UI with center alignment
                 elSubmitStatus.innerHTML = `
-                    <div class="py-4 px-6 rounded-xl bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 text-xs font-bold uppercase tracking-widest">
+                    <div class="py-4 px-6 rounded-xl bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 text-xs font-bold uppercase tracking-widest text-center">
                         ✓ Results Sent to Teacher
                     </div>
                 `;
+                elSubmitBtn.style.display = 'none'; // Ensure button stays hidden on success
             } catch (error) {
                 console.error("Submission error:", error);
                 state.submitStatus = 'error';
+                elSubmitBtn.style.display = 'flex'; // Show button again on error
                 elSubmitStatus.innerHTML = `
-                    <div class="py-4 px-6 rounded-xl bg-rose-500/20 border border-rose-500/50 text-rose-400 text-xs font-bold uppercase tracking-widest mb-3">
+                    <div class="py-4 px-6 rounded-xl bg-rose-500/20 border border-rose-500/50 text-rose-400 text-xs font-bold uppercase tracking-widest mb-3 text-center">
                         Submission Failed
                     </div>
                     <button id="retry-btn" class="w-full py-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-black uppercase tracking-widest transition-all shadow-lg active:scale-95">
                         Retry Submission
                     </button>
                 `;
-                document.getElementById('retry-btn').onclick = submitAssessment;
+                const retryBtn = document.getElementById('retry-btn');
+                if (retryBtn) retryBtn.onclick = submitAssessment;
             } finally {
                 state.isSubmitting = false;
             }
