@@ -338,34 +338,63 @@
     <!-- Results Overlay -->
     <div id="results-overlay" class="overlay">
         <div class="glass-card text-center">
-            <div class="w-20 h-20 rounded-full bg-emerald-500/20 flex items-center justify-center mb-6 border border-emerald-500/30 mx-auto">
-                <svg class="w-10 h-10 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+            <div class="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-emerald-500/30">
+                <svg class="w-10 h-10 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                </svg>
             </div>
             <h2 class="text-3xl font-black text-white mb-2 uppercase tracking-tighter">Assignment Done</h2>
             <p class="text-slate-400 text-xs font-medium uppercase tracking-widest mb-8">Review your performance</p>
 
-            <div class="bg-slate-900/50 rounded-2xl p-6 border border-white/5 mb-8">
+            <div class="bg-slate-900/50 rounded-2xl p-6 mb-8 border border-white/5 text-left">
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="text-left">
-                        <div class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Student</div>
-                        <div id="display-name" class="text-sm font-bold text-white truncate">---</div>
+                    <div>
+                        <p class="text-[10px] text-slate-500 uppercase font-black tracking-widest mb-1">Student</p>
+                        <p id="display-name" class="text-white font-bold truncate">---</p>
                     </div>
                     <div class="text-right">
-                        <div class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">ID Number</div>
-                        <div id="display-id" class="text-sm font-mono font-bold text-blue-400">---</div>
+                        <p class="text-[10px] text-slate-500 uppercase font-black tracking-widest mb-1">ID Number</p>
+                        <p id="display-id" class="text-blue-400 font-mono font-bold">---</p>
                     </div>
                 </div>
-                <div class="mt-6 pt-6 border-t border-white/5">
-                    <div class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Final Progress</div>
-                    <div class="text-4xl font-black text-white">100<span class="text-slate-600 text-lg">%</span></div>
+                <div class="mt-6 pt-6 border-t border-white/5 text-center">
+                    <p class="text-[10px] text-slate-500 uppercase font-black tracking-widest mb-1">Final Progress</p>
+                    <p class="text-4xl font-black text-white">100<span class="text-lg text-slate-600 ml-1">%</span></p>
                 </div>
             </div>
 
-            <div id="submit-status-container" class="space-y-3">
-                <button id="submit-btn" class="w-full py-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-500/20 active:scale-95">
-                    Submit to Teacher
-                </button>
+            <button id="submit-btn"
+                class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black py-4 rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-3 text-sm uppercase tracking-widest">
+                Submit to Teacher
+            </button>
+
+            <div id="submit-status-container" class="mt-4 hidden">
+                <p id="submit-status" class="text-emerald-400 font-bold flex items-center justify-center gap-2 text-xs uppercase tracking-widest">
+                    <span class="animate-pulse">Sending...</span>
+                </p>
             </div>
+        </div>
+    </div>
+
+    <!-- Completion Notification Overlay -->
+    <div id="completion-overlay" class="overlay">
+        <div class="glass-card text-center border-emerald-500/30">
+            <div class="w-24 h-24 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(16,185,129,0.4)] animate-bounce">
+                <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+            <h2 class="text-4xl font-black text-white mb-4 gradient-text">ALL TASKS COMPLETE!</h2>
+            <p class="text-slate-300 text-lg mb-8 leading-relaxed">
+                Excellent work! You have mastered all wave measurement challenges. Click below to finalize and submit your results.
+            </p>
+            <button id="completion-finish-btn"
+                class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-black py-5 rounded-2xl shadow-xl transition-all active:scale-95 text-xl uppercase tracking-wider flex items-center justify-center gap-4">
+                Finish & Submit Results
+                <svg class="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                </svg>
+            </button>
         </div>
     </div>
 
@@ -428,7 +457,7 @@
         const canvas = document.getElementById('waveCanvas');
         const ctx = canvas.getContext('2d'); 
         const gridCanvas = document.getElementById('gridCanvas');
-        const gridCtx = gridCanvas.getContext('2d', { alpha: false });
+        const gridCtx = gridCanvas.getContext('2d'); // Normal alpha to avoid black screen init
         const container = document.getElementById('canvas-container');
 
         // Panels & Controls
@@ -447,8 +476,9 @@
         // New Overlays & Buttons
         const elLoginOverlay = document.getElementById('login-overlay');
         const elResultsOverlay = document.getElementById('results-overlay');
-        const elFinishContainer = document.getElementById('finish-btn-container');
+        const elCompletionOverlay = document.getElementById('completion-overlay'); // New
         const elFinishBtn = document.getElementById('finish-assessment-btn');
+        const elCompletionFinishBtn = document.getElementById('completion-finish-btn'); // New
         const elSubmitBtn = document.getElementById('submit-btn');
         const elSubmitStatus = document.getElementById('submit-status-container');
         const elDisplayName = document.getElementById('display-name');
@@ -794,8 +824,9 @@
             const c = state.challenges;
             const allDone = Object.values(c).every(val => val >= 5);
             
-            if (allDone) {
-                elFinishContainer.style.display = 'block';
+            if (allDone && !state.isFinished) {
+                elCompletionOverlay.classList.add('active');
+                state.isPlaying = false; // Pause so they notice the popup
             }
         }
 
@@ -1173,13 +1204,23 @@
             }
         });
 
-        // Finish Assessment
+        // Finish Assessment (From Side Panel if they close the big one)
         elFinishBtn.addEventListener('click', () => {
             state.isFinished = true;
             elDisplayName.textContent = state.studentName;
             elDisplayId.textContent = state.studentId;
+            elCompletionOverlay.classList.remove('active');
             elResultsOverlay.classList.add('active');
-            state.isPlaying = false; // Pause simulation on finish
+            state.isPlaying = false; 
+        });
+
+        // Finish Assessment (From the Big Centered Overlay)
+        elCompletionFinishBtn.addEventListener('click', () => {
+            state.isFinished = true;
+            elDisplayName.textContent = state.studentName;
+            elDisplayId.textContent = state.studentId;
+            elCompletionOverlay.classList.remove('active');
+            elResultsOverlay.classList.add('active');
         });
 
         // Submit Results
