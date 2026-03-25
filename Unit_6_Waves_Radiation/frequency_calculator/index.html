@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Frequency Calculator</title>
+    <link rel="icon" type="image/svg+xml" href="../../assets/unit6-favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent-cyan: #22d3ee;
+            --accent-violet: #818cf8;
+            --bg-slate: #0f172a;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at top left, #1e293b, #0f172a);
+            min-height: 100vh;
+            color: #f8fafc;
+        }
+        .font-orbitron { font-family: 'Orbitron', sans-serif; }
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+        }
+        .input-glow:focus {
+            box-shadow: 0 0 15px rgba(34, 211, 238, 0.2);
+            border-color: rgba(34, 211, 238, 0.5);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .spectrum-border {
+            position: relative;
+            padding: 1px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+            border-radius: 1rem;
+        }
+        .spectrum-border-inner {
+            background: #0f172a;
+            border-radius: calc(1rem - 1px);
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4">
+    <div class="max-w-xl w-full">
+        <!-- Header -->
+        <header class="text-center mb-8 animate-fade-in">
+            <h1 class="text-4xl font-orbitron font-black gradient-text uppercase tracking-tighter mb-2">
+                Frequency Calculator
+            </h1>
+            <p class="text-slate-400 text-sm font-medium uppercase tracking-[0.2em]">Wave Dynamics Assistant</p>
+        </header>
+
+        <!-- Main Card -->
+        <div class="glass rounded-3xl p-8 space-y-8 relative overflow-hidden">
+            <div class="absolute -top-24 -right-24 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl"></div>
+
+            <!-- Mode Switcher -->
+            <div class="flex p-1 bg-slate-900/50 rounded-2xl border border-white/5">
+                <button onclick="setMode('wave')" id="mode-wave" class="flex-1 py-3 rounded-xl text-sm font-bold transition-all bg-indigo-600 shadow-lg text-white">
+                    Wave Equation
+                </button>
+                <button onclick="setMode('period')" id="mode-period" class="flex-1 py-3 rounded-xl text-sm font-bold transition-all text-slate-400 hover:text-white">
+                    Period Basis
+                </button>
+            </div>
+
+            <!-- Wave Equation Inputs -->
+            <div id="wave-inputs" class="space-y-6">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-cyan-400/80 ml-1">Wave Speed (v) — m/s</label>
+                    <input type="number" id="v-input" placeholder="e.g. 340" oninput="calculate()" class="w-full bg-slate-900/80 border border-white/5 rounded-2xl p-4 outline-none input-glow transition-all text-lg font-semibold">
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-violet-400/80 ml-1">Wavelength (λ) — Meters</label>
+                    <input type="number" id="lambda-input" placeholder="e.g. 2" oninput="calculate()" class="w-full bg-slate-900/80 border border-white/5 rounded-2xl p-4 outline-none input-glow transition-all text-lg font-semibold">
+                </div>
+            </div>
+
+            <!-- Period Inputs (Hidden by default) -->
+            <div id="period-inputs" class="space-y-6 hidden">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-indigo-400/80 ml-1">Wave Period (T) — Seconds</label>
+                    <input type="number" id="t-input" placeholder="e.g. 0.05" oninput="calculate()" class="w-full bg-slate-900/80 border border-white/5 rounded-2xl p-4 outline-none input-glow transition-all text-lg font-semibold">
+                </div>
+            </div>
+
+            <!-- Result Display -->
+            <div class="spectrum-border">
+                <div class="spectrum-border-inner p-6 text-center">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Calculated Frequency</p>
+                    <div class="flex items-center justify-center gap-2">
+                        <span id="result-value" class="text-5xl font-orbitron font-black">---</span>
+                        <span class="text-xl font-bold text-slate-500 mt-4">Hz</span>
+                    </div>
+                    <p id="formula-text" class="text-[10px] italic text-slate-600 mt-4 uppercase tracking-widest">f = v / λ</p>
+                </div>
+            </div>
+
+            <!-- Info Bar -->
+            <div class="grid grid-cols-2 gap-4 text-center">
+                <div class="bg-white/5 rounded-2xl py-4 border border-white/5">
+                    <p class="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-1">Human Hearing</p>
+                    <p id="hearing-status" class="text-xs font-bold text-slate-400 italic">No Input</p>
+                </div>
+                <div class="bg-white/5 rounded-2xl py-4 border border-white/5">
+                    <p class="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-1">EM Spectrum</p>
+                    <p id="em-status" class="text-xs font-bold text-slate-400 italic">---</p>
+                </div>
+            </div>
+        </div>
+
+        <footer class="mt-8 text-center text-[10px] font-black uppercase tracking-widest text-slate-600 gap-4 flex justify-center">
+            <span>Grid Analytics v1.0</span>
+            <span class="text-indigo-500/50">|</span>
+            <a href="../../unit6-dashboard.html" class="hover:text-cyan-400 transition-colors">Unit 6 Dashboard</a>
+        </footer>
+    </div>
+
+    <script>
+        let mode = 'wave';
+
+        function setMode(newMode) {
+            mode = newMode;
+            const waveBtn = document.getElementById('mode-wave');
+            const periodBtn = document.getElementById('mode-period');
+            const waveInputs = document.getElementById('wave-inputs');
+            const periodInputs = document.getElementById('period-inputs');
+            const formulaText = document.getElementById('formula-text');
+
+            if (mode === 'wave') {
+                waveBtn.className = "flex-1 py-3 rounded-xl text-sm font-bold transition-all bg-indigo-600 shadow-lg text-white";
+                periodBtn.className = "flex-1 py-3 rounded-xl text-sm font-bold transition-all text-slate-400 hover:text-white";
+                waveInputs.classList.remove('hidden');
+                periodInputs.classList.add('hidden');
+                formulaText.textContent = "f = v / λ";
+            } else {
+                periodBtn.className = "flex-1 py-3 rounded-xl text-sm font-bold transition-all bg-indigo-600 shadow-lg text-white";
+                waveBtn.className = "flex-1 py-3 rounded-xl text-sm font-bold transition-all text-slate-400 hover:text-white";
+                periodInputs.classList.remove('hidden');
+                waveInputs.classList.add('hidden');
+                formulaText.textContent = "f = 1 / T";
+            }
+            calculate();
+        }
+
+        function calculate() {
+            const v = parseFloat(document.getElementById('v-input').value);
+            const lambda = parseFloat(document.getElementById('lambda-input').value);
+            const t = parseFloat(document.getElementById('t-input').value);
+            const resultEl = document.getElementById('result-value');
+            const hearingEl = document.getElementById('hearing-status');
+            const emEl = document.getElementById('em-status');
+
+            let freq = 0;
+
+            if (mode === 'wave') {
+                if (v && lambda && lambda !== 0) {
+                    freq = v / lambda;
+                }
+            } else {
+                if (t && t !== 0) {
+                    freq = 1 / t;
+                }
+            }
+
+            if (freq > 0) {
+                if (freq >= 1000000) {
+                    resultEl.textContent = (freq / 1000000).toFixed(2) + "M";
+                } else if (freq >= 1000) {
+                    resultEl.textContent = (freq / 1000).toFixed(2) + "k";
+                } else {
+                    resultEl.textContent = freq.toFixed(2);
+                }
+                
+                // Audio Status
+                if (freq >= 20 && freq <= 20000) {
+                    hearingEl.textContent = "Audible Range";
+                    hearingEl.className = "text-xs font-bold text-cyan-400";
+                } else if (freq < 20) {
+                    hearingEl.textContent = "Infrasonic";
+                    hearingEl.className = "text-xs font-bold text-slate-500";
+                } else {
+                    hearingEl.textContent = "Ultrasonic";
+                    hearingEl.className = "text-xs font-bold text-emerald-400";
+                }
+
+                // EM Status
+                if (freq >= 4.3e14 && freq <= 7.5e14) emEl.textContent = "Visible Light";
+                else if (freq < 3e9) emEl.textContent = "Radio/Micro";
+                else if (freq > 3e16) emEl.textContent = "X-Ray/Gamma";
+                else emEl.textContent = "Infrared/UV";
+                emEl.className = "text-xs font-bold text-indigo-400";
+
+            } else {
+                resultEl.textContent = "---";
+                hearingEl.textContent = "No Input";
+                hearingEl.className = "text-xs font-bold text-slate-400 italic";
+                emEl.textContent = "---";
+                emEl.className = "text-xs font-bold text-slate-400 italic";
+            }
+        }
+    </script>
+</body>
+</html>
