@@ -222,9 +222,29 @@
             }
             state.name = name;
             state.id = id;
+            
+            // FETCH EXISTING PROGRESS
+            loadProgress(id);
+
             document.getElementById('login-overlay').classList.add('hidden');
             document.getElementById('student-tag').textContent = `Authenticated: ${name.toUpperCase()} // SIG_${id}`;
             generateNewTask();
+        }
+
+        async function loadProgress(id) {
+            try {
+                const { data, error } = await sbClient
+                    .from('student_results')
+                    .select('details')
+                    .eq('student_id', id)
+                    .eq('assignment_name', "Frequency Drag-and-Drop Mastery")
+                    .maybeSingle();
+
+                if (data && data.details && typeof data.details.mastery === 'number') {
+                    state.mastery = data.details.mastery;
+                    updateProgressUI();
+                }
+            } catch (err) { console.warn("Persistence fetch failed:", err); }
         }
 
         function generateNewTask() {
@@ -312,6 +332,10 @@
             if (accuracy < 0.1) {
                 state.mastery++;
                 updateProgressUI();
+                
+                // SILENT SYNC ON EVERY STEP
+                syncResults(true);
+
                 if (state.mastery >= state.targetMastery) {
                     document.getElementById('completion-overlay').classList.remove('hidden');
                 } else {
@@ -336,36 +360,65 @@
             indicator.style.strokeDashoffset = circumference - (percent / 100) * circumference;
         }
 
-        async function syncResults() {
+        async function syncResults(isSilent = false) {
             const btn = document.getElementById('submit-btn');
             const status = document.getElementById('submit-status');
-            btn.disabled = true;
-            btn.textContent = "INITIATING SYNC...";
+            
+            if (!isSilent) {
+                btn.disabled = true;
+                btn.textContent = "INITIATING SYNC...";
+            }
             
             try {
-                const { error } = await sbClient
+                const assignmentName = "Frequency Drag-and-Drop Mastery";
+                
+                // Find existing record to overwrite
+                const { data: existing } = await sbClient
                     .from('student_results')
-                    .insert([{
-                        student_name: state.name,
-                        student_id: state.id,
-                        assignment_name: "Frequency Drag-and-Drop Mastery",
-                        score: 100,
-                        details: { mastery: state.mastery, timestamp: new Date().toISOString() }
-                    }]);
+                    .select('id')
+                    .eq('student_id', state.id)
+                    .eq('assignment_name', assignmentName)
+                    .maybeSingle();
+
+                const payload = {
+                    student_name: state.name,
+                    student_id: state.id,
+                    assignment_name: assignmentName,
+                    score: Math.round((state.mastery / state.targetMastery) * 100),
+                    details: { mastery: state.mastery, timestamp: new Date().toISOString() }
+                };
+
+                let error;
+                if (existing) {
+                    const { error: err } = await sbClient
+                        .from('student_results')
+                        .update(payload)
+                        .eq('id', existing.id);
+                    error = err;
+                } else {
+                    const { error: err } = await sbClient
+                        .from('student_results')
+                        .insert([payload]);
+                    error = err;
+                }
                 
                 if (error) throw error;
                 
-                status.textContent = "SYNC COMPLETE // NODE FINALIZED";
-                status.classList.remove('hidden');
-                status.className = "text-[10px] font-black uppercase text-emerald-400 py-3 text-center";
-                btn.classList.add('hidden');
+                if (!isSilent) {
+                    status.textContent = "SYNC COMPLETE // NODE FINALIZED";
+                    status.classList.remove('hidden');
+                    status.className = "text-[10px] font-black uppercase text-emerald-400 py-3 text-center";
+                    btn.classList.add('hidden');
+                }
             } catch (e) {
                 console.error(e);
-                btn.disabled = false;
-                btn.textContent = "RETRY SYNC";
-                status.textContent = "SYNC FAILED: " + e.message;
-                status.classList.remove('hidden');
-                status.className = "text-[10px] font-black uppercase text-rose-500 py-3 text-center";
+                if (!isSilent) {
+                    btn.disabled = false;
+                    btn.textContent = "RETRY SYNC";
+                    status.textContent = "SYNC FAILED: " + e.message;
+                    status.classList.remove('hidden');
+                    status.className = "text-[10px] font-black uppercase text-rose-500 py-3 text-center";
+                }
             }
         }
 
