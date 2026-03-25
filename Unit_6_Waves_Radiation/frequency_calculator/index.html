@@ -3,37 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Frequency Calculator</title>
+    <title>Frequency & Wave Dynamics Assessment</title>
     <link rel="icon" type="image/svg+xml" href="../../assets/unit6-favicon.svg">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Use Supabase JS client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --accent-cyan: #22d3ee;
-            --accent-violet: #818cf8;
-            --bg-slate: #0f172a;
+            --accent-violet: #a855f7;
+            --bg-dark: #020617;
         }
         body {
             font-family: 'Inter', sans-serif;
-            background: radial-gradient(circle at top left, #1e293b, #0f172a);
-            min-height: 100vh;
+            background: var(--bg-dark);
             color: #f8fafc;
+            overflow: hidden;
         }
         .font-orbitron { font-family: 'Orbitron', sans-serif; }
         .glass {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-        }
-        .input-glow:focus {
-            box-shadow: 0 0 15px rgba(34, 211, 238, 0.2);
-            border-color: rgba(34, 211, 238, 0.5);
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
         .gradient-text {
             background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
-            background-clip: text;
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         .spectrum-border {
@@ -43,171 +41,375 @@
             border-radius: 1rem;
         }
         .spectrum-border-inner {
-            background: #0f172a;
+            background: #020617;
             border-radius: calc(1rem - 1px);
         }
+        /* Overlays */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.95);
+            backdrop-filter: blur(15px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(1.05);
+        }
+        /* Custom Input Glow */
+        input:focus {
+            box-shadow: 0 0 15px rgba(34, 211, 238, 0.2);
+            border-color: rgba(34, 211, 238, 0.5);
+        }
+        /* Animation */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .float { animation: float 6s ease-in-out infinite; }
     </style>
 </head>
-<body class="flex items-center justify-center p-4">
-    <div class="max-w-xl w-full">
-        <!-- Header -->
-        <header class="text-center mb-8 animate-fade-in">
-            <h1 class="text-4xl font-orbitron font-black gradient-text uppercase tracking-tighter mb-2">
-                Frequency Calculator
-            </h1>
-            <p class="text-slate-400 text-sm font-medium uppercase tracking-[0.2em]">Wave Dynamics Assistant</p>
-        </header>
+<body class="h-screen flex flex-col">
 
-        <!-- Main Card -->
-        <div class="glass rounded-3xl p-8 space-y-8 relative overflow-hidden">
-            <div class="absolute -top-24 -right-24 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl"></div>
-            <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl"></div>
+    <!-- LOGIN OVERLAY -->
+    <div id="login-overlay" class="overlay">
+        <div class="glass max-w-md w-full p-10 rounded-[2rem] text-center space-y-8 float">
+            <div class="space-y-2">
+                <h1 class="text-4xl font-orbitron font-black gradient-text tracking-tighter uppercase">Frequency_Lab</h1>
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em]">Section 6.4: Wave Assessment</p>
+            </div>
+            <div class="space-y-4">
+                <input type="text" id="student-name" placeholder="Full Student Name" class="w-full bg-slate-900 border border-white/10 p-4 rounded-xl outline-none transition-all text-center font-bold">
+                <input type="text" id="student-id" placeholder="6-Digit ID (e.g. 123456)" maxlength="6" class="w-full bg-slate-900 border border-white/10 p-4 rounded-xl outline-none transition-all text-center font-bold">
+            </div>
+            <button onclick="startAssessment()" class="w-full bg-gradient-to-r from-cyan-600 to-violet-600 p-4 rounded-xl font-black uppercase tracking-widest text-sm shadow-xl hover:shadow-cyan-500/20 active:scale-95 transition-all">
+                Initialize Module
+            </button>
+        </div>
+    </div>
 
-            <!-- Mode Switcher -->
-            <div class="flex p-1 bg-slate-900/50 rounded-2xl border border-white/5">
-                <button onclick="setMode('wave')" id="mode-wave" class="flex-1 py-3 rounded-xl text-sm font-bold transition-all bg-indigo-600 shadow-lg text-white">
-                    Wave Equation
+    <!-- COMPLETION OVERLAY -->
+    <div id="completion-overlay" class="overlay hidden">
+        <div class="glass max-w-md w-full p-10 rounded-[2rem] text-center space-y-6">
+            <div class="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto border border-emerald-500/30">
+                <span class="text-4xl">✓</span>
+            </div>
+            <h2 class="text-3xl font-orbitron font-black text-emerald-400 uppercase">Assignment Complete</h2>
+            <p class="text-slate-400 text-sm">You have successfully mastered the wave frequency modules.</p>
+            
+            <div id="submit-section" class="pt-4 border-t border-white/5 space-y-4">
+                <button id="submit-btn" onclick="submitToSupabase()" class="w-full bg-emerald-600 p-4 rounded-xl font-black uppercase tracking-widest text-sm transition-all hover:bg-emerald-500">
+                    Sync Results to Teacher
                 </button>
-                <button onclick="setMode('period')" id="mode-period" class="flex-1 py-3 rounded-xl text-sm font-bold transition-all text-slate-400 hover:text-white">
-                    Period Basis
-                </button>
+                <div id="submit-status" class="hidden text-[10px] font-black uppercase tracking-widest py-3 rounded-lg"></div>
             </div>
+        </div>
+    </div>
 
-            <!-- Wave Equation Inputs -->
-            <div id="wave-inputs" class="space-y-6">
-                <div class="space-y-2">
-                    <label class="text-[10px] font-black uppercase tracking-widest text-cyan-400/80 ml-1">Wave Speed (v) — m/s</label>
-                    <input type="number" id="v-input" placeholder="e.g. 340" oninput="calculate()" class="w-full bg-slate-900/80 border border-white/5 rounded-2xl p-4 outline-none input-glow transition-all text-lg font-semibold">
-                </div>
-                <div class="space-y-2">
-                    <label class="text-[10px] font-black uppercase tracking-widest text-violet-400/80 ml-1">Wavelength (λ) — Meters</label>
-                    <input type="number" id="lambda-input" placeholder="e.g. 2" oninput="calculate()" class="w-full bg-slate-900/80 border border-white/5 rounded-2xl p-4 outline-none input-glow transition-all text-lg font-semibold">
-                </div>
+    <!-- MAIN INTERFACE -->
+    <header class="p-6 border-b border-white/5 flex justify-between items-center bg-slate-950/50">
+        <div class="flex items-center gap-4">
+            <div class="w-10 h-10 bg-gradient-to-br from-cyan-500 to-indigo-600 rounded-lg flex items-center justify-center font-orbitron font-black text-xl shadow-lg">f</div>
+            <div>
+                <h2 class="font-orbitron font-black tracking-tighter text-lg uppercase leading-none">Frequency_Lab <span class="text-[10px] opacity-30">v2.0</span></h2>
+                <p id="display-identity" class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-1">Status: Initializing...</p>
             </div>
-
-            <!-- Period Inputs (Hidden by default) -->
-            <div id="period-inputs" class="space-y-6 hidden">
-                <div class="space-y-2">
-                    <label class="text-[10px] font-black uppercase tracking-widest text-indigo-400/80 ml-1">Wave Period (T) — Seconds</label>
-                    <input type="number" id="t-input" placeholder="e.g. 0.05" oninput="calculate()" class="w-full bg-slate-900/80 border border-white/5 rounded-2xl p-4 outline-none input-glow transition-all text-lg font-semibold">
-                </div>
-            </div>
-
-            <!-- Result Display -->
-            <div class="spectrum-border">
-                <div class="spectrum-border-inner p-6 text-center">
-                    <p class="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Calculated Frequency</p>
-                    <div class="flex items-center justify-center gap-2">
-                        <span id="result-value" class="text-5xl font-orbitron font-black">---</span>
-                        <span class="text-xl font-bold text-slate-500 mt-4">Hz</span>
+        </div>
+        <div class="flex gap-4">
+            <div class="text-right">
+                <p class="text-[9px] font-black text-slate-600 uppercase tracking-widest">Global Progress</p>
+                <div class="flex items-center gap-2">
+                    <span id="global-progress-text" class="text-xl font-orbitron font-black text-cyan-400">0%</span>
+                    <div class="w-32 h-2 bg-slate-900 rounded-full overflow-hidden border border-white/5">
+                        <div id="global-progress-bar" class="h-full bg-cyan-500 transition-all duration-700" style="width: 0%"></div>
                     </div>
-                    <p id="formula-text" class="text-[10px] italic text-slate-600 mt-4 uppercase tracking-widest">f = v / λ</p>
-                </div>
-            </div>
-
-            <!-- Info Bar -->
-            <div class="grid grid-cols-2 gap-4 text-center">
-                <div class="bg-white/5 rounded-2xl py-4 border border-white/5">
-                    <p class="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-1">Human Hearing</p>
-                    <p id="hearing-status" class="text-xs font-bold text-slate-400 italic">No Input</p>
-                </div>
-                <div class="bg-white/5 rounded-2xl py-4 border border-white/5">
-                    <p class="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-1">EM Spectrum</p>
-                    <p id="em-status" class="text-xs font-bold text-slate-400 italic">---</p>
                 </div>
             </div>
         </div>
+    </header>
 
-        <footer class="mt-8 text-center text-[10px] font-black uppercase tracking-widest text-slate-600 gap-4 flex justify-center">
-            <span>Grid Analytics v1.0</span>
-            <span class="text-indigo-500/50">|</span>
-            <a href="../../unit6-dashboard.html" class="hover:text-cyan-400 transition-colors">Unit 6 Dashboard</a>
-        </footer>
-    </div>
+    <main class="flex-1 flex overflow-hidden">
+        <!-- Sidebar Progress -->
+        <aside class="w-80 border-r border-white/5 p-6 space-y-6 flex flex-col">
+            <p class="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-500/80">Module Status</p>
+            <div class="flex-1 space-y-3 overflow-y-auto pr-2 custom-scroll" id="checklist">
+                <!-- Checklist Items -->
+                <div data-task="periodToFreq" class="p-4 rounded-2xl glass border-l-4 border-l-slate-700 space-y-1 transition-all">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[10px] font-black uppercase text-slate-400">Period Basis</span>
+                        <span class="chk-count text-[11px] font-orbitron font-bold text-slate-500">(0/3)</span>
+                    </div>
+                    <p class="text-xs font-bold text-slate-100/70">Solve: T → f</p>
+                </div>
+                <!-- Add more via script -->
+            </div>
+            
+            <div class="p-4 bg-indigo-500/10 rounded-2xl border border-indigo-500/20">
+                <p class="text-[9px] font-black uppercase text-indigo-400 mb-2">Reference Formulas</p>
+                <div class="space-y-2 text-[10px] font-mono text-indigo-200/60">
+                    <p>f = 1 / T</p>
+                    <p>T = 1 / f</p>
+                    <p>v = f • λ</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Workspace -->
+        <section class="flex-1 p-8 bg-slate-950 flex flex-col items-center justify-center relative overflow-hidden">
+            <div class="absolute inset-0 grid grid-cols-[repeat(20,minmax(0,1fr))] grid-rows-[repeat(20,minmax(0,1fr))] opacity-[0.02] pointer-events-none">
+                <div class="border-r border-b border-white"></div>
+                <!-- Repeating grid could be more CSS but this is enough for atmosphere -->
+            </div>
+
+            <!-- Task Card -->
+            <div class="max-w-xl w-full space-y-8 relative z-10">
+                <div class="spectrum-border">
+                    <div class="spectrum-border-inner p-8 space-y-6">
+                        <div class="flex justify-between items-center">
+                            <span id="task-tag" class="text-[10px] font-black uppercase tracking-widest bg-cyan-500 text-black px-2 py-0.5 rounded">Current Task</span>
+                            <span class="text-[10px] font-mono text-slate-500">Task_ID: <span id="task-id-display">---</span></span>
+                        </div>
+                        
+                        <div id="task-description" class="text-2xl font-bold leading-tight text-white/90 min-h-[4em]">
+                            Enter your credentials to begin.
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="relative">
+                                <input type="number" id="answer-input" placeholder="Enter calculated value..." class="w-full bg-slate-900 border border-white/5 p-5 rounded-2xl outline-none transition-all text-xl font-bold text-cyan-400 text-center">
+                                <span id="answer-unit" class="absolute right-6 top-1/2 -translate-y-1/2 text-slate-500 font-bold">---</span>
+                            </div>
+                            <button id="submit-answer" onclick="checkAnswer()" class="w-full bg-white text-slate-950 p-5 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-cyan-400 transition-all active:scale-[0.98]">
+                                Verify Result
+                            </button>
+                        </div>
+
+                        <div id="feedback" class="h-10 flex items-center justify-center text-sm font-bold animate-in fade-in slide-in-from-bottom-2"></div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center px-2">
+                    <p class="text-[10px] text-slate-600 font-bold uppercase tracking-widest">Scientific Calculator Access</p>
+                    <div class="flex gap-4">
+                        <button onclick="window.open('https://www.desmos.com/scientific', '_blank')" class="text-[10px] text-cyan-500 font-bold uppercase hover:underline">Desmos ↗</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
 
     <script>
-        let mode = 'wave';
+        // SUPABASE CONFIG
+        const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
+        const supabase = supabase.createClient(SB_URL, SB_KEY);
 
-        function setMode(newMode) {
-            mode = newMode;
-            const waveBtn = document.getElementById('mode-wave');
-            const periodBtn = document.getElementById('mode-period');
-            const waveInputs = document.getElementById('wave-inputs');
-            const periodInputs = document.getElementById('period-inputs');
-            const formulaText = document.getElementById('formula-text');
+        const state = {
+            studentName: '',
+            studentId: '',
+            isStarted: false,
+            currentTask: null,
+            solveHistory: [],
+            challenges: {
+                periodToFreq: 0,
+                freqToPeriod: 0,
+                waveSpeedFindF: 0,
+                waveSpeedFindV: 0
+            },
+            totalNeeded: 12 // 3 of each
+        };
 
-            if (mode === 'wave') {
-                waveBtn.className = "flex-1 py-3 rounded-xl text-sm font-bold transition-all bg-indigo-600 shadow-lg text-white";
-                periodBtn.className = "flex-1 py-3 rounded-xl text-sm font-bold transition-all text-slate-400 hover:text-white";
-                waveInputs.classList.remove('hidden');
-                periodInputs.classList.add('hidden');
-                formulaText.textContent = "f = v / λ";
-            } else {
-                periodBtn.className = "flex-1 py-3 rounded-xl text-sm font-bold transition-all bg-indigo-600 shadow-lg text-white";
-                waveBtn.className = "flex-1 py-3 rounded-xl text-sm font-bold transition-all text-slate-400 hover:text-white";
-                periodInputs.classList.remove('hidden');
-                waveInputs.classList.add('hidden');
-                formulaText.textContent = "f = 1 / T";
-            }
-            calculate();
+        const checklistConfig = [
+            { id: 'periodToFreq', label: 'T → f Conversion', sub: 'Period Basis' },
+            { id: 'freqToPeriod', label: 'f → T Conversion', sub: 'Reverse Period' },
+            { id: 'waveSpeedFindF', label: 'v/λ → f Logic', sub: 'Wave Triangle' },
+            { id: 'waveSpeedFindV', label: 'f•λ → v Logic', sub: 'Propagation Speed' }
+        ];
+
+        function initChecklist() {
+            const container = document.getElementById('checklist');
+            container.innerHTML = checklistConfig.map(config => `
+                <div id="chk-${config.id}" class="p-4 rounded-2xl glass border-l-4 border-l-slate-700 space-y-1 transition-all opacity-50">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[10px] font-black uppercase text-slate-400">${config.sub}</span>
+                        <span class="chk-count text-[11px] font-orbitron font-bold text-slate-500">(0/3)</span>
+                    </div>
+                    <p class="text-xs font-bold text-slate-100">${config.label}</p>
+                </div>
+            `).join('');
         }
 
-        function calculate() {
-            const v = parseFloat(document.getElementById('v-input').value);
-            const lambda = parseFloat(document.getElementById('lambda-input').value);
-            const t = parseFloat(document.getElementById('t-input').value);
-            const resultEl = document.getElementById('result-value');
-            const hearingEl = document.getElementById('hearing-status');
-            const emEl = document.getElementById('em-status');
+        function startAssessment() {
+            const name = document.getElementById('student-name').value.trim();
+            const id = document.getElementById('student-id').value.trim();
 
-            let freq = 0;
-
-            if (mode === 'wave') {
-                if (v && lambda && lambda !== 0) {
-                    freq = v / lambda;
-                }
-            } else {
-                if (t && t !== 0) {
-                    freq = 1 / t;
-                }
+            if (name.length < 3 || id.length !== 6) {
+                alert("Please enter full name and 6-digit student ID.");
+                return;
             }
 
-            if (freq > 0) {
-                if (freq >= 1000000) {
-                    resultEl.textContent = (freq / 1000000).toFixed(2) + "M";
-                } else if (freq >= 1000) {
-                    resultEl.textContent = (freq / 1000).toFixed(2) + "k";
-                } else {
-                    resultEl.textContent = freq.toFixed(2);
-                }
+            state.studentName = name;
+            state.studentId = id;
+            state.isStarted = true;
+            document.getElementById('login-overlay').classList.add('hidden');
+            document.getElementById('display-identity').textContent = `User: ${name.toUpperCase()} // ID: ${id}`;
+            initChecklist();
+            generateTask();
+        }
+
+        function generateTask() {
+            // Find categories that aren't finished
+            const available = checklistConfig.filter(c => state.challenges[c.id] < 3);
+            
+            if (available.length === 0) {
+                document.getElementById('completion-overlay').classList.remove('hidden');
+                return;
+            }
+
+            // Pick a random unfinished category
+            const category = available[Math.floor(Math.random() * available.length)];
+            const id = category.id;
+            const seed = Math.random();
+            
+            let data = {};
+            let desc = "";
+            let unit = "";
+            let solution = 0;
+
+            if (id === 'periodToFreq') {
+                const T = parseFloat((Math.random() * 0.5 + 0.01).toFixed(3));
+                data = { T };
+                desc = `A sound wave has a period (T) of <span class="text-cyan-400 font-black">${T} seconds</span>. What is its <strong>Frequency (f)</strong>?`;
+                solution = 1 / T;
+                unit = "Hz";
+            } else if (id === 'freqToPeriod') {
+                const f = Math.floor(Math.random() * 800 + 100);
+                data = { f };
+                desc = `A radio receiver picks up a signal at a frequency of <span class="text-violet-400 font-black">${f} Hz</span>. Calculate the <strong>Period (T)</strong> of the wave.`;
+                solution = 1 / f;
+                unit = "s";
+            } else if (id === 'waveSpeedFindF') {
+                const v = Math.floor(Math.random() * 500 + 300); // 300-800 m/s
+                const λ = parseFloat((Math.random() * 5 + 0.5).toFixed(2)); // 0.5-5.5 m
+                data = { v, λ };
+                desc = `A wave travels through a medium at <span class="text-cyan-400 font-black">${v} m/s</span>. If its wavelength (λ) is <span class="text-violet-400 font-black">${λ} m</span>, what is the <strong>Frequency (f)</strong>?`;
+                solution = v / λ;
+                unit = "Hz";
+            } else if (id === 'waveSpeedFindV') {
+                const f = Math.floor(Math.random() * 200 + 20); // 20-220 Hz
+                const λ = parseFloat((Math.random() * 10 + 2).toFixed(1)); // 2-12 m
+                data = { f, λ };
+                desc = `If a wave has a frequency of <span class="text-cyan-400 font-black">${f} Hz</span> and a wavelength of <span class="text-violet-400 font-black">${λ} m</span>, calculate the <strong>Wave Speed (v)</strong>.`;
+                solution = f * λ;
+                unit = "m/s";
+            }
+
+            state.currentTask = { id, data, solution, unit };
+            
+            document.getElementById('task-description').innerHTML = desc;
+            document.getElementById('answer-unit').textContent = unit;
+            document.getElementById('task-id-display').textContent = Math.random().toString(36).substr(2, 6).toUpperCase();
+            document.getElementById('answer-input').value = '';
+            document.getElementById('feedback').textContent = '';
+            
+            // Highlight current chk
+            checklistConfig.forEach(c => {
+                const el = document.getElementById(`chk-${c.id}`);
+                el.classList.toggle('border-l-cyan-500', c.id === id);
+                el.classList.toggle('opacity-100', c.id === id || state.challenges[c.id] > 0);
+            });
+        }
+
+        function checkAnswer() {
+            const input = parseFloat(document.getElementById('answer-input').value);
+            if (isNaN(input)) return;
+
+            const solution = state.currentTask.solution;
+            const tolerance = solution * 0.05; // 5% margin
+            const isCorrect = Math.abs(input - solution) <= tolerance;
+
+            const feedbackEl = document.getElementById('feedback');
+            if (isCorrect) {
+                feedbackEl.textContent = "CORRECT RESOLUTION";
+                feedbackEl.className = "h-10 flex items-center justify-center text-sm font-black text-emerald-400 uppercase tracking-widest";
                 
-                // Audio Status
-                if (freq >= 20 && freq <= 20000) {
-                    hearingEl.textContent = "Audible Range";
-                    hearingEl.className = "text-xs font-bold text-cyan-400";
-                } else if (freq < 20) {
-                    hearingEl.textContent = "Infrasonic";
-                    hearingEl.className = "text-xs font-bold text-slate-500";
-                } else {
-                    hearingEl.textContent = "Ultrasonic";
-                    hearingEl.className = "text-xs font-bold text-emerald-400";
-                }
-
-                // EM Status
-                if (freq >= 4.3e14 && freq <= 7.5e14) emEl.textContent = "Visible Light";
-                else if (freq < 3e9) emEl.textContent = "Radio/Micro";
-                else if (freq > 3e16) emEl.textContent = "X-Ray/Gamma";
-                else emEl.textContent = "Infrared/UV";
-                emEl.className = "text-xs font-bold text-indigo-400";
-
+                state.challenges[state.currentTask.id]++;
+                updateUI();
+                
+                setTimeout(generateTask, 1500);
             } else {
-                resultEl.textContent = "---";
-                hearingEl.textContent = "No Input";
-                hearingEl.className = "text-xs font-bold text-slate-400 italic";
-                emEl.textContent = "---";
-                emEl.className = "text-xs font-bold text-slate-400 italic";
+                feedbackEl.textContent = "INCORRECT CALCULATION - TRY AGAIN";
+                feedbackEl.className = "h-10 flex items-center justify-center text-sm font-black text-rose-500 uppercase tracking-widest";
             }
         }
+
+        function updateUI() {
+            let totalDone = 0;
+            checklistConfig.forEach(c => {
+                const count = state.challenges[c.id];
+                totalDone += count;
+                const el = document.getElementById(`chk-${c.id}`);
+                const countEl = el.querySelector('.chk-count');
+                countEl.textContent = `(${count}/3)`;
+                
+                if (count >= 3) {
+                    el.classList.add('border-l-emerald-500', 'bg-emerald-500/5');
+                    el.classList.remove('border-l-slate-700', 'border-l-cyan-500');
+                    countEl.classList.add('text-emerald-400');
+                }
+            });
+
+            const progressPercent = (totalDone / state.totalNeeded) * 100;
+            document.getElementById('global-progress-bar').style.width = `${progressPercent}%`;
+            document.getElementById('global-progress-text').textContent = Math.round(progressPercent) + "%";
+        }
+
+        async function submitToSupabase() {
+            const btn = document.getElementById('submit-btn');
+            const status = document.getElementById('submit-status');
+            
+            btn.disabled = true;
+            btn.textContent = "SYNCING...";
+            status.classList.remove('hidden');
+            status.textContent = "ENCRYPTING DATA...";
+            status.className = "text-[10px] font-black uppercase tracking-widest py-3 rounded-lg bg-indigo-500/10 text-indigo-400 text-center";
+
+            try {
+                const { data, error } = await supabase
+                    .from('student_results')
+                    .insert([
+                        { 
+                            student_name: state.studentName, 
+                            student_id: state.studentId, 
+                            assignment_name: "Frequency Assessment (Unit 6)", 
+                            score: 100,
+                            details: {
+                                solved: state.challenges,
+                                timestamp: new Date().toISOString()
+                            }
+                        }
+                    ]);
+
+                if (error) throw error;
+
+                status.textContent = "SYNC SUCCESSFUL - MODULE FINALIZED";
+                status.className = "text-[10px] font-black uppercase tracking-widest py-3 rounded-lg bg-emerald-500/20 text-emerald-400 text-center";
+                btn.classList.add('hidden');
+            } catch (err) {
+                console.error(err);
+                btn.disabled = false;
+                btn.textContent = "RETRY SYNC";
+                status.textContent = "ERROR: " + err.message;
+                status.className = "text-[10px] font-black uppercase tracking-widest py-3 rounded-lg bg-rose-500/20 text-rose-400 text-center";
+            }
+        }
+
+        initChecklist();
     </script>
 </body>
 </html>
