@@ -195,7 +195,7 @@
             <!-- Formula Construction Zone (Levels 1 & 2) -->
             <div id="formula-zone" class="flex flex-col items-center justify-center p-8 bg-black/40 rounded-3xl border border-white/5 space-y-6 relative">
                 
-                <div class="flex items-center gap-8">
+                <div id="formula-scaffolding" class="flex items-center gap-8">
                     <span class="text-5xl font-orbitron font-black gradient-text">f =</span>
                     <div class="flex flex-col items-center gap-3">
                         <!-- Numerator -->
@@ -220,10 +220,6 @@
                                 class="hidden absolute inset-0 w-full h-full bg-slate-900 border-2 border-violet-500/30 rounded-xl text-center text-2xl font-black text-violet-400 outline-none focus:border-violet-500">
                         </div>
                     </div>
-                </div>
-
-                <div id="formula-lock" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-sm rounded-3xl flex items-center justify-center">
-                    <span class="text-slate-500 font-black text-[10px] uppercase tracking-[0.5em]">Direct Calculation Mode</span>
                 </div>
 
                 <!-- Calculation Unlocked -->
@@ -360,16 +356,16 @@
             } else if (state.level === 2) {
                 badge.textContent = "Level 2 // Mastery";
                 chips.classList.add('hidden');
+                document.getElementById('formula-scaffolding').classList.remove('hidden');
                 inputN.classList.remove('hidden');
                 inputD.classList.remove('hidden');
-                formulaLock.classList.add('hidden');
                 document.getElementById('hint-text').textContent = "Type the correct values into the formula to unlock.";
                 // Listen for typing
                 inputN.oninput = inputD.oninput = checkInputs;
             } else {
                 badge.textContent = "Level 3 // Assessment";
                 chips.classList.add('hidden');
-                formulaLock.classList.remove('hidden');
+                document.getElementById('formula-scaffolding').classList.add('hidden');
                 document.getElementById('calculation-phase').classList.remove('hidden');
                 document.getElementById('hint-text').textContent = "No scaffolding provided. Enter final result.";
             }
