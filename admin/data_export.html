@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Data Export // SIG_DATA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent-cyan: #22d3ee;
+            --accent-violet: #a855f7;
+            --bg-dark: #020617;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: #f8fafc;
+            min-h-screen: 100vh;
+        }
+        .font-orbitron { font-family: 'Orbitron', sans-serif; }
+        .glass {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="p-8 flex items-center justify-center">
+    <div class="glass max-w-4xl w-full p-10 rounded-[2.5rem] space-y-10">
+        <div class="text-center space-y-2">
+            <h1 class="text-5xl font-orbitron font-black gradient-text tracking-tighter uppercase">Data_Export</h1>
+            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.5em]">Central Intelligence Archive // Supabase</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Assignment Selector -->
+            <div class="space-y-4">
+                <p class="text-[10px] font-black text-cyan-500 uppercase tracking-widest">01 // Select Assignment</p>
+                <select id="assignment-select" class="w-full bg-slate-900 border border-white/10 p-5 rounded-2xl outline-none focus:border-cyan-500 transition-all font-bold text-slate-300">
+                    <option value="">Loading Assignments...</option>
+                </select>
+            </div>
+
+            <!-- Export Actions -->
+            <div class="space-y-4">
+                <p class="text-[10px] font-black text-violet-500 uppercase tracking-widest">02 // Export Operations</p>
+                <button id="export-btn" onclick="exportCSV()" class="w-full bg-gradient-to-r from-cyan-600 to-violet-600 p-5 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl active:scale-95 transition-all flex items-center justify-center gap-3">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    Download CSV Archive
+                </button>
+            </div>
+        </div>
+
+        <div id="status-display" class="pt-8 border-t border-white/5">
+            <div class="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-slate-600">
+                <span>Database_Status: <span id="db-status" class="text-cyan-500">Connecting...</span></span>
+                <span>Records_Found: <span id="record-count" class="text-white">0</span></span>
+            </div>
+            <!-- Live Preview Table -->
+            <div class="mt-4 overflow-hidden rounded-xl border border-white/5 bg-slate-950/50">
+                <table class="w-full text-left text-xs">
+                    <thead>
+                        <tr class="bg-white/5 text-slate-400 font-black uppercase tracking-tighter">
+                            <th class="p-4 border-b border-white/5">Student_ID</th>
+                            <th class="p-4 border-b border-white/5">Student_Name</th>
+                            <th class="p-4 border-b border-white/5">Score</th>
+                            <th class="p-4 border-b border-white/5">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="preview-body" class="text-slate-500">
+                        <!-- Rows injected here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
+        const sbClient = supabase.createClient(SB_URL, SB_KEY);
+
+        async function init() {
+            try {
+                // Fetch unique assignments
+                const { data, error } = await sbClient
+                    .from('student_results')
+                    .select('assignment_name');
+                
+                if (error) throw error;
+
+                const uniques = [...new Set(data.map(r => r.assignment_name))].sort();
+                const select = document.getElementById('assignment-select');
+                select.innerHTML = uniques.map(a => `<option value="${a}">${a}</option>`).join('');
+                
+                document.getElementById('db-status').textContent = "Connection_Ready";
+                loadPreview();
+
+                // Listen for changes
+                select.onchange = loadPreview;
+            } catch (err) {
+                console.error(err);
+                document.getElementById('db-status').textContent = "Access_Denied";
+            }
+        }
+
+        async function loadPreview() {
+            const assignment = document.getElementById('assignment-select').value;
+            if (!assignment) return;
+
+            const { data, error } = await sbClient
+                .from('student_results')
+                .select('*')
+                .eq('assignment_name', assignment)
+                .order('created_at', { ascending: false });
+
+            if (error) return;
+
+            document.getElementById('record-count').textContent = data.length;
+            const tbody = document.getElementById('preview-body');
+            tbody.innerHTML = data.slice(0, 10).map(r => `
+                <tr class="border-b border-white/5">
+                    <td class="p-4 font-mono font-bold text-cyan-400">${r.student_id}</td>
+                    <td class="p-4 font-medium text-slate-300 capitalize">${r.student_name}</td>
+                    <td class="p-4 font-black text-violet-400">${r.score}%</td>
+                    <td class="p-4 text-[10px] text-slate-600">${new Date(r.created_at).toLocaleDateString()}</td>
+                </tr>
+            `).join('');
+            
+            if (data.length > 10) {
+                tbody.innerHTML += `<tr><td colspan="4" class="p-4 text-center text-[8px] uppercase tracking-widest text-slate-700">+ ${data.length - 10} additional records truncated from preview</td></tr>`;
+            }
+        }
+
+        async function exportCSV() {
+            const assignment = document.getElementById('assignment-select').value;
+            if (!assignment) return;
+
+            const { data, error } = await sbClient
+                .from('student_results')
+                .select('*')
+                .eq('assignment_name', assignment)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                alert("Export Failure");
+                return;
+            }
+
+            // Generate CSV
+            const headers = ["ID", "Signed_At", "Student_Name", "Student_ID", "Assignment", "Score", "Meta_Level", "Meta_Mastery"];
+            const rows = data.map(r => [
+                r.id,
+                r.created_at,
+                r.student_name,
+                r.student_id,
+                r.assignment_name,
+                r.score,
+                r.details?.level || "",
+                r.details?.mastery || ""
+            ]);
+
+            const csvContent = [
+                headers.join(","),
+                ...rows.map(row => row.map(cell => `"${cell}"`).join(","))
+            ].join("\n");
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `EXPORT_${assignment.replace(/\s+/g, '_').toUpperCase()}_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        init();
+    </script>
+</body>
+</html>
