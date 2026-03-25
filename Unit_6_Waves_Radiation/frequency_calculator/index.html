@@ -482,6 +482,8 @@
                         document.body.classList.add('level-up-anim');
                         setTimeout(() => document.body.classList.remove('level-up-anim'), 1000);
                     } else {
+                        // Level 3 cap
+                        state.mastery = state.targetMastery;
                         document.getElementById('completion-overlay').classList.remove('hidden');
                     }
                 }
@@ -524,7 +526,7 @@
                     student_name: state.name,
                     student_id: state.id,
                     assignment_name: assignmentName,
-                    score: Math.round(((state.level - 1) * 33) + ((state.mastery / state.targetMastery) * 33)),
+                    score: Math.min(100, Math.round(((state.level - 1) * 33.3) + ((state.mastery / state.targetMastery) * 33.4))),
                     details: { level: state.level, mastery: state.mastery, timestamp: new Date().toISOString() }
                 };
 
