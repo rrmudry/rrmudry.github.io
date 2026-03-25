@@ -246,19 +246,20 @@
         </svg>
     </button>
 
-    <!-- CALCULATOR MODAL -->
-    <div id="calc-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="glass w-full max-w-4xl h-[80vh] rounded-[2.5rem] overflow-hidden flex flex-col shadow-2xl border border-white/10 scale-95 transition-transform duration-300">
-            <div class="p-4 border-b border-white/5 flex justify-between items-center bg-white/5">
-                <div class="flex items-center gap-3">
-                    <span class="w-8 h-8 bg-cyan-500 rounded flex items-center justify-center font-black text-slate-900 text-xs">D</span>
-                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Desmos Scientific Calculator</span>
-                </div>
-                <button onclick="toggleCalc()" class="p-2 hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                </button>
+    <!-- CALCULATOR SIDE PANEL -->
+    <div id="calc-modal" class="fixed inset-y-0 right-0 w-full max-w-[400px] glass z-[100] border-l border-white/10 hidden translate-x-full transition-transform duration-500 ease-out flex flex-col shadow-2xl">
+        <div class="p-4 border-b border-white/5 flex justify-between items-center bg-white/5 backdrop-blur-md">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-cyan-500 rounded flex items-center justify-center font-black text-slate-900 text-xs shadow-lg shadow-cyan-500/20">D</div>
+                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 pt-1">Scientific_Node</span>
             </div>
-            <iframe src="https://www.desmos.com/scientific?embed" class="flex-1 w-full bg-white"></iframe>
+            <button onclick="toggleCalc()" class="p-2 hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+        </div>
+        <iframe src="https://www.desmos.com/scientific?embed" class="flex-1 w-full bg-white"></iframe>
+        <div class="p-4 bg-slate-950/80 border-t border-white/5">
+            <p class="text-[8px] font-bold text-slate-600 uppercase tracking-widest text-center">External Calculation Processor // Connected</p>
         </div>
     </div>
 
@@ -508,13 +509,11 @@
             if (isHidden) {
                 modal.classList.remove('hidden');
                 setTimeout(() => {
-                    modal.classList.remove('opacity-0');
-                    modal.querySelector('.glass').classList.remove('scale-95');
+                    modal.classList.remove('translate-x-full');
                 }, 10);
             } else {
-                modal.classList.add('opacity-0');
-                modal.querySelector('.glass').classList.add('scale-95');
-                setTimeout(() => modal.classList.add('hidden'), 300);
+                modal.classList.add('translate-x-full');
+                setTimeout(() => modal.classList.add('hidden'), 500);
             }
         }
     </script>
