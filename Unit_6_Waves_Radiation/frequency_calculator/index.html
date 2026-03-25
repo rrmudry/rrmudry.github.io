@@ -8,9 +8,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0/default.css">
-    <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0/index.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0/scroll-behaviour.min.js"></script>
     <style>
         :root {
             --accent-cyan: #22d3ee;
@@ -53,15 +50,21 @@
             transform: scale(1.05);
         }
         .draggable-chip {
-            cursor: grab;
+            cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
             user-select: none;
-            touch-action: none;
+            touch-action: manipulation;
         }
         .draggable-chip:active { cursor: grabbing; }
         .draggable-chip.dragging {
             opacity: 0.5;
             transform: scale(1.1);
+        }
+        .draggable-chip.selected-chip {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 15px rgba(34, 211, 238, 0.4);
+            background: rgba(34, 211, 238, 0.1);
+            transform: scale(1.05);
         }
         .drop-zone {
             transition: all 0.3s;
@@ -203,8 +206,8 @@
                     <div class="flex flex-col items-center gap-3">
                         <!-- Numerator -->
                         <div id="numerator-wrapper" class="relative w-32 h-16 group">
-                            <div id="drop-numerator" ondragover="handleDragOver(event)" ondrop="handleDrop(event)" 
-                                class="drop-zone w-full h-full rounded-xl flex items-center justify-center text-xl font-bold text-slate-500 uppercase tracking-widest text-[10px]">
+                            <div id="drop-numerator" onclick="handleZoneClick(this)" 
+                                class="drop-zone w-full h-full rounded-xl flex items-center justify-center text-xl font-bold text-slate-500 uppercase tracking-widest text-[10px] cursor-pointer hover:bg-white/5 transition-colors">
                                 Waves
                             </div>
                             <input type="number" id="input-numerator" placeholder="Qty" 
@@ -215,8 +218,8 @@
 
                         <!-- Denominator -->
                         <div id="denominator-wrapper" class="relative w-32 h-16 group">
-                            <div id="drop-denominator" ondragover="handleDragOver(event)" ondrop="handleDrop(event)" 
-                                class="drop-zone w-full h-full rounded-xl flex items-center justify-center text-xl font-bold text-slate-500 uppercase tracking-widest text-[10px]">
+                            <div id="drop-denominator" onclick="handleZoneClick(this)" 
+                                class="drop-zone w-full h-full rounded-xl flex items-center justify-center text-xl font-bold text-slate-500 uppercase tracking-widest text-[10px] cursor-pointer hover:bg-white/5 transition-colors">
                                 Time
                             </div>
                             <input type="number" id="input-denominator" placeholder="Sec" 
@@ -289,7 +292,8 @@
             mastery: 0,
             targetMastery: 5,
             currentTask: null,
-            setupCorrect: false
+            setupCorrect: false,
+            selectedChip: null
         };
 
         async function handleLogin() {
@@ -350,8 +354,8 @@
             const border = type === 'waves' ? 'border-cyan-500/50' : 'border-violet-500/50';
             const id = type === 'waves' ? 'chip-waves' : 'chip-time';
             
-            return `<span id="${id}" draggable="true" ondragstart="handleDragStart(event)" 
-                  class="draggable-chip px-3 py-1 bg-slate-900 border ${border} rounded-lg ${color} font-black mx-1 inline-block shadow-sm cursor-grab active:cursor-grabbing hover:scale-105 transition-transform">
+            return `<span id="${id}" onclick="handleChipClick(this)" 
+                  class="draggable-chip px-3 py-1 bg-slate-900 border ${border} rounded-lg ${color} font-black mx-1 inline-block shadow-sm cursor-pointer hover:scale-105 transition-transform">
                   ${val}</span>`;
         };
 
@@ -389,7 +393,8 @@
             document.getElementById('final-answer').value = '';
             document.getElementById('calculation-phase').classList.add('hidden');
             document.getElementById('hint-text').classList.remove('hidden');
-            document.getElementById('hint-text').textContent = "Position the variables correctly to proceed.";
+            document.getElementById('hint-text').textContent = "Tap a variable then tap its location in the formula.";
+            state.selectedChip = null;
 
             if (state.level === 1) {
                 badge.textContent = "Level 1 // Basics";
@@ -431,29 +436,36 @@
             }
         }
 
-        // Level 1 Drag Logic
-        function handleDragStart(e) { e.dataTransfer.setData('text', e.target.id); e.target.classList.add('dragging'); }
-        function handleDragOver(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
-        function handleDrop(e) {
-            e.preventDefault();
-            const zone = e.currentTarget;
-            zone.classList.remove('drag-over');
-            const chipId = e.dataTransfer.getData('text');
-            const chip = document.getElementById(chipId);
-            const val = chip.textContent;
+        function handleChipClick(el) {
+            document.querySelectorAll('.draggable-chip').forEach(c => c.classList.remove('selected-chip'));
+            if (state.selectedChip === el) {
+                state.selectedChip = null;
+            } else {
+                el.classList.add('selected-chip');
+                state.selectedChip = el;
+            }
+        }
+
+        function handleZoneClick(el) {
+            if (!state.selectedChip) return;
+            const type = state.selectedChip.id === 'chip-waves' ? 'waves' : 'time';
+            const val = state.selectedChip.textContent.trim();
+            const targetId = el.id;
             
-            if ((chipId === 'chip-waves' && zone.id === 'drop-numerator') || (chipId === 'chip-time' && zone.id === 'drop-denominator')) {
-                zone.textContent = val;
-                zone.classList.add('correct', 'bg-slate-900', 'text-white');
-                chip.style.display = 'none';
+            if ((type === 'waves' && targetId === 'drop-numerator') || (type === 'time' && targetId === 'drop-denominator')) {
+                el.textContent = val;
+                el.classList.add('correct', 'bg-slate-900', 'text-white', 'border-cyan-500');
+                state.selectedChip.style.visibility = 'hidden';
+                state.selectedChip.classList.remove('selected-chip');
+                state.selectedChip = null;
                 if (document.getElementById('drop-numerator').classList.contains('correct') && 
                     document.getElementById('drop-denominator').classList.contains('correct')) {
                     document.getElementById('calculation-phase').classList.remove('hidden');
                     document.getElementById('hint-text').classList.add('hidden');
                 }
             } else {
-                zone.classList.add('border-rose-500');
-                setTimeout(() => zone.classList.remove('border-rose-500'), 500);
+                el.classList.add('border-rose-500');
+                setTimeout(() => el.classList.remove('border-rose-500'), 500);
             }
         }
 
