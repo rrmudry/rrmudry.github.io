@@ -239,6 +239,29 @@
         </div>
     </main>
 
+    <!-- DESMOS CALCULATOR TOGGLE -->
+    <button onclick="toggleCalc()" class="fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-br from-cyan-600 to-violet-600 rounded-2xl shadow-2xl shadow-cyan-500/20 flex items-center justify-center group active:scale-95 transition-all z-[50]">
+        <svg class="w-8 h-8 text-white group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+        </svg>
+    </button>
+
+    <!-- CALCULATOR MODAL -->
+    <div id="calc-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="glass w-full max-w-4xl h-[80vh] rounded-[2.5rem] overflow-hidden flex flex-col shadow-2xl border border-white/10 scale-95 transition-transform duration-300">
+            <div class="p-4 border-b border-white/5 flex justify-between items-center bg-white/5">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 bg-cyan-500 rounded flex items-center justify-center font-black text-slate-900 text-xs">D</span>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Desmos Scientific Calculator</span>
+                </div>
+                <button onclick="toggleCalc()" class="p-2 hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+            <iframe src="https://www.desmos.com/scientific?embed" class="flex-1 w-full bg-white"></iframe>
+        </div>
+    </div>
+
     <script>
         const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
@@ -475,6 +498,23 @@
             } catch (e) {
                 console.error(e);
                 ind.textContent = "Sync_Error";
+            }
+        }
+
+        function toggleCalc() {
+            const modal = document.getElementById('calc-modal');
+            const isHidden = modal.classList.contains('hidden');
+            
+            if (isHidden) {
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    modal.classList.remove('opacity-0');
+                    modal.querySelector('.glass').classList.remove('scale-95');
+                }, 10);
+            } else {
+                modal.classList.add('opacity-0');
+                modal.querySelector('.glass').classList.add('scale-95');
+                setTimeout(() => modal.classList.add('hidden'), 300);
             }
         }
     </script>
