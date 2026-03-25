@@ -93,13 +93,25 @@
                 <h1 class="text-4xl font-orbitron font-black gradient-text tracking-tighter uppercase">Frequency_Lab</h1>
                 <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em]">Section 6.4: Interactive Assessment</p>
             </div>
-            <div class="space-y-4">
-                <input type="text" id="student-name" placeholder="Full Student Name" class="w-full bg-slate-900 border border-white/10 p-4 rounded-xl outline-none transition-all text-center font-bold focus:border-cyan-500/50">
-                <input type="text" id="student-id" placeholder="6-Digit ID (e.g. 123456)" maxlength="6" class="w-full bg-slate-900 border border-white/10 p-4 rounded-xl outline-none transition-all text-center font-bold focus:border-violet-500/50 uppercase">
+            
+            <div id="login-form" class="space-y-4">
+                <div class="space-y-2">
+                    <p class="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] text-left px-1">Access_Node // Student ID</p>
+                    <input type="text" id="student-id" placeholder="6-Digit ID (e.g. 123456)" maxlength="6" 
+                        class="w-full bg-slate-900 border border-white/10 p-5 rounded-xl outline-none transition-all text-center font-bold text-xl focus:border-cyan-500/50 uppercase tracking-widest text-cyan-400">
+                </div>
+
+                <div id="name-entry" class="hidden animate-in slide-in-from-top-2 duration-300 space-y-2">
+                    <p class="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] text-left px-1">New User Detected // Enter Name</p>
+                    <input type="text" id="student-name" placeholder="Full Student Name" 
+                        class="w-full bg-slate-900 border border-white/10 p-5 rounded-xl outline-none transition-all text-center font-bold focus:border-violet-500/50">
+                </div>
+
+                <button id="login-btn" onclick="handleLogin()" class="w-full bg-gradient-to-r from-cyan-600 to-violet-600 p-5 rounded-xl font-black uppercase tracking-widest text-sm shadow-xl active:scale-95 transition-all">
+                    Establish Connection
+                </button>
+                <p id="login-status" class="text-[9px] font-bold text-slate-600 uppercase tracking-widest animate-pulse h-4"></p>
             </div>
-            <button onclick="startAssessment()" class="w-full bg-gradient-to-r from-cyan-600 to-violet-600 p-4 rounded-xl font-black uppercase tracking-widest text-sm shadow-xl active:scale-95 transition-all">
-                Initialize Module
-            </button>
         </div>
     </div>
 
@@ -213,38 +225,79 @@
             setupCorrect: false
         };
 
-        function startAssessment() {
-            const name = document.getElementById('student-name').value.trim();
+        async function handleLogin() {
             const id = document.getElementById('student-id').value.trim();
-            if (name.length < 3 || id.length !== 6) {
-                alert("Identity verification failed. Please enter your full name and 6-digit ID.");
+            const nameEntry = document.getElementById('name-entry');
+            const status = document.getElementById('login-status');
+            const btn = document.getElementById('login-btn');
+
+            if (id.length !== 6) {
+                status.textContent = "INVALID ID FORMAT";
                 return;
             }
-            state.name = name;
-            state.id = id;
-            
-            // FETCH EXISTING PROGRESS
-            loadProgress(id);
 
-            document.getElementById('login-overlay').classList.add('hidden');
-            document.getElementById('student-tag').textContent = `Authenticated: ${name.toUpperCase()} // SIG_${id}`;
-            generateNewTask();
-        }
+            btn.disabled = true;
+            status.textContent = "QUERYING DATABASE...";
 
-        async function loadProgress(id) {
             try {
+                // Try to find ANY record with this ID globally in your results table
                 const { data, error } = await sbClient
                     .from('student_results')
-                    .select('details')
+                    .select('student_name, details')
                     .eq('student_id', id)
-                    .eq('assignment_name', "Frequency Drag-and-Drop Mastery")
+                    .order('created_at', { ascending: false }) // Get most recent
+                    .limit(1)
                     .maybeSingle();
 
-                if (data && data.details && typeof data.details.mastery === 'number') {
-                    state.mastery = data.details.mastery;
-                    updateProgressUI();
+                if (data) {
+                    // USER FOUND: Pull Name & Progress
+                    state.name = data.student_name;
+                    state.id = id;
+                    
+                    // Check if they have progress for THIS specific assignment
+                    const { data: assignmentData } = await sbClient
+                        .from('student_results')
+                        .select('details')
+                        .eq('student_id', id)
+                        .eq('assignment_name', "Frequency Drag-and-Drop Mastery")
+                        .maybeSingle();
+
+                    if (assignmentData && assignmentData.details && typeof assignmentData.details.mastery === 'number') {
+                        state.mastery = assignmentData.details.mastery;
+                        updateProgressUI();
+                    }
+
+                    status.textContent = "PROFILE RECOVERED // REDIRECTING...";
+                    setTimeout(finalizeLogin, 800);
+                } else if (nameEntry.classList.contains('hidden')) {
+                    // FIRST TIME USER: Prompt for name
+                    nameEntry.classList.remove('hidden');
+                    btn.disabled = false;
+                    btn.textContent = "REGISTER PROFILE";
+                    status.textContent = "SCAN COMPLETE // NO RECORD FOUND";
+                } else {
+                    // SUBMITTING NEW REGISTRATION
+                    const newName = document.getElementById('student-name').value.trim();
+                    if (newName.length < 3) {
+                        status.textContent = "PLEASE ENTER FULL NAME";
+                        btn.disabled = false;
+                        return;
+                    }
+                    state.name = newName;
+                    state.id = id;
+                    finalizeLogin();
                 }
-            } catch (err) { console.warn("Persistence fetch failed:", err); }
+            } catch (err) {
+                console.error(err);
+                status.textContent = "CONNECTION ERROR: TRY AGAIN";
+                btn.disabled = false;
+            }
+        }
+
+        function finalizeLogin() {
+            document.getElementById('login-overlay').classList.add('hidden');
+            document.getElementById('student-tag').textContent = `Authenticated: ${state.name.toUpperCase()} // SIG_${state.id}`;
+            generateNewTask();
         }
 
         function generateNewTask() {
