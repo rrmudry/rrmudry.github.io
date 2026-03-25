@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Frequency & Wave Dynamics Assessment</title>
+    <title>Frequency Mastery Lab</title>
     <link rel="icon" type="image/svg+xml" href="../../assets/unit6-favicon.svg">
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Use Supabase JS client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -20,6 +19,7 @@
             background: var(--bg-dark);
             color: #f8fafc;
             overflow: hidden;
+            touch-action: none;
         }
         .font-orbitron { font-family: 'Orbitron', sans-serif; }
         .glass {
@@ -30,26 +30,16 @@
         }
         .gradient-text {
             background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
-            -webkit-background-clip: text;
             background-clip: text;
+            -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-        }
-        .spectrum-border {
-            position: relative;
-            padding: 1px;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
-            border-radius: 1rem;
-        }
-        .spectrum-border-inner {
-            background: #020617;
-            border-radius: calc(1rem - 1px);
         }
         /* Overlays */
         .overlay {
             position: fixed;
             inset: 0;
-            background: rgba(2, 6, 23, 0.95);
-            backdrop-filter: blur(15px);
+            background: rgba(2, 6, 23, 0.98);
+            backdrop-filter: blur(20px);
             z-index: 1000;
             display: flex;
             align-items: center;
@@ -61,33 +51,53 @@
             pointer-events: none;
             transform: scale(1.05);
         }
-        /* Custom Input Glow */
-        input:focus {
-            box-shadow: 0 0 15px rgba(34, 211, 238, 0.2);
-            border-color: rgba(34, 211, 238, 0.5);
+        /* Drag & Drop Styles */
+        .draggable-chip {
+            cursor: grab;
+            transition: transform 0.2s, box-shadow 0.2s;
+            user-select: none;
         }
-        /* Animation */
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+        .draggable-chip:active { cursor: grabbing; }
+        .draggable-chip.dragging {
+            opacity: 0.5;
+            transform: scale(1.1);
         }
-        .float { animation: float 6s ease-in-out infinite; }
+        .drop-zone {
+            transition: all 0.3s;
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+        }
+        .drop-zone.drag-over {
+            border-color: var(--accent-cyan);
+            background: rgba(34, 211, 238, 0.1);
+            transform: scale(1.05);
+        }
+        .drop-zone.correct {
+            border: 2px solid var(--accent-cyan);
+            background: rgba(34, 211, 238, 0.05);
+        }
+        /* Progress Bar */
+        .progress-circle {
+            transition: stroke-dashoffset 0.5s ease-out;
+        }
     </style>
 </head>
 <body class="h-screen flex flex-col">
 
     <!-- LOGIN OVERLAY -->
     <div id="login-overlay" class="overlay">
-        <div class="glass max-w-md w-full p-10 rounded-[2rem] text-center space-y-8 float">
+        <div class="glass max-w-md w-full p-10 rounded-[2rem] text-center space-y-8 animate-in fade-in zoom-in duration-500">
             <div class="space-y-2">
+                <div class="w-16 h-16 bg-gradient-to-br from-cyan-500 to-violet-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-cyan-500/20 mb-4">
+                    <span class="text-3xl font-orbitron font-black text-white">f</span>
+                </div>
                 <h1 class="text-4xl font-orbitron font-black gradient-text tracking-tighter uppercase">Frequency_Lab</h1>
-                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em]">Section 6.4: Wave Assessment</p>
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em]">Section 6.4: Interactive Assessment</p>
             </div>
             <div class="space-y-4">
-                <input type="text" id="student-name" placeholder="Full Student Name" class="w-full bg-slate-900 border border-white/10 p-4 rounded-xl outline-none transition-all text-center font-bold">
-                <input type="text" id="student-id" placeholder="6-Digit ID (e.g. 123456)" maxlength="6" class="w-full bg-slate-900 border border-white/10 p-4 rounded-xl outline-none transition-all text-center font-bold">
+                <input type="text" id="student-name" placeholder="Full Student Name" class="w-full bg-slate-900 border border-white/10 p-4 rounded-xl outline-none transition-all text-center font-bold focus:border-cyan-500/50">
+                <input type="text" id="student-id" placeholder="6-Digit ID (e.g. 123456)" maxlength="6" class="w-full bg-slate-900 border border-white/10 p-4 rounded-xl outline-none transition-all text-center font-bold focus:border-violet-500/50 uppercase">
             </div>
-            <button onclick="startAssessment()" class="w-full bg-gradient-to-r from-cyan-600 to-violet-600 p-4 rounded-xl font-black uppercase tracking-widest text-sm shadow-xl hover:shadow-cyan-500/20 active:scale-95 transition-all">
+            <button onclick="startAssessment()" class="w-full bg-gradient-to-r from-cyan-600 to-violet-600 p-4 rounded-xl font-black uppercase tracking-widest text-sm shadow-xl active:scale-95 transition-all">
                 Initialize Module
             </button>
         </div>
@@ -96,320 +106,272 @@
     <!-- COMPLETION OVERLAY -->
     <div id="completion-overlay" class="overlay hidden">
         <div class="glass max-w-md w-full p-10 rounded-[2rem] text-center space-y-6">
-            <div class="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto border border-emerald-500/30">
-                <span class="text-4xl">✓</span>
-            </div>
-            <h2 class="text-3xl font-orbitron font-black text-emerald-400 uppercase">Assignment Complete</h2>
-            <p class="text-slate-400 text-sm">You have successfully mastered the wave frequency modules.</p>
-            
+            <h2 class="text-3xl font-orbitron font-black text-emerald-400 uppercase tracking-tighter">Mission Success</h2>
+            <p class="text-slate-400 text-sm">Frequency formula mastered. Syncing results...</p>
             <div id="submit-section" class="pt-4 border-t border-white/5 space-y-4">
-                <button id="submit-btn" onclick="submitToSupabase()" class="w-full bg-emerald-600 p-4 rounded-xl font-black uppercase tracking-widest text-sm transition-all hover:bg-emerald-500">
-                    Sync Results to Teacher
+                <button id="submit-btn" onclick="syncResults()" class="w-full bg-emerald-600 p-4 rounded-xl font-black uppercase tracking-widest text-sm transition-all hover:bg-emerald-500">
+                    Sync to Database
                 </button>
-                <div id="submit-status" class="hidden text-[10px] font-black uppercase tracking-widest py-3 rounded-lg"></div>
+                <div id="submit-status" class="hidden text-[10px] font-black uppercase tracking-widest py-3"></div>
             </div>
         </div>
     </div>
 
-    <!-- MAIN INTERFACE -->
-    <header class="p-6 border-b border-white/5 flex justify-between items-center bg-slate-950/50">
+    <!-- MAIN UI -->
+    <header class="p-6 border-b border-white/5 flex justify-between items-center bg-slate-950/40 backdrop-blur-md">
         <div class="flex items-center gap-4">
-            <div class="w-10 h-10 bg-gradient-to-br from-cyan-500 to-indigo-600 rounded-lg flex items-center justify-center font-orbitron font-black text-xl shadow-lg">f</div>
-            <div>
-                <h2 class="font-orbitron font-black tracking-tighter text-lg uppercase leading-none">Frequency_Lab <span class="text-[10px] opacity-30">v2.0</span></h2>
-                <p id="display-identity" class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-1">Status: Initializing...</p>
-            </div>
+            <h2 class="font-orbitron font-black tracking-tighter text-xl uppercase gradient-text">Frequency_Lab</h2>
+            <div class="h-4 w-[1px] bg-white/10 mx-2"></div>
+            <p id="student-tag" class="text-[10px] font-black text-slate-500 uppercase tracking-widest pt-1">Initializing_Security_Layer...</p>
         </div>
-        <div class="flex gap-4">
+        <div class="flex items-center gap-6">
             <div class="text-right">
-                <p class="text-[9px] font-black text-slate-600 uppercase tracking-widest">Global Progress</p>
-                <div class="flex items-center gap-2">
-                    <span id="global-progress-text" class="text-xl font-orbitron font-black text-cyan-400">0%</span>
-                    <div class="w-32 h-2 bg-slate-900 rounded-full overflow-hidden border border-white/5">
-                        <div id="global-progress-bar" class="h-full bg-cyan-500 transition-all duration-700" style="width: 0%"></div>
-                    </div>
-                </div>
+                <p class="text-[9px] font-black text-slate-600 uppercase tracking-widest">Mastery Level</p>
+                <p id="mastery-text" class="text-xl font-orbitron font-black text-cyan-400">0/5</p>
+            </div>
+            <div class="relative w-12 h-12">
+                <svg class="w-full h-full transform -rotate-90">
+                    <circle cx="24" cy="24" r="20" stroke="currentColor" stroke-width="4" fill="transparent" class="text-slate-900" />
+                    <circle id="progress-indicator" cx="24" cy="24" r="20" stroke="currentColor" stroke-width="4" fill="transparent" 
+                            stroke-dasharray="125.6" stroke-dashoffset="125.6" class="text-cyan-500 progress-circle" />
+                </svg>
             </div>
         </div>
     </header>
 
-    <main class="flex-1 flex overflow-hidden">
-        <!-- Sidebar Progress -->
-        <aside class="w-80 border-r border-white/5 p-6 space-y-6 flex flex-col">
-            <p class="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-500/80">Module Status</p>
-            <div class="flex-1 space-y-3 overflow-y-auto pr-2 custom-scroll" id="checklist">
-                <!-- Checklist Items -->
-                <div data-task="periodToFreq" class="p-4 rounded-2xl glass border-l-4 border-l-slate-700 space-y-1 transition-all">
-                    <div class="flex justify-between items-center">
-                        <span class="text-[10px] font-black uppercase text-slate-400">Period Basis</span>
-                        <span class="chk-count text-[11px] font-orbitron font-bold text-slate-500">(0/3)</span>
-                    </div>
-                    <p class="text-xs font-bold text-slate-100/70">Solve: T → f</p>
-                </div>
-                <!-- Add more via script -->
-            </div>
-            
-            <div class="p-4 bg-indigo-500/10 rounded-2xl border border-indigo-500/20">
-                <p class="text-[9px] font-black uppercase text-indigo-400 mb-2">Reference Formulas</p>
-                <div class="space-y-2 text-[10px] font-mono text-indigo-200/60">
-                    <p>f = 1 / T</p>
-                    <p>T = 1 / f</p>
-                    <p>v = f • λ</p>
-                </div>
-            </div>
-        </aside>
+    <main class="flex-1 flex flex-col p-8 overflow-hidden relative">
+        <!-- Floating Elements Background -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
+            <div class="absolute top-1/4 left-1/4 w-32 h-32 bg-cyan-500/20 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-1/4 right-1/4 w-64 h-64 bg-violet-600/10 rounded-full blur-3xl"></div>
+        </div>
 
-        <!-- Workspace -->
-        <section class="flex-1 p-8 bg-slate-950 flex flex-col items-center justify-center relative overflow-hidden">
-            <div class="absolute inset-0 grid grid-cols-[repeat(20,minmax(0,1fr))] grid-rows-[repeat(20,minmax(0,1fr))] opacity-[0.02] pointer-events-none">
-                <div class="border-r border-b border-white"></div>
-                <!-- Repeating grid could be more CSS but this is enough for atmosphere -->
+        <!-- Problem Statement -->
+        <div class="max-w-4xl mx-auto w-full glass p-8 rounded-[2.5rem] relative z-10 space-y-8">
+            <div class="flex items-center gap-3">
+                <span class="text-[10px] font-black uppercase text-cyan-500 tracking-[0.3em]">Module 6.4 // Task</span>
+                <div class="flex-1 h-[1px] bg-gradient-to-r from-cyan-500/50 to-transparent"></div>
             </div>
 
-            <!-- Task Card -->
-            <div class="max-w-xl w-full space-y-8 relative z-10">
-                <div class="spectrum-border">
-                    <div class="spectrum-border-inner p-8 space-y-6">
-                        <div class="flex justify-between items-center">
-                            <span id="task-tag" class="text-[10px] font-black uppercase tracking-widest bg-cyan-500 text-black px-2 py-0.5 rounded">Current Task</span>
-                            <span class="text-[10px] font-mono text-slate-500">Task_ID: <span id="task-id-display">---</span></span>
-                        </div>
-                        
-                        <div id="task-description" class="text-2xl font-bold leading-tight text-white/90 min-h-[4em]">
-                            Enter your credentials to begin.
-                        </div>
+            <div id="problem-text" class="text-3xl font-bold leading-tight text-white/90">
+                A wave pulse occurs <span id="val-waves-src" class="text-cyan-400">---</span> times within a duration of <span id="val-time-src" class="text-violet-400">---</span> seconds. 
+                <br><span class="text-xl text-slate-500 italic mt-2 block">Calculate the wave frequency.</span>
+            </div>
 
-                        <div class="space-y-4">
-                            <div class="relative">
-                                <input type="number" id="answer-input" placeholder="Enter calculated value..." class="w-full bg-slate-900 border border-white/5 p-5 rounded-2xl outline-none transition-all text-xl font-bold text-cyan-400 text-center">
-                                <span id="answer-unit" class="absolute right-6 top-1/2 -translate-y-1/2 text-slate-500 font-bold">---</span>
-                            </div>
-                            <button id="submit-answer" onclick="checkAnswer()" class="w-full bg-white text-slate-950 p-5 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-cyan-400 transition-all active:scale-[0.98]">
-                                Verify Result
-                            </button>
-                        </div>
+            <!-- Numbers Selection -->
+            <div class="flex justify-center gap-4 py-4" id="chip-container">
+                <div id="chip-waves" draggable="true" ondragstart="handleDragStart(event)" class="draggable-chip px-8 py-4 bg-slate-900 border border-cyan-500/30 rounded-2xl text-2xl font-black text-cyan-400 shadow-lg cursor-grab active:cursor-grabbing">---</div>
+                <div id="chip-time" draggable="true" ondragstart="handleDragStart(event)" class="draggable-chip px-8 py-4 bg-slate-900 border border-violet-500/30 rounded-2xl text-2xl font-black text-violet-400 shadow-lg cursor-grab active:cursor-grabbing">---</div>
+            </div>
 
-                        <div id="feedback" class="h-10 flex items-center justify-center text-sm font-bold animate-in fade-in slide-in-from-bottom-2"></div>
+            <!-- Formula Construction Zone -->
+            <div class="flex flex-col items-center justify-center p-8 bg-black/40 rounded-3xl border border-white/5 space-y-6">
+                <div class="flex items-center gap-8">
+                    <span class="text-5xl font-orbitron font-black gradient-text">f =</span>
+                    <div class="flex flex-col items-center gap-3">
+                        <!-- Numerator Zone -->
+                        <div id="drop-numerator" ondragover="handleDragOver(event)" ondrop="handleDrop(event)" class="drop-zone w-32 h-16 rounded-xl flex items-center justify-center text-xl font-bold text-slate-500 uppercase tracking-widest text-[10px]">
+                            Waves
+                        </div>
+                        <div class="w-40 h-1 bg-white/20 rounded-full shadow-lg"></div>
+                        <!-- Denominator Zone -->
+                        <div id="drop-denominator" ondragover="handleDragOver(event)" ondrop="handleDrop(event)" class="drop-zone w-32 h-16 rounded-xl flex items-center justify-center text-xl font-bold text-slate-500 uppercase tracking-widest text-[10px]">
+                            Time
+                        </div>
                     </div>
                 </div>
 
-                <div class="flex justify-between items-center px-2">
-                    <p class="text-[10px] text-slate-600 font-bold uppercase tracking-widest">Scientific Calculator Access</p>
-                    <div class="flex gap-4">
-                        <button onclick="window.open('https://www.desmos.com/scientific', '_blank')" class="text-[10px] text-cyan-500 font-bold uppercase hover:underline">Desmos ↗</button>
+                <!-- Answer Phase (Hidden until drag correctly done) -->
+                <div id="calculation-phase" class="hidden animate-in slide-in-from-top-4 duration-500 flex flex-col items-center space-y-4 pt-4 border-t border-white/5 w-full">
+                    <p class="text-[10px] font-black uppercase text-cyan-400 tracking-widest">Formula Setup Integrated // Solve for f</p>
+                    <div class="flex items-center gap-4 w-full max-w-sm">
+                        <input type="number" id="final-answer" placeholder="Result..." class="flex-1 bg-slate-900 border-2 border-cyan-500/20 p-5 rounded-2xl text-3xl font-black text-white text-center outline-none focus:border-cyan-500 transition-all">
+                        <span class="text-3xl font-orbitron font-black text-slate-600">Hz</span>
                     </div>
+                    <button onclick="checkFinalResult()" class="w-full max-w-sm bg-cyan-600 hover:bg-cyan-500 p-5 rounded-2xl font-black uppercase tracking-[0.2em] text-sm shadow-xl transition-all">
+                        Validate Signal
+                    </button>
                 </div>
             </div>
-        </section>
+
+            <p id="hint-text" class="text-center text-xs font-medium text-slate-600 italic">Position the variables into the formula to unlock the calculation interface.</p>
+        </div>
     </main>
 
     <script>
-        // SUPABASE CONFIG
+        // Supabase Initialization
         const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
-        const sb = supabase.createClient(SB_URL, SB_KEY);
+        const sbClient = supabase.createClient(SB_URL, SB_KEY);
 
         const state = {
-            studentName: '',
-            studentId: '',
-            isStarted: false,
+            name: '',
+            id: '',
+            mastery: 0,
+            targetMastery: 5,
             currentTask: null,
-            solveHistory: [],
-            challenges: {
-                periodToFreq: 0,
-                freqToPeriod: 0,
-                waveSpeedFindF: 0,
-                waveSpeedFindV: 0
-            },
-            totalNeeded: 12 // 3 of each
+            setupCorrect: false
         };
-
-        const checklistConfig = [
-            { id: 'periodToFreq', label: 'T → f Conversion', sub: 'Period Basis' },
-            { id: 'freqToPeriod', label: 'f → T Conversion', sub: 'Reverse Period' },
-            { id: 'waveSpeedFindF', label: 'v/λ → f Logic', sub: 'Wave Triangle' },
-            { id: 'waveSpeedFindV', label: 'f•λ → v Logic', sub: 'Propagation Speed' }
-        ];
-
-        function initChecklist() {
-            const container = document.getElementById('checklist');
-            container.innerHTML = checklistConfig.map(config => `
-                <div id="chk-${config.id}" class="p-4 rounded-2xl glass border-l-4 border-l-slate-700 space-y-1 transition-all opacity-50">
-                    <div class="flex justify-between items-center">
-                        <span class="text-[10px] font-black uppercase text-slate-400">${config.sub}</span>
-                        <span class="chk-count text-[11px] font-orbitron font-bold text-slate-500">(0/3)</span>
-                    </div>
-                    <p class="text-xs font-bold text-slate-100">${config.label}</p>
-                </div>
-            `).join('');
-        }
 
         function startAssessment() {
             const name = document.getElementById('student-name').value.trim();
             const id = document.getElementById('student-id').value.trim();
-
             if (name.length < 3 || id.length !== 6) {
-                alert("Please enter full name and 6-digit student ID.");
+                alert("Identity verification failed. Please enter your full name and 6-digit ID.");
                 return;
             }
-
-            state.studentName = name;
-            state.studentId = id;
-            state.isStarted = true;
+            state.name = name;
+            state.id = id;
             document.getElementById('login-overlay').classList.add('hidden');
-            document.getElementById('display-identity').textContent = `User: ${name.toUpperCase()} // ID: ${id}`;
-            initChecklist();
-            generateTask();
+            document.getElementById('student-tag').textContent = `Authenticated: ${name.toUpperCase()} // SIG_${id}`;
+            generateNewTask();
         }
 
-        function generateTask() {
-            // Find categories that aren't finished
-            const available = checklistConfig.filter(c => state.challenges[c.id] < 3);
-            
-            if (available.length === 0) {
-                document.getElementById('completion-overlay').classList.remove('hidden');
-                return;
-            }
+        function generateNewTask() {
+            const waves = Math.floor(Math.random() * 90) + 10;
+            const time = Math.floor(Math.random() * 10) + 2;
+            state.currentTask = { waves, time, freq: waves / time };
+            state.setupCorrect = false;
 
-            // Pick a random unfinished category
-            const category = available[Math.floor(Math.random() * available.length)];
-            const id = category.id;
-            const seed = Math.random();
-            
-            let data = {};
-            let desc = "";
-            let unit = "";
-            let solution = 0;
+            // Update UI
+            document.getElementById('val-waves-src').textContent = waves;
+            document.getElementById('val-time-src').textContent = time;
+            document.getElementById('chip-waves').textContent = waves;
+            document.getElementById('chip-time').textContent = time;
+            document.getElementById('chip-waves').style.display = 'block';
+            document.getElementById('chip-time').style.display = 'block';
 
-            if (id === 'periodToFreq') {
-                const T = parseFloat((Math.random() * 0.5 + 0.01).toFixed(3));
-                data = { T };
-                desc = `A sound wave has a period (T) of <span class="text-cyan-400 font-black">${T} seconds</span>. What is its <strong>Frequency (f)</strong>?`;
-                solution = 1 / T;
-                unit = "Hz";
-            } else if (id === 'freqToPeriod') {
-                const f = Math.floor(Math.random() * 800 + 100);
-                data = { f };
-                desc = `A radio receiver picks up a signal at a frequency of <span class="text-violet-400 font-black">${f} Hz</span>. Calculate the <strong>Period (T)</strong> of the wave.`;
-                solution = 1 / f;
-                unit = "s";
-            } else if (id === 'waveSpeedFindF') {
-                const v = Math.floor(Math.random() * 500 + 300); // 300-800 m/s
-                const λ = parseFloat((Math.random() * 5 + 0.5).toFixed(2)); // 0.5-5.5 m
-                data = { v, λ };
-                desc = `A wave travels through a medium at <span class="text-cyan-400 font-black">${v} m/s</span>. If its wavelength (λ) is <span class="text-violet-400 font-black">${λ} m</span>, what is the <strong>Frequency (f)</strong>?`;
-                solution = v / λ;
-                unit = "Hz";
-            } else if (id === 'waveSpeedFindV') {
-                const f = Math.floor(Math.random() * 200 + 20); // 20-220 Hz
-                const λ = parseFloat((Math.random() * 10 + 2).toFixed(1)); // 2-12 m
-                data = { f, λ };
-                desc = `If a wave has a frequency of <span class="text-cyan-400 font-black">${f} Hz</span> and a wavelength of <span class="text-violet-400 font-black">${λ} m</span>, calculate the <strong>Wave Speed (v)</strong>.`;
-                solution = f * λ;
-                unit = "m/s";
-            }
-
-            state.currentTask = { id, data, solution, unit };
-            
-            document.getElementById('task-description').innerHTML = desc;
-            document.getElementById('answer-unit').textContent = unit;
-            document.getElementById('task-id-display').textContent = Math.random().toString(36).substr(2, 6).toUpperCase();
-            document.getElementById('answer-input').value = '';
-            document.getElementById('feedback').textContent = '';
-            
-            // Highlight current chk
-            checklistConfig.forEach(c => {
-                const el = document.getElementById(`chk-${c.id}`);
-                el.classList.toggle('border-l-cyan-500', c.id === id);
-                el.classList.toggle('opacity-100', c.id === id || state.challenges[c.id] > 0);
+            // Reset Zones
+            const zones = ['drop-numerator', 'drop-denominator'];
+            zones.forEach(z => {
+                const el = document.getElementById(z);
+                el.classList.remove('correct', 'bg-slate-900', 'text-white');
+                el.textContent = z.includes('numerator') ? 'Waves' : 'Time';
             });
+
+            document.getElementById('calculation-phase').classList.add('hidden');
+            document.getElementById('hint-text').classList.remove('hidden');
+            document.getElementById('final-answer').value = '';
         }
 
-        function checkAnswer() {
-            const input = parseFloat(document.getElementById('answer-input').value);
+        // Drag Handling
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.id);
+            e.target.classList.add('dragging');
+        }
+
+        function handleDragOver(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+        document.body.addEventListener('dragleave', (e) => { if(e.target.classList.contains('drop-zone')) e.target.classList.remove('drag-over'); });
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const zone = e.currentTarget;
+            zone.classList.remove('drag-over');
+            const chipId = e.dataTransfer.getData('text/plain');
+            const chip = document.getElementById(chipId);
+            chip.classList.remove('dragging');
+
+            const val = chip.textContent;
+            
+            // Logical validation
+            const isWaves = chipId === 'chip-waves';
+            const isTime = chipId === 'chip-time';
+            const isNumeratorZone = zone.id === 'drop-numerator';
+            const isDenominatorZone = zone.id === 'drop-denominator';
+
+            if ((isWaves && isNumeratorZone) || (isTime && isDenominatorZone)) {
+                zone.textContent = val;
+                zone.classList.add('correct', 'bg-slate-900', 'text-white');
+                chip.style.display = 'none';
+                checkSetup();
+            } else {
+                // Shake effect or just rejection
+                zone.classList.add('bg-rose-500/20');
+                setTimeout(() => zone.classList.remove('bg-rose-500/20'), 500);
+            }
+        }
+
+        function checkSetup() {
+            const num = document.getElementById('drop-numerator').textContent;
+            const den = document.getElementById('drop-denominator').textContent;
+            
+            if (num != 'Waves' && den != 'Time') {
+                state.setupCorrect = true;
+                setTimeout(() => {
+                    document.getElementById('calculation-phase').classList.remove('hidden');
+                    document.getElementById('hint-text').classList.add('hidden');
+                }, 400);
+            }
+        }
+
+        function checkFinalResult() {
+            const input = parseFloat(document.getElementById('final-answer').value);
             if (isNaN(input)) return;
 
-            const solution = state.currentTask.solution;
-            const tolerance = solution * 0.05; // 5% margin
-            const isCorrect = Math.abs(input - solution) <= tolerance;
-
-            const feedbackEl = document.getElementById('feedback');
-            if (isCorrect) {
-                feedbackEl.textContent = "CORRECT RESOLUTION";
-                feedbackEl.className = "h-10 flex items-center justify-center text-sm font-black text-emerald-400 uppercase tracking-widest";
-                
-                state.challenges[state.currentTask.id]++;
-                updateUI();
-                
-                setTimeout(generateTask, 1500);
+            const accuracy = Math.abs(input - state.currentTask.freq);
+            if (accuracy < 0.1) {
+                state.mastery++;
+                updateProgressUI();
+                if (state.mastery >= state.targetMastery) {
+                    document.getElementById('completion-overlay').classList.remove('hidden');
+                } else {
+                    generateNewTask();
+                }
             } else {
-                feedbackEl.textContent = "INCORRECT CALCULATION - TRY AGAIN";
-                feedbackEl.className = "h-10 flex items-center justify-center text-sm font-black text-rose-500 uppercase tracking-widest";
+                const btn = event.target;
+                btn.textContent = "INCORRECT CALCULATION";
+                btn.classList.replace('bg-cyan-600', 'bg-rose-600');
+                setTimeout(() => {
+                    btn.textContent = "VALIDATE SIGNAL";
+                    btn.classList.replace('bg-rose-600', 'bg-cyan-600');
+                }, 2000);
             }
         }
 
-        function updateUI() {
-            let totalDone = 0;
-            checklistConfig.forEach(c => {
-                const count = state.challenges[c.id];
-                totalDone += count;
-                const el = document.getElementById(`chk-${c.id}`);
-                const countEl = el.querySelector('.chk-count');
-                countEl.textContent = `(${count}/3)`;
-                
-                if (count >= 3) {
-                    el.classList.add('border-l-emerald-500', 'bg-emerald-500/5');
-                    el.classList.remove('border-l-slate-700', 'border-l-cyan-500');
-                    countEl.classList.add('text-emerald-400');
-                }
-            });
-
-            const progressPercent = (totalDone / state.totalNeeded) * 100;
-            document.getElementById('global-progress-bar').style.width = `${progressPercent}%`;
-            document.getElementById('global-progress-text').textContent = Math.round(progressPercent) + "%";
+        function updateProgressUI() {
+            document.getElementById('mastery-text').textContent = `${state.mastery}/${state.targetMastery}`;
+            const percent = (state.mastery / state.targetMastery) * 100;
+            const indicator = document.getElementById('progress-indicator');
+            const circumference = 125.6; // 2 * PI * 20
+            indicator.style.strokeDashoffset = circumference - (percent / 100) * circumference;
         }
 
-        async function submitToSupabase() {
+        async function syncResults() {
             const btn = document.getElementById('submit-btn');
             const status = document.getElementById('submit-status');
-            
             btn.disabled = true;
-            btn.textContent = "SYNCING...";
-            status.classList.remove('hidden');
-            status.textContent = "ENCRYPTING DATA...";
-            status.className = "text-[10px] font-black uppercase tracking-widest py-3 rounded-lg bg-indigo-500/10 text-indigo-400 text-center";
-
+            btn.textContent = "INITIATING SYNC...";
+            
             try {
-                const { data, error } = await sb
+                const { error } = await sbClient
                     .from('student_results')
-                    .insert([
-                        { 
-                            student_name: state.studentName, 
-                            student_id: state.studentId, 
-                            assignment_name: "Frequency Assessment (Unit 6)", 
-                            score: 100,
-                            details: {
-                                solved: state.challenges,
-                                timestamp: new Date().toISOString()
-                            }
-                        }
-                    ]);
-
+                    .insert([{
+                        student_name: state.name,
+                        student_id: state.id,
+                        assignment_name: "Frequency Drag-and-Drop Mastery",
+                        score: 100,
+                        details: { mastery: state.mastery, timestamp: new Date().toISOString() }
+                    }]);
+                
                 if (error) throw error;
-
-                status.textContent = "SYNC SUCCESSFUL - MODULE FINALIZED";
-                status.className = "text-[10px] font-black uppercase tracking-widest py-3 rounded-lg bg-emerald-500/20 text-emerald-400 text-center";
+                
+                status.textContent = "SYNC COMPLETE // NODE FINALIZED";
+                status.classList.remove('hidden');
+                status.className = "text-[10px] font-black uppercase text-emerald-400 py-3 text-center";
                 btn.classList.add('hidden');
-            } catch (err) {
-                console.error(err);
+            } catch (e) {
+                console.error(e);
                 btn.disabled = false;
                 btn.textContent = "RETRY SYNC";
-                status.textContent = "ERROR: " + err.message;
-                status.className = "text-[10px] font-black uppercase tracking-widest py-3 rounded-lg bg-rose-500/20 text-rose-400 text-center";
+                status.textContent = "SYNC FAILED: " + e.message;
+                status.classList.remove('hidden');
+                status.className = "text-[10px] font-black uppercase text-rose-500 py-3 text-center";
             }
         }
 
-        initChecklist();
+        // Handle touch events mapping to drag (briefly)
+        // Note: For full touch support we'd need a polyfill or more complex logic, 
+        // but this script supports modern browsers.
     </script>
 </body>
 </html>
