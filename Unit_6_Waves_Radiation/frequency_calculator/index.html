@@ -461,7 +461,13 @@
                 }
                 updateProgressUI();
                 syncResults(true);
-                if (state.mastery !== 0 || state.level === 3) generateNewTask();
+
+                // Check if the simulation is finished
+                if (state.level === 3 && state.mastery >= state.targetMastery) {
+                    // Do nothing - overlay covers this
+                } else {
+                    generateNewTask();
+                }
             } else {
                 const btn = document.getElementById('validate-btn');
                 btn.textContent = "INCORRECT CALCULATION";
