@@ -304,11 +304,23 @@
             generateNewTask();
         }
 
+        const wrap = (val, type) => {
+            if (state.level !== 1) return `<span class="${type === 'waves' ? 'text-cyan-400' : 'text-violet-400'} font-black">${val}</span>`;
+            
+            const color = type === 'waves' ? 'text-cyan-400' : 'text-violet-400';
+            const border = type === 'waves' ? 'border-cyan-500/50' : 'border-violet-500/50';
+            const id = type === 'waves' ? 'chip-waves' : 'chip-time';
+            
+            return `<span id="${id}" draggable="true" ondragstart="handleDragStart(event)" 
+                  class="draggable-chip px-3 py-1 bg-slate-900 border ${border} rounded-lg ${color} font-black mx-1 inline-block shadow-sm cursor-grab active:cursor-grabbing hover:scale-105 transition-transform">
+                  ${val}</span>`;
+        };
+
         const templates = [
-            (w, t) => `A wave pulse occurs <span class="text-cyan-400">${w}</span> times within a duration of <span class="text-violet-400">${t}</span> seconds.`,
-            (w, t) => `During an observation lasting <span class="text-violet-400">${t}</span> seconds, a sensor detected <span class="text-cyan-400">${w}</span> wave peaks.`,
-            (w, t) => `In a <span class="text-violet-400">${t}</span> second window, the signal oscillated <span class="text-cyan-400">${w}</span> times.`,
-            (w, t) => `Calculate the frequency if <span class="text-cyan-400">${w}</span> cycles are completed every <span class="text-violet-400">${t}</span> seconds.`
+            (w, t) => `A wave pulse occurs ${wrap(w, 'waves')} times within a duration of ${wrap(t, 'time')} seconds.`,
+            (w, t) => `During an observation lasting ${wrap(t, 'time')} seconds, a sensor detected ${wrap(w, 'waves')} wave peaks.`,
+            (w, t) => `In a ${wrap(t, 'time')} second window, the signal oscillated ${wrap(w, 'waves')} times.`,
+            (w, t) => `Calculate the frequency if ${wrap(w, 'waves')} cycles are completed every ${wrap(t, 'time')} seconds.`
         ];
 
         function generateNewTask() {
@@ -317,7 +329,7 @@
             state.currentTask = { waves, time, freq: waves / time };
             state.setupCorrect = false;
 
-            // Problem Text
+            // Problem Text (Templates now handle wrapping)
             const template = templates[Math.floor(Math.random() * templates.length)];
             document.getElementById('problem-text').innerHTML = template(waves, time);
 
@@ -327,7 +339,6 @@
             const dropD = document.getElementById('drop-denominator');
             const inputN = document.getElementById('input-numerator');
             const inputD = document.getElementById('input-denominator');
-            const formulaLock = document.getElementById('formula-lock');
             const badge = document.getElementById('level-badge');
             
             // Reset common UI
@@ -343,16 +354,12 @@
 
             if (state.level === 1) {
                 badge.textContent = "Level 1 // Basics";
-                chips.classList.remove('hidden');
+                chips.classList.add('hidden'); // HIDDEN: Now using inline chips
                 dropN.classList.remove('hidden');
                 dropD.classList.remove('hidden');
                 dropN.textContent = "Waves";
                 dropD.textContent = "Time";
-                document.getElementById('chip-waves').textContent = waves;
-                document.getElementById('chip-time').textContent = time;
-                document.getElementById('chip-waves').style.display = 'block';
-                document.getElementById('chip-time').style.display = 'block';
-                formulaLock.classList.add('hidden');
+                document.getElementById('formula-scaffolding').classList.remove('hidden');
             } else if (state.level === 2) {
                 badge.textContent = "Level 2 // Mastery";
                 chips.classList.add('hidden');
