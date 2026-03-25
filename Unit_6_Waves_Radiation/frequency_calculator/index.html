@@ -271,9 +271,16 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
         const sbClient = supabase.createClient(SB_URL, SB_KEY);
 
-        MobileDragDrop.polyfill({
-            dragImageTranslateOverride: MobileDragDrop.scrollBehaviourDragImageTranslateOverride
-        });
+        // Safe Initialization of Polyfill
+        try {
+            if (typeof MobileDragDrop !== 'undefined') {
+                MobileDragDrop.polyfill({
+                    dragImageTranslateOverride: MobileDragDrop.scrollBehaviourDragImageTranslateOverride
+                });
+            }
+        } catch (e) {
+            console.warn("Mobile drag polyfill failed to load, but that's okay.", e);
+        }
 
         const state = {
             name: '',
