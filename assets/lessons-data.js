@@ -326,6 +326,7 @@ const lessonsData = [
     summary: "Practicing calculations for wave speed, frequency, and wavelength.",
     details: "Applying the fundamental wave equation v = fλ to various scenarios.",
     type: "Practice",
+    links: { "Frequency Mastery Lab": "Unit_6_Waves_Radiation/frequency_calculator/index.html" },
     dok: 2,
     semester: 2,
     isFeatured: true,
