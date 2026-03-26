@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendulum Mastery Lab // Unit 6</title>
+    <link rel="icon" type="image/svg+xml" href="../../assets/unit6-favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent-cyan: #22d3ee;
+            --accent-violet: #a855f7;
+            --bg-dark: #020617;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+        .font-orbitron { font-family: 'Orbitron', sans-serif; }
+        .glass {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.98);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .overlay.hidden {
+            display: none;
+        }
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .chart-container {
+            height: 250px;
+            width: 100%;
+        }
+        .tabular-nums {
+            font-variant-numeric: tabular-nums;
+            font-feature-settings: "tnum";
+        }
+        .stopwatch-width {
+            width: 180px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- LOGIN OVERLAY -->
+    <div id="login-overlay" class="overlay">
+        <div class="glass max-w-md w-full p-10 rounded-[2rem] text-center space-y-8">
+            <div class="space-y-2">
+                <div class="w-16 h-16 bg-gradient-to-br from-cyan-500 to-violet-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-cyan-500/20 mb-4">
+                    <span class="text-3xl font-orbitron font-black text-white">L</span>
+                </div>
+                <h1 class="text-4xl font-orbitron font-black gradient-text tracking-tighter uppercase">Pendulum_Lab</h1>
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em]">Simple Harmonic Motion Analysis</p>
+            </div>
+            
+            <div id="login-form" class="space-y-4">
+                <div class="space-y-2">
+                    <p class="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] text-left px-1">Access_Node // Student ID</p>
+                    <input type="text" id="student-id" placeholder="6-Digit ID" maxlength="6" 
+                        class="w-full bg-slate-900 border border-white/10 p-5 rounded-xl outline-none transition-all text-center font-bold text-xl focus:border-cyan-500/50 uppercase tracking-widest text-cyan-400">
+                </div>
+
+                <div id="name-entry" class="hidden space-y-2">
+                    <p class="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] text-left px-1">New User Detected // Enter Name</p>
+                    <input type="text" id="student-name" placeholder="Full Student Name" 
+                        class="w-full bg-slate-900 border border-white/10 p-5 rounded-xl outline-none transition-all text-center font-bold focus:border-violet-500/50">
+                </div>
+
+                <button id="login-btn" onclick="handleLogin()" class="w-full bg-gradient-to-r from-cyan-600 to-violet-600 p-5 rounded-xl font-black uppercase tracking-widest text-sm shadow-xl active:scale-95 transition-all">
+                    Establish Connection
+                </button>
+                <p id="login-status" class="text-[9px] font-bold text-slate-600 uppercase tracking-widest animate-pulse h-4"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN UI -->
+    <header class="p-6 border-b border-white/5 flex justify-between items-center bg-slate-950/40 backdrop-blur-md">
+        <div class="flex items-center gap-4">
+            <div class="px-3 py-1 bg-cyan-500 text-slate-950 font-black text-[10px] rounded flex items-center gap-2">
+                DAY_04
+            </div>
+            <h2 class="font-orbitron font-black tracking-tighter text-xl uppercase gradient-text">Pendulum_Analysis</h2>
+            <div class="h-4 w-[1px] bg-white/10 mx-2"></div>
+            <p id="student-tag" class="text-[10px] font-black text-slate-500 uppercase tracking-widest pt-1">Initializing...</p>
+        </div>
+        <div id="sync-indicator" class="text-[8px] font-black text-slate-600 uppercase tracking-widest">Database_Secure</div>
+    </header>
+
+    <main class="flex-1 p-8 grid grid-cols-1 lg:grid-cols-2 gap-8 overflow-y-auto">
+        
+        <!-- Simulation & Controls -->
+        <div class="space-y-8">
+            <div class="glass p-8 rounded-[2.5rem] relative overflow-hidden">
+                <p class="text-[10px] font-black text-cyan-500 uppercase tracking-widest mb-6">01 // Virtual Pendulum</p>
+                <div class="bg-black/40 rounded-3xl h-[400px] border border-white/5 relative flex items-center justify-center">
+                    <canvas id="pendulumCanvas" class="w-full h-full"></canvas>
+                    
+                    <!-- Stopwatch HUD -->
+                    <div class="absolute top-6 right-6 glass px-6 py-4 rounded-2xl text-center border-white/10 stopwatch-width">
+                        <p class="text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1">Precision Stopwatch</p>
+                        <div id="stopwatch-display" class="text-3xl font-orbitron font-black text-cyan-400 tabular-nums">00:00.00</div>
+                        <div class="flex gap-2 mt-3">
+                            <button id="sw-start" onclick="toggleStopwatch()" class="flex-1 bg-cyan-600/20 text-cyan-400 border border-cyan-400/30 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase hover:bg-cyan-600/40 transition-all">Start</button>
+                            <button id="sw-reset" onclick="resetStopwatch()" class="bg-slate-800 text-slate-400 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase hover:bg-slate-700 transition-all">Reset</button>
+                        </div>
+                    </div>
+
+                    <!-- Instructions -->
+                    <div class="absolute bottom-6 left-6 max-w-[240px] text-[10px] text-slate-400 leading-relaxed font-medium">
+                        <span class="text-cyan-400 font-bold">Goal:</span> Measure the time for <span class="text-white">10 full swings</span>. Change the length to see how Period (T) and Frequency (f) respond.
+                    </div>
+                </div>
+
+                <div class="mt-8 space-y-6">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-black uppercase tracking-widest text-slate-400">String Length (L)</label>
+                        <span id="length-val" class="text-xl font-orbitron font-black text-cyan-400">1.0 m</span>
+                    </div>
+                    <input type="range" id="length-slider" min="0.5" max="2.5" step="0.1" value="1.0" 
+                        class="w-full accent-cyan-500 h-1.5 bg-slate-900 rounded-full appearance-none cursor-pointer">
+                </div>
+            </div>
+
+            <!-- Graphs Component -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="glass p-6 rounded-[2rem]">
+                    <p class="text-[10px] font-black text-violet-500 uppercase tracking-widest mb-4">Output_A // Length vs Period</p>
+                    <div class="chart-container">
+                        <canvas id="periodChart"></canvas>
+                    </div>
+                </div>
+                <div class="glass p-6 rounded-[2rem]">
+                    <p class="text-[10px] font-black text-cyan-500 uppercase tracking-widest mb-4">Output_B // Length vs Frequency</p>
+                    <div class="chart-container">
+                        <canvas id="freqChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Logging -->
+        <div class="glass p-8 rounded-[2.5rem] flex flex-col">
+            <p class="text-[10px] font-black text-violet-500 uppercase tracking-widest mb-6">02 // Data_Log_Matrix</p>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="text-[10px] font-black text-slate-500 uppercase tracking-tighter border-b border-white/5">
+                            <th class="p-4">Trial</th>
+                            <th class="p-4">Length (m)</th>
+                            <th class="p-4">Time (10 Swings)</th>
+                            <th class="p-4 text-cyan-400">Period (T)</th>
+                            <th class="p-4 text-violet-400">Freq (Hz)</th>
+                            <th class="p-4">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-body" class="text-xs font-medium text-slate-300">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-auto pt-8 border-t border-white/5 space-y-6">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <p class="text-[8px] font-black text-slate-500 uppercase tracking-widest">Curr_Length</p>
+                        <input type="text" id="log-length" readonly class="w-full bg-slate-900/50 border border-white/5 p-4 rounded-xl font-black text-cyan-400 text-center">
+                    </div>
+                    <div class="space-y-2">
+                        <p class="text-[8px] font-black text-slate-500 uppercase tracking-widest">Measured_Time (s)</p>
+                        <input type="number" id="log-time" placeholder="0.00" step="0.01" class="w-full bg-slate-900 border border-violet-500/20 focus:border-violet-500/50 p-4 rounded-xl font-black text-white text-center outline-none transition-all">
+                    </div>
+                </div>
+                <button onclick="logData()" class="w-full bg-gradient-to-r from-cyan-600 to-violet-600 p-5 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl active:scale-95 transition-all focus:ring-2 focus:ring-cyan-500/50">
+                    Register Trial Data
+                </button>
+                <div class="bg-violet-950/20 border border-violet-500/20 p-6 rounded-3xl">
+                    <h4 class="text-[10px] font-black uppercase tracking-widest text-violet-400 mb-2">Fundamental Correlation</h4>
+                    <p class="text-[11px] text-slate-400 leading-relaxed italic">
+                        Remember: Period (T) is the time for <span class="text-white">ONE</span> full cycle. If 10 swings took 20 seconds, T = 2.0s. 
+                        Frequency (f) is the inverse: <span class="text-white">f = 1 / T</span>.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
+        const sbClient = supabase.createClient(SB_URL, SB_KEY);
+
+        const state = {
+            id: '',
+            name: '',
+            length: 1.0,
+            trials: [],
+            swActive: false,
+            swTime: 0,
+            swInterval: null,
+            charts: {}
+        };
+
+        async function handleLogin() {
+            const idInput = document.getElementById('student-id');
+            const nameInput = document.getElementById('student-name');
+            const status = document.getElementById('login-status');
+            const btn = document.getElementById('login-btn');
+            const id = idInput.value.trim();
+
+            if (id.length !== 6) return;
+            btn.disabled = true;
+            status.textContent = "VERIFYING_CREDENTIALS...";
+
+            try {
+                const { data } = await sbClient.from('student_results').select('student_name').eq('student_id', id).order('created_at', { ascending: false }).limit(1).maybeSingle();
+
+                if (data) {
+                    state.name = data.student_name;
+                    state.id = id;
+                    // Load existing work
+                    const { data: assignmentData } = await sbClient.from('student_results').select('details').eq('student_id', id).eq('assignment_name', "Pendulum Mastery Lab").maybeSingle();
+                    if (assignmentData && assignmentData.details && assignmentData.details.trials) {
+                        state.trials = assignmentData.details.trials;
+                    }
+                    finalizeLogin();
+                } else if (document.getElementById('name-entry').classList.contains('hidden')) {
+                    document.getElementById('name-entry').classList.remove('hidden');
+                    btn.disabled = false;
+                    btn.textContent = "REGISTER_NODE";
+                    status.textContent = "NEW_ID_DETECTED";
+                } else {
+                    const name = nameInput.value.trim();
+                    if (name.length < 3) return;
+                    state.name = name;
+                    state.id = id;
+                    finalizeLogin();
+                }
+            } catch (e) {
+                console.error(e);
+                btn.disabled = false;
+                status.textContent = "SYNC_ERROR";
+            }
+        }
+
+        function finalizeLogin() {
+            document.getElementById('login-overlay').classList.add('hidden');
+            document.getElementById('student-tag').textContent = `${state.name.toUpperCase()} // SIG_${state.id}`;
+            initCharts();
+            updateTable();
+            document.getElementById('log-length').value = "1.0 m";
+        }
+
+        const canvas = document.getElementById('pendulumCanvas');
+        const ctx = canvas.getContext('2d');
+        let theta = Math.PI / 4;
+        let omega = 0;
+        let alpha = 0;
+        const gravity = 9.81;
+        let lastTimestamp = 0;
+
+        function drawPendulum(timestamp) {
+            // Calculate delta time in seconds
+            if (!lastTimestamp) lastTimestamp = timestamp;
+            const dt = (timestamp - lastTimestamp) / 1000;
+            lastTimestamp = timestamp;
+
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            const pivotX = canvas.width / 2;
+            const pivotY = 50;
+            const scaledL = state.length * 150; // Visual scaling (pixels per meter)
+
+            // Real-time Physics Integration (Euler-Cromer)
+            // Use 60 mini-steps per frame for stability if dt is high, but simple Euler is fine for one frame at 60fps
+            if (dt > 0 && dt < 0.1) { // Guard against spikes
+                alpha = (-1 * gravity / state.length) * Math.sin(theta);
+                omega += alpha * dt;
+                omega *= 0.9999; // Extremely light damping
+                theta += omega * dt;
+            }
+
+            const bobX = pivotX + scaledL * Math.sin(theta);
+            const bobY = pivotY + scaledL * Math.cos(theta);
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.strokeStyle = "rgba(255,255,255,0.05)";
+            ctx.lineWidth = 12;
+            ctx.lineCap = "round";
+            ctx.beginPath();
+            ctx.moveTo(pivotX - 60, pivotY);
+            ctx.lineTo(pivotX + 60, pivotY);
+            ctx.stroke();
+
+            ctx.strokeStyle = "rgba(34, 211, 238, 0.4)";
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(pivotX, pivotY);
+            ctx.lineTo(bobX, bobY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            const bobGrad = ctx.createRadialGradient(bobX-3, bobY-3, 2, bobX, bobY, 14);
+            bobGrad.addColorStop(0, "#22d3ee");
+            bobGrad.addColorStop(1, "#0891b2");
+            ctx.fillStyle = bobGrad;
+            ctx.shadowBlur = 10; ctx.shadowColor = "#22d3ee";
+            ctx.beginPath();
+            ctx.arc(bobX, bobY, 14, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            requestAnimationFrame(drawPendulum);
+        }
+
+        document.getElementById('length-slider').oninput = (e) => {
+            state.length = parseFloat(e.target.value);
+            document.getElementById('length-val').textContent = state.length.toFixed(1) + " m";
+            document.getElementById('log-length').value = state.length.toFixed(1) + " m";
+        };
+
+        function toggleStopwatch() {
+            const btn = document.getElementById('sw-start');
+            if (state.swActive) {
+                clearInterval(state.swInterval);
+                state.swActive = false;
+                btn.textContent = "Start";
+                btn.classList.replace('bg-rose-600/20', 'bg-cyan-600/20');
+                btn.classList.replace('text-rose-400', 'text-cyan-400');
+            } else {
+                state.swActive = true;
+                const start = Date.now() - state.swTime;
+                state.swInterval = setInterval(() => {
+                    state.swTime = Date.now() - start;
+                    updateHUD();
+                }, 10);
+                btn.textContent = "Stop";
+                btn.classList.replace('bg-cyan-600/20', 'bg-rose-600/20');
+                btn.classList.replace('text-cyan-400', 'text-rose-400');
+            }
+        }
+
+        function resetStopwatch() {
+            clearInterval(state.swInterval);
+            state.swActive = false;
+            state.swTime = 0;
+            updateHUD();
+            document.getElementById('sw-start').textContent = "Start";
+        }
+
+        function updateHUD() {
+            const msTotal = state.swTime;
+            const s = Math.floor(msTotal / 1000);
+            const ms = Math.floor((msTotal % 1000) / 10);
+            const m = Math.floor(s / 60);
+            document.getElementById('stopwatch-display').textContent = `${String(m).padStart(2,'0')}:${String(s%60).padStart(2,'0')}.${String(ms).padStart(2,'0')}`;
+        }
+
+        function logData() {
+            const t10 = parseFloat(document.getElementById('log-time').value);
+            if (!t10 || t10 <= 0) return;
+
+            const t = t10 / 10;
+            const f = 1 / t;
+
+            state.trials.push({ length: state.length, time10: t10, period: t, freq: f });
+            state.trials.sort((a,b) => a.length - b.length);
+            updateTable();
+            updateCharts();
+            syncResults();
+            document.getElementById('log-time').value = '';
+        }
+
+        function updateTable() {
+            const body = document.getElementById('data-body');
+            body.innerHTML = state.trials.map((t, i) => `
+                <tr class="border-b border-white/5 hover:bg-white/5">
+                    <td class="p-4 text-slate-500 font-mono">${i+1}</td>
+                    <td class="p-4 font-bold">${t.length.toFixed(1)}m</td>
+                    <td class="p-4">${t.time10.toFixed(2)}s</td>
+                    <td class="p-4 font-black text-cyan-400">${t.period.toFixed(2)}s</td>
+                    <td class="p-4 font-black text-violet-400">${t.freq.toFixed(2)}Hz</td>
+                    <td class="p-4">
+                        <button onclick="removeTrial(${i})" class="text-rose-500/50 hover:text-rose-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function removeTrial(i) {
+            state.trials.splice(i, 1);
+            updateTable(); updateCharts(); syncResults();
+        }
+
+        function initCharts() {
+            const cfg = (label, color) => ({
+                type: 'line',
+                data: { datasets: [{ label, data: [], borderColor: color, backgroundColor: color+'22', fill: true, tension: 0.3, pointRadius: 4 }] },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: {
+                        x: { type: 'linear', position: 'bottom', grid: { color: '#ffffff11' }, ticks: { color: '#64748b' } },
+                        y: { grid: { color: '#ffffff11' }, ticks: { color: '#64748b' } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+            state.charts.period = new Chart(document.getElementById('periodChart'), cfg('Period', '#22d3ee'));
+            state.charts.freq = new Chart(document.getElementById('freqChart'), cfg('Frequency', '#a855f7'));
+            updateCharts();
+        }
+
+        function updateCharts() {
+            if (!state.charts.period) return;
+            state.charts.period.data.datasets[0].data = state.trials.map(t => ({ x: t.length, y: t.period }));
+            state.charts.freq.data.datasets[0].data = state.trials.map(t => ({ x: t.length, y: t.freq }));
+            state.charts.period.update();
+            state.charts.freq.update();
+        }
+
+        async function syncResults() {
+            const ind = document.getElementById('sync-indicator');
+            ind.textContent = "Syncing...";
+            try {
+                const name = "Pendulum Mastery Lab";
+                const { data } = await sbClient.from('student_results').select('id').eq('student_id', state.id).eq('assignment_name', name);
+                const payload = {
+                    student_name: state.name, student_id: state.id, assignment_name: name,
+                    score: Math.min(100, state.trials.length * 20),
+                    details: { trials: state.trials, ts: new Date().toISOString() }
+                };
+                if (data && data.length > 0) await sbClient.from('student_results').update(payload).eq('id', data[0].id);
+                else await sbClient.from('student_results').insert([payload]);
+                ind.textContent = "Database_Secure";
+            } catch (e) { ind.textContent = "Sync_Error"; }
+        }
+
+        requestAnimationFrame(drawPendulum);
+    </script>
+</body>
+</html>
