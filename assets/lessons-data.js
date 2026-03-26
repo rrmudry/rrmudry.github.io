@@ -312,6 +312,7 @@ const lessonsData = [
     semester: 2,
     isFeatured: true,
     essentialQuestion: "What is the inverse relationship between the period and frequency of a wave?",
+    links: { "Pendulum Mastery Lab": "Unit_6_Waves_Radiation/pendulum_lab/index.html" },
     wicor: {
       inquiry: "Pendulum Swing: Measuring time for 10 swings vs. swings per second.",
       writing: "Summary: Explaining why T = 1/f makes sense using physical units.",
