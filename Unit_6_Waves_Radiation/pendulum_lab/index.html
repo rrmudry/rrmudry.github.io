@@ -150,13 +150,13 @@
             <!-- Graphs Component -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="glass p-6 rounded-[2rem]">
-                    <p class="text-[10px] font-black text-violet-500 uppercase tracking-widest mb-4">Output_A // Length vs Period</p>
+                    <p class="text-[10px] font-black text-cyan-500 uppercase tracking-widest mb-4">Output_A // Length vs Period</p>
                     <div class="chart-container">
                         <canvas id="periodChart"></canvas>
                     </div>
                 </div>
                 <div class="glass p-6 rounded-[2rem]">
-                    <p class="text-[10px] font-black text-cyan-500 uppercase tracking-widest mb-4">Output_B // Length vs Frequency</p>
+                    <p class="text-[10px] font-black text-violet-500 uppercase tracking-widest mb-4">Output_B // Length vs Frequency</p>
                     <div class="chart-container">
                         <canvas id="freqChart"></canvas>
                     </div>
@@ -421,20 +421,29 @@
         }
 
         function initCharts() {
-            const cfg = (label, color) => ({
+            const cfg = (label, color, xLabel, yLabel) => ({
                 type: 'line',
                 data: { datasets: [{ label, data: [], borderColor: color, backgroundColor: color+'22', fill: true, tension: 0.3, pointRadius: 4 }] },
                 options: {
                     responsive: true, maintainAspectRatio: false,
                     scales: {
-                        x: { type: 'linear', position: 'bottom', grid: { color: '#ffffff11' }, ticks: { color: '#64748b' } },
-                        y: { grid: { color: '#ffffff11' }, ticks: { color: '#64748b' } }
+                        x: { 
+                            type: 'linear', position: 'bottom', 
+                            grid: { color: '#ffffff11' }, 
+                            ticks: { color: color + '99' },
+                            title: { display: true, text: xLabel, color: color, font: { size: 10, weight: '900', family: 'Orbitron' } }
+                        },
+                        y: { 
+                            grid: { color: '#ffffff11' }, 
+                            ticks: { color: color + '99' },
+                            title: { display: true, text: yLabel, color: color, font: { size: 10, weight: '900', family: 'Orbitron' } }
+                        }
                     },
                     plugins: { legend: { display: false } }
                 }
             });
-            state.charts.period = new Chart(document.getElementById('periodChart'), cfg('Period', '#22d3ee'));
-            state.charts.freq = new Chart(document.getElementById('freqChart'), cfg('Frequency', '#a855f7'));
+            state.charts.period = new Chart(document.getElementById('periodChart'), cfg('Period', '#22d3ee', 'Length (m)', 'Period T (s)'));
+            state.charts.freq = new Chart(document.getElementById('freqChart'), cfg('Frequency', '#a855f7', 'Length (m)', 'Frequency f (Hz)'));
             updateCharts();
         }
 
