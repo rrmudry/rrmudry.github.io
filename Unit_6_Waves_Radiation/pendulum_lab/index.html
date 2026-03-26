@@ -497,22 +497,42 @@
             const trial = state.trials[idx];
             const quest = state.activeQuests[state.questIndex];
             
-            if (quest.logic(trial, state.trials)) {
-                triggerFeedback(true);
-            } else {
-                triggerFeedback(false);
-            }
+            if (quest.logic(trial, state.trials)) triggerFeedback(true);
+            else triggerFeedback(false);
+        }
+
+        function startStep3() {
+            state.step = 3;
+            state.activeQuests = [...questDB.step3].sort(() => 0.5 - Math.random()).slice(0, 3);
+            state.questIndex = 0;
+            updateQuestUI();
+            
+            // Highlight graphs
+            document.getElementById('wrapper-period').classList.add('ring-4', 'ring-cyan-500/50', 'ring-offset-4', 'ring-offset-slate-950');
+            document.getElementById('wrapper-freq').classList.add('ring-4', 'ring-violet-500/50', 'ring-offset-4', 'ring-offset-slate-950');
+            
+            document.getElementById('wrapper-period').onclick = () => handleGraphClick('period');
+            document.getElementById('wrapper-freq').onclick = () => handleGraphClick('freq');
+        }
+
+        function handleGraphClick(type) {
+            if (state.step !== 3) return;
+            const quest = state.activeQuests[state.questIndex];
+            
+            if (quest.target === type) triggerFeedback(true);
+            else triggerFeedback(false);
         }
 
         function triggerFeedback(correct) {
             const bar = document.getElementById('feedback-bar');
             if (correct) {
                 bar.className = "w-full h-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]";
-                state.successCount++;
+                if (state.step === 2) state.successCount++; // Only increment for step 2
                 setTimeout(() => {
                     state.questIndex++;
                     if (state.questIndex >= 3) {
-                        startStep3();
+                        if (state.step === 2) startStep3();
+                        else if (state.step === 3) showComplete();
                     } else {
                         updateQuestUI();
                     }
@@ -575,49 +595,6 @@
             state.charts.freq.data.datasets[0].data = state.trials.map(t => ({ x: t.length, y: t.freq }));
             state.charts.period.update();
             state.charts.freq.update();
-        }
-
-        function startStep3() {
-            state.step = 3;
-            state.activeQuests = [...questDB.step3].sort(() => 0.5 - Math.random()).slice(0, 3);
-            state.questIndex = 0;
-            updateQuestUI();
-            
-            // Highlight graphs
-            document.getElementById('wrapper-period').classList.add('ring-4', 'ring-cyan-500/50', 'ring-offset-4', 'ring-offset-slate-950');
-            document.getElementById('wrapper-freq').classList.add('ring-4', 'ring-violet-500/50', 'ring-offset-4', 'ring-offset-slate-950');
-            
-            document.getElementById('wrapper-period').onclick = () => handleGraphClick('period');
-            document.getElementById('wrapper-freq').onclick = () => handleGraphClick('freq');
-        }
-
-        function handleGraphClick(type) {
-            if (state.step !== 3) return;
-            const quest = state.activeQuests[state.questIndex];
-            
-            if (quest.target === type) {
-                triggerFeedback(true);
-            } else {
-                triggerFeedback(false);
-            }
-        }
-
-        function triggerFeedback(correct) {
-            const bar = document.getElementById('feedback-bar');
-            if (correct) {
-                bar.className = "w-full h-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]";
-                setTimeout(() => {
-                    state.questIndex++;
-                    if (state.questIndex >= 3) {
-                        showComplete();
-                    } else {
-                        updateQuestUI();
-                    }
-                }, 800);
-            } else {
-                bar.className = "w-full h-full bg-rose-500 animate-shake";
-                setTimeout(() => bar.className = "w-0 h-full bg-cyan-500 whitespace-nowrap", 800);
-            }
         }
 
         async function showComplete() {
