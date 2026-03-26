@@ -73,6 +73,11 @@
             background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+        @keyframes pulse-red {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        .animate-anomaly { animation: pulse-red 0.5s infinite; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -106,6 +111,13 @@
                 </button>
                 <p id="login-status" class="text-[9px] font-bold text-slate-600 uppercase tracking-widest animate-pulse h-4"></p>
             </div>
+        </div>
+    </div>
+
+    <!-- POPUP OVERLAY -->
+    <div id="popup-overlay" class="overlay hidden bg-slate-950/90 backdrop-blur-md z-[2000]">
+        <div id="popup-content" class="glass max-w-sm w-full p-8 rounded-[2rem] text-center space-y-6 scale-90 opacity-0 transition-all duration-300">
+            <!-- Content injected via JS -->
         </div>
     </div>
 
@@ -324,8 +336,36 @@
             document.getElementById('student-tag').textContent = `${state.name.toUpperCase()} // SIG_${state.id}`;
             initCharts();
             updateTable();
-            checkThreshold();
+            checkThreshold(true); // Silent check on login
             document.getElementById('log-length').value = "1.0 m";
+        }
+
+        function showPopup(title, text, type = 'info') {
+            const overlay = document.getElementById('popup-overlay');
+            const content = document.getElementById('popup-content');
+            const iconColor = type === 'error' ? 'text-rose-500' : 'text-emerald-500';
+            const iconBg = type === 'error' ? 'bg-rose-500/10' : 'bg-emerald-500/10';
+            
+            content.innerHTML = `
+                <div class="w-16 h-16 ${iconBg} ${iconColor} rounded-2xl mx-auto flex items-center justify-center mb-2">
+                    ${type === 'error' ? '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>' : '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>'}
+                </div>
+                <h3 class="text-xl font-orbitron font-black uppercase tracking-tighter ${iconColor}">${title}</h3>
+                <p class="text-xs text-slate-400 leading-relaxed px-4">${text}</p>
+                <button onclick="closePopup()" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-white/10 transition-all">Dismiss</button>
+            `;
+            
+            overlay.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('scale-90', 'opacity-0');
+            }, 10);
+        }
+
+        function closePopup() {
+            const overlay = document.getElementById('popup-overlay');
+            const content = document.getElementById('popup-content');
+            content.classList.add('scale-90', 'opacity-0');
+            setTimeout(() => overlay.classList.add('hidden'), 300);
         }
 
         const canvas = document.getElementById('pendulumCanvas');
@@ -448,20 +488,16 @@
             const lowerBound = expected10T * (1 - tolerance);
             const upperBound = expected10T * (1 + tolerance);
 
-            if (t10 < 6) {
-                alert("HOLD ON! It looks like you only measured 1 swing. Please measure 10 full swings!");
-                return;
-            }
+            const isAnomaly = (t10 < lowerBound || t10 > upperBound);
 
-            if (t10 < lowerBound || t10 > upperBound) {
-                alert(`ANOMALY DETECTED! Your measured time of ${t10}s is significantly different from what is physically expected for a ${state.length.toFixed(1)}m string. Please check your stopwatch and try again!`);
-                return;
+            if (isAnomaly) {
+                showPopup("Anomaly Detected", `Your measured time of ${t10}s is significantly different from what is physically expected for a ${state.length.toFixed(1)}m string. It has been flagged in red in your log.`, 'error');
             }
 
             const t = t10 / 10;
             const f = 1 / t;
 
-            state.trials.push({ length: state.length, time10: t10, period: t, freq: f });
+            state.trials.push({ length: state.length, time10: t10, period: t, freq: f, anomaly: isAnomaly });
             state.trials.sort((a,b) => a.length - b.length);
             updateTable();
             updateCharts();
@@ -470,11 +506,17 @@
             checkThreshold();
         }
 
-        function checkThreshold() {
+        function checkThreshold(silent = false) {
             if (state.step !== 1) return;
-            const uniqueLengths = new Set(state.trials.map(x => x.length.toFixed(1)));
+            const validTrials = state.trials.filter(t => !t.anomaly);
+            const uniqueLengths = new Set(validTrials.map(x => x.length.toFixed(1)));
             const msg = document.getElementById('gather-msg');
+            
             if (uniqueLengths.size >= 5) {
+                if (!silent && !state._celebrated) {
+                    showPopup("Mastery Milestone", "You have successfully collected 5 unique, valid data points. Phase 2 (Data Analysis) is now unlocked!", 'success');
+                    state._celebrated = true;
+                }
                 msg.innerHTML = `<button onclick="startStep2()" class="w-full bg-emerald-600 hover:bg-emerald-500 p-4 rounded-xl font-black uppercase tracking-widest text-white shadow-xl animate-bounce">Analyze Data Matrix // Step 2</button>`;
             } else {
                 msg.innerHTML = `<p class="text-[11px] font-black text-rose-500 uppercase tracking-widest animate-pulse leading-relaxed">Minimum 5 unique trials required to proceed</p>`;
@@ -488,12 +530,12 @@
             else thAction.classList.remove('hidden');
 
             body.innerHTML = state.trials.map((t, i) => `
-                <tr onclick="handleRowClick(${i})" class="border-b border-white/5 hover:bg-white/5 transition-all ${state.step === 2 ? 'cursor-pointer' : ''}">
+                <tr onclick="handleRowClick(${i})" class="border-b border-white/5 hover:bg-white/5 transition-all ${state.step === 2 ? 'cursor-pointer' : ''} ${t.anomaly ? 'bg-rose-500/5' : ''}">
                     <td class="p-4 text-slate-500 font-mono">${i+1}</td>
-                    <td class="p-4 font-bold text-white">${t.length.toFixed(1)}m</td>
-                    <td class="p-4">${t.time10.toFixed(2)}s</td>
-                    <td class="p-4 font-black text-cyan-400">${t.period.toFixed(2)}s</td>
-                    <td class="p-4 font-black text-violet-400">${t.freq.toFixed(2)}Hz</td>
+                    <td class="p-4 font-bold ${t.anomaly ? 'text-rose-400' : 'text-white'}">${t.length.toFixed(1)}m</td>
+                    <td class="p-4 ${t.anomaly ? 'text-rose-400 font-black' : ''}">${t.time10.toFixed(2)}s</td>
+                    <td class="p-4 font-black ${t.anomaly ? 'text-rose-500' : 'text-cyan-400'}">${t.period.toFixed(2)}s</td>
+                    <td class="p-4 font-black ${t.anomaly ? 'text-rose-500' : 'text-violet-400'}">${t.freq.toFixed(2)}Hz</td>
                     <td class="p-4 ${state.step > 1 ? 'hidden' : ''}">
                         <button onclick="event.stopPropagation(); removeTrial(${i})" class="text-rose-500/50 hover:text-rose-500 transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
@@ -593,9 +635,9 @@
 
         function removeTrial(i) {
             state.trials.splice(i, 1);
-            updateTable(); updateCharts(); syncResults();
+            updateTable(); updateCharts(); syncResults(); checkThreshold();
         }
-
+    
         function initCharts() {
             const cfg = (label, color, xLabel, yLabel) => ({
                 type: 'line',
@@ -625,11 +667,34 @@
 
         function updateCharts() {
             if (!state.charts.period) return;
+            
+            const getColors = (type) => state.trials.map(t => t.anomaly ? '#f43f5e' : (type === 'period' ? '#22d3ee' : '#a855f7'));
+            const getRadii = () => state.trials.map(t => t.anomaly ? 8 : 4);
+
             state.charts.period.data.datasets[0].data = state.trials.map(t => ({ x: t.length, y: t.period }));
+            state.charts.period.data.datasets[0].pointBackgroundColor = getColors('period');
+            state.charts.period.data.datasets[0].pointRadius = getRadii();
+            
             state.charts.freq.data.datasets[0].data = state.trials.map(t => ({ x: t.length, y: t.freq }));
+            state.charts.freq.data.datasets[0].pointBackgroundColor = getColors('freq');
+            state.charts.freq.data.datasets[0].pointRadius = getRadii();
+
             state.charts.period.update();
             state.charts.freq.update();
         }
+
+        // --- DYNAMIC ANOMALY FLASHING ---
+        setInterval(() => {
+            if (!state.charts.period || state.step !== 1) return;
+            const hasAnomaly = state.trials.some(t => t.anomaly);
+            if (!hasAnomaly) return;
+            
+            [state.charts.period, state.charts.freq].forEach(chart => {
+                const ds = chart.data.datasets[0];
+                ds.pointRadius = state.trials.map(t => t.anomaly ? (ds.pointRadius[0] === 8 ? 12 : 8) : 4);
+                chart.update('none');
+            });
+        }, 500);
 
         async function showComplete() {
             state.step = 4;
