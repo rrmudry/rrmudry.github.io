@@ -441,8 +441,20 @@
             const t10 = parseFloat(document.getElementById('log-time').value);
             if (!t10 || t10 <= 0) return;
 
+            // --- DATA VERIFICATION (Physics-Based) ---
+            const expectedT = 2 * Math.PI * Math.sqrt(state.length / gravity);
+            const expected10T = 10 * expectedT;
+            const tolerance = 0.15; // 15% error margin allowed
+            const lowerBound = expected10T * (1 - tolerance);
+            const upperBound = expected10T * (1 + tolerance);
+
             if (t10 < 6) {
                 alert("HOLD ON! It looks like you only measured 1 swing. Please measure 10 full swings!");
+                return;
+            }
+
+            if (t10 < lowerBound || t10 > upperBound) {
+                alert(`ANOMALY DETECTED! Your measured time of ${t10}s is significantly different from what is physically expected for a ${state.length.toFixed(1)}m string. Please check your stopwatch and try again!`);
                 return;
             }
 
