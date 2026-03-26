@@ -194,6 +194,7 @@
                             <th class="p-4">Time (10 Swings)</th>
                             <th class="p-4 text-cyan-400">Period (T)</th>
                             <th class="p-4 text-violet-400">Freq (Hz)</th>
+                            <th id="th-action" class="p-4">Action</th>
                         </tr>
                     </thead>
                     <tbody id="data-body" class="text-xs font-medium text-slate-300">
@@ -466,6 +467,10 @@
 
         function updateTable() {
             const body = document.getElementById('data-body');
+            const thAction = document.getElementById('th-action');
+            if (state.step > 1) thAction.classList.add('hidden');
+            else thAction.classList.remove('hidden');
+
             body.innerHTML = state.trials.map((t, i) => `
                 <tr onclick="handleRowClick(${i})" class="border-b border-white/5 hover:bg-white/5 transition-all ${state.step === 2 ? 'cursor-pointer' : ''}">
                     <td class="p-4 text-slate-500 font-mono">${i+1}</td>
@@ -473,8 +478,27 @@
                     <td class="p-4">${t.time10.toFixed(2)}s</td>
                     <td class="p-4 font-black text-cyan-400">${t.period.toFixed(2)}s</td>
                     <td class="p-4 font-black text-violet-400">${t.freq.toFixed(2)}Hz</td>
+                    <td class="p-4 ${state.step > 1 ? 'hidden' : ''}">
+                        <button onclick="event.stopPropagation(); removeTrial(${i})" class="text-rose-500/50 hover:text-rose-500 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        </button>
+                    </td>
                 </tr>
             `).join('');
+        }
+
+        function removeTrial(idx) {
+            state.trials.splice(idx, 1);
+            updateTable();
+            updateCharts();
+            syncResults();
+            
+            // Re-evaluate proceed button
+            const uniqueLengths = new Set(state.trials.map(x => x.length.toFixed(1)));
+            const msg = document.getElementById('gather-msg');
+            if (uniqueLengths.size < 5) {
+                msg.innerHTML = `<p class="text-[9px] font-black text-rose-500 uppercase tracking-[0.2em] animate-pulse">Minimum 5 unique trials required to proceed</p>`;
+            }
         }
 
         // --- MASTERY ENGINE ---
