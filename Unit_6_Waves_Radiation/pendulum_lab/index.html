@@ -388,6 +388,13 @@
             const t10 = parseFloat(document.getElementById('log-time').value);
             if (!t10 || t10 <= 0) return;
 
+            // Validation: Even at L=0.5m, 10 swings should take ~14s. 
+            // If they enter < 6s, they almost certainly only measured 1 swing.
+            if (t10 < 6) {
+                alert("HOLD ON! It looks like you only measured 1 swing (or entered your time incorrectly). \n\nPlease measure TEN (10) full swings for accurate laboratory results!");
+                return;
+            }
+
             const t = t10 / 10;
             const f = 1 / t;
 
