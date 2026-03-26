@@ -63,6 +63,18 @@
         .stopwatch-width {
             width: 200px;
         }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .animate-shake { animation: shake 0.2s ease-in-out 3; }
+        .gradient-text {
+            background: linear-gradient(to right, #22d3ee, #a855f7);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -125,19 +137,24 @@
                     <div class="absolute top-4 right-4 glass px-4 py-3 rounded-2xl text-center border-white/10 stopwatch-width shadow-2xl">
                         <p class="text-[7px] font-bold text-slate-500 uppercase tracking-widest mb-1">Precision Stopwatch</p>
                         <div id="stopwatch-display" class="text-2xl font-orbitron font-black text-cyan-400 tabular-nums">00:00.00</div>
-                        <div class="flex gap-2 mt-2">
+                        <div id="sw-controls" class="flex gap-2 mt-2">
                             <button id="sw-start" onclick="toggleStopwatch()" class="flex-1 bg-cyan-600/20 text-cyan-400 border border-cyan-400/30 px-2 py-1.5 rounded-lg text-[9px] font-black uppercase hover:bg-cyan-600/40 transition-all">Start</button>
                             <button id="sw-reset" onclick="resetStopwatch()" class="bg-slate-800 text-slate-400 px-2 py-1.5 rounded-lg text-[9px] font-black uppercase hover:bg-slate-700 transition-all">Reset</button>
                         </div>
                     </div>
 
+                    <!-- Step 3 Overlay (Clickable graphs helper) -->
+                    <div id="step3-dimmer" class="hidden absolute inset-0 bg-slate-950/60 backdrop-blur-[2px] z-40 flex items-center justify-center pointer-events-none">
+                        <p class="text-xs font-black text-white px-6 py-3 border border-white/10 glass rounded-full animate-pulse">Graph Analysis Active // Interaction Restricted</p>
+                    </div>
+
                     <!-- Instructions -->
                     <div class="absolute bottom-6 left-6 max-w-[240px] text-[10px] text-slate-400 leading-relaxed font-medium">
-                        <span class="text-cyan-400 font-bold">Goal:</span> Measure the time for <span class="text-white">10 full swings</span>. Change the length to see how Period (T) and Frequency (f) respond.
+                        <span id="instruction-title" class="text-cyan-400 font-bold uppercase tracking-widest">Phase 1: Goal:</span> <span id="instruction-text">Measure the time for 10 full swings. Collect at least 5 different trial lengths.</span>
                     </div>
                 </div>
 
-                <div class="mt-8 space-y-6">
+                <div id="length-control" class="mt-8 space-y-6">
                     <div class="flex items-center justify-between">
                         <label class="text-xs font-black uppercase tracking-widest text-slate-400">String Length (L)</label>
                         <span id="length-val" class="text-xl font-orbitron font-black text-cyan-400">1.0 m</span>
@@ -149,13 +166,13 @@
 
             <!-- Graphs Component -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="glass p-6 rounded-[2rem]">
+                <div id="wrapper-period" class="glass p-6 rounded-[2rem] transition-all cursor-crosshair">
                     <p class="text-[10px] font-black text-cyan-500 uppercase tracking-widest mb-4">Output_A // Length vs Period</p>
                     <div class="chart-container">
                         <canvas id="periodChart"></canvas>
                     </div>
                 </div>
-                <div class="glass p-6 rounded-[2rem]">
+                <div id="wrapper-freq" class="glass p-6 rounded-[2rem] transition-all cursor-crosshair">
                     <p class="text-[10px] font-black text-violet-500 uppercase tracking-widest mb-4">Output_B // Length vs Frequency</p>
                     <div class="chart-container">
                         <canvas id="freqChart"></canvas>
@@ -165,10 +182,10 @@
         </div>
 
         <!-- Data Logging -->
-        <div class="glass p-6 rounded-[2rem] flex flex-col">
-            <p class="text-[10px] font-black text-violet-500 uppercase tracking-widest mb-4">02 // Data_Log_Matrix</p>
+        <div class="glass p-6 rounded-[2rem] flex flex-col relative overflow-hidden">
+            <p class="text-[10px] font-black text-violet-500 uppercase tracking-widest mb-6">02 // Data_Log_Matrix</p>
             
-            <div class="overflow-x-auto">
+            <div id="table-container" class="overflow-x-auto min-h-[300px]">
                 <table class="w-full text-left">
                     <thead>
                         <tr class="text-[10px] font-black text-slate-500 uppercase tracking-tighter border-b border-white/5">
@@ -177,7 +194,6 @@
                             <th class="p-4">Time (10 Swings)</th>
                             <th class="p-4 text-cyan-400">Period (T)</th>
                             <th class="p-4 text-violet-400">Freq (Hz)</th>
-                            <th class="p-4">Action</th>
                         </tr>
                     </thead>
                     <tbody id="data-body" class="text-xs font-medium text-slate-300">
@@ -185,26 +201,39 @@
                 </table>
             </div>
 
-            <div class="mt-auto pt-6 border-t border-white/5 space-y-4">
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-2">
-                        <p class="text-[8px] font-black text-slate-500 uppercase tracking-widest">Curr_Length</p>
-                        <input type="text" id="log-length" readonly class="w-full bg-slate-900/50 border border-white/5 p-3 rounded-xl font-black text-cyan-400 text-center">
+            <!-- MASTERY UI -->
+            <div id="mastery-container" class="mt-auto pt-6 border-t border-white/5 space-y-4">
+                <div id="step1-controls" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <p class="text-[8px] font-black text-slate-500 uppercase tracking-widest">Curr_Length</p>
+                            <input type="text" id="log-length" readonly class="w-full bg-slate-900/50 border border-white/5 p-3 rounded-xl font-black text-cyan-400 text-center">
+                        </div>
+                        <div class="space-y-2">
+                            <p class="text-[8px] font-black text-slate-500 uppercase tracking-widest">Measured_Time (s)</p>
+                            <input type="number" id="log-time" placeholder="0.00" step="0.01" class="w-full bg-slate-900 border border-violet-500/20 focus:border-violet-500/50 p-3 rounded-xl font-black text-white text-center outline-none transition-all">
+                        </div>
                     </div>
-                    <div class="space-y-2">
-                        <p class="text-[8px] font-black text-slate-500 uppercase tracking-widest">Measured_Time (s)</p>
-                        <input type="number" id="log-time" placeholder="0.00" step="0.01" class="w-full bg-slate-900 border border-violet-500/20 focus:border-violet-500/50 p-3 rounded-xl font-black text-white text-center outline-none transition-all">
+                    <button id="log-btn" onclick="logData()" class="w-full bg-gradient-to-r from-cyan-600 to-violet-600 p-4 rounded-xl font-black uppercase tracking-widest text-sm shadow-xl active:scale-95 transition-all">
+                        Register Trial Data
+                    </button>
+                    <div id="gather-msg" class="text-center">
+                        <p class="text-[9px] font-black text-rose-500 uppercase tracking-[0.2em] animate-pulse">Minimum 5 unique trials required to proceed</p>
                     </div>
                 </div>
-                <button onclick="logData()" class="w-full bg-gradient-to-r from-cyan-600 to-violet-600 p-4 rounded-xl font-black uppercase tracking-widest text-sm shadow-xl active:scale-95 transition-all focus:ring-2 focus:ring-cyan-500/50">
-                    Register Trial Data
-                </button>
-                <div class="bg-violet-950/20 border border-violet-500/20 p-6 rounded-3xl">
-                    <h4 class="text-[10px] font-black uppercase tracking-widest text-violet-400 mb-2">Fundamental Correlation</h4>
-                    <p class="text-[11px] text-slate-400 leading-relaxed italic">
-                        Remember: Period (T) is the time for <span class="text-white">ONE</span> full cycle. If 10 swings took 20 seconds, T = 2.0s. 
-                        Frequency (f) is the inverse: <span class="text-white">f = 1 / T</span>.
-                    </p>
+
+                <div id="analysis-zone" class="hidden space-y-6">
+                    <div class="bg-slate-900/80 border border-white/5 rounded-2xl p-6 relative">
+                        <div class="absolute -top-3 left-6 px-3 py-1 bg-violet-600 rounded text-[8px] font-black uppercase tracking-widest">Mastery_Quest // <span id="quest-count">1/3</span></div>
+                        <p id="quest-text" class="text-xs font-bold text-slate-200 mt-2 leading-relaxed">Analyzing Data...</p>
+                        <div id="feedback-flash" class="mt-4 h-1 rounded-full bg-slate-800 overflow-hidden">
+                            <div id="feedback-bar" class="w-0 h-full bg-cyan-500 transition-all duration-500"></div>
+                        </div>
+                    </div>
+                    <div id="step-hint" class="text-[9px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                        <svg class="w-3 h-3 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span id="hint-text">Click the correct row in the table above.</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -223,7 +252,30 @@
             swActive: false,
             swTime: 0,
             swInterval: null,
-            charts: {}
+            charts: {},
+            step: 1, // 1: Data, 2: Table, 3: Graphs, 4: Complete
+            questIndex: 0,
+            activeQuests: [],
+            successCount: 0
+        };
+
+        const questDB = {
+            step2: [
+                { id: 1, text: "Click the trial with the HIGHEST frequency (f).", logic: (t, all) => t.freq === Math.max(...all.map(x=>x.freq)) },
+                { id: 2, text: "Click the trial with the LONGEST period (T).", logic: (t, all) => t.period === Math.max(...all.map(x=>x.period)) },
+                { id: 3, text: "Click the trial that used the SHORTEST string length.", logic: (t, all) => t.length === Math.min(...all.map(x=>x.length)) },
+                { id: 4, text: "Click the trial that had the SLOWEST overall swing time.", logic: (t, all) => t.period === Math.max(...all.map(x=>x.period)) },
+                { id: 5, text: "Click the trial where gravity had to pull over the GREATEST distance.", logic: (t, all) => t.length === Math.max(...all.map(x=>x.length)) },
+                { id: 6, text: "Click the trial with the LOWEST frequency.", logic: (t, all) => t.freq === Math.min(...all.map(x=>x.freq)) }
+            ],
+            step3: [
+                { id: 1, text: "Click the graph that shows an INVERSE relationship (as X goes up, Y goes down).", target: "freq" },
+                { id: 2, text: "Click the graph that represents the TIME for one full cycle.", target: "period" },
+                { id: 3, text: "Click the graph that represents the NUMBER of cycles per second.", target: "freq" },
+                { id: 4, text: "Click anywhere on the PERIOD graph.", target: "period" },
+                { id: 5, text: "Click anywhere on the FREQUENCY graph.", target: "freq" },
+                { id: 6, text: "Click the graph where a longer string results in a higher output value.", target: "period" }
+            ]
         };
 
         async function handleLogin() {
@@ -385,13 +437,12 @@
         }
 
         function logData() {
+            if (state.step !== 1) return;
             const t10 = parseFloat(document.getElementById('log-time').value);
             if (!t10 || t10 <= 0) return;
 
-            // Validation: Even at L=0.5m, 10 swings should take ~14s. 
-            // If they enter < 6s, they almost certainly only measured 1 swing.
             if (t10 < 6) {
-                alert("HOLD ON! It looks like you only measured 1 swing (or entered your time incorrectly). \n\nPlease measure TEN (10) full swings for accurate laboratory results!");
+                alert("HOLD ON! It looks like you only measured 1 swing. Please measure 10 full swings!");
                 return;
             }
 
@@ -404,22 +455,86 @@
             updateCharts();
             syncResults();
             document.getElementById('log-time').value = '';
+
+            // Check for phase transition
+            const uniqueLengths = new Set(state.trials.map(x => x.length.toFixed(1)));
+            if (uniqueLengths.size >= 5) {
+                const msg = document.getElementById('gather-msg');
+                msg.innerHTML = `<button onclick="startStep2()" class="w-full bg-emerald-600 hover:bg-emerald-500 p-4 rounded-xl font-black uppercase tracking-widest text-white shadow-xl animate-bounce">Analyze Data Matrix // Step 2</button>`;
+            }
         }
 
         function updateTable() {
             const body = document.getElementById('data-body');
             body.innerHTML = state.trials.map((t, i) => `
-                <tr class="border-b border-white/5 hover:bg-white/5">
+                <tr onclick="handleRowClick(${i})" class="border-b border-white/5 hover:bg-white/5 transition-all ${state.step === 2 ? 'cursor-pointer' : ''}">
                     <td class="p-4 text-slate-500 font-mono">${i+1}</td>
-                    <td class="p-4 font-bold">${t.length.toFixed(1)}m</td>
+                    <td class="p-4 font-bold text-white">${t.length.toFixed(1)}m</td>
                     <td class="p-4">${t.time10.toFixed(2)}s</td>
                     <td class="p-4 font-black text-cyan-400">${t.period.toFixed(2)}s</td>
                     <td class="p-4 font-black text-violet-400">${t.freq.toFixed(2)}Hz</td>
-                    <td class="p-4">
-                        <button onclick="removeTrial(${i})" class="text-rose-500/50 hover:text-rose-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
-                    </td>
                 </tr>
             `).join('');
+        }
+
+        // --- MASTERY ENGINE ---
+        function startStep2() {
+            state.step = 2;
+            state.activeQuests = [...questDB.step2].sort(() => 0.5 - Math.random()).slice(0, 3);
+            state.questIndex = 0;
+            state.successCount = 0;
+            
+            document.getElementById('step1-controls').classList.add('hidden');
+            document.getElementById('analysis-zone').classList.remove('hidden');
+            document.getElementById('instruction-title').textContent = "Phase 2: Data Analysis";
+            document.getElementById('instruction-text').textContent = "Analyze your data matrix to identify fundamental relationships.";
+            updateQuestUI();
+            updateTable();
+        }
+
+        function handleRowClick(idx) {
+            if (state.step !== 2) return;
+            const trial = state.trials[idx];
+            const quest = state.activeQuests[state.questIndex];
+            
+            if (quest.logic(trial, state.trials)) {
+                triggerFeedback(true);
+            } else {
+                triggerFeedback(false);
+            }
+        }
+
+        function triggerFeedback(correct) {
+            const bar = document.getElementById('feedback-bar');
+            if (correct) {
+                bar.className = "w-full h-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]";
+                state.successCount++;
+                setTimeout(() => {
+                    state.questIndex++;
+                    if (state.questIndex >= 3) {
+                        startStep3();
+                    } else {
+                        updateQuestUI();
+                    }
+                }, 800);
+            } else {
+                bar.className = "w-full h-full bg-rose-500 animate-shake";
+                setTimeout(() => bar.className = "w-0 h-full bg-cyan-500", 800);
+            }
+        }
+
+        function updateQuestUI() {
+            const bar = document.getElementById('feedback-bar');
+            bar.className = "w-0 h-full bg-cyan-500";
+            document.getElementById('quest-count').textContent = `${state.questIndex + 1}/3`;
+            document.getElementById('quest-text').textContent = state.activeQuests[state.questIndex].text;
+            
+            if (state.step === 3) {
+                document.getElementById('hint-text').textContent = "Click the correct GRAPH to evaluate.";
+                document.getElementById('step3-dimmer').classList.remove('hidden');
+                document.getElementById('instruction-title').textContent = "Phase 3: Graph Interpretation";
+                document.getElementById('instruction-text').textContent = "Evaluate the visual representations of physical law.";
+            }
         }
 
         function removeTrial(i) {
@@ -462,16 +577,84 @@
             state.charts.freq.update();
         }
 
+        function startStep3() {
+            state.step = 3;
+            state.activeQuests = [...questDB.step3].sort(() => 0.5 - Math.random()).slice(0, 3);
+            state.questIndex = 0;
+            updateQuestUI();
+            
+            // Highlight graphs
+            document.getElementById('wrapper-period').classList.add('ring-4', 'ring-cyan-500/50', 'ring-offset-4', 'ring-offset-slate-950');
+            document.getElementById('wrapper-freq').classList.add('ring-4', 'ring-violet-500/50', 'ring-offset-4', 'ring-offset-slate-950');
+            
+            document.getElementById('wrapper-period').onclick = () => handleGraphClick('period');
+            document.getElementById('wrapper-freq').onclick = () => handleGraphClick('freq');
+        }
+
+        function handleGraphClick(type) {
+            if (state.step !== 3) return;
+            const quest = state.activeQuests[state.questIndex];
+            
+            if (quest.target === type) {
+                triggerFeedback(true);
+            } else {
+                triggerFeedback(false);
+            }
+        }
+
+        function triggerFeedback(correct) {
+            const bar = document.getElementById('feedback-bar');
+            if (correct) {
+                bar.className = "w-full h-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]";
+                setTimeout(() => {
+                    state.questIndex++;
+                    if (state.questIndex >= 3) {
+                        showComplete();
+                    } else {
+                        updateQuestUI();
+                    }
+                }, 800);
+            } else {
+                bar.className = "w-full h-full bg-rose-500 animate-shake";
+                setTimeout(() => bar.className = "w-0 h-full bg-cyan-500 whitespace-nowrap", 800);
+            }
+        }
+
+        async function showComplete() {
+            state.step = 4;
+            const zone = document.getElementById('analysis-zone');
+            zone.innerHTML = `
+                <div class="text-center py-10 space-y-4 animate-in fade-in zoom-in duration-500">
+                    <div class="w-20 h-20 bg-emerald-500 rounded-full mx-auto flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.4)]">
+                        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
+                    </div>
+                    <h3 class="text-2xl font-orbitron font-black gradient-text">MASTERY_ACHIEVED</h3>
+                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Pendulum Harmonic Analysis Complete</p>
+                    <button onclick="location.reload()" class="px-8 py-3 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all">New Simulation</button>
+                </div>
+            `;
+            document.getElementById('instruction-title').textContent = "Course Complete";
+            document.getElementById('instruction-text').textContent = "You have successfully analyzed the relationships of period and frequency.";
+            document.getElementById('step3-dimmer').classList.add('hidden');
+            syncResults();
+        }
+
         async function syncResults() {
             const ind = document.getElementById('sync-indicator');
             ind.textContent = "Syncing...";
             try {
                 const name = "Pendulum Mastery Lab";
                 const { data } = await sbClient.from('student_results').select('id').eq('student_id', state.id).eq('assignment_name', name);
+                
+                // Final score logic
+                let score = Math.min(50, state.trials.length * 10);
+                if (state.step >= 3) score = 75;
+                if (state.step === 4) score = 100;
+
                 const payload = {
                     student_name: state.name, student_id: state.id, assignment_name: name,
-                    score: Math.min(100, state.trials.length * 20),
-                    details: { trials: state.trials, ts: new Date().toISOString() }
+                    score: score,
+                    details: { trials: state.trials, step: state.step, ts: new Date().toISOString() }
                 };
                 if (data && data.length > 0) await sbClient.from('student_results').update(payload).eq('id', data[0].id);
                 else await sbClient.from('student_results').insert([payload]);
