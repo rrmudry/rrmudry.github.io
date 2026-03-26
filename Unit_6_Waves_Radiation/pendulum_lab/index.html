@@ -691,7 +691,10 @@
             
             [state.charts.period, state.charts.freq].forEach(chart => {
                 const ds = chart.data.datasets[0];
-                ds.pointRadius = state.trials.map(t => t.anomaly ? (ds.pointRadius[0] === 8 ? 12 : 8) : 4);
+                state._flashToggle = !(state._flashToggle);
+                ds.pointBackgroundColor = state.trials.map(t => 
+                    t.anomaly ? (state._flashToggle ? '#f43f5e' : '#450a0a') : (chart.canvas.id === 'periodChart' ? '#22d3ee' : '#a855f7')
+                );
                 chart.update('none');
             });
         }, 500);
