@@ -326,6 +326,7 @@
             document.getElementById('student-tag').textContent = `${state.name.toUpperCase()} // SIG_${state.id}`;
             initCharts();
             updateTable();
+            checkThreshold();
             document.getElementById('log-length').value = "1.0 m";
         }
 
@@ -456,12 +457,17 @@
             updateCharts();
             syncResults();
             document.getElementById('log-time').value = '';
+            checkThreshold();
+        }
 
-            // Check for phase transition
+        function checkThreshold() {
+            if (state.step !== 1) return;
             const uniqueLengths = new Set(state.trials.map(x => x.length.toFixed(1)));
+            const msg = document.getElementById('gather-msg');
             if (uniqueLengths.size >= 5) {
-                const msg = document.getElementById('gather-msg');
                 msg.innerHTML = `<button onclick="startStep2()" class="w-full bg-emerald-600 hover:bg-emerald-500 p-4 rounded-xl font-black uppercase tracking-widest text-white shadow-xl animate-bounce">Analyze Data Matrix // Step 2</button>`;
+            } else {
+                msg.innerHTML = `<p class="text-[11px] font-black text-rose-500 uppercase tracking-widest animate-pulse leading-relaxed">Minimum 5 unique trials required to proceed</p>`;
             }
         }
 
@@ -492,13 +498,7 @@
             updateTable();
             updateCharts();
             syncResults();
-            
-            // Re-evaluate proceed button
-            const uniqueLengths = new Set(state.trials.map(x => x.length.toFixed(1)));
-            const msg = document.getElementById('gather-msg');
-            if (uniqueLengths.size < 5) {
-                msg.innerHTML = `<p class="text-[11px] font-black text-rose-500 uppercase tracking-widest animate-pulse">Minimum 5 unique trials required to proceed</p>`;
-            }
+            checkThreshold();
         }
 
         // --- MASTERY ENGINE ---
