@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Frequency Mastery Lab</title>
+    <title>Frequency...Practice 'til it Hertz</title>
     <link rel="icon" type="image/svg+xml" href="../../assets/unit6-favicon.svg">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -98,6 +98,18 @@
             50% { transform: scale(1.1); filter: brightness(2); }
             100% { transform: scale(1); filter: brightness(1); }
         }
+        .title-chip {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .title-chip:hover {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: var(--accent-violet);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(168, 85, 247, 0.3);
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -109,8 +121,14 @@
                 <div class="w-16 h-16 bg-gradient-to-br from-cyan-500 to-violet-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-cyan-500/20 mb-4">
                     <span class="text-3xl font-orbitron font-black text-white">f</span>
                 </div>
-                <h1 class="text-4xl font-orbitron font-black gradient-text tracking-tighter uppercase">Frequency_Lab</h1>
+                <h1 class="text-2xl md:text-3xl font-orbitron font-black gradient-text tracking-tighter uppercase leading-tight">Frequency...<br>Practice 'til it Hertz</h1>
                 <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em]">Multi-Level Mastery Module</p>
+                <div class="pt-2 flex justify-center">
+                    <button onclick="togglePun()" class="title-chip px-4 py-2 rounded-full flex items-center gap-2 active:scale-95 transition-all">
+                        <span class="text-xs">🤔</span>
+                        <span class="text-[9px] font-black uppercase tracking-widest text-slate-400">Why is this a great title?</span>
+                    </button>
+                </div>
             </div>
             
             <div id="login-form" class="space-y-4">
@@ -148,13 +166,46 @@
         </div>
     </div>
 
+    <!-- PUN EXPLANATION OVERLAY -->
+    <div id="pun-overlay" class="overlay hidden">
+        <div class="glass max-w-2xl w-full p-8 rounded-[2rem] space-y-6 relative overflow-hidden">
+            <div class="absolute -top-24 -right-24 w-48 h-48 bg-violet-600/20 rounded-full blur-3xl"></div>
+            
+            <div class="flex justify-between items-start relative z-10">
+                <div>
+                    <h2 class="text-2xl font-orbitron font-black gradient-text uppercase tracking-tight">The Science of the Pun</h2>
+                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Frequency Mastery // Audio Context</p>
+                </div>
+                <button onclick="togglePun()" class="text-white/40 hover:text-white transition-colors text-3xl">&times;</button>
+            </div>
+
+            <div class="space-y-4 relative z-10">
+                <p class="text-slate-300 leading-relaxed">
+                    In physics, <span class="text-cyan-400 font-bold">Hertz (Hz)</span> is the standard unit of frequency, named after Heinrich Hertz. It measures how many cycles occur in one second.
+                </p>
+                <p class="text-slate-300 leading-relaxed">
+                    The title is a "dad joke" play on the phrase <span class="italic text-violet-400">"Practice 'til it hurts"</span>—because in this module, you'll be practicing your frequency signal analysis until you've mastered every single Hertz!
+                </p>
+            </div>
+
+            <div class="pt-4 border-t border-white/5 relative z-10">
+                <div class="rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
+                    <iframe src="" width="100%" height="240" frameborder="0" allow="autoplay; encrypted-media; fullscreen" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+            </div>
+            
+            <p class="text-[9px] font-bold text-slate-600 uppercase tracking-[0.3em] text-center pt-2">Vibe_Check // Physics_Rock_Anthem</p>
+        </div>
+    </div>
+
+
     <!-- MAIN UI -->
     <header class="p-6 border-b border-white/5 flex justify-between items-center bg-slate-950/40 backdrop-blur-md">
         <div class="flex items-center gap-4">
             <div id="level-indicator" class="px-3 py-1 bg-cyan-500 text-slate-950 font-black text-[10px] rounded flex items-center gap-2">
                 LEVEL_01
             </div>
-            <h2 class="font-orbitron font-black tracking-tighter text-xl uppercase gradient-text">Frequency_Lab</h2>
+            <h2 class="font-orbitron font-black tracking-tighter text-xl uppercase gradient-text">Frequency...Practice 'til it Hertz</h2>
             <div class="h-4 w-[1px] bg-white/10 mx-2"></div>
             <p id="student-tag" class="text-[10px] font-black text-slate-500 uppercase tracking-widest pt-1">Initializing...</p>
         </div>
@@ -252,6 +303,13 @@
         </svg>
     </button>
 
+    <!-- TITLE EXPLANATION CHIP -->
+    <button onclick="togglePun()" class="fixed bottom-8 left-8 title-chip px-6 py-3 rounded-full flex items-center gap-3 active:scale-95 z-[50]">
+        <span class="text-xl">🤔</span>
+        <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">Why is this a great title?</span>
+    </button>
+
+
     <!-- CALCULATOR SIDE PANEL -->
     <div id="calc-modal" class="fixed inset-y-0 right-0 w-full max-w-[400px] glass z-[100] border-l border-white/10 hidden translate-x-full transition-transform duration-500 ease-out flex flex-col shadow-2xl">
         <div class="p-4 border-b border-white/5 flex justify-between items-center bg-white/5 backdrop-blur-md">
@@ -313,7 +371,7 @@
                     state.name = data.student_name;
                     state.id = id;
                     
-                    const { data: assignmentData } = await sbClient.from('student_results').select('details').eq('student_id', id).eq('assignment_name', "Frequency Mastery Lab").maybeSingle();
+                    const { data: assignmentData } = await sbClient.from('student_results').select('details').eq('student_id', id).eq('assignment_name', "Frequency...Practice 'til it Hertz").maybeSingle();
 
                     if (assignmentData && assignmentData.details) {
                         state.level = assignmentData.details.level || 1;
@@ -518,7 +576,7 @@
             const ind = document.getElementById('sync-indicator');
             if(!isSilent) ind.textContent = "Syncing...";
             try {
-                const assignmentName = "Frequency Mastery Lab";
+                const assignmentName = "Frequency...Practice 'til it Hertz";
                 // Get all existing rows for this student/assignment combo to avoid maybeSingle() errors with duplicates
                 const { data: existingRows } = await sbClient.from('student_results').select('id').eq('student_id', state.id).eq('assignment_name', assignmentName);
                 
@@ -556,6 +614,24 @@
             } else {
                 modal.classList.add('translate-x-full');
                 setTimeout(() => modal.classList.add('hidden'), 500);
+            }
+        }
+
+        function togglePun() {
+            const overlay = document.getElementById('pun-overlay');
+            const iframe = overlay.querySelector('iframe');
+            const baseSrc = "https://suno.com/embed/a8d94225-3ac2-43dc-8093-fc689e73c931";
+
+            if (overlay.classList.contains('hidden')) {
+                overlay.classList.remove('hidden');
+                // Trigger autoplay on show
+                if (iframe.src !== (baseSrc + "?autoplay=1")) {
+                    iframe.src = baseSrc + "?autoplay=1";
+                }
+            } else {
+                overlay.classList.add('hidden');
+                // Stop music on hide
+                iframe.src = "";
             }
         }
     </script>
