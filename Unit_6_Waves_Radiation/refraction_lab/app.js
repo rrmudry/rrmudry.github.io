@@ -331,11 +331,16 @@ function rebuildRays() {
     appRayLine.computeLineDistances(); appRayLine.renderOrder = 2; appRayLine.layers.set(1); scene.add(appRayLine);
   }
   if (currentMode === 'back') {
-    // Extend incident ray BACKWARD from (xEnter, -2.5) toward camera (z=-15), mirroring Front mode
-    const xAppBack = xEnter + dirIn.x * ((-15 - zEnter) / dirIn.y);
+    // Dashed virtual line = forward extension of the INCIDENT ray from its entry point (xEnter, z=-2.5).
+    // Starting at xEnter (not xExit) means:
+    //   ✓ Connects seamlessly to the solid incident ray at the glass back face
+    //   ✓ Is laterally offset from the solid exit ray (xEnter vs xExit), showing the glass displacement
+    // This is the apparent path the observer sees "through the glass" — the incident ray continued
+    // straight as if no refraction occurred, which visually differs from the true exit ray.
+    const xAtFar = xEnter + dirIn.x * ((15 - zEnter) / dirIn.y);
     appBlueRayLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
-      new THREE.Vector3(xAppBack, 0.05, -15), new THREE.Vector3(xEnter, 0.05, zEnter)
-    ]), mAppExit); 
+      new THREE.Vector3(xEnter, 0.05, zEnter), new THREE.Vector3(xAtFar, 0.05, 15)
+    ]), mAppExit);
     appBlueRayLine.computeLineDistances(); appBlueRayLine.renderOrder = 2; appBlueRayLine.layers.set(1); scene.add(appBlueRayLine);
   }
 }
@@ -550,30 +555,21 @@ function updateVirtualPhysics() {
     appPin4.position.x = pin4.position.x; appPin4.position.z = pin4.position.z;
 
   } else if (currentMode === 'back' && innerRayLine && appBlueRayLine) {
-    const xEnter = innerRayLine.geometry.attributes.position.array[0];
-
-    // Place each blue virtual pin using corrected parallax
+    // Apparent blue pin positions — computed solely from getShift (refraction physics).
+    // Completely independent of the dashed line geometry.
     const s4 = getShift(pin4.position.x, pin4.position.z);
     appPin4.position.x = pin4.position.x + s4.x;
     appPin4.position.z = pin4.position.z + s4.z;
+
     const s3 = getShift(pin3.position.x, pin3.position.z);
+    appPin3.position.x = pin3.position.x + s3.x;
     appPin3.position.z = pin3.position.z + s3.z;
 
-    // Anchor dashed ray at back glass interface; slope through corrected appPin4
-    // Ray extends BACKWARD toward camera (z=-15), mirroring Front mode exactly
-    const dzPin = appPin4.position.z - (-2.5);
-    const slope = Math.abs(dzPin) > 0.001 ? (appPin4.position.x - xEnter) / dzPin : 0;
-    const xAtBack = xEnter + (-15 - (-2.5)) * slope; // extend to z=-15 (camera side)
+    // NOTE: appBlueRayLine geometry is NOT updated here.
+    // rebuildRays() owns it — it sets the dashed line to the physics-derived exit ray
+    // direction (dirIn via Snell's law), independent of where the blue pins are placed.
 
-    const pos = appBlueRayLine.geometry.attributes.position.array;
-    pos[0] = xAtBack; pos[1] = 0.05; pos[2] = -15;
-    pos[3] = xEnter;  pos[4] = 0.05; pos[5] = -2.5;
-    appBlueRayLine.geometry.attributes.position.needsUpdate = true;
-
-    // Seat appPin3 on this exact ray at its apparent depth
-    appPin3.position.x = xEnter + slope * (appPin3.position.z - (-2.5));
-
-    // Red pins not active in Back mode
+    // Red apparent pins not active in Back mode — reset to real positions
     appPin1.position.x = pin1.position.x; appPin1.position.z = pin1.position.z;
     appPin2.position.x = pin2.position.x; appPin2.position.z = pin2.position.z;
 
