@@ -331,10 +331,10 @@ function rebuildRays() {
     appRayLine.computeLineDistances(); appRayLine.renderOrder = 2; appRayLine.layers.set(1); scene.add(appRayLine);
   }
   if (currentMode === 'back') {
-    // Extend incident ray forward from (xEnter, -2.5) using the same slope as the incident ray (= dirIn)
-    const xAppFwd = xEnter + dirIn.x * ((15 - zEnter) / dirIn.y);
+    // Extend incident ray BACKWARD from (xEnter, -2.5) toward camera (z=-15), mirroring Front mode
+    const xAppBack = xEnter + dirIn.x * ((-15 - zEnter) / dirIn.y);
     appBlueRayLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
-      new THREE.Vector3(xEnter, 0.05, zEnter), new THREE.Vector3(xAppFwd, 0.05, 15)
+      new THREE.Vector3(xAppBack, 0.05, -15), new THREE.Vector3(xEnter, 0.05, zEnter)
     ]), mAppExit); 
     appBlueRayLine.computeLineDistances(); appBlueRayLine.renderOrder = 2; appBlueRayLine.layers.set(1); scene.add(appBlueRayLine);
   }
@@ -560,13 +560,14 @@ function updateVirtualPhysics() {
     appPin3.position.z = pin3.position.z + s3.z;
 
     // Anchor dashed ray at back glass interface; slope through corrected appPin4
+    // Ray extends BACKWARD toward camera (z=-15), mirroring Front mode exactly
     const dzPin = appPin4.position.z - (-2.5);
     const slope = Math.abs(dzPin) > 0.001 ? (appPin4.position.x - xEnter) / dzPin : 0;
-    const xAtFar = xEnter + (15 - (-2.5)) * slope;
+    const xAtBack = xEnter + (-15 - (-2.5)) * slope; // extend to z=-15 (camera side)
 
     const pos = appBlueRayLine.geometry.attributes.position.array;
-    pos[0] = xEnter; pos[1] = 0.05; pos[2] = -2.5;
-    pos[3] = xAtFar; pos[4] = 0.05; pos[5] = 15;
+    pos[0] = xAtBack; pos[1] = 0.05; pos[2] = -15;
+    pos[3] = xEnter;  pos[4] = 0.05; pos[5] = -2.5;
     appBlueRayLine.geometry.attributes.position.needsUpdate = true;
 
     // Seat appPin3 on this exact ray at its apparent depth
