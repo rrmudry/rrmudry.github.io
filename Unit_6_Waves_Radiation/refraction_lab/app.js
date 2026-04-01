@@ -2,6 +2,9 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { Reflector } from 'three/addons/objects/Reflector.js';
 
+let camTargetPos = new THREE.Vector3(0, 1.75, 15), camTargetLook = new THREE.Vector3(0, 1.0, 0);
+let camTransition = false, currentMode = 'front';
+
 // --- Scene Setup ---
 const canvasContainer = document.getElementById('canvas-container');
 const scene = new THREE.Scene();
@@ -9,6 +12,7 @@ scene.background = new THREE.Color(0x0f172a);
 
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
 camera.layers.enable(1); // Enable rendering of Virtual Objects on Layer 1
+camera.position.copy(camTargetPos); // Explicit start at 50% Zoom (distance 15) locked to identical Front viewing plane
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -19,7 +23,8 @@ canvasContainer.appendChild(renderer.domElement);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
-controls.maxPolarAngle = Math.PI / 2 - 0.05;
+controls.target.copy(camTargetLook); // Natively lock the initialization drag center!
+controls.update(); // Sync all orbital constraints instantly
 
 // --- Lighting ---
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
@@ -125,7 +130,51 @@ const glassMats = [
   matTransparent  // 5: Back (-Z)
 ];
 
+function updateAngleUI(val) {
+  document.getElementById('angle-slider').value = val;
+  document.getElementById('angle-input').value = val;
+}
+
+document.getElementById('angle-slider').addEventListener('input', (e) => {
+  updateAngleUI(e.target.value);
+  applyAngleToPin(e.target.value);
+});
+document.getElementById('angle-input').addEventListener('input', (e) => {
+  updateAngleUI(e.target.value);
+  applyAngleToPin(e.target.value);
+});
+
+function applyAngleToPin(degrees) {
+  const theta = parseFloat(degrees) * (Math.PI / 180);
+  const R = Math.sqrt(4.5); // Derived from initial default distance
+  pin1.position.x = pin2.position.x - R * Math.sin(theta);
+  pin1.position.z = pin2.position.z - R * Math.cos(theta);
+  rebuildRays();
+}
+
+let currentRefractiveIndex = 1.5;
+
+function updateIndexUI(val) {
+  document.getElementById('n-slider').value = val;
+  document.getElementById('n-input').value = val;
+}
+
+document.getElementById('n-slider').addEventListener('input', (e) => {
+  const n = Math.max(1.0, parseFloat(e.target.value));
+  updateIndexUI(n);
+  currentRefractiveIndex = n;
+  rebuildRays();
+});
+
+document.getElementById('n-input').addEventListener('input', (e) => {
+  const n = Math.max(1.0, parseFloat(e.target.value));
+  updateIndexUI(n);
+  currentRefractiveIndex = n;
+  rebuildRays();
+});
+
 const glassBlock = new THREE.Mesh(new THREE.BoxGeometry(glassWidth, glassHeight, glassDepth), glassMats);
+
 glassBlock.position.set(0, glassHeight / 2, 0);
 glassBlock.renderOrder = 4;
 scene.add(glassBlock);
@@ -193,7 +242,7 @@ function spawnReflectedPin(sourcePin, order) {
 const matsRealRed = createPinMats(0xef4444, 'REAL_RED');
 const matsAppRed = createPinMats(0xef4444, 'APP_RED');
 const realP1_z = -5.0; const realP2_z = -3.5;
-const pin1 = spawnPin(matsRealRed, -2.5, realP1_z, 2);
+const pin1 = spawnPin(matsRealRed, -2.5, realP1_z, 2, true);
 const pin2 = spawnPin(matsRealRed, -1.0, realP2_z, 2);
 const appPin1 = spawnPin(matsAppRed, 0, realP1_z, 3, false, 1);
 const appPin2 = spawnPin(matsAppRed, 0, realP2_z, 3, false, 1);
@@ -214,8 +263,6 @@ spawnReflectedPin(appPin4, 3);
 
 // --- Full Bidirectional Ray Math ---
 let realRayLine = null, appRayLine = null, exitRayLine = null, innerRayLine = null, appBlueRayLine = null;
-let showRay = false;
-let showVirtualRay = false;
 let currentDeltaX = 0;
 
 function rebuildRays() {
@@ -233,7 +280,7 @@ function rebuildRays() {
   
   // 2. Calculate Strict Snell's Law True Internal Path (Answer Key)
   const thetaIn = Math.atan2(Math.abs(dirIn.x), Math.abs(dirIn.y));
-  const n1 = 1.0, n2 = 1.5;
+  const n1 = 1.0, n2 = currentRefractiveIndex;
   const thetaOut = Math.asin((n1 / n2) * Math.sin(thetaIn));
   const refDir = new THREE.Vector2(Math.sin(thetaOut) * Math.sign(dirIn.x), Math.cos(thetaOut) * Math.sign(dirIn.y));
   
@@ -245,7 +292,9 @@ function rebuildRays() {
   currentDeltaX = xExit - xUnbent;
 
   appPin1.position.x = pin1.position.x + currentDeltaX;
+  appPin1.position.z = pin1.position.z;
   appPin2.position.x = pin2.position.x + currentDeltaX;
+  appPin2.position.z = pin2.position.z;
   appPin3.position.x = pin3.position.x - currentDeltaX;
   appPin3.position.z = pin3.position.z;
   appPin4.position.x = pin4.position.x - currentDeltaX;
@@ -255,8 +304,6 @@ function rebuildRays() {
     r.mirror.position.x = r.source.position.x;
     r.mirror.position.z = r.source.position.z;
   });
-
-  if (!showRay && !showVirtualRay) return;
 
   const mRealRed = new THREE.LineBasicMaterial({ color: 0xef4444, linewidth: 3 }); 
   const mRealExit = new THREE.LineBasicMaterial({ color: 0xef4444, linewidth: 3 }); 
@@ -278,29 +325,25 @@ function rebuildRays() {
   const exitDir = dirIn.clone();
   const xFinal = xExit + exitDir.x * ((15 - zExit) / exitDir.y);
 
-  if (showRay) {
-    // True Physics Ray
-    const zSource = -15;
-    const xSource = p1.x + dirIn.x * ((zSource - p1.y) / dirIn.y);
-    realRayLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints([ new THREE.Vector3(xSource, 0.05, zSource), new THREE.Vector3(xEnter, 0.05, zEnter) ]), mRealRed); realRayLine.renderOrder = 2; scene.add(realRayLine);
-    innerRayLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints([ new THREE.Vector3(xEnter, 0.05, zEnter), new THREE.Vector3(xExit, 0.05, zExit) ]), mInner); innerRayLine.renderOrder = 2; scene.add(innerRayLine);
-    exitRayLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints([ new THREE.Vector3(xExit, 0.05, zExit), new THREE.Vector3(xFinal, 0.05, 15) ]), mRealExit); exitRayLine.renderOrder = 2; scene.add(exitRayLine);
-  }
+  // True Physics Ray
+  const zSource = -15;
+  const xSource = p1.x + dirIn.x * ((zSource - p1.y) / dirIn.y);
+  realRayLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints([ new THREE.Vector3(xSource, 0.05, zSource), new THREE.Vector3(xEnter, 0.05, zEnter) ]), mRealRed); realRayLine.renderOrder = 2; scene.add(realRayLine);
+  innerRayLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints([ new THREE.Vector3(xEnter, 0.05, zEnter), new THREE.Vector3(xExit, 0.05, zExit) ]), mInner); innerRayLine.renderOrder = 2; scene.add(innerRayLine);
+  exitRayLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints([ new THREE.Vector3(xExit, 0.05, zExit), new THREE.Vector3(xFinal, 0.05, 15) ]), mRealExit); exitRayLine.renderOrder = 2; scene.add(exitRayLine);
 
-  if (showVirtualRay) {
-    // Virtual Light Path is geometrically constructed throughout the background expanse, but is optically limited to existing only within the window portals.
-    if (currentMode === 'front') {
-      const appSourceZ = -15;
-      const appSourceX = xExit + exitDir.x * ((appSourceZ - zExit) / exitDir.y);
-      appRayLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints([ new THREE.Vector3(appSourceX, 0.05, appSourceZ), new THREE.Vector3(xExit, 0.05, 2.5) ]), mAppRed); 
-      appRayLine.computeLineDistances(); appRayLine.renderOrder = 2; appRayLine.layers.set(1); scene.add(appRayLine);
-    }
-    if (currentMode === 'back') {
-      const appFinalZ = 15;
-      const appFinalX = xEnter + dirIn.x * ((appFinalZ - zEnter) / dirIn.y);
-      appBlueRayLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints([ new THREE.Vector3(xEnter, 0.05, -2.5), new THREE.Vector3(appFinalX, 0.05, appFinalZ) ]), mAppExit); 
-      appBlueRayLine.computeLineDistances(); appBlueRayLine.renderOrder = 2; appBlueRayLine.layers.set(1); scene.add(appBlueRayLine);
-    }
+  // Virtual Light Path is geometrically constructed throughout the background expanse, but is optically limited to existing only within the window portals.
+  if (currentMode === 'front') {
+    const appSourceZ = -15;
+    const appSourceX = xExit + exitDir.x * ((appSourceZ - zExit) / exitDir.y);
+    appRayLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints([ new THREE.Vector3(appSourceX, 0.05, appSourceZ), new THREE.Vector3(xExit, 0.05, 2.5) ]), mAppRed); 
+    appRayLine.computeLineDistances(); appRayLine.renderOrder = 2; appRayLine.layers.set(1); scene.add(appRayLine);
+  }
+  if (currentMode === 'back') {
+    const appFinalZ = 15;
+    const appFinalX = xEnter + dirIn.x * ((appFinalZ - zEnter) / dirIn.y);
+    appBlueRayLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints([ new THREE.Vector3(xEnter, 0.05, -2.5), new THREE.Vector3(appFinalX, 0.05, appFinalZ) ]), mAppExit); 
+    appBlueRayLine.computeLineDistances(); appBlueRayLine.renderOrder = 2; appBlueRayLine.layers.set(1); scene.add(appBlueRayLine);
   }
 }
 
@@ -312,7 +355,7 @@ const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let draggedMesh = null;
 let dragOffset = new THREE.Vector3();
-const dragPlane = new THREE.Mesh(new THREE.PlaneGeometry(100, 100).rotateX(-Math.PI/2), new THREE.MeshBasicMaterial({visible: false}));
+const dragPlane = new THREE.Mesh(new THREE.PlaneGeometry(100, 100).rotateX(-Math.PI/2), new THREE.MeshBasicMaterial({visible: false, side: THREE.DoubleSide}));
 scene.add(dragPlane);
 
 window.addEventListener('mousedown', (e) => {
@@ -323,6 +366,8 @@ window.addEventListener('mousedown', (e) => {
   if (hits.length > 0) { 
     controls.enabled = false; 
     draggedMesh = hits[0].object.userData.parentPin; 
+    // Snap the mathematical drag dragPlane up to perfectly meet the physical 3D altitude of the pin head to avoid perspective stretching!
+    dragPlane.position.y = hits[0].point.y; 
     const pz = raycaster.intersectObject(dragPlane);
     if (pz.length > 0) dragOffset.copy(pz[0].point).sub(draggedMesh.position);
     else dragOffset.set(0, 0, 0);
@@ -335,26 +380,35 @@ window.addEventListener('mousemove', (e) => {
     const hits = raycaster.intersectObject(dragPlane);
     if (hits.length > 0) {
       const targetPoint = hits[0].point.clone().sub(dragOffset);
-      draggedMesh.position.x = targetPoint.x;
-      draggedMesh.position.z = Math.max(glassDepth/2 + 0.5, targetPoint.z);
       
-      appPin3.position.x = pin3.position.x - currentDeltaX;
-      appPin3.position.z = pin3.position.z;
-      appPin4.position.x = pin4.position.x - currentDeltaX;
-      appPin4.position.z = pin4.position.z;
+      // Limit X axis boundaries strictly to the visible lab bench constraints
+      draggedMesh.position.x = Math.max(-10.0, Math.min(10.0, targetPoint.x));
       
-      reflectedPins.forEach(r => {
-        r.mirror.position.x = r.source.position.x;
-        r.mirror.position.z = r.source.position.z;
-      });
+      // Mathematically lock 'Depth' (Z-axis) translation in side-views to permanently eliminate raycaster grazing-angle projection drift!
+      if (currentMode === 'top') {
+        if (draggedMesh === pin1) {
+          draggedMesh.position.z = Math.min(-glassDepth / 2 - 0.5, targetPoint.z);
+        } else {
+          draggedMesh.position.z = Math.max(glassDepth / 2 + 0.5, targetPoint.z);
+        }
+      }
+      
+      if (draggedMesh === pin1) {
+        // Red pin dynamically recalculates Incident Angle UI relative to whatever coordinates it lands on
+        const dx = pin2.position.x - pin1.position.x;
+        const dz = pin2.position.z - pin1.position.z;
+        const dynamicAngle = Math.atan2(dx, dz) * (180 / Math.PI);
+        updateAngleUI(Math.max(-80, Math.min(80, dynamicAngle)).toFixed(1));
+      }
+
+      // Actively recalibrate the entire laser ray path, optical stencils, and MIRROR hallucinations dynamically mid-drag!
+      rebuildRays();
     }
   }
 });
 window.addEventListener('mouseup', () => { controls.enabled = true; draggedMesh = null; });
 
 // --- UI & Camera Restrictions ---
-let camTargetPos = new THREE.Vector3(0, 1.5, 14), camTargetLook = new THREE.Vector3(0, 1.0, 0);
-let camTransition = false, currentMode = 'front';
 
 controls.minDistance = 5;
 controls.maxDistance = 25;
@@ -420,18 +474,31 @@ function setView(mode, btnId) {
   document.querySelectorAll('button').forEach(b => b.classList.remove('active'));
   if (document.getElementById(btnId)) document.getElementById(btnId).classList.add('active');
   
-  if (mode === 'front') { camTargetPos.set(0, 1.0, 14); camTargetLook.set(0, 1.0, 0); }
-  else if (mode === 'back') { camTargetPos.set(0, 1.0, -14); camTargetLook.set(0, 1.0, 0); }
+  if (mode === 'front') { camTargetPos.set(0, 1.75, 15); camTargetLook.set(0, 1.0, 0); }
+  else if (mode === 'back') { camTargetPos.set(0, 1.75, -15); camTargetLook.set(0, 1.0, 0); }
   else if (mode === 'top') { camTargetPos.set(0, 16, 0.1); camTargetLook.set(0, 0, 0); }
 }
 
 document.getElementById('btn-eye-front').onclick = () => setView('front', 'btn-eye-front');
 document.getElementById('btn-eye-back').onclick = () => setView('back', 'btn-eye-back');
 document.getElementById('btn-top-view').onclick = () => setView('top', 'btn-top-view');
-document.getElementById('btn-toggle-ray').onclick = () => { showRay = !showRay; document.getElementById('btn-toggle-ray').classList.toggle('active', showRay); rebuildRays(); };
-document.getElementById('btn-toggle-virtual').onclick = () => { showVirtualRay = !showVirtualRay; document.getElementById('btn-toggle-virtual').classList.toggle('active', showVirtualRay); rebuildRays(); };
 
 window.addEventListener('resize', () => { camera.aspect = window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
+
+document.getElementById('zoom-slider').addEventListener('input', (e) => {
+  const v = parseFloat(e.target.value);
+  const targetDistance = controls.maxDistance - v * (controls.maxDistance - controls.minDistance);
+  const ray = camera.position.clone().sub(controls.target).normalize();
+  camera.position.copy(controls.target).add(ray.multiplyScalar(targetDistance));
+  controls.update();
+});
+
+controls.addEventListener('change', () => {
+  const d = camera.position.distanceTo(controls.target);
+  const v = (controls.maxDistance - d) / (controls.maxDistance - controls.minDistance);
+  const slider = document.getElementById('zoom-slider');
+  if (slider) slider.value = Math.max(0, Math.min(1, v));
+});
 
 function animate() {
   requestAnimationFrame(animate);
