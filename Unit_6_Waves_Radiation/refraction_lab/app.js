@@ -287,18 +287,7 @@ function rebuildRays() {
   const zExit = glassDepth / 2;
   const xExit = xEnter + refDir.x * ((zExit - zEnter) / refDir.y);
   
-  // 3. Apparent Pin shifts (Optical Illusion translation)
-  const xUnbent = xEnter + dirIn.x * ((zExit - zEnter) / dirIn.y);
-  currentDeltaX = xExit - xUnbent;
-
-  appPin1.position.x = pin1.position.x + currentDeltaX;
-  appPin1.position.z = pin1.position.z;
-  appPin2.position.x = pin2.position.x + currentDeltaX;
-  appPin2.position.z = pin2.position.z;
-  appPin3.position.x = pin3.position.x - currentDeltaX;
-  appPin3.position.z = pin3.position.z;
-  appPin4.position.x = pin4.position.x - currentDeltaX;
-  appPin4.position.z = pin4.position.z;
+  // 3. Apparent Pin logic deleted! (Now physically calculated in real-time based on Camera orbital position)
 
   reflectedPins.forEach(r => {
     r.mirror.position.x = r.source.position.x;
@@ -332,17 +321,21 @@ function rebuildRays() {
   innerRayLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints([ new THREE.Vector3(xEnter, 0.05, zEnter), new THREE.Vector3(xExit, 0.05, zExit) ]), mInner); innerRayLine.renderOrder = 2; scene.add(innerRayLine);
   exitRayLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints([ new THREE.Vector3(xExit, 0.05, zExit), new THREE.Vector3(xFinal, 0.05, 15) ]), mRealExit); exitRayLine.renderOrder = 2; scene.add(exitRayLine);
 
-  // Virtual Light Path is geometrically constructed throughout the background expanse, but is optically limited to existing only within the window portals.
+  // 4. Rigid Apparent Ray = collinear backward extension of exit ray (Front) or forward extension of incident ray (Back)
   if (currentMode === 'front') {
-    const appSourceZ = -15;
-    const appSourceX = xExit + exitDir.x * ((appSourceZ - zExit) / exitDir.y);
-    appRayLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints([ new THREE.Vector3(appSourceX, 0.05, appSourceZ), new THREE.Vector3(xExit, 0.05, 2.5) ]), mAppRed); 
+    // Extend exit ray backward from (xExit, 2.5) using the same slope as the exit ray (= dirIn)
+    const xAppBack = xExit + dirIn.x * ((-15 - zExit) / dirIn.y);
+    appRayLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(xAppBack, 0.05, -15), new THREE.Vector3(xExit, 0.05, zExit)
+    ]), mAppRed); 
     appRayLine.computeLineDistances(); appRayLine.renderOrder = 2; appRayLine.layers.set(1); scene.add(appRayLine);
   }
   if (currentMode === 'back') {
-    const appFinalZ = 15;
-    const appFinalX = xEnter + dirIn.x * ((appFinalZ - zEnter) / dirIn.y);
-    appBlueRayLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints([ new THREE.Vector3(xEnter, 0.05, -2.5), new THREE.Vector3(appFinalX, 0.05, appFinalZ) ]), mAppExit); 
+    // Extend incident ray forward from (xEnter, -2.5) using the same slope as the incident ray (= dirIn)
+    const xAppFwd = xEnter + dirIn.x * ((15 - zEnter) / dirIn.y);
+    appBlueRayLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(xEnter, 0.05, zEnter), new THREE.Vector3(xAppFwd, 0.05, 15)
+    ]), mAppExit); 
     appBlueRayLine.computeLineDistances(); appBlueRayLine.renderOrder = 2; appBlueRayLine.layers.set(1); scene.add(appBlueRayLine);
   }
 }
@@ -500,6 +493,99 @@ controls.addEventListener('change', () => {
   if (slider) slider.value = Math.max(0, Math.min(1, v));
 });
 
+function updateVirtualPhysics() {
+  function getShift(pinX, pinZ) {
+    if (currentMode === 'top') return { x: 0, z: 0 };
+    const dx = camera.position.x - pinX;
+    const dz = Math.max(0.001, Math.abs(camera.position.z - pinZ));
+    const targetX = Math.abs(dx);
+    const airZ = dz - glassDepth;
+
+    let minTheta = 0, maxTheta = Math.PI / 2.0 - 0.001, midTheta = 0;
+    for (let i = 0; i < 15; i++) {
+      midTheta = (minTheta + maxTheta) / 2.0;
+      const thetaGlass = Math.asin(Math.sin(midTheta) / currentRefractiveIndex);
+      const calcX = airZ * Math.tan(midTheta) + glassDepth * Math.tan(thetaGlass);
+      if (calcX < targetX) minTheta = midTheta; else maxTheta = midTheta;
+    }
+
+    const thetaG = Math.asin(Math.sin(midTheta) / currentRefractiveIndex);
+    const hPrime = glassDepth * (Math.pow(Math.cos(midTheta), 2) / (currentRefractiveIndex * Math.pow(Math.cos(thetaG), 2)));
+    const shiftZ = (glassDepth - hPrime) * Math.sign(camera.position.z - pinZ);
+
+    // FIX: use apparent depth for shiftX so perpendicular viewing gives zero lateral shift
+    const appPinZ = pinZ + shiftZ;
+    const apparentDZ = Math.abs(camera.position.z - appPinZ);
+    const appPinX = camera.position.x - Math.sign(dx) * apparentDZ * Math.tan(midTheta);
+    const shiftX = appPinX - pinX;
+
+    return { x: shiftX, z: shiftZ };
+  }
+
+  if (currentMode === 'front' && innerRayLine && exitRayLine && appRayLine) {
+    const xExit = innerRayLine.geometry.attributes.position.array[3];
+
+    // Place each red virtual pin using corrected parallax
+    const s1 = getShift(pin1.position.x, pin1.position.z);
+    appPin1.position.x = pin1.position.x + s1.x;
+    appPin1.position.z = pin1.position.z + s1.z;
+    const s2 = getShift(pin2.position.x, pin2.position.z);
+    appPin2.position.z = pin2.position.z + s2.z;
+
+    // Anchor dashed ray at glass interface; slope through corrected appPin1
+    const dzPin = appPin1.position.z - 2.5;
+    const slope = Math.abs(dzPin) > 0.001 ? (appPin1.position.x - xExit) / dzPin : 0;
+    const xAtBack = xExit + (-15 - 2.5) * slope;
+
+    const pos = appRayLine.geometry.attributes.position.array;
+    pos[0] = xAtBack; pos[1] = 0.05; pos[2] = -15;
+    pos[3] = xExit;   pos[4] = 0.05; pos[5] = 2.5;
+    appRayLine.geometry.attributes.position.needsUpdate = true;
+
+    // Seat appPin2 on this exact ray at its apparent depth
+    appPin2.position.x = xExit + slope * (appPin2.position.z - 2.5);
+
+    // Blue pins not active in Front mode
+    appPin3.position.x = pin3.position.x; appPin3.position.z = pin3.position.z;
+    appPin4.position.x = pin4.position.x; appPin4.position.z = pin4.position.z;
+
+  } else if (currentMode === 'back' && innerRayLine && appBlueRayLine) {
+    const xEnter = innerRayLine.geometry.attributes.position.array[0];
+
+    // Place each blue virtual pin using corrected parallax
+    const s4 = getShift(pin4.position.x, pin4.position.z);
+    appPin4.position.x = pin4.position.x + s4.x;
+    appPin4.position.z = pin4.position.z + s4.z;
+    const s3 = getShift(pin3.position.x, pin3.position.z);
+    appPin3.position.z = pin3.position.z + s3.z;
+
+    // Anchor dashed ray at back glass interface; slope through corrected appPin4
+    const dzPin = appPin4.position.z - (-2.5);
+    const slope = Math.abs(dzPin) > 0.001 ? (appPin4.position.x - xEnter) / dzPin : 0;
+    const xAtFar = xEnter + (15 - (-2.5)) * slope;
+
+    const pos = appBlueRayLine.geometry.attributes.position.array;
+    pos[0] = xEnter; pos[1] = 0.05; pos[2] = -2.5;
+    pos[3] = xAtFar; pos[4] = 0.05; pos[5] = 15;
+    appBlueRayLine.geometry.attributes.position.needsUpdate = true;
+
+    // Seat appPin3 on this exact ray at its apparent depth
+    appPin3.position.x = xEnter + slope * (appPin3.position.z - (-2.5));
+
+    // Red pins not active in Back mode
+    appPin1.position.x = pin1.position.x; appPin1.position.z = pin1.position.z;
+    appPin2.position.x = pin2.position.x; appPin2.position.z = pin2.position.z;
+
+  } else {
+    // Top view: pure parallax
+    [{ p: appPin1, r: pin1 }, { p: appPin2, r: pin2 }, { p: appPin3, r: pin3 }, { p: appPin4, r: pin4 }].forEach(pair => {
+      const s = getShift(pair.r.position.x, pair.r.position.z);
+      pair.p.position.x = pair.r.position.x + s.x;
+      pair.p.position.z = pair.r.position.z + s.z;
+    });
+  }
+}
+
 function animate() {
   requestAnimationFrame(animate);
   if (camTransition) {
@@ -510,6 +596,8 @@ function animate() {
       applyViewBounds();
     }
   }
-  controls.update(); renderer.render(scene, camera);
+  controls.update();
+  updateVirtualPhysics();
+  renderer.render(scene, camera);
 }
 animate();
