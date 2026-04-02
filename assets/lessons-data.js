@@ -277,6 +277,7 @@ const lessonsData = [
     summary: "Reflection (fixed/free end) and Refraction (bending).",
     details: "Qualitative exploration of how waves behave when hitting a boundary or changing media.",
     type: "Activity",
+    links: { "Wave Boundary Explorer": "Unit_6_Waves_Radiation/Boundary_Behaviors/Boundary_Behaviors.html" },
     dok: 2,
     semester: 2,
     isFeatured: true,
