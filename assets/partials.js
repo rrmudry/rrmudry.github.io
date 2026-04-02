@@ -1,7 +1,11 @@
 (function () {
   const includeAttr = 'include';
   const includeSelector = `[data-${includeAttr}]`;
-  const basePath = 'partials/';
+  
+  // Calculate relative path to root
+  const depth = window.location.pathname.split('/').length - 2;
+  const rootPath = depth > 0 ? '../'.repeat(depth) : '';
+  const partialsDir = `${rootPath}partials/`;
 
   function normalisePath(path) {
     if (!path) return '';
@@ -23,15 +27,27 @@
   async function injectPartial(el) {
     const target = el.dataset[includeAttr];
     if (!target) return;
-    const url = `${basePath}${target}.html`;
+    const url = `${partialsDir}${target}.html`;
 
     try {
       const response = await fetch(url, { cache: 'no-cache' });
       if (!response.ok) {
         throw new Error(`Failed to load ${url}: ${response.status}`);
       }
-      const html = await response.text();
-      el.innerHTML = html;
+      let html = await response.text();
+      
+      // Rewrite links in partial to be relative to current page
+      if (depth > 0) {
+        html = html.replace(/(href|src)="([^"]*)"/g, (match, attr, path) => {
+          // Skip absolute links, hashes, and root-relative links
+          if (path.startsWith('http') || path.startsWith('#') || path.startsWith('/')) {
+            return match;
+          }
+          return `${attr}="${rootPath}${path}"`;
+        });
+      }
+
+      el.innerHTML =html;
       if (target === 'header') {
         markActiveNav(el);
       }
