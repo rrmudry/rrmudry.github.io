@@ -1,0 +1,1841 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WaveMaster Lab | Interactive Physics</title>
+    
+    <!-- Premium Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Outfit', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        physics: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                            950: '#082f49',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+
+        body {
+            font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+            background-color: #f8fafc;
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+
+        /* Custom Range Slider Upgrade */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 22px;
+            width: 22px;
+            border-radius: 50%;
+            background: #0ea5e9;
+            cursor: pointer;
+            margin-top: -8px;
+            box-shadow: 0 0 10px rgba(14, 165, 233, 0.3);
+            border: 3px solid white;
+            transition: all 0.2s ease;
+        }
+
+        input[type=range]:hover::-webkit-slider-thumb {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.5);
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+
+        /* Tab Active State */
+        .tab-btn {
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tab-active {
+            color: #0369a1;
+            font-weight: 600;
+        }
+
+        .tab-active::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #0ea5e9;
+            border-radius: 10px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { width: 0; opacity: 0; }
+            to { width: 100%; opacity: 1; }
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            background: radial-gradient(circle at center, #ffffff 0%, #f1f5f9 100%);
+            border-radius: 12px;
+        }
+
+        .module-fade-enter {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .module-fade-exit {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .transition-all {
+            transition-duration: 400ms;
+        }
+
+        .pill-hint {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border: 1px solid #bfdbfe;
+        }
+
+        /* Heading Style Overlay */
+        .font-heading {
+            font-family: 'Outfit', sans-serif;
+            letter-spacing: -0.01em;
+        }
+
+        /* Draggable Ruler Styles */
+        #physics-ruler {
+            position: absolute;
+            width: 50%; /* Exactly 5 meters logic (5/10) */
+            height: 60px;
+            background: rgba(254, 243, 199, 0.9);
+            backdrop-filter: blur(8px);
+            border: 2px solid #d97706;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+            cursor: grab;
+            user-select: none;
+            touch-action: none;
+            z-index: 50;
+        }
+        #physics-ruler:active { cursor: grabbing; }
+        
+        .ruler-marks {
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg width='400' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%2392400e' stroke-width='1'%3E%3Cpath d='M0 0v20M8 0v10M16 0v10M24 0v10M32 0v10M40 0v15M48 0v10M56 0v10M64 0v10M72 0v10M80 0v20M88 0v10M96 0v10M104 0v10M112 0v10M120 0v15M128 0v10M136 0v10M144 0v10M152 0v10' /%3E%3Cpath d='M160 0v20M168 0v10M176 0v10M184 0v10M192 0v10M200 0v15M208 0v10M216 0v10M224 0v10M232 0v10M240 0v20M248 0v10M256 0v10M264 0v10M272 0v10M280 0v15M288 0v10M296 0v10M304 0v10M312 0v10' /%3E%3Cpath d='M320 0v20M328 0v10M336 0v10M344 0v10M352 0v10M360 0v15M368 0v10M376 0v10M384 0v10M392 0v10M400 0v20' /%3E%3C/g%3E%3Cg fill='%2392400e' font-family='monospace' font-weight='bold' font-size='10' text-anchor='middle'%3E%3Ctext x='0' y='35'%3E0m%3C/text%3E%3Ctext x='80' y='35'%3E1m%3C/text%3E%3Ctext x='160' y='35'%3E2m%3C/text%3E%3Ctext x='240' y='35'%3E3m%3C/text%3E%3Ctext x='320' y='35'%3E4m%3C/text%3E%3Ctext x='400' y='35'%3E5m%3C/text%3E%3C/g%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+        }
+        
+        .ruler-handle {
+            position: absolute;
+            bottom: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 4px;
+        }
+        .ruler-dot { width: 3px; height: 3px; background: #d97706; border-radius: 50%; opacity: 0.5; }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col antialiased">
+
+    <!-- Login Overlay -->
+    <div id="login-overlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-md transition-all duration-500">
+        <div class="glass-panel max-w-md w-full p-10 rounded-[2.5rem] text-center space-y-8 animate-in zoom-in duration-500 shadow-2xl shadow-physics-500/10">
+            <div class="space-y-3">
+                <div class="w-20 h-20 bg-gradient-to-br from-physics-400 to-physics-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-physics-500/20 mb-4 rotate-3">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-4xl font-heading font-black text-slate-900 tracking-tight">WaveMaster<span class="text-physics-500">_Lab</span></h1>
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em]">Unit 6 // Wave Dynamics Analysis</p>
+            </div>
+            
+            <div id="login-form" class="space-y-5">
+                <div class="space-y-2">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] text-left px-1">Access_Node // Student ID</p>
+                    <input type="text" id="student-id" placeholder="6-Digit ID" maxlength="6" 
+                        class="w-full bg-slate-50 border border-slate-200 p-5 rounded-2xl outline-none transition-all text-center font-bold text-2xl focus:border-physics-500/50 focus:ring-4 focus:ring-physics-500/5 uppercase tracking-widest text-physics-600">
+                </div>
+
+                <div id="name-entry" class="hidden space-y-2 animate-in fade-in duration-300">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] text-left px-1">New User Detected // Enter Name</p>
+                    <input type="text" id="student-name" placeholder="Full Student Name" 
+                        class="w-full bg-slate-50 border border-slate-200 p-5 rounded-2xl outline-none transition-all text-center font-bold focus:border-physics-500/50 focus:ring-4 focus:ring-physics-500/5">
+                </div>
+
+                <button id="login-btn" onclick="handleLogin()" class="w-full bg-physics-500 hover:bg-physics-600 text-white p-5 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl shadow-physics-500/20 active:scale-[0.98] transition-all">
+                    Establish Connection
+                </button>
+                <p id="login-status" class="text-[9px] font-bold text-slate-400 uppercase tracking-widest animate-pulse h-4"></p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Header -->
+    <header class="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-6 py-2.5 flex flex-col md:flex-row justify-between items-center gap-2">
+            <h1 class="text-xl font-heading font-bold text-slate-900 flex items-center gap-2.5">
+                <div class="bg-physics-500 p-2 rounded-lg shadow-lg shadow-physics-200">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </div>
+                <span>WaveMaster<span class="text-physics-500">_Lab</span></span>
+            </h1>
+            <div id="student-info" class="hidden flex items-center gap-3">
+                <div class="h-8 w-px bg-slate-200 mx-2 hidden md:block"></div>
+                <p id="student-tag" class="text-[10px] font-black text-slate-400 uppercase tracking-widest pt-1">Credentials Required</p>
+                <div id="sync-indicator" class="w-2 h-2 rounded-full bg-slate-300"></div>
+            </div>
+
+            <nav class="flex p-1 bg-slate-100 rounded-xl overflow-x-auto w-full md:w-auto">
+                <button onclick="setModule(1)" id="tab-1"
+                    class="tab-btn tab-active px-4 py-2 text-sm font-medium whitespace-nowrap rounded-lg transition-all">1. Spatial Wave</button>
+                <button onclick="setModule(2)" id="tab-2"
+                    class="tab-btn px-4 py-2 text-sm font-medium whitespace-nowrap text-slate-500 hover:text-slate-700 rounded-lg transition-all">2. Temporal Wave</button>
+                <button onclick="setModule(3)" id="tab-3"
+                    class="tab-btn px-4 py-2 text-sm font-medium whitespace-nowrap text-slate-500 hover:text-slate-700 rounded-lg transition-all">3. Inverse Relation</button>
+                <button onclick="setModule(4)" id="tab-4"
+                    class="tab-btn px-4 py-2 text-sm font-medium whitespace-nowrap text-slate-500 hover:text-slate-700 rounded-lg transition-all">4. Wave Speed</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-6xl mx-auto w-full p-4 grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Left Column: Interactive Canvas -->
+        <div class="lg:col-span-2 flex flex-col gap-6">
+            <div id="canvas-container" class="bg-white p-2 rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 transition-all">
+
+                <!-- Wrapper to keep absolute elements pinned only to the main canvas -->
+                <div class="relative overflow-hidden rounded-xl">
+                    <!-- Draggable Ruler (DOM Based) -->
+                    <div id="physics-ruler" class="hidden flex flex-col justify-start pt-0.5" style="left: 100px; top: 60px;">
+                        <div class="ruler-marks"></div>
+                        <div class="ruler-handle">
+                            <div class="ruler-dot"></div>
+                            <div class="ruler-dot"></div>
+                            <div class="ruler-dot"></div>
+                        </div>
+                    </div>
+
+                    <!-- Overlay UIs for specific modules -->
+                    <div id="mod2-overlay"
+                        class="hidden absolute top-4 right-4 glass-panel px-5 py-3 rounded-xl border border-white/50 animate-in fade-in slide-in-from-top-2 duration-500">
+                        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Simulation Metrics</div>
+                        <div class="flex gap-6">
+                            <div class="text-center">
+                                <span class="block text-[10px] text-slate-400 font-bold uppercase">Time</span>
+                                <span id="m2-stopwatch" class="text-xl font-mono font-bold text-physics-600">0.00s</span>
+                            </div>
+                            <div class="w-px h-8 bg-slate-200 self-center"></div>
+                            <div class="text-center">
+                                <span class="block text-[10px] text-slate-400 font-bold uppercase">Cycles</span>
+                                <span id="m2-cycles" class="text-xl font-mono font-bold text-orange-500">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="mod4-overlay" class="hidden absolute bottom-6 left-6 flex gap-3">
+                        <button id="btn-race-ready" onclick="prepareRace()"
+                            class="bg-emerald-500 text-white hover:bg-emerald-600 px-5 py-2 rounded-xl shadow-lg shadow-emerald-200 text-sm font-bold transition-all active:scale-95">Race a Crest</button>
+                        <button id="btn-race-start" onclick="startRace()"
+                            class="hidden bg-physics-500 text-white hover:bg-physics-600 px-5 py-2 rounded-xl shadow-lg shadow-physics-200 text-sm font-bold transition-all active:scale-95">Start Race</button>
+                        <button id="btn-race-reset" onclick="resetRace()"
+                            class="hidden bg-slate-100 text-slate-600 hover:bg-slate-200 px-5 py-2 rounded-xl text-sm font-bold transition-all">Reset</button>
+                    </div>
+
+                    <!-- Module 2 Bottom Overlay (Pause Button) -->
+                    <div id="mod2-bottom-overlay" class="hidden absolute bottom-6 right-6 flex gap-3">
+                        <button id="btn-m2-reset" onclick="resetM2Timer()"
+                            class="hidden bg-slate-100 text-slate-600 hover:bg-slate-200 px-4 py-2 rounded-xl text-sm font-bold transition-all">Reset Timer</button>
+                        <button id="btn-m2-pause" onclick="toggleM2Pause()"
+                            class="bg-physics-50 text-physics-600 hover:bg-physics-100 px-4 py-2 rounded-xl text-sm font-bold transition-all border border-physics-100">Pause After Cycle</button>
+                    </div>
+
+                    <!-- Module 3 Bottom Overlay (Pause Button) -->
+                    <div id="mod3-bottom-overlay" class="hidden absolute bottom-6 right-6 flex gap-3">
+                        <button id="btn-m3-pause" onclick="toggleM3Pause()"
+                            class="bg-physics-50 text-physics-600 hover:bg-physics-100 px-4 py-2 rounded-xl text-sm font-bold transition-all border border-physics-100">Pause Simulation</button>
+                    </div>
+
+                    <!-- Main Canvas Element -->
+                    <canvas id="main-canvas" width="800" height="400" class="w-full h-auto cursor-crosshair"></canvas>
+                </div>
+
+                <!-- Secondary Graph Canvas (Shrunk for 720p) -->
+                <canvas id="graph-canvas" width="800" height="160" class="hidden mt-4 border border-slate-100"></canvas>
+            </div>
+
+            <!-- Module Specific Instructions -->
+            <div class="bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100/50 transition-all duration-500">
+                <div class="flex items-start gap-4">
+                    <div class="bg-white p-2 rounded-lg shadow-sm border border-indigo-100">
+                        <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-heading font-bold text-indigo-900 mb-1">Learning Objective</h3>
+                        <p id="learning-objective" class="text-sm text-indigo-800/80 leading-relaxed">Loading simulation objective...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Controls & Knowledge Check -->
+        <div class="flex flex-col gap-8">
+
+            <!-- Controls Panel -->
+            <div class="bg-white p-5 rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100">
+                <h2 class="text-base font-heading font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    <span class="w-1.5 h-6 bg-physics-500 rounded-full"></span>
+                    Simulation Controls
+                </h2>
+                <div id="controls-container" class="space-y-4">
+                    <!-- Injected dynamically -->
+                </div>
+            </div>
+
+            <!-- Knowledge Check Panel -->
+            <div class="bg-white p-5 rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100">
+                <h2 class="text-base font-heading font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    <span class="w-1.5 h-6 bg-orange-500 rounded-full"></span>
+                    Knowledge Check
+                </h2>
+                <div id="kc-container" class="space-y-5">
+                    <!-- Injected dynamically -->
+                </div>
+                <div id="success-message"
+                    class="hidden mt-6 p-4 bg-emerald-50 text-emerald-800 rounded-xl border border-emerald-100 animate-in zoom-in duration-300">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-emerald-500 p-1 rounded-full text-white">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <span class="font-bold text-sm">Perfect! Objective complete.</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        /**
+         * Authentication & Persistence Setup
+         */
+        const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
+        const sbClient = supabase.createClient(SB_URL, SB_KEY);
+
+        /**
+         * Application State
+         */
+        const state = {
+            student: {
+                id: '',
+                name: '',
+                isLogged: false
+            },
+            module: 1,
+            taskIndex: 0,
+            cooldown: 0,
+            cooldownTotal: 10, // seconds
+            isCooldownActive: false,
+            taskConfig: {}, // Generated per student session
+
+            time: 0,
+            lastTime: 0,
+            physicsTime: 0, // Used for logical simulation time
+            pixelsPerMeter: 80, // 800px width = 10 meters
+
+            // Module 1 State
+            mod1: {
+                amplitude: 1.0,
+                wavelength: 4.0,
+                targetA: 1.5,
+                targetL: 2.5,
+                solved: false,
+                taskIndex: 0
+            },
+
+            // Module 2 State
+            mod2: {
+                amplitude: 1.5,
+                wavelength: 4.0,
+                frequency: 0.5,
+                timerActive: true,
+                solved1: false,
+                solved2: false,
+                isPaused: false,
+                pauseAtNextCycle: false,
+                targetPauseCycle: 0,
+                taskIndex: 0
+            },
+
+            // Module 3 State
+            mod3: {
+                amplitude: 1.2,
+                velocity: 4.0, // constant
+                frequency: 1.0,
+                solved: false,
+                isPaused: false,
+                taskIndex: 0
+            },
+
+            // Module 4 State
+            mod4: {
+                fA: 3.5,
+                fB: 1.2,
+                amplitude: 0.8,
+                velocity: 3.0,
+                crestA_startX: 0,
+                crestB_startX: 0,
+                phaseA: 0,
+                phaseB: 0,
+                raceStartTime: 0,
+                raceFinishX: 8.5,
+                raceState: 'idle' // idle, ready, racing, finished
+            },
+            
+            // Interaction State
+            ruler: {
+                show: false,
+                x: 150,
+                y: 100,
+                isDragging: false,
+                dragOffsetX: 0,
+                dragOffsetY: 0
+            }
+        };
+
+        function getTaskConfig(modIdx, taskIdx) {
+            const key = `m${modIdx}t${taskIdx}`;
+            if (state.taskConfig[key]) return state.taskConfig[key];
+
+            // Generate unique parameters for the task
+            let config = {};
+            const rand = (min, max, step = 0.1) => {
+                const range = (max - min) / step;
+                return Math.round((min + Math.random() * range * step) * 10) / 10;
+            };
+
+            if (modIdx === 1) {
+                if (taskIdx === 0) { // Match
+                    config = { targetA: rand(1.2, 1.8), targetL: rand(2.5, 4.5) };
+                    state.mod1.targetA = config.targetA; // Sync to visual target
+                    state.mod1.targetL = config.targetL;
+                } else if (taskIdx === 1) { // Low Energy
+                    config = { targetA: rand(0.3, 0.6), targetL: rand(5.0, 7.0) };
+                }
+            } else if (modIdx === 2) {
+                if (taskIdx === 0) { // Frequency match
+                    config = { targetF: rand(1.5, 2.8) };
+                } else if (taskIdx === 1) { // Period calc
+                    config = { targetF: rand(1.0, 2.5) };
+                } else if (taskIdx === 2) { // Slow vibration
+                    config = { targetT: rand(4.0, 6.0) };
+                }
+            } else if (modIdx === 3) {
+                if (taskIdx === 0) {
+                    config = { targetF: rand(3.5, 4.5) };
+                }
+            }
+
+            state.taskConfig[key] = config;
+            return config;
+        }
+
+        async function handleLogin() {
+            const idInput = document.getElementById('student-id');
+            const nameInput = document.getElementById('student-name');
+            const status = document.getElementById('login-status');
+            const btn = document.getElementById('login-btn');
+            const id = idInput.value.trim();
+
+            if (id.length !== 6) {
+                status.textContent = "INVALID_ID // 6_DIGITS_REQUIRED";
+                return;
+            }
+            btn.disabled = true;
+            status.textContent = "VERIFYING_CREDENTIALS...";
+
+            try {
+                const { data, error } = await sbClient.from('student_results').select('student_name').eq('student_id', id).order('created_at', { ascending: false }).limit(1).maybeSingle();
+
+                if (data) {
+                    state.student.name = data.student_name;
+                    state.student.id = id;
+                    
+                    const { data: progressData } = await sbClient.from('student_results').select('details').eq('student_id', id).eq('assignment_name', "WaveMaster Lab").maybeSingle();
+                    if (progressData && progressData.details) {
+                        state.module = progressData.details.currentModule || 1;
+                        state.mod1.taskIndex = progressData.details.tasks?.m1 || 0;
+                        state.mod2.taskIndex = progressData.details.tasks?.m2 || 0;
+                        state.mod3.taskIndex = progressData.details.tasks?.m3 || 0;
+                        state.mod4.taskIndex = progressData.details.tasks?.m4 || 0;
+                        state.taskConfig = progressData.details.taskConfig || {};
+                        
+                        // Restore visual targets if we were mid-task
+                        if (state.taskConfig.m1t0) {
+                            state.mod1.targetA = state.taskConfig.m1t0.targetA;
+                            state.mod1.targetL = state.taskConfig.m1t0.targetL;
+                        }
+                    }
+                    finalizeLogin();
+                } else if (document.getElementById('name-entry').classList.contains('hidden')) {
+                    document.getElementById('name-entry').classList.remove('hidden');
+                    btn.disabled = false;
+                    btn.textContent = "REGISTER_NODE";
+                    status.textContent = "NEW_ID_DETECTED";
+                } else {
+                    const name = nameInput.value.trim();
+                    if (name.length < 3) {
+                        status.textContent = "ERROR // NAME_TOO_SHORT";
+                        btn.disabled = false;
+                        return;
+                    }
+                    state.student.name = name;
+                    state.student.id = id;
+                    finalizeLogin();
+                }
+            } catch (e) {
+                console.error(e);
+                btn.disabled = false;
+                status.textContent = "SYNC_ERROR // OFFLINE_MODE";
+            }
+        }
+
+        function finalizeLogin() {
+            state.student.isLogged = true;
+            document.getElementById('login-overlay').classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(() => document.getElementById('login-overlay').classList.add('hidden'), 500);
+            
+            document.getElementById('student-info').classList.remove('hidden');
+            document.getElementById('student-tag').textContent = `${state.student.name.toUpperCase()} // SIG_${state.student.id}`;
+            document.getElementById('sync-indicator').classList.add('bg-emerald-500');
+            
+            setModule(state.module);
+            syncResults();
+        }
+
+        async function syncResults() {
+            const ind = document.getElementById('sync-indicator');
+            ind.classList.remove('bg-emerald-500');
+            ind.classList.add('bg-orange-500', 'animate-pulse');
+            
+            try {
+                const assignmentName = "WaveMaster Lab";
+                const { data } = await sbClient.from('student_results').select('id').eq('student_id', state.student.id).eq('assignment_name', assignmentName);
+                
+                const score = (state.module - 1) * 25 + (state[`mod${state.module}`].taskIndex / 4) * 25;
+
+                const payload = {
+                    student_name: state.student.name,
+                    student_id: state.student.id,
+                    assignment_name: assignmentName,
+                    score: Math.min(100, Math.round(score)),
+                    details: { 
+                        currentModule: state.module,
+                        tasks: {
+                            m1: state.mod1.taskIndex,
+                            m2: state.mod2.taskIndex,
+                            m3: state.mod3.taskIndex,
+                            m4: state.mod4.taskIndex
+                        },
+                        taskConfig: state.taskConfig,
+                        ts: new Date().toISOString() 
+                    }
+                };
+
+                if (data && data.length > 0) {
+                    await sbClient.from('student_results').update(payload).eq('id', data[0].id);
+                } else {
+                    await sbClient.from('student_results').insert([payload]);
+                }
+                
+                ind.classList.remove('bg-orange-500', 'animate-pulse');
+                ind.classList.add('bg-emerald-500');
+            } catch (e) { 
+                console.error("Sync Error:", e);
+                ind.classList.remove('bg-orange-500', 'animate-pulse');
+                ind.classList.add('bg-rose-500');
+            }
+        }
+
+
+        /**
+         * Canvas Context Setup
+         */
+        const canvas = document.getElementById('main-canvas');
+        const ctx = canvas.getContext('2d');
+        const graphCanvas = document.getElementById('graph-canvas');
+        const gCtx = graphCanvas.getContext('2d');
+
+        // Helper to convert physics meters to canvas pixels
+        function xPx(meters) { return meters * state.pixelsPerMeter; }
+        function yPx(meters, offset = 0) {
+            // center of canvas is y=0 if offset is 0
+            return (canvas.height / 2) + offset - (meters * state.pixelsPerMeter);
+        }
+
+        /**
+         * UI Data Definitions for Modules (Mastery Tasks Included)
+         */
+        const modulesData = {
+            1: {
+                name: "Spatial Wave",
+                objective: "Explore how <b>amplitude</b> (energy) and <b>wavelength</b> (physical length) define a wave's shape in space.",
+                tasks: [
+                    {
+                        id: "m1t1",
+                        description: (cfg) => "<b>Visual Match</b>: Adjust the Amplitude and Wavelength sliders until your wave matches the <b>dashed target</b> perfectly.",
+                        scaffold: (cfg) => "Look at the dashed line. Amplitude is the peak height; Wavelength is the horizontal distance between peaks. Line them up!",
+                        check: (val, cfg) => {
+                            const aMatch = Math.abs(state.mod1.amplitude - cfg.targetA) < 0.05;
+                            const lMatch = Math.abs(state.mod1.wavelength - cfg.targetL) < 0.05;
+                            return aMatch && lMatch;
+                        }
+                    },
+                    {
+                        id: "m1t2",
+                        description: (cfg) => "<b>Low Energy Wave</b>: Match the new dashed target waveform by decreasing Amplitude and increasing Wavelength.",
+                        scaffold: (cfg) => "The target is now much shorter and wider. Adjust your controls to match the shape.",
+                        check: (val, cfg) => Math.abs(state.mod1.amplitude - cfg.targetA) < 0.05 && Math.abs(state.mod1.wavelength - cfg.targetL) < 0.05
+                    },
+                    {
+                        id: "m1t3",
+                        description: (cfg) => "<b>High Density Wave</b>: Match the dashed target. Observe how the wave 'squeezes' as you shorten the wavelength.",
+                        scaffold: (cfg) => "The target wavelength is much shorter now. Adjust the bottom slider until the peaks line up.",
+                        check: (val, cfg) => Math.abs(state.mod1.amplitude - cfg.targetA) < 0.05 && Math.abs(state.mod1.wavelength - cfg.targetL) < 0.05
+                    },
+                    {
+                        id: "m1t4",
+                        description: (cfg) => "<b>High Energy Wave</b>: This final target represents an extreme amount of energy. Match its massive amplitude.",
+                        scaffold: (cfg) => "The target amplitude is close to the vertical limit. Move the top slider all the way to match the height.",
+                        check: (val, cfg) => Math.abs(state.mod1.amplitude - cfg.targetA) < 0.05 && Math.abs(state.mod1.wavelength - cfg.targetL) < 0.05
+                    }
+                ],
+                controls: `
+                    <div class="mb-6 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 text-center">Amplitude (m)</label>
+                        <div class="flex items-center gap-4 w-full">
+                            <button onclick="stepSlider('mod1', 'amplitude', -1)" class="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-white border border-slate-200 hover:bg-slate-50 rounded-xl text-slate-600 font-bold shadow-sm transition-all active:scale-90">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4"></path></svg>
+                            </button>
+                            <div class="relative flex-grow h-8 flex items-center">
+                                <span id="val-m1-a" class="absolute -top-5 text-physics-600 font-black text-sm transform -translate-x-1/2 transition-all">1.0</span>
+                                <input type="range" id="slider-m1-a" min="0.2" max="2.0" step="0.1" value="1.0" oninput="updateState('mod1', 'amplitude', this.value)">
+                            </div>
+                            <button onclick="stepSlider('mod1', 'amplitude', 1)" class="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-white border border-slate-200 hover:bg-slate-50 rounded-xl text-slate-600 font-bold shadow-sm transition-all active:scale-90">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 text-center">Wavelength (m)</label>
+                        <div class="flex items-center gap-4 w-full">
+                            <button onclick="stepSlider('mod1', 'wavelength', -1)" class="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-white border border-slate-200 hover:bg-slate-50 rounded-xl text-slate-600 font-bold shadow-sm transition-all active:scale-90">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4"></path></svg>
+                            </button>
+                            <div class="relative flex-grow h-8 flex items-center">
+                                <span id="val-m1-w" class="absolute -top-5 text-physics-600 font-black text-sm transform -translate-x-1/2 transition-all">4.0</span>
+                                <input type="range" id="slider-m1-w" min="1.0" max="8.0" step="0.1" value="4.0" oninput="updateState('mod1', 'wavelength', this.value)">
+                            </div>
+                            <button onclick="stepSlider('mod1', 'wavelength', 1)" class="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-white border border-slate-200 hover:bg-slate-50 rounded-xl text-slate-600 font-bold shadow-sm transition-all active:scale-90">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                `
+            },
+            2: {
+                name: "Temporal Wave",
+                objective: "Observe waves through time. Understand <b>frequency</b> (cycles per second) and its inverse, the <b>period</b> (seconds per cycle).",
+                tasks: [
+                    {
+                        id: "m2t1",
+                        description: (cfg) => `Adjust frequency until the particle completes exactly ${cfg.targetF} cycles every 1 second.`,
+                        scaffold: (cfg) => `Frequency is defined as cycles per second. If you want ${cfg.targetF} cycles in 1 second, the frequency should be ${cfg.targetF} Hz.`,
+                        check: (val, cfg) => Math.abs(state.mod2.frequency - cfg.targetF) < 0.05
+                    },
+                    {
+                        id: "m2t2",
+                        description: (cfg) => `Mathematical Inverse: If the frequency is ${cfg.targetF} Hz, what is the Period (seconds for 1 cycle)?`,
+                        type: "input",
+                        scaffold: (cfg) => `Period (T) = 1 / Frequency (f). Divide 1 by ${cfg.targetF}.`,
+                        check: (val, cfg) => Math.abs(parseFloat(val) - (1 / cfg.targetF)) < 0.01
+                    },
+                    {
+                        id: "m2t3",
+                        description: (cfg) => `Slow Vibration: Set frequency such that one full cycle takes exactly ${cfg.targetT} seconds.`,
+                        scaffold: (cfg) => `Frequency = 1 / Period. If the cycle takes ${cfg.targetT} seconds, the frequency is 1/${cfg.targetT} or ${(1/cfg.targetT).toFixed(2)} Hz.`,
+                        check: (val, cfg) => Math.abs(state.mod2.frequency - (1 / cfg.targetT)) < 0.05
+                    }
+                ],
+                controls: `
+                    <div class="mb-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 text-center">Frequency (Hz)</label>
+                        <div class="flex items-center gap-4 w-full">
+                            <button onclick="stepSlider('mod2', 'frequency', -1)" class="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-white border border-slate-200 hover:bg-slate-50 rounded-xl text-slate-600 font-bold shadow-sm transition-all active:scale-90">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4"></path></svg>
+                            </button>
+                            <div class="relative flex-grow h-8 flex items-center">
+                                <span id="val-m2-f" class="absolute -top-5 text-physics-600 font-black text-sm transform -translate-x-1/2 transition-all">0.5</span>
+                                <input type="range" id="slider-m2-f" min="0.1" max="3.0" step="0.1" value="0.5" oninput="updateState('mod2', 'frequency', this.value)">
+                            </div>
+                            <button onclick="stepSlider('mod2', 'frequency', 1)" class="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-white border border-slate-200 hover:bg-slate-50 rounded-xl text-slate-600 font-bold shadow-sm transition-all active:scale-90">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                `
+            },
+            3: {
+                name: "Inverse Relation",
+                objective: "Discover that when wave speed is fixed by the medium, frequency and wavelength share a locked <b>inverse relationship</b>.",
+                tasks: [
+                    {
+                        id: "m3t1",
+                        description: (cfg) => "<b>Phase 1: Low Frequency</b>. Set the Frequency slider to a <b>LOW</b> value (between 0.5 and 1.0 Hz) and observe the resulting wavelength.",
+                        scaffold: (cfg) => "Slow the wave down. Watch what happens to the distance between the peaks (yellow bracket) as the frequency gets lower.",
+                        check: (val, cfg) => state.mod3.frequency >= 0.5 && state.mod3.frequency <= 1.0
+                    },
+                    {
+                        id: "m3t2",
+                        description: (cfg) => `<b>Phase 2: Specific Measurement</b>. Set the Frequency to <b>${cfg.targetF} Hz</b>. Use the <b>draggable ruler</b> to measure the resulting wavelength (crest-to-crest).`,
+                        type: "input",
+                        requiresRuler: true,
+                        scaffold: (cfg) => `Set the frequency to ${cfg.targetF} Hz. Drag the amber ruler onto the canvas and align the '0m' mark with one crest and read the distance to the next crest.`,
+                        check: (val, cfg) => Math.abs(parseFloat(val) - (4.0 / cfg.targetF)) < 0.1
+                    },
+                    {
+                        id: "m3t3",
+                        description: (cfg) => "<b>Phase 3: High Frequency</b>. Now set the Frequency to a <b>HIGH</b> value (between 3.5 and 4.0 Hz). What happened to the Wavelength (λ)?",
+                        type: "select",
+                        options: ["It increased", "It decreased", "It stayed the same"],
+                        scaffold: (cfg) => "Speed up the vibration. Does the distance between the crests get 'squeezed' or 'stretched'?",
+                        check: (val, cfg) => val === "It decreased"
+                    },
+                    {
+                        id: "m3t4",
+                        description: (cfg) => "<b>Conclusion</b>: Based on your analysis, as Frequency increases, the Wavelength __________.",
+                        type: "select",
+                        options: ["increases", "decreases", "stays the same"],
+                        scaffold: (cfg) => "This is a locked <b>inverse relationship</b>. When one property goes up, the other must go down to keep wave speed constant.",
+                        check: (val, cfg) => val === "decreases"
+                    }
+                ],
+                controls: `
+                    <div class="mb-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 text-center">Oscillator Frequency (Hz)</label>
+                        <div class="flex items-center gap-4 w-full">
+                            <button onclick="stepSlider('mod3', 'frequency', -1)" class="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-white border border-slate-200 hover:bg-slate-50 rounded-xl text-slate-600 font-bold shadow-sm transition-all active:scale-90">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4"></path></svg>
+                            </button>
+                            <div class="relative flex-grow h-8 flex items-center">
+                                <span id="val-m3-f" class="absolute -top-5 text-physics-600 font-black text-sm transform -translate-x-1/2 transition-all">1.0</span>
+                                <input type="range" id="slider-m3-f" min="0.5" max="4.0" step="0.1" value="1.0" oninput="updateState('mod3', 'frequency', this.value)">
+                            </div>
+                            <button onclick="stepSlider('mod3', 'frequency', 1)" class="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-white border border-slate-200 hover:bg-slate-50 rounded-xl text-slate-600 font-bold shadow-sm transition-all active:scale-90">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                `
+            },
+            4: {
+                name: "Wave Speed",
+                tasks: [
+                    {
+                        id: "m4t1",
+                        description: (cfg) => `<b>Race</b>: Track A (${cfg.fA} Hz) and Track B (${cfg.fB} Hz) are ready. Start the race and observe which crest reaches the finish line first.`,
+                        scaffold: (cfg) => "Click 'Race a Crest' then 'Start Race'. Watch the green dots carefully.",
+                        check: (val, cfg) => state.mod4.raceState === 'finished'
+                    },
+                    {
+                        id: "m4t2",
+                        description: (cfg) => "<b>Observation</b>: Did the waves travel at the same velocity across the screen?",
+                        type: "select",
+                        options: ["Yes", "No"],
+                        scaffold: (cfg) => "Did the two green dots hit the red finish line at the exact same moment?",
+                        check: (val, cfg) => val === "Yes"
+                    },
+                    {
+                        id: "m4t3",
+                        description: (cfg) => `<b>Calculation (Track A)</b>: Look at the values for Track A (<i>f</i> and &lambda;). Multiply them (<i>f</i> &times; &lambda;) to calculate the wave speed (<i>v</i>) in m/s.`,
+                        type: "input",
+                        scaffold: (cfg) => {
+                            const activeCfg = getTaskConfig(4, 0);
+                            return `Track A has <i>f</i> = ${activeCfg.fA} Hz and &lambda; = ${(3.0 / activeCfg.fA).toFixed(2)} m. Is their product exactly 3.0?`;
+                        },
+                        check: (val, cfg) => Math.abs(parseFloat(val) - 3.0) < 0.01
+                    },
+                    {
+                        id: "m4t4",
+                        description: (cfg) => `<b>Math Verification (Track B)</b>: Calculate the speed for Track B (<i>f</i> &times; &lambda;). Is it different from Track A?`,
+                        type: "select",
+                        options: ["Yes", "No"],
+                        scaffold: (cfg) => {
+                            const activeCfg = getTaskConfig(4, 0);
+                            return `Track B has <i>f</i> = ${activeCfg.fB} Hz and &lambda; = ${(3.0 / activeCfg.fB).toFixed(2)} m. Is their product also 3.0?`;
+                        },
+                        check: (val, cfg) => val === "No"
+                    },
+                    {
+                        id: "m4t5",
+                        description: (cfg) => "<b>Conclusion</b>: In a fixed medium, changing the frequency of the source _________ the travel speed of the wave.",
+                        type: "select",
+                        options: ["increases", "decreases", "does not change"],
+                        scaffold: (cfg) => "Speed is dictated by the medium itself. If frequency goes up, wavelength simply goes down to compensate.",
+                        check: (val, cfg) => val === "does not change"
+                    }
+                ],
+                objective: "The <b>Universal Wave Equation</b>: Investigate why wave speed (<i>v</i>) is dictated by the medium, and how <i>f</i> and &lambda; must adjust to maintain it.",
+                controls: `
+                    <div class="bg-indigo-900 text-white p-5 rounded-2xl shadow-xl shadow-indigo-100 overflow-hidden relative">
+                        <div class="absolute -right-4 -top-4 w-20 h-20 bg-white/10 rounded-full blur-2xl"></div>
+                        <div class="relative z-10 space-y-4">
+                            <div class="space-y-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[10px] font-bold uppercase tracking-widest text-indigo-300">Track A</span>
+                                    <span id="label-m4-fa" class="px-2 py-0.5 bg-indigo-500/50 rounded text-[9px] font-bold">...</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[8px] font-medium text-indigo-400 uppercase tracking-widest ml-1">λ (Wavelength)</span>
+                                    <span id="label-m4-la" class="text-[10px] font-mono font-bold text-indigo-200">...</span>
+                                </div>
+                            </div>
+                            <div class="w-full h-px bg-indigo-800/50"></div>
+                            <div class="space-y-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[10px] font-bold uppercase tracking-widest text-indigo-300">Track B</span>
+                                    <span id="label-m4-fb" class="px-2 py-0.5 bg-indigo-500/50 rounded text-[9px] font-bold">...</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[8px] font-medium text-indigo-400 uppercase tracking-widest ml-1">λ (Wavelength)</span>
+                                    <span id="label-m4-lb" class="text-[10px] font-mono font-bold text-indigo-200">...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            }
+        };
+
+
+        function getTaskConfig(modIdx, taskIdx) {
+            const key = `m${modIdx}t${taskIdx}`;
+            
+            // If not in cache, generate unique parameters
+            if (!state.taskConfig[key]) {
+                let config = {};
+                const rand = (min, max, step = 0.1) => {
+                    const range = (max - min) / step;
+                    return Math.round((min + Math.random() * range * step) * 10) / 10;
+                };
+
+                if (modIdx === 1) {
+                    if (taskIdx === 0) config = { targetA: rand(1.2, 1.8), targetL: rand(2.5, 4.5) };
+                    else if (taskIdx === 1) config = { targetA: rand(0.3, 0.6), targetL: rand(5.0, 7.0) };
+                    else if (taskIdx === 2) config = { targetA: rand(0.8, 1.2), targetL: rand(1.2, 2.0) };
+                    else if (taskIdx === 3) config = { targetA: rand(1.8, 2.0), targetL: rand(3.0, 5.0) };
+                } else if (modIdx === 2) {
+                    if (taskIdx === 0) config = { targetF: rand(1.5, 2.8) };
+                    else if (taskIdx === 1) config = { targetF: rand(1.0, 2.5) };
+                    else if (taskIdx === 2) {
+                        // Ensure period T is an inverse of a 0.1 Hz increment (e.g. 1/0.2 = 5s, 1/0.4 = 2.5s)
+                        const validPeriods = [1.0, 1.25, 2.0, 2.5, 5.0, 10.0];
+                        config = { targetT: validPeriods[Math.floor(Math.random() * validPeriods.length)] };
+                    }
+                } else if (modIdx === 3) {
+                    if (taskIdx === 1) config = { targetF: rand(1.5, 3.5) };
+                } else if (modIdx === 4) {
+                    if (taskIdx === 0) {
+                        const niceFreqsA = [2.0, 2.4, 2.5, 3.0];
+                        const niceFreqsB = [0.5, 0.6, 1.0, 1.2, 1.5];
+                        config = { 
+                            fA: niceFreqsA[Math.floor(Math.random() * niceFreqsA.length)], 
+                            fB: niceFreqsB[Math.floor(Math.random() * niceFreqsB.length)] 
+                        };
+                    } else {
+                        // Inherit the same race parameters for all sub-tasks in Module 4
+                        return getTaskConfig(4, 0);
+                    }
+                }
+                state.taskConfig[key] = config;
+            }
+
+            const activeCfg = state.taskConfig[key];
+
+            // CRITICAL: Sync simulation-specific targets for visual rendering
+            if (modIdx === 1) {
+                state.mod1.targetA = activeCfg.targetA;
+                state.mod1.targetL = activeCfg.targetL;
+            } else if (modIdx === 4 && taskIdx === 0) {
+                state.mod4.fA = activeCfg.fA;
+                state.mod4.fB = activeCfg.fB;
+            }
+
+            return activeCfg;
+        }
+
+        /**
+         * UI Interaction & State Updates
+         */
+        function setModule(modNum) {
+            state.module = modNum;
+
+            // Update tabs with premium styling
+            for (let i = 1; i <= 4; i++) {
+                const tab = document.getElementById(`tab-${i}`);
+                if (i === modNum) {
+                    tab.classList.add('tab-active', 'bg-white', 'shadow-sm', 'text-physics-600');
+                    tab.classList.remove('text-slate-500');
+                } else {
+                    tab.classList.remove('tab-active', 'bg-white', 'shadow-sm', 'text-physics-600');
+                    tab.classList.add('text-slate-500');
+                }
+            }
+
+            // Animate content container
+            const mainCanvasContainer = document.getElementById('canvas-container');
+            mainCanvasContainer.classList.add('opacity-50', 'scale-[0.99]');
+            
+            setTimeout(() => {
+                // Load content
+                document.getElementById('learning-objective').innerHTML = modulesData[modNum].objective;
+                document.getElementById('controls-container').innerHTML = modulesData[modNum].controls;
+                // document.getElementById('kc-container').innerHTML = modulesData[modNum].kc; // Refactored
+                renderCurrentTask();
+                
+                document.getElementById('success-message').classList.add('hidden');
+
+                // Initialize sliders visually
+                initializeSliders(modNum);
+
+                // UI resets per module
+                state.ruler.show = false; // Immediate reset
+                document.getElementById('mod2-overlay').classList.add('hidden');
+                document.getElementById('mod2-bottom-overlay').classList.add('hidden');
+                document.getElementById('mod3-bottom-overlay').classList.add('hidden');
+                document.getElementById('mod4-overlay').classList.add('hidden');
+                document.getElementById('graph-canvas').classList.add('hidden');
+                state.physicsTime = 0; // Reset simulation time
+
+                if (modNum === 2) {
+                    document.getElementById('mod2-overlay').classList.remove('hidden');
+                    document.getElementById('mod2-bottom-overlay').classList.remove('hidden');
+                    state.mod2.isPaused = false;
+                    state.mod2.pauseAtNextCycle = false;
+                    document.getElementById('btn-m2-pause').innerText = "Pause After Cycle";
+                    document.getElementById('btn-m2-pause').className = "bg-physics-50 text-physics-600 hover:bg-physics-100 px-4 py-2 rounded-xl text-sm font-bold transition-all border border-physics-100";
+                    if (document.getElementById('btn-m2-reset')) document.getElementById('btn-m2-reset').classList.add('hidden');
+                    document.getElementById('graph-canvas').classList.remove('hidden');
+                }
+
+                if (modNum === 3) {
+                    document.getElementById('mod3-bottom-overlay').classList.remove('hidden');
+                    state.mod3.isPaused = false;
+                    const btn = document.getElementById('btn-m3-pause');
+                    if (btn) {
+                        btn.innerText = "Pause Simulation";
+                        btn.className = "bg-physics-50 text-physics-600 hover:bg-physics-100 px-4 py-2 rounded-xl text-sm font-bold transition-all border border-physics-100";
+                    }
+                }
+
+                if (modNum === 4) {
+                    document.getElementById('mod4-overlay').classList.remove('hidden');
+                    resetRace();
+                    
+                    // Update randomized labels for race (Frequency and Wavelength)
+                    const cfg = getTaskConfig(4, 0);
+                    const labA_f = document.getElementById('label-m4-fa');
+                    const labA_l = document.getElementById('label-m4-la');
+                    const labB_f = document.getElementById('label-m4-fb');
+                    const labB_l = document.getElementById('label-m4-lb');
+                    
+                    if (labA_f) labA_f.innerText = `${cfg.fA} Hz`;
+                    if (labA_l) labA_l.innerText = `${(3.0 / cfg.fA).toFixed(2)} m`;
+                    if (labB_f) labB_f.innerText = `${cfg.fB} Hz`;
+                    if (labB_l) labB_l.innerText = `${(3.0 / cfg.fB).toFixed(2)} m`;
+                }
+
+                mainCanvasContainer.classList.remove('opacity-50', 'scale-[0.99]');
+            }, 100);
+        }
+
+        function renderCurrentTask() {
+            const mod = modulesData[state.module];
+            const currentTaskIdx = state[`mod${state.module}`].taskIndex;
+            const task = mod.tasks[currentTaskIdx];
+            const container = document.getElementById('kc-container');
+            
+            if (!task) {
+                container.innerHTML = `
+                    <div class="p-6 bg-emerald-50 rounded-2xl border border-emerald-100 text-center animate-in zoom-in">
+                        <div class="w-12 h-12 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg shadow-emerald-200">
+                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <h3 class="font-heading font-black text-emerald-900 uppercase tracking-tight">Module Mastered</h3>
+                        <p class="text-xs text-emerald-700/70 mt-1">Select the next tab to continue your analysis.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const cfg = getTaskConfig(state.module, currentTaskIdx);
+            const description = typeof task.description === 'function' ? task.description(cfg) : task.description;
+            const scaffold = typeof task.scaffold === 'function' ? task.scaffold(cfg) : task.scaffold;
+
+            let inputHtml = "";
+            if (task.type === "input") {
+                inputHtml = `
+                    <div class="mt-4 flex items-center gap-3">
+                        <input type="number" id="task-input" step="0.1" placeholder="0.0" class="flex-1 bg-slate-50 border border-slate-200 p-4 rounded-2xl font-mono text-center focus:ring-4 focus:ring-physics-500/10 focus:outline-none transition-all">
+                    </div>
+                `;
+            } else if (task.type === "select") {
+                inputHtml = `
+                    <select id="task-select" class="mt-4 block w-full border border-slate-200 rounded-2xl p-4 bg-slate-50 focus:ring-4 focus:ring-physics-500/10 focus:outline-none transition-all cursor-pointer">
+                        <option value="">Choose answer...</option>
+                        ${task.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                    </select>
+                `;
+            }
+
+            container.innerHTML = `
+                <div class="space-y-4 animate-in fade-in slide-in-from-right-2 duration-500">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[10px] font-black text-physics-500 uppercase tracking-[0.2em]">Objective ${currentTaskIdx + 1} / ${mod.tasks.length}</span>
+                        <div id="cooldown-timer" class="hidden text-[10px] font-mono font-bold text-orange-500 bg-orange-50 px-2 py-1 rounded-lg border border-orange-100">00:10</div>
+                    </div>
+                    <p class="text-sm text-slate-700 font-medium leading-relaxed">${description}</p>
+                    ${inputHtml}
+                    <button id="btn-verify" onclick="verifyCurrentTask()" class="w-full bg-slate-900 text-white p-4 rounded-2xl font-bold text-sm shadow-xl hover:bg-slate-800 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed">Verify Mastery</button>
+                    
+                    <div id="scaffold-box" class="hidden p-4 bg-orange-50 border border-orange-100 rounded-2xl animate-in slide-in-from-top-2">
+                         <div class="flex gap-3">
+                            <div class="mt-0.5 text-orange-500">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold text-orange-800 uppercase tracking-widest mb-1">Guidance Node</p>
+                                <p class="text-[11px] text-orange-700 leading-normal">${scaffold}</p>
+                            </div>
+                         </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function verifyCurrentTask() {
+            if (state.isCooldownActive) return;
+
+            const mod = modulesData[state.module];
+            const currentTaskIdx = state[`mod${state.module}`].taskIndex;
+            const task = mod.tasks[currentTaskIdx];
+            const cfg = getTaskConfig(state.module, currentTaskIdx);
+            
+            let val = null;
+            if (task.type === "input") val = document.getElementById('task-input').value;
+            if (task.type === "select") val = document.getElementById('task-select').value;
+
+            const isCorrect = task.check(val, cfg);
+
+            if (isCorrect) {
+                 showTaskSuccess();
+            } else {
+                startCooldown();
+            }
+        }
+
+        function showTaskSuccess() {
+            const container = document.getElementById('kc-container');
+            container.innerHTML = `
+                <div class="p-6 bg-emerald-50 rounded-2xl border border-emerald-100 text-center animate-in zoom-in-95 duration-300">
+                    <div class="w-14 h-14 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-xl shadow-emerald-100/50">
+                         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-heading font-black text-emerald-900 uppercase tracking-tight">Mastery Achieved</h3>
+                    <p class="text-xs text-emerald-700/70 mt-1 mb-6">Objective data verified. You are ready to proceed.</p>
+                    
+                    <button onclick="proceedToNextTask()" class="w-full bg-emerald-600 text-white p-4 rounded-2xl font-bold text-sm shadow-xl shadow-emerald-500/20 hover:bg-emerald-700 transition-all active:scale-[0.98]">
+                        Next Objective
+                    </button>
+                </div>
+            `;
+        }
+
+        function proceedToNextTask() {
+            state[`mod${state.module}`].taskIndex++;
+            syncResults(); // Save progress after achievement acknowledgment
+            
+            const container = document.getElementById('kc-container');
+            container.classList.add('opacity-0', 'scale-95');
+            
+            setTimeout(() => {
+                renderCurrentTask();
+                container.classList.remove('opacity-0', 'scale-95');
+                container.classList.add('fade-in');
+            }, 200);
+        }
+
+        function startCooldown() {
+            state.isCooldownActive = true;
+            state.cooldown = state.cooldownTotal;
+            
+            const btn = document.getElementById('btn-verify');
+            const timer = document.getElementById('cooldown-timer');
+            const scaffold = document.getElementById('scaffold-box');
+            
+            btn.disabled = true;
+            btn.innerText = "Processing Errors...";
+            timer.classList.remove('hidden');
+            scaffold.classList.remove('hidden');
+            
+            const interval = setInterval(() => {
+                state.cooldown--;
+                timer.innerText = `00:${state.cooldown.toString().padStart(2, '0')}`;
+                
+                if (state.cooldown <= 0) {
+                    clearInterval(interval);
+                    state.isCooldownActive = false;
+                    btn.disabled = false;
+                    btn.innerText = "Verify Mastery";
+                    timer.classList.add('hidden');
+                }
+            }, 1000);
+        }
+
+
+        function initializeSliders(modNum) {
+            if (modNum === 1) {
+                document.getElementById('slider-m1-a').value = state.mod1.amplitude;
+                document.getElementById('slider-m1-w').value = state.mod1.wavelength;
+                updateState('mod1', 'amplitude', state.mod1.amplitude);
+                updateState('mod1', 'wavelength', state.mod1.wavelength);
+            } else if (modNum === 2) {
+                document.getElementById('slider-m2-f').value = state.mod2.frequency;
+                updateState('mod2', 'frequency', state.mod2.frequency);
+            } else if (modNum === 3) {
+                document.getElementById('slider-m3-f').value = state.mod3.frequency;
+                updateState('mod3', 'frequency', state.mod3.frequency);
+            }
+        }
+
+        function updateState(mod, key, value) {
+            state[mod][key] = parseFloat(value);
+
+            // Using proper template literals without incorrect escaping
+            const inputId = `slider-m${mod.replace('mod', '')}-${key[0]}`;
+            const spanId = `val-m${mod.replace('mod', '')}-${key[0]}`;
+
+            const input = document.getElementById(inputId);
+            const span = document.getElementById(spanId);
+
+            if (input && span) {
+                const min = parseFloat(input.min);
+                const max = parseFloat(input.max);
+                const val = parseFloat(value);
+                const percent = ((val - min) / (max - min));
+
+                // Adjust left position to center over the thumb (thumb is 20px wide)
+                span.style.left = `calc(${percent * 100}% + ${10 - percent * 20}px)`;
+                span.innerText = val.toFixed(1);
+            }
+
+            // Always reset timer and unpause if frequency is changed in Module 2
+            if (mod === 'mod2' && key === 'frequency') {
+                state.physicsTime = 0;
+                state.mod2.isPaused = false;
+                state.mod2.pauseAtNextCycle = false;
+                const btn = document.getElementById('btn-m2-pause');
+                const resetBtn = document.getElementById('btn-m2-reset');
+                if (btn) {
+                    btn.innerText = "Pause After Cycle";
+                    btn.className = "bg-physics-50 text-physics-600 hover:bg-physics-100 px-4 py-2 rounded-xl text-sm font-bold transition-all border border-physics-100";
+                }
+                if (resetBtn) {
+                    resetBtn.classList.add('hidden');
+                }
+            }
+        }
+
+        function stepSlider(mod, key, direction) {
+            const inputId = `slider-m${mod.replace('mod', '')}-${key[0]}`;
+            const input = document.getElementById(inputId);
+
+            if (input) {
+                const step = parseFloat(input.step) || 1;
+                let newVal = parseFloat(input.value) + (direction * step);
+
+                // Handle floating point precision issues
+                newVal = Math.round(newVal * 10) / 10;
+                newVal = Math.max(parseFloat(input.min), Math.min(parseFloat(input.max), newVal));
+                input.value = newVal;
+
+                // Trigger state update & visual label positioning
+                updateState(mod, key, newVal);
+
+                // Trigger specific module validations or resets
+                if (mod === 'mod1') checkMod1();
+                if (mod === 'mod2') resetMod2AStatus();
+            }
+        }
+
+        function toggleM2Pause() {
+            const btn = document.getElementById('btn-m2-pause');
+            const resetBtn = document.getElementById('btn-m2-reset');
+            if (state.mod2.isPaused) {
+                // Resume simulation
+                state.mod2.isPaused = false;
+                btn.innerText = "Pause After Cycle";
+                btn.className = "bg-indigo-100 text-indigo-700 hover:bg-indigo-200 px-3 py-1 rounded shadow-sm text-sm font-semibold transition-colors";
+                if (resetBtn) resetBtn.classList.add('hidden');
+            } else if (!state.mod2.pauseAtNextCycle) {
+                // Request a pause at the next full cycle
+                state.mod2.pauseAtNextCycle = true;
+                const currentCycles = state.physicsTime * state.mod2.frequency;
+                // Target the next integer cycle (add 0.001 to prevent stopping immediately if exactly on an integer)
+                state.mod2.targetPauseCycle = Math.ceil(currentCycles + 0.001);
+
+                btn.innerText = "Pausing...";
+                btn.className = "bg-orange-50 text-orange-600 px-4 py-2 rounded-xl text-sm font-bold cursor-wait transition-all border border-orange-100";
+            }
+        }
+
+        function resetM2Timer() {
+            state.physicsTime = 0;
+            state.mod2.targetPauseCycle = 0;
+            // Visually update immediately without waiting for the next render frame
+            document.getElementById('m2-stopwatch').innerText = "0.00s";
+            document.getElementById('m2-cycles').innerText = "0";
+        }
+
+        function toggleM3Pause() {
+            state.mod3.isPaused = !state.mod3.isPaused;
+            const btn = document.getElementById('btn-m3-pause');
+            if (state.mod3.isPaused) {
+                // Update UI button to Resume state
+                btn.innerText = "Resume Simulation";
+                btn.className = "bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-4 py-2 rounded-xl text-sm font-bold transition-all border border-emerald-100";
+            } else {
+                // Update UI button to Pause state
+                btn.innerText = "Pause Simulation";
+                btn.className = "bg-physics-50 text-physics-600 hover:bg-physics-100 px-4 py-2 rounded-xl text-sm font-bold transition-all border border-physics-100";
+            }
+        }
+
+        function showSuccess() {
+            document.getElementById('success-message').classList.remove('hidden');
+            document.getElementById('success-message').classList.add('fade-in');
+        }
+
+        // Module 4 Race Logic
+        function prepareRace() {
+            state.mod4.raceState = 'ready';
+            document.getElementById('btn-race-ready').classList.add('hidden');
+            document.getElementById('btn-race-start').classList.remove('hidden');
+            document.getElementById('btn-race-reset').classList.remove('hidden');
+
+            const v = state.mod4.velocity;
+            const t = state.physicsTime;
+            
+            // Common Start Line
+            const startX = 2.0;
+            
+            // Track A
+            const lambdaA = v / state.mod4.fA;
+            // Target equation: sin(2PI * (startX/lambdaA - fA*t + phaseA)) = 1
+            // Argument of sin should be 0.25 (mod 1.0)
+            const argA = (startX / lambdaA - state.mod4.fA * t);
+            state.mod4.phaseA = (1.25 - (argA % 1.0)) % 1.0;
+            
+            // Track B
+            const lambdaB = v / state.mod4.fB;
+            const argB = (startX / lambdaB - state.mod4.fB * t);
+            state.mod4.phaseB = (1.25 - (argB % 1.0)) % 1.0;
+
+            state.mod4.crestA_startX = startX;
+            state.mod4.crestB_startX = startX;
+            state.mod4.raceStartTime = t;
+
+            const btn = document.getElementById('btn-race-start');
+            btn.innerText = "3...";
+            setTimeout(() => btn.innerText = "2...", 600);
+            setTimeout(() => btn.innerText = "1...", 1200);
+            setTimeout(() => {
+                btn.innerText = "Start Race";
+                btn.classList.add('animate-bounce');
+            }, 1800);
+        }
+
+        function startRace() {
+            state.mod4.raceState = 'racing';
+            document.getElementById('btn-race-start').classList.add('hidden');
+        }
+
+        function resetRace() {
+            state.mod4.raceState = 'idle';
+            state.mod4.phaseA = 0;
+            state.mod4.phaseB = 0;
+            document.getElementById('btn-race-ready').classList.remove('hidden');
+            document.getElementById('btn-race-start').classList.add('hidden');
+            document.getElementById('btn-race-reset').classList.add('hidden');
+        }
+
+
+        /**
+         * Rendering Utilities
+         */
+        function drawGrid(ctx, cWidth, cHeight, offset = 0, showDistance = true) {
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+
+            let eqY = (cHeight / 2) + offset;
+
+            if (showDistance) {
+                // Vertical lines (every 1 meter)
+                for (let m = 0; m <= 10; m++) {
+                    let px = xPx(m);
+                    ctx.moveTo(px, 0);
+                    ctx.lineTo(px, cHeight);
+                }
+            }
+
+            // Horizontal equilibrium line
+            ctx.moveTo(0, eqY);
+            ctx.lineTo(cWidth, eqY);
+            ctx.stroke();
+
+            if (showDistance) {
+                // Axis labels
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = '500 11px Outfit, sans-serif';
+                for (let m = 0; m <= 10; m++) {
+                    ctx.fillText(m + "m", xPx(m) + 4, eqY + 16);
+                }
+            }
+        }
+
+        function drawWave(ctx, A, L, f, t, color, isDashed = false, yOffset = 0) {
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = isDashed ? 2 : 4;
+            
+            if (isDashed) {
+                ctx.setLineDash([8, 8]);
+                ctx.shadowBlur = 0;
+            } else {
+                ctx.setLineDash([]);
+                // Energy Glow Effect
+                ctx.shadowBlur = 12;
+                ctx.shadowColor = color;
+            }
+
+            const cHeight = ctx.canvas.height;
+
+            for (let px = 0; px <= ctx.canvas.width; px += 2) {
+                let x = px / state.pixelsPerMeter;
+                let y = A * Math.sin(2 * Math.PI * (x / L - f * t));
+                let py = yPx(y, yOffset);
+
+                if (px === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            }
+            ctx.stroke();
+            
+            // Reset shadow for subsequent drawings
+            ctx.shadowBlur = 0;
+            ctx.setLineDash([]);
+        }
+
+        function drawWaveMod4(ctx, A, L, f, t, color, yOffset, maxPxY, phase = 0) {
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 4;
+            
+            // Energy Glow Effect
+            ctx.shadowBlur = 12;
+            ctx.shadowColor = color;
+
+            for (let px = 0; px <= ctx.canvas.width; px += 2) {
+                let x = px / state.pixelsPerMeter;
+                let y = A * Math.sin(2 * Math.PI * (x / L - f * t + phase));
+                let py = yPx(y, yOffset);
+                if (px === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            }
+            ctx.stroke();
+            ctx.shadowBlur = 0;   
+            // Reset shadow for subsequent drawings
+            ctx.shadowBlur = 0;
+            ctx.setLineDash([]);
+        }
+
+        function drawBracket(ctx, x1, y1, x2, y2, text, color = '#ef4444', isVertical = false) {
+            ctx.strokeStyle = color;
+            ctx.fillStyle = color;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+
+            // Main line
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+
+            // Ticks
+            const tickLen = 6;
+            ctx.beginPath();
+            if (isVertical) {
+                ctx.moveTo(x1 - tickLen, y1); ctx.lineTo(x1 + tickLen, y1);
+                ctx.moveTo(x2 - tickLen, y2); ctx.lineTo(x2 + tickLen, y2);
+            } else {
+                ctx.moveTo(x1, y1 - tickLen); ctx.lineTo(x1, y1 + tickLen);
+                ctx.moveTo(x2, y2 - tickLen); ctx.lineTo(x2, y2 + tickLen);
+            }
+            ctx.stroke();
+
+            // Text background for readability
+            ctx.font = 'bold 12px Outfit, sans-serif';
+            const textWidth = ctx.measureText(text).width;
+            let tx = (x1 + x2) / 2;
+            let ty = (y1 + y2) / 2;
+
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.beginPath();
+            if (isVertical) {
+                ctx.roundRect(tx + 8, ty - 10, textWidth + 10, 18, 4);
+                ctx.fill();
+                ctx.fillStyle = color;
+                ctx.fillText(text, tx + 12, ty + 4);
+            } else {
+                ctx.roundRect(tx - textWidth / 2 - 5, ty - 24, textWidth + 10, 18, 4);
+                ctx.fill();
+                ctx.fillStyle = color;
+                ctx.fillText(text, tx - textWidth / 2, ty - 10);
+            }
+        }
+
+        /**
+         * Module Specific Renderers
+         */
+        function renderMod1() {
+            drawGrid(ctx, canvas.width, canvas.height);
+
+            // Draw Target
+            drawWave(ctx, state.mod1.targetA, state.mod1.targetL, 0, 0, '#94a3b8', true);
+
+            // Draw Actual
+            const A = state.mod1.amplitude;
+            const L = state.mod1.wavelength;
+            drawWave(ctx, A, L, 0, 0, '#3b82f6');
+
+            // Draw Brackets
+            // Amplitude: from center to peak at x = L/4
+            let peakX = L / 4;
+            drawBracket(ctx, xPx(peakX), yPx(0), xPx(peakX), yPx(A), `A = ${A.toFixed(1)}m`, '#ef4444', true);
+
+            // Wavelength: from peak to peak
+            let nextPeakX = peakX + L;
+            drawBracket(ctx, xPx(peakX), yPx(A) - 20, xPx(nextPeakX), yPx(A) - 20, `λ = ${L.toFixed(1)}m`, '#eab308');
+        }
+
+        function renderMod2() {
+            drawGrid(ctx, canvas.width, canvas.height, 0, false);
+
+            const A = state.mod2.amplitude;
+            const f = state.mod2.frequency;
+            const t = state.physicsTime;
+
+            // Calculate wheel properties
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+            const R = A * state.pixelsPerMeter; // Radius based on amplitude
+            const theta = 2 * Math.PI * f * t; // Angle based on frequency and time
+
+            // Draw Wheel (Circle)
+            ctx.beginPath();
+            ctx.strokeStyle = '#94a3b8';
+            ctx.lineWidth = 4;
+            ctx.arc(cx, cy, R, 0, 2 * Math.PI);
+            ctx.stroke();
+
+            // Draw crosshairs
+            ctx.beginPath();
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 2;
+            ctx.moveTo(cx - R - 20, cy); ctx.lineTo(cx + R + 20, cy);
+            ctx.moveTo(cx, cy - R - 20); ctx.lineTo(cx, cy + R + 20);
+            ctx.stroke();
+
+            // Dot position (counter-clockwise rotation)
+            const dotX = cx + R * Math.cos(theta);
+            const dotY = cy - R * Math.sin(theta); // Subtract because Canvas Y is inverted
+
+            // Draw spoke to the dot
+            ctx.beginPath();
+            ctx.strokeStyle = '#94a3b8';
+            ctx.lineWidth = 3;
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(dotX, dotY);
+            ctx.stroke();
+
+            // Draw Red Dot
+            ctx.beginPath();
+            ctx.fillStyle = '#ef4444';
+            ctx.arc(dotX, dotY, 10, 0, 2 * Math.PI);
+            ctx.fill();
+
+            // Draw horizontal tracking line to connect vertical displacement to the graph
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(239, 68, 68, 0.4)';
+            ctx.setLineDash([5, 5]);
+            ctx.moveTo(dotX, dotY);
+            ctx.lineTo(canvas.width, dotY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Update overlay texts
+            document.getElementById('m2-stopwatch').innerText = t.toFixed(2) + "s";
+            // Cycles = time * freq
+            document.getElementById('m2-cycles').innerText = Math.floor(t * f);
+
+            // Secondary Graph
+            gCtx.clearRect(0, 0, graphCanvas.width, graphCanvas.height);
+
+            // Grid
+            gCtx.strokeStyle = '#e2e8f0';
+            gCtx.beginPath();
+            gCtx.moveTo(0, graphCanvas.height / 2);
+            gCtx.lineTo(graphCanvas.width, graphCanvas.height / 2);
+            gCtx.stroke();
+
+            gCtx.fillStyle = '#94a3b8';
+            gCtx.font = '12px sans-serif';
+            gCtx.fillText("Time →", graphCanvas.width - 50, graphCanvas.height / 2 + 15);
+            gCtx.fillText("Vertical Displacement", 10, 20);
+
+            // Plot history
+            gCtx.beginPath();
+            gCtx.strokeStyle = '#ef4444';
+            gCtx.lineWidth = 2;
+
+            // Draw last 5 seconds of graph
+            const historySecs = 5;
+            for (let gx = 0; gx <= graphCanvas.width; gx++) {
+                // map pixel x to historical time (0 at right edge, -5 at left edge)
+                let timeAgo = (1 - (gx / graphCanvas.width)) * historySecs;
+                let histT = Math.max(0, t - timeAgo);
+
+                // If historical time is 0 and we haven't reached that far back, don't draw
+                if (t - timeAgo < 0) continue;
+
+                // Displacement is exactly the vertical projection of the circular path
+                let histY = A * Math.sin(2 * Math.PI * f * histT);
+                let gy = (graphCanvas.height / 2) - (histY * (graphCanvas.height / 4));
+
+                if (gx === 0 || t - timeAgo === 0) gCtx.moveTo(gx, gy);
+                else gCtx.lineTo(gx, gy);
+            }
+            gCtx.stroke();
+        }
+
+        function renderMod3() {
+            drawGrid(ctx, canvas.width, canvas.height);
+
+            const A = state.mod3.amplitude;
+            const v = state.mod3.velocity;
+            const f = state.mod3.frequency;
+            const L = v / f; // Inverse relationship!
+            const t = state.physicsTime;
+
+            // Calculate phase at the edge of the generator box (px = 40, which is x = 0.5m)
+            const phase = 2 * Math.PI * (0.5 / L - f * t);
+            const sineValue = Math.sin(phase);
+
+            // Normalize sineValue from [-1, 1] to [0, 1] for the color pulse
+            // 1 = Crest (Red), 0 = Trough (Dark Grey)
+            const pulse = (sineValue + 1) / 2;
+
+            // Interpolate between dark slate (rgb(51, 65, 85)) and red (rgb(239, 68, 68))
+            const r = Math.round(51 + (239 - 51) * pulse);
+            const g = Math.round(65 + (68 - 65) * pulse);
+            const b = Math.round(85 + (68 - 85) * pulse);
+
+            // Draw Generator Box with pulsing color
+            ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+            ctx.fillRect(0, yPx(A + 0.5), 40, (A + 0.5) * 2 * state.pixelsPerMeter);
+
+            // Draw Wave starting from x=0.5
+            ctx.beginPath();
+            ctx.strokeStyle = '#3b82f6';
+            ctx.lineWidth = 3;
+            for (let px = 40; px <= canvas.width; px += 2) {
+                let x = px / state.pixelsPerMeter;
+                let y = A * Math.sin(2 * Math.PI * (x / L - f * t));
+                let py = yPx(y);
+                if (px === 40) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            }
+            ctx.stroke();
+        }
+
+        function renderMod4() {
+            const v = state.mod4.velocity;
+            const A = state.mod4.amplitude;
+            const fA = state.mod4.fA;
+            const fB = state.mod4.fB;
+            const L_A = v / fA;
+            const L_B = v / fB;
+
+            let t = state.physicsTime;
+
+            // If ready, freeze time for visual setup
+            if (state.mod4.raceState === 'ready') t = state.mod4.raceStartTime;
+            // If racing or finished, time flows
+
+            const halfH = canvas.height / 2;
+
+            // Draw splits
+            ctx.fillStyle = '#f8fafc';
+            ctx.fillRect(0, 0, canvas.width, halfH);
+            ctx.fillStyle = '#f1f5f9';
+            ctx.fillRect(0, halfH, canvas.width, halfH);
+
+            ctx.beginPath();
+            ctx.moveTo(0, halfH); ctx.lineTo(canvas.width, halfH);
+            ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 2; ctx.stroke();
+
+            // Track A (Top)
+            drawGrid(ctx, canvas.width, halfH, -halfH / 2);
+            ctx.fillStyle = '#64748b'; ctx.font = 'bold 14px sans-serif'; ctx.fillText("Track A (High f)", 10, 20);
+            drawWaveMod4(ctx, A, L_A, fA, t, '#3b82f6', -halfH / 2, halfH, state.mod4.phaseA);
+
+            // Track B (Bottom)
+            drawGrid(ctx, canvas.width, canvas.height, halfH / 2);
+            ctx.fillStyle = '#64748b'; ctx.font = 'bold 14px sans-serif'; ctx.fillText("Track B (Low f)", 10, halfH + 20);
+            drawWaveMod4(ctx, A, L_B, fB, t, '#0ea5e9', halfH / 2, canvas.height, state.mod4.phaseB);
+
+            // Draw Finish Line
+            const finishPx = xPx(state.mod4.raceFinishX);
+            ctx.beginPath();
+            ctx.setLineDash([10, 10]);
+            ctx.strokeStyle = '#ef4444';
+            ctx.lineWidth = 3;
+            ctx.moveTo(finishPx, 0);
+            ctx.lineTo(finishPx, canvas.height);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = '#ef4444';
+            ctx.fillText("FINISH", finishPx - 20, 20);
+
+            // Handle Race Crests
+            if (state.mod4.raceState !== 'idle') {
+                let dt = t - state.mod4.raceStartTime;
+                let currentXA = state.mod4.crestA_startX + v * dt;
+                let currentXB = state.mod4.crestB_startX + v * dt;
+
+                // Draw dot A
+                ctx.beginPath(); ctx.fillStyle = '#22c55e'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+                ctx.arc(xPx(currentXA), yPx(A, -halfH / 2), 8, 0, Math.PI * 2);
+                ctx.fill(); ctx.stroke();
+
+                // Draw dot B
+                ctx.beginPath();
+                ctx.arc(xPx(currentXB), yPx(A, halfH / 2), 8, 0, Math.PI * 2);
+                ctx.fill(); ctx.stroke();
+
+                // Check finish
+                if (currentXA >= state.mod4.raceFinishX && state.mod4.raceState === 'racing') {
+                    state.mod4.raceState = 'finished';
+                    // Time stops naturally because we freeze dt here if we want, but letting it pass is fine
+                }
+            }
+        }
+
+
+
+        /**
+         * Main Loop
+         */
+        function render(timestamp) {
+            if (!state.lastTime) state.lastTime = timestamp;
+            let dt = (timestamp - state.lastTime) / 1000; // seconds
+            state.lastTime = timestamp;
+
+            // Handle Module 2 pausing logic
+            if (state.module === 2) {
+                if (state.mod2.isPaused) {
+                    dt = 0; // Freeze time
+                } else if (state.mod2.pauseAtNextCycle) {
+                    const nextCycles = (state.physicsTime + dt) * state.mod2.frequency;
+                    // Check if this frame will cross the target cycle boundary
+                    if (nextCycles >= state.mod2.targetPauseCycle) {
+                        // Clamp the delta time to land EXACTLY on the cycle boundary
+                        dt = (state.mod2.targetPauseCycle / state.mod2.frequency) - state.physicsTime;
+                        state.mod2.isPaused = true;
+                        state.mod2.pauseAtNextCycle = false;
+
+                        // Update UI button to Resume state
+                        const btn = document.getElementById('btn-m2-pause');
+                        const resetBtn = document.getElementById('btn-m2-reset');
+                        if (btn) {
+                            btn.innerText = "Resume";
+                            btn.className = "bg-green-100 text-green-700 hover:bg-green-200 px-3 py-1 rounded shadow-sm text-sm font-semibold transition-colors";
+                        }
+                        if (resetBtn) {
+                            resetBtn.classList.remove('hidden');
+                        }
+                    }
+                }
+            }
+
+            // Handle Module 3 pausing logic
+            if (state.module === 3 && state.mod3.isPaused) {
+                dt = 0; // Freeze time
+            }
+
+            // Only advance physics time if not paused by race ready state
+            if (state.module !== 4 || state.mod4.raceState !== 'ready') {
+                state.physicsTime += dt;
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            switch (state.module) {
+                case 1: renderMod1(); break;
+                case 2: renderMod2(); break;
+                case 3: renderMod3(); break;
+                case 4: renderMod4(); break;
+            }
+
+            // Sync Ruler DOM Visibility with Task Configuration
+            const ruler = document.getElementById('physics-ruler');
+            if (ruler) {
+                const currentMod = modulesData[state.module];
+                const currentTask = currentMod ? currentMod.tasks[state[`mod${state.module}`].taskIndex] : null;
+                const shouldShowRuler = !!(currentTask && currentTask.requiresRuler);
+                
+                if (shouldShowRuler) {
+                    ruler.classList.remove('hidden');
+                    // Reset position if it was just revealed
+                    if (ruler.dataset.lastState !== 'visible') {
+                        ruler.style.left = '12.5%';
+                        ruler.style.top = '15%';
+                        ruler.dataset.lastState = 'visible';
+                    }
+                } else {
+                    ruler.classList.add('hidden');
+                    ruler.dataset.lastState = 'hidden';
+                }
+            }
+
+            requestAnimationFrame(render);
+        }
+
+        // Mouse Events for Ruler (DOM Based)
+        (function() {
+            const ruler = document.getElementById('physics-ruler');
+            let isDragging = false;
+            let startX, startY, initialLeft, initialTop;
+
+            ruler.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                // Get the bounding rect to handle initial position correctly regardless of CSS units
+                const rect = ruler.getBoundingClientRect();
+                const parentRect = ruler.offsetParent.getBoundingClientRect();
+                initialLeft = rect.left - parentRect.left;
+                initialTop = rect.top - parentRect.top;
+                ruler.style.cursor = 'grabbing';
+                e.preventDefault();
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                ruler.style.left = `${initialLeft + dx}px`;
+                ruler.style.top = `${initialTop + dy}px`;
+            });
+
+            window.addEventListener('mouseup', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    ruler.style.cursor = 'grab';
+                }
+            });
+        })();
+
+        // Init
+        setModule(1);
+        requestAnimationFrame(render);
+
+    </script>
+</body>
+
+</html>
