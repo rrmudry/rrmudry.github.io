@@ -70,19 +70,25 @@
             const bodyPath = useMemo(() => {
                 const rx = bodyWidth;
                 const ry = bodyHeight;
-                return `M ${50-rx} 50 C ${50-rx} ${50-ry*2}, ${50+rx} ${50-ry*2}, ${50+rx} 50 C ${50+rx} ${50+ry}, ${50+rx*0.8} ${50+ry*0.8}, 50 ${50+ry*0.8} C ${50-rx*0.8} ${50+ry*0.8}, ${50-rx} ${50+ry}, ${50-rx} 50 Z`;
+                // Move base center down to 60
+                const cy = 60;
+                return `M ${50-rx} ${cy} C ${50-rx} ${cy-ry*1.1}, ${50+rx} ${cy-ry*1.1}, ${50+rx} ${cy} C ${50+rx} ${cy+ry*0.7}, ${50+rx*0.8} ${cy+ry*0.7}, 50 ${cy+ry*0.7} C ${50-rx*0.8} ${cy+ry*0.7}, ${50-rx} ${cy+ry*0.7}, ${50-rx} ${cy} Z`;
             }, [bodyWidth, bodyHeight]);
 
             const earPathLeft = useMemo(() => {
                 const s = earSize * 15;
                 const a = earAngle;
-                return `M 30 25 Q ${30-s} ${25-s-a} ${30-s*2} ${25-s+a/2} Q ${30-s*1.5} ${25} 30 28 Z`;
+                // Move base down to 35
+                const cy = 35;
+                return `M 30 ${cy} Q ${30-s} ${cy-s-a} ${30-s*2} ${cy-s+a/2} Q ${30-s*1.5} ${cy} 30 ${cy+3} Z`;
             }, [earSize, earAngle]);
 
             const earPathRight = useMemo(() => {
                 const s = earSize * 15;
                 const a = earAngle;
-                return `M 70 25 Q ${70+s} ${25-s-a} ${70+s*2} ${25-s+a/2} Q ${70+s*1.5} ${25} 70 28 Z`;
+                // Move base down to 35
+                const cy = 35;
+                return `M 70 ${cy} Q ${70+s} ${cy-s-a} ${70+s*2} ${cy-s+a/2} Q ${70+s*1.5} ${cy} 70 ${cy+3} Z`;
             }, [earSize, earAngle]);
 
             const spots = useMemo(() => {
@@ -90,7 +96,7 @@
                 return Array.from({ length: spotCount }).map((_, i) => ({
                     id: i,
                     cx: 30 + Math.random() * 40,
-                    cy: 30 + Math.random() * 40,
+                    cy: 40 + Math.random() * 40, // Shifted down
                     r: 2 + Math.random() * spotSize,
                     opacity: 0.1 + Math.random() * 0.3
                 }));
@@ -157,11 +163,11 @@
                                     <circle cx="50" cy="50" r="50" fill="url(#spotlight)" />
 
                                     {/* Shadow */}
-                                    <ellipse cx="50" cy="90" rx="30" ry="6" fill="rgba(0,0,0,0.25)" />
+                                    <ellipse cx="50" cy="95" rx="30" ry="4" fill="rgba(0,0,0,0.25)" />
                                     
                                     {/* Legs */}
-                                    <rect x={50 - legSpacing - 6} y="70" width="12" height={legLength} rx="6" fill={darkColor} />
-                                    <rect x={50 + legSpacing - 6} y="70" width="12" height={legLength} rx="6" fill={darkColor} />
+                                    <rect x={50 - legSpacing - 6} y="80" width="12" height={legLength} rx="6" fill={darkColor} />
+                                    <rect x={50 + legSpacing - 6} y="80" width="12" height={legLength} rx="6" fill={darkColor} />
                                     
                                     {/* Body */}
                                     <path d={bodyPath} fill={baseColor} />
@@ -176,17 +182,17 @@
                                     ))}
 
                                     {/* Eyes */}
-                                    <circle cx={50 - eyeSpacing} cy="45" r={eyeSize} fill="white" />
-                                    <circle cx={50 - eyeSpacing} cy="45" r={pupilSize} fill="#1e293b" />
-                                    <circle cx={50 + eyeSpacing} cy="45" r={eyeSize} fill="white" />
-                                    <circle cx={50 + eyeSpacing} cy="45" r={pupilSize} fill="#1e293b" />
+                                    <circle cx={50 - eyeSpacing} cy="55" r={eyeSize} fill="white" />
+                                    <circle cx={50 - eyeSpacing} cy="55" r={pupilSize} fill="#1e293b" />
+                                    <circle cx={50 + eyeSpacing} cy="55" r={eyeSize} fill="white" />
+                                    <circle cx={50 + eyeSpacing} cy="55" r={pupilSize} fill="#1e293b" />
                                     
-                                    <circle cx={50 - eyeSpacing - 2} cy="43" r={eyeSize/4} fill="white" />
-                                    <circle cx={50 + eyeSpacing - 2} cy="43" r={eyeSize/4} fill="white" />
+                                    <circle cx={50 - eyeSpacing - 2} cy="53" r={eyeSize/4} fill="white" />
+                                    <circle cx={50 + eyeSpacing - 2} cy="53" r={eyeSize/4} fill="white" />
                                     
                                     {/* Mouth */}
                                     <path 
-                                        d={`M ${50 - mouthWidth} 60 Q 50 ${mouthCurve} ${50 + mouthWidth} 60`} 
+                                        d={`M ${50 - mouthWidth} 70 Q 50 ${mouthCurve + 10} ${50 + mouthWidth} 70`} 
                                         stroke="#1e293b" strokeWidth="3" fill="transparent" strokeLinecap="round" 
                                     />
                                 </svg>
