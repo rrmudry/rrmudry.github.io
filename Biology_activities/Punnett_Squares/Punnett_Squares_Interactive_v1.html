@@ -1,634 +1,334 @@
-import React, { useState, useEffect } from 'react';
-import { Dna, ArrowRight, RotateCcw, CheckCircle2, Info, ArrowDown, ArrowRight as ArrowRightIcon } from 'lucide-react';
-
-// --- CUSTOM ANIMATIONS ---
-const styles = `
-@keyframes shake {
-0%, 100% { transform: translateX(0); }
-25% { transform: translateX(-5px) rotate(-2deg); }
-75% { transform: translateX(5px) rotate(2deg); }
-}
-.animate-shake {
-animation: shake 0.4s ease-in-out;
-}
-@keyframes popIn {
-0% { transform: scale(0.8); opacity: 0; }
-100% { transform: scale(1); opacity: 1; }
-}
-.animate-pop {
-animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-}
-`;
-
-// --- HELPER FUNCTIONS ---
-const combineAlleles = (a1, a2) => {
-// Dominant 'F' always goes first
-if (a1 === 'F' || a2 === 'F') {
-return a1 === 'F' && a2 === 'F' ? 'FF' : 'Ff';
-}
-return 'ff';
-};
-
-const getPhenotype = (genotype) => {
-return genotype.includes('F') ? 'Purple' : 'Yellow';
-};
-
-// --- COMPONENTS ---
-
-// 1. Dynamic Monster SVG
-const Monster = ({ genotype, className = "w-32 h-32" }) => {
-const isPurple = genotype.includes('F');
-const baseColor = isPurple ? '#a855f7' : '#facc15'; // Purple-500 or Yellow-400
-const darkColor = isPurple ? '#7e22ce' : '#ca8a04'; // Darker shades for depth
-
-return (
-<div className={`relative ${className} animate-pop`}>
-    <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-lg">
-        {/* Shadow */}
-        <ellipse cx="50" cy="90" rx="30" ry="6" fill="rgba(0,0,0,0.15)" />
-
-        {/* Legs */}
-        <rect x="30" y="70" width="12" height="20" rx="6" fill={darkColor} />
-        <rect x="58" y="70" width="12" height="20" rx="6" fill={darkColor} />
-
-        {/* Body (Blob shape) */}
-        <path d="M 20 50 C 20 15, 80 15, 80 50 C 80 85, 75 80, 50 80 C 25 80, 20 85, 20 50 Z" fill={baseColor} />
-
-        {/* Texture/Spots (only on yellow recessive for visual variety, or standard) */}
-        {!isPurple && (
-        <>
-            <circle cx="35" cy="30" r="4" fill={darkColor} opacity="0.3" />
-            <circle cx="70" cy="45" r="5" fill={darkColor} opacity="0.3" />
-            <circle cx="25" cy="60" r="3" fill={darkColor} opacity="0.3" />
-        </>
-        )}
-        {isPurple && (
-        <>
-            {/* Horns for purple just as a fun dominant trait side-effect */}
-            <path d="M 30 25 Q 20 10 10 15 Q 15 25 25 28 Z" fill={darkColor} />
-            <path d="M 70 25 Q 80 10 90 15 Q 85 25 75 28 Z" fill={darkColor} />
-        </>
-        )}
-
-        {/* Eyes */}
-        <circle cx="35" cy="45" r="8" fill="white" />
-        <circle cx="35" cy="45" r="3" fill="#1e293b" />
-        <circle cx="65" cy="45" r="8" fill="white" />
-        <circle cx="65" cy="45" r="3" fill="#1e293b" />
-
-        {/* Eye highlights */}
-        <circle cx="33" cy="43" r="1.5" fill="white" />
-        <circle cx="63" cy="43" r="1.5" fill="white" />
-
-        {/* Mouth */}
-        <path d="M 42 60 Q 50 68 58 60" stroke="#1e293b" strokeWidth="3" fill="transparent" strokeLinecap="round" />
-    </svg>
-</div>
-);
-};
-
-// 2. Main App Component
-export default function App() {
-const [step, setStep] = useState(1);
-
-// Parent 1 (Top/Mother)
-const [p1a1, setP1a1] = useState('F');
-const [p1a2, setP1a2] = useState('f');
-
-// Parent 2 (Side/Father)
-const [p2a1, setP2a1] = useState('F');
-const [p2a2, setP2a2] = useState('f');
-
-// Grid State (4 cells of the Punnett square)
-const [gridAnswers, setGridAnswers] = useState([null, null, null, null]);
-const [shakeIndex, setShakeIndex] = useState(null);
-
-// Derived state
-const parent1Genotype = p1a1 + p1a2;
-const parent2Genotype = p2a1 + p2a2;
-
-// Expected answers for the 4 cells
-const expectedGrid = [
-combineAlleles(p2a1, p1a1), // Top Left
-combineAlleles(p2a1, p1a2), // Top Right
-combineAlleles(p2a2, p1a1), // Bottom Left
-combineAlleles(p2a2, p1a2) // Bottom Right
-];
-
-const allFilled = gridAnswers.every(ans => ans !== null);
-
-const handleGuess = (index, guess) => {
-if (guess === expectedGrid[index]) {
-const newAnswers = [...gridAnswers];
-newAnswers[index] = guess;
-setGridAnswers(newAnswers);
-setShakeIndex(null);
-} else {
-setShakeIndex(index);
-setTimeout(() => setShakeIndex(null), 400);
-}
-};
-
-const resetLab = () => {
-setStep(1);
-setP1a1('F'); setP1a2('f');
-setP2a1('F'); setP2a2('f');
-setGridAnswers([null, null, null, null]);
-};
-
-// Calculate statistics for Step 3
-const calculateStats = () => {
-const counts = { FF: 0, Ff: 0, ff: 0 };
-expectedGrid.forEach(g => counts[g]++);
-
-const purpleCount = counts.FF + counts.Ff;
-const yellowCount = counts.ff;
-
-const purplePct = (purpleCount / 4) * 100;
-const yellowPct = (yellowCount / 4) * 100;
-
-return { counts, purpleCount, yellowCount, purplePct, yellowPct };
-};
-
-return (
-<div className="min-h-screen bg-slate-50 text-slate-800 font-sans p-2 md:p-4 flex flex-col">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monster Genetics Lab - Interactive Punnett Squares</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & ReactDOM (UMD via Unpkg) -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel for in-browser JSX compilation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
-        {
-            styles
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #f8fafc;
         }
+        #root { min-height: 100vh; display: flex; flex-direction: column; }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px) rotate(-2deg); }
+            75% { transform: translateX(5px) rotate(2deg); }
+        }
+        .animate-shake { animation: shake 0.4s ease-in-out; }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
     </style>
+</head>
+<body>
+    <div id="root"></div>
 
-    <div className="max-w-5xl mx-auto w-full flex-1 flex flex-col">
-        {/* HEADER */}
-        <header className="mb-3 flex flex-col md:flex-row items-center justify-center gap-3 text-center md:text-left">
-            <div
-                className="inline-flex items-center justify-center p-2 bg-purple-100 text-purple-700 rounded-full shadow-sm">
-                <Dna size={24} />
-            </div>
-            <div>
-                <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 leading-none mb-1">
-                    Monster Genetics Lab
-                </h1>
-                <p className="text-xs text-slate-500 font-medium">Learn how traits are passed down using a Punnett
-                    Square!</p>
-            </div>
-        </header>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
 
-        {/* STEP PROGRESSION */}
-        <div className="flex justify-center items-center gap-2 mb-4 text-[11px] md:text-sm font-medium">
-            <div className={`px-3 py-1.5 rounded-full ${step>= 1 ? 'bg-purple-600 text-white shadow-md' : 'bg-slate-200
-                text-slate-500'}`}>
-                1. Parents
-            </div>
-            <div className={`w-6 h-1 rounded-full ${step>= 2 ? 'bg-purple-600' : 'bg-slate-200'}`} />
-                <div className={`px-3 py-1.5 rounded-full ${step>= 2 ? 'bg-purple-600 text-white shadow-md' :
-                    'bg-slate-200 text-slate-500'}`}>
-                    2. Punnett Square
-                </div>
-                <div className={`w-6 h-1 rounded-full ${step>= 3 ? 'bg-purple-600' : 'bg-slate-200'}`} />
-                    <div className={`px-3 py-1.5 rounded-full ${step>= 3 ? 'bg-purple-600 text-white shadow-md' :
-                        'bg-slate-200 text-slate-500'}`}>
-                        3. Offspring
-                    </div>
-                </div>
-
-                {/* MAIN CONTENT AREA */}
-                <main
-                    className="bg-white rounded-3xl shadow-xl p-4 md:p-6 border border-slate-100 flex-1 flex flex-col">
-
-                    {/* STEP 1: CHOOSE PARENTS */}
-                    {step === 1 && (
-                    <div className="animate-pop flex-1 flex flex-col justify-center">
-                        <div className="bg-blue-50 text-blue-800 p-3 rounded-xl flex items-start gap-3 mb-4 text-sm">
-                            <Info className="shrink-0 mt-0.5" size={18} />
-                            <p>
-                                <strong>Trait: Fur Color.</strong> Monsters can be Purple or Yellow.
-                                <span className="font-bold text-purple-700 ml-1">Purple (F)</span> is DOMINANT over
-                                <span className="font-bold text-yellow-600">Yellow (f)</span>.
-                                Choose the genetics below.
-                            </p>
-                        </div>
-
-                        <div className="grid md:grid-cols-2 gap-4 md:gap-6 mb-6">
-                            {/* Parent 1 */}
-                            <div
-                                className="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex flex-col items-center text-center">
-                                <h3 className="text-lg font-bold mb-2 text-blue-600">Parent 1 (Top)</h3>
-                                <Monster genotype={parent1Genotype} className="w-24 h-24 mb-4" />
-
-                                <div className="w-full max-w-[200px] space-y-3">
-                                    <div className="flex items-center justify-between">
-                                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                                            Allele 1</p>
-                                        <div className="flex gap-2 w-24">
-                                            <button onClick={()=> setP1a1('F')} className={`flex-1 py-1 rounded-lg
-                                                font-bold transition-colors ${p1a1 === 'F' ? 'bg-purple-600 text-white
-                                                shadow-md' : 'bg-slate-200 text-slate-600
-                                                hover:bg-slate-300'}`}>F</button>
-                                            <button onClick={()=> setP1a1('f')} className={`flex-1 py-1 rounded-lg
-                                                font-bold transition-colors ${p1a1 === 'f' ? 'bg-yellow-500 text-white
-                                                shadow-md' : 'bg-slate-200 text-slate-600
-                                                hover:bg-slate-300'}`}>f</button>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                                            Allele 2</p>
-                                        <div className="flex gap-2 w-24">
-                                            <button onClick={()=> setP1a2('F')} className={`flex-1 py-1 rounded-lg
-                                                font-bold transition-colors ${p1a2 === 'F' ? 'bg-purple-600 text-white
-                                                shadow-md' : 'bg-slate-200 text-slate-600
-                                                hover:bg-slate-300'}`}>F</button>
-                                            <button onClick={()=> setP1a2('f')} className={`flex-1 py-1 rounded-lg
-                                                font-bold transition-colors ${p1a2 === 'f' ? 'bg-yellow-500 text-white
-                                                shadow-md' : 'bg-slate-200 text-slate-600
-                                                hover:bg-slate-300'}`}>f</button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="mt-3 pt-3 border-t border-slate-200 w-full">
-                                    <p className="text-sm text-slate-500">Genotype: <strong
-                                            className="text-lg text-slate-800">{combineAlleles(p1a1, p1a2)}</strong></p>
-                                </div>
-                            </div>
-
-                            {/* Parent 2 */}
-                            <div
-                                className="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex flex-col items-center text-center">
-                                <h3 className="text-lg font-bold mb-2 text-rose-600">Parent 2 (Side)</h3>
-                                <Monster genotype={parent2Genotype} className="w-24 h-24 mb-4" />
-
-                                <div className="w-full max-w-[200px] space-y-3">
-                                    <div className="flex items-center justify-between">
-                                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                                            Allele 1</p>
-                                        <div className="flex gap-2 w-24">
-                                            <button onClick={()=> setP2a1('F')} className={`flex-1 py-1 rounded-lg
-                                                font-bold transition-colors ${p2a1 === 'F' ? 'bg-purple-600 text-white
-                                                shadow-md' : 'bg-slate-200 text-slate-600
-                                                hover:bg-slate-300'}`}>F</button>
-                                            <button onClick={()=> setP2a1('f')} className={`flex-1 py-1 rounded-lg
-                                                font-bold transition-colors ${p2a1 === 'f' ? 'bg-yellow-500 text-white
-                                                shadow-md' : 'bg-slate-200 text-slate-600
-                                                hover:bg-slate-300'}`}>f</button>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                                            Allele 2</p>
-                                        <div className="flex gap-2 w-24">
-                                            <button onClick={()=> setP2a2('F')} className={`flex-1 py-1 rounded-lg
-                                                font-bold transition-colors ${p2a2 === 'F' ? 'bg-purple-600 text-white
-                                                shadow-md' : 'bg-slate-200 text-slate-600
-                                                hover:bg-slate-300'}`}>F</button>
-                                            <button onClick={()=> setP2a2('f')} className={`flex-1 py-1 rounded-lg
-                                                font-bold transition-colors ${p2a2 === 'f' ? 'bg-yellow-500 text-white
-                                                shadow-md' : 'bg-slate-200 text-slate-600
-                                                hover:bg-slate-300'}`}>f</button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="mt-3 pt-3 border-t border-slate-200 w-full">
-                                    <p className="text-sm text-slate-500">Genotype: <strong
-                                            className="text-lg text-slate-800">{combineAlleles(p2a1, p2a2)}</strong></p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="flex justify-center">
-                            <button onClick={()=> setStep(2)}
-                                className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-bold
-                                text-base flex items-center gap-2 transition-transform hover:scale-105 active:scale-95
-                                shadow-lg"
-                                >
-                                Create Punnett Square
-                                <ArrowRight size={20} />
-                            </button>
-                        </div>
-                    </div>
-                    )}
-
-                    {/* STEP 2: PUNNETT SQUARE */}
-                    {step === 2 && (
-                    <div className="animate-pop flex flex-col items-center flex-1 justify-center">
-                        <div
-                            className="bg-purple-50 text-purple-800 p-3 rounded-xl flex items-start gap-3 mb-6 w-full max-w-2xl text-sm">
-                            <Info className="shrink-0 mt-0.5" size={18} />
-                            <p>
-                                Combine the allele from the <strong>Top Parent</strong> and the <strong>Side
-                                    Parent</strong>.
-                                <span className="opacity-80 ml-1">(Hint: The dominant uppercase 'F' always goes
-                                    first!)</span>
-                            </p>
-                        </div>
-
-                        {/* The Grid Layout */}
-                        <div className="relative mb-8 w-full max-w-md">
-                            <div className="grid grid-cols-[60px_1fr_1fr] md:grid-cols-[80px_1fr_1fr] gap-2 md:gap-3">
-
-                                {/* Top-Left Empty Corner */}
-                                <div className="flex items-end justify-end pb-1 pr-1 text-slate-300">
-                                    <ArrowDown className="w-6 h-6 md:w-8 md:h-8 rotate-[-45deg]" />
-                                </div>
-
-                                {/* Top Parent Headers */}
-                                <div
-                                    className="bg-blue-100 rounded-t-2xl p-2 md:p-3 flex flex-col items-center justify-center border-b-4 border-blue-200">
-                                    <span
-                                        className="text-[10px] md:text-xs text-blue-600 font-bold mb-0.5 uppercase tracking-wider text-center">Top</span>
-                                    <span className={`text-2xl md:text-3xl font-extrabold ${p1a1==='F'
-                                        ? 'text-purple-600' : 'text-yellow-600' }`}>{p1a1}</span>
-                                </div>
-                                <div
-                                    className="bg-blue-100 rounded-t-2xl p-2 md:p-3 flex flex-col items-center justify-center border-b-4 border-blue-200">
-                                    <span
-                                        className="text-[10px] md:text-xs text-blue-600 font-bold mb-0.5 uppercase tracking-wider text-center">Top</span>
-                                    <span className={`text-2xl md:text-3xl font-extrabold ${p1a2==='F'
-                                        ? 'text-purple-600' : 'text-yellow-600' }`}>{p1a2}</span>
-                                </div>
-
-                                {/* Row 1 */}
-                                <div
-                                    className="bg-rose-100 rounded-l-2xl p-2 md:p-3 flex flex-col items-center justify-center border-r-4 border-rose-200">
-                                    <span
-                                        className="text-[10px] md:text-xs text-rose-600 font-bold mb-0.5 uppercase tracking-wider">Side</span>
-                                    <span className={`text-2xl md:text-3xl font-extrabold ${p2a1==='F'
-                                        ? 'text-purple-600' : 'text-yellow-600' }`}>{p2a1}</span>
-                                </div>
-
-                                {/* Cell 0 */}
-                                <div
-                                    className="bg-slate-100 rounded-xl min-h-[90px] md:min-h-[110px] border-4 border-slate-200 relative overflow-hidden flex flex-col">
-                                    {gridAnswers[0] ? (
-                                    <div
-                                        className="flex-1 flex flex-col items-center justify-center bg-green-50 animate-pop">
-                                        <CheckCircle2 className="text-green-500 mb-1 w-6 h-6" />
-                                        <span
-                                            className="text-2xl md:text-3xl font-bold text-green-700">{gridAnswers[0]}</span>
-                                    </div>
-                                    ) : (
-                                    <div className={`flex-1 flex flex-col items-center justify-center p-1 md:p-2
-                                        ${shakeIndex===0 ? 'animate-shake bg-red-50' : '' }`}>
-                                        <div className="flex flex-wrap justify-center gap-1">
-                                            {['FF', 'Ff', 'ff'].map(g => (
-                                            <button key={g} onClick={()=> handleGuess(0, g)} className="w-9 py-1 md:w-11
-                                                md:py-1.5 bg-white border-2 border-slate-200 rounded-lg
-                                                hover:border-purple-400 hover:bg-purple-50 font-mono font-bold text-xs
-                                                md:text-sm transition-colors">{g}</button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    )}
-                                </div>
-
-                                {/* Cell 1 */}
-                                <div
-                                    className="bg-slate-100 rounded-xl min-h-[90px] md:min-h-[110px] border-4 border-slate-200 relative overflow-hidden flex flex-col">
-                                    {gridAnswers[1] ? (
-                                    <div
-                                        className="flex-1 flex flex-col items-center justify-center bg-green-50 animate-pop">
-                                        <CheckCircle2 className="text-green-500 mb-1 w-6 h-6" />
-                                        <span
-                                            className="text-2xl md:text-3xl font-bold text-green-700">{gridAnswers[1]}</span>
-                                    </div>
-                                    ) : (
-                                    <div className={`flex-1 flex flex-col items-center justify-center p-1 md:p-2
-                                        ${shakeIndex===1 ? 'animate-shake bg-red-50' : '' }`}>
-                                        <div className="flex flex-wrap justify-center gap-1">
-                                            {['FF', 'Ff', 'ff'].map(g => (
-                                            <button key={g} onClick={()=> handleGuess(1, g)} className="w-9 py-1 md:w-11
-                                                md:py-1.5 bg-white border-2 border-slate-200 rounded-lg
-                                                hover:border-purple-400 hover:bg-purple-50 font-mono font-bold text-xs
-                                                md:text-sm transition-colors">{g}</button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    )}
-                                </div>
-
-                                {/* Row 2 */}
-                                <div
-                                    className="bg-rose-100 rounded-l-2xl p-2 md:p-3 flex flex-col items-center justify-center border-r-4 border-rose-200">
-                                    <span
-                                        className="text-[10px] md:text-xs text-rose-600 font-bold mb-0.5 uppercase tracking-wider">Side</span>
-                                    <span className={`text-2xl md:text-3xl font-extrabold ${p2a2==='F'
-                                        ? 'text-purple-600' : 'text-yellow-600' }`}>{p2a2}</span>
-                                </div>
-
-                                {/* Cell 2 */}
-                                <div
-                                    className="bg-slate-100 rounded-xl min-h-[90px] md:min-h-[110px] border-4 border-slate-200 relative overflow-hidden flex flex-col">
-                                    {gridAnswers[2] ? (
-                                    <div
-                                        className="flex-1 flex flex-col items-center justify-center bg-green-50 animate-pop">
-                                        <CheckCircle2 className="text-green-500 mb-1 w-6 h-6" />
-                                        <span
-                                            className="text-2xl md:text-3xl font-bold text-green-700">{gridAnswers[2]}</span>
-                                    </div>
-                                    ) : (
-                                    <div className={`flex-1 flex flex-col items-center justify-center p-1 md:p-2
-                                        ${shakeIndex===2 ? 'animate-shake bg-red-50' : '' }`}>
-                                        <div className="flex flex-wrap justify-center gap-1">
-                                            {['FF', 'Ff', 'ff'].map(g => (
-                                            <button key={g} onClick={()=> handleGuess(2, g)} className="w-9 py-1 md:w-11
-                                                md:py-1.5 bg-white border-2 border-slate-200 rounded-lg
-                                                hover:border-purple-400 hover:bg-purple-50 font-mono font-bold text-xs
-                                                md:text-sm transition-colors">{g}</button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    )}
-                                </div>
-
-                                {/* Cell 3 */}
-                                <div
-                                    className="bg-slate-100 rounded-xl min-h-[90px] md:min-h-[110px] border-4 border-slate-200 relative overflow-hidden flex flex-col">
-                                    {gridAnswers[3] ? (
-                                    <div
-                                        className="flex-1 flex flex-col items-center justify-center bg-green-50 animate-pop">
-                                        <CheckCircle2 className="text-green-500 mb-1 w-6 h-6" />
-                                        <span
-                                            className="text-2xl md:text-3xl font-bold text-green-700">{gridAnswers[3]}</span>
-                                    </div>
-                                    ) : (
-                                    <div className={`flex-1 flex flex-col items-center justify-center p-1 md:p-2
-                                        ${shakeIndex===3 ? 'animate-shake bg-red-50' : '' }`}>
-                                        <div className="flex flex-wrap justify-center gap-1">
-                                            {['FF', 'Ff', 'ff'].map(g => (
-                                            <button key={g} onClick={()=> handleGuess(3, g)} className="w-9 py-1 md:w-11
-                                                md:py-1.5 bg-white border-2 border-slate-200 rounded-lg
-                                                hover:border-purple-400 hover:bg-purple-50 font-mono font-bold text-xs
-                                                md:text-sm transition-colors">{g}</button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    )}
-                                </div>
-
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-4">
-                            {!allFilled && (
-                            <button onClick={()=> setStep(1)}
-                                className="text-slate-400 hover:text-slate-600 font-medium px-4 py-2"
-                                >
-                                Back
-                            </button>
-                            )}
-                            {allFilled && (
-                            <button onClick={()=> setStep(3)}
-                                className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-bold
-                                text-base flex items-center gap-2 transition-transform hover:scale-105 active:scale-95
-                                shadow-lg animate-pop"
-                                >
-                                Hatch Monsters!
-                                <ArrowRightIcon size={20} />
-                            </button>
-                            )}
-                        </div>
-                    </div>
-                    )}
-
-                    {/* STEP 3: RESULTS (COMPACT SIDE-BY-SIDE LAYOUT) */}
-                    {step === 3 && (
-                    <div className="animate-pop flex flex-col h-full justify-center">
-                        <div className="flex items-center justify-between mb-4">
-                            <div>
-                                <h2 className="text-xl md:text-2xl font-extrabold text-slate-800">The Results Are In!
-                                </h2>
-                                <p className="text-xs md:text-sm text-slate-600">Here are the 4 possible offspring from
-                                    this genetic cross.</p>
-                            </div>
-                            <button onClick={resetLab}
-                                className="bg-slate-200 hover:bg-slate-300 text-slate-800 px-3 py-2 md:px-4 md:py-2.5 rounded-lg font-bold flex items-center gap-2 transition-colors text-sm shadow-sm">
-                                <RotateCcw size={16} /> <span className="hidden sm:inline">Reset Lab</span>
-                            </button>
-                        </div>
-
-                        <div
-                            className="grid md:grid-cols-[1.2fr_1fr] lg:grid-cols-[1.5fr_1fr] gap-4 md:gap-6 items-stretch">
-
-                            {/* Left: The 4 Offspring in a Compact 2x2 Grid */}
-                            <div
-                                className="grid grid-cols-2 gap-3 p-3 md:p-4 bg-slate-100 rounded-2xl border-4 border-slate-200 shadow-inner h-full">
-                                {expectedGrid.map((genotype, i) => (
-                                <div key={i}
-                                    className="bg-white border-2 border-slate-200 rounded-xl p-2 md:p-3 flex flex-col items-center justify-center text-center shadow-sm relative">
-                                    <span
-                                        className="absolute top-1.5 left-1.5 md:top-2 md:left-2 text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                                        {i === 0 ? 'Top Left' : i === 1 ? 'Top Right' : i === 2 ? 'Btm Left' : 'Btm
-                                        Right'}
-                                    </span>
-                                    <Monster genotype={genotype} className="w-16 h-16 md:w-20 md:h-20 mb-2 mt-2" />
-                                    <div
-                                        className="bg-slate-50 px-2 md:px-3 py-1.5 md:py-2 rounded-lg border border-slate-200 w-full flex justify-between items-center">
-                                        <span
-                                            className="text-base md:text-lg font-extrabold text-slate-800 leading-none">{genotype}</span>
-                                        <span className={`text-[10px] md:text-xs font-bold ${genotype.includes('F')
-                                            ? 'text-purple-600' : 'text-yellow-600' }`}>
-                                            {getPhenotype(genotype)}
-                                        </span>
-                                    </div>
-                                </div>
-                                ))}
-                            </div>
-
-                            {/* Right: Statistics Card */}
-                            {(() => {
-                            const stats = calculateStats();
-                            return (
-                            <div
-                                className="bg-slate-800 text-white rounded-2xl p-4 md:p-6 shadow-xl flex flex-col justify-center h-full">
-                                <h3
-                                    className="text-base md:text-lg font-bold mb-3 md:mb-4 text-center border-b border-slate-700 pb-2 md:pb-3">
-                                    Probability Breakdown</h3>
-
-                                <div className="space-y-4 md:space-y-5">
-                                    {/* Genotype percentages */}
-                                    <div>
-                                        <h4
-                                            className="text-slate-400 font-semibold mb-1.5 md:mb-2 uppercase tracking-wider text-[10px] md:text-xs">
-                                            Genotype (Letters)</h4>
-                                        <ul className="space-y-1.5 md:space-y-2 text-xs md:text-sm">
-                                            <li
-                                                className="flex justify-between items-center bg-slate-700/50 px-3 py-1.5 md:py-2 rounded-lg">
-                                                <span className="font-mono">FF</span>
-                                                <div className="flex items-center gap-2 md:gap-3">
-                                                    <span
-                                                        className="text-slate-400 font-medium text-[10px] md:text-xs">{stats.counts.FF}/4</span>
-                                                    <span className="font-bold w-10 text-right">{(stats.counts.FF / 4) *
-                                                        100}%</span>
-                                                </div>
-                                            </li>
-                                            <li
-                                                className="flex justify-between items-center bg-slate-700/50 px-3 py-1.5 md:py-2 rounded-lg">
-                                                <span className="font-mono">Ff</span>
-                                                <div className="flex items-center gap-2 md:gap-3">
-                                                    <span
-                                                        className="text-slate-400 font-medium text-[10px] md:text-xs">{stats.counts.Ff}/4</span>
-                                                    <span className="font-bold w-10 text-right">{(stats.counts.Ff / 4) *
-                                                        100}%</span>
-                                                </div>
-                                            </li>
-                                            <li
-                                                className="flex justify-between items-center bg-slate-700/50 px-3 py-1.5 md:py-2 rounded-lg">
-                                                <span className="font-mono">ff</span>
-                                                <div className="flex items-center gap-2 md:gap-3">
-                                                    <span
-                                                        className="text-slate-400 font-medium text-[10px] md:text-xs">{stats.counts.ff}/4</span>
-                                                    <span className="font-bold w-10 text-right">{(stats.counts.ff / 4) *
-                                                        100}%</span>
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-
-                                    {/* Phenotype percentages */}
-                                    <div>
-                                        <h4
-                                            className="text-slate-400 font-semibold mb-1.5 md:mb-2 uppercase tracking-wider text-[10px] md:text-xs">
-                                            Phenotype (Looks)</h4>
-                                        <ul className="space-y-1.5 md:space-y-2 text-xs md:text-sm">
-                                            <li
-                                                className="flex justify-between items-center bg-purple-900/40 border border-purple-800/50 px-3 py-2 md:py-2.5 rounded-lg text-purple-200">
-                                                <span className="font-bold flex items-center gap-2">
-                                                    <div
-                                                        className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-purple-500">
-                                                    </div> Purple
-                                                </span>
-                                                <div className="flex items-center gap-2 md:gap-3">
-                                                    <span
-                                                        className="text-purple-400 font-medium text-[10px] md:text-xs">{stats.purpleCount}/4</span>
-                                                    <span
-                                                        className="font-extrabold text-sm md:text-base w-10 md:w-12 text-right">{stats.purplePct}%</span>
-                                                </div>
-                                            </li>
-                                            <li
-                                                className="flex justify-between items-center bg-yellow-900/40 border border-yellow-800/50 px-3 py-2 md:py-2.5 rounded-lg text-yellow-200">
-                                                <span className="font-bold flex items-center gap-2">
-                                                    <div
-                                                        className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-yellow-500">
-                                                    </div> Yellow
-                                                </span>
-                                                <div className="flex items-center gap-2 md:gap-3">
-                                                    <span
-                                                        className="text-yellow-500/80 font-medium text-[10px] md:text-xs">{stats.yellowCount}/4</span>
-                                                    <span
-                                                        className="font-extrabold text-sm md:text-base w-10 md:w-12 text-right">{stats.yellowPct}%</span>
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            );
-                            })()}
-                        </div>
-                    </div>
-                    )}
-                </main>
-            </div>
-        </div>
+        // --- Inline Lucide Icons ---
+        const Dna = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <path d="m8 8 8 8"/><path d="m8 16 8-8"/><path d="m19 11-3-3"/><path d="m19 14-3 3"/><path d="m5 11 3-3"/><path d="m5 14 3 3"/>
+            </svg>
         );
+
+        const ArrowRight = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+            </svg>
+        );
+
+        const RotateCcw = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>
+            </svg>
+        );
+
+        const CheckCircle2 = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/>
+            </svg>
+        );
+
+        const Info = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
+            </svg>
+        );
+
+        const ArrowDown = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>
+            </svg>
+        );
+
+        // --- HELPER FUNCTIONS ---
+        const combineAlleles = (a1, a2) => {
+            if (a1 === 'F' || a2 === 'F') {
+                return a1 === 'F' && a2 === 'F' ? 'FF' : 'Ff';
+            }
+            return 'ff';
+        };
+
+        const getPhenotype = (genotype) => {
+            return genotype.includes('F') ? 'Purple' : 'Yellow';
+        };
+
+        // --- COMPONENTS ---
+
+        const Monster = ({ genotype, className = "w-32 h-32" }) => {
+            const isPurple = genotype.includes('F');
+            const baseColor = isPurple ? '#a855f7' : '#facc15';
+            const darkColor = isPurple ? '#7e22ce' : '#ca8a04';
+
+            return (
+                <div className={`relative ${className} animate-pop`}>
+                    <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-lg">
+                        <ellipse cx="50" cy="90" rx="30" ry="6" fill="rgba(0,0,0,0.15)" />
+                        <rect x="30" y="70" width="12" height="20" rx="6" fill={darkColor} />
+                        <rect x="58" y="70" width="12" height="20" rx="6" fill={darkColor} />
+                        <path d="M 20 50 C 20 15, 80 15, 80 50 C 80 85, 75 80, 50 80 C 25 80, 20 85, 20 50 Z" fill={baseColor} />
+                        {!isPurple && (
+                            <>
+                                <circle cx="35" cy="30" r="4" fill={darkColor} opacity="0.3" />
+                                <circle cx="70" cy="45" r="5" fill={darkColor} opacity="0.3" />
+                                <circle cx="25" cy="60" r="3" fill={darkColor} opacity="0.3" />
+                            </>
+                        )}
+                        {isPurple && (
+                            <>
+                                <path d="M 30 25 Q 20 10 10 15 Q 15 25 25 28 Z" fill={darkColor} />
+                                <path d="M 70 25 Q 80 10 90 15 Q 85 25 75 28 Z" fill={darkColor} />
+                            </>
+                        )}
+                        <circle cx="35" cy="45" r="8" fill="white" />
+                        <circle cx="35" cy="45" r="3" fill="#1e293b" />
+                        <circle cx="65" cy="45" r="8" fill="white" />
+                        <circle cx="65" cy="45" r="3" fill="#1e293b" />
+                        <circle cx="33" cy="43" r="1.5" fill="white" />
+                        <circle cx="63" cy="43" r="1.5" fill="white" />
+                        <path d="M 42 60 Q 50 68 58 60" stroke="#1e293b" strokeWidth="3" fill="transparent" strokeLinecap="round" />
+                    </svg>
+                </div>
+            );
+        };
+
+        function App() {
+            const [step, setStep] = useState(1);
+            const [p1a1, setP1a1] = useState('F');
+            const [p1a2, setP1a2] = useState('f');
+            const [p2a1, setP2a1] = useState('F');
+            const [p2a2, setP2a2] = useState('f');
+            const [gridAnswers, setGridAnswers] = useState([null, null, null, null]);
+            const [shakeIndex, setShakeIndex] = useState(null);
+
+            const parent1Genotype = p1a1 + p1a2;
+            const parent2Genotype = p2a1 + p2a2;
+
+            const expectedGrid = [
+                combineAlleles(p2a1, p1a1),
+                combineAlleles(p2a1, p1a2),
+                combineAlleles(p2a2, p1a1),
+                combineAlleles(p2a2, p1a2)
+            ];
+
+            const allFilled = gridAnswers.every(ans => ans !== null);
+
+            const handleGuess = (index, guess) => {
+                if (guess === expectedGrid[index]) {
+                    const newAnswers = [...gridAnswers];
+                    newAnswers[index] = guess;
+                    setGridAnswers(newAnswers);
+                    setShakeIndex(null);
+                } else {
+                    setShakeIndex(index);
+                    setTimeout(() => setShakeIndex(null), 400);
+                }
+            };
+
+            const resetLab = () => {
+                setStep(1);
+                setP1a1('F'); setP1a2('f');
+                setP2a1('F'); setP2a2('f');
+                setGridAnswers([null, null, null, null]);
+            };
+
+            const calculateStats = () => {
+                const counts = { FF: 0, Ff: 0, ff: 0 };
+                expectedGrid.forEach(g => counts[g]++);
+                const purpleCount = counts.FF + counts.Ff;
+                const yellowCount = counts.ff;
+                const purplePct = (purpleCount / 4) * 100;
+                const yellowPct = (yellowCount / 4) * 100;
+                return { counts, purpleCount, yellowCount, purplePct, yellowPct };
+            };
+
+            return (
+                <div className="min-h-screen bg-slate-50 text-slate-800 font-sans p-2 md:p-4 flex flex-col">
+                    <div className="max-w-5xl mx-auto w-full flex-1 flex flex-col">
+                        <header className="mb-3 flex flex-col md:flex-row items-center justify-center gap-3 text-center md:text-left">
+                            <div className="inline-flex items-center justify-center p-2 bg-purple-100 text-purple-700 rounded-full shadow-sm">
+                                <Dna size={24} />
+                            </div>
+                            <div>
+                                <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 leading-none mb-1">Monster Genetics Lab</h1>
+                                <p className="text-xs text-slate-500 font-medium">Learn how traits are passed down using a Punnett Square!</p>
+                            </div>
+                        </header>
+
+                        <div className="flex justify-center items-center gap-2 mb-4 text-[11px] md:text-sm font-medium">
+                            <div className={`px-3 py-1.5 rounded-full ${step >= 1 ? 'bg-purple-600 text-white shadow-md' : 'bg-slate-200 text-slate-500'}`}>1. Parents</div>
+                            <div className={`w-6 h-1 rounded-full ${step >= 2 ? 'bg-purple-600' : 'bg-slate-200'}`} />
+                            <div className={`px-3 py-1.5 rounded-full ${step >= 2 ? 'bg-purple-600 text-white shadow-md' : 'bg-slate-200 text-slate-500'}`}>2. Punnett Square</div>
+                            <div className={`w-6 h-1 rounded-full ${step >= 3 ? 'bg-purple-600' : 'bg-slate-200'}`} />
+                            <div className={`px-3 py-1.5 rounded-full ${step >= 3 ? 'bg-purple-600 text-white shadow-md' : 'bg-slate-200 text-slate-500'}`}>3. Offspring</div>
+                        </div>
+
+                        <main className="bg-white rounded-3xl shadow-xl p-4 md:p-6 border border-slate-100 flex-1 flex flex-col">
+                            {step === 1 && (
+                                <div className="animate-pop flex-1 flex flex-col justify-center">
+                                    <div className="bg-blue-50 text-blue-800 p-3 rounded-xl flex items-start gap-3 mb-4 text-sm">
+                                        <Info className="shrink-0 mt-0.5" size={18} />
+                                        <p><strong>Trait: Fur Color.</strong> Monsters can be Purple or Yellow. <span className="font-bold text-purple-700 ml-1">Purple (F)</span> is DOMINANT over <span className="font-bold text-yellow-600">Yellow (f)</span>.</p>
+                                    </div>
+                                    <div className="grid md:grid-cols-2 gap-4 md:gap-6 mb-6">
+                                        <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex flex-col items-center text-center">
+                                            <h3 className="text-lg font-bold mb-2 text-blue-600">Parent 1 (Top)</h3>
+                                            <Monster genotype={parent1Genotype} className="w-24 h-24 mb-4" />
+                                            <div className="w-full max-w-[200px] space-y-3">
+                                                <div className="flex items-center justify-between"><p className="text-[10px] font-bold text-slate-400 uppercase">Allele 1</p><div className="flex gap-2 w-24">
+                                                    <button onClick={() => setP1a1('F')} className={`flex-1 py-1 rounded-lg font-bold ${p1a1 === 'F' ? 'bg-purple-600 text-white shadow-md' : 'bg-slate-200'}`}>F</button>
+                                                    <button onClick={() => setP1a1('f')} className={`flex-1 py-1 rounded-lg font-bold ${p1a1 === 'f' ? 'bg-yellow-500 text-white shadow-md' : 'bg-slate-200'}`}>f</button>
+                                                </div></div>
+                                                <div className="flex items-center justify-between"><p className="text-[10px] font-bold text-slate-400 uppercase">Allele 2</p><div className="flex gap-2 w-24">
+                                                    <button onClick={() => setP1a2('F')} className={`flex-1 py-1 rounded-lg font-bold ${p1a2 === 'F' ? 'bg-purple-600 text-white shadow-md' : 'bg-slate-200'}`}>F</button>
+                                                    <button onClick={() => setP1a2('f')} className={`flex-1 py-1 rounded-lg font-bold ${p1a2 === 'f' ? 'bg-yellow-500 text-white shadow-md' : 'bg-slate-200'}`}>f</button>
+                                                </div></div>
+                                            </div>
+                                            <div className="mt-3 pt-3 border-t border-slate-200 w-full"><p className="text-sm text-slate-500 font-bold">Genotype: {combineAlleles(p1a1, p1a2)}</p></div>
+                                        </div>
+                                        <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex flex-col items-center text-center">
+                                            <h3 className="text-lg font-bold mb-2 text-rose-600">Parent 2 (Side)</h3>
+                                            <Monster genotype={parent2Genotype} className="w-24 h-24 mb-4" />
+                                            <div className="w-full max-w-[200px] space-y-3">
+                                                <div className="flex items-center justify-between"><p className="text-[10px] font-bold text-slate-400 uppercase">Allele 1</p><div className="flex gap-2 w-24">
+                                                    <button onClick={() => setP2a1('F')} className={`flex-1 py-1 rounded-lg font-bold ${p2a1 === 'F' ? 'bg-purple-600 text-white shadow-md' : 'bg-slate-200'}`}>F</button>
+                                                    <button onClick={() => setP2a1('f')} className={`flex-1 py-1 rounded-lg font-bold ${p2a1 === 'f' ? 'bg-yellow-500 text-white shadow-md' : 'bg-slate-200'}`}>f</button>
+                                                </div></div>
+                                                <div className="flex items-center justify-between"><p className="text-[10px] font-bold text-slate-400 uppercase">Allele 2</p><div className="flex gap-2 w-24">
+                                                    <button onClick={() => setP2a2('F')} className={`flex-1 py-1 rounded-lg font-bold ${p2a2 === 'F' ? 'bg-purple-600 text-white shadow-md' : 'bg-slate-200'}`}>F</button>
+                                                    <button onClick={() => setP2a2('f')} className={`flex-1 py-1 rounded-lg font-bold ${p2a2 === 'f' ? 'bg-yellow-500 text-white shadow-md' : 'bg-slate-200'}`}>f</button>
+                                                </div></div>
+                                            </div>
+                                            <div className="mt-3 pt-3 border-t border-slate-200 w-full"><p className="text-sm text-slate-500 font-bold">Genotype: {combineAlleles(p2a1, p2a2)}</p></div>
+                                        </div>
+                                    </div>
+                                    <div className="flex justify-center"><button onClick={() => setStep(2)} className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 transform active:scale-95 transition-all shadow-lg">Start Lab <ArrowRight size={20} /></button></div>
+                                </div>
+                            )}
+
+                            {step === 2 && (
+                                <div className="animate-pop flex flex-col items-center flex-1 justify-center">
+                                    <div className="bg-purple-50 text-purple-800 p-3 rounded-xl flex items-start gap-3 mb-6 w-full max-w-lg text-xs leading-relaxed">
+                                        <Info className="shrink-0" size={16} />
+                                        <p>Combine the allele from the <strong>Top Parent</strong> and the <strong>Side Parent</strong>. <span className="opacity-80">(Hint: The dominant uppercase 'F' always goes first!)</span></p>
+                                    </div>
+                                    <div className="relative mb-8 w-full max-w-sm">
+                                        <div className="grid grid-cols-[60px_1fr_1fr] gap-2">
+                                            <div className="flex items-end justify-end pb-1 pr-1 text-slate-300"><ArrowDown className="w-6 h-6 rotate-[-45deg]" /></div>
+                                            <div className="bg-blue-100 rounded-t-xl p-2 flex flex-col items-center justify-center border-b-4 border-blue-200"><span className="text-[9px] text-blue-600 font-bold uppercase">Top</span><span className={`text-2xl font-black ${p1a1 === 'F' ? 'text-purple-600' : 'text-yellow-600'}`}>{p1a1}</span></div>
+                                            <div className="bg-blue-100 rounded-t-xl p-2 flex flex-col items-center justify-center border-b-4 border-blue-200"><span className="text-[9px] text-blue-600 font-bold uppercase">Top</span><span className={`text-2xl font-black ${p1a2 === 'F' ? 'text-purple-600' : 'text-yellow-600'}`}>{p1a2}</span></div>
+                                            <div className="bg-rose-100 rounded-l-xl p-2 flex flex-col items-center justify-center border-r-4 border-rose-200"><span className="text-[9px] text-rose-600 font-bold uppercase">Side</span><span className={`text-2xl font-black ${p2a1 === 'F' ? 'text-purple-600' : 'text-yellow-600'}`}>{p2a1}</span></div>
+                                            {[0, 1].map(i => (
+                                                <div key={i} className={`bg-white rounded-xl min-h-[90px] border-4 border-slate-200 flex flex-col items-center justify-center ${shakeIndex === i ? 'animate-shake bg-red-50' : ''}`}>
+                                                    {gridAnswers[i] ? <div className="text-green-700 animate-pop flex flex-col items-center"><CheckCircle2 className="mb-1" size={20} /><span className="text-xl font-black">{gridAnswers[i]}</span></div> :
+                                                        <div className="flex flex-wrap justify-center gap-1 p-1">{['FF', 'Ff', 'ff'].map(g => <button key={g} onClick={() => handleGuess(i, g)} className="w-9 py-1 bg-slate-50 border border-slate-200 rounded hover:bg-white hover:border-purple-300 font-bold text-[10px]">{g}</button>)}</div>}
+                                                </div>
+                                            ))}
+                                            <div className="bg-rose-100 rounded-l-xl p-2 flex flex-col items-center justify-center border-r-4 border-rose-200"><span className="text-[9px] text-rose-600 font-bold uppercase">Side</span><span className={`text-2xl font-black ${p2a2 === 'F' ? 'text-purple-600' : 'text-yellow-600'}`}>{p2a2}</span></div>
+                                            {[2, 3].map(i => (
+                                                <div key={i} className={`bg-white rounded-xl min-h-[90px] border-4 border-slate-200 flex flex-col items-center justify-center ${shakeIndex === i ? 'animate-shake bg-red-50' : ''}`}>
+                                                    {gridAnswers[i] ? <div className="text-green-700 animate-pop flex flex-col items-center"><CheckCircle2 className="mb-1" size={20} /><span className="text-xl font-black">{gridAnswers[i]}</span></div> :
+                                                        <div className="flex flex-wrap justify-center gap-1 p-1">{['FF', 'Ff', 'ff'].map(g => <button key={g} onClick={() => handleGuess(i, g)} className="w-9 py-1 bg-slate-50 border border-slate-200 rounded hover:bg-white hover:border-purple-300 font-bold text-[10px]">{g}</button>)}</div>}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    {allFilled ? <button onClick={() => setStep(3)} className="bg-green-600 text-white px-8 py-3 rounded-xl font-black animate-pop shadow-lg flex items-center gap-2">Hatch Offspring <ArrowRight size={20} /></button> : <button onClick={() => setStep(1)} className="text-slate-400 font-bold">Cancel</button>}
+                                </div>
+                            )}
+
+                            {step === 3 && (
+                                <div className="animate-pop flex flex-col h-full justify-center">
+                                    <div className="flex items-center justify-between mb-6">
+                                        <div><h2 className="text-2xl font-black text-slate-800 leading-tight">The Hatchlings</h2><p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Possible Offspring Results</p></div>
+                                        <button onClick={resetLab} className="bg-slate-200 hover:bg-slate-300 text-slate-800 px-4 py-2 rounded-lg font-bold flex items-center gap-2 text-xs"><RotateCcw size={16} /> Reset Lab</button>
+                                    </div>
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-2 gap-2 bg-slate-100 p-2 rounded-2xl border-4 border-slate-200">
+                                            {expectedGrid.map((geno, i) => (
+                                                <div key={i} className="bg-white rounded-lg p-2 flex flex-col items-center text-center shadow-sm">
+                                                    <Monster genotype={geno} className="w-16 h-16 mb-2" />
+                                                    <div className="bg-slate-50 px-2 py-1 rounded border border-slate-200 w-full flex justify-between items-center">
+                                                        <span className="text-sm font-black">{geno}</span>
+                                                        <span className={`text-[9px] font-black uppercase ${geno.includes('F') ? 'text-purple-600' : 'text-yellow-600'}`}>{getPhenotype(geno)}</span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        {(() => {
+                                            const stats = calculateStats();
+                                            return (
+                                                <div className="bg-slate-900 text-white rounded-2xl p-6 flex flex-col justify-center gap-6">
+                                                    <div>
+                                                        <h4 className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-3">Genotype Probability</h4>
+                                                        <div className="space-y-2">{['FF', 'Ff', 'ff'].map(g => (
+                                                            <div key={g} className="flex justify-between items-center bg-white/5 py-2 px-3 rounded border border-white/5">
+                                                                <span className="font-mono font-bold">{g}</span>
+                                                                <span className="font-black">{(stats.counts[g] / 4) * 100}%</span>
+                                                            </div>
+                                                        ))}</div>
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-3">Phenotype Probability</h4>
+                                                        <div className="space-y-2">
+                                                            <div className="flex justify-between items-center bg-purple-500/20 py-3 px-4 rounded-lg border border-purple-500/30">
+                                                                <span className="font-black text-purple-200">Purple Looks</span>
+                                                                <span className="text-xl font-black text-purple-400">{stats.purplePct}%</span>
+                                                            </div>
+                                                            <div className="flex justify-between items-center bg-yellow-500/20 py-3 px-4 rounded-lg border border-yellow-500/30">
+                                                                <span className="font-black text-yellow-200">Yellow Looks</span>
+                                                                <span className="text-xl font-black text-yellow-400">{stats.yellowPct}%</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })()}
+                                    </div>
+                                </div>
+                            )}
+                        </main>
+                    </div>
+                </div>
+            );
         }
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
