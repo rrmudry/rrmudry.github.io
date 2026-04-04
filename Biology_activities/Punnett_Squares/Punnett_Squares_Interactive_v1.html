@@ -394,17 +394,28 @@
                                                     </div>
 
                                                     <div className="pt-4 mt-4 border-t border-white/10">
-                                                        <h5 className="text-[10px] font-bold text-slate-400 uppercase mb-3 px-2">Genotype Breakdown</h5>
-                                                        <div className="space-y-2">
+                                                        <div className="flex justify-between items-center mb-4 px-2">
+                                                            <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Genotype Breakdown</h5>
+                                                            <div className="flex gap-4">
+                                                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 bg-slate-600 rounded-sm opacity-40"></div><span className="text-[9px] text-slate-500 font-bold uppercase">Theory</span></div>
+                                                                <div className="flex items-center gap-1.5"><div className="w-2 h-2 bg-cyan-400 rounded-sm"></div><span className="text-[9px] text-slate-300 font-bold uppercase">Reality</span></div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="space-y-5">
                                                             {['FF', 'Ff', 'ff'].map(g => (
-                                                                <div key={g} className="flex flex-col gap-1">
-                                                                    <div className="flex justify-between text-[10px] font-black px-1">
-                                                                        <span>{g}</span>
-                                                                        <span className="text-slate-500">{theoryStats[`${g}Pct`]}% vs {populationStats?.counts[g]}%</span>
+                                                                <div key={g} className="space-y-1.5">
+                                                                    <div className="flex justify-between text-[11px] font-black px-2">
+                                                                        <span className="text-slate-200">{g}</span>
+                                                                        <div className="space-x-3">
+                                                                            <span className="text-slate-500">{theoryStats[`${g}Pct`]}%</span>
+                                                                            <span className="text-cyan-400">{populationStats?.counts[g]}%</span>
+                                                                        </div>
                                                                     </div>
-                                                                    <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden flex">
-                                                                        <div className="h-full bg-slate-500 opacity-30" style={{ width: `${theoryStats[`${g}Pct`]}%` }}></div>
-                                                                        <div className="h-full bg-cyan-400 shadow-[0_0_8px_#22d3ee]" style={{ width: `${populationStats?.counts[g]}%` }}></div>
+                                                                    <div className="relative h-4 w-full bg-white/5 rounded-md overflow-hidden p-0.5 border border-white/5">
+                                                                        {/* Theory Bar */}
+                                                                        <div className="absolute top-1 left-0.5 bottom-1 bg-slate-700 opacity-30 rounded-sm transition-all duration-700" style={{ width: `calc(${theoryStats[`${g}Pct`]}% - 4px)` }}></div>
+                                                                        {/* Actual Bar */}
+                                                                        <div className="absolute top-1.5 left-0.5 bottom-1.5 bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.5)] rounded-sm transition-all duration-1000" style={{ width: `calc(${populationStats?.counts[g]}% - 4px)` }}></div>
                                                                     </div>
                                                                 </div>
                                                             ))}
