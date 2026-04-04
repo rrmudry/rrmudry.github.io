@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monster Generator • Physics & Biology Labs</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- React & ReactDOM (UMD via Unpkg) -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel for in-browser JSX compilation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0f172a; color: #f8fafc; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        input[type="range"] { accent-color: #8b5cf6; }
+        .monster-container { filter: drop-shadow(0 20px 50px rgba(0,0,0,0.5)); }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .animate-float { animation: float 4s ease-in-out infinite; }
+    </style>
+</head>
+<body class="min-h-screen overflow-x-hidden selection:bg-purple-500/30">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        // --- Lucide Icons ---
+        const Settings = ({ size = 20 }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+        );
+        const Download = ({ size = 20 }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+        );
+        const Palette = ({ size = 20 }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.92 0 1.76-.32 2.44-.86c.15-.12.42-.14.63-.04c.48.24 1.05.37 1.65.37c1.81 0 3.28-1.47 3.28-3.28c0-1.5-.94-2.82-2.31-3.27c-.22-.07-.44-.21-.5-.46c-.22-1.01-.32-2.07-.32-3.15C17 5.13 14.87 2 12 2Z"/></svg>
+        );
+
+        // --- Main App ---
+        function App() {
+            const [name, setName] = useState("Fluffy");
+            const [hue, setHue] = useState(270);
+            const [sat, setSat] = useState(80);
+            const [light, setLight] = useState(60);
+            const [bodyWidth, setBodyWidth] = useState(30);
+            const [bodyHeight, setBodyHeight] = useState(35);
+            const [earSize, setEarSize] = useState(1);
+            const [earAngle, setEarAngle] = useState(0);
+            const [eyeSize, setEyeSize] = useState(8);
+            const [pupilSize, setPupilSize] = useState(3);
+            const [eyeSpacing, setEyeSpacing] = useState(15);
+            const [mouthCurve, setMouthCurve] = useState(68);
+            const [mouthWidth, setMouthWidth] = useState(16);
+            const [spotCount, setSpotCount] = useState(0);
+            const [spotSize, setSpotSize] = useState(4);
+            const [legLength, setLegLength] = useState(20);
+
+            const baseColor = `hsl(${hue}, ${sat}%, ${light}%)`;
+            const darkColor = `hsl(${hue}, ${sat}%, ${light - 15}%)`;
+
+            // Derived SVG parts
+            const bodyPath = useMemo(() => {
+                const rx = bodyWidth;
+                const ry = bodyHeight;
+                return `M ${50-rx} 50 C ${50-rx} ${50-ry*2}, ${50+rx} ${50-ry*2}, ${50+rx} 50 C ${50+rx} ${50+ry}, ${50+rx*0.8} ${50+ry*0.8}, 50 ${50+ry*0.8} C ${50-rx*0.8} ${50+ry*0.8}, ${50-rx} ${50+ry}, ${50-rx} 50 Z`;
+            }, [bodyWidth, bodyHeight]);
+
+            const earPathLeft = useMemo(() => {
+                const s = earSize * 15;
+                const a = earAngle;
+                return `M 30 25 Q ${30-s} ${25-s-a} ${30-s*2} ${25-s+a/2} Q ${30-s*1.5} ${25} 30 28 Z`;
+            }, [earSize, earAngle]);
+
+            const earPathRight = useMemo(() => {
+                const s = earSize * 15;
+                const a = earAngle;
+                return `M 70 25 Q ${70+s} ${25-s-a} ${70+s*2} ${25-s+a/2} Q ${70+s*1.5} ${25} 70 28 Z`;
+            }, [earSize, earAngle]);
+
+            const spots = useMemo(() => {
+                const colors = ['#000000', '#ffffff'];
+                return Array.from({ length: spotCount }).map((_, i) => ({
+                    id: i,
+                    cx: 30 + Math.random() * 40,
+                    cy: 30 + Math.random() * 40,
+                    r: 2 + Math.random() * spotSize,
+                    opacity: 0.1 + Math.random() * 0.3
+                }));
+            }, [spotCount, spotSize]);
+
+            const downloadSVG = () => {
+                const svg = document.getElementById('monster-svg').outerHTML;
+                const blob = new Blob([svg], { type: 'image/svg+xml' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${name.replaceAll(' ', '_')}_monster.svg`;
+                link.click();
+            };
+
+            const ControlGroup = ({ title, icon: Icon, children }) => (
+                <div className="space-y-4 pt-4 border-t border-white/10 first:border-0 first:pt-0">
+                    <div className="flex items-center gap-2 text-slate-400 font-bold text-xs uppercase tracking-widest">
+                        <Icon size={14} /> {title}
+                    </div>
+                    <div className="grid gap-4">
+                        {children}
+                    </div>
+                </div>
+            );
+
+            const Slider = ({ label, value, min, max, onChange, unit = "" }) => (
+                <div className="space-y-1">
+                    <div className="flex justify-between text-xs font-medium text-slate-400">
+                        <span>{label}</span>
+                        <span className="text-white bg-white/10 px-1.5 rounded">{value}{unit}</span>
+                    </div>
+                    <input 
+                        type="range" min={min} max={max} value={value} 
+                        onChange={(e) => onChange(Number(e.target.value))}
+                        className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer"
+                    />
+                </div>
+            );
+
+            return (
+                <div className="max-w-[1400px] mx-auto p-4 md:p-8 flex flex-col lg:flex-row gap-8 min-h-screen">
+                    {/* Left: Preview Section */}
+                    <div className="flex-grow flex flex-col items-center justify-center space-y-8 lg:sticky lg:top-8 lg:h-[calc(100vh-64px)] overflow-hidden">
+                        <div className="relative group w-full flex-grow flex items-center justify-center">
+                            {/* Decorative Background Glow */}
+                            <div className="absolute w-[400px] h-[400px] bg-purple-500/10 blur-[100px] rounded-full"></div>
+                            
+                            <div className="monster-container w-full max-w-[500px] animate-float">
+                                <svg 
+                                    id="monster-svg" 
+                                    viewBox="0 0 100 100" 
+                                    className="w-full h-full"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    {/* Shadow */}
+                                    <ellipse cx="50" cy="90" rx="30" ry="6" fill="rgba(0,0,0,0.15)" />
+                                    
+                                    {/* Legs */}
+                                    <rect x={50 - eyeSpacing} y="70" width="12" height={legLength} rx="6" fill={darkColor} />
+                                    <rect x={50 + eyeSpacing - 12} y="70" width="12" height={legLength} rx="6" fill={darkColor} />
+                                    
+                                    {/* Body */}
+                                    <path d={bodyPath} fill={baseColor} />
+                                    
+                                    {/* Ears */}
+                                    <path d={earPathLeft} fill={darkColor} />
+                                    <path d={earPathRight} fill={darkColor} />
+                                    
+                                    {/* Spots */}
+                                    {spots.map(s => (
+                                        <circle key={s.id} cx={s.cx} cy={s.cy} r={s.r} fill="black" opacity={s.opacity} />
+                                    ))}
+
+                                    {/* Eyes */}
+                                    <circle cx={50 - eyeSpacing} cy="45" r={eyeSize} fill="white" />
+                                    <circle cx={50 - eyeSpacing} cy="45" r={pupilSize} fill="#1e293b" />
+                                    <circle cx={50 + eyeSpacing} cy="45" r={eyeSize} fill="white" />
+                                    <circle cx={50 + eyeSpacing} cy="45" r={pupilSize} fill="#1e293b" />
+                                    
+                                    <circle cx={50 - eyeSpacing - 2} cy="43" r={eyeSize/4} fill="white" />
+                                    <circle cx={50 + eyeSpacing - 2} cy="43" r={eyeSize/4} fill="white" />
+                                    
+                                    {/* Mouth */}
+                                    <path 
+                                        d={`M ${50 - mouthWidth} 60 Q 50 ${mouthCurve} ${50 + mouthWidth} 60`} 
+                                        stroke="#1e293b" strokeWidth="3" fill="transparent" strokeLinecap="round" 
+                                    />
+                                </svg>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col items-center gap-4 w-full">
+                            <input 
+                                type="text"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                className="bg-transparent text-4xl font-extrabold text-center uppercase tracking-tighter outline-none focus:text-purple-400 border-b border-transparent focus:border-purple-500/20 transition-all max-w-sm"
+                                placeholder="Enter Name..."
+                            />
+                            <div className="flex gap-4">
+                                <button onClick={downloadSVG} className="glass px-6 py-3 rounded-2xl flex items-center gap-2 hover:bg-slate-700/80 transition-all font-bold">
+                                    <Download size={18} /> Download SVG
+                                </button>
+                                <button onClick={() => window.location.reload()} className="glass px-6 py-3 rounded-2xl flex items-center gap-2 hover:bg-slate-700/80 transition-all font-bold">
+                                    Refresh
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Right: Controls Panel */}
+                    <div className="lg:w-[450px] space-y-6">
+                        <div className="glass rounded-[32px] p-8 space-y-8 shadow-2xl overflow-y-auto max-h-[calc(100vh-64px)] no-scrollbar">
+                            <div className="flex items-center gap-3">
+                                <div className="p-3 bg-purple-500/20 rounded-2xl text-purple-400">
+                                    <Settings />
+                                </div>
+                                <div>
+                                    <h2 className="text-xl font-bold">Monster Editor</h2>
+                                    <p className="text-slate-500 text-sm">Fine-tune features & colors</p>
+                                </div>
+                            </div>
+
+                            <ControlGroup title="Body Aesthetics" icon={Palette}>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <Slider label="Hue" value={hue} min={0} max={360} onChange={setHue} unit="°" />
+                                    <Slider label="Saturation" value={sat} min={0} max={100} onChange={setSat} unit="%" />
+                                    <Slider label="Brightness" value={light} min={20} max={90} onChange={setLight} unit="%" />
+                                    <Slider label="Legs" value={legLength} min={5} max={35} onChange={setLegLength} />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/5">
+                                    <Slider label="Body Width" value={bodyWidth} min={15} max={45} onChange={setBodyWidth} />
+                                    <Slider label="Body Height" value={bodyHeight} min={20} max={45} onChange={setBodyHeight} />
+                                </div>
+                            </ControlGroup>
+
+                            <ControlGroup title="Head & Ears" icon={Settings}>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <Slider label="Ear Size" value={earSize} min={0.5} max={2.5} onChange={setEarSize} />
+                                    <Slider label="Ear Tilt" value={earAngle} min={-15} max={30} onChange={setEarAngle} unit="°" />
+                                </div>
+                            </ControlGroup>
+
+                            <ControlGroup title="Facial Details" icon={Settings}>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <Slider label="Eye Size" value={eyeSize} min={4} max={12} onChange={setEyeSize} />
+                                    <Slider label="Pupil Size" value={pupilSize} min={1} max={6} onChange={setPupilSize} />
+                                    <Slider label="Eye Gap" value={eyeSpacing} min={8} max={25} onChange={setEyeSpacing} />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/5">
+                                    <Slider label="Mouth Smile" value={mouthCurve} min={50} max={85} onChange={setMouthCurve} />
+                                    <Slider label="Mouth Width" value={mouthWidth} min={8} max={25} onChange={setMouthWidth} />
+                                </div>
+                            </ControlGroup>
+
+                            <ControlGroup title="Patterns & Texture" icon={Palette}>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <Slider label="Spot Count" value={spotCount} min={0} max={20} onChange={setSpotCount} />
+                                    <Slider label="Spot Size" value={spotSize} min={1} max={10} onChange={setSpotSize} />
+                                </div>
+                            </ControlGroup>
+
+                            {/* Preset Buttons */}
+                            <div className="pt-8 border-t border-white/10">
+                                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Quick Themes</h3>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <button 
+                                        onClick={() => { setHue(270); setSat(80); setLight(60); setEarSize(1); setEyeSize(8); setMouthCurve(68); setSpotCount(0); }}
+                                        className="py-3 rounded-xl bg-purple-600/20 border border-purple-500/20 text-purple-400 font-bold text-sm hover:bg-purple-600/30 transition-all"
+                                    >
+                                        Classic Purple
+                                    </button>
+                                    <button 
+                                        onClick={() => { setHue(50); setSat(90); setLight(60); setEarSize(1.5); setEyeSize(10); setMouthCurve(60); setSpotCount(5); setSpotSize(6); }}
+                                        className="py-3 rounded-xl bg-yellow-500/20 border border-yellow-500/20 text-yellow-400 font-bold text-sm hover:bg-yellow-500/30 transition-all"
+                                    >
+                                        Golden Spot
+                                    </button>
+                                    <button 
+                                        onClick={() => { setHue(190); setSat(70); setLight(45); setBodyWidth(40); setBodyHeight(25); setEyeSize(12); setLegLength(10); }}
+                                        className="py-3 rounded-xl bg-cyan-600/20 border border-cyan-500/20 text-cyan-400 font-bold text-sm hover:bg-cyan-600/30 transition-all"
+                                    >
+                                        Small & Round
+                                    </button>
+                                    <button 
+                                        onClick={() => { setHue(10); setSat(80); setLight(50); setEarAngle(30); setMouthCurve(85); setEyeSize(6); setPupilSize(1); }}
+                                        className="py-3 rounded-xl bg-red-600/20 border border-red-500/20 text-red-400 font-bold text-sm hover:bg-red-600/30 transition-all"
+                                    >
+                                        Grumpy Red
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <footer className="text-center text-slate-500 text-[10px] uppercase tracking-widest font-bold">
+                            Interactive Character Lab • Created for Biology & Physics Curriculum
+                        </footer>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
