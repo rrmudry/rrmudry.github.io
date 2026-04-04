@@ -279,7 +279,8 @@ const lessonsData = [
     type: "Activity",
     links: { 
       "Wave Boundary Explorer": "Unit_6_Waves_Radiation/Boundary_Behaviors/Boundary_Behaviors.html",
-      "WaveMaster Lab": "Unit_6_Waves_Radiation/WaveMaster_Lab/wavemaster_lab.html" 
+      "WaveMaster Lab": "Unit_6_Waves_Radiation/WaveMaster_Lab/wavemaster_lab.html",
+      "Genetics Tutorial": "Biology_activities/Punnett_Squares/Genetics_Tutorial.html"
     },
     dok: 2,
     semester: 2,
