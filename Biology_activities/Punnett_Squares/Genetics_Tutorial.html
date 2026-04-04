@@ -1,1032 +1,435 @@
-import React, { useState, useEffect } from 'react';
-import { Lock, Unlock, CheckCircle, ArrowRight, PaintBucket, Dna, ArrowDown, User, Sparkles, AlertCircle } from
-'lucide-react';
-
-// --- Reusable UI Components ---
-
-const Monster = ({ genotype, className = "w-32 h-32" }) => {
-const isUnpainted = !genotype; // Treat empty genotype as unpainted
-const isPurple = genotype.includes('F');
-
-// Grey for unpainted, then Purple or Yellow
-const baseColor = isUnpainted ? '#e5e7eb' : (isPurple ? '#a855f7' : '#facc15');
-const darkColor = isUnpainted ? '#9ca3af' : (isPurple ? '#7e22ce' : '#ca8a04');
-
-return (
-<div className={`relative ${className} animate-pop`}>
-    <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-lg">
-        {/* Ground Shadow */}
-        <ellipse cx="50" cy="90" rx="30" ry="6" fill="rgba(0,0,0,0.15)" />
-
-        {/* Legs */}
-        <rect x="30" y="70" width="12" height="20" rx="6" fill={darkColor} />
-        <rect x="58" y="70" width="12" height="20" rx="6" fill={darkColor} />
-
-        {/* Body (Custom Blob Path) */}
-        <path d="M 20 50 C 20 15, 80 15, 80 50 C 80 85, 75 80, 50 80 C 25 80, 20 85, 20 50 Z" fill={baseColor} />
-
-        {/* Recessive Trait Visuals: Spots for Yellow Monsters */}
-        {(!isPurple && !isUnpainted) && (
-        <>
-            <circle cx="35" cy="30" r="4" fill={darkColor} opacity="0.3" />
-            <circle cx="70" cy="45" r="5" fill={darkColor} opacity="0.3" />
-            <circle cx="25" cy="60" r="3" fill={darkColor} opacity="0.3" />
-        </>
-        )}
-
-        {/* Dominant Trait Visuals: Horns for Purple Monsters */}
-        {(isPurple && !isUnpainted) && (
-        <>
-            <path d="M 30 25 Q 20 10 10 15 Q 15 25 25 28 Z" fill={darkColor} />
-            <path d="M 70 25 Q 80 10 90 15 Q 85 25 75 28 Z" fill={darkColor} />
-        </>
-        )}
-
-        {/* Complex Eyes */}
-        <circle cx="35" cy="45" r="8" fill="white" />
-        <circle cx="35" cy="45" r="3" fill="#1e293b" />
-        <circle cx="65" cy="45" r="8" fill="white" />
-        <circle cx="65" cy="45" r="3" fill="#1e293b" />
-
-        {/* Eye Highlights */}
-        <circle cx="33" cy="43" r="1.5" fill="white" />
-        <circle cx="63" cy="43" r="1.5" fill="white" />
-
-        {/* Smiling Mouth */}
-        <path d="M 42 60 Q 50 68 58 60" stroke="#1e293b" strokeWidth="3" fill="transparent" strokeLinecap="round" />
-    </svg>
-</div>
-);
-};
-
-const Card = ({ children, className = "" }) => (
-<div className={`bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden ${className}`}>
-    {children}
-</div>
-);
-
-const Button = ({ onClick, disabled, className = "", children, variant = "primary" }) => {
-const baseStyle = "px-6 py-3 rounded-lg font-bold transition-all transform active:scale-95 flex items-center
-justify-center gap-2";
-const variants = {
-primary: "bg-purple-600 text-white hover:bg-purple-700 disabled:bg-gray-300 disabled:text-gray-500",
-secondary: "bg-yellow-400 text-yellow-900 hover:bg-yellow-500 disabled:bg-gray-200",
-outline: "border-2 border-purple-600 text-purple-600 hover:bg-purple-50",
-};
-return (
-<button onClick={onClick} disabled={disabled} className={`${baseStyle} ${variants[variant]} ${className}`}>
-    {children}
-</button>
-);
-};
-
-// --- Interactive Challenges ---
-
-const Challenge1 = ({ onSuccess }) => {
-const [selected, setSelected] = useState([]);
-const [phase, setPhase] = useState('initial'); // 'initial', 'scaffolding', or 'followup'
-const [followUpChoice, setFollowUpChoice] = useState(null);
-const [scaffoldFeedback, setScaffoldFeedback] = useState("");
-
-const items = [
-{ id: 'fur', label: 'Fur Color', isTrait: true },
-{ id: 'hat', label: 'Wearing a Hat', isTrait: false },
-{ id: 'scar', label: 'A Battle Scar', isTrait: false },
-{ id: 'horns', label: 'Horn Size', isTrait: true },
-{ id: 'food', label: 'Favorite Food', isTrait: false },
-{ id: 'eyes', label: 'Number of Eyes', isTrait: true },
-];
-
-const toggle = (id) => {
-setSelected(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
-};
-
-const checkInitialAnswer = () => {
-const correctIds = items.filter(i => i.isTrait).map(i => i.id);
-const isCorrect = selected.length === correctIds.length && selected.every(id => correctIds.includes(id));
-
-if (isCorrect) {
-setPhase('followup');
-} else {
-setPhase('scaffolding');
-setScaffoldFeedback("");
-}
-};
-
-const handleScaffoldAnswer = (isCorrect) => {
-if (isCorrect) {
-setScaffoldFeedback("Exactly! Biological traits are built-in from birth, not acquired later. Let's try the selection
-again.");
-setTimeout(() => {
-setPhase('initial');
-setSelected([]); // Reset selections for the retry
-}, 3500);
-} else {
-setScaffoldFeedback("Not quite! Think about whether a baby monster is born wearing a hat or with battle scars. Try the
-other answer!");
-}
-};
-
-const checkFollowUp = () => {
-if (followUpChoice === 'B') {
-onSuccess();
-} else {
-alert("Think about where biological traits come from! They aren't learned or chosen.");
-}
-};
-
-if (phase === 'scaffolding') {
-return (
-<div className="flex flex-col items-center gap-4 w-full animate-fade-in">
-    <div className="bg-orange-50 border-2 border-orange-200 p-6 rounded-xl flex flex-col gap-4 w-full max-w-lg">
-        <h3 className="font-bold text-orange-800 flex items-center gap-2">
-            <AlertCircle size={20} /> Let's think about this!
-        </h3>
-        <p className="text-gray-700">
-            It looks like some of your selections might be things a monster acquires during its life, rather than
-            passing down through DNA.
-        </p>
-        <div className="bg-white p-4 rounded border border-orange-100 shadow-sm">
-            <p className="font-medium mb-3">Guiding Question: If a monster gets a "Battle Scar" from fighting, will its
-                babies automatically be born with that exact same scar?</p>
-            <div className="flex flex-col gap-2">
-                <button onClick={()=> handleScaffoldAnswer(false)} className="px-4 py-2 text-left rounded border
-                    hover:bg-gray-50 transition-colors">
-                    Yes, scars are passed down to babies.
-                </button>
-                <button onClick={()=> handleScaffoldAnswer(true)} className="px-4 py-2 text-left rounded border
-                    hover:bg-gray-50 transition-colors">
-                    No, a scar is an event in its life, not part of its DNA.
-                </button>
-            </div>
-        </div>
-        {scaffoldFeedback && (
-        <div className={`p-3 rounded font-medium ${scaffoldFeedback.startsWith('Exactly')
-            ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }`}>
-            {scaffoldFeedback}
-        </div>
-        )}
-    </div>
-</div>
-);
-}
-
-if (phase === 'followup') {
-return (
-<div className="flex flex-col items-center gap-4 w-full animate-fade-in">
-    <div className="bg-green-50 border-2 border-green-200 p-6 rounded-xl flex flex-col gap-4 w-full max-w-lg">
-        <h3 className="font-bold text-green-800 flex items-center gap-2">
-            <CheckCircle size={20} /> Spot on! Now let's go deeper.
-        </h3>
-        <p className="text-gray-700">
-            You correctly identified Fur Color, Horn Size, and Number of Eyes as biological traits.
-        </p>
-        <div className="bg-white p-4 rounded border border-green-100 shadow-sm">
-            <p className="font-medium mb-3">How do we know those specific features are biological traits?</p>
-            <div className="flex flex-col gap-2">
-                {[
-                { id: 'A', text: 'They are things the monster learned or decided to do over time.' },
-                { id: 'B', text: 'They are physical features determined by DNA inherited from parents.' },
-                { id: 'C', text: 'They are characteristics shaped entirely by the environment.' }
-                ].map(opt => (
-                <div key={opt.id} onClick={()=> setFollowUpChoice(opt.id)}
-                    className={`p-3 rounded border-2 cursor-pointer transition-all ${followUpChoice === opt.id ?
-                    'border-purple-600 bg-purple-100 font-bold' : 'bg-white border-gray-200 hover:border-purple-300'}`}
-                    >
-                    {opt.text}
-                </div>
-                ))}
-            </div>
-        </div>
-        <Button disabled={!followUpChoice} onClick={checkFollowUp} className="w-full mt-2">
-            Submit Final Answer
-        </Button>
-    </div>
-</div>
-);
-}
-
-return (
-<div className="flex flex-col items-center gap-4 animate-fade-in">
-    <p className="text-center text-gray-700 mb-2 font-medium">
-        Select ONLY the biological traits that a monster would inherit from its parents' DNA.
-    </p>
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 w-full">
-        {items.map(item => (
-        <div key={item.id} onClick={()=> toggle(item.id)}
-            className={`cursor-pointer p-4 rounded-lg border-2 text-center transition-all ${
-            selected.includes(item.id) ? 'border-purple-600 bg-purple-100 font-bold text-purple-800' : 'border-gray-200
-            hover:border-purple-300 bg-gray-50'
-            }`}
-            >
-            {item.label}
-        </div>
-        ))}
-    </div>
-    <Button onClick={checkInitialAnswer} className="mt-4">Check Answer</Button>
-</div>
-);
-};
-
-const Challenge2 = ({ onSuccess }) => {
-const [selected, setSelected] = useState([]);
-const [phase, setPhase] = useState('initial'); // 'initial', 'clarification', 'wrong_step1', 'wrong_step2'
-
-// Notice we included 'P' and 'Y' as distractors to test a common misconception!
-const symbols = ['P', 'p', 'F', 'f', 'Y', 'y'];
-
-const toggle = (sym) => {
-setSelected(prev => prev.includes(sym) ? prev.filter(s => s !== sym) : [...prev, sym]);
-};
-
-const checkAnswer = () => {
-if (selected.length !== 2) {
-alert("Please select exactly TWO alleles.");
-return;
-}
-
-const isCorrect = selected.includes('F') && selected.includes('f');
-if (isCorrect) {
-setPhase('clarification');
-} else {
-setPhase('wrong_step1');
-}
-};
-
-const handleStep1 = (isCorrect) => {
-if (isCorrect) {
-setPhase('wrong_step2');
-} else {
-alert("Not quite! If the letters are completely different, the genes they represent are completely different too.");
-}
-};
-
-const handleStep2 = (isCorrect) => {
-if (isCorrect) {
-setPhase('initial');
-setSelected([]);
-} else {
-alert("Remember, versions of the SAME gene must use the SAME letter (just uppercase and lowercase).");
-}
-};
-
-if (phase === 'clarification') {
-return (
-<div className="flex flex-col items-center gap-4 w-full animate-fade-in">
-    <div className="bg-green-50 border-green-200 border-2 p-6 rounded-xl flex flex-col gap-4 w-full max-w-lg shadow-lg">
-        <h3 className="font-bold text-green-800 flex items-center gap-2 text-lg">
-            <CheckCircle size={24} /> Correct! Let's clarify why.
-        </h3>
-
-        <div className="flex flex-col gap-3">
-            {/* The Correct Visual */}
-            <div className="bg-white p-3 rounded-lg border-2 border-green-200 relative overflow-hidden">
-                <div
-                    className="absolute top-0 right-0 bg-green-100 text-green-700 font-bold text-xs px-2 py-1 rounded-bl-lg">
-                    THE RULE</div>
-                <div className="flex justify-around items-end mt-4 px-4">
-                    <div className="flex flex-col items-center">
-                        <Monster genotype="FF" className="w-16 h-16 drop-shadow-md" />
-                        <span className="text-green-600 font-black text-2xl mt-1">F</span>
-                    </div>
-                    <div className="flex flex-col items-center">
-                        <Monster genotype="ff" className="w-16 h-16 drop-shadow-md" />
-                        <span className="text-green-600 font-black text-2xl mt-1">f</span>
-                    </div>
-                </div>
-                <p className="text-center text-green-800 text-sm mt-3 font-medium bg-green-50 p-2 rounded">
-                    Same letter (<strong>F</strong> and <strong>f</strong>) = Same gene (Fur Color), just different
-                    versions!
-                </p>
-            </div>
-        </div>
-
-        <Button onClick={onSuccess} className="w-full mt-2 text-lg py-4 shadow-md">
-            Continue to Next Lesson
-        </Button>
-    </div>
-</div>
-);
-}
-
-if (phase === 'wrong_step1') {
-return (
-<div className="flex flex-col items-center gap-4 w-full animate-fade-in">
-    <div
-        className="bg-orange-50 border-orange-200 border-2 p-6 rounded-xl flex flex-col gap-4 w-full max-w-lg shadow-lg">
-        <h3 className="font-bold text-orange-800 flex items-center gap-2 text-lg">
-            <AlertCircle size={24} /> Not quite! Let's review a common mistake.
-        </h3>
-
-        {/* The Misconception Visual */}
-        <div className="bg-white p-3 rounded-lg border-2 border-red-200 relative overflow-hidden">
-            <div className="absolute top-0 right-0 bg-red-100 text-red-600 font-bold text-xs px-2 py-1 rounded-bl-lg">
-                COMMON MISTAKE</div>
-            <div className="flex justify-around items-end mt-4 px-4">
-                <div className="flex flex-col items-center">
-                    <Monster genotype="FF" className="w-16 h-16 opacity-70 grayscale-[30%]" />
-                    <span className="text-red-500 font-black text-2xl mt-1 line-through decoration-4">P</span>
-                </div>
-                <div className="flex flex-col items-center">
-                    <Monster genotype="ff" className="w-16 h-16 opacity-70 grayscale-[30%]" />
-                    <span className="text-red-500 font-black text-2xl mt-1 line-through decoration-4">Y</span>
-                </div>
-            </div>
-        </div>
-
-        {/* Sentence Completion */}
-        <div className="bg-white p-4 rounded-lg border border-orange-100 shadow-sm mt-2">
-            <p className="font-bold text-gray-800 mb-3">Complete the sentence:</p>
-            <p className="text-gray-700 italic mb-4">"Because <strong>P</strong> and <strong>Y</strong> are different
-                letters, they must represent completely different..."</p>
-            <div className="flex flex-col gap-2">
-                <button onClick={()=> handleStep1(true)} className="p-3 text-left rounded border-2 border-gray-200
-                    hover:border-purple-400 hover:bg-purple-50 transition-all font-medium text-gray-700">
-                    ...Genes (like Fur Color vs. Horn Size)
-                </button>
-                <button onClick={()=> handleStep1(false)} className="p-3 text-left rounded border-2 border-gray-200
-                    hover:border-purple-400 hover:bg-purple-50 transition-all font-medium text-gray-700">
-                    ...Versions of the exact same gene
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-);
-}
-
-if (phase === 'wrong_step2') {
-return (
-<div className="flex flex-col items-center gap-4 w-full animate-fade-in">
-    <div className="bg-blue-50 border-blue-200 border-2 p-6 rounded-xl flex flex-col gap-4 w-full max-w-lg shadow-lg">
-        <h3 className="font-bold text-blue-800 flex items-center gap-2 text-lg">
-            <CheckCircle size={24} /> Exactly!
-        </h3>
-
-        {/* Clarifying Example & Question */}
-        <div className="bg-white p-4 rounded-lg border border-blue-100 shadow-sm text-gray-700">
-            <p className="mb-3">Different letters mean completely different traits.</p>
-
-            <div className="bg-blue-50 p-3 rounded mb-4 font-medium text-sm text-blue-900 border border-blue-100">
-                <strong>For Example:</strong> <br />
-                The letter <strong>E</strong> might stand for <em>Number of Eyes</em>.<br />
-                The letter <strong>H</strong> might stand for <em>Horn Size</em>.
-            </div>
-
-            <p className="font-bold text-gray-800 mb-3">Now, try this:</p>
-            <p className="mb-4">If we want to show two versions of the <strong>SAME</strong> gene (like Purple vs.
-                Yellow fur), which pair should we use?</p>
-
-            <div className="flex flex-col gap-2">
-                <button onClick={()=> handleStep2(false)} className="p-3 text-left rounded border-2 border-gray-200
-                    hover:border-blue-400 hover:bg-blue-50 transition-all font-bold text-gray-700">
-                    A and B
-                </button>
-                <button onClick={()=> handleStep2(true)} className="p-3 text-left rounded border-2 border-gray-200
-                    hover:border-blue-400 hover:bg-blue-50 transition-all font-bold text-gray-700">
-                    D and d
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-);
-}
-
-return (
-<div className="flex flex-col items-center gap-6 animate-fade-in">
-    <div className="flex justify-center gap-8 w-full bg-gray-50 p-4 rounded-xl border border-gray-200">
-        <div className="flex flex-col items-center">
-            <Monster genotype="FF" className="w-20 h-20 drop-shadow-md" />
-            <span className="font-bold text-purple-700 mt-2">Purple Variation</span>
-        </div>
-        <div className="flex flex-col items-center">
-            <Monster genotype="ff" className="w-20 h-20 drop-shadow-md" />
-            <span className="font-bold text-yellow-600 mt-2">Yellow Variation</span>
-        </div>
-    </div>
-
-    <p className="text-center text-gray-700 font-medium max-w-md">
-        Even though the colors are different, they belong to the same "Fur Color" trait. Select the TWO alleles
-        (letters) geneticists would use for these monsters.
-    </p>
-
-    <div className="flex flex-wrap justify-center gap-3 w-full max-w-md">
-        {symbols.map((sym, i) => (
-        <div key={i} onClick={()=> toggle(sym)}
-            className={`cursor-pointer w-14 h-14 rounded-full flex items-center justify-center text-2xl font-bold
-            border-4 transition-all ${
-            selected.includes(sym) ? 'border-purple-500 bg-purple-500 text-white scale-110 shadow-lg' : 'border-gray-200
-            bg-white text-gray-600 hover:border-purple-200'
-            }`}
-            >
-            {sym}
-        </div>
-        ))}
-    </div>
-    <Button onClick={checkAnswer} className="mt-2">Lock in Alleles</Button>
-</div>
-);
-};
-
-const Challenge3 = ({ onSuccess }) => {
-const [babySlots, setBabySlots] = useState([null, null]);
-const [phase, setPhase] = useState('first'); // 'first', 'congratulate', 'second'
-const [firstCombo, setFirstCombo] = useState(null);
-const [errorMsg, setErrorMsg] = useState("");
-const [isCompleted, setIsCompleted] = useState(false); // Flag to prevent double-firing
-
-const fillSlot = (allele, slotIndex) => {
-if (phase === 'congratulate' || isCompleted) return; // block input while showing message
-const newSlots = [...babySlots];
-newSlots[slotIndex] = allele;
-setBabySlots(newSlots);
-setErrorMsg(""); // clear error on new click
-};
-
-useEffect(() => {
-if (babySlots[0] && babySlots[1]) {
-if (phase === 'first') {
-// First completion: save combination and congratulate
-setTimeout(() => {
-setFirstCombo([...babySlots]);
-setPhase('congratulate');
-}, 500);
-} else if (phase === 'second' && !isCompleted) {
-// Second completion: verify it's a different combination
-if (babySlots[0] === firstCombo[0] && babySlots[1] === firstCombo[1]) {
-setTimeout(() => {
-setErrorMsg("You picked the exact same combination! Try changing at least one parent's contribution.");
-setBabySlots([null, null]); // reset slots to try again
-}, 300);
-} else {
-setErrorMsg("");
-setIsCompleted(true); // Lock it so it doesn't fire again on re-render
-setTimeout(onSuccess, 800);
-}
-}
-}
-}, [babySlots, phase, firstCombo, onSuccess, isCompleted]);
-
-return (
-<div className="flex flex-col items-center gap-6 w-full">
-    {/* Dynamic Header / Instructions */}
-    {phase === 'first' && (
-    <p className="text-center text-gray-700 font-medium max-w-lg">
-        Build a baby! Click one allele from Parent 1 and one from Parent 2 to give the baby its full diploid set.
-    </p>
-    )}
-
-    {phase === 'congratulate' && (
-    <div
-        className="bg-green-50 border-2 border-green-200 p-5 rounded-xl flex flex-col items-center gap-3 w-full max-w-lg shadow-sm animate-fade-in">
-        <h3 className="font-bold text-green-800 flex items-center gap-2 text-lg">
-            <CheckCircle size={24} /> Great job!
-        </h3>
-        <p className="text-gray-700 text-center mb-1">
-            You made a baby with the genotype <strong
-                className="text-lg bg-green-200 px-2 py-1 rounded">{firstCombo.join('')}</strong>.<br /> But parents
-            pass alleles randomly! Can you find a <strong>DIFFERENT</strong> possible combination?
-        </p>
-        <Button onClick={()=> { setPhase('second'); setBabySlots([null, null]); }}>
-            Find Another Combination
-        </Button>
-    </div>
-    )}
-
-    {phase === 'second' && (
-    <p className="text-center text-purple-800 font-bold max-w-lg text-lg animate-fade-in">
-        Build a DIFFERENT baby! Pick a combination of alleles you haven't used yet.
-    </p>
-    )}
-
-    {errorMsg && (
-    <div
-        className="bg-orange-50 text-orange-800 p-3 rounded-lg border-2 border-orange-200 text-sm font-bold w-full max-w-lg text-center animate-pop flex items-center justify-center gap-2">
-        <AlertCircle size={18} /> {errorMsg}
-    </div>
-    )}
-
-    {/* Interactive Board */}
-    <div className={`flex justify-around w-full max-w-lg transition-all duration-500 ${(phase==='congratulate' ||
-        isCompleted) ? 'opacity-40 pointer-events-none grayscale-[30%]' : '' }`}>
-        {/* Parent 1 */}
-        <div className="flex flex-col items-center bg-blue-50 p-4 rounded-xl border border-blue-200 shadow-sm relative">
-            <span className="font-bold text-blue-800 mb-2">Parent 1</span>
-            <Monster genotype="Ff" className="w-12 h-12 mb-2" />
-            <div className="flex gap-2">
-                <button onClick={()=> fillSlot('F', 0)} className={`w-12 h-12 border-2 rounded-lg font-bold text-xl
-                    transition-all ${babySlots[0] === 'F' ? 'bg-blue-500 text-white border-blue-700 shadow-inner
-                    scale-95' : 'bg-white border-blue-400 hover:bg-blue-100 text-blue-800 hover:scale-105'}`}>F</button>
-                <button onClick={()=> fillSlot('f', 0)} className={`w-12 h-12 border-2 rounded-lg font-bold text-xl
-                    transition-all ${babySlots[0] === 'f' ? 'bg-blue-500 text-white border-blue-700 shadow-inner
-                    scale-95' : 'bg-white border-blue-400 hover:bg-blue-100 text-blue-800 hover:scale-105'}`}>f</button>
-            </div>
-        </div>
-
-        {/* Parent 2 */}
-        <div className="flex flex-col items-center bg-pink-50 p-4 rounded-xl border border-pink-200 shadow-sm relative">
-            <span className="font-bold text-pink-800 mb-2">Parent 2</span>
-            <Monster genotype="Ff" className="w-12 h-12 mb-2" />
-            <div className="flex gap-2">
-                <button onClick={()=> fillSlot('F', 1)} className={`w-12 h-12 border-2 rounded-lg font-bold text-xl
-                    transition-all ${babySlots[1] === 'F' ? 'bg-pink-500 text-white border-pink-700 shadow-inner
-                    scale-95' : 'bg-white border-pink-400 hover:bg-pink-100 text-pink-800 hover:scale-105'}`}>F</button>
-                <button onClick={()=> fillSlot('f', 1)} className={`w-12 h-12 border-2 rounded-lg font-bold text-xl
-                    transition-all ${babySlots[1] === 'f' ? 'bg-pink-500 text-white border-pink-700 shadow-inner
-                    scale-95' : 'bg-white border-pink-400 hover:bg-pink-100 text-pink-800 hover:scale-105'}`}>f</button>
-            </div>
-        </div>
-    </div>
-
-    <div className="flex flex-col items-center mt-2">
-        <ArrowDown className={`text-gray-400 mb-2 transition-all ${(phase==='congratulate' || isCompleted)
-            ? 'opacity-40' : 'animate-bounce' }`} size={32} />
-        <div
-            className="bg-purple-100 p-6 rounded-2xl border-4 border-purple-300 flex flex-col items-center shadow-md relative">
-            <span className="font-bold text-purple-900 mb-3">Baby Monster DNA</span>
-            <div className="flex gap-4">
-                <div className={`w-16 h-16 rounded-xl flex items-center justify-center text-3xl font-black border-4
-                    transition-all ${babySlots[0] ? 'bg-blue-400 text-white border-blue-500 shadow-lg animate-pop'
-                    : 'bg-white border-dashed border-gray-400 text-gray-300' }`}>
-                    {babySlots[0] || '?'}
-                </div>
-                <div className={`w-16 h-16 rounded-xl flex items-center justify-center text-3xl font-black border-4
-                    transition-all ${babySlots[1] ? 'bg-pink-400 text-white border-pink-500 shadow-lg animate-pop'
-                    : 'bg-white border-dashed border-gray-400 text-gray-300' }`}>
-                    {babySlots[1] || '?'}
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-);
-};
-
-const Challenge4 = ({ onSuccess }) => {
-const [monsters, setMonsters] = useState({ m1: { geno: 'FF', color: null }, m2: { geno: 'Ff', color: null }, m3: { geno:
-'ff', color: null } });
-const [activePaint, setActivePaint] = useState(null); // 'purple' or 'yellow'
-
-const paintMonster = (id) => {
-if (!activePaint) return;
-setMonsters(prev => ({ ...prev, [id]: { ...prev[id], color: activePaint } }));
-};
-
-const checkAnswer = () => {
-if (monsters.m1.color === 'purple' && monsters.m2.color === 'purple' && monsters.m3.color === 'yellow') {
-onSuccess();
-} else {
-alert("Not quite! Remember: 'F' (Purple) is DOMINANT over 'f' (Yellow). If there is even one big 'F', the monster is
-Purple! Only 'ff' can be Yellow.");
-}
-};
-
-return (
-<div className="flex flex-col items-center gap-6">
-    <p className="text-center text-gray-700 font-medium">
-        Grab a paint bucket and color the monsters based on their genotype. Remember the rule of dominance!
-    </p>
-
-    <div className="flex gap-4 mb-4 bg-gray-100 p-4 rounded-xl">
-        <button onClick={()=> setActivePaint('purple')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold transition-all ${activePaint === 'purple'
-            ? 'bg-purple-600 text-white shadow-lg scale-110' : 'bg-white text-purple-600 border-2 border-purple-200'}`}
-            >
-            <PaintBucket size={20} /> Purple Paint
-        </button>
-        <button onClick={()=> setActivePaint('yellow')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold transition-all ${activePaint === 'yellow'
-            ? 'bg-yellow-400 text-yellow-900 shadow-lg scale-110' : 'bg-white text-yellow-600 border-2
-            border-yellow-200'}`}
-            >
-            <PaintBucket size={20} /> Yellow Paint
-        </button>
-    </div>
-
-    <div className="flex justify-around w-full">
-        {Object.entries(monsters).map(([id, data]) => (
-        <div key={id} onClick={()=> paintMonster(id)} className="flex flex-col items-center cursor-pointer transform
-            hover:scale-105 transition-transform">
-            <Monster genotype={data.color==='purple' ? 'F' : data.color==='yellow' ? 'f' : '' }
-                className="w-20 h-20 drop-shadow-md" />
-            <div className="mt-3 bg-white px-3 py-1 rounded shadow text-xl font-bold font-mono tracking-widest">
-                {data.geno}</div>
-        </div>
-        ))}
-    </div>
-
-    <Button onClick={checkAnswer} className="mt-4">Check Phenotypes</Button>
-</div>
-);
-};
-
-const SortingChallenge = ({ items, categories, successCondition, errorMessage, onSuccess, description }) => {
-const [assignments, setAssignments] = useState(items.map(i => ({ ...i, box: null })));
-const [selectedItem, setSelectedItem] = useState(null);
-
-const handleItemClick = (id) => setSelectedItem(id === selectedItem ? null : id);
-
-const handleBoxClick = (boxId) => {
-if (!selectedItem) return;
-setAssignments(prev => prev.map(item => item.id === selectedItem ? { ...item, box: boxId } : item));
-setSelectedItem(null);
-};
-
-const checkAnswer = () => {
-const isSuccess = successCondition(assignments);
-if (isSuccess) onSuccess();
-else alert(errorMessage);
-};
-
-const unassigned = assignments.filter(i => i.box === null);
-
-return (
-<div className="flex flex-col items-center gap-6 w-full">
-    <p className="text-center text-gray-700 font-medium">{description}</p>
-
-    <div
-        className="flex flex-wrap justify-center gap-3 min-h-[60px] w-full p-4 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
-        {unassigned.length === 0 && <span className="text-gray-400 italic">All sorted! Check your answer.</span>}
-        {unassigned.map(item => (
-        <div key={item.id} onClick={()=> handleItemClick(item.id)}
-            className={`cursor-pointer px-4 py-2 bg-white rounded shadow font-bold text-lg border-2 transition-all
-            ${selectedItem === item.id ? 'border-purple-500 scale-110 shadow-purple-200' : 'border-gray-200
-            hover:border-gray-400'}`}
-            >
-            {item.label}
-        </div>
-        ))}
-    </div>
-
-    <div className="grid grid-cols-2 gap-4 w-full max-w-lg">
-        {categories.map(cat => (
-        <div key={cat.id} onClick={()=> handleBoxClick(cat.id)}
-            className={`flex flex-col items-center p-4 rounded-xl border-4 cursor-pointer transition-colors
-            min-h-[150px] ${selectedItem ? 'border-purple-400 bg-purple-50 hover:bg-purple-100' : 'border-gray-200
-            bg-gray-50'}`}
-            >
-            <h3 className={`font-bold text-xl mb-3 ${cat.colorClass}`}>{cat.title}</h3>
-            <div className="flex flex-col gap-2 w-full">
-                {assignments.filter(i => i.box === cat.id).map(item => (
-                <div key={item.id} onClick={(e)=> {
-                    e.stopPropagation();
-                    if (selectedItem && selectedItem !== item.id) {
-                    handleBoxClick(cat.id);
-                    } else {
-                    handleItemClick(item.id);
-                    }
-                    }}
-                    className={`px-3 py-2 bg-white rounded shadow text-center font-bold cursor-pointer border-2
-                    ${selectedItem === item.id ? 'border-purple-500' : 'border-transparent'}`}
-                    >
-                    {item.label}
-                </div>
-                ))}
-            </div>
-        </div>
-        ))}
-    </div>
-
-    <Button onClick={checkAnswer} disabled={unassigned.length> 0} className="mt-2">Check Sorting</Button>
-</div>
-);
-};
-
-const Challenge7 = ({ onSuccess }) => {
-const [topSlots, setTopSlots] = useState([null, null]);
-const [sideSlots, setSideSlots] = useState([null, null]);
-const [selectedAllele, setSelectedAllele] = useState(null); // { source: 'p1', val: 'F', idx: 0 }
-
-const p1Alleles = ['F', 'f']; // Parent 1 (Top)
-const p2Alleles = ['F', 'f']; // Parent 2 (Side)
-
-const handleSlotClick = (zone, index) => {
-if (!selectedAllele) return;
-
-// Enforce logic: P1 to Top, P2 to Side
-if (selectedAllele.source === 'p1' && zone !== 'top') {
-alert("Parent 1's alleles should go on the TOP of the Punnett Square.");
-return;
-}
-if (selectedAllele.source === 'p2' && zone !== 'side') {
-alert("Parent 2's alleles should go on the SIDE of the Punnett Square.");
-return;
-}
-
-if (zone === 'top') {
-const newSlots = [...topSlots];
-newSlots[index] = selectedAllele.val;
-setTopSlots(newSlots);
-} else {
-const newSlots = [...sideSlots];
-newSlots[index] = selectedAllele.val;
-setSideSlots(newSlots);
-}
-setSelectedAllele(null);
-};
-
-useEffect(() => {
-if (!topSlots.includes(null) && !sideSlots.includes(null)) {
-// Both parents are Ff, so top must have one F and one f, same for side.
-const topCorrect = topSlots.includes('F') && topSlots.includes('f');
-const sideCorrect = sideSlots.includes('F') && sideSlots.includes('f');
-if (topCorrect && sideCorrect) {
-setTimeout(onSuccess, 500);
-}
-}
-}, [topSlots, sideSlots]);
-
-const p1Remaining = p1Alleles.filter((a, i) => !topSlots.includes(a) || topSlots.indexOf(a) !== topSlots.lastIndexOf(a)
-? true : false ); // Simple filter visually
-
-return (
-<div className="flex flex-col items-center gap-6 w-full">
-    <p className="text-center text-gray-700 font-medium">
-        Let's set up a Punnett Square to predict offspring! Parent 1 (Top) is Heterozygous (Ff). Parent 2 (Side) is also
-        Heterozygous (Ff). <br /> Tap an allele below, then tap the correct slot on the outside of the grid.
-    </p>
-
-    <div className="flex gap-8 mb-4">
-        <div className="bg-blue-50 p-3 rounded border border-blue-200 flex flex-col items-center">
-            <span className="text-sm font-bold text-blue-800 mb-2">Parent 1 (Top)</span>
-            <div className="flex gap-2">
-                {p1Alleles.map((a, i) => (
-                <button key={`p1-${i}`} onClick={()=> setSelectedAllele({source: 'p1', val: a, id: `p1-${i}`})}
-                    className={`w-10 h-10 rounded font-bold text-lg border-2 ${selectedAllele?.id === `p1-${i}` ?
-                    'bg-blue-500 text-white border-blue-700' : 'bg-white border-blue-300 text-blue-800'}`}>{a}</button>
-                ))}
-            </div>
-        </div>
-        <div className="bg-pink-50 p-3 rounded border border-pink-200 flex flex-col items-center">
-            <span className="text-sm font-bold text-pink-800 mb-2">Parent 2 (Side)</span>
-            <div className="flex gap-2">
-                {p2Alleles.map((a, i) => (
-                <button key={`p2-${i}`} onClick={()=> setSelectedAllele({source: 'p2', val: a, id: `p2-${i}`})}
-                    className={`w-10 h-10 rounded font-bold text-lg border-2 ${selectedAllele?.id === `p2-${i}` ?
-                    'bg-pink-500 text-white border-pink-700' : 'bg-white border-pink-300 text-pink-800'}`}>{a}</button>
-                ))}
-            </div>
-        </div>
-    </div>
-
-    <div className="relative p-6 bg-white rounded-xl shadow-inner border-2 border-gray-100">
-        <div className="grid grid-cols-3 grid-rows-3 gap-2 w-64 h-64">
-            {/* Top Left (Empty) */}
-            <div className="col-span-1 row-span-1"></div>
-            {/* Top Slots */}
-            <div onClick={()=> handleSlotClick('top', 0)} className={`col-span-1 row-span-1 border-b-4 border-gray-400
-                flex items-center justify-center text-2xl font-bold cursor-pointer ${selectedAllele ?
-                'hover:bg-gray-100' : ''}`}>{topSlots[0] ? <span className="text-blue-600">{topSlots[0]}</span> : <span
-                    className="text-gray-300 border-2 border-dashed border-gray-300 px-4 py-2 rounded">Tap</span>}</div>
-            <div onClick={()=> handleSlotClick('top', 1)} className={`col-span-1 row-span-1 border-b-4 border-l-4
-                border-gray-400 flex items-center justify-center text-2xl font-bold cursor-pointer ${selectedAllele ?
-                'hover:bg-gray-100' : ''}`}>{topSlots[1] ? <span className="text-blue-600">{topSlots[1]}</span> : <span
-                    className="text-gray-300 border-2 border-dashed border-gray-300 px-4 py-2 rounded">Tap</span>}</div>
-
-            {/* Side Slot 1 */}
-            <div onClick={()=> handleSlotClick('side', 0)} className={`col-span-1 row-span-1 border-r-4 border-gray-400
-                flex items-center justify-center text-2xl font-bold cursor-pointer ${selectedAllele ?
-                'hover:bg-gray-100' : ''}`}>{sideSlots[0] ? <span className="text-pink-600">{sideSlots[0]}</span> :
-                <span className="text-gray-300 border-2 border-dashed border-gray-300 px-2 py-4 rounded">Tap</span>}
-            </div>
-            {/* Grid Inner */}
-            <div className="col-span-1 row-span-1 bg-gray-50 flex items-center justify-center">
-                <AlertCircle className="text-gray-200" size={32} />
-            </div>
-            <div
-                className="col-span-1 row-span-1 bg-gray-50 border-l-4 border-gray-400 flex items-center justify-center">
-                <AlertCircle className="text-gray-200" size={32} />
-            </div>
-
-            {/* Side Slot 2 */}
-            <div onClick={()=> handleSlotClick('side', 1)} className={`col-span-1 row-span-1 border-r-4 border-t-4
-                border-gray-400 flex items-center justify-center text-2xl font-bold cursor-pointer ${selectedAllele ?
-                'hover:bg-gray-100' : ''}`}>{sideSlots[1] ? <span className="text-pink-600">{sideSlots[1]}</span> :
-                <span className="text-gray-300 border-2 border-dashed border-gray-300 px-2 py-4 rounded">Tap</span>}
-            </div>
-            {/* Grid Inner */}
-            <div
-                className="col-span-1 row-span-1 bg-gray-50 border-t-4 border-gray-400 flex items-center justify-center">
-                <AlertCircle className="text-gray-200" size={32} />
-            </div>
-            <div
-                className="col-span-1 row-span-1 bg-gray-50 border-l-4 border-t-4 border-gray-400 flex items-center justify-center">
-                <AlertCircle className="text-gray-200" size={32} />
-            </div>
-        </div>
-    </div>
-</div>
-);
-}
-
-
-// --- Main Application State & Content ---
-
-const LESSONS = [
-{
-title: "1. Traits and Genes",
-concept: "A trait is a specific, observable characteristic of an organism. In our monsters, a clear example is 'Fur
-Color'. This physical characteristic isn't random; it's determined by hidden instructions found in the monster's DNA,
-called genes.",
-ChallengeComponent: Challenge1
-},
-{
-title: "2. Alleles (Gene Variations)",
-concept: "Genes can have different versions, called Alleles. Just like ice cream has flavors, the 'Fur Color' gene has
-variations! For our monsters, the variations are Purple and Yellow. We use letters to represent these alleles. The image
-shows we use 'F' and 'f'.",
-ChallengeComponent: Challenge2
-},
-{
-title: "3. Diploid Inheritance",
-concept: "These monsters are diploid organisms. That's a fancy way of saying they inherit TWO alleles for every
-trait—one from their biological mother and one from their biological father. Notice how Parent 1 and Parent 2 both have
-two 'allele slots'.",
-ChallengeComponent: Challenge3
-},
-{
-title: "4. Dominant & Recessive",
-concept: "When an organism has two different alleles, one 'wins' the appearance battle. \n\nDOMINANT (Capital Letter):
-The strong version that shows up even if there is only one copy. \nRECESSIVE (Lowercase): The hidden version. It only
-shows up if the organism has two copies of it. \n\nPurple (F) is DOMINANT over Yellow (f).",
-ChallengeComponent: Challenge4
-},
-{
-title: "5. Genotype vs. Phenotype",
-concept: "It's important to distinguish between the genetic code and the physical result.\n\nGENOTYPE: The actual
-genetic makeup (the letters, like Ff).\nPHENOTYPE: The physical expression or appearance (what it looks like, like
-Purple Fur).",
-ChallengeComponent: (props) => (
-<SortingChallenge {...props}
-    description="Tap an item to select it, then tap the box it belongs in to sort Genotypes (letters) from Phenotypes (physical looks)."
-    items={[ { id: '1' , label: 'Ff' , type: 'g' }, { id: '2' , label: 'Purple Fur' , type: 'p' }, { id: '3' ,
-    label: 'ff' , type: 'g' }, { id: '4' , label: 'Yellow Fur' , type: 'p' }, { id: '5' , label: 'FF' , type: 'g' } ]}
-    categories={[ { id: 'geno' , title: 'GENOTYPE (Code)' , colorClass: 'text-blue-700' }, { id: 'pheno' ,
-    title: 'PHENOTYPE (Looks)' , colorClass: 'text-green-700' } ]} successCondition={(assignments)=> assignments.every(a
-    => (a.type === 'g' && a.box === 'geno') || (a.type === 'p' && a.box === 'pheno'))}
-    errorMessage="Some items are in the wrong box! Remember: Genotype = the letter combinations. Phenotype = the
-    physical appearance."
-    />
-    )
-    },
-    {
-    title: "6. Zygosity",
-    concept: "These terms describe the pairing of alleles in a genotype.\n\nHOMOZYGOUS ('Homo' = same): Two identical
-    alleles (e.g., FF or ff). Also called purebred.\n\nHETEROZYGOUS ('Hetero' = different): Two different alleles (e.g.,
-    Ff). Also called hybrid. Since our parent monsters have one 'F' and one 'f', they are heterozygous!",
-    ChallengeComponent: (props) => (
-    <SortingChallenge {...props}
-        description="Sort these genetic pairs into Homozygous (Purebred) and Heterozygous (Hybrid)." items={[ { id: '1'
-        , label: 'FF' , type: 'homo' }, { id: '2' , label: 'Ff' , type: 'hetero' }, { id: '3' , label: 'ff' ,
-        type: 'homo' }, { id: '4' , label: 'fF' , type: 'hetero' } ]} categories={[ { id: 'homo' , title: 'HOMOZYGOUS' ,
-        colorClass: 'text-teal-700' }, { id: 'hetero' , title: 'HETEROZYGOUS' , colorClass: 'text-orange-700' } ]}
-        successCondition={(assignments)=> assignments.every(a => a.box === a.type)}
-        errorMessage="Check your sorting! Homozygous means the letters are exactly the same case. Heterozygous means
-        they are mixed."
-        />
-        )
-        },
-        {
-        title: "7. Punnett Square Setup",
-        concept: "A Punnett Square is a grid used to predict the genetic outcomes of offspring. The first step is
-        setting it up correctly. We take the two alleles from Parent 1 and place them across the top. We take the two
-        alleles from Parent 2 and place them down the side.",
-        ChallengeComponent: Challenge7
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monster Genetics Tutorial</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & ReactDOM (UMD via Unpkg) -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel for in-browser JSX compilation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #f5f3ff;
         }
+        #root { min-height: 100vh; display: flex; flex-direction: column; }
+        
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        
+        @keyframes bounce-slow {
+            0%, 100% { transform: translateY(-5%); animation-timing-function: cubic-bezier(0.8, 0, 1, 1); }
+            50% { transform: translateY(0); animation-timing-function: cubic-bezier(0, 0, 0.2, 1); }
+        }
+        .animate-bounce-slow { animation: bounce-slow 1s infinite; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- Inline Lucide Icons ---
+        const Lock = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+        );
+
+        const Unlock = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 9.9-1" />
+            </svg>
+        );
+
+        const CheckCircle = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+        );
+
+        const ArrowRight = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
+            </svg>
+        );
+
+        const PaintBucket = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <path d="m19 11-8-8-8.6 8.6a2 2 0 0 0 0 2.8l5.2 5.2c.8.8 2 .8 2.8 0L19 11Z"/><path d="m5 15 3 3"/><path d="M22 22n-3.2-3.2c-.8-.8-2-.8-2.8 0L10 21"/>
+            </svg>
+        );
+
+        const Dna = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <path d="m8 8 8 8"/><path d="m8 16 8-8"/><path d="m19 11-3-3"/><path d="m19 14-3 3"/><path d="m5 11 3-3"/><path d="m5 14 3 3"/>
+            </svg>
+        );
+
+        const ArrowDown = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>
+            </svg>
+        );
+
+        const Sparkles = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/>
+            </svg>
+        );
+
+        const AlertCircle = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>
+            </svg>
+        );
+
+        const TableIcon = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <path d="M12 3v18"/><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/>
+            </svg>
+        );
+
+        // --- Reusable UI Components ---
+
+        const Monster = ({ genotype, className = "w-32 h-32" }) => {
+        const isUnpainted = !genotype; 
+        const isPurple = genotype.includes('F');
+        const baseColor = isUnpainted ? '#e5e7eb' : (isPurple ? '#a855f7' : '#facc15');
+        const darkColor = isUnpainted ? '#9ca3af' : (isPurple ? '#7e22ce' : '#ca8a04');
+
+        return (
+        <div className={`relative ${className} animate-pop`}>
+            <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-lg">
+                <ellipse cx="50" cy="90" rx="30" ry="6" fill="rgba(0,0,0,0.15)" />
+                <rect x="30" y="70" width="12" height="20" rx="6" fill={darkColor} />
+                <rect x="58" y="70" width="12" height="20" rx="6" fill={darkColor} />
+                <path d="M 20 50 C 20 15, 80 15, 80 50 C 80 85, 75 80, 50 80 C 25 80, 20 85, 20 50 Z" fill={baseColor} />
+                {(!isPurple && !isUnpainted) && (
+                <>
+                    <circle cx="35" cy="30" r="4" fill={darkColor} opacity="0.3" />
+                    <circle cx="70" cy="45" r="5" fill={darkColor} opacity="0.3" />
+                    <circle cx="25" cy="60" r="3" fill={darkColor} opacity="0.3" />
+                </>
+                )}
+                {(isPurple && !isUnpainted) && (
+                <>
+                    <path d="M 30 25 Q 20 10 10 15 Q 15 25 25 28 Z" fill={darkColor} />
+                    <path d="M 70 25 Q 80 10 90 15 Q 85 25 75 28 Z" fill={darkColor} />
+                </>
+                )}
+                <circle cx="35" cy="45" r="8" fill="white" />
+                <circle cx="35" cy="45" r="3" fill="#1e293b" />
+                <circle cx="65" cy="45" r="8" fill="white" />
+                <circle cx="65" cy="45" r="3" fill="#1e293b" />
+                <circle cx="33" cy="43" r="1.5" fill="white" />
+                <circle cx="63" cy="43" r="1.5" fill="white" />
+                <path d="M 42 60 Q 50 68 58 60" stroke="#1e293b" strokeWidth="3" fill="transparent" strokeLinecap="round" />
+            </svg>
+        </div>
+        );
+        };
+
+        const Card = ({ children, className = "" }) => (
+        <div className={`bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden ${className}`}>
+            {children}
+        </div>
+        );
+
+        const Button = ({ onClick, disabled, className = "", children, variant = "primary" }) => {
+        const baseStyle = "px-6 py-3 rounded-lg font-bold transition-all transform active:scale-95 flex items-center justify-center gap-2";
+        const variants = {
+        primary: "bg-purple-600 text-white hover:bg-purple-700 disabled:bg-gray-300 disabled:text-gray-500",
+        secondary: "bg-yellow-400 text-yellow-900 hover:bg-yellow-500 disabled:bg-gray-200",
+        outline: "border-2 border-purple-600 text-purple-600 hover:bg-purple-50",
+        };
+        return (
+        <button onClick={onClick} disabled={disabled} className={`${baseStyle} ${variants[variant]} ${className}`}>
+            {children}
+        </button>
+        );
+        };
+
+        // --- Interactive Challenges ---
+
+        const Challenge1 = ({ onSuccess }) => {
+        const [selected, setSelected] = useState([]);
+        const [phase, setPhase] = useState('initial'); 
+        const [followUpChoice, setFollowUpChoice] = useState(null);
+        const [scaffoldFeedback, setScaffoldFeedback] = useState("");
+
+        const items = [
+        { id: 'fur', label: 'Fur Color', isTrait: true },
+        { id: 'hat', label: 'Wearing a Hat', isTrait: false },
+        { id: 'scar', label: 'A Battle Scar', isTrait: false },
+        { id: 'horns', label: 'Horn Size', isTrait: true },
+        { id: 'food', label: 'Favorite Food', isTrait: false },
+        { id: 'eyes', label: 'Number of Eyes', isTrait: true },
         ];
 
-        export default function App() {
-        const [currentStep, setCurrentStep] = useState(0);
-        const [unlockedStep, setUnlockedStep] = useState(0);
-        const [showCelebration, setShowCelebration] = useState(false);
+        const toggle = (id) => { setSelected(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]); };
 
-        const handleSuccess = () => {
-        setShowCelebration(true);
-        if (currentStep === unlockedStep) {
-        setUnlockedStep(prev => Math.min(prev + 1, LESSONS.length));
-        }
-        setTimeout(() => {
-        setShowCelebration(false);
-        if (currentStep < LESSONS.length - 1) { setCurrentStep(prev=> prev + 1);
-            }
-            }, 2500);
-            };
+        const checkInitialAnswer = () => {
+        const correctIds = items.filter(i => i.isTrait).map(i => i.id);
+        if (selected.length === correctIds.length && selected.every(id => correctIds.includes(id))) setPhase('followup');
+        else { setPhase('scaffolding'); setScaffoldFeedback(""); }
+        };
 
-            const isComplete = unlockedStep === LESSONS.length;
+        const handleScaffoldAnswer = (isCorrect) => {
+        if (isCorrect) { setScaffoldFeedback("Exactly! Biological traits are built-in from birth."); setTimeout(() => { setPhase('initial'); setSelected([]); }, 1500); }
+        else setScaffoldFeedback("Not quite! Think about the baby monster.");
+        };
 
-            return (
-            <div className="min-h-screen bg-purple-50 text-gray-800 font-sans p-4 md:p-8">
-                <div className="max-w-4xl mx-auto">
+        const checkFollowUp = () => { if (followUpChoice === 'B') onSuccess(); else alert("Think about DNA!"); };
 
-                    {/* Header */}
-                    <header
-                        className="mb-8 flex items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-purple-100">
-                        <div className="flex items-center gap-4">
-                            <div className="bg-purple-100 p-3 rounded-full">
-                                <Dna className="text-purple-600" size={32} />
-                            </div>
-                            <div>
-                                <h1 className="text-2xl font-bold text-purple-900">Monster Genetics</h1>
-                                <p className="text-sm text-gray-500">Foundational Concepts Tutorial</p>
-                            </div>
-                        </div>
-                        <div className="text-right hidden md:block">
-                            <span className="text-sm font-bold text-purple-600 uppercase tracking-wider">Progress</span>
-                            <div className="flex gap-1 mt-1">
-                                {LESSONS.map((_, i) => (
-                                <div key={i} className={`h-2 w-8 rounded-full ${i < unlockedStep ? 'bg-purple-500' :
-                                    i===currentStep ? 'bg-purple-300 animate-pulse' : 'bg-gray-200' }`} />
-                                ))}
-                            </div>
-                        </div>
-                    </header>
-
-                    {isComplete && currentStep === LESSONS.length - 1 && unlockedStep === LESSONS.length ? (
-                    <Card
-                        className="p-12 text-center bg-gradient-to-br from-purple-600 to-indigo-600 text-white shadow-2xl animate-fade-in-up">
-                        <Sparkles className="mx-auto mb-6 text-yellow-300" size={64} />
-                        <h2 className="text-4xl font-bold mb-4">Genetics Master!</h2>
-                        <p className="text-xl mb-8 opacity-90">You have successfully mastered all 7 foundational
-                            concepts of Mendelian genetics. You're fully prepared to start solving Punnett Squares!</p>
-                        <Button variant="secondary" onClick={()=> { setCurrentStep(0); setUnlockedStep(0); }}
-                            className="mx-auto">
-                            Restart Tutorial
-                        </Button>
-                    </Card>
-                    ) : (
-                    <div className="grid md:grid-cols-12 gap-6 relative">
-
-                        {/* Sidebar Navigation */}
-                        <div className="md:col-span-4 flex flex-col gap-3">
-                            {LESSONS.map((lesson, index) => {
-                            const isLocked = index > unlockedStep;
-                            const isActive = index === currentStep;
-                            const isPassed = index < unlockedStep; return ( <div key={index} onClick={()=> !isLocked &&
-                                setCurrentStep(index)}
-                                className={`p-4 rounded-xl border-2 transition-all flex items-center gap-3 ${
-                                isLocked ? 'bg-gray-50 border-gray-100 text-gray-400 opacity-70 cursor-not-allowed' :
-                                isActive ? 'bg-white border-purple-500 shadow-md cursor-pointer transform scale-105
-                                z-10' :
-                                'bg-white border-purple-100 hover:border-purple-300 cursor-pointer text-gray-600'
-                                }`}
-                                >
-                                <div className={`${isActive ? 'text-purple-600' : isPassed ? 'text-green-500'
-                                    : 'text-gray-400' }`}>
-                                    {isPassed ?
-                                    <CheckCircle size={20} /> : isLocked ?
-                                    <Lock size={20} /> :
-                                    <Unlock size={20} />}
-                                </div>
-                                <span className={`font-bold ${isActive ? 'text-purple-900' : ''
-                                    }`}>{lesson.title}</span>
-                        </div>
-                        );
-                        })}
-                    </div>
-
-                    {/* Main Content Area */}
-                    <div className="md:col-span-8">
-                        <Card className="relative min-h-[500px] flex flex-col">
-
-                            {/* Celebration Overlay */}
-                            {showCelebration && (
-                            <div
-                                className="absolute inset-0 z-50 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center animate-fade-in">
-                                <div className="bg-green-100 text-green-600 p-6 rounded-full mb-4 animate-bounce">
-                                    <CheckCircle size={64} />
-                                </div>
-                                <h2 className="text-3xl font-bold text-green-700 mb-2">Concept Unlocked!</h2>
-                                <p className="text-gray-600 font-medium">Moving to the next lesson...</p>
-                            </div>
-                            )}
-
-                            <div className="p-8 border-b border-gray-100 bg-purple-50/50">
-                                <h2 className="text-2xl font-bold text-purple-900 mb-4">{LESSONS[currentStep].title}
-                                </h2>
-                                <p className="text-lg text-gray-700 leading-relaxed whitespace-pre-wrap">
-                                    {LESSONS[currentStep].concept}
-                                </p>
-                            </div>
-
-                            <div className="p-8 flex-grow flex flex-col justify-center bg-white">
-                                <div className="bg-orange-50 border-l-4 border-orange-400 p-4 mb-6 rounded-r-lg">
-                                    <span className="text-orange-800 font-bold flex items-center gap-2 mb-1">
-                                        <Lock size={16} /> Knowledge Check
-                                    </span>
-                                    <p className="text-orange-900 text-sm">You must complete this challenge to unlock
-                                        the next section.</p>
-                                </div>
-
-                                {/* Dynamic Challenge Component */}
-                                {React.createElement(LESSONS[currentStep].ChallengeComponent, { onSuccess: handleSuccess
-                                })}
-                            </div>
-                        </Card>
+        if (phase === 'scaffolding') {
+        return (
+        <div className="flex flex-col items-center gap-4 w-full animate-fade-in text-sm">
+            <div className="bg-orange-50 border-2 border-orange-200 p-6 rounded-xl flex flex-col gap-4 w-full max-w-lg">
+                <h3 className="font-bold text-orange-800 flex items-center gap-2 text-base"><AlertCircle size={20} /> Let's think!</h3>
+                <p className="text-gray-700">Acquired things aren't passed down through DNA.</p>
+                <div className="bg-white p-4 rounded border border-orange-100 shadow-sm text-xs">
+                    <p className="font-medium mb-3">If a monster gets a "Battle Scar", will its babies inherit it?</p>
+                    <div className="flex flex-col gap-2">
+                        <button onClick={()=> handleScaffoldAnswer(false)} className="px-4 py-2 text-left rounded border hover:bg-gray-50">Yes</button>
+                        <button onClick={()=> handleScaffoldAnswer(true)} className="px-4 py-2 text-left rounded border hover:bg-gray-50">No, it's not DNA</button>
                     </div>
                 </div>
-                )}
+                {scaffoldFeedback && <div className={`p-3 rounded font-medium ${scaffoldFeedback.startsWith('Exactly') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }`}>{scaffoldFeedback}</div>}
             </div>
+        </div>
+        );
+        }
+
+        if (phase === 'followup') {
+        return (
+        <div className="flex flex-col items-center gap-4 w-full animate-fade-in text-sm">
+            <div className="bg-green-50 border-2 border-green-200 p-6 rounded-xl flex flex-col gap-4 w-full max-w-lg">
+                <h3 className="font-bold text-green-800 flex items-center gap-2"><CheckCircle size={20} /> Spot on!</h3>
+                <div className="bg-white p-4 rounded border border-green-100 shadow-sm">
+                    <p className="font-medium mb-3">Why are these biological traits?</p>
+                    <div className="flex flex-col gap-2">
+                        {[ { id: 'A', text: 'Learned behaviors.' }, { id: 'B', text: 'Determined by DNA inherited from parents.' }, { id: 'C', text: 'Environment only.' } ].map(opt => (
+                        <div key={opt.id} onClick={()=> setFollowUpChoice(opt.id)} className={`p-3 rounded border-2 cursor-pointer transition-all ${followUpChoice === opt.id ? 'border-purple-600 bg-purple-100 font-bold' : 'bg-white border-gray-200 hover:border-purple-300'}`}>{opt.text}</div> ))}
+                    </div>
+                </div>
+                <Button disabled={!followUpChoice} onClick={checkFollowUp} className="w-full mt-2">Submit</Button>
             </div>
-            );
+        </div>
+        );
+        }
+
+        return (
+        <div className="flex flex-col items-center gap-4 animate-fade-in">
+            <p className="text-center text-gray-700 mb-2 font-medium text-sm">Select ONLY biological traits.</p>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 w-full">
+                {items.map(item => ( <div key={item.id} onClick={()=> toggle(item.id)} className={`cursor-pointer p-4 rounded-lg border-2 text-center transition-all ${selected.includes(item.id) ? 'border-purple-600 bg-purple-100 font-bold text-purple-800' : 'border-gray-200 bg-gray-50'}`}>{item.label}</div> ))}
+            </div>
+            <Button onClick={checkInitialAnswer} className="mt-4">Check Answer</Button>
+        </div>
+        );
+        };
+
+        const Challenge2 = ({ onSuccess }) => {
+        const [selected, setSelected] = useState([]);
+        const [phase, setPhase] = useState('initial'); 
+        const symbols = ['P', 'p', 'F', 'f', 'Y', 'y'];
+        const toggle = (sym) => { setSelected(prev => prev.includes(sym) ? prev.filter(s => s !== sym) : [...prev, sym]); };
+
+        const checkAnswer = () => {
+            if (selected.length !== 2) { alert("Select exactly TWO."); return; }
+            if (selected.includes('F') && selected.includes('f')) setPhase('clarification');
+            else setPhase('wrong_step1');
+        };
+
+        if (phase === 'clarification') {
+        return (
+        <div className="flex flex-col items-center gap-4 w-full animate-fade-in">
+            <div className="bg-green-50 border-green-200 border-2 p-6 rounded-xl flex flex-col gap-4 w-full max-w-lg shadow-lg">
+                <h3 className="font-bold text-green-800 flex items-center gap-2 text-lg"><CheckCircle size={24} /> Correct!</h3>
+                <div className="bg-white p-3 rounded-lg border-2 border-green-200 relative">
+                    <div className="flex justify-around items-end mt-4 px-4 font-black text-2xl"><div className="flex flex-col items-center"><Monster genotype="FF" className="w-16 h-16" /><span className="text-green-600">F</span></div><div className="flex flex-col items-center"><Monster genotype="ff" className="w-16 h-16" /><span className="text-green-600">f</span></div></div>
+                    <p className="text-center text-sm mt-3 font-medium text-green-800">Same letter = Same gene!</p>
+                </div>
+                <Button onClick={onSuccess} className="w-full mt-2 py-4">Continue</Button>
+            </div>
+        </div>
+        );
+        }
+
+        if (phase === 'wrong_step1') {
+        return (
+        <div className="flex flex-col items-center gap-4 w-full animate-fade-in text-sm">
+            <div className="bg-orange-50 border-orange-200 border-2 p-6 rounded-xl flex flex-col gap-4 w-full max-w-lg shadow-lg">
+                <h3 className="font-bold text-orange-800 flex items-center gap-2"><AlertCircle size={24} /> Not quite!</h3>
+                <div className="bg-white p-4 rounded-lg border shadow-sm mt-2">
+                    <p className="font-bold mb-3">Different letters mean different traits (like Color vs. Horns).</p>
+                    <p className="mb-4">Which pair shows two versions of the <strong>SAME</strong> gene?</p>
+                    <div className="flex flex-col gap-2">
+                        <button onClick={()=> setPhase('initial')} className="p-3 text-left rounded border-2 hover:border-blue-400 font-bold">A and B</button>
+                        <button onClick={()=> { setPhase('initial'); setSelected([]); }} className="p-3 text-left rounded border-2 hover:border-blue-400 font-bold">D and d (Same letter, different cases!)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        );
+        }
+
+        return (
+        <div className="flex flex-col items-center gap-6 animate-fade-in text-sm">
+            <div className="flex justify-center gap-8 w-full bg-gray-50 p-4 rounded-xl border border-gray-200"><div className="flex flex-col items-center"><Monster genotype="FF" className="w-20 h-20" /><span className="font-bold text-purple-700 mt-2">Purple</span></div><div className="flex flex-col items-center"><Monster genotype="ff" className="w-20 h-20" /><span className="font-bold text-yellow-600 mt-2">Yellow</span></div></div>
+            <p className="text-center text-gray-700 font-medium">Select the TWO alleles for these monsters.</p>
+            <div className="flex flex-wrap justify-center gap-3 w-full max-w-md">
+                {symbols.map((sym, i) => ( <div key={i} onClick={()=> toggle(sym)} className={`cursor-pointer w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold border-4 transition-all ${selected.includes(sym) ? 'border-purple-500 bg-purple-500 text-white scale-110 shadow-lg' : 'border-gray-200 bg-white text-gray-600 hover:border-purple-200'}`}>{sym}</div> ))}
+            </div>
+            <Button onClick={checkAnswer} className="mt-2">Lock in Alleles</Button>
+        </div>
+        );
+        };
+
+        const Challenge3 = ({ onSuccess }) => {
+        const [babySlots, setBabySlots] = useState([null, null]);
+        const [phase, setPhase] = useState('first'); 
+        const [firstCombo, setFirstCombo] = useState(null);
+        const [errorMsg, setErrorMsg] = useState("");
+        const [isCompleted, setIsCompleted] = useState(false);
+
+        const fillSlot = (allele, idx) => { if (phase === 'congratulate' || isCompleted) return; const n = [...babySlots]; n[idx] = allele; setBabySlots(n); setErrorMsg(""); };
+
+        useEffect(() => {
+            if (babySlots[0] && babySlots[1]) {
+                if (phase === 'first') { setTimeout(() => { setFirstCombo([...babySlots]); setPhase('congratulate'); }, 500); }
+                else if (phase === 'second' && !isCompleted) {
+                    if (babySlots[0] === firstCombo[0] && babySlots[1] === firstCombo[1]) { setTimeout(() => { setErrorMsg("Try a DIFFERENT combo!"); setBabySlots([null, null]); }, 300); }
+                    else { setErrorMsg(""); setIsCompleted(true); setTimeout(onSuccess, 800); }
+                }
             }
+        }, [babySlots, phase, firstCombo, onSuccess, isCompleted]);
+
+        return (
+        <div className="flex flex-col items-center gap-6 w-full text-sm">
+            {phase === 'first' && <p className="text-center font-medium">Click one allele from each parent.</p>}
+            {phase === 'congratulate' && <div className="bg-green-50 border-2 border-green-200 p-5 rounded-xl flex flex-col items-center gap-3 w-full animate-fade-in shadow-sm"><h3 className="font-bold text-green-800 flex items-center gap-2"><CheckCircle size={20} /> Great!</h3><p className="text-gray-700 text-center">Genotype: <strong className="bg-green-200 px-2 py-1 rounded">{firstCombo.join('')}</strong>. Find another!</p><Button onClick={()=> { setPhase('second'); setBabySlots([null, null]); }}>Another One</Button></div>}
+            {errorMsg && <div className="bg-orange-50 text-orange-800 p-2 rounded text-xs font-bold animate-pop flex items-center gap-2"><AlertCircle size={14} /> {errorMsg}</div>}
+            <div className={`flex justify-around w-full max-w-sm ${(phase==='congratulate' || isCompleted) ? 'opacity-40' : '' }`}>
+                <div className="flex flex-col items-center bg-blue-50 p-3 rounded-xl border border-blue-200"><span className="text-xs font-bold text-blue-800 mb-2">Parent 1</span><Monster genotype="Ff" className="w-10 h-10 mb-2" /><div className="flex gap-2"><button onClick={()=> fillSlot('F', 0)} className={`w-8 h-8 border-2 rounded font-bold ${babySlots[0] === 'F' ? 'bg-blue-500 text-white' : 'bg-white'}`}>F</button><button onClick={()=> fillSlot('f', 0)} className={`w-8 h-8 border-2 rounded font-bold ${babySlots[0] === 'f' ? 'bg-blue-500 text-white' : 'bg-white'}`}>f</button></div></div>
+                <div className="flex flex-col items-center bg-pink-50 p-3 rounded-xl border border-pink-200"><span className="text-xs font-bold text-pink-800 mb-2">Parent 2</span><Monster genotype="Ff" className="w-10 h-10 mb-2" /><div className="flex gap-2"><button onClick={()=> fillSlot('F', 1)} className={`w-8 h-8 border-2 rounded font-bold ${babySlots[1] === 'F' ? 'bg-pink-500 text-white' : 'bg-white'}`}>F</button><button onClick={()=> fillSlot('f', 1)} className={`w-8 h-8 border-2 rounded font-bold ${babySlots[1] === 'f' ? 'bg-pink-500 text-white' : 'bg-white'}`}>f</button></div></div>
+            </div>
+            <div className="flex flex-col items-center"><ArrowDown className="text-gray-400 mb-2" size={24} /><div className="bg-purple-100 p-4 rounded-xl border-4 border-purple-300 flex flex-col items-center shadow-md"><span className="font-bold text-purple-900 text-xs mb-2">Baby Monster DNA</span><div className="flex gap-4"><div className={`w-12 h-12 rounded flex items-center justify-center text-xl font-black border-4 ${babySlots[0] ? 'bg-blue-400 text-white animate-pop' : 'bg-white border-dashed border-gray-400' }`}>{babySlots[0] || '?'}</div><div className={`w-12 h-12 rounded flex items-center justify-center text-xl font-black border-4 ${babySlots[1] ? 'bg-pink-400 text-white animate-pop' : 'bg-white border-dashed border-gray-400' }`}>{babySlots[1] || '?'}</div></div></div></div>
+        </div>
+        );
+        };
+
+        const Challenge4 = ({ onSuccess }) => {
+        const [monsters, setMonsters] = useState({ m1: { geno: 'FF', color: null }, m2: { geno: 'Ff', color: null }, m3: { geno: 'ff', color: null } });
+        const [activePaint, setActivePaint] = useState(null);
+        const paintMonster = (id) => { if (!activePaint) return; setMonsters(prev => ({ ...prev, [id]: { ...prev[id], color: activePaint } })); };
+        const checkAnswer = () => { if (monsters.m1.color === 'purple' && monsters.m2.color === 'purple' && monsters.m3.color === 'yellow') onSuccess(); else alert("Remember: Dominant (F) wins!"); };
+
+        return (
+        <div className="flex flex-col items-center gap-4 text-sm">
+            <p className="text-center font-medium">Grab paint and color based on genotype.</p>
+            <div className="flex gap-4 p-3 bg-gray-100 rounded-xl"><button onClick={()=> setActivePaint('purple')} className={`px-4 py-2 rounded font-bold flex gap-2 ${activePaint === 'purple' ? 'bg-purple-600 text-white' : 'bg-white text-purple-600'}`}><PaintBucket size={18} /> Purple</button><button onClick={()=> setActivePaint('yellow')} className={`px-4 py-2 rounded font-bold flex gap-2 ${activePaint === 'yellow' ? 'bg-yellow-400 text-yellow-900' : 'bg-white text-yellow-600'}`}><PaintBucket size={18} /> Yellow</button></div>
+            <div className="flex justify-around w-full">{Object.entries(monsters).map(([id, data]) => ( <div key={id} onClick={()=> paintMonster(id)} className="flex flex-col items-center cursor-pointer transition-transform hover:scale-105"><Monster genotype={data.color==='purple' ? 'F' : data.color==='yellow' ? 'f' : '' } className="w-16 h-16" /><div className="mt-2 bg-white px-3 py-1 rounded shadow font-bold font-mono">{data.geno}</div></div> ))}</div>
+            <Button onClick={checkAnswer} className="mt-4">Check Phenotypes</Button>
+        </div>
+        );
+        };
+
+        const SortingChallenge = ({ items, categories, successCondition, errorMessage, onSuccess, description }) => {
+        const [assignments, setAssignments] = useState(items.map(i => ({ ...i, box: null })));
+        const [selectedItem, setSelectedItem] = useState(null);
+        const handleBoxClick = (boxId) => { if (!selectedItem) return; setAssignments(prev => prev.map(item => item.id === selectedItem ? { ...item, box: boxId } : item)); setSelectedItem(null); };
+
+        return (
+        <div className="flex flex-col items-center gap-6 w-full text-xs">
+            <p className="text-center font-bold text-sm text-gray-700">{description}</p>
+            <div className="flex flex-wrap justify-center gap-2 min-h-[50px] w-full p-3 bg-gray-50 rounded border-2 border-dashed border-gray-300">{assignments.filter(i => i.box === null).map(item => ( <div key={item.id} onClick={()=> setSelectedItem(item.id === selectedItem ? null : item.id)} className={`cursor-pointer px-3 py-1 bg-white rounded shadow font-bold border-2 transition-all ${selectedItem === item.id ? 'border-purple-500 scale-110' : 'border-gray-200'}`}>{item.label}</div> ))}</div>
+            <div className="grid grid-cols-2 gap-4 w-full">{categories.map(cat => ( <div key={cat.id} onClick={()=> handleBoxClick(cat.id)} className={`flex flex-col items-center p-3 rounded-xl border-4 cursor-pointer min-h-[120px] ${selectedItem ? 'border-purple-400 bg-purple-50' : 'border-gray-200 bg-gray-50'}`}><h3 className={`font-bold mb-2 text-sm ${cat.colorClass}`}>{cat.title}</h3><div className="flex flex-col gap-1 w-full">{assignments.filter(i => i.box === cat.id).map(item => ( <div key={item.id} className="px-2 py-1 bg-white rounded shadow text-center font-bold">{item.label}</div> ))}</div></div> ))}</div>
+            <Button onClick={()=> successCondition(assignments) ? onSuccess() : alert(errorMessage)} disabled={assignments.some(x => x.box === null)} className="mt-2 text-sm">Check Sorting</Button>
+        </div>
+        );
+        };
+
+        const Challenge7 = ({ onSuccess }) => {
+        const [topSlots, setTopSlots] = useState([null, null]);
+        const [sideSlots, setSideSlots] = useState([null, null]);
+        const [selectedAllele, setSelectedAllele] = useState(null);
+        const handleSlotClick = (zone, idx) => {
+            if (!selectedAllele) return;
+            if (selectedAllele.source === (zone === 'top' ? 'p1' : 'p2')) { const n = zone === 'top' ? [...topSlots] : [...sideSlots]; n[idx] = selectedAllele.val; if (zone === 'top') setTopSlots(n); else setSideSlots(n); setSelectedAllele(null); }
+            else alert("Wrong side!");
+        };
+        useEffect(() => { if (!topSlots.includes(null) && !sideSlots.includes(null)) { if (topSlots.includes('F') && topSlots.includes('f') && sideSlots.includes('F') && sideSlots.includes('f')) setTimeout(onSuccess, 500); } }, [topSlots, sideSlots]);
+
+        return (
+        <div className="flex flex-col items-center gap-6 w-full text-xs">
+            <p className="text-center font-bold text-sm text-gray-700">Set up the Punnett Square! Tap Parent letter, then a square.</p>
+            <div className="flex gap-4">
+                <div className="bg-blue-50 p-2 rounded border border-blue-200 flex flex-col items-center"><span className="text-xs font-bold text-blue-800 mb-1">Parent 1 (Top)</span><div className="flex gap-1">{['F', 'f'].map((a, i) => ( <button key={i} onClick={()=> setSelectedAllele({source: 'p1', val: a, id: `p1-${i}`})} className={`w-8 h-8 rounded font-bold border-2 ${selectedAllele?.id === `p1-${i}` ? 'bg-blue-500 text-white' : 'bg-white'}`}>{a}</button> ))}</div></div>
+                <div className="bg-pink-50 p-2 rounded border border-pink-200 flex flex-col items-center"><span className="text-xs font-bold text-pink-800 mb-1">Parent 2 (Side)</span><div className="flex gap-1">{['F', 'f'].map((a, i) => ( <button key={i} onClick={()=> setSelectedAllele({source: 'p2', val: a, id: `p2-${i}`})} className={`w-8 h-8 rounded font-bold border-2 ${selectedAllele?.id === `p2-${i}` ? 'bg-pink-500 text-white' : 'bg-white'}`}>{a}</button> ))}</div></div>
+            </div>
+            <div className="relative p-6 bg-white rounded-xl shadow-inner border-2 border-gray-100"><div className="grid grid-cols-3 grid-rows-3 gap-2 w-48 h-48"><div></div>
+                <div onClick={()=> handleSlotClick('top', 0)} className="border-b-4 border-gray-400 flex items-center justify-center font-bold cursor-pointer">{topSlots[0] || '?'}</div>
+                <div onClick={()=> handleSlotClick('top', 1)} className="border-b-4 border-l-4 border-gray-400 flex items-center justify-center font-bold cursor-pointer">{topSlots[1] || '?'}</div>
+                <div onClick={()=> handleSlotClick('side', 0)} className="border-r-4 border-gray-400 flex items-center justify-center font-bold cursor-pointer">{sideSlots[0] || '?'}</div><div className="bg-gray-100"></div><div className="bg-gray-100 border-l-4 border-gray-400"></div>
+                <div onClick={()=> handleSlotClick('side', 1)} className="border-r-4 border-t-4 border-gray-400 flex items-center justify-center font-bold cursor-pointer">{sideSlots[1] || '?'}</div><div className="bg-gray-100 border-t-4 border-gray-400"></div><div className="bg-gray-100 border-l-4 border-t-4 border-gray-400"></div>
+            </div></div>
+        </div>
+        );
+        };
+
+        const LESSONS = [
+            { title: "1. Traits and Genes", concept: "A trait is a characteristic. In our monsters, 'Fur Color' is determined by DNA instructions called genes.", ChallengeComponent: Challenge1 },
+            { title: "2. Alleles (Gene Variations)", concept: "Genes have different versions called Alleles. Our variations are Purple (F) and Yellow (f).", ChallengeComponent: Challenge2 },
+            { title: "3. Diploid Inheritance", concept: "Monsters inherit TWO alleles for every trait—one from each parent.", ChallengeComponent: Challenge3 },
+            { title: "4. Dominant & Recessive", concept: "DOMINANT (F) wins. RECESSIVE (f) is hidden unless there are two copies.", ChallengeComponent: Challenge4 },
+            { title: "5. Genotype vs. Phenotype", concept: "GENOTYPE: Genetic code (Ff). PHENOTYPE: Physical look (Purple).", ChallengeComponent: (props) => ( <SortingChallenge {...props} description="Sort Genotypes (letters) from Phenotypes (physical looks)." items={[ { id: '1', label: 'Ff', type: 'g' }, { id: '2', label: 'Purple Fur', type: 'p' }, { id: '3', label: 'ff', type: 'g' }, { id: '4', label: 'Yellow Fur', type: 'p' }, { id: '5', label: 'FF', type: 'g' } ]} categories={[ { id: 'geno', title: 'GENOTYPE', colorClass: 'text-blue-700' }, { id: 'pheno', title: 'PHENOTYPE', colorClass: 'text-green-700' } ]} successCondition={(a)=> a.every(x => (x.type === 'g' && x.box === 'geno') || (x.type === 'p' && x.box === 'pheno'))} errorMessage="Check your boxes!" /> ) },
+            { title: "6. Zygosity", concept: "HOMOZYGOUS: Same alleles (FF or ff). HETEROZYGOUS: Different alleles (Ff).", ChallengeComponent: (props) => ( <SortingChallenge {...props} description="Sort into Homozygous and Heterozygous." items={[ { id: '1', label: 'FF', type: 'homo' }, { id: '2', label: 'Ff', type: 'hetero' }, { id: '3', label: 'ff', type: 'homo' }, { id: '4', label: 'fF', type: 'hetero' } ]} categories={[ { id: 'homo', title: 'HOMOZYGOUS', colorClass: 'text-teal-700' }, { id: 'hetero', title: 'HETEROZYGOUS', colorClass: 'text-orange-700' } ]} successCondition={(a)=> a.every(x => x.box === x.type)} errorMessage="Check your letters!" /> ) },
+            { title: "7. Punnett Square Setup", concept: "We place alleles from Parent 1 across the top and Parent 2 down the side.", ChallengeComponent: Challenge7 }
+        ];
+
+        function App() {
+            const [currentStep, setCurrentStep] = useState(0);
+            const [unlockedStep, setUnlockedStep] = useState(0);
+            const [showCelebration, setShowCelebration] = useState(false);
+            const handleSuccess = () => { setShowCelebration(true); if (currentStep === unlockedStep) setUnlockedStep(prev => Math.min(prev + 1, LESSONS.length)); setTimeout(() => { setShowCelebration(false); if (currentStep < LESSONS.length - 1) setCurrentStep(prev => prev + 1); }, 2000); };
+
+            return (
+                <div className="flex-grow p-4 md:p-8">
+                    <div className="max-w-4xl mx-auto">
+                        <header className="mb-6 flex items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-purple-100">
+                            <div className="flex items-center gap-4"><div className="bg-purple-100 p-2 rounded-full"><Dna className="text-purple-600" size={28} /></div><div><h1 className="text-xl font-bold text-purple-900">Monster Genetics</h1><p className="text-[10px] text-gray-500">Foundational Concepts</p></div></div>
+                            <div className="text-right hidden sm:block"><span className="text-[10px] font-bold text-purple-600 uppercase tracking-widest">Progress</span><div className="flex gap-1 mt-1">{LESSONS.map((_, i) => ( <div key={i} className={`h-1 w-5 rounded-full ${i < unlockedStep ? 'bg-purple-500' : i===currentStep ? 'bg-purple-300 animate-pulse' : 'bg-gray-200' }`} /> ))}</div></div>
+                        </header>
+                        {(unlockedStep === LESSONS.length && currentStep === LESSONS.length - 1) ? (
+                            <Card className="p-10 text-center bg-gradient-to-br from-purple-600 to-indigo-600 text-white animate-fade-in"><Sparkles className="mx-auto mb-4 text-yellow-300" size={60} /><h2 className="text-2xl font-bold mb-2">Genetics Master!</h2><p className="text-sm mb-6 opacity-90">You have successfully mastered Mendelian genetics.</p><Button variant="secondary" onClick={()=> { setCurrentStep(0); setUnlockedStep(0); }} className="mx-auto">Restart</Button></Card>
+                        ) : (
+                            <div className="flex flex-col md:flex-row gap-6">
+                                <nav className="w-full md:w-64 flex flex-col gap-2 shrink-0">{LESSONS.map((lesson, index) => { const isLocked = index > unlockedStep; const isActive = index === currentStep; const isPassed = index < unlockedStep; return ( <div key={index} onClick={()=> !isLocked && setCurrentStep(index)} className={`p-3 rounded-xl border-2 transition-all flex items-center gap-3 cursor-pointer text-xs ${isLocked ? 'bg-gray-50 border-gray-100 text-gray-400 opacity-70' : isActive ? 'bg-white border-purple-500 shadow-md font-bold' : 'bg-white border-purple-100 hover:border-purple-300' }`}><div className={`${isPassed ? 'text-green-500' : isActive ? 'text-purple-600' : 'text-gray-400'}`}>{isPassed ? <CheckCircle size={16} /> : isLocked ? <Lock size={16} /> : <Unlock size={16} />}</div><span>{lesson.title}</span></div> ); })}</nav>
+                                <Card className="flex-grow flex flex-col relative min-h-[450px]">{showCelebration && <div className="absolute inset-0 z-50 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center animate-fade-in"><div className="bg-green-100 text-green-600 p-6 rounded-full mb-4 animate-bounce"><CheckCircle size={64} /></div><h2 className="text-xl font-bold text-green-700">Unlocked!</h2></div>}<div className="p-5 border-b border-gray-50 bg-purple-50/20"><h2 className="text-lg font-bold text-purple-900 mb-1">{LESSONS[currentStep].title}</h2><p className="text-xs text-gray-700 leading-relaxed">{LESSONS[currentStep].concept}</p></div><div className="p-5 flex-grow flex flex-col justify-center bg-white">{React.createElement(LESSONS[currentStep].ChallengeComponent, { onSuccess: handleSuccess })}</div></Card>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
