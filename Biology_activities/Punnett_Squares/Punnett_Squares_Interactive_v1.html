@@ -282,21 +282,36 @@
                                         <Info className="shrink-0" size={16} />
                                         <p>Combine the allele from the <strong>Top Parent</strong> and the <strong>Side Parent</strong>. <span className="opacity-80">(Hint: The dominant uppercase 'F' always goes first!)</span></p>
                                     </div>
-                                    <div className="relative mb-8 w-full max-w-sm">
-                                        <div className="grid grid-cols-[60px_1fr_1fr] gap-2">
-                                            <div className="flex items-end justify-end pb-1 pr-1 text-slate-300"><ArrowDown className="w-6 h-6 rotate-[-45deg]" /></div>
-                                            <div className="bg-blue-100 rounded-t-xl p-2 flex flex-col items-center justify-center border-b-4 border-blue-200"><span className="text-[9px] text-blue-600 font-bold uppercase">Top</span><span className={`text-2xl font-black ${p1a1 === 'F' ? 'text-purple-600' : 'text-yellow-600'}`}>{p1a1}</span></div>
-                                            <div className="bg-blue-100 rounded-t-xl p-2 flex flex-col items-center justify-center border-b-4 border-blue-200"><span className="text-[9px] text-blue-600 font-bold uppercase">Top</span><span className={`text-2xl font-black ${p1a2 === 'F' ? 'text-purple-600' : 'text-yellow-600'}`}>{p1a2}</span></div>
-                                            <div className="bg-rose-100 rounded-l-xl p-2 flex flex-col items-center justify-center border-r-4 border-rose-200"><span className="text-[9px] text-rose-600 font-bold uppercase">Side</span><span className={`text-2xl font-black ${p2a1 === 'F' ? 'text-purple-600' : 'text-yellow-600'}`}>{p2a1}</span></div>
+                                    <div className="relative mb-8 w-full max-w-md">
+                                        <div className="grid grid-cols-[80px_1fr_1fr] gap-2">
+                                            {/* Top Header Row for Parent 1 */}
+                                            <div></div>
+                                            <div className="col-span-2 flex flex-col items-center pb-2">
+                                                <span className="text-[10px] font-black text-blue-600 uppercase mb-1 tracking-widest">Top Parent</span>
+                                                <Monster genotype={parent1Genotype} className="w-16 h-16" />
+                                            </div>
+
+                                            {/* Allele Labels Row */}
+                                            <div className="flex items-center justify-center">
+                                                <div className="flex flex-col items-center">
+                                                    <span className="text-[10px] font-black text-rose-600 uppercase mb-1 tracking-widest">Side Parent</span>
+                                                    <Monster genotype={parent2Genotype} className="w-16 h-16" />
+                                                </div>
+                                            </div>
+                                            <div className="bg-blue-100 rounded-t-xl p-2 flex flex-col items-center justify-center border-b-4 border-blue-200 shadow-sm"><span className="text-[9px] text-blue-600 font-bold uppercase">Allele 1</span><span className={`text-2xl font-black ${p1a1 === 'F' ? 'text-purple-600' : 'text-yellow-600'}`}>{p1a1}</span></div>
+                                            <div className="bg-blue-100 rounded-t-xl p-2 flex flex-col items-center justify-center border-b-4 border-blue-200 shadow-sm"><span className="text-[9px] text-blue-600 font-bold uppercase">Allele 2</span><span className={`text-2xl font-black ${p1a2 === 'F' ? 'text-purple-600' : 'text-yellow-600'}`}>{p1a2}</span></div>
+
+                                            {/* Grid Rows */}
+                                            <div className="bg-rose-100 rounded-l-xl p-2 flex flex-col items-center justify-center border-r-4 border-rose-200 shadow-sm"><span className="text-[9px] text-rose-600 font-bold uppercase">Allele 1</span><span className={`text-2xl font-black ${p2a1 === 'F' ? 'text-purple-600' : 'text-yellow-600'}`}>{p2a1}</span></div>
                                             {[0, 1].map(i => (
-                                                <div key={i} className={`bg-white rounded-xl min-h-[90px] border-4 border-slate-200 flex flex-col items-center justify-center ${shakeIndex === i ? 'animate-shake bg-red-50' : ''}`}>
+                                                <div key={i} className={`bg-white rounded-xl min-h-[90px] border-4 border-slate-200 flex flex-col items-center justify-center shadow-inner ${shakeIndex === i ? 'animate-shake bg-red-50' : ''}`}>
                                                     {gridAnswers[i] ? <div className="text-green-700 animate-pop flex flex-col items-center"><CheckCircle2 className="mb-1" size={20} /><span className="text-xl font-black">{gridAnswers[i]}</span></div> :
                                                         <div className="flex flex-wrap justify-center gap-1 p-1">{['FF', 'Ff', 'ff'].map(g => <button key={g} onClick={() => handleGuess(i, g)} className="w-9 py-1 bg-slate-50 border border-slate-200 rounded hover:bg-white hover:border-purple-300 font-bold text-[10px]">{g}</button>)}</div>}
                                                 </div>
                                             ))}
-                                            <div className="bg-rose-100 rounded-l-xl p-2 flex flex-col items-center justify-center border-r-4 border-rose-200"><span className="text-[9px] text-rose-600 font-bold uppercase">Side</span><span className={`text-2xl font-black ${p2a2 === 'F' ? 'text-purple-600' : 'text-yellow-600'}`}>{p2a2}</span></div>
+                                            <div className="bg-rose-100 rounded-l-xl p-2 flex flex-col items-center justify-center border-r-4 border-rose-200 shadow-sm"><span className="text-[9px] text-rose-600 font-bold uppercase">Allele 2</span><span className={`text-2xl font-black ${p2a2 === 'F' ? 'text-purple-600' : 'text-yellow-600'}`}>{p2a2}</span></div>
                                             {[2, 3].map(i => (
-                                                <div key={i} className={`bg-white rounded-xl min-h-[90px] border-4 border-slate-200 flex flex-col items-center justify-center ${shakeIndex === i ? 'animate-shake bg-red-50' : ''}`}>
+                                                <div key={i} className={`bg-white rounded-xl min-h-[90px] border-4 border-slate-200 flex flex-col items-center justify-center shadow-inner ${shakeIndex === i ? 'animate-shake bg-red-50' : ''}`}>
                                                     {gridAnswers[i] ? <div className="text-green-700 animate-pop flex flex-col items-center"><CheckCircle2 className="mb-1" size={20} /><span className="text-xl font-black">{gridAnswers[i]}</span></div> :
                                                         <div className="flex flex-wrap justify-center gap-1 p-1">{['FF', 'Ff', 'ff'].map(g => <button key={g} onClick={() => handleGuess(i, g)} className="w-9 py-1 bg-slate-50 border border-slate-200 rounded hover:bg-white hover:border-purple-300 font-bold text-[10px]">{g}</button>)}</div>}
                                                 </div>
