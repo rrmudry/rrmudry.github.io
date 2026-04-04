@@ -56,6 +56,7 @@
             const [eyeSize, setEyeSize] = useState(8);
             const [pupilSize, setPupilSize] = useState(3);
             const [eyeSpacing, setEyeSpacing] = useState(15);
+            const [legSpacing, setLegSpacing] = useState(14);
             const [mouthCurve, setMouthCurve] = useState(68);
             const [mouthWidth, setMouthWidth] = useState(16);
             const [spotCount, setSpotCount] = useState(0);
@@ -136,21 +137,31 @@
                     <div className="flex-grow flex flex-col items-center justify-center space-y-8 lg:sticky lg:top-8 lg:h-[calc(100vh-64px)] overflow-hidden">
                         <div className="relative group w-full flex-grow flex items-center justify-center">
                             {/* Decorative Background Glow */}
-                            <div className="absolute w-[400px] h-[400px] bg-purple-500/10 blur-[100px] rounded-full"></div>
+                            <div className="absolute w-[500px] h-[500px] bg-white/10 blur-[120px] rounded-full"></div>
+                            <div className="absolute w-[300px] h-[300px] bg-purple-500/20 blur-[80px] rounded-full"></div>
                             
-                            <div className="monster-container w-full max-w-[500px] animate-float">
+                            <div className="monster-container w-full max-w-[500px] animate-float drop-shadow-[0_25px_35px_rgba(0,0,0,0.6)]">
                                 <svg 
                                     id="monster-svg" 
                                     viewBox="0 0 100 100" 
                                     className="w-full h-full"
                                     xmlns="http://www.w3.org/2000/svg"
                                 >
+                                    <defs>
+                                        <radialGradient id="spotlight" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                                            <stop offset="0%" stopColor="white" stopOpacity="0.15" />
+                                            <stop offset="100%" stopColor="white" stopOpacity="0" />
+                                        </radialGradient>
+                                    </defs>
+                                    {/* Spotlight */}
+                                    <circle cx="50" cy="50" r="50" fill="url(#spotlight)" />
+
                                     {/* Shadow */}
-                                    <ellipse cx="50" cy="90" rx="30" ry="6" fill="rgba(0,0,0,0.15)" />
+                                    <ellipse cx="50" cy="90" rx="30" ry="6" fill="rgba(0,0,0,0.25)" />
                                     
                                     {/* Legs */}
-                                    <rect x={50 - eyeSpacing} y="70" width="12" height={legLength} rx="6" fill={darkColor} />
-                                    <rect x={50 + eyeSpacing - 12} y="70" width="12" height={legLength} rx="6" fill={darkColor} />
+                                    <rect x={50 - legSpacing - 6} y="70" width="12" height={legLength} rx="6" fill={darkColor} />
+                                    <rect x={50 + legSpacing - 6} y="70" width="12" height={legLength} rx="6" fill={darkColor} />
                                     
                                     {/* Body */}
                                     <path d={bodyPath} fill={baseColor} />
@@ -258,13 +269,13 @@
                                 <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Quick Themes</h3>
                                 <div className="grid grid-cols-2 gap-3">
                                     <button 
-                                        onClick={() => { setHue(270); setSat(80); setLight(60); setEarSize(1); setEyeSize(8); setMouthCurve(68); setSpotCount(0); }}
+                                        onClick={() => { setHue(270); setSat(80); setLight(60); setEarSize(1); setEyeSize(8); setMouthCurve(68); setSpotCount(0); setLegSpacing(14); setEyeSpacing(15); }}
                                         className="py-3 rounded-xl bg-purple-600/20 border border-purple-500/20 text-purple-400 font-bold text-sm hover:bg-purple-600/30 transition-all"
                                     >
                                         Classic Purple
                                     </button>
                                     <button 
-                                        onClick={() => { setHue(50); setSat(90); setLight(60); setEarSize(1.5); setEyeSize(10); setMouthCurve(60); setSpotCount(5); setSpotSize(6); }}
+                                        onClick={() => { setHue(50); setSat(90); setLight(60); setEarSize(1.5); setEyeSize(10); setMouthCurve(60); setSpotCount(5); setSpotSize(6); setLegSpacing(20); setEyeSpacing(18); }}
                                         className="py-3 rounded-xl bg-yellow-500/20 border border-yellow-500/20 text-yellow-400 font-bold text-sm hover:bg-yellow-500/30 transition-all"
                                     >
                                         Golden Spot
