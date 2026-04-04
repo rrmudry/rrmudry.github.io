@@ -37,7 +37,7 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState, useEffect, useMemo } = React;
 
         // --- Inline Lucide Icons ---
         const Dna = ({ size = 24, className = "" }) => (
@@ -90,7 +90,7 @@
 
         // --- COMPONENTS ---
 
-        const Monster = ({ genotype, className = "w-32 h-32" }) => {
+        const Monster = ({ genotype, className = "w-32 h-32", small = false }) => {
             const isPurple = genotype.includes('F');
             const baseColor = isPurple ? '#a855f7' : '#facc15';
             const darkColor = isPurple ? '#7e22ce' : '#ca8a04';
@@ -119,8 +119,12 @@
                         <circle cx="35" cy="45" r="3" fill="#1e293b" />
                         <circle cx="65" cy="45" r="8" fill="white" />
                         <circle cx="65" cy="45" r="3" fill="#1e293b" />
-                        <circle cx="33" cy="43" r="1.5" fill="white" />
-                        <circle cx="63" cy="43" r="1.5" fill="white" />
+                        {!small && (
+                            <>
+                                <circle cx="33" cy="43" r="1.5" fill="white" />
+                                <circle cx="63" cy="43" r="1.5" fill="white" />
+                            </>
+                        )}
                         <path d="M 42 60 Q 50 68 58 60" stroke="#1e293b" strokeWidth="3" fill="transparent" strokeLinecap="round" />
                     </svg>
                 </div>
@@ -135,6 +139,7 @@
             const [p2a2, setP2a2] = useState('f');
             const [gridAnswers, setGridAnswers] = useState([null, null, null, null]);
             const [shakeIndex, setShakeIndex] = useState(null);
+            const [population, setPopulation] = useState([]);
 
             const parent1Genotype = p1a1 + p1a2;
             const parent2Genotype = p2a1 + p2a2;
@@ -147,6 +152,23 @@
             ];
 
             const allFilled = gridAnswers.every(ans => ans !== null);
+
+            const generatePopulation = () => {
+                const pop = [];
+                const p1Alleles = [p1a1, p1a2];
+                const p2Alleles = [p2a1, p2a2];
+                for (let i = 0; i < 100; i++) {
+                    const a1 = p1Alleles[Math.floor(Math.random() * 2)];
+                    const a2 = p2Alleles[Math.floor(Math.random() * 2)];
+                    pop.push(combineAlleles(a1, a2));
+                }
+                setPopulation(pop);
+            };
+
+            const handleStepChange = (newStep) => {
+                if (newStep === 3) generatePopulation();
+                setStep(newStep);
+            };
 
             const handleGuess = (index, guess) => {
                 if (guess === expectedGrid[index]) {
@@ -165,21 +187,43 @@
                 setP1a1('F'); setP1a2('f');
                 setP2a1('F'); setP2a2('f');
                 setGridAnswers([null, null, null, null]);
+                setPopulation([]);
             };
 
-            const calculateStats = () => {
+            const theoryStats = useMemo(() => {
                 const counts = { FF: 0, Ff: 0, ff: 0 };
                 expectedGrid.forEach(g => counts[g]++);
                 const purpleCount = counts.FF + counts.Ff;
                 const yellowCount = counts.ff;
-                const purplePct = (purpleCount / 4) * 100;
-                const yellowPct = (yellowCount / 4) * 100;
-                return { counts, purpleCount, yellowCount, purplePct, yellowPct };
-            };
+                return { 
+                    counts, 
+                    purplePct: (purpleCount / 4) * 100, 
+                    yellowPct: (yellowCount / 4) * 100,
+                    ffPct: (counts.ff / 4) * 100,
+                    FfPct: (counts.Ff / 4) * 100,
+                    FFPct: (counts.FF / 4) * 100
+                };
+            }, [p1a1, p1a2, p2a1, p2a2]);
+
+            const populationStats = useMemo(() => {
+                if (population.length === 0) return null;
+                const counts = { FF: 0, Ff: 0, ff: 0 };
+                population.forEach(g => counts[g]++);
+                const purpleCount = counts.FF + counts.Ff;
+                const yellowCount = counts.ff;
+                return { 
+                    counts, 
+                    purplePct: (purpleCount / 100) * 100, 
+                    yellowPct: (yellowCount / 100) * 100,
+                    ffPct: (counts.ff / 100) * 100,
+                    FfPct: (counts.Ff / 100) * 100,
+                    FFPct: (counts.FF / 100) * 100
+                };
+            }, [population]);
 
             return (
                 <div className="min-h-screen bg-slate-50 text-slate-800 font-sans p-2 md:p-4 flex flex-col">
-                    <div className="max-w-5xl mx-auto w-full flex-1 flex flex-col">
+                    <div className="max-w-6xl mx-auto w-full flex-1 flex flex-col">
                         <header className="mb-3 flex flex-col md:flex-row items-center justify-center gap-3 text-center md:text-left">
                             <div className="inline-flex items-center justify-center p-2 bg-purple-100 text-purple-700 rounded-full shadow-sm">
                                 <Dna size={24} />
@@ -237,7 +281,7 @@
                                             <div className="mt-3 pt-3 border-t border-slate-200 w-full"><p className="text-sm text-slate-500 font-bold">Genotype: {combineAlleles(p2a1, p2a2)}</p></div>
                                         </div>
                                     </div>
-                                    <div className="flex justify-center"><button onClick={() => setStep(2)} className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 transform active:scale-95 transition-all shadow-lg">Start Lab <ArrowRight size={20} /></button></div>
+                                    <div className="flex justify-center"><button onClick={() => handleStepChange(2)} className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 transform active:scale-95 transition-all shadow-lg">Start Lab <ArrowRight size={20} /></button></div>
                                 </div>
                             )}
 
@@ -268,57 +312,113 @@
                                             ))}
                                         </div>
                                     </div>
-                                    {allFilled ? <button onClick={() => setStep(3)} className="bg-green-600 text-white px-8 py-3 rounded-xl font-black animate-pop shadow-lg flex items-center gap-2">Hatch Offspring <ArrowRight size={20} /></button> : <button onClick={() => setStep(1)} className="text-slate-400 font-bold">Cancel</button>}
+                                    {allFilled ? <button onClick={() => handleStepChange(3)} className="bg-green-600 text-white px-8 py-3 rounded-xl font-black animate-pop shadow-lg flex items-center gap-2">Hatch Offspring <ArrowRight size={20} /></button> : <button onClick={() => setStep(1)} className="text-slate-400 font-bold">Cancel</button>}
                                 </div>
                             )}
 
                             {step === 3 && (
-                                <div className="animate-pop flex flex-col h-full justify-center">
-                                    <div className="flex items-center justify-between mb-6">
-                                        <div><h2 className="text-2xl font-black text-slate-800 leading-tight">The Hatchlings</h2><p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Possible Offspring Results</p></div>
+                                <div className="animate-pop flex flex-col h-full space-y-6">
+                                    <div className="flex items-center justify-between">
+                                        <div><h2 className="text-2xl font-black text-slate-800 leading-tight">The Hatchlings</h2><p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Theory vs. Reality</p></div>
                                         <button onClick={resetLab} className="bg-slate-200 hover:bg-slate-300 text-slate-800 px-4 py-2 rounded-lg font-bold flex items-center gap-2 text-xs"><RotateCcw size={16} /> Reset Lab</button>
                                     </div>
-                                    <div className="grid md:grid-cols-2 gap-4">
-                                        <div className="grid grid-cols-2 gap-2 bg-slate-100 p-2 rounded-2xl border-4 border-slate-200">
-                                            {expectedGrid.map((geno, i) => (
-                                                <div key={i} className="bg-white rounded-lg p-2 flex flex-col items-center text-center shadow-sm">
-                                                    <Monster genotype={geno} className="w-16 h-16 mb-2" />
-                                                    <div className="bg-slate-50 px-2 py-1 rounded border border-slate-200 w-full flex justify-between items-center">
-                                                        <span className="text-sm font-black">{geno}</span>
-                                                        <span className={`text-[9px] font-black uppercase ${geno.includes('F') ? 'text-purple-600' : 'text-yellow-600'}`}>{getPhenotype(geno)}</span>
-                                                    </div>
+
+                                    <div className="grid lg:grid-cols-[1fr_350px] gap-6">
+                                        <div className="space-y-6">
+                                            <div className="bg-slate-100 rounded-3xl p-6 border-b-4 border-slate-200">
+                                                <div className="flex items-center justify-between mb-4">
+                                                    <h3 className="text-sm font-black uppercase text-slate-500 tracking-widest">Theoretical Outcomes (The 4 Boxes)</h3>
                                                 </div>
-                                            ))}
-                                        </div>
-                                        {(() => {
-                                            const stats = calculateStats();
-                                            return (
-                                                <div className="bg-slate-900 text-white rounded-2xl p-6 flex flex-col justify-center gap-6">
-                                                    <div>
-                                                        <h4 className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-3">Genotype Probability</h4>
-                                                        <div className="space-y-2">{['FF', 'Ff', 'ff'].map(g => (
-                                                            <div key={g} className="flex justify-between items-center bg-white/5 py-2 px-3 rounded border border-white/5">
-                                                                <span className="font-mono font-bold">{g}</span>
-                                                                <span className="font-black">{(stats.counts[g] / 4) * 100}%</span>
+                                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                                    {expectedGrid.map((geno, i) => (
+                                                        <div key={i} className="bg-white rounded-2xl p-4 flex flex-col items-center text-center shadow-sm border border-slate-200">
+                                                            <Monster genotype={geno} className="w-16 h-16 mb-2" />
+                                                            <div className="bg-slate-50 px-2 py-1 rounded border border-slate-100 w-full flex justify-between items-center mt-1">
+                                                                <span className="text-sm font-black">{geno}</span>
+                                                                <span className={`text-[9px] font-black uppercase ${geno.includes('F') ? 'text-purple-600' : 'text-yellow-600'}`}>{getPhenotype(geno)}</span>
                                                             </div>
-                                                        ))}</div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            <div className="bg-indigo-50/50 rounded-3xl p-6 border-b-4 border-indigo-100">
+                                                <div className="flex items-center justify-between mb-4">
+                                                    <div>
+                                                        <h3 className="text-sm font-black uppercase text-indigo-900 tracking-widest">Offspring Population (n=100)</h3>
+                                                        <p className="text-[10px] font-bold text-indigo-700 italic">Notice how the actual counts fluctuate every time!</p>
                                                     </div>
+                                                    <button onClick={generatePopulation} className="bg-white text-indigo-600 border border-indigo-200 px-4 py-2 rounded-xl font-black text-xs hover:bg-indigo-600 hover:text-white transition-all shadow-sm flex items-center gap-2">
+                                                        <RotateCcw size={14} /> New Batch
+                                                    </button>
+                                                </div>
+                                                <div className="bg-white rounded-2xl p-4 border border-indigo-100 shadow-inner flex flex-wrap gap-1 justify-center max-h-[300px] overflow-y-auto custom-scroll">
+                                                    {population.map((geno, i) => (
+                                                        <Monster key={i} genotype={geno} className="w-6 h-6 md:w-8 md:h-8" small />
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <div className="bg-slate-900 text-white rounded-3xl p-6 shadow-xl flex flex-col h-full">
+                                                <h4 className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mb-6 border-b border-white/10 pb-2">Statistical Comparison</h4>
+                                                
+                                                <div className="space-y-6 flex-1">
                                                     <div>
-                                                        <h4 className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-3">Phenotype Probability</h4>
-                                                        <div className="space-y-2">
-                                                            <div className="flex justify-between items-center bg-purple-500/20 py-3 px-4 rounded-lg border border-purple-500/30">
-                                                                <span className="font-black text-purple-200">Purple Looks</span>
-                                                                <span className="text-xl font-black text-purple-400">{stats.purplePct}%</span>
+                                                        <h5 className="text-[10px] font-bold text-purple-400 uppercase mb-3 px-2">Purple Phenotype (F_)</h5>
+                                                        <div className="grid grid-cols-2 gap-4">
+                                                            <div className="bg-white/5 p-3 rounded-xl border border-white/10">
+                                                                <p className="text-[9px] font-bold text-slate-400 uppercase">Predicted</p>
+                                                                <p className="text-2xl font-black">{theoryStats.purplePct}%</p>
                                                             </div>
-                                                            <div className="flex justify-between items-center bg-yellow-500/20 py-3 px-4 rounded-lg border border-yellow-500/30">
-                                                                <span className="font-black text-yellow-200">Yellow Looks</span>
-                                                                <span className="text-xl font-black text-yellow-400">{stats.yellowPct}%</span>
+                                                            <div className="bg-purple-500/20 p-3 rounded-xl border border-purple-500/30">
+                                                                <p className="text-[9px] font-bold text-purple-300 uppercase">Actual</p>
+                                                                <p className="text-2xl font-black text-purple-400">{populationStats?.purplePct}%</p>
                                                             </div>
                                                         </div>
                                                     </div>
+
+                                                    <div>
+                                                        <h5 className="text-[10px] font-bold text-yellow-400 uppercase mb-3 px-2">Yellow Phenotype (ff)</h5>
+                                                        <div className="grid grid-cols-2 gap-4">
+                                                            <div className="bg-white/5 p-3 rounded-xl border border-white/10">
+                                                                <p className="text-[9px] font-bold text-slate-400 uppercase">Predicted</p>
+                                                                <p className="text-2xl font-black">{theoryStats.yellowPct}%</p>
+                                                            </div>
+                                                            <div className="bg-yellow-500/20 p-3 rounded-xl border border-yellow-500/30">
+                                                                <p className="text-[9px] font-bold text-yellow-300 uppercase">Actual</p>
+                                                                <p className="text-2xl font-black text-yellow-400">{populationStats?.yellowPct}%</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="pt-4 mt-4 border-t border-white/10">
+                                                        <h5 className="text-[10px] font-bold text-slate-400 uppercase mb-3 px-2">Genotype Breakdown</h5>
+                                                        <div className="space-y-2">
+                                                            {['FF', 'Ff', 'ff'].map(g => (
+                                                                <div key={g} className="flex flex-col gap-1">
+                                                                    <div className="flex justify-between text-[10px] font-black px-1">
+                                                                        <span>{g}</span>
+                                                                        <span className="text-slate-500">{theoryStats[`${g}Pct`]}% vs {populationStats?.counts[g]}%</span>
+                                                                    </div>
+                                                                    <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden flex">
+                                                                        <div className="h-full bg-slate-500 opacity-30" style={{ width: `${theoryStats[`${g}Pct`]}%` }}></div>
+                                                                        <div className="h-full bg-cyan-400 shadow-[0_0_8px_#22d3ee]" style={{ width: `${populationStats?.counts[g]}%` }}></div>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            );
-                                        })()}
+
+                                                <div className="mt-8 p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl">
+                                                    <p className="text-[10px] font-bold leading-relaxed text-blue-200">
+                                                        Note: In a small sample of 4, you'll rarely see exact percentages. With a population of 100, we get closer to the theory, but random chance still exists!
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             )}
