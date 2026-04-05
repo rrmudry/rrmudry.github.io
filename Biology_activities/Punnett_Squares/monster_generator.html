@@ -3,101 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monster Generator • Physics & Biology Labs</title>
+    <title>Monster Generator Lab • Punnett Edition</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono for a tech-lab aesthetic -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
     <!-- React & ReactDOM (UMD via Unpkg) -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <!-- Babel for in-browser JSX compilation -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0f172a; color: #f8fafc; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0f172a; color: #f8fafc; overflow-x: hidden; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4); }
         
-        /* Custom Premium Slider Styles */
+        /* High-Performance Native Sliders (Cannon Duel Style) */
         input[type="range"] {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 100%;
-            height: 32px; /* Increased hit area */
-            background: transparent;
-            outline: none;
-            margin: 0;
-            cursor: pointer;
-            z-index: 10;
+            -webkit-appearance: none; appearance: none;
+            width: 100%; height: 40px; background: transparent; cursor: pointer; outline: none;
+            accent-color: #8b5cf6;
         }
         
-        /* Track */
         input[type="range"]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 6px;
-            cursor: pointer;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            transition: all 0.2s;
+            height: 8px; border-radius: 99px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
-        
-        /* Thumb */
+        input[type="range"]:focus::-webkit-slider-runnable-track { background: rgba(255, 255, 255, 0.15); }
+
         input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 24px;
-            width: 24px;
-            border-radius: 50%;
-            background: #ffffff;
-            border: 2px solid #8b5cf6;
-            cursor: pointer;
-            margin-top: -9px; /* Refined offset */
-            box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            z-index: 20;
+            -webkit-appearance: none; appearance: none;
+            height: 24px; width: 24px;
+            background: #ffffff; border: 3px solid #8b5cf6;
+            border-radius: 50%; margin-top: -9px; /* (8-24)/2 - 1 = -9 */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 0 4px rgba(139, 92, 246, 0.1);
+            transition: transform 0.1s ease-out, box-shadow 0.1s;
         }
-        
-        input[type="range"]:active::-webkit-slider-thumb {
-            transform: scale(1.25);
-            background: #8b5cf6;
-            box-shadow: 0 0 25px rgba(139, 92, 246, 0.8);
+        input[type="range"]:active::-webkit-slider-thumb { 
+            transform: scale(1.1); background: #8b5cf6; box-shadow: 0 0 20px rgba(139, 92, 246, 0.6); 
         }
 
         /* Firefox Support */
-        input[type="range"]::-moz-range-track {
-            width: 100%;
-            height: 6px;
-            cursor: pointer;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-        }
+        input[type="range"]::-moz-range-track { height: 8px; border-radius: 99px; background: rgba(255, 255, 255, 0.15); }
         input[type="range"]::-moz-range-thumb {
-            height: 20px;
-            width: 20px;
-            border-radius: 50%;
-            background: #ffffff;
-            border: 2px solid #8b5cf6;
-            cursor: pointer;
+            height: 20px; width: 20px; background: #ffffff; border: 3px solid #8b5cf6; border-radius: 50%;
         }
 
-        .monster-container { filter: drop-shadow(0 20px 50px rgba(0,0,0,0.5)); transition: all 0.3s ease-out; }
+        .slider-row { display: grid; grid-template-columns: 80px 1fr 45px; align-items: center; gap: 12px; height: 44px; }
+        .slider-label { font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
+        .slider-value { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #a78bfa; text-align: right; }
+
+        .monster-container { filter: drop-shadow(0 20px 50px rgba(0,0,0,0.5)); transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
         
         @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(1deg); }
         }
-        .animate-float { animation: float 4s ease-in-out infinite; }
+        .animate-float { animation: float 6s ease-in-out infinite; }
 
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        /* Custom Elegant Scrollbar */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { 
+            background: rgba(139, 92, 246, 0.2); 
+            border-radius: 99px; 
+            border: 2px solid transparent;
+            background-clip: content-box;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background-color: rgba(139, 92, 246, 0.4); }
+        .custom-scroll { scrollbar-width: thin; scrollbar-color: rgba(139, 92, 246, 0.2) transparent; }
     </style>
 </head>
-<body class="min-h-screen overflow-x-hidden selection:bg-purple-500/30">
+<body class="min-h-screen selection:bg-purple-500/30">
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useMemo } = React;
+        const { useState, useEffect, useMemo, useRef, useCallback } = React;
 
-        // --- Lucide Icons ---
+        // --- Custom Icons ---
         const Settings = ({ size = 20 }) => (
             <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
         );
@@ -107,10 +90,180 @@
         const Palette = ({ size = 20 }) => (
             <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.92 0 1.76-.32 2.44-.86c.15-.12.42-.14.63-.04c.48.24 1.05.37 1.65.37c1.81 0 3.28-1.47 3.28-3.28c0-1.5-.94-2.82-2.31-3.27c-.22-.07-.44-.21-.5-.46c-.22-1.01-.32-2.07-.32-3.15C17 5.13 14.87 2 12 2Z"/></svg>
         );
+        const Dna = ({ size = 20, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <path d="m8 8 8 8"/><path d="m8 16 8-8"/><path d="m19 11-3-3"/><path d="m19 14-3 3"/><path d="m5 11 3-3"/><path d="m5 14 3 3"/>
+            </svg>
+        );
+
+        // --- Core Components ---
+
+        const Monster = ({ traits, genotype = "FF", className = "w-full h-full", id = "monster-svg" }) => {
+            const { 
+                hue, sat, light, bodyWidth, bodyHeight, earSize, earAngle, 
+                eyeSize, pupilSize, eyeSpacing, legSpacing, legLength, 
+                mouthCurve, mouthWidth, spotCount, spotSize 
+            } = traits;
+
+            const baseColor = `hsl(${hue}, ${sat}%, ${light}%)`;
+            const darkColor = `hsl(${hue}, ${sat}%, ${light - 15}%)`;
+
+            const bodyPath = useMemo(() => {
+                const rx = bodyWidth; const ry = bodyHeight; const cy = 60;
+                return `M ${50-rx} ${cy} C ${50-rx} ${cy-ry*1.2}, ${50+rx} ${cy-ry*1.2}, ${50+rx} ${cy} C ${50+rx} ${cy+ry*1.1}, ${50+rx*0.8} ${cy+ry}, 50 ${cy+ry} C ${50-rx*0.8} ${cy+ry}, ${50-rx} ${cy+ry*1.1}, ${50-rx} ${cy} Z`;
+            }, [bodyWidth, bodyHeight]);
+
+            const earPathLeft = useMemo(() => {
+                const s = earSize * 15; const a = earAngle; const cy = 35;
+                return `M 30 ${cy} Q ${30-s} ${cy-s-a} ${30-s*2} ${cy-s+a/2} Q ${30-s*1.5} ${cy} 30 ${cy+3} Z`;
+            }, [earSize, earAngle]);
+
+            const earPathRight = useMemo(() => {
+                const s = earSize * 15; const a = earAngle; const cy = 35;
+                return `M 70 ${cy} Q ${70+s} ${cy-s-a} ${70+s*2} ${cy-s+a/2} Q ${70+s*1.5} ${cy} 70 ${cy+3} Z`;
+            }, [earSize, earAngle]);
+
+            const spots = useMemo(() => {
+                // Determine color based on genotype override (for Punnett Square compatibility)
+                if (genotype === 'ff' && hue === 270) { /* If it's a yellow override case... */ }
+                return Array.from({ length: spotCount }).map((_, i) => ({
+                    id: i,
+                    cx: 30 + (i * 7) % 40,
+                    cy: 40 + (i * 11) % 40,
+                    r: 1 + (i % 3) + (spotSize / 4),
+                    opacity: 0.15 + (i % 5) / 10
+                }));
+            }, [spotCount, spotSize]);
+
+            return (
+                <svg id={id} viewBox="-25 -25 150 150" className={className} xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+                    <defs>
+                        <radialGradient id={`grad-${id}`} cx="50%" cy="30%" r="70%">
+                            <stop offset="0%" stopColor={baseColor} />
+                            <stop offset="100%" stopColor={darkColor} />
+                        </radialGradient>
+                    </defs>
+                    <ellipse cx="50" cy="95" rx="35" ry="8" fill="rgba(0,0,0,0.3)" />
+                    <rect x={50 - legSpacing - 6} y="75" width="12" height={legLength} rx="6" fill={darkColor} />
+                    <rect x={50 + legSpacing - 6} y="75" width="12" height={legLength} rx="6" fill={darkColor} />
+                    <path d={earPathLeft} fill={darkColor} />
+                    <path d={earPathRight} fill={darkColor} />
+                    <path d={bodyPath} fill={`url(#grad-${id})`} />
+                    {spots.map(s => <circle key={s.id} cx={s.cx} cy={s.cy} r={s.r} fill="black" opacity={s.opacity} />)}
+                    {/* Eyes */}
+                    <circle cx={50 - eyeSpacing} cy="55" r={eyeSize} fill="white" />
+                    <circle cx={50 - eyeSpacing} cy="55" r={pupilSize} fill="#0f172a" />
+                    <circle cx={50 + eyeSpacing} cy="55" r={eyeSize} fill="white" />
+                    <circle cx={50 + eyeSpacing} cy="55" r={pupilSize} fill="#0f172a" />
+                    {/* Eye Highlights */}
+                    <circle cx={50 - eyeSpacing - 2} cy="53" r={eyeSize/4} fill="white" opacity="0.8" />
+                    <circle cx={50 + eyeSpacing - 2} cy="53" r={eyeSize/4} fill="white" opacity="0.8" />
+                    {/* Mouth */}
+                    <path d={`M ${50 - mouthWidth} 70 Q 50 ${mouthCurve + 10} ${50 + mouthWidth} 70`} stroke="#0f172a" strokeWidth="2.5" fill="transparent" strokeLinecap="round" />
+                </svg>
+            );
+        };
+
+        const SmartSlider = ({ label, value, min, max, onChange, unit = "", step = 1, defaultValue }) => {
+            const initialValue = useRef(value);
+            return (
+                <div className="slider-row group">
+                    <span className="slider-label" title={label}>{label}</span>
+                    <input 
+                        type="range" min={min} max={max} step={step} value={value} 
+                        onChange={(e) => onChange(Number(e.target.value))}
+                    />
+                    <span 
+                        onDoubleClick={() => onChange(defaultValue !== undefined ? defaultValue : initialValue.current)}
+                        className="slider-value cursor-help"
+                        title="Double-click to reset"
+                    >
+                        {value}{unit}
+                    </span>
+                </div>
+            );
+        };
+
+        const Pad2D = ({ labelX, valueX, minX, maxX, onChangeX, labelY, valueY, minY, maxY, onChangeY }) => {
+            const padRef = useRef(null);
+            const [isDragging, setIsDragging] = useState(false);
+
+            const updateValues = useCallback((clientX, clientY) => {
+                const rect = padRef.current.getBoundingClientRect();
+                const perX = Math.min(Math.max((clientX - rect.left) / rect.width, 0), 1);
+                const perY = Math.min(Math.max(1 - (clientY - rect.top) / rect.height, 0), 1);
+                onChangeX(Math.round(minX + perX * (maxX - minX)));
+                onChangeY(Math.round(minY + perY * (maxY - minY)));
+            }, [minX, maxX, onChangeX, minY, maxY, onChangeY]);
+
+            useEffect(() => {
+                const onMove = (e) => {
+                    if (!isDragging) return;
+                    const cX = e.clientX !== undefined ? e.clientX : (e.touches && e.touches[0].clientX);
+                    const cY = e.clientY !== undefined ? e.clientY : (e.touches && e.touches[0].clientY);
+                    updateValues(cX, cY);
+                };
+                const onEnd = () => setIsDragging(false);
+                if (isDragging) {
+                    window.addEventListener('mousemove', onMove);
+                    window.addEventListener('mouseup', onEnd);
+                    window.addEventListener('touchmove', onMove, { passive: false });
+                    window.addEventListener('touchend', onEnd);
+                }
+                return () => {
+                    window.removeEventListener('mousemove', onMove);
+                    window.removeEventListener('mouseup', onEnd);
+                    window.removeEventListener('touchmove', onMove);
+                    window.removeEventListener('touchend', onEnd);
+                };
+            }, [isDragging, updateValues]);
+
+            const perX = ((valueX - minX) / (maxX - minX)) * 100;
+            const perY = ((valueY - minY) / (maxY - minY)) * 100;
+
+            return (
+                <div className="space-y-3">
+                    <div className="flex justify-between text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                        <span>{labelX} × {labelY}</span>
+                        <span className="text-purple-400 font-mono tracking-tighter">{valueX} × {valueY}</span>
+                    </div>
+                    <div 
+                        ref={padRef}
+                        className="aspect-square glass rounded-2xl relative cursor-crosshair overflow-hidden group/pad border border-white/5 hover:border-purple-500/30 transition-colors"
+                        onMouseDown={(e) => { e.preventDefault(); setIsDragging(true); updateValues(e.clientX, e.clientY); }}
+                        onTouchStart={(e) => { if (e.cancelable) e.preventDefault(); setIsDragging(true); updateValues(e.touches[0].clientX, e.touches[0].clientY); }}
+                    >
+                        <div className="absolute inset-0 opacity-20 pointer-events-none">
+                            <div className="absolute top-1/2 left-0 w-full h-[1px] bg-slate-500" />
+                            <div className="absolute left-1/2 top-0 w-[1px] h-full bg-slate-500" />
+                            <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle, #475569 1px, transparent 1px)', backgroundSize: '10px 10px' }} />
+                        </div>
+                        <div className="absolute top-0 bottom-0 w-[1px] bg-purple-500/40" style={{ left: `${perX}%` }} />
+                        <div className="absolute left-0 right-0 h-[1px] bg-purple-500/40" style={{ bottom: `${perY}%` }} />
+                        <div 
+                            className="absolute w-6 h-6 bg-white border-2 border-purple-500 rounded-full shadow-[0_0_20px_rgba(139,92,246,0.6)] transform -translate-x-1/2 translate-y-1/2 active:scale-90 transition-transform"
+                            style={{ left: `${perX}%`, bottom: `${perY}%` }}
+                        />
+                    </div>
+                </div>
+            );
+        };
+
+        const ControlGroup = ({ title, icon: Icon, children }) => (
+            <div className="space-y-4 pt-6 border-t border-white/10 first:border-0 first:pt-0">
+                <div className="flex items-center gap-2.5 text-slate-400 font-bold text-[10px] uppercase tracking-[0.2em]">
+                    <Icon size={14} /> {title}
+                </div>
+                <div className="space-y-1">
+                    {children}
+                </div>
+            </div>
+        );
 
         // --- Main App ---
+
         function App() {
-            const [name, setName] = useState("Fluffy");
+            const [name, setName] = useState("Punnett Bean");
             const [hue, setHue] = useState(270);
             const [sat, setSat] = useState(80);
             const [light, setLight] = useState(60);
@@ -122,29 +275,28 @@
             const [pupilSize, setPupilSize] = useState(3);
             const [eyeSpacing, setEyeSpacing] = useState(15);
             const [legSpacing, setLegSpacing] = useState(14);
+            const [legLength, setLegLength] = useState(20);
             const [mouthCurve, setMouthCurve] = useState(68);
-            const [mouthWidth, setMouthWidth] = useState(16);
+            const [mouthWidth, setMouthWidth] = useState(8);
             const [spotCount, setSpotCount] = useState(0);
             const [spotSize, setSpotSize] = useState(4);
-            const [legLength, setLegLength] = useState(20);
-            const [viewportScale, setViewportScale] = useState(500);
+            const [viewportScale, setViewportScale] = useState(400);
 
             const baseColor = `hsl(${hue}, ${sat}%, ${light}%)`;
             const darkColor = `hsl(${hue}, ${sat}%, ${light - 15}%)`;
 
-            // Derived SVG parts
+            // Parametrized "Punnett Bean" SVG logic
             const bodyPath = useMemo(() => {
                 const rx = bodyWidth;
                 const ry = bodyHeight;
-                // Move base center down to 60
-                const cy = 60;
-                return `M ${50-rx} ${cy} C ${50-rx} ${cy-ry*1.1}, ${50+rx} ${cy-ry*1.1}, ${50+rx} ${cy} C ${50+rx} ${cy+ry*0.7}, ${50+rx*0.8} ${cy+ry*0.7}, 50 ${cy+ry*0.7} C ${50-rx*0.8} ${cy+ry*0.7}, ${50-rx} ${cy+ry*0.7}, ${50-rx} ${cy} Z`;
+                const cy = 60; // Base position
+                // M 20 60 C 20 25, 80 25, 80 60 C 80 95, 75 90, 50 90 C 25 90, 20 95, 20 60 Z (original but parameterized)
+                return `M ${50-rx} ${cy} C ${50-rx} ${cy-ry*1.2}, ${50+rx} ${cy-ry*1.2}, ${50+rx} ${cy} C ${50+rx} ${cy+ry*1.1}, ${50+rx*0.8} ${cy+ry}, 50 ${cy+ry} C ${50-rx*0.8} ${cy+ry}, ${50-rx} ${cy+ry*1.1}, ${50-rx} ${cy} Z`;
             }, [bodyWidth, bodyHeight]);
 
             const earPathLeft = useMemo(() => {
                 const s = earSize * 15;
                 const a = earAngle;
-                // Move base down to 35
                 const cy = 35;
                 return `M 30 ${cy} Q ${30-s} ${cy-s-a} ${30-s*2} ${cy-s+a/2} Q ${30-s*1.5} ${cy} 30 ${cy+3} Z`;
             }, [earSize, earAngle]);
@@ -152,257 +304,159 @@
             const earPathRight = useMemo(() => {
                 const s = earSize * 15;
                 const a = earAngle;
-                // Move base down to 35
                 const cy = 35;
                 return `M 70 ${cy} Q ${70+s} ${cy-s-a} ${70+s*2} ${cy-s+a/2} Q ${70+s*1.5} ${cy} 70 ${cy+3} Z`;
             }, [earSize, earAngle]);
 
             const spots = useMemo(() => {
-                const colors = ['#000000', '#ffffff'];
                 return Array.from({ length: spotCount }).map((_, i) => ({
                     id: i,
                     cx: 30 + Math.random() * 40,
-                    cy: 40 + Math.random() * 40, // Shifted down
-                    r: 2 + Math.random() * spotSize,
+                    cy: 40 + Math.random() * 40,
+                    r: 1 + Math.random() * (spotSize),
                     opacity: 0.1 + Math.random() * 0.3
                 }));
             }, [spotCount, spotSize]);
 
+            const [copied, setCopied] = useState(false);
+
+            const traits = { hue, sat, light, bodyWidth, bodyHeight, earSize, earAngle, eyeSize, pupilSize, eyeSpacing, legSpacing, legLength, mouthCurve, mouthWidth, spotCount, spotSize };
+
+            const copyDNA = () => {
+                const dna = Object.values(traits).join(',');
+                navigator.clipboard.writeText(dna);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+            };
+
             const downloadSVG = () => {
-                const svg = document.getElementById('monster-svg').outerHTML;
+                const svg = document.getElementById('monster-render').outerHTML;
                 const blob = new Blob([svg], { type: 'image/svg+xml' });
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = `${name.replaceAll(' ', '_')}_monster.svg`;
+                link.download = `${name.replace(/\s+/g, '_')}_monster.svg`;
                 link.click();
             };
 
-            const ControlGroup = ({ title, icon: Icon, children }) => (
-                <div className="space-y-4 pt-4 border-t border-white/10 first:border-0 first:pt-0">
-                    <div className="flex items-center gap-2 text-slate-400 font-bold text-xs uppercase tracking-widest">
-                        <Icon size={14} /> {title}
-                    </div>
-                    <div className="grid gap-4">
-                        {children}
-                    </div>
-                </div>
-            );
-
-            const Slider = ({ label, value, min, max, onChange, unit = "" }) => {
-                const percentage = ((value - min) / (max - min)) * 100;
-                
-                return (
-                    <div className="space-y-1 group">
-                        <div className="flex justify-between text-[11px] font-bold text-slate-500 uppercase tracking-tighter group-hover:text-slate-300 transition-colors">
-                            <span>{label}</span>
-                            <span className="text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">{value}{unit}</span>
-                        </div>
-                        <div className="relative flex items-center h-8">
-                            <input 
-                                type="range" min={min} max={max} value={value} 
-                                onChange={(e) => onChange(Number(e.target.value))}
-                                className="w-full cursor-pointer z-10"
-                                style={{
-                                    background: `linear-gradient(to right, #8b5cf6 0%, #8b5cf6 ${percentage}%, rgba(255,255,255,0.05) ${percentage}%, rgba(255,255,255,0.05) 100%)`
-                                }}
-                            />
-                        </div>
-                    </div>
-                );
+            const setPreset = (p) => {
+                if(p === 'purple') { setHue(270); setSat(80); setLight(60); setEarSize(1); setEyeSize(8); setMouthCurve(68); setSpotCount(0); setBodyWidth(30); setBodyHeight(35); setLegLength(20); setLegSpacing(14); setEyeSpacing(15); setMouthWidth(8); setPupilSize(3); setEarAngle(0); }
+                if(p === 'yellow') { setHue(50); setSat(90); setLight(60); setEarSize(1.5); setEyeSize(10); setMouthCurve(60); setSpotCount(6); setBodyWidth(30); setBodyHeight(35); setLegLength(20); setLegSpacing(14); setEyeSpacing(15); setMouthWidth(8); setPupilSize(3); setEarAngle(0); }
+                if(p === 'round')  { setHue(190); setSat(75); setLight(50); setBodyWidth(40); setBodyHeight(25); setLegLength(10); setEyeSize(12); setMouthWidth(12); setMouthCurve(60); }
+                if(p === 'scary')  { setHue(0); setSat(70); setLight(35); setEarAngle(25); setEyeSize(6); setPupilSize(1); setMouthCurve(85); setMouthWidth(15); setBodyWidth(25); setBodyHeight(40); }
             };
 
             return (
-                <div className="max-w-[1400px] mx-auto p-4 md:p-8 flex flex-col lg:flex-row gap-8 min-h-screen">
-                    {/* Left: Preview Section */}
-                    <div className="flex-grow flex flex-col items-center justify-center space-y-8 lg:sticky lg:top-8 lg:h-[calc(100vh-64px)] overflow-hidden">
-                        <div className="relative group w-full flex-grow flex items-center justify-center">
-                            {/* Decorative Background Glow */}
+                <div className="max-w-[1400px] mx-auto p-4 md:p-10 flex flex-col lg:flex-row gap-12 min-h-screen">
+                    
+                    {/* Left: Interactive Preview */}
+                    <div className="flex-grow flex flex-col items-center justify-center space-y-10 lg:sticky lg:top-10 lg:h-[calc(100vh-80px)] overflow-hidden">
+                        <div className="relative w-full flex-grow flex items-center justify-center">
+                            {/* Dynamic Atmosphere */}
                             <div 
-                                className="absolute w-[500px] h-[500px] bg-white/10 blur-[120px] rounded-full transition-all duration-500"
-                                style={{ width: viewportScale + 100, height: viewportScale + 100 }}
+                                className="absolute w-full h-full max-w-[600px] max-h-[600px] bg-purple-500/10 blur-[120px] rounded-full animate-pulse transition-all duration-1000"
+                                style={{ width: viewportScale + 150, height: viewportScale + 150, opacity: sat/100 }}
                             ></div>
-                            <div 
-                                className="absolute w-[300px] h-[300px] bg-purple-500/20 blur-[80px] rounded-full transition-all duration-500"
-                                style={{ width: viewportScale - 100, height: viewportScale - 100 }}
-                            ></div>
-                            
-                            <div 
-                                className="monster-container w-full animate-float drop-shadow-[0_25px_35px_rgba(0,0,0,0.6)]"
-                                style={{ maxWidth: viewportScale }}
-                            >
-                                <svg 
-                                    id="monster-svg" 
-                                    viewBox="-25 -25 150 150" 
-                                    className="w-full h-full"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    preserveAspectRatio="xMidYMid meet"
-                                >
-                                    <defs>
-                                        <radialGradient id="spotlight" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-                                            <stop offset="0%" stopColor="white" stopOpacity="0.15" />
-                                            <stop offset="100%" stopColor="white" stopOpacity="0" />
-                                        </radialGradient>
-                                    </defs>
-                                    {/* Spotlight */}
-                                    <circle cx="50" cy="50" r="75" fill="url(#spotlight)" />
-
-                                    {/* Shadow */}
-                                    <ellipse cx="50" cy="95" rx="40" ry="6" fill="rgba(0,0,0,0.25)" />
-                                    
-                                    {/* Legs */}
-                                    <rect x={50 - legSpacing - 6} y="80" width="12" height={legLength} rx="6" fill={darkColor} />
-                                    <rect x={50 + legSpacing - 6} y="80" width="12" height={legLength} rx="6" fill={darkColor} />
-                                    
-                                    {/* Body */}
-                                    <path d={bodyPath} fill={baseColor} />
-                                    
-                                    {/* Ears */}
-                                    <path d={earPathLeft} fill={darkColor} />
-                                    <path d={earPathRight} fill={darkColor} />
-                                    
-                                    {/* Spots */}
-                                    {spots.map(s => (
-                                        <circle key={s.id} cx={s.cx} cy={s.cy} r={s.r} fill="black" opacity={s.opacity} />
-                                    ))}
-
-                                    {/* Eyes */}
-                                    <circle cx={50 - eyeSpacing} cy="55" r={eyeSize} fill="white" />
-                                    <circle cx={50 - eyeSpacing} cy="55" r={pupilSize} fill="#1e293b" />
-                                    <circle cx={50 + eyeSpacing} cy="55" r={eyeSize} fill="white" />
-                                    <circle cx={50 + eyeSpacing} cy="55" r={pupilSize} fill="#1e293b" />
-                                    
-                                    <circle cx={50 - eyeSpacing - 2} cy="53" r={eyeSize/4} fill="white" />
-                                    <circle cx={50 + eyeSpacing - 2} cy="53" r={eyeSize/4} fill="white" />
-                                    
-                                    {/* Mouth */}
-                                    <path 
-                                        d={`M ${50 - mouthWidth} 70 Q 50 ${mouthCurve + 10} ${50 + mouthWidth} 70`} 
-                                        stroke="#1e293b" strokeWidth="3" fill="transparent" strokeLinecap="round" 
-                                    />
-                                </svg>
+                            <div className="monster-container w-full animate-float drop-shadow-[0_35px_50px_rgba(0,0,0,0.7)]" style={{ maxWidth: viewportScale }}>
+                                <Monster traits={traits} id="monster-render" />
                             </div>
                         </div>
 
-                        <div className="flex flex-col items-center gap-4 w-full">
+                        <div className="flex flex-col items-center gap-6 w-full">
                             <input 
-                                type="text"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                className="bg-transparent text-4xl font-extrabold text-center uppercase tracking-tighter outline-none focus:text-purple-400 border-b border-transparent focus:border-purple-500/20 transition-all max-w-sm"
-                                placeholder="Enter Name..."
+                                type="text" value={name} onChange={(e) => setName(e.target.value)}
+                                className="bg-transparent text-5xl font-extrabold text-center uppercase tracking-tighter outline-none focus:text-purple-400 border-b border-white/5 focus:border-purple-500/20 transition-all max-w-lg font-mono"
+                                placeholder="Monster Name..."
                             />
                             <div className="flex gap-4">
-                                <button onClick={downloadSVG} className="glass px-6 py-3 rounded-2xl flex items-center gap-2 hover:bg-slate-700/80 transition-all font-bold">
-                                    <Download size={18} /> Download SVG
+                                <button onClick={copyDNA} className={`glass px-8 py-3.5 rounded-2xl flex items-center gap-2.5 transition-all font-bold ${copied ? 'bg-green-500/20 border-green-500/50 text-green-400' : 'hover:bg-slate-700/80 hover:scale-105 active:scale-95'}`}>
+                                    {copied ? <div className="flex items-center gap-2">DNA Copied!</div> : <><Dna size={20} className="rotate-45" /> Copy DNA String</>}
                                 </button>
-                                <button onClick={() => window.location.reload()} className="glass px-6 py-3 rounded-2xl flex items-center gap-2 hover:bg-slate-700/80 transition-all font-bold">
-                                    Refresh
+                                <button onClick={downloadSVG} className="glass px-8 py-3.5 rounded-2xl flex items-center gap-2.5 hover:bg-slate-700/80 hover:scale-105 active:scale-95 transition-all font-bold">
+                                    <Download size={20} /> Export SVG
                                 </button>
                             </div>
+                            <p className="text-slate-500 text-[10px] uppercase font-bold tracking-widest bg-slate-800/50 px-3 py-1 rounded-full">
+                                Copy the DNA string to use your monster in the Punnett Square Lab
+                            </p>
                         </div>
                     </div>
 
-                    {/* Right: Controls Panel */}
-                    <div className="lg:w-[450px] space-y-6">
-                        <div className="glass rounded-[32px] p-8 space-y-8 shadow-2xl overflow-y-auto max-h-[calc(100vh-64px)] no-scrollbar">
-                            <div className="flex items-center gap-3">
-                                <div className="p-3 bg-purple-500/20 rounded-2xl text-purple-400">
-                                    <Settings />
+                    {/* Right: Pro Editor Panel */}
+                    <div className="lg:w-[480px] shrink-0">
+                        <div className="glass rounded-[40px] p-8 md:p-10 space-y-10 shadow-2xl overflow-y-auto max-h-[calc(100vh-80px)] custom-scroll relative">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3.5 bg-purple-500/20 rounded-2xl text-purple-400 shadow-inner">
+                                    <Settings size={22} />
                                 </div>
                                 <div>
-                                    <h2 className="text-xl font-bold">Monster Editor</h2>
-                                    <p className="text-slate-500 text-sm">Fine-tune features & colors</p>
+                                    <h2 className="text-xl font-black tracking-tight">Phenotype Editor</h2>
+                                    <p className="text-slate-500 text-xs font-bold uppercase tracking-wider">Trait Laboratory • v2.0</p>
                                 </div>
                             </div>
 
                             <ControlGroup title="Body Aesthetics" icon={Palette}>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <Slider label="Hue" value={hue} min={0} max={360} onChange={setHue} unit="°" />
-                                    <Slider label="Saturation" value={sat} min={0} max={100} onChange={setSat} unit="%" />
-                                    <Slider label="Brightness" value={light} min={20} max={90} onChange={setLight} unit="%" />
-                                    <Slider label="Leg Len" value={legLength} min={5} max={35} onChange={setLegLength} />
-                                    <Slider label="Leg Gap" value={legSpacing} min={5} max={30} onChange={setLegSpacing} />
+                                <div className="space-y-1">
+                                    <SmartSlider label="Hue" value={hue} min={0} max={360} onChange={setHue} unit="°" />
+                                    <SmartSlider label="Saturation" value={sat} min={0} max={100} onChange={setSat} unit="%" />
+                                    <SmartSlider label="Light" value={light} min={20} max={90} onChange={setLight} unit="%" />
+                                    <SmartSlider label="Leg Height" value={legLength} min={5} max={35} onChange={setLegLength} />
+                                    <SmartSlider label="Leg Gap" value={legSpacing} min={5} max={30} onChange={setLegSpacing} />
                                 </div>
-                                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/5">
-                                    <Slider label="Body Width" value={bodyWidth} min={15} max={45} onChange={setBodyWidth} />
-                                    <Slider label="Body Height" value={bodyHeight} min={20} max={45} onChange={setBodyHeight} />
-                                </div>
-                            </ControlGroup>
-
-                            <ControlGroup title="Head & Ears" icon={Settings}>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <Slider label="Ear Size" value={earSize} min={0.5} max={2.5} onChange={setEarSize} />
-                                    <Slider label="Ear Tilt" value={earAngle} min={-15} max={30} onChange={setEarAngle} unit="°" />
+                                <div className="pt-6 border-t border-white/5">
+                                    <Pad2D 
+                                        labelX="Width" valueX={bodyWidth} minX={15} maxX={45} onChangeX={setBodyWidth}
+                                        labelY="Height" valueY={bodyHeight} minY={20} maxY={45} onChangeY={setBodyHeight}
+                                    />
                                 </div>
                             </ControlGroup>
 
-                            <ControlGroup title="Facial Details" icon={Settings}>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <Slider label="Eye Size" value={eyeSize} min={4} max={12} onChange={setEyeSize} />
-                                    <Slider label="Pupil Size" value={pupilSize} min={1} max={6} onChange={setPupilSize} />
-                                    <Slider label="Eye Gap" value={eyeSpacing} min={8} max={25} onChange={setEyeSpacing} />
-                                </div>
-                                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/5">
-                                    <Slider label="Mouth Smile" value={mouthCurve} min={50} max={85} onChange={setMouthCurve} />
-                                    <Slider label="Mouth Width" value={mouthWidth} min={8} max={25} onChange={setMouthWidth} />
-                                </div>
+                            <ControlGroup title="Cranial & Ear Traits" icon={Settings}>
+                                <SmartSlider label="Ear Scale" value={earSize} min={0.5} max={2.2} step={0.1} onChange={setEarSize} />
+                                <SmartSlider label="Ear Angle" value={earAngle} min={-15} max={30} onChange={setEarAngle} unit="°" />
                             </ControlGroup>
 
-                            <ControlGroup title="Patterns & Texture" icon={Palette}>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <Slider label="Spot Count" value={spotCount} min={0} max={20} onChange={setSpotCount} />
-                                    <Slider label="Spot Size" value={spotSize} min={1} max={10} onChange={setSpotSize} />
-                                </div>
+                            <ControlGroup title="Facial Attributes" icon={Settings}>
+                                <SmartSlider label="Eye Scale" value={eyeSize} min={4} max={12} onChange={setEyeSize} />
+                                <SmartSlider label="Pupil Size" value={pupilSize} min={1} max={6} onChange={setPupilSize} />
+                                <SmartSlider label="Eye Gap" value={eyeSpacing} min={8} max={25} onChange={setEyeSpacing} />
+                                <SmartSlider label="Mouth Smile" value={mouthCurve} min={50} max={85} onChange={setMouthCurve} />
+                                <SmartSlider label="Mouth Width" value={mouthWidth} min={5} max={20} onChange={setMouthWidth} />
                             </ControlGroup>
 
-                            <ControlGroup title="Display Settings" icon={Settings}>
-                                <div className="space-y-4">
-                                    <Slider label="Viewport Zoom" value={viewportScale} min={200} max={800} onChange={setViewportScale} unit="px" />
-                                    <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl">
-                                        <p className="text-[10px] text-blue-300 leading-relaxed">
-                                            <strong className="block mb-1 text-blue-200">🔍 Pro Tip:</strong>
-                                            The <strong>Viewport Zoom</strong> controls the display size on your screen, while the internal <strong>viewBox</strong> ensures the monster always stays perfectly centered and unclipped.
-                                        </p>
-                                    </div>
-                                </div>
+                            <ControlGroup title="Dermal Patterns" icon={Palette}>
+                                <SmartSlider label="Spot Count" value={spotCount} min={0} max={20} onChange={setSpotCount} />
+                                <SmartSlider label="Spot Radius" value={spotSize} min={1} max={10} onChange={setSpotSize} />
                             </ControlGroup>
 
-                            {/* Preset Buttons */}
+                            <ControlGroup title="Environment" icon={Settings}>
+                                <SmartSlider label="Zoom" value={viewportScale} min={200} max={800} onChange={setViewportScale} unit="px" />
+                            </ControlGroup>
+
+                            {/* Theme Quick-Selectors */}
                             <div className="pt-8 border-t border-white/10">
-                                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Quick Themes</h3>
-                                <div className="grid grid-cols-2 gap-3">
-                                    <button 
-                                        onClick={() => { setHue(270); setSat(80); setLight(60); setEarSize(1); setEyeSize(8); setMouthCurve(68); setSpotCount(0); setLegSpacing(14); setEyeSpacing(15); }}
-                                        className="py-3 rounded-xl bg-purple-600/20 border border-purple-500/20 text-purple-400 font-bold text-sm hover:bg-purple-600/30 transition-all"
-                                    >
-                                        Classic Purple
-                                    </button>
-                                    <button 
-                                        onClick={() => { setHue(50); setSat(90); setLight(60); setEarSize(1.5); setEyeSize(10); setMouthCurve(60); setSpotCount(5); setSpotSize(6); setLegSpacing(20); setEyeSpacing(18); }}
-                                        className="py-3 rounded-xl bg-yellow-500/20 border border-yellow-500/20 text-yellow-400 font-bold text-sm hover:bg-yellow-500/30 transition-all"
-                                    >
-                                        Golden Spot
-                                    </button>
-                                    <button 
-                                        onClick={() => { setHue(190); setSat(70); setLight(45); setBodyWidth(40); setBodyHeight(25); setEyeSize(12); setLegLength(10); }}
-                                        className="py-3 rounded-xl bg-cyan-600/20 border border-cyan-500/20 text-cyan-400 font-bold text-sm hover:bg-cyan-600/30 transition-all"
-                                    >
-                                        Small & Round
-                                    </button>
-                                    <button 
-                                        onClick={() => { setHue(10); setSat(80); setLight(50); setEarAngle(30); setMouthCurve(85); setEyeSize(6); setPupilSize(1); }}
-                                        className="py-3 rounded-xl bg-red-600/20 border border-red-500/20 text-red-400 font-bold text-sm hover:bg-red-600/30 transition-all"
-                                    >
-                                        Grumpy Red
-                                    </button>
+                                <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-5">Lab Presets</h3>
+                                <div className="grid grid-cols-2 gap-3.5">
+                                    {[
+                                        { id: 'purple', label: 'Dominant (FF)', color: 'bg-purple-600/20 text-purple-400 border-purple-500/20' },
+                                        { id: 'yellow', label: 'Recessive (ff)', color: 'bg-yellow-600/20 text-yellow-400 border-yellow-500/20' },
+                                        { id: 'round', label: 'Bulbous', color: 'bg-cyan-600/20 text-cyan-400 border-cyan-500/20' },
+                                        { id: 'scary', label: 'Aggressive', color: 'bg-red-600/20 text-red-400 border-red-500/20' }
+                                    ].map(theme => (
+                                        <button 
+                                            key={theme.id} onClick={() => setPreset(theme.id)}
+                                            className={`py-3.5 rounded-2xl border ${theme.color} font-bold text-xs hover:brightness-125 hover:scale-[1.02] active:scale-95 transition-all shadow-sm`}
+                                        >
+                                            {theme.label}
+                                        </button>
+                                    ))}
                                 </div>
                             </div>
-                        </div>
 
-                        <footer className="text-center text-slate-500 text-[10px] uppercase tracking-widest font-bold">
-                            Interactive Character Lab • Created for Biology & Physics Curriculum
-                        </footer>
+                            <footer className="pt-10 text-center opacity-30 text-[9px] font-black uppercase tracking-[0.3em]">
+                                Genetics Interactive Prototype • v2.0
+                            </footer>
+                        </div>
                     </div>
                 </div>
             );

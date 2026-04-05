@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wave Diffraction Lab | Mr. Mudry's Physics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #64748b; }
+        
+        /* Login Overlay Styles */
+        .overlay { position: fixed; inset: 0; background: rgba(2, 6, 23, 0.95); z-index: 1000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+        .glass-panel { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); border-radius: 2rem; }
+        .gradient-text { background: linear-gradient(135deg, #22d3ee, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        input::placeholder { color: rgba(148, 163, 184, 0.5); }
+
+    </style>
+</head>
+<body class="bg-slate-900 overflow-hidden">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useMemo } = React;
+
+        // --- SUPABASE CONFIGURATION ---
+        const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
+        const sbClient = supabase.createClient(SB_URL, SB_KEY);
+
+
+        // --- Custom Icons (Internal for maximum reliability) ---
+        const Activity = ({ size = 20, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        );
+        const CheckCircle = ({ size = 20, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        );
+        const AlertCircle = ({ size = 20, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        );
+        const Lock = ({ size = 20, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        );
+        const Unlock = ({ size = 20, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+        );
+        const ChevronRight = ({ size = 20, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="9 18 15 12 9 6"/></svg>
+        );
+        const ChevronLeft = ({ size = 20, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="15 18 9 12 15 6"/></svg>
+        );
+        const ClipboardList = ({ size = 20, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><line x1="8" y1="10" x2="8" y2="10"/><line x1="12" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="8" y2="14"/><line x1="12" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="8" y2="18"/><line x1="12" y1="18" x2="16" y2="18"/></svg>
+        );
+        const RefreshCcw = ({ size = 20, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+        );
+        const Camera = ({ size = 20, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        );
+        const ImageIcon = ({ size = 20, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        );
+        const X = ({ size = 20, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        );
+        const Maximize2 = ({ size = 20, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        );
+
+        // --- LAB MISSION DATA ---
+        const labSteps = [
+            {
+                id: 0,
+                type: 'info',
+                title: 'Mission Briefing',
+                content: 'Welcome to the Wave Diffraction Lab. Your goal is to discover the physical rules of how waves bend around obstacles and through gaps. You will manipulate the simulation, capture photographic data, and analyze your results.',
+                instruction: 'Click "Start Lab" to begin your first experiment.'
+            },
+            {
+                id: 1,
+                type: 'task',
+                title: 'Task 1: The Wide Harbor',
+                content: 'Let\'s see what happens when waves hit a large opening.',
+                instruction: 'Set the Barrier Type to "Slit (Gap)". Set Wavelength around 30, and Gap Height to be very wide (130 or higher).',
+                checkAction: (s) => s.mode === 'slit' && s.wavelength >= 25 && s.wavelength <= 35 && s.size >= 130,
+                successMsg: 'Good. Watch the waves pass through. Notice how they travel mostly straight.'
+            },
+            {
+                id: 2,
+                type: 'capture',
+                title: 'Data Collection 1: Squeezing the Wave',
+                content: 'Here is where the physics happens! We need to squeeze these waves to force diffraction.',
+                instruction: 'Decrease the Gap Height slider until it is 40 or less. Keep Wavelength around 30. Once the waves are bending dramatically, capture a snapshot for your notebook!',
+                checkAction: (s) => s.mode === 'slit' && s.size <= 40 && s.wavelength >= 25 && s.wavelength <= 35,
+                captureLabel: 'Small Gap (λ=30, d≤40)',
+                successMsg: 'Snapshot secured! Look at that wide semi-circle spreading out.'
+            },
+            {
+                id: 3,
+                type: 'question',
+                title: 'Data Analysis: Gap Size',
+                content: 'Based on what you saw in Task 1 and your captured snapshot in Data Collection 1, when does a wave bend (diffract) the most?',
+                options: [
+                    {
+                        text: 'When the gap is much LARGER than the wavelength.',
+                        isCorrect: false,
+                        feedback: 'Remember Task 1? When the gap was wide (130), the waves went mostly straight. Watch the simulation demonstrate this.',
+                        demo: { animate: 'size', min: 30, max: 150, setValues: { wavelength: 30, mode: 'slit' } }
+                    },
+                    {
+                        text: 'When the gap is SIMILAR TO or SMALLER than the wavelength.',
+                        isCorrect: true,
+                        feedback: 'Spot on! The tighter the squeeze compared to the wave size, the more extreme the bending. This is a Golden Rule of diffraction.'
+                    },
+                    {
+                        text: 'The gap size does not change how the wave bends.',
+                        isCorrect: false,
+                        feedback: 'Your snapshot shows extreme bending, but in Task 1 they went straight. Gap size definitely matters! Watch the demonstration.',
+                        demo: { animate: 'size', min: 30, max: 150, setValues: { wavelength: 30, mode: 'slit' } }
+                    }
+                ]
+            },
+            {
+                id: 4,
+                type: 'capture',
+                title: 'Data Collection 2: The Large Gap',
+                content: 'You just established that small gaps cause extreme bending. Let\'s formally document the opposite effect in your notebook.',
+                instruction: 'Increase the Gap Height until it is much larger than the wavelength (100 or more). Keep Wavelength around 30. Capture a snapshot showing the waves passing mostly straight through.',
+                checkAction: (s) => s.mode === 'slit' && s.size >= 100 && s.wavelength >= 25 && s.wavelength <= 35,
+                captureLabel: 'Large Gap (λ=30, d≥100)',
+                successMsg: 'Snapshot secured! Notice the stark difference in bending between this and your small gap snapshot.'
+            },
+            {
+                id: 5,
+                type: 'capture',
+                title: 'Data Collection 3: The Color Rule',
+                content: 'We know small gaps cause bending. But do all waves bend the same amount? Let\'s test short waves (like high-pitched sounds or blue light).',
+                instruction: 'Keep the Gap Height small (around 40). Slide the Wavelength all the way down to a short wave (15 or less). Capture a snapshot to record the result.',
+                checkAction: (s) => s.mode === 'slit' && s.size <= 40 && s.wavelength <= 15,
+                captureLabel: 'Short Wave (λ≤15, d≤40)',
+                successMsg: 'Snapshot secured. This data will be crucial for the next step.'
+            },
+            {
+                id: 6,
+                type: 'question',
+                title: 'Data Analysis: Wavelength',
+                content: 'Open and compare your captured snapshots of the "Small Gap" and the "Short Wave". They both went through the same small gap. Which one bent at a wider angle?',
+                options: [
+                    {
+                        text: 'The short wavelength (blue/high-pitch) bent more.',
+                        isCorrect: false,
+                        feedback: 'Look closely at the demonstration. The short waves pass straight, while the long ones spread and bend!',
+                        demo: { animate: 'wavelength', min: 10, max: 60, setValues: { size: 40, mode: 'slit' } }
+                    },
+                    {
+                        text: 'The long wavelength (red/low-pitch) bent more.',
+                        isCorrect: true,
+                        feedback: 'Correct! Longer wavelengths bend much more easily. This is why low, thumping bass travels around corners better than high-pitched vocals!'
+                    },
+                    {
+                        text: 'They both bent the exact same amount.',
+                        isCorrect: false,
+                        feedback: 'Watch the simulation demonstrate the difference in how much the waves curve as the wavelength changes.',
+                        demo: { animate: 'wavelength', min: 10, max: 60, setValues: { size: 40, mode: 'slit' } }
+                    }
+                ]
+            },
+            {
+                id: 7,
+                type: 'capture',
+                title: 'Data Collection 4: Shadows',
+                content: 'Diffraction doesn\'t just happen in gaps. It happens around solid objects too.',
+                instruction: 'Set the Barrier Type to "Obstacle". Set Wavelength to 40, and Obstacle Height to 200. Drag the barrier up and down, then capture a snapshot showing waves filling the "shadow".',
+                checkAction: (s) => s.mode === 'obstacle' && s.wavelength >= 35 && s.wavelength <= 45 && s.size >= 195 && s.size <= 205,
+                captureLabel: 'Obstacle Shadow (λ=40, d=200)',
+                successMsg: 'Snapshot secured. See how the waves bend inward around the top and bottom edges?'
+            },
+            {
+                id: 8,
+                type: 'question',
+                title: 'Application: Harbor Seawall',
+                content: 'Review your data. You are designing a seawall to protect a harbor from ocean waves. To PREVENT waves from diffracting heavily and destroying boats inside, what should the size of your harbor entrance be?',
+                options: [
+                    {
+                        text: 'Much smaller than the incoming ocean waves.',
+                        isCorrect: false,
+                        feedback: 'If the entrance is smaller than the waves, watch the simulation—they diffract heavily and spread out all over the inside of the harbor!',
+                        demo: { animate: 'size', min: 20, max: 150, setValues: { wavelength: 40, mode: 'slit' } }
+                    },
+                    {
+                        text: 'Exactly the same size as the incoming ocean waves.',
+                        isCorrect: false,
+                        feedback: 'When the gap matches the wavelength, significant diffraction still occurs. Watch the demonstration.',
+                        demo: { animate: 'size', min: 20, max: 150, setValues: { wavelength: 40, mode: 'slit' } }
+                    },
+                    {
+                        text: 'Much wider than the incoming ocean waves.',
+                        isCorrect: true,
+                        feedback: 'Perfect! A gap much larger than the wavelength allows the waves to pass straight through, leaving the protected corners of the harbor calm.'
+                    }
+                ],
+                requiresProof: true,
+                expectedProofId: 4,
+                proofQuestion: "Select the snapshot from your gallery that PROVES a wide opening minimizes wave spreading."
+            },
+            {
+                id: 9,
+                type: 'question',
+                title: 'Application: Bending Sound',
+                content: 'You are walking in a city and hear a street performer playing music around a building corner. You can hear the low thumping bass, but you cannot hear the high-pitched flute. Why?',
+                options: [
+                    {
+                        text: 'The high-pitched flute waves are traveling too fast.',
+                        isCorrect: false,
+                        feedback: 'All sound waves travel at the same speed in the same air.'
+                    },
+                    {
+                        text: 'The low-pitched bass waves have longer wavelengths, which diffract (bend) more around the obstacle.',
+                        isCorrect: true,
+                        feedback: 'Exactly! Longer wavelengths bend much more easily into the shadow zones behind solid objects.'
+                    },
+                    {
+                        text: 'The flute is not loud enough to bend around corners.',
+                        isCorrect: false,
+                        feedback: 'While volume matters, the *bending angle* itself is a physical property of the wavelength, not just the volume.'
+                    }
+                ],
+                requiresProof: true,
+                expectedProofId: 7,
+                proofQuestion: "Select the snapshot showing waves bending into the 'shadow zone' behind a solid obstacle."
+            },
+            {
+                id: 10,
+                type: 'question',
+                title: 'Application: Light in a Room',
+                content: 'Visible light has a microscopic wavelength. When sunlight shines through a normal, open doorway into a dark room, it forms a bright rectangular patch on the floor rather than spreading into a full semi-circle. Why?',
+                options: [
+                    {
+                        text: 'Light is not a wave, so it cannot diffract.',
+                        isCorrect: false,
+                        feedback: 'Light absolutely acts as a wave and can diffract, but only under the right physical conditions.'
+                    },
+                    {
+                        text: 'The doorway is massive compared to the tiny wavelength of light, so it passes mostly straight through.',
+                        isCorrect: true,
+                        feedback: 'Correct! The ratio of gap size to wavelength determines bending. A normal doorway is millions of times larger than light\'s wavelength.'
+                    },
+                    {
+                        text: 'The air in the room absorbs the diffracted light.',
+                        isCorrect: false,
+                        feedback: 'Absorption happens, but it doesn\'t explain why the main beam stays straight without spreading.'
+                    }
+                ],
+                requiresProof: true,
+                expectedProofId: 4,
+                proofQuestion: "Which snapshot demonstrates what happens when a wave passes through a gap MUCH larger than its wavelength?"
+            }
+        ];
+
+        // --- MAIN APPLICATION COMPONENT ---
+        function App() {
+            // Sandbox State
+            const canvasRef = useRef(null);
+            const [wavelength, setWavelength] = useState(30);
+            const [size, setSize] = useState(60);
+            const [mode, setMode] = useState('slit');
+            const [barrierX, setBarrierX] = useState(240);
+            const [barrierY, setBarrierY] = useState(200);
+
+            // --- Supabase / Auth State ---
+            const [studentId, setStudentId] = useState('');
+            const [studentName, setStudentName] = useState('');
+            const [isAuthorized, setIsAuthorized] = useState(false);
+            const [loginStatus, setLoginStatus] = useState('');
+            const [showNameEntry, setShowNameEntry] = useState(false);
+            const [tempId, setTempId] = useState('');
+            const [tempName, setTempName] = useState('');
+            const [syncStatus, setSyncStatus] = useState('Database_Secure');
+
+
+            // Lab State
+            const [currentStepIndex, setCurrentStepIndex] = useState(0);
+            const [selectedOption, setSelectedOption] = useState(null);
+            const [showFeedback, setShowFeedback] = useState(false);
+            const [isLabComplete, setIsLabComplete] = useState(false);
+            const [demoAnimation, setDemoAnimation] = useState(null);
+            const [selectedProof, setSelectedProof] = useState(null);
+            
+            // New: Snapshot State
+            const [snapshots, setSnapshots] = useState([]);
+            const [capturedStepIds, setCapturedStepIds] = useState([]);
+            const [fullscreenImage, setFullscreenImage] = useState(null);
+            const notebookRef = useRef(null);
+
+            // --- Database Logic ---
+            const syncResults = async (finalScore = null) => {
+                if (!isAuthorized || !studentId) return;
+                setSyncStatus('Syncing...');
+                try {
+                    const assignmentName = "Wave Diffraction Lab";
+                    const { data: existing } = await sbClient.from('student_results')
+                        .select('id')
+                        .eq('student_id', studentId)
+                        .eq('assignment_name', assignmentName);
+
+                    // Calculate score
+                    let score = Math.round((currentStepIndex / (labSteps.length - 1)) * 100);
+                    if (isLabComplete) score = 100;
+                    if (finalScore !== null) score = finalScore;
+
+                    const payload = {
+                        student_name: studentName,
+                        student_id: studentId,
+                        assignment_name: assignmentName,
+                        score: score,
+                        details: {
+                            currentStep: currentStepIndex,
+                            snapshotsCount: snapshots.length,
+                            isComplete: isLabComplete,
+                            lastUpdate: new Date().toISOString()
+                        }
+                    };
+
+                    if (existing && existing.length > 0) {
+                        await sbClient.from('student_results').update(payload).eq('id', existing[0].id);
+                    } else {
+                        await sbClient.from('student_results').insert([payload]);
+                    }
+                    setSyncStatus('Database_Secure');
+                } catch (e) {
+                    console.error("Sync Error:", e);
+                    setSyncStatus('Sync_Error');
+                }
+            };
+
+            const handleLogin = async () => {
+                if (tempId.length !== 6) return;
+                setLoginStatus('VERIFYING_CREDENTIALS...');
+                
+                try {
+                    const { data } = await sbClient.from('student_results')
+                        .select('student_name')
+                        .eq('student_id', tempId)
+                        .order('created_at', { ascending: false })
+                        .limit(1)
+                        .maybeSingle();
+
+                    if (data) {
+                        setStudentId(tempId);
+                        setStudentName(data.student_name);
+                        setIsAuthorized(true);
+                    } else if (!showNameEntry) {
+                        setShowNameEntry(true);
+                        setLoginStatus('NEW_ID_DETECTED');
+                    } else {
+                        if (tempName.length < 3) return;
+                        setStudentId(tempId);
+                        setStudentName(tempName);
+                        setIsAuthorized(true);
+                    }
+                } catch (e) {
+                    setLoginStatus('SYNC_ERROR');
+                }
+            };
+
+            // Sync on progress
+            useEffect(() => {
+                if (isAuthorized) {
+                    syncResults();
+                }
+            }, [currentStepIndex, isLabComplete, snapshots.length, isAuthorized]);
+
+            
+            const step = labSteps[currentStepIndex];
+
+            // Evaluate conditions
+            const isTaskReady = (step.type === 'task' || step.type === 'capture') ? 
+                step.checkAction({ wavelength, size, mode, barrierX, barrierY }) : false;
+            
+            const hasCapturedCurrent = capturedStepIds.includes(step.id);
+
+            const handleTakeSnapshot = () => {
+                if (canvasRef.current) {
+                    const dataUrl = canvasRef.current.toDataURL('image/jpeg', 0.85);
+                    setSnapshots(prev => [...prev, {
+                        id: step.id,
+                        url: dataUrl,
+                        label: step.captureLabel
+                    }]);
+                    setCapturedStepIds(prev => [...prev, step.id]);
+                }
+            };
+
+            const handleNextStep = () => {
+                if (currentStepIndex < labSteps.length - 1) {
+                    setCurrentStepIndex(prev => prev + 1);
+                    setSelectedOption(null);
+                    setShowFeedback(false);
+                    setDemoAnimation(null);
+                    setFullscreenImage(null);
+                    setSelectedProof(null);
+                } else {
+                    setIsLabComplete(true);
+                }
+            };
+
+            const handlePrevStep = () => {
+                if (currentStepIndex > 0) {
+                    setCurrentStepIndex(prev => prev - 1);
+                    setSelectedOption(null);
+                    setShowFeedback(false);
+                    setDemoAnimation(null);
+                    setFullscreenImage(null);
+                    setSelectedProof(null);
+                }
+            };
+
+            const resetLab = () => {
+                setCurrentStepIndex(0);
+                setSelectedOption(null);
+                setShowFeedback(false);
+                setIsLabComplete(false);
+                setDemoAnimation(null);
+                setFullscreenImage(null);
+                setSelectedProof(null);
+                setWavelength(30);
+                setSize(60);
+                setMode('slit');
+                setSnapshots([]);
+                setCapturedStepIds([]);
+            };
+
+            const isNextEnabled = () => {
+                if (step.type === 'info') return true;
+                if (step.type === 'task') return isTaskReady;
+                if (step.type === 'capture') return hasCapturedCurrent;
+                if (step.type === 'question') {
+                    const isCorrectTextAnswer = showFeedback && step.options[selectedOption]?.isCorrect;
+                    if (!isCorrectTextAnswer) return false;
+                    if (step.requiresProof) {
+                        return selectedProof === step.expectedProofId;
+                    }
+                    return true;
+                }
+                return false;
+            };
+
+            useEffect(() => {
+                if (notebookRef.current) {
+                    notebookRef.current.scrollTop = 0;
+                }
+            }, [currentStepIndex]);
+
+            useEffect(() => {
+                if (!demoAnimation?.active) return;
+                const { animate, min, max, setValues } = demoAnimation;
+
+                if (setValues) {
+                    if (setValues.wavelength !== undefined) setWavelength(setValues.wavelength);
+                    if (setValues.mode !== undefined) setMode(setValues.mode);
+                    if (setValues.size !== undefined) setSize(setValues.size);
+                }
+
+                let startTime;
+                let animationId;
+                const duration = 3000;
+
+                const stepFn = (timestamp) => {
+                    if (!startTime) startTime = timestamp;
+                    const progress = (timestamp - startTime) / duration;
+                    const normalizedSin = (Math.sin(progress * Math.PI * 2 - Math.PI/2) + 1) / 2;
+                    const currentValue = min + (max - min) * normalizedSin;
+
+                    if (animate === 'size') setSize(currentValue);
+                    if (animate === 'wavelength') setWavelength(currentValue);
+
+                    animationId = requestAnimationFrame(stepFn);
+                };
+
+                animationId = requestAnimationFrame(stepFn);
+                return () => cancelAnimationFrame(animationId);
+            }, [demoAnimation]);
+
+            return (
+                <div className="h-screen w-screen overflow-hidden bg-slate-900 text-slate-100 font-sans flex flex-col relative">
+                    <header className="bg-slate-950 border-b border-slate-800 text-white shadow-md z-10 p-3">
+                        <div className="max-w-7xl mx-auto flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="bg-indigo-600 p-2 rounded-lg">
+                                    <Activity className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <h1 className="text-xl font-bold tracking-tight text-white">Wave Diffraction Lab</h1>
+                                    <p className="text-slate-400 text-[10px] uppercase tracking-wider font-bold">
+                                        {isAuthorized ? `Authorized Access // ${studentName}` : 'Interactive Physics Environment'}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                {isAuthorized && (
+                                    <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest bg-slate-900/50 px-3 py-1 rounded-full border border-slate-800">
+                                        {syncStatus}
+                                    </div>
+                                )}
+                                <div className="hidden md:flex items-center gap-2 text-xs text-slate-400 bg-slate-900 px-3 py-1 rounded-full border border-slate-800">
+                                    {demoAnimation?.active ? (
+                                        <><span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span> Auto-Demonstration Active</>
+                                    ) : (
+                                        <><span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Simulation Active</>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    {!isAuthorized && (
+                        <div className="overlay">
+                            <div className="glass-panel max-w-sm w-full p-10 text-center space-y-8 animate-in zoom-in duration-300 mx-4">
+                                <div className="space-y-2">
+                                    <div className="w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-indigo-500/20 mb-4">
+                                        <Activity className="w-10 h-10 text-white" />
+                                    </div>
+                                    <h1 className="text-3xl font-bold gradient-text tracking-tighter uppercase">Mission_Access</h1>
+                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em]">Wave Diffraction Lab // Unit 6</p>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] text-left px-1">Access_Node // Student ID</p>
+                                        <input 
+                                            type="text" 
+                                            value={tempId}
+                                            onChange={(e) => setTempId(e.target.value.toUpperCase())}
+                                            placeholder="6-Digit ID" 
+                                            maxLength={6} 
+                                            className="w-full bg-slate-900 border border-white/10 p-5 rounded-xl outline-none transition-all text-center font-bold text-xl focus:border-indigo-500/50 uppercase tracking-widest text-indigo-400"
+                                        />
+                                    </div>
+
+                                    {showNameEntry && (
+                                        <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                                            <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] text-left px-1">New User Detected // Enter Name</p>
+                                            <input 
+                                                type="text" 
+                                                value={tempName}
+                                                onChange={(e) => setTempName(e.target.value)}
+                                                placeholder="Full Student Name" 
+                                                className="w-full bg-slate-900 border border-white/10 p-5 rounded-xl outline-none transition-all text-center font-bold text-slate-200 focus:border-purple-500/50"
+                                            />
+                                        </div>
+                                    )}
+
+                                    <button 
+                                        onClick={handleLogin}
+                                        disabled={tempId.length !== 6 || (showNameEntry && tempName.length < 3)}
+                                        className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 p-5 rounded-xl font-black uppercase tracking-widest text-sm shadow-xl active:scale-95 transition-all text-white disabled:opacity-30"
+                                    >
+                                        Establish Connection
+                                    </button>
+                                    <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest animate-pulse h-4">{loginStatus}</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+
+                    <main className="flex-1 flex flex-col lg:flex-row max-w-7xl mx-auto w-full p-4 gap-4 overflow-hidden">
+                        <div className="w-full lg:w-3/5 flex flex-col gap-4 min-h-0">
+                            <div className="bg-slate-800 rounded-2xl border border-slate-700 p-4 shadow-lg flex-shrink-0">
+                                <div className="flex flex-col md:flex-row gap-4">
+                                    <div className="w-full md:w-1/3">
+                                        <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Barrier Type</label>
+                                        <div className="flex bg-slate-900 p-1 rounded-lg border border-slate-700">
+                                            <button onClick={() => { setDemoAnimation(null); setFullscreenImage(null); setMode('slit'); }}
+                                                className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all ${mode === 'slit' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'}`}>
+                                                Slit (Gap)
+                                            </button>
+                                            <button onClick={() => { setDemoAnimation(null); setFullscreenImage(null); setMode('obstacle'); }}
+                                                className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all ${mode === 'obstacle' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'}`}>
+                                                Obstacle
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div className="w-full md:w-1/3 flex flex-col justify-center">
+                                        <div className="flex justify-between mb-1">
+                                            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Wavelength</label>
+                                            <span className="text-xs text-indigo-400 font-mono font-bold">{Math.round(wavelength)}</span>
+                                        </div>
+                                        <input type="range" min="10" max="60" value={wavelength} 
+                                            onChange={(e) => { setDemoAnimation(null); setFullscreenImage(null); setWavelength(Number(e.target.value)); }}
+                                            className="w-full accent-indigo-500" />
+                                    </div>
+                                    <div className="w-full md:w-1/3 flex flex-col justify-center">
+                                        <div className="flex justify-between mb-1">
+                                            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">{mode === 'slit' ? 'Gap Height' : 'Obstacle Height'}</label>
+                                            <span className="text-xs text-indigo-400 font-mono font-bold">{Math.round(size)}</span>
+                                        </div>
+                                        <input type="range" min="20" max="500" value={size} 
+                                            onChange={(e) => { setDemoAnimation(null); setFullscreenImage(null); setSize(Number(e.target.value)); }}
+                                            className="w-full accent-indigo-500" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex-1 bg-slate-950 rounded-2xl overflow-hidden shadow-inner border border-slate-800 relative min-h-0">
+                                {fullscreenImage && (
+                                    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-900 p-2 animate-in fade-in duration-200">
+                                        <div className="absolute top-4 right-4 z-30 flex items-center gap-3">
+                                            {step.type === 'question' && step.requiresProof && showFeedback && selectedOption !== null && 
+                                             step.options[selectedOption]?.isCorrect && selectedProof !== step.expectedProofId && (
+                                                <button onClick={() => { setSelectedProof(fullscreenImage.id); setFullscreenImage(null); }}
+                                                    className="flex items-center gap-2 text-white bg-emerald-600 hover:bg-emerald-500 rounded-full px-4 py-2 border border-emerald-700 transition-colors shadow-lg font-bold text-sm">
+                                                    <CheckCircle className="w-5 h-5" /> Submit as Evidence
+                                                </button>
+                                            )}
+                                            <button onClick={() => setFullscreenImage(null)}
+                                                className="flex items-center gap-2 text-white hover:text-indigo-400 bg-slate-800/80 backdrop-blur rounded-full px-4 py-2 border border-slate-600 transition-colors shadow-lg font-bold text-sm">
+                                                <X className="w-5 h-5" /> {step.requiresProof && showFeedback && selectedOption !== null && step.options[selectedOption]?.isCorrect && selectedProof !== step.expectedProofId ? 'Cancel' : 'Return to Simulation'}
+                                            </button>
+                                        </div>
+                                        <img src={fullscreenImage.url} alt={fullscreenImage.label} className="w-full h-full object-contain rounded-xl border border-slate-800 bg-slate-950" />
+                                        <div className="absolute bottom-4 left-0 right-0 flex justify-center pointer-events-none z-30">
+                                            <span className="bg-slate-900/80 backdrop-blur text-white font-bold text-sm px-4 py-2 rounded-full border border-slate-700 shadow-sm">
+                                                {fullscreenImage.label} (Snapshot View)
+                                            </span>
+                                        </div>
+                                    </div>
+                                )}
+                                <SimulationCanvas canvasRef={canvasRef} wavelength={wavelength} size={size} mode={mode} 
+                                    barrierX={barrierX} setBarrierX={setBarrierX} barrierY={barrierY} setBarrierY={setBarrierY} 
+                                    onInteract={() => setDemoAnimation(null)} />
+                            </div>
+                        </div>
+
+                        <div className="w-full lg:w-2/5 flex flex-col gap-4 min-h-0">
+                            {snapshots.length > 0 && (
+                                <div className="bg-slate-800 rounded-2xl border border-slate-700 p-3 shadow-lg flex-shrink-0 animate-in slide-in-from-top-4">
+                                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                                        <ImageIcon className="w-4 h-4" /> Captured Data Gallery
+                                    </h3>
+                                    <div className="flex overflow-x-auto gap-3 pb-1 custom-scrollbar">
+                                        {snapshots.map(snap => (
+                                            <div key={snap.id} className="flex-shrink-0 w-32 rounded-lg overflow-hidden border-2 border-slate-600 hover:border-indigo-400 transition-colors cursor-pointer relative group"
+                                                onClick={() => setFullscreenImage(snap)}>
+                                                <img src={snap.url} alt={snap.label} className="w-full h-16 object-cover bg-slate-950" />
+                                                <div className="bg-slate-900 text-slate-300 text-[10px] p-1.5 text-center font-medium truncate">
+                                                    {snap.label}
+                                                </div>
+                                                <div className="absolute inset-0 bg-indigo-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                    <Maximize2 className="w-5 h-5 text-white" />
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="bg-white text-slate-800 rounded-2xl shadow-xl flex-1 flex flex-col border-t-8 border-t-indigo-600 overflow-hidden relative min-h-0">
+                                <div className="bg-slate-50 border-b border-slate-200 p-3 flex items-center justify-between flex-shrink-0">
+                                    <div className="flex items-center gap-2 text-indigo-800 font-bold">
+                                        <ClipboardList className="w-5 h-5" />
+                                        Lab Notebook
+                                    </div>
+                                    <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                                        Step {currentStepIndex + 1} of {labSteps.length}
+                                    </div>
+                                </div>
+
+                                <div ref={notebookRef} className="p-4 md:p-6 flex-1 overflow-y-auto custom-scrollbar">
+                                    {isLabComplete ? (
+                                        <div className="text-center animate-in zoom-in duration-500 py-10">
+                                            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                                                <CheckCircle className="w-10 h-10 text-green-600" />
+                                            </div>
+                                            <h2 className="text-2xl font-bold text-slate-900 mb-4">Mission Accomplished!</h2>
+                                            <p className="text-slate-600 mb-8 leading-relaxed">
+                                                You have successfully manipulated the variables of wave diffraction and proven your understanding of the core physics principles.
+                                            </p>
+                                            <button onClick={resetLab} className="inline-flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-indigo-700 transition-colors">
+                                                <RefreshCcw className="w-5 h-5" /> Restart Lab
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+                                            <h2 className="text-2xl font-bold text-slate-900 mb-4 leading-tight">{step.title}</h2>
+                                            <p className="text-slate-700 mb-6 text-lg leading-relaxed">{step.content}</p>
+
+                                            {(step.type === 'task' || step.type === 'capture') && (
+                                                <div className="bg-indigo-50 border-l-4 border-indigo-500 p-5 rounded-r-xl mb-6">
+                                                    <h3 className="font-bold text-indigo-900 mb-2 flex items-center gap-2">
+                                                        <Activity className="w-4 h-4" /> Required Action
+                                                    </h3>
+                                                    <p className="text-indigo-800 font-medium">{step.instruction}</p>
+                                                    <div className="mt-4 pt-4 border-t border-indigo-100 flex items-center justify-between">
+                                                        <span className="text-sm font-bold text-indigo-900/60 uppercase tracking-wider">Status:</span>
+                                                        {isTaskReady ? (
+                                                            <span className="flex items-center gap-1 text-sm font-bold text-emerald-600 bg-emerald-100 px-3 py-1 rounded-full animate-in zoom-in">
+                                                                <CheckCircle className="w-4 h-4" /> Conditions Met
+                                                            </span>
+                                                        ) : (
+                                                            <span className="flex items-center gap-1 text-sm font-bold text-amber-600 bg-amber-100 px-3 py-1 rounded-full">
+                                                                <AlertCircle className="w-4 h-4" /> Waiting...
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {step.type === 'capture' && !hasCapturedCurrent && (
+                                                <div className="mb-6 flex flex-col items-center p-6 bg-slate-50 border-2 border-dashed border-slate-300 rounded-xl">
+                                                    {isTaskReady ? (
+                                                        <button onClick={handleTakeSnapshot} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold shadow-md hover:shadow-lg transition-all animate-in zoom-in hover:scale-105">
+                                                            <Camera className="w-6 h-6" /> Take Snapshot
+                                                        </button>
+                                                    ) : (
+                                                        <div className="text-center text-slate-500 flex flex-col items-center gap-2">
+                                                            <Camera className="w-8 h-8 opacity-50" />
+                                                            <p className="text-sm font-medium">Set the required parameters to unlock the camera.</p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            {(step.type === 'task' && isTaskReady) || (step.type === 'capture' && hasCapturedCurrent) ? (
+                                                <div className="bg-emerald-50 text-emerald-800 p-4 rounded-xl border border-emerald-200 mb-6 animate-in slide-in-from-top-2">
+                                                    <p className="font-semibold flex items-center gap-2">
+                                                        <CheckCircle className="w-5 h-5" /> {step.successMsg}
+                                                    </p>
+                                                </div>
+                                            ) : null}
+
+                                            {step.type === 'question' && (
+                                                <div className="space-y-3 mb-6">
+                                                    {step.options.map((option, idx) => {
+                                                        const isSelected = selectedOption === idx;
+                                                        let btnClass = "w-full text-left p-4 rounded-xl border-2 transition-all duration-200 ";
+                                                        if (showFeedback && isSelected) {
+                                                            btnClass += option.isCorrect ? "border-emerald-500 bg-emerald-50 text-emerald-900" : "border-red-400 bg-red-50 text-red-900";
+                                                        } else {
+                                                            btnClass += "border-slate-200 hover:border-indigo-300 hover:bg-slate-50 text-slate-700";
+                                                        }
+
+                                                        return (
+                                                            <button key={idx} disabled={showFeedback && step.options[selectedOption]?.isCorrect} onClick={() => {
+                                                                setSelectedOption(idx);
+                                                                setShowFeedback(true);
+                                                                if (option.demo) {
+                                                                    setDemoAnimation({ ...option.demo, active: true });
+                                                                } else {
+                                                                    setDemoAnimation(null);
+                                                                }
+                                                            }} className={btnClass}>
+                                                                <span className="font-medium">{option.text}</span>
+                                                            </button>
+                                                        );
+                                                    })}
+
+                                                    {showFeedback && selectedOption !== null && (
+                                                        <div className={`mt-4 p-4 rounded-xl flex items-start gap-3 animate-in slide-in-from-top-2 ${step.options[selectedOption].isCorrect ? 'bg-emerald-100 text-emerald-900' : 'bg-red-50 text-red-900'}`}>
+                                                            {step.options[selectedOption].isCorrect ? <CheckCircle className="w-6 h-6 flex-shrink-0 mt-0.5" /> : <AlertCircle className="w-6 h-6 flex-shrink-0 mt-0.5" />}
+                                                            <p className="font-medium text-sm leading-relaxed">{step.options[selectedOption].feedback}</p>
+                                                        </div>
+                                                    )}
+
+                                                    {step.requiresProof && showFeedback && step.options[selectedOption]?.isCorrect && (
+                                                        <div className="mt-6 pt-6 border-t-2 border-slate-100 animate-in slide-in-from-bottom-2">
+                                                            <h4 className="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                                                                <ImageIcon className="w-5 h-5 text-indigo-600" /> Verify with Data
+                                                            </h4>
+                                                            <p className="text-sm text-slate-600 mb-4 font-medium">{step.proofQuestion}</p>
+                                                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                                                {snapshots.map(snap => (
+                                                                    <button key={`proof-${snap.id}`} onClick={() => setFullscreenImage(snap)}
+                                                                        className={`rounded-lg overflow-hidden border-4 transition-all relative group ${selectedProof === snap.id ? (snap.id === step.expectedProofId ? 'border-emerald-500 ring-2 ring-emerald-500/50' : 'border-red-500 ring-2 ring-red-500/50') : 'border-slate-200 hover:border-indigo-300'}`}
+                                                                        title="Click to view and submit">
+                                                                        <img src={snap.url} alt="Gallery proof" className="w-full h-16 object-cover bg-slate-900" />
+                                                                        <div className="absolute inset-0 bg-indigo-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                                            <Maximize2 className="w-5 h-5 text-white" />
+                                                                        </div>
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                            {selectedProof && (
+                                                                <div className={`mt-4 p-3 rounded-xl flex items-center gap-2 text-sm font-bold ${selectedProof === step.expectedProofId ? 'bg-emerald-100 text-emerald-800' : 'bg-red-50 text-red-800'}`}>
+                                                                    {selectedProof === step.expectedProofId ? (
+                                                                        <><CheckCircle className="w-4 h-4" /> Evidence matches! Excellent work.</>
+                                                                    ) : (
+                                                                        <><AlertCircle className="w-4 h-4" /> That snapshot doesn't quite demonstrate this concept. Try another.</>
+                                                                    )}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {!isLabComplete && (
+                                    <div className="bg-slate-50 border-t border-slate-200 p-4 flex justify-between items-center flex-shrink-0">
+                                        <button onClick={handlePrevStep} disabled={currentStepIndex === 0}
+                                            className={`flex items-center gap-1 px-4 py-2 rounded-lg font-bold transition-all ${currentStepIndex === 0 ? 'text-slate-400 opacity-0 pointer-events-none' : 'text-slate-600 hover:bg-slate-200 hover:text-slate-800'}`}>
+                                            <ChevronLeft className="w-5 h-5" /> Back
+                                        </button>
+                                        <button onClick={handleNextStep} disabled={!isNextEnabled()}
+                                            className="flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all text-white bg-indigo-600 disabled:opacity-50 disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed hover:bg-indigo-700">
+                                            {currentStepIndex === 0 ? 'Start Lab' : 'Next Step'}
+                                            {!isNextEnabled() ? <Lock className="w-5 h-5" /> : (currentStepIndex === 0 ? <ChevronRight className="w-5 h-5" /> : <Unlock className="w-5 h-5" />)}
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            );
+        }
+
+        function SimulationCanvas({ canvasRef, wavelength, size, mode, barrierX, setBarrierX, barrierY, setBarrierY, onInteract }) {
+            const phaseRef = useRef(0);
+            const [isDragging, setIsDragging] = useState(false);
+            const dragOffset = useRef({ x: 0, y: 0 });
+
+            const handleMouseDown = (e) => {
+                if (onInteract) onInteract();
+                const canvas = canvasRef.current;
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                const mouseX = (clientX - rect.left) * scaleX;
+                const mouseY = (clientY - rect.top) * scaleY;
+
+                if (Math.abs(mouseX - barrierX) <= 30) {
+                    setIsDragging(true);
+                    dragOffset.current = { x: mouseX - barrierX, y: mouseY - barrierY };
+                }
+            };
+
+            const handleMouseMove = (e) => {
+                if (!isDragging) return;
+                const canvas = canvasRef.current;
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                const mouseX = (clientX - rect.left) * scaleX;
+                const mouseY = (clientY - rect.top) * scaleY;
+
+                let newX = mouseX - dragOffset.current.x;
+                let newY = mouseY - dragOffset.current.y;
+                newX = Math.max(20, Math.min(newX, canvas.width - 20));
+                newY = Math.max(0, Math.min(newY, canvas.height));
+                setBarrierX(newX);
+                setBarrierY(newY);
+            };
+
+            const handleMouseUp = () => setIsDragging(false);
+
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+                let animationFrameId;
+
+                const render = () => {
+                    const width = canvas.width;
+                    const height = canvas.height;
+                    phaseRef.current += 1.0;
+                    const phase = phaseRef.current;
+                    ctx.clearRect(0, 0, width, height);
+
+                    const barrierThickness = 20;
+                    const barrierLeft = barrierX - barrierThickness / 2;
+                    const barrierRight = barrierX + barrierThickness / 2;
+                    const yTop = barrierY - size/2;
+                    const yBot = barrierY + size/2;
+
+                    ctx.strokeStyle = 'rgba(6, 182, 212, 0.6)';
+                    ctx.lineWidth = 2.5;
+                    const offset = phase % wavelength;
+
+                    for (let x = offset; x < width + wavelength; x += wavelength) {
+                        if (x < barrierLeft) {
+                            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke();
+                        } else if (x >= barrierLeft && x <= barrierRight) {
+                            if (mode === 'slit') {
+                                const effTop = Math.max(0, yTop);
+                                const effBot = Math.min(height, yBot);
+                                if (effBot > effTop) {
+                                    ctx.beginPath(); ctx.moveTo(x, effTop); ctx.lineTo(x, effBot); ctx.stroke();
+                                }
+                            } else {
+                                if (yTop > 0) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, yTop); ctx.stroke(); }
+                                if (yBot < height) { ctx.beginPath(); ctx.moveTo(x, yBot); ctx.lineTo(x, height); ctx.stroke(); }
+                            }
+                        } else if (x > barrierRight) {
+                            ctx.strokeStyle = 'rgba(129, 140, 248, 0.8)';
+                            const r = x - barrierRight;
+                            if (mode === 'slit') {
+                                const effTop = Math.max(0, yTop);
+                                const effBot = Math.min(height, yBot);
+                                const effSize = effBot - effTop;
+                                if (effSize > 0) {
+                                    const diffractionFactor = Math.min(1, (wavelength * 1.5) / effSize);
+                                    const maxAngle = diffractionFactor * (Math.PI / 2);
+                                    const straightLen = effSize * (1 - diffractionFactor);
+                                    const arcYTop = effTop + (effSize - straightLen)/2;
+                                    const arcYBot = effBot - (effSize - straightLen)/2;
+                                    ctx.beginPath();
+                                    if (yTop > 0) {
+                                        ctx.moveTo(barrierRight + r * Math.cos(-maxAngle), arcYTop + r * Math.sin(-maxAngle));
+                                        ctx.arc(barrierRight, arcYTop, r, -maxAngle, 0);
+                                    } else {
+                                        ctx.moveTo(barrierRight + r, effTop);
+                                    }
+                                    ctx.lineTo(barrierRight + r, arcYBot);
+                                    if (yBot < height) { ctx.arc(barrierRight, arcYBot, r, 0, maxAngle); }
+                                    ctx.stroke();
+                                }
+                            } else {
+                                const hasTopOpening = yTop > 0;
+                                const hasBotOpening = yBot < height;
+                                const diffractionFactor = Math.min(1, (wavelength * 1.5) / size);
+                                const maxAngle = diffractionFactor * (Math.PI / 2.5);
+                                if (hasTopOpening) {
+                                    ctx.beginPath(); ctx.moveTo(barrierRight + r, 0); ctx.lineTo(barrierRight + r, yTop); ctx.arc(barrierRight, yTop, r, 0, maxAngle, false); ctx.stroke();
+                                }
+                                if (hasBotOpening) {
+                                    ctx.beginPath(); ctx.moveTo(barrierRight + r, height); ctx.lineTo(barrierRight + r, yBot); ctx.arc(barrierRight, yBot, r, 0, -maxAngle, true); ctx.stroke();
+                                }
+                            }
+                            ctx.strokeStyle = 'rgba(6, 182, 212, 0.6)';
+                        }
+                    }
+                    ctx.fillStyle = '#64748b';
+                    ctx.shadowColor = '#000';
+                    ctx.shadowBlur = 10;
+                    if (mode === 'slit') {
+                        if (yTop > 0) ctx.fillRect(barrierLeft, 0, barrierThickness, yTop);
+                        if (yBot < height) ctx.fillRect(barrierLeft, yBot, barrierThickness, height - yBot);
+                    } else {
+                        const effTop = Math.max(0, yTop);
+                        const effBot = Math.min(height, yBot);
+                        if (effBot > effTop) ctx.fillRect(barrierLeft, effTop, barrierThickness, effBot - effTop);
+                    }
+                    ctx.shadowBlur = 0;
+                    animationFrameId = window.requestAnimationFrame(render);
+                };
+                render();
+                return () => window.cancelAnimationFrame(animationFrameId);
+            }, [wavelength, size, mode, barrierX, barrierY]);
+
+            return (
+                <>
+                    <canvas ref={canvasRef} width={800} height={600} 
+                        className={`w-full h-full object-cover touch-none ${isDragging ? 'cursor-grabbing' : 'cursor-move'}`}
+                        onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}
+                        onTouchStart={handleMouseDown} onTouchMove={handleMouseMove} onTouchEnd={handleMouseUp} />
+                    <div className="absolute inset-0 pointer-events-none opacity-20"
+                        style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
+                    <div className="absolute bottom-4 left-0 right-0 flex justify-center pointer-events-none">
+                        <span className="bg-slate-900/80 backdrop-blur text-slate-300 text-xs px-3 py-1.5 rounded-full border border-slate-700 shadow-sm">
+                            Drag the barrier on the canvas to move it
+                        </span>
+                    </div>
+                </>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
