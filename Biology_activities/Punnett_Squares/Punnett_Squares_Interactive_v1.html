@@ -90,44 +90,86 @@
 
         // --- COMPONENTS ---
 
-        const Monster = ({ genotype, className = "w-32 h-32", small = false }) => {
-            const isPurple = genotype.includes('F');
-            const baseColor = isPurple ? '#a855f7' : '#facc15';
-            const darkColor = isPurple ? '#7e22ce' : '#ca8a04';
+        const Monster = ({ traits, genotype = "FF", className = "w-full h-full", id = "" }) => {
+            const { 
+                hue, sat, light, bodyWidth, bodyHeight, earSize, earAngle, 
+                eyeSize, pupilSize, eyeSpacing, legSpacing, legLength, 
+                mouthCurve, mouthWidth, spotCount, spotSize 
+            } = traits;
+
+            // Genotype override logic for the Punnett Square Lab
+            const isYellow = genotype === 'ff';
+            const displayHue = isYellow ? 50 : hue;
+            const displaySat = isYellow ? 90 : sat;
+            const displayLight = isYellow ? 60 : light;
+
+            const baseColor = `hsl(${displayHue}, ${displaySat}%, ${displayLight}%)`;
+            const darkColor = `hsl(${displayHue}, ${displaySat}%, ${displayLight - 15}%)`;
+
+            const bodyPath = useMemo(() => {
+                const rx = bodyWidth; const ry = bodyHeight; const cy = 60;
+                return `M ${50-rx} ${cy} C ${50-rx} ${cy-ry*1.2}, ${50+rx} ${cy-ry*1.2}, ${50+rx} ${cy} C ${50+rx} ${cy+ry*1.1}, ${50+rx*0.8} ${cy+ry}, 50 ${cy+ry} C ${50-rx*0.8} ${cy+ry}, ${50-rx} ${cy+ry*1.1}, ${50-rx} ${cy} Z`;
+            }, [bodyWidth, bodyHeight]);
+
+            const earPathLeft = useMemo(() => {
+                const s = earSize * 15; const a = earAngle; const cy = 35;
+                return `M 30 ${cy} Q ${30-s} ${cy-s-a} ${30-s*2} ${cy-s+a/2} Q ${30-s*1.5} ${cy} 30 ${cy+3} Z`;
+            }, [earSize, earAngle]);
+
+            const earPathRight = useMemo(() => {
+                const s = earSize * 15; const a = earAngle; const cy = 35;
+                return `M 70 ${cy} Q ${70+s} ${cy-s-a} ${70+s*2} ${cy-s+a/2} Q ${70+s*1.5} ${cy} 70 ${cy+3} Z`;
+            }, [earSize, earAngle]);
+
+            const spots = useMemo(() => {
+                return Array.from({ length: spotCount }).map((_, i) => ({
+                    id: i,
+                    cx: 30 + (i * 7) % 40,
+                    cy: 40 + (i * 11) % 40,
+                    r: 1 + (i % 3) + (spotSize / 4),
+                    opacity: 0.15 + (i % 5) / 10
+                }));
+            }, [spotCount, spotSize]);
+
+            const svgId = id || `monster-${Math.random().toString(36).substr(2, 9)}`;
 
             return (
                 <div className={`relative ${className} animate-pop`}>
-                    <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-lg">
-                        <ellipse cx="50" cy="90" rx="30" ry="6" fill="rgba(0,0,0,0.15)" />
-                        <rect x="30" y="70" width="12" height="20" rx="6" fill={darkColor} />
-                        <rect x="58" y="70" width="12" height="20" rx="6" fill={darkColor} />
-                        <path d="M 20 50 C 20 15, 80 15, 80 50 C 80 85, 75 80, 50 80 C 25 80, 20 85, 20 50 Z" fill={baseColor} />
-                        {/* Ears (Now always visible) */}
-                        <path d="M 30 25 Q 20 10 10 15 Q 15 25 25 28 Z" fill={darkColor} />
-                        <path d="M 70 25 Q 80 10 90 15 Q 85 25 75 28 Z" fill={darkColor} />
-                        
-                        <circle cx="35" cy="45" r="8" fill="white" />
-                        <circle cx="35" cy="45" r="3" fill="#1e293b" />
-                        <circle cx="65" cy="45" r="8" fill="white" />
-                        <circle cx="65" cy="45" r="3" fill="#1e293b" />
-                        {!small && (
-                            <>
-                                <circle cx="33" cy="43" r="1.5" fill="white" />
-                                <circle cx="63" cy="43" r="1.5" fill="white" />
-                            </>
-                        )}
-                        <path d="M 42 60 Q 50 68 58 60" stroke="#1e293b" strokeWidth="3" fill="transparent" strokeLinecap="round" />
+                    <svg id={svgId} viewBox="-25 -25 150 150" className="w-full h-full drop-shadow-lg" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <radialGradient id={`grad-${svgId}`} cx="50%" cy="30%" r="70%">
+                                <stop offset="0%" stopColor={baseColor} />
+                                <stop offset="100%" stopColor={darkColor} />
+                            </radialGradient>
+                        </defs>
+                        <ellipse cx="50" cy="95" rx="35" ry="8" fill="rgba(0,0,0,0.15)" />
+                        <rect x={50 - legSpacing - 6} y="75" width="12" height={legLength} rx="6" fill={darkColor} />
+                        <rect x={50 + legSpacing - 6} y="75" width="12" height={legLength} rx="6" fill={darkColor} />
+                        <path d={earPathLeft} fill={darkColor} />
+                        <path d={earPathRight} fill={darkColor} />
+                        <path d={bodyPath} fill={`url(#grad-${svgId})`} />
+                        {spots.map(s => <circle key={s.id} cx={s.cx} cy={s.cy} r={s.r} fill="black" opacity={s.opacity} />)}
+                        <circle cx={50 - eyeSpacing} cy="55" r={eyeSize} fill="white" />
+                        <circle cx={50 - eyeSpacing} cy="55" r={pupilSize} fill="#1e293b" />
+                        <circle cx={50 + eyeSpacing} cy="55" r={eyeSize} fill="white" />
+                        <circle cx={50 + eyeSpacing} cy="55" r={pupilSize} fill="#1e293b" />
+                        <path d={`M ${50 - mouthWidth} 70 Q 50 ${mouthCurve + 10} ${50 + mouthWidth} 70`} stroke="#1e293b" strokeWidth="3" fill="transparent" strokeLinecap="round" />
                     </svg>
                 </div>
             );
         };
 
         function App() {
+            const DEFAULT_TRAITS_P1 = { hue: 270, sat: 80, light: 60, bodyWidth: 30, bodyHeight: 35, earSize: 1, earAngle: 0, eyeSize: 8, pupilSize: 3, eyeSpacing: 15, legSpacing: 14, legLength: 20, mouthCurve: 68, mouthWidth: 8, spotCount: 0, spotSize: 4 };
+            const DEFAULT_TRAITS_P2 = { hue: 270, sat: 80, light: 60, bodyWidth: 30, bodyHeight: 35, earSize: 1, earAngle: 0, eyeSize: 8, pupilSize: 3, eyeSpacing: 15, legSpacing: 14, legLength: 20, mouthCurve: 68, mouthWidth: 8, spotCount: 0, spotSize: 4 };
+
             const [step, setStep] = useState(1);
             const [p1a1, setP1a1] = useState('F');
             const [p1a2, setP1a2] = useState('f');
             const [p2a1, setP2a1] = useState('F');
             const [p2a2, setP2a2] = useState('f');
+            const [p1Traits, setP1Traits] = useState(DEFAULT_TRAITS_P1);
+            const [p2Traits, setP2Traits] = useState(DEFAULT_TRAITS_P2);
             const [gridAnswers, setGridAnswers] = useState([null, null, null, null]);
             const [shakeIndex, setShakeIndex] = useState(null);
             const [population, setPopulation] = useState([]);
@@ -144,6 +186,21 @@
 
             const allFilled = gridAnswers.every(ans => ans !== null);
 
+
+            const inheritTraits = (p1, p2) => {
+                const baby = {};
+                Object.keys(p1).forEach(key => {
+                    if (['bodyWidth', 'bodyHeight', 'eyeSize', 'pupilSize', 'eyeSpacing', 'legSpacing', 'legLength', 'mouthWidth', 'spotSize'].includes(key)) {
+                        // Blend sizes (averaging / incomplete dominance style)
+                        baby[key] = (p1[key] + p2[key]) / 2;
+                    } else {
+                        // Discrete traits (randomly chosen from one parent)
+                        baby[key] = Math.random() > 0.5 ? p1[key] : p2[key];
+                    }
+                });
+                return baby;
+            };
+
             const generatePopulation = () => {
                 const pop = [];
                 const p1Alleles = [p1a1, p1a2];
@@ -151,7 +208,9 @@
                 for (let i = 0; i < 100; i++) {
                     const a1 = p1Alleles[Math.floor(Math.random() * 2)];
                     const a2 = p2Alleles[Math.floor(Math.random() * 2)];
-                    pop.push(combineAlleles(a1, a2));
+                    const genotype = combineAlleles(a1, a2);
+                    const traits = inheritTraits(p1Traits, p2Traits);
+                    pop.push({ genotype, traits });
                 }
                 setPopulation(pop);
             };
@@ -199,16 +258,16 @@
             const populationStats = useMemo(() => {
                 if (population.length === 0) return null;
                 const counts = { FF: 0, Ff: 0, ff: 0 };
-                population.forEach(g => counts[g]++);
+                population.forEach(p => counts[p.genotype]++);
                 const purpleCount = counts.FF + counts.Ff;
                 const yellowCount = counts.ff;
                 return { 
                     counts, 
-                    purplePct: Math.round((purpleCount / 100) * 100), 
-                    yellowPct: Math.round((yellowCount / 100) * 100),
-                    ffPct: Math.round((counts.ff / 100) * 100),
-                    FfPct: Math.round((counts.Ff / 100) * 100),
-                    FFPct: Math.round((counts.FF / 100) * 100)
+                    purplePct: Math.round((purpleCount / population.length) * 100), 
+                    yellowPct: Math.round((yellowCount / population.length) * 100),
+                    ffPct: Math.round((counts.ff / population.length) * 100),
+                    FfPct: Math.round((counts.Ff / population.length) * 100),
+                    FFPct: Math.round((counts.FF / population.length) * 100)
                 };
             }, [population]);
 
@@ -243,7 +302,7 @@
                                     <div className="grid md:grid-cols-2 gap-4 md:gap-6 mb-6">
                                         <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex flex-col items-center text-center">
                                             <h3 className="text-lg font-bold mb-2 text-blue-600">Parent 1 (Top)</h3>
-                                            <Monster genotype={parent1Genotype} className="w-24 h-24 mb-4" />
+                                            <Monster genotype={parent1Genotype} traits={p1Traits} className="w-32 h-32 mb-4" />
                                             <div className="w-full max-w-[200px] space-y-3">
                                                 <div className="flex items-center justify-between"><p className="text-[10px] font-bold text-slate-400 uppercase">Allele 1</p><div className="flex gap-2 w-24">
                                                     <button onClick={() => setP1a1('F')} className={`flex-1 py-1 rounded-lg font-bold ${p1a1 === 'F' ? 'bg-purple-600 text-white shadow-md' : 'bg-slate-200'}`}>F</button>
@@ -258,7 +317,7 @@
                                         </div>
                                         <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex flex-col items-center text-center">
                                             <h3 className="text-lg font-bold mb-2 text-rose-600">Parent 2 (Side)</h3>
-                                            <Monster genotype={parent2Genotype} className="w-24 h-24 mb-4" />
+                                            <Monster genotype={parent2Genotype} traits={p2Traits} className="w-32 h-32 mb-4" />
                                             <div className="w-full max-w-[200px] space-y-3">
                                                 <div className="flex items-center justify-between"><p className="text-[10px] font-bold text-slate-400 uppercase">Allele 1</p><div className="flex gap-2 w-24">
                                                     <button onClick={() => setP2a1('F')} className={`flex-1 py-1 rounded-lg font-bold ${p2a1 === 'F' ? 'bg-purple-600 text-white shadow-md' : 'bg-slate-200'}`}>F</button>
@@ -288,7 +347,7 @@
                                             <div className="col-span-2"></div>
                                             <div className="col-span-2 flex flex-col items-center pb-2">
                                                 <span className="text-[10px] font-black text-blue-600 uppercase mb-1 tracking-widest">Top Parent</span>
-                                                <Monster genotype={parent1Genotype} className="w-16 h-16" />
+                                                <Monster genotype={parent1Genotype} traits={p1Traits} className="w-16 h-16" />
                                             </div>
 
                                             {/* Row 2: Top Allele Labels */}
@@ -307,7 +366,7 @@
                                             {/* Row 3: Side Parent & Side Allele 1 */}
                                             <div className="row-span-2 flex flex-col items-center pr-2">
                                                 <span className="text-[10px] font-black text-rose-600 uppercase mb-1 tracking-widest">Side Parent</span>
-                                                <Monster genotype={parent2Genotype} className="w-16 h-16" />
+                                                <Monster genotype={parent2Genotype} traits={p2Traits} className="w-16 h-16" />
                                             </div>
                                             <div className="bg-rose-100 rounded-l-xl p-2 flex flex-col items-center justify-center border-r-4 border-rose-200 shadow-sm">
                                                 <span className="text-[9px] text-rose-600 font-bold uppercase">Allele 1</span>
@@ -373,7 +432,7 @@
                                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                                                     {expectedGrid.map((geno, i) => (
                                                         <div key={i} className="bg-white rounded-2xl p-4 flex flex-col items-center text-center shadow-sm border border-slate-200">
-                                                            <Monster genotype={geno} className="w-16 h-16 mb-2" />
+                                                            <Monster genotype={geno} traits={inheritTraits(p1Traits, p2Traits)} className="w-16 h-16 mb-2" />
                                                             <div className="bg-slate-50 px-2 py-1 rounded border border-slate-100 w-full flex justify-between items-center mt-1">
                                                                 <span className="text-sm font-black">{geno}</span>
                                                                 <span className={`text-[9px] font-black uppercase ${geno.includes('F') ? 'text-purple-600' : 'text-yellow-600'}`}>{getPhenotype(geno)}</span>
@@ -394,8 +453,8 @@
                                                     </button>
                                                 </div>
                                                 <div className="bg-white rounded-2xl p-4 border border-indigo-100 shadow-inner flex flex-wrap gap-1 justify-center max-h-[300px] overflow-y-auto custom-scroll">
-                                                    {population.map((geno, i) => (
-                                                        <Monster key={i} genotype={geno} className="w-6 h-6 md:w-8 md:h-8" small />
+                                                    {population.map((baby, i) => (
+                                                        <Monster key={i} genotype={baby.genotype} traits={baby.traits} className="w-8 h-8" />
                                                     ))}
                                                 </div>
                                             </div>
@@ -448,8 +507,8 @@
                                                                     <div className="flex justify-between text-[11px] font-black px-2">
                                                                         <span className="text-slate-200">{g}</span>
                                                                         <div className="space-x-3">
-                                                                            <span className="text-orange-400">{theoryStats[`${g}Pct`]}%</span>
-                                                                            <span className="text-cyan-400">{populationStats?.counts[g]}%</span>
+                                                                        <span className="text-orange-400">{theoryStats[`${g}Pct`]}%</span>
+                                                                        <span className="text-cyan-400">{populationStats?.counts[g] || 0}%</span>
                                                                         </div>
                                                                     </div>
                                                                     <div className="space-y-1">
@@ -459,7 +518,7 @@
                                                                         </div>
                                                                         {/* Actual Bar */}
                                                                         <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                                                                            <div className="h-full bg-cyan-400 rounded-full transition-all duration-1000 shadow-[0_0_8px_rgba(34,211,238,0.4)]" style={{ width: `${populationStats?.counts[g]}%` }}></div>
+                                                                            <div className="h-full bg-cyan-400 rounded-full transition-all duration-1000 shadow-[0_0_8px_rgba(34,211,238,0.4)]" style={{ width: `${populationStats?.counts[g] || 0}%` }}></div>
                                                                         </div>
                                                                     </div>
                                                                 </div>
