@@ -264,6 +264,7 @@ const lessonsData = [
     summary: "Waves bending around obstacles and the Principle of Superposition.",
     details: "Investigating how waves interact and combine when they occupy the same space.",
     type: "Activity",
+    links: { "Wave Diffraction Lab": "Unit_6_Waves_Radiation/Diffraction_tutorial/Diffraction_tutorial.html" },
     dok: 2,
     semester: 2,
     isFeatured: true,
@@ -279,8 +280,7 @@ const lessonsData = [
     type: "Activity",
     links: { 
       "Wave Boundary Explorer": "Unit_6_Waves_Radiation/Boundary_Behaviors/Boundary_Behaviors.html",
-      "WaveMaster Lab": "Unit_6_Waves_Radiation/WaveMaster_Lab/wavemaster_lab.html",
-      "Genetics Tutorial": "Biology_activities/Punnett_Squares/Genetics_Tutorial.html"
+      "WaveMaster Lab": "Unit_6_Waves_Radiation/WaveMaster_Lab/wavemaster_lab.html"
     },
     dok: 2,
     semester: 2,
