@@ -582,20 +582,28 @@
 
         async function syncResults() {
             const ind = document.getElementById('sync-indicator');
-            ind.classList.remove('bg-emerald-500');
-            ind.classList.add('bg-orange-500', 'animate-pulse');
+            if (ind) {
+                ind.classList.remove('bg-emerald-500', 'bg-rose-500');
+                ind.classList.add('bg-orange-500', 'animate-pulse');
+            }
             
             try {
                 const assignmentName = "WaveMaster Lab";
                 const { data } = await sbClient.from('student_results').select('id').eq('student_id', state.student.id).eq('assignment_name', assignmentName);
                 
-                const score = (state.module - 1) * 25 + (state[`mod${state.module}`].taskIndex / 4) * 25;
+                // Cumulative Scoring Logic: 25 points per module weighted by task count
+                let totalScore = 0;
+                for (let m = 1; m <= 4; m++) {
+                    const modTasks = modulesData[m].tasks.length;
+                    const completedTasks = state[`mod${m}`].taskIndex || 0;
+                    totalScore += (Math.min(completedTasks, modTasks) / modTasks) * 25;
+                }
 
                 const payload = {
                     student_name: state.student.name,
                     student_id: state.student.id,
                     assignment_name: assignmentName,
-                    score: Math.min(100, Math.round(score)),
+                    score: Math.min(100, Math.round(totalScore)),
                     details: { 
                         currentModule: state.module,
                         tasks: {
@@ -615,12 +623,16 @@
                     await sbClient.from('student_results').insert([payload]);
                 }
                 
-                ind.classList.remove('bg-orange-500', 'animate-pulse');
-                ind.classList.add('bg-emerald-500');
+                if (ind) {
+                    ind.classList.remove('bg-orange-500', 'animate-pulse');
+                    ind.classList.add('bg-emerald-500');
+                }
             } catch (e) { 
                 console.error("Sync Error:", e);
-                ind.classList.remove('bg-orange-500', 'animate-pulse');
-                ind.classList.add('bg-rose-500');
+                if (ind) {
+                    ind.classList.remove('bg-orange-500', 'animate-pulse');
+                    ind.classList.add('bg-rose-500');
+                }
             }
         }
 
@@ -946,6 +958,7 @@
          */
         function setModule(modNum) {
             state.module = modNum;
+            if (state.student.isLogged) syncResults(); // Save current module tracking
 
             // Update tabs with premium styling
             for (let i = 1; i <= 4; i++) {
@@ -1106,6 +1119,9 @@
 
             if (isCorrect) {
                  showTaskSuccess();
+                 // Immediate sync when mastery is achieved (before they click NEXT)
+                 state[`mod${state.module}`].taskIndex++;
+                 syncResults();
             } else {
                 startCooldown();
             }
@@ -1129,9 +1145,7 @@
         }
 
         function proceedToNextTask() {
-            state[`mod${state.module}`].taskIndex++;
-            syncResults(); // Save progress after achievement acknowledgment
-            
+            // taskIndex is already incremented in verifyCurrentTask for immediate sync
             const container = document.getElementById('kc-container');
             container.classList.add('opacity-0', 'scale-95');
             
