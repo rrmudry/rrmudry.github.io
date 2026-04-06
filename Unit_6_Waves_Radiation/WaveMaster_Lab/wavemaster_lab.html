@@ -467,7 +467,11 @@
                 isDragging: false,
                 dragOffsetX: 0,
                 dragOffsetY: 0
-            }
+            },
+            
+            // Sync Control Flags
+            isSyncing: false,
+            needsSync: false
         };
 
         function getTaskConfig(modIdx, taskIdx) {
@@ -577,10 +581,18 @@
             document.getElementById('sync-indicator').classList.add('bg-emerald-500');
             
             setModule(state.module);
-            syncResults();
+            // syncResults is already called inside setModule, so we don't call it again here.
         }
 
         async function syncResults() {
+            // Prevent concurrent syncs
+            if (state.isSyncing) {
+                state.needsSync = true;
+                return;
+            }
+            state.isSyncing = true;
+            state.needsSync = false;
+
             const ind = document.getElementById('sync-indicator');
             if (ind) {
                 ind.classList.remove('bg-emerald-500', 'bg-rose-500');
@@ -589,7 +601,7 @@
             
             try {
                 const assignmentName = "WaveMaster Lab";
-                const { data } = await sbClient.from('student_results').select('id').eq('student_id', state.student.id).eq('assignment_name', assignmentName);
+                const { data } = await sbClient.from('student_results').select('id').eq('student_id', state.student.id).eq('assignment_name', assignmentName).limit(1);
                 
                 // Cumulative Scoring Logic: 25 points per module weighted by task count
                 let totalScore = 0;
@@ -632,6 +644,12 @@
                 if (ind) {
                     ind.classList.remove('bg-orange-500', 'animate-pulse');
                     ind.classList.add('bg-rose-500');
+                }
+            } finally {
+                state.isSyncing = false;
+                // If a sync was requested while we were busy, run it now
+                if (state.needsSync) {
+                    syncResults();
                 }
             }
         }
