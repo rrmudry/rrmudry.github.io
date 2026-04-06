@@ -51,6 +51,12 @@
             -webkit-appearance: none;
             margin: 0;
         }
+        @keyframes glow-pulse {
+            0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        }
+        .animate-glow { animation: glow-pulse 2s infinite; }
     </style>
 </head>
 <body>
@@ -244,6 +250,47 @@
             const [params, setParams] = useState(generateParams());
             const displayStage = currentView.includes('1') ? 1 : currentView.includes('2') ? 2 : currentView.includes('3') ? 3 : 0;
 
+            // --- ALL STATE FROM ORIGINAL ---
+            const [overlapAchieved, setOverlapAchieved] = useState(false);
+            const [s1Q1Answer, setS1Q1Answer] = useState('');
+            const [s1Q1Status, setS1Q1Status] = useState('locked');
+            const [s1Q1Feedback, setS1Q1Feedback] = useState('');
+            const [s1Q2Status, setS1Q2Status] = useState('waiting');
+            const [s1Q2Feedback, setS1Q2Feedback] = useState('');
+            const [s1DrillAttempts, setS1DrillAttempts] = useState(0);
+            const [s1DrillStreak, setS1DrillStreak] = useState(0);
+            const [s1DrillLeftA, setS1DrillLeftA] = useState(2);
+            const [s1DrillRightA, setS1DrillRightA] = useState(3);
+            const [s1DrillAns, setS1DrillAns] = useState('');
+            const [s1DrillStatus, setS1DrillStatus] = useState('input');
+            const [s1DrillFeedback, setS1DrillFeedback] = useState('');
+            const [s2OverlapAchieved, setS2OverlapAchieved] = useState(false);
+            const [passedThrough, setPassedThrough] = useState(false);
+            const [s2Q1Answer, setS2Q1Answer] = useState('');
+            const [s2Q1Status, setS2Q1Status] = useState('locked');
+            const [s2Q1Feedback, setS2Q1Feedback] = useState('');
+            const [s2Q2Status, setS2Q2Status] = useState('locked');
+            const [s2Q2Feedback, setS2Q2Feedback] = useState('');
+            const [s3Step, setS3Step] = useState(1);
+            const [s3UserA, setS3UserA] = useState(0);
+            const [s3UserW, setS3UserW] = useState(3);
+            const [s3Status, setS3Status] = useState('building');
+            const [s3Feedback, setS3Feedback] = useState('');
+
+            useEffect(() => {
+                if (s1Q1Status === 'unlocked') {
+                    const el = document.getElementById('s1q1-input');
+                    if (el) el.focus();
+                }
+            }, [s1Q1Status]);
+
+            useEffect(() => {
+                if (s2Q1Status === 'unlocked') {
+                    const el = document.getElementById('s2q1-input');
+                    if (el) el.focus();
+                }
+            }, [s2Q1Status]);
+
             useEffect(() => {
                 syncResults();
             }, [currentView]);
@@ -279,33 +326,6 @@
             const [isPlaying, setIsPlaying] = useState(false);
             const [simTime, setSimTime] = useState(0);
 
-            // --- ALL STATE FROM ORIGINAL ---
-            const [overlapAchieved, setOverlapAchieved] = useState(false);
-            const [s1Q1Answer, setS1Q1Answer] = useState('');
-            const [s1Q1Status, setS1Q1Status] = useState('locked');
-            const [s1Q1Feedback, setS1Q1Feedback] = useState('');
-            const [s1Q2Status, setS1Q2Status] = useState('waiting');
-            const [s1Q2Feedback, setS1Q2Feedback] = useState('');
-            const [s1DrillAttempts, setS1DrillAttempts] = useState(0);
-            const [s1DrillStreak, setS1DrillStreak] = useState(0);
-            const [s1DrillLeftA, setS1DrillLeftA] = useState(2);
-            const [s1DrillRightA, setS1DrillRightA] = useState(3);
-            const [s1DrillAns, setS1DrillAns] = useState('');
-            const [s1DrillStatus, setS1DrillStatus] = useState('input');
-            const [s1DrillFeedback, setS1DrillFeedback] = useState('');
-            const [s2OverlapAchieved, setS2OverlapAchieved] = useState(false);
-            const [passedThrough, setPassedThrough] = useState(false);
-            const [s2Q1Answer, setS2Q1Answer] = useState('');
-            const [s2Q1Status, setS2Q1Status] = useState('locked');
-            const [s2Q1Feedback, setS2Q1Feedback] = useState('');
-            const [s2Q2Status, setS2Q2Status] = useState('locked');
-            const [s2Q2Feedback, setS2Q2Feedback] = useState('');
-            const [s3Step, setS3Step] = useState(1);
-            const [s3UserA, setS3UserA] = useState(0);
-            const [s3UserW, setS3UserW] = useState(3);
-            const [s3Status, setS3Status] = useState('building');
-            const [s3Feedback, setS3Feedback] = useState('');
-
             const calcPulseY = (x, p, t) => {
                 const distTraveled = (t - p.startTime) * SIM_SPEED;
                 const xc = p.origin === 'left' ? distTraveled : X_MAX - distTraveled;
@@ -335,7 +355,7 @@
                     const dist = Math.abs(c1 - c2);
 
                     if (currentView === 'stage1' && s1Q1Status !== 'correct') {
-                        if (!isPlayingRef.current && dist < 1.5) { if (!overlapAchieved) setOverlapAchieved(true); if (s1Q1Status === 'locked') setS1Q1Status('unlocked'); }
+                        if (!isPlayingRef.current && dist < 2.5) { if (!overlapAchieved) setOverlapAchieved(true); if (s1Q1Status === 'locked') setS1Q1Status('unlocked'); }
                         else if (overlapAchieved) setOverlapAchieved(false);
                     }
                     if (currentView === 'stage1_drill' && s1DrillStatus === 'simulating') {
@@ -350,7 +370,7 @@
                     }
                     if (currentView === 'stage2') {
                         if (s2Q1Status !== 'correct') {
-                            if (!isPlayingRef.current && dist < 1.5) { if (!s2OverlapAchieved) setS2OverlapAchieved(true); if (s2Q1Status === 'locked') setS2Q1Status('unlocked'); }
+                            if (!isPlayingRef.current && dist < 2.5) { if (!s2OverlapAchieved) setS2OverlapAchieved(true); if (s2Q1Status === 'locked') setS2Q1Status('unlocked'); }
                             else if (s2OverlapAchieved) setS2OverlapAchieved(false);
                         }
                         if (s2Q1Status === 'correct' && s2Q2Status !== 'correct') { if (c1 > c2 + 10) { if (!passedThrough) setPassedThrough(true); if (s2Q2Status === 'locked') setS2Q2Status('unlocked'); } }
@@ -378,6 +398,15 @@
                 ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1; ctx.beginPath();
                 for (let i = -Y_MAX; i <= Y_MAX; i += 2) { const py = height / 2 - (i / Y_MAX) * (height / 2); ctx.moveTo(0, py); ctx.lineTo(width, py); }
                 for (let i = 0; i <= X_MAX; i += 10) { const px = (i / X_MAX) * width; ctx.moveTo(px, 0); ctx.lineTo(px, height); } ctx.stroke();
+
+                // Y-Axis Numbering
+                ctx.fillStyle = '#94a3b8'; ctx.font = 'bold 10px Inter'; ctx.textAlign = 'right';
+                for (let i = -Y_MAX; i <= Y_MAX; i += 2) {
+                    if (i === 0) continue;
+                    const py = height / 2 - (i / Y_MAX) * (height / 2);
+                    ctx.fillText(i, 20, py + 4);
+                }
+
                 ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0, height / 2); ctx.lineTo(width, height / 2); ctx.stroke();
                 ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 4; ctx.lineJoin = 'round'; ctx.beginPath();
                 for (let px = 0; px <= width; px++) { const x = (px / width) * X_MAX; let y = 0; for (let p of pulsesRef.current) { y += calcPulseY(x, p, t); } const py = height / 2 - (y / Y_MAX) * (height / 2); if (px === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py); } ctx.stroke();
@@ -460,9 +489,9 @@
                                     {currentView === 'stage3' && <div className="grid grid-cols-2 gap-4"><div className="p-4 bg-slate-100 rounded-xl border border-slate-200"><h3 className="font-semibold text-slate-700 mb-2">Target (Left)</h3><p className="text-sm">Amplitude: {params.s3_targetA}</p><p className="text-sm">Width: {params.s3_targetW}</p></div><div className="p-4 bg-indigo-50 rounded-xl border border-indigo-200"><h3 className="font-semibold text-indigo-800 mb-4">You (Right)</h3><div className="space-y-4"><div><label className="flex justify-between text-sm font-medium text-indigo-900 mb-1"><span>Amplitude</span><span>{s3UserA}</span></label><input type="range" min="-8" max="8" step="1" value={s3UserA} onChange={e => setS3UserA(e.target.value)} disabled={s3Status === 'testing' || s3Status === 'correct'} className="w-full accent-indigo-600" /></div><div><label className="flex justify-between text-sm font-medium text-indigo-900 mb-1"><span>Width</span><span>{s3UserW}</span></label><input type="range" min="1" max="6" step="0.1" value={s3UserW} onChange={e => setS3UserW(e.target.value)} disabled={s3Status === 'testing' || s3Status === 'correct'} className="w-full accent-indigo-600" /></div></div></div></div>}
                                 </div>
                                 <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col h-[700px] overflow-y-auto">
-                                    {currentView === 'stage1' && <div className="flex-1 flex flex-col space-y-6"><div><h2 className="text-xl font-bold text-slate-800 border-b pb-2">Part 1: Constructive Interference</h2><p className="text-slate-600 leading-relaxed mt-2 text-sm">Measure superposition effects.</p></div><div className={`p-4 rounded-lg border ${s1Q1Status === 'correct' ? 'bg-slate-50 border-slate-200' : 'bg-amber-50 border-amber-200'}`}><h3 className="font-bold text-sm mb-2">Q1.1: Combine Amplitudes</h3><div className="flex gap-2"><div className="relative flex-1"><input type="number" value={s1Q1Answer} onChange={e => setS1Q1Answer(e.target.value)} disabled={s1Q1Status === 'locked' || s1Q1Status === 'correct'} className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500" /><div className="absolute left-3 top-2.5 text-slate-400">{s1Q1Status === 'locked' ? <Icon name="lock" /> : <Icon name="unlock" className="text-green-500" />}</div></div><button onClick={handleS1Q1Check} disabled={s1Q1Status === 'locked' || s1Q1Status === 'correct' || s1Q1Answer === ''} className="px-4 py-2 bg-slate-800 text-white rounded-lg">Check</button></div>{s1Q1Feedback && <p className={`text-sm mt-2 font-medium ${s1Q1Status === 'correct' ? 'text-green-700' : 'text-red-600'}`}>{s1Q1Feedback}</p>}</div>{s1Q1Status === 'correct' && <button onClick={() => { setCurrentView('stage1_drill'); startNextS1Drill(); }} className="w-full mt-auto py-3 bg-indigo-600 text-white font-bold rounded-lg flex justify-center items-center gap-2 animate-pulse">Start Prediction Drill <Icon name="arrow-right" /></button>}</div>}
+                                    {currentView === 'stage1' && <div className="flex-1 flex flex-col space-y-6"><div><h2 className="text-xl font-bold text-slate-800 border-b pb-2">Part 1: Constructive Interference</h2><p className="text-slate-600 leading-relaxed mt-2 text-sm">Measure superposition effects.</p></div><div className={`p-5 rounded-xl border-2 transition-all duration-500 shadow-sm ${s1Q1Status === 'correct' ? 'bg-slate-50 border-slate-200' : s1Q1Status === 'unlocked' ? 'bg-indigo-50 border-indigo-400 animate-glow' : 'bg-amber-50 border-amber-200'}`}><div className="flex justify-between items-center mb-3"><h3 className="font-bold text-sm">Q1.1: Combine Amplitudes</h3>{s1Q1Status === 'unlocked' && <span className="bg-indigo-600 text-white text-[9px] font-black px-2 py-0.5 rounded tracking-widest uppercase animate-pulse">Ready</span>}</div><div className="flex gap-2"><div className="relative flex-1"><input id="s1q1-input" type="number" value={s1Q1Answer} onChange={e => setS1Q1Answer(e.target.value)} disabled={s1Q1Status === 'locked' || s1Q1Status === 'correct'} placeholder={s1Q1Status === 'locked' ? "Pause at overlap..." : "Enter height..."} className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 font-bold text-lg" /><div className="absolute left-3 top-2.5 text-slate-400">{s1Q1Status === 'locked' ? <Icon name="lock" /> : <Icon name="unlock" className="text-green-500" />}</div></div><button onClick={handleS1Q1Check} disabled={s1Q1Status === 'locked' || s1Q1Status === 'correct' || s1Q1Answer === ''} className={`px-6 py-2 font-bold rounded-lg transition-all ${s1Q1Status === 'unlocked' ? 'bg-indigo-600 text-white shadow-md' : 'bg-slate-800 text-white opacity-50'}`}>Check</button></div>{s1Q1Feedback && <p className={`text-sm mt-3 font-medium flex items-center gap-2 ${s1Q1Status === 'correct' ? 'text-green-700' : 'text-red-600'}`}>{s1Q1Status === 'correct' ? <Icon name="check-circle" size={16} /> : <Icon name="alert-circle" size={16} />}{s1Q1Feedback}</p>}</div>{s1Q1Status === 'correct' && <button onClick={() => { setCurrentView('stage1_drill'); startNextS1Drill(); }} className="w-full mt-auto py-3 bg-indigo-600 text-white font-bold rounded-lg flex justify-center items-center gap-2 animate-pulse">Start Prediction Drill <Icon name="arrow-right" /></button>}</div>}
                                     {currentView === 'stage1_drill' && <div className="flex-1 flex flex-col space-y-6"><div><h2 className="text-xl font-bold text-slate-800 border-b pb-2">Part 1: Prediction Drill</h2><p className="text-slate-600 text-sm mt-2">Prove mastery. Streak of 3 req.</p></div><div className="flex justify-between items-center p-4 bg-slate-100 rounded-lg"><div className="text-center w-1/2 border-r border-slate-300"><p className="text-[10px] uppercase font-bold">Attempts</p><p className="text-2xl font-bold">{s1DrillAttempts} / 5</p></div><div className="text-center w-1/2"><p className="text-[10px] uppercase font-bold">Streak</p><p className="text-2xl font-bold">{s1DrillStreak} / 3</p></div></div><div className={`p-5 rounded-lg border ${s1DrillStatus === 'result' ? (s1DrillFeedback.includes('Correct') ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200') : 'bg-indigo-50 border-indigo-200'}`}><div className="grid grid-cols-2 gap-4 mb-4"><div className="bg-white p-2 rounded border text-center font-bold text-blue-600">L: {s1DrillLeftA}</div><div className="bg-white p-2 rounded border text-center font-bold text-indigo-600">R: {s1DrillRightA}</div></div><input type="number" value={s1DrillAns} onChange={e => setS1DrillAns(e.target.value)} disabled={s1DrillStatus !== 'input'} className="w-full px-4 py-2 border rounded-lg text-lg mb-3" />{s1DrillStatus === 'input' ? <button onClick={submitS1Drill} className="w-full py-2 bg-indigo-600 text-white font-bold rounded-lg">Simulate</button> : <button onClick={startNextS1Drill} className="w-full py-2 bg-slate-800 text-white font-bold rounded-lg">Next Trial</button>}{s1DrillFeedback && <p className="text-sm mt-2">{s1DrillFeedback}</p>}</div>{s1DrillAttempts >= 5 && s1DrillStreak >= 3 && <button onClick={() => setCurrentView('review1')} className="w-full mt-auto py-3 bg-green-600 text-white font-bold rounded-lg flex justify-center items-center gap-2">Proceed to Review <Icon name="arrow-right" /></button>}</div>}
-                                    {currentView === 'stage2' && <div className="flex-1 flex flex-col space-y-6"><div><h2 className="text-xl font-bold text-slate-800 border-b pb-2">Part 2: Destructive Interference</h2></div><div className={`p-4 rounded-lg border ${s2Q1Status === 'correct' ? 'bg-slate-50 border-slate-200' : 'bg-amber-50 border-amber-200'}`}><h3>Q2.1: Cancellation</h3><div className="flex gap-2"><input type="number" value={s2Q1Answer} onChange={e => setS2Q1Answer(e.target.value)} disabled={s2Q1Status === 'locked' || s2Q1Status === 'correct'} className="w-full p-2 border rounded-lg" /><button onClick={handleS2Q1Check} className="px-4 py-2 bg-slate-800 text-white rounded-lg">Check</button></div></div>{s2Q1Status === 'correct' && <button onClick={() => setCurrentView('review2')} className="w-full mt-auto py-3 bg-indigo-600 text-white font-bold rounded-lg flex justify-center items-center gap-2">Review Concepts <Icon name="arrow-right" /></button>}</div>}
+                                    {currentView === 'stage2' && <div className="flex-1 flex flex-col space-y-6"><div><h2 className="text-xl font-bold text-slate-800 border-b pb-2">Part 2: Destructive Interference</h2></div><div className={`p-5 rounded-xl border-2 transition-all duration-500 shadow-sm ${s2Q1Status === 'correct' ? 'bg-slate-50 border-slate-200' : s2Q1Status === 'unlocked' ? 'bg-indigo-50 border-indigo-400 animate-glow' : 'bg-amber-50 border-amber-200'}`}><div className="flex justify-between items-center mb-3"><h3>Q2.1: Cancellation</h3>{s2Q1Status === 'unlocked' && <span className="bg-indigo-600 text-white text-[9px] font-black px-2 py-0.5 rounded tracking-widest uppercase animate-pulse">Ready</span>}</div><div className="flex gap-2"><input id="s2q1-input" type="number" value={s2Q1Answer} onChange={e => setS2Q1Answer(e.target.value)} disabled={s2Q1Status === 'locked' || s2Q1Status === 'correct'} placeholder={s2Q1Status === 'locked' ? "Pause at overlap..." : "Enter height..."} className="w-full p-2 border rounded-lg font-bold text-lg" /><button onClick={handleS2Q1Check} className={`px-6 py-2 font-bold rounded-lg transition-all ${s2Q1Status === 'unlocked' ? 'bg-indigo-600 text-white shadow-md' : 'bg-slate-800 text-white opacity-50'}`}>Check</button></div>{s2Q1Feedback && <p className={`text-sm mt-3 font-medium flex items-center gap-2 ${s2Q1Status === 'correct' ? 'text-green-700' : 'text-red-600'}`}>{s2Q1Status === 'correct' ? <Icon name="check-circle" size={16} /> : <Icon name="alert-circle" size={16} />}{s2Q1Feedback}</p>}</div>{s2Q1Status === 'correct' && <button onClick={() => setCurrentView('review2')} className="w-full mt-auto py-3 bg-indigo-600 text-white font-bold rounded-lg flex justify-center items-center gap-2 animate-pulse">Review Concepts <Icon name="arrow-right" /></button>}</div>}
                                     {currentView === 'stage3' && <div className="flex-1 flex flex-col space-y-6"><div><h2 className="text-xl font-bold text-slate-800 border-b pb-2">Final Performance Tasks</h2></div><div className={`p-4 rounded-lg border ${s3Step > 1 ? 'bg-slate-50' : 'bg-indigo-50 border-indigo-200'}`}><h3>3.1 Total Cancellation</h3>{s3Step === 1 && <><button onClick={testS3Build} disabled={s3Status === 'testing'} className="w-full py-2 bg-indigo-600 text-white rounded-lg mt-4">{s3Status === 'testing' ? 'Testing...' : 'Test'}</button>{s3Status === 'correct' && <button onClick={advanceS3Step} className="mt-2 w-full py-2 bg-green-600 text-white rounded-lg">Next</button>}</>}</div>{s3Step === 2 && <div className="p-4 bg-blue-50 border-blue-200 rounded-lg"><h3>3.2 Target Peak</h3><button onClick={testS3Build} className="w-full py-2 bg-blue-600 text-white rounded-lg mt-4">Test</button>{s3Status === 'correct' && <button onClick={() => setCurrentView('completed')} className="mt-2 w-full py-2 bg-green-600 text-white rounded-lg">Complete</button>}</div>}</div>}
                                 </div>
                             </div>
