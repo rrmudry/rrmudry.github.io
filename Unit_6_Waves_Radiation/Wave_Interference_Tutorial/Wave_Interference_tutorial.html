@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wave Interference Tutorial // Unit 6</title>
+    <link rel="icon" type="image/svg+xml" href="../../assets/unit6-favicon.svg">
+    
+    <!-- Dependencies -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --accent-indigo: #6366f1;
+            --accent-cyan: #22d3ee;
+            --bg-dark: #0f172a;
+        }
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; }
+        .font-orbitron { font-family: 'Orbitron', sans-serif; }
+        
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.98);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+        }
+        .glass {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #6366f1, #22d3ee);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hidden { display: none !important; }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useCallback, useMemo } = React;
+
+        // --- Supabase Config ---
+        const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
+        const sbClient = supabase.createClient(SB_URL, SB_KEY);
+
+        // --- Lucide Icon Wrapper ---
+        const Icon = ({ name, className = "w-5 h-5", size, color }) => {
+            const iconRef = useRef(null);
+            useEffect(() => {
+                if (window.lucide && iconRef.current) {
+                    window.lucide.createIcons({ targets: [iconRef.current] });
+                }
+            }, [name]);
+            return <i ref={iconRef} data-lucide={name} className={className} style={{width: size, height: size, color: color}}></i>;
+        };
+
+        // --- Original Component Constants & Helpers ---
+        const SIM_SPEED = 20;
+        const CANVAS_WIDTH = 800;
+        const CANVAS_HEIGHT = 350;
+        const X_MAX = 100;
+        const Y_MAX = 10;
+
+        const shuffleArray = (array) => {
+            const newArr = [...array];
+            for (let i = newArr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+            }
+            return newArr;
+        };
+
+        const generateParams = () => {
+            const s3_tA = Math.floor(Math.random() * 4) + 2;
+            return {
+                s1_leftA: Math.floor(Math.random() * 3) + 2,
+                s1_rightA: Math.floor(Math.random() * 3) + 2,
+                s2_leftA: Math.floor(Math.random() * 3) + 2,
+                s2_rightA: -(Math.floor(Math.random() * 3) + 2),
+                s3_targetA: s3_tA,
+                s3_targetW: (Math.random() * 2 + 2).toFixed(1),
+                s3_constructiveTarget: s3_tA + Math.floor(Math.random() * 3) + 2
+            };
+        };
+
+        // --- Sub-Components ---
+        const WaveGraphic = ({ leftA, rightA, isSelected, onClick }) => {
+            const resultA = leftA + rightA;
+            const getGaussianPath = (amp, xc, w = 6) => {
+                const startX = xc - 30;
+                const endX = xc + 30;
+                let path = `M ${startX} 50`;
+                for (let x = startX; x <= endX; x += 1) {
+                    const yOffset = amp * 6 * Math.exp(-Math.pow(x - xc, 2) / (2 * w * w));
+                    const y = 50 - yOffset;
+                    path += ` L ${x} ${y}`;
+                }
+                return path;
+            };
+            return (
+                <div onClick={onClick} className={`relative p-4 border-2 rounded-xl cursor-pointer transition-all ${isSelected ? 'border-indigo-600 bg-indigo-50 shadow-md' : 'border-slate-200 bg-white hover:border-indigo-300 hover:bg-slate-50'}`}>
+                    {isSelected && <div className="absolute top-2 right-2 text-indigo-600"><Icon name="check-circle" /></div>}
+                    <svg viewBox="0 0 300 100" className="w-full h-24 stroke-indigo-500 fill-transparent stroke-[3] stroke-linecap-round stroke-linejoin-round">
+                        <line x1="0" y1="50" x2="130" y2="50" className="stroke-slate-300 stroke-2" />
+                        <line x1="190" y1="50" x2="300" y2="50" className="stroke-slate-300 stroke-2" />
+                        <path d={getGaussianPath(leftA, 35)} />
+                        <path d={getGaussianPath(rightA, 95)} className="stroke-blue-500" />
+                        <g className="stroke-slate-400 stroke-[5] fill-none stroke-linecap-round stroke-linejoin-round">
+                            <line x1="140" y1="50" x2="180" y2="50" />
+                            <polyline points="165,35 180,50 165,65" />
+                        </g>
+                        <path d={getGaussianPath(resultA, 230)} className="stroke-purple-600 stroke-[4]" />
+                    </svg>
+                </div>
+            );
+        };
+
+        const IntroScreen = ({ onComplete }) => {
+            const [selectedOpt, setSelectedOpt] = useState('');
+            const [penalty, setPenalty] = useState(0);
+            const [errorMsg, setErrorMsg] = useState('');
+            const options = useMemo(() => shuffleArray([
+                { id: 'A', text: 'They permanently destroy each other and disappear.' },
+                { id: 'B', text: 'Their amplitudes combine (add together) to form a new temporary wave.' },
+                { id: 'C', text: 'They bounce off each other and reverse their direction.' }
+            ]), []);
+            useEffect(() => {
+                if (penalty <= 0) return;
+                const timer = setInterval(() => setPenalty(p => p - 1), 1000);
+                return () => clearInterval(timer);
+            }, [penalty]);
+            const handleSubmit = () => {
+                const correctOpt = options.find(o => o.text.includes('combine'));
+                if (selectedOpt === correctOpt.id) onComplete();
+                else { setPenalty(20); setErrorMsg('Incorrect. You must review the material above and wait 20 seconds before trying again.'); setSelectedOpt(''); }
+            };
+            return (
+                <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-200 max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500">
+                    <div className="flex items-center gap-4 border-b pb-4">
+                        <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center"><Icon name="book-open" className="w-6 h-6" /></div>
+                        <h2 className="text-2xl font-bold text-slate-800">Introduction to Wave Behavior</h2>
+                    </div>
+                    <div className="prose prose-slate max-w-none space-y-4">
+                        <p><strong>Superposition Principle:</strong> When two or more waves cross paths in the same medium, the resulting wave displacement is the algebraic sum of the individual wave displacements at that exact point.</p>
+                        <p><strong>Interference:</strong> The physical effect of superposition. Because waves are energy (not solid objects), they do not crash into each other. They smoothly pass right through one another. While they are passing through, they <em>interfere</em> to create a new, temporary shape.</p>
+                    </div>
+                    <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 space-y-4">
+                        <h3 className="font-bold text-slate-800">Concept Check</h3>
+                        <p className="text-slate-600 mb-4">According to the Principle of Superposition, what happens when two waves occupy the same space at the same time?</p>
+                        <div className="space-y-3">
+                            {options.map(opt => (
+                                <label key={opt.id} className="flex items-center p-3 border rounded-lg hover:bg-white cursor-pointer bg-slate-50 transition-colors">
+                                    <input type="radio" name="intro_q" value={opt.id} checked={selectedOpt === opt.id} onChange={(e) => setSelectedOpt(e.target.value)} disabled={penalty > 0} className="w-4 h-4 text-indigo-600" />
+                                    <span className="ml-3 text-slate-700">{opt.text}</span>
+                                </label>
+                            ))}
+                        </div>
+                        {errorMsg && penalty > 0 && (
+                            <div className="bg-red-50 text-red-700 p-4 rounded-lg flex items-start gap-3 mt-4">
+                                <Icon name="alert-circle" className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                                <div><p className="font-bold">Incorrect!</p><p className="text-sm">{errorMsg}</p><div className="flex items-center gap-2 mt-2 font-mono bg-white inline-flex px-3 py-1 rounded text-red-600 font-bold border border-red-200"><Icon name="clock" className="w-4 h-4" /> Wait {penalty}s</div></div>
+                            </div>
+                        )}
+                        <button onClick={handleSubmit} disabled={!selectedOpt || penalty > 0} className="mt-6 w-full py-3 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all">{penalty > 0 ? 'Reviewing...' : 'Confirm Understanding & Start'}</button>
+                    </div>
+                </div>
+            );
+        };
+
+        const ReviewSlide = ({ type, onComplete }) => {
+            const [q1Ans, setQ1Ans] = useState('');
+            const [q2Ans, setQ2Ans] = useState('');
+            const [selectedImages, setSelectedImages] = useState([]);
+            const [errorMsg, setErrorMsg] = useState('');
+            const q1Options = useMemo(() => shuffleArray(['Constructive Interference', 'Destructive Interference', 'Refraction', 'Diffraction']), []);
+            const [calcParams] = useState(() => (type === 'constructive' ? { a: 4, b: 3, correct: 7 } : { a: 5, b: -2, correct: 3 }));
+            const q2Options = useMemo(() => {
+                const { a, b, correct } = calcParams;
+                let pool = [correct, a - b, a * b, correct + 1, correct - 2].filter(v => v !== correct);
+                pool = [...new Set(pool)].slice(0, 3);
+                return shuffleArray([correct, ...pool]);
+            }, [calcParams]);
+            const imageOptions = useMemo(() => shuffleArray([
+                { id: 'C1', leftA: 2, rightA: 2, type: 'constructive' },
+                { id: 'C2', leftA: 1, rightA: 3, type: 'constructive' },
+                { id: 'D1', leftA: 3, rightA: -3, type: 'destructive' },
+                { id: 'D2', leftA: 4, rightA: -2, type: 'destructive' }
+            ]), []);
+            const toggleImage = (id) => setSelectedImages(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+            const handleSubmit = () => {
+                const expectedVocab = type === 'constructive' ? 'Constructive Interference' : 'Destructive Interference';
+                if (q1Ans !== expectedVocab) { setErrorMsg('Question 1 is incorrect. Check your vocabulary.'); return; }
+                if (parseFloat(q2Ans) !== calcParams.correct) { setErrorMsg('Question 2 is incorrect. Check your math.'); return; }
+                const correctImageIds = imageOptions.filter(img => img.type === type).map(img => img.id);
+                const hasAllCorrect = correctImageIds.every(id => selectedImages.includes(id));
+                const hasNoWrong = selectedImages.every(id => correctImageIds.includes(id));
+                if (!hasAllCorrect || !hasNoWrong || selectedImages.length === 0) { setErrorMsg(`Question 3 is incorrect. Please select exactly all the images that demonstrate ${type} interference.`); return; }
+                setErrorMsg(''); onComplete();
+            };
+            return (
+                <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-200 max-w-4xl mx-auto space-y-8 animate-in slide-in-from-bottom-4 duration-500">
+                    <div className="border-b pb-4"><h2 className="text-2xl font-bold text-slate-800 capitalize">{type} Interference Review</h2><p className="text-slate-500 mt-1">Let's verify what you just observed before moving forward.</p></div>
+                    <div className="space-y-8">
+                        <div className="space-y-3"><h3 className="font-bold text-slate-800">1. Vocabulary</h3><p className="text-slate-600">What term describes when two waves combine to make a {type === 'constructive' ? 'larger' : 'smaller/flat'} resulting wave?</p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">{q1Options.map((opt, i) => (<label key={i} className={`p-3 border rounded-lg cursor-pointer transition-colors ${q1Ans === opt ? 'bg-indigo-50 border-indigo-300' : 'hover:bg-slate-50'}`}><input type="radio" value={opt} checked={q1Ans === opt} onChange={e => setQ1Ans(e.target.value)} className="hidden" />{opt}</label>))}</div>
+                        </div>
+                        <div className="space-y-3"><h3 className="font-bold text-slate-800">2. Quick Calculation</h3><p className="text-slate-600">If a wave pulse with an amplitude of {calcParams.a} perfectly overlaps with a pulse of amplitude {calcParams.b}, what is the maximum resulting amplitude?</p>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">{q2Options.map((opt, i) => (<label key={i} className={`p-3 border text-center rounded-lg cursor-pointer transition-colors ${parseFloat(q2Ans) === opt ? 'bg-indigo-50 border-indigo-300 font-bold' : 'hover:bg-slate-50'}`}><input type="radio" value={opt} checked={parseFloat(q2Ans) === opt} onChange={e => setQ2Ans(e.target.value)} className="hidden" />{opt}</label>))}</div>
+                        </div>
+                        <div className="space-y-3"><h3 className="font-bold text-slate-800">3. Visual Identification</h3><p className="text-slate-600">Select <strong>all</strong> the diagrams below that represent <strong>{type} interference</strong>.</p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">{imageOptions.map((img) => (<WaveGraphic key={img.id} leftA={img.leftA} rightA={img.rightA} isSelected={selectedImages.includes(img.id)} onClick={() => toggleImage(img.id)} />))}</div>
+                        </div>
+                    </div>
+                    {errorMsg && <div className="bg-red-50 text-red-700 p-4 rounded-lg flex items-center gap-3"><Icon name="alert-circle" /> <p className="font-medium">{errorMsg}</p></div>}
+                    <button onClick={handleSubmit} className="w-full py-4 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-colors text-lg shadow-md">Submit Review & Continue</button>
+                </div>
+            );
+        };
+
+        const MainApp = ({ user }) => {
+            const [currentView, setCurrentView] = useState('intro');
+            const [params, setParams] = useState(generateParams());
+            const displayStage = currentView.includes('1') ? 1 : currentView.includes('2') ? 2 : currentView.includes('3') ? 3 : 0;
+
+            useEffect(() => {
+                syncResults();
+            }, [currentView]);
+
+            const syncResults = async () => {
+                if (!user || !user.id) return;
+                const scores = { 'intro': 5, 'stage1': 20, 'stage1_drill': 35, 'review1': 50, 'stage2': 65, 'review2': 80, 'stage3': 95, 'completed': 100 };
+                const currentScore = scores[currentView] || 0;
+                try {
+                    const { data: existing } = await sbClient.from('student_results').select('id').eq('student_id', user.id).eq('assignment_name', "Wave Interference Tutorial").maybeSingle();
+                    const payload = {
+                        student_name: user.name,
+                        student_id: user.id,
+                        assignment_name: "Wave Interference Tutorial",
+                        score: currentScore,
+                        details: { view: currentView, timestamp: new Date().toISOString() }
+                    };
+                    if (existing) await sbClient.from('student_results').update(payload).eq('id', existing.id);
+                    else await sbClient.from('student_results').insert([payload]);
+                    document.getElementById('sync-indicator').innerText = "VITAL_SYNC_ACTIVE";
+                } catch (e) {
+                    console.error("Sync Error:", e);
+                    document.getElementById('sync-indicator').innerText = "SYNC_ERROR";
+                }
+            };
+
+            const canvasRef = useRef(null);
+            const simTimeRef = useRef(0);
+            const isPlayingRef = useRef(false);
+            const pulsesRef = useRef([]);
+            const animationRef = useRef(null);
+            const lastUpdateRef = useRef(performance.now());
+            const [isPlaying, setIsPlaying] = useState(false);
+            const [simTime, setSimTime] = useState(0);
+
+            // --- ALL STATE FROM ORIGINAL ---
+            const [overlapAchieved, setOverlapAchieved] = useState(false);
+            const [s1Q1Answer, setS1Q1Answer] = useState('');
+            const [s1Q1Status, setS1Q1Status] = useState('locked');
+            const [s1Q1Feedback, setS1Q1Feedback] = useState('');
+            const [s1Q2Status, setS1Q2Status] = useState('waiting');
+            const [s1Q2Feedback, setS1Q2Feedback] = useState('');
+            const [s1DrillAttempts, setS1DrillAttempts] = useState(0);
+            const [s1DrillStreak, setS1DrillStreak] = useState(0);
+            const [s1DrillLeftA, setS1DrillLeftA] = useState(2);
+            const [s1DrillRightA, setS1DrillRightA] = useState(3);
+            const [s1DrillAns, setS1DrillAns] = useState('');
+            const [s1DrillStatus, setS1DrillStatus] = useState('input');
+            const [s1DrillFeedback, setS1DrillFeedback] = useState('');
+            const [s2OverlapAchieved, setS2OverlapAchieved] = useState(false);
+            const [passedThrough, setPassedThrough] = useState(false);
+            const [s2Q1Answer, setS2Q1Answer] = useState('');
+            const [s2Q1Status, setS2Q1Status] = useState('locked');
+            const [s2Q1Feedback, setS2Q1Feedback] = useState('');
+            const [s2Q2Status, setS2Q2Status] = useState('locked');
+            const [s2Q2Feedback, setS2Q2Feedback] = useState('');
+            const [s3Step, setS3Step] = useState(1);
+            const [s3UserA, setS3UserA] = useState(0);
+            const [s3UserW, setS3UserW] = useState(3);
+            const [s3Status, setS3Status] = useState('building');
+            const [s3Feedback, setS3Feedback] = useState('');
+
+            const calcPulseY = (x, p, t) => {
+                const distTraveled = (t - p.startTime) * SIM_SPEED;
+                const xc = p.origin === 'left' ? distTraveled : X_MAX - distTraveled;
+                return p.A * Math.exp(-Math.pow(x - xc, 2) / (2 * p.w * p.w));
+            };
+            const getPulseCenter = (p, t) => {
+                const distTraveled = (t - p.startTime) * SIM_SPEED;
+                return p.origin === 'left' ? distTraveled : X_MAX - distTraveled;
+            };
+
+            const updateSimulation = useCallback(() => {
+                if (currentView === 'intro' || currentView.includes('review') || currentView === 'completed') {
+                    animationRef.current = requestAnimationFrame(updateSimulation);
+                    return;
+                }
+                const now = performance.now();
+                const dt = (now - lastUpdateRef.current) / 1000;
+                lastUpdateRef.current = now;
+                if (isPlayingRef.current) { simTimeRef.current += dt; setSimTime(simTimeRef.current); }
+                const t = simTimeRef.current;
+                const pulses = pulsesRef.current;
+                pulsesRef.current = pulses.filter(p => { const xc = getPulseCenter(p, t); return xc > -20 && xc < X_MAX + 20; });
+
+                if (pulsesRef.current.length === 2) {
+                    const c1 = getPulseCenter(pulsesRef.current[0], t);
+                    const c2 = getPulseCenter(pulsesRef.current[1], t);
+                    const dist = Math.abs(c1 - c2);
+
+                    if (currentView === 'stage1' && s1Q1Status !== 'correct') {
+                        if (!isPlayingRef.current && dist < 1.5) { if (!overlapAchieved) setOverlapAchieved(true); if (s1Q1Status === 'locked') setS1Q1Status('unlocked'); }
+                        else if (overlapAchieved) setOverlapAchieved(false);
+                    }
+                    if (currentView === 'stage1_drill' && s1DrillStatus === 'simulating') {
+                        if (dist < 1.0) {
+                            setIsPlayingRef(false); 
+                            const expected = s1DrillLeftA + s1DrillRightA;
+                            const isCorrect = parseFloat(s1DrillAns) === expected;
+                            if (isCorrect) { setS1DrillStreak(prev => prev + 1); setS1DrillFeedback(`Correct! The amplitudes combined perfectly to ${expected}.`); }
+                            else { setS1DrillStreak(0); setS1DrillFeedback(`Incorrect. The correct combined amplitude is ${expected}.`); }
+                            setS1DrillAttempts(prev => prev + 1); setS1DrillStatus('result');
+                        }
+                    }
+                    if (currentView === 'stage2') {
+                        if (s2Q1Status !== 'correct') {
+                            if (!isPlayingRef.current && dist < 1.5) { if (!s2OverlapAchieved) setS2OverlapAchieved(true); if (s2Q1Status === 'locked') setS2Q1Status('unlocked'); }
+                            else if (s2OverlapAchieved) setS2OverlapAchieved(false);
+                        }
+                        if (s2Q1Status === 'correct' && s2Q2Status !== 'correct') { if (c1 > c2 + 10) { if (!passedThrough) setPassedThrough(true); if (s2Q2Status === 'locked') setS2Q2Status('unlocked'); } }
+                    }
+                    if (currentView === 'stage3' && s3Status === 'testing') {
+                        if (dist < 1) {
+                            if (s3Step === 1) {
+                                const isCancelled = (parseFloat(s3UserA) === -params.s3_targetA) && (parseFloat(s3UserW) === parseFloat(params.s3_targetW));
+                                if (isCancelled) { setS3Status('correct'); setS3Feedback('Perfect destructive interference achieved!'); setIsPlayingRef(false); }
+                                else { setS3Status('building'); setS3Feedback('Not quite canceled. Adjust and try again.'); }
+                            } else if (s3Step === 2) {
+                                const expectedUserA = params.s3_constructiveTarget - params.s3_targetA;
+                                const isTargetHit = (parseFloat(s3UserA) === expectedUserA) && (parseFloat(s3UserW) === parseFloat(params.s3_targetW));
+                                if (isTargetHit) { setS3Status('correct'); setS3Feedback(`Incredible! Target hit.`); setIsPlayingRef(false); }
+                                else { setS3Status('building'); setS3Feedback(`Missed the target.`); }
+                            }
+                        }
+                    }
+                }
+                const canvas = canvasRef.current;
+                if (!canvas) { animationRef.current = requestAnimationFrame(updateSimulation); return; }
+                const ctx = canvas.getContext('2d');
+                const width = canvas.width; const height = canvas.height;
+                ctx.clearRect(0, 0, width, height);
+                ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1; ctx.beginPath();
+                for (let i = -Y_MAX; i <= Y_MAX; i += 2) { const py = height / 2 - (i / Y_MAX) * (height / 2); ctx.moveTo(0, py); ctx.lineTo(width, py); }
+                for (let i = 0; i <= X_MAX; i += 10) { const px = (i / X_MAX) * width; ctx.moveTo(px, 0); ctx.lineTo(px, height); } ctx.stroke();
+                ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0, height / 2); ctx.lineTo(width, height / 2); ctx.stroke();
+                ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 4; ctx.lineJoin = 'round'; ctx.beginPath();
+                for (let px = 0; px <= width; px++) { const x = (px / width) * X_MAX; let y = 0; for (let p of pulsesRef.current) { y += calcPulseY(x, p, t); } const py = height / 2 - (y / Y_MAX) * (height / 2); if (px === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py); } ctx.stroke();
+                if (pulsesRef.current.length > 1) {
+                    ctx.strokeStyle = 'rgba(148, 163, 184, 0.4)'; ctx.setLineDash([5, 5]); ctx.lineWidth = 2;
+                    for (let p of pulsesRef.current) { ctx.beginPath(); for (let px = 0; px <= width; px += 4) { const x = (px / width) * X_MAX; const y = calcPulseY(x, p, t); const py = height / 2 - (y / Y_MAX) * (height / 2); if (px === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py); } ctx.stroke(); }
+                    ctx.setLineDash([]);
+                }
+                animationRef.current = requestAnimationFrame(updateSimulation);
+            }, [currentView, s1Q1Status, overlapAchieved, s2Q1Status, s2Q2Status, passedThrough, s2OverlapAchieved, s3Status, s3Step, s3UserA, s3UserW, params, s1DrillStatus, s1DrillAns, s1DrillLeftA, s1DrillRightA]);
+
+            useEffect(() => {
+                lastUpdateRef.current = performance.now();
+                animationRef.current = requestAnimationFrame(updateSimulation);
+                return () => cancelAnimationFrame(animationRef.current);
+            }, [updateSimulation]);
+
+            const setIsPlayingRef = (playing) => { isPlayingRef.current = playing; setIsPlaying(playing); lastUpdateRef.current = performance.now(); };
+            const togglePlay = () => setIsPlayingRef(!isPlayingRef.current);
+            const stepTime = (delta) => { setIsPlayingRef(false); simTimeRef.current += delta; if (simTimeRef.current < 0) simTimeRef.current = 0; setSimTime(simTimeRef.current); };
+            const clearCanvas = () => { pulsesRef.current = []; simTimeRef.current = 0; setSimTime(0); setIsPlayingRef(false); };
+            const fireLeft = (A, w) => { if (pulsesRef.current.some(p => p.origin === 'left')) return; pulsesRef.current.push({ origin: 'left', A, w, startTime: simTimeRef.current }); if (!isPlayingRef.current) setIsPlayingRef(true); };
+            const fireRight = (A, w) => { if (pulsesRef.current.some(p => p.origin === 'right')) return; pulsesRef.current.push({ origin: 'right', A, w, startTime: simTimeRef.current }); if (!isPlayingRef.current) setIsPlayingRef(true); };
+
+            const handleS1Q1Check = () => { if (parseFloat(s1Q1Answer) === params.s1_leftA + params.s1_rightA) { setS1Q1Status('correct'); setS1Q1Feedback('Correct!'); setS1Q2Status('unlocked'); } else setS1Q1Feedback('Incorrect.'); };
+            const handleS1Q2Check = (ans) => { if (ans === 'no') { setS1Q2Status('correct'); setS1Q2Feedback('Correct!'); } else setS1Q2Feedback('Incorrect.'); };
+            const startNextS1Drill = () => { const lA = Math.floor(Math.random() * 5) + 1; const rA = Math.floor(Math.random() * 4) + 1; setS1DrillLeftA(lA); setS1DrillRightA(rA); setS1DrillAns(''); setS1DrillStatus('input'); setS1DrillFeedback(''); clearCanvas(); pulsesRef.current.push({ origin: 'left', A: lA, w: 3, startTime: 0 }, { origin: 'right', A: rA, w: 3, startTime: 0 }); setIsPlayingRef(false); };
+            const submitS1Drill = () => { setS1DrillStatus('simulating'); setIsPlayingRef(true); };
+            const handleS2Q1Check = () => { if (parseFloat(s2Q1Answer) === params.s2_leftA + params.s2_rightA) { setS2Q1Status('correct'); setS2Q1Feedback('Correct!'); } else setS2Q1Feedback('Incorrect.'); };
+            const handleS2Q2Check = (ans) => { if (ans === 'pass') { setS2Q2Status('correct'); setS2Q2Feedback('Correct!'); } else setS2Q2Feedback('Incorrect.'); };
+            const testS3Build = () => { clearCanvas(); setS3Status('testing'); setS3Feedback('Testing...'); fireLeft(params.s3_targetA, params.s3_targetW); fireRight(parseFloat(s3UserA), parseFloat(s3UserW)); };
+            const advanceS3Step = () => { setS3Step(2); setS3Status('building'); setS3Feedback(''); setS3UserA(0); clearCanvas(); };
+            const startNewSession = () => { setParams(generateParams()); setCurrentView('intro'); setS1Q1Status('locked'); setS1Q1Answer(''); setS1Q1Feedback(''); setS1Q2Status('waiting'); setS1Q2Feedback(''); setS2OverlapAchieved(false); setS1DrillAttempts(0); setS1DrillStreak(0); setS1DrillAns(''); setS1DrillStatus('input'); setS2Q1Status('locked'); setS2Q1Answer(''); setS2Q1Feedback(''); setS2Q2Status('locked'); setS2Q2Feedback(''); setS2OverlapAchieved(false); setPassedThrough(false); setS3Step(1); setS3Status('building'); setS3Feedback(''); setS3UserA(0); clearCanvas(); };
+
+            return (
+                <div className="min-h-screen bg-slate-50 font-sans text-slate-800 p-4 md:p-8">
+                    <div className="max-w-6xl mx-auto space-y-6">
+                        <header className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col md:flex-row justify-between items-center gap-4">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-indigo-600 rounded-lg text-white"><Icon name="activity" className="w-8 h-8" /></div>
+                                <div><h1 className="text-2xl font-bold text-slate-800">Wave Interference Explorer</h1><p id="student-name-display" className="text-slate-500 text-xs font-bold uppercase tracking-widest">{user.name} // SIG_{user.id}</p></div>
+                            </div>
+                            <div className="flex flex-col items-end gap-2">
+                                <div className="flex gap-2">
+                                {[1, 2, 3].map(step => (
+                                    <div key={step} className={`w-8 h-8 rounded-full flex items-center justify-center font-bold border-2 transition-colors ${displayStage > step || currentView === 'completed' ? 'bg-indigo-500 border-indigo-500 text-white' : displayStage === step ? 'border-indigo-500 text-indigo-600 bg-indigo-50' : 'border-slate-200 text-slate-400'}`}>
+                                        {displayStage > step || currentView === 'completed' ? <Icon name="check-circle" className="w-4 h-4" /> : step}
+                                    </div>
+                                ))}
+                                </div>
+                                <div id="sync-indicator" className="text-[9px] font-black text-slate-400 uppercase tracking-widest">establishing_link...</div>
+                            </div>
+                        </header>
+
+                        {currentView === 'intro' && <IntroScreen onComplete={() => { setCurrentView('stage1'); clearCanvas(); }} />}
+                        {currentView === 'review1' && <ReviewSlide type="constructive" onComplete={() => { setCurrentView('stage2'); clearCanvas(); }} />}
+                        {currentView === 'review2' && <ReviewSlide type="destructive" onComplete={() => { setCurrentView('stage3'); clearCanvas(); }} />}
+
+                        {(currentView === 'stage1' || currentView === 'stage1_drill' || currentView === 'stage2' || currentView === 'stage3') && (
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in fade-in duration-300">
+                                <div className="lg:col-span-2 space-y-4">
+                                    <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                                        <div className="relative w-full aspect-[8/3.5] bg-slate-50 rounded-lg overflow-hidden border border-slate-200">
+                                            <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} className="w-full h-full object-contain" />
+                                            {currentView === 'stage1' && s1Q1Status === 'locked' && !isPlaying && <div className={`absolute top-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full text-sm font-medium bg-amber-100 text-amber-700`}>Task 1: Overlap the peaks!</div>}
+                                            {currentView === 'stage2' && s2Q1Status === 'locked' && !isPlaying && <div className={`absolute top-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full text-sm font-medium bg-amber-100 text-amber-700`}>Task 1: Pause at overlap!</div>}
+                                        </div>
+                                        <div className="flex flex-wrap items-center justify-between mt-4 gap-4 p-2 bg-slate-100 rounded-lg">
+                                            <div className="flex gap-2">
+                                                <button onClick={() => stepTime(-0.05)} disabled={currentView === 'stage1_drill' && s1DrillStatus === 'input'} className="p-2 bg-white text-slate-600 rounded hover:bg-slate-50 shadow-sm transition disabled:opacity-50"><Icon name="skip-back" /></button>
+                                                <button onClick={togglePlay} disabled={currentView === 'stage1_drill' && s1DrillStatus === 'input'} className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white font-medium rounded hover:bg-indigo-700 shadow-sm transition disabled:opacity-50">{isPlaying ? <><Icon name="pause" /> Pause</> : <><Icon name="play" /> Play</>}</button>
+                                                <button onClick={() => stepTime(0.05)} disabled={currentView === 'stage1_drill' && s1DrillStatus === 'input'} className="p-2 bg-white text-slate-600 rounded hover:bg-slate-50 shadow-sm transition disabled:opacity-50"><Icon name="skip-forward" /></button>
+                                            </div>
+                                            <button onClick={clearCanvas} className="px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-800 transition">Reset Canvas</button>
+                                        </div>
+                                    </div>
+                                    {currentView === 'stage1' && <div className="flex justify-center items-center gap-8 p-6 bg-blue-50 rounded-xl border border-blue-100"><div className="text-center"><span className="block text-xs text-blue-600 uppercase font-bold">Left Pulse</span><span className="text-lg font-bold">A = {params.s1_leftA}</span></div><button onClick={() => { fireLeft(params.s1_leftA, 3); fireRight(params.s1_rightA, 3); }} disabled={pulsesRef.current.length > 0} className="px-8 py-3 bg-indigo-600 text-white font-bold rounded-lg shadow-md hover:bg-indigo-700 disabled:opacity-50">Send Both Pulses</button><div className="text-center"><span className="block text-xs text-blue-600 uppercase font-bold">Right Pulse</span><span className="text-lg font-bold">A = {params.s1_rightA}</span></div></div>}
+                                    {currentView === 'stage1_drill' && <div className="flex justify-center items-center p-6 bg-indigo-50 rounded-xl border border-indigo-100"><p className="text-indigo-700 font-medium flex items-center gap-2"><Icon name="target" /> Prediction Mode Active</p></div>}
+                                    {currentView === 'stage2' && <div className="flex justify-center items-center gap-8 p-6 bg-purple-50 rounded-xl border border-purple-100"><div className="text-center"><span className="block text-xs text-purple-600 uppercase font-bold">Upward</span><span className="text-lg font-bold">A = {params.s2_leftA}</span></div><button onClick={() => { fireLeft(params.s2_leftA, 3); fireRight(params.s2_rightA, 3); }} disabled={pulsesRef.current.length > 0} className="px-8 py-3 bg-purple-600 text-white font-bold rounded-lg shadow-md hover:bg-purple-700 disabled:opacity-50">Send Both Pulses</button><div className="text-center"><span className="block text-xs text-purple-600 uppercase font-bold">Inverted</span><span className="text-lg font-bold">A = {params.s2_rightA}</span></div></div>}
+                                    {currentView === 'stage3' && <div className="grid grid-cols-2 gap-4"><div className="p-4 bg-slate-100 rounded-xl border border-slate-200"><h3 className="font-semibold text-slate-700 mb-2">Target (Left)</h3><p className="text-sm">Amplitude: {params.s3_targetA}</p><p className="text-sm">Width: {params.s3_targetW}</p></div><div className="p-4 bg-indigo-50 rounded-xl border border-indigo-200"><h3 className="font-semibold text-indigo-800 mb-4">You (Right)</h3><div className="space-y-4"><div><label className="flex justify-between text-sm font-medium text-indigo-900 mb-1"><span>Amplitude</span><span>{s3UserA}</span></label><input type="range" min="-8" max="8" step="1" value={s3UserA} onChange={e => setS3UserA(e.target.value)} disabled={s3Status === 'testing' || s3Status === 'correct'} className="w-full accent-indigo-600" /></div><div><label className="flex justify-between text-sm font-medium text-indigo-900 mb-1"><span>Width</span><span>{s3UserW}</span></label><input type="range" min="1" max="6" step="0.1" value={s3UserW} onChange={e => setS3UserW(e.target.value)} disabled={s3Status === 'testing' || s3Status === 'correct'} className="w-full accent-indigo-600" /></div></div></div></div>}
+                                </div>
+                                <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col h-[700px] overflow-y-auto">
+                                    {currentView === 'stage1' && <div className="flex-1 flex flex-col space-y-6"><div><h2 className="text-xl font-bold text-slate-800 border-b pb-2">Part 1: Constructive Interference</h2><p className="text-slate-600 leading-relaxed mt-2 text-sm">Measure superposition effects.</p></div><div className={`p-4 rounded-lg border ${s1Q1Status === 'correct' ? 'bg-slate-50 border-slate-200' : 'bg-amber-50 border-amber-200'}`}><h3 className="font-bold text-sm mb-2">Q1.1: Combine Amplitudes</h3><div className="flex gap-2"><div className="relative flex-1"><input type="number" value={s1Q1Answer} onChange={e => setS1Q1Answer(e.target.value)} disabled={s1Q1Status === 'locked' || s1Q1Status === 'correct'} className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500" /><div className="absolute left-3 top-2.5 text-slate-400">{s1Q1Status === 'locked' ? <Icon name="lock" /> : <Icon name="unlock" className="text-green-500" />}</div></div><button onClick={handleS1Q1Check} disabled={s1Q1Status === 'locked' || s1Q1Status === 'correct' || s1Q1Answer === ''} className="px-4 py-2 bg-slate-800 text-white rounded-lg">Check</button></div>{s1Q1Feedback && <p className={`text-sm mt-2 font-medium ${s1Q1Status === 'correct' ? 'text-green-700' : 'text-red-600'}`}>{s1Q1Feedback}</p>}</div>{s1Q1Status === 'correct' && <button onClick={() => { setCurrentView('stage1_drill'); startNextS1Drill(); }} className="w-full mt-auto py-3 bg-indigo-600 text-white font-bold rounded-lg flex justify-center items-center gap-2 animate-pulse">Start Prediction Drill <Icon name="arrow-right" /></button>}</div>}
+                                    {currentView === 'stage1_drill' && <div className="flex-1 flex flex-col space-y-6"><div><h2 className="text-xl font-bold text-slate-800 border-b pb-2">Part 1: Prediction Drill</h2><p className="text-slate-600 text-sm mt-2">Prove mastery. Streak of 3 req.</p></div><div className="flex justify-between items-center p-4 bg-slate-100 rounded-lg"><div className="text-center w-1/2 border-r border-slate-300"><p className="text-[10px] uppercase font-bold">Attempts</p><p className="text-2xl font-bold">{s1DrillAttempts} / 5</p></div><div className="text-center w-1/2"><p className="text-[10px] uppercase font-bold">Streak</p><p className="text-2xl font-bold">{s1DrillStreak} / 3</p></div></div><div className={`p-5 rounded-lg border ${s1DrillStatus === 'result' ? (s1DrillFeedback.includes('Correct') ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200') : 'bg-indigo-50 border-indigo-200'}`}><div className="grid grid-cols-2 gap-4 mb-4"><div className="bg-white p-2 rounded border text-center font-bold text-blue-600">L: {s1DrillLeftA}</div><div className="bg-white p-2 rounded border text-center font-bold text-indigo-600">R: {s1DrillRightA}</div></div><input type="number" value={s1DrillAns} onChange={e => setS1DrillAns(e.target.value)} disabled={s1DrillStatus !== 'input'} className="w-full px-4 py-2 border rounded-lg text-lg mb-3" />{s1DrillStatus === 'input' ? <button onClick={submitS1Drill} className="w-full py-2 bg-indigo-600 text-white font-bold rounded-lg">Simulate</button> : <button onClick={startNextS1Drill} className="w-full py-2 bg-slate-800 text-white font-bold rounded-lg">Next Trial</button>}{s1DrillFeedback && <p className="text-sm mt-2">{s1DrillFeedback}</p>}</div>{s1DrillAttempts >= 5 && s1DrillStreak >= 3 && <button onClick={() => setCurrentView('review1')} className="w-full mt-auto py-3 bg-green-600 text-white font-bold rounded-lg flex justify-center items-center gap-2">Proceed to Review <Icon name="arrow-right" /></button>}</div>}
+                                    {currentView === 'stage2' && <div className="flex-1 flex flex-col space-y-6"><div><h2 className="text-xl font-bold text-slate-800 border-b pb-2">Part 2: Destructive Interference</h2></div><div className={`p-4 rounded-lg border ${s2Q1Status === 'correct' ? 'bg-slate-50 border-slate-200' : 'bg-amber-50 border-amber-200'}`}><h3>Q2.1: Cancellation</h3><div className="flex gap-2"><input type="number" value={s2Q1Answer} onChange={e => setS2Q1Answer(e.target.value)} disabled={s2Q1Status === 'locked' || s2Q1Status === 'correct'} className="w-full p-2 border rounded-lg" /><button onClick={handleS2Q1Check} className="px-4 py-2 bg-slate-800 text-white rounded-lg">Check</button></div></div>{s2Q1Status === 'correct' && <button onClick={() => setCurrentView('review2')} className="w-full mt-auto py-3 bg-indigo-600 text-white font-bold rounded-lg flex justify-center items-center gap-2">Review Concepts <Icon name="arrow-right" /></button>}</div>}
+                                    {currentView === 'stage3' && <div className="flex-1 flex flex-col space-y-6"><div><h2 className="text-xl font-bold text-slate-800 border-b pb-2">Final Performance Tasks</h2></div><div className={`p-4 rounded-lg border ${s3Step > 1 ? 'bg-slate-50' : 'bg-indigo-50 border-indigo-200'}`}><h3>3.1 Total Cancellation</h3>{s3Step === 1 && <><button onClick={testS3Build} disabled={s3Status === 'testing'} className="w-full py-2 bg-indigo-600 text-white rounded-lg mt-4">{s3Status === 'testing' ? 'Testing...' : 'Test'}</button>{s3Status === 'correct' && <button onClick={advanceS3Step} className="mt-2 w-full py-2 bg-green-600 text-white rounded-lg">Next</button>}</>}</div>{s3Step === 2 && <div className="p-4 bg-blue-50 border-blue-200 rounded-lg"><h3>3.2 Target Peak</h3><button onClick={testS3Build} className="w-full py-2 bg-blue-600 text-white rounded-lg mt-4">Test</button>{s3Status === 'correct' && <button onClick={() => setCurrentView('completed')} className="mt-2 w-full py-2 bg-green-600 text-white rounded-lg">Complete</button>}</div>}</div>}
+                                </div>
+                            </div>
+                        )}
+
+                        {currentView === 'completed' && <div className="bg-white p-12 rounded-xl shadow-sm border border-slate-200 text-center space-y-6 animate-in zoom-in duration-500"><div className="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6"><Icon name="check-circle" className="w-12 h-12" /></div><h2 className="text-4xl font-bold text-slate-800">Tutorial Complete!</h2><p className="text-lg text-slate-600">Mastery of Superposition achieved. Data pushed to records.</p><button onClick={startNewSession} className="mt-8 px-8 py-3 bg-indigo-600 text-white font-bold rounded-lg shadow hover:bg-indigo-700 transition">Start New Session</button></div>}
+                    </div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [user, setUser] = useState(null);
+            const [idInput, setIdInput] = useState('');
+            const [nameInput, setNameInput] = useState('');
+            const [showNameEntry, setShowNameEntry] = useState(false);
+            const [status, setStatus] = useState('');
+
+            const handleLogin = async () => {
+                if (idInput.length !== 6) return;
+                setStatus("VERIFYING...");
+                try {
+                    const { data } = await sbClient.from('student_results').select('student_name').eq('student_id', idInput).order('created_at', { ascending: false }).limit(1).maybeSingle();
+                    if (data) { setUser({ id: idInput, name: data.student_name }); }
+                    else if (!showNameEntry) { setShowNameEntry(true); setStatus("NEW_ID_DETECTED"); }
+                    else { if (nameInput.length < 3) return; setUser({ id: idInput, name: nameInput }); }
+                } catch (e) { setStatus("CONNECTION_ERROR"); }
+            };
+
+            if (!user) {
+                return (
+                    <div className="overlay">
+                        <div className="glass max-w-md w-full p-10 rounded-[2rem] text-center space-y-8 animate-in zoom-in duration-300">
+                            <div className="space-y-2">
+                                <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-cyan-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-indigo-500/20 mb-4">
+                                    <Icon name="activity" className="w-10 h-10 text-white" />
+                                </div>
+                                <h1 className="text-4xl font-orbitron font-black gradient-text tracking-tighter uppercase">Wave_Interference</h1>
+                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em]">Tutorial // Unit 6 Waves</p>
+                            </div>
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] text-left px-1">Access_Node // Student ID</p>
+                                    <input type="text" value={idInput} onChange={e => setIdInput(e.target.value)} placeholder="6-Digit ID" maxlength="6" className="w-full bg-slate-900 border border-white/10 p-5 rounded-xl outline-none text-center font-bold text-xl text-cyan-400" />
+                                </div>
+                                {showNameEntry && (
+                                    <div className="space-y-2 animate-in fade-in">
+                                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] text-left px-1">Register // Full Name</p>
+                                        <input type="text" value={nameInput} onChange={e => setNameInput(e.target.value)} placeholder="Student Name" className="w-full bg-slate-900 border border-white/10 p-5 rounded-xl text-center font-bold text-white outline-none" />
+                                    </div>
+                                )}
+                                <button onClick={handleLogin} className="w-full bg-gradient-to-r from-indigo-600 to-cyan-600 p-5 rounded-xl font-black uppercase tracking-widest text-sm text-white shadow-xl">Establish Link</button>
+                                <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest animate-pulse h-4">{status}</p>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+            return <MainApp user={user} />;
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
