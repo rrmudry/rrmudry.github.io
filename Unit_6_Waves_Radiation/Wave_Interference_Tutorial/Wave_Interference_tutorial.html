@@ -570,7 +570,64 @@
                                             {s2Q2Status === 'correct' && <button onClick={() => setCurrentView('review2')} className="w-full mt-auto py-3 bg-indigo-600 text-white font-bold rounded-lg flex justify-center items-center gap-2 animate-pulse">Review Concepts <Icon name="arrow-right" /></button>}
                                         </div>
                                     )}
-                                    {currentView === 'stage3' && <div className="flex-1 flex flex-col space-y-6"><div><h2 className="text-xl font-bold text-slate-800 border-b pb-2">Final Performance Tasks</h2></div><div className={`p-4 rounded-lg border ${s3Step > 1 ? 'bg-slate-50' : 'bg-indigo-50 border-indigo-200'}`}><h3>3.1 Total Cancellation</h3>{s3Step === 1 && <><button onClick={testS3Build} disabled={s3Status === 'testing'} className="w-full py-2 bg-indigo-600 text-white rounded-lg mt-4">{s3Status === 'testing' ? 'Testing...' : 'Test'}</button>{s3Status === 'correct' && <button onClick={advanceS3Step} className="mt-2 w-full py-2 bg-green-600 text-white rounded-lg">Next</button>}</>}</div>{s3Step === 2 && <div className="p-4 bg-blue-50 border-blue-200 rounded-lg"><h3>3.2 Target Peak</h3><button onClick={testS3Build} className="w-full py-2 bg-blue-600 text-white rounded-lg mt-4">Test</button>{s3Status === 'correct' && <button onClick={() => setCurrentView('completed')} className="mt-2 w-full py-2 bg-green-600 text-white rounded-lg">Complete</button>}</div>}</div>}
+                                    {currentView === 'stage3' && (
+                                        <div className="flex-1 flex flex-col space-y-6 animate-in fade-in slide-in-from-right duration-500">
+                                            <div>
+                                                <h2 className="text-xl font-bold text-slate-800 border-b pb-2 tracking-tight">Final Performance Tasks</h2>
+                                                <p className="text-slate-600 leading-relaxed mt-2 text-sm italic">Demonstrate your mastery of superposition by configuring wave pulses to achieve specific interference results.</p>
+                                            </div>
+
+                                            <div className={`p-5 rounded-xl border-2 transition-all duration-500 shadow-sm ${s3Step > 1 ? 'bg-slate-50 border-slate-200 opacity-60' : 'bg-indigo-50 border-indigo-200 shadow-md ring-1 ring-indigo-100'}`}>
+                                                <div className="flex justify-between items-center mb-3">
+                                                    <h3 className="font-bold text-sm text-indigo-900 flex items-center gap-2"><Icon name="zap" size={16} /> 3.1: Total Cancellation</h3>
+                                                    {s3Step === 1 && s3Status === 'testing' && <Icon name="loader" size={16} className="animate-spin text-indigo-600" />}
+                                                </div>
+                                                <p className="text-xs text-slate-600 mb-4 leading-relaxed">Your objective is to create a pulse that <strong>perfectly cancels</strong> the target pulse when they overlap in the middle.</p>
+                                                
+                                                {s3Step === 1 && (
+                                                    <div className="space-y-4">
+                                                        <button onClick={testS3Build} disabled={s3Status === 'testing'} className="w-full py-2 bg-indigo-600 text-white font-bold rounded-lg shadow-lg shadow-indigo-200 flex items-center justify-center gap-2 shadow-md">
+                                                            {s3Status === 'testing' ? 'Aligning...' : 'Test Superposition'}
+                                                        </button>
+                                                        {s3Status === 'correct' && (
+                                                            <button onClick={advanceS3Step} className="w-full py-2 bg-green-600 text-white font-bold rounded-lg flex items-center justify-center gap-2 animate-bounce">
+                                                            Success! Next Task <Icon name="arrow-right" />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                )}
+                                                {s3Step > 1 && <p className="text-[10px] text-green-700 font-bold uppercase tracking-widest flex items-center gap-1"><Icon name="check-circle" size={10} /> Cancellation Achieved</p>}
+                                            </div>
+
+                                            <div className={`p-5 rounded-xl border-2 transition-all duration-500 shadow-sm ${s3Step === 2 ? 'bg-blue-50 border-blue-400 shadow-md ring-1 ring-blue-100' : 'bg-slate-50 border-slate-100 opacity-60'}`}>
+                                                <div className="flex justify-between items-center mb-3">
+                                                    <h3 className="font-bold text-sm text-blue-900 flex items-center gap-2"><Icon name="trending-up" size={16} /> 3.2: Target Peak</h3>
+                                                    {s3Step === 2 && s3Status === 'testing' && <Icon name="loader" size={16} className="animate-spin text-blue-600" />}
+                                                </div>
+                                                <p className="text-xs text-slate-600 mb-4 leading-relaxed">Your objective is to create a combined wave that reaches exactly <strong className="text-blue-700 text-sm">{params.s3_constructiveTarget} units</strong> high when they overlap.</p>
+                                                
+                                                {s3Step === 2 && (
+                                                    <div className="space-y-4">
+                                                        <button onClick={testS3Build} disabled={s3Status === 'testing'} className="w-full py-2 bg-blue-600 text-white font-bold rounded-lg shadow-lg shadow-blue-200">
+                                                            Test Result
+                                                        </button>
+                                                        {s3Status === 'correct' && (
+                                                            <button onClick={() => setCurrentView('completed')} className="w-full py-3 bg-green-600 text-white font-bold rounded-lg flex items-center justify-center gap-2 animate-pulse shadow-md">
+                                                            Perfect Match! Finish <Icon name="check-circle" />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {s3Feedback && s3Status !== 'correct' && (
+                                                <div className="bg-red-50 border border-red-200 p-4 rounded-lg flex items-start gap-3 animate-in fade-in">
+                                                    <Icon name="alert-circle" className="text-red-600 mt-0.5" />
+                                                    <p className="text-xs text-red-700 font-medium">{s3Feedback}</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         )}
