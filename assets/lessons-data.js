@@ -276,13 +276,12 @@ const lessonsData = [
     day: 6,
     unit: 6,
     title: "Boundary Behaviors",
-    summary: "Reflection (fixed/free end) and Refraction (bending).",
-    details: "Qualitative exploration of how waves behave when hitting a boundary or changing media. Includes a close reading on wave interactions.",
+    summary: "Reading: Wave Interactions & WaveMaster Lab Exploration",
+    details: "Students analyze wave behavior via an AVID Close Reading assignment and explore reflection/refraction using the interactive WaveMaster Lab.",
     type: "Activity",
     links: { 
-      "Wave Boundary Explorer": "Unit_6_Waves_Radiation/Boundary_Behaviors/Boundary_Behaviors.html",
-      "WaveMaster Lab": "Unit_6_Waves_Radiation/WaveMaster_Lab/wavemaster_lab.html",
-      "Reading: Wave Interactions": "https://docs.google.com/document/d/1e_JUg_6KbCQ4vhj7HWrtcr0wjPWAvbpgNW7U9wViWbE/edit?usp=sharing"
+      "Reading: Wave Interactions": "https://docs.google.com/document/d/1e_JUg_6KbCQ4vhj7HWrtcr0wjPWAvbpgNW7U9wViWbE/edit?usp=sharing",
+      "WaveMaster Lab": "Unit_6_Waves_Radiation/WaveMaster_Lab/wavemaster_lab.html"
     },
     dok: 2,
     semester: 2,
