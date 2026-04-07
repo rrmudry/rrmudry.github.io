@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wavefront Simulation Strategies - NGSS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Chosen Palette: Warm Neutrals with Semantic Accents (Amber, Teal, Rose, Indigo, Fuchsia) -->
+    <!-- Application Structure Plan: A responsive 5-tab dashboard. Added a 5th tab (Prism Dispersion) to isolate the concept of wavelength-dependent refraction. This progression moves from basic wavefront mechanics (Tab 1), to data proving f is constant (Tab 2), to 1D compression (Tab 3), 2D timing (Tab 4), and finally the dispersion of mixed frequencies (Tab 5). -->
+    <!-- Visualization & Content Choices: 
+        [Tabs 1-4 remain focused on v=fλ proof]
+        Tab 5 (Prism) -> Goal: Inform/Change -> Viz: HTML5 Canvas Interactive on Dark Background -> Interaction: Dispersion Slider -> Justification: Shows that while frequency dictates color, the varying slowdowns (v) dictate the degree of bending (dispersion). No SVG used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fafaf9;
+            color: #1c1917;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 280px;
+            }
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .nav-btn {
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn.active-tab-1 {
+            background-color: #fef3c7;
+            border-right: 4px solid #d97706;
+            color: #92400e;
+            font-weight: 600;
+        }
+
+        .nav-btn.active-tab-2 {
+            background-color: #fff1f2;
+            border-right: 4px solid #e11d48;
+            color: #9f1239;
+            font-weight: 600;
+        }
+
+        .nav-btn.active-tab-3 {
+            background-color: #fae8ff;
+            border-right: 4px solid #c026d3;
+            color: #86198f;
+            font-weight: 600;
+        }
+
+        #wavefrontCanvas,
+        #prismCanvas {
+            border-radius: 0.5rem;
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        #wavefrontCanvas {
+            background-color: #ffffff;
+            cursor: crosshair;
+        }
+
+        #prismCanvas {
+            background-color: #1c1917;
+        }
+
+        /* Dark mode for light rays */
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col">
+
+    <header class="bg-stone-900 text-stone-50 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-8 h-8 bg-stone-100 text-stone-900 rounded-full flex items-center justify-center font-bold text-xl">
+                    &#8764;</div>
+                <h1 class="text-2xl font-bold tracking-tight">Wave Transmission Data Labs</h1>
+            </div>
+            <div class="hidden sm:block text-sm text-stone-400 font-medium">
+                Teaching v = f&lambda; via Wavefront Modeling
+            </div>
+        </div>
+    </header>
+
+    <div class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full grid grid-cols-1 md:grid-cols-12 gap-8">
+
+        <aside class="md:col-span-3 lg:col-span-3 flex flex-col gap-2">
+            <div class="bg-white rounded-xl shadow-sm border border-stone-200 p-4 mb-2">
+                <h2 class="text-sm font-bold text-stone-400 uppercase tracking-wider mb-2">Simulation Strategies</h2>
+
+                <div class="flex flex-col gap-1">
+                    <button
+                        class="nav-btn active-tab-1 text-left px-4 py-3 rounded text-stone-600 hover:bg-stone-100 flex flex-col gap-1"
+                        data-target="sim1" data-tab-id="1">
+                        <span class="font-semibold text-sm">1. "Marching Band" App</span>
+                        <span class="text-xs opacity-75">Interactive wavefront pivot</span>
+                    </button>
+                    <button
+                        class="nav-btn text-left px-4 py-3 rounded text-stone-600 hover:bg-stone-100 flex flex-col gap-1"
+                        data-target="sim2" data-tab-id="2">
+                        <span class="font-semibold text-sm">2. 2D String Transmission</span>
+                        <span class="text-xs opacity-75">Transverse wave analysis</span>
+                    </button>
+                    <button
+                        class="nav-btn text-left px-4 py-3 rounded text-stone-600 hover:bg-stone-100 flex flex-col gap-1"
+                        data-target="sim3" data-tab-id="3">
+                        <span class="font-semibold text-sm">3. Prism Dispersion</span>
+                        <span class="text-xs opacity-75">How wavelength affects bending</span>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <main
+            class="md:col-span-9 lg:col-span-9 bg-white rounded-xl shadow-sm border border-stone-200 min-h-[600px] flex flex-col">
+
+            <!-- Tab 1: Marching Band -->
+            <div id="sim1" class="tab-content active p-6 md:p-8 flex-grow">
+                <header class="mb-6 border-b border-stone-100 pb-4">
+                    <div
+                        class="inline-block bg-amber-100 text-amber-800 text-xs font-bold px-2 py-1 rounded mb-2 uppercase tracking-wide">
+                        Custom Interactive</div>
+                    <h2 class="text-3xl font-bold text-stone-800 mb-3">The "Marching Band" Pivot</h2>
+                    <p class="text-stone-600 leading-relaxed">
+                        This section visualizes the classic "lawnmower hitting grass" analogy. Set the speeds below and
+                        watch the wavefront refract.
+                    </p>
+                </header>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 bg-stone-50 border border-stone-200 rounded-xl overflow-hidden relative"
+                        style="height: 400px;">
+                        <canvas id="wavefrontCanvas"></canvas>
+                    </div>
+                    <div class="flex flex-col gap-6 bg-stone-50 border border-stone-200 rounded-xl p-5">
+                        <div>
+                            <h3 class="font-bold text-stone-800 mb-1 border-b border-stone-200 pb-2">Simulation Controls
+                            </h3>
+                            <div class="mb-5 mt-4">
+                                <label class="flex justify-between text-sm font-semibold text-stone-700 mb-2">
+                                    <span>Speed in Medium 1</span>
+                                    <span id="v1-display" class="text-amber-600 font-mono">2.0</span>
+                                </label>
+                                <input type="range" id="v1-slider" min="0.5" max="4.0" step="0.1" value="2.0"
+                                    class="w-full accent-amber-600">
+                            </div>
+                            <div class="mb-6">
+                                <label class="flex justify-between text-sm font-semibold text-stone-700 mb-2">
+                                    <span>Speed in Medium 2</span>
+                                    <span id="v2-display" class="text-stone-600 font-mono">1.0</span>
+                                </label>
+                                <input type="range" id="v2-slider" min="0.5" max="4.0" step="0.1" value="1.0"
+                                    class="w-full accent-stone-600">
+                            </div>
+                        </div>
+                        <div class="mt-auto">
+                            <button id="resetSimBtn"
+                                class="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-3 px-4 rounded transition-colors shadow-sm">
+                                Send Wavefront
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 2: 2D String (Fixed Aliasing & Text) -->
+            <div id="sim2" class="tab-content p-6 md:p-8 flex-grow">
+                <header class="mb-6 border-b border-stone-100 pb-4">
+                    <div
+                        class="inline-block bg-rose-100 text-rose-800 text-xs font-bold px-2 py-1 rounded mb-2 uppercase tracking-wide">
+                        Foundational Concept</div>
+                    <h2 class="text-3xl font-bold text-stone-800 mb-3">2D String Transmission</h2>
+                    <p class="text-stone-600 leading-relaxed">
+                        This interactive illustrates a continuous transverse wave moving from a "fast" thin string to a
+                        "slow" thick string, focusing purely on how spatial width (wavelength) shrinks dramatically in
+                        response to a drop in speed.
+                    </p>
+                </header>
+
+                <div
+                    class="bg-stone-900 rounded-xl p-8 mb-6 relative overflow-hidden flex flex-col items-center justify-center min-h-[300px] border-4 border-stone-800 shadow-inner">
+                    <canvas id="stringCanvas" class="w-full h-48 block z-10"></canvas>
+
+                    <div class="flex justify-between w-full max-w-2xl text-stone-400 text-sm font-mono mt-8 z-10 px-4">
+                        <div class="text-center">
+                            <span class="block text-rose-400 font-bold mb-1">Thin String (Fast)</span>
+                            High v &rarr; Long &lambda;
+                        </div>
+                        <div class="text-center">
+                            <span class="block text-rose-400 font-bold mb-1">Thick String (Slow)</span>
+                            Low v &rarr; Short &lambda;
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4 bg-rose-50 p-4 rounded-lg border-l-4 border-rose-500">
+                    <p class="text-sm text-rose-800"><strong>Data Observation:</strong> Watch the crests of the wave. In
+                        the thin string, they travel quickly and are spaced far apart. When they hit the boundary, they
+                        slow down, causing the crests to "bunch up" (shorter wavelength) while the overall rhythm
+                        (frequency) remains identical.</p>
+                </div>
+            </div>
+
+            <!-- Tab 3: Prism Dispersion -->
+            <div id="sim3" class="tab-content p-6 md:p-8 flex-grow">
+                <header class="mb-6 border-b border-stone-100 pb-4">
+                    <div
+                        class="inline-block bg-fuchsia-100 text-fuchsia-800 text-xs font-bold px-2 py-1 rounded mb-2 uppercase tracking-wide">
+                        Refraction & Wavelength</div>
+                    <h2 class="text-3xl font-bold text-stone-800 mb-3">White Light Dispersion</h2>
+                    <p class="text-stone-600 leading-relaxed">
+                        How does wavelength affect refraction? White light is a mixture of all visible frequencies.
+                        While all colors travel at the exact same speed in a vacuum ($c$), they interact differently
+                        with physical matter.
+                    </p>
+                </header>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 bg-stone-900 border-4 border-stone-800 rounded-xl overflow-hidden relative shadow-inner"
+                        style="height: 400px;">
+                        <canvas id="prismCanvas"></canvas>
+                    </div>
+
+                    <div class="flex flex-col gap-6 bg-stone-50 border border-stone-200 rounded-xl p-5">
+                        <div>
+                            <h3 class="font-bold text-stone-800 mb-1 border-b border-stone-200 pb-2">Material Dispersion
+                            </h3>
+                            <p class="text-xs text-stone-500 mb-4 mt-2">Increase the glass dispersion factor to see how
+                                higher frequencies separate from lower frequencies.</p>
+
+                            <div class="mb-5">
+                                <label class="flex justify-between text-sm font-semibold text-stone-700 mb-2">
+                                    <span>Dispersion Factor</span>
+                                    <span id="disp-display" class="text-fuchsia-600 font-mono">0.0</span>
+                                </label>
+                                <input type="range" id="disp-slider" min="0" max="100" step="1" value="0"
+                                    class="w-full accent-fuchsia-600">
+                            </div>
+                        </div>
+
+                        <div class="bg-white border border-stone-200 p-4 rounded-lg mt-auto shadow-sm">
+                            <h4 class="font-bold text-stone-800 text-sm mb-2 border-b border-stone-100 pb-1">The Physics
+                                Rule:</h4>
+                            <p class="text-xs text-stone-600 leading-relaxed">
+                                Higher frequency waves (like <strong class="text-purple-600">Violet</strong>) slow down
+                                <em>more</em> than lower frequency waves (like <strong
+                                    class="text-red-600">Red</strong>) when entering glass.<br><br>
+                                Because Violet slows down more, it <strong class="text-stone-800">bends more</strong>.
+                                This is why the rainbow spreads out!
+                                <br><br>
+                                <strong>Visualization:</strong> Notice the incident white light is represented as a
+                                linear beam. Once it enters the prism, we visualize the individual colors as transverse
+                                waves to reveal their hidden properties! <strong class="text-red-600">Red</strong> has a
+                                longer wavelength (crests are further apart), while <strong
+                                    class="text-purple-600">Violet</strong> has a shorter wavelength. Inside the glass,
+                                all wavelengths shrink because the light slows down!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- Navigation Logic ---
+            const navBtns = document.querySelectorAll('.nav-btn');
+            const tabs = document.querySelectorAll('.tab-content');
+
+            navBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const targetId = btn.getAttribute('data-target');
+                    const tabId = btn.getAttribute('data-tab-id');
+
+                    navBtns.forEach(b => {
+                        b.className = `nav-btn text-left px-4 py-3 rounded text-stone-600 hover:bg-stone-100 flex flex-col gap-1`;
+                    });
+
+                    btn.classList.add(`active-tab-${tabId}`);
+
+                    tabs.forEach(tab => tab.classList.remove('active'));
+                    document.getElementById(targetId).classList.add('active');
+
+                    if (targetId === 'sim1') { resizeCanvas(); }
+                    if (targetId === 'sim2') { resizeStringCanvas(); }
+                    if (targetId === 'sim3') { resizePrismCanvas(); }
+                });
+            });
+
+            // --- 1. Marching Band Logic ---
+            const canvas = document.getElementById('wavefrontCanvas');
+            const ctx = canvas.getContext('2d');
+            let animId;
+            let particles = [];
+            const v1Slider = document.getElementById('v1-slider');
+            const v2Slider = document.getElementById('v2-slider');
+            const v1Display = document.getElementById('v1-display');
+            const v2Display = document.getElementById('v2-display');
+            const resetBtn = document.getElementById('resetSimBtn');
+
+            function resizeCanvas() {
+                if (canvas.parentElement.clientWidth > 0) {
+                    canvas.width = canvas.parentElement.clientWidth;
+                    canvas.height = canvas.parentElement.clientHeight;
+                }
+            }
+
+            function initMarchingBand() {
+                particles = [];
+                const numParticles = 12;
+                const spacing = 18;
+                const startX = canvas.width * 0.15;
+                const startY = canvas.height * 0.1;
+                const angle = 35 * (Math.PI / 180);
+
+                for (let i = 0; i < numParticles; i++) {
+                    const offsetX = -i * spacing * Math.sin(angle);
+                    const offsetY = i * spacing * Math.cos(angle);
+
+                    particles.push({
+                        x: startX + offsetX,
+                        y: startY + offsetY,
+                        startX: startX + offsetX,
+                        startY: startY + offsetY,
+                        refractX: null,
+                        refractY: null,
+                        incidentAngle: angle,
+                        vx: Math.cos(angle),
+                        vy: Math.sin(angle),
+                        isRefracted: false,
+                        isTIR: false
+                    });
+                }
+            }
+
+            function animateMarchingBand() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                const boundaryX = canvas.width * 0.5;
+
+                // Draw background and boundary
+                ctx.fillStyle = '#fafaf9';
+                ctx.fillRect(0, 0, boundaryX, canvas.height);
+                ctx.fillStyle = '#f5f5f4';
+                ctx.fillRect(boundaryX, 0, canvas.width - boundaryX, canvas.height);
+
+                ctx.beginPath();
+                ctx.moveTo(boundaryX, 0);
+                ctx.lineTo(boundaryX, canvas.height);
+                ctx.strokeStyle = '#d6d3d1';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                ctx.fillStyle = '#a8a29e';
+                ctx.font = 'bold 12px sans-serif';
+                ctx.fillText('Medium 1', 15, 25);
+                ctx.fillText('Medium 2', boundaryX + 15, 25);
+
+                const v1 = parseFloat(v1Slider.value);
+                const v2 = parseFloat(v2Slider.value);
+
+                // Update particle velocity directions dynamically based on Snell's Law
+                for (let i = 0; i < particles.length; i++) {
+                    let p = particles[i];
+                    if (p.isRefracted) {
+                        let sinT2 = (v2 / v1) * Math.sin(p.incidentAngle);
+                        if (Math.abs(sinT2) <= 1) { // Standard Refraction
+                            p.refractedAngle = Math.asin(sinT2);
+                            p.vx = Math.cos(p.refractedAngle);
+                            p.vy = Math.sin(p.refractedAngle);
+                            p.isTIR = false;
+                        } else { // Total Internal Reflection
+                            p.vx = -Math.cos(p.incidentAngle);
+                            p.vy = Math.sin(p.incidentAngle);
+                            p.isTIR = true;
+                        }
+                    } else {
+                        p.vx = Math.cos(p.incidentAngle);
+                        p.vy = Math.sin(p.incidentAngle);
+                    }
+                }
+
+                // Move particles
+                for (let i = 0; i < particles.length; i++) {
+                    let p = particles[i];
+                    let currentSpeed = p.isRefracted ? (p.isTIR ? v1 : v2) : v1;
+                    let dx = p.vx * currentSpeed;
+                    let dy = p.vy * currentSpeed;
+
+                    // Exact sub-frame boundary collision detection
+                    if (!p.isRefracted && p.x + dx >= boundaryX) {
+                        let fraction = (boundaryX - p.x) / dx;
+                        p.x = boundaryX;
+                        p.y += dy * fraction;
+                        p.isRefracted = true;
+                        p.refractX = p.x;
+                        p.refractY = p.y;
+
+                        let sinT2 = (v2 / v1) * Math.sin(p.incidentAngle);
+                        if (Math.abs(sinT2) <= 1) {
+                            p.refractedAngle = Math.asin(sinT2);
+                            p.vx = Math.cos(p.refractedAngle);
+                            p.vy = Math.sin(p.refractedAngle);
+                            p.isTIR = false;
+                            currentSpeed = v2;
+                        } else {
+                            p.vx = -Math.cos(p.incidentAngle);
+                            p.vy = Math.sin(p.incidentAngle);
+                            p.isTIR = true;
+                            currentSpeed = v1;
+                        }
+
+                        let remainingFraction = 1 - fraction;
+                        p.x += p.vx * currentSpeed * remainingFraction;
+                        p.y += p.vy * currentSpeed * remainingFraction;
+                    } else {
+                        p.x += dx;
+                        p.y += dy;
+                    }
+                }
+
+                // Draw ray tracers behind the wavefront
+                ctx.lineWidth = 1;
+                for (let i = 0; i < particles.length; i++) {
+                    let p = particles[i];
+                    ctx.beginPath();
+                    ctx.moveTo(p.startX, p.startY);
+                    if (p.isRefracted) {
+                        ctx.lineTo(p.refractX, p.refractY);
+                        ctx.strokeStyle = 'rgba(217, 119, 6, 0.4)';
+                        ctx.stroke();
+
+                        ctx.beginPath();
+                        ctx.moveTo(p.refractX, p.refractY);
+                        ctx.lineTo(p.x, p.y);
+                        ctx.strokeStyle = p.isTIR ? 'rgba(217, 119, 6, 0.4)' : 'rgba(87, 83, 78, 0.4)';
+                        ctx.stroke();
+                    } else {
+                        ctx.lineTo(p.x, p.y);
+                        ctx.strokeStyle = 'rgba(217, 119, 6, 0.4)';
+                        ctx.stroke();
+                    }
+                }
+
+                // Draw the connecting wavefront line
+                ctx.beginPath();
+                for (let i = 0; i < particles.length; i++) {
+                    let p = particles[i];
+                    if (i === 0) ctx.moveTo(p.x, p.y);
+                    else ctx.lineTo(p.x, p.y);
+                }
+                ctx.strokeStyle = '#d97706';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                // Draw individual wavefront particles
+                for (let i = 0; i < particles.length; i++) {
+                    let p = particles[i];
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+                    ctx.fillStyle = p.isRefracted ? (p.isTIR ? '#d97706' : '#57534e') : '#d97706';
+                    ctx.fill();
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
+
+                let allOffScreen = particles.every(p =>
+                    p.x > canvas.width + 50 || p.y > canvas.height + 50 ||
+                    p.x < -50 || p.y < -50
+                );
+
+                if (!allOffScreen) {
+                    animId = requestAnimationFrame(animateMarchingBand);
+                }
+            }
+
+            v1Slider.addEventListener('input', (e) => { v1Display.textContent = parseFloat(e.target.value).toFixed(1); });
+            v2Slider.addEventListener('input', (e) => { v2Display.textContent = parseFloat(e.target.value).toFixed(1); });
+
+            resetBtn.addEventListener('click', () => {
+                cancelAnimationFrame(animId);
+                resizeCanvas();
+                initMarchingBand();
+                animateMarchingBand();
+            });
+
+            // --- 2. 2D String Canvas Logic (FIXED ALIASING) ---
+            const stringCanvas = document.getElementById('stringCanvas');
+            const sCtx = stringCanvas.getContext('2d');
+            let stringAnimId;
+            let stringTime = 0;
+
+            function resizeStringCanvas() {
+                if (stringCanvas.parentElement.clientWidth > 0) {
+                    stringCanvas.width = stringCanvas.parentElement.clientWidth;
+                    stringCanvas.height = 200;
+                }
+            }
+
+            function animateString() {
+                sCtx.clearRect(0, 0, stringCanvas.width, stringCanvas.height);
+
+                const boundaryX = stringCanvas.width / 2;
+                const centerY = stringCanvas.height / 2;
+
+                // Boundary
+                sCtx.beginPath();
+                sCtx.moveTo(boundaryX, 0); sCtx.lineTo(boundaryX, stringCanvas.height);
+                sCtx.strokeStyle = 'rgba(244, 63, 94, 0.4)'; sCtx.setLineDash([5, 5]); sCtx.stroke(); sCtx.setLineDash([]);
+                sCtx.fillStyle = '#f43f5e'; sCtx.font = 'bold 10px sans-serif'; sCtx.textAlign = 'center';
+                sCtx.fillText('BOUNDARY', boundaryX, 20);
+
+                // Physics Parameters
+                const freq = 0.015;
+                const lambda1 = 180;
+                const lambda2 = 55;  // Large enough to draw smoothly, small enough to show clear compression
+                const A1 = 45;
+                const A2 = 25;
+
+                // Draw Thin String (Smooth lineJoin)
+                sCtx.beginPath();
+                sCtx.lineWidth = 2;
+                sCtx.lineJoin = 'round';
+                sCtx.strokeStyle = '#fb7185';
+                for (let x = 0; x <= boundaryX; x += 2) {
+                    let phase = 2 * Math.PI * (freq * stringTime - x / lambda1);
+                    let y = centerY + A1 * Math.sin(phase);
+                    if (x === 0) sCtx.moveTo(x, y); else sCtx.lineTo(x, y);
+                }
+                sCtx.stroke();
+
+                // Draw Thick String (Smooth lineJoin, 1px step for dense, high-quality curve)
+                sCtx.beginPath();
+                sCtx.lineWidth = 5;
+                sCtx.lineJoin = 'round';
+                sCtx.lineCap = 'round';
+                sCtx.strokeStyle = '#be123c';
+
+                let boundaryPhase = 2 * Math.PI * (freq * stringTime - boundaryX / lambda1);
+
+                for (let x = boundaryX; x <= stringCanvas.width; x += 1) {
+                    let phase2 = boundaryPhase - 2 * Math.PI * ((x - boundaryX) / lambda2);
+                    let y = centerY + A2 * Math.sin(phase2);
+                    if (x === boundaryX) sCtx.moveTo(x, y); else sCtx.lineTo(x, y);
+                }
+                sCtx.stroke();
+
+                stringTime += 1;
+                stringAnimId = requestAnimationFrame(animateString);
+            }
+
+            // --- 3. Prism Dispersion Logic ---
+            const prismCanvas = document.getElementById('prismCanvas');
+            const pCtx = prismCanvas.getContext('2d');
+            let prismAnimId;
+            let pTime = 0;
+            const dispSlider = document.getElementById('disp-slider');
+            const dispDisplay = document.getElementById('disp-display');
+
+            function resizePrismCanvas() {
+                if (prismCanvas.parentElement.clientWidth > 0) {
+                    prismCanvas.width = prismCanvas.parentElement.clientWidth;
+                    prismCanvas.height = prismCanvas.parentElement.clientHeight;
+                }
+            }
+
+            // Helper function to draw continuous transverse sine waves
+            function drawWaveSegment(ctx, startX, startY, endX, endY, amplitude, lambda, startPhase, time, freq, isFirst) {
+                let dx = endX - startX;
+                let dy = endY - startY;
+                let dist = Math.hypot(dx, dy);
+                let angle = Math.atan2(dy, dx);
+                let cosA = Math.cos(angle);
+                let sinA = Math.sin(angle);
+
+                for (let d = 0; d <= dist; d += 1) { // 1px steps for a smooth curve
+                    let currentPhase = (d / lambda) + startPhase - (freq * time);
+                    let perp = amplitude * Math.sin(2 * Math.PI * currentPhase);
+
+                    let glX = startX + d * cosA - perp * sinA;
+                    let glY = startY + d * sinA + perp * cosA;
+
+                    if (d === 0 && isFirst) ctx.moveTo(glX, glY);
+                    else ctx.lineTo(glX, glY);
+                }
+                // Return the phase at the exact boundary so the next segment connects seamlessly
+                return startPhase + (dist / lambda);
+            }
+
+            function animatePrism() {
+                pCtx.clearRect(0, 0, prismCanvas.width, prismCanvas.height);
+                let w = prismCanvas.width;
+                let h = prismCanvas.height;
+                let disp = dispSlider.value / 100;
+
+                // Prism Geometry
+                let topX = w / 2;
+                let topY = 50;
+                let botY = 280;
+                let halfWidth = 120;
+                let height = botY - topY;
+
+                // Draw Glass Prism (Triangle)
+                pCtx.beginPath();
+                pCtx.moveTo(topX, topY);
+                pCtx.lineTo(topX - halfWidth, botY);
+                pCtx.lineTo(topX + halfWidth, botY);
+                pCtx.closePath();
+                pCtx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+                pCtx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+                pCtx.lineWidth = 2;
+                pCtx.stroke();
+                pCtx.fill();
+
+                // Entry Point exactly on the left face
+                let entryY = 150;
+                let entryX = topX - (entryY - topY) * (halfWidth / height);
+
+                // Draw Incoming White Ray as a linear beam
+                let v_air = 0.8; // Slowed down speed in air
+
+                pCtx.beginPath();
+                pCtx.moveTo(0, entryY);
+                pCtx.lineTo(entryX, entryY);
+                pCtx.strokeStyle = '#ffffff';
+                pCtx.lineWidth = 4;
+                pCtx.stroke();
+
+                // Spectrum Colors (Red to Violet)
+                let colors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#a855f7'];
+
+                pCtx.globalCompositeOperation = 'screen'; // Blend colors beautifully
+
+                for (let i = 0; i < colors.length; i++) {
+                    pCtx.beginPath();
+
+                    // NGSS Physics Model:
+                    // 1. Air: Speed is constant (v_air). Red has a longer wavelength than Violet.
+                    let lambdaAir_i = 38 - (i * 3.5); // Red=38, Violet=20.5
+                    let freq_i = v_air / lambdaAir_i; // Frequency remains constant across the entire path!
+
+                    // 2. Glass: Speed drops. Dispersion means Violet slows down more than Red.
+                    let v_glass_base = 0.5; // Slower speed in glass
+                    let v_glass_i = v_glass_base - (i * 0.04 * disp);
+
+                    // Because frequency is constant, a drop in speed means proportional drop in wavelength.
+                    let lambdaGlass_i = v_glass_i / freq_i;
+
+                    // Inside the prism
+                    let exitY = 180 + (i * 6 * disp);
+                    let exitX = topX + (exitY - topY) * (halfWidth / height);
+
+                    // Outside the prism (exiting Glass back to Air)
+                    let finalX = w + 50;
+                    let baseOutsideSlope = 0.35;
+                    let outsideSlope = baseOutsideSlope + (i * 0.1 * disp);
+                    let finalY = exitY + (finalX - exitX) * outsideSlope;
+
+                    // Draw Continuous Transverse Waves across boundaries
+                    // Glass Segment (Start phase at 0 for all colors from the white entry point)
+                    let phaseAtExit = drawWaveSegment(pCtx, entryX, entryY, exitX, exitY, 2.5, lambdaGlass_i, 0, pTime, freq_i, true);
+
+                    // Air Segment (Speed goes back up, lambda goes back to lambdaAir_i)
+                    drawWaveSegment(pCtx, exitX, exitY, finalX, finalY, 2.5, lambdaAir_i, phaseAtExit, pTime, freq_i, false);
+
+                    pCtx.strokeStyle = colors[i];
+                    pCtx.lineWidth = 2.5;
+                    pCtx.stroke();
+                }
+
+                pCtx.globalCompositeOperation = 'source-over';
+
+                pTime += 1;
+                prismAnimId = requestAnimationFrame(animatePrism);
+            }
+
+            dispSlider.addEventListener('input', (e) => {
+                dispDisplay.textContent = (e.target.value / 100).toFixed(2);
+            });
+
+            // --- Initialization ---
+            window.addEventListener('resize', () => {
+                cancelAnimationFrame(animId);
+                resizeCanvas();
+                initMarchingBand();
+                animateMarchingBand();
+                resizeStringCanvas();
+                resizePrismCanvas();
+            });
+
+            resizeCanvas();
+            initMarchingBand();
+            animateMarchingBand();
+            resizeStringCanvas();
+            animateString();
+            resizePrismCanvas();
+            animatePrism();
+
+        });
+    </script>
+</body>
+
+</html>
