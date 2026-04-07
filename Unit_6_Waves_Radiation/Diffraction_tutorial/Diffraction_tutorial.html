@@ -298,6 +298,10 @@
             const [isLabComplete, setIsLabComplete] = useState(false);
             const [demoAnimation, setDemoAnimation] = useState(null);
             const [selectedProof, setSelectedProof] = useState(null);
+
+            // Sync Ref Hooks (Prevent Race Conditions)
+            const isSyncing = useRef(false);
+            const needsSync = useRef(false);
             
             // New: Snapshot State
             const [snapshots, setSnapshots] = useState([]);
@@ -308,6 +312,15 @@
             // --- Database Logic ---
             const syncResults = async (finalScore = null) => {
                 if (!isAuthorized || !studentId) return;
+
+                // Concurrency Control
+                if (isSyncing.current) {
+                    needsSync.current = true;
+                    return;
+                }
+                isSyncing.current = true;
+                needsSync.current = false;
+
                 setSyncStatus('Syncing...');
                 try {
                     const assignmentName = "Wave Diffraction Lab";
@@ -343,24 +356,43 @@
                 } catch (e) {
                     console.error("Sync Error:", e);
                     setSyncStatus('Sync_Error');
+                } finally {
+                    isSyncing.current = false;
+                    // If a sync was requested while we were busy, run it now
+                    if (needsSync.current) {
+                        syncResults(finalScore);
+                    }
                 }
             };
 
             const handleLogin = async () => {
                 if (tempId.length !== 6) return;
                 setLoginStatus('VERIFYING_CREDENTIALS...');
+                const assignmentName = "Wave Diffraction Lab";
                 
                 try {
-                    const { data } = await sbClient.from('student_results')
+                    const { data: nameData } = await sbClient.from('student_results')
                         .select('student_name')
                         .eq('student_id', tempId)
                         .order('created_at', { ascending: false })
                         .limit(1)
                         .maybeSingle();
 
-                    if (data) {
+                    if (nameData) {
+                        // Restore progress if available for THIS specific lab
+                        const { data: progressData } = await sbClient.from('student_results')
+                            .select('details')
+                            .eq('student_id', tempId)
+                            .eq('assignment_name', assignmentName)
+                            .maybeSingle();
+
+                        if (progressData && progressData.details) {
+                            if (progressData.details.currentStep !== undefined) setCurrentStepIndex(progressData.details.currentStep);
+                            if (progressData.details.isComplete !== undefined) setIsLabComplete(progressData.details.isComplete);
+                        }
+
                         setStudentId(tempId);
-                        setStudentName(data.student_name);
+                        setStudentName(nameData.student_name);
                         setIsAuthorized(true);
                     } else if (!showNameEntry) {
                         setShowNameEntry(true);
