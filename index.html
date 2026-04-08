@@ -56,82 +56,69 @@
       transform: translateY(-8px);
     }
     
-    /* Carousel Styles */
-    .carousel-window {
-      overflow: hidden;
-      border-radius: var(--radius-lg);
+    /* Rotating Banner Styles */
+    .banner-window {
       position: relative;
-      background: rgba(15, 23, 42, 0.4);
-      border: 1px solid var(--border);
-      width: 100%;
-      box-sizing: border-box;
+      overflow: hidden;
+      border-radius: 24px;
+      min-height: 520px;
+      background: #050a18;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
     }
-    .carousel-track {
+    .banner-slide {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
       display: flex;
-      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-      width: 100%;
-    }
-    .carousel-slide {
-      min-width: 100%;
-      flex-shrink: 0;
-      box-sizing: border-box;
-    }
-    .carousel-slide-content {
-      display: grid;
-      grid-template-columns: 1.2fr 1fr;
-      gap: 2.5rem;
       align-items: center;
-      padding: 3rem;
+    }
+    .banner-slide.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .banner-content {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 3rem;
+      padding: 4rem;
       width: 100%;
-      box-sizing: border-box;
+      align-items: center;
     }
     @media (max-width: 950px) {
-      .carousel-slide-content {
+      .banner-content {
         grid-template-columns: 1fr;
-        padding: 2rem;
+        padding: 2.5rem;
         text-align: center;
       }
-      .carousel-slide-content div {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
     }
-    .carousel-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.3);
-      cursor: pointer;
-      transition: all 0.3s ease;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+    .progress-timer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent-neon), #a855f7);
+      width: 0%;
+      z-index: 30;
+      box-shadow: 0 -2px 10px rgba(0, 243, 255, 0.3);
     }
-    .carousel-dot.active {
-      background: #fff !important;
-      width: 35px !important;
-      border-radius: 6px !important;
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
-    }
-    .carousel-nav-btn {
-      background: rgba(15, 23, 42, 0.6);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: white;
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      cursor: pointer;
-      z-index: 20;
+    .banner-nav {
+      position: absolute;
+      bottom: 2rem;
+      right: 4rem;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      transition: all 0.2s ease;
+      gap: 1rem;
+      z-index: 40;
     }
-    .carousel-nav-btn:hover {
-      background: rgba(15, 23, 42, 0.9);
-      border-color: var(--accent-neon);
-      transform: scale(1.1);
+    @media (max-width: 950px) {
+      .banner-nav {
+        right: 0;
+        width: 100%;
+        justify-content: center;
+        bottom: 1.5rem;
+      }
     }
   </style>
 </head>
@@ -216,59 +203,53 @@
       </div>
     </section>
 
-    <!-- Lab Highlights Carousel -->
-    <section class="container" style="margin-bottom: 3rem;" id="lab-highlights">
-      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 1.25rem;">
-          <div class="today-tag" style="margin-bottom: 0; background: rgba(0, 243, 255, 0.15); border: 1px solid var(--accent-neon); color: var(--accent-neon);">Featured Labs</div>
-          <div style="color: rgba(255,255,255,0.4); font-size: 0.7rem; font-family: var(--font-tech); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700;">Interactive Portfolio</div>
+    <!-- Rotating Labs Banner -->
+    <section class="container" style="margin-bottom: 4rem;">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem;">
+          <div class="today-tag" style="margin-bottom: 0; background: rgba(0, 243, 255, 0.1); border-color: var(--accent-neon); color: var(--accent-neon);">Interactive Lab Feature</div>
+          <div style="color: rgba(255,255,255,0.4); font-size: 0.75rem; font-family: var(--font-tech); text-transform: uppercase; letter-spacing: 0.2em; font-weight: 700;">Rotating Headliners</div>
       </div>
       
-      <div class="carousel-window">
-          <div class="carousel-track" id="carouselTrack">
-              
-              <!-- Slide 1: 3D Refraction -->
-              <div class="carousel-slide">
-                <div class="carousel-slide-content" style="background: linear-gradient(135deg, rgba(8, 47, 73, 0.95), rgba(15, 23, 42, 0.8));">
-                  <div>
-                    <div style="background: #0ea5e9; color: #fff; font-family: var(--font-tech); font-size: 0.6rem; text-transform: uppercase; font-weight: 900; letter-spacing: 0.1em; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 1rem;">Optics & Light</div>
-                    <h2 style="margin: 0 0 1rem 0; color: #fff; font-size: 2.6rem; font-family: var(--font-tech); line-height: 1.1; letter-spacing: -1px;">3D REFRACTION <span style="color: #38bdf8;">LAB</span></h2>
-                    <p style="margin: 0 0 2rem 0; color: #bae6fd; font-size: 1.1rem; line-height: 1.6;">
-                      Shoot lasers through a glass block in a fully interactive 3D laboratory. Master Snell's Law and calculate the optical index of mystery mediums.
-                    </p>
-                    <a href="Unit_6_Waves_Radiation/refraction_lab/index.html" class="btn primary" style="background: linear-gradient(135deg, #0ea5e9, #0284c7); border: none; font-size: 1rem; padding: 0.85rem 2rem;">Launch Simulator ↗</a>
-                  </div>
-                  <div style="perspective: 1200px; display: flex; justify-content: center;">
-                    <img src="assets/images/refraction_preview.png" alt="Refraction Lab" style="width: 100%; border-radius: 12px; border: 1px solid rgba(14, 165, 233, 0.3); box-shadow: 0 25px 50px rgba(0,0,0,0.6); transform: rotateY(-8deg) rotateX(5deg);">
-                  </div>
-                </div>
+      <div class="banner-window" id="banner-container">
+          <!-- Slide 1: 3D Refraction -->
+          <div class="banner-slide active" style="background: radial-gradient(circle at 70% 50%, rgba(14, 165, 233, 0.15), transparent 70%);">
+            <div class="banner-content">
+              <div>
+                <div style="color: #38bdf8; font-family: var(--font-tech); font-size: 0.75rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.1em; margin-bottom: 1rem;">Physics Hub Spotlight</div>
+                <h2 style="margin: 0 0 1.5rem 0; color: #fff; font-size: 3rem; font-family: var(--font-tech); line-height: 1; letter-spacing: -2px;">THE OPTICS <span style="color: #0ea5e9;">REFRACTION LAB</span></h2>
+                <p style="margin: 0 0 2.5rem 0; color: #bae6fd; font-size: 1.2rem; line-height: 1.7; max-width: 48ch;">
+                  Dive into the mathematics of light. Observe ray tracing in realtime, calculate indices of refraction, and master Snell's Law in our redesigned 3D environment.
+                </p>
+                <a href="Unit_6_Waves_Radiation/refraction_lab/index.html" class="btn primary" style="background: linear-gradient(135deg, #0ea5e9, #2563eb); font-size: 1.1rem; padding: 1rem 2.5rem;">Initialize Simulator ↗</a>
               </div>
-
-              <!-- Slide 2: Wave Beats -->
-              <div class="carousel-slide">
-                <div class="carousel-slide-content" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(88, 28, 135, 0.2));">
-                  <div style="perspective: 1200px; display: flex; justify-content: center;">
-                    <img src="assets/images/wave_beat_preview.png" alt="Wave Beat Generator" style="width: 100%; border-radius: 12px; border: 1px solid rgba(168, 85, 247, 0.3); box-shadow: 0 25px 50px rgba(0,0,0,0.6); transform: rotateY(8deg) rotateX(5deg);">
-                  </div>
-                  <div>
-                    <div style="background: #a855f7; color: #fff; font-family: var(--font-tech); font-size: 0.6rem; text-transform: uppercase; font-weight: 900; letter-spacing: 0.1em; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 1rem;">Acoustics & Interference</div>
-                    <h2 style="margin: 0 0 1rem 0; color: #fff; font-size: 2.6rem; font-family: var(--font-tech); line-height: 1.1; letter-spacing: -1px;">WAVE BEATS <span style="color: #a855f7;">GENERATOR</span></h2>
-                    <p style="margin: 0 0 2rem 0; color: #d8b4fe; font-size: 1.1rem; line-height: 1.6;">
-                      Visualize how two waves combine to create interference patterns. Explore the physics of beats and binaural frequencies in real-time.
-                    </p>
-                    <a href="Unit_6_Waves_Radiation/Wave_Beat_Generator/Wave_Beat_Generator.html" class="btn primary" style="background: linear-gradient(135deg, #a855f7, #7c3aed); border: none; font-size: 1rem; padding: 0.85rem 2rem;">Launch Simulator ↗</a>
-                  </div>
-                </div>
+              <div style="perspective: 1500px;">
+                <img src="assets/images/refraction_preview.png" alt="Refraction Lab" style="width: 100%; border-radius: 16px; border: 1px solid rgba(14, 165, 233, 0.4); box-shadow: 0 30px 60px rgba(0,0,0,0.8); transform: rotateY(-15deg) rotateX(8deg); transition: transform 0.5s ease;">
               </div>
-
+            </div>
           </div>
 
-          <!-- Carousel Controls -->
-          <button onclick="moveCarousel(-1)" class="carousel-nav-btn" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%);">←</button>
-          <button onclick="moveCarousel(1)" class="carousel-nav-btn" style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%);">→</button>
-          
-          <div style="position: absolute; bottom: 1.5rem; width: 100%; display: flex; justify-content: center; gap: 1rem; z-index: 10;">
-              <div class="carousel-dot active" onclick="jumpToSlide(0)"></div>
-              <div class="carousel-dot" onclick="jumpToSlide(1)"></div>
+          <!-- Slide 2: Wave Beats -->
+          <div class="banner-slide" style="background: radial-gradient(circle at 30% 50%, rgba(168, 85, 247, 0.15), transparent 70%);">
+            <div class="banner-content">
+              <div style="perspective: 1500px;">
+                <img src="assets/images/wave_beat_preview.png" alt="Wave Beat Generator" style="width: 100%; border-radius: 16px; border: 1px solid rgba(168, 85, 247, 0.4); box-shadow: 0 30px 60px rgba(0,0,0,0.8); transform: rotateY(15deg) rotateX(8deg); transition: transform 0.5s ease;">
+              </div>
+              <div>
+                <div style="color: #a855f7; font-family: var(--font-tech); font-size: 0.75rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.1em; margin-bottom: 1rem;">Acoustic Superposition</div>
+                <h2 style="margin: 0 0 1.5rem 0; color: #fff; font-size: 3rem; font-family: var(--font-tech); line-height: 1; letter-spacing: -2px;">WAVE BEAT <span style="color: #a855f7;">GENERATOR</span></h2>
+                <p style="margin: 0 0 2.5rem 0; color: #d8b4fe; font-size: 1.2rem; line-height: 1.7; max-width: 48ch;">
+                  Explore the physics of beats and interference. Combine frequencies to visualize how waves interact to create pulses of constructive and destructive energy.
+                </p>
+                <a href="Unit_6_Waves_Radiation/Wave_Beat_Generator/Wave_Beat_Generator.html" class="btn primary" style="background: linear-gradient(135deg, #a855f7, #7c3aed); font-size: 1.1rem; padding: 1rem 2.5rem;">Launch Studio ↗</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Progress Bar & Nav -->
+          <div class="progress-timer" id="banner-timer"></div>
+          <div class="banner-nav">
+              <span class="carousel-dot active" style="width: 12px; height: 12px; border-radius: 50%; cursor: pointer;" onclick="jumpTobanner(0)"></span>
+              <span class="carousel-dot" style="width: 12px; height: 12px; border-radius: 50%; cursor: pointer;" onclick="jumpTobanner(1)"></span>
           </div>
       </div>
     </section>
@@ -452,35 +433,62 @@
     document.addEventListener('DOMContentLoaded', () => {
       renderLessons();
     });
-    // Carousel Logic
-    let currentSlide = 0;
-    const track = document.getElementById('carouselTrack');
-    const dots = document.querySelectorAll('.carousel-dot');
-    
-    function updateCarousel() {
-      if (!track) return;
-      track.style.transform = `translateX(-${currentSlide * 100}%)`;
-      dots.forEach((dot, index) => {
-        dot.classList.toggle('active', index === currentSlide);
+    // Rotating Banner Logic
+    let currentBannerSlide = 0;
+    const bannerSlides = document.querySelectorAll('.banner-slide');
+    const bannerDots = document.querySelectorAll('.carousel-dot');
+    const timerBar = document.getElementById('banner-timer');
+    const rotationTime = 8000;
+    let bannerStartTime = Date.now();
+    let bannerInterval;
+
+    function updateBanner() {
+      bannerSlides.forEach((slide, index) => {
+        slide.classList.toggle('active', index === currentBannerSlide);
       });
+      bannerDots.forEach((dot, index) => {
+        dot.classList.toggle('active', index === currentBannerSlide);
+      });
+      bannerStartTime = Date.now();
+      if (timerBar) {
+        timerBar.style.transition = 'none';
+        timerBar.style.width = '0%';
+        setTimeout(() => {
+          timerBar.style.transition = `width ${rotationTime}ms linear`;
+          timerBar.style.width = '100%';
+        }, 50);
+      }
     }
 
-    function moveCarousel(direction) {
-      if (!dots.length) return;
-      currentSlide = (currentSlide + direction + dots.length) % dots.length;
-      updateCarousel();
+    function rotateBanner() {
+      currentBannerSlide = (currentBannerSlide + 1) % bannerSlides.length;
+      updateBanner();
     }
 
-    function jumpToSlide(index) {
-      currentSlide = index;
-      updateCarousel();
+    function jumpTobanner(index) {
+      currentBannerSlide = index;
+      updateBanner();
+      resetBannerTimer();
     }
 
-    // Auto-advance
-    let carouselInterval = setInterval(() => moveCarousel(1), 8000);
-    const labSec = document.getElementById('lab-highlights');
-    if (labSec) {
-      labSec.addEventListener('mouseenter', () => clearInterval(carouselInterval));
+    function resetBannerTimer() {
+      clearInterval(bannerInterval);
+      bannerInterval = setInterval(rotateBanner, rotationTime);
+    }
+
+    // Initialize Banner
+    if (bannerSlides.length > 0) {
+      updateBanner();
+      resetBannerTimer();
+      
+      const container = document.getElementById('banner-container');
+      if (container) {
+          container.addEventListener('mouseenter', () => {
+              clearInterval(bannerInterval);
+              if (timerBar) timerBar.style.width = timerBar.style.width; // pause bar
+          });
+          container.addEventListener('mouseleave', resetBannerTimer);
+      }
     }
   </script>
   <script src="assets/partials.js"></script>
