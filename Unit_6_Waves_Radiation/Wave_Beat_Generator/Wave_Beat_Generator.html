@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wave Interference & Beats | Interactive Physics Tool</title>
+    <meta name="description" content="An interactive physics demonstration exploring wave superposition, interference patterns, and acoustic beat frequencies.">
+    <meta property="og:title" content="Wave Interference & Beats Generator">
+    <meta property="og:description" content="Explore acoustic interference and beat frequencies with this high-precision interactive wave tool.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom range slider styling for Webkit/Firefox */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: currentColor;
+            cursor: pointer;
+            margin-top: -4px;
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            border-radius: 4px;
+            background: #334155;
+            /* Fixed: Explicitly color the track */
+        }
+
+        /* Fixed: Added Firefox styling for cross-browser consistency */
+        input[type=range]::-moz-range-track {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            border-radius: 4px;
+            background: #334155;
+        }
+
+        input[type=range]::-moz-range-thumb {
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: currentColor;
+            cursor: pointer;
+            border: none;
+        }
+
+        .accent-blue-500::-webkit-slider-thumb {
+            background: #3b82f6;
+        }
+
+        .accent-purple-500::-webkit-slider-thumb {
+            background: #a855f7;
+        }
+
+        .accent-cyan-500::-webkit-slider-thumb {
+            background: #06b6d4;
+        }
+
+        .accent-blue-500::-moz-range-thumb {
+            background: #3b82f6;
+        }
+
+        .accent-purple-500::-moz-range-thumb {
+            background: #a855f7;
+        }
+
+        .accent-cyan-500::-moz-range-thumb {
+            background: #06b6d4;
+        }
+    </style>
+</head>
+
+<body
+    class="min-h-screen bg-slate-950 text-slate-200 flex items-center justify-center p-4 font-sans selection:bg-cyan-900">
+
+    <div
+        class="max-w-4xl w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-10 shadow-2xl shadow-black/50">
+
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-6">
+            <div>
+                <h1 class="text-3xl font-bold text-white flex items-center gap-3">
+                    <svg class="w-8 h-8 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 12h4l2-9 4 18 2-9h4" />
+                    </svg>
+                    Wave Interference & Beats
+                </h1>
+                <p class="text-slate-400 mt-2">Physics demonstration of acoustic wave superposition</p>
+            </div>
+
+            <button id="playBtn"
+                class="flex items-center gap-2 px-8 py-4 rounded-full font-bold text-lg transition-all duration-300 transform active:scale-95 bg-cyan-500 text-slate-950 hover:bg-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.3)]">
+                <svg id="playIcon" class="w-5 h-5 fill-current" viewBox="0 0 24 24" stroke="currentColor"
+                    stroke-width="2">
+                    <polygon points="5 3 19 12 5 21 5 3" />
+                </svg>
+                <span id="playText">PLAY TONE</span>
+            </button>
+        </div>
+
+        <!-- Master Controls Grid -->
+        <div class="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50 flex flex-col md:flex-row gap-8 mb-6">
+            <div class="flex-1">
+                <label class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3 block">Wave
+                    Function</label>
+                <div class="grid grid-cols-4 gap-2">
+                    <button data-wave="sine"
+                        class="wave-btn flex flex-col items-center justify-center p-3 rounded-xl border transition-all bg-cyan-500/20 border-cyan-500 text-cyan-400">
+                        <svg class="w-5 h-5 mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M2 12h4l2-9 4 18 2-9h4" />
+                        </svg>
+                        <span class="text-xs">Sine</span>
+                    </button>
+                    <button data-wave="square"
+                        class="wave-btn flex flex-col items-center justify-center p-3 rounded-xl border transition-all bg-slate-900 border-slate-700 text-slate-500 hover:border-slate-500 hover:text-slate-300">
+                        <svg class="w-5 h-5 mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                        </svg>
+                        <span class="text-xs">Square</span>
+                    </button>
+                    <button data-wave="triangle"
+                        class="wave-btn flex flex-col items-center justify-center p-3 rounded-xl border transition-all bg-slate-900 border-slate-700 text-slate-500 hover:border-slate-500 hover:text-slate-300">
+                        <svg class="w-5 h-5 mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="m3 21 9-18 9 18z" />
+                        </svg>
+                        <span class="text-xs">Tri</span>
+                    </button>
+                    <button data-wave="sawtooth"
+                        class="wave-btn flex flex-col items-center justify-center p-3 rounded-xl border transition-all bg-slate-900 border-slate-700 text-slate-500 hover:border-slate-500 hover:text-slate-300">
+                        <svg class="w-5 h-5 mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                        </svg>
+                        <span class="text-xs">Saw</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex-1">
+                <label
+                    class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center justify-between">
+                    <span>Master Volume</span>
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                        <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                    </svg>
+                </label>
+                <div class="h-full flex items-center pb-2">
+                    <input id="masterVol" type="range" min="0" max="1" step="0.01" value="0.5"
+                        class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-500" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Visualization Canvas -->
+        <div class="bg-slate-950 rounded-2xl p-4 border border-slate-800 mb-6 relative overflow-hidden group">
+            <div class="flex justify-between items-center mb-3 relative z-10">
+                <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider flex items-center gap-2">
+                    <svg class="w-4 h-4 text-cyan-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                    </svg>
+                    Real-time Superposition
+                </span>
+                <span id="windowDisplay" class="text-xs text-slate-500 font-mono tracking-wider">Window: 0.40s</span>
+            </div>
+            <canvas id="waveCanvas" width="800" height="160"
+                class="w-full h-32 md:h-40 bg-slate-900 rounded-xl border border-slate-700/50 relative z-10 shadow-inner"></canvas>
+        </div>
+
+        <!-- Channels Control Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-6 items-stretch relative">
+
+            <!-- Left Channel -->
+            <div class="bg-slate-800/80 rounded-2xl p-6 border border-slate-700 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+                <div class="flex flex-col mb-6 gap-1">
+                    <h2 class="text-xl font-semibold text-white">Left Channel</h2>
+                    <span class="text-5xl lg:text-6xl font-mono text-blue-400 font-bold tracking-tight"><span
+                            id="leftFreqDisplay">200.0</span> <span
+                            class="text-2xl text-slate-500 font-medium">Hz</span></span>
+                </div>
+
+                <input id="leftFreqSlider" type="range" min="20" max="1000" step="0.1" value="200.0"
+                    class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500 mb-6 hover:bg-slate-600 transition-colors" />
+
+                <div class="flex gap-2">
+                    <button data-adj="left" data-val="-1"
+                        class="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-sm">-1 Hz</button>
+                    <button data-adj="left" data-val="-0.1"
+                        class="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-sm">-0.1</button>
+                    <div class="flex-1"></div>
+                    <button data-adj="left" data-val="0.1"
+                        class="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-sm">+0.1</button>
+                    <button data-adj="left" data-val="1"
+                        class="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-sm">+1 Hz</button>
+                </div>
+
+                <div class="mt-6 pt-5 border-t border-slate-700/50">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-sm font-semibold text-slate-400">Channel Volume</span>
+                        <button id="leftMuteBtn"
+                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-bold transition-colors bg-slate-700 text-slate-300 hover:bg-slate-600">
+                            <svg id="leftMuteIcon" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                                <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                                <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                            </svg>
+                            <span id="leftMuteText">MUTE</span>
+                        </button>
+                    </div>
+                    <input id="leftVolSlider" type="range" min="0" max="1" step="0.01" value="1.0"
+                        class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500 transition-all" />
+                </div>
+            </div>
+
+            <!-- Center Controls -->
+            <div class="flex flex-col items-center justify-center py-4 z-10 gap-3">
+                <button id="linkBtn"
+                    class="p-3 rounded-full transition-all bg-slate-800 text-slate-400 border border-slate-700 hover:text-slate-200"
+                    title="Lock frequency difference">
+                    <svg id="linkIcon" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="m18.84 12.25 1.72-1.71h-.01a5.004 5.004 0 0 0-7.07-7.07l-1.72 1.71" />
+                        <path d="m5.17 11.67-1.71 1.71a5.004 5.004 0 0 0 7.07 7.07l1.71-1.71" />
+                        <line x1="8" y1="8" x2="16" y2="16" />
+                    </svg>
+                </button>
+
+                <button id="swapMuteBtn"
+                    class="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800 text-slate-400 border border-slate-700 hover:text-slate-200 transition-all active:scale-95">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="m16 3 4 4-4 4" />
+                        <path d="M20 7H4" />
+                        <path d="m8 21-4-4 4-4" />
+                        <path d="M4 17h16" />
+                    </svg>
+                    <span class="text-xs font-bold uppercase tracking-wider">Mute Swap</span>
+                </button>
+
+                <div class="text-center bg-slate-950 p-4 rounded-xl border border-slate-800 min-w-[140px] mt-2">
+                    <div class="text-xs text-slate-500 uppercase tracking-wider mb-1">Beat Frequency</div>
+                    <div class="text-3xl lg:text-4xl font-mono font-bold text-cyan-400 tracking-tight">
+                        <span id="diffDisplay">5.0</span> <span class="text-lg">Hz</span>
+                    </div>
+                    <div class="text-sm font-semibold mt-1 text-slate-500 font-mono">| f₁ - f₂ |</div>
+                </div>
+            </div>
+
+            <!-- Right Channel -->
+            <div class="bg-slate-800/80 rounded-2xl p-6 border border-slate-700 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-1 h-full bg-purple-500"></div>
+                <div class="flex flex-col mb-6 gap-1">
+                    <h2 class="text-xl font-semibold text-white">Right Channel</h2>
+                    <span class="text-5xl lg:text-6xl font-mono text-purple-400 font-bold tracking-tight"><span
+                            id="rightFreqDisplay">205.0</span> <span
+                            class="text-2xl text-slate-500 font-medium">Hz</span></span>
+                </div>
+
+                <input id="rightFreqSlider" type="range" min="20" max="1000" step="0.1" value="205.0"
+                    class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-purple-500 mb-6 hover:bg-slate-600 transition-colors" />
+
+                <div class="flex gap-2">
+                    <button data-adj="right" data-val="-1"
+                        class="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-sm">-1 Hz</button>
+                    <button data-adj="right" data-val="-0.1"
+                        class="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-sm">-0.1</button>
+                    <div class="flex-1"></div>
+                    <button data-adj="right" data-val="0.1"
+                        class="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-sm">+0.1</button>
+                    <button data-adj="right" data-val="1"
+                        class="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-sm">+1 Hz</button>
+                </div>
+
+                <div class="mt-6 pt-5 border-t border-slate-700/50">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-sm font-semibold text-slate-400">Channel Volume</span>
+                        <button id="rightMuteBtn"
+                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-bold transition-colors bg-slate-700 text-slate-300 hover:bg-slate-600">
+                            <svg id="rightMuteIcon" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2">
+                                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                                <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                                <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                            </svg>
+                            <span id="rightMuteText">MUTE</span>
+                        </button>
+                    </div>
+                    <input id="rightVolSlider" type="range" min="0" max="1" step="0.01" value="1.0"
+                        class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-purple-500 transition-all" />
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Educational Banner -->
+        <div class="mt-8 bg-slate-800/30 rounded-xl p-5 border border-slate-700/50 flex items-start gap-4">
+            <svg class="w-6 h-6 text-cyan-500 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="16" x2="12" y2="12" />
+                <line x1="12" y1="8" x2="12.01" y2="8" />
+            </svg>
+            <div class="text-sm text-slate-400 leading-relaxed">
+                <p class="mb-2">
+                    <strong class="text-slate-200">The Physics of Beats:</strong> When two continuous sound waves of
+                    slightly different frequencies are played together, they interfere with one another. As the waves
+                    fall in and out of phase, they create alternating moments of <strong>constructive
+                        interference</strong> (where their amplitudes add up, making the sound louder) and
+                    <strong>destructive interference</strong> (where they cancel each other out, making the sound
+                    quieter).
+                </p>
+                <p>
+                    This regular pulsing variation in volume is called a <strong>beat</strong>. The mathematical rate at
+                    which these pulses occur—the <em>beat frequency</em>—is exactly equal to the absolute difference
+                    between the two original frequencies (<code
+                        class="bg-slate-800 px-1 py-0.5 rounded text-cyan-400">|f1 - f2|</code>).
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Application State ---
+        const state = {
+            isPlaying: false,
+            leftFreq: 200.0,
+            rightFreq: 205.0,
+            volume: 0.5,
+            waveType: 'sine',
+            leftVolume: 1.0,
+            rightVolume: 1.0,
+            leftMuted: false,
+            rightMuted: false,
+            isLinked: false,
+            lockedDiff: 5.0
+        };
+
+        // --- Audio Nodes ---
+        let audioCtx = null;
+        let leftOsc = null, rightOsc = null;
+        let leftGain = null, rightGain = null;
+
+        // --- SVG Icons ---
+        const ICONS = {
+            play: '<polygon points="5 3 19 12 5 21 5 3"/>',
+            stop: '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>',
+            volOn: '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>',
+            volOff: '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>',
+            link: '<path d="m18.84 12.25 1.72-1.71h-.01a5.004 5.004 0 0 0-7.07-7.07l-1.72 1.71"/><path d="m5.17 11.67-1.71 1.71a5.004 5.004 0 0 0 7.07 7.07l1.71-1.71"/><line x1="8" y1="8" x2="16" y2="16"/>',
+            unlink: '<path d="m18.84 12.25 1.72-1.71h-.01a5.004 5.004 0 0 0-7.07-7.07l-1.72 1.71"/><path d="m5.17 11.67-1.71 1.71a5.004 5.004 0 0 0 7.07 7.07l1.71-1.71"/>'
+        };
+
+        // --- DOM Elements ---
+        const els = {
+            playBtn: document.getElementById('playBtn'),
+            playIcon: document.getElementById('playIcon'),
+            playText: document.getElementById('playText'),
+            waveBtns: document.querySelectorAll('.wave-btn'),
+            masterVol: document.getElementById('masterVol'),
+            canvas: document.getElementById('waveCanvas'),
+            windowDisplay: document.getElementById('windowDisplay'),
+
+            leftFreqDisplay: document.getElementById('leftFreqDisplay'),
+            leftFreqSlider: document.getElementById('leftFreqSlider'),
+            leftVolSlider: document.getElementById('leftVolSlider'),
+            leftMuteBtn: document.getElementById('leftMuteBtn'),
+            leftMuteIcon: document.getElementById('leftMuteIcon'),
+            leftMuteText: document.getElementById('leftMuteText'),
+
+            rightFreqDisplay: document.getElementById('rightFreqDisplay'),
+            rightFreqSlider: document.getElementById('rightFreqSlider'),
+            rightVolSlider: document.getElementById('rightVolSlider'),
+            rightMuteBtn: document.getElementById('rightMuteBtn'),
+            rightMuteIcon: document.getElementById('rightMuteIcon'),
+            rightMuteText: document.getElementById('rightMuteText'),
+
+            linkBtn: document.getElementById('linkBtn'),
+            linkIcon: document.getElementById('linkIcon'),
+            swapMuteBtn: document.getElementById('swapMuteBtn'),
+            diffDisplay: document.getElementById('diffDisplay')
+        };
+
+        const ctx = els.canvas.getContext('2d');
+
+        // --- Core Logic ---
+
+        function updateAudio() {
+            if (!audioCtx || !state.isPlaying) return;
+            const time = audioCtx.currentTime;
+
+            // Use exponential ramping for smoother frequency transitions (prevents zipper noise)
+            if (leftOsc) leftOsc.frequency.setTargetAtTime(state.leftFreq, time, 0.05);
+            if (rightOsc) rightOsc.frequency.setTargetAtTime(state.rightFreq, time, 0.05);
+
+            if (leftOsc) leftOsc.type = state.waveType;
+            if (rightOsc) rightOsc.type = state.waveType;
+
+            const leftTarget = state.leftMuted ? 0.001 : Math.max(state.volume * state.leftVolume * 0.5, 0.001);
+            const rightTarget = state.rightMuted ? 0.001 : Math.max(state.volume * state.rightVolume * 0.5, 0.001);
+
+            if (leftGain) leftGain.gain.setTargetAtTime(leftTarget, time, 0.05);
+            if (rightGain) rightGain.gain.setTargetAtTime(rightTarget, time, 0.05);
+        }
+
+        function renderUI() {
+            // Numbers
+            const beatDiff = Math.abs(state.leftFreq - state.rightFreq);
+            els.leftFreqDisplay.textContent = state.leftFreq.toFixed(1);
+            els.rightFreqDisplay.textContent = state.rightFreq.toFixed(1);
+            els.diffDisplay.textContent = beatDiff.toFixed(1);
+
+            // Sliders
+            els.leftFreqSlider.value = state.leftFreq;
+            els.rightFreqSlider.value = state.rightFreq;
+            els.masterVol.value = state.volume;
+            els.leftVolSlider.value = state.leftVolume;
+            els.rightVolSlider.value = state.rightVolume;
+
+            // Wave Buttons
+            els.waveBtns.forEach(btn => {
+                if (btn.dataset.wave === state.waveType) {
+                    btn.className = "wave-btn flex flex-col items-center justify-center p-3 rounded-xl border transition-all bg-cyan-500/20 border-cyan-500 text-cyan-400";
+                } else {
+                    btn.className = "wave-btn flex flex-col items-center justify-center p-3 rounded-xl border transition-all bg-slate-900 border-slate-700 text-slate-500 hover:border-slate-500 hover:text-slate-300";
+                }
+            });
+
+            // Play Button
+            if (state.isPlaying) {
+                els.playBtn.className = "flex items-center gap-2 px-8 py-4 rounded-full font-bold text-lg transition-all duration-300 transform active:scale-95 bg-red-500/10 text-red-500 border border-red-500/50 hover:bg-red-500/20 shadow-[0_0_20px_rgba(239,68,68,0.2)]";
+                els.playText.textContent = "STOP TONE";
+                els.playIcon.innerHTML = ICONS.stop;
+            } else {
+                els.playBtn.className = "flex items-center gap-2 px-8 py-4 rounded-full font-bold text-lg transition-all duration-300 transform active:scale-95 bg-cyan-500 text-slate-950 hover:bg-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.3)]";
+                els.playText.textContent = "PLAY TONE";
+                els.playIcon.innerHTML = ICONS.play;
+            }
+
+            // Link Button
+            if (state.isLinked) {
+                els.linkBtn.className = "p-3 rounded-full transition-all bg-cyan-500 text-slate-900 shadow-[0_0_15px_rgba(6,182,212,0.4)]";
+                els.linkIcon.innerHTML = ICONS.link;
+            } else {
+                els.linkBtn.className = "p-3 rounded-full transition-all bg-slate-800 text-slate-400 border border-slate-700 hover:text-slate-200";
+                els.linkIcon.innerHTML = ICONS.unlink;
+            }
+
+            // Mute Buttons
+            const updateMuteBtn = (isMuted, btn, icon, text, slider) => {
+                if (isMuted) {
+                    btn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-bold transition-colors bg-red-500/20 text-red-400 hover:bg-red-500/30";
+                    text.textContent = "MUTED";
+                    icon.innerHTML = ICONS.volOff;
+                    slider.classList.add('opacity-30', 'grayscale', 'cursor-not-allowed');
+                    slider.disabled = true;
+                } else {
+                    btn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-bold transition-colors bg-slate-700 text-slate-300 hover:bg-slate-600";
+                    text.textContent = "MUTE";
+                    icon.innerHTML = ICONS.volOn;
+                    slider.classList.remove('opacity-30', 'grayscale', 'cursor-not-allowed');
+                    slider.disabled = false;
+                }
+            };
+
+            updateMuteBtn(state.leftMuted, els.leftMuteBtn, els.leftMuteIcon, els.leftMuteText, els.leftVolSlider);
+            updateMuteBtn(state.rightMuted, els.rightMuteBtn, els.rightMuteIcon, els.rightMuteText, els.rightVolSlider);
+
+            // Window Display
+            const displayDuration = beatDiff > 0 ? Math.min(3.0, Math.max(0.05, 2 / beatDiff)) : 0.05;
+            els.windowDisplay.textContent = `Window: ${displayDuration.toFixed(2)}s`;
+
+            updateAudio();
+        }
+
+        function togglePlay() {
+            if (state.isPlaying) {
+                // Stop
+                if (audioCtx) {
+                    const time = audioCtx.currentTime;
+                    if (leftGain) {
+                        leftGain.gain.setValueAtTime(leftGain.gain.value, time);
+                        leftGain.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
+                    }
+                    if (rightGain) {
+                        rightGain.gain.setValueAtTime(rightGain.gain.value, time);
+                        rightGain.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
+                    }
+                    setTimeout(() => {
+                        if (leftOsc) { leftOsc.stop(); leftOsc.disconnect(); leftOsc = null; }
+                        if (rightOsc) { rightOsc.stop(); rightOsc.disconnect(); rightOsc = null; }
+                        audioCtx.suspend();
+                        state.isPlaying = false;
+                        renderUI();
+                    }, 100);
+                }
+            } else {
+                // Play
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+
+                const time = audioCtx.currentTime;
+
+                const setupChannel = (freq, panValue, targetVol, isMuted) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    const panner = audioCtx.createStereoPanner();
+
+                    osc.type = state.waveType;
+                    osc.frequency.setValueAtTime(freq, time);
+                    panner.pan.value = panValue;
+
+                    osc.connect(gain);
+                    gain.connect(panner);
+                    panner.connect(audioCtx.destination);
+
+                    const targetGain = isMuted ? 0.001 : Math.max(state.volume * targetVol * 0.5, 0.001);
+                    gain.gain.setValueAtTime(0.001, time);
+                    gain.gain.exponentialRampToValueAtTime(targetGain, time + 0.1);
+                    osc.start(time);
+
+                    return { osc, gain };
+                };
+
+                const left = setupChannel(state.leftFreq, -1, state.leftVolume, state.leftMuted);
+                const right = setupChannel(state.rightFreq, 1, state.rightVolume, state.rightMuted);
+
+                leftOsc = left.osc; leftGain = left.gain;
+                rightOsc = right.osc; rightGain = right.gain;
+
+                state.isPlaying = true;
+                renderUI();
+            }
+        }
+
+        // --- State Updaters ---
+        function setLeftFreq(val) {
+            const clamped = Math.max(20, Math.min(1000, val));
+            state.leftFreq = clamped;
+            if (state.isLinked) state.rightFreq = Math.max(20, Math.min(1000, clamped + state.lockedDiff));
+            renderUI();
+        }
+
+        function setRightFreq(val) {
+            const clamped = Math.max(20, Math.min(1000, val));
+            state.rightFreq = clamped;
+            if (state.isLinked) state.leftFreq = Math.max(20, Math.min(1000, clamped - state.lockedDiff));
+            renderUI();
+        }
+
+        // --- Event Listeners ---
+        els.playBtn.addEventListener('click', togglePlay);
+
+        els.waveBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                state.waveType = e.currentTarget.dataset.wave;
+                renderUI();
+            });
+        });
+
+        els.masterVol.addEventListener('input', (e) => { state.volume = parseFloat(e.target.value); renderUI(); });
+        els.leftFreqSlider.addEventListener('input', (e) => setLeftFreq(parseFloat(e.target.value)));
+        els.rightFreqSlider.addEventListener('input', (e) => setRightFreq(parseFloat(e.target.value)));
+
+        document.querySelectorAll('[data-adj]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const side = e.target.dataset.adj;
+                const val = parseFloat(e.target.dataset.val);
+                if (side === 'left') setLeftFreq(state.leftFreq + val);
+                else setRightFreq(state.rightFreq + val);
+            });
+        });
+
+        els.leftVolSlider.addEventListener('input', (e) => { state.leftVolume = parseFloat(e.target.value); renderUI(); });
+        els.rightVolSlider.addEventListener('input', (e) => { state.rightVolume = parseFloat(e.target.value); renderUI(); });
+
+        els.leftMuteBtn.addEventListener('click', () => { state.leftMuted = !state.leftMuted; renderUI(); });
+        els.rightMuteBtn.addEventListener('click', () => { state.rightMuted = !state.rightMuted; renderUI(); });
+
+        els.linkBtn.addEventListener('click', () => {
+            if (!state.isLinked) state.lockedDiff = state.rightFreq - state.leftFreq;
+            state.isLinked = !state.isLinked;
+            renderUI();
+        });
+
+        els.swapMuteBtn.addEventListener('click', () => {
+            const temp = state.leftMuted;
+            state.leftMuted = state.rightMuted;
+            state.rightMuted = temp;
+            renderUI();
+        });
+
+        // --- Canvas Animation & High-DPI Loop ---
+        const getWaveVal = (phase, type) => {
+            const p = phase / (2 * Math.PI);
+            const frac = p - Math.floor(p);
+            if (type === 'sine') return Math.sin(phase);
+            if (type === 'square') return Math.sin(phase) >= 0 ? 1 : -1;
+            if (type === 'triangle') return 2 * Math.abs(2 * (frac - 0.5)) - 1;
+            if (type === 'sawtooth') return 2 * frac - 1;
+            return Math.sin(phase);
+        };
+
+        function resizeCanvas() {
+            const dpr = window.devicePixelRatio || 1;
+            const rect = els.canvas.getBoundingClientRect();
+            els.canvas.width = rect.width * dpr;
+            els.canvas.height = rect.height * dpr;
+            // No need to scale context because we calculate based on canvas.width/height in loop
+        }
+
+        function drawLoop(time) {
+            const width = els.canvas.width;
+            const height = els.canvas.height;
+            const beatDiff = Math.abs(state.leftFreq - state.rightFreq);
+            const leftAmp = state.leftMuted ? 0 : state.leftVolume;
+            const rightAmp = state.rightMuted ? 0 : state.rightVolume;
+
+            ctx.clearRect(0, 0, width, height);
+
+            // Center line
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, height / 2);
+            ctx.lineTo(width, height / 2);
+            ctx.stroke();
+
+            const displayDuration = beatDiff > 0 ? Math.min(3.0, Math.max(0.05, 2 / beatDiff)) : 0.05;
+            const timeInSec = time / 1000;
+            const rightPhaseOffset = 2 * Math.PI * (state.rightFreq - state.leftFreq) * timeInSec;
+
+            ctx.strokeStyle = '#06b6d4';
+            ctx.lineWidth = Math.max(2, window.devicePixelRatio || 1);
+            ctx.beginPath();
+
+            for (let i = 0; i <= width; i++) {
+                const x_t = (i / width) * displayDuration;
+                const phase1 = 2 * Math.PI * state.leftFreq * x_t;
+                const phase2 = 2 * Math.PI * state.rightFreq * x_t + rightPhaseOffset;
+
+                const val1 = getWaveVal(phase1, state.waveType) * leftAmp;
+                const val2 = getWaveVal(phase2, state.waveType) * rightAmp;
+
+                const superposition = (val1 + val2) / 2;
+                const cy = height / 2 - (superposition * (height / 2 - 20));
+
+                if (i === 0) ctx.moveTo(i, cy);
+                else ctx.lineTo(i, cy);
+            }
+
+            ctx.stroke();
+            requestAnimationFrame(drawLoop);
+        }
+
+        // Initialize
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        renderUI();
+        requestAnimationFrame(drawLoop);
+
+    </script>
+</body>
+
+</html>
