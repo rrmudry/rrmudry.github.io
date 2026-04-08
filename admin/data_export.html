@@ -72,6 +72,7 @@
                         <tr class="bg-white/5 text-slate-400 font-black uppercase tracking-tighter">
                             <th class="p-4 border-b border-white/5">Student_ID</th>
                             <th class="p-4 border-b border-white/5">Student_Name</th>
+                            <th class="p-4 border-b border-white/5">Period</th>
                             <th class="p-4 border-b border-white/5">Score</th>
                             <th class="p-4 border-b border-white/5">Date</th>
                         </tr>
@@ -131,6 +132,7 @@
                 <tr class="border-b border-white/5">
                     <td class="p-4 font-mono font-bold text-cyan-400">${r.student_id}</td>
                     <td class="p-4 font-medium text-slate-300 capitalize">${r.student_name}</td>
+                    <td class="p-4 font-bold text-slate-400">P${r.class_period || '?'}</td>
                     <td class="p-4 font-black text-violet-400">${r.score}%</td>
                     <td class="p-4 text-[10px] text-slate-600">${new Date(r.created_at).toLocaleDateString()}</td>
                 </tr>
@@ -157,12 +159,13 @@
             }
 
             // Generate CSV
-            const headers = ["ID", "Signed_At", "Student_Name", "Student_ID", "Assignment", "Score", "Meta_Level", "Meta_Mastery"];
+            const headers = ["ID", "Signed_At", "Student_Name", "Student_ID", "Class_Period", "Assignment", "Score", "Meta_Level", "Meta_Mastery"];
             const rows = data.map(r => [
                 r.id,
                 r.created_at,
                 r.student_name,
                 r.student_id,
+                r.class_period || "",
                 r.assignment_name,
                 r.score,
                 r.details?.level || "",
