@@ -335,6 +335,7 @@
                     const payload = {
                         student_name: user.name,
                         student_id: user.id,
+                        class_period: user.period,
                         assignment_name: "Wave Interference Tutorial",
                         score: currentScore,
                         details: { view: currentView, timestamp: new Date().toISOString() }
@@ -835,10 +836,33 @@
                 if (idInput.length !== 6) return;
                 setStatus("VERIFYING...");
                 try {
-                    const { data } = await sbClient.from('student_results').select('student_name').eq('student_id', idInput).order('created_at', { ascending: false }).limit(1).maybeSingle();
-                    if (data) { setUser({ id: idInput, name: data.student_name }); }
+                    // Check URL for period
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const urlPeriod = urlParams.get('p') || urlParams.get('period');
+
+                    const { data } = await sbClient.from('student_results')
+                        .select('student_name, class_period')
+                        .eq('student_id', idInput)
+                        .order('created_at', { ascending: false })
+                        .limit(1)
+                        .maybeSingle();
+
+                    if (data) { 
+                        setUser({ 
+                            id: idInput, 
+                            name: data.student_name,
+                            period: urlPeriod || data.class_period || null
+                        }); 
+                    }
                     else if (!showNameEntry) { setShowNameEntry(true); setStatus("NEW_ID_DETECTED"); }
-                    else { if (nameInput.length < 3) return; setUser({ id: idInput, name: nameInput }); }
+                    else { 
+                        if (nameInput.length < 3) return; 
+                        setUser({ 
+                            id: idInput, 
+                            name: nameInput,
+                            period: urlPeriod || null
+                        }); 
+                    }
                 } catch (e) { setStatus("CONNECTION_ERROR"); }
             };
 

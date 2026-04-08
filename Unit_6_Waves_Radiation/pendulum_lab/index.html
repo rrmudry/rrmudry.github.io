@@ -258,6 +258,7 @@
         const state = {
             id: '',
             name: '',
+            period: null,
             length: 1.0,
             trials: [],
             swActive: false,
@@ -301,11 +302,21 @@
             status.textContent = "VERIFYING_CREDENTIALS...";
 
             try {
-                const { data } = await sbClient.from('student_results').select('student_name').eq('student_id', id).order('created_at', { ascending: false }).limit(1).maybeSingle();
+                // Check URL for period
+                const urlParams = new URLSearchParams(window.location.search);
+                const urlPeriod = urlParams.get('p') || urlParams.get('period');
+
+                const { data } = await sbClient.from('student_results')
+                    .select('student_name, class_period')
+                    .eq('student_id', id)
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .maybeSingle();
 
                 if (data) {
                     state.name = data.student_name;
                     state.id = id;
+                    state.period = urlPeriod || data.class_period || null;
                     // Load existing work
                     const { data: assignmentData } = await sbClient.from('student_results').select('details').eq('student_id', id).eq('assignment_name', "Pendulum Mastery Lab").maybeSingle();
                     if (assignmentData && assignmentData.details && assignmentData.details.trials) {
@@ -322,6 +333,8 @@
                     if (name.length < 3) return;
                     state.name = name;
                     state.id = id;
+                    // Assign period from URL for new user
+                    state.period = urlPeriod || null;
                     finalizeLogin();
                 }
             } catch (e) {
@@ -731,7 +744,10 @@
                 if (state.step === 4) score = 100;
 
                 const payload = {
-                    student_name: state.name, student_id: state.id, assignment_name: name,
+                    student_name: state.name, 
+                    student_id: state.id, 
+                    class_period: state.period,
+                    assignment_name: name,
                     score: score,
                     details: { trials: state.trials, step: state.step, ts: new Date().toISOString() }
                 };
