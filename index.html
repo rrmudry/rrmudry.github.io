@@ -120,6 +120,47 @@
         bottom: 1.5rem;
       }
     }
+    .banner-nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: white;
+      width: 50px;
+      height: 80px;
+      cursor: pointer;
+      z-index: 40;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .banner-window:hover .banner-nav-btn {
+      opacity: 1;
+    }
+    .banner-nav-btn:hover {
+      background: rgba(15, 23, 42, 0.7);
+      border-color: var(--accent-neon);
+      width: 60px;
+    }
+    .banner-nav-btn.prev {
+      left: 0;
+      border-radius: 0 12px 12px 0;
+    }
+    .banner-nav-btn.next {
+      right: 0;
+      border-radius: 12px 0 0 12px;
+    }
+    .banner-nav-btn svg {
+      width: 28px;
+      height: 28px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+    }
   </style>
 </head>
 
@@ -248,9 +289,13 @@
           <!-- Progress Bar & Nav -->
           <div class="progress-timer" id="banner-timer"></div>
           
-          <!-- Manual Controls -->
-          <button onclick="moveBanner(-1)" class="carousel-nav-btn" style="position: absolute; left: 1.5rem; top: 50%; transform: translateY(-50%); opacity: 0.6; width: 40px; height: 40px; font-size: 1.2rem;">←</button>
-          <button onclick="moveBanner(1)" class="carousel-nav-btn" style="position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%); opacity: 0.6; width: 40px; height: 40px; font-size: 1.2rem;">→</button>
+          <!-- Manual Controls (Sleek SVGs) -->
+          <button onclick="moveBanner(-1)" class="banner-nav-btn prev" aria-label="Previous Lab">
+            <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <button onclick="moveBanner(1)" class="banner-nav-btn next" aria-label="Next Lab">
+            <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
 
           <div class="banner-nav">
               <span class="carousel-dot active" style="width: 12px; height: 12px; border-radius: 50%; cursor: pointer;" onclick="jumpTobanner(0)"></span>
