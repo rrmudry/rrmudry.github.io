@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruben's Tube Simulator // Unit 6</title>
+    
+    <!-- Dependencies -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #020617; /* slate-950 */
+        }
+        canvas {
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -webkit-crisp-edges;
+            image-rendering: pixelated;
+        }
+        /* Custom range slider styling to match the premium look */
+        input[type=range] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            background: currentColor;
+            cursor: pointer;
+            -webkit-appearance: none;
+            appearance: none;
+            margin-top: -5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+        const { 
+            Play, Pause, Volume2, Wind, Flame, Info, Activity, VolumeX, Plus, Minus 
+        } = lucide;
+
+        // Lucid Icon Wrapper for Babel Standalone
+        const Icon = ({ name, size = 20, className = "" }) => {
+            const iconRef = useRef(null);
+            useEffect(() => {
+                if (window.lucide && iconRef.current) {
+                    iconRef.current.innerHTML = `<i data-lucide="${name}"></i>`;
+                    window.lucide.createIcons({
+                        targets: [iconRef.current.firstElementChild],
+                        attrs: {
+                            'stroke-width': 2,
+                            'width': size,
+                            'height': size
+                        }
+                    });
+                }
+            }, [name, size]);
+            return <span ref={iconRef} className={`inline-flex items-center justify-center ${className}`}></span>;
+        };
+
+        function App() {
+            const [frequency, setFrequency] = useState(300); // Base resonant frequency
+            const [volume, setVolume] = useState(50);
+            const [basePressure, setBasePressure] = useState(30);
+            const [isPlaying, setIsPlaying] = useState(false);
+            const [showWave, setShowWave] = useState(true);
+
+            const canvasRef = useRef(null);
+            const audioCtxRef = useRef(null);
+            const oscRef = useRef(null);
+            const gainRef = useRef(null);
+            const animationRef = useRef(null);
+
+            // Constants for the physical model
+            const TUBE_Y = 300;
+            const TUBE_HEIGHT = 50;
+            const NUM_HOLES = 100;
+            const CANVAS_WIDTH = 1200;
+            const CANVAS_HEIGHT = 450;
+            const FUNDAMENTAL_FREQ = 100; // 100Hz = 1 full wave (2 nodes)
+
+            // Initialize and control Audio
+            useEffect(() => {
+                if (isPlaying) {
+                    if (!audioCtxRef.current) {
+                        const AudioContext = window.AudioContext || window.webkitAudioContext;
+                        audioCtxRef.current = new AudioContext();
+                        oscRef.current = audioCtxRef.current.createOscillator();
+                        gainRef.current = audioCtxRef.current.createGain();
+
+                        oscRef.current.type = 'sine';
+                        oscRef.current.connect(gainRef.current);
+                        gainRef.current.connect(audioCtxRef.current.destination);
+                        oscRef.current.start();
+                    }
+
+                    // Keep volume low (0.1 max gain)
+                    const targetGain = (volume / 100) * 0.1;
+                    gainRef.current.gain.setTargetAtTime(targetGain, audioCtxRef.current.currentTime, 0.05);
+                    oscRef.current.frequency.setTargetAtTime(frequency, audioCtxRef.current.currentTime, 0.05);
+                } else {
+                    if (gainRef.current) {
+                        gainRef.current.gain.setTargetAtTime(0, audioCtxRef.current.currentTime, 0.05);
+                    }
+                }
+            }, [isPlaying, frequency, volume]);
+
+            // Clean up audio on unmount
+            useEffect(() => {
+                return () => {
+                    if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
+                        audioCtxRef.current.close();
+                    }
+                    if (animationRef.current) {
+                        cancelAnimationFrame(animationRef.current);
+                    }
+                };
+            }, []);
+
+            // Main Simulation Loop
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                let time = 0;
+
+                const render = () => {
+                    time += 0.05;
+
+                    // Clear canvas
+                    ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+                    ctx.fillStyle = '#0f172a'; // slate-900 background
+                    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+                    // Physics calculations
+                    const w = frequency / FUNDAMENTAL_FREQ;
+                    const resonance = 1 / (1 + 25 * Math.pow(Math.sin(Math.PI * w), 2));
+
+                    const tubeLeft = 100;
+                    const tubeRight = CANVAS_WIDTH - 100;
+                    const tubeWidth = tubeRight - tubeLeft;
+
+                    // Draw Tube Pipe
+                    const tubeGradient = ctx.createLinearGradient(0, TUBE_Y, 0, TUBE_Y + TUBE_HEIGHT);
+                    tubeGradient.addColorStop(0, '#475569'); // slate-600
+                    tubeGradient.addColorStop(0.5, '#94a3b8'); // slate-400
+                    tubeGradient.addColorStop(1, '#334155'); // slate-700
+                    ctx.fillStyle = tubeGradient;
+                    ctx.fillRect(tubeLeft, TUBE_Y, tubeWidth, TUBE_HEIGHT);
+
+                    // Draw the Pressure Wave (Educational View)
+                    if (showWave && isPlaying) {
+                        // Main Wave
+                        ctx.beginPath();
+                        for (let x = 0; x <= tubeWidth; x += 2) {
+                            const normalizedX = x / tubeWidth;
+                            const envelope = Math.cos(Math.PI * w * normalizedX);
+                            const oscillation = Math.cos(time * 3);
+                            const waveAmplitude = (volume / 100) * 40 * resonance;
+                            const y = TUBE_Y + (TUBE_HEIGHT / 2) + envelope * oscillation * waveAmplitude;
+                            
+                            if (x === 0) ctx.moveTo(tubeLeft + x, y);
+                            else ctx.lineTo(tubeLeft + x, y);
+                        }
+                        ctx.strokeStyle = 'rgba(100, 200, 255, 0.8)';
+                        ctx.lineWidth = 3;
+                        ctx.stroke();
+
+                        // Envelope bounds
+                        ctx.beginPath();
+                        for (let x = 0; x <= tubeWidth; x += 5) {
+                            const normalizedX = x / tubeWidth;
+                            const envelope = Math.abs(Math.cos(Math.PI * w * normalizedX));
+                            const waveAmplitude = (volume / 100) * 40 * resonance;
+                            const y = TUBE_Y + (TUBE_HEIGHT / 2) - envelope * waveAmplitude;
+                            
+                            if (x === 0) ctx.moveTo(tubeLeft + x, y);
+                            else ctx.lineTo(tubeLeft + x, y);
+                        }
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                        ctx.setLineDash([5, 5]);
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+                    }
+
+                    // Draw Speaker on the left
+                    ctx.fillStyle = '#1e293b';
+                    ctx.fillRect(tubeLeft - 40, TUBE_Y - 10, 40, TUBE_HEIGHT + 20);
+                    
+                    const coneOffset = isPlaying ? Math.sin(time * frequency * 0.1) * (volume / 100) * 3 : 0;
+                    ctx.beginPath();
+                    ctx.moveTo(tubeLeft, TUBE_Y);
+                    ctx.lineTo(tubeLeft - 20 + coneOffset, TUBE_Y - 5);
+                    ctx.lineTo(tubeLeft - 20 + coneOffset, TUBE_Y + TUBE_HEIGHT + 5);
+                    ctx.lineTo(tubeLeft, TUBE_Y + TUBE_HEIGHT);
+                    ctx.fillStyle = '#334155';
+                    ctx.fill();
+                    ctx.strokeStyle = '#0f172a';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+
+                    // Draw End Cap on the right
+                    ctx.fillStyle = '#1e293b';
+                    ctx.fillRect(tubeRight, TUBE_Y - 5, 10, TUBE_HEIGHT + 10);
+
+                    // Draw Flames and Holes
+                    const spacing = tubeWidth / NUM_HOLES;
+                    for (let i = 0; i < NUM_HOLES; i++) {
+                        const x = tubeLeft + (i + 0.5) * spacing;
+                        const normalizedX = i / (NUM_HOLES - 1);
+                        
+                        // Draw physical hole
+                        ctx.fillStyle = '#0f172a';
+                        ctx.beginPath();
+                        ctx.ellipse(x, TUBE_Y + 5, 3, 1.5, 0, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        // Calculate Flame Height
+                        let flameHeight = basePressure;
+                        if (isPlaying) {
+                            const envelope = Math.abs(Math.cos(Math.PI * w * normalizedX));
+                            flameHeight += envelope * resonance * (volume * 1.8);
+                        }
+                        
+                        const flicker = Math.sin(time * 5 + i * 0.5) * (flameHeight * 0.1) + Math.random() * 2;
+                        const currentHeight = Math.max(5, flameHeight + flicker);
+
+                        // Draw Flame
+                        ctx.globalCompositeOperation = 'lighter';
+                        const grad = ctx.createLinearGradient(0, TUBE_Y, 0, TUBE_Y - currentHeight);
+                        grad.addColorStop(0, 'rgba(50, 150, 255, 0.9)');
+                        grad.addColorStop(0.2, 'rgba(255, 200, 50, 0.9)');
+                        grad.addColorStop(0.6, 'rgba(255, 50, 0, 0.6)');
+                        grad.addColorStop(1, 'rgba(255, 0, 0, 0)');
+                        
+                        ctx.fillStyle = grad;
+                        ctx.beginPath();
+                        ctx.moveTo(x - 3, TUBE_Y);
+                        ctx.quadraticCurveTo(x - 4, TUBE_Y - currentHeight * 0.5, x, TUBE_Y - currentHeight);
+                        ctx.quadraticCurveTo(x + 4, TUBE_Y - currentHeight * 0.5, x + 3, TUBE_Y);
+                        ctx.closePath();
+                        ctx.fill();
+                        ctx.globalCompositeOperation = 'source-over';
+                    }
+
+                    animationRef.current = requestAnimationFrame(render);
+                };
+
+                render();
+                return () => cancelAnimationFrame(animationRef.current);
+            }, [frequency, volume, basePressure, isPlaying, showWave]);
+
+            return (
+                <div className="min-h-screen bg-slate-950 text-slate-200 p-6 font-sans flex flex-col items-center">
+                    {/* Header */}
+                    <div className="w-full max-w-6xl mb-8 text-center">
+                        <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 mb-2">
+                            Ruben's Tube Simulator
+                        </h1>
+                        <p className="text-slate-400 max-w-2xl mx-auto">
+                            Visualize acoustic standing waves using fire. Sound waves create zones of high and low pressure, forcing varying amounts of flammable gas through holes in the tube.
+                        </p>
+                    </div>
+
+                    <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-4 gap-6">
+                        {/* Main Canvas Area */}
+                        <div className="lg:col-span-3 bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl relative">
+                            <canvas 
+                                ref={canvasRef} 
+                                width={CANVAS_WIDTH} 
+                                height={CANVAS_HEIGHT} 
+                                className="w-full h-auto block"
+                                style={{ aspectRatio: `${CANVAS_WIDTH}/${CANVAS_HEIGHT}` }} 
+                            />
+
+                            {/* Overlay Status */}
+                            <div className="absolute top-4 left-4 flex gap-3">
+                                <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-2 ${isPlaying ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-slate-800/50 text-slate-500'}`}>
+                                    {isPlaying ? <Icon name="Volume2" size={14} /> : <Icon name="VolumeX" size={14} />}
+                                    {isPlaying ? 'Audio Active' : 'Muted'}
+                                </div>
+                                <div className="px-3 py-1 bg-slate-800/80 backdrop-blur rounded-full text-xs font-mono text-cyan-400 border border-slate-700">
+                                    {frequency} Hz
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Controls Panel */}
+                        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col gap-6 shadow-xl">
+                            {/* Master Play Button */}
+                            <button 
+                                onClick={() => setIsPlaying(!isPlaying)}
+                                className={`w-full py-4 rounded-xl flex items-center justify-center gap-2 font-bold text-lg transition-all ${isPlaying ? 'bg-red-500/10 text-red-400 border border-red-500/50 hover:bg-red-500/20' : 'bg-emerald-500 text-slate-950 hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)]'}`}
+                            >
+                                {isPlaying ? (
+                                    <>
+                                        <Icon name="Pause" size={24} /> Stop Tone
+                                    </>
+                                ) : (
+                                    <>
+                                        <Icon name="Play" size={24} /> Start Tone
+                                    </>
+                                )}
+                            </button>
+
+                            {/* Sliders */}
+                            <div className="space-y-5">
+                                {/* Frequency Control */}
+                                <div className="space-y-2">
+                                    <div className="flex justify-between items-center mb-1">
+                                        <label className="text-sm font-medium flex items-center gap-2 text-slate-300">
+                                            <Icon name="Activity" size={16} className="text-cyan-400" />
+                                            Frequency (Hz)
+                                        </label>
+                                        <span className="text-xs font-mono text-cyan-400">{frequency}</span>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <button 
+                                            onClick={() => setFrequency(prev => Math.max(100, prev - 1))}
+                                            className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors border border-slate-700 shadow-sm"
+                                        >
+                                            <Icon name="Minus" size={14} />
+                                        </button>
+                                        <input 
+                                            type="range" 
+                                            min="100" 
+                                            max="1000" 
+                                            step="1" 
+                                            value={frequency} 
+                                            onChange={(e) => setFrequency(Number(e.target.value))}
+                                            className="flex-1 accent-cyan-400 bg-slate-800 rounded-lg h-2 appearance-none cursor-pointer" 
+                                        />
+                                        <button 
+                                            onClick={() => setFrequency(prev => Math.min(1000, prev + 1))}
+                                            className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors border border-slate-700 shadow-sm"
+                                        >
+                                            <Icon name="Plus" size={14} />
+                                        </button>
+                                    </div>
+                                    <div className="flex justify-between text-[10px] text-slate-500 mt-1 px-1">
+                                        <span>100</span>
+                                        <span>Resonant at multiples of 100</span>
+                                        <span>1000</span>
+                                    </div>
+                                </div>
+
+                                {/* Volume Control */}
+                                <div className="space-y-2">
+                                    <div className="flex justify-between items-center mb-1">
+                                        <label className="text-sm font-medium flex items-center gap-2 text-slate-300">
+                                            <Icon name="Volume2" size={16} className="text-emerald-400" />
+                                            Amplitude (Volume)
+                                        </label>
+                                        <span className="text-xs font-mono text-emerald-400">{volume}%</span>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <button 
+                                            onClick={() => setVolume(prev => Math.max(0, prev - 1))}
+                                            className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors border border-slate-700 shadow-sm"
+                                        >
+                                            <Icon name="Minus" size={14} />
+                                        </button>
+                                        <input 
+                                            type="range" 
+                                            min="0" 
+                                            max="100" 
+                                            value={volume} 
+                                            onChange={(e) => setVolume(Number(e.target.value))}
+                                            className="flex-1 accent-emerald-400 bg-slate-800 rounded-lg h-2 appearance-none cursor-pointer" 
+                                        />
+                                        <button 
+                                            onClick={() => setVolume(prev => Math.min(100, prev + 1))}
+                                            className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors border border-slate-700 shadow-sm"
+                                        >
+                                            <Icon name="Plus" size={14} />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Gas Pressure Control */}
+                                <div className="space-y-2">
+                                    <div className="flex justify-between items-center mb-1">
+                                        <label className="text-sm font-medium flex items-center gap-2 text-slate-300">
+                                            <Icon name="Wind" size={16} className="text-orange-400" />
+                                            Base Gas Pressure
+                                        </label>
+                                        <span className="text-xs font-mono text-orange-400">{basePressure}</span>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <button 
+                                            onClick={() => setBasePressure(prev => Math.max(10, prev - 1))}
+                                            className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors border border-slate-700 shadow-sm"
+                                        >
+                                            <Icon name="Minus" size={14} />
+                                        </button>
+                                        <input 
+                                            type="range" 
+                                            min="10" 
+                                            max="80" 
+                                            value={basePressure} 
+                                            onChange={(e) => setBasePressure(Number(e.target.value))}
+                                            className="flex-1 accent-orange-400 bg-slate-800 rounded-lg h-2 appearance-none cursor-pointer" 
+                                        />
+                                        <button 
+                                            onClick={() => setBasePressure(prev => Math.min(80, prev + 1))}
+                                            className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors border border-slate-700 shadow-sm"
+                                        >
+                                            <Icon name="Plus" size={14} />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Toggles */}
+                            <div className="pt-4 border-t border-slate-800">
+                                <label className="flex items-center gap-3 cursor-pointer group">
+                                    <div className="relative">
+                                        <input 
+                                            type="checkbox" 
+                                            checked={showWave} 
+                                            onChange={(e) => setShowWave(e.target.checked)}
+                                            className="sr-only"
+                                        />
+                                        <div className={`block w-10 h-6 rounded-full transition-colors ${showWave ? 'bg-indigo-500' : 'bg-slate-700'}`}></div>
+                                        <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${showWave ? 'translate-x-4' : ''}`}></div>
+                                    </div>
+                                    <span className="text-sm text-slate-300 group-hover:text-white transition-colors flex items-center gap-2">
+                                        <Icon name="Wind" size={16} /> Show Pressure Wave
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Educational Information */}
+                    <div className="w-full max-w-6xl mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="bg-slate-900/50 p-5 rounded-xl border border-slate-800/50">
+                            <h3 className="text-orange-400 font-bold mb-2 flex items-center gap-2">
+                                <Icon name="Flame" size={18} /> How it Works
+                            </h3>
+                            <p className="text-sm text-slate-400 leading-relaxed">
+                                A speaker on one end pushes air into a sealed tube filled with flammable gas. The sound creates a pressure wave inside. When gas escapes through holes at the top, it burns higher where the pressure is highest.
+                            </p>
+                        </div>
+                        <div className="bg-slate-900/50 p-5 rounded-xl border border-slate-800/50">
+                            <h3 className="text-cyan-400 font-bold mb-2 flex items-center gap-2">
+                                <Icon name="Activity" size={18} /> Nodes & Antinodes
+                            </h3>
+                            <p className="text-sm text-slate-400 leading-relaxed">
+                                The high points of the flames correspond to pressure <strong>antinodes</strong> (maximum pressure variation). The low points correspond to pressure <strong>nodes</strong> (minimum variation).
+                            </p>
+                        </div>
+                        <div className="bg-slate-900/50 p-5 rounded-xl border border-slate-800/50">
+                            <h3 className="text-emerald-400 font-bold mb-2 flex items-center gap-2">
+                                <Icon name="Info" size={18} /> Resonance
+                            </h3>
+                            <p className="text-sm text-slate-400 leading-relaxed">
+                                Standing waves only form distinctly at specific <strong>resonant frequencies</strong>. In this simulation, try setting the frequency exactly to 200, 300, 400, etc. to see perfect wave formations!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        const rootBuffer = document.getElementById('root');
+        const root = ReactDOM.createRoot(rootBuffer);
+        root.render(<App />);
+    </script>
+</body>
+</html>
