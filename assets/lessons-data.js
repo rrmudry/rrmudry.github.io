@@ -233,6 +233,7 @@ const lessonsData = [
     summary: "Modeling standing waves and nodes using fire and sound in the Ruben's Tube demonstration.",
     details: "Physics of musical instruments, harmonics, and natural frequency. Demonstrating standing waves with the Ruben's Tube.",
     type: "Activity",
+    links: { "Ruben's Tube Simulator": "Unit_6_Waves_Radiation/Rubens_Tube_Sim/Rubens_Tube_Sim.html" },
     dok: 3,
     semester: 2,
     isFeatured: true,
@@ -251,7 +252,11 @@ const lessonsData = [
     summary: "Mapping 'dead spots' and 'loud spots' in sound and light.",
     details: "Detailed study of phase relationships and their effect on wave amplitude.",
     type: "Activity",
-    links: { "Wave Interference Tutorial": "Unit_6_Waves_Radiation/Wave_Interference_Tutorial/Wave_Interference_tutorial.html" },
+    links: { 
+      "Wave Interference Tutorial": "Unit_6_Waves_Radiation/Wave_Interference_Tutorial/Wave_Interference_tutorial.html",
+      "Wave Interference & Beats": "Unit_6_Waves_Radiation/Wave_Beat_Generator/Wave_Beat_Generator.html",
+      "Lesson Slides: Phase & Interference": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQBTUZf19lWfSK5U3EdpOBeAAaDCdeqiOiYePW5FTtIJU8Q?e=y7gOye"
+    },
     dok: 2,
     semester: 2,
     isFeatured: true,
