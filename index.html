@@ -247,6 +247,11 @@
 
           <!-- Progress Bar & Nav -->
           <div class="progress-timer" id="banner-timer"></div>
+          
+          <!-- Manual Controls -->
+          <button onclick="moveBanner(-1)" class="carousel-nav-btn" style="position: absolute; left: 1.5rem; top: 50%; transform: translateY(-50%); opacity: 0.6; width: 40px; height: 40px; font-size: 1.2rem;">←</button>
+          <button onclick="moveBanner(1)" class="carousel-nav-btn" style="position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%); opacity: 0.6; width: 40px; height: 40px; font-size: 1.2rem;">→</button>
+
           <div class="banner-nav">
               <span class="carousel-dot active" style="width: 12px; height: 12px; border-radius: 50%; cursor: pointer;" onclick="jumpTobanner(0)"></span>
               <span class="carousel-dot" style="width: 12px; height: 12px; border-radius: 50%; cursor: pointer;" onclick="jumpTobanner(1)"></span>
@@ -463,6 +468,13 @@
     function rotateBanner() {
       currentBannerSlide = (currentBannerSlide + 1) % bannerSlides.length;
       updateBanner();
+    }
+
+    function moveBanner(direction) {
+      if (!bannerSlides.length) return;
+      currentBannerSlide = (currentBannerSlide + direction + bannerSlides.length) % bannerSlides.length;
+      updateBanner();
+      resetBannerTimer();
     }
 
     function jumpTobanner(index) {
