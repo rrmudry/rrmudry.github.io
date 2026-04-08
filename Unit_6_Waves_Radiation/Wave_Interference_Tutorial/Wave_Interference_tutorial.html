@@ -250,6 +250,7 @@
             const [currentView, setCurrentView] = useState('intro');
             const [params, setParams] = useState(generateParams());
             const displayStage = currentView.includes('1') ? 1 : currentView.includes('2') ? 2 : currentView.includes('3') ? 3 : 0;
+            const sidebarRef = useRef(null);
 
             // --- ALL STATE FROM ORIGINAL ---
             const [overlapAchieved, setOverlapAchieved] = useState(false);
@@ -278,6 +279,16 @@
             const [s3Status, setS3Status] = useState('building');
             const [s3Feedback, setS3Feedback] = useState('');
 
+            // Auto-scroll sidebar when status changes
+            useEffect(() => {
+                if (sidebarRef.current) {
+                    sidebarRef.current.scrollTo({
+                        top: sidebarRef.current.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                }
+            }, [s1Q1Status, s1Q2Status, s1DrillStatus, s1DrillStreak, s2Q1Status, s2Q2Status, s3Step, s3Status, currentView]);
+
             useEffect(() => {
                 if (s1Q1Status === 'unlocked') {
                     const el = document.getElementById('s1q1-input');
@@ -300,8 +311,27 @@
                 if (!user || !user.id) return;
                 const scores = { 'intro': 5, 'stage1': 20, 'stage1_drill': 35, 'review1': 50, 'stage2': 65, 'review2': 80, 'stage3': 95, 'completed': 100 };
                 const currentScore = scores[currentView] || 0;
+                const indicator = document.getElementById('sync-indicator');
+                
                 try {
-                    const { data: existing } = await sbClient.from('student_results').select('id').eq('student_id', user.id).eq('assignment_name', "Wave Interference Tutorial").maybeSingle();
+                    if (indicator) indicator.innerText = "Syncing...";
+                    
+                    // Check for existing record and its score
+                    const { data: existing, error: fetchError } = await sbClient
+                        .from('student_results')
+                        .select('id, score')
+                        .eq('student_id', user.id)
+                        .eq('assignment_name', "Wave Interference Tutorial")
+                        .maybeSingle();
+
+                    if (fetchError) throw fetchError;
+
+                    // If existing score is already higher or equal, don't overwrite (prevent regression)
+                    if (existing && existing.score >= currentScore) {
+                        if (indicator) indicator.innerText = "Saved";
+                        return;
+                    }
+
                     const payload = {
                         student_name: user.name,
                         student_id: user.id,
@@ -309,15 +339,23 @@
                         score: currentScore,
                         details: { view: currentView, timestamp: new Date().toISOString() }
                     };
-                    if (existing) await sbClient.from('student_results').update(payload).eq('id', existing.id);
-                    else await sbClient.from('student_results').insert([payload]);
-                    document.getElementById('sync-indicator').innerText = "VITAL_SYNC_ACTIVE";
+
+                    let result;
+                    if (existing) {
+                        result = await sbClient.from('student_results').update(payload).eq('id', existing.id);
+                    } else {
+                        result = await sbClient.from('student_results').insert([payload]);
+                    }
+
+                    if (result.error) throw result.error;
+                    if (indicator) indicator.innerText = "Saved";
                 } catch (e) {
                     console.error("Sync Error:", e);
-                    document.getElementById('sync-indicator').innerText = "SYNC_ERROR";
+                    if (indicator) indicator.innerText = "Sync Error";
                 }
             };
 
+            const sidebarRefInternal = useRef(null);
             const canvasRef = useRef(null);
             const simTimeRef = useRef(0);
             const isPlayingRef = useRef(false);
@@ -458,7 +496,7 @@
                                     </div>
                                 ))}
                                 </div>
-                                <div id="sync-indicator" className="text-[9px] font-black text-slate-400 uppercase tracking-widest">establishing_link...</div>
+                                <div id="sync-indicator" className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Ready</div>
                             </div>
                         </header>
 
@@ -472,8 +510,8 @@
                                     <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
                                         <div className="relative w-full aspect-[8/3.5] bg-slate-50 rounded-lg overflow-hidden border border-slate-200">
                                             <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} className="w-full h-full object-contain" />
-                                            {currentView === 'stage1' && s1Q1Status === 'locked' && !isPlaying && <div className={`absolute top-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full text-sm font-medium bg-amber-100 text-amber-700`}>Task 1: Overlap the peaks!</div>}
-                                            {currentView === 'stage2' && s2Q1Status === 'locked' && !isPlaying && <div className={`absolute top-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full text-sm font-medium bg-amber-100 text-amber-700`}>Task 1: Pause at overlap!</div>}
+                                            {currentView === 'stage1' && s1Q1Status === 'locked' && !isPlaying && <div className={`absolute top-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full text-sm font-medium bg-amber-100 text-amber-700`}>Align peaks!</div>}
+                                            {currentView === 'stage2' && s2Q1Status === 'locked' && !isPlaying && <div className={`absolute top-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full text-sm font-medium bg-amber-100 text-amber-700`}>Pause at peak!</div>}
                                         </div>
                                         <div className="flex flex-wrap items-center justify-between mt-4 gap-4 p-2 bg-slate-100 rounded-lg">
                                             <div className="flex gap-2">
@@ -487,14 +525,58 @@
                                     {currentView === 'stage1' && <div className="flex justify-center items-center gap-8 p-6 bg-blue-50 rounded-xl border border-blue-100"><div className="text-center"><span className="block text-xs text-blue-600 uppercase font-bold">Left Pulse</span><span className="text-lg font-bold">A = {params.s1_leftA}</span></div><button onClick={() => { fireLeft(params.s1_leftA, 3); fireRight(params.s1_rightA, 3); }} disabled={pulsesRef.current.length > 0} className="px-8 py-3 bg-indigo-600 text-white font-bold rounded-lg shadow-md hover:bg-indigo-700 disabled:opacity-50">Send Both Pulses</button><div className="text-center"><span className="block text-xs text-blue-600 uppercase font-bold">Right Pulse</span><span className="text-lg font-bold">A = {params.s1_rightA}</span></div></div>}
                                     {currentView === 'stage1_drill' && <div className="flex justify-center items-center p-6 bg-indigo-50 rounded-xl border border-indigo-100"><p className="text-indigo-700 font-medium flex items-center gap-2"><Icon name="target" /> Prediction Mode Active</p></div>}
                                     {currentView === 'stage2' && <div className="flex justify-center items-center gap-8 p-6 bg-purple-50 rounded-xl border border-purple-100"><div className="text-center"><span className="block text-xs text-purple-600 uppercase font-bold">Upward</span><span className="text-lg font-bold">A = {params.s2_leftA}</span></div><button onClick={() => { fireLeft(params.s2_leftA, 3); fireRight(params.s2_rightA, 3); }} disabled={pulsesRef.current.length > 0} className="px-8 py-3 bg-purple-600 text-white font-bold rounded-lg shadow-md hover:bg-purple-700 disabled:opacity-50">Send Both Pulses</button><div className="text-center"><span className="block text-xs text-purple-600 uppercase font-bold">Inverted</span><span className="text-lg font-bold">A = {params.s2_rightA}</span></div></div>}
-                                    {currentView === 'stage3' && <div className="grid grid-cols-2 gap-4"><div className="p-4 bg-slate-100 rounded-xl border border-slate-200"><h3 className="font-semibold text-slate-700 mb-2">Target (Left)</h3><p className="text-sm">Amplitude: {params.s3_targetA}</p><p className="text-sm">Width: {params.s3_targetW}</p></div><div className="p-4 bg-indigo-50 rounded-xl border border-indigo-200"><h3 className="font-semibold text-indigo-800 mb-4">You (Right)</h3><div className="space-y-4"><div><label className="flex justify-between text-sm font-medium text-indigo-900 mb-1"><span>Amplitude</span><span>{s3UserA}</span></label><input type="range" min="-8" max="8" step="1" value={s3UserA} onChange={e => setS3UserA(e.target.value)} disabled={s3Status === 'testing' || s3Status === 'correct'} className="w-full accent-indigo-600" /></div><div><label className="flex justify-between text-sm font-medium text-indigo-900 mb-1"><span>Width</span><span>{s3UserW}</span></label><input type="range" min="1" max="6" step="0.1" value={s3UserW} onChange={e => setS3UserW(e.target.value)} disabled={s3Status === 'testing' || s3Status === 'correct'} className="w-full accent-indigo-600" /></div></div></div></div>}
+                                    {currentView === 'stage3' && (
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="p-4 bg-slate-100 rounded-xl border border-slate-200">
+                                                <h3 className="font-semibold text-slate-700 mb-2">Target (Left)</h3>
+                                                <p className="text-sm">Amplitude: <span className="font-bold underline text-indigo-600">{params.s3_targetA}</span></p>
+                                                <p className="text-sm">Width: <span className="font-bold underline text-indigo-600">{params.s3_targetW}</span></p>
+                                            </div>
+                                            <div className="p-4 bg-indigo-100 rounded-xl border-2 border-indigo-200 shadow-lg ring-1 ring-indigo-50">
+                                                <h3 className="font-bold text-indigo-900 mb-4 flex items-center gap-2"><Icon name="edit-3" size={16}/> Your Wave (Right)</h3>
+                                                <div className="space-y-6">
+                                                    <div>
+                                                        <label className="flex justify-between text-[10px] font-black text-indigo-900 uppercase tracking-widest mb-2"><span>Amplitude</span><span className="bg-indigo-600 text-white px-2 rounded">{s3UserA}</span></label>
+                                                        <div className="flex items-center gap-2">
+                                                            <button onClick={() => setS3UserA(prev => Math.max(-8, parseFloat(prev) - 1))} className="w-8 h-8 flex items-center justify-center bg-white border border-indigo-200 rounded-lg text-indigo-600 hover:bg-indigo-50 active:scale-95 transition-all shadow-sm font-black text-xl">-</button>
+                                                            <input type="range" min="-8" max="8" step="1" value={s3UserA} onChange={e => setS3UserA(e.target.value)} disabled={s3Status === 'testing' || s3Status === 'correct'} className="flex-1 accent-indigo-600 h-1.5 bg-indigo-200 rounded-lg appearance-none cursor-pointer" />
+                                                            <button onClick={() => setS3UserA(prev => Math.min(8, parseFloat(prev) + 1))} className="w-8 h-8 flex items-center justify-center bg-white border border-indigo-200 rounded-lg text-indigo-600 hover:bg-indigo-50 active:scale-95 transition-all shadow-sm font-black text-xl">+</button>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <label className="flex justify-between text-[10px] font-black text-indigo-900 uppercase tracking-widest mb-2"><span>Width</span><span className="bg-indigo-600 text-white px-2 rounded">{s3UserW}</span></label>
+                                                        <div className="flex items-center gap-2">
+                                                            <button onClick={() => setS3UserW(prev => (Math.max(1, parseFloat(prev) - 0.1)).toFixed(1))} className="w-8 h-8 flex items-center justify-center bg-white border border-indigo-200 rounded-lg text-indigo-600 hover:bg-indigo-50 active:scale-95 transition-all shadow-sm font-black text-xl">-</button>
+                                                            <input type="range" min="1" max="6" step="0.1" value={s3UserW} onChange={e => setS3UserW(e.target.value)} disabled={s3Status === 'testing' || s3Status === 'correct'} className="flex-1 accent-indigo-600 h-1.5 bg-indigo-200 rounded-lg appearance-none cursor-pointer" />
+                                                            <button onClick={() => setS3UserW(prev => (Math.min(6, parseFloat(prev) + 0.1)).toFixed(1))} className="w-8 h-8 flex items-center justify-center bg-white border border-indigo-200 rounded-lg text-indigo-600 hover:bg-indigo-50 active:scale-95 transition-all shadow-sm font-black text-xl">+</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
-                                <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col h-[700px] overflow-y-auto">
+                                <div ref={sidebarRef} className="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col h-[calc(100vh-200px)] lg:h-[700px] max-h-[700px] overflow-y-auto relative p-4 space-y-4">
                                     {currentView === 'stage1' && (
                                         <div className="flex-1 flex flex-col space-y-6">
-                                            <div>
-                                                <h2 className="text-xl font-bold text-slate-800 border-b pb-2 tracking-tight">Part 1: Constructive Interference</h2>
-                                                <p className="text-slate-600 leading-relaxed mt-2 text-sm">When two wave pulses meet, they undergo <strong>superposition</strong>. Let's measure what happens.</p>
+                                            <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm -mx-4 px-4 pt-2 shadow-sm border-b pb-2">
+                                                <div className="flex justify-between items-center">
+                                                    <div>
+                                                        <h2 className="text-xl font-bold text-slate-800 tracking-tight">Part 1: Constructive Interference</h2>
+                                                        <p className="text-slate-500 text-[10px] uppercase font-black tracking-widest">Mastery Assessment</p>
+                                                    </div>
+                                                </div>
+                                                {s1Q2Status === 'correct' && (
+                                                    <div className="mt-4 animate-in slide-in-from-top duration-500">
+                                                        <button onClick={() => { setCurrentView('stage1_drill'); startNextS1Drill(); }} className="w-full py-3 bg-indigo-600 text-white font-black rounded-xl flex justify-center items-center gap-2 shadow-lg shadow-indigo-100 animate-bounce">
+                                                            Next Task: Prediction Drill <Icon name="arrow-right" />
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="px-1">
+                                                <p className="text-slate-600 leading-relaxed text-sm">When two wave pulses meet, they undergo <strong>superposition</strong>. Let's measure what happens.</p>
                                             </div>
 
                                             <div className={`p-5 rounded-xl border-2 transition-all duration-500 shadow-sm ${s1Q1Status === 'correct' ? 'bg-slate-50 border-slate-200' : s1Q1Status === 'unlocked' ? 'bg-indigo-50 border-indigo-400 animate-glow' : 'bg-amber-50 border-amber-200'}`}>
@@ -505,7 +587,7 @@
                                                 <p className="text-xs text-slate-500 mb-4 italic leading-snug">Send both pulses and pause the simulation <em>exactly</em> when the two peaks align perfectly to unlock this question.</p>
                                                 <div className="flex gap-2">
                                                     <div className="relative flex-1">
-                                                        <input id="s1q1-input" type="number" value={s1Q1Answer} onChange={e => setS1Q1Answer(e.target.value)} disabled={s1Q1Status === 'locked' || s1Q1Status === 'correct'} placeholder={s1Q1Status === 'locked' ? "Pause at overlap..." : "Enter height..."} className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 font-bold text-lg" />
+                                                        <input id="s1q1-input" type="number" value={s1Q1Answer} onChange={e => setS1Q1Answer(e.target.value)} disabled={s1Q1Status === 'locked' || s1Q1Status === 'correct'} placeholder={s1Q1Status === 'locked' ? "Pause at peak..." : "Enter height..."} className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 font-bold text-lg" />
                                                         <div className="absolute left-3 top-2.5 text-slate-400">{s1Q1Status === 'locked' ? <Icon name="lock" /> : <Icon name="unlock" className="text-green-500" />}</div>
                                                     </div>
                                                     <button onClick={handleS1Q1Check} disabled={s1Q1Status === 'locked' || s1Q1Status === 'correct' || s1Q1Answer === ''} className={`px-6 py-2 font-bold rounded-lg transition-all ${s1Q1Status === 'unlocked' ? 'bg-indigo-600 text-white shadow-md' : 'bg-slate-800 text-white opacity-50'}`}>Check</button>
@@ -526,16 +608,112 @@
                                                     )}
                                                 </div>
                                             </div>
-
-                                            {s1Q2Status === 'correct' && <button onClick={() => { setCurrentView('stage1_drill'); startNextS1Drill(); }} className="w-full mt-auto py-3 bg-indigo-600 text-white font-bold rounded-lg flex justify-center items-center gap-2 animate-pulse shadow-lg shadow-indigo-200">Start Prediction Drill <Icon name="arrow-right" /></button>}
                                         </div>
                                     )}
-                                    {currentView === 'stage1_drill' && <div className="flex-1 flex flex-col space-y-6"><div><h2 className="text-xl font-bold text-slate-800 border-b pb-2 tracking-tight">Part 1: Prediction Drill</h2><p className="text-slate-600 text-sm mt-2">Prove mastery. Streak of 3 req.</p></div><div className="flex justify-between items-center p-4 bg-slate-100 rounded-lg"><div className="text-center w-1/2 border-r border-slate-300"><p className="text-[10px] uppercase font-bold">Attempts</p><p className="text-2xl font-bold">{s1DrillAttempts} / 5</p></div><div className="text-center w-1/2"><p className="text-[10px] uppercase font-bold">Streak</p><p className="text-2xl font-bold">{s1DrillStreak} / 3</p></div></div><div className={`p-5 rounded-lg border ${s1DrillStatus === 'result' ? (s1DrillFeedback.includes('Correct') ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200') : 'bg-indigo-50 border-indigo-200'}`}><div className="grid grid-cols-2 gap-4 mb-4"><div className="bg-white p-2 rounded border text-center font-bold text-blue-600">L: {s1DrillLeftA}</div><div className="bg-white p-2 rounded border text-center font-bold text-indigo-600">R: {s1DrillRightA}</div></div><input type="number" value={s1DrillAns} onChange={e => setS1DrillAns(e.target.value)} disabled={s1DrillStatus !== 'input'} className="w-full px-4 py-2 border rounded-lg text-lg mb-3" />{s1DrillStatus === 'input' ? <button onClick={submitS1Drill} disabled={s1DrillAns === ''} className="w-full py-2 bg-indigo-600 text-white font-bold rounded-lg shadow-md">Simulate</button> : s1DrillStatus === 'simulating' ? <button disabled className="w-full py-2 bg-slate-400 text-white font-bold rounded-lg cursor-not-allowed flex items-center justify-center gap-2"><Icon name="loader" className="animate-spin" /> Simulating...</button> : <button onClick={startNextS1Drill} className="w-full py-2 bg-slate-800 text-white font-bold rounded-lg shadow-md">Next Trial</button>}{s1DrillFeedback && <p className="text-sm mt-2 font-medium flex items-center gap-2">{s1DrillStatus === 'result' && (s1DrillFeedback.includes('Correct') ? <Icon name="check-circle" className="text-green-600" /> : <Icon name="alert-circle" className="text-red-600" />)}{s1DrillFeedback}</p>}</div>{s1DrillAttempts >= 5 && s1DrillStreak >= 3 && <button onClick={() => setCurrentView('review1')} className="w-full mt-auto py-3 bg-green-600 text-white font-bold rounded-lg flex justify-center items-center gap-2">Proceed to Review <Icon name="arrow-right" /></button>}</div>}
+                                    {currentView === 'stage1_drill' && (
+                                        <div className="flex-1 flex flex-col space-y-6">
+                                            <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm -mx-4 px-4 pt-2 shadow-sm border-b pb-2">
+                                                <div className="flex justify-between items-center">
+                                                    <div>
+                                                        <h2 className="text-xl font-bold text-slate-800 tracking-tight">Part 1: Prediction Drill</h2>
+                                                        <p className="text-slate-500 text-[10px] uppercase font-black tracking-widest">Mastery Required: 3 Streak</p>
+                                                    </div>
+                                                </div>
+                                                {s1DrillAttempts >= 5 && s1DrillStreak >= 3 && (
+                                                    <div className="mt-4 animate-in slide-in-from-top duration-500">
+                                                        <button onClick={() => setCurrentView('review1')} className="w-full py-3 bg-green-600 text-white font-black text-lg rounded-xl flex justify-center items-center gap-2 shadow-xl shadow-green-100 animate-bounce">
+                                                            Phase Complete: Proceed <Icon name="arrow-right" />
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="px-1">
+                                                <p className="text-slate-600 text-sm mt-2">Prove mastery by predicting the outcome of superposition. <strong>Streak of 3 required.</strong></p>
+                                            </div>
+
+                                            <div className="flex justify-between items-center p-4 bg-slate-100 rounded-lg">
+                                                <div className="text-center w-1/2 border-r border-slate-300">
+                                                    <p className="text-[10px] uppercase font-bold text-slate-500">Attempts</p>
+                                                    <p className="text-2xl font-bold">{s1DrillAttempts} / 5</p>
+                                                </div>
+                                                <div className="text-center w-1/2">
+                                                    <p className="text-[10px] uppercase font-bold text-slate-500">Streak</p>
+                                                    <p className="text-2xl font-bold">{s1DrillStreak} / 3</p>
+                                                </div>
+                                            </div>
+
+                                            <div className={`p-5 rounded-lg border ${s1DrillStatus === 'result' ? (s1DrillFeedback.includes('Correct') ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200') : 'bg-indigo-50 border-indigo-200'}`}>
+                                                <p className="text-xs font-bold text-indigo-700 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                                    <Icon name="zap" size={14} /> Calculate Interference
+                                                </p>
+                                                <p className="text-sm text-slate-600 mb-4">Enter the resulting amplitude that will occur when these two pulses perfectly overlap:</p>
+                                                <div className="grid grid-cols-2 gap-4 mb-4">
+                                                    <div className="bg-white p-2 rounded border text-center">
+                                                        <span className="block text-[9px] uppercase font-black text-blue-500 mb-1">Left (A)</span>
+                                                        <span className="text-xl font-bold text-blue-600">{s1DrillLeftA}</span>
+                                                    </div>
+                                                    <div className="bg-white p-2 rounded border text-center">
+                                                        <span className="block text-[9px] uppercase font-black text-indigo-500 mb-1">Right (A)</span>
+                                                        <span className="text-xl font-bold text-indigo-600">{s1DrillRightA}</span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div className="relative mb-3">
+                                                    <label className="absolute -top-2 left-3 px-1 bg-white text-[10px] font-bold text-indigo-600 uppercase border border-indigo-100 rounded">Predicted Height</label>
+                                                    <input 
+                                                        type="number" 
+                                                        value={s1DrillAns} 
+                                                        onChange={e => setS1DrillAns(e.target.value)} 
+                                                        disabled={s1DrillStatus !== 'input'} 
+                                                        placeholder="?"
+                                                        className="w-full px-4 py-3 border-2 border-indigo-200 rounded-xl text-2xl font-black text-center focus:ring-4 focus:ring-indigo-500 shadow-inner" 
+                                                    />
+                                                </div>
+
+                                                {s1DrillStatus === 'input' ? (
+                                                    <button onClick={submitS1Drill} disabled={s1DrillAns === ''} className="w-full py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg hover:bg-indigo-700 transition-all flex items-center justify-center gap-2">
+                                                        Verify Prediction <Icon name="play" size={18} />
+                                                    </button>
+                                                ) : s1DrillStatus === 'simulating' ? (
+                                                    <button disabled className="w-full py-3 bg-slate-400 text-white font-bold rounded-xl cursor-not-allowed flex items-center justify-center gap-2">
+                                                        <Icon name="loader" className="animate-spin" /> Simulating...
+                                                    </button>
+                                                ) : (
+                                                    <button onClick={startNextS1Drill} className="w-full py-3 bg-slate-800 text-white font-bold rounded-xl shadow-md hover:bg-slate-700 transition-all flex items-center justify-center gap-2">
+                                                        Next Trial <Icon name="arrow-right" />
+                                                    </button>
+                                                )}
+                                                
+                                                {s1DrillFeedback && (
+                                                    <p className={`text-sm mt-4 font-bold flex items-center justify-center gap-2 p-3 rounded-lg ${s1DrillFeedback.includes('Correct') ? 'text-green-700 bg-green-100' : 'text-red-700 bg-red-100'}`}>
+                                                        {s1DrillFeedback.includes('Correct') ? <Icon name="check-circle" size={18} /> : <Icon name="alert-circle" size={18} />}
+                                                        {s1DrillFeedback}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
                                     {currentView === 'stage2' && (
                                         <div className="flex-1 flex flex-col space-y-6">
-                                            <div>
-                                                <h2 className="text-xl font-bold text-slate-800 border-b pb-2 tracking-tight">Part 2: Destructive Interference</h2>
-                                                <p className="text-slate-600 leading-relaxed mt-2 text-sm">When waves are out of phase, they undergo <strong>destructive interference</strong>. Observe the result as they overlap.</p>
+                                            <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm -mx-4 px-4 pt-2 shadow-sm border-b pb-2">
+                                                <div className="flex justify-between items-center">
+                                                    <div>
+                                                        <h2 className="text-xl font-bold text-slate-800 tracking-tight">Part 2: Destructive Interference</h2>
+                                                        <p className="text-slate-500 text-[10px] uppercase font-black tracking-widest">Phase Assessment</p>
+                                                    </div>
+                                                </div>
+                                                {s2Q2Status === 'correct' && (
+                                                    <div className="mt-4 animate-in slide-in-from-top duration-500">
+                                                        <button onClick={() => setCurrentView('review2')} className="w-full py-4 bg-indigo-600 text-white font-black rounded-xl flex justify-center items-center gap-2 shadow-xl shadow-indigo-100">
+                                                            Concepts Mastered: Review <Icon name="arrow-right" />
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="px-1">
+                                                <p className="text-slate-600 leading-relaxed text-sm">When waves are out of phase, they undergo <strong>destructive interference</strong>. Observe the result as they overlap.</p>
                                             </div>
 
                                             <div className={`p-5 rounded-xl border-2 transition-all duration-500 shadow-sm ${s2Q1Status === 'correct' ? 'bg-slate-50 border-slate-200' : s2Q1Status === 'unlocked' ? 'bg-indigo-50 border-indigo-400 animate-glow' : 'bg-amber-50 border-amber-200'}`}>
@@ -545,7 +723,7 @@
                                                 </div>
                                                 <p className="text-xs text-slate-500 mb-4 italic leading-snug">Align the upward and downward pulses to see what happens to the total amplitude.</p>
                                                 <div className="flex gap-2">
-                                                    <input id="s2q1-input" type="number" value={s2Q1Answer} onChange={e => setS2Q1Answer(e.target.value)} disabled={s2Q1Status === 'locked' || s2Q1Status === 'correct'} placeholder={s2Q1Status === 'locked' ? "Pause at overlap..." : "Enter height..."} className="w-full p-2 border rounded-lg font-bold text-lg" />
+                                                    <input id="s2q1-input" type="number" value={s2Q1Answer} onChange={e => setS2Q1Answer(e.target.value)} disabled={s2Q1Status === 'locked' || s2Q1Status === 'correct'} placeholder={s2Q1Status === 'locked' ? "Pause at peak..." : "Enter height..."} className="w-full p-2 border rounded-lg font-bold text-lg" />
                                                     <button onClick={handleS2Q1Check} disabled={s2Q1Status === 'locked' || s2Q1Status === 'correct' || s2Q1Answer === ''} className={`px-6 py-2 font-bold rounded-lg transition-all ${s2Q1Status === 'unlocked' ? 'bg-indigo-600 text-white shadow-md' : 'bg-slate-800 text-white opacity-50'}`}>Check</button>
                                                 </div>
                                                 {s2Q1Feedback && <p className={`text-sm mt-3 font-medium flex items-center gap-2 ${s2Q1Status === 'correct' ? 'text-green-700' : 'text-red-600'}`}>{s2Q1Status === 'correct' ? <Icon name="check-circle" size={16} /> : <Icon name="alert-circle" size={16} />}{s2Q1Feedback}</p>}
@@ -566,15 +744,28 @@
                                                     )}
                                                 </div>
                                             </div>
-
-                                            {s2Q2Status === 'correct' && <button onClick={() => setCurrentView('review2')} className="w-full mt-auto py-3 bg-indigo-600 text-white font-bold rounded-lg flex justify-center items-center gap-2 animate-pulse">Review Concepts <Icon name="arrow-right" /></button>}
                                         </div>
                                     )}
                                     {currentView === 'stage3' && (
                                         <div className="flex-1 flex flex-col space-y-6 animate-in fade-in slide-in-from-right duration-500">
-                                            <div>
-                                                <h2 className="text-xl font-bold text-slate-800 border-b pb-2 tracking-tight">Final Performance Tasks</h2>
-                                                <p className="text-slate-600 leading-relaxed mt-2 text-sm italic">Demonstrate your mastery of superposition by configuring wave pulses to achieve specific interference results.</p>
+                                            <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm -mx-4 px-4 pt-2 shadow-sm border-b pb-2">
+                                                <div className="flex justify-between items-center">
+                                                    <div>
+                                                        <h2 className="text-xl font-bold text-slate-800 tracking-tight">Final Performance Tasks</h2>
+                                                        <p className="text-slate-500 text-[10px] uppercase font-black tracking-widest">Mastery Application</p>
+                                                    </div>
+                                                </div>
+                                                {s3Status === 'correct' && s3Step === 2 && (
+                                                    <div className="mt-4 animate-in slide-in-from-top duration-500">
+                                                        <button onClick={() => setCurrentView('completed')} className="w-full py-4 bg-green-600 text-white font-black text-lg rounded-xl flex justify-center items-center gap-2 shadow-xl shadow-green-100 animate-bounce">
+                                                            Perfect Match! Finish <Icon name="check-circle" />
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="px-1">
+                                                <p className="text-slate-600 leading-relaxed text-sm italic">Demonstrate your mastery of superposition by configuring wave pulses to achieve specific interference results.</p>
                                             </div>
 
                                             <div className={`p-5 rounded-xl border-2 transition-all duration-500 shadow-sm ${s3Step > 1 ? 'bg-slate-50 border-slate-200 opacity-60' : 'bg-indigo-50 border-indigo-200 shadow-md ring-1 ring-indigo-100'}`}>
@@ -608,14 +799,9 @@
                                                 
                                                 {s3Step === 2 && (
                                                     <div className="space-y-4">
-                                                        <button onClick={testS3Build} disabled={s3Status === 'testing'} className="w-full py-2 bg-blue-600 text-white font-bold rounded-lg shadow-lg shadow-blue-200">
+                                                        <button onClick={testS3Build} disabled={s3Status === 'testing'} className="w-full py-2 bg-blue-600 text-white font-bold rounded-lg shadow-lg shadow-indigo-200">
                                                             Test Result
                                                         </button>
-                                                        {s3Status === 'correct' && (
-                                                            <button onClick={() => setCurrentView('completed')} className="w-full py-3 bg-green-600 text-white font-bold rounded-lg flex items-center justify-center gap-2 animate-pulse shadow-md">
-                                                            Perfect Match! Finish <Icon name="check-circle" />
-                                                            </button>
-                                                        )}
                                                     </div>
                                                 )}
                                             </div>
