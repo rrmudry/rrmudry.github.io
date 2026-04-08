@@ -346,6 +346,7 @@
         const state = {
             name: '',
             id: '',
+            period: null,
             level: 1,
             mastery: 0,
             targetMastery: 5,
@@ -365,11 +366,21 @@
             status.textContent = "SEARCHING_NODE...";
 
             try {
-                const { data } = await sbClient.from('student_results').select('student_name, details').eq('student_id', id).order('created_at', { ascending: false }).limit(1).maybeSingle();
+                // Check URL for period
+                const urlParams = new URLSearchParams(window.location.search);
+                const urlPeriod = urlParams.get('p') || urlParams.get('period');
+
+                const { data } = await sbClient.from('student_results')
+                    .select('student_name, class_period, details')
+                    .eq('student_id', id)
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .maybeSingle();
 
                 if (data) {
                     state.name = data.student_name;
                     state.id = id;
+                    state.period = urlPeriod || data.class_period || null;
                     
                     const { data: assignmentData } = await sbClient.from('student_results').select('details').eq('student_id', id).eq('assignment_name', "Frequency...Practice 'til it Hertz").maybeSingle();
 
@@ -389,6 +400,8 @@
                     if (newName.length < 3) return;
                     state.name = newName;
                     state.id = id;
+                    const urlParams = new URLSearchParams(window.location.search);
+                    state.period = urlParams.get('p') || urlParams.get('period') || null;
                     finalizeLogin();
                 }
             } catch (err) {
@@ -583,6 +596,7 @@
                 const payload = {
                     student_name: state.name,
                     student_id: state.id,
+                    class_period: state.period,
                     assignment_name: assignmentName,
                     score: Math.min(100, Math.round(((state.level - 1) * 33.3) + ((state.mastery / state.targetMastery) * 33.4))),
                     details: { level: state.level, mastery: state.mastery, timestamp: new Date().toISOString() }

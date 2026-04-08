@@ -283,6 +283,7 @@
             // --- Supabase / Auth State ---
             const [studentId, setStudentId] = useState('');
             const [studentName, setStudentName] = useState('');
+            const [studentPeriod, setStudentPeriod] = useState(null);
             const [isAuthorized, setIsAuthorized] = useState(false);
             const [loginStatus, setLoginStatus] = useState('');
             const [showNameEntry, setShowNameEntry] = useState(false);
@@ -337,6 +338,7 @@
                     const payload = {
                         student_name: studentName,
                         student_id: studentId,
+                        class_period: studentPeriod,
                         assignment_name: assignmentName,
                         score: score,
                         details: {
@@ -371,14 +373,19 @@
                 const assignmentName = "Wave Diffraction Lab";
                 
                 try {
+                    // Check URL for period parameter
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const urlPeriod = urlParams.get('p') || urlParams.get('period');
+
                     const { data: nameData } = await sbClient.from('student_results')
-                        .select('student_name')
+                        .select('student_name, class_period')
                         .eq('student_id', tempId)
                         .order('created_at', { ascending: false })
                         .limit(1)
                         .maybeSingle();
 
                     if (nameData) {
+                        setStudentPeriod(urlPeriod || nameData.class_period || null);
                         // Restore progress if available for THIS specific lab
                         const { data: progressData } = await sbClient.from('student_results')
                             .select('details')
@@ -399,6 +406,8 @@
                         setLoginStatus('NEW_ID_DETECTED');
                     } else {
                         if (tempName.length < 3) return;
+                        const urlParams = new URLSearchParams(window.location.search);
+                        setStudentPeriod(urlParams.get('p') || urlParams.get('period') || null);
                         setStudentId(tempId);
                         setStudentName(tempName);
                         setIsAuthorized(true);
