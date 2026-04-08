@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Progress Race // Teacher Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent-cyan: #00f3ff;
+            --accent-violet: #8b5cf6;
+            --bg-dark: #020617;
+            --track-bg: rgba(15, 23, 42, 0.6);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: #f8fafc;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .font-orbitron { font-family: 'Orbitron', sans-serif; }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .glass {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+        }
+
+        /* Race Track Styles */
+        .race-track {
+            position: relative;
+            background: var(--track-bg);
+            border-radius: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem 0;
+            margin-top: 2rem;
+            min-height: 400px;
+        }
+
+        .lane {
+            height: 80px;
+            position: relative;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            padding: 0 4rem;
+        }
+
+        .lane:last-child { border-bottom: none; }
+
+        .finish-line {
+            position: absolute;
+            right: 40px;
+            top: 0;
+            bottom: 0;
+            width: 80px;
+            background-image: 
+                linear-gradient(45deg, #000 25%, transparent 25%), 
+                linear-gradient(-45deg, #000 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #000 75%), 
+                linear-gradient(-45deg, transparent 75%, #000 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            background-color: #fff;
+            opacity: 0.15;
+            z-index: 1;
+        }
+
+        .avatar-container {
+            position: absolute;
+            left: 40px;
+            right: 120px; /* Space for finish line */
+            height: 100%;
+            display: flex;
+            align-items: center;
+            transition: all 0.5s ease-out;
+        }
+
+        .racer {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: left 2.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 5;
+        }
+
+        .racer-icon {
+            font-size: 2rem;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+            animation: bounce 2s infinite ease-in-out;
+        }
+
+        .racer-info {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            white-space: nowrap;
+            margin-top: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-bar-bg {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            width: 100%;
+            border-radius: 2px;
+        }
+
+        .progress-bar-fill {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--accent-cyan));
+            border-radius: 2px;
+            transition: width 2.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 0 15px var(--accent-cyan);
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .status-badge {
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 0.1em;
+            padding: 4px 12px;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+
+        .badge-live { background: rgba(34, 197, 94, 0.1); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.2); }
+        
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1.5em;
+        }
+
+        /* Scanline effect */
+        .scanlines {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(
+                to bottom,
+                rgba(18, 16, 16, 0) 50%,
+                rgba(0, 0, 0, 0.02) 50%
+            );
+            background-size: 100% 4px;
+            z-index: 100;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="scanlines"></div>
+
+    <div class="dashboard-container">
+        <!-- Header Section -->
+        <header class="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
+            <div class="space-y-1 text-center md:text-left">
+                <h1 class="text-4xl font-orbitron font-black tracking-tighter text-white uppercase italic">
+                    Student_<span class="text-cyan-400">Race</span>_Tracker
+                </h1>
+                <div class="flex items-center gap-2 justify-center md:justify-start">
+                    <span class="status-badge badge-live flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                        Live Datastream Active
+                    </span>
+                    <span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">v1.0.4-Teacher</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4 bg-slate-900/50 p-2 rounded-2xl border border-white/5 backdrop-blur-sm">
+                <div class="px-4">
+                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Select Assignment</p>
+                    <select id="assignment-select" class="bg-transparent text-white font-bold outline-none cursor-pointer pr-10 hover:text-cyan-400 transition-colors">
+                        <option value="">Loading...</option>
+                    </select>
+                </div>
+                <div class="h-10 w-px bg-white/10"></div>
+                <div class="px-4">
+                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Filter Period</p>
+                    <select id="period-select" class="bg-transparent text-white font-bold outline-none cursor-pointer pr-10 hover:text-cyan-400 transition-colors">
+                        <option value="ALL">All Periods</option>
+                        <option value="0">Period 0</option>
+                        <option value="1">Period 1</option>
+                        <option value="2">Period 2</option>
+                        <option value="3">Period 3</option>
+                        <option value="4">Period 4</option>
+                        <option value="5">Period 5</option>
+                        <option value="6">Period 6</option>
+                    </select>
+                </div>
+                <div class="h-10 w-px bg-white/10"></div>
+                <div class="px-4 text-center">
+                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Participants</p>
+                    <p id="student-count" class="text-xl font-orbitron font-bold text-white">0</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Legend / Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="glass p-6 rounded-3xl border-l-4 border-cyan-500">
+                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Leading Student</p>
+                <p id="leader-name" class="text-xl font-bold text-white truncate">---</p>
+            </div>
+            <div class="glass p-6 rounded-3xl border-l-4 border-violet-500">
+                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Average Completion</p>
+                <p id="avg-completion" class="text-xl font-bold text-white">0%</p>
+            </div>
+            <div class="glass p-6 rounded-3xl border-l-4 border-emerald-500">
+                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Completed (100%)</p>
+                <p id="finished-count" class="text-xl font-bold text-white">0</p>
+            </div>
+        </div>
+
+        <!-- The Track -->
+        <div class="race-track glass">
+            <div class="finish-line"></div>
+            <div id="lane-container" class="space-y-0">
+                <!-- Lanes injected here -->
+                <div class="p-20 text-center text-slate-500 uppercase tracking-[0.5em] font-bold text-xs">
+                    Initializing Track Systems...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
+        const sbClient = supabase.createClient(SB_URL, SB_KEY);
+
+        const racerIcons = ["🏎️", "🏎️", "🏎️", "🏎️", "🏎️", "🏎️", "🏎️", "🏎️"]; // Fallback
+        const premiumIcons = ["🏎️", "🚀", "🛸", "🏍️", "🏃", "🚴", "🏇", "🐆"];
+        let winnerAnnounced = new Set();
+
+        async function init() {
+            try {
+                const { data, error } = await sbClient
+                    .from('student_results')
+                    .select('assignment_name');
+                
+                if (error) throw error;
+
+                const uniques = [...new Set(data.map(r => r.assignment_name))].filter(Boolean).sort();
+                const select = document.getElementById('assignment-select');
+                select.innerHTML = uniques.map(a => `<option value="${a}">${a}</option>`).join('');
+                
+                // Try to find the WaveMaster Lab as default
+                const defaultAssignment = uniques.find(a => a.includes("WaveMaster")) || uniques[0];
+                if (defaultAssignment) select.value = defaultAssignment;
+
+                select.onchange = () => refreshData();
+                document.getElementById('period-select').onchange = () => refreshData();
+                
+                // Start polling
+                refreshData();
+                setInterval(refreshData, 5000);
+            } catch (err) {
+                console.error(err);
+                document.getElementById('lane-container').innerHTML = `<div class="p-20 text-center text-red-500 font-bold uppercase tracking-widest">Access Denied // Check Database Credentials</div>`;
+            }
+        }
+
+        async function refreshData() {
+            const assignment = document.getElementById('assignment-select').value;
+            const period = document.getElementById('period-select').value;
+            if (!assignment) return;
+
+            let query = sbClient
+                .from('student_results')
+                .select('*')
+                .eq('assignment_name', assignment);
+            
+            if (period !== "ALL") {
+                query = query.eq('class_period', period);
+            }
+
+            const { data, error } = await query;
+
+            if (error) return;
+
+            updateTrack(data);
+            updateStats(data);
+        }
+
+        function updateTrack(students) {
+            const container = document.getElementById('lane-container');
+            
+            // Sort by ID to keep lanes stable
+            const sorted = students.sort((a, b) => a.student_id.localeCompare(b.student_id));
+
+            // Map current elements to avoid total re-renders (prevents animation flicker)
+            const existingLanes = Array.from(container.querySelectorAll('.lane'));
+            
+            if (students.length === 0) {
+                container.innerHTML = `<div class="p-20 text-center text-slate-500 uppercase tracking-widest font-bold">No Records Found for this Selection</div>`;
+                return;
+            }
+
+            // Simple sync: If count differs, just rebuild. For same count, update positions.
+            if (existingLanes.length !== students.length) {
+                container.innerHTML = sorted.map((s, index) => `
+                    <div class="lane" data-sid="${s.student_id}">
+                        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${s.score}%; ${s.score === 100 ? 'background: linear-gradient(90deg, transparent, #fbbf24); box-shadow: 0 0 20px #fbbf24;' : ''}"></div></div>
+                        <div class="racer" style="left: calc(40px + (100% - 160px) * ${s.score / 100})">
+                            <div class="racer-icon" style="${s.score === 100 ? 'filter: drop-shadow(0 0 15px #fbbf24); animation: victory-bounce 1s infinite alternate;' : ''}">${premiumIcons[index % premiumIcons.length]}</div>
+                            <div class="racer-info" style="${s.score === 100 ? 'border-color: #fbbf24; color: #fbbf24;' : ''}">${s.student_name.split(' ')[0]}</div>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Add keyframes if missing
+                if (!document.getElementById('victory-styles')) {
+                    const style = document.createElement('style');
+                    style.id = 'victory-styles';
+                    style.innerHTML = `
+                        @keyframes victory-bounce {
+                            from { transform: translateY(0) scale(1); }
+                            to { transform: translateY(-15px) scale(1.3); }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+            } else {
+                sorted.forEach((s, index) => {
+                    const lane = container.querySelector(`[data-sid="${s.student_id}"]`);
+                    if (lane) {
+                        const filler = lane.querySelector('.progress-bar-fill');
+                        const racer = lane.querySelector('.racer');
+                        const icon = lane.querySelector('.racer-icon');
+                        const info = lane.querySelector('.racer-info');
+                        
+                        filler.style.width = `${s.score}%`;
+                        racer.style.left = `calc(40px + (100% - 160px) * ${s.score / 100})`;
+                        
+                        if (s.score === 100) {
+                            filler.style.background = 'linear-gradient(90deg, transparent, #fbbf24)';
+                            filler.style.boxShadow = '0 0 20px #fbbf24';
+                            icon.style.filter = 'drop-shadow(0 0 15px #fbbf24)';
+                            icon.style.animation = 'victory-bounce 1s infinite alternate';
+                            info.style.borderColor = '#fbbf24';
+                            info.style.color = '#fbbf24';
+                        }
+                    }
+                });
+            }
+        }
+
+        function updateStats(students) {
+            if (students.length === 0) return;
+
+            document.getElementById('student-count').textContent = students.length;
+            
+            const leader = students.reduce((prev, current) => (prev.score > current.score) ? prev : current);
+            document.getElementById('leader-name').textContent = leader.student_name;
+
+            const avg = students.reduce((acc, curr) => acc + curr.score, 0) / students.length;
+            document.getElementById('avg-completion').textContent = `${Math.round(avg)}%`;
+
+            const finished = students.filter(s => s.score === 100).length;
+            document.getElementById('finished-count').textContent = finished;
+        }
+
+        init();
+    </script>
+</body>
+</html>

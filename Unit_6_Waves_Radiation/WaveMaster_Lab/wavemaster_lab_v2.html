@@ -395,6 +395,7 @@
             student: {
                 id: '',
                 name: '',
+                period: null,
                 isLogged: false
             },
             module: 1,
@@ -526,11 +527,21 @@
             status.textContent = "VERIFYING_CREDENTIALS...";
 
             try {
-                const { data, error } = await sbClient.from('student_results').select('student_name').eq('student_id', id).order('created_at', { ascending: false }).limit(1).maybeSingle();
+                // Check for URL parameter ?p=X or ?period=X
+                const urlParams = new URLSearchParams(window.location.search);
+                let urlPeriod = urlParams.get('p') || urlParams.get('period');
+
+                const { data, error } = await sbClient.from('student_results')
+                    .select('student_name, class_period')
+                    .eq('student_id', id)
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .maybeSingle();
 
                 if (data) {
                     state.student.name = data.student_name;
                     state.student.id = id;
+                    state.student.period = urlPeriod || data.class_period || null;
                     
                     const { data: progressData } = await sbClient.from('student_results').select('details').eq('student_id', id).eq('assignment_name', "WaveMaster Lab").maybeSingle();
                     if (progressData && progressData.details) {
@@ -562,6 +573,11 @@
                     }
                     state.student.name = name;
                     state.student.id = id;
+
+                    // Assign period from URL for new registration
+                    const urlParams = new URLSearchParams(window.location.search);
+                    state.student.period = urlParams.get('p') || urlParams.get('period') || null;
+
                     finalizeLogin();
                 }
             } catch (e) {
@@ -614,6 +630,7 @@
                 const payload = {
                     student_name: state.student.name,
                     student_id: state.student.id,
+                    class_period: state.student.period,
                     assignment_name: assignmentName,
                     score: Math.min(100, Math.round(totalScore)),
                     details: { 
