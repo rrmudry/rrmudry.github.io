@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 6 Rapid Review</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="questions.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Outfit', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        physics: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            900: '#0c4a6e',
+                            950: '#082f49',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+        body { font-feature-settings: "cv02", "cv03", "cv04", "cv11"; background-color: #0f172a; }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            color: #f8fafc;
+        }
+
+        .timer-bar {
+            height: 10px;
+            background: #0ea5e9;
+            transition: width 1s linear, background-color 0.5s ease;
+        }
+        .timer-danger { background: #ef4444; }
+
+        .choice-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s;
+        }
+        .choice-btn:hover:not(:disabled) {
+            background: rgba(14, 165, 233, 0.2);
+            border-color: #0ea5e9;
+            transform: scale(1.02);
+        }
+        .choice-btn.correct { background: #10b981; border-color: #047857; color: #fff; }
+        .choice-btn.incorrect { background: #ef4444; border-color: #b91c1c; color: #fff; }
+
+        .history-dot {
+            width: 14px; height: 14px; border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s;
+        }
+        .history-dot.correct { background: #10b981; border-color: #047857; box-shadow: 0 0 8px rgba(16,185,129,0.5); }
+        .history-dot.incorrect { background: #ef4444; border-color: #b91c1c; box-shadow: 0 0 8px rgba(239,68,68,0.5); }
+        
+        .font-heading { font-family: 'Outfit', sans-serif; letter-spacing: -0.01em; }
+    </style>
+</head>
+
+<body class="text-slate-100 font-sans min-h-screen flex flex-col antialiased">
+
+    <!-- Login Overlay -->
+    <div id="login-overlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-md transition-all duration-500">
+        <div class="glass-panel max-w-md w-full p-10 rounded-[2.5rem] text-center space-y-8 animate-in zoom-in duration-500">
+            <div class="space-y-3">
+                <div class="w-20 h-20 bg-gradient-to-br from-physics-400 to-physics-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-physics-500/20 mb-4 rotate-3">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-4xl font-heading font-black text-white tracking-tight">Rapid<span class="text-physics-500">Review</span></h1>
+                <p class="text-[10px] font-bold text-physics-400 uppercase tracking-[0.4em]">Unit 6 // Wave Dynamics</p>
+            </div>
+            
+            <div id="login-form" class="space-y-5">
+                <div class="space-y-2">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] text-left px-1">Access_Node // Student ID</p>
+                    <input type="text" id="student-id" placeholder="6-Digit ID" maxlength="6" 
+                        class="w-full bg-slate-900 border border-slate-700 p-5 rounded-2xl outline-none transition-all text-center font-bold text-2xl focus:border-physics-500 focus:ring-4 focus:ring-physics-500/20 uppercase tracking-widest text-physics-400 text-white shadow-inner">
+                </div>
+
+                <div id="name-entry" class="hidden space-y-2 animate-in fade-in duration-300">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] text-left px-1">New User Detected // Enter Name</p>
+                    <input type="text" id="student-name" placeholder="Full Student Name" 
+                        class="w-full bg-slate-900 border border-slate-700 p-5 rounded-2xl outline-none transition-all text-center font-bold focus:border-physics-500 focus:ring-4 focus:ring-physics-500/20 text-white shadow-inner">
+                </div>
+
+                <button id="login-btn" onclick="handleLogin()" class="w-full bg-physics-500 hover:bg-physics-600 text-white p-5 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl shadow-physics-500/20 active:scale-[0.98] transition-all">
+                    Establish Connection
+                </button>
+                <p id="login-status" class="text-[9px] font-bold text-slate-400 uppercase tracking-widest animate-pulse h-4"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="glass-panel border-b-0 sticky top-0 z-50 rounded-b-3xl mx-4 mt-2">
+        <div class="max-w-4xl mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <h1 class="text-xl font-heading font-bold flex items-center gap-2.5">
+                <span class="text-physics-400">⚡</span>
+                <span>Unit 6 <span class="text-physics-500">Review</span></span>
+            </h1>
+            
+            <div id="student-info" class="hidden flex items-center gap-4">
+                <div id="sync-indicator" class="w-2 h-2 rounded-full bg-slate-500"></div>
+                <p id="student-tag" class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Awaiting Auth...</p>
+                
+                <div class="h-6 w-px bg-slate-600 mx-2"></div>
+                
+                <div class="flex bg-slate-800 rounded-lg p-1">
+                    <button id="lang-en" onclick="setLang('en')" class="px-3 py-1 text-xs font-bold rounded-md bg-physics-500 text-white transition-all">EN</button>
+                    <button id="lang-es" onclick="setLang('es')" class="px-3 py-1 text-xs font-bold rounded-md text-slate-400 hover:text-white transition-all">ES</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Game Loop -->
+    <main class="flex-grow flex items-center justify-center p-4">
+        <div class="w-full max-w-3xl glass-panel rounded-3xl p-8 relative overflow-hidden hidden" id="game-container">
+            
+            <!-- Mastery History Header -->
+            <div class="flex justify-between items-end mb-6">
+                <div>
+                    <h2 class="font-heading font-black text-2xl mb-1">Rolling Score</h2>
+                    <p class="text-xs text-slate-400 uppercase font-bold tracking-widest">Last 20 Questions</p>
+                </div>
+                <div class="text-right">
+                    <span id="score-display" class="font-mono text-5xl font-black text-emerald-400 drop-shadow-md">0</span>
+                    <span class="text-slate-500 font-bold text-xl">/ 20</span>
+                </div>
+            </div>
+            
+            <!-- Dots visualizer -->
+            <div class="flex gap-1.5 flex-wrap mb-8 bg-slate-900/50 p-4 rounded-xl border border-slate-700" id="history-dots">
+                <!-- Injected via JS -->
+            </div>
+
+            <!-- Timer Bar -->
+            <div class="w-full bg-slate-800 rounded-full h-2.5 mb-8 overflow-hidden drop-shadow-md">
+                <div id="timer-bar" class="timer-bar w-full" style="width: 100%"></div>
+            </div>
+
+            <!-- Question Area -->
+            <div class="mb-10 text-center min-h-[100px] flex items-center justify-center flex-col">
+                <span id="q-number" class="text-physics-500 font-bold mb-2 text-sm uppercase tracking-widest">Question</span>
+                <p id="question-text" class="text-2xl md:text-3xl font-heading font-semibold leading-tight text-white drop-shadow-sm"></p>
+            </div>
+
+            <!-- Choices -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="choices-container">
+                <!-- Injected via JS -->
+            </div>
+            
+            <!-- Next Button Overlay -->
+            <div id="next-overlay" class="hidden mt-8 text-center animate-in fade-in zoom-in duration-200">
+                <p id="feedback-text" class="text-lg font-bold mb-4"></p>
+                <button onclick="nextQuestion()" class="bg-white text-slate-900 hover:bg-slate-200 px-8 py-4 rounded-xl font-black uppercase tracking-widest transition-all w-full md:w-auto shadow-lg">
+                    Next Question →
+                </button>
+            </div>
+        </div>
+        
+        <div id="pre-game-container" class="text-center glass-panel p-12 rounded-3xl max-w-xl">
+             <h2 class="text-3xl font-heading font-black mb-4">Ready for Rapid Fire?</h2>
+             <p class="text-slate-400 mb-8 font-medium">You have exactly 15 seconds to answer each question. Your score is based on your most recent 20 attempts. Keep playing to push your mistakes out of the rolling average!</p>
+             <button onclick="startGame()" class="bg-gradient-to-r from-physics-500 to-purple-500 hover:from-physics-400 hover:to-purple-400 text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest transition-all shadow-[0_0_40px_rgba(14,165,233,0.4)] text-lg active:scale-95">
+                 Initialize Routine
+             </button>
+        </div>
+    </main>
+
+    <script>
+        /**
+         * Auth & Supabase
+         */
+        const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
+        const sbClient = supabase.createClient(SB_URL, SB_KEY);
+        
+        const state = {
+            student: { id: '', name: '', period: null },
+            lang: 'en',
+            history: [], // Array of 1s (correct) and 0s (incorrect)
+            currentQ: null,
+            timer: 15,
+            timerInterval: null,
+            isSyncing: false,
+            needsSync: false,
+            questionIndex: 0
+        };
+
+        // Utility to shuffle an array
+        function shuffleArray(array) {
+            let cur = array.length, ran;
+            while (cur !== 0) {
+                ran = Math.floor(Math.random() * cur);
+                cur--;
+                [array[cur], array[ran]] = [array[ran], array[cur]];
+            }
+            return array;
+        }
+
+        let runPool = [];
+
+        async function handleLogin() {
+            const idInput = document.getElementById('student-id');
+            const nameInput = document.getElementById('student-name');
+            const status = document.getElementById('login-status');
+            const btn = document.getElementById('login-btn');
+            const id = idInput.value.trim();
+
+            if (id.length !== 6) { status.textContent = "INVALID_ID // 6_DIGITS"; return; }
+            btn.disabled = true; status.textContent = "VERIFYING...";
+
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                state.student.period = urlParams.get('p') || urlParams.get('period');
+                
+                const { data } = await sbClient.from('student_results').select('student_name, class_period')
+                    .eq('student_id', id).order('created_at', { ascending: false }).limit(1).maybeSingle();
+
+                if (data) {
+                    state.student.name = data.student_name;
+                    state.student.id = id;
+                    if (!state.student.period) state.student.period = data.class_period;
+                    
+                    // Fetch existing rolling score
+                    const { data: progress } = await sbClient.from('student_results')
+                        .select('details')
+                        .eq('student_id', id)
+                        .eq('assignment_name', "Unit 6 Rapid Review")
+                        .maybeSingle();
+                        
+                    if (progress && progress.details && progress.details.history) {
+                        state.history = progress.details.history;
+                        state.questionIndex = progress.details.totalQuestionsAnswered || 0;
+                    }
+                    finalizeLogin();
+                } else if (document.getElementById('name-entry').classList.contains('hidden')) {
+                    document.getElementById('name-entry').classList.remove('hidden');
+                    btn.disabled = false; btn.textContent = "REGISTER"; status.textContent = "NEW ID DETECTED";
+                } else {
+                    const name = nameInput.value.trim();
+                    if (name.length < 3) { status.textContent = "NAME TOO SHORT"; btn.disabled = false; return; }
+                    state.student.name = name; state.student.id = id;
+                    finalizeLogin();
+                }
+            } catch (e) {
+                console.error(e); btn.disabled = false; status.textContent = "NETWORK ERROR";
+            }
+        }
+
+        function finalizeLogin() {
+            document.getElementById('login-overlay').classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(() => document.getElementById('login-overlay').classList.add('hidden'), 500);
+            
+            document.getElementById('student-info').classList.remove('hidden');
+            document.getElementById('student-tag').textContent = `${state.student.name} // ${state.student.id}`;
+            document.getElementById('sync-indicator').classList.add('bg-emerald-500', 'shadow-[0_0_8px_#10b981]');
+            
+            updateHistoryUI(); // Initial draw of history
+        }
+
+        async function syncData() {
+            if (state.isSyncing) { state.needsSync = true; return; }
+            state.isSyncing = true; state.needsSync = false;
+            
+            const ind = document.getElementById('sync-indicator');
+            ind.className = 'w-2 h-2 rounded-full bg-orange-500 animate-pulse shadow-[0_0_8px_#f97316]';
+            
+            try {
+                // Calculate score: out of 20, how many 1s?
+                let correctCount = state.history.filter(x => x === 1).length;
+                let finalScore = state.history.length === 20 ? (correctCount / 20) * 100 : (correctCount / 20) * 100; // Even if < 20, out of 20.
+                
+                const assignmentName = "Unit 6 Rapid Review";
+                const { data } = await sbClient.from('student_results')
+                    .select('id').eq('student_id', state.student.id).eq('assignment_name', assignmentName).limit(1);
+                    
+                const payload = {
+                    student_name: state.student.name,
+                    student_id: state.student.id,
+                    class_period: state.student.period,
+                    assignment_name: assignmentName,
+                    score: Math.round(finalScore),
+                    details: { 
+                        history: state.history,
+                        totalQuestionsAnswered: state.questionIndex,
+                        ts: new Date().toISOString() 
+                    }
+                };
+
+                if (data && data.length > 0) {
+                    await sbClient.from('student_results').update(payload).eq('id', data[0].id);
+                } else {
+                    await sbClient.from('student_results').insert([payload]);
+                }
+                ind.className = 'w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]';
+            } catch (e) {
+                console.error(e);
+                ind.className = 'w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_#ef4444]';
+            } finally {
+                state.isSyncing = false;
+                if (state.needsSync) syncData();
+            }
+        }
+
+        /**
+         * Game Logic
+         */
+        function setLang(lang) {
+            state.lang = lang;
+            document.getElementById('lang-en').className = lang === 'en' ? 'px-3 py-1 text-xs font-bold rounded-md bg-physics-500 text-white transition-all' : 'px-3 py-1 text-xs font-bold rounded-md text-slate-400 hover:text-white transition-all';
+            document.getElementById('lang-es').className = lang === 'es' ? 'px-3 py-1 text-xs font-bold rounded-md bg-physics-500 text-white transition-all' : 'px-3 py-1 text-xs font-bold rounded-md text-slate-400 hover:text-white transition-all';
+            if (state.currentQ) renderQuestion();
+        }
+
+        function startGame() {
+            document.getElementById('pre-game-container').classList.add('hidden');
+            document.getElementById('game-container').classList.remove('hidden');
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            clearInterval(state.timerInterval);
+            document.getElementById('next-overlay').classList.add('hidden');
+            document.getElementById('choices-container').classList.remove('pointer-events-none');
+            
+            // Refill pool if empty
+            if (runPool.length === 0) {
+                runPool = shuffleArray([...questionBank]);
+            }
+            
+            state.currentQ = runPool.pop();
+            // Shuffle choice indices
+            state.currentQ.shuffledIndices = shuffleArray(Array.from({length: state.currentQ.choices.length}, (_, i) => i));
+            
+            state.questionIndex++;
+            renderQuestion();
+            startTimer();
+        }
+
+        function renderQuestion() {
+            const q = state.currentQ;
+            document.getElementById('q-number').textContent = `Question ${state.questionIndex}`;
+            document.getElementById('question-text').textContent = q[state.lang];
+            
+            const cont = document.getElementById('choices-container');
+            cont.innerHTML = '';
+            
+            q.shuffledIndices.forEach((origIdx) => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn w-full p-5 rounded-2xl text-lg font-medium text-left break-words shadow-sm';
+                btn.textContent = q.choices[origIdx];
+                btn.onclick = () => handleAnswer(origIdx, btn);
+                cont.appendChild(btn);
+            });
+        }
+
+        function startTimer() {
+            state.timer = 15;
+            const bar = document.getElementById('timer-bar');
+            bar.style.transition = 'none';
+            bar.style.width = '100%';
+            bar.className = 'timer-bar w-full';
+            
+            // Force reflow
+            void bar.offsetWidth;
+            bar.style.transition = 'width 1s linear, background-color 0.5s ease';
+            
+            state.timerInterval = setInterval(() => {
+                state.timer--;
+                const pct = (state.timer / 15) * 100;
+                bar.style.width = `${pct}%`;
+                
+                if (state.timer <= 5) bar.classList.add('timer-danger');
+                
+                if (state.timer <= 0) {
+                    clearInterval(state.timerInterval);
+                    handleAnswer(-1, null); // Timeout = incorrect
+                }
+            }, 1000);
+        }
+
+        function handleAnswer(selectedIndex, btnElement) {
+            clearInterval(state.timerInterval);
+            document.getElementById('choices-container').classList.add('pointer-events-none');
+            
+            const isCorrect = (selectedIndex === state.currentQ.correct);
+            recordResult(isCorrect ? 1 : 0);
+            
+            const btns = document.querySelectorAll('.choice-btn');
+            btns.forEach(b => {
+                if (b.textContent === state.currentQ.choices[state.currentQ.correct]) {
+                    b.classList.add('correct');
+                } else if (b === btnElement && !isCorrect) {
+                    b.classList.add('incorrect');
+                }
+            });
+            
+            const feedback = document.getElementById('feedback-text');
+            if (isCorrect) {
+                feedback.textContent = state.lang === 'es' ? "¡Correcto!" : "Correct!";
+                feedback.className = "text-xl font-black text-emerald-400 mb-4";
+            } else if (selectedIndex === -1) {
+                feedback.textContent = state.lang === 'es' ? "¡Tiempo agotado!" : "Time's Up!";
+                feedback.className = "text-xl font-black text-rose-400 mb-4";
+            } else {
+                feedback.textContent = state.lang === 'es' ? "¡Incorrecto!" : "Incorrect!";
+                feedback.className = "text-xl font-black text-rose-400 mb-4";
+            }
+            
+            document.getElementById('next-overlay').classList.remove('hidden');
+        }
+
+        function recordResult(result) {
+            state.history.push(result);
+            if (state.history.length > 20) {
+                state.history.shift(); // Keep only last 20
+            }
+            updateHistoryUI();
+            syncData();
+        }
+
+        function updateHistoryUI() {
+            // Update Number Score
+            const corrects = state.history.filter(x => x === 1).length;
+            document.getElementById('score-display').textContent = corrects;
+            
+            // Update visual dots
+            const dotsCont = document.getElementById('history-dots');
+            dotsCont.innerHTML = '';
+            
+            // Build 20 dots. Empty ones first if history < 20. 
+            // Better yet, just show 20 static dots and fill them from left to right as history fills.
+            for (let i = 0; i < 20; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'history-dot';
+                if (i < state.history.length) {
+                    dot.classList.add(state.history[i] === 1 ? 'correct' : 'incorrect');
+                }
+                dotsCont.appendChild(dot);
+            }
+        }
+    </script>
+</body>
+</html>
