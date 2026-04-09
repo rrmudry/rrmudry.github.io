@@ -162,108 +162,66 @@ const questionBank = [
         correct: 0
     },
 
-    // --- Electromagnetic Waves ---
+    // --- Electromagnetic Waves (To Be Covered Later) ---
+    /*
     {
         en: "Which type of wave does NOT need a physical medium?",
         es: "¿Qué tipo de onda NO necesita un medio físico?",
         choices: ["Electromagnetic Wave", "Mechanical Wave", "Sound Wave", "Water Wave"],
         correct: 0
     },
-    {
-        en: "At what speed do all Electromagnetic Waves travel in a vacuum?",
-        es: "¿A qué velocidad viajan todas las Electromagnetic Waves en el vacío?",
-        choices: ["Speed of light (c)", "Speed of sound", "100 m/s", "Instantaneously"],
-        correct: 0
-    },
-    {
-        en: "Which of the following has the LOWEST frequency on the EM spectrum?",
-        es: "¿Cuál de los siguientes tiene la Frequency más BAJA en el espectro electromagnético?",
-        choices: ["Radio Waves", "Visible Light", "X-Rays", "Gamma Rays"],
-        correct: 0
-    },
-    {
-        en: "Which of the following has the HIGHEST energy on the EM spectrum?",
-        es: "¿Cuál de los siguientes tiene la ENERGÍA más ALTA en el espectro electromagnético?",
-        choices: ["Gamma Rays", "Microwaves", "Infrared", "Ultraviolet"],
-        correct: 0
-    },
-    {
-        en: "True or False: Red light has a longer Wavelength than Blue light.",
-        es: "Verdadero o Falso: La luz roja tiene una Wavelength más larga que la luz azul.",
-        choices: ["True", "False"],
-        correct: 0
-    },
+    ... (Advanced topics commented out for now) ...
+    */
     
-    // --- Radiation & Dangers ---
+    // --- Visual Comparisons (Procedural Canvas) ---
     {
-        en: "Radiation strong enough to knock electrons off atoms and damage DNA is called:",
-        es: "La radiación lo suficientemente fuerte como para arrancar electrones de los átomos y dañar el ADN se llama:",
-        choices: ["Ionizing Radiation", "Non-Ionizing Radiation", "Thermal Radiation", "Radioactive decay"],
-        correct: 0
+        en: "Analyze the diagram. Which wave has the greater Amplitude?",
+        es: "Analiza el diagrama. ¿Qué onda tiene mayor Amplitude?",
+        choices: ["Wave A", "Wave B", "They are equal", "Cannot be determined"],
+        correct: 0,
+        drawType: "transverse_amp" // Wave A high amp, B low amp
     },
     {
-        en: "Which type of wave is considered Ionizing?",
-        es: "¿Qué tipo de onda se considera Ionizing?",
-        choices: ["X-Rays", "Radio Waves", "Microwaves", "Visible Light"],
-        correct: 0
+        en: "Analyze the diagram. Which wave has the greater Wavelength?",
+        es: "Analiza el diagrama. ¿Qué onda tiene mayor Wavelength?",
+        choices: ["Wave A", "Wave B", "They are equal", "Cannot be determined"],
+        correct: 1,
+        drawType: "transverse_wavelength" // Wave A short, B long
     },
     {
-        en: "Why are cell phones considered safe from causing genetic DNA damage?",
-        es: "¿Por qué se considera que los teléfonos celulares son seguros y no causan daño genético al ADN?",
-        choices: ["Microwaves are non-ionizing", "They use mechanical waves", "They are shielded with lead", "They use destructive interference"],
-        correct: 0
-    },
-
-    // --- Duality & Particles ---
-    {
-        en: "The Double-Slit experiment proved that light behaves as a:",
-        es: "El experimento de la doble rendija demostró que la luz se comporta como una:",
-        choices: ["Wave", "Particle", "Liquid", "Magnetic monopole"],
-        correct: 0
+        en: "Analyze the diagram. Which wave has the higher Frequency?",
+        es: "Analiza el diagrama. ¿Qué onda tiene mayor Frequency?",
+        choices: ["Wave A", "Wave B", "They are equal", "Cannot be determined"],
+        correct: 0,
+        drawType: "transverse_wavelength" // A has short wavelength -> higher freq
     },
     {
-        en: "The Photoelectric effect proved that light acts as discrete packets called:",
-        es: "El efecto fotoeléctrico demostró que la luz actúa como paquetes individuales llamados:",
-        choices: ["Photons", "Electrons", "Protons", "Neutrinos"],
-        correct: 0
+        en: "Identify the type of wave shown.",
+        es: "Identifica el tipo de onda que se muestra.",
+        choices: ["Transverse Wave", "Longitudinal Wave", "Electromagnetic Wave", "Photon"],
+        correct: 0,
+        drawType: "transverse_single"
     },
     {
-        en: "Light acting as both a continuous wave and a discrete particle is called:",
-        es: "La luz actuando tanto como una onda continua como una partícula individual se llama:",
-        choices: ["Wave-Particle Duality", "Electromagnetism", "Superposition", "Resonance"],
-        correct: 0
+        en: "Identify the type of wave shown (representing sound compressions).",
+        es: "Identifica el tipo de onda que se muestra (representando compresiones sonoras).",
+        choices: ["Longitudinal Wave", "Transverse Wave", "Water Wave", "Electromagnetic Wave"],
+        correct: 0,
+        drawType: "longitudinal_single"
     },
     {
-        en: "In the Photoelectric effect, what determines if an electron is ejected from the metal?",
-        es: "En el efecto fotoeléctrico, ¿qué determina si un electrón es expulsado del metal?",
-        choices: ["Frequency (Color)", "Amplitude (Brightness)", "Time exposed", "Distance from source"],
-        correct: 0
-    },
-
-    // --- Tech & Signals ---
-    {
-        en: "A continuous, smoothly varying signal is known as:",
-        es: "Una señal continua que varía suavemente se conoce como:",
-        choices: ["Analog", "Digital", "Mechanical", "Binary"],
-        correct: 0
+        en: "In the diagram, the areas where the lines are bunched together represent:",
+        es: "En el diagrama, las áreas donde las líneas están agrupadas representan:",
+        choices: ["Compressions", "Rarefactions", "Crests", "Troughs"],
+        correct: 0,
+        drawType: "longitudinal_single"
     },
     {
-        en: "A signal composed of discrete 1s and 0s is known as:",
-        es: "Una señal compuesta por 1s y 0s discretos se conoce como:",
-        choices: ["Digital", "Analog", "Continuous", "Waveform"],
-        correct: 0
-    },
-    {
-        en: "Why is Digital transmission generally better than Analog across long distances?",
-        es: "¿Por qué la transmisión Digital es generalmente mejor que la Analog a largas distancias?",
-        choices: ["It is immune to signal noise/degradation", "It travels faster than light", "It requires a physical medium", "It uses higher amplitude"],
-        correct: 0
-    },
-    {
-        en: "Optical fibers transmit data by using the principle of total internal ______.",
-        es: "Las fibras ópticas transmiten datos utilizando el principio de ______ interna total.",
-        choices: ["Reflection", "Refraction", "Diffraction", "Absorption"],
-        correct: 0
+        en: "In the diagram, the areas where the lines are spread far apart represent:",
+        es: "En el diagrama, las áreas donde las líneas están muy separadas representan:",
+        choices: ["Rarefactions", "Compressions", "Nodes", "Antinodes"],
+        correct: 0,
+        drawType: "longitudinal_single"
     }
 ];
 
