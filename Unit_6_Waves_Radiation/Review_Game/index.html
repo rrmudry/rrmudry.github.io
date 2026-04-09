@@ -465,9 +465,11 @@
 
         function drawTransverse(ctx, tw, th, offsetX, width, waveLength, amp, color, label, time) {
             ctx.beginPath();
+            const velocity = 60; // Constant wave speed
             for(let i=0; i<=width; i+=2) {
                 const x = offsetX + i;
-                const y = th/2 - Math.sin((i / waveLength) * Math.PI * 2 - time * 2) * amp;
+                const phase = ((i - time * velocity) / waveLength) * Math.PI * 2;
+                const y = th/2 - Math.sin(phase) * amp;
                 if(i===0) ctx.moveTo(x, y);
                 else ctx.lineTo(x, y);
             }
