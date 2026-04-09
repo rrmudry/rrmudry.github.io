@@ -174,7 +174,8 @@
             <!-- Question Area -->
             <div class="mb-10 text-center min-h-[100px] flex items-center justify-center flex-col">
                 <span id="q-number" class="text-physics-500 font-bold mb-2 text-sm uppercase tracking-widest">Question</span>
-                <p id="question-text" class="text-2xl md:text-3xl font-heading font-semibold leading-tight text-white drop-shadow-sm"></p>
+                <p id="question-text" class="text-2xl md:text-3xl font-heading font-semibold leading-tight text-white drop-shadow-sm mb-4"></p>
+                <canvas id="wave-canvas" width="600" height="200" class="hidden w-full max-w-lg h-auto rounded-xl shadow-inner border border-slate-700 bg-slate-900/80"></canvas>
             </div>
 
             <!-- Choices -->
@@ -189,9 +190,9 @@
                     <button onclick="nextQuestion()" class="bg-white text-slate-900 hover:bg-slate-200 px-8 py-4 rounded-xl font-black uppercase tracking-widest transition-all shadow-lg flex-1 sm:flex-none">
                         Next Question →
                     </button>
-                    <a href="../../unit6-dashboard.html" class="bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white px-8 py-4 rounded-xl font-bold uppercase tracking-widest transition-all border border-slate-700 shadow-lg flex-1 sm:flex-none flex items-center justify-center">
+                    <button onclick="endGame()" class="bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white px-8 py-4 rounded-xl font-bold uppercase tracking-widest transition-all border border-slate-700 shadow-lg flex-1 sm:flex-none flex items-center justify-center">
                         I'm Done 🛑
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>
@@ -202,6 +203,16 @@
              <button onclick="startGame()" class="bg-gradient-to-r from-physics-500 to-purple-500 hover:from-physics-400 hover:to-purple-400 text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest transition-all shadow-[0_0_40px_rgba(14,165,233,0.4)] text-lg active:scale-95">
                  Initialize Routine
              </button>
+        </div>
+
+        <div id="final-score-container" class="hidden text-center glass-panel p-12 rounded-3xl max-w-xl animate-in fade-in zoom-in">
+             <h2 class="text-4xl font-heading font-black mb-2 text-white">Mission <span class="text-emerald-400">Complete</span></h2>
+             <p class="text-slate-400 mb-6 font-medium">Your final recorded mastery score for this session:</p>
+             <div class="text-7xl font-mono font-black text-emerald-400 drop-shadow-md mb-2"><span id="final-score-value">0</span><span class="text-4xl text-slate-500">/20</span></div>
+             <p class="text-xs text-slate-500 uppercase font-bold tracking-widest mb-8">Data Synced to Central Servers</p>
+             <a href="../../unit6-dashboard.html" class="bg-gradient-to-r from-physics-500 to-purple-500 hover:from-physics-400 hover:to-purple-400 text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest transition-all shadow-[0_0_40px_rgba(14,165,233,0.4)] text-lg block text-center active:scale-95">
+                 Return to Roadmap
+             </a>
         </div>
     </main>
 
@@ -357,6 +368,15 @@
             nextQuestion();
         }
 
+        function endGame() {
+            clearInterval(state.timerInterval);
+            document.getElementById('game-container').classList.add('hidden');
+            document.getElementById('final-score-container').classList.remove('hidden');
+            
+            const corrects = state.history.filter(x => x === 1).length;
+            document.getElementById('final-score-value').textContent = corrects;
+        }
+
         function nextQuestion() {
             clearInterval(state.timerInterval);
             document.getElementById('next-overlay').classList.add('hidden');
@@ -381,6 +401,14 @@
             document.getElementById('q-number').textContent = `Question ${state.questionIndex}`;
             document.getElementById('question-text').textContent = q[state.lang];
             
+            const canvas = document.getElementById('wave-canvas');
+            if (q.drawType) {
+                canvas.classList.remove('hidden');
+                drawCanvasWave(canvas, q.drawType);
+            } else {
+                canvas.classList.add('hidden');
+            }
+            
             const cont = document.getElementById('choices-container');
             cont.innerHTML = '';
             
@@ -391,6 +419,70 @@
                 btn.onclick = () => handleAnswer(origIdx, btn);
                 cont.appendChild(btn);
             });
+        }
+
+        function drawCanvasWave(canvas, type) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            
+            // Draw axis
+            ctx.beginPath();
+            ctx.moveTo(0, h/2);
+            ctx.lineTo(w, h/2);
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            ctx.lineWidth = 4;
+            
+            if (type === 'transverse_amp') {
+                drawTransverse(ctx, w, h, 0, w/2, 60, 60, '#0ea5e9', 'Wave A');
+                drawTransverse(ctx, w, h, w/2, w/2, 60, 20, '#a855f7', 'Wave B');
+            } else if (type === 'transverse_wavelength') {
+                drawTransverse(ctx, w, h, 0, w/2, 30, 40, '#0ea5e9', 'Wave A');
+                drawTransverse(ctx, w, h, w/2, w/2, 90, 40, '#a855f7', 'Wave B');
+            } else if (type === 'transverse_single') {
+                drawTransverse(ctx, w, h, w/4, w/2, 50, 40, '#10b981', '');
+            } else if (type === 'longitudinal_single') {
+                drawLongitudinal(ctx, w, h, w/4, w/2, '#10b981');
+            }
+        }
+
+        function drawTransverse(ctx, tw, th, offsetX, width, waveLength, amp, color, label) {
+            ctx.beginPath();
+            for(let i=0; i<=width; i+=2) {
+                const x = offsetX + i;
+                const y = th/2 - Math.sin((i / waveLength) * Math.PI * 2) * amp;
+                if(i===0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.strokeStyle = color;
+            ctx.stroke();
+            
+            if(label) {
+                ctx.fillStyle = '#fff';
+                ctx.font = '20px Outfit';
+                ctx.fillText(label, offsetX + 20, 30);
+            }
+        }
+
+        function drawLongitudinal(ctx, tw, th, offsetX, width, color) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3;
+            let currentX = offsetX + 20;
+            for(let i=0; i<40; i++) {
+                let phase = (i / 40) * Math.PI * 6;
+                let spacing = 8 + Math.sin(phase) * 6;
+                currentX += spacing;
+                if (currentX > offsetX + width - 20) break;
+                
+                ctx.beginPath();
+                ctx.moveTo(currentX, th/2 - 40);
+                ctx.lineTo(currentX, th/2 + 40);
+                ctx.stroke();
+            }
         }
 
         function startTimer() {
