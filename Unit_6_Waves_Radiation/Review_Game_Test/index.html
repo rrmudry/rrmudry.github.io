@@ -310,6 +310,24 @@
             }
             return array;
         }
+        
+        /**
+         * Security / Anti-Cheat Detection
+         */
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') handleFocusLoss();
+        });
+        window.addEventListener('blur', handleFocusLoss);
+
+        function handleFocusLoss() {
+            const gameContainer = document.getElementById('game-container');
+            const nextOverlay = document.getElementById('next-overlay');
+            
+            // Only trigger if the game is visible and the question hasn't been answered yet
+            if (gameContainer && !gameContainer.classList.contains('hidden') && nextOverlay && nextOverlay.classList.contains('hidden')) {
+                handleAnswer(-2, null); // Special code -2 for focus loss
+            }
+        }
 
         let runPool = [];
 
@@ -611,6 +629,9 @@
             } else if (selectedIndex === -1) {
                 feedback.textContent = state.lang === 'es' ? "¡Tiempo agotado!" : "Time's Up!";
                 feedback.className = "text-xl font-black text-rose-400 mb-4";
+            } else if (selectedIndex === -2) {
+                feedback.textContent = "Focus Lost // Question Forfeited";
+                feedback.className = "text-xl font-black text-rose-400 mb-4 animate-pulse";
             } else {
                 feedback.textContent = state.lang === 'es' ? "¡Incorrecto!" : "Incorrect!";
                 feedback.className = "text-xl font-black text-rose-400 mb-4";
