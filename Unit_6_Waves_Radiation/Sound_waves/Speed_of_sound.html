@@ -112,6 +112,14 @@
                 </button>
                 <p id="login-status" class="text-[9px] font-bold text-slate-600 uppercase tracking-widest animate-pulse h-4"></p>
                 
+                <!-- Volume Check Notice -->
+                <div class="flex items-center justify-center gap-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl">
+                    <span class="text-xl">🔊</span>
+                    <p class="text-[10px] text-blue-300 font-bold uppercase tracking-wider text-left">
+                        Sound Recommended:<br>Turn up your volume for Part 2.
+                    </p>
+                </div>
+                
                 <!-- DEV TOOLS -->
                 <div class="pt-4 border-t border-white/5">
                     <button onclick="devSimulateComplete()" class="text-[9px] font-black text-slate-700 uppercase tracking-widest hover:text-blue-500 transition-colors">
@@ -172,7 +180,25 @@
     </header>
 
     <!-- Main Content Area -->
-    <div class="flex-1 flex p-3 gap-4 max-w-7xl mx-auto w-full min-h-0">
+    <div class="flex-1 flex flex-col p-3 gap-3 max-w-7xl mx-auto w-full min-h-0">
+        
+        <!-- Volume Notification Banner -->
+        <div id="volume-banner" class="bg-indigo-600/20 border border-indigo-500/40 rounded-xl p-3 flex items-center justify-between animate-fade-in">
+            <div class="flex items-center gap-3">
+                <span class="text-2xl animate-pulse">🔊</span>
+                <div>
+                    <h4 class="text-xs font-black text-indigo-300 uppercase tracking-widest">Audio Optimization Required</h4>
+                    <p class="text-[10px] text-slate-300">This module uses acoustic data. Please ensure your device volume is active and audible.</p>
+                </div>
+            </div>
+            <button onclick="this.parentElement.remove()" class="text-slate-500 hover:text-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="flex-1 flex gap-4 min-h-0">
 
         <!-- Left Column: Interactive Physics Canvas -->
         <div class="flex-1 flex flex-col gap-3 min-h-0 overflow-y-auto custom-scrollbar pr-2 pb-2">
@@ -233,8 +259,18 @@
                 <!-- Storm Assessment Area -->
                 <div id="storm-assessment"
                     class="hidden bg-blue-900/30 rounded-xl p-3 border border-blue-500/50 shadow-lg animate-fade-in shrink-0">
-                    <h3 id="storm-assessment-title" class="text-base font-bold text-blue-300 mb-1">Assessment Locked 🔒
-                    </h3>
+                    <div class="flex justify-between items-center mb-1">
+                        <h3 id="storm-assessment-title" class="text-base font-bold text-blue-300">Assessment Locked 🔒</h3>
+                        <button id="btn-storm-help" onclick="toggleStormHelp()"
+                            class="hidden w-7 h-7 flex items-center justify-center rounded-full bg-slate-800 border border-slate-600 hover:bg-red-600 hover:border-red-500 text-slate-300 hover:text-white transition-all text-xs"
+                            title="Need calculation help?">❓</button>
+                    </div>
+                    
+                    <div id="storm-help-card" class="hidden mb-3 bg-slate-800/80 border border-slate-600 rounded-lg p-3 animate-fade-in text-xs shadow-inner">
+                        <h4 class="font-bold text-blue-400 mb-1 flex items-center gap-2"><span>💡</span> Calculation Guide:</h4>
+                        <div id="storm-help-content" class="text-slate-300"></div>
+                    </div>
+
                     <p class="text-xs text-slate-300 mb-2" id="storm-assessment-text">
                         You stopped the timer at <strong>0.00 seconds</strong>. Using the Desmos calculator on the
                         right, calculate the distance (<i>d = v &times; t</i>). You MUST show your work in the
@@ -246,6 +282,10 @@
                         <button id="btn-storm-submit" disabled onclick="checkStormAnswer()"
                             class="px-4 py-1.5 bg-green-600 hover:bg-green-500 text-white text-sm font-bold rounded-md shrink-0 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
                             Submit Answer
+                        </button>
+                        <button onclick="resetStormTrial()" 
+                            class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-300 text-[10px] font-black uppercase tracking-widest rounded-md transition-all">
+                            Reset Strike
                         </button>
                         <div id="storm-feedback" class="p-2 rounded-md text-xs font-semibold hidden flex-1"></div>
                     </div>
@@ -306,8 +346,18 @@
                 <!-- Wave Assessment Area -->
                 <div id="wave-assessment"
                     class="hidden bg-blue-900/30 rounded-xl p-3 border border-blue-500/50 shadow-lg animate-fade-in shrink-0">
-                    <h3 id="wave-assessment-title" class="text-base font-bold text-blue-300 mb-1">Assessment Locked 🔒
-                    </h3>
+                    <div class="flex justify-between items-center mb-1">
+                        <h3 id="wave-assessment-title" class="text-base font-bold text-blue-300">Assessment Locked 🔒</h3>
+                        <button id="btn-wave-help" onclick="toggleWaveHelp()"
+                            class="hidden w-7 h-7 flex items-center justify-center rounded-full bg-slate-800 border border-slate-600 hover:bg-red-600 hover:border-red-500 text-slate-300 hover:text-white transition-all text-xs"
+                            title="Need calculation help?">❓</button>
+                    </div>
+
+                    <div id="wave-help-card" class="hidden mb-3 bg-slate-800/80 border border-slate-600 rounded-lg p-3 animate-fade-in text-xs shadow-inner">
+                        <h4 class="font-bold text-blue-400 mb-1 flex items-center gap-2"><span>💡</span> Calculation Guide:</h4>
+                        <div id="wave-help-content" class="text-slate-300"></div>
+                    </div>
+
                     <p class="text-xs text-slate-300 mb-2" id="wave-assessment-text">
                         You discovered the frequency is <strong>0 Hz</strong>. Assuming this sound is travelling through
                         the air (<i>v</i> = 343 m/s), use the Desmos calculator to find the <strong>wavelength
@@ -606,6 +656,14 @@
             el.className = `p-3 rounded-md text-sm font-semibold animate-fade-in flex-1 ${isSuccess ? 'bg-green-900/50 text-green-300' : 'bg-red-900/50 text-red-300'}`;
         }
 
+        function toggleStormHelp() {
+            document.getElementById('storm-help-card').classList.toggle('hidden');
+        }
+
+        function toggleWaveHelp() {
+            document.getElementById('wave-help-card').classList.toggle('hidden');
+        }
+
         // --- AUDIO ENGINE ---
         let audioCtx = null;
         function initAudio() {
@@ -613,33 +671,37 @@
             if (audioCtx.state === 'suspended') audioCtx.resume();
         }
 
-        function playThunder() {
-            if (!audioCtx) return;
+        async function playThunder() {
+            if (!audioCtx) initAudio();
+            if (audioCtx.state === 'suspended') await audioCtx.resume();
+            
             const osc1 = audioCtx.createOscillator();
             const osc2 = audioCtx.createOscillator();
             const gainNode = audioCtx.createGain();
 
+            const t = audioCtx.currentTime;
+
             // Create a rumbling, dissonant sound
             osc1.type = 'sawtooth';
-            osc1.frequency.setValueAtTime(40, audioCtx.currentTime);
-            osc1.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + 2.5);
+            osc1.frequency.setValueAtTime(40, t);
+            osc1.frequency.exponentialRampToValueAtTime(10, t + 2.5);
 
             osc2.type = 'square';
-            osc2.frequency.setValueAtTime(35, audioCtx.currentTime);
-            osc2.frequency.exponentialRampToValueAtTime(12, audioCtx.currentTime + 2.5);
+            osc2.frequency.setValueAtTime(35, t);
+            osc2.frequency.exponentialRampToValueAtTime(12, t + 2.5);
 
-            gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
-            gainNode.gain.linearRampToValueAtTime(1.5, audioCtx.currentTime + 0.1);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 2.5);
+            gainNode.gain.setValueAtTime(0.8, t);
+            gainNode.gain.linearRampToValueAtTime(1.2, t + 0.1);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, t + 2.5);
 
             osc1.connect(gainNode);
             osc2.connect(gainNode);
             gainNode.connect(audioCtx.destination);
 
-            osc1.start();
-            osc2.start();
-            osc1.stop(audioCtx.currentTime + 2.5);
-            osc2.stop(audioCtx.currentTime + 2.5);
+            osc1.start(t);
+            osc2.start(t);
+            osc1.stop(t + 2.5);
+            osc2.stop(t + 2.5);
         }
 
         // NEW SYNTHESIZER FUNCTIONS
@@ -878,6 +940,7 @@
                 }
 
                 flashOpacity = 1;
+                playThunder();
                 stormStatus = 'running';
                 stormStartTime = performance.now();
                 btnT.innerText = 'Trigger Lightning';
@@ -906,6 +969,15 @@
 
             document.getElementById('storm-assessment-text').innerHTML = `You stopped the timer at <strong>${userTime} seconds</strong>. Using the Desmos calculator on the right, calculate the distance (<i>d = v &times; t</i>). You MUST show your work in the calculator to unlock the answer box.`;
             document.getElementById('storm-assessment').classList.remove('hidden');
+
+            document.getElementById('btn-storm-help').classList.remove('hidden');
+            document.getElementById('storm-help-card').classList.add('hidden');
+            document.getElementById('storm-help-content').innerHTML = `
+                <p class="mb-2">To find the distance, multiply the speed of sound and your measured time:</p>
+                <div class="bg-slate-900 p-2 rounded font-mono text-center text-blue-300 border border-slate-700">
+                    d = 343 &times; ${userTime}
+                </div>
+            `;
 
             startDesmosMonitor(343, userTime, unlockStormAssessment);
         }
@@ -1000,6 +1072,15 @@
                 document.getElementById('storm-assessment-text').innerHTML = `You stopped your stopwatch at <strong>${userTime} seconds</strong>. Using the Desmos calculator on the right, calculate the actual distance of the lightning strike (<i>d = v &times; t</i>). You MUST show your work to unlock the answer box!`;
                 document.getElementById('storm-assessment').classList.remove('hidden');
 
+                document.getElementById('btn-storm-help').classList.remove('hidden');
+                document.getElementById('storm-help-card').classList.add('hidden');
+                document.getElementById('storm-help-content').innerHTML = `
+                    <p class="mb-2">To find the distance, multiply the speed of sound and your measured time:</p>
+                    <div class="bg-slate-900 p-2 rounded font-mono text-center text-blue-300 border border-slate-700">
+                        d = 343 &times; ${userTime}
+                    </div>
+                `;
+
                 startDesmosMonitor(343, userTime, unlockStormAssessment);
             }
         }
@@ -1010,6 +1091,50 @@
                 document.getElementById('fp-time-display').innerText = `t = ${elapsed} s`;
                 requestAnimationFrame(updateStopwatch);
             }
+        }
+
+        function resetStormTrial() {
+            if (desmosMonitorInterval) clearInterval(desmosMonitorInterval);
+            
+            // Clean up states
+            stormStatus = 'idle';
+            userTime = null;
+            waveRadius = 0;
+            stormStartTime = null;
+            lightningPath = [];
+            stopwatchRunning = false;
+
+            // Reset UI
+            document.getElementById('storm-assessment').classList.add('hidden');
+            document.getElementById('storm-feedback').classList.add('hidden');
+            document.getElementById('btn-storm-help').classList.add('hidden');
+            document.getElementById('storm-help-card').classList.add('hidden');
+            document.getElementById('storm-answer').value = '';
+            document.getElementById('storm-answer').disabled = true;
+            document.getElementById('btn-storm-submit').disabled = true;
+            
+            // Reset Time Displays
+            document.getElementById('storm-time-display').innerText = 't = 0.00 s';
+            document.getElementById('fp-time-display').innerText = 't = 0.00 s';
+
+            // Re-enable primary trigger buttons
+            const btnT = document.getElementById('btn-trigger');
+            btnT.disabled = false;
+            btnT.innerText = 'Trigger Lightning';
+            btnT.className = "px-5 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold rounded-md disabled:opacity-50 transition-all text-sm";
+            
+            const btnFPT = document.getElementById('btn-fp-trigger');
+            btnFPT.disabled = false;
+            btnFPT.innerText = 'Observe Window';
+            
+            const btnSW = document.getElementById('btn-fp-stopwatch');
+            btnSW.disabled = true;
+            btnSW.innerText = 'Start Stopwatch';
+            btnSW.classList.remove('bg-red-500', 'bg-slate-500');
+            btnSW.classList.add('bg-green-500');
+
+            // Redraw canvas
+            drawStormCanvas();
         }
 
         // --- ANSWER CHECKING ---
@@ -1030,7 +1155,7 @@
             }
 
             if (Math.abs(userTime - expectedTime) > tolerance) {
-                showFeedback('storm-feedback', false, `❌ Your stopwatch timing was inaccurate (expected ~${expectedTime.toFixed(2)}s). You stopped it too ${userTime < expectedTime ? 'early' : 'late'}! Refresh the strike and try again.`);
+                showFeedback('storm-feedback', false, `❌ Your stopwatch timing was inaccurate (expected ~${expectedTime.toFixed(2)}s). You stopped it too ${userTime < expectedTime ? 'early' : 'late'}! Use the **Reset Strike** button to try again.`);
                 const btnT = stormMode === 'side' ? document.getElementById('btn-trigger') : document.getElementById('btn-fp-trigger');
                 btnT.disabled = false;
                 btnT.innerText = 'Retry Strike';
@@ -1089,7 +1214,7 @@
                 }
                 syncResults();
             } else {
-                showFeedback('storm-feedback', false, `❌ Not quite. Double check your calculator. You want 343 * ${userTime}.`);
+                showFeedback('storm-feedback', false, `❌ Not quite. Double check your calculator. You want 343 * ${userTime}. If your time (t) is difficult to work with, click **Reset Strike** to get a new number.`);
             }
         }
 
@@ -1185,6 +1310,15 @@
                 document.getElementById('wave-assessment-text').innerHTML = `You discovered the frequency is <strong>${targetFreq} Hz</strong>. Assuming this sound is travelling through the air (<i>v</i> = 343 m/s), use the Desmos calculator to find the <strong>wavelength (&lambda;)</strong> of this sound wave. Show your work to unlock the answer box!`;
                 document.getElementById('wave-assessment').classList.remove('hidden');
 
+                document.getElementById('btn-wave-help').classList.remove('hidden');
+                document.getElementById('wave-help-card').classList.add('hidden');
+                document.getElementById('wave-help-content').innerHTML = `
+                    <p class="mb-2">To find the wavelength, divide the speed of sound by your frequency:</p>
+                    <div class="bg-slate-900 p-2 rounded font-mono text-center text-blue-300 border border-slate-700">
+                        &lambda; = 343 / ${targetFreq}
+                    </div>
+                `;
+
                 startDesmosMonitor(343, targetFreq, unlockWaveAssessment);
             }
         }
@@ -1240,6 +1374,8 @@
 
             // Reset Assessment UI
             document.getElementById('wave-assessment').classList.add('hidden');
+            document.getElementById('btn-wave-help').classList.add('hidden');
+            document.getElementById('wave-help-card').classList.add('hidden');
             document.getElementById('wave-answer').value = '';
             document.getElementById('wave-feedback').classList.add('hidden');
         }
