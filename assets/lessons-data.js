@@ -221,7 +221,8 @@ const lessonsData = [
     dok: 3,
     semester: 2,
     isFeatured: true,
-    essentialQuestion: "How can we experimentally verify the principle of superposition?"
+    essentialQuestion: "How can we experimentally verify the principle of superposition?",
+    links: { "Rapid Review Game": "Unit_6_Waves_Radiation/Review_Game/index.html" }
   },
   {
     date: "2026-04-09",
