@@ -526,7 +526,7 @@
             const statusEl = document.getElementById('login-status');
             
             try {
-                // Calculate score: 15 total trials
+                // Calculate score: Each task completed counts as 5, incomplete tasks count (trial-1)
                 const sideFin = (currentTrial > 5) ? 5 : (currentTrial - 1 + (trialCompleted && stormMode === 'side' ? 1 : 0));
                 const fpFin = (currentFPTrial > 5) ? 5 : (currentFPTrial - 1 + (trialCompleted && stormMode === 'fp' ? 1 : 0));
                 const waveFin = (currentWaveTrial > 5) ? 5 : (currentWaveTrial - 1 + (waveIsMatched ? 1 : 0));
@@ -1227,6 +1227,7 @@
                         btnT.disabled = false;
                         btnT.className = "px-5 py-1.5 bg-green-500 hover:bg-green-400 shadow-[0_0_15px_rgba(34,197,94,0.8)] animate-pulse text-white text-sm font-bold rounded-md transition-all";
                     } else {
+                        currentTrial = 6; // MARK TASK 1 AS COMPLETED
                         showFeedback('storm-feedback', true, `✅ Correct! You've mastered the Side View. <button onclick="switchTab('task2')" class="ml-3 px-3 py-1 bg-blue-700 hover:bg-blue-600 text-white rounded font-bold shadow-md transition-all">Go to Task 2 &rarr;</button>`);
                         const btnT = document.getElementById('btn-trigger');
                         btnT.innerText = "Start Task 2: First-Person Mode";
@@ -1246,6 +1247,7 @@
                         btnSW.innerText = "Start Stopwatch";
                         btnSW.classList.replace('bg-slate-500', 'bg-green-500');
                     } else {
+                        currentFPTrial = 6; // MARK TASK 2 AS COMPLETED
                         showFeedback('storm-feedback', true, `✅ Correct! You have mastered Task 2! <button onclick="switchTab('task3')" class="ml-3 px-3 py-1 bg-blue-700 hover:bg-blue-600 text-white rounded font-bold shadow-md transition-all">Go to Task 3 &rarr;</button>`);
                         const btnT = document.getElementById('btn-fp-trigger');
                         btnT.innerText = "Task 2 Complete";
@@ -1382,6 +1384,8 @@
                 if (currentWaveTrial < 5) {
                     showFeedback('wave-feedback', true, `✅ Correct! Because velocity (343 m/s) is constant, a higher frequency means a shorter wavelength. <button onclick="nextWaveTask()" class="ml-3 px-3 py-1 bg-green-700 hover:bg-green-600 text-white rounded font-bold transition-colors">Next Wave</button>`);
                 } else {
+                    currentWaveTrial = 6; // MARK TASK 3 AS COMPLETED
+                    waveIsMatched = true; // Sticky for final trial
                     showFeedback('wave-feedback', true, `✅ Correct! You've mastered Part 2: Wave Matcher!`);
                 }
                 syncResults();
