@@ -191,7 +191,7 @@ const lessonsData = [
     summary: "Visualizing the Doppler Effect in sound-emitting objects like cars and planes.",
     details: "Deep dive into stationary vs. moving observers, sonic booms (breaking the sound barrier), and everyday examples of acoustic frequency shifts.",
     type: "Activity",
-    links: { "Doppler Effect Simulation": "https://phet.colorado.edu/sims/html/wave-interference/latest/wave-interference_en.html" },
+    links: { "Doppler Detective Sim": "Unit_6_Waves_Radiation/Doppler_Detective/Doppler_Detective.html" },
     dok: 2,
     semester: 2,
     isFeatured: true,
@@ -208,7 +208,8 @@ const lessonsData = [
     dok: 2,
     semester: 2,
     isFeatured: true,
-    essentialQuestion: "How does the relative motion of a sound source change the way we perceive its frequency?"
+    essentialQuestion: "How does the relative motion of a sound source change the way we perceive its frequency?",
+    links: { "Speed of Sound Lab": "Unit_6_Waves_Radiation/Sound_waves/Speed_of_sound.html" }
   },
   {
     date: "2026-04-10",
