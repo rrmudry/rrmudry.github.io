@@ -161,14 +161,18 @@
             <h1 class="text-xl font-bold text-blue-400">The Speed of Sound</h1>
             <p class="text-xs text-slate-400">Interactive Tutorial & Assessment</p>
         </div>
-        <div class="flex gap-2 text-sm">
-            <button id="tab-storm" onclick="switchTab('storm')"
-                class="px-3 py-1.5 rounded-md font-semibold transition-colors bg-blue-600 text-white">
-                Part 1: Lightning Distance
+        <div class="flex gap-1 text-sm">
+            <button id="tab-task1" onclick="switchTab('task1')"
+                class="px-2.5 py-1.5 rounded-md font-bold transition-all bg-blue-600 text-white shadow-md flex items-center justify-center gap-1.5">
+                1: Side-View <span id="check-task1" class="hidden text-green-400">✔</span>
             </button>
-            <button id="tab-wave" onclick="switchTab('wave')"
-                class="px-3 py-1.5 rounded-md font-semibold transition-colors bg-slate-700 text-slate-300 hover:bg-slate-600">
-                Part 2: Wave Matcher
+            <button id="tab-task2" onclick="switchTab('task2')"
+                class="px-2.5 py-1.5 rounded-md font-bold transition-all bg-slate-700 text-slate-400 hover:bg-slate-600 flex items-center justify-center gap-1.5">
+                2: POV Strike <span id="check-task2" class="hidden text-green-400">✔</span>
+            </button>
+            <button id="tab-task3" onclick="switchTab('task3')"
+                class="px-2.5 py-1.5 rounded-md font-bold transition-all bg-slate-700 text-slate-400 hover:bg-slate-600 flex items-center justify-center gap-1.5">
+                3: Wave Matcher <span id="check-task3" class="hidden text-green-400">✔</span>
             </button>
         </div>
         <div class="flex items-center gap-6">
@@ -499,11 +503,18 @@
             
             // Re-sync trial UI counters from loaded state
             document.getElementById('trial-counter').innerText = `(Trial ${currentTrial > 5 ? 5 : currentTrial} of 5)`;
-            if (stormMode === 'fp') {
-                startFirstPerson();
-                document.getElementById('fp-trial-counter').innerText = `(Trial ${currentFPTrial > 5 ? 5 : currentFPTrial} of 5)`;
-            }
+            document.getElementById('fp-trial-counter').innerText = `(Trial ${currentFPTrial > 5 ? 5 : currentFPTrial} of 5)`;
             document.getElementById('wave-trial-counter').innerText = `(Trial ${currentWaveTrial > 5 ? 5 : currentWaveTrial} of 5)`;
+            
+            // Set correct initial tab based on progress
+            if (currentTrial <= 5) {
+                switchTab('task1');
+            } else if (currentFPTrial <= 5) {
+                switchTab('task2');
+            } else {
+                switchTab('task3');
+            }
+
             loadWaveProfile();
 
             // Initial sync
@@ -550,6 +561,11 @@
                 
                 document.getElementById('sync-indicator').textContent = "Database_Secure";
 
+                // Update tab checkmarks
+                if (currentTrial > 5) document.getElementById('check-task1').classList.remove('hidden');
+                if (currentFPTrial > 5) document.getElementById('check-task2').classList.remove('hidden');
+                if (currentWaveTrial > 5) document.getElementById('check-task3').classList.remove('hidden');
+
                 if (state.score >= 100) {
                     document.getElementById('final-score-display').textContent = "100%";
                     document.getElementById('completion-overlay').classList.remove('hidden');
@@ -583,19 +599,36 @@
         let desmosMonitorInterval = null;
 
         function switchTab(tab) {
-            activeTab = tab; // Pauses the hidden animation loop
+            activeTab = (tab === 'task3') ? 'wave' : 'storm'; 
             if (desmosMonitorInterval) clearInterval(desmosMonitorInterval);
 
-            if (tab === 'storm') {
+            // Hide everything first
+            document.getElementById('sec-storm').classList.add('hidden');
+            document.getElementById('sec-wave').classList.add('hidden');
+            document.getElementById('side-controls').classList.add('hidden');
+            document.getElementById('fp-controls').classList.add('hidden');
+
+            // Reset tab styles
+            ['task1', 'task2', 'task3'].forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                btn.className = "px-2.5 py-1.5 rounded-md font-bold transition-all bg-slate-700 text-slate-400 hover:bg-slate-600 flex items-center justify-center gap-1.5";
+            });
+
+            // Activate specific content
+            const activeBtn = document.getElementById(`tab-${tab}`);
+            activeBtn.className = "px-2.5 py-1.5 rounded-md font-bold transition-all bg-blue-600 text-white shadow-md flex items-center justify-center gap-1.5";
+
+            if (tab === 'task1') {
+                stormMode = 'side';
                 document.getElementById('sec-storm').classList.remove('hidden');
-                document.getElementById('sec-wave').classList.add('hidden');
-                document.getElementById('tab-storm').className = "px-3 py-1.5 rounded-md font-semibold transition-colors bg-blue-600 text-white";
-                document.getElementById('tab-wave').className = "px-3 py-1.5 rounded-md font-semibold transition-colors bg-slate-700 text-slate-300 hover:bg-slate-600";
-            } else {
-                document.getElementById('sec-storm').classList.add('hidden');
+                document.getElementById('side-controls').classList.remove('hidden');
+            } else if (tab === 'task2') {
+                stormMode = 'fp';
+                document.getElementById('sec-storm').classList.remove('hidden');
+                document.getElementById('fp-controls').classList.remove('hidden');
+                startFirstPerson(); // Ensure UI state is refreshed for FP
+            } else if (tab === 'task3') {
                 document.getElementById('sec-wave').classList.remove('hidden');
-                document.getElementById('tab-storm').className = "px-3 py-1.5 rounded-md font-semibold transition-colors bg-slate-700 text-slate-300 hover:bg-slate-600";
-                document.getElementById('tab-wave').className = "px-3 py-1.5 rounded-md font-semibold transition-colors bg-blue-600 text-white";
             }
         }
 
@@ -908,6 +941,10 @@
                 trialCompleted = false;
             }
 
+            // Clean state for new trial
+            userTime = null;
+            document.getElementById('storm-time-display').innerText = 't = 0.00 s';
+
             stormStatus = 'waiting';
             userTime = null;
             waveRadius = 0;
@@ -1011,6 +1048,10 @@
                 document.getElementById('fp-trial-counter').innerText = `(Trial ${currentFPTrial} of 5)`;
                 trialCompleted = false;
             }
+
+            // Clean state for new trial
+            userTime = null;
+            document.getElementById('fp-time-display').innerText = 't = 0.00 s';
 
             document.getElementById('storm-assessment').classList.add('hidden');
             document.getElementById('storm-feedback').classList.add('hidden');
@@ -1180,13 +1221,13 @@
                 trialCompleted = true;
                 if (stormMode === 'side') {
                     if (currentTrial < 5) {
-                        showFeedback('storm-feedback', true, `✅ Correct! Distance was ${userDistance}m.`);
+                        showFeedback('storm-feedback', true, `✅ Correct! Distance was ${userDistance}m. <button onclick="triggerLightning()" class="ml-3 px-3 py-1 bg-green-700 hover:bg-green-600 text-white rounded font-bold shadow-md transition-all">Next Strike &rarr;</button>`);
                         const btnT = document.getElementById('btn-trigger');
                         btnT.innerText = "Trigger New Lightning Strike";
                         btnT.disabled = false;
                         btnT.className = "px-5 py-1.5 bg-green-500 hover:bg-green-400 shadow-[0_0_15px_rgba(34,197,94,0.8)] animate-pulse text-white text-sm font-bold rounded-md transition-all";
                     } else {
-                        showFeedback('storm-feedback', true, `✅ Correct! You've mastered the Side View.`);
+                        showFeedback('storm-feedback', true, `✅ Correct! You've mastered the Side View. <button onclick="switchTab('task2')" class="ml-3 px-3 py-1 bg-blue-700 hover:bg-blue-600 text-white rounded font-bold shadow-md transition-all">Go to Task 2 &rarr;</button>`);
                         const btnT = document.getElementById('btn-trigger');
                         btnT.innerText = "Start Task 2: First-Person Mode";
                         btnT.disabled = false;
@@ -1195,7 +1236,7 @@
                 } else {
                     // FP Mode Success
                     if (currentFPTrial < 5) {
-                        showFeedback('storm-feedback', true, `✅ Correct! You calculated the actual physical distance.`);
+                        showFeedback('storm-feedback', true, `✅ Correct! You calculated the actual physical distance. <button onclick="triggerFPStorm()" class="ml-3 px-3 py-1 bg-green-700 hover:bg-green-600 text-white rounded font-bold shadow-md transition-all">Next Strike &rarr;</button>`);
                         const btnT = document.getElementById('btn-fp-trigger');
                         btnT.innerText = "Trigger New Lightning Strike";
                         btnT.disabled = false;
@@ -1205,7 +1246,7 @@
                         btnSW.innerText = "Start Stopwatch";
                         btnSW.classList.replace('bg-slate-500', 'bg-green-500');
                     } else {
-                        showFeedback('storm-feedback', true, `✅ Correct! You have mastered Task 2!`);
+                        showFeedback('storm-feedback', true, `✅ Correct! You have mastered Task 2! <button onclick="switchTab('task3')" class="ml-3 px-3 py-1 bg-blue-700 hover:bg-blue-600 text-white rounded font-bold shadow-md transition-all">Go to Task 3 &rarr;</button>`);
                         const btnT = document.getElementById('btn-fp-trigger');
                         btnT.innerText = "Task 2 Complete";
                         btnT.disabled = true;
