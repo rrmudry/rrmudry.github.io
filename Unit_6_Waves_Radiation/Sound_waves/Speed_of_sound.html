@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speed of Sound</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Desmos API -->
+    <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        /* Custom Scrollbar for Left Column */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #475569;
+            border-radius: 10px;
+        }
+
+        /* Supabase Overlays */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.98);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(1.05);
+        }
+
+        .glass {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .font-orbitron { font-family: 'Orbitron', sans-serif; }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #60a5fa, #a855f7);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+
+<body class="h-screen overflow-hidden bg-slate-900 text-slate-100 font-sans flex flex-col">
+
+    <!-- LOGIN OVERLAY -->
+    <div id="login-overlay" class="overlay">
+        <div class="glass max-w-md w-full p-10 rounded-[2rem] text-center space-y-8 animate-fade-in">
+            <div class="space-y-2">
+                <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-blue-500/20 mb-4">
+                    <span class="text-3xl font-orbitron font-black text-white">v</span>
+                </div>
+                <h1 class="text-2xl md:text-3xl font-orbitron font-black gradient-text tracking-tighter uppercase leading-tight">The Speed of Sound</h1>
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em]">Interactive Mastery Module</p>
+            </div>
+            
+            <div id="login-form" class="space-y-4">
+                <div class="space-y-2 text-left">
+                    <p class="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] px-1">Access_Node // Student ID</p>
+                    <input type="text" id="student-id" placeholder="6-Digit ID" maxlength="6" 
+                        class="w-full bg-slate-900 border border-white/10 p-4 rounded-xl outline-none transition-all text-center font-bold text-xl focus:border-blue-500/50 uppercase tracking-widest text-blue-400">
+                </div>
+
+                <div id="name-entry" class="hidden animate-fade-in space-y-2 text-left text-sm">
+                    <p class="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] px-1">New User Detected // Enter Name</p>
+                    <input type="text" id="student-name" placeholder="Full Student Name" 
+                        class="w-full bg-slate-900 border border-white/10 p-4 rounded-xl outline-none transition-all text-center font-bold focus:border-purple-500/50">
+                </div>
+
+                <button id="login-btn" onclick="handleLogin()" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 p-4 rounded-xl font-black uppercase tracking-widest text-sm shadow-xl active:scale-95 transition-all">
+                    Establish Connection
+                </button>
+                <p id="login-status" class="text-[9px] font-bold text-slate-600 uppercase tracking-widest animate-pulse h-4"></p>
+                
+                <!-- DEV TOOLS -->
+                <div class="pt-4 border-t border-white/5">
+                    <button onclick="devSimulateComplete()" class="text-[9px] font-black text-slate-700 uppercase tracking-widest hover:text-blue-500 transition-colors">
+                        [DEV] Simulate Completion
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- COMPLETION OVERLAY -->
+    <div id="completion-overlay" class="overlay hidden">
+        <div class="glass max-w-md w-full p-10 rounded-[2rem] text-center space-y-6">
+            <h2 class="text-3xl font-orbitron font-black text-green-400 uppercase tracking-tighter">Mission Accomplished</h2>
+            <div class="p-6 bg-slate-900/50 rounded-2xl border border-green-500/20">
+                <p class="text-slate-300 text-sm mb-4">You have successfully mastered the physics of sound distance and wave matching.</p>
+                <div class="flex justify-around items-center py-4">
+                    <div class="text-center">
+                        <p class="text-[10px] font-black text-slate-500 uppercase mb-1">Final Score</p>
+                        <p id="final-score-display" class="text-4xl font-orbitron font-black text-blue-400">100%</p>
+                    </div>
+                    <div class="h-12 w-[1px] bg-white/10"></div>
+                    <div class="text-center">
+                        <p class="text-[10px] font-black text-slate-500 uppercase mb-1">Status</p>
+                        <p class="text-xs font-bold text-green-400 uppercase tracking-widest">Submitted</p>
+                    </div>
+                </div>
+            </div>
+            <button onclick="location.reload()" class="w-full bg-slate-800 hover:bg-slate-700 p-4 rounded-xl font-black uppercase tracking-widest text-sm transition-all border border-white/5">
+                Close Activity
+            </button>
+            <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Session Securely Finalized</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-slate-800 p-3 shadow-md border-b border-slate-700 flex justify-between items-center shrink-0">
+        <div>
+            <h1 class="text-xl font-bold text-blue-400">The Speed of Sound</h1>
+            <p class="text-xs text-slate-400">Interactive Tutorial & Assessment</p>
+        </div>
+        <div class="flex gap-2 text-sm">
+            <button id="tab-storm" onclick="switchTab('storm')"
+                class="px-3 py-1.5 rounded-md font-semibold transition-colors bg-blue-600 text-white">
+                Part 1: Lightning Distance
+            </button>
+            <button id="tab-wave" onclick="switchTab('wave')"
+                class="px-3 py-1.5 rounded-md font-semibold transition-colors bg-slate-700 text-slate-300 hover:bg-slate-600">
+                Part 2: Wave Matcher
+            </button>
+        </div>
+        <div class="flex items-center gap-6">
+            <div class="text-right hidden sm:block">
+                <p id="student-tag" class="text-[10px] font-black text-slate-500 uppercase tracking-widest pt-1"></p>
+                <div id="sync-indicator" class="text-[8px] font-black text-slate-600 uppercase tracking-widest">Database_Secure</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex p-3 gap-4 max-w-7xl mx-auto w-full min-h-0">
+
+        <!-- Left Column: Interactive Physics Canvas -->
+        <div class="flex-1 flex flex-col gap-3 min-h-0 overflow-y-auto custom-scrollbar pr-2 pb-2">
+
+            <!-- STORM TRACKER SECTION -->
+            <div id="sec-storm" class="flex flex-col h-full gap-3 min-h-0">
+                <div class="bg-slate-800 rounded-xl p-3 border border-slate-700 shadow-lg shrink-0">
+                    <h2 id="storm-mode-title" class="text-lg font-bold text-white mb-1">
+                        Task 1: Side View Lightning
+                        <span id="trial-counter" class="text-sm font-normal text-amber-400 ml-2">(Trial 1 of 5)</span>
+                    </h2>
+                    <p id="storm-desc" class="text-slate-300 text-xs mb-2">
+                        Sound travels through the air at a constant speed of <strong class="text-blue-400">343
+                            m/s</strong>.
+                        When you click trigger, wait for the flash, then stop the timer the *exact moment* the sound
+                        wave hits the house.
+                    </p>
+
+                    <div
+                        class="relative border border-slate-600 rounded-lg overflow-hidden bg-slate-900 h-[160px] w-full shrink-0">
+                        <canvas id="storm-canvas" width="700" height="160" class="w-full h-full object-cover"></canvas>
+                    </div>
+
+                    <!-- Side View Controls -->
+                    <div id="side-controls" class="mt-2 flex gap-4 items-center">
+                        <button id="btn-trigger" onclick="triggerLightning()"
+                            class="px-5 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold rounded-md disabled:opacity-50 transition-all text-sm">
+                            Trigger Lightning
+                        </button>
+                        <button id="btn-stop" onclick="stopTimer()" disabled
+                            class="px-5 py-1.5 bg-red-500 hover:bg-red-400 text-white font-bold rounded-md disabled:opacity-50 text-sm">
+                            Stop Timer
+                        </button>
+                        <div id="storm-time-display"
+                            class="ml-auto text-lg font-mono text-blue-400 font-bold bg-slate-900 px-3 py-1 rounded-md border border-slate-700">
+                            t = 0.00 s
+                        </div>
+                    </div>
+
+                    <!-- First Person Controls (Hidden initially) -->
+                    <div id="fp-controls" class="mt-2 hidden flex gap-4 items-center">
+                        <button id="btn-fp-trigger" onclick="triggerFPStorm()"
+                            class="px-5 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold rounded-md disabled:opacity-50 transition-all text-sm">
+                            Observe Window
+                        </button>
+                        <button id="btn-fp-stopwatch" onclick="toggleStopwatch()" disabled
+                            class="px-5 py-1.5 bg-green-500 hover:bg-green-400 text-white font-bold rounded-md disabled:opacity-50 text-sm">
+                            Start Stopwatch
+                        </button>
+                        <div id="fp-time-display"
+                            class="ml-auto text-lg font-mono text-blue-400 font-bold bg-slate-900 px-3 py-1 rounded-md border border-slate-700">
+                            t = 0.00 s
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Storm Assessment Area -->
+                <div id="storm-assessment"
+                    class="hidden bg-blue-900/30 rounded-xl p-3 border border-blue-500/50 shadow-lg animate-fade-in shrink-0">
+                    <h3 id="storm-assessment-title" class="text-base font-bold text-blue-300 mb-1">Assessment Locked 🔒
+                    </h3>
+                    <p class="text-xs text-slate-300 mb-2" id="storm-assessment-text">
+                        You stopped the timer at <strong>0.00 seconds</strong>. Using the Desmos calculator on the
+                        right, calculate the distance (<i>d = v &times; t</i>). You MUST show your work in the
+                        calculator to unlock the answer box.
+                    </p>
+                    <div class="flex gap-3 items-center">
+                        <input type="number" id="storm-answer" disabled placeholder="Distance in meters"
+                            class="px-3 py-1.5 text-sm rounded-md bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all w-40">
+                        <button id="btn-storm-submit" disabled onclick="checkStormAnswer()"
+                            class="px-4 py-1.5 bg-green-600 hover:bg-green-500 text-white text-sm font-bold rounded-md shrink-0 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+                            Submit Answer
+                        </button>
+                        <div id="storm-feedback" class="p-2 rounded-md text-xs font-semibold hidden flex-1"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WAVE MATCHER SECTION -->
+            <div id="sec-wave" class="hidden flex flex-col h-full gap-3 min-h-0">
+                <div class="bg-slate-800 rounded-xl p-3 border border-slate-700 shadow-lg shrink-0">
+                    <h2 class="text-lg font-bold text-white mb-1">
+                        Part 2: Wave Matcher
+                        <span id="wave-trial-counter" class="text-sm font-normal text-amber-400 ml-2">(Trial 1 of
+                            5)</span>
+                    </h2>
+                    <p class="text-slate-300 text-xs mb-2">
+                        The red wave represents an unknown sound. Adjust the frequency of your blue sound wave until the
+                        wavelengths perfectly overlap.
+                    </p>
+
+                    <!-- NEW TARGET SOUND UI -->
+                    <div
+                        class="flex justify-between items-center bg-slate-900 p-2 rounded-md mb-2 border border-slate-700">
+                        <div class="text-blue-300 font-bold flex items-center gap-2 text-sm">
+                            <span id="wave-target-icon" class="text-xl">🎸</span>
+                            <span>Target: <span id="wave-target-name">Low Bass Guitar</span></span>
+                        </div>
+                        <button onclick="playTargetSound()"
+                            class="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 rounded-md text-xs font-bold text-white transition-colors flex items-center gap-2 shadow-lg">
+                            <span>🔊</span> Play Target
+                        </button>
+                    </div>
+
+                    <div
+                        class="relative border border-slate-600 rounded-lg overflow-hidden bg-slate-900 h-[160px] w-full shrink-0">
+                        <canvas id="wave-canvas" width="700" height="160" class="w-full h-full object-cover"></canvas>
+                    </div>
+
+                    <div class="mt-3">
+                        <label class="text-xs font-bold text-slate-300 flex justify-between mb-1 items-center">
+                            <span>Adjust Frequency (Hz)</span>
+                            <div class="flex items-center gap-4">
+                                <button onclick="playUserSound()"
+                                    class="px-2 py-0.5 bg-slate-700 hover:bg-slate-600 rounded text-[10px] text-white transition-colors flex items-center gap-1 shadow">
+                                    <span>🔊</span> Test My Wave
+                                </button>
+                                <span id="wave-freq-display"
+                                    class="text-blue-400 font-mono text-base w-16 text-right">100 Hz</span>
+                            </div>
+                        </label>
+                        <input type="range" id="wave-slider" min="100" max="600" step="10" value="100"
+                            oninput="updateWave()"
+                            class="w-full h-2 rounded-lg appearance-none cursor-pointer bg-slate-600">
+                        <p id="wave-matched-text" class="text-green-400 font-bold text-xs mt-1 hidden">✅ Wavelengths
+                            Matched! Frequency Locked.</p>
+                    </div>
+                </div>
+
+                <!-- Wave Assessment Area -->
+                <div id="wave-assessment"
+                    class="hidden bg-blue-900/30 rounded-xl p-3 border border-blue-500/50 shadow-lg animate-fade-in shrink-0">
+                    <h3 id="wave-assessment-title" class="text-base font-bold text-blue-300 mb-1">Assessment Locked 🔒
+                    </h3>
+                    <p class="text-xs text-slate-300 mb-2" id="wave-assessment-text">
+                        You discovered the frequency is <strong>0 Hz</strong>. Assuming this sound is travelling through
+                        the air (<i>v</i> = 343 m/s), use the Desmos calculator to find the <strong>wavelength
+                            (&lambda;)</strong> of this sound wave. Show your work to unlock the answer box!
+                    </p>
+                    <div class="flex gap-3 items-center">
+                        <input type="number" step="0.01" id="wave-answer" disabled placeholder="Wavelength (m)"
+                            class="px-3 py-1.5 text-sm rounded-md bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all w-40">
+                        <button id="btn-wave-submit" disabled onclick="checkWaveAnswer()"
+                            class="px-4 py-1.5 bg-green-600 hover:bg-green-500 text-white text-sm font-bold rounded-md shrink-0 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+                            Submit Answer
+                        </button>
+                        <div id="wave-feedback" class="p-2 rounded-md text-xs font-semibold hidden flex-1"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Column: Embedded Desmos -->
+        <div
+            class="w-1/3 min-w-[350px] bg-slate-800 rounded-xl shadow-lg border border-slate-700 flex flex-col overflow-hidden shrink-0">
+            <div class="p-3 bg-slate-900 border-b border-slate-700 flex items-center justify-between shrink-0">
+                <span class="font-semibold text-slate-300 flex items-center gap-2">Desmos Calculator</span>
+                <span class="text-xs text-amber-400 bg-amber-400/10 px-2 py-1 rounded">Work Monitored</span>
+            </div>
+            <!-- Desmos Container -->
+            <div id="desmos-container" class="flex-1 w-full bg-white relative"></div>
+            <div class="p-4 text-sm text-slate-400 border-t border-slate-700 bg-slate-900 shrink-0">
+                <p><strong>Note:</strong> The app actively reads this calculator. You must type your physics equation
+                    here to prove you showed your work!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+        const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
+        const sbClient = supabase.createClient(SB_URL, SB_KEY);
+
+        const state = {
+            name: '',
+            id: '',
+            period: null,
+            assignmentName: "Physics 101: Speed of Sound",
+            stormTrials: 0, // Out of 10 (5 side + 5 fp)
+            waveTrials: 0,  // Out of 5
+            score: 0
+        };
+
+        async function handleLogin() {
+            const id = document.getElementById('student-id').value.trim();
+            const nameEntry = document.getElementById('name-entry');
+            const status = document.getElementById('login-status');
+            const btn = document.getElementById('login-btn');
+
+            if (id.length !== 6) { return; }
+            btn.disabled = true;
+            status.textContent = "SEARCHING_NODE...";
+
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const urlPeriod = urlParams.get('p') || urlParams.get('period');
+
+                const { data } = await sbClient.from('student_results')
+                    .select('student_name, class_period, details')
+                    .eq('student_id', id)
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .maybeSingle();
+
+                if (data) {
+                    state.name = data.student_name;
+                    state.id = id;
+                    state.period = urlPeriod || data.class_period || null;
+                    
+                    const { data: assignmentData } = await sbClient.from('student_results')
+                        .select('details')
+                        .eq('student_id', id)
+                        .eq('assignment_name', state.assignmentName)
+                        .maybeSingle();
+
+                    if (assignmentData && assignmentData.details) {
+                        currentTrial = assignmentData.details.sideTrials || 1;
+                        currentFPTrial = assignmentData.details.fpTrials || 1;
+                        currentWaveTrial = assignmentData.details.waveTrials || 1;
+                        
+                        // If they were in FP mode, restore that
+                        if (currentTrial > 5 && currentFPTrial <= 5) {
+                            stormMode = 'fp';
+                        }
+                    }
+                    status.textContent = "ID_VERIFIED // LOADING_STATE";
+                    setTimeout(finalizeLogin, 800);
+                } else if (nameEntry.classList.contains('hidden')) {
+                    nameEntry.classList.remove('hidden');
+                    btn.disabled = false;
+                    btn.textContent = "REGISTER PROFILE";
+                    status.textContent = "NEW_NODE_DETECTED";
+                } else {
+                    const newName = document.getElementById('student-name').value.trim();
+                    if (newName.length < 3) return;
+                    state.name = newName;
+                    state.id = id;
+                    state.period = urlPeriod || null;
+                    finalizeLogin();
+                }
+            } catch (err) {
+                console.error(err);
+                btn.disabled = false;
+                status.textContent = "CONNECTION_ERROR";
+            }
+        }
+
+        async function devSimulateComplete() {
+            const id = document.getElementById('student-id').value.trim() || '999999';
+            state.id = id;
+            state.name = "MR. MUDRY (SIM)";
+            state.period = "0";
+            
+            // Set all trials to completion state
+            currentTrial = 6;
+            currentFPTrial = 6;
+            currentWaveTrial = 6;
+            trialCompleted = true;
+            waveIsMatched = true;
+            
+            finalizeLogin();
+            await syncResults();
+        }
+
+        function finalizeLogin() {
+            document.getElementById('login-overlay').classList.add('hidden');
+            
+            if (state.id) {
+                document.getElementById('student-tag').textContent = `${state.name.toUpperCase()} // SIG_${state.id}`;
+            }
+            
+            // Re-sync trial UI counters from loaded state
+            document.getElementById('trial-counter').innerText = `(Trial ${currentTrial > 5 ? 5 : currentTrial} of 5)`;
+            if (stormMode === 'fp') {
+                startFirstPerson();
+                document.getElementById('fp-trial-counter').innerText = `(Trial ${currentFPTrial > 5 ? 5 : currentFPTrial} of 5)`;
+            }
+            document.getElementById('wave-trial-counter').innerText = `(Trial ${currentWaveTrial > 5 ? 5 : currentWaveTrial} of 5)`;
+            loadWaveProfile();
+
+            // Initial sync
+            syncResults(true);
+        }
+
+        async function syncResults(isSilent = false) {
+            if (!state.id) return;
+            const statusEl = document.getElementById('login-status');
+            
+            try {
+                // Calculate score: 15 total trials
+                const sideFin = (currentTrial > 5) ? 5 : (currentTrial - 1 + (trialCompleted && stormMode === 'side' ? 1 : 0));
+                const fpFin = (currentFPTrial > 5) ? 5 : (currentFPTrial - 1 + (trialCompleted && stormMode === 'fp' ? 1 : 0));
+                const waveFin = (currentWaveTrial > 5) ? 5 : (currentWaveTrial - 1 + (waveIsMatched ? 1 : 0));
+                
+                const totalFinished = sideFin + fpFin + waveFin;
+                state.score = Math.round((totalFinished / 15) * 100);
+
+                const payload = {
+                    student_name: state.name,
+                    student_id: state.id,
+                    class_period: state.period,
+                    assignment_name: state.assignmentName,
+                    score: state.score,
+                    details: { 
+                        sideTrials: currentTrial, 
+                        fpTrials: currentFPTrial, 
+                        waveTrials: currentWaveTrial,
+                        timestamp: new Date().toISOString() 
+                    }
+                };
+
+                const { data: existingRows } = await sbClient.from('student_results')
+                    .select('id')
+                    .eq('student_id', state.id)
+                    .eq('assignment_name', state.assignmentName);
+
+                if (existingRows && existingRows.length > 0) {
+                    await sbClient.from('student_results').update(payload).eq('id', existingRows[0].id);
+                } else {
+                    await sbClient.from('student_results').insert([payload]);
+                }
+                
+                document.getElementById('sync-indicator').textContent = "Database_Secure";
+
+                if (state.score >= 100) {
+                    document.getElementById('final-score-display').textContent = "100%";
+                    document.getElementById('completion-overlay').classList.remove('hidden');
+                }
+            } catch (e) {
+                console.error("Sync Error:", e);
+            }
+        }
+
+        let calcInstance = null;
+        let activeTab = 'storm'; // Track which canvas should be rendering
+
+        // Initialize App once loaded
+        window.onload = () => {
+            // Init Desmos
+            const elt = document.getElementById('desmos-container');
+            calcInstance = window.Desmos.FourFunctionCalculator(elt);
+
+            // Init Wave Matcher variables
+            loadWaveProfile();
+
+            // Randomize first cloud position
+            cloudX = Math.floor(Math.random() * 320) + 40;
+
+            // Start Animation loops
+            requestAnimationFrame(animateStorm);
+            requestAnimationFrame(animateWave);
+        };
+
+        // --- GLOBAL LOGIC ---
+        let desmosMonitorInterval = null;
+
+        function switchTab(tab) {
+            activeTab = tab; // Pauses the hidden animation loop
+            if (desmosMonitorInterval) clearInterval(desmosMonitorInterval);
+
+            if (tab === 'storm') {
+                document.getElementById('sec-storm').classList.remove('hidden');
+                document.getElementById('sec-wave').classList.add('hidden');
+                document.getElementById('tab-storm').className = "px-3 py-1.5 rounded-md font-semibold transition-colors bg-blue-600 text-white";
+                document.getElementById('tab-wave').className = "px-3 py-1.5 rounded-md font-semibold transition-colors bg-slate-700 text-slate-300 hover:bg-slate-600";
+            } else {
+                document.getElementById('sec-storm').classList.add('hidden');
+                document.getElementById('sec-wave').classList.remove('hidden');
+                document.getElementById('tab-storm').className = "px-3 py-1.5 rounded-md font-semibold transition-colors bg-slate-700 text-slate-300 hover:bg-slate-600";
+                document.getElementById('tab-wave').className = "px-3 py-1.5 rounded-md font-semibold transition-colors bg-blue-600 text-white";
+            }
+        }
+
+        function verifyDesmosWork(requiredNumber1, requiredNumber2) {
+            if (!calcInstance) return false;
+            let expressions = [];
+            if (typeof calcInstance.getExpressions === 'function') {
+                expressions = calcInstance.getExpressions();
+            } else if (typeof calcInstance.getState === 'function') {
+                const state = calcInstance.getState();
+                expressions = state?.expressions?.list || [];
+            }
+
+            const num1Str = requiredNumber1.toString();
+            const num2Str = requiredNumber2.toString();
+
+            for (let exp of expressions) {
+                if (exp.latex && exp.latex.includes(num1Str) && exp.latex.includes(num2Str)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Monitors the calculator actively and triggers a callback when work is shown
+        function startDesmosMonitor(num1, num2, unlockCallback) {
+            if (desmosMonitorInterval) clearInterval(desmosMonitorInterval);
+            desmosMonitorInterval = setInterval(() => {
+                if (verifyDesmosWork(num1, num2)) {
+                    clearInterval(desmosMonitorInterval);
+                    desmosMonitorInterval = null;
+                    unlockCallback();
+                }
+            }, 500); // Check every half second
+        }
+
+        function unlockStormAssessment() {
+            const titleEl = document.getElementById('storm-assessment-title');
+            titleEl.innerHTML = 'Assessment Unlocked 🔓';
+            titleEl.classList.remove('text-blue-300');
+            titleEl.classList.add('text-green-400');
+            document.getElementById('storm-answer').disabled = false;
+            document.getElementById('btn-storm-submit').disabled = false;
+        }
+
+        function unlockWaveAssessment() {
+            const titleEl = document.getElementById('wave-assessment-title');
+            titleEl.innerHTML = 'Assessment Unlocked 🔓';
+            titleEl.classList.remove('text-blue-300');
+            titleEl.classList.add('text-green-400');
+            document.getElementById('wave-answer').disabled = false;
+            document.getElementById('btn-wave-submit').disabled = false;
+        }
+
+        function showFeedback(elId, isSuccess, message) {
+            const el = document.getElementById(elId);
+            el.innerHTML = message;
+            el.className = `p-3 rounded-md text-sm font-semibold animate-fade-in flex-1 ${isSuccess ? 'bg-green-900/50 text-green-300' : 'bg-red-900/50 text-red-300'}`;
+        }
+
+        // --- AUDIO ENGINE ---
+        let audioCtx = null;
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playThunder() {
+            if (!audioCtx) return;
+            const osc1 = audioCtx.createOscillator();
+            const osc2 = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            // Create a rumbling, dissonant sound
+            osc1.type = 'sawtooth';
+            osc1.frequency.setValueAtTime(40, audioCtx.currentTime);
+            osc1.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + 2.5);
+
+            osc2.type = 'square';
+            osc2.frequency.setValueAtTime(35, audioCtx.currentTime);
+            osc2.frequency.exponentialRampToValueAtTime(12, audioCtx.currentTime + 2.5);
+
+            gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(1.5, audioCtx.currentTime + 0.1);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 2.5);
+
+            osc1.connect(gainNode);
+            osc2.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            osc1.start();
+            osc2.start();
+            osc1.stop(audioCtx.currentTime + 2.5);
+            osc2.stop(audioCtx.currentTime + 2.5);
+        }
+
+        // NEW SYNTHESIZER FUNCTIONS
+        function playTargetSound() {
+            initAudio();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const profile = waveProfiles[currentWaveTrial - 1];
+            const t = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.frequency.setValueAtTime(profile.freq, t);
+
+            // Procedurally generate timbres based on the profile type
+            if (profile.type === 'bass') {
+                osc.type = 'triangle';
+                gain.gain.setValueAtTime(1, t);
+                gain.gain.exponentialRampToValueAtTime(0.01, t + 1.5);
+                osc.start(t);
+                osc.stop(t + 1.5);
+            } else if (profile.type === 'piano') {
+                osc.type = 'sine';
+                gain.gain.setValueAtTime(1, t);
+                gain.gain.exponentialRampToValueAtTime(0.01, t + 2);
+                osc.start(t);
+                osc.stop(t + 2);
+            } else if (profile.type === 'frog') {
+                osc.type = 'square';
+                gain.gain.setValueAtTime(0, t);
+                // Tremolo effect for croaking
+                for (let i = 0; i < 4; i++) {
+                    gain.gain.linearRampToValueAtTime(0.5, t + i * 0.2 + 0.05);
+                    gain.gain.linearRampToValueAtTime(0, t + i * 0.2 + 0.15);
+                }
+                osc.start(t);
+                osc.stop(t + 0.8);
+            } else if (profile.type === 'fork') {
+                osc.type = 'sine';
+                gain.gain.setValueAtTime(0, t);
+                gain.gain.linearRampToValueAtTime(0.8, t + 0.05);
+                gain.gain.exponentialRampToValueAtTime(0.1, t + 2.5);
+                osc.start(t);
+                osc.stop(t + 2.5);
+            } else if (profile.type === 'bird') {
+                osc.type = 'sine';
+                gain.gain.setValueAtTime(0, t);
+                gain.gain.linearRampToValueAtTime(0.8, t + 0.05);
+                gain.gain.linearRampToValueAtTime(0, t + 0.2);
+                // Pitch sweep up for a chirp
+                osc.frequency.linearRampToValueAtTime(profile.freq + 200, t + 0.2);
+                osc.start(t);
+                osc.stop(t + 0.2);
+            }
+        }
+
+        function playUserSound() {
+            initAudio();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const t = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(userFreq, t);
+            gain.gain.setValueAtTime(0, t);
+            gain.gain.linearRampToValueAtTime(0.8, t + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.01, t + 1);
+            osc.start(t);
+            osc.stop(t + 1);
+        }
+
+        // --- PART 1: STORM TRACKER LOGIC ---
+        let stormMode = 'side'; // 'side' or 'fp'
+        let currentTrial = 1;
+        let currentFPTrial = 1;
+        let trialCompleted = false;
+        let currentFPDistance = 0;
+
+        // Side view variables
+        let cloudX = 100;
+        let stormStatus = 'idle';
+        let userTime = null;
+        let stormStartTime = null;
+        let waveRadius = 0;
+        let flashOpacity = 0;
+        let lightningPath = [];
+        const HOUSE_X = 500;
+        const PIXELS_PER_SECOND = 120;
+
+        // First Person variables
+        let stopwatchRunning = false;
+        let stopwatchStartTime = null;
+
+        function drawStormCanvas() {
+            const canvas = document.getElementById('storm-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            if (stormMode === 'side') {
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#1e293b';
+                ctx.fillRect(0, canvas.height - 30, canvas.width, 30); // 30px tall ground
+
+                // Draw cloud emoji
+                ctx.font = '70px Arial';
+                ctx.fillText('☁️', cloudX - 35, 70); // Base of cloud adjusted for height
+
+                if (flashOpacity > 0) {
+                    ctx.fillStyle = `rgba(255, 255, 255, ${flashOpacity * 0.3})`;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    if (lightningPath.length > 0) {
+                        ctx.beginPath();
+                        ctx.moveTo(lightningPath[0].x, lightningPath[0].y);
+                        for (let i = 1; i < lightningPath.length; i++) {
+                            ctx.lineTo(lightningPath[i].x, lightningPath[i].y);
+                        }
+                        ctx.strokeStyle = `rgba(147, 197, 253, ${flashOpacity})`;
+                        ctx.lineWidth = 6;
+                        ctx.lineJoin = 'miter';
+                        ctx.stroke();
+                        ctx.strokeStyle = `rgba(255, 255, 255, ${flashOpacity})`;
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                    }
+                    flashOpacity -= 0.04;
+                }
+
+                ctx.font = '35px Arial'; // Smaller house text
+                ctx.fillText('🏠', HOUSE_X, canvas.height - 25);
+
+                if (waveRadius > 0) {
+                    ctx.beginPath();
+                    ctx.arc(cloudX, 40, waveRadius, 0, Math.PI * 2); // Center of wave adjusted
+                    ctx.strokeStyle = 'rgba(96, 165, 250, 0.6)';
+                    ctx.lineWidth = 4;
+                    ctx.stroke();
+                    ctx.fillStyle = 'rgba(96, 165, 250, 0.1)';
+                    ctx.fill();
+                }
+            }
+            else if (stormMode === 'fp') {
+                // First Person Window View
+                ctx.fillStyle = '#0f172a'; // dark night
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Draw ground silhouette adjusted for new height
+                ctx.fillStyle = '#020617';
+                ctx.beginPath();
+                ctx.moveTo(0, canvas.height);
+                ctx.lineTo(0, canvas.height - 40);
+                ctx.lineTo(200, canvas.height - 60);
+                ctx.lineTo(400, canvas.height - 30);
+                ctx.lineTo(700, canvas.height - 70);
+                ctx.lineTo(700, canvas.height);
+                ctx.fill();
+
+                if (flashOpacity > 0) {
+                    // Bright flash covers outside window
+                    ctx.fillStyle = `rgba(255, 255, 255, ${flashOpacity})`;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    flashOpacity -= 0.04;
+                }
+
+                // Draw Window Frame (Foreground)
+                ctx.fillStyle = '#1e293b'; // slate-800
+                ctx.fillRect(0, 0, canvas.width, 20); // Top
+                ctx.fillRect(0, canvas.height - 20, canvas.width, 20); // Bottom
+                ctx.fillRect(0, 0, 20, canvas.height); // Left
+                ctx.fillRect(canvas.width - 20, 0, 20, canvas.height); // Right
+                ctx.fillRect(canvas.width / 2 - 10, 0, 20, canvas.height); // Middle vertical
+                ctx.fillRect(0, canvas.height / 2 - 10, canvas.width, 20); // Middle horizontal
+            }
+        }
+
+        function animateStorm(time) {
+            // ONLY draw if the tab is visible to save CPU!
+            if (activeTab === 'storm') {
+                if (stormStatus === 'running' && stormMode === 'side') {
+                    if (!stormStartTime) stormStartTime = time;
+                    const elapsedSeconds = (time - stormStartTime) / 1000;
+                    waveRadius = elapsedSeconds * PIXELS_PER_SECOND;
+                }
+                drawStormCanvas();
+            }
+            requestAnimationFrame(animateStorm);
+        }
+
+        // --- SIDE VIEW MECHANICS ---
+        function triggerLightning() {
+            if (desmosMonitorInterval) clearInterval(desmosMonitorInterval);
+            if (trialCompleted) {
+                if (currentTrial === 5) {
+                    startFirstPerson();
+                    return;
+                }
+                currentTrial++;
+                document.getElementById('trial-counter').innerText = `(Trial ${currentTrial} of 5)`;
+                trialCompleted = false;
+            }
+
+            stormStatus = 'waiting';
+            userTime = null;
+            waveRadius = 0;
+            stormStartTime = null;
+            lightningPath = [];
+
+            // Randomize cloud position (between 40 and 360)
+            cloudX = Math.floor(Math.random() * 320) + 40;
+
+            document.getElementById('storm-assessment').classList.add('hidden');
+            document.getElementById('storm-feedback').classList.add('hidden');
+            document.getElementById('storm-answer').value = '';
+
+            const btnT = document.getElementById('btn-trigger');
+            const btnS = document.getElementById('btn-stop');
+            btnT.disabled = true;
+            btnT.innerText = 'Wait for Flash...';
+            btnT.className = "px-5 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-900 text-sm font-bold rounded-md disabled:opacity-50 transition-all";
+            btnS.disabled = true;
+
+            setTimeout(() => {
+                let curX = cloudX;
+                let curY = 40; // Start lightning at wave center
+                lightningPath.push({ x: curX, y: curY });
+                while (curY < 130) { // Bound to ground level
+                    curX += (Math.random() - 0.5) * 60;
+                    curY += Math.random() * 30 + 10;
+                    if (curY > 130) curY = 130;
+                    lightningPath.push({ x: curX, y: curY });
+                }
+
+                flashOpacity = 1;
+                stormStatus = 'running';
+                stormStartTime = performance.now();
+                btnT.innerText = 'Trigger Lightning';
+                btnS.disabled = false;
+            }, 1000 + Math.random() * 2000);
+        }
+
+        function stopTimer() {
+            if (stormStatus !== 'running') return;
+            const stopT = performance.now();
+            const elapsed = ((stopT - stormStartTime) / 1000).toFixed(2);
+            userTime = parseFloat(elapsed);
+            stormStatus = 'done';
+
+            document.getElementById('storm-time-display').innerText = `t = ${userTime} s`;
+            document.getElementById('btn-trigger').disabled = false;
+            document.getElementById('btn-stop').disabled = true;
+
+            // Strictly reset UI locks
+            const titleEl = document.getElementById('storm-assessment-title');
+            titleEl.innerHTML = 'Assessment Locked 🔒';
+            titleEl.classList.remove('text-green-400');
+            titleEl.classList.add('text-blue-300');
+            document.getElementById('storm-answer').disabled = true;
+            document.getElementById('btn-storm-submit').disabled = true;
+
+            document.getElementById('storm-assessment-text').innerHTML = `You stopped the timer at <strong>${userTime} seconds</strong>. Using the Desmos calculator on the right, calculate the distance (<i>d = v &times; t</i>). You MUST show your work in the calculator to unlock the answer box.`;
+            document.getElementById('storm-assessment').classList.remove('hidden');
+
+            startDesmosMonitor(343, userTime, unlockStormAssessment);
+        }
+
+        // --- FIRST PERSON MECHANICS ---
+        function startFirstPerson() {
+            if (desmosMonitorInterval) clearInterval(desmosMonitorInterval);
+            stormMode = 'fp';
+            trialCompleted = false;
+
+            document.getElementById('storm-mode-title').innerHTML = `Task 2: First Person Lightning <span id="fp-trial-counter" class="text-sm font-normal text-amber-400 ml-2">(Trial 1 of 5)</span>`;
+            document.getElementById('storm-desc').innerText = "Look out the window. When you SEE the flash, manually START the stopwatch. When you HEAR the thunder, STOP it.";
+
+            document.getElementById('side-controls').classList.add('hidden');
+            document.getElementById('fp-controls').classList.remove('hidden');
+
+            document.getElementById('storm-assessment').classList.add('hidden');
+            document.getElementById('storm-feedback').classList.add('hidden');
+            document.getElementById('storm-answer').value = '';
+
+            drawStormCanvas();
+        }
+
+        function triggerFPStorm() {
+            initAudio(); // Ensure audio context is ready
+            if (desmosMonitorInterval) clearInterval(desmosMonitorInterval);
+
+            if (trialCompleted) {
+                if (currentFPTrial >= 5) return;
+                currentFPTrial++;
+                document.getElementById('fp-trial-counter').innerText = `(Trial ${currentFPTrial} of 5)`;
+                trialCompleted = false;
+            }
+
+            document.getElementById('storm-assessment').classList.add('hidden');
+            document.getElementById('storm-feedback').classList.add('hidden');
+            document.getElementById('storm-answer').value = '';
+
+            const btnT = document.getElementById('btn-fp-trigger');
+            const btnSW = document.getElementById('btn-fp-stopwatch');
+            btnT.disabled = true;
+            btnT.innerText = "Observing...";
+            btnT.className = "px-5 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-900 text-sm font-bold rounded-md disabled:opacity-50 transition-all";
+
+            // Random distance between 1000m and 3500m
+            currentFPDistance = Math.floor(Math.random() * 2500) + 1000;
+            const timeDelay = currentFPDistance / 343; // seconds
+
+            setTimeout(() => {
+                flashOpacity = 1;
+                btnSW.disabled = false; // Enable stopwatch for user to start
+
+                // Schedule thunder
+                setTimeout(() => {
+                    playThunder();
+                }, timeDelay * 1000);
+
+            }, 1000 + Math.random() * 2000);
+        }
+
+        function toggleStopwatch() {
+            const btnSW = document.getElementById('btn-fp-stopwatch');
+
+            if (!stopwatchRunning) {
+                // START STOPWATCH
+                stopwatchStartTime = performance.now();
+                stopwatchRunning = true;
+                btnSW.innerText = 'Stop Stopwatch';
+                btnSW.classList.replace('bg-green-500', 'bg-red-500');
+                requestAnimationFrame(updateStopwatch);
+            } else {
+                // STOP STOPWATCH
+                stopwatchRunning = false;
+                const elapsed = ((performance.now() - stopwatchStartTime) / 1000).toFixed(2);
+                userTime = parseFloat(elapsed);
+
+                // FORCE DISPLAY UPDATE to match the exact recorded time
+                document.getElementById('fp-time-display').innerText = `t = ${userTime.toFixed(2)} s`;
+
+                btnSW.innerText = 'Done';
+                btnSW.disabled = true;
+                btnSW.classList.replace('bg-red-500', 'bg-slate-500');
+
+                // Strictly reset UI locks
+                const titleEl = document.getElementById('storm-assessment-title');
+                titleEl.innerHTML = 'Assessment Locked 🔒';
+                titleEl.classList.remove('text-green-400');
+                titleEl.classList.add('text-blue-300');
+                document.getElementById('storm-answer').disabled = true;
+                document.getElementById('btn-storm-submit').disabled = true;
+
+                document.getElementById('storm-assessment-text').innerHTML = `You stopped your stopwatch at <strong>${userTime} seconds</strong>. Using the Desmos calculator on the right, calculate the actual distance of the lightning strike (<i>d = v &times; t</i>). You MUST show your work to unlock the answer box!`;
+                document.getElementById('storm-assessment').classList.remove('hidden');
+
+                startDesmosMonitor(343, userTime, unlockStormAssessment);
+            }
+        }
+
+        function updateStopwatch() {
+            if (stopwatchRunning) {
+                const elapsed = ((performance.now() - stopwatchStartTime) / 1000).toFixed(2);
+                document.getElementById('fp-time-display').innerText = `t = ${elapsed} s`;
+                requestAnimationFrame(updateStopwatch);
+            }
+        }
+
+        // --- ANSWER CHECKING ---
+        function checkStormAnswer() {
+            if (!userTime) return;
+
+            // 1. Validate the accuracy of the user's timing
+            let expectedTime = 0;
+            let tolerance = 0;
+            if (stormMode === 'side') {
+                // Ground limit is 130, Wave start is 40
+                const trueDistancePx = Math.hypot((HOUSE_X + 15) - cloudX, 130 - 40);
+                expectedTime = trueDistancePx / PIXELS_PER_SECOND;
+                tolerance = 0.3;
+            } else {
+                expectedTime = currentFPDistance / 343;
+                tolerance = 0.5; // 500ms tolerance for human auditory reaction
+            }
+
+            if (Math.abs(userTime - expectedTime) > tolerance) {
+                showFeedback('storm-feedback', false, `❌ Your stopwatch timing was inaccurate (expected ~${expectedTime.toFixed(2)}s). You stopped it too ${userTime < expectedTime ? 'early' : 'late'}! Refresh the strike and try again.`);
+                const btnT = stormMode === 'side' ? document.getElementById('btn-trigger') : document.getElementById('btn-fp-trigger');
+                btnT.disabled = false;
+                btnT.innerText = 'Retry Strike';
+                return;
+            }
+
+            const userDistance = parseFloat(document.getElementById('storm-answer').value);
+            if (isNaN(userDistance)) {
+                showFeedback('storm-feedback', false, '❌ Please enter a valid number.');
+                return;
+            }
+
+            const showedWork = verifyDesmosWork(343, userTime);
+            if (!showedWork) {
+                showFeedback('storm-feedback', false, `❌ We cannot find your work! You must multiply 343 and your specific time (${userTime}) in the Desmos calculator to prove your equation.`);
+                return;
+            }
+
+            const expectedDistance = 343 * userTime;
+
+            if (Math.abs(expectedDistance - userDistance) <= 1.0) {
+                trialCompleted = true;
+                if (stormMode === 'side') {
+                    if (currentTrial < 5) {
+                        showFeedback('storm-feedback', true, `✅ Correct! Distance was ${userDistance}m.`);
+                        const btnT = document.getElementById('btn-trigger');
+                        btnT.innerText = "Trigger New Lightning Strike";
+                        btnT.disabled = false;
+                        btnT.className = "px-5 py-1.5 bg-green-500 hover:bg-green-400 shadow-[0_0_15px_rgba(34,197,94,0.8)] animate-pulse text-white text-sm font-bold rounded-md transition-all";
+                    } else {
+                        showFeedback('storm-feedback', true, `✅ Correct! You've mastered the Side View.`);
+                        const btnT = document.getElementById('btn-trigger');
+                        btnT.innerText = "Start Task 2: First-Person Mode";
+                        btnT.disabled = false;
+                        btnT.className = "px-5 py-1.5 bg-blue-500 hover:bg-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.8)] animate-pulse text-white text-sm font-bold rounded-md transition-all";
+                    }
+                } else {
+                    // FP Mode Success
+                    if (currentFPTrial < 5) {
+                        showFeedback('storm-feedback', true, `✅ Correct! You calculated the actual physical distance.`);
+                        const btnT = document.getElementById('btn-fp-trigger');
+                        btnT.innerText = "Trigger New Lightning Strike";
+                        btnT.disabled = false;
+                        btnT.className = "px-5 py-1.5 bg-green-500 hover:bg-green-400 shadow-[0_0_15px_rgba(34,197,94,0.8)] animate-pulse text-white text-sm font-bold rounded-md transition-all";
+
+                        const btnSW = document.getElementById('btn-fp-stopwatch');
+                        btnSW.innerText = "Start Stopwatch";
+                        btnSW.classList.replace('bg-slate-500', 'bg-green-500');
+                    } else {
+                        showFeedback('storm-feedback', true, `✅ Correct! You have mastered Task 2!`);
+                        const btnT = document.getElementById('btn-fp-trigger');
+                        btnT.innerText = "Task 2 Complete";
+                        btnT.disabled = true;
+                        btnT.className = "px-5 py-1.5 bg-slate-600 text-slate-400 text-sm font-bold rounded-md transition-all";
+                    }
+                }
+                syncResults();
+            } else {
+                showFeedback('storm-feedback', false, `❌ Not quite. Double check your calculator. You want 343 * ${userTime}.`);
+            }
+        }
+
+        // --- PART 2: WAVE MATCHER LOGIC ---
+        const waveProfiles = [
+            { name: "Low Bass Guitar", freq: 150, type: "bass", icon: "🎸" },
+            { name: "Middle C (Piano)", freq: 260, type: "piano", icon: "🎹" },
+            { name: "Frog Croak", freq: 350, type: "frog", icon: "🐸" },
+            { name: "Concert A (Tuning Fork)", freq: 440, type: "fork", icon: "🧲" },
+            { name: "High Bird Chirp", freq: 580, type: "bird", icon: "🐦" }
+        ];
+
+        let targetFreq = 0;
+        let userFreq = 100;
+        let waveIsMatched = false;
+        let waveTime = 0;
+        let currentWaveTrial = 1;
+
+        function loadWaveProfile() {
+            const profile = waveProfiles[currentWaveTrial - 1];
+            targetFreq = profile.freq;
+            document.getElementById('wave-target-name').innerText = profile.name;
+            document.getElementById('wave-target-icon').innerText = profile.icon;
+        }
+
+        function drawWaveCanvas() {
+            const canvas = document.getElementById('wave-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < width; i += 50) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, height); ctx.stroke(); }
+            for (let i = 0; i < height; i += 50) { ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(width, i); ctx.stroke(); }
+
+            const drawWave = (freq, color, opacity, offsetTime) => {
+                ctx.beginPath();
+                const visualV = 20000;
+                const wavelength = visualV / freq;
+                const amplitude = 60;
+
+                for (let x = 0; x < width; x++) {
+                    const y = height / 2 + amplitude * Math.sin((Math.PI * 2 * x) / wavelength - offsetTime);
+                    if (x === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.strokeStyle = color;
+                ctx.globalAlpha = opacity;
+                ctx.lineWidth = 4;
+                ctx.stroke();
+                ctx.globalAlpha = 1.0;
+            };
+
+            if (targetFreq > 0) drawWave(targetFreq, '#ef4444', 0.5, 0);
+            drawWave(userFreq, '#3b82f6', 0.9, waveTime);
+        }
+
+        function animateWave() {
+            // ONLY draw if the tab is visible to save CPU!
+            if (activeTab === 'wave') {
+                waveTime += 0.05;
+                drawWaveCanvas();
+            }
+            requestAnimationFrame(animateWave);
+        }
+
+        function updateWave() {
+            if (waveIsMatched) return;
+            userFreq = parseInt(document.getElementById('wave-slider').value);
+            document.getElementById('wave-freq-display').innerText = `${userFreq} Hz`;
+
+            if (targetFreq > 0 && Math.abs(userFreq - targetFreq) < 1) {
+                waveIsMatched = true;
+                const slider = document.getElementById('wave-slider');
+                slider.disabled = true;
+                slider.classList.replace('bg-slate-600', 'bg-green-500');
+
+                document.getElementById('wave-matched-text').classList.remove('hidden');
+
+                // Strictly reset UI locks
+                const titleEl = document.getElementById('wave-assessment-title');
+                titleEl.innerHTML = 'Assessment Locked 🔒';
+                titleEl.classList.remove('text-green-400');
+                titleEl.classList.add('text-blue-300');
+                document.getElementById('wave-answer').disabled = true;
+                document.getElementById('btn-wave-submit').disabled = true;
+
+                document.getElementById('wave-assessment-text').innerHTML = `You discovered the frequency is <strong>${targetFreq} Hz</strong>. Assuming this sound is travelling through the air (<i>v</i> = 343 m/s), use the Desmos calculator to find the <strong>wavelength (&lambda;)</strong> of this sound wave. Show your work to unlock the answer box!`;
+                document.getElementById('wave-assessment').classList.remove('hidden');
+
+                startDesmosMonitor(343, targetFreq, unlockWaveAssessment);
+            }
+        }
+
+        function checkWaveAnswer() {
+            const userWavelength = parseFloat(document.getElementById('wave-answer').value);
+            if (isNaN(userWavelength)) {
+                showFeedback('wave-feedback', false, '❌ Please enter a valid number.');
+                return;
+            }
+
+            const showedWork = verifyDesmosWork(343, targetFreq);
+            if (!showedWork) {
+                showFeedback('wave-feedback', false, `❌ We cannot find your work! You must divide 343 by your matched frequency (${targetFreq}) in the Desmos calculator.`);
+                return;
+            }
+
+            const expectedWavelength = 343 / targetFreq;
+            if (Math.abs(expectedWavelength - userWavelength) <= 0.05) {
+                if (currentWaveTrial < 5) {
+                    showFeedback('wave-feedback', true, `✅ Correct! Because velocity (343 m/s) is constant, a higher frequency means a shorter wavelength. <button onclick="nextWaveTask()" class="ml-3 px-3 py-1 bg-green-700 hover:bg-green-600 text-white rounded font-bold transition-colors">Next Wave</button>`);
+                } else {
+                    showFeedback('wave-feedback', true, `✅ Correct! You've mastered Part 2: Wave Matcher!`);
+                }
+                syncResults();
+            } else {
+                showFeedback('wave-feedback', false, `❌ Not quite. Remember the wave equation: v = f &times; &lambda;. So &lambda; = 343 / ${targetFreq}.`);
+            }
+        }
+
+        function nextWaveTask() {
+            if (desmosMonitorInterval) clearInterval(desmosMonitorInterval);
+
+            // Advance trial counter
+            currentWaveTrial++;
+            document.getElementById('wave-trial-counter').innerText = `(Trial ${currentWaveTrial} of 5)`;
+
+            // Load specific profile instead of random
+            loadWaveProfile();
+
+            // Reset variables
+            waveIsMatched = false;
+            userFreq = 100;
+
+            // Reset slider UI
+            const slider = document.getElementById('wave-slider');
+            slider.disabled = false;
+            slider.value = 100;
+            slider.classList.replace('bg-green-500', 'bg-slate-600');
+
+            document.getElementById('wave-freq-display').innerText = `100 Hz`;
+            document.getElementById('wave-matched-text').classList.add('hidden');
+
+            // Reset Assessment UI
+            document.getElementById('wave-assessment').classList.add('hidden');
+            document.getElementById('wave-answer').value = '';
+            document.getElementById('wave-feedback').classList.add('hidden');
+        }
+    </script>
+</body>
+
+</html>
