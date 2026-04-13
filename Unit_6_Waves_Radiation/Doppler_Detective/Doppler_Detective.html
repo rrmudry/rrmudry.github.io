@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics 101: Doppler Detective</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Desmos API -->
+    <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+    <style>
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        /* Elegant Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #475569;
+            border-radius: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background-color: #64748b;
+        }
+
+        /* --- AUTH & COMPLETION OVERLAY STYLES --- */
+        .overlay { position: fixed; inset: 0; background: rgba(2, 6, 23, 0.95); z-index: 2000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+        .glass-panel { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); border-radius: 2rem; color: #f8fafc; }
+        .gradient-text { background: linear-gradient(135deg, #22d3ee, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .font-heading { font-family: 'Outfit', sans-serif; letter-spacing: -0.01em; }
+        input::placeholder { color: rgba(148, 163, 184, 0.4); }
+
+        .checkmark-icon { display: none; width: 14px; height: 14px; color: #10b981; margin-left: 6px; }
+        .completed .checkmark-icon { display: inline-block; }
+        /* Style for completed nav buttons */
+        .nav-btn.completed { color: #10b981 !important; border-bottom-color: #10b981 !important; }
+    </style>
+</head>
+
+<body class="h-screen overflow-hidden bg-slate-900 text-slate-100 font-sans flex flex-col">
+
+    <!-- Login Overlay -->
+    <div id="login-overlay" class="overlay">
+        <div class="glass-panel max-w-sm w-full p-10 text-center space-y-8 animate-fade-in mx-4">
+            <div class="space-y-2">
+                <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-blue-500/20 mb-4 rotate-3">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-3xl font-heading font-black text-white tracking-tighter uppercase">Mission_Access</h1>
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em]">Doppler Detective // Unit 6</p>
+            </div>
+
+            <div class="space-y-4">
+                <div class="space-y-2 text-left">
+                    <p class="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] px-1">Access_Node // Student ID</p>
+                    <input type="text" id="student-id" placeholder="6-Digit ID" maxlength="6" 
+                        class="w-full bg-slate-900 border border-white/10 p-4 rounded-xl outline-none transition-all text-center font-bold text-xl focus:border-blue-500/50 uppercase tracking-widest text-blue-400">
+                </div>
+
+                <div id="name-entry" class="hidden space-y-2 text-left animate-fade-in">
+                    <p class="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] px-1">New User Detected // Enter Name</p>
+                    <input type="text" id="student-name" placeholder="Full Student Name" 
+                        class="w-full bg-slate-900 border border-white/10 p-4 rounded-xl outline-none transition-all text-center font-bold text-slate-200 focus:border-purple-500/50">
+                </div>
+
+                <button onclick="handleLogin()" id="login-btn" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 p-4 rounded-xl font-black uppercase tracking-widest text-sm shadow-xl active:scale-95 transition-all text-white">
+                    Establish Connection
+                </button>
+                <p id="login-status" class="text-[9px] font-bold text-slate-600 uppercase tracking-widest animate-pulse h-4"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Completion Card -->
+    <div id="completion-overlay" class="overlay hidden">
+        <div class="glass-panel max-w-md w-full p-12 text-center space-y-8 animate-fade-in mx-4 border-2 border-emerald-500/20">
+            <div class="space-y-4">
+                <div class="w-24 h-24 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-emerald-500/50">
+                    <svg class="w-12 h-12 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <h1 class="text-4xl font-heading font-black text-white tracking-tight">Mission <span class="text-emerald-400 italic">Complete</span></h1>
+                <p class="text-slate-400 font-medium leading-relaxed uppercase tracking-widest text-xs">Physics of the Doppler Effect Mastered</p>
+            </div>
+            
+            <div class="py-6 border-y border-white/5 space-y-2">
+                <p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Data Synced to Central Servers</p>
+                <p id="completion-student-info" class="text-lg font-bold text-slate-200">Student Name // ID</p>
+            </div>
+
+            <button onclick="window.location.reload()" class="w-full bg-slate-100 text-slate-900 p-5 rounded-2xl font-black uppercase tracking-widest shadow-xl hover:bg-white active:scale-95 transition-all">
+                Return to Roadmap
+            </button>
+        </div>
+    </div>
+
+    <!-- Header & Step Navigation -->
+    <header class="bg-slate-800 p-2 shadow-sm border-b border-slate-700 shrink-0 flex flex-col gap-2">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div>
+                    <h1 class="text-xl font-bold text-blue-400 tracking-tight leading-none uppercase">Doppler Detective</h1>
+                    <p class="text-[9px] text-slate-500 uppercase tracking-[0.2em] font-bold">Unit 6 // Wave Dynamics</p>
+                </div>
+
+                <!-- Inline Student Info -->
+                <div id="header-student-row" class="hidden flex items-center gap-3 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-white/5 shadow-inner">
+                    <div class="flex items-center gap-1.5 text-emerald-400">
+                        <div id="sync-indicator" class="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_#10b981]"></div>
+                        <span id="sync-status-text" class="text-[8px] font-black uppercase tracking-widest">Secure</span>
+                    </div>
+                    <div class="h-3 w-px bg-slate-800"></div>
+                    <span id="header-student-tag" class="text-[9px] font-bold text-slate-300 uppercase tracking-widest">--- // ---</span>
+                </div>
+            </div>
+
+            <div class="text-[10px] font-bold text-blue-300 bg-slate-900/50 px-3 py-1 rounded border border-slate-700/50">
+                Constants: v = 343 m/s | baseline f<sub>0</sub> = 343 Hz
+            </div>
+        </div>
+
+        <!-- 5-Step Progress Bar -->
+        <div class="flex gap-1 text-[10px] font-bold w-full">
+            <button id="nav-step-1" onclick="loadStep(1)" class="nav-btn flex-1 py-1 rounded-md transition-all bg-blue-600 text-white flex items-center justify-center gap-1">
+                1: Baseline <svg class="checkmark-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+            </button>
+            <button id="nav-step-2" onclick="loadStep(2)" class="nav-btn flex-1 py-1 rounded-md transition-all bg-slate-700 text-slate-400 hover:bg-slate-600 flex items-center justify-center gap-1">
+                2: Motion <svg class="checkmark-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+            </button>
+            <button id="nav-step-3" onclick="loadStep(3)" class="nav-btn flex-1 py-1 rounded-md transition-all bg-slate-700 text-slate-400 hover:bg-slate-600 flex items-center justify-center gap-1">
+                3: Approaching <svg class="checkmark-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+            </button>
+            <button id="nav-step-4" onclick="loadStep(4)" class="nav-btn flex-1 py-1 rounded-md transition-all bg-slate-700 text-slate-400 hover:bg-slate-600 flex items-center justify-center gap-1">
+                4: Receding <svg class="checkmark-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+            </button>
+            <button id="nav-step-5" onclick="loadStep(5)" class="nav-btn flex-1 py-1 rounded-md transition-all bg-slate-700 text-slate-400 hover:bg-slate-600 flex items-center justify-center gap-1">
+                5: Perspective <svg class="checkmark-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex p-3 gap-4 max-w-7xl mx-auto w-full min-h-0">
+
+        <!-- Left Column: Interactive Physics Canvas -->
+        <div class="flex-1 flex flex-col gap-3 min-h-0 pr-1">
+
+            <div
+                class="bg-slate-800 rounded-xl p-3 border border-slate-700 shadow-lg flex-1 flex flex-col gap-2 min-h-0">
+                <h2 id="step-title" class="text-lg font-bold text-white shrink-0">Step 1: Establish the Baseline</h2>
+                <p id="step-desc" class="text-slate-300 text-xs shrink-0">
+                    Before adding motion, students must understand how sound behaves when standing still. A stationary
+                    engine emitting sound produces spherical waves that spread out evenly.
+                </p>
+
+                <div
+                    class="bg-indigo-900/60 border border-indigo-500/80 rounded-md p-2.5 flex gap-2 items-center shadow-inner shrink-0">
+                    <span class="text-amber-400 text-lg leading-none">🎯</span>
+                    <div id="step-task" class="text-indigo-100 font-semibold text-sm">
+                        <strong>Task:</strong> Listen to the engine, pause the simulation, and use the ruler to measure
+                        the wavelength (&lambda;) in <strong>3 directions</strong>. We will test both a Low Pitch (245
+                        Hz) and High Pitch (490 Hz).
+                    </div>
+                </div>
+
+                <!-- PHYSICS CANVAS AREA -->
+                <div id="canvas-container"
+                    class="relative border border-slate-600 rounded-lg overflow-hidden bg-slate-900 flex-1 w-full cursor-crosshair min-h-0">
+                    <canvas id="doppler-canvas" class="w-full h-full block"></canvas>
+                </div>
+
+                <!-- CONCEPTUAL CHECK CONTAINER -->
+                <div id="step1-conceptual-container"
+                    class="hidden flex-1 flex-col items-center justify-start bg-slate-900 rounded-lg border border-slate-600 p-4 md:p-6 overflow-y-auto custom-scrollbar w-full min-h-0 animate-fade-in shadow-inner">
+                    <h3 class="text-2xl font-bold text-green-400 mb-2 shrink-0">Conceptual Check 🧠</h3>
+
+                    <div class="flex gap-6 md:gap-10 justify-center mb-6 shrink-0 w-full">
+                        <div class="text-center">
+                            <img id="img-low"
+                                class="max-h-[100px] w-auto border-2 border-slate-500 rounded-md mb-2 shadow-lg bg-slate-800 object-cover" />
+                            <span class="text-xs text-blue-300 font-bold uppercase tracking-wider">Low Frequency</span>
+                        </div>
+                        <div class="text-center">
+                            <img id="img-high"
+                                class="max-h-[100px] w-auto border-2 border-slate-500 rounded-md mb-2 shadow-lg bg-slate-800 object-cover" />
+                            <span class="text-xs text-blue-300 font-bold uppercase tracking-wider">High Frequency</span>
+                        </div>
+                    </div>
+
+                    <div
+                        class="bg-slate-800 border border-slate-600 rounded-lg p-5 w-full max-w-3xl flex flex-col gap-4 text-base text-white shadow-xl shrink-0">
+                        <div class="flex flex-wrap items-center gap-x-2 gap-y-2">
+                            <span class="font-bold text-amber-400 text-lg">1.</span>
+                            <span>The waves form perfect circles because sound travels at the</span>
+                            <select id="q1-select"
+                                class="bg-slate-700 border border-slate-500 rounded px-2 py-1.5 text-white focus:outline-none focus:border-blue-400 font-bold text-blue-300 cursor-pointer shadow-inner">
+                                <option value="">-- select --</option>
+                                <option value="same">same speed</option>
+                                <option value="different">different speeds</option>
+                            </select>
+                            <span>in all directions.</span>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-x-2 gap-y-2">
+                            <span class="font-bold text-amber-400 text-lg">2.</span>
+                            <span>Low frequency waves have a</span>
+                            <select id="q2-select"
+                                class="bg-slate-700 border border-slate-500 rounded px-2 py-1.5 text-white focus:outline-none focus:border-blue-400 font-bold text-blue-300 cursor-pointer shadow-inner">
+                                <option value="">-- select --</option>
+                                <option value="long">long</option>
+                                <option value="short">short</option>
+                            </select>
+                            <span>wavelength.</span>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-x-2 gap-y-2">
+                            <span class="font-bold text-amber-400 text-lg">3.</span>
+                            <span>High frequency waves have a</span>
+                            <select id="q3-select"
+                                class="bg-slate-700 border border-slate-500 rounded px-2 py-1.5 text-white focus:outline-none focus:border-blue-400 font-bold text-blue-300 cursor-pointer shadow-inner">
+                                <option value="">-- select --</option>
+                                <option value="long">long</option>
+                                <option value="short">short</option>
+                            </select>
+                            <span>wavelength.</span>
+                        </div>
+                    </div>
+
+                    <div id="conceptual-feedback" class="mt-5 mb-2 text-center font-bold empty:hidden shrink-0"></div>
+
+                    <div class="flex justify-center mt-2 mb-4 shrink-0 w-full">
+                        <button id="btn-check-conceptual" onclick="checkConceptualMultiple()"
+                            class="px-8 py-3 bg-green-600 hover:bg-green-500 rounded-md text-lg text-white font-bold transition-colors shadow-lg border border-green-500 hover:border-green-400">Check
+                            Answers</button>
+                        <button id="btn-proceed-step2" onclick="loadStep(2)"
+                            class="hidden px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white text-lg font-bold rounded-md shadow-[0_0_15px_rgba(37,99,235,0.6)] transition-all animate-pulse">Proceed
+                            to Step 2 ➡️</button>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div id="canvas-controls"
+                    class="flex justify-between items-center bg-slate-900 p-2 rounded-md border border-slate-700 shrink-0">
+                    <div class="flex gap-3 items-center">
+                        <button id="btn-generate" onclick="generateScenario()"
+                            class="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-900 text-sm font-bold rounded-md transition-all">
+                            Refresh Scenario
+                        </button>
+                        <button id="btn-pause" onclick="togglePause()"
+                            class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-white text-sm font-bold rounded-md transition-all flex items-center gap-1">
+                            ⏸️ Pause
+                        </button>
+                        <button onclick="playEngineSound()"
+                            class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-md transition-all flex items-center gap-1">
+                            🔊 Hear Engine
+                        </button>
+
+                        <button id="btn-continue-step" onclick="continueStep()"
+                            class="hidden px-5 py-1.5 bg-green-600 hover:bg-green-500 text-white text-sm font-bold rounded-md transition-all shadow-[0_0_10px_rgba(34,197,94,0.6)] animate-pulse">
+                            Continue ➡️
+                        </button>
+                    </div>
+                    <div id="ruler-display"
+                        class="text-sm font-mono text-slate-400 font-bold bg-slate-800 px-3 py-1.5 rounded border border-slate-600">
+                        Ruler: 0.00 m
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assessment Area -->
+            <div id="assessment-box"
+                class="hidden bg-blue-900/30 rounded-xl p-3 border border-blue-500/50 shadow-lg animate-fade-in shrink-0 flex flex-col justify-center">
+                <div class="flex justify-between items-start mb-1">
+                    <h3 id="assessment-title" class="text-base font-bold text-blue-300">Assessment Locked 🔒</h3>
+                    <button id="btn-help" onclick="toggleHelp()"
+                        class="hidden w-7 h-7 flex items-center justify-center rounded-full bg-slate-800 border border-slate-600 hover:bg-blue-600 hover:border-blue-500 text-slate-300 hover:text-white transition-all"
+                        title="Need help?">❓</button>
+                </div>
+                <p class="text-sm text-slate-300 mb-3" id="assessment-text"></p>
+
+                <div id="help-card"
+                    class="hidden mb-4 bg-slate-800/80 border border-slate-600 rounded-lg p-4 animate-fade-in text-sm shadow-inner">
+                    <h4 class="font-bold text-blue-400 mb-2 flex items-center gap-2"><span>💡</span> How to solve:</h4>
+                    <div id="help-content" class="text-slate-300"></div>
+                </div>
+
+                <div id="standard-assessment-ui" class="flex gap-3 items-center">
+                    <input type="number" step="0.01" id="assessment-answer" disabled placeholder="Your Answer"
+                        class="px-3 py-1.5 text-base rounded-md bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all w-40">
+                    <button id="btn-submit" disabled onclick="checkAnswer()"
+                        class="px-5 py-1.5 bg-green-600 hover:bg-green-500 text-white text-base font-bold rounded-md shrink-0 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md">
+                        Submit Answer
+                    </button>
+                </div>
+
+                <div id="assessment-feedback" class="mt-2 p-2 rounded-md text-sm font-semibold hidden flex-1"></div>
+            </div>
+
+        </div>
+
+        <!-- Right Column: Embedded Desmos & Measurement Log -->
+        <div
+            class="w-1/3 min-w-[340px] bg-slate-800 rounded-xl shadow-lg border border-slate-700 flex flex-col overflow-hidden shrink-0">
+
+            <div class="p-3 bg-slate-900 border-b border-slate-700 flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-3">
+                    <span class="font-semibold text-slate-300 flex items-center gap-2">Desmos Calculator</span>
+                    <button onclick="if(calcInstance) calcInstance.setBlank()" class="text-[10px] bg-slate-700 hover:bg-slate-600 px-2 py-1 rounded text-slate-300 transition-colors border border-slate-600">Clear All</button>
+                </div>
+                <span
+                    class="text-[10px] uppercase tracking-wider text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded font-bold">Work
+                    Monitored</span>
+            </div>
+
+            <div id="desmos-container" class="flex-[4] w-full bg-white relative min-h-[300px]"></div>
+
+            <div class="flex-1 min-h-[160px] bg-slate-900 flex flex-col border-t-2 border-slate-600">
+                <div class="p-2 bg-slate-800 border-b border-slate-700 shrink-0 flex justify-between items-center">
+                    <span class="font-bold text-sm text-blue-300">📊 Measurement Log</span>
+                </div>
+                <div class="flex-1 overflow-y-auto custom-scrollbar p-2">
+                    <table class="w-full text-xs text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-700 text-slate-400">
+                                <th class="py-1.5 px-2">Scenario</th>
+                                <th class="py-1.5 px-2">v<sub>s</sub></th>
+                                <th class="py-1.5 px-2">f<sub>0</sub></th>
+                                <th class="py-1.5 px-2">&lambda; (m)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="log-tbody" class="text-slate-200">
+                            <tr>
+                                <td colspan="4" class="text-center text-slate-500 py-3 italic">No measurements locked
+                                    yet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+        // --- SUPABASE CONFIGURATION ---
+        const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
+        const sbClient = supabase.createClient(SB_URL, SB_KEY);
+
+        // --- GLOBAL STATE ---
+        const state = {
+            student: { id: '', name: '', period: null },
+            completedSteps: [false, false, false, false, false], // Steps 1-5 mastery
+            isAuthorized: false,
+            syncStatus: 'Secure',
+            isSyncing: false,
+            needsSync: false
+        };
+
+        // --- CONSTANTS & STATE ---
+        const V_SOUND = 343;
+        const DOP_OPTIONS = [68.6, 137.2, 240.1]; // 20%, 40%, and 70% of speed of sound
+        const PX_PER_M = 34.3; // Scale mapping: 1 physical meter = 34.3 visual pixels
+        const VISUAL_NOTE = "<br/><span class='text-[10px] text-slate-400 italic opacity-80'>*Note: For visual clarity, only a fraction of the actual sound waves are drawn. The ruler automatically scales to measure the true physical wavelength.</span>";
+
+        let calcInstance = null;
+        let desmosMonitorInterval = null;
+        let currentStep = 1;
+        let step3Completed = 0; // Tracks progress through the 3 required calculations in Step 3
+        let step4Completed = 0; // Tracks progress through the 3 required calculations in Step 4
+
+        // --- SUPABASE & AUTH LOGIC ---
+        async function handleLogin() {
+            const idInput = document.getElementById('student-id');
+            const nameInput = document.getElementById('student-name');
+            const status = document.getElementById('login-status');
+            const btn = document.getElementById('login-btn');
+            const id = idInput.value.trim().toUpperCase();
+
+            if (id.length !== 6) { status.textContent = "INVALID_ID // 6_DIGITS"; return; }
+            btn.disabled = true; status.textContent = "VERIFYING_CREDENTIALS...";
+
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                state.student.period = urlParams.get('p') || urlParams.get('period');
+
+                const { data: nameData } = await sbClient.from('student_results')
+                    .select('student_name, class_period')
+                    .eq('student_id', id)
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .maybeSingle();
+
+                if (nameData) {
+                    state.student.name = nameData.student_name;
+                    state.student.id = id;
+                    if (!state.student.period) state.student.period = nameData.class_period;
+
+                    // Fetch progress for this lab
+                    const { data: progressData } = await sbClient.from('student_results')
+                        .select('details')
+                        .eq('student_id', id)
+                        .eq('assignment_name', "Doppler Detective")
+                        .maybeSingle();
+
+                    if (progressData && progressData.details && progressData.details.completedSteps) {
+                        state.completedSteps = progressData.details.completedSteps;
+                        updateCheckmarks();
+                    }
+                    finalizeLogin();
+                } else if (document.getElementById('name-entry').classList.contains('hidden')) {
+                    document.getElementById('name-entry').classList.remove('hidden');
+                    btn.disabled = false; btn.textContent = "ESTABLISH CONNECTION"; status.textContent = "NEW ID DETECTED";
+                } else {
+                    const name = nameInput.value.trim();
+                    if (name.length < 3) { status.textContent = "NAME TOO SHORT"; btn.disabled = false; return; }
+                    state.student.name = name; state.student.id = id;
+                    finalizeLogin();
+                }
+            } catch (e) {
+                console.error(e); btn.disabled = false; status.textContent = "NETWORK ERROR";
+            }
+        }
+
+        function finalizeLogin() {
+            state.isAuthorized = true;
+            document.getElementById('login-overlay').classList.add('hidden');
+            document.getElementById('header-student-row').classList.remove('hidden');
+            document.getElementById('header-student-tag').textContent = `${state.student.name} // ${state.student.id}`;
+            syncData();
+        }
+
+        async function syncData() {
+            if (!state.isAuthorized || state.isSyncing) { 
+                if (state.isSyncing) state.needsSync = true;
+                return; 
+            }
+            state.isSyncing = true;
+            state.needsSync = false;
+
+            const indicator = document.getElementById('sync-indicator');
+            const statusText = document.getElementById('sync-status-text');
+            indicator.className = 'w-2 h-2 rounded-full bg-orange-500 animate-pulse shadow-[0_0_8px_#f97316]';
+            statusText.textContent = 'Syncing...';
+
+            try {
+                const assignmentName = "Doppler Detective";
+                // Score is steps completed / 5
+                const completedCount = state.completedSteps.filter(x => x).length;
+                const score = Math.round((completedCount / 5) * 100);
+
+                const { data: existing } = await sbClient.from('student_results')
+                    .select('id')
+                    .eq('student_id', state.student.id)
+                    .eq('assignment_name', assignmentName);
+
+                const payload = {
+                    student_name: state.student.name,
+                    student_id: state.student.id,
+                    class_period: state.student.period,
+                    assignment_name: assignmentName,
+                    score: score,
+                    details: {
+                        completedSteps: state.completedSteps,
+                        lastSync: new Date().toISOString()
+                    }
+                };
+
+                if (existing && existing.length > 0) {
+                    await sbClient.from('student_results').update(payload).eq('id', existing[0].id);
+                } else {
+                    await sbClient.from('student_results').insert([payload]);
+                }
+
+                indicator.className = 'w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]';
+                statusText.textContent = 'Database_Secure';
+                
+                if (completedCount === 5) showCompletionCard();
+            } catch (e) {
+                console.error(e);
+                indicator.className = 'w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_#ef4444]';
+                statusText.textContent = 'Sync_Error';
+            } finally {
+                state.isSyncing = false;
+                if (state.needsSync) syncData();
+            }
+        }
+
+        function updateCheckmarks() {
+            for (let i = 0; i < 5; i++) {
+                const btn = document.getElementById(`nav-step-${i + 1}`);
+                if (state.completedSteps[i]) btn.classList.add('completed');
+                else btn.classList.remove('completed');
+            }
+        }
+
+        function markStepComplete(stepIndex) {
+            if (stepIndex < 1 || stepIndex > 5) return;
+            if (!state.completedSteps[stepIndex - 1]) {
+                state.completedSteps[stepIndex - 1] = true;
+                updateCheckmarks();
+                syncData();
+            }
+        }
+
+        function showCompletionCard() {
+            document.getElementById('completion-overlay').classList.remove('hidden');
+            document.getElementById('completion-student-info').textContent = `${state.student.name} // ${state.student.id}`;
+        }
+
+        // Physics State
+        let physF0 = 343; // Physical baseline frequency
+        let visualF0 = 10; // Visual baseline frequency (determines wave drawing density)
+        let dopVs = 0; // Source velocity (m/s)
+        let trueLambdaTargetVis = 0; // Exact visual distance we expect the ruler to measure
+
+        // Step Phases
+        let step1Phase = 'low';
+        let step2Phase = 'stationary';
+
+        let step1LowImg = '';
+        let step1HighImg = '';
+        let step2BaselineLambda = 1.00;
+
+        // Animation State
+        let simTime = 0;
+        let carX = 350;
+        let carY = 140;
+        let waves = [];
+        let lastEmitTime = 0;
+        let isPaused = false;
+        let lastFrameTime = null;
+
+        // Observer State
+        let obsX = 600;
+        let obsY = 200;
+        let isDraggingObs = false;
+        let obsInCar = false;
+
+        // Radial Ruler State
+        let isDraggingRuler = false;
+        let rulerR1 = 0;
+        let rulerR2 = 0;
+        let rulerTheta = 0;
+        let lockedMeasurements = [];
+
+        // Data Log State
+        let measurementLog = {};
+
+        // --- DATA LOG ENGINE ---
+        function updateLog(id, scenario, vs, f, lambda) {
+            measurementLog[id] = { scenario, vs, f, lambda };
+            renderLog();
+        }
+
+        function renderLog() {
+            const tbody = document.getElementById('log-tbody');
+            tbody.innerHTML = '';
+
+            const entries = Object.values(measurementLog);
+            if (entries.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center text-slate-500 py-3 italic">No measurements locked yet.</td></tr>';
+                return;
+            }
+
+            entries.forEach(entry => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-slate-700/50 hover:bg-slate-800/50 transition-colors";
+                tr.innerHTML = `
+                    <td class="py-1.5 px-2 font-semibold text-blue-200">${entry.scenario}</td>
+                    <td class="py-1.5 px-2 font-mono text-slate-300">${entry.vs}</td>
+                    <td class="py-1.5 px-2 font-mono text-slate-300">${entry.f}</td>
+                    <td class="py-1.5 px-2 font-mono font-bold text-green-400">${entry.lambda.toFixed(2)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            tbody.parentElement.parentElement.scrollTop = tbody.parentElement.parentElement.scrollHeight;
+        }
+
+        // --- AUDIO ENGINE ---
+        let audioCtx = null;
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playEngineSound() {
+            initAudio();
+            const osc = audioCtx.createOscillator();
+            const filter = audioCtx.createBiquadFilter();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sawtooth';
+            filter.type = 'lowpass';
+
+            let freq = 171.5; // Baseline engine sound (343 / 2)
+            let filterFreq = 400;
+
+            if (currentStep === 1) {
+                if (step1Phase === 'low' || step1Phase === 'low-done') {
+                    freq = 122.5; // 245 / 2
+                    filterFreq = 300;
+                } else if (step1Phase === 'high' || step1Phase === 'high-done') {
+                    freq = 245; // 490 / 2
+                    filterFreq = 800;
+                }
+            }
+
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            filter.frequency.setValueAtTime(filterFreq, audioCtx.currentTime);
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.4, audioCtx.currentTime + 0.1);
+            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1.2);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 1.2);
+        }
+
+        // --- INIT ---
+        window.onload = () => {
+            const elt = document.getElementById('desmos-container');
+            calcInstance = window.Desmos.FourFunctionCalculator(elt);
+            initCanvasEvents();
+            loadStep(1);
+            requestAnimationFrame(renderLoop);
+        };
+
+        // --- STEP MANAGER ---
+        function loadStep(stepNumber) {
+            currentStep = stepNumber;
+            if (desmosMonitorInterval) clearInterval(desmosMonitorInterval);
+            if (calcInstance) calcInstance.setBlank();
+
+            for (let i = 1; i <= 5; i++) {
+                const btn = document.getElementById(`nav-step-${i}`);
+                if (i === currentStep) {
+                    btn.classList.add('bg-blue-600', 'text-white', 'shadow-md');
+                    btn.classList.remove('bg-slate-700', 'text-slate-400', 'hover:bg-slate-600');
+                } else {
+                    btn.classList.remove('bg-blue-600', 'text-white', 'shadow-md');
+                    btn.classList.add('bg-slate-700', 'text-slate-400', 'hover:bg-slate-600');
+                }
+            }
+            updateCheckmarks(); // Ensure checkmarks persist
+
+            lockedMeasurements = [];
+            isDraggingRuler = false;
+            rulerR1 = 0;
+            rulerR2 = 0;
+            rulerTheta = 0;
+            updateRulerDisplay(0);
+
+            obsX = 600;
+            obsY = carY + 60;
+            isDraggingObs = false;
+            obsInCar = false;
+
+            simTime = 0;
+            lastEmitTime = 0;
+            waves = [];
+            if (isPaused) togglePause();
+
+            // UI Reset
+            const canvasContainer = document.getElementById('canvas-container');
+            const canvasControls = document.getElementById('canvas-controls');
+            const conceptualContainer = document.getElementById('step1-conceptual-container');
+
+            canvasContainer.classList.remove('hidden');
+            canvasControls.classList.remove('hidden');
+            canvasControls.classList.add('flex');
+
+            conceptualContainer.classList.add('hidden');
+            conceptualContainer.classList.remove('flex');
+
+            document.getElementById('assessment-box').classList.add('hidden');
+            document.getElementById('assessment-feedback').classList.add('hidden');
+            document.getElementById('assessment-answer').value = '';
+            document.getElementById('btn-continue-step').classList.add('hidden');
+            document.getElementById('conceptual-feedback').innerHTML = '';
+            document.getElementById('btn-help').classList.add('hidden');
+            document.getElementById('help-card').classList.add('hidden');
+
+            document.getElementById('btn-check-conceptual').classList.remove('hidden');
+            document.getElementById('btn-proceed-step2').classList.add('hidden');
+            document.getElementById('btn-proceed-step2').onclick = () => {
+                markStepComplete(1);
+                loadStep(2);
+            };
+
+            document.getElementById('q1-select').value = "";
+            document.getElementById('q2-select').value = "";
+            document.getElementById('q3-select').value = "";
+            document.getElementById('q1-select').disabled = false;
+            document.getElementById('q2-select').disabled = false;
+            document.getElementById('q3-select').disabled = false;
+
+            const titleEl = document.getElementById('step-title');
+            const descEl = document.getElementById('step-desc');
+            const taskEl = document.getElementById('step-task');
+
+            physF0 = 343;
+            visualF0 = 10;
+
+            switch (currentStep) {
+                case 1:
+                    dopVs = 0;
+                    carX = 350;
+                    physF0 = 245;
+                    visualF0 = 245 / PX_PER_M; // ~7.14
+                    step1Phase = 'low';
+                    trueLambdaTargetVis = V_SOUND / visualF0;
+                    titleEl.innerText = "Step 1: Establish the Baseline (Stationary)";
+                    descEl.innerHTML = "A stationary engine emitting sound produces spherical waves that spread out evenly." + VISUAL_NOTE;
+                    taskEl.innerHTML = "<strong>Task:</strong> Listen to the engine, pause the simulation, and use the ruler to measure the wavelength (&lambda;) in <strong>3 directions</strong>. We will test both a Low Pitch (245 Hz) and High Pitch (490 Hz).";
+                    break;
+                case 2:
+                    step2Phase = 'stationary';
+                    dopVs = 0;
+                    carX = 350;
+                    trueLambdaTargetVis = V_SOUND / visualF0;
+                    titleEl.innerText = "Step 2: Introduce Motion (The 'Chasing' Concept)";
+                    descEl.innerHTML = "When the object moves, it 'chases' its forward waves and pulls away from its backward waves." + VISUAL_NOTE;
+                    taskEl.innerHTML = "<strong>Task:</strong> First, pause and measure the baseline wavelength (&lambda;<sub>baseline</sub>) of the <strong>stationary car</strong>.";
+                    break;
+                case 3:
+                    loadStep3();
+                    break;
+                case 4:
+                    loadStep4();
+                    break;
+                case 5:
+                    dopVs = DOP_OPTIONS[Math.floor(Math.random() * DOP_OPTIONS.length)];
+                    carX = 50;
+                    titleEl.innerText = "Step 5: Observer vs. Source Perspective";
+                    descEl.innerHTML = "The Doppler effect is an <i>apparent</i> shift caused by relative motion. The driver inside hears no shift." + VISUAL_NOTE;
+                    taskEl.innerHTML = "<strong>Task:</strong> Drag the observer (🧍) onto the moving car to ride along!";
+                    break;
+            }
+        }
+
+        // --- STEP 3 MULTI-SCENARIO HELPERS ---
+        function loadStep3() {
+            step3Completed = 0;
+            setupStep3Scenario();
+        }
+
+        function setupStep3Scenario() {
+            const titleEl = document.getElementById('step-title');
+            const descEl = document.getElementById('step-desc');
+            const taskEl = document.getElementById('step-task');
+
+            // Pick speed based on progress
+            dopVs = DOP_OPTIONS[step3Completed];
+            carX = 50;
+            trueLambdaTargetVis = (V_SOUND - dopVs) / visualF0;
+
+            titleEl.innerText = `Step 3: Approaching Scenario (${step3Completed + 1}/3)`;
+            descEl.innerHTML = "Because the object is chasing its forward waves, they bunch up. Shorter wavelengths mean waves hit the ear more frequently (higher pitch)." + VISUAL_NOTE;
+            taskEl.innerHTML = `<strong>Task (${step3Completed + 1}/3):</strong> Measure the compressed wavelength (&lambda;<sub>front</sub>) accurately for a car moving at <strong>${dopVs} m/s</strong>.`;
+
+            // Reset simulation state for new speed
+            waves = [];
+            simTime = 0;
+            lastEmitTime = 0;
+            lockedMeasurements = [];
+            isDraggingRuler = false;
+            updateRulerDisplay(0);
+
+            // Hide assessment UI
+            document.getElementById('assessment-box').classList.add('hidden');
+            document.getElementById('assessment-feedback').classList.add('hidden');
+            document.getElementById('assessment-answer').value = '';
+
+            if (calcInstance) calcInstance.setBlank();
+
+            if (isPaused) togglePause();
+        }
+
+        function advanceStep3() {
+            step3Completed++;
+            setupStep3Scenario();
+        }
+
+        // --- STEP 4 MULTI-SCENARIO HELPERS ---
+        function loadStep4() {
+            step4Completed = 0;
+            setupStep4Scenario();
+        }
+
+        function setupStep4Scenario() {
+            const titleEl = document.getElementById('step-title');
+            const descEl = document.getElementById('step-desc');
+            const taskEl = document.getElementById('step-task');
+
+            // Pick speed based on progress
+            dopVs = DOP_OPTIONS[step4Completed];
+            carX = 50;
+            trueLambdaTargetVis = (V_SOUND + dopVs) / visualF0;
+
+            titleEl.innerText = `Step 4: Receding Scenario (${step4Completed + 1}/3)`;
+            descEl.innerHTML = "As the object drives away, it moves opposite to the backward-emitted waves, stretching them (lower pitch)." + VISUAL_NOTE;
+            taskEl.innerHTML = `<strong>Task (${step4Completed + 1}/3):</strong> Measure the stretched wavelength (&lambda;<sub>back</sub>) directly <strong>BEHIND</strong> the car moving at <strong>${dopVs} m/s</strong>.`;
+
+            // Reset simulation state for new speed
+            waves = [];
+            simTime = 0;
+            lastEmitTime = 0;
+            lockedMeasurements = [];
+            isDraggingRuler = false;
+            updateRulerDisplay(0);
+
+            // Hide assessment UI
+            document.getElementById('assessment-box').classList.add('hidden');
+            document.getElementById('assessment-feedback').classList.add('hidden');
+            document.getElementById('assessment-answer').value = '';
+
+            if (calcInstance) calcInstance.setBlank();
+
+            if (isPaused) togglePause();
+        }
+
+        function advanceStep4() {
+            step4Completed++;
+            setupStep4Scenario();
+        }
+
+        function generateScenario() {
+            loadStep(currentStep);
+        }
+
+        function togglePause() {
+            isPaused = !isPaused;
+            const btn = document.getElementById('btn-pause');
+            if (isPaused) {
+                btn.innerHTML = '▶️ Play';
+                btn.classList.replace('bg-slate-700', 'bg-green-600');
+                btn.classList.replace('hover:bg-slate-600', 'hover:bg-green-500');
+            } else {
+                btn.innerHTML = '⏸️ Pause';
+                btn.classList.replace('bg-green-600', 'bg-slate-700');
+                btn.classList.replace('hover:bg-green-500', 'hover:bg-slate-600');
+                lastFrameTime = null;
+            }
+        }
+
+        function continueStep() {
+            document.getElementById('btn-continue-step').classList.add('hidden');
+
+            if (currentStep === 1) {
+                if (step1Phase === 'low-done') {
+                    step1Phase = 'high';
+                    physF0 = 490;
+                    visualF0 = 490 / PX_PER_M; // ~14.28
+                    trueLambdaTargetVis = V_SOUND / visualF0;
+                    waves = [];
+                    lockedMeasurements = [];
+
+                    document.getElementById('step-task').innerHTML = "<strong>Task:</strong> Great job! Now listen to the engine, pause, and measure the wavelength (&lambda;) in 3 directions for the <strong>High Pitch</strong> engine.";
+                    updateRulerDisplay(0, "");
+                    if (isPaused) togglePause();
+
+                } else if (step1Phase === 'high-done') {
+                    step1Phase = 'conceptual';
+                    document.getElementById('step-task').innerHTML = "<strong>Task:</strong> Analyze your results and answer the conceptual questions below.";
+
+                    const canvasContainer = document.getElementById('canvas-container');
+                    const canvasControls = document.getElementById('canvas-controls');
+                    const conceptualContainer = document.getElementById('step1-conceptual-container');
+
+                    canvasContainer.classList.add('hidden');
+                    canvasControls.classList.add('hidden');
+                    canvasControls.classList.remove('flex');
+
+                    conceptualContainer.classList.remove('hidden');
+                    conceptualContainer.classList.add('flex');
+
+                    document.getElementById('img-low').src = step1LowImg;
+                    document.getElementById('img-high').src = step1HighImg;
+                }
+            }
+            else if (currentStep === 2) {
+                if (step2Phase === 'stationary-done') {
+                    step2Phase = 'moving';
+                    const DOP_OPTIONS = [34.3, 68.6, 102.9];
+                    dopVs = DOP_OPTIONS[Math.floor(Math.random() * DOP_OPTIONS.length)];
+                    carX = 50;
+                    trueLambdaTargetVis = (V_SOUND - dopVs) / visualF0;
+                    waves = [];
+                    lockedMeasurements = [];
+
+                    document.getElementById('step-task').innerHTML = "<strong>Task:</strong> The car is now moving! Pause and measure the compressed wavelength (&lambda;<sub>front</sub>) directly <strong>IN FRONT</strong> of the moving car.";
+                    updateRulerDisplay(0, "");
+                    if (isPaused) togglePause();
+                }
+            }
+        }
+
+        // --- CANVAS ENGINE ---
+        function initCanvasEvents() {
+            const canvas = document.getElementById('doppler-canvas');
+
+            canvas.addEventListener('mousedown', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                const mouseX = (e.clientX - rect.left) * scaleX;
+                const mouseY = (e.clientY - rect.top) * scaleY;
+
+                if (currentStep === 5) {
+                    if (Math.hypot(mouseX - obsX, mouseY - obsY) < 30) {
+                        isDraggingObs = true;
+                        obsInCar = false;
+                    }
+                    return;
+                }
+
+                if (currentStep === 1 && (step1Phase === 'low-done' || step1Phase === 'high-done' || step1Phase === 'conceptual' || step1Phase === 'done')) return;
+                if (currentStep === 2 && step2Phase === 'stationary-done') return;
+                if (currentStep !== 1 && lockedMeasurements.length >= 1) return;
+
+                if (!isPaused) togglePause();
+
+                const dx = mouseX - carX;
+                const dy = mouseY - carY;
+
+                if (currentStep === 1) {
+                    rulerTheta = Math.atan2(dy, dx);
+                    rulerR1 = Math.hypot(dx, dy);
+                } else if (currentStep === 2) {
+                    rulerTheta = 0;
+                    rulerR1 = dx;
+                } else if (currentStep === 3) {
+                    rulerTheta = 0;
+                    rulerR1 = dx;
+                } else if (currentStep === 4) {
+                    rulerTheta = Math.PI;
+                    rulerR1 = -dx;
+                }
+
+                rulerR2 = rulerR1;
+                isDraggingRuler = true;
+            });
+
+            canvas.addEventListener('mousemove', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                const mouseX = (e.clientX - rect.left) * scaleX;
+                const mouseY = (e.clientY - rect.top) * scaleY;
+
+                if (isDraggingObs) {
+                    obsX = mouseX;
+                    obsY = mouseY;
+                    if (Math.hypot(obsX - carX, obsY - carY) < 40) {
+                        obsInCar = true;
+                        isDraggingObs = false;
+                        handleStep5Success();
+                    }
+                } else if (isDraggingRuler) {
+                    const dx = mouseX - carX;
+                    const dy = mouseY - carY;
+
+                    if (currentStep === 1) {
+                        rulerR2 = dx * Math.cos(rulerTheta) + dy * Math.sin(rulerTheta);
+                    } else if (currentStep === 2 || currentStep === 3) {
+                        rulerR2 = dx;
+                    } else if (currentStep === 4) {
+                        rulerR2 = -dx;
+                    }
+
+                    const dist = Math.abs(rulerR2 - rulerR1);
+                    updateRulerDisplay(dist);
+                }
+            });
+
+            canvas.addEventListener('mouseup', () => {
+                if (isDraggingObs) isDraggingObs = false;
+                if (!isDraggingRuler) return;
+                isDraggingRuler = false;
+
+                const dist_px = Math.abs(rulerR2 - rulerR1);
+                if (dist_px > 5) {
+                    evaluateMeasurement(dist_px);
+                } else {
+                    updateRulerDisplay(0);
+                }
+            });
+        }
+
+        function updateRulerDisplay(dist_px, msg = "") {
+            const val_phys = dist_px / PX_PER_M;
+            const disp = document.getElementById('ruler-display');
+            if (msg) {
+                disp.innerText = `Ruler: ${val_phys.toFixed(2)} m - ${msg}`;
+                disp.classList.replace('text-slate-400', 'text-green-400');
+            } else {
+                disp.innerText = `Ruler: ${val_phys.toFixed(2)} m`;
+                disp.classList.replace('text-green-400', 'text-slate-400');
+            }
+        }
+
+        function renderLoop(time) {
+            const canvas = document.getElementById('doppler-canvas');
+            const container = document.getElementById('canvas-container');
+
+            if (canvas && container) {
+                if (container.clientWidth > 0 && container.clientHeight > 0) {
+                    if (canvas.width !== container.clientWidth || canvas.height !== container.clientHeight) {
+                        canvas.width = container.clientWidth;
+                        canvas.height = container.clientHeight;
+                    }
+                    const newCarY = canvas.height / 2;
+                    if (carY !== newCarY) {
+                        obsY += (newCarY - carY);
+                        carY = newCarY;
+                    }
+                }
+            }
+
+            if (!lastFrameTime) lastFrameTime = time;
+            const dt = ((time - lastFrameTime) / 1000) * 0.2;
+            lastFrameTime = time;
+
+            if (!isPaused) {
+                simTime += dt;
+                carX += dopVs * dt; // visual speed correctly equals physical speed in this scaled system
+
+                if (obsInCar) obsX = carX;
+
+                if (dopVs === 0) {
+                    carX = canvas ? canvas.width / 2 : 350;
+                } else if (carX > (canvas ? canvas.width + 150 : 850)) {
+                    carX = -50;
+                    waves = [];
+                }
+
+                if (simTime - lastEmitTime >= 1 / visualF0) {
+                    waves.push({ x: carX, y: carY, t: simTime });
+                    lastEmitTime += 1 / visualF0;
+                }
+            }
+
+            drawCanvas();
+            requestAnimationFrame(renderLoop);
+        }
+
+        function drawCanvas() {
+            const canvas = document.getElementById('doppler-canvas');
+            if (!canvas || canvas.width === 0) return;
+
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Context Labels
+            if (currentStep === 1) {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.font = 'bold italic 24px Arial';
+                ctx.textAlign = 'right';
+                if (step1Phase === 'low' || step1Phase === 'low-done') {
+                    ctx.fillText('Low Pitch (245 Hz)', canvas.width - 20, canvas.height - 20);
+                } else if (step1Phase === 'high' || step1Phase === 'high-done') {
+                    ctx.fillText('High Pitch (490 Hz)', canvas.width - 20, canvas.height - 20);
+                }
+            } else if (currentStep === 2 && (step2Phase === 'stationary' || step2Phase === 'stationary-done')) {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.font = 'bold italic 24px Arial';
+                ctx.textAlign = 'right';
+                ctx.fillText('Baseline (343 Hz)', canvas.width - 20, canvas.height - 20);
+            }
+
+            waves.forEach(w => {
+                const age = simTime - w.t;
+                const radius = V_SOUND * age;
+                if (radius < Math.max(canvas.width, 800)) {
+                    ctx.beginPath();
+                    ctx.arc(w.x, carY, radius, 0, Math.PI * 2);
+                    ctx.strokeStyle = `rgba(96, 165, 250, ${Math.max(0, 1 - age / 1.5)})`;
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+            });
+
+            ctx.font = '30px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            if (currentStep === 3) ctx.fillText('🧍', canvas.width - 50, carY);
+            if (currentStep === 4) ctx.fillText('🧍', 50, carY);
+
+            ctx.save();
+            ctx.translate(carX, carY);
+            ctx.scale(-1, 1);
+            ctx.fillText('🏎️', 0, 0);
+            ctx.restore();
+
+            if (currentStep === 5) {
+                if (!obsInCar) ctx.fillText('🧍', obsX, obsY);
+
+                const dx = obsX - carX;
+                const dy = obsY - carY;
+                const dist = Math.hypot(dx, dy);
+                let heardFreq = physF0;
+                if (dist > 0 && !obsInCar) {
+                    const cosTheta = dx / dist;
+                    heardFreq = physF0 * (V_SOUND / (V_SOUND - dopVs * cosTheta));
+                }
+
+                ctx.fillStyle = obsInCar ? '#22c55e' : '#60a5fa';
+                ctx.font = 'bold 14px monospace';
+                ctx.fillText(`f' = ${heardFreq.toFixed(1)} Hz`, obsX, obsY - 30);
+            }
+
+            const drawRuler = (r1, r2, theta, isLocked, distVal_px) => {
+                const x1 = carX + r1 * Math.cos(theta);
+                const y1 = carY + r1 * Math.sin(theta);
+                const x2 = carX + r2 * Math.cos(theta);
+                const y2 = carY + r2 * Math.sin(theta);
+
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+
+                const tickLen = 15;
+                const tx = Math.cos(theta + Math.PI / 2) * tickLen;
+                const ty = Math.sin(theta + Math.PI / 2) * tickLen;
+
+                ctx.moveTo(x1 - tx, y1 - ty);
+                ctx.lineTo(x1 + tx, y1 + ty);
+                ctx.moveTo(x2 - tx, y2 - ty);
+                ctx.lineTo(x2 + tx, y2 + ty);
+
+                ctx.strokeStyle = isLocked ? '#22c55e' : '#f59e0b';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.fillStyle = isLocked ? '#22c55e' : '#f59e0b';
+                ctx.font = 'bold 14px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                const mx = (x1 + x2) / 2 - tx * 1.5;
+                const my = (y1 + y2) / 2 - ty * 1.5;
+
+                const val_phys = distVal_px / PX_PER_M;
+                ctx.fillText(`${val_phys.toFixed(2)} m`, mx, my);
+            };
+
+            // Using the physical 'val' to compute pixel length for drawing
+            lockedMeasurements.forEach(m => drawRuler(m.r1, m.r2, m.theta, true, m.val * PX_PER_M));
+
+            if (isDraggingRuler) {
+                drawRuler(rulerR1, rulerR2, rulerTheta, false, Math.abs(rulerR2 - rulerR1));
+            }
+        }
+
+        // --- ASSESSMENT LOGIC ---
+        function evaluateMeasurement(dist_px) {
+            if (Math.abs(dist_px - trueLambdaTargetVis) <= 6.0) {
+                // Snap accurately to physical value
+                const val_phys = parseFloat((trueLambdaTargetVis / PX_PER_M).toFixed(2));
+                rulerR2 = rulerR1 + (rulerR2 >= rulerR1 ? trueLambdaTargetVis : -trueLambdaTargetVis);
+
+                if (currentStep === 1) {
+                    const isDifferent = lockedMeasurements.every(m => {
+                        let diff = Math.abs(m.theta - rulerTheta);
+                        if (diff > Math.PI) diff = 2 * Math.PI - diff;
+                        return diff > 0.35;
+                    });
+
+                    if (!isDifferent) {
+                        alert("You already measured in this direction! Try measuring at a completely different angle to prove the waves are perfectly spherical.");
+                        updateRulerDisplay(0);
+                        return;
+                    }
+
+                    lockedMeasurements.push({ r1: rulerR1, r2: rulerR2, theta: rulerTheta, val: val_phys });
+
+                    if (lockedMeasurements.length < 3) {
+                        updateRulerDisplay(val_phys * PX_PER_M, `Locked (${lockedMeasurements.length}/3)`);
+                    } else {
+                        updateRulerDisplay(val_phys * PX_PER_M, "Locked (3/3)");
+
+                        if (step1Phase === 'low') {
+                            updateLog('s1-low', 'Step 1: Low Pitch', 0, 245, val_phys);
+                        } else if (step1Phase === 'high') {
+                            updateLog('s1-high', 'Step 1: High Pitch', 0, 490, val_phys);
+                        }
+
+                        drawCanvas();
+                        const canvas = document.getElementById('doppler-canvas');
+
+                        if (step1Phase === 'low') {
+                            step1LowImg = canvas.toDataURL();
+                            step1Phase = 'low-done';
+
+                            document.getElementById('btn-continue-step').classList.remove('hidden');
+                            document.getElementById('step-task').innerHTML = "<strong>Task:</strong> Great job! Click <strong>Continue</strong> to proceed to the High Pitch engine.";
+
+                            if (!isPaused) togglePause();
+
+                        } else if (step1Phase === 'high') {
+                            step1HighImg = canvas.toDataURL();
+                            step1Phase = 'high-done';
+
+                            document.getElementById('btn-continue-step').classList.remove('hidden');
+                            document.getElementById('step-task').innerHTML = "<strong>Task:</strong> Excellent! Click <strong>Continue</strong> to analyze your final results.";
+
+                            if (!isPaused) togglePause();
+                        }
+                    }
+                } else if (currentStep === 2 && step2Phase === 'stationary') {
+                    lockedMeasurements.push({ r1: rulerR1, r2: rulerR2, theta: rulerTheta, val: val_phys });
+                    updateRulerDisplay(val_phys * PX_PER_M, "Locked");
+
+                    step2BaselineLambda = val_phys;
+                    updateLog('s2-base', 'Step 2: Baseline', 0, 343, val_phys);
+
+                    step2Phase = 'stationary-done';
+                    document.getElementById('btn-continue-step').classList.remove('hidden');
+                    document.getElementById('step-task').innerHTML = "<strong>Task:</strong> Baseline secured! Click <strong>Continue</strong> to set the car in motion.";
+
+                } else {
+                    lockedMeasurements.push({ r1: rulerR1, r2: rulerR2, theta: rulerTheta, val: val_phys });
+                    updateRulerDisplay(val_phys * PX_PER_M, "Locked");
+
+                    if (currentStep === 2) updateLog('s2-mov', 'Step 2: Moving', dopVs, 343, val_phys);
+                    if (currentStep === 3) updateLog('s3-app-' + (step3Completed + 1), `Step 3: Appr (${step3Completed + 1}/3)`, dopVs, 343, val_phys);
+                    if (currentStep === 4) updateLog('s4-rec-' + (step4Completed + 1), `Step 4: Reced (${step4Completed + 1}/3)`, dopVs, 343, val_phys);
+
+                    setupAssessment();
+                }
+            } else {
+                alert(`Measurement inaccurate. Look closely at the distance between the lines ${currentStep === 4 ? "BEHIND" : (currentStep !== 1 ? "in FRONT of" : "around")} the car. (Tip: Ensure you are measuring between two adjacent blue rings!)`);
+                updateRulerDisplay(0);
+            }
+        }
+
+        function handleStep5Success() {
+            lockedMeasurements = [{ val: 1.0 }];
+            updateLog('s5-in', 'Step 5: Inside Car', dopVs, 343, 1.00);
+            setupAssessment();
+        }
+
+        function toggleHelp() {
+            document.getElementById('help-card').classList.toggle('hidden');
+        }
+
+        function setupAssessment() {
+            const boxEl = document.getElementById('assessment-box');
+            const titleEl = document.getElementById('assessment-title');
+            const textEl = document.getElementById('assessment-text');
+            const helpContent = document.getElementById('help-content');
+
+            boxEl.classList.remove('hidden');
+
+            titleEl.innerHTML = 'Assessment Locked 🔒';
+            titleEl.className = 'text-base font-bold text-blue-300';
+
+            document.getElementById('btn-help').classList.remove('hidden');
+            document.getElementById('help-card').classList.add('hidden'); // Reset help to hidden
+
+            document.getElementById('assessment-answer').disabled = true;
+            document.getElementById('btn-submit').disabled = true;
+
+            const lockedVal = lockedMeasurements[lockedMeasurements.length - 1].val;
+            let desmosReqs = [];
+
+            if (currentStep === 2) {
+                textEl.innerHTML = `You measured &lambda;<sub>front</sub> = <strong>${lockedVal.toFixed(2)} m</strong>. Compare this to your <strong>Baseline</strong> in the Measurement Log. How much did the wavelength change? (&Delta;&lambda; = ${step2BaselineLambda.toFixed(2)} - &lambda;<sub>front</sub>). Show work to unlock!`;
+                desmosReqs = [step2BaselineLambda, lockedVal];
+                document.getElementById('assessment-answer').placeholder = "Change in λ (m)";
+
+                helpContent.innerHTML = `
+                    <ul class="list-disc list-inside mb-3 space-y-1">
+                        <li><strong>Baseline &lambda;:</strong> ${step2BaselineLambda.toFixed(2)} m</li>
+                        <li><strong>Measured &lambda;:</strong> ${lockedVal.toFixed(2)} m</li>
+                    </ul>
+                    <p class="text-amber-400 bg-slate-900/80 p-3 rounded border border-slate-700 leading-relaxed">
+                        <strong>Step 1:</strong> Type <code class="text-white font-mono bg-slate-700 px-1 rounded">${step2BaselineLambda.toFixed(2)} - ${lockedVal.toFixed(2)}</code> into the Desmos calculator.<br/>
+                        <strong>Step 2:</strong> Enter the resulting answer in the box below to unlock it.
+                    </p>
+                `;
+            }
+            else if (currentStep === 3) {
+                textEl.innerHTML = `You measured &lambda;<sub>front</sub> = <strong>${lockedVal.toFixed(2)} m</strong>. Calculate the high frequency perceived by the observer in front (f' = v / &lambda;<sub>front</sub>). Show work to unlock!`;
+                desmosReqs = [343, lockedVal];
+                document.getElementById('assessment-answer').placeholder = "Perceived Freq (Hz)";
+
+                helpContent.innerHTML = `
+                    <ul class="list-disc list-inside mb-3 space-y-1">
+                        <li><strong>Velocity (v):</strong> 343 m/s</li>
+                        <li><strong>Measured &lambda;:</strong> ${lockedVal.toFixed(2)} m</li>
+                    </ul>
+                    <p class="text-amber-400 bg-slate-900/80 p-3 rounded border border-slate-700 leading-relaxed">
+                        <strong>Step 1:</strong> Type <code class="text-white font-mono bg-slate-700 px-1 rounded">343 / ${lockedVal.toFixed(2)}</code> into the Desmos calculator.<br/>
+                        <strong>Step 2:</strong> Enter the resulting frequency in the box below.
+                    </p>
+                `;
+            }
+            else if (currentStep === 4) {
+                textEl.innerHTML = `You measured &lambda;<sub>back</sub> = <strong>${lockedVal.toFixed(2)} m</strong>. Calculate the low frequency perceived by the observer behind (f' = v / &lambda;<sub>back</sub>). Show work to unlock!`;
+                desmosReqs = [343, lockedVal];
+                document.getElementById('assessment-answer').placeholder = "Perceived Freq (Hz)";
+
+                helpContent.innerHTML = `
+                    <ul class="list-disc list-inside mb-3 space-y-1">
+                        <li><strong>Velocity (v):</strong> 343 m/s</li>
+                        <li><strong>Measured &lambda;:</strong> ${lockedVal.toFixed(2)} m</li>
+                    </ul>
+                    <p class="text-amber-400 bg-slate-900/80 p-3 rounded border border-slate-700 leading-relaxed">
+                        <strong>Step 1:</strong> Type <code class="text-white font-mono bg-slate-700 px-1 rounded">343 / ${lockedVal.toFixed(2)}</code> into the Desmos calculator.<br/>
+                        <strong>Step 2:</strong> Enter the resulting frequency in the box below.
+                    </p>
+                `;
+            }
+            else if (currentStep === 5) {
+                textEl.innerHTML = `You are in the car! Because there is no relative motion (v<sub>rel</sub> = 0), the driver hears the true baseline frequency. Calculate the baseline wavelength the driver experiences (&lambda; = v / f<sub>0</sub>). Show work!`;
+                desmosReqs = [343, 343];
+                document.getElementById('assessment-answer').placeholder = "Wavelength (m)";
+
+                helpContent.innerHTML = `
+                    <ul class="list-disc list-inside mb-3 space-y-1">
+                        <li><strong>Velocity (v):</strong> 343 m/s</li>
+                        <li><strong>True Frequency (f<sub>0</sub>):</strong> 343 Hz</li>
+                    </ul>
+                    <p class="text-amber-400 bg-slate-900/80 p-3 rounded border border-slate-700 leading-relaxed">
+                        <strong>Step 1:</strong> Type <code class="text-white font-mono bg-slate-700 px-1 rounded">343 / 343</code> into the Desmos calculator.<br/>
+                        <strong>Step 2:</strong> Enter the resulting wavelength in the box below.
+                    </p>
+                `;
+            }
+
+            startDesmosMonitor(desmosReqs, () => {
+                titleEl.innerHTML = 'Assessment Unlocked 🔓';
+                titleEl.className = 'text-base font-bold text-green-400';
+                document.getElementById('assessment-answer').disabled = false;
+                document.getElementById('btn-submit').disabled = false;
+            });
+        }
+
+        // Monitors the calculator actively and triggers a callback when work is shown
+        function startDesmosMonitor(numbersToFind, unlockCallback) {
+            if (desmosMonitorInterval) clearInterval(desmosMonitorInterval);
+            desmosMonitorInterval = setInterval(() => {
+                if (!calcInstance) return;
+                let expressions = [];
+                if (typeof calcInstance.getExpressions === 'function') expressions = calcInstance.getExpressions();
+                else if (typeof calcInstance.getState === 'function') expressions = calcInstance.getState()?.expressions?.list || [];
+
+                for (let exp of expressions) {
+                    if (exp.latex) {
+                        let hasAll = true;
+                        let latexCopy = exp.latex;
+                        for (let num of numbersToFind) {
+                            const numStr = num.toString();
+                            if (latexCopy.includes(numStr)) {
+                                // Remove only the first occurrence to handle duplicates correctly
+                                latexCopy = latexCopy.replace(numStr, "");
+                            } else {
+                                hasAll = false;
+                                break;
+                            }
+                        }
+                        if (hasAll) {
+                            clearInterval(desmosMonitorInterval);
+                            desmosMonitorInterval = null;
+                            unlockCallback();
+                            return;
+                        }
+                    }
+                }
+            }, 500);
+        }
+
+        // Used for Step 1 Conceptual Assessment Overlay
+        function checkConceptualMultiple() {
+            const q1 = document.getElementById('q1-select').value;
+            const q2 = document.getElementById('q2-select').value;
+            const q3 = document.getElementById('q3-select').value;
+            const fb = document.getElementById('conceptual-feedback');
+
+            if (!q1 || !q2 || !q3) {
+                fb.innerHTML = `⚠️ Please answer all 3 questions.`;
+                fb.className = "mt-5 mb-2 text-base font-bold text-amber-400 animate-fade-in text-center";
+                return;
+            }
+
+            if (q1 === 'same' && q2 === 'long' && q3 === 'short') {
+                fb.innerHTML = `✅ Perfect! You understand the baseline concepts.`;
+                fb.className = "mt-5 mb-2 text-lg font-bold text-green-400 animate-fade-in text-center";
+                step1Phase = 'done';
+
+                document.getElementById('q1-select').disabled = true;
+                document.getElementById('q2-select').disabled = true;
+                document.getElementById('q3-select').disabled = true;
+
+                document.getElementById('btn-check-conceptual').classList.add('hidden');
+                document.getElementById('btn-proceed-step2').classList.remove('hidden');
+                markStepComplete(1);
+            } else {
+                fb.innerHTML = `❌ Not quite. Review your snapshots and try again!`;
+                fb.className = "mt-5 mb-2 text-base font-bold text-red-400 animate-fade-in text-center";
+            }
+        }
+
+        // Used for Steps 2-5 Math Assessment
+        function checkAnswer() {
+            const userAnswer = parseFloat(document.getElementById('assessment-answer').value);
+            if (isNaN(userAnswer)) {
+                showFeedback('assessment-feedback', false, '❌ Enter a valid number.');
+                return;
+            }
+
+            const lockedVal = lockedMeasurements[lockedMeasurements.length - 1].val;
+            let expectedAnswer = 0;
+            let tolerance = 0.5; // Default for frequency-based steps (3 and 4)
+
+            if (currentStep === 2) {
+                expectedAnswer = step2BaselineLambda - lockedVal;
+                tolerance = 0.02; // Tight for wavelength shift
+            }
+            else if (currentStep === 3) expectedAnswer = V_SOUND / lockedVal;
+            else if (currentStep === 4) expectedAnswer = V_SOUND / lockedVal;
+            else if (currentStep === 5) {
+                expectedAnswer = V_SOUND / 343; // 1.00
+                tolerance = 0.02; // Tight for baseline wavelength
+            }
+
+            if (Math.abs(expectedAnswer - userAnswer) <= tolerance) {
+                if (currentStep === 3 && step3Completed < 2) {
+                    showFeedback('assessment-feedback', true, `✅ Correct! (${step3Completed + 1}/3) <button onclick="advanceStep3()" class="ml-2 px-3 py-1 bg-green-700 hover:bg-green-600 text-white rounded shadow transition">Next Speed &rarr;</button>`);
+                } else if (currentStep === 4 && step4Completed < 2) {
+                    showFeedback('assessment-feedback', true, `✅ Correct! (${step4Completed + 1}/3) <button onclick="advanceStep4()" class="ml-2 px-3 py-1 bg-green-700 hover:bg-green-600 text-white rounded shadow transition">Next Speed &rarr;</button>`);
+                } else if (currentStep < 5) {
+                    markStepComplete(currentStep); // Success in any previous step marks it complete
+                    showFeedback('assessment-feedback', true, `✅ Correct! <button onclick="loadStep(${currentStep + 1})" class="ml-2 px-3 py-1 bg-green-700 hover:bg-green-600 text-white rounded shadow transition">Proceed to Step ${currentStep + 1}</button>`);
+                } else {
+                    markStepComplete(5); // Success in final step marks it complete
+                    showFeedback('assessment-feedback', true, `✅ Correct! You have mastered the Physics of the Doppler Effect!`);
+                }
+            } else {
+                showFeedback('assessment-feedback', false, `❌ Not quite. Double check your calculation in Desmos.`);
+            }
+        }
+
+        function showFeedback(elId, isSuccess, message) {
+            const el = document.getElementById(elId);
+            el.innerHTML = message;
+            el.className = `mt-2 p-2 rounded-md text-sm font-semibold animate-fade-in flex-1 ${isSuccess ? 'bg-green-900/50 text-green-300' : 'bg-red-900/50 text-red-300'}`;
+            el.classList.remove('hidden');
+        }
+    </script>
+</body>
+
+</html>
