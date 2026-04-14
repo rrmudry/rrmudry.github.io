@@ -41,29 +41,42 @@
             <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.5em]">Central Intelligence Archive // Supabase</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
             <!-- Assignment Selector -->
             <div class="space-y-4">
-                <p class="text-[10px] font-black text-cyan-500 uppercase tracking-widest">01 // Select Assignment</p>
-                <select id="assignment-select" class="w-full bg-slate-900 border border-white/10 p-5 rounded-2xl outline-none focus:border-cyan-500 transition-all font-bold text-slate-300">
-                    <option value="">Loading Assignments...</option>
-                </select>
+                <div class="flex justify-between items-center">
+                    <p class="text-[10px] font-black text-cyan-500 uppercase tracking-widest">01 // Select Assignments</p>
+                    <div class="flex gap-2">
+                        <button onclick="toggleAll(true)" class="text-[8px] font-bold text-slate-500 hover:text-cyan-400 uppercase tracking-widest transition-colors">Select All</button>
+                        <span class="text-[8px] text-slate-700">|</span>
+                        <button onclick="toggleAll(false)" class="text-[8px] font-bold text-slate-500 hover:text-rose-400 uppercase tracking-widest transition-colors">Clear</button>
+                    </div>
+                </div>
+                <div id="assignment-list" class="w-full bg-slate-900 border border-white/10 p-4 rounded-2xl max-h-[220px] overflow-y-auto custom-scrollbar space-y-2">
+                    <p class="text-xs text-slate-600 animate-pulse">Scanning Archive...</p>
+                </div>
             </div>
 
             <!-- Export Actions -->
             <div class="space-y-4">
                 <p class="text-[10px] font-black text-violet-500 uppercase tracking-widest">02 // Export Operations</p>
-                <button id="export-btn" onclick="exportCSV()" class="w-full bg-gradient-to-r from-cyan-600 to-violet-600 p-5 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl active:scale-95 transition-all flex items-center justify-center gap-3">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                    Download CSV Archive
-                </button>
+                <div class="space-y-3">
+                    <button id="export-btn" onclick="exportCSV()" class="w-full bg-gradient-to-r from-cyan-600 to-violet-600 p-5 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl active:scale-95 transition-all flex items-center justify-center gap-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                        Download Aeries CSV
+                    </button>
+                    <div class="bg-white/5 p-4 rounded-xl border border-white/5 flex items-center justify-between">
+                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Aggregate Mode</span>
+                        <span class="text-[9px] font-black text-cyan-500 uppercase">SUM_TOTAL</span>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div id="status-display" class="pt-8 border-t border-white/5">
             <div class="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-slate-600">
                 <span>Database_Status: <span id="db-status" class="text-cyan-500">Connecting...</span></span>
-                <span>Records_Found: <span id="record-count" class="text-white">0</span></span>
+                <span>Students_Aggregated: <span id="record-count" class="text-white">0</span></span>
             </div>
             <!-- Live Preview Table -->
             <div class="mt-4 overflow-hidden rounded-xl border border-white/5 bg-slate-950/50">
@@ -73,8 +86,8 @@
                             <th class="p-4 border-b border-white/5">Student_ID</th>
                             <th class="p-4 border-b border-white/5">Student_Name</th>
                             <th class="p-4 border-b border-white/5">Period</th>
-                            <th class="p-4 border-b border-white/5">Score</th>
-                            <th class="p-4 border-b border-white/5">Date</th>
+                            <th class="p-4 border-b border-white/5">Total_Score</th>
+                            <th class="p-4 border-b border-white/5 text-right">Count</th>
                         </tr>
                     </thead>
                     <tbody id="preview-body" class="text-slate-500">
@@ -100,76 +113,126 @@
                 if (error) throw error;
 
                 const uniques = [...new Set(data.map(r => r.assignment_name))].sort();
-                const select = document.getElementById('assignment-select');
-                select.innerHTML = uniques.map(a => `<option value="${a}">${a}</option>`).join('');
+                const container = document.getElementById('assignment-list');
+                
+                container.innerHTML = uniques.map(a => `
+                    <label class="flex items-center gap-3 p-2 hover:bg-white/5 rounded-lg cursor-pointer transition-colors group">
+                        <input type="checkbox" value="${a}" class="assignment-cb accent-cyan-500 w-4 h-4 rounded border-white/10" onchange="loadPreview()">
+                        <span class="text-xs font-bold text-slate-400 group-hover:text-slate-200 transition-colors">${a}</span>
+                    </label>
+                `).join('');
                 
                 document.getElementById('db-status').textContent = "Connection_Ready";
-                loadPreview();
-
-                // Listen for changes
-                select.onchange = loadPreview;
             } catch (err) {
                 console.error(err);
                 document.getElementById('db-status').textContent = "Access_Denied";
             }
         }
 
+        function toggleAll(checked) {
+            document.querySelectorAll('.assignment-cb').forEach(cb => cb.checked = checked);
+            loadPreview();
+        }
+
         async function loadPreview() {
-            const assignment = document.getElementById('assignment-select').value;
-            if (!assignment) return;
+            const selectedAssignments = Array.from(document.querySelectorAll('.assignment-cb:checked')).map(cb => cb.value);
+            const tbody = document.getElementById('preview-body');
+            const countEl = document.getElementById('record-count');
+
+            if (selectedAssignments.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-600 font-bold uppercase tracking-widest text-[8px]">No Assignments Selected</td></tr>';
+                countEl.textContent = "0";
+                return;
+            }
 
             const { data, error } = await sbClient
                 .from('student_results')
                 .select('*')
-                .eq('assignment_name', assignment)
-                .order('created_at', { ascending: false });
+                .in('assignment_name', selectedAssignments);
 
-            if (error) return;
+            if (error) {
+                console.error(error);
+                return;
+            }
 
-            document.getElementById('record-count').textContent = data.length;
-            const tbody = document.getElementById('preview-body');
-            tbody.innerHTML = data.slice(0, 10).map(r => `
-                <tr class="border-b border-white/5">
-                    <td class="p-4 font-mono font-bold text-cyan-400">${r.student_id}</td>
-                    <td class="p-4 font-medium text-slate-300 capitalize">${r.student_name}</td>
-                    <td class="p-4 font-bold text-slate-400">P${r.class_period || '?'}</td>
-                    <td class="p-4 font-black text-violet-400">${r.score}%</td>
-                    <td class="p-4 text-[10px] text-slate-600">${new Date(r.created_at).toLocaleDateString()}</td>
+            const aggregated = reduceToGradebook(data);
+            countEl.textContent = Object.keys(aggregated).length;
+
+            const sortedStudents = Object.values(aggregated).sort((a, b) => a.name.localeCompare(b.name));
+
+            tbody.innerHTML = sortedStudents.slice(0, 15).map(s => `
+                <tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                    <td class="p-4 font-mono font-bold text-cyan-400">${s.id}</td>
+                    <td class="p-4 font-medium text-slate-300 capitalize">${s.name}</td>
+                    <td class="p-4 font-bold text-slate-400">P${s.period || '?'}</td>
+                    <td class="p-4 font-black text-violet-400">${s.totalScore}</td>
+                    <td class="p-4 text-right">
+                        <span class="px-2 py-0.5 rounded-full bg-slate-800 text-[8px] font-black text-slate-500 border border-white/5">${s.assignmentCount} Assignments</span>
+                    </td>
                 </tr>
             `).join('');
             
-            if (data.length > 10) {
-                tbody.innerHTML += `<tr><td colspan="4" class="p-4 text-center text-[8px] uppercase tracking-widest text-slate-700">+ ${data.length - 10} additional records truncated from preview</td></tr>`;
+            if (sortedStudents.length > 15) {
+                tbody.innerHTML += `<tr><td colspan="5" class="p-4 text-center text-[8px] uppercase tracking-widest text-slate-700 font-bold">+ ${sortedStudents.length - 15} additional students truncated from preview</td></tr>`;
             }
         }
 
+        function reduceToGradebook(rows) {
+            // Group by student_id and sum scores
+            return rows.reduce((acc, row) => {
+                const id = row.student_id || 'UNKNOWN';
+                if (!acc[id]) {
+                    acc[id] = {
+                        id: id,
+                        name: row.student_name,
+                        period: row.class_period,
+                        totalScore: 0,
+                        assignmentCount: 0,
+                        raw: []
+                    };
+                }
+                
+                // Add score
+                acc[id].totalScore += (row.score || 0);
+                acc[id].assignmentCount += 1;
+                acc[id].raw.push(row);
+                
+                // Keep latest name/period if available
+                if (row.student_name) acc[id].name = row.student_name;
+                if (row.class_period) acc[id].period = row.class_period;
+                
+                return acc;
+            }, {});
+        }
+
         async function exportCSV() {
-            const assignment = document.getElementById('assignment-select').value;
-            if (!assignment) return;
+            const selectedAssignments = Array.from(document.querySelectorAll('.assignment-cb:checked')).map(cb => cb.value);
+            if (selectedAssignments.length === 0) {
+                alert("Please select at least one assignment.");
+                return;
+            }
 
             const { data, error } = await sbClient
                 .from('student_results')
                 .select('*')
-                .eq('assignment_name', assignment)
-                .order('created_at', { ascending: false });
+                .in('assignment_name', selectedAssignments);
 
             if (error) {
                 alert("Export Failure");
                 return;
             }
 
-            // Generate CSV
-            const headers = ["ID", "Signed_At", "Student_Name", "Student_ID", "Class_Period", "Assignment", "Score", "Meta_Level", "Meta_Mastery"];
-            const rows = data.map(r => [
-                r.id,
-                r.created_at,
-                r.student_name,
-                r.student_id,
-                r.class_period || "",
-                r.assignment_name,
-                r.score,
-                r.details?.level || "",
-                r.details?.mastery || ""
+            const aggregated = reduceToGradebook(data);
+            const sortedStudents = Object.values(aggregated).sort((a, b) => a.name.localeCompare(b.name));
+
+            // Generate CSV for Aeries
+            const headers = ["Student_ID", "Student_Name", "Class_Period", "Total_Score", "Assignment_Count"];
+            const rows = sortedStudents.map(s => [
+                s.id,
+                s.name,
+                s.period || "",
+                s.totalScore,
+                s.assignmentCount
             ]);
 
             const csvContent = [
@@ -177,11 +240,12 @@
                 ...rows.map(row => row.map(cell => `"${cell}"`).join(","))
             ].join("\n");
 
+            const filename = `AGGREGATED_SCORE_${selectedAssignments.length}_ITEMS_${new Date().toISOString().split('T')[0]}.csv`;
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             const url = URL.createObjectURL(blob);
             link.setAttribute("href", url);
-            link.setAttribute("download", `EXPORT_${assignment.replace(/\s+/g, '_').toUpperCase()}_${new Date().toISOString().split('T')[0]}.csv`);
+            link.setAttribute("download", filename);
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
