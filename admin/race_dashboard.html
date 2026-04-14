@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live Progress Race // Teacher Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --accent-cyan: #00f3ff;
@@ -14,7 +17,7 @@
             --bg-dark: #020617;
             --track-bg: rgba(15, 23, 42, 0.6);
         }
-        
+
         body {
             font-family: 'Inter', sans-serif;
             background: var(--bg-dark);
@@ -23,7 +26,9 @@
             overflow-x: hidden;
         }
 
-        .font-orbitron { font-family: 'Orbitron', sans-serif; }
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
 
         .dashboard-container {
             max-width: 1400px;
@@ -58,7 +63,9 @@
             padding: 0 4rem;
         }
 
-        .lane:last-child { border-bottom: none; }
+        .lane:last-child {
+            border-bottom: none;
+        }
 
         .finish-line {
             position: absolute;
@@ -66,10 +73,10 @@
             top: 0;
             bottom: 0;
             width: 80px;
-            background-image: 
-                linear-gradient(45deg, #000 25%, transparent 25%), 
-                linear-gradient(-45deg, #000 25%, transparent 25%), 
-                linear-gradient(45deg, transparent 75%, #000 75%), 
+            background-image:
+                linear-gradient(45deg, #000 25%, transparent 25%),
+                linear-gradient(-45deg, #000 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #000 75%),
                 linear-gradient(-45deg, transparent 75%, #000 75%);
             background-size: 20px 20px;
             background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
@@ -81,7 +88,8 @@
         .avatar-container {
             position: absolute;
             left: 40px;
-            right: 120px; /* Space for finish line */
+            right: 120px;
+            /* Space for finish line */
             height: 100%;
             display: flex;
             align-items: center;
@@ -101,6 +109,19 @@
             font-size: 2rem;
             filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
             animation: bounce 2s infinite ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .racer-icon span {
+            display: inline-block;
+            transform: scaleX(-1);
+        }
+
+        .racer-icon span[data-emoji="🚀"] {
+            transform: rotate(45deg);
+
         }
 
         .racer-info {
@@ -138,8 +159,15 @@
         }
 
         @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-5px);
+            }
         }
 
         .status-badge {
@@ -151,8 +179,12 @@
             text-transform: uppercase;
         }
 
-        .badge-live { background: rgba(34, 197, 94, 0.1); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.2); }
-        
+        .badge-live {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
         select {
             appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
@@ -165,17 +197,16 @@
         .scanlines {
             position: fixed;
             inset: 0;
-            background: linear-gradient(
-                to bottom,
-                rgba(18, 16, 16, 0) 50%,
-                rgba(0, 0, 0, 0.02) 50%
-            );
+            background: linear-gradient(to bottom,
+                    rgba(18, 16, 16, 0) 50%,
+                    rgba(0, 0, 0, 0.02) 50%);
             background-size: 100% 4px;
             z-index: 100;
             pointer-events: none;
         }
     </style>
 </head>
+
 <body>
     <div class="scanlines"></div>
 
@@ -197,15 +228,18 @@
 
             <div class="flex items-center gap-4 bg-slate-900/50 p-2 rounded-2xl border border-white/5 backdrop-blur-sm">
                 <div class="px-4">
-                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Select Assignment</p>
-                    <select id="assignment-select" class="bg-transparent text-white font-bold outline-none cursor-pointer pr-10 hover:text-cyan-400 transition-colors">
+                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Select Assignment
+                    </p>
+                    <select id="assignment-select"
+                        class="bg-transparent text-white font-bold outline-none cursor-pointer pr-10 hover:text-cyan-400 transition-colors">
                         <option value="">Loading...</option>
                     </select>
                 </div>
                 <div class="h-10 w-px bg-white/10"></div>
                 <div class="px-4">
                     <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Filter Period</p>
-                    <select id="period-select" class="bg-transparent text-white font-bold outline-none cursor-pointer pr-10 hover:text-cyan-400 transition-colors">
+                    <select id="period-select"
+                        class="bg-transparent text-white font-bold outline-none cursor-pointer pr-10 hover:text-cyan-400 transition-colors">
                         <option value="ALL">All Periods</option>
                         <option value="0">Period 0</option>
                         <option value="1">Period 1</option>
@@ -266,20 +300,20 @@
                 const { data, error } = await sbClient
                     .from('student_results')
                     .select('assignment_name');
-                
+
                 if (error) throw error;
 
                 const uniques = [...new Set(data.map(r => r.assignment_name))].filter(Boolean).sort();
                 const select = document.getElementById('assignment-select');
                 select.innerHTML = uniques.map(a => `<option value="${a}">${a}</option>`).join('');
-                
+
                 // Try to find the WaveMaster Lab as default
                 const defaultAssignment = uniques.find(a => a.includes("WaveMaster")) || uniques[0];
                 if (defaultAssignment) select.value = defaultAssignment;
 
                 select.onchange = () => refreshData();
                 document.getElementById('period-select').onchange = () => refreshData();
-                
+
                 // Start polling
                 refreshData();
                 setInterval(refreshData, 5000);
@@ -298,7 +332,7 @@
                 .from('student_results')
                 .select('*')
                 .eq('assignment_name', assignment);
-            
+
             if (period !== "ALL") {
                 query = query.eq('class_period', period);
             }
@@ -313,13 +347,13 @@
 
         function updateTrack(students) {
             const container = document.getElementById('lane-container');
-            
+
             // Sort by ID to keep lanes stable
             const sorted = students.sort((a, b) => a.student_id.localeCompare(b.student_id));
 
             // Map current elements to avoid total re-renders (prevents animation flicker)
             const existingLanes = Array.from(container.querySelectorAll('.lane'));
-            
+
             if (students.length === 0) {
                 container.innerHTML = `<div class="p-20 text-center text-slate-500 uppercase tracking-widest font-bold">No Records Found for this Selection</div>`;
                 return;
@@ -327,15 +361,18 @@
 
             // Simple sync: If count differs, just rebuild. For same count, update positions.
             if (existingLanes.length !== students.length) {
-                container.innerHTML = sorted.map((s, index) => `
-                    <div class="lane" data-sid="${s.student_id}">
-                        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${s.score}%; ${s.score === 100 ? 'background: linear-gradient(90deg, transparent, #fbbf24); box-shadow: 0 0 20px #fbbf24;' : ''}"></div></div>
-                        <div class="racer" style="left: calc(40px + (100% - 160px) * ${s.score / 100})">
-                            <div class="racer-icon" style="${s.score === 100 ? 'filter: drop-shadow(0 0 15px #fbbf24); animation: victory-bounce 1s infinite alternate;' : ''}">${premiumIcons[index % premiumIcons.length]}</div>
-                            <div class="racer-info" style="${s.score === 100 ? 'border-color: #fbbf24; color: #fbbf24;' : ''}">${s.student_name.split(' ')[0]}</div>
+                container.innerHTML = sorted.map((s, index) => {
+                    const icon = premiumIcons[index % premiumIcons.length];
+                    return `
+                        <div class="lane" data-sid="${s.student_id}">
+                            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${s.score}%; ${s.score === 100 ? 'background: linear-gradient(90deg, transparent, #fbbf24); box-shadow: 0 0 20px #fbbf24;' : ''}"></div></div>
+                            <div class="racer" style="left: calc(40px + (100% - 160px) * ${s.score / 100})">
+                                <div class="racer-icon" style="${s.score === 100 ? 'filter: drop-shadow(0 0 15px #fbbf24); animation: victory-bounce 1s infinite alternate;' : ''}"><span data-emoji="${icon}">${icon}</span></div>
+                                <div class="racer-info" style="${s.score === 100 ? 'border-color: #fbbf24; color: #fbbf24;' : ''}">${s.student_name.split(' ')[0]}</div>
+                            </div>
                         </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
 
                 // Add keyframes if missing
                 if (!document.getElementById('victory-styles')) {
@@ -357,10 +394,10 @@
                         const racer = lane.querySelector('.racer');
                         const icon = lane.querySelector('.racer-icon');
                         const info = lane.querySelector('.racer-info');
-                        
+
                         filler.style.width = `${s.score}%`;
                         racer.style.left = `calc(40px + (100% - 160px) * ${s.score / 100})`;
-                        
+
                         if (s.score === 100) {
                             filler.style.background = 'linear-gradient(90deg, transparent, #fbbf24)';
                             filler.style.boxShadow = '0 0 20px #fbbf24';
@@ -378,7 +415,7 @@
             if (students.length === 0) return;
 
             document.getElementById('student-count').textContent = students.length;
-            
+
             const leader = students.reduce((prev, current) => (prev.score > current.score) ? prev : current);
             document.getElementById('leader-name').textContent = leader.student_name;
 
@@ -392,4 +429,5 @@
         init();
     </script>
 </body>
+
 </html>
