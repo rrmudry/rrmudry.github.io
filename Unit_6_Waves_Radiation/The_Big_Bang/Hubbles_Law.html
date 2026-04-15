@@ -1,0 +1,1772 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Big Bang Theory & Hubble's Law Explorer</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Desmos API -->
+    <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+    <style>
+        /* Custom Styles for Interactive Elements */
+        body {
+            background-color: #0f172a;
+            /* Slate 900 */
+            color: #f8fafc;
+            /* Slate 50 */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Telescope View */
+        .telescope-view {
+            background-color: #0b101d;
+            position: relative;
+            overflow: hidden;
+            border-radius: 0.5rem;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+        }
+
+        .galaxy-glow {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            box-shadow: 0 0 4px white;
+            transition: outline 0.1s;
+        }
+
+        /* The Pulsing Cepheid Variable */
+        .cepheid {
+            background-color: #fef08a;
+            /* yellow-200 */
+            box-shadow: 0 0 10px #fef08a, 0 0 20px #facc15;
+            cursor: crosshair;
+        }
+
+        .cepheid:hover {
+            outline: 2px solid rgba(255, 255, 255, 0.5);
+            outline-offset: 4px;
+        }
+
+        .cepheid.targeted {
+            outline: 3px solid #ef4444;
+            /* red-500 */
+            outline-offset: 6px;
+        }
+
+        /* Spectrometer Rainbow Background */
+        .spectrum-bg {
+            background: linear-gradient(to right,
+                    #4c1d95 0%,
+                    /* Deep Violet */
+                    #3b82f6 20%,
+                    /* Blue */
+                    #06b6d4 40%,
+                    /* Cyan */
+                    #22c55e 60%,
+                    /* Green */
+                    #eab308 80%,
+                    /* Yellow */
+                    #ef4444 100%
+                    /* Red */
+                );
+        }
+
+        /* Absorption Line */
+        .absorption-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background-color: #000;
+            box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+            transform: translateX(-50%);
+            z-index: 5;
+        }
+
+        /* Measurement Slider Line */
+        .measurement-line {
+            position: absolute;
+            top: -5px;
+            bottom: -5px;
+            width: 3px;
+            background-color: #ef4444;
+            /* red-500 */
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.8);
+            cursor: ew-resize;
+            z-index: 10;
+            transform: translateX(-50%);
+        }
+
+        /* Custom Range Input (Invisible, overlaid on spectrum) */
+        input[type=range].spectrum-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            margin: 0;
+            z-index: 20;
+            cursor: crosshair;
+        }
+
+        input[type=range].spectrum-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 100%;
+            width: 10px;
+            background: transparent;
+            cursor: ew-resize;
+        }
+
+        .math-font {
+            font-family: 'Times New Roman', Times, serif;
+            font-style: italic;
+        }
+
+        /* Calipers */
+        .caliper-handle {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 20px;
+            margin-left: -10px;
+            cursor: ew-resize;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+        }
+
+        .caliper-line {
+            width: 2px;
+            height: 100%;
+        }
+
+        /* Toast Notification */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 50;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-size: 17px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .disabled-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.8);
+            z-index: 30;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Modal Animations */
+        @keyframes pulse-fast {
+            0% {
+                transform: scale(0.8);
+                opacity: 0.3;
+                box-shadow: 0 0 2px rgba(253, 224, 71, 0.2);
+                background-color: #fef08a;
+            }
+
+            100% {
+                transform: scale(1.1);
+                opacity: 0.7;
+                box-shadow: 0 0 8px rgba(253, 224, 71, 0.6);
+                background-color: #fef08a;
+            }
+        }
+
+        @keyframes pulse-slow {
+            0% {
+                transform: scale(0.9);
+                opacity: 0.4;
+                box-shadow: 0 0 5px rgba(253, 224, 71, 0.4);
+                background-color: #fef08a;
+            }
+
+            100% {
+                transform: scale(1.4);
+                opacity: 1;
+                box-shadow: 0 0 30px rgba(255, 255, 255, 1), 0 0 10px rgba(255, 255, 255, 0.8);
+                background-color: #ffffff;
+            }
+        }
+
+        /* Custom Scrollbar for Quiz */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen p-4 md:p-8">
+
+    <!-- Intro Modal Overlay -->
+    <div id="introModal"
+        class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-[100] flex items-center justify-center p-4 transition-opacity duration-500">
+        <div
+            class="bg-slate-800 border border-slate-600 rounded-2xl shadow-2xl max-w-4xl w-full overflow-hidden flex flex-col md:flex-row h-auto max-h-[90vh]">
+            <!-- Animation Side -->
+            <div
+                class="bg-black/60 md:w-2/5 p-6 flex flex-col items-center justify-center relative overflow-hidden min-h-[250px] md:min-h-[400px]">
+                <div
+                    class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.15)_0%,transparent_70%)]">
+                </div>
+                <!-- Mini Animated Galaxy -->
+                <div class="relative w-40 h-40">
+                    <!-- Galaxy Core/Bulge -->
+                    <div
+                        class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.8)_0%,rgba(165,180,252,0.4)_30%,transparent_70%)] rounded-full blur-[2px] transform scale-x-[1.5] scale-y-[0.8] rotate-45">
+                    </div>
+                    <!-- Short Period Cepheid (Dimmer, Faster) -->
+                    <div
+                        class="absolute top-6 left-6 w-1.5 h-1.5 rounded-full animate-[pulse-fast_1s_ease-in-out_infinite_alternate]">
+                    </div>
+                    <!-- Long Period Cepheid (Brighter, Slower) -->
+                    <div
+                        class="absolute bottom-8 right-4 w-2.5 h-2.5 rounded-full animate-[pulse-slow_3.5s_ease-in-out_infinite_alternate]">
+                    </div>
+                </div>
+
+                <!-- Legend -->
+                <div
+                    class="mt-10 flex flex-col gap-3 w-full bg-slate-900/50 p-4 rounded-lg border border-slate-700/50 z-10">
+                    <div class="flex items-center gap-3 text-xs text-slate-300">
+                        <div class="w-2 h-2 rounded-full animate-[pulse-fast_1s_ease-in-out_infinite_alternate]"></div>
+                        <span><strong>Short Period:</strong> Flashes quickly, dimmer overall.</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-xs text-slate-300">
+                        <div class="w-3 h-3 rounded-full animate-[pulse-slow_3.5s_ease-in-out_infinite_alternate]">
+                        </div>
+                        <span><strong>Long Period:</strong> Flashes slowly, highly luminous.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slideshow Container Side -->
+            <div class="p-6 md:p-10 md:w-3/5 flex flex-col justify-between relative bg-slate-800">
+
+                <!-- Slide Content Wrapper -->
+                <div id="slides-wrapper" class="flex-grow flex flex-col justify-center min-h-[250px]">
+
+                    <!-- Slide 0 -->
+                    <div id="intro-slide-0" class="intro-slide">
+                        <h2 class="text-2xl md:text-3xl font-bold text-blue-400 mb-4 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M12 2v20" />
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                            </svg>
+                            Cosmic Standard Candles
+                        </h2>
+                        <p class="text-slate-300 leading-relaxed text-sm md:text-base">
+                            Galaxies are vast oceans of <strong>hundreds of billions of stars</strong>. From Earth,
+                            their light usually blends into a fuzzy, inseparable glow. But occasionally, a few special
+                            stars stand out: <strong>Cepheid Variables</strong>.
+                        </p>
+                    </div>
+
+                    <!-- Slide 1 -->
+                    <div id="intro-slide-1" class="intro-slide hidden">
+                        <h2 class="text-2xl md:text-3xl font-bold text-blue-400 mb-4 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+                                <path d="M2 12h20" />
+                            </svg>
+                            Leavitt's Law
+                        </h2>
+                        <p class="text-slate-300 leading-relaxed text-sm md:text-base">
+                            These unique stars physically expand and contract, causing them to pulse in brightness.
+                            Henrietta Swan Leavitt discovered a critical relationship between them: <strong>The longer a
+                                Cepheid takes to pulse (its period), the greater its true, intrinsic brightness (its
+                                luminosity).</strong>
+                        </p>
+                    </div>
+
+                    <!-- Slide 2 -->
+                    <div id="intro-slide-2" class="intro-slide hidden">
+                        <h2 class="text-2xl md:text-3xl font-bold text-blue-400 mb-4 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                <line x1="8" y1="3" x2="8" y2="21" />
+                                <line x1="16" y1="3" x2="16" y2="21" />
+                                <line x1="3" y1="12" x2="21" y2="12" />
+                            </svg>
+                            The Cosmic Yardstick
+                        </h2>
+                        <div
+                            class="bg-indigo-900/30 border border-indigo-500/40 p-4 rounded-lg text-indigo-200 shadow-inner mt-2 text-sm md:text-base">
+                            <strong class="text-indigo-300 block mb-1">Why does this matter?</strong>
+                            By timing a star's pulse, we instantly know how bright it <em>actually</em> is. By comparing
+                            that true brightness to how dim it <em>appears</em> in our telescope, we can calculate its
+                            exact <strong>distance</strong> from Earth!
+                        </div>
+                    </div>
+
+                    <!-- Slide 3: Quiz -->
+                    <div id="intro-slide-3" class="intro-slide hidden flex flex-col h-full">
+                        <h2 class="text-xl md:text-2xl font-bold text-yellow-400 mb-3 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="m9 11 3 3L22 4" />
+                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                            </svg>
+                            Pre-Flight Knowledge Check
+                        </h2>
+
+                        <div class="space-y-3 overflow-y-auto max-h-[45vh] pr-2 custom-scrollbar">
+                            <!-- Q1 -->
+                            <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-700">
+                                <p class="text-sm text-slate-200 font-semibold mb-2">1. How are Cepheids different from
+                                    other stars of a galaxy?</p>
+                                <div class="space-y-1.5 text-xs text-slate-300">
+                                    <label class="flex items-start gap-2 cursor-pointer hover:text-blue-300 transition">
+                                        <input type="radio" name="q1" value="wrong" class="mt-0.5 accent-blue-500"> They
+                                        are made entirely of dark matter.
+                                    </label>
+                                    <label class="flex items-start gap-2 cursor-pointer hover:text-blue-300 transition">
+                                        <input type="radio" name="q1" value="correct" class="mt-0.5 accent-blue-500">
+                                        They physically expand and contract, pulsing in brightness.
+                                    </label>
+                                    <label class="flex items-start gap-2 cursor-pointer hover:text-blue-300 transition">
+                                        <input type="radio" name="q1" value="wrong" class="mt-0.5 accent-blue-500"> They
+                                        do not move through space.
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Q2 -->
+                            <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-700">
+                                <p class="text-sm text-slate-200 font-semibold mb-2">2. What did Henrietta Swan Leavitt
+                                    determine about the period of the stars?</p>
+                                <div class="space-y-1.5 text-xs text-slate-300">
+                                    <label class="flex items-start gap-2 cursor-pointer hover:text-blue-300 transition">
+                                        <input type="radio" name="q2" value="wrong" class="mt-0.5 accent-blue-500">
+                                        Shorter period = greater intrinsic brightness.
+                                    </label>
+                                    <label class="flex items-start gap-2 cursor-pointer hover:text-blue-300 transition">
+                                        <input type="radio" name="q2" value="correct" class="mt-0.5 accent-blue-500">
+                                        The longer the period, the greater the intrinsic brightness.
+                                    </label>
+                                    <label class="flex items-start gap-2 cursor-pointer hover:text-blue-300 transition">
+                                        <input type="radio" name="q2" value="wrong" class="mt-0.5 accent-blue-500"> The
+                                        period depends strictly on the galaxy's size.
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Q3 -->
+                            <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-700">
+                                <p class="text-sm text-slate-200 font-semibold mb-2">3. What good does it do for
+                                    astronomers to know the intrinsic brightness of a star?</p>
+                                <div class="space-y-1.5 text-xs text-slate-300">
+                                    <label class="flex items-start gap-2 cursor-pointer hover:text-blue-300 transition">
+                                        <input type="radio" name="q3" value="wrong" class="mt-0.5 accent-blue-500"> It
+                                        tells us the star's exact age in millions of years.
+                                    </label>
+                                    <label class="flex items-start gap-2 cursor-pointer hover:text-blue-300 transition">
+                                        <input type="radio" name="q3" value="wrong" class="mt-0.5 accent-blue-500"> It
+                                        reveals if the star has habitable exoplanets.
+                                    </label>
+                                    <label class="flex items-start gap-2 cursor-pointer hover:text-blue-300 transition">
+                                        <input type="radio" name="q3" value="correct" class="mt-0.5 accent-blue-500"> We
+                                        can compare it to its apparent brightness to calculate exact distance.
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <p id="quizFeedbackMsg" class="text-xs text-red-400 font-semibold mt-2 text-center h-4"></p>
+                    </div>
+
+                </div>
+
+                <!-- Navigation Controls -->
+                <div class="mt-6 pt-4 border-t border-slate-700 flex items-center justify-between">
+                    <!-- Dots -->
+                    <div class="flex gap-2" id="slideDots">
+                        <div class="slide-dot w-2 h-2 rounded-full bg-blue-500 transition-colors" data-dot="0"></div>
+                        <div class="slide-dot w-2 h-2 rounded-full bg-slate-600 transition-colors" data-dot="1"></div>
+                        <div class="slide-dot w-2 h-2 rounded-full bg-slate-600 transition-colors" data-dot="2"></div>
+                        <div class="slide-dot w-2 h-2 rounded-full bg-slate-600 transition-colors" data-dot="3"></div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="flex gap-3">
+                        <button id="btnPrevSlide"
+                            class="hidden px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white text-sm font-bold rounded-lg transition">Back</button>
+                        <button id="btnNextSlide"
+                            class="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold rounded-lg transition shadow-[0_0_15px_rgba(37,99,235,0.4)]">Next</button>
+
+                        <button id="btnStartMission"
+                            class="hidden px-6 py-2 bg-green-600 hover:bg-green-500 text-white text-sm font-bold rounded-lg transition shadow-[0_0_15px_rgba(22,163,74,0.4)] flex items-center gap-1.5">
+                            Launch Mission
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M5 12h14" />
+                                <path d="m12 5 7 7-7 7" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Header Section -->
+    <header class="max-w-7xl mx-auto mb-8 text-center bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-700">
+        <h1 class="text-3xl md:text-4xl font-bold text-blue-400 mb-2">Hubble's Law & The Expanding Universe</h1>
+        <p class="text-slate-300 max-w-4xl mx-auto text-sm md:text-base">
+            Welcome, Astronomer! Your mission is to observe distinct galaxies, locate pulsing Cepheid variable stars,
+            and gather their light data.
+            By analyzing this data, you will recreate Edwin Hubble's famous discovery and estimate the age of the
+            Universe.
+        </p>
+    </header>
+
+    <main class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- LEFT COLUMN: OBSERVATION DECK (7 columns) -->
+        <div class="lg:col-span-7 flex flex-col gap-6">
+
+            <!-- Target Selection -->
+            <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-md">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
+                    <h2 class="text-xl font-bold text-indigo-400 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <circle cx="12" cy="12" r="3" />
+                        </svg>
+                        Telescope Targeting
+                    </h2>
+                    <select id="galaxySelector"
+                        class="bg-slate-900 border border-slate-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 outline-none">
+                        <option value="0">Galaxy Alpha</option>
+                        <option value="1">Galaxy Beta</option>
+                        <option value="2">Galaxy Gamma</option>
+                        <option value="3">Galaxy Delta</option>
+                        <option value="4">Galaxy Epsilon</option>
+                    </select>
+                </div>
+
+                <!-- Telescope Viewport -->
+                <div id="telescope" class="telescope-view w-full h-64 md:h-80 mb-4">
+                    <div id="skyCanvas"
+                        class="absolute top-0 left-0 transition-transform duration-[1500ms] ease-in-out will-change-transform"
+                        style="width: 400%; height: 400%;">
+                        <!-- Stars and Galaxies will be injected here via JS -->
+                        <div id="cepheidStar" class="star cepheid z-20"
+                            style="width: 8px; height: 8px; left: 50%; top: 50%;" title="Click to target star"></div>
+                    </div>
+                    <!-- Telescope Vignette -->
+                    <div class="absolute inset-0 pointer-events-none shadow-[inset_0_0_50px_rgba(0,0,0,1)] z-30"></div>
+                </div>
+
+                <!-- Telescope Controls -->
+                <div
+                    class="bg-slate-900 p-4 rounded-lg flex flex-wrap items-center justify-between gap-4 border border-slate-700 min-h-[76px]">
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-slate-200">Targeting System</h3>
+                        <p id="targetStatus" class="text-xs text-slate-400 mt-1">Status: No star targeted. Click a
+                            pulsing star.</p>
+                    </div>
+                    <!-- New Target Info Panel -->
+                    <div id="targetInfo" class="hidden text-right border-l border-slate-700 pl-4">
+                        <div class="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-0.5">Target
+                            Identity</div>
+                        <div id="infoGalaxyName" class="text-sm font-bold text-indigo-300">--</div>
+                        <div id="infoGalaxyType" class="text-xs font-mono text-slate-400 mt-0.5">--</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Photometry Tool (Light Curve Graph) -->
+            <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-md relative">
+                <div id="photometryOverlay" class="disabled-overlay rounded-xl flex-col text-center px-4">
+                    <span id="photoOverlayText">Target star to gather data</span>
+                    <button id="btnGather"
+                        class="hidden mt-3 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 px-6 rounded-lg transition shadow-[0_0_15px_rgba(37,99,235,0.4)] flex items-center gap-2"
+                        style="text-shadow: none;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                        </svg>
+                        Gather Light Data
+                    </button>
+                </div>
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <h2 class="text-xl font-bold text-yellow-400 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                            </svg>
+                            Photometry (Period)
+                        </h2>
+                        <p class="text-sm text-slate-300 mt-1">
+                            Drag the calipers (<span class="text-red-400 font-bold">T1</span> & <span
+                                class="text-blue-400 font-bold">T2</span>) to two consecutive peaks to measure the
+                            period.
+                        </p>
+                    </div>
+                    <div class="text-right bg-black p-2 rounded border border-slate-600 shadow-inner">
+                        <div class="text-xs text-slate-400 uppercase">Measured Period</div>
+                        <div class="text-2xl font-mono text-yellow-400 font-bold leading-none mt-1">
+                            <span id="periodDisplay">0.0</span><span class="text-sm text-yellow-600 ml-1">d</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Light Curve Graph Container -->
+                <div class="relative w-full h-40 bg-slate-900 border border-slate-600 rounded-lg overflow-hidden mt-4 select-none"
+                    id="lightCurveContainer">
+                    <!-- Graph Grid/Background -->
+                    <svg width="100%" height="100%" preserveAspectRatio="none" viewBox="0 0 100 100"
+                        class="absolute inset-0 opacity-20 pointer-events-none">
+                        <!-- Horizontal Grid Lines -->
+                        <line x1="0" y1="25" x2="100" y2="25" stroke="white" stroke-width="0.5" />
+                        <line x1="0" y1="50" x2="100" y2="50" stroke="white" stroke-width="0.5" />
+                        <line x1="0" y1="75" x2="100" y2="75" stroke="white" stroke-width="0.5" />
+                    </svg>
+
+                    <!-- Dynamic Curve -->
+                    <svg id="lightCurveSvg" width="100%" height="100%" preserveAspectRatio="none" viewBox="0 0 100 100"
+                        class="absolute inset-0 pointer-events-none">
+                        <path id="curvePath" d="" fill="none" stroke="#facc15" stroke-width="2.5" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+
+                    <!-- Caliper 1 -->
+                    <div id="caliper1" class="caliper-handle" style="left: 20%;">
+                        <div class="caliper-line bg-red-500 shadow-[0_0_5px_red]"></div>
+                        <div class="absolute -top-0 bg-red-600 text-white text-[10px] px-1.5 py-0.5 rounded font-bold">
+                            T1</div>
+                    </div>
+
+                    <!-- Caliper 2 -->
+                    <div id="caliper2" class="caliper-handle" style="left: 40%;">
+                        <div class="caliper-line bg-blue-500 shadow-[0_0_5px_blue]"></div>
+                        <div
+                            class="absolute -bottom-0 bg-blue-600 text-white text-[10px] px-1.5 py-0.5 rounded font-bold">
+                            T2</div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between text-xs text-slate-500 px-1 mt-1 font-mono">
+                    <span>0 days</span>
+                    <span>30 days</span>
+                    <span>60 days</span>
+                </div>
+            </div>
+
+            <!-- Spectrometer View -->
+            <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-md relative">
+                <div id="spectroOverlay" class="disabled-overlay rounded-xl">Target star and Gather Data to view spectra
+                </div>
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-red-400 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M2 12h4l3-9 5 18 3-9h5" />
+                            </svg>
+                            Spectrometer (Velocity)
+                        </h2>
+                        <p class="text-sm text-slate-300 mt-1">
+                            Compare the observed wavelength (<span class="math-font">λ<sub>obs</sub></span>) of the
+                            galaxy to the Reference Lab Spectrum (<span class="math-font">λ<sub>0</sub></span>) below.
+                        </p>
+                    </div>
+                    <button id="btnZoomSpectrometer"
+                        class="bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold py-1.5 px-3 rounded flex items-center gap-1 transition border border-slate-600 shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                            <line x1="11" y1="8" x2="11" y2="14" />
+                            <line x1="8" y1="11" x2="14" y2="11" />
+                        </svg>
+                        Zoom 10x
+                    </button>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <!-- Reference Spectrum -->
+                    <div>
+                        <div class="flex justify-between items-end mb-1">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Reference Lab
+                                (λ₀)</span>
+                            <span class="text-xs text-slate-300 font-mono">400.00 nm</span>
+                        </div>
+                        <div class="relative h-10 w-full rounded border border-slate-600 overflow-hidden">
+                            <div id="refSpectrumBg"
+                                class="absolute top-0 bottom-0 spectrum-bg transition-all duration-300 pointer-events-none"
+                                style="width: 100%; left: 0%;"></div>
+                            <div id="refSpectralLine" class="absorption-line" style="left: 5%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Observed Spectrum -->
+                    <div class="mt-2">
+                        <div class="flex justify-between items-end mb-1">
+                            <span class="text-xs font-bold text-blue-300 uppercase tracking-wider">Observed Galaxy
+                                (λ_obs)</span>
+                            <span id="sliderLabel"
+                                class="text-sm text-blue-300 font-mono font-bold bg-slate-900 px-2 py-0.5 rounded border border-slate-700">380.00
+                                nm</span>
+                        </div>
+                        <div
+                            class="relative h-14 w-full rounded border border-blue-500/50 shadow-[0_0_10px_rgba(59,130,246,0.2)]">
+                            <!-- Inner clipping container for background and target line -->
+                            <div class="absolute inset-0 overflow-hidden rounded pointer-events-none">
+                                <div id="obsSpectrumBg"
+                                    class="absolute top-0 bottom-0 spectrum-bg transition-all duration-300 pointer-events-none"
+                                    style="width: 100%; left: 0%;"></div>
+                                <!-- Dynamic Target Line -->
+                                <div id="targetSpectralLine" class="absorption-line" style="left: 50%;"></div>
+                            </div>
+
+                            <!-- User Measurement Slider -->
+                            <input type="range" id="spectrumSlider" class="spectrum-slider" min="380" max="780" step="1"
+                                value="580">
+                            <div id="sliderVisualLine" class="measurement-line pointer-events-none" style="left: 50%;">
+                                <!-- Draggable handle indicator -->
+                                <div
+                                    class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-5 h-5 bg-red-500 border-2 border-white rounded-full shadow-md flex items-center justify-center pointer-events-none">
+                                    <div class="w-0.5 h-2.5 bg-white/70 rounded-full mx-px"></div>
+                                    <div class="w-0.5 h-2.5 bg-white/70 rounded-full mx-px"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between text-xs text-slate-500 px-1 mt-1 font-mono">
+                    <span id="spectroMinLabel">380 nm</span>
+                    <span id="spectroMidLabel">580 nm</span>
+                    <span id="spectroMaxLabel">780 nm</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN: ANALYSIS LAB (5 columns) -->
+        <div class="lg:col-span-5 flex flex-col gap-6">
+
+            <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-md flex-grow flex flex-col">
+                <h2 class="text-2xl font-bold text-white mb-4 border-b border-slate-600 pb-2">Analysis Lab</h2>
+
+                <!-- Calculation Form -->
+                <div class="space-y-6 flex-grow flex flex-col">
+
+                    <!-- Step 1: Distance -->
+                    <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700 relative">
+                        <div id="labOverlay1" class="disabled-overlay rounded-lg text-sm bg-slate-900/90">Gather Data
+                            First</div>
+                        <h3 class="text-indigo-300 font-semibold mb-3 flex items-center gap-2">
+                            <span
+                                class="bg-indigo-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">1</span>
+                            Calculate Distance (D)
+                        </h3>
+
+                        <div class="grid grid-cols-2 gap-3 mb-3">
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Measured Period (days)</label>
+                                <input type="number" id="inputPeriod"
+                                    class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-1.5 text-white outline-none focus:border-indigo-500 transition"
+                                    placeholder="Δt from graph">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Luminosity (L = Period × 1000)</label>
+                                <input type="number" id="inputLuminosity"
+                                    class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-1.5 text-white outline-none focus:border-indigo-500 transition"
+                                    placeholder="L">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 items-end">
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Sensor Brightness (B)</label>
+                                <div class="w-full bg-slate-900 border border-slate-600 border-dashed rounded px-3 py-1.5 text-slate-300 font-mono"
+                                    id="sensorBrightness">
+                                    --
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-blue-300 mb-1 font-bold">Calculated Distance
+                                    (Mpc)</label>
+                                <input type="number" id="inputDistance"
+                                    class="w-full bg-indigo-900/40 border border-indigo-500 rounded px-3 py-1.5 text-white outline-none focus:ring-1 focus:ring-indigo-400 font-bold"
+                                    placeholder="D = √(L/B)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Velocity -->
+                    <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700 relative">
+                        <div id="labOverlay2" class="disabled-overlay rounded-lg text-sm bg-slate-900/90">Gather Data
+                            First</div>
+                        <h3 class="text-red-300 font-semibold mb-3 flex items-center gap-2">
+                            <span
+                                class="bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">2</span>
+                            Calculate Velocity (v)
+                        </h3>
+
+                        <div class="grid grid-cols-2 gap-3 mb-3">
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Measured Wavelength (nm)</label>
+                                <input type="number" id="inputWavelength" step="0.01"
+                                    class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-1.5 text-white outline-none focus:border-red-500 transition"
+                                    placeholder="λ obs">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1"
+                                    title="z = (Observed - Reference) / Reference">Redshift (z = (λ - 400) /
+                                    400)</label>
+                                <input type="number" id="inputRedshift" step="0.0001"
+                                    class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-1.5 text-white outline-none focus:border-red-500 transition"
+                                    placeholder="z">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs text-red-300 mb-1 font-bold">Velocity (km/s)</label>
+                            <div class="flex gap-2">
+                                <input type="number" id="inputVelocity"
+                                    class="w-full bg-red-900/40 border border-red-500 rounded px-3 py-1.5 text-white outline-none focus:ring-1 focus:ring-red-400 font-bold"
+                                    placeholder="v = z × 300,000">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <button id="btnRecord" disabled
+                        class="w-full bg-green-600 disabled:bg-slate-700 disabled:text-slate-500 hover:bg-green-500 text-white font-bold py-3 px-4 rounded-lg transition shadow-lg flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                            <polyline points="17 21 17 13 7 13 7 21" />
+                            <polyline points="7 3 7 8 15 8" />
+                        </svg>
+                        Verify & Record Data
+                    </button>
+                    <p id="feedbackMsg" class="text-sm text-center font-semibold mt-2 hidden"></p>
+
+                    <!-- Embedded Desmos Calculator -->
+                    <div class="mt-2 border-t border-slate-700 pt-6 flex-grow flex flex-col min-h-[300px]">
+                        <h3 class="text-slate-300 font-semibold mb-3 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
+                                <line x1="8" y1="6" x2="16" y2="6" />
+                                <line x1="16" y1="14" x2="16.01" y2="14" />
+                                <line x1="16" y1="18" x2="16.01" y2="18" />
+                                <line x1="12" y1="14" x2="12.01" y2="14" />
+                                <line x1="12" y1="18" x2="12.01" y2="18" />
+                                <line x1="8" y1="14" x2="8.01" y2="14" />
+                                <line x1="8" y1="18" x2="8.01" y2="18" />
+                            </svg>
+                            Scientific Calculator
+                        </h3>
+                        <div id="desmos-calculator"
+                            class="w-full flex-grow rounded-lg overflow-hidden border border-slate-600"></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- BOTTOM SECTION: RESULTS & GRAPH -->
+    <section class="max-w-7xl mx-auto mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6 pb-12">
+
+        <!-- Data Table -->
+        <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-md overflow-hidden flex flex-col">
+            <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                    <line x1="3" y1="9" x2="21" y2="9" />
+                    <line x1="3" y1="15" x2="21" y2="15" />
+                    <line x1="9" y1="9" x2="9" y2="21" />
+                    <line x1="15" y1="9" x2="15" y2="21" />
+                </svg>
+                Observation Log
+            </h2>
+            <div class="overflow-x-auto flex-grow">
+                <table class="w-full text-sm text-left text-slate-300">
+                    <thead class="text-xs text-slate-400 uppercase bg-slate-900 border-b border-slate-700">
+                        <tr>
+                            <th scope="col" class="px-4 py-3">Galaxy</th>
+                            <th scope="col" class="px-4 py-3">Period (d)</th>
+                            <th scope="col" class="px-4 py-3 text-indigo-300">Dist (Mpc)</th>
+                            <th scope="col" class="px-4 py-3">λ obs (nm)</th>
+                            <th scope="col" class="px-4 py-3">Redshift z</th>
+                            <th scope="col" class="px-4 py-3 text-red-300">Vel (km/s)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr class="border-b border-slate-700 bg-slate-800/50">
+                            <td colspan="6" class="px-4 py-8 text-center text-slate-500 italic">No observations recorded
+                                yet. Select a galaxy above to begin.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Scatter Plot & Conclusion -->
+        <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-md">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10" />
+                        <line x1="12" y1="20" x2="12" y2="4" />
+                        <line x1="6" y1="20" x2="6" y2="14" />
+                        <line x1="2" y1="20" x2="22" y2="20" />
+                    </svg>
+                    Hubble's Law Plot
+                </h2>
+                <button id="btnCalculateHubble"
+                    class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold py-1.5 px-3 rounded transition hidden">
+                    Calculate H₀ Line
+                </button>
+            </div>
+
+            <div class="relative w-full aspect-video bg-slate-900 rounded-lg border border-slate-700 p-2">
+                <!-- SVG Graph Area -->
+                <svg id="graphArea" width="100%" height="100%" class="block">
+                    <!-- Axes -->
+                    <line x1="40" y1="90%" x2="95%" y2="90%" stroke="#475569" stroke-width="2" />
+                    <line x1="40" y1="10%" x2="40" y2="90%" stroke="#475569" stroke-width="2" />
+
+                    <!-- Axis Labels -->
+                    <text x="50%" y="98%" fill="#94a3b8" font-size="12" text-anchor="middle">Distance (Mpc)</text>
+                    <text x="15" y="50%" fill="#94a3b8" font-size="12" text-anchor="middle"
+                        style="transform-origin: 15px 50%; transform: rotate(-90deg);">Velocity (km/s)</text>
+
+                    <!-- Plot Group -->
+                    <g id="plotPoints"></g>
+                    <!-- Trendline Group -->
+                    <g id="trendLineGroup"></g>
+                </svg>
+            </div>
+
+            <div id="resultsPanel" class="mt-4 p-4 bg-purple-900/30 border border-purple-500/50 rounded-lg hidden">
+                <h3 class="text-purple-300 font-bold mb-1">Conclusions</h3>
+                <p class="text-sm text-slate-300">
+                    <strong>Hubble Constant (H₀):</strong> <span id="resHubble"
+                        class="text-white font-mono text-lg">--</span> km/s/Mpc
+                </p>
+                <p class="text-sm text-slate-300 mt-2">
+                    Because Velocity = Distance / Time, the inverse of Hubble's constant (1/H₀) gives a rough estimate
+                    for the age of the universe!
+                </p>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- UI Toast for alerts instead of browser alert() -->
+    <div id="toast">Message</div>
+
+    <!-- Application Logic -->
+    <script>
+        /**
+         * Simulation Data & Constants
+         * Light Speed: 300,000 km/s
+         * Ref Wavelength: 400.0 nm
+         * L = Period * 1000
+         * D = sqrt(L/B)
+         */
+        const C = 300000;
+        const REF_WAVE = 400.0;
+        const MAX_DAYS = 60; // Max days shown on light curve graph
+
+        const SPECTRO_BROAD_MIN = 380;
+        const SPECTRO_BROAD_MAX = 780;
+        const SPECTRO_ZOOM_MIN = 398;
+        const SPECTRO_ZOOM_MAX = 412;
+
+        // Truth data for the galaxies, updated with morphological types
+        const GALAXIES = [
+            { name: "Galaxy Alpha", dist: 10, vel: 700, period: 10, z: 0.00233, wave: 400.93, b: 100, x: 15, y: 20, color: 'rgba(200,220,255,', rot: 30, scaleX: 1.5, type: 'spiral' },
+            { name: "Galaxy Beta", dist: 25, vel: 1750, period: 16, z: 0.00583, wave: 402.33, b: 25.6, x: 40, y: 70, color: 'rgba(255,220,200,', rot: -20, scaleX: 2.0, type: 'elliptical' },
+            { name: "Galaxy Gamma", dist: 40, vel: 2800, period: 25, z: 0.00933, wave: 403.73, b: 15.625, x: 80, y: 30, color: 'rgba(220,255,220,', rot: 60, scaleX: 1.2, type: 'irregular' },
+            { name: "Galaxy Delta", dist: 60, vel: 4200, period: 12, z: 0.01400, wave: 405.60, b: 3.333, x: 60, y: 55, color: 'rgba(255,240,200,', rot: -45, scaleX: 2.5, type: 'lenticular' },
+            { name: "Galaxy Epsilon", dist: 90, vel: 6300, period: 30, z: 0.02100, wave: 408.40, b: 3.704, x: 90, y: 85, color: 'rgba(255,255,255,', rot: 10, scaleX: 1.8, type: 'spiral' }
+        ];
+
+        let state = {
+            currentGalaxyIdx: 0,
+            recordedData: [],
+            isStarTargeted: false,
+            hasGatheredData: false,
+            // Star pulsing state
+            simTime: 0,
+            lastFrameTime: 0,
+            // Caliper dragging state
+            activeCaliper: null,
+            // Spectrometer state
+            isSpectroZoomed: false,
+            // Intro Modal
+            introSlide: 0
+        };
+
+        // --- DOM Elements ---
+        const ui = {
+            galaxySelect: document.getElementById('galaxySelector'),
+            sensorBrightness: document.getElementById('sensorBrightness'),
+            // Targeting
+            star: document.getElementById('cepheidStar'),
+            telescope: document.getElementById('telescope'),
+            skyCanvas: document.getElementById('skyCanvas'),
+            targetStatus: document.getElementById('targetStatus'),
+            targetInfo: document.getElementById('targetInfo'),
+            infoGalaxyName: document.getElementById('infoGalaxyName'),
+            infoGalaxyType: document.getElementById('infoGalaxyType'),
+            // Overlays
+            photoOverlay: document.getElementById('photometryOverlay'),
+            photoOverlayText: document.getElementById('photoOverlayText'),
+            btnGather: document.getElementById('btnGather'),
+            spectroOverlay: document.getElementById('spectroOverlay'),
+            labOverlay1: document.getElementById('labOverlay1'),
+            labOverlay2: document.getElementById('labOverlay2'),
+            // Light Curve
+            curvePath: document.getElementById('curvePath'),
+            lcContainer: document.getElementById('lightCurveContainer'),
+            c1: document.getElementById('caliper1'),
+            c2: document.getElementById('caliper2'),
+            periodDisplay: document.getElementById('periodDisplay'),
+            // Spectrum
+            btnZoomSpectrometer: document.getElementById('btnZoomSpectrometer'),
+            refSpectralLine: document.getElementById('refSpectralLine'),
+            refSpectrumBg: document.getElementById('refSpectrumBg'),
+            obsSpectrumBg: document.getElementById('obsSpectrumBg'),
+            spectroMinLabel: document.getElementById('spectroMinLabel'),
+            spectroMidLabel: document.getElementById('spectroMidLabel'),
+            spectroMaxLabel: document.getElementById('spectroMaxLabel'),
+            spectrumSlider: document.getElementById('spectrumSlider'),
+            sliderLabel: document.getElementById('sliderLabel'),
+            sliderVisualLine: document.getElementById('sliderVisualLine'),
+            targetSpectralLine: document.getElementById('targetSpectralLine'),
+            // Inputs
+            inPeriod: document.getElementById('inputPeriod'),
+            inLum: document.getElementById('inputLuminosity'),
+            inDist: document.getElementById('inputDistance'),
+            inWave: document.getElementById('inputWavelength'),
+            inZ: document.getElementById('inputRedshift'),
+            inVel: document.getElementById('inputVelocity'),
+            // Actions
+            btnRecord: document.getElementById('btnRecord'),
+            feedbackMsg: document.getElementById('feedbackMsg'),
+            // Display
+            tableBody: document.getElementById('tableBody'),
+            plotPoints: document.getElementById('plotPoints'),
+            trendLineGroup: document.getElementById('trendLineGroup'),
+            btnCalculateHubble: document.getElementById('btnCalculateHubble'),
+            resultsPanel: document.getElementById('resultsPanel'),
+            resHubble: document.getElementById('resHubble')
+        };
+
+        // --- Initialization ---
+        function init() {
+            generateBackgroundStars();
+            loadGalaxy(0);
+
+            // Event Listeners
+            ui.galaxySelect.addEventListener('change', (e) => loadGalaxy(parseInt(e.target.value)));
+
+            // Targeting & Gathering
+            ui.star.addEventListener('click', targetStar);
+            ui.btnGather.addEventListener('click', gatherData);
+
+            // Spectrum Slider
+            ui.btnZoomSpectrometer.addEventListener('click', toggleSpectroZoom);
+            ui.spectrumSlider.addEventListener('input', updateSpectrumSlider);
+
+            // Lab Form
+            ui.btnRecord.addEventListener('click', validateAndRecord);
+            ui.btnCalculateHubble.addEventListener('click', calculateHubble);
+
+            // Caliper Dragging (Mouse + Touch)
+            setupCaliperDragging();
+
+            // Initialize Desmos Scientific Calculator
+            const calcElement = document.getElementById('desmos-calculator');
+            if (window.Desmos) {
+                state.calculator = Desmos.ScientificCalculator(calcElement);
+            }
+
+            // Modal Slideshow Logic
+            document.getElementById('btnNextSlide').addEventListener('click', () => updateIntroSlide(1));
+            document.getElementById('btnPrevSlide').addEventListener('click', () => updateIntroSlide(-1));
+
+            document.getElementById('btnStartMission').addEventListener('click', () => {
+                // Validate Quiz
+                const q1 = document.querySelector('input[name="q1"]:checked');
+                const q2 = document.querySelector('input[name="q2"]:checked');
+                const q3 = document.querySelector('input[name="q3"]:checked');
+
+                const feedback = document.getElementById('quizFeedbackMsg');
+
+                if (q1?.value === 'correct' && q2?.value === 'correct' && q3?.value === 'correct') {
+                    // All correct! Dismiss Modal
+                    const modal = document.getElementById('introModal');
+                    modal.style.opacity = '0';
+                    setTimeout(() => {
+                        modal.style.display = 'none';
+                    }, 500);
+                } else {
+                    // Feedback on missed questions
+                    feedback.textContent = "Please answer all questions correctly to proceed.";
+                }
+            });
+
+            // Clear error on changing a quiz option
+            const radioBtns = document.querySelectorAll('input[type="radio"]');
+            radioBtns.forEach(btn => {
+                btn.addEventListener('change', () => {
+                    document.getElementById('quizFeedbackMsg').textContent = "";
+                });
+            });
+
+            // Handle window resize for panning accuracy
+            window.addEventListener('resize', () => {
+                if (state.currentGalaxyIdx !== undefined) {
+                    panToGalaxy(state.currentGalaxyIdx);
+                }
+            });
+
+            // Start simulation loop for pulsing star
+            requestAnimationFrame(simulationLoop);
+        }
+
+        // --- Intro Modal Slideshow Logic ---
+        function updateIntroSlide(dir) {
+            const numSlides = 4;
+            document.getElementById(`intro-slide-${state.introSlide}`).classList.add('hidden');
+            document.querySelector(`.slide-dot[data-dot="${state.introSlide}"]`).classList.replace('bg-blue-500', 'bg-slate-600');
+
+            state.introSlide += dir;
+
+            document.getElementById(`intro-slide-${state.introSlide}`).classList.remove('hidden');
+            document.querySelector(`.slide-dot[data-dot="${state.introSlide}"]`).classList.replace('bg-slate-600', 'bg-blue-500');
+
+            const btnNext = document.getElementById('btnNextSlide');
+            const btnPrev = document.getElementById('btnPrevSlide');
+            const btnStart = document.getElementById('btnStartMission');
+
+            if (state.introSlide === 0) {
+                btnPrev.classList.add('hidden');
+            } else {
+                btnPrev.classList.remove('hidden');
+            }
+
+            if (state.introSlide === numSlides - 1) {
+                btnNext.classList.add('hidden');
+                btnStart.classList.remove('hidden');
+            } else {
+                btnNext.classList.remove('hidden');
+                btnStart.classList.add('hidden');
+            }
+        }
+
+        // --- Targeting & Gathering Workflow ---
+        function loadGalaxy(idx) {
+            state.currentGalaxyIdx = idx;
+
+            // Reset state
+            state.isStarTargeted = false;
+            state.hasGatheredData = false;
+
+            // Reset visuals
+            ui.star.classList.remove('targeted');
+            ui.targetStatus.textContent = "Status: Target lost. Scan and click the pulsing star.";
+            ui.targetStatus.className = "text-xs text-yellow-400 mt-1 font-bold";
+            ui.btnRecord.disabled = true;
+
+            // Reset Info Panel & Gather Button
+            ui.targetInfo.classList.add('hidden');
+            ui.photoOverlayText.classList.remove('hidden');
+            ui.btnGather.classList.add('hidden');
+
+            const gal = GALAXIES[idx];
+
+            // Position the Cepheid visually within the target galaxy's specific structure
+            let unrotatedX = 0, unrotatedY = 0;
+
+            if (gal.type === 'spiral') {
+                const armOffset = Math.random() > 0.5 ? 0 : Math.PI;
+                const theta = 1.0 + Math.random() * (Math.PI * 1.5);
+                const r = 5 * Math.exp(0.3 * theta);
+                unrotatedX = r * Math.cos(theta + armOffset);
+                unrotatedY = r * Math.sin(theta + armOffset);
+            } else if (gal.type === 'elliptical') {
+                const angle = Math.random() * Math.PI * 2;
+                const r = 10 + Math.random() * 25;
+                unrotatedX = r * Math.cos(angle);
+                unrotatedY = r * Math.sin(angle);
+            } else if (gal.type === 'lenticular') {
+                const angle = Math.random() * Math.PI * 2;
+                const r = 10 + Math.random() * 40;
+                unrotatedX = r * Math.cos(angle);
+                unrotatedY = r * Math.sin(angle) * 0.3; // Flattened Y to sit in the disk
+            } else if (gal.type === 'irregular') {
+                unrotatedX = (Math.random() - 0.5) * 50;
+                unrotatedY = (Math.random() - 0.5) * 50;
+            }
+
+            // Apply the galaxy's visual scale and rotation
+            const rotRad = gal.rot * (Math.PI / 180);
+            const effScaleX = gal.type === 'irregular' ? 1 : gal.scaleX; // Irregulars aren't stretched
+            const scaledX = unrotatedX * effScaleX;
+            const scaledY = unrotatedY;
+
+            const offsetX = scaledX * Math.cos(rotRad) - scaledY * Math.sin(rotRad);
+            const offsetY = scaledX * Math.sin(rotRad) + scaledY * Math.cos(rotRad);
+
+            ui.star.style.left = `calc(${gal.x}% + ${offsetX}px)`;
+            ui.star.style.top = `calc(${gal.y}% + ${offsetY}px)`;
+
+            // Pan the telescope view to the new galaxy (timeout ensures elements are rendered)
+            setTimeout(() => panToGalaxy(idx), 50);
+
+            // Show overlays hiding the instruments
+            ui.photoOverlay.style.display = 'flex';
+            ui.spectroOverlay.style.display = 'flex';
+            ui.labOverlay1.style.display = 'flex';
+            ui.labOverlay2.style.display = 'flex';
+
+            // Reset zoom state
+            if (state.isSpectroZoomed) {
+                toggleSpectroZoom();
+            } else {
+                updateSpectrometerScale();
+            }
+
+            resetInputs();
+            clearFeedback();
+        }
+
+        function targetStar() {
+            if (state.hasGatheredData) return; // Prevent re-targeting if data gathered
+
+            state.isStarTargeted = true;
+            ui.star.classList.add('targeted');
+            ui.targetStatus.innerHTML = `Status: <span class="text-green-400">Lock established on Cepheid Variable.</span>`;
+
+            // Display target information
+            const gal = GALAXIES[state.currentGalaxyIdx];
+            ui.infoGalaxyName.textContent = gal.name;
+            ui.infoGalaxyType.textContent = "Type: " + gal.type.charAt(0).toUpperCase() + gal.type.slice(1);
+            ui.targetInfo.classList.remove('hidden');
+
+            // Show Gather Data button in Photometry panel
+            ui.photoOverlayText.classList.add('hidden');
+            ui.btnGather.classList.remove('hidden');
+        }
+
+        function gatherData() {
+            if (!state.isStarTargeted) return;
+            state.hasGatheredData = true;
+            ui.btnGather.classList.add('hidden'); // Hide button
+            ui.btnRecord.disabled = false;
+            ui.targetStatus.textContent = "Status: Data gathered successfully. Instruments online.";
+            ui.targetStatus.className = "text-xs text-slate-400 mt-1";
+
+            const gal = GALAXIES[state.currentGalaxyIdx];
+
+            // Hide Overlays
+            ui.photoOverlay.style.display = 'none';
+            ui.spectroOverlay.style.display = 'none';
+            ui.labOverlay1.style.display = 'none';
+            ui.labOverlay2.style.display = 'none';
+
+            // 1. Populate Sensor Brightness text
+            ui.sensorBrightness.textContent = gal.b.toFixed(3);
+
+            // 2. Generate Light Curve Graph (now animated)
+            generateLightCurve(gal.period);
+
+            // Reset calipers to defaults
+            ui.c1.style.left = '20%';
+            ui.c2.style.left = '40%';
+            updatePeriodDisplay();
+
+            // 3. Populate Spectrometer
+            updateSpectrometerScale();
+
+            showToast("Light Data Gathered! Processing light curve...");
+        }
+
+        function panToGalaxy(idx) {
+            const gal = GALAXIES[idx];
+            const vpW = ui.telescope.clientWidth;
+            const vpH = ui.telescope.clientHeight;
+            const canW = ui.skyCanvas.clientWidth;
+            const canH = ui.skyCanvas.clientHeight;
+
+            // Calculate pixel coordinate of target galaxy on the giant canvas
+            const targetX = (gal.x / 100) * canW;
+            const targetY = (gal.y / 100) * canH;
+
+            // Calculate transform needed to center the target coordinate in the viewport
+            const tx = (vpW / 2) - targetX;
+            const ty = (vpH / 2) - targetY;
+
+            ui.skyCanvas.style.transform = `translate(${tx}px, ${ty}px)`;
+        }
+
+        // --- Visual Systems ---
+        function generateBackgroundStars() {
+            const appendStar = (container, x, y) => {
+                let cs = document.createElement('div');
+                cs.className = 'star pointer-events-none';
+                let cSize = Math.random() * 2 + 0.5;
+                cs.style.width = cSize + 'px';
+                cs.style.height = cSize + 'px';
+                cs.style.position = 'absolute';
+                cs.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
+                cs.style.opacity = Math.random() * 0.7 + 0.3;
+                container.appendChild(cs);
+            };
+
+            // Generate deep space background stars across the vast virtual canvas
+            for (let i = 0; i < 400; i++) {
+                let s = document.createElement('div');
+                s.className = 'star pointer-events-none';
+                let size = Math.random() * 2 + 1;
+                s.style.width = size + 'px';
+                s.style.height = size + 'px';
+                s.style.left = Math.random() * 100 + '%';
+                s.style.top = Math.random() * 100 + '%';
+                s.style.opacity = Math.random() * 0.6 + 0.1;
+                ui.skyCanvas.appendChild(s);
+            }
+
+            // Generate specific galaxy morphologies
+            GALAXIES.forEach(gal => {
+                let container = document.createElement('div');
+                container.className = 'absolute z-10 pointer-events-none';
+                container.style.width = '0px';
+                container.style.height = '0px';
+                container.style.left = gal.x + '%';
+                container.style.top = gal.y + '%';
+                container.style.transform = `rotate(${gal.rot}deg) scaleX(${gal.type === 'irregular' ? 1 : gal.scaleX})`;
+                ui.skyCanvas.appendChild(container);
+
+                if (gal.type === 'spiral') {
+                    // Bulge
+                    let g = document.createElement('div');
+                    g.className = 'galaxy-glow';
+                    const bulgeSize = 50 + Math.random() * 30;
+                    g.style.width = bulgeSize + 'px';
+                    g.style.height = bulgeSize + 'px';
+                    g.style.position = 'absolute';
+                    g.style.transform = 'translate(-50%, -50%)';
+                    g.style.background = `radial-gradient(circle, ${gal.color}0.9) 0%, ${gal.color}0.2) 30%, transparent 70%)`;
+                    container.appendChild(g);
+
+                    // Logarithmic Spiral Arms
+                    const numArms = 2;
+                    const starsPerArm = 80;
+                    for (let arm = 0; arm < numArms; arm++) {
+                        const armOffset = (Math.PI * 2 / numArms) * arm;
+                        for (let i = 0; i < starsPerArm; i++) {
+                            const theta = (i / starsPerArm) * (Math.PI * 2.5);
+                            const r = 5 * Math.exp(0.3 * theta);
+                            const scatterRange = 2 + (r * 0.15);
+                            const x = r * Math.cos(theta + armOffset) + (Math.random() - 0.5) * scatterRange;
+                            const y = r * Math.sin(theta + armOffset) + (Math.random() - 0.5) * scatterRange;
+                            appendStar(container, x, y);
+                        }
+                    }
+                } else if (gal.type === 'elliptical') {
+                    // Smooth diffuse glow
+                    let g = document.createElement('div');
+                    g.className = 'galaxy-glow';
+                    g.style.width = '140px';
+                    g.style.height = '140px';
+                    g.style.position = 'absolute';
+                    g.style.transform = 'translate(-50%, -50%)';
+                    g.style.background = `radial-gradient(circle, ${gal.color}0.9) 0%, ${gal.color}0.2) 40%, transparent 70%)`;
+                    container.appendChild(g);
+
+                    // High density central clustering, smoothly dropping off
+                    for (let i = 0; i < 150; i++) {
+                        const r = Math.pow(Math.random(), 2) * 60; // Squares random to cluster near center
+                        const theta = Math.random() * Math.PI * 2;
+                        appendStar(container, r * Math.cos(theta), r * Math.sin(theta));
+                    }
+                } else if (gal.type === 'lenticular') {
+                    // Bright small core
+                    let gCore = document.createElement('div');
+                    gCore.className = 'galaxy-glow';
+                    gCore.style.width = '50px';
+                    gCore.style.height = '50px';
+                    gCore.style.position = 'absolute';
+                    gCore.style.transform = 'translate(-50%, -50%)';
+                    gCore.style.background = `radial-gradient(circle, ${gal.color}1.0) 0%, ${gal.color}0.4) 40%, transparent 70%)`;
+                    container.appendChild(gCore);
+
+                    // Faint, wide disk
+                    let gDisk = document.createElement('div');
+                    gDisk.className = 'galaxy-glow';
+                    gDisk.style.width = '160px';
+                    gDisk.style.height = '40px'; // Flattened visually
+                    gDisk.style.position = 'absolute';
+                    gDisk.style.transform = 'translate(-50%, -50%)';
+                    gDisk.style.background = `radial-gradient(ellipse, ${gal.color}0.5) 0%, ${gal.color}0.1) 50%, transparent 70%)`;
+                    container.appendChild(gDisk);
+
+                    // Stars scattered along the flattened disk
+                    for (let i = 0; i < 120; i++) {
+                        const r = Math.pow(Math.random(), 1.5) * 75;
+                        const theta = Math.random() * Math.PI * 2;
+                        appendStar(container, r * Math.cos(theta), r * Math.sin(theta) * 0.25); // Squash Y axis
+                    }
+                } else if (gal.type === 'irregular') {
+                    // Multiple random clumps
+                    const numClumps = 4;
+                    for (let c = 0; c < numClumps; c++) {
+                        const cx = (Math.random() - 0.5) * 60;
+                        const cy = (Math.random() - 0.5) * 60;
+
+                        let g = document.createElement('div');
+                        g.className = 'galaxy-glow';
+                        const size = 30 + Math.random() * 50;
+                        g.style.width = size + 'px';
+                        g.style.height = size + 'px';
+                        g.style.position = 'absolute';
+                        g.style.transform = `translate(-50%, -50%) translate(${cx}px, ${cy}px)`;
+                        g.style.background = `radial-gradient(circle, ${gal.color}0.7) 0%, ${gal.color}0.1) 40%, transparent 70%)`;
+                        container.appendChild(g);
+
+                        // Scatter stars near the clump
+                        for (let i = 0; i < 35; i++) {
+                            const r = Math.random() * 30;
+                            const theta = Math.random() * Math.PI * 2;
+                            appendStar(container, cx + r * Math.cos(theta), cy + r * Math.sin(theta));
+                        }
+                    }
+                }
+            });
+        }
+
+        function simulationLoop(timestamp) {
+            if (!state.lastFrameTime) state.lastFrameTime = timestamp;
+            const dt = timestamp - state.lastFrameTime;
+            state.lastFrameTime = timestamp;
+
+            const SIM_SPEED = 5.0; // 1s real = 5s sim
+            state.simTime += (dt / 1000) * SIM_SPEED;
+
+            const gal = GALAXIES[state.currentGalaxyIdx];
+            // Pulse logic
+            const phase = (state.simTime % gal.period) / gal.period;
+            const opacity = (Math.cos(phase * Math.PI * 2) + 1) / 2;
+
+            ui.star.style.opacity = 0.2 + (opacity * 0.8);
+            const scale = 0.8 + (opacity * 0.5);
+
+            // Account for centering transform
+            ui.star.style.transform = `scale(${scale}) translate(-50%, -50%)`;
+
+            requestAnimationFrame(simulationLoop);
+        }
+
+        // --- Caliper Dragging Logic ---
+        function setupCaliperDragging() {
+            const startDrag = (e, caliper) => {
+                state.activeCaliper = caliper;
+                e.preventDefault(); // Prevent text selection
+            };
+
+            // Mouse Events
+            ui.c1.addEventListener('mousedown', (e) => startDrag(e, ui.c1));
+            ui.c2.addEventListener('mousedown', (e) => startDrag(e, ui.c2));
+
+            // Touch Events
+            ui.c1.addEventListener('touchstart', (e) => startDrag(e, ui.c1), { passive: false });
+            ui.c2.addEventListener('touchstart', (e) => startDrag(e, ui.c2), { passive: false });
+
+            const stopDrag = () => state.activeCaliper = null;
+            window.addEventListener('mouseup', stopDrag);
+            window.addEventListener('touchend', stopDrag);
+
+            const handleMove = (clientX) => {
+                if (!state.activeCaliper) return;
+                const rect = ui.lcContainer.getBoundingClientRect();
+                let x = clientX - rect.left;
+                // Constrain to container
+                x = Math.max(0, Math.min(x, rect.width));
+                const pct = (x / rect.width) * 100;
+                state.activeCaliper.style.left = pct + '%';
+                updatePeriodDisplay();
+            };
+
+            window.addEventListener('mousemove', (e) => handleMove(e.clientX));
+            window.addEventListener('touchmove', (e) => {
+                if (state.activeCaliper) {
+                    e.preventDefault(); // Stop scrolling while dragging
+                    handleMove(e.touches[0].clientX);
+                }
+            }, { passive: false });
+        }
+
+        function updatePeriodDisplay() {
+            const p1 = parseFloat(ui.c1.style.left);
+            const p2 = parseFloat(ui.c2.style.left);
+            const days1 = (p1 / 100) * MAX_DAYS;
+            const days2 = (p2 / 100) * MAX_DAYS;
+            const diff = Math.abs(days2 - days1);
+            ui.periodDisplay.textContent = diff.toFixed(1);
+        }
+
+        function generateLightCurve(period) {
+            // formula: y = A * sin(2*PI*x/P) + offset
+            let pathData = "";
+            for (let x = 0; x <= 100; x++) {
+                // x is percentage of container. Map to days
+                let days = (x / 100) * MAX_DAYS;
+                let phase = days / period;
+                // Map y from 10 to 90 inside the SVG viewBox (0-100)
+                let y = 50 - 40 * Math.cos(phase * Math.PI * 2);
+
+                if (x === 0) pathData += `M ${x} ${y} `;
+                else pathData += `L ${x} ${y} `;
+            }
+            ui.curvePath.setAttribute('d', pathData);
+
+            // Temporarily hide calipers during animation
+            ui.c1.style.display = 'none';
+            ui.c2.style.display = 'none';
+
+            // Animate Drawing
+            const length = ui.curvePath.getTotalLength() || 1000;
+            ui.curvePath.style.transition = 'none';
+            ui.curvePath.style.strokeDasharray = length;
+            ui.curvePath.style.strokeDashoffset = length;
+
+            // Force reflow
+            ui.curvePath.getBoundingClientRect();
+
+            // Trigger animation
+            ui.curvePath.style.transition = 'stroke-dashoffset 2s ease-out';
+            ui.curvePath.style.strokeDashoffset = '0';
+
+            // Show calipers after animation completes
+            setTimeout(() => {
+                ui.c1.style.display = 'flex';
+                ui.c2.style.display = 'flex';
+            }, 2000);
+        }
+
+        // --- Spectrum Logic ---
+        function toggleSpectroZoom() {
+            state.isSpectroZoomed = !state.isSpectroZoomed;
+
+            if (state.isSpectroZoomed) {
+                ui.btnZoomSpectrometer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg> Zoom Out`;
+                ui.btnZoomSpectrometer.classList.replace('bg-slate-700', 'bg-blue-600');
+                ui.btnZoomSpectrometer.classList.replace('hover:bg-slate-600', 'hover:bg-blue-500');
+            } else {
+                ui.btnZoomSpectrometer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg> Zoom 10x`;
+                ui.btnZoomSpectrometer.classList.replace('bg-blue-600', 'bg-slate-700');
+                ui.btnZoomSpectrometer.classList.replace('hover:bg-blue-500', 'hover:bg-slate-600');
+            }
+
+            updateSpectrometerScale();
+        }
+
+        function updateSpectrometerScale() {
+            const min = state.isSpectroZoomed ? SPECTRO_ZOOM_MIN : SPECTRO_BROAD_MIN;
+            const max = state.isSpectroZoomed ? SPECTRO_ZOOM_MAX : SPECTRO_BROAD_MAX;
+            const step = state.isSpectroZoomed ? 0.05 : 1;
+
+            ui.spectrumSlider.min = min;
+            ui.spectrumSlider.max = max;
+            ui.spectrumSlider.step = step;
+
+            // Center the slider when the scale/zoom adjusts
+            const centerVal = (min + max) / 2;
+            ui.spectrumSlider.value = centerVal;
+
+            ui.spectroMinLabel.textContent = `${min} nm`;
+            ui.spectroMidLabel.textContent = `${centerVal} nm`;
+            ui.spectroMaxLabel.textContent = `${max} nm`;
+
+            // Update Background Cropping/Scaling
+            const fullSpan = SPECTRO_BROAD_MAX - SPECTRO_BROAD_MIN;
+            const viewSpan = max - min;
+            const widthPct = (fullSpan / viewSpan) * 100;
+            const leftPct = -((min - SPECTRO_BROAD_MIN) / viewSpan) * 100;
+
+            ui.refSpectrumBg.style.width = `${widthPct}%`;
+            ui.refSpectrumBg.style.left = `${leftPct}%`;
+            ui.obsSpectrumBg.style.width = `${widthPct}%`;
+            ui.obsSpectrumBg.style.left = `${leftPct}%`;
+
+            // Update ref line (400nm)
+            const refPct = ((REF_WAVE - min) / (max - min)) * 100;
+            ui.refSpectralLine.style.left = `${refPct}%`;
+            ui.refSpectralLine.style.display = (refPct >= 0 && refPct <= 100) ? 'block' : 'none';
+
+            // Update target line if data is gathered
+            if (state.hasGatheredData) {
+                const gal = GALAXIES[state.currentGalaxyIdx];
+                const targetPct = ((gal.wave - min) / (max - min)) * 100;
+                ui.targetSpectralLine.style.left = `${targetPct}%`;
+                ui.targetSpectralLine.style.display = (targetPct >= 0 && targetPct <= 100) ? 'block' : 'none';
+            }
+
+            // Update slider visual
+            updateSpectrumSlider({ target: ui.spectrumSlider });
+        }
+
+        function updateSpectrumSlider(e) {
+            const val = parseFloat(e.target.value);
+            const min = state.isSpectroZoomed ? SPECTRO_ZOOM_MIN : SPECTRO_BROAD_MIN;
+            const max = state.isSpectroZoomed ? SPECTRO_ZOOM_MAX : SPECTRO_BROAD_MAX;
+
+            const pct = ((val - min) / (max - min)) * 100;
+            ui.sliderVisualLine.style.left = `${pct}%`;
+            ui.sliderLabel.textContent = val.toFixed(2) + " nm";
+        }
+
+        function resetInputs() {
+            ui.inPeriod.value = '';
+            ui.inLum.value = '';
+            ui.inDist.value = '';
+            ui.inWave.value = '';
+            ui.inZ.value = '';
+            ui.inVel.value = '';
+
+            const min = state.isSpectroZoomed ? SPECTRO_ZOOM_MIN : SPECTRO_BROAD_MIN;
+            const max = state.isSpectroZoomed ? SPECTRO_ZOOM_MAX : SPECTRO_BROAD_MAX;
+
+            // Set slider to exactly the middle of the currently visible range
+            ui.spectrumSlider.value = (min + max) / 2;
+            updateSpectrometerScale();
+        }
+
+        // --- Validation & Data Recording ---
+        function showFeedback(msg, isError) {
+            ui.feedbackMsg.textContent = msg;
+            ui.feedbackMsg.className = `text-sm text-center font-semibold mt-2 block ${isError ? 'text-red-400' : 'text-green-400'}`;
+            if (!isError) {
+                setTimeout(clearFeedback, 3000);
+            }
+        }
+
+        function clearFeedback() {
+            ui.feedbackMsg.classList.add('hidden');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            toast.innerText = message;
+            toast.className = "show";
+            setTimeout(function () { toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+
+        function validateAndRecord() {
+            const gal = GALAXIES[state.currentGalaxyIdx];
+
+            // Parse inputs
+            const p = parseFloat(ui.inPeriod.value);
+            const l = parseFloat(ui.inLum.value);
+            const d = parseFloat(ui.inDist.value);
+            const w = parseFloat(ui.inWave.value);
+            const z = parseFloat(ui.inZ.value);
+            const v = parseFloat(ui.inVel.value);
+
+            if ([p, l, d, w, z, v].some(isNaN)) {
+                showFeedback("Please fill out all fields with numbers before recording.", true);
+                return;
+            }
+
+            // Check math tolerance (Allow 5-10% error margin)
+            const isClose = (val, target, tolerance) => Math.abs(val - target) / target < tolerance;
+
+            let errors = [];
+            if (!isClose(p, gal.period, 0.15)) errors.push("Period measurement seems off. Align calipers carefully to peaks.");
+            if (!isClose(l, p * 1000, 0.01)) errors.push("Check Luminosity math (L = P × 1000).");
+            if (!isClose(d, Math.sqrt(l / gal.b), 0.02)) errors.push("Check Distance math (D = √(L/B)).");
+            if (!isClose(w, gal.wave, 0.001)) errors.push("Wavelength inaccurate. Try using the Zoom tool on the Spectrometer for precision.");
+            if (!isClose(z, (w - REF_WAVE) / REF_WAVE, 0.05)) errors.push("Check Redshift math (z = (λ - 400)/400).");
+            if (!isClose(v, z * C, 0.01)) errors.push("Check Velocity math (v = z × 300,000).");
+
+            if (errors.length > 0) {
+                showFeedback("Errors found: " + errors[0], true);
+                return;
+            }
+
+            if (state.recordedData.some(r => r.galaxyIdx === state.currentGalaxyIdx)) {
+                showToast("You already recorded data for this galaxy!");
+                return;
+            }
+
+            // Record data
+            state.recordedData.push({
+                galaxyIdx: state.currentGalaxyIdx,
+                name: gal.name,
+                p: p, d: d, w: w, z: z, v: v
+            });
+
+            showFeedback("Data verified and recorded successfully!", false);
+            updateTable();
+            drawGraph();
+
+            if (state.recordedData.length >= 3) {
+                ui.btnCalculateHubble.classList.remove('hidden');
+            }
+        }
+
+        // --- Data Display & Graphing ---
+        function updateTable() {
+            if (state.recordedData.length === 0) return;
+
+            ui.tableBody.innerHTML = '';
+            let sorted = [...state.recordedData].sort((a, b) => a.d - b.d);
+
+            sorted.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-slate-700 hover:bg-slate-700/30 transition";
+                tr.innerHTML = `
+                    <td class="px-4 py-3 font-medium text-white">${row.name}</td>
+                    <td class="px-4 py-3">${row.p.toFixed(1)}</td>
+                    <td class="px-4 py-3 text-indigo-300 font-bold">${row.d.toFixed(1)}</td>
+                    <td class="px-4 py-3">${row.w.toFixed(2)}</td>
+                    <td class="px-4 py-3">${row.z.toFixed(4)}</td>
+                    <td class="px-4 py-3 text-red-300 font-bold">${row.v.toFixed(0)}</td>
+                `;
+                ui.tableBody.appendChild(tr);
+            });
+        }
+
+        function drawGraph() {
+            ui.plotPoints.innerHTML = '';
+
+            // Scaling factors based on max expected values
+            const maxD = 100;
+            const maxV = 7500;
+
+            state.recordedData.forEach(pt => {
+                const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                const xPct = 40 + (pt.d / maxD) * 50;
+                const yPct = 90 - (pt.v / maxV) * 80;
+
+                circle.setAttribute("cx", `${xPct}%`);
+                circle.setAttribute("cy", `${yPct}%`);
+                circle.setAttribute("r", "6");
+                circle.setAttribute("fill", "#6366f1");
+                circle.setAttribute("stroke", "white");
+                circle.setAttribute("stroke-width", "2");
+
+                ui.plotPoints.appendChild(circle);
+            });
+        }
+
+        function calculateHubble() {
+            if (state.recordedData.length < 2) return;
+
+            // Simple Linear Regression (forcing intercept through 0,0)
+            let sumDV = 0;
+            let sumD2 = 0;
+
+            state.recordedData.forEach(pt => {
+                sumDV += pt.d * pt.v;
+                sumD2 += pt.d * pt.d;
+            });
+
+            const h0 = sumDV / sumD2;
+
+            ui.trendLineGroup.innerHTML = '';
+            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            const x2 = 90;
+            const y2 = h0 * x2;
+
+            const x1Pct = 40;
+            const y1Pct = 90;
+            const x2Pct = 40 + (x2 / 100) * 50;
+            const y2Pct = 90 - (y2 / 7500) * 80;
+
+            line.setAttribute("x1", `${x1Pct}%`);
+            line.setAttribute("y1", `${y1Pct}%`);
+            line.setAttribute("x2", `${x2Pct}%`);
+            line.setAttribute("y2", `${y2Pct}%`);
+            line.setAttribute("stroke", "#a855f7");
+            line.setAttribute("stroke-width", "3");
+            line.setAttribute("stroke-dasharray", "5,5");
+
+            ui.trendLineGroup.appendChild(line);
+
+            ui.resHubble.textContent = h0.toFixed(1);
+            ui.resultsPanel.classList.remove('hidden');
+            showToast("Hubble Constant Calculated!");
+        }
+
+        // --- Start Application ---
+        window.onload = init;
+    </script>
+</body>
+
+</html>
