@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EM Spectrum Explorer // Unit 6 Mission</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        spectrum: {
+                            radio: '#ef4444',     // Red
+                            microwave: '#f97316', // Orange
+                            infrared: '#eab308',  // Yellow
+                            visible: '#22c55e',   // Green
+                            uv: '#3b82f6',        // Blue
+                            xray: '#6366f1',      // Indigo
+                            gamma: '#a855f7'      // Purple
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap');
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #020617;
+            color: #f8fafc;
+            overflow-x: hidden;
+            touch-action: none;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .spectrum-gradient {
+            background: linear-gradient(to right,
+                    #ef4444, #f97316, #eab308, #22c55e, #3b82f6, #6366f1, #a855f7);
+        }
+
+        .wave-path {
+            fill: none;
+            stroke-width: 3;
+            stroke-linecap: round;
+            transition: all 0.5s ease;
+        }
+
+        /* Mobile Controls */
+        .dpad-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            color: white;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+            user-select: none;
+        }
+
+        .dpad-btn:active {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(0.95);
+        }
+
+        /* Supabase Auth Overlays */
+        .auth-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.98);
+            backdrop-filter: blur(20px);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .auth-overlay.hidden-overlay {
+            opacity: 0;
+            pointer-events: none;
+            visibility: hidden;
+        }
+
+        .auth-glass {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.6);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.4s ease-out forwards;
+        }
+
+        canvas {
+            touch-action: none;
+            outline: none;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col">
+
+    <!-- LOGIN OVERLAY -->
+    <div id="loginOverlay" class="auth-overlay">
+        <div class="auth-glass max-w-md w-full p-10 rounded-3xl text-center space-y-8 animate-fade-in-up mx-4">
+            <div class="space-y-2">
+                <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-700 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-purple-500/20 mb-4 text-white text-3xl">
+                    <i class="fa-solid fa-wave-square"></i>
+                </div>
+                <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-400 via-green-400 to-purple-400 uppercase tracking-widest">EM Spectrum</h1>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Digital Mission Control</p>
+            </div>
+
+            <div id="loginForm" class="space-y-4">
+                <div class="space-y-2 text-left">
+                    <p class="text-xs font-bold text-slate-500 uppercase tracking-widest px-1">Student ID (6 digits)</p>
+                    <input type="text" id="loginIdInput" placeholder="e.g. 123456" maxlength="6"
+                        class="w-full bg-slate-900 border border-white/10 p-4 rounded-xl outline-none text-center font-bold text-xl focus:border-purple-500/60 tracking-widest text-purple-400 transition-all">
+                </div>
+                <div id="loginNameEntry" class="hidden space-y-2 text-left">
+                    <p class="text-xs font-bold text-slate-500 uppercase tracking-widest px-1">New Student — Enter Full Name</p>
+                    <input type="text" id="loginNameInput" placeholder="First and Last Name"
+                        class="w-full bg-slate-900 border border-white/10 p-4 rounded-xl outline-none text-center font-bold focus:border-purple-500/60 transition-all">
+                </div>
+                <button id="loginBtn" onclick="handleLogin()"
+                    class="w-full bg-gradient-to-r from-purple-600 to-indigo-700 p-4 rounded-xl font-bold uppercase tracking-widest text-sm shadow-xl active:scale-95 transition-all hover:opacity-90">
+                    Begin Mission
+                </button>
+                <p id="loginStatus" class="text-xs font-bold text-slate-600 uppercase tracking-widest animate-pulse h-4"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header / Standard Toolbar -->
+    <header class="p-4 glass-panel border-b border-white/5 z-40 relative flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <div class="hidden md:block">
+                <h1 class="text-xl font-black text-transparent bg-clip-text spectrum-gradient tracking-tighter uppercase">EM Spectrum Explorer</h1>
+            </div>
+        </div>
+
+        <!-- Mode Toggle -->
+        <div class="flex bg-slate-900/50 p-1 rounded-full border border-white/5">
+            <button id="btn-explore" onclick="setMode('explore')"
+                class="px-5 py-1.5 rounded-full font-bold text-xs uppercase tracking-widest transition-all duration-300 bg-white text-slate-900 shadow-lg">
+                Explore
+            </button>
+            <button id="btn-play" onclick="setMode('play')"
+                class="px-5 py-1.5 rounded-full font-bold text-xs uppercase tracking-widest transition-all duration-300 text-slate-400 hover:text-white">
+                Play
+            </button>
+        </div>
+
+        <!-- Student Info Tag -->
+        <div id="studentTag" class="flex flex-col items-end mr-2">
+            <div class="flex items-center gap-2">
+                <span id="syncIndicator" class="text-[9px] font-bold text-slate-600 tracking-[0.2em] uppercase">LINK_ESTABLISHED</span>
+                <span class="w-1.5 h-1.5 rounded-full bg-slate-600 shadow-[0_0_8px_rgba(71,85,105,0.4)]"></span>
+            </div>
+            <div class="text-[10px] font-black text-slate-500 tracking-wider">
+                <span id="display-name">STUDENT</span> — <span id="display-id">000000</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow flex flex-col items-center w-full relative z-10 overflow-hidden">
+
+        <!-- ================= EXPLORE MODE ================= -->
+        <div id="explore-view"
+            class="w-full max-w-6xl mx-auto p-4 flex flex-col items-center transition-opacity duration-500 overflow-y-auto custom-scrollbar">
+            
+            <!-- Dynamic Wave Visualizer -->
+            <div class="w-full h-32 md:h-40 glass-panel rounded-2xl mb-6 relative overflow-hidden flex items-center justify-center p-4 border border-white/5">
+                <svg id="wave-svg" class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 1000 100">
+                    <defs>
+                        <linearGradient id="wave-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#ef4444" />
+                            <stop offset="16%" stop-color="#f97316" />
+                            <stop offset="33%" stop-color="#eab308" />
+                            <stop offset="50%" stop-color="#22c55e" />
+                            <stop offset="66%" stop-color="#3b82f6" />
+                            <stop offset="83%" stop-color="#6366f1" />
+                            <stop offset="100%" stop-color="#a855f7" />
+                        </linearGradient>
+                    </defs>
+                    <path id="wave-line" class="wave-path" stroke="url(#wave-grad)"></path>
+                </svg>
+                <div class="absolute bottom-2 left-4 text-[10px] text-slate-500 font-bold uppercase tracking-widest">Low Frequency</div>
+                <div class="absolute bottom-2 right-4 text-[10px] text-slate-500 font-bold uppercase tracking-widest text-right">High Frequency</div>
+            </div>
+
+            <!-- Interactive Spectrum Buttons -->
+            <div class="w-full flex rounded-2xl overflow-hidden mb-6 shadow-2xl border border-white/10" id="spectrum-buttons">
+                <!-- Injected via JS -->
+            </div>
+
+            <!-- Detail Card -->
+            <div id="detail-card"
+                class="w-full max-w-4xl glass-panel rounded-3xl p-6 md:p-8 transform transition-all duration-300 scale-95 opacity-0 border-t-4 border-white shadow-2xl">
+                <div class="flex flex-col md:flex-row items-center md:items-start gap-8">
+                    <div id="detail-icon"
+                        class="text-7xl w-24 h-24 flex items-center justify-center bg-slate-900/50 rounded-full shadow-inner flex-shrink-0 border border-white/5">
+                        📡
+                    </div>
+                    <div class="flex-grow text-center md:text-left">
+                        <div class="flex flex-col md:flex-row md:items-baseline md:gap-4 mb-3">
+                            <h2 id="detail-title" class="text-4xl font-extrabold tracking-tight">Radio Waves</h2>
+                            <span id="discovery-status" class="text-[10px] font-black uppercase tracking-widest bg-white/5 px-2 py-1 rounded text-slate-500">Not Logged</span>
+                        </div>
+                        
+                        <div class="flex flex-wrap justify-center md:justify-start gap-3 mb-6">
+                            <span class="px-4 py-1.5 bg-slate-900 border border-white/5 rounded-full text-xs font-bold text-slate-400">
+                                <i class="fa-solid fa-ruler-horizontal mr-2 text-slate-600"></i> λ = <span id="detail-wavelength" class="text-slate-100">> 1m</span>
+                            </span>
+                            <span class="px-4 py-1.5 bg-slate-900 border border-white/5 rounded-full text-xs font-bold text-slate-400">
+                                <i class="fa-solid fa-wave-square mr-2 text-slate-600"></i> f = <span id="detail-frequency" class="text-slate-100">< 300 MHz</span>
+                            </span>
+                        </div>
+                        
+                        <p id="detail-desc" class="text-lg text-slate-300 mb-6 leading-relaxed font-medium">
+                            Radio waves have the longest wavelengths in the electromagnetic spectrum. They are primarily used for communications.
+                        </p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-slate-900/40 p-5 rounded-2xl border border-white/5">
+                                <h3 class="text-[10px] text-slate-500 uppercase tracking-widest font-black mb-2 italic">Scale Comparison</h3>
+                                <p id="detail-size" class="text-lg font-bold text-white flex items-center gap-3">
+                                    🏢 Buildings to Humans
+                                </p>
+                            </div>
+                            <div class="bg-slate-900/40 p-5 rounded-2xl border border-white/5">
+                                <h3 class="text-[10px] text-slate-500 uppercase tracking-widest font-black mb-2 italic">Real-World Utility</h3>
+                                <p id="detail-uses" class="text-sm font-semibold text-slate-300">
+                                    AM/FM Radio, TV broadcasts, Cell phones, Radar
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PLAY MODE (GAME) ================= -->
+        <div id="play-view"
+            class="w-full h-full hidden flex-col items-center relative flex-grow transition-opacity duration-500 max-w-3xl mx-auto border-x border-white/5 bg-[#010409]">
+
+            <!-- Game UI Overlay -->
+            <div class="absolute top-0 left-0 w-full p-4 flex justify-between items-start z-20 pointer-events-none">
+                <div class="glass-panel px-4 py-2 rounded-xl border border-white/10 shadow-2xl">
+                    <p class="text-[10px] text-slate-500 uppercase font-black tracking-widest mb-1">Energy Tier</p>
+                    <p id="game-zone-name" class="text-xl font-black text-red-500 uppercase tracking-wider">RADIO</p>
+                </div>
+                <div class="glass-panel px-4 py-2 rounded-xl border border-white/10 shadow-2xl text-right">
+                    <p class="text-[10px] text-slate-500 uppercase font-black tracking-widest mb-1 italic">High Score: <span id="game-highscore">0</span></p>
+                    <p id="game-score" class="text-2xl font-black text-white">0 Hz</p>
+                </div>
+            </div>
+
+            <!-- The Game Canvas -->
+            <canvas id="gameCanvas" class="w-full h-full block"></canvas>
+
+            <!-- Touch Controls (Mobile) -->
+            <div id="mobile-controls"
+                class="absolute bottom-8 left-0 w-full flex flex-col items-center gap-2 z-20 md:hidden opacity-40 hover:opacity-100 transition-opacity">
+                <button class="dpad-btn w-16 h-16" onpointerdown="Game.handleInput('up')"><i class="fa-solid fa-arrow-up"></i></button>
+                <div class="flex gap-16">
+                    <button class="dpad-btn w-16 h-16" onpointerdown="Game.handleInput('left')"><i class="fa-solid fa-arrow-left"></i></button>
+                    <button class="dpad-btn w-16 h-16" onpointerdown="Game.handleInput('right')"><i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+                <button class="dpad-btn w-16 h-16" onpointerdown="Game.handleInput('down')"><i class="fa-solid fa-arrow-down"></i></button>
+            </div>
+
+            <!-- Start / Game Over Screens -->
+            <div id="game-overlay"
+                class="absolute inset-0 z-30 flex items-center justify-center bg-slate-950/90 backdrop-blur-md">
+                <div class="text-center glass-panel p-10 rounded-[2.5rem] max-w-md border border-white/10 shadow-3xl">
+                    <div class="text-5xl mb-4">🛸</div>
+                    <h2 id="overlay-title" class="text-4xl font-extrabold mb-2 text-transparent bg-clip-text spectrum-gradient uppercase tracking-tighter">Spectrum Hopper</h2>
+                    <p id="overlay-desc" class="text-slate-400 mb-8 font-medium leading-relaxed">Photon journey initialized. Dodge wave-blockers to increase your energy level and frequency score.</p>
+
+                    <div id="stats-panel" class="hidden mb-8 bg-slate-900/50 rounded-2xl p-6 border border-white/5">
+                        <div class="flex justify-between items-center mb-4 border-b border-white/5 pb-4">
+                            <p class="text-slate-500 uppercase text-[10px] font-black tracking-widest">Max Power Reached</p>
+                            <p id="final-zone" class="text-xl font-black">-</p>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <p class="text-slate-500 uppercase text-[10px] font-black tracking-widest">Frequence Record</p>
+                            <p id="final-score" class="text-2xl font-black text-white">-</p>
+                        </div>
+                    </div>
+
+                    <button onclick="Game.start()"
+                        class="w-full py-4 bg-white text-slate-950 rounded-2xl font-black text-lg shadow-xl hover:scale-105 active:scale-95 transition-all uppercase tracking-widest">
+                        <i class="fa-solid fa-play mr-2"></i> <span id="btn-start-text">Launch Photon</span>
+                    </button>
+                    
+                    <p class="mt-6 text-[10px] text-slate-600 font-bold uppercase tracking-widest">Arrows or WASD to navigate</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- UI Toast -->
+    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 bg-slate-800 text-white rounded-full text-sm font-bold border border-white/10 opacity-0 pointer-events-none transition-opacity z-[300] shadow-2xl">Message</div>
+
+    <script>
+        // --- Supabase Config ---
+        const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
+        const sbClient = supabase.createClient(SB_URL, SB_KEY);
+        
+        // --- SPECTRUM DATA ---
+        const spectrumData = [
+            { id: 'radio', name: 'Radio Waves', color: 'spectrum-radio', hex: '#ef4444', wavelength: '> 1m', frequency: '< 300 MHz', sizeDesc: 'Buildings', sizeIcon: '🏢', icon: '📻', desc: 'Radio waves have the longest wavelengths in the EM spectrum. They easily travel through the atmosphere and empty space, making them perfect for long-distance communication.', uses: 'AM/FM Radio, TV broadcasts, Wi-Fi networks, Air traffic control' },
+            { id: 'microwave', name: 'Microwaves', color: 'spectrum-microwave', hex: '#f97316', wavelength: '1m - 1mm', frequency: '300 MHz - 300 GHz', sizeDesc: 'Humans / Insects', sizeIcon: '🐝', icon: '📱', desc: 'Microwaves are great for transmitting information through space and clouds. They also vibrate water molecules to heat food.', uses: 'Microwave ovens, Cell phones, Radar, Satellite TV' },
+            { id: 'infrared', name: 'Infrared', color: 'spectrum-infrared', hex: '#eab308', wavelength: '1mm - 700nm', frequency: '300 GHz - 430 THz', sizeDesc: 'Pinpoint', sizeIcon: '📍', icon: '🌡️', desc: 'We experience infrared primarily as heat. Everything with a temperature emits infrared radiation, including humans!', uses: 'TV Remote controls, Thermal imaging cameras, Night vision, Toasters' },
+            { id: 'visible', name: 'Visible Light', color: 'spectrum-visible', hex: '#22c55e', wavelength: '700nm - 400nm', frequency: '430 THz - 750 THz', sizeDesc: 'Protozoans', sizeIcon: '🦠', icon: '👁️', desc: 'The only part of the spectrum our eyes can see. Different wavelengths in this band are perceived as different colors (ROYGBIV).', uses: 'Human vision, Photography, Optical fiber internet, Lasers' },
+            { id: 'uv', name: 'Ultraviolet', color: 'spectrum-uv', hex: '#3b82f6', wavelength: '400nm - 10nm', frequency: '750 THz - 30 PHz', sizeDesc: 'Molecules', sizeIcon: '🧬', icon: '☀️', desc: 'UV rays have enough energy to break chemical bonds. They cause sunburns but are also needed by our skin to produce Vitamin D.', uses: 'Sterilization, Black lights, Counterfeit detection, Tanning beds' },
+            { id: 'xray', name: 'X-Rays', color: 'spectrum-xray', hex: '#6366f1', wavelength: '10nm - 0.01nm', frequency: '30 PHz - 30 EHz', sizeDesc: 'Atoms', sizeIcon: '⚛️', icon: '🦴', desc: 'X-rays carry very high energy and can pass through soft tissues but are absorbed by dense materials like bones and metal.', uses: 'Medical imaging, Airport security scanners, Finding flaws in metals' },
+            { id: 'gamma', name: 'Gamma Rays', color: 'spectrum-gamma', hex: '#a855f7', wavelength: '< 0.01nm', frequency: '> 30 EHz', sizeDesc: 'Atomic Nuclei', sizeIcon: '☢️', icon: '⚕️', desc: 'Generated by radioactive atoms and in nuclear explosions. They are the most energetic, shortest-wavelength waves in the spectrum.', uses: 'Cancer radiation therapy, Sterilizing medical equipment, Astronomy' }
+        ];
+
+        // Game Zone Config
+        const gameZones = [
+            { id: 'radio', startRow: 0, endRow: 25, hex: '#ef4444', speed: 1.0, density: 0.15, emojis: ['🏢', '📻', '📡'], name: 'RADIO WAVES' },
+            { id: 'microwave', startRow: 26, endRow: 50, hex: '#f97316', speed: 1.5, density: 0.18, emojis: ['📱', '🐝', '🛰️'], name: 'MICROWAVES' },
+            { id: 'infrared', startRow: 51, endRow: 75, hex: '#eab308', speed: 2.0, density: 0.22, emojis: ['🌡️', '♨️', '🔥'], name: 'INFRARED' },
+            { id: 'visible', startRow: 76, endRow: 100, hex: '#22c55e', speed: 2.8, density: 0.26, emojis: ['💡', '🌈', '🦠'], name: 'VISIBLE LIGHT' },
+            { id: 'uv', startRow: 101, endRow: 125, hex: '#3b82f6', speed: 3.6, density: 0.30, emojis: ['☀️', '🕶️', '🧬'], name: 'ULTRAVIOLET' },
+            { id: 'xray', startRow: 126, endRow: 150, hex: '#6366f1', speed: 4.8, density: 0.35, emojis: ['🦴', '💀', '⚛️'], name: 'X-RAYS' },
+            { id: 'gamma', startRow: 151, endRow: Infinity, hex: '#a855f7', speed: 6.5, density: 0.45, emojis: ['☢️', '💥', '⚕️'], name: 'GAMMA RAYS' }
+        ];
+
+        // --- CORE STATE ---
+        let state = {
+            studentName: '',
+            studentId: '',
+            assignmentName: 'EM Spectrum Explorer',
+            currentMode: 'explore',
+            activeSpectrumId: 'radio',
+            discoveredRegions: ['radio'],
+            highScore: 0,
+            isAuthenticated: false
+        };
+
+        const ui = {
+            loginOverlay: document.getElementById('loginOverlay'),
+            loginIdInput: document.getElementById('loginIdInput'),
+            loginNameEntry: document.getElementById('loginNameEntry'),
+            loginNameInput: document.getElementById('loginNameInput'),
+            loginStatus: document.getElementById('loginStatus'),
+            loginBtn: document.getElementById('loginBtn'),
+            studentTag: document.getElementById('studentTag'),
+            syncIndicator: document.getElementById('syncIndicator'),
+            displayId: document.getElementById('display-id'),
+            displayName: document.getElementById('display-name'),
+            discoveryStatus: document.getElementById('discovery-status'),
+            gameHighscore: document.getElementById('game-highscore')
+        };
+
+        // --- AUTH & SYNC LOGIC ---
+
+        async function handleLogin() {
+            const id = ui.loginIdInput.value.trim();
+            if (id.length !== 6) {
+                ui.loginStatus.textContent = "Enter 6-digit ID";
+                return;
+            }
+
+            ui.loginBtn.disabled = true;
+            ui.loginStatus.textContent = "SYNCING_IDENTITY...";
+
+            try {
+                const { data, error } = await sbClient.from('student_results')
+                    .select('*')
+                    .eq('student_id', id)
+                    .eq('assignment_name', state.assignmentName)
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .maybeSingle();
+
+                if (data) {
+                    finalizeLogin(data.student_name, id, data);
+                } else {
+                    ui.loginNameEntry.classList.remove('hidden');
+                    ui.loginBtn.textContent = "Create Manifest";
+                    ui.loginBtn.onclick = () => createNewStudent(id);
+                    ui.loginStatus.textContent = "ID_NOT_FOUND // NAME_REQUIRED";
+                }
+            } catch (err) {
+                console.error(err);
+                ui.loginStatus.textContent = "LINK_FAILURE";
+            } finally {
+                ui.loginBtn.disabled = false;
+            }
+        }
+
+        async function createNewStudent(id) {
+            const name = ui.loginNameInput.value.trim();
+            if (!name) return alert("Please enter your name.");
+            finalizeLogin(name, id, null);
+            syncResults(); // Create initial row
+        }
+
+        function finalizeLogin(name, id, progress) {
+            state.studentName = name;
+            state.studentId = id;
+            state.isAuthenticated = true;
+
+            if (progress && progress.details) {
+                state.discoveredRegions = progress.details.discoveredRegions || ['radio'];
+                state.highScore = progress.details.highScore || 0;
+            }
+
+            ui.displayName.textContent = name.split(' ')[0].toUpperCase();
+            ui.displayId.textContent = id;
+            ui.gameHighscore.textContent = state.highScore;
+            ui.loginOverlay.classList.add('hidden-overlay');
+            
+            showToast(`Welcome back, ${name.split(' ')[0]}`);
+            selectSpectrum(state.activeSpectrumId);
+        }
+
+        async function syncResults() {
+            if (!state.isAuthenticated) return;
+
+            ui.syncIndicator.textContent = "SYNCING...";
+            ui.syncIndicator.classList.replace('text-slate-600', 'text-amber-500');
+
+            try {
+                // Calculate completion percentage based on discovery and high score
+                // - Discovery: 7 regions * 10% = 70%
+                // - High Score: Score > 500 = 30% bonus
+                let completionScore = Math.min(70, state.discoveredRegions.length * 10);
+                if (state.highScore > 500) completionScore += 30;
+
+                const payload = {
+                    student_id: state.studentId,
+                    student_name: state.studentName,
+                    assignment_name: state.assignmentName,
+                    score: completionScore,
+                    details: {
+                        discoveredRegions: state.discoveredRegions,
+                        highScore: state.highScore,
+                        timestamp: new Date().toISOString()
+                    }
+                };
+
+                const { data } = await sbClient.from('student_results')
+                    .select('id')
+                    .eq('student_id', state.studentId)
+                    .eq('assignment_name', state.assignmentName)
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .maybeSingle();
+
+                if (data) {
+                    await sbClient.from('student_results').update(payload).eq('id', data.id);
+                } else {
+                    await sbClient.from('student_results').insert([payload]);
+                }
+
+                ui.syncIndicator.textContent = "DATABASE_SECURE";
+                ui.syncIndicator.classList.replace('text-amber-500', 'text-emerald-500');
+            } catch (err) {
+                console.error(err);
+                ui.syncIndicator.textContent = "SYNC_FAILED";
+                ui.syncIndicator.classList.replace('text-amber-500', 'text-red-500');
+            }
+        }
+
+        // --- EXPLORE MODE FUNCTIONS ---
+
+        function renderExploreButtons() {
+            const container = document.getElementById('spectrum-buttons');
+            container.innerHTML = '';
+            spectrumData.forEach(item => {
+                const btn = document.createElement('button');
+                btn.id = `btn-${item.id}`;
+                btn.className = `flex-1 py-4 px-2 text-center transition-all duration-300 border-r border-white/5 last:border-0 hover:bg-white/10 focus:outline-none flex flex-col items-center justify-center gap-2 group`;
+                btn.innerHTML = `
+                    <span class="text-2xl drop-shadow-md group-hover:scale-110 transition-transform">${item.icon}</span>
+                    <span class="text-[9px] font-black uppercase tracking-tighter drop-shadow-md hidden md:block">${item.name}</span>
+                `;
+                btn.onclick = () => selectSpectrum(item.id);
+                container.appendChild(btn);
+            });
+        }
+
+        function selectSpectrum(id) {
+            state.activeSpectrumId = id;
+            const data = spectrumData.find(d => d.id === id);
+
+            if (state.isAuthenticated && !state.discoveredRegions.includes(id)) {
+                state.discoveredRegions.push(id);
+                syncResults();
+                showToast(`Data Fragment Captured: ${data.name}`);
+            }
+
+            spectrumData.forEach(item => {
+                const btn = document.getElementById(`btn-${item.id}`);
+                if (item.id === id) {
+                    btn.style.backgroundColor = item.hex;
+                    btn.classList.add('text-white');
+                    btn.classList.remove('text-slate-500');
+                    btn.style.flexGrow = '1.8';
+                } else {
+                    btn.style.backgroundColor = 'transparent';
+                    btn.classList.add('text-slate-500');
+                    btn.classList.remove('text-white');
+                    btn.style.flexGrow = '1';
+                }
+            });
+
+            const card = document.getElementById('detail-card');
+            card.classList.remove('opacity-100', 'scale-100');
+            card.classList.add('opacity-0', 'scale-95');
+
+            setTimeout(() => {
+                document.getElementById('detail-icon').innerText = data.icon;
+                document.getElementById('detail-title').innerText = data.name;
+                document.getElementById('detail-title').style.color = data.hex;
+                document.getElementById('detail-wavelength').innerText = data.wavelength;
+                document.getElementById('detail-frequency').innerText = data.frequency;
+                document.getElementById('detail-desc').innerText = data.desc;
+                document.getElementById('detail-size').innerHTML = `<span class='text-4xl mr-4'>${data.sizeIcon}</span> ${data.sizeDesc}`;
+                document.getElementById('detail-uses').innerText = data.uses;
+                
+                ui.discoveryStatus.textContent = state.discoveredRegions.includes(id) ? "SECURED ✓" : "UNLOCKED";
+                ui.discoveryStatus.className = `text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded ${state.discoveredRegions.includes(id) ? 'bg-emerald-500/20 text-emerald-400' : 'bg-white/5 text-slate-500'}`;
+                
+                card.style.borderTopColor = data.hex;
+                card.classList.remove('opacity-0', 'scale-95');
+                card.classList.add('opacity-100', 'scale-100');
+            }, 150);
+
+            drawWave();
+        }
+
+        function drawWave() {
+            const svg = document.getElementById('wave-svg');
+            if (!svg || svg.clientWidth === 0) return;
+
+            const path = document.getElementById('wave-line');
+            const width = 1000;
+            const height = 100;
+            const midY = height / 2;
+            const amplitude = 35;
+
+            let d = `M 0 ${midY} `;
+            const points = 200;
+
+            for (let i = 0; i <= points; i++) {
+                const x = (i / points) * width;
+                const frequency = 0.01 + Math.pow(x / width, 2) * 0.22;
+                const y = midY + Math.sin(x * frequency) * amplitude;
+                d += `L ${x} ${y} `;
+            }
+            path.setAttribute('d', d);
+        }
+
+        // --- GAME ENGINE ---
+        const Game = {
+            canvas: null,
+            ctx: null,
+            state: 'menu', 
+            lastTime: 0,
+            animFrame: null,
+            cols: 11,
+            gridSize: 0,
+            cameraY: 0,
+            player: { x: 5, y: 0, visualX: 5, visualY: 0, targetX: 5, targetY: 0, pulse: 0 },
+            lanes: [],
+            highestRow: 0,
+            currentZone: gameZones[0],
+
+            init() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.resize();
+                document.getElementById('game-overlay').classList.remove('hidden');
+            },
+            resize() {
+                if (!this.canvas) return;
+                const container = document.getElementById('play-view');
+                this.canvas.width = container.clientWidth;
+                this.canvas.height = window.innerHeight - 80; // approximate header
+                this.gridSize = this.canvas.width / this.cols;
+            },
+            start() {
+                document.getElementById('game-overlay').classList.add('hidden');
+                this.player = { x: 5, y: 0, visualX: 5, visualY: 0, targetX: 5, targetY: 0, pulse: 0 };
+                this.cameraY = -2;
+                this.lanes = [];
+                this.highestRow = 0;
+                this.state = 'playing';
+                this.lastTime = performance.now();
+                for (let i = -5; i < 20; i++) this.generateLane(i);
+                this.updateUI();
+                this.loop(performance.now());
+            },
+            stop() {
+                this.state = 'menu';
+                if (this.animFrame) cancelAnimationFrame(this.animFrame);
+            },
+            gameOver() {
+                this.state = 'gameover';
+                document.getElementById('game-overlay').classList.remove('hidden');
+                document.getElementById('overlay-title').innerText = "WAVE COLLAPSED";
+                document.getElementById('overlay-title').style.color = this.currentZone.hex;
+                document.getElementById('stats-panel').classList.remove('hidden');
+                document.getElementById('final-zone').innerText = this.currentZone.name;
+                document.getElementById('final-zone').style.color = this.currentZone.hex;
+                
+                const currentFreqScore = this.highestRow * 15;
+                document.getElementById('final-score').innerText = currentFreqScore + " THz";
+
+                if (currentFreqScore > state.highScore) {
+                    state.highScore = currentFreqScore;
+                    ui.gameHighscore.textContent = state.highScore;
+                    syncResults(); 
+                    showToast("NEW FREQUENCY RECORD SECURED!");
+                }
+            },
+            getZone(row) {
+                for (let z of gameZones) {
+                    if (row >= z.startRow && row <= z.endRow) return z;
+                }
+                return gameZones[gameZones.length - 1];
+            },
+            generateLane(row) {
+                if (this.lanes.find(l => l.y === row)) return;
+                const zone = this.getZone(row);
+                const isSafe = (row % 10 === 0 && row > 0) || row < 2;
+                const lane = {
+                    y: row, zone: zone, isSafe: isSafe,
+                    direction: Math.random() > 0.5 ? 1 : -1,
+                    speed: isSafe ? 0 : zone.speed * (0.8 + Math.random() * 0.4),
+                    obstacles: []
+                };
+                if (!isSafe) {
+                    const gap = this.cols / (zone.density * this.cols);
+                    const numObstacles = Math.floor(this.cols * zone.density);
+                    for (let i = 0; i < numObstacles; i++) {
+                        lane.obstacles.push({
+                            x: i * gap + Math.random() * (gap / 2),
+                            emoji: zone.emojis[Math.floor(Math.random() * zone.emojis.length)]
+                        });
+                    }
+                }
+                this.lanes.push(lane);
+            },
+            handleInput(key) {
+                if (this.state !== 'playing' || state.currentMode !== 'play') return;
+                const isMoving = Math.abs(this.player.visualX - this.player.targetX) > 0.2 ||
+                    Math.abs(this.player.visualY - this.player.targetY) > 0.2;
+                if (isMoving) return;
+
+                if (['ArrowUp', 'w', 'W', 'up'].includes(key)) this.player.targetY += 1;
+                else if (['ArrowDown', 's', 'S', 'down'].includes(key)) {
+                    if (this.player.targetY > this.cameraY) this.player.targetY -= 1;
+                } else if (['ArrowLeft', 'a', 'A', 'left'].includes(key)) {
+                    if (this.player.targetX > 0) this.player.targetX -= 1;
+                } else if (['ArrowRight', 'd', 'D', 'right'].includes(key)) {
+                    if (this.player.targetX < this.cols - 1) this.player.targetX += 1;
+                }
+                this.player.x = this.player.targetX;
+                this.player.y = this.player.targetY;
+                if (this.player.y > this.highestRow) {
+                    this.highestRow = this.player.y;
+                    this.updateUI();
+                    for (let i = 1; i <= 15; i++) this.generateLane(this.highestRow + i);
+                }
+            },
+            updateUI() {
+                this.currentZone = this.getZone(this.highestRow);
+                document.getElementById('game-zone-name').innerText = this.currentZone.name;
+                document.getElementById('game-zone-name').style.color = this.currentZone.hex;
+                document.getElementById('game-score').innerText = (this.highestRow * 15) + " THz";
+            },
+            loop(timestamp) {
+                if (this.state !== 'playing') return;
+                const dt = Math.min((timestamp - this.lastTime) / 1000, 0.1);
+                this.lastTime = timestamp;
+                this.update(dt);
+                this.draw();
+                this.animFrame = requestAnimationFrame((ts) => this.loop(ts));
+            },
+            update(dt) {
+                this.player.visualX += (this.player.targetX - this.player.visualX) * 15 * dt;
+                this.player.visualY += (this.player.targetY - this.player.visualY) * 15 * dt;
+                const pulseSpeed = 5 + (this.highestRow * 0.2);
+                this.player.pulse = (Math.sin(performance.now() / 1000 * pulseSpeed) + 1) / 2;
+                const targetCamY = this.player.visualY - 7;
+                const autoScrollSpeed = 0.5 + (this.highestRow * 0.035);
+                this.cameraY = Math.max(this.cameraY + autoScrollSpeed * dt, targetCamY);
+                if (this.player.visualY < this.cameraY - 2) { this.gameOver(); return; }
+                const hitBoxShrink = 0.4;
+                for (let lane of this.lanes) {
+                    if (lane.y < this.cameraY - 2 || lane.y > this.cameraY + 20) continue;
+                    for (let obs of lane.obstacles) {
+                        obs.x += lane.speed * lane.direction * dt;
+                        if (lane.direction === 1 && obs.x > this.cols) obs.x = -1;
+                        if (lane.direction === -1 && obs.x < -1) obs.x = this.cols;
+                        if (this.player.y === lane.y) {
+                            if (Math.abs(this.player.visualX - obs.x) < (1 - hitBoxShrink)) { this.gameOver(); return; }
+                        }
+                    }
+                }
+                this.lanes = this.lanes.filter(l => l.y >= this.cameraY - 5);
+            },
+            draw() {
+                const ctx = this.ctx; const gs = this.gridSize;
+                ctx.fillStyle = '#010409';
+                ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                ctx.save();
+                ctx.translate(0, this.canvas.height);
+                ctx.scale(1, -1);
+                const camOffset = this.cameraY * gs;
+
+                for (let lane of this.lanes) {
+                    const py = lane.y * gs - camOffset;
+                    if (py < -gs || py > this.canvas.height + gs) continue;
+                    if (lane.isSafe) {
+                        ctx.fillStyle = lane.zone.hex + '15';
+                        ctx.fillRect(0, py, this.canvas.width, gs);
+                    } else {
+                        ctx.fillStyle = (lane.y % 2 === 0) ? '#010409' : '#0d1117';
+                        ctx.fillRect(0, py, this.canvas.width, gs);
+                        ctx.globalCompositeOperation = 'screen';
+                        ctx.fillStyle = lane.zone.hex + '05';
+                        ctx.fillRect(0, py, this.canvas.width, gs);
+                        ctx.globalCompositeOperation = 'source-over';
+                    }
+                    ctx.save();
+                    ctx.translate(0, py + gs / 2);
+                    ctx.scale(1, -1);
+                    ctx.font = `${gs * 0.7}px Arial`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillStyle = '#ffffff';
+                    for (let obs of lane.obstacles) ctx.fillText(obs.emoji, obs.x * gs + gs / 2, 0);
+                    ctx.restore();
+                }
+
+                const px = this.player.visualX * gs + gs / 2;
+                const py = this.player.visualY * gs - camOffset + gs / 2;
+                ctx.save();
+                ctx.translate(px, py);
+                const glowSize = gs * 0.4 + (this.player.pulse * gs * 0.2);
+                const grad = ctx.createRadialGradient(0,0,0,0,0,glowSize*2);
+                grad.addColorStop(0, this.currentZone.hex); grad.addColorStop(1, 'transparent');
+                ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(0,0,glowSize*2,0,Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(0,0,gs*0.2,0,Math.PI*2); ctx.fill();
+                ctx.restore();
+                ctx.restore();
+            }
+        };
+
+        // --- UI UTILS ---
+
+        function setMode(mode) {
+            state.currentMode = mode;
+            const btnExplore = document.getElementById('btn-explore');
+            const btnPlay = document.getElementById('btn-play');
+            const viewExplore = document.getElementById('explore-view');
+            const viewPlay = document.getElementById('play-view');
+
+            if (mode === 'explore') {
+                btnExplore.className = "px-5 py-1.5 rounded-full font-bold text-xs uppercase tracking-widest bg-white text-slate-900 shadow-lg";
+                btnPlay.className = "px-5 py-1.5 rounded-full font-bold text-xs uppercase tracking-widest text-slate-400 hover:text-white";
+                viewPlay.classList.add('hidden');
+                viewExplore.classList.remove('hidden');
+                Game.stop();
+                setTimeout(() => drawWave(), 50);
+            } else {
+                btnPlay.className = "px-5 py-1.5 rounded-full font-bold text-xs uppercase tracking-widest bg-white text-slate-900 shadow-lg";
+                btnExplore.className = "px-5 py-1.5 rounded-full font-bold text-xs uppercase tracking-widest text-slate-400 hover:text-white";
+                viewExplore.classList.add('hidden');
+                viewPlay.classList.remove('hidden');
+                Game.init();
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.style.opacity = '1';
+            setTimeout(() => toast.style.opacity = '0', 3000);
+        }
+
+        // --- INIT ---
+        window.addEventListener('load', () => {
+            renderExploreButtons();
+            drawWave();
+            window.addEventListener('resize', () => {
+                drawWave();
+                if (state.currentMode === 'play') Game.resize();
+            });
+            window.addEventListener('keydown', (e) => {
+                if (state.currentMode === 'play' && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
+                    e.preventDefault();
+                }
+                Game.handleInput(e.key);
+            });
+        });
+    </script>
+</body>
+
+</html>
