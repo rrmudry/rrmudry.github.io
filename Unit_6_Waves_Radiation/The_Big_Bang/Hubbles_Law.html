@@ -1330,7 +1330,15 @@
             ui.syncIndicator.classList.replace('text-slate-600', 'text-amber-500');
 
             try {
-                const finalScore = state.assessmentFinished ? state.assessment.score * 10 : 0;
+                // Dynamically calculate score out of 100 to show progressive completion
+                // - Up to 50% for recording 5 galaxies (10% each)
+                // - 10% for correctly calculating the Hubble Constant
+                // - Up to 40% for the final assessment (10 questions * 4% each)
+                let finalScore = Math.min(50, state.recordedData.length * 10);
+                if (state.isCalculated) finalScore += 10;
+                if (state.assessmentFinished && state.assessment.score) {
+                    finalScore += (state.assessment.score * 4);
+                }
 
                 const payload = {
                     student_name: state.studentName,
