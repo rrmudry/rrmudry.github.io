@@ -9,6 +9,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Desmos API -->
     <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* Custom Styles for Interactive Elements */
         body {
@@ -239,10 +241,108 @@
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
             background: #64748b;
         }
+
+        /* Assessment Table Targeting */
+        .assessment-active-table {
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+            border-color: #3b82f6 !important;
+            transition: all 0.3s ease;
+        }
+
+        .assessment-active .data-clickable:hover {
+            background-color: rgba(59, 130, 246, 0.3) !important;
+            cursor: crosshair;
+            box-shadow: inset 0 0 0 2px #3b82f6;
+        }
+
+        /* Supabase Auth Overlays */
+        .auth-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.98);
+            backdrop-filter: blur(20px);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        .auth-overlay.hidden-overlay {
+            opacity: 0;
+            pointer-events: none;
+            visibility: hidden;
+        }
+        .auth-glass {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.07);
+            box-shadow: 0 25px 60px -12px rgba(0,0,0,0.6);
+        }
+        @keyframes fadeInUp {
+            from { opacity:0; transform:translateY(16px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+        .animate-fade-in-up { animation: fadeInUp 0.4s ease-out forwards; }
     </style>
 </head>
 
 <body class="min-h-screen p-4 md:p-8">
+
+    <!-- LOGIN OVERLAY -->
+    <div id="loginOverlay" class="auth-overlay">
+        <div class="auth-glass max-w-md w-full p-10 rounded-3xl text-center space-y-8 animate-fade-in-up mx-4">
+            <div class="space-y-2">
+                <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-700 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-blue-500/20 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+                </div>
+                <h1 class="text-2xl font-bold text-blue-400 uppercase tracking-widest">Hubble's Law</h1>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">The Expanding Universe</p>
+            </div>
+
+            <div id="loginForm" class="space-y-4">
+                <div class="space-y-2 text-left">
+                    <p class="text-xs font-bold text-slate-500 uppercase tracking-widest px-1">Student ID (6 digits)</p>
+                    <input type="text" id="loginIdInput" placeholder="e.g. 123456" maxlength="6"
+                        class="w-full bg-slate-900 border border-white/10 p-4 rounded-xl outline-none text-center font-bold text-xl focus:border-blue-500/60 tracking-widest text-blue-400 transition-all">
+                </div>
+                <div id="loginNameEntry" class="hidden space-y-2 text-left">
+                    <p class="text-xs font-bold text-slate-500 uppercase tracking-widest px-1">New Student — Enter Full Name</p>
+                    <input type="text" id="loginNameInput" placeholder="First and Last Name"
+                        class="w-full bg-slate-900 border border-white/10 p-4 rounded-xl outline-none text-center font-bold focus:border-purple-500/60 transition-all">
+                </div>
+                <button id="loginBtn" onclick="handleLogin()"
+                    class="w-full bg-gradient-to-r from-blue-600 to-indigo-700 p-4 rounded-xl font-bold uppercase tracking-widest text-sm shadow-xl active:scale-95 transition-all hover:opacity-90">
+                    Begin Mission
+                </button>
+                <p id="loginStatus" class="text-xs font-bold text-slate-600 uppercase tracking-widest animate-pulse h-4"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- COMPLETION OVERLAY -->
+    <div id="completionOverlay" class="auth-overlay hidden-overlay">
+        <div class="auth-glass max-w-md w-full p-10 rounded-3xl text-center space-y-6 mx-4">
+            <div class="text-6xl mb-2">🌌</div>
+            <h2 class="text-3xl font-bold text-green-400 uppercase tracking-tight">Mission Accomplished!</h2>
+            <div class="p-6 bg-slate-900/60 rounded-2xl border border-green-500/20">
+                <p class="text-slate-300 text-sm mb-4">You have successfully recreated Hubble's historic discovery and proved the universe is expanding.</p>
+                <div class="flex justify-around items-center py-4">
+                    <div class="text-center">
+                        <p class="text-xs font-bold text-slate-500 uppercase mb-1">Assessment Score</p>
+                        <p id="completionScore" class="text-4xl font-bold text-blue-400">--</p>
+                    </div>
+                    <div class="h-12 w-px bg-white/10"></div>
+                    <div class="text-center">
+                        <p class="text-xs font-bold text-slate-500 uppercase mb-1">Status</p>
+                        <p class="text-sm font-bold text-green-400 uppercase tracking-widest">Submitted ✓</p>
+                    </div>
+                </div>
+            </div>
+            <button onclick="location.reload()" class="w-full bg-slate-800 hover:bg-slate-700 p-4 rounded-xl font-bold uppercase tracking-widest text-sm transition-all border border-white/5">
+                Close Activity
+            </button>
+        </div>
+    </div>
 
     <!-- Intro Modal Overlay -->
     <div id="introModal"
@@ -465,14 +565,18 @@
     </div>
 
     <!-- Header Section -->
-    <header class="max-w-7xl mx-auto mb-8 text-center bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-700">
-        <h1 class="text-3xl md:text-4xl font-bold text-blue-400 mb-2">Hubble's Law & The Expanding Universe</h1>
-        <p class="text-slate-300 max-w-4xl mx-auto text-sm md:text-base">
-            Welcome, Astronomer! Your mission is to observe distinct galaxies, locate pulsing Cepheid variable stars,
-            and gather their light data.
-            By analyzing this data, you will recreate Edwin Hubble's famous discovery and estimate the age of the
-            Universe.
-        </p>
+    <header class="max-w-7xl mx-auto mb-8 bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-700 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="text-center md:text-left flex-1">
+            <h1 class="text-3xl md:text-4xl font-bold text-blue-400 mb-2">Hubble's Law &amp; The Expanding Universe</h1>
+            <p class="text-slate-300 max-w-4xl text-sm md:text-base">
+                Welcome, Astronomer! Your mission is to observe distinct galaxies, locate pulsing Cepheid variable stars,
+                and gather their light data. By analyzing this data, you will recreate Edwin Hubble's famous discovery.
+            </p>
+        </div>
+        <div class="text-right shrink-0">
+            <p id="studentTag" class="text-xs font-bold text-slate-400 uppercase tracking-wider"></p>
+            <p id="syncIndicator" class="text-xs text-slate-600 uppercase tracking-widest mt-0.5">Awaiting Login</p>
+        </div>
     </header>
 
     <main class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -836,7 +940,7 @@
     <section class="max-w-7xl mx-auto mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6 pb-12">
 
         <!-- Data Table -->
-        <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-md overflow-hidden flex flex-col">
+        <div id="observationTableContainer" class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-md overflow-hidden flex flex-col">
             <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -918,9 +1022,67 @@
                     Because Velocity = Distance / Time, the inverse of Hubble's constant (1/H₀) gives a rough estimate
                     for the age of the universe!
                 </p>
+                <div class="mt-4 border-t border-purple-500/30 pt-4 text-center">
+                    <button id="btnStartAssessment" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded-lg transition shadow-[0_0_15px_rgba(37,99,235,0.4)]">
+                        Begin Final Assessment
+                    </button>
+                </div>
             </div>
         </div>
 
+    </section>
+
+    <!-- ASSESSEMENT SECTION -->
+    <section id="assessmentSection" class="max-w-4xl mx-auto mt-4 mb-12 hidden">
+        <div class="bg-slate-800 border-2 border-blue-500 p-6 rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)] flex flex-col">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-3">
+                <h2 class="text-2xl font-bold text-blue-400 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/>
+                    </svg>
+                    Final Assessment
+                </h2>
+                <div class="text-slate-300 font-mono font-bold text-lg">
+                    Question <span id="assessQNum" class="text-white">1</span> / 10
+                </div>
+            </div>
+
+            <div id="assessQuestionArea" class="mb-6 flex-grow">
+                <p id="assessQuestionText" class="text-lg text-slate-100 font-medium mb-4">Loading question...</p>
+                
+                <!-- Multiple Choice Area -->
+                <div id="assessChoices" class="grid grid-cols-1 gap-3 hidden">
+                    <!-- Buttons injected via JS -->
+                </div>
+
+                <!-- Data Click Prompt Area -->
+                <div id="assessDataPrompt" class="hidden bg-slate-900/50 border border-blue-500/50 p-4 rounded-lg text-center">
+                    <p class="text-blue-300 animate-pulse font-semibold">
+                        👆 Action Required: Click the exact value in your Observation Log table above to answer.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Feedback Area -->
+            <div id="assessFeedback" class="hidden rounded-lg p-4 mb-4">
+                <h4 id="assessFeedbackTitle" class="font-bold text-lg mb-1"></h4>
+                <p id="assessFeedbackText" class="text-sm"></p>
+            </div>
+
+            <!-- Controls -->
+            <div class="text-right">
+                <button id="btnNextQuestion" class="hidden bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-6 rounded-lg transition">
+                    Next Question
+                </button>
+            </div>
+
+            <!-- Score Area -->
+            <div id="assessScoreArea" class="hidden text-center py-6">
+                <h3 class="text-3xl font-bold text-white mb-2">Assessment Complete!</h3>
+                <p class="text-xl text-slate-300 mb-6">Your Score: <span id="assessFinalScore" class="text-green-400 font-bold text-4xl">--</span> / 10</p>
+            </div>
+        </div>
     </section>
 
     <!-- UI Toast for alerts instead of browser alert() -->
@@ -928,6 +1090,11 @@
 
     <!-- Application Logic -->
     <script>
+        // --- Supabase Setup ---
+        const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
+        const sbClient = supabase.createClient(SB_URL, SB_KEY);
+
         /**
          * Simulation Data & Constants
          * Light Speed: 300,000 km/s
@@ -966,7 +1133,24 @@
             // Spectrometer state
             isSpectroZoomed: false,
             // Intro Modal
-            introSlide: 0
+            introSlide: 0,
+            // Assessment State
+            assessment: {
+                questions: [],
+                activeQuestions: [],
+                currentIndex: 0,
+                score: 0,
+                isActive: false,
+                waitingForClick: false,
+                currentQ: null
+            },
+            // Auth / Supabase State
+            studentName: '',
+            studentId: '',
+            classPeriod: null,
+            assignmentName: "Hubble's Law: The Exploring Universe",
+            isCalculated: false,
+            assessmentFinished: false
         };
 
         // --- DOM Elements ---
@@ -1022,8 +1206,164 @@
             trendLineGroup: document.getElementById('trendLineGroup'),
             btnCalculateHubble: document.getElementById('btnCalculateHubble'),
             resultsPanel: document.getElementById('resultsPanel'),
-            resHubble: document.getElementById('resHubble')
+            resHubble: document.getElementById('resHubble'),
+            // Assessment
+            btnStartAssessment: document.getElementById('btnStartAssessment'),
+            assessmentSection: document.getElementById('assessmentSection'),
+            assessQNum: document.getElementById('assessQNum'),
+            assessQuestionText: document.getElementById('assessQuestionText'),
+            assessChoices: document.getElementById('assessChoices'),
+            assessDataPrompt: document.getElementById('assessDataPrompt'),
+            assessFeedback: document.getElementById('assessFeedback'),
+            assessFeedbackTitle: document.getElementById('assessFeedbackTitle'),
+            assessFeedbackText: document.getElementById('assessFeedbackText'),
+            btnNextQuestion: document.getElementById('btnNextQuestion'),
+            assessScoreArea: document.getElementById('assessScoreArea'),
+            assessFinalScore: document.getElementById('assessFinalScore'),
+            observationTableContainer: document.getElementById('observationTableContainer'),
+            // Auth UI
+            loginOverlay: document.getElementById('loginOverlay'),
+            loginIdInput: document.getElementById('loginIdInput'),
+            loginNameEntry: document.getElementById('loginNameEntry'),
+            loginNameInput: document.getElementById('loginNameInput'),
+            loginBtn: document.getElementById('loginBtn'),
+            loginStatus: document.getElementById('loginStatus'),
+            studentTag: document.getElementById('studentTag'),
+            syncIndicator: document.getElementById('syncIndicator'),
+            completionOverlay: document.getElementById('completionOverlay'),
+            completionScore: document.getElementById('completionScore')
         };
+
+        // --- AUTH & DATABASE LOGIC (Supabase) ---
+        async function handleLogin() {
+            const id = ui.loginIdInput.value.trim();
+            if (id.length !== 6) {
+                ui.loginStatus.textContent = "ID must be 6 digits";
+                return;
+            }
+
+            ui.loginBtn.disabled = true;
+            ui.loginStatus.textContent = "SEARCHING_NODE...";
+
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const urlPeriod = urlParams.get('p') || urlParams.get('period');
+
+                const { data: userData } = await sbClient.from('student_results')
+                    .select('student_name, class_period')
+                    .eq('student_id', id)
+                    .limit(1)
+                    .maybeSingle();
+
+                if (userData) {
+                    state.studentName = userData.student_name;
+                    state.studentId = id;
+                    state.classPeriod = urlPeriod || userData.class_period;
+
+                    const { data: progressData } = await sbClient.from('student_results')
+                        .select('details, score')
+                        .eq('student_id', id)
+                        .eq('assignment_name', state.assignmentName)
+                        .maybeSingle();
+
+                    if (progressData && progressData.details) {
+                        state.recordedData = progressData.details.recordedData || [];
+                        state.isCalculated = progressData.details.isCalculated || false;
+                        state.assessmentFinished = progressData.details.assessmentFinished || false;
+                        state.assessment.score = progressData.score || 0;
+                    }
+
+                    ui.loginStatus.textContent = "IDENTITY_VERIFIED";
+                    setTimeout(finalizeLogin, 800);
+                } else if (ui.loginNameEntry.classList.contains('hidden')) {
+                    ui.loginNameEntry.classList.remove('hidden');
+                    ui.loginBtn.textContent = "REGISTER PROFILE";
+                    ui.loginStatus.textContent = "NEW_NODE_DETECTED";
+                    ui.loginBtn.disabled = false;
+                } else {
+                    const newName = ui.loginNameInput.value.trim();
+                    if (newName.length < 3) return;
+                    state.studentName = newName;
+                    state.studentId = id;
+                    state.classPeriod = urlPeriod;
+                    finalizeLogin();
+                }
+            } catch (err) {
+                console.error(err);
+                ui.loginBtn.disabled = false;
+                ui.loginStatus.textContent = "CONNECTION_ERROR";
+            }
+        }
+
+        function finalizeLogin() {
+            ui.loginOverlay.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+            
+            ui.studentTag.textContent = `${state.studentName.toUpperCase()} // ID_${state.studentId}`;
+            
+            if (state.recordedData.length > 0) {
+                updateTable();
+                drawGraph();
+            }
+            
+            if (state.recordedData.length >= 3) {
+                ui.btnCalculateHubble.classList.remove('hidden');
+            }
+
+            if (state.isCalculated) {
+                calculateHubble(true); 
+            }
+
+            if (state.assessmentFinished) {
+                ui.completionOverlay.classList.remove('hidden');
+                ui.completionScore.textContent = state.assessment.score;
+            }
+
+            syncResults(true);
+        }
+
+        async function syncResults(isSilent = false) {
+            if (!state.studentId) return;
+            ui.syncIndicator.textContent = "SYNCING...";
+            ui.syncIndicator.classList.replace('text-slate-600', 'text-amber-500');
+
+            try {
+                const finalScore = state.assessmentFinished ? state.assessment.score * 10 : 0;
+
+                const payload = {
+                    student_name: state.studentName,
+                    student_id: state.studentId,
+                    class_period: state.classPeriod,
+                    assignment_name: state.assignmentName,
+                    score: finalScore,
+                    details: {
+                        recordedData: state.recordedData,
+                        isCalculated: state.isCalculated,
+                        assessmentFinished: state.assessmentFinished,
+                        timestamp: new Date().toISOString()
+                    }
+                };
+
+                const { data } = await sbClient.from('student_results')
+                    .select('id')
+                    .eq('student_id', state.studentId)
+                    .eq('assignment_name', state.assignmentName)
+                    .maybeSingle();
+
+                if (data) {
+                    await sbClient.from('student_results').update(payload).eq('id', data.id);
+                } else {
+                    await sbClient.from('student_results').insert([payload]);
+                }
+
+                ui.syncIndicator.textContent = "DATABASE_SECURE";
+                ui.syncIndicator.classList.replace('text-amber-500', 'text-green-500');
+            } catch (err) {
+                console.error("Sync Error:", err);
+                ui.syncIndicator.textContent = "SYNC_FAILED";
+                ui.syncIndicator.classList.replace('text-amber-500', 'text-red-500');
+            }
+        }
 
         // --- Initialization ---
         function init() {
@@ -1032,6 +1372,7 @@
 
             // Event Listeners
             ui.galaxySelect.addEventListener('change', (e) => loadGalaxy(parseInt(e.target.value)));
+            ui.loginBtn.addEventListener('click', handleLogin);
 
             // Targeting & Gathering
             ui.star.addEventListener('click', targetStar);
@@ -1045,14 +1386,27 @@
             ui.btnRecord.addEventListener('click', validateAndRecord);
             ui.btnCalculateHubble.addEventListener('click', calculateHubble);
 
+            // Assessment
+            ui.btnStartAssessment.addEventListener('click', startAssessment);
+            ui.btnNextQuestion.addEventListener('click', nextQuestion);
+            ui.tableBody.addEventListener('click', handleTableClick);
+
+            // Hide main UI until login
+            document.body.classList.add('overflow-hidden'); 
+
+            // Initialize Desmos
+            initDesmos();
+
+            // Load questions (keep this as background)
+            fetch('hubble_questions.json')
+                .then(response => response.json())
+                .then(data => {
+                    state.assessment.questions = data.questions;
+                })
+                .catch(err => console.error("Could not load questions bank", err));
+
             // Caliper Dragging (Mouse + Touch)
             setupCaliperDragging();
-
-            // Initialize Desmos Scientific Calculator
-            const calcElement = document.getElementById('desmos-calculator');
-            if (window.Desmos) {
-                state.calculator = Desmos.ScientificCalculator(calcElement);
-            }
 
             // Modal Slideshow Logic
             document.getElementById('btnNextSlide').addEventListener('click', () => updateIntroSlide(1));
@@ -1678,6 +2032,8 @@
             if (state.recordedData.length >= 3) {
                 ui.btnCalculateHubble.classList.remove('hidden');
             }
+
+            syncResults(); // Save progress
         }
 
         // --- Data Display & Graphing ---
@@ -1691,12 +2047,12 @@
                 const tr = document.createElement('tr');
                 tr.className = "border-b border-slate-700 hover:bg-slate-700/30 transition";
                 tr.innerHTML = `
-                    <td class="px-4 py-3 font-medium text-white">${row.name}</td>
-                    <td class="px-4 py-3">${row.p.toFixed(1)}</td>
-                    <td class="px-4 py-3 text-indigo-300 font-bold">${row.d.toFixed(1)}</td>
-                    <td class="px-4 py-3">${row.w.toFixed(2)}</td>
-                    <td class="px-4 py-3">${row.z.toFixed(4)}</td>
-                    <td class="px-4 py-3 text-red-300 font-bold">${row.v.toFixed(0)}</td>
+                    <td class="px-4 py-3 font-medium text-white data-clickable" data-galaxy-idx="${row.galaxyIdx}" data-column="name">${row.name}</td>
+                    <td class="px-4 py-3 data-clickable" data-galaxy-idx="${row.galaxyIdx}" data-column="period">${row.p.toFixed(1)}</td>
+                    <td class="px-4 py-3 text-indigo-300 font-bold data-clickable" data-galaxy-idx="${row.galaxyIdx}" data-column="dist">${row.d.toFixed(1)}</td>
+                    <td class="px-4 py-3 data-clickable" data-galaxy-idx="${row.galaxyIdx}" data-column="wave">${row.w.toFixed(2)}</td>
+                    <td class="px-4 py-3 data-clickable" data-galaxy-idx="${row.galaxyIdx}" data-column="z">${row.z.toFixed(4)}</td>
+                    <td class="px-4 py-3 text-red-300 font-bold data-clickable" data-galaxy-idx="${row.galaxyIdx}" data-column="vel">${row.v.toFixed(0)}</td>
                 `;
                 ui.tableBody.appendChild(tr);
             });
@@ -1725,7 +2081,8 @@
             });
         }
 
-        function calculateHubble() {
+        // --- Validation & Data Recording ---
+        function calculateHubble(isRestoring = false) {
             if (state.recordedData.length < 2) return;
 
             // Simple Linear Regression (forcing intercept through 0,0)
@@ -1761,7 +2118,180 @@
 
             ui.resHubble.textContent = h0.toFixed(1);
             ui.resultsPanel.classList.remove('hidden');
-            showToast("Hubble Constant Calculated!");
+            
+            if (!isRestoring) {
+                showToast("Hubble Constant Calculated!");
+                state.isCalculated = true;
+                syncResults(); // Save status
+            }
+        }
+
+        // --- Assessment Logic ---
+        function startAssessment() {
+            if (!state.assessment.questions || state.assessment.questions.length === 0) {
+                alert("Assessment questions are still loading or failed to load. Please try again in a moment.");
+                return;
+            }
+            
+            // Generate a random mix of 10 questions (5 data, 5 conceptual)
+            let dataQs = state.assessment.questions.filter(q => q.type === 'data-click');
+            let conceptQs = state.assessment.questions.filter(q => q.type === 'conceptual');
+            
+            // Shuffle and slice
+            dataQs.sort(() => 0.5 - Math.random());
+            conceptQs.sort(() => 0.5 - Math.random());
+            
+            let selectedQs = [...dataQs.slice(0, 5), ...conceptQs.slice(0, 5)];
+            selectedQs.sort(() => 0.5 - Math.random()); // Shuffle the final 10
+
+            state.assessment.activeQuestions = selectedQs;
+            state.assessment.currentIndex = 0;
+            state.assessment.score = 0;
+            state.assessment.isActive = true;
+
+            ui.btnStartAssessment.classList.add('hidden');
+            ui.assessmentSection.classList.remove('hidden');
+            
+            // Scroll to assessment smoothly
+            setTimeout(() => {
+                ui.assessmentSection.scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            let q = state.assessment.activeQuestions[state.assessment.currentIndex];
+            state.assessment.currentQ = q;
+            
+            ui.assessQNum.textContent = state.assessment.currentIndex + 1;
+            ui.assessQuestionText.textContent = q.question;
+            
+            // Reset feedback & buttons
+            ui.assessFeedback.classList.add('hidden');
+            ui.btnNextQuestion.classList.add('hidden');
+            ui.assessChoices.innerHTML = '';
+            
+            if (q.type === 'conceptual') {
+                state.assessment.waitingForClick = false;
+                ui.assessDataPrompt.classList.add('hidden');
+                ui.assessChoices.classList.remove('hidden');
+                
+                // Remove table highlight
+                ui.tableBody.classList.remove('assessment-active');
+                ui.observationTableContainer.classList.remove('assessment-active-table');
+                
+                // Generate choice buttons
+                q.choices.forEach((choiceText, idx) => {
+                    let btn = document.createElement('button');
+                    btn.className = "text-left w-full p-4 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-lg text-white transition focus:outline-none focus:ring-2 focus:ring-blue-400";
+                    btn.textContent = choiceText;
+                    btn.onclick = () => handleConceptualAnswer(idx, btn);
+                    ui.assessChoices.appendChild(btn);
+                });
+            } else if (q.type === 'data-click') {
+                state.assessment.waitingForClick = true;
+                ui.assessChoices.classList.add('hidden');
+                ui.assessDataPrompt.classList.remove('hidden');
+                
+                // Highlight table to indicate it's clickable
+                ui.tableBody.classList.add('assessment-active');
+                ui.observationTableContainer.classList.add('assessment-active-table');
+            }
+        }
+
+        function disableChoices() {
+            Array.from(ui.assessChoices.children).forEach(btn => {
+                btn.disabled = true;
+                btn.classList.remove('hover:bg-slate-600', 'cursor-pointer');
+                btn.classList.add('opacity-75', 'cursor-default');
+            });
+        }
+
+        function showAssessmentFeedback(isCorrect, explanation) {
+            ui.assessFeedback.classList.remove('hidden', 'bg-green-900/40', 'border-green-500', 'text-green-300', 'bg-red-900/40', 'border-red-500', 'text-red-300');
+            
+            if (isCorrect) {
+                state.assessment.score++;
+                ui.assessFeedback.classList.add('bg-green-900/40', 'border', 'border-green-500');
+                ui.assessFeedbackTitle.className = 'font-bold text-lg mb-1 text-green-400';
+                ui.assessFeedbackTitle.textContent = "✅ Correct!";
+                ui.assessFeedbackText.className = 'text-sm text-green-200';
+            } else {
+                ui.assessFeedback.classList.add('bg-red-900/40', 'border', 'border-red-500');
+                ui.assessFeedbackTitle.className = 'font-bold text-lg mb-1 text-red-400';
+                ui.assessFeedbackTitle.textContent = "❌ Incorrect";
+                ui.assessFeedbackText.className = 'text-sm text-red-200';
+            }
+            
+            ui.assessFeedbackText.textContent = explanation;
+            ui.btnNextQuestion.classList.remove('hidden');
+            
+            // Turn off table highlight
+            state.assessment.waitingForClick = false;
+            ui.tableBody.classList.remove('assessment-active');
+            ui.observationTableContainer.classList.remove('assessment-active-table');
+        }
+
+        function handleConceptualAnswer(selectedIndex, clickedBtn) {
+            disableChoices();
+            let q = state.assessment.currentQ;
+            let isCorrect = (selectedIndex === q.correctIndex);
+            
+            if (isCorrect) {
+                clickedBtn.classList.replace('bg-slate-700', 'bg-green-600');
+                clickedBtn.classList.replace('border-slate-600', 'border-green-400');
+            } else {
+                clickedBtn.classList.replace('bg-slate-700', 'bg-red-600');
+                clickedBtn.classList.replace('border-slate-600', 'border-red-400');
+                // Highlight correct one
+                ui.assessChoices.children[q.correctIndex].classList.replace('bg-slate-700', 'bg-green-600');
+            }
+            
+            showAssessmentFeedback(isCorrect, q.explanation);
+        }
+
+        function handleTableClick(e) {
+            if (!state.assessment.isActive || !state.assessment.waitingForClick) return;
+            
+            // Find closest td
+            let td = e.target.closest('td');
+            if (!td || !td.hasAttribute('data-galaxy-idx')) return;
+            
+            let clickedGalIdx = parseInt(td.getAttribute('data-galaxy-idx'));
+            let clickedCol = td.getAttribute('data-column');
+            
+            let q = state.assessment.currentQ;
+            
+            let isCorrect = (clickedGalIdx === q.answerGalaxy && clickedCol === q.answerColumn);
+            
+            // Visual feedback on the cell briefly
+            let oldBg = td.style.backgroundColor;
+            td.style.backgroundColor = isCorrect ? 'rgba(74, 222, 128, 0.4)' : 'rgba(248, 113, 113, 0.4)';
+            setTimeout(() => td.style.backgroundColor = oldBg, 1000);
+
+            ui.assessDataPrompt.classList.add('hidden');
+            showAssessmentFeedback(isCorrect, q.explanation);
+        }
+
+        function nextQuestion() {
+            state.assessment.currentIndex++;
+            if (state.assessment.currentIndex >= state.assessment.activeQuestions.length) {
+                // Finish
+                state.assessmentFinished = true;
+                ui.assessQuestionArea.classList.add('hidden');
+                ui.assessFeedback.classList.add('hidden');
+                ui.btnNextQuestion.classList.add('hidden');
+                ui.assessScoreArea.classList.remove('hidden');
+                ui.assessFinalScore.textContent = state.assessment.score;
+                
+                // Show completion overlay and sync final score
+                ui.completionOverlay.classList.remove('hidden-overlay');
+                ui.completionScore.textContent = state.assessment.score;
+                syncResults();
+            } else {
+                renderQuestion();
+            }
         }
 
         // --- Start Application ---
