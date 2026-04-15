@@ -1273,7 +1273,17 @@
                         state.recordedData = progressData.details.recordedData || [];
                         state.isCalculated = progressData.details.isCalculated || false;
                         state.assessmentFinished = progressData.details.assessmentFinished || false;
-                        state.assessment.score = progressData.score || 0;
+                        
+                        // Protect against legacy saves where assessmentScore was missing
+                        if (progressData.details.assessmentScore !== undefined) {
+                            state.assessment.score = progressData.details.assessmentScore;
+                        } else if (state.assessmentFinished) {
+                            // Recover score if they had a runaway exponential score glitch
+                            state.assessment.score = Math.floor(Math.max((progressData.score - 60) / 4, 0));
+                            if (state.assessment.score > 10) state.assessment.score = 10;
+                        } else {
+                            state.assessment.score = 0;
+                        }
                     }
 
                     ui.loginStatus.textContent = "IDENTITY_VERIFIED";
@@ -1351,6 +1361,7 @@
                         recordedData: state.recordedData,
                         isCalculated: state.isCalculated,
                         assessmentFinished: state.assessmentFinished,
+                        assessmentScore: state.assessment.score,
                         timestamp: new Date().toISOString()
                     }
                 };
