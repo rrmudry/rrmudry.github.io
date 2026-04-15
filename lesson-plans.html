@@ -9,90 +9,303 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.svg" />
   <link rel="stylesheet" href="assets/theme.css" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --accent-cyan: #00f3ff;
+      --accent-cyan-rgb: 0, 243, 255;
+      --accent-emerald: #10b981;
+      --accent-emerald-rgb: 16, 185, 129;
+      --accent-amber: #f59e0b;
+      --accent-amber-rgb: 245, 158, 11;
+      --accent-indigo: #6366f1;
+      --accent-indigo-rgb: 99, 102, 241;
+      --accent-orange: #f97316;
+      --accent-orange-rgb: 249, 115, 22;
+      --bg-dark: #020617;
+    }
+
+    .font-orbitron { font-family: 'Orbitron', sans-serif; }
+
+    .dash-card {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(var(--card-accent-rgb, var(--accent-cyan-rgb)), 0.3);
+      border-radius: 1.5rem;
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    .dash-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 6px;
+      background: var(--card-accent, var(--accent-cyan));
+      box-shadow: 0 0 15px var(--card-accent, var(--accent-cyan));
+      opacity: 0.6;
+      transition: all 0.4s ease;
+    }
+
+    .dash-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      border-color: var(--card-accent, var(--accent-cyan));
+      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7), 
+                  0 0 20px rgba(var(--card-accent-rgb, var(--accent-cyan-rgb)), 0.2);
+    }
+
+    .dash-card:hover::before {
+      height: 8px;
+      opacity: 1;
+      box-shadow: 0 0 25px var(--card-accent, var(--accent-cyan));
+    }
+
+    .status-badge {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 6px 12px;
+      border-radius: 8px;
+      background: rgba(var(--card-accent-rgb, var(--accent-cyan-rgb)), 0.1);
+      color: var(--card-accent, var(--accent-cyan));
+      border: 1px solid rgba(var(--card-accent-rgb, var(--accent-cyan-rgb)), 0.3);
+      display: inline-block;
+      margin-bottom: 1.5rem;
+      text-shadow: 0 0 8px rgba(var(--card-accent-rgb, var(--accent-cyan-rgb)), 0.4);
+    }
+
+    .dash-btn {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 14px 24px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #cbd5e1;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: inline-block;
+      text-align: center;
+      width: 100%;
+    }
+
+    .dash-btn:hover {
+      background: var(--card-accent, var(--accent-cyan));
+      color: #020617;
+      box-shadow: 0 0 30px var(--card-accent, var(--accent-cyan));
+      transform: translateY(-2px);
+      border-color: transparent;
+    }
+
+    .scanlines {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(18, 16, 16, 0) 50%,
+        rgba(0, 0, 0, 0.03) 50%
+      );
+      background-size: 100% 4px;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .mission-brief {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: #cbd5e1;
+      margin-bottom: 2rem;
+    }
+
+    .status-badge.warning {
+      color: #f87171;
+      border-color: rgba(248, 113, 113, 0.5);
+      background: rgba(248, 113, 113, 0.15);
+      text-shadow: 0 0 8px rgba(248, 113, 113, 0.4);
+    }
+
+    .dash-card.incomplete {
+      opacity: 0.9;
+      filter: grayscale(0.5) brightness(0.8);
+    }
+
+    .card-lock-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.4);
+      backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      transition: all 0.4s ease;
+      opacity: 1;
+      pointer-events: none;
+    }
+
+    .dash-card.incomplete:hover .card-lock-overlay {
+      background: rgba(2, 6, 23, 0.2);
+      backdrop-filter: blur(2px);
+      opacity: 0.3;
+    }
+
+    .lock-stamp {
+      font-family: 'Orbitron', sans-serif;
+      color: #f87171;
+      font-weight: 900;
+      font-size: 1.4rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      border: 3px solid #f87171;
+      padding: 12px 24px;
+      transform: rotate(-12deg);
+      box-shadow: 0 0 20px rgba(248, 113, 113, 0.4);
+      background: rgba(248, 113, 113, 0.05);
+      animation: stamp-glitch 4s infinite;
+      user-select: none;
+    }
+
+    @keyframes stamp-glitch {
+      0%, 90%, 100% { transform: rotate(-12deg) scale(1); opacity: 1; }
+      92% { transform: rotate(-15deg) scale(1.1); opacity: 0.8; }
+      94% { transform: rotate(-10deg) scale(0.95); opacity: 0.9; }
+      96% { transform: rotate(-13deg) scale(1.05); opacity: 0.7; }
+    }
+
+    .dash-card.incomplete:hover {
+      opacity: 1;
+      filter: grayscale(0) brightness(1.1);
+    }
+
+    .unit-title {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      font-size: 1.6rem;
+      margin-bottom: 1rem;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+  </style>
 </head>
 
 <body>
+  <div class="scanlines"></div>
   <div data-include="header"></div>
 
   <main role="main">
     <section class="hero">
       <div class="container">
-        <h1>NGSS-Aligned Lesson Plans</h1>
-        <div class="energy-bar" aria-hidden="true"></div>
-        <p class="subtitle">Inquiry-driven activities with algebra/trig math level, real-world connections, and SEL
-          moments called out.</p>
+        <h1 class="font-orbitron font-black text-white italic tracking-tighter uppercase text-5xl mb-2">
+          Curriculum_<span class="text-cyan-400">Mission</span>_Control
+        </h1>
+        <div class="energy-bar mb-6" aria-hidden="true"></div>
+        <p class="subtitle text-slate-400 max-w-2xl mx-auto italic">NGSS-Engineered Inquiry Modules: Strategic physics simulations with high-level algebra modeling, real-world analytical connections, and integrated SEL checkpoints.</p>
         <div class="cta-row">
-          <a class="btn primary" href="unit1.html">Start Unit 1</a>
-          <a class="btn" href="lessons.html">All Lessons</a>
+          <a class="dash-btn !w-auto py-3 px-8" href="#semester1">Semester 1</a>
+          <a class="dash-btn !w-auto py-3 px-8" href="#semester2">Semester 2</a>
+          <a class="dash-btn !w-auto py-3 px-8" href="lessons.html">Operations Hub</a>
         </div>
       </div>
     </section>
 
     <section class="container section angle-bottom" aria-labelledby="units">
-      <h2 id="units" class="mb-8">Semester 1: Mechanisms</h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        <article class="card highlight h-full flex flex-col border-slate-500/30"
-          style="background: rgba(30, 41, 59, 0.25);">
-          <span class="lesson-meta text-slate-400">Foundations</span>
-          <h3 class="text-xl font-bold mb-2 text-white">📐 Unit 1: Intro to Physics</h3>
-          <p class="text-sm opacity-80 mb-4">Measurement, modeling, and safety. SEL focus on norms & teamwork.</p>
+      <h2 id="semester2" class="font-orbitron font-black text-slate-500 uppercase tracking-widest text-sm mb-6 flex items-center gap-4">
+        Semester 02 // Interactions
+        <div class="h-px bg-slate-800 flex-grow"></div>
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <article class="dash-card p-8 flex flex-col" style="--card-accent: var(--accent-indigo); --card-accent-rgb: var(--accent-indigo-rgb);">
+          <span class="status-badge">Mission: Impact</span>
+          <h3 class="unit-title">💥 Unit 4: Momentum</h3>
+          <p class="mission-brief">Impulse delivery and collision dynamics. Engineering mission: Design and stress-test high-impact safety systems.</p>
           <div class="mt-auto">
-            <a class="btn w-full block text-center bg-slate-700 hover:bg-slate-600 border-none" href="unit1.html">View Plans</a>
+            <a class="dash-btn" href="unit4-dashboard.html">Launch Dashboard</a>
           </div>
         </article>
-        <article class="card highlight h-full flex flex-col border-emerald-500/30"
-          style="background: rgba(6, 78, 59, 0.15);">
-          <span class="lesson-meta text-emerald-400">Kinematics</span>
-          <h3 class="text-xl font-bold mb-2 text-white">🏎️ Unit 2: Motion & Forces</h3>
-          <p class="text-sm opacity-80 mb-4">Constant velocity, acceleration, and Newton’s Laws.</p>
+
+        <article class="dash-card p-8 flex flex-col" style="--card-accent: var(--accent-orange); --card-accent-rgb: var(--accent-orange-rgb);">
+          <span class="status-badge">Mission: Heat</span>
+          <h3 class="unit-title">🔥 Unit 5: Thermo</h3>
+          <p class="mission-brief">Entropy surveillance and thermal equilibrium. Analysis of heat engines and thermodynamic law enforcement.</p>
           <div class="mt-auto">
-            <a class="btn w-full block text-center bg-emerald-700 hover:bg-emerald-600 border-none" href="lessons.html#u2">View Plans</a>
+            <a class="dash-btn" href="unit5-dashboard.html">Launch Dashboard</a>
           </div>
         </article>
-        <article class="card highlight h-full flex flex-col border-amber-500/30"
-          style="background: rgba(120, 53, 15, 0.2);">
-          <span class="lesson-meta text-amber-400">Conservation</span>
-          <h3 class="text-xl font-bold mb-2 text-white">⚡ Unit 3: Work & Energy</h3>
-          <p class="text-sm opacity-80 mb-4">Conservation laws, power, and everyday energy examples.</p>
+
+        <article class="dash-card p-8 flex flex-col" style="--card-accent: var(--accent-cyan); --card-accent-rgb: var(--accent-cyan-rgb);">
+          <span class="status-badge">Mission: Waves</span>
+          <h3 class="unit-title">🌊 Unit 6: Radiation</h3>
+          <p class="mission-brief">Oscillatory systems and EM signal analysis. Advanced surveillance of the Spectrum and Hubble deep-space expansion.</p>
           <div class="mt-auto">
-            <a class="btn w-full block text-center bg-amber-700 hover:bg-amber-600 border-none text-black" href="lessons.html#u3">View Plans</a>
+            <a class="dash-btn" href="unit6-dashboard.html">Launch Dashboard</a>
           </div>
         </article>
       </div>
 
       <div class="w-full h-px bg-white/10 my-12"></div>
 
-      <h2 class="mb-8">Semester 2: Interactions</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <article class="card highlight h-full flex flex-col border-indigo-500/30"
-          style="background: rgba(49, 46, 129, 0.2);">
-          <span class="lesson-meta text-indigo-400">Impact</span>
-          <h3 class="text-xl font-bold mb-2 text-white">💥 Unit 4: Momentum</h3>
-          <p class="text-sm opacity-80 mb-4">Collisions, explosions, and impact forces. Engineering design challenge.</p>
+      <h2 id="semester1" class="font-orbitron font-black text-slate-500 uppercase tracking-widest text-sm mb-6 flex items-center gap-4">
+        Semester 01 // Mechanisms
+        <div class="h-px bg-slate-800 flex-grow"></div>
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+        <article class="dash-card incomplete p-8 flex flex-col" style="--card-accent: var(--accent-indigo); --card-accent-rgb: var(--accent-indigo-rgb);">
+          <div class="card-lock-overlay">
+            <div class="lock-stamp">Offline</div>
+          </div>
+          <div class="flex justify-between items-start">
+            <span class="status-badge">Mission: Foundations</span>
+            <span class="status-badge warning">Incomplete</span>
+          </div>
+          <h3 class="unit-title">📐 Unit 1: Intro</h3>
+          <p class="mission-brief">System establishment: Measurement, precision modeling, and laboratory safety protocols. SEL integration: Norms & Teamwork.</p>
           <div class="mt-auto">
-            <a class="btn w-full block text-center bg-indigo-700 hover:bg-indigo-600 border-none" href="unit4-dashboard.html">View Plans</a>
+            <a class="dash-btn" href="unit1.html">Access Draft</a>
           </div>
         </article>
 
-        <article class="card highlight h-full flex flex-col border-orange-500/30"
-          style="background: rgba(124, 45, 18, 0.25);">
-          <span class="lesson-meta text-orange-400">Heat & Entropy</span>
-          <h3 class="text-xl font-bold mb-2 text-white">🔥 Unit 5: Thermodynamics</h3>
-          <p class="text-sm opacity-80 mb-6">Heat, temperature, entropy, and engines. The laws of energy transfer.</p>
+        <article class="dash-card incomplete p-8 flex flex-col" style="--card-accent: var(--accent-emerald); --card-accent-rgb: var(--accent-emerald-rgb);">
+          <div class="card-lock-overlay">
+            <div class="lock-stamp">Offline</div>
+          </div>
+          <div class="flex justify-between items-start">
+            <span class="status-badge">Mission: Kinematics</span>
+            <span class="status-badge warning">Incomplete</span>
+          </div>
+          <h3 class="unit-title">🏎️ Unit 2: Motion</h3>
+          <p class="mission-brief">Vector analysis: Constant velocity, acceleration vectors, and Newtonian mechanics. Deployment of motion frameworks.</p>
           <div class="mt-auto">
-            <a class="btn primary w-full block text-center bg-orange-600 hover:bg-orange-500 border-none"
-              href="unit5-dashboard.html">Thermo Dashboard</a>
+            <a class="dash-btn" href="lessons.html#u2">Access Draft</a>
           </div>
         </article>
 
-        <article class="card highlight h-full flex flex-col border-cyan-500/30"
-          style="background: rgba(8, 51, 68, 0.25);">
-          <span class="lesson-meta text-cyan-400">Light & Sound</span>
-          <h3 class="text-xl font-bold mb-2 text-white">🌊 Unit 6: Waves & EM Radiation</h3>
-          <p class="text-sm opacity-80 mb-6">Properties of waves, sound, light, and the electromagnetic spectrum.</p>
+        <article class="dash-card incomplete p-8 flex flex-col" style="--card-accent: var(--accent-amber); --card-accent-rgb: var(--accent-amber-rgb);">
+          <div class="card-lock-overlay">
+            <div class="lock-stamp">Offline</div>
+          </div>
+          <div class="flex justify-between items-start">
+            <span class="status-badge">Mission: Conservation</span>
+            <span class="status-badge warning">Incomplete</span>
+          </div>
+          <h3 class="unit-title">⚡ Unit 3: Energy</h3>
+          <p class="mission-brief">Thermal dynamics and energy conservation. Exploration of work, power gradients, and real-world efficiency loops.</p>
           <div class="mt-auto">
-            <a class="btn primary w-full block text-center bg-cyan-600 hover:bg-cyan-500 border-none"
-              href="unit6-dashboard.html">Waves Dashboard</a>
+            <a class="dash-btn" href="lessons.html#u3">Access Draft</a>
           </div>
         </article>
       </div>
