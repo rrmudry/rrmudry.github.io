@@ -400,7 +400,15 @@
             ui.loginStatus.textContent = "SYNCING_IDENTITY...";
 
             try {
-                const { data, error } = await sbClient.from('student_results')
+                // 1. Search for the student's name globally across ANY assignment
+                const { data: globalMatch } = await sbClient.from('student_results')
+                    .select('student_name')
+                    .eq('student_id', id)
+                    .limit(1)
+                    .maybeSingle();
+
+                // 2. Search for existing progress for THIS specific assignment
+                const { data: progressMatch } = await sbClient.from('student_results')
                     .select('*')
                     .eq('student_id', id)
                     .eq('assignment_name', state.assignmentName)
@@ -408,9 +416,14 @@
                     .limit(1)
                     .maybeSingle();
 
-                if (data) {
-                    finalizeLogin(data.student_name, id, data);
+                if (progressMatch) {
+                    // Returning student for THIS mission
+                    finalizeLogin(progressMatch.student_name, id, progressMatch);
+                } else if (globalMatch) {
+                    // Recognized student from OTHER missions
+                    finalizeLogin(globalMatch.student_name, id, null);
                 } else {
+                    // Entirely new student
                     ui.loginNameEntry.classList.remove('hidden');
                     ui.loginBtn.textContent = "Create Manifest";
                     ui.loginBtn.onclick = () => createNewStudent(id);
