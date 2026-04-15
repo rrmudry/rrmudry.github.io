@@ -168,7 +168,8 @@ const lessonsData = [
     dok: 2,
     semester: 2,
     isFeatured: true,
-    essentialQuestion: "How are the regions of the EM spectrum organized by energy and wavelength?"
+    essentialQuestion: "How are the regions of the EM spectrum organized by energy and wavelength?",
+    links: { "Hubble's Law Lab": "Unit_6_Waves_Radiation/The_Big_Bang/Hubbles_Law.html" }
   },
   {
     date: "2026-04-15",
@@ -181,7 +182,8 @@ const lessonsData = [
     dok: 2,
     semester: 2,
     isFeatured: true,
-    essentialQuestion: "Why does light not require a physical medium to travel through space?"
+    essentialQuestion: "Why does light not require a physical medium to travel through space?",
+    links: { "EM Spectrum Explorer": "Unit_6_Waves_Radiation/EM_Spectrum/EM_Spectrum.html" }
   },
   {
     date: "2026-04-14",
