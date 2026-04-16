@@ -15,8 +15,8 @@
 const lessonsData = [
   // --- Unit 6: Waves and Electromagnetic Radiation ---
   {
-    date: "2026-05-01",
-    day: 25,
+    date: "2026-05-04",
+    day: 26,
     unit: 6,
     title: "Final Performance Task",
     summary: "Students complete/present their 'How Technology Uses Waves' project.",
@@ -28,8 +28,8 @@ const lessonsData = [
     essentialQuestion: "How can we apply our knowledge to explain the physics of a specific technology?"
   },
   {
-    date: "2026-04-30",
-    day: 24,
+    date: "2026-05-01",
+    day: 25,
     unit: 6,
     title: "Unit Summative Exam",
     summary: "Comprehensive assessment of the Waves unit.",
@@ -38,15 +38,15 @@ const lessonsData = [
     dok: 3,
     semester: 2,
     isFeatured: true,
-    essentialQuestion: "How successfully have we mastered the objectives of the Waves unit?"
+    essentialQuestion: "How successfully have we mastered the objectives of the Waves unit master exam?"
   },
   {
-    date: "2026-04-29",
-    day: 23,
+    date: "2026-04-30",
+    day: 24,
     unit: 6,
     title: "Comprehensive Unit Review",
     summary: "Synthesizing Mechanical waves, Sound, Light, and Tech.",
-    details: "A cumulative review session covering all major objectives from the first 22 days of the unit.",
+    details: "A cumulative review session covering all major objectives from the first 23 days of the unit.",
     type: "Practice",
     dok: 3,
     semester: 2,
@@ -54,8 +54,8 @@ const lessonsData = [
     essentialQuestion: "How well can we synthesize all major wave and radiation concepts before the exam?"
   },
   {
-    date: "2026-04-28",
-    day: 22,
+    date: "2026-04-29",
+    day: 23,
     unit: 6,
     title: "Real-World Physics",
     summary: "How medical imaging (MRIs/X-rays) and solar cells utilize wave principles.",
@@ -67,8 +67,8 @@ const lessonsData = [
     essentialQuestion: "How are wave principles applied in medical imaging and renewable energy?"
   },
   {
-    date: "2026-04-27",
-    day: 21,
+    date: "2026-04-28",
+    day: 22,
     unit: 6,
     title: "Information Technology",
     summary: "Fiber optics, cell phones, and routers encode and transmit information.",
@@ -80,8 +80,8 @@ const lessonsData = [
     essentialQuestion: "How do modern technologies encode and transmit information using waves?"
   },
   {
-    date: "2026-04-24",
-    day: 20,
+    date: "2026-04-27",
+    day: 21,
     unit: 6,
     title: "Analog vs. Digital",
     summary: "Comparing continuous waves to binary pulses; why digital is superior for storage.",
@@ -93,8 +93,8 @@ const lessonsData = [
     essentialQuestion: "What are the advantages of digital signals over analog signals for communication?"
   },
   {
-    date: "2026-04-23",
-    day: 19,
+    date: "2026-04-24",
+    day: 20,
     unit: 6,
     title: "Evidence for Particles",
     summary: "Introduction to the Photoelectric Effect and the concept of 'Photons'.",
@@ -106,8 +106,8 @@ const lessonsData = [
     essentialQuestion: "How does the photoelectric effect demonstrate the particle nature of light?"
   },
   {
-    date: "2026-04-22",
-    day: 18,
+    date: "2026-04-23",
+    day: 19,
     unit: 6,
     title: "Evidence for Waves",
     summary: "Reviewing the Double-Slit experiment and Polarization.",
@@ -119,8 +119,8 @@ const lessonsData = [
     essentialQuestion: "What experimental evidence confirms that light behaves like a wave?"
   },
   {
-    date: "2026-04-21",
-    day: 17,
+    date: "2026-04-22",
+    day: 18,
     unit: 6,
     title: "The Dangers of Radiation",
     summary: "Evaluating the impact of Ionizing Radiation (UV, X-ray, Gamma) on biological tissue.",
@@ -132,8 +132,8 @@ const lessonsData = [
     essentialQuestion: "What makes certain frequencies of the EM spectrum hazardous to living tissue?"
   },
   {
-    date: "2026-04-20",
-    day: 16,
+    date: "2026-04-21",
+    day: 17,
     unit: 6,
     title: "Energy & Matter Interactions",
     summary: "How materials absorb, reflect, or transmit specific frequencies.",
@@ -143,6 +143,20 @@ const lessonsData = [
     semester: 2,
     isFeatured: true,
     essentialQuestion: "What determines whether a material will absorb or transmit a specific frequency of light?"
+  },
+  {
+    date: "2026-04-20",
+    day: 16,
+    unit: 6,
+    title: "Hubble's Law & The Big Bang",
+    summary: "Analyzing the expanding universe through the Doppler shift of light.",
+    details: "Using galactic redshift data to calculate the expansion rate (Hubble's Constant) and exploring evidence for the Big Bang.",
+    type: "Activity",
+    links: { "Hubble's Law Lab": "Unit_6_Waves_Radiation/The_Big_Bang/Hubbles_Law.html" },
+    dok: 3,
+    semester: 2,
+    isFeatured: true,
+    essentialQuestion: "How does the Doppler shift of light provide evidence for the expansion of the universe?"
   },
   {
     date: "2026-04-17",
@@ -161,15 +175,16 @@ const lessonsData = [
     date: "2026-04-16",
     day: 14,
     unit: 6,
-    title: "The EM Spectrum Map",
-    summary: "Categorizing waves from Radio to Gamma by wavelength and frequency.",
-    details: "Survey of the electromagnetic spectrum and its various regions, from low-energy radio waves to high-energy gamma rays.",
+    title: "EM Spectrum Comic Poster",
+    summary: "Design a superhero/villain based on a specific EM region.",
+    details: "Mapping physical properties (wavelength, frequency, energy) to character abilities, hazards, and weaknesses.",
     type: "Activity",
-    dok: 2,
+    links: { "Comic Poster Instructions": "https://docs.google.com/document/d/1JMt2gsKlaqpJWbMAr52scifNDr8ydx_todBrnqLMhyQ/edit?usp=sharing" },
+    image: "Unit_6_Waves_Radiation/Comic_Book_EM/Examples.png",
+    dok: 3,
     semester: 2,
     isFeatured: true,
-    essentialQuestion: "How are the regions of the EM spectrum organized by energy and wavelength?",
-    links: { "Hubble's Law Lab": "Unit_6_Waves_Radiation/The_Big_Bang/Hubbles_Law.html" }
+    essentialQuestion: "How can we creatively represent the unique physical properties of the EM spectrum?"
   },
   {
     date: "2026-04-15",
