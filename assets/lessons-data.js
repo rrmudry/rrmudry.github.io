@@ -116,7 +116,8 @@ const lessonsData = [
     dok: 2,
     semester: 2,
     isFeatured: true,
-    essentialQuestion: "What experimental evidence confirms that light behaves like a wave?"
+    essentialQuestion: "What experimental evidence confirms that light behaves like a wave?",
+    links: { "Hubble's Law (Redshift)": "Unit_6_Waves_Radiation/The_Big_Bang/Hubbles_Law.html" }
   },
   {
     date: "2026-04-21",
@@ -129,7 +130,8 @@ const lessonsData = [
     dok: 3,
     semester: 2,
     isFeatured: true,
-    essentialQuestion: "What makes certain frequencies of the EM spectrum hazardous to living tissue?"
+    essentialQuestion: "What makes certain frequencies of the EM spectrum hazardous to living tissue?",
+    links: { "Spectrum City Project": "Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html" }
   },
   {
     date: "2026-04-20",
@@ -142,7 +144,8 @@ const lessonsData = [
     dok: 2,
     semester: 2,
     isFeatured: true,
-    essentialQuestion: "What determines whether a material will absorb or transmit a specific frequency of light?"
+    essentialQuestion: "What determines whether a material will absorb or transmit a specific frequency of light?",
+    links: { "Spectrum City Project": "Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html" }
   },
   {
     date: "2026-04-17",
@@ -169,7 +172,7 @@ const lessonsData = [
     semester: 2,
     isFeatured: true,
     essentialQuestion: "How are the regions of the EM spectrum organized by energy and wavelength?",
-    links: { "Hubble's Law Lab": "Unit_6_Waves_Radiation/The_Big_Bang/Hubbles_Law.html" }
+    links: { "Spectrum City Project": "Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html" }
   },
   {
     date: "2026-04-15",
