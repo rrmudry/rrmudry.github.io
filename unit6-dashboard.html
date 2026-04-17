@@ -71,6 +71,20 @@
         .custom-scroll::-webkit-scrollbar-track { background: transparent; }
         .custom-scroll::-webkit-scrollbar-thumb { background: rgba(139, 92, 246, 0.2); border-radius: 10px; }
         .content-section { scroll-margin-top: 100px; padding-bottom: 4rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        /* Lightbox styles */
+        .lightbox-overlay {
+            position: fixed; inset: 0; background: rgba(2, 6, 23, 0.95);
+            backdrop-filter: blur(12px); z-index: 1000;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: all 0.4s ease;
+        }
+        .lightbox-overlay.active { opacity: 1; visibility: visible; }
+        .lightbox-img { 
+            max-width: 95vw; max-height: 90vh; object-fit: contain; 
+            box-shadow: 0 0 50px rgba(139, 92, 246, 0.3); border-radius: 8px;
+            transform: scale(0.95); transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .lightbox-overlay.active .lightbox-img { transform: scale(1); }
         .content-section:last-child { border-bottom: none; }
 
         /* Interference Waves */
@@ -168,21 +182,63 @@
                     <div id="project-idea-container" class="mt-6 hidden"></div>
                 </div>
 
-                <!-- Featured Demo: Doppler Detective -->
-                <div class="glass-card p-8 border-l-4 border-l-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.1)]">
-                    <div class="flex items-center gap-4 mb-4">
-                        <div class="text-4xl">🚔</div>
-                        <div>
-                            <h2 class="text-2xl font-bold text-blue-400">Featured Simulation: Doppler Detective</h2>
-                            <p class="text-sm text-indigo-300/60 font-mono tracking-tighter">Day 12 Focus: Acoustic Frequency Shifts & Mastery</p>
+                <!-- Featured Mission: EM Spectrum Comic Poster -->
+                <div class="glass-card p-0 overflow-hidden border-l-4 border-l-violet-500 shadow-[0_0_30px_rgba(139,92,246,0.15)]">
+                    <div class="flex flex-col md:flex-row">
+                        <!-- Left Content: Briefing -->
+                        <div class="flex-1 p-8 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center gap-4 mb-6">
+                                    <div class="w-12 h-12 rounded-lg bg-violet-600/20 flex items-center justify-center text-2xl border border-violet-500/30 shadow-[0_0_15px_rgba(139,92,246,0.2)]">
+                                        🦸‍♂️
+                                    </div>
+                                    <div>
+                                        <h2 class="text-2xl font-bold text-violet-400 tracking-tight">MISSION: EM COMIC POSTER</h2>
+                                        <p class="text-xs text-indigo-300/60 font-mono uppercase tracking-[0.2em]">Operational Focus: Physical Properties & Character Mapping</p>
+                                    </div>
+                                </div>
+                                <div class="space-y-4 mb-8">
+                                    <div class="flex gap-2">
+                                        <span class="text-violet-500 font-mono">[01]</span>
+                                        <p class="text-indigo-100/80 leading-relaxed italic text-lg">
+                                            "Transform physical radiation properties into character abilities. Map wavelength footprints to size scales and quantify energy power levels."
+                                        </p>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <span class="text-violet-500 font-mono">[02]</span>
+                                        <p class="text-indigo-100/60 text-sm">
+                                            Students will design a superhero or villain based on a specific EM region, identifying beneficial uses as 'Superpowers' and biological hazards as 'Crimes'.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <a href="https://docs.google.com/document/d/1JMt2gsKlaqpJWbMAr52scifNDr8ydx_todBrnqLMhyQ/edit?usp=sharing" 
+                               class="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold px-8 py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_30px_rgba(139,92,246,0.5)] transform hover:-translate-y-1 active:scale-95 w-fit">
+                                Launch Creative Brief ↗
+                            </a>
+                        </div>
+
+                        <!-- Right Content: Intel Preview -->
+                        <div class="w-full md:w-[40%] bg-indigo-950/40 p-6 border-t md:border-t-0 md:border-l border-violet-500/10 flex flex-col justify-center">
+                            <div class="mb-3 flex justify-between items-center">
+                                <span class="text-[10px] font-mono text-violet-400/70 tracking-widest uppercase">Visual_Reference_Scan</span>
+                                <span class="text-[10px] font-mono text-indigo-500 animate-pulse underline">ACTIVE_SPEC // CLICK TO EXPAND</span>
+                            </div>
+                            <div onclick="toggleLightbox('Unit_6_Waves_Radiation/Comic_Book_EM/Examples.png')" 
+                                 class="relative group cursor-pointer overflow-hidden rounded-lg border border-violet-500/20 shadow-2xl">
+                                <img src="Unit_6_Waves_Radiation/Comic_Book_EM/Examples.png" 
+                                     alt="EM Spectrum Comic Examples" 
+                                     class="w-full h-auto object-cover opacity-80 group-hover:opacity-100 transition-all duration-700 transform group-hover:scale-110">
+                                <div class="absolute inset-0 bg-gradient-to-t from-indigo-950/80 to-transparent flex items-end p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <span class="text-[10px] font-mono text-white/80">Intel: V-Light & UV-Assassin Archetypes</span>
+                                </div>
+                            </div>
+                            <p class="mt-4 text-[10px] text-indigo-400/50 font-mono text-center leading-tight">
+                                // SATELLITE PREVIEW: Examples of student character posters showcasing wavelength mapping and hazard quantification.
+                            </p>
                         </div>
                     </div>
-                    <p class="text-indigo-100/70 leading-relaxed italic mb-6">
-                        "Analyze the physics of moving sound sources. Use high-precision measurements and interactive Desmos tools to track frequency shifts and prove your mastery of wave dynamics."
-                    </p>
-                    <a href="Unit_6_Waves_Radiation/Doppler_Detective/Doppler_Detective.html" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:shadow-[0_0_30px_rgba(37,99,235,0.5)]">
-                        Launch Mission ↗
-                    </a>
                 </div>
 
                 <div class="grid md:grid-cols-2 gap-8">
@@ -198,13 +254,13 @@
                     <div class="glass-card p-8">
                         <h2 class="text-2xl font-bold mb-4 text-cyan-400 blink-cursor">Signal_Matrix</h2>
                         <div class="grid grid-cols-2 gap-3">
-                            <a href="https://docs.google.com/document/d/1e_JUg_6KbCQ4vhj7HWrtcr0wjPWAvbpgNW7U9wViWbE/edit?usp=sharing" class="flex items-center gap-3 p-3 bg-violet-900/20 border border-violet-500/20 rounded-lg shadow-inner hover:border-amber-400/50 transition-colors group">
-                                <div class="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_#fbbf24] group-hover:shadow-[0_0_8px_#f59e0b]"></div>
-                                <span class="text-xs font-mono text-cyan-100/90 tracking-wide">Reading_Wave_Interactions</span>
+                            <a href="https://docs.google.com/document/d/1JMt2gsKlaqpJWbMAr52scifNDr8ydx_todBrnqLMhyQ/edit?usp=sharing" class="flex items-center gap-3 p-3 bg-violet-900/20 border border-violet-500/20 rounded-lg shadow-inner hover:border-violet-400/50 transition-colors group">
+                                <div class="w-2 h-2 rounded-full bg-violet-400 shadow-[0_0_8px_#8b5cf6] animate-pulse"></div>
+                                <span class="text-xs font-mono text-cyan-100/90 tracking-wide">Comic_Poster_Project</span>
                             </a>
-                            <a href="Unit_6_Waves_Radiation/frequency_calculator/index.html" class="flex items-center gap-3 p-3 bg-violet-900/20 border border-violet-500/20 rounded-lg shadow-inner hover:border-cyan-400/50 transition-colors group">
-                                <div class="w-2 h-2 rounded-full bg-indigo-400 shadow-[0_0_8px_#818cf8] group-hover:bg-cyan-400 group-hover:shadow-[0_0_8px_#06b6d4]"></div>
-                                <span class="text-[10px] uppercase font-mono text-cyan-100/90 tracking-tighter">Freq_Calc</span>
+                            <a href="Unit_6_Waves_Radiation/The_Big_Bang/Hubbles_Law.html" class="flex items-center gap-3 p-3 bg-violet-900/20 border border-violet-500/20 rounded-lg shadow-inner hover:border-blue-400/50 transition-colors group">
+                                <div class="w-2 h-2 rounded-full bg-blue-400 shadow-[0_0_8px_#3b82f6]"></div>
+                                <span class="text-xs font-mono text-cyan-100/90 tracking-wide">Hubble_Law_Redshift</span>
                             </a>
                             <a href="Unit_6_Waves_Radiation/Doppler_Detective/Doppler_Detective.html" class="flex items-center gap-3 p-3 bg-violet-900/20 border border-violet-500/20 rounded-lg shadow-inner hover:border-cyan-400/50 transition-colors group">
                                 <div class="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_#06b6d4]"></div>
@@ -226,14 +282,14 @@
                                 <div class="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_#fbbf24]"></div>
                                 <span class="text-xs font-mono text-cyan-100/90 tracking-wide">Speed_of_Sound</span>
                             </a>
-                            <a href="Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html" class="flex items-center gap-3 p-3 bg-violet-900/20 border border-violet-500/20 rounded-lg shadow-inner hover:border-emerald-400/50 transition-colors group">
+                             <a href="Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html" class="flex items-center gap-3 p-3 bg-violet-900/20 border border-violet-500/20 rounded-lg shadow-inner hover:border-emerald-400/50 transition-colors group">
                                 <div class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399] group-hover:shadow-[0_0_8px_#10b981]"></div>
                                 <span class="text-xs font-mono text-cyan-100/90 tracking-wide">Spectrum_City_Map</span>
                             </a>
-                            <div class="flex items-center gap-3 p-3 bg-violet-900/20 border border-violet-500/20 rounded-lg shadow-inner hover:border-teal-400/50 transition-colors">
+                            <a href="Unit_6_Waves_Radiation/EM_Spectrum/EM_Spectrum.html" class="flex items-center gap-3 p-3 bg-violet-900/20 border border-violet-500/20 rounded-lg shadow-inner hover:border-teal-400/50 transition-colors group">
                                 <div class="w-2 h-2 rounded-full bg-teal-400 shadow-[0_0_8px_#2dd4bf]"></div>
-                                <span class="text-xs font-mono text-cyan-100/90 tracking-wide">Duality</span>
-                            </div>
+                                <span class="text-xs font-mono text-cyan-100/90 tracking-wide">Spectrum_Explorer</span>
+                            </a>
                             <div class="flex items-center gap-3 p-3 bg-violet-900/20 border border-violet-500/20 rounded-lg shadow-inner col-span-2 hover:border-rose-400/50 transition-colors group">
                                 <div class="w-2 h-2 rounded-full bg-rose-400 shadow-[0_0_8px_#fb7185] animate-pulse"></div>
                                 <a href="Unit_6_Waves_Radiation/Review_Game/index.html" class="text-xs font-mono text-cyan-100/90 tracking-wide group-hover:text-rose-300">RAPID_REVIEW_GAME</a>
@@ -345,7 +401,8 @@
                     ...lesson,
                     topic: lesson.title,
                     activity: lesson.summary,
-                    wicor: lesson.wicor
+                    wicor: lesson.wicor,
+                    image: lesson.image
                 }));
 
             function getLessonStatus(dateStr) {
@@ -491,6 +548,19 @@
                 }
                 html += `</div>`;
 
+                if (day.image) {
+                    html += `<div class="mt-6">
+                        <h4 class="text-indigo-400 font-bold mb-3 text-xs uppercase tracking-widest flex items-center gap-2">Visual Intelligence / Examples</h4>
+                        <div onclick="toggleLightbox('${day.image}')" class="relative group cursor-pointer overflow-hidden rounded-xl border border-indigo-500/30 shadow-lg bg-black/20">
+                            <img src="${day.image}" alt="Lesson visual example" class="w-full h-auto max-h-[300px] object-contain p-2 opacity-90 group-hover:opacity-100 transition-all transform group-hover:scale-[1.02]">
+                            <div class="absolute inset-0 bg-indigo-600/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <span class="bg-indigo-600/80 text-white text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-widest backdrop-blur-sm shadow-xl">Expand Visual 🔍</span>
+                            </div>
+                        </div>
+                        <p class="mt-3 text-[10px] text-indigo-300/40 font-mono text-center">MISSION_DATA: CLICK TO VIEW FULL RESOLUTION SPECIFICATIONS</p>
+                    </div>`;
+                }
+
                 // Interactive Wave Visualizer for early wave lessons
                 if (day.day >= 1 && day.day <= 5) {
                     html += `<div class="bg-indigo-950/40 p-6 rounded-xl border border-indigo-500/30 mb-6 shadow-lg">
@@ -629,7 +699,28 @@
             }
             draw();
         }
+
+        function toggleLightbox(src) {
+            const overlay = document.getElementById('lightbox');
+            const img = document.getElementById('lightbox-img');
+            if (src) {
+                img.src = src;
+                overlay.classList.add('active');
+                document.body.classList.add('no-scroll');
+            } else {
+                overlay.classList.remove('active');
+                if (!document.getElementById('modal').classList.contains('hidden')) return; // keep no-scroll if modal is open
+                document.body.classList.remove('no-scroll');
+            }
+        }
     </script>
+    
+    <!-- Lightbox Overlay -->
+    <div id="lightbox" class="lightbox-overlay" onclick="toggleLightbox()">
+        <button class="absolute top-8 right-8 text-white/40 hover:text-white transition-colors text-4xl">&times;</button>
+        <img id="lightbox-img" src="" alt="Full size preview" class="lightbox-img" onclick="event.stopPropagation()">
+    </div>
+
     <footer class="mt-20 py-20 border-t border-white/5 text-center">
         <p class="text-[10px] font-bold text-slate-600 uppercase tracking-[0.5em] mb-4">Unit_6 // Waves_&_Radiance // 2026</p>
         <a href="admin/data_export.html" class="text-[8px] font-black uppercase tracking-widest text-slate-800 hover:text-cyan-500/50 transition-colors">Digital_Archive_Access</a>
