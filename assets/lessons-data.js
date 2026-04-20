@@ -155,7 +155,10 @@ const lessonsData = [
     summary: "Analyzing the expanding universe through the Doppler shift of light.",
     details: "Using galactic redshift data to calculate the expansion rate (Hubble's Constant) and exploring evidence for the Big Bang.",
     type: "Activity",
-    links: { "Hubble's Law Lab": "Unit_6_Waves_Radiation/The_Big_Bang/Hubbles_Law.html" },
+    links: { 
+      "Hubble's Law Lab": "Unit_6_Waves_Radiation/The_Big_Bang/Hubbles_Law.html",
+      "Project: Spectrum City Map": "Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html"
+    },
     dok: 3,
     semester: 2,
     isFeatured: true,
