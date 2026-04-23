@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spectrum City - Interactive Planner Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Warm Neutrals (Stone) with Hazard Accent Colors (Emerald, Yellow, Orange, Red, Purple) -->
+    <!-- Application Structure Plan: A dashboard for the 'Urban Planner' (student). It features a top section with the mission context, followed by a dynamic, interactive 'Wave Baseline' visualization. The core interaction is the 'Zone Explorer', a grid of selectable city districts that updates a central dossier panel with specific architectural, physics, and hazard requirements. A bottom section houses the project pacing and grading rubric. This structure transforms a static checklist into an exploratory mission interface, making the criteria highly consumable and engaging. -->
+    <!-- Visualization & Content Choices: Wave Baseline -> Goal: Inform/Visualize -> Line Chart -> Interactive Tooltips -> Shows the core physics concept (increasing frequency) dynamically -> Chart.js. 7 Zones -> Goal: Organize/Inform -> Interactive Cards & Detail Panel -> Click to explore -> Prevents overwhelming text blocks, maps to the 7 distinct regions -> Vanilla JS DOM updates. NO SVG/Mermaid used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 35vh;
+            max-height: 350px;
+            min-height: 250px;
+        }
+
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .top-secret-stamp {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-12deg);
+            border: 8px solid #b91c1c;
+            color: #b91c1c;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 900;
+            font-size: clamp(2rem, 8vw, 5rem);
+            padding: 1rem 2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3rem;
+            pointer-events: none;
+            opacity: 0.9;
+            user-select: none;
+            box-shadow: 0 0 15px rgba(185, 28, 28, 0.2);
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(1px);
+            z-index: 10;
+        }
+    </style>
+</head>
+
+<body class="bg-stone-50 text-stone-800 antialiased min-h-screen flex flex-col">
+
+    <header class="bg-stone-900 text-stone-100 py-6 px-4 md:px-8 shadow-lg">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center">
+            <div class="flex flex-col">
+                <a href="../../unit6-dashboard.html"
+                    class="text-stone-500 hover:text-emerald-400 transition-colors flex items-center gap-2 text-xs font-mono uppercase tracking-widest mb-2 group">
+                    <span class="group-hover:-translate-x-1 transition-transform">←</span> Return to Command Center
+                </a>
+                <h1 class="text-3xl font-bold tracking-tight">🏙️ Spectrum City Urban Planner</h1>
+                <p class="text-stone-400 mt-1 uppercase text-xs tracking-tighter">Unit 6: Waves and Electromagnetic Radiation - Hazard Map Project</p>
+            </div>
+            <div class="mt-4 md:mt-0 flex gap-4 text-sm font-mono bg-stone-800 p-3 rounded-lg border border-stone-700">
+                <div class="flex flex-col items-center"><span class="text-stone-400">STATUS</span><span
+                        class="text-emerald-400">PLANNING PHASE</span></div>
+                <div class="w-px bg-stone-700"></div>
+                <div class="flex flex-col items-center"><span class="text-stone-400">CLEARANCE</span><span
+                        class="text-amber-400">LEVEL 7</span></div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+
+        <section class="bg-white rounded-2xl shadow-sm border border-stone-200 overflow-hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-5">
+                <div class="lg:col-span-3 p-6 md:p-8 flex flex-col justify-center">
+                    <h2 class="text-2xl font-bold mb-4 text-stone-900 border-b border-stone-100 pb-2">🎯 The Mission Briefing</h2>
+                    <p class="text-lg leading-relaxed text-stone-600">
+                        You are the lead Urban Planner for Spectrum City. The city is powered entirely by the Electromagnetic
+                        (EM) Spectrum, but different neighborhoods are exposed to different types of radiation.
+                        Your task is to create a highly detailed, scientifically accurate "Hazard Map" of the city. Use this
+                        interactive dashboard to explore the architectural requirements, physics principles, and hazard levels
+                        of all 7 zones before you sketch your master plan.
+                    </p>
+                    <div class="mt-6 flex flex-wrap gap-4">
+                        <div class="bg-emerald-50 border border-emerald-100 p-3 rounded-lg flex items-center gap-3">
+                            <span class="text-2xl">📋</span>
+                            <span class="text-sm font-semibold text-emerald-800 tracking-tight">Technical specifications are loaded into the Zone Explorer below.</span>
+                        </div>
+                        <div class="bg-amber-50 border border-amber-100 p-3 rounded-lg flex items-center gap-3 shadow-sm">
+                            <span class="text-2xl">📄</span>
+                            <span class="text-sm font-semibold text-amber-800 tracking-tight">Requirement: 11x17" Ledger Paper (Landscape)</span>
+                        </div>
+                        <button onclick="openVideo()" class="bg-indigo-50 border border-indigo-100 p-3 rounded-lg flex items-center gap-3 shadow-sm hover:bg-indigo-100 transition-colors group">
+                            <span class="text-2xl group-hover:scale-110 transition-transform">📽️</span>
+                            <div class="text-left">
+                                <span class="text-xs font-bold text-indigo-400 uppercase tracking-widest block">Video Intel</span>
+                                <span class="text-sm font-bold text-indigo-800 tracking-tight">Watch Tactical Briefing</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+                <div class="lg:col-span-2 bg-stone-900 relative group overflow-hidden min-h-[350px] cursor-pointer" onclick="openDossier()">
+                    <img src="SCHM_Example.png" alt="Spectrum City Hazard Map Example" class="w-full h-full object-cover blur-[3px] group-hover:blur-[2px] transition-all duration-700 opacity-40 group-hover:opacity-60">
+                    <div class="absolute inset-0 bg-stone-950/40 backdrop-blur-md group-hover:backdrop-blur-sm group-hover:bg-stone-950/20 transition-all duration-300 flex items-center justify-center p-8">
+                        <div class="text-center p-8 w-full border-2 border-dashed border-white/20 rounded-2xl bg-white/5 backdrop-blur-xl shadow-2xl group-hover:border-emerald-500/50 group-hover:bg-white/10 transition-all duration-500">
+                             <div class="text-5xl mb-4 group-hover:scale-110 transition-transform duration-500">🔐</div>
+                             <p class="text-[10px] font-bold text-stone-300 uppercase tracking-[0.4em] mb-2">Encrypted Blueprint</p>
+                             <h4 class="text-lg font-bold text-white mb-6">Operational Master Plan</h4>
+                             <div class="inline-block bg-emerald-600 text-white text-[10px] font-bold px-8 py-3 rounded-full hover:bg-emerald-500 transition-colors uppercase tracking-[0.2em] shadow-lg shadow-emerald-900/20">Authorize View ↗</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 md:p-8">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-stone-900">🌊 The Wave Baseline Analysis</h2>
+                <p class="text-stone-500 mt-2">
+                    Across the very bottom of your physical map, you must draw one continuous wave. Observe the
+                    telemetry below: it must start with long, wide waves on the left (Radio) and get progressively
+                    tighter and closer together as it moves to the right (Gamma).
+                </p>
+            </div>
+
+            <div class="chart-container bg-stone-50 border border-stone-200 rounded-xl p-4">
+                <canvas id="waveCanvas"></canvas>
+            </div>
+
+            <div class="mt-4 flex justify-between text-sm font-semibold text-stone-500 px-2 uppercase tracking-wider">
+                <span>Longest Wavelength / Lowest Frequency</span>
+                <span>Shortest Wavelength / Highest Frequency</span>
+            </div>
+        </section>
+
+        <section id="zone-explorer">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-stone-900">🗺️ Zone Explorer</h2>
+                <p class="text-stone-500 mt-2">
+                    Select a city district below to load its specific architectural, scientific, and safety
+                    requirements. You must include all details for each zone on your final map.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                <div class="lg:col-span-1 space-y-2"
+                    id="zone-buttons-container">
+                </div>
+
+                <div class="lg:col-span-2">
+                    <div id="zone-detail-panel"
+                        class="bg-white rounded-2xl shadow-lg border border-stone-200 p-8 h-full flex flex-col justify-center items-center text-center transition-all duration-300">
+                        <div class="text-6xl mb-4 opacity-50">👆</div>
+                        <h3 class="text-2xl font-bold text-stone-400">Select a Zone to view requirements</h3>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-stone-900 text-stone-100 rounded-2xl shadow-sm p-6 md:p-8">
+                <h2 class="text-2xl font-bold mb-6 text-stone-100 border-b border-stone-700 pb-2">📅 Daily Pacing &
+                    Accountability</h2>
+                <p class="text-stone-400 text-sm mb-6">Do not move on to the next phase until the current one is
+                    complete. Get your sub's sign-off for each phase.</p>
+
+                <ul class="space-y-4">
+                    <li class="flex items-start">
+                        <span class="flex-shrink-0 h-6 w-6 rounded border-2 border-stone-500 mr-3 mt-0.5"></span>
+                        <div>
+                            <span class="font-bold text-stone-200 block">Phase 1: The Map Layout</span>
+                            <span class="text-stone-400 text-sm">Collect one 11x17" landscape sheet. Lightly sketch the 7 zones on your paper. Draw the
+                                "Wave Baseline" at the bottom.</span>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="flex-shrink-0 h-6 w-6 rounded border-2 border-stone-500 mr-3 mt-0.5"></span>
+                        <div>
+                            <span class="font-bold text-stone-200 block">Phase 2: Architecture & Visuals</span>
+                            <span class="text-stone-400 text-sm">Draw the required buildings and features for all 7
+                                zones. Begin adding color (colored pencils/markers).</span>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="flex-shrink-0 h-6 w-6 rounded border-2 border-stone-500 mr-3 mt-0.5"></span>
+                        <div>
+                            <span class="font-bold text-stone-200 block">Phase 3: The Physics Labels (Final
+                                Polish)</span>
+                            <span class="text-stone-400 text-sm">Add all required science labels, hazard warnings, and
+                                interaction arrows (such as the "Lowest Frequency" science label, the "Hazard Level:
+                                EXTREME" warning, and reflection/absorption arrows). Complete rubric.</span>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="flex-shrink-0 h-6 w-6 rounded border-2 border-stone-500 mr-3 mt-0.5"></span>
+                        <div>
+                            <span class="font-bold text-stone-200 block">Overall City Design</span>
+                            <span class="text-stone-400 text-sm">The map is fully colored with no large, empty white
+                                spaces.</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 md:p-8">
+                <h2 class="text-2xl font-bold mb-6 text-stone-900 border-b border-stone-100 pb-2">📊 Grading Rubric (How
+                    to get your A)</h2>
+
+                <div class="space-y-6">
+                    <div>
+                        <h4 class="font-bold text-stone-800">The Wave Baseline</h4>
+                        <p class="text-sm text-stone-600 mt-1"><span
+                                class="text-emerald-600 font-semibold">Excellent:</span> Continuous wave perfectly shows
+                            decreasing wavelength/increasing frequency left to right.</p>
+                        <p class="text-sm text-stone-500 mt-1"><span class="text-amber-600 font-semibold">Needs
+                                Work:</span> Wave is drawn, but doesn't clearly change frequency.</p>
+                    </div>
+                    <div class="w-full h-px bg-stone-100"></div>
+                    <div>
+                        <h4 class="font-bold text-stone-800">Visual Requirements</h4>
+                        <p class="text-sm text-stone-600 mt-1"><span
+                                class="text-emerald-600 font-semibold">Excellent:</span> All 7 zones include specific
+                            required drawings. Map is colored and vibrant.</p>
+                        <p class="text-sm text-stone-500 mt-1"><span class="text-amber-600 font-semibold">Needs
+                                Work:</span> Missing required drawings or coloring is messy/incomplete.</p>
+                    </div>
+                    <div class="w-full h-px bg-stone-100"></div>
+                    <div>
+                        <h4 class="font-bold text-stone-800">Science Labels</h4>
+                        <p class="text-sm text-stone-600 mt-1"><span
+                                class="text-emerald-600 font-semibold">Excellent:</span> Every zone has exact Science,
+                            Hazard, and Physics labels requested.</p>
+                        <p class="text-sm text-stone-500 mt-1"><span class="text-amber-600 font-semibold">Needs
+                                Work:</span> Labels present but missing key vocabulary (Ionizing, Frequency, etc.).</p>
+                    </div>
+                    <div class="w-full h-px bg-stone-100"></div>
+                    <div>
+                        <h4 class="font-bold text-stone-800">Physics Interactions</h4>
+                        <p class="text-sm text-stone-600 mt-1"><span
+                                class="text-emerald-600 font-semibold">Excellent:</span> Arrows clearly/correctly show
+                            Reflection and Absorption in Zones 4 & 6.</p>
+                        <p class="text-sm text-stone-500 mt-1"><span class="text-amber-600 font-semibold">Needs
+                                Work:</span> Arrows drawn but don't clearly show the physics concept.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-stone-900 text-stone-400 py-8 text-center text-sm border-t border-stone-800">
+        <p>Spectrum City Urban Planning Dept. | Unit 6: Electromagnetic Radiation</p>
+    </footer>
+
+    <div id="dossier-modal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/90 backdrop-blur-md hidden transition-all duration-300 opacity-0">
+        <div
+            class="relative max-w-[95vw] lg:max-w-[80vw] max-h-[95vh] bg-stone-50 rounded-xl overflow-hidden shadow-2xl border-4 border-stone-800 flex flex-col scale-95 transition-transform duration-300"
+            id="modal-container">
+            <!-- Header -->
+            <div class="bg-stone-900 px-6 py-3 flex justify-between items-center shadow-lg relative z-20">
+                <div class="flex items-center gap-3">
+                    <span class="text-red-500 animate-pulse">●</span>
+                    <span class="text-stone-300 font-mono text-[10px] uppercase tracking-[0.3em]">Operational Intelligence Dossier</span>
+                </div>
+                <button onclick="closeDossier()"
+                    class="text-stone-400 hover:text-white transition-colors text-2xl font-bold leading-none">&times;</button>
+            </div>
+
+            <!-- Image Container -->
+            <div class="relative overflow-auto custom-scroll flex-grow bg-stone-200">
+                <img src="SCHM_REDACTED.png" alt="Classified Blueprint" class="block min-w-full">
+                <div class="top-secret-stamp">
+                    CLASSIFIED<br>
+                    <span class="text-[0.4em] tracking-[0.4em] block -mt-2">Top Secret</span>
+                    <span class="text-[0.15em] tracking-widest block font-sans opacity-70">Level 7 Clearance Required</span>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="bg-stone-50 border-t border-stone-200 p-4 flex justify-between items-center relative z-20">
+                <p class="text-[9px] text-stone-400 font-mono italic">Document ID: SCHM-RAD-UNIT6-SEC-REF-REDACTED</p>
+                <div class="flex gap-4">
+                    <button onclick="closeDossier()"
+                        class="bg-stone-900 text-stone-100 px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-stone-700 transition-colors">Close Dossier</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="video-modal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/90 backdrop-blur-md hidden transition-all duration-300 opacity-0">
+        <div
+            class="relative w-full max-w-4xl bg-stone-900 rounded-xl overflow-hidden shadow-2xl border-4 border-stone-800 flex flex-col scale-95 transition-transform duration-300"
+            id="video-container">
+            <!-- Header -->
+            <div class="bg-stone-900 px-6 py-3 flex justify-between items-center shadow-lg relative z-20">
+                <div class="flex items-center gap-3">
+                    <span class="text-indigo-500 animate-pulse text-xl">▶</span>
+                    <span class="text-stone-300 font-mono text-[10px] uppercase tracking-[0.3em]">Secure Video Transmission // Tactical Briefing</span>
+                </div>
+                <button onclick="closeVideo()"
+                    class="text-stone-400 hover:text-white transition-colors text-2xl font-bold leading-none">&times;</button>
+            </div>
+
+            <!-- Video Container -->
+            <div class="relative w-full pb-[56.25%] bg-black">
+                <iframe id="video-iframe" class="absolute inset-0 w-full h-full" src="" frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerpolicy="strict-origin-when-cross-origin"
+                    allowfullscreen></iframe>
+            </div>
+
+            <!-- Footer -->
+            <div class="bg-stone-900 border-t border-stone-800 p-4 flex justify-between items-center relative z-20">
+                <p class="text-[9px] text-stone-500 font-mono italic">Source: Operational Guidance Division</p>
+                <button onclick="closeVideo()"
+                    class="bg-indigo-600 text-white px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-indigo-500 transition-colors">Close Briefing</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openVideo() {
+            const modal = document.getElementById('video-modal');
+            const container = document.getElementById('video-container');
+            const iframe = document.getElementById('video-iframe');
+            // Adding origin and mute to resolve Error 153 configuration issues
+            const origin = window.location.origin;
+            iframe.src = `https://www.youtube.com/embed/FTahGh68dW0?si=7Tufv1hgXMF5n82m&origin=${origin}`;
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                container.classList.remove('scale-95');
+                container.classList.add('scale-100');
+                if (typeof hideRecommendation === 'function') hideRecommendation();
+            }, 10);
+            document.body.classList.add('overflow-hidden');
+        }
+
+        function closeVideo() {
+            const modal = document.getElementById('video-modal');
+            const container = document.getElementById('video-container');
+            const iframe = document.getElementById('video-iframe');
+            modal.classList.add('opacity-0');
+            container.classList.remove('scale-100');
+            container.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                iframe.src = ""; // Stop the video
+            }, 300);
+            document.body.classList.remove('overflow-hidden');
+        }
+        function openDossier() {
+            const modal = document.getElementById('dossier-modal');
+            const container = document.getElementById('modal-container');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                container.classList.remove('scale-95');
+                container.classList.add('scale-100');
+            }, 10);
+            document.body.classList.add('overflow-hidden');
+        }
+
+        function closeDossier() {
+            const modal = document.getElementById('dossier-modal');
+            const container = document.getElementById('modal-container');
+            modal.classList.add('opacity-0');
+            container.classList.remove('scale-100');
+            container.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        function showRecommendation() {
+            const toast = document.getElementById('video-recommendation');
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full', 'opacity-0');
+            }, 100);
+        }
+
+        function hideRecommendation() {
+            const toast = document.getElementById('video-recommendation');
+            toast.classList.add('translate-x-full', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 500);
+        }
+
+        const zoneData = [
+            {
+                id: 1,
+                name: "Radio Resonance Heights",
+                subtitle: "(Radio Waves)",
+                emoji: "📻",
+                drawings: ["At least 2 giant broadcast towers", "A wide-open park area"],
+                scienceLabel: "Radio Waves: Lowest Frequency / Longest Wavelength.",
+                hazardLabel: "Hazard Level: ZERO (Non-Ionizing).",
+                physicsArrows: null,
+                colorTheme: "emerald",
+                bgClass: "bg-emerald-50",
+                textClass: "text-emerald-900",
+                borderClass: "border-emerald-200",
+                badgeClass: "bg-emerald-100 text-emerald-800"
+            },
+            {
+                id: 2,
+                name: "The Micro-District",
+                subtitle: "(Microwaves)",
+                emoji: "📡",
+                drawings: ["An industrial zone", "Satellite dishes", "A radar tower"],
+                scienceLabel: "Microwaves: Used for long-distance communication and molecular heating.",
+                hazardLabel: "Hazard Level: LOW (Causes heating, but Non-Ionizing).",
+                physicsArrows: null,
+                colorTheme: "amber",
+                bgClass: "bg-amber-50",
+                textClass: "text-amber-900",
+                borderClass: "border-amber-200",
+                badgeClass: "bg-amber-100 text-amber-800"
+            },
+            {
+                id: 3,
+                name: "The Thermal Suburbs",
+                subtitle: "(Infrared)",
+                emoji: "🌡️",
+                drawings: ["Houses with visible 'heat waves' rising from roofs", "Night-vision security cameras"],
+                scienceLabel: "Infrared: Radiation felt as heat; used in thermal imaging.",
+                hazardLabel: "Hazard Level: LOW (Can cause burns at high intensities, but Non-Ionizing).",
+                physicsArrows: null,
+                colorTheme: "orange",
+                bgClass: "bg-orange-50",
+                textClass: "text-orange-900",
+                borderClass: "border-orange-200",
+                badgeClass: "bg-orange-100 text-orange-800"
+            },
+            {
+                id: 4,
+                name: "The Visible Valley",
+                subtitle: "(Center City)",
+                emoji: "🌈",
+                drawings: ["Mirror-glass buildings", "A prism-shaped monument or fountain"],
+                scienceLabel: "Label the zone with exact colors of visible light in order: R-O-Y-G-B-I-V.",
+                hazardLabel: "Hazard Level: ZERO (Safe for general exposure, Non-Ionizing).",
+                physicsArrows: "Draw arrows showing light Reflecting (bouncing) off the mirror buildings.",
+                colorTheme: "cyan",
+                bgClass: "bg-cyan-50",
+                textClass: "text-cyan-900",
+                borderClass: "border-cyan-200",
+                badgeClass: "bg-cyan-100 text-cyan-800"
+            },
+            {
+                id: 5,
+                name: "The UV Badlands",
+                subtitle: "(Ultraviolet)",
+                emoji: "🕶️",
+                drawings: ["A 'Shielding Station' handing out protective gear to citizens"],
+                scienceLabel: "Ultraviolet: Start of IONIZING Radiation.",
+                hazardLabel: "Hazard Level: MEDIUM. Warning: High enough energy to cause cellular DNA damage.",
+                physicsArrows: null,
+                colorTheme: "fuchsia",
+                bgClass: "bg-fuchsia-50",
+                textClass: "text-fuchsia-900",
+                borderClass: "border-fuchsia-200",
+                badgeClass: "bg-fuchsia-100 text-fuchsia-800"
+            },
+            {
+                id: 6,
+                name: "X-Ray Imaging Estates",
+                subtitle: "(X-Rays)",
+                emoji: "🩻",
+                drawings: ["A massive, thick-walled hospital or security checkpoint"],
+                scienceLabel: "X-Rays: Passes through soft tissue, absorbed by dense materials (lead/bone).",
+                hazardLabel: "Hazard Level: HIGH. Warning: Penetrating ionizing radiation. Requires lead shielding.",
+                physicsArrows: "Draw waves passing through a soft object, but being Absorbed (stopped) by a thick wall.",
+                colorTheme: "indigo",
+                bgClass: "bg-indigo-50",
+                textClass: "text-indigo-900",
+                borderClass: "border-indigo-200",
+                badgeClass: "bg-indigo-100 text-indigo-800"
+            },
+            {
+                id: 7,
+                name: "The Gamma Fortress",
+                subtitle: "(Highest Energy Core)",
+                emoji: "☢️",
+                drawings: ["Heavy fortifications", "Thick concrete/lead bunkers", "Radiation warning signs"],
+                scienceLabel: "Gamma Rays: Highest Frequency / Shortest Wavelength.",
+                hazardLabel: "Hazard Level: EXTREME. Maximum Energy Output.",
+                physicsArrows: null,
+                colorTheme: "rose",
+                bgClass: "bg-rose-50",
+                textClass: "text-rose-900",
+                borderClass: "border-rose-200",
+                badgeClass: "bg-rose-100 text-rose-800 animate-pulse"
+            }
+        ];
+
+        let currentActiveZoneBtn = null;
+
+        function initializeDashboard() {
+            renderZoneButtons();
+            renderWaveChart();
+
+            if (zoneData.length > 0) {
+                setTimeout(() => {
+                    const firstBtn = document.querySelector(`button[data-id="1"]`);
+                    if (firstBtn) firstBtn.click();
+                }, 100);
+            }
+        }
+
+        function renderZoneButtons() {
+            const container = document.getElementById('zone-buttons-container');
+            container.innerHTML = '';
+
+            zoneData.forEach(zone => {
+                const btn = document.createElement('button');
+                btn.dataset.id = zone.id;
+                btn.className = `w-full text-left p-3 rounded-xl border-2 border-transparent bg-white shadow-sm hover:border-stone-300 transition-all duration-200 flex items-center justify-between group`;
+
+                btn.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <div class="text-3xl bg-stone-50 p-2 rounded-lg group-hover:scale-110 transition-transform">${zone.emoji}</div>
+                        <div>
+                            <div class="text-xs font-bold text-stone-400 tracking-wider">ZONE ${zone.id}</div>
+                            <div class="font-bold text-stone-800">${zone.name}</div>
+                            <div class="text-sm text-stone-500">${zone.subtitle}</div>
+                        </div>
+                    </div>
+                    <div class="text-stone-300 group-hover:text-stone-600 transition-colors">➔</div>
+                `;
+
+                btn.addEventListener('click', () => {
+                    if (currentActiveZoneBtn) {
+                        currentActiveZoneBtn.classList.remove('border-stone-800', 'bg-stone-50');
+                        currentActiveZoneBtn.classList.add('border-transparent', 'bg-white');
+                    }
+                    btn.classList.remove('border-transparent', 'bg-white');
+                    btn.classList.add('border-stone-800', 'bg-stone-50');
+                    currentActiveZoneBtn = btn;
+
+                    renderZoneDetail(zone);
+                });
+
+                container.appendChild(btn);
+            });
+        }
+
+        function renderZoneDetail(zone) {
+            const panel = document.getElementById('zone-detail-panel');
+
+            panel.className = `rounded-2xl shadow-lg border p-6 md:p-8 h-full flex flex-col transition-all duration-300 ${zone.bgClass} ${zone.borderClass}`;
+
+            let drawingsHtml = zone.drawings.map(d => `<li class="flex items-start"><span class="mr-2">✏️</span> <span class="text-stone-800">${d}</span></li>`).join('');
+
+            let html = `
+                <div class="flex items-center gap-4 mb-6 border-b ${zone.borderClass} pb-4">
+                    <div class="text-5xl bg-white p-3 rounded-2xl shadow-sm">${zone.emoji}</div>
+                    <div>
+                        <span class="text-sm font-bold tracking-widest ${zone.textClass} opacity-80 uppercase">Sector ${zone.id} Details</span>
+                        <h3 class="text-3xl font-bold ${zone.textClass}">${zone.name}</h3>
+                    </div>
+                </div>
+
+                <div class="space-y-6 flex-grow">
+                    
+                    <div class="bg-white/60 rounded-xl p-5 border ${zone.borderClass}">
+                        <h4 class="font-bold text-stone-900 mb-3 flex items-center gap-2"><span>🏗️</span> Required Architecture to Draw</h4>
+                        <ul class="space-y-2 text-stone-700 ml-1">
+                            ${drawingsHtml}
+                        </ul>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-white/60 rounded-xl p-5 border ${zone.borderClass}">
+                            <h4 class="font-bold text-stone-900 mb-2 flex items-center gap-2"><span>🏷️</span> Science Label Requirement</h4>
+                            <div class="font-mono text-sm bg-white p-3 rounded border border-stone-200 text-stone-800">
+                                "${zone.scienceLabel}"
+                            </div>
+                        </div>
+
+                        ${zone.hazardLabel ? `
+                        <div class="bg-white/60 rounded-xl p-5 border ${zone.borderClass}">
+                            <h4 class="font-bold text-stone-900 mb-2 flex items-center gap-2"><span>⚠️</span> Hazard Label Requirement</h4>
+                            <div class="font-mono text-sm p-3 rounded border ${zone.badgeClass}">
+                                "${zone.hazardLabel}"
+                            </div>
+                        </div>
+                        ` : ''}
+                    </div>
+
+                    ${zone.physicsArrows ? `
+                    <div class="bg-stone-900 text-white rounded-xl p-5 shadow-inner">
+                        <h4 class="font-bold text-stone-100 mb-2 flex items-center gap-2"><span class="text-xl">↬</span> Physics Interaction Required</h4>
+                        <p class="text-stone-300 font-mono text-sm">${zone.physicsArrows}</p>
+                    </div>
+                    ` : ''}
+
+                </div>
+            `;
+
+            panel.innerHTML = html;
+        }
+
+        function renderWaveChart() {
+            const ctx = document.getElementById('waveCanvas').getContext('2d');
+
+            const dataPoints = [];
+            const numPoints = 600;
+
+            for (let i = 0; i < numPoints; i++) {
+                let x = i / 100;
+                let k = 0.5 + (i / numPoints) * 5;
+                let y = Math.sin(k * x * Math.PI * 2);
+                dataPoints.push({ x: i, y: y });
+            }
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'Electromagnetic Wave',
+                        data: dataPoints,
+                        borderColor: '#292524',
+                        borderWidth: 3,
+                        pointRadius: 0,
+                        tension: 0.4,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 2000,
+                        easing: 'easeInOutSine'
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            enabled: true,
+                            callbacks: {
+                                label: function (context) {
+                                    let xPos = context.dataIndex;
+                                    if (xPos < 85) return 'Radio Waves (Long, Lazy)';
+                                    if (xPos < 170) return 'Microwaves';
+                                    if (xPos < 255) return 'Infrared';
+                                    if (xPos < 340) return 'Visible Light';
+                                    if (xPos < 425) return 'Ultraviolet (Ionizing Begins)';
+                                    if (xPos < 510) return 'X-Rays';
+                                    return 'Gamma Rays (Tight, Energetic)';
+                                },
+                                title: () => null
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            display: false,
+                            min: 0,
+                            max: numPoints
+                        },
+                        y: {
+                            display: false,
+                            min: -1.5,
+                            max: 1.5
+                        }
+                    },
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeDashboard();
+            setTimeout(showRecommendation, 2000);
+        });
+    </script>
+
+    <div id="video-recommendation"
+        class="fixed bottom-6 right-6 z-40 max-w-md bg-stone-950 text-white rounded-2xl shadow-[0_0_30px_rgba(220,38,38,0.2)] border-2 border-red-600/30 p-6 flex flex-col gap-4 transform translate-x-full opacity-0 transition-all duration-700 hidden">
+        <div class="flex items-start justify-between">
+            <div class="flex items-center gap-4">
+                <div class="bg-red-600/20 p-3 rounded-xl border border-red-500/30 animate-pulse">
+                    <span class="text-3xl">🚨</span>
+                </div>
+                <div>
+                    <h5 class="text-[10px] font-black uppercase tracking-[0.5em] text-red-500 mb-1">Priority Alpha Advisory</h5>
+                    <p class="text-lg font-bold tracking-tight">Tactical Briefing Required</p>
+                </div>
+            </div>
+            <button onclick="hideRecommendation()" class="text-stone-600 hover:text-white transition-colors text-2xl leading-none">&times;</button>
+        </div>
+        <div class="bg-red-950/20 border-l-4 border-red-600 p-4 rounded-r-lg">
+            <p class="text-[11px] text-red-200/80 leading-relaxed font-mono italic">
+                "Agent, project analysis suggests a 40% increase in mission success upon viewing this operational guide. Do not proceed without review."
+            </p>
+        </div>
+        <button onclick="openVideo()"
+            class="w-full bg-red-600 text-white font-black py-4 rounded-xl text-xs uppercase tracking-[0.3em] hover:bg-red-500 transition-all shadow-lg shadow-red-950/50 hover:shadow-red-500/20 active:scale-[0.98]">
+            Authorize Briefing ↗
+        </button>
+    </div>
+</body>
+
+</html>
