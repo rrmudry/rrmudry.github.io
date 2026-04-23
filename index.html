@@ -161,6 +161,47 @@
       stroke-width: 2;
       fill: none;
     }
+
+    /* Sub Support Protocol Modal - Red Alert */
+    .sub-modal-overlay {
+        position: fixed; inset: 0; background: rgba(2, 6, 23, 0.8); backdrop-filter: blur(8px);
+        z-index: 10000; display: flex; align-items: center; justify-content: center;
+        padding: 1.5rem; opacity: 0; visibility: hidden; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .sub-modal-overlay.active { opacity: 1; visibility: visible; }
+    
+    .sub-modal {
+        background: radial-gradient(circle at top right, rgba(220, 38, 38, 0.2), transparent), rgba(15, 23, 42, 0.99);
+        border: 2px solid #dc2626; border-radius: 24px;
+        max-width: 850px; width: 100%; padding: 3rem; position: relative;
+        box-shadow: 0 0 100px rgba(220, 38, 38, 0.25);
+        transform: scale(0.9) translateY(20px); transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .sub-modal-overlay.active .sub-modal { transform: scale(1) translateY(0); }
+
+    .sub-priority-card {
+        background: rgba(220, 38, 38, 0.05); border: 1px solid rgba(220, 38, 38, 0.2);
+        border-radius: 16px; padding: 1.5rem; transition: all 0.3s ease; position: relative; overflow: hidden;
+    }
+    .sub-priority-card.alpha { border-color: #dc2626; background: rgba(220, 38, 38, 0.08); }
+    .sub-priority-card:hover { border-color: #dc2626; box-shadow: 0 0 20px rgba(220, 38, 38, 0.1); }
+
+    .scanline {
+        position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(220, 38, 38, 0.1), transparent);
+        animation: scan 3s linear infinite; pointer-events: none;
+    }
+    @keyframes scan { 100% { left: 100%; } }
+
+    .exit-btn {
+        position: absolute; top: 1.5rem; right: 1.5rem;
+        font-family: var(--font-mono); font-size: 0.65rem; color: #dc2626;
+        padding: 0.5rem 1rem; border: 1px solid rgba(220, 38, 38, 0.4); border-radius: 6px;
+        text-transform: uppercase; letter-spacing: 0.2rem; transition: all 0.3s ease;
+        background: rgba(220, 38, 38, 0.05); font-weight: 800;
+    }
+    .exit-btn:hover { color: #fff; border-color: #dc2626; background: rgba(220, 38, 38, 0.2); box-shadow: 0 0 15px rgba(220, 38, 38, 0.2); }
+    .no-scroll { overflow: hidden; }
   </style>
 </head>
 
@@ -404,6 +445,70 @@
     </section>
   </main>
 
+  <!-- Sub Support Protocol Modal -->
+  <div id="sub-protocol-modal" class="sub-modal-overlay">
+      <div class="sub-modal">
+          <button onclick="closeSubModal()" class="exit-btn">[ EXIT_PROTOCOL ]</button>
+          
+          <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
+              <div style="width: 60px; height: 60px; background: rgba(220, 38, 38, 0.2); border: 1px solid #dc2626; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 2rem; box-shadow: 0 0 20px rgba(220, 38, 38, 0.3); animation: pulse 2s infinite;">🚧</div>
+              <div>
+                  <h2 style="margin: 0; color: #ef4444; font-size: 2.2rem; font-family: var(--font-tech); letter-spacing: -1px; line-height: 1; text-shadow: 0 0 20px rgba(239, 68, 68, 0.3);">URGENT // MISSION OVERRIDE</h2>
+                  <p style="margin: 4px 0 0 0; color: #f87171; font-family: var(--font-tech); font-size: 0.75rem; text-transform: uppercase; font-weight: 900; letter-spacing: 0.3em; opacity: 1;">Substitute Commander Protocol // Level 4 Alert</p>
+              </div>
+          </div>
+
+          <div style="grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 2.5rem; display: grid;">
+              <div style="background: rgba(255,255,255,0.02); padding: 2rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);">
+                  <h3 style="color: #fff; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;"><span style="color: #dc2626;">🌊</span> Expected Behavior Protocol</h3>
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                      <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 12px; border-left: 3px solid #dc2626;">
+                          <p style="color: #fff; font-weight: 800; font-size: 0.8rem; margin-bottom: 4px; text-transform: uppercase;">Low Amplitude</p>
+                          <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.3;">Maintain an appropriate volume; keep the classroom energy steady.</p>
+                      </div>
+                      <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 12px; border-left: 3px solid #dc2626;">
+                          <p style="color: #fff; font-weight: 800; font-size: 0.8rem; margin-bottom: 4px; text-transform: uppercase;">Zero Interference</p>
+                          <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.3;">Do not destructively interfere with the learning flow or substitute instructions.</p>
+                      </div>
+                      <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 12px; border-left: 3px solid #dc2626;">
+                          <p style="color: #fff; font-weight: 800; font-size: 0.8rem; margin-bottom: 4px; text-transform: uppercase;">Stealth Mode</p>
+                          <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.3;">Stay off the radar by remaining focused on your specific mission parameters.</p>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+              <div class="sub-priority-card alpha">
+                  <div class="scanline"></div>
+                  <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                      <span style="background: #dc2626; color: #fff; font-weight: 900; font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.1em;">PRIORITY_ALPHA</span>
+                      <span style="color: #dc2626; font-size: 1.2rem;">🏙️</span>
+                  </div>
+                  <h4 style="color: #fff; font-size: 1.2rem; margin-bottom: 0.5rem;">Spectrum City Map Project</h4>
+                  <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.5rem;">Finalize your city layout, hazard zones, and wave physical baseline telemetry. Engage immediately.</p>
+                  <a href="Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html" class="btn" style="width: 100%; text-align: center; border-color: #dc2626; color: #dc2626; font-weight: 800; background: rgba(220, 38, 38, 0.1);">ENGAGE MISSION ↗</a>
+              </div>
+              <div class="sub-priority-card" style="border-color: rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.02);">
+                  <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                      <span style="background: rgba(255, 255, 255, 0.1); color: #fff; font-weight: 900; font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; text-transform: uppercase;">Second Mission Objective</span>
+                      <span style="color: rgba(255, 255, 255, 0.4); font-size: 1.2rem;">📡</span>
+                  </div>
+                  <h4 style="color: #fff; font-size: 1.2rem; margin-bottom: 0.5rem;">Hubble's Law Redshift Lab</h4>
+                  <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.5rem;">Analyze galactic spectral data to calculate the expansion rate of the universe.</p>
+                  <a href="Unit_6_Waves_Radiation/The_Big_Bang/Hubbles_Law.html" class="btn" style="width: 100%; text-align: center; border-color: rgba(255, 255, 255, 0.2); color: rgba(255, 255, 255, 0.6); font-weight: 800;">Open Lab File</a>
+              </div>
+          </div>
+
+          <div style="text-align: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 2rem;">
+              <div style="display: inline-flex; align-items: center; gap: 10px; color: #f1f5f9; font-weight: 700; font-style: italic;">
+                  <img src="OrangeHS_PantherMark.png" style="height: 30px; opacity: 0.8; filter: grayscale(1) brightness(2);" alt="OHS Logo">
+                  "Be a Prideful Panther. Maintain high frequency standards."
+              </div>
+          </div>
+      </div>
+  </div>
+
   <div data-include="footer"></div>
   <script>
     // 1. Define the initialization function
@@ -548,6 +653,35 @@
           container.addEventListener('mouseleave', resetBannerTimer);
       }
     }
+
+    // Sub Protocol Modal Logic
+    function closeSubModal() {
+      const modal = document.getElementById('sub-protocol-modal');
+      modal.classList.remove('active');
+      document.body.classList.remove('no-scroll');
+    }
+
+    function checkSubProtocol() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      const todayStr = `${y}-${m}-${d}`;
+      
+      // Target dates: April 19 - April 23, 2026
+      if (todayStr >= '2026-04-19' && todayStr <= '2026-04-23') {
+        const modal = document.getElementById('sub-protocol-modal');
+        if (modal) {
+          setTimeout(() => {
+            modal.classList.add('active');
+            document.body.classList.add('no-scroll');
+          }, 1000);
+        }
+      }
+    }
+    
+    // Call check on load
+    window.addEventListener('load', checkSubProtocol);
   </script>
   <script src="assets/partials.js"></script>
 </body>
