@@ -52,7 +52,13 @@
                         <button onclick="toggleAll(false)" class="text-[8px] font-bold text-slate-500 hover:text-rose-400 uppercase tracking-widest transition-colors">Clear</button>
                     </div>
                 </div>
-                <div id="assignment-list" class="w-full bg-slate-900 border border-white/10 p-4 rounded-2xl max-h-[220px] overflow-y-auto custom-scrollbar space-y-2">
+                
+                <div class="flex flex-wrap items-center gap-2 p-3 bg-white/5 rounded-xl border border-white/5">
+                    <span class="text-[8px] font-black text-slate-500 uppercase tracking-widest">Smart_Presets:</span>
+                    <button onclick="applyPreset('april6-10')" class="px-3 py-1 bg-slate-950 border border-white/10 rounded-lg text-[9px] font-black hover:border-cyan-500 hover:text-cyan-400 transition-all uppercase tracking-tighter">Week: April 06-10</button>
+                </div>
+
+                <div id="assignment-list" class="w-full bg-slate-900 border border-white/10 p-4 rounded-2xl max-h-[160px] overflow-y-auto custom-scrollbar space-y-2">
                     <p class="text-xs text-slate-600 animate-pulse">Scanning Archive...</p>
                 </div>
             </div>
@@ -65,24 +71,35 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                         Download Aeries CSV
                     </button>
-                    <div class="bg-white/5 p-4 rounded-xl border border-white/5 flex items-center justify-between">
-                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Aggregate Mode</span>
-                        <span class="text-[9px] font-black text-cyan-500 uppercase">SUM_TOTAL</span>
+                    <div class="bg-white/5 p-4 rounded-xl border border-white/5 flex items-center justify-between cursor-pointer group hover:bg-white/10 transition-all" onclick="toggleMode()">
+                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest group-hover:text-slate-200">Aggregate Mode</span>
+                        <span id="mode-display" class="text-[9px] font-black text-cyan-500 uppercase">SUM_TOTAL</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="status-display" class="pt-8 border-t border-white/5">
-            <div class="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-slate-600">
-                <span>Database_Status: <span id="db-status" class="text-cyan-500">Connecting...</span></span>
-                <span>Students_Aggregated: <span id="record-count" class="text-white">0</span></span>
+        <div id="status-display" class="pt-8 border-t border-white/5 space-y-4">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-slate-600">
+                    <span>Database_Status: <span id="db-status" class="text-cyan-500">Connecting...</span></span>
+                    <span>Students_Aggregated: <span id="record-count" class="text-white">0</span></span>
+                </div>
+                
+                <!-- Search Component -->
+                <div class="relative flex-1 max-w-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    </div>
+                    <input type="text" id="student-search" oninput="loadPreview()" placeholder="Search_Archive // ID or Name" class="w-full bg-slate-900 border border-white/10 pl-10 pr-4 py-2 rounded-xl text-xs font-bold text-slate-300 focus:border-cyan-500/50 outline-none transition-all placeholder:text-slate-700">
+                </div>
             </div>
+
             <!-- Live Preview Table -->
-            <div class="mt-4 overflow-hidden rounded-xl border border-white/5 bg-slate-950/50">
+            <div class="overflow-hidden rounded-xl border border-white/5 bg-slate-950/50">
                 <table class="w-full text-left text-xs">
                     <thead>
-                        <tr class="bg-white/5 text-slate-400 font-black uppercase tracking-tighter">
+                        <tr id="table-header-row" class="bg-white/5 text-slate-400 font-black uppercase tracking-tighter">
                             <th class="p-4 border-b border-white/5">Student_ID</th>
                             <th class="p-4 border-b border-white/5">Student_Name</th>
                             <th class="p-4 border-b border-white/5">Period</th>
@@ -102,6 +119,57 @@
         const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
         const sbClient = supabase.createClient(SB_URL, SB_KEY);
+
+        let aggregationMode = 'SUM'; // 'SUM' or 'AVERAGE'
+
+        const PRESETS = {
+            'april6-10': [
+                'WaveMaster Lab',
+                'Wave Diffraction Lab',
+                'Wave Interference Tutorial',
+                'Unit 6 Rapid Review'
+            ]
+        };
+
+        function toggleMode() {
+            if (aggregationMode === 'SUM') aggregationMode = 'AVERAGE';
+            else if (aggregationMode === 'AVERAGE') aggregationMode = 'DETAILED';
+            else aggregationMode = 'SUM';
+
+            const display = {
+                'SUM': 'SUM_TOTAL',
+                'AVERAGE': 'MEAN_AVERAGE',
+                'DETAILED': 'DETAILED_AUDIT'
+            };
+            document.getElementById('mode-display').textContent = display[aggregationMode];
+            loadPreview();
+        }
+
+        function applyPreset(id) {
+            const list = PRESETS[id];
+            if (!list) return;
+            
+            document.querySelectorAll('.assignment-cb').forEach(cb => {
+                cb.checked = list.includes(cb.value);
+            });
+            loadPreview();
+        }
+
+        function fuzzyMatch(target, query) {
+            if (!query) return true;
+            target = target.toLowerCase();
+            query = query.toLowerCase();
+            
+            if (target.includes(query)) return true;
+            
+            // Simple fuzzy: check if characters of query appear in order in target
+            let i = 0, j = 0;
+            while (i < target.length && j < query.length) {
+                if (target[i] === query[j]) j++;
+                i++;
+            }
+            return j === query.length;
+        }
 
         async function init() {
             try {
@@ -155,31 +223,82 @@
                 return;
             }
 
-            const aggregated = reduceToGradebook(data);
-            countEl.textContent = Object.keys(aggregated).length;
-
-            const sortedStudents = Object.values(aggregated).sort((a, b) => a.name.localeCompare(b.name));
-
-            tbody.innerHTML = sortedStudents.slice(0, 15).map(s => `
-                <tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                    <td class="p-4 font-mono font-bold text-cyan-400">${s.id}</td>
-                    <td class="p-4 font-medium text-slate-300 capitalize">${s.name}</td>
-                    <td class="p-4 font-bold text-slate-400">P${s.period || '?'}</td>
-                    <td class="p-4 font-black text-violet-400">${s.totalScore}</td>
-                    <td class="p-4 text-right">
-                        <span class="px-2 py-0.5 rounded-full bg-slate-800 text-[8px] font-black text-slate-500 border border-white/5">${s.assignmentCount} Assignments</span>
-                    </td>
-                </tr>
-            `).join('');
+            const aggregated = reduceToGradebook(data, aggregationMode);
             
-            if (sortedStudents.length > 15) {
-                tbody.innerHTML += `<tr><td colspan="5" class="p-4 text-center text-[8px] uppercase tracking-widest text-slate-700 font-bold">+ ${sortedStudents.length - 15} additional students truncated from preview</td></tr>`;
+            // Apply Search Filter
+            const searchQuery = document.getElementById('student-search').value.trim();
+            const filteredStudents = Object.values(aggregated).filter(s => {
+                if (!searchQuery) return true;
+                const matchesId = s.id.includes(searchQuery);
+                const matchesName = fuzzyMatch(s.name, searchQuery);
+                return matchesId || matchesName;
+            });
+
+            countEl.textContent = filteredStudents.length;
+
+            const sortedStudents = filteredStudents.sort((a, b) => a.name.localeCompare(b.name));
+
+            if (aggregationMode === 'DETAILED') {
+                // Update headers for detailed view
+                document.getElementById('table-header-row').innerHTML = `
+                    <th class="p-4 border-b border-white/5">Student_Name</th>
+                    <th class="p-4 border-b border-white/5">Assignment_Name</th>
+                    <th class="p-4 border-b border-white/5">Score</th>
+                    <th class="p-4 border-b border-white/5 text-right">Submitted</th>
+                `;
+
+                // Flatten to individual assignments
+                const detailedRows = sortedStudents.flatMap(s => s.raw.map(r => ({
+                    name: s.name,
+                    id: s.id,
+                    assignment: r.assignment_name,
+                    score: r.score,
+                    date: new Date(r.created_at).toLocaleDateString()
+                })));
+
+                tbody.innerHTML = detailedRows.slice(0, 30).map(r => `
+                    <tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                        <td class="p-4 font-medium text-slate-300 capitalize">${r.name} <span class="text-[9px] text-slate-600 block">${r.id}</span></td>
+                        <td class="p-4 font-bold text-cyan-400">${r.assignment}</td>
+                        <td class="p-4 font-black text-violet-400">${r.score}</td>
+                        <td class="p-4 text-right text-slate-600 font-mono text-[10px]">${r.date}</td>
+                    </tr>
+                `).join('');
+
+                if (detailedRows.length > 30) {
+                    tbody.innerHTML += `<tr><td colspan="4" class="p-4 text-center text-[8px] uppercase tracking-widest text-slate-700 font-bold">+ ${detailedRows.length - 30} additional records truncated from preview</td></tr>`;
+                }
+            } else {
+                // Restore standard headers
+                document.getElementById('table-header-row').innerHTML = `
+                    <th class="p-4 border-b border-white/5">Student_ID</th>
+                    <th class="p-4 border-b border-white/5">Student_Name</th>
+                    <th class="p-4 border-b border-white/5">Period</th>
+                    <th class="p-4 border-b border-white/5">Total_Score</th>
+                    <th class="p-4 border-b border-white/5 text-right">Count</th>
+                `;
+
+                tbody.innerHTML = sortedStudents.slice(0, 15).map(s => `
+                    <tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                        <td class="p-4 font-mono font-bold text-cyan-400">${s.id}</td>
+                        <td class="p-4 font-medium text-slate-300 capitalize">${s.name}</td>
+                        <td class="p-4 font-bold text-slate-400">P${s.period || '?'}</td>
+                        <td class="p-4 font-black text-violet-400">${s.totalScore}</td>
+                        <td class="p-4 text-right">
+                            <span class="px-2 py-0.5 rounded-full bg-slate-800 text-[8px] font-black text-slate-500 border border-white/5">${s.assignmentCount} Assignments</span>
+                        </td>
+                    </tr>
+                `).join('');
+                
+                if (sortedStudents.length > 15) {
+                    tbody.innerHTML += `<tr><td colspan="5" class="p-4 text-center text-[8px] uppercase tracking-widest text-slate-700 font-bold">+ ${sortedStudents.length - 15} additional students truncated from preview</td></tr>`;
+                }
             }
         }
 
-        function reduceToGradebook(rows) {
+        function reduceToGradebook(rows, mode = 'SUM') {
             // Group by student_id and sum scores
-            return rows.reduce((acc, row) => {
+            const grouped = rows.reduce((acc, row) => {
                 const id = row.student_id || 'UNKNOWN';
                 if (!acc[id]) {
                     acc[id] = {
@@ -203,6 +322,14 @@
                 
                 return acc;
             }, {});
+
+            if (mode === 'AVERAGE') {
+                Object.values(grouped).forEach(s => {
+                    s.totalScore = Math.round(s.totalScore / s.assignmentCount);
+                });
+            }
+
+            return grouped;
         }
 
         async function exportCSV() {
@@ -222,25 +349,46 @@
                 return;
             }
 
-            const aggregated = reduceToGradebook(data);
-            const sortedStudents = Object.values(aggregated).sort((a, b) => a.name.localeCompare(b.name));
+            const aggregated = reduceToGradebook(data, aggregationMode);
+            
+            // Apply Search Filter for Export
+            const searchQuery = document.getElementById('student-search').value.trim();
+            const filteredStudents = Object.values(aggregated).filter(s => {
+                if (!searchQuery) return true;
+                const matchesId = s.id.includes(searchQuery);
+                const matchesName = fuzzyMatch(s.name, searchQuery);
+                return matchesId || matchesName;
+            });
 
-            // Generate CSV for Aeries
-            const headers = ["Student_ID", "Student_Name", "Class_Period", "Total_Score", "Assignment_Count"];
-            const rows = sortedStudents.map(s => [
-                s.id,
-                s.name,
-                s.period || "",
-                s.totalScore,
-                s.assignmentCount
-            ]);
+            const sortedStudents = filteredStudents.sort((a, b) => a.name.localeCompare(b.name));
+
+            let headers, rows;
+            if (aggregationMode === 'DETAILED') {
+                headers = ["Student_ID", "Student_Name", "Assignment_Name", "Score", "Submitted_At"];
+                rows = sortedStudents.flatMap(s => s.raw.map(r => [
+                    s.id,
+                    s.name,
+                    r.assignment_name,
+                    r.score,
+                    r.created_at
+                ]));
+            } else {
+                headers = ["Student_ID", "Student_Name", "Class_Period", "Total_Score", "Assignment_Count"];
+                rows = sortedStudents.map(s => [
+                    s.id,
+                    s.name,
+                    s.period || "",
+                    s.totalScore,
+                    s.assignmentCount
+                ]);
+            }
 
             const csvContent = [
                 headers.join(","),
                 ...rows.map(row => row.map(cell => `"${cell}"`).join(","))
             ].join("\n");
 
-            const filename = `AGGREGATED_SCORE_${selectedAssignments.length}_ITEMS_${new Date().toISOString().split('T')[0]}.csv`;
+            const filename = `${aggregationMode}_REPORT_${selectedAssignments.length}_ITEMS_${new Date().toISOString().split('T')[0]}.csv`;
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             const url = URL.createObjectURL(blob);
