@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unit 6 Rapid Review</title>
+    <title>EM Spectrum Rapid Review</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,14 +26,14 @@
                         mono: ['JetBrains Mono', 'monospace'],
                     },
                     colors: {
-                        physics: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            400: '#38bdf8',
-                            500: '#0ea5e9',
-                            600: '#0284c7',
-                            900: '#0c4a6e',
-                            950: '#082f49',
+                        spectrum: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            400: '#a78bfa',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            900: '#4c1d95',
+                            950: '#2e1065',
                         }
                     }
                 }
@@ -62,7 +62,7 @@
 
         .timer-bar {
             height: 10px;
-            background: #0ea5e9;
+            background: #8b5cf6;
             transition: width 1s linear, background-color 0.5s ease;
         }
 
@@ -77,8 +77,8 @@
         }
 
         .choice-btn:hover:not(:disabled) {
-            background: rgba(14, 165, 233, 0.2);
-            border-color: #0ea5e9;
+            background: rgba(139, 92, 246, 0.2);
+            border-color: #8b5cf6;
             transform: scale(1.02);
         }
 
@@ -119,6 +119,46 @@
             font-family: 'Outfit', sans-serif;
             letter-spacing: -0.01em;
         }
+
+        /* Ordering specific styles */
+        .order-slot {
+            min-height: 60px;
+            min-width: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: rgba(255, 255, 255, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 0 1rem;
+        }
+
+        .order-item-placed {
+            background: rgba(139, 92, 246, 0.3);
+            border: 1px solid #8b5cf6;
+            color: #fff;
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.2);
+            animation: pop-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .sequence-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 1.5rem;
+            font-weight: 900;
+        }
+
+        @keyframes pop-in {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
     </style>
 </head>
 
@@ -131,15 +171,15 @@
             class="glass-panel max-w-md w-full p-10 rounded-[2.5rem] text-center space-y-8 animate-in zoom-in duration-500">
             <div class="space-y-3">
                 <div
-                    class="w-20 h-20 bg-gradient-to-br from-physics-400 to-physics-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-physics-500/20 mb-4 rotate-3">
+                    class="w-20 h-20 bg-gradient-to-br from-spectrum-400 to-spectrum-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-spectrum-500/20 mb-4 rotate-3">
                     <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                             d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                     </svg>
                 </div>
-                <h1 class="text-4xl font-heading font-black text-white tracking-tight">Rapid<span
-                        class="text-physics-500">Review</span></h1>
-                <p class="text-[10px] font-bold text-physics-400 uppercase tracking-[0.4em]">Unit 6 // Wave Dynamics</p>
+                <h1 class="text-4xl font-heading font-black text-white tracking-tight">Spectrum<span
+                        class="text-spectrum-500">Review</span></h1>
+                <p class="text-[10px] font-bold text-spectrum-400 uppercase tracking-[0.4em]">Unit 6 // EM Radiation</p>
             </div>
 
             <div id="login-form" class="space-y-5">
@@ -147,18 +187,18 @@
                     <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] text-left px-1">
                         Access_Node // Student ID</p>
                     <input type="text" id="student-id" placeholder="6-Digit ID" maxlength="6"
-                        class="w-full bg-slate-900 border border-slate-700 p-5 rounded-2xl outline-none transition-all text-center font-bold text-2xl focus:border-physics-500 focus:ring-4 focus:ring-physics-500/20 uppercase tracking-widest text-physics-400 text-white shadow-inner">
+                        class="w-full bg-slate-900 border border-slate-700 p-5 rounded-2xl outline-none transition-all text-center font-bold text-2xl focus:border-spectrum-500 focus:ring-4 focus:ring-spectrum-500/20 uppercase tracking-widest text-spectrum-400 text-white shadow-inner">
                 </div>
 
                 <div id="name-entry" class="hidden space-y-2 animate-in fade-in duration-300">
                     <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] text-left px-1">New User
                         Detected // Enter Name</p>
                     <input type="text" id="student-name" placeholder="Full Student Name"
-                        class="w-full bg-slate-900 border border-slate-700 p-5 rounded-2xl outline-none transition-all text-center font-bold focus:border-physics-500 focus:ring-4 focus:ring-physics-500/20 text-white shadow-inner">
+                        class="w-full bg-slate-900 border border-slate-700 p-5 rounded-2xl outline-none transition-all text-center font-bold focus:border-spectrum-500 focus:ring-4 focus:ring-spectrum-500/20 text-white shadow-inner">
                 </div>
 
                 <button id="login-btn" onclick="handleLogin()"
-                    class="w-full bg-physics-500 hover:bg-physics-600 text-white p-5 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl shadow-physics-500/20 active:scale-[0.98] transition-all">
+                    class="w-full bg-spectrum-500 hover:bg-spectrum-600 text-white p-5 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl shadow-spectrum-500/20 active:scale-[0.98] transition-all">
                     Establish Connection
                 </button>
                 <p id="login-status"
@@ -171,8 +211,8 @@
     <header class="glass-panel border-b-0 sticky top-0 z-50 rounded-b-3xl mx-4 mt-2">
         <div class="max-w-4xl mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
             <h1 class="text-xl font-heading font-bold flex items-center gap-2.5">
-                <span class="text-physics-400">⚡</span>
-                <span>Unit 6 <span class="text-physics-500">Review</span></span>
+                <span class="text-spectrum-400">⚛️</span>
+                <span>EM <span class="text-spectrum-500">Spectrum</span></span>
             </h1>
 
             <div id="student-info" class="hidden flex items-center gap-4">
@@ -184,7 +224,7 @@
 
                 <div class="flex bg-slate-800 rounded-lg p-1">
                     <button id="lang-en" onclick="setLang('en')"
-                        class="px-3 py-1 text-xs font-bold rounded-md bg-physics-500 text-white transition-all">EN</button>
+                        class="px-3 py-1 text-xs font-bold rounded-md bg-spectrum-500 text-white transition-all">EN</button>
                     <button id="lang-es" onclick="setLang('es')"
                         class="px-3 py-1 text-xs font-bold rounded-md text-slate-400 hover:text-white transition-all">ES</button>
                 </div>
@@ -223,12 +263,15 @@
             <!-- Question Area -->
             <div class="mb-10 text-center min-h-[100px] flex items-center justify-center flex-col">
                 <span id="q-number"
-                    class="text-physics-500 font-bold mb-2 text-sm uppercase tracking-widest">Question</span>
+                    class="text-spectrum-500 font-bold mb-2 text-sm uppercase tracking-widest">Question</span>
                 <p id="question-text"
                     class="text-2xl md:text-3xl font-heading font-semibold leading-tight text-white drop-shadow-sm mb-4">
                 </p>
-                <canvas id="wave-canvas" width="600" height="200"
-                    class="hidden w-full max-w-lg h-auto rounded-xl shadow-inner border border-slate-700 bg-slate-900/80"></canvas>
+
+                <!-- NEW: Ordering slots display -->
+                <div id="order-sequence-container" class="hidden w-full max-w-2xl flex flex-wrap justify-center gap-3 mb-8">
+                    <!-- Injected via JS -->
+                </div>
             </div>
 
             <!-- Choices -->
@@ -253,12 +296,12 @@
         </div>
 
         <div id="pre-game-container" class="text-center glass-panel p-12 rounded-3xl max-w-xl">
-            <h2 class="text-3xl font-heading font-black mb-4">Ready for Rapid Fire?</h2>
+            <h2 class="text-3xl font-heading font-black mb-4">Spectrum City Review</h2>
             <p class="text-slate-400 mb-8 font-medium" id="pre-game-instructions">You have exactly 15 seconds to answer each question. Your score
-                is based on your most recent 20 attempts. Keep playing to push your mistakes out of the rolling average!
+                is based on your most recent 20 attempts. Master the frequencies to protect the city!
             </p>
             <button onclick="startGame()"
-                class="bg-gradient-to-r from-physics-500 to-purple-500 hover:from-physics-400 hover:to-purple-400 text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest transition-all shadow-[0_0_40px_rgba(14,165,233,0.4)] text-lg active:scale-95">
+                class="bg-gradient-to-r from-spectrum-500 to-indigo-500 hover:from-spectrum-400 hover:to-indigo-400 text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest transition-all shadow-[0_0_40px_rgba(139,92,246,0.4)] text-lg active:scale-95">
                 Initialize Routine
             </button>
         </div>
@@ -273,7 +316,7 @@
             <p class="text-xs text-slate-500 uppercase font-bold tracking-widest mb-8">Data Synced to Central Servers
             </p>
             <a href="../../unit6-dashboard.html"
-                class="bg-gradient-to-r from-physics-500 to-purple-500 hover:from-physics-400 hover:to-purple-400 text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest transition-all shadow-[0_0_40px_rgba(14,165,233,0.4)] text-lg block text-center active:scale-95">
+                class="bg-gradient-to-r from-spectrum-500 to-indigo-500 hover:from-spectrum-400 hover:to-indigo-400 text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest transition-all shadow-[0_0_40px_rgba(139,92,246,0.4)] text-lg block text-center active:scale-95">
                 Return to Roadmap
             </a>
         </div>
@@ -292,13 +335,13 @@
             lang: 'en',
             history: [], // Array of 1s (correct) and 0s (incorrect)
             currentQ: null,
+            currentOrder: [], // Tracking current sequencing attempt
             timerLimit: 15, // Default timer limit
             timer: 15,
             timerInterval: null,
             isSyncing: false,
             needsSync: false,
-            questionIndex: 0,
-            animFrame: null
+            questionIndex: 0
         };
 
         // Utility to shuffle an array
@@ -323,10 +366,8 @@
         function handleFocusLoss() {
             const gameContainer = document.getElementById('game-container');
             const nextOverlay = document.getElementById('next-overlay');
-            
-            // Only trigger if the game is visible and the question hasn't been answered yet
             if (gameContainer && !gameContainer.classList.contains('hidden') && nextOverlay && nextOverlay.classList.contains('hidden')) {
-                handleAnswer(-2, null); // Special code -2 for focus loss
+                handleAnswer(-2, null);
             }
         }
 
@@ -358,7 +399,7 @@
                     const { data: progress } = await sbClient.from('student_results')
                         .select('details')
                         .eq('student_id', id)
-                        .eq('assignment_name', "Unit 6 Rapid Review")
+                        .eq('assignment_name', "EM Spectrum Rapid Review")
                         .maybeSingle();
 
                     if (progress && progress.details && progress.details.history) {
@@ -366,23 +407,14 @@
                         state.questionIndex = progress.details.totalQuestionsAnswered || 0;
                     }
 
-                    // --- NEW: Check for Accommodations ---
+                    // Check for Accommodations
                     try {
                         const { data: accData, error: accError } = await sbClient.from('student_accommodations')
-                            .select('timer_limit')
-                            .eq('student_id', id)
-                            .maybeSingle();
-                        
+                            .select('timer_limit').eq('student_id', id).maybeSingle();
                         if (accError) throw accError;
-
-                        if (accData && accData.timer_limit) {
-                            state.timerLimit = accData.timer_limit;
-                        } else {
-                            state.timerLimit = 15; // Reset to default
-                        }
+                        if (accData && accData.timer_limit) state.timerLimit = accData.timer_limit;
+                        else state.timerLimit = 15;
                     } catch (accErr) {
-                        console.error("Accommodation check failed:", accErr);
-                        // We don't block login, but we'll show a subtle warning
                         status.textContent = "ACC_SYNC_ERR // USING_DEFAULT";
                         state.timerLimit = 15;
                     }
@@ -396,22 +428,14 @@
                     if (name.length < 3) { status.textContent = "NAME TOO SHORT"; btn.disabled = false; return; }
                     state.student.name = name; state.student.id = id;
 
-                    // --- NEW: Check for Accommodations (New User) ---
+                    // Check for Accommodations (New User)
                     try {
                         const { data: accData, error: accError } = await sbClient.from('student_accommodations')
-                            .select('timer_limit')
-                            .eq('student_id', id)
-                            .maybeSingle();
-                        
+                            .select('timer_limit').eq('student_id', id).maybeSingle();
                         if (accError) throw accError;
-
-                        if (accData && accData.timer_limit) {
-                            state.timerLimit = accData.timer_limit;
-                        } else {
-                            state.timerLimit = 15;
-                        }
+                        if (accData && accData.timer_limit) state.timerLimit = accData.timer_limit;
+                        else state.timerLimit = 15;
                     } catch (accErr) {
-                        console.error("Accommodation check failed:", accErr);
                         state.timerLimit = 15;
                     }
 
@@ -430,18 +454,14 @@
             document.getElementById('student-tag').textContent = `${state.student.name} // ${state.student.id}`;
             document.getElementById('sync-indicator').classList.add('bg-emerald-500', 'shadow-[0_0_8px_#10b981]');
 
-            // Update UI for accommodations
             if (state.timerLimit !== 15) {
                 const tag = document.getElementById('student-tag');
                 tag.innerHTML += ` <span class="bg-amber-500/20 text-amber-500 px-2 py-0.5 rounded ml-2 border border-amber-500/30 animate-pulse">🕒 ${state.timerLimit}s</span>`;
-                
                 const instructions = document.getElementById('pre-game-instructions');
-                if (instructions) {
-                    instructions.textContent = instructions.textContent.replace('15 seconds', `${state.timerLimit} seconds`);
-                }
+                if (instructions) instructions.textContent = instructions.textContent.replace('15 seconds', `${state.timerLimit} seconds`);
             }
 
-            updateHistoryUI(); // Initial draw of history
+            updateHistoryUI();
         }
 
         async function syncData() {
@@ -452,11 +472,10 @@
             ind.className = 'w-2 h-2 rounded-full bg-orange-500 animate-pulse shadow-[0_0_8px_#f97316]';
 
             try {
-                // Calculate score: out of 20, how many 1s?
                 let correctCount = state.history.filter(x => x === 1).length;
-                let finalScore = state.history.length === 20 ? (correctCount / 20) * 100 : (correctCount / 20) * 100; // Even if < 20, out of 20.
+                let finalScore = (correctCount / 20) * 100;
 
-                const assignmentName = "Unit 6 Rapid Review";
+                const assignmentName = "EM Spectrum Rapid Review";
                 const { data } = await sbClient.from('student_results')
                     .select('id').eq('student_id', state.student.id).eq('assignment_name', assignmentName).limit(1);
 
@@ -494,8 +513,8 @@
          */
         function setLang(lang) {
             state.lang = lang;
-            document.getElementById('lang-en').className = lang === 'en' ? 'px-3 py-1 text-xs font-bold rounded-md bg-physics-500 text-white transition-all' : 'px-3 py-1 text-xs font-bold rounded-md text-slate-400 hover:text-white transition-all';
-            document.getElementById('lang-es').className = lang === 'es' ? 'px-3 py-1 text-xs font-bold rounded-md bg-physics-500 text-white transition-all' : 'px-3 py-1 text-xs font-bold rounded-md text-slate-400 hover:text-white transition-all';
+            document.getElementById('lang-en').className = lang === 'en' ? 'px-3 py-1 text-xs font-bold rounded-md bg-spectrum-500 text-white transition-all' : 'px-3 py-1 text-xs font-bold rounded-md text-slate-400 hover:text-white transition-all';
+            document.getElementById('lang-es').className = lang === 'es' ? 'px-3 py-1 text-xs font-bold rounded-md bg-spectrum-500 text-white transition-all' : 'px-3 py-1 text-xs font-bold rounded-md text-slate-400 hover:text-white transition-all';
             if (state.currentQ) renderQuestion();
         }
 
@@ -507,10 +526,8 @@
 
         function endGame() {
             clearInterval(state.timerInterval);
-            if (state.animFrame) cancelAnimationFrame(state.animFrame);
             document.getElementById('game-container').classList.add('hidden');
             document.getElementById('final-score-container').classList.remove('hidden');
-
             const corrects = state.history.filter(x => x === 1).length;
             document.getElementById('final-score-value').textContent = corrects;
         }
@@ -520,14 +537,27 @@
             document.getElementById('next-overlay').classList.add('hidden');
             document.getElementById('choices-container').classList.remove('pointer-events-none');
 
-            // Refill pool if empty
-            if (runPool.length === 0) {
-                runPool = shuffleArray([...questionBank]);
-            }
-
+            if (runPool.length === 0) runPool = shuffleArray([...questionBank]);
             state.currentQ = runPool.pop();
-            // Shuffle choice indices
-            state.currentQ.shuffledIndices = shuffleArray(Array.from({ length: state.currentQ.choices.length }, (_, i) => i));
+            
+            if (state.currentQ.type === 'order') {
+                state.currentOrder = [];
+                // Pick a random subset of 3 items from the full pool
+                const fullPool = [...state.currentQ.items];
+                const selectedSubset = [];
+                while (selectedSubset.length < 3 && fullPool.length > 0) {
+                    const ranIdx = Math.floor(Math.random() * fullPool.length);
+                    selectedSubset.push(fullPool.splice(ranIdx, 1)[0]);
+                }
+                
+                // Calculate the correct order for ONLY these 3 items based on the master correctOrder
+                state.currentQ.activeCorrectOrder = state.currentQ.correctOrder.filter(item => selectedSubset.includes(item));
+                state.currentQ.shuffledItems = shuffleArray([...selectedSubset]);
+            } else if (state.currentQ.type === 'missing_link') {
+                state.currentQ.shuffledChoices = shuffleArray([...state.currentQ.choices]);
+            } else {
+                state.currentQ.shuffledIndices = shuffleArray(Array.from({ length: state.currentQ.choices.length }, (_, i) => i));
+            }
 
             state.questionIndex++;
             renderQuestion();
@@ -539,100 +569,105 @@
             document.getElementById('q-number').textContent = `Question ${state.questionIndex}`;
             document.getElementById('question-text').textContent = q[state.lang];
 
-            const canvas = document.getElementById('wave-canvas');
-            if (q.drawType) {
-                canvas.classList.remove('hidden');
-                drawCanvasWave(canvas, q.drawType);
-            } else {
-                canvas.classList.add('hidden');
-                if (state.animFrame) cancelAnimationFrame(state.animFrame);
-            }
-
             const cont = document.getElementById('choices-container');
+            const orderCont = document.getElementById('order-sequence-container');
             cont.innerHTML = '';
+            orderCont.innerHTML = '';
+            
+            if (q.type === 'order') {
+                orderCont.classList.remove('hidden');
+                // Create slots for the sequence (3 items)
+                q.activeCorrectOrder.forEach((_, i) => {
+                    const slot = document.createElement('div');
+                    slot.className = 'order-slot';
+                    slot.id = `order-slot-${i}`;
+                    slot.textContent = `?`;
+                    orderCont.appendChild(slot);
+                });
 
-            q.shuffledIndices.forEach((origIdx) => {
-                const btn = document.createElement('button');
-                btn.className = 'choice-btn w-full p-5 rounded-2xl text-lg font-medium text-left break-words shadow-sm';
-                btn.textContent = q.choices[origIdx];
-                btn.onclick = () => handleAnswer(origIdx, btn);
-                cont.appendChild(btn);
-            });
+                // Render available items in choices area
+                q.shuffledItems.forEach((item) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'choice-btn w-full p-4 rounded-2xl text-lg font-bold text-center shadow-sm';
+                    btn.textContent = item;
+                    btn.onclick = () => handleOrderItemClick(item, btn);
+                    cont.appendChild(btn);
+                });
+            } else if (q.type === 'missing_link') {
+                orderCont.classList.remove('hidden');
+                q.sequence.forEach((val, i) => {
+                    if (val === null) {
+                        const slot = document.createElement('div');
+                        slot.className = 'order-slot';
+                        slot.id = `order-slot-missing`;
+                        slot.textContent = `?`;
+                        orderCont.appendChild(slot);
+                    } else {
+                        const item = document.createElement('div');
+                        item.className = 'order-slot bg-slate-800/50 border-slate-700 text-slate-300';
+                        item.textContent = val;
+                        orderCont.appendChild(item);
+                    }
+                    if (i < q.sequence.length - 1) {
+                        const arrow = document.createElement('div');
+                        arrow.className = 'sequence-arrow';
+                        arrow.innerHTML = '→';
+                        orderCont.appendChild(arrow);
+                    }
+                });
+
+                // Render choices
+                q.shuffledChoices.forEach((choice) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'choice-btn w-full p-4 rounded-2xl text-lg font-bold text-center shadow-sm';
+                    btn.textContent = choice;
+                    btn.onclick = () => {
+                        const isCorrect = (choice === q.correct);
+                        if (isCorrect) {
+                            const slot = document.getElementById('order-slot-missing');
+                            slot.textContent = choice;
+                            slot.className = 'order-slot order-item-placed';
+                        }
+                        handleAnswer(isCorrect ? true : choice, btn);
+                    };
+                    cont.appendChild(btn);
+                });
+            } else {
+                orderCont.classList.add('hidden');
+                q.shuffledIndices.forEach((origIdx) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'choice-btn w-full p-5 rounded-2xl text-lg font-medium text-left break-words shadow-sm';
+                    btn.textContent = q.choices[origIdx];
+                    btn.onclick = () => handleAnswer(origIdx, btn);
+                    cont.appendChild(btn);
+                });
+            }
         }
 
-        function drawCanvasWave(canvas, type) {
-            const ctx = canvas.getContext('2d');
-            const w = canvas.width;
-            const h = canvas.height;
+        function handleOrderItemClick(item, btn) {
+            if (btn.disabled) return;
+            
+            const q = state.currentQ;
+            const expectedItem = q.activeCorrectOrder[state.currentOrder.length];
 
-            if (state.animFrame) cancelAnimationFrame(state.animFrame);
+            if (item === expectedItem) {
+                // Correct step
+                const slot = document.getElementById(`order-slot-${state.currentOrder.length}`);
+                slot.textContent = item;
+                slot.className = 'order-slot order-item-placed';
+                
+                state.currentOrder.push(item);
+                btn.disabled = true;
+                btn.classList.add('opacity-0', 'pointer-events-none'); // Hide used item
 
-            let time = 0;
-            function render() {
-                ctx.clearRect(0, 0, w, h);
-
-                // Draw axis
-                ctx.beginPath();
-                ctx.moveTo(0, h / 2);
-                ctx.lineTo(w, h / 2);
-                ctx.strokeStyle = '#334155';
-                ctx.lineWidth = 1;
-                ctx.stroke();
-
-                ctx.lineWidth = 4;
-                time += 0.05;
-
-                if (type === 'transverse_amp') {
-                    drawTransverse(ctx, w, h, 0, w / 2, 60, 60, '#0ea5e9', 'Wave A', time);
-                    drawTransverse(ctx, w, h, w / 2, w / 2, 60, 20, '#a855f7', 'Wave B', time);
-                } else if (type === 'transverse_wavelength') {
-                    drawTransverse(ctx, w, h, 0, w / 2, 30, 40, '#0ea5e9', 'Wave A', time);
-                    drawTransverse(ctx, w, h, w / 2, w / 2, 90, 40, '#a855f7', 'Wave B', time);
-                } else if (type === 'transverse_single') {
-                    drawTransverse(ctx, w, h, w / 4, w / 2, 50, 40, '#10b981', '', time);
-                } else if (type === 'longitudinal_single') {
-                    drawLongitudinal(ctx, w, h, w / 4, w / 2, '#10b981', time);
+                // Check for completion
+                if (state.currentOrder.length === q.activeCorrectOrder.length) {
+                    handleAnswer(true, null); // true means sequence complete
                 }
-
-                state.animFrame = requestAnimationFrame(render);
-            }
-            render();
-        }
-
-        function drawTransverse(ctx, tw, th, offsetX, width, waveLength, amp, color, label, time) {
-            ctx.beginPath();
-            const velocity = 20; // Constant wave speed
-            for (let i = 0; i <= width; i += 2) {
-                const x = offsetX + i;
-                const phase = ((i - time * velocity) / waveLength) * Math.PI * 2;
-                const y = th / 2 - Math.sin(phase) * amp;
-                if (i === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-            }
-            ctx.strokeStyle = color;
-            ctx.stroke();
-
-            if (label) {
-                ctx.fillStyle = '#fff';
-                ctx.font = '20px Outfit';
-                ctx.fillText(label, offsetX + 20, 30);
-            }
-        }
-
-        function drawLongitudinal(ctx, tw, th, offsetX, width, color, time) {
-            ctx.strokeStyle = color;
-            ctx.lineWidth = 3;
-            let currentX = offsetX + 20;
-            for (let i = 0; i < 40; i++) {
-                let phase = (i / 40) * Math.PI * 6 - time * 1.5;
-                let spacing = 8 + Math.sin(phase) * 6;
-                currentX += spacing;
-                if (currentX > offsetX + width - 20) break;
-
-                ctx.beginPath();
-                ctx.moveTo(currentX, th / 2 - 40);
-                ctx.lineTo(currentX, th / 2 + 40);
-                ctx.stroke();
+            } else {
+                // Incorrect step
+                btn.classList.add('incorrect');
+                handleAnswer(false, btn); // false means wrong step
             }
         }
 
@@ -642,23 +677,17 @@
             bar.style.transition = 'none';
             bar.style.width = '100%';
             bar.className = 'timer-bar w-full';
-
-            // Force reflow
             void bar.offsetWidth;
-            
-            // The transition should be 1s to match our 1s interval ticks
             bar.style.transition = 'width 1s linear, background-color 0.5s ease';
 
             state.timerInterval = setInterval(() => {
                 state.timer--;
                 const pct = (state.timer / state.timerLimit) * 100;
                 bar.style.width = `${pct}%`;
-
                 if (state.timer <= 5) bar.classList.add('timer-danger');
-
                 if (state.timer <= 0) {
                     clearInterval(state.timerInterval);
-                    handleAnswer(-1, null); // Timeout = incorrect
+                    handleAnswer(-1, null);
                 }
             }, 1000);
         }
@@ -667,17 +696,20 @@
             clearInterval(state.timerInterval);
             document.getElementById('choices-container').classList.add('pointer-events-none');
 
-            const isCorrect = (selectedIndex === state.currentQ.correct);
+            // selectedIndex can be index (int), true (order complete), or false (order fail)
+            const isCorrect = (selectedIndex === state.currentQ.correct || selectedIndex === true);
             recordResult(isCorrect ? 1 : 0);
 
-            const btns = document.querySelectorAll('.choice-btn');
-            btns.forEach(b => {
-                if (b.textContent === state.currentQ.choices[state.currentQ.correct]) {
-                    b.classList.add('correct');
-                } else if (b === btnElement && !isCorrect) {
-                    b.classList.add('incorrect');
-                }
-            });
+            if (state.currentQ.type !== 'order') {
+                const btns = document.querySelectorAll('.choice-btn');
+                btns.forEach(b => {
+                    if (b.textContent === state.currentQ.choices[state.currentQ.correct]) b.classList.add('correct');
+                    else if (b === btnElement && !isCorrect) b.classList.add('incorrect');
+                });
+            } else {
+                // For ordering, if fail, highlight the items in slots that were wrong or highlight correct remaining?
+                // For simplicity, we just keep the slots as is. The user sees their error.
+            }
 
             const feedback = document.getElementById('feedback-text');
             if (isCorrect) {
@@ -699,30 +731,20 @@
 
         function recordResult(result) {
             state.history.push(result);
-            if (state.history.length > 20) {
-                state.history.shift(); // Keep only last 20
-            }
+            if (state.history.length > 20) state.history.shift();
             updateHistoryUI();
             syncData();
         }
 
         function updateHistoryUI() {
-            // Update Number Score
             const corrects = state.history.filter(x => x === 1).length;
             document.getElementById('score-display').textContent = corrects;
-
-            // Update visual dots
             const dotsCont = document.getElementById('history-dots');
             dotsCont.innerHTML = '';
-
-            // Build 20 dots. Empty ones first if history < 20. 
-            // Better yet, just show 20 static dots and fill them from left to right as history fills.
             for (let i = 0; i < 20; i++) {
                 const dot = document.createElement('div');
                 dot.className = 'history-dot';
-                if (i < state.history.length) {
-                    dot.classList.add(state.history[i] === 1 ? 'correct' : 'incorrect');
-                }
+                if (i < state.history.length) dot.classList.add(state.history[i] === 1 ? 'correct' : 'incorrect');
                 dotsCont.appendChild(dot);
             }
         }
