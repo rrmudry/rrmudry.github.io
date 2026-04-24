@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Tools for Students • 2026 Resource Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons via CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+        .traffic-light-shadow-red { shadow-[0_0_20px_rgba(239,68,68,0.8)] }
+        .traffic-light-shadow-yellow { shadow-[0_0_20px_rgba(250,204,21,0.8)] }
+        .traffic-light-shadow-green { shadow-[0_0_20px_rgba(34,197,94,0.8)] }
+    </style>
+</head>
+
+<body class="min-h-screen bg-slate-50 text-slate-800 selection:bg-blue-200 antialiased">
+
+    <!-- Hero Section -->
+    <header
+        class="bg-gradient-to-br from-slate-900 to-blue-900 text-white py-16 px-6 md:px-12 rounded-b-3xl shadow-xl relative overflow-hidden">
+        <div
+            class="absolute top-0 left-0 w-full h-full opacity-10 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-white via-transparent to-transparent">
+        </div>
+        <div class="max-w-5xl mx-auto relative z-10">
+            <div class="flex items-center gap-3 mb-4">
+                <i data-lucide="brain-circuit" class="w-8 h-8 text-blue-400"></i>
+                <span class="uppercase tracking-widest text-sm font-bold text-blue-300">2026 Student Resource
+                    Guide</span>
+            </div>
+            <h1 class="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
+                AI-Enhanced Learning <br /> & Academic Integrity
+            </h1>
+            <p class="text-lg md:text-xl text-blue-100 max-w-2xl leading-relaxed">
+                Equipping you with the tools to "learn anything" while maintaining the ethical boundaries essential for
+                genuine intellectual development. Based on CDE & Orange County frameworks.
+            </p>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-6 py-12 space-y-20">
+
+        <!-- The Reality Check (Stats) -->
+        <section>
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-bold text-slate-900 mb-4">The New Academic Reality</h2>
+                <p class="text-slate-600 max-w-2xl mx-auto">By early 2026, AI is no longer a novelty; it's a
+                    foundational tool. But how we use it determines if it helps or harms our learning.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <div
+                    class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center hover:shadow-md transition-shadow">
+                    <div class="text-4xl font-black text-blue-600 mb-2">92%</div>
+                    <p class="text-slate-700 font-medium">of students globally use AI for their studies.</p>
+                </div>
+                <div
+                    class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center hover:shadow-md transition-shadow">
+                    <div class="text-4xl font-black text-blue-600 mb-2">54%</div>
+                    <p class="text-slate-700 font-medium">use generative AI tools at least weekly.</p>
+                </div>
+                <div
+                    class="bg-red-50 p-6 rounded-2xl shadow-sm border border-red-100 flex flex-col items-center text-center hover:shadow-md transition-shadow">
+                    <div class="text-4xl font-black text-red-600 mb-2">-17%</div>
+                    <p class="text-red-900 font-medium">Performance drop on exams for students who relied passively
+                        on AI (The "Performance Gap").</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Traffic Light System (Ethics) -->
+        <section class="bg-white rounded-3xl shadow-lg border border-slate-200 overflow-hidden">
+            <div class="p-8 md:p-12">
+                <h2 class="text-3xl font-bold text-slate-900 mb-2 flex items-center gap-3">
+                    <i data-lucide="scale" class="text-green-600"></i>
+                    The Traffic Light System
+                </h2>
+                <p class="text-slate-600 mb-8">A clear distinction between "help" and "cheating". Click a light to
+                    see the rules.</p>
+
+                <div class="flex flex-col md:flex-row gap-12 items-center">
+                    <!-- Stoplight Graphic -->
+                    <div class="bg-slate-800 p-4 rounded-full w-24 flex flex-col items-center gap-4 shadow-inner" id="traffic-light-container">
+                        <button onclick="setTrafficLight('red')" id="btn-red"
+                            class="w-14 h-14 rounded-full transition-all duration-300 bg-red-900 opacity-40 cursor-pointer hover:opacity-70"
+                            aria-label="red light"></button>
+                        <button onclick="setTrafficLight('yellow')" id="btn-yellow"
+                            class="w-14 h-14 rounded-full transition-all duration-300 bg-yellow-400 shadow-[0_0_20px_rgba(250,204,21,0.8)]"
+                            aria-label="yellow light"></button>
+                        <button onclick="setTrafficLight('green')" id="btn-green"
+                            class="w-14 h-14 rounded-full transition-all duration-300 bg-green-900 opacity-40 cursor-pointer hover:opacity-70"
+                            aria-label="green light"></button>
+                    </div>
+
+                    <!-- Dynamic Content -->
+                    <div id="traffic-content" class="flex-1 p-8 rounded-2xl border-l-8 bg-yellow-50 border-yellow-500 transition-colors duration-300">
+                        <h3 id="traffic-title" class="text-2xl font-bold mb-3">Yellow Light: Conditional</h3>
+                        <p id="traffic-desc" class="text-lg mb-6">AI is allowed for specific tasks, but not the final product. Must be disclosed.</p>
+                        <div class="space-y-3">
+                            <h4 class="font-semibold uppercase tracking-wider text-sm opacity-80">Examples:</h4>
+                            <ul id="traffic-examples" class="space-y-2">
+                                <li class="flex items-center gap-2"><i data-lucide="check-circle" class="w-5 h-5 opacity-70"></i><span>Brainstorming ideas</span></li>
+                                <li class="flex items-center gap-2"><i data-lucide="check-circle" class="w-5 h-5 opacity-70"></i><span>Creating outlines</span></li>
+                                <li class="flex items-center gap-2"><i data-lucide="check-circle" class="w-5 h-5 opacity-70"></i><span>Explaining complex concepts</span></li>
+                                <li class="flex items-center gap-2"><i data-lucide="check-circle" class="w-5 h-5 opacity-70"></i><span>Grammar feedback</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- High-Value Learning Strategies -->
+        <section class="space-y-8">
+            <div class="flex items-center gap-3 mb-6">
+                <i data-lucide="zap" class="text-blue-600 w-8 h-8"></i>
+                <h2 class="text-3xl font-bold text-slate-900">High-Value Learning Strategies</h2>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100">
+                    <h3 class="text-xl font-bold text-blue-900 mb-3">Socratic Tutoring</h3>
+                    <p class="text-blue-800">Ask the AI to act as a tutor that quizzes you before a test, rather
+                        than just giving you the answers. Force yourself to engage in the "productive struggle."</p>
+                </div>
+                <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100">
+                    <h3 class="text-xl font-bold text-blue-900 mb-3">Task Deconstruction</h3>
+                    <p class="text-blue-800">Overwhelmed by a 10-page paper? Ask AI to break the assignment down
+                        into a series of smaller, actionable steps and a daily project calendar.</p>
+                </div>
+            </div>
+
+            <!-- Prompt Builder Interactive Element -->
+            <div class="bg-white border border-blue-200 rounded-3xl p-8 shadow-sm mt-8">
+                <h3 class="text-2xl font-bold text-slate-900 mb-2">The "Five S" Prompt Builder</h3>
+                <p class="text-slate-600 mb-8">The quality of your learning depends on the quality of your prompt.
+                    Click through the steps to see how a bad prompt becomes a great learning tool.</p>
+
+                <div class="flex flex-wrap gap-2 mb-6" id="prompt-buttons">
+                    <button onclick="setPromptStep(0)" class="prompt-btn px-4 py-2 rounded-full text-sm font-semibold transition-colors bg-blue-600 text-white shadow-md">Start</button>
+                    <button onclick="setPromptStep(1)" class="prompt-btn px-4 py-2 rounded-full text-sm font-semibold transition-colors bg-slate-100 text-slate-600 hover:bg-slate-200">Set the Scene</button>
+                    <button onclick="setPromptStep(2)" class="prompt-btn px-4 py-2 rounded-full text-sm font-semibold transition-colors bg-slate-100 text-slate-600 hover:bg-slate-200">Specific Task</button>
+                    <button onclick="setPromptStep(3)" class="prompt-btn px-4 py-2 rounded-full text-sm font-semibold transition-colors bg-slate-100 text-slate-600 hover:bg-slate-200">Simplify Language</button>
+                    <button onclick="setPromptStep(4)" class="prompt-btn px-4 py-2 rounded-full text-sm font-semibold transition-colors bg-slate-100 text-slate-600 hover:bg-slate-200">Structure Output</button>
+                    <button onclick="setPromptStep(5)" class="prompt-btn px-4 py-2 rounded-full text-sm font-semibold transition-colors bg-slate-100 text-slate-600 hover:bg-slate-200">Share Feedback</button>
+                </div>
+
+                <div
+                    class="bg-slate-900 text-blue-50 p-6 rounded-xl font-mono text-sm leading-relaxed min-h-[120px] flex items-center relative">
+                    <div class="absolute top-4 right-4 opacity-30">
+                        <i data-lucide="search"></i>
+                    </div>
+                    <p id="prompt-display">"Explain mitosis."</p>
+                </div>
+                <p id="prompt-goal" class="text-blue-600 font-medium mt-4 text-center">
+                    Goal: Basic Prompt
+                </p>
+            </div>
+        </section>
+
+        <!-- M.A.Z.E. Framework -->
+        <section class="bg-red-50 border border-red-200 rounded-3xl p-8 md:p-12">
+            <div class="flex items-center gap-3 mb-6">
+                <i data-lucide="alert-octagon" class="text-red-600 w-8 h-8"></i>
+                <h2 class="text-3xl font-bold text-red-950">M.A.Z.E. Framework: Stay Safe</h2>
+            </div>
+            <p class="text-red-900 mb-8 max-w-3xl">AI tools are "probability engines," not truth engines. They
+                predict the next word; they don't actually "know" facts. Keep yourself safe by following the MAZE rules.
+            </p>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-white p-5 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-slate-900 flex items-center gap-2 mb-2">
+                        <i data-lucide="lock" class="w-5 h-5 text-red-500"></i> Monitor Data Privacy
+                    </h4>
+                    <p class="text-sm text-slate-600">Never input personal information, peer names, or ID numbers
+                        into a public AI. It trains future models.</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-slate-900 flex items-center gap-2 mb-2">
+                        <i data-lucide="eye" class="w-5 h-5 text-red-500"></i> Assess for Accuracy
+                    </h4>
+                    <p class="text-sm text-slate-600">Treat AI output as a "rough draft." It can hallucinate false
+                        facts confidently. Verify claims with real textbooks.</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-slate-900 flex items-center gap-2 mb-2">
+                        <i data-lucide="search" class="w-5 h-5 text-red-500"></i> Zero-in on Bias
+                    </h4>
+                    <p class="text-sm text-slate-600">AI reflects historical societal biases. Make AI "defend its
+                        answers" by asking for opposing viewpoints.</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-slate-900 flex items-center gap-2 mb-2">
+                        <i data-lucide="check-square" class="w-5 h-5 text-red-500"></i> Evaluate Value
+                    </h4>
+                    <p class="text-sm text-slate-600">Always ask: "Is this tool actually helping me learn, or is it
+                        just helping me finish?" Avoid metacognitive laziness.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- The Student Pledge -->
+        <section
+            class="max-w-3xl mx-auto bg-white border border-slate-200 rounded-3xl shadow-xl overflow-hidden mb-20">
+            <div class="bg-green-600 p-6 text-white text-center">
+                <i data-lucide="shield" class="w-12 h-12 mx-auto mb-3 opacity-90"></i>
+                <h2 class="text-2xl font-bold">2026 Student AI Pledge</h2>
+                <p class="text-green-100 mt-2">Become an AI-Fluent Digital Citizen</p>
+            </div>
+
+            <div class="p-8 space-y-6">
+                <label
+                    class="flex items-start gap-4 p-4 rounded-xl hover:bg-slate-50 cursor-pointer border border-transparent hover:border-slate-100 transition-colors">
+                    <input type="checkbox" onchange="updatePledge()" class="pledge-check mt-1 w-6 h-6 text-green-600 rounded focus:ring-green-500">
+                    <div>
+                        <strong class="block text-slate-900">I will disclose my AI usage.</strong>
+                        <span class="text-sm text-slate-600">I will be transparent with my teachers about which
+                            tools I used and how I used them.</span>
+                    </div>
+                </label>
+
+                <label
+                    class="flex items-start gap-4 p-4 rounded-xl hover:bg-slate-50 cursor-pointer border border-transparent hover:border-slate-100 transition-colors">
+                    <input type="checkbox" onchange="updatePledge()" class="pledge-check mt-1 w-6 h-6 text-green-600 rounded focus:ring-green-500">
+                    <div>
+                        <strong class="block text-slate-900">I will verify accuracy.</strong>
+                        <span class="text-sm text-slate-600">I acknowledge AI can hallucinate. I will fact-check
+                            critical information using credible, real-world sources.</span>
+                    </div>
+                </label>
+
+                <label
+                    class="flex items-start gap-4 p-4 rounded-xl hover:bg-slate-50 cursor-pointer border border-transparent hover:border-slate-100 transition-colors">
+                    <input type="checkbox" onchange="updatePledge()" class="pledge-check mt-1 w-6 h-6 text-green-600 rounded focus:ring-green-500">
+                    <div>
+                        <strong class="block text-slate-900">I will protect privacy.</strong>
+                        <span class="text-sm text-slate-600">I will not upload private information, sensitive data,
+                            or unpublished school materials to public AI models.</span>
+                    </div>
+                </label>
+
+                <label
+                    class="flex items-start gap-4 p-4 rounded-xl hover:bg-slate-50 cursor-pointer border border-transparent hover:border-slate-100 transition-colors">
+                    <input type="checkbox" onchange="updatePledge()" class="pledge-check mt-1 w-6 h-6 text-green-600 rounded focus:ring-green-500">
+                    <div>
+                        <strong class="block text-slate-900">I will prioritize my own brain.</strong>
+                        <span class="text-sm text-slate-600">I will use AI as a collaborator, not a shortcut. I
+                            recognize that genuine learning requires productive struggle.</span>
+                    </div>
+                </label>
+
+                <div id="pledge-status" class="mt-8 p-6 rounded-xl text-center transition-all duration-500 bg-slate-100 opacity-50 transform scale-95">
+                    <p class="text-slate-500 font-medium">Complete the pledge above to unlock your status.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 py-8 text-center text-sm">
+        <p>Built for the 2026 Academic Environment. Aligning with CDE & Orange County Standards (AB 2071).</p>
+    </footer>
+
+    <script>
+        // Data
+        const trafficData = {
+            red: {
+                title: "Red Light: Prohibited",
+                desc: "Strictly forbidden AI use. Automatic integrity violation.",
+                examples: ["In-class essays", "Basic skill assessments", "Generating final prose to submit as your own"],
+                colorClass: "bg-red-50 border-red-500",
+                btnClass: "bg-red-500 shadow-[0_0_20px_rgba(239,68,68,0.8)]",
+                btnInactive: "bg-red-900 opacity-40"
+            },
+            yellow: {
+                title: "Yellow Light: Conditional",
+                desc: "AI is allowed for specific tasks, but not the final product. Must be disclosed.",
+                examples: ["Brainstorming ideas", "Creating outlines", "Explaining complex concepts", "Grammar feedback"],
+                colorClass: "bg-yellow-50 border-yellow-500",
+                btnClass: "bg-yellow-400 shadow-[0_0_20px_rgba(250,204,21,0.8)]",
+                btnInactive: "bg-yellow-900 opacity-40"
+            },
+            green: {
+                title: "Green Light: Encouraged",
+                desc: "Assignments specifically designed to be completed with AI as a partner.",
+                examples: ["Analyzing AI bias", "Prompt engineering challenges", "AI vs. Human debate prep"],
+                colorClass: "bg-green-50 border-green-500",
+                btnClass: "bg-green-500 shadow-[0_0_20px_rgba(34,197,94,0.8)]",
+                btnInactive: "bg-green-900 opacity-40"
+            }
+        };
+
+        const fiveSData = [
+            { s: "Start", text: "Basic Prompt", prompt: "Explain mitosis." },
+            { s: "Set the Scene", text: "Establish persona", prompt: "Act as a Socratic tutor for a 10th-grade biology student." },
+            { s: "Specific Task", text: "Define objective", prompt: "Act as a Socratic tutor... Help me understand the stages of mitosis without giving me the answers." },
+            { s: "Simplify Language", text: "Use clear terms", prompt: "Act as a Socratic tutor... Help me understand mitosis without answers. Explain in plain English before using technical terms." },
+            { s: "Structure Output", text: "Define format", prompt: "Act as a Socratic tutor... Help me understand mitosis without answers. Explain in plain English. Provide a table comparing mitosis and meiosis." },
+            { s: "Share Feedback", text: "Refine through chat", prompt: "That was too complex. Can you use an analogy related to a factory to explain the table you just made?" }
+        ];
+
+        // Functions
+        function setTrafficLight(color) {
+            const data = trafficData[color];
+            const content = document.getElementById('traffic-content');
+            const title = document.getElementById('traffic-title');
+            const desc = document.getElementById('traffic-desc');
+            const examplesList = document.getElementById('traffic-examples');
+
+            // Update content
+            content.className = `flex-1 p-8 rounded-2xl border-l-8 ${data.colorClass} transition-colors duration-300`;
+            title.innerText = data.title;
+            desc.innerText = data.desc;
+            examplesList.innerHTML = data.examples.map(ex => `
+                <li class="flex items-center gap-2"><i data-lucide="check-circle" class="w-5 h-5 opacity-70"></i><span>${ex}</span></li>
+            `).join('');
+
+            // Update buttons
+            ['red', 'yellow', 'green'].forEach(c => {
+                const btn = document.getElementById(`btn-${c}`);
+                if (c === color) {
+                    btn.className = `w-14 h-14 rounded-full transition-all duration-300 ${data.btnClass}`;
+                    btn.style.opacity = "1";
+                } else {
+                    btn.className = `w-14 h-14 rounded-full transition-all duration-300 bg-${c}-900 opacity-40 cursor-pointer hover:opacity-70`;
+                    btn.style.boxShadow = "none";
+                }
+            });
+
+            lucide.createIcons();
+        }
+
+        function setPromptStep(step) {
+            const data = fiveSData[step];
+            document.getElementById('prompt-display').innerText = `"${data.prompt}"`;
+            document.getElementById('prompt-goal').innerText = `Goal: ${data.text}`;
+
+            const buttons = document.querySelectorAll('.prompt-btn');
+            buttons.forEach((btn, idx) => {
+                if (idx === step) {
+                    btn.className = "prompt-btn px-4 py-2 rounded-full text-sm font-semibold transition-colors bg-blue-600 text-white shadow-md";
+                } else {
+                    btn.className = "prompt-btn px-4 py-2 rounded-full text-sm font-semibold transition-colors bg-slate-100 text-slate-600 hover:bg-slate-200";
+                }
+            });
+        }
+
+        function updatePledge() {
+            const checks = document.querySelectorAll('.pledge-check');
+            const allChecked = Array.from(checks).every(c => c.checked);
+            const status = document.getElementById('pledge-status');
+
+            if (allChecked) {
+                status.className = "mt-8 p-6 rounded-xl text-center transition-all duration-500 bg-green-100 border border-green-300 transform scale-100";
+                status.innerHTML = `
+                    <div>
+                        <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 text-white shadow-lg">
+                            <i data-lucide="check-circle" class="w-8 h-8"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-green-800">You are an AI-Fluent Digital Citizen!</h3>
+                        <p class="text-green-700 mt-2">You are ready to use AI to amplify your human potential.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+            } else {
+                status.className = "mt-8 p-6 rounded-xl text-center transition-all duration-500 bg-slate-100 opacity-50 transform scale-95";
+                status.innerHTML = `<p class="text-slate-500 font-medium">Complete the pledge above to unlock your status.</p>`;
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+        });
+    </script>
+</body>
+
+</html>
