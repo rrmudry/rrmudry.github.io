@@ -254,7 +254,7 @@
 
         <div id="pre-game-container" class="text-center glass-panel p-12 rounded-3xl max-w-xl">
             <h2 class="text-3xl font-heading font-black mb-4">Ready for Rapid Fire?</h2>
-            <p class="text-slate-400 mb-8 font-medium">You have exactly 15 seconds to answer each question. Your score
+            <p class="text-slate-400 mb-8 font-medium" id="pre-game-instructions">You have exactly 15 seconds to answer each question. Your score
                 is based on your most recent 20 attempts. Keep playing to push your mistakes out of the rolling average!
             </p>
             <button onclick="startGame()"
@@ -292,6 +292,7 @@
             lang: 'en',
             history: [], // Array of 1s (correct) and 0s (incorrect)
             currentQ: null,
+            timerLimit: 15, // Default timer limit
             timer: 15,
             timerInterval: null,
             isSyncing: false,
@@ -364,6 +365,28 @@
                         state.history = progress.details.history;
                         state.questionIndex = progress.details.totalQuestionsAnswered || 0;
                     }
+
+                    // --- NEW: Check for Accommodations ---
+                    try {
+                        const { data: accData, error: accError } = await sbClient.from('student_accommodations')
+                            .select('timer_limit')
+                            .eq('student_id', id)
+                            .maybeSingle();
+                        
+                        if (accError) throw accError;
+
+                        if (accData && accData.timer_limit) {
+                            state.timerLimit = accData.timer_limit;
+                        } else {
+                            state.timerLimit = 15; // Reset to default
+                        }
+                    } catch (accErr) {
+                        console.error("Accommodation check failed:", accErr);
+                        // We don't block login, but we'll show a subtle warning
+                        status.textContent = "ACC_SYNC_ERR // USING_DEFAULT";
+                        state.timerLimit = 15;
+                    }
+
                     finalizeLogin();
                 } else if (document.getElementById('name-entry').classList.contains('hidden')) {
                     document.getElementById('name-entry').classList.remove('hidden');
@@ -372,6 +395,26 @@
                     const name = nameInput.value.trim();
                     if (name.length < 3) { status.textContent = "NAME TOO SHORT"; btn.disabled = false; return; }
                     state.student.name = name; state.student.id = id;
+
+                    // --- NEW: Check for Accommodations (New User) ---
+                    try {
+                        const { data: accData, error: accError } = await sbClient.from('student_accommodations')
+                            .select('timer_limit')
+                            .eq('student_id', id)
+                            .maybeSingle();
+                        
+                        if (accError) throw accError;
+
+                        if (accData && accData.timer_limit) {
+                            state.timerLimit = accData.timer_limit;
+                        } else {
+                            state.timerLimit = 15;
+                        }
+                    } catch (accErr) {
+                        console.error("Accommodation check failed:", accErr);
+                        state.timerLimit = 15;
+                    }
+
                     finalizeLogin();
                 }
             } catch (e) {
@@ -386,6 +429,17 @@
             document.getElementById('student-info').classList.remove('hidden');
             document.getElementById('student-tag').textContent = `${state.student.name} // ${state.student.id}`;
             document.getElementById('sync-indicator').classList.add('bg-emerald-500', 'shadow-[0_0_8px_#10b981]');
+
+            // Update UI for accommodations
+            if (state.timerLimit !== 15) {
+                const tag = document.getElementById('student-tag');
+                tag.innerHTML += ` <span class="bg-amber-500/20 text-amber-500 px-2 py-0.5 rounded ml-2 border border-amber-500/30 animate-pulse">🕒 ${state.timerLimit}s</span>`;
+                
+                const instructions = document.getElementById('pre-game-instructions');
+                if (instructions) {
+                    instructions.textContent = instructions.textContent.replace('15 seconds', `${state.timerLimit} seconds`);
+                }
+            }
 
             updateHistoryUI(); // Initial draw of history
         }
@@ -415,6 +469,7 @@
                     details: {
                         history: state.history,
                         totalQuestionsAnswered: state.questionIndex,
+                        timerLimit: state.timerLimit,
                         ts: new Date().toISOString()
                     }
                 };
@@ -582,7 +637,7 @@
         }
 
         function startTimer() {
-            state.timer = 15;
+            state.timer = state.timerLimit;
             const bar = document.getElementById('timer-bar');
             bar.style.transition = 'none';
             bar.style.width = '100%';
@@ -590,11 +645,13 @@
 
             // Force reflow
             void bar.offsetWidth;
+            
+            // The transition should be 1s to match our 1s interval ticks
             bar.style.transition = 'width 1s linear, background-color 0.5s ease';
 
             state.timerInterval = setInterval(() => {
                 state.timer--;
-                const pct = (state.timer / 15) * 100;
+                const pct = (state.timer / state.timerLimit) * 100;
                 bar.style.width = `${pct}%`;
 
                 if (state.timer <= 5) bar.classList.add('timer-danger');

@@ -96,39 +96,42 @@ const lessonsData = [
     date: "2026-04-24",
     day: 20,
     unit: 6,
-    title: "Evidence for Particles",
-    summary: "Introduction to the Photoelectric Effect and the concept of 'Photons'.",
-    details: "Exploring the particle-like behavior of light at high frequencies and the birth of quantum theory.",
-    type: "Activity",
+    title: "Evidence for Particles & Rapid Review",
+    summary: "Intro to the Photoelectric Effect + EM Spectrum Rapid Fire Review.",
+    details: "Students analyze the particle-like behavior of light and complete the interactive Rapid Review assessment.",
+    type: "Assessment",
     dok: 3,
     semester: 2,
     isFeatured: true,
-    essentialQuestion: "How does the photoelectric effect demonstrate the particle nature of light?"
+    essentialQuestion: "How does the photoelectric effect demonstrate the particle nature of light?",
+    links: { 
+      "EM Spectrum Rapid Review": "Unit_6_Waves_Radiation/EM_Spectrum_Rapid_Review/index.html"
+    }
   },
   {
     date: "2026-04-23",
     day: 19,
     unit: 6,
-    title: "Evidence for Waves",
-    summary: "Reviewing the Double-Slit experiment and Polarization.",
-    details: "Experimental evidence supporting the wave model of light through interference patterns.",
+    title: "Spectrum City: Final Review",
+    summary: "Finalizing hazard maps and preparing for Rapid Fire sequencing.",
+    details: "Synthesizing EM relationships (Energy vs Wavelength) to complete the Spectrum City master plan.",
     type: "Activity",
     dok: 2,
     semester: 2,
     isFeatured: true,
     essentialQuestion: "What experimental evidence confirms that light behaves like a wave?",
     links: { 
-      "Hubble's Law (Redshift)": "Unit_6_Waves_Radiation/The_Big_Bang/Hubbles_Law.html",
-      "Project: Spectrum City Map": "Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html"
+      "Project: Spectrum City Map": "Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html",
+      "EM Spectrum Rapid Review": "Unit_6_Waves_Radiation/EM_Spectrum_Rapid_Review/index.html"
     }
   },
   {
     date: "2026-04-22",
     day: 18,
     unit: 6,
-    title: "The Dangers of Radiation",
-    summary: "Evaluating the impact of Ionizing Radiation (UV, X-ray, Gamma) on biological tissue. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
-    details: "Comparing ionizing vs. non-ionizing radiation and their long-term effects on health.",
+    title: "Spectrum City: Hazard Quantification",
+    summary: "Modeling wave interactions and calculating biological hazard levels. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
+    details: "Quantifying how ionizing radiation (UV, X-ray, Gamma) interacts with cellular tissue in the city's high-energy districts.",
     type: "Activity",
     dok: 3,
     semester: 2,
@@ -136,37 +139,36 @@ const lessonsData = [
     essentialQuestion: "What makes certain frequencies of the EM spectrum hazardous to living tissue?",
     links: { 
       "Spectrum City Project": "Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html",
-      "Hubble's Law Lab": "Unit_6_Waves_Radiation/The_Big_Bang/Hubbles_Law.html"
+      "EM Spectrum Rapid Review": "Unit_6_Waves_Radiation/EM_Spectrum_Rapid_Review/index.html"
     }
   },
   {
     date: "2026-04-21",
     day: 17,
     unit: 6,
-    title: "Energy & Matter Interactions",
-    summary: "How materials absorb, reflect, or transmit specific frequencies. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
-    details: "Transparency, opacity, and the selective absorption of light based on frequency.",
+    title: "Spectrum City: District Zoning",
+    summary: "Mapping architectural zones across the 7 EM regions. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
+    details: "Zoning Spectrum City based on material absorption, reflection, and transmission properties.",
     type: "Activity",
     dok: 2,
     semester: 2,
     isFeatured: true,
     essentialQuestion: "What determines whether a material will absorb or transmit a specific frequency of light?",
     links: { 
-      "Spectrum City Project": "Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html",
-      "Hubble's Law Lab": "Unit_6_Waves_Radiation/The_Big_Bang/Hubbles_Law.html"
+      "Spectrum City Project": "Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html"
     }
   },
   {
     date: "2026-04-20",
     day: 16,
     unit: 6,
-    title: "Hubble's Law & The Big Bang",
+    title: "Hubble's Law Lab",
     summary: "Analyzing the expanding universe through the Doppler shift of light. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
     details: "Using galactic redshift data to calculate the expansion rate (Hubble's Constant) and exploring evidence for the Big Bang.",
-    type: "Activity",
+    type: "Lab",
     links: { 
       "Hubble's Law Lab": "Unit_6_Waves_Radiation/The_Big_Bang/Hubbles_Law.html",
-      "Project: Spectrum City Map": "Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html"
+      "Spectrum City Map": "Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html"
     },
     dok: 3,
     semester: 2,
@@ -202,7 +204,8 @@ const lessonsData = [
     essentialQuestion: "How are the regions of the EM spectrum organized by energy and wavelength?",
     links: { 
         "Spectrum City Project": "Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html",
-        "Comic Poster Instructions": "https://docs.google.com/document/d/1JMt2gsKlaqpJWbMAr52scifNDr8ydx_todBrnqLMhyQ/edit?usp=sharing"
+        "Comic Poster Instructions": "https://docs.google.com/document/d/1JMt2gsKlaqpJWbMAr52scifNDr8ydx_todBrnqLMhyQ/edit?usp=sharing",
+        "EM Spectrum Rapid Review": "Unit_6_Waves_Radiation/EM_Spectrum_Rapid_Review/index.html"
     }
   },
   {
