@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signals and Communication: Analog vs. Digital</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;600&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent-indigo: #6366f1; /* Slightly more vibrant for light mode */
+            --accent-cyan: #0891b2;
+            --accent-violet: #8b5cf6;
+            --font-main: 'Inter', sans-serif;
+            --font-mono: 'Fira Code', monospace;
+            --font-display: 'Outfit', sans-serif;
+
+            /* Default Dark Mode (Command Center) */
+            --bg-color: #020617;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --card-bg: rgba(15, 23, 42, 0.6);
+            --card-border: rgba(139, 92, 246, 0.2);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            --nav-bg: rgba(15, 23, 42, 0.8);
+            --input-bg: rgba(0, 0, 0, 0.3);
+            --input-border: rgba(139, 92, 246, 0.3);
+            --pill-bg: rgba(255, 255, 255, 0.05);
+            --pill-border: rgba(255, 255, 255, 0.1);
+            --pill-text: #94a3b8;
+            --pill-bank-bg: rgba(255, 255, 255, 0.08);
+            --pill-bank-text: #f1f5f9;
+            --osc-bg: #0f172a;
+        }
+
+        :root.light {
+            --bg-color: #f1f5f9;
+            --text-main: #000000;
+            --text-muted: #334155;
+            --card-bg: #ffffff;
+            --card-border: #cbd5e1;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --nav-bg: rgba(255, 255, 255, 0.98);
+            --input-bg: #f8fafc;
+            --input-border: #94a3b8;
+            --pill-bg: #f1f5f9;
+            --pill-border: #94a3b8;
+            --pill-text: #334155;
+            --pill-bank-bg: #e2e8f0;
+            --pill-bank-text: #000000;
+            --osc-bg: #000000; 
+
+            /* High Contrast Accents for Light Mode */
+            --accent-indigo: #4338ca; /* Indigo-700 */
+            --accent-cyan: #0e7490;   /* Cyan-700 */
+            --accent-violet: #7c3aed; /* Violet-600 */
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 0% 100%, rgba(8, 145, 178, 0.05) 0%, transparent 40%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: 1.25rem;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+
+        :root.light .glass-card {
+            border: 1px solid #e2e8f0;
+        }
+
+        .glass-card:hover {
+            border-color: var(--accent-indigo);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            border-radius: 1rem;
+            overflow: hidden;
+            background-color: var(--osc-bg);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .highlight-word {
+            cursor: default;
+            transition: all 0.2s ease;
+            border-radius: 3px;
+            padding: 0 1px;
+            display: inline-block;
+        }
+
+        .highlight-mode .highlight-word {
+            cursor: crosshair;
+        }
+
+        .highlight-mode .highlight-word:hover {
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .highlight-word.active {
+            background: var(--accent-indigo) !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 8px var(--accent-indigo);
+        }
+
+        :root.light .highlight-word.active {
+            box-shadow: none;
+            border-bottom: 2px solid var(--accent-indigo);
+        }
+
+        .highlight-word.master-term {
+            color: var(--accent-indigo);
+            font-weight: bold;
+        }
+
+        .venn-circle {
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: 2.5rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(4px);
+        }
+
+        .venn-analog {
+            background: rgba(99, 102, 241, 0.05);
+            border: 2px dashed rgba(99, 102, 241, 0.3);
+            left: 0;
+        }
+
+        :root.dark .venn-analog {
+            background: rgba(139, 92, 246, 0.1);
+            border-color: rgba(139, 92, 246, 0.4);
+        }
+
+        .venn-digital {
+            background: rgba(8, 145, 178, 0.05);
+            border: 2px dashed rgba(8, 145, 178, 0.3);
+            right: 0;
+        }
+
+        :root.dark .venn-digital {
+            background: rgba(6, 182, 212, 0.1);
+            border-color: rgba(6, 182, 212, 0.4);
+        }
+
+        .venn-both {
+            position: absolute;
+            z-index: 20;
+            width: 100px;
+            height: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .terminal-input {
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            color: var(--accent-indigo);
+            font-family: var(--font-mono);
+            transition: all 0.3s ease;
+        }
+
+        :root.dark .terminal-input {
+            color: #c084fc;
+        }
+
+        .terminal-input:focus {
+            outline: none;
+            border-color: var(--accent-indigo);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .font-display { font-family: var(--font-display); }
+        .font-mono { font-family: var(--font-mono); }
+
+        /* Theme-aware Text Utilities */
+        .text-main { color: var(--text-main); }
+        .text-muted { color: var(--text-muted); }
+
+        .themed-container {
+            background: var(--pill-bg);
+            border: 1px solid var(--pill-border);
+            transition: all 0.4s ease;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-color); }
+        ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.2); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(99, 102, 241, 0.4); }
+
+        /* Custom Range Slider Styling */
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            border: 3px solid currentColor;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            transition: transform 0.1s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            border: 3px solid currentColor;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            transition: transform 0.1s ease;
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+
+    <nav class="backdrop-blur-md border-b border-white/5 sticky top-0 z-50 transition-colors duration-500" style="background: var(--nav-bg);">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30 text-xl shadow-lg">
+                        📡
+                    </div>
+                    <span class="font-display font-bold text-xl tracking-tight" id="nav-title" style="color: var(--text-main);">Physics: Signals</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <!-- Theme Toggle -->
+                    <button onclick="toggleTheme()" id="theme-toggle"
+                        class="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 border border-white/10"
+                        style="background: var(--pill-bg); color: var(--text-main);">
+                        <span id="theme-icon">🌙</span>
+                    </button>
+
+                    <button onclick="toggleLanguage()"
+                        class="px-5 py-2 rounded-full font-medium transition flex items-center gap-2 border border-white/10"
+                        style="background: var(--pill-bg); color: var(--accent-indigo);">
+                        <span>&#127758;</span>
+                        <span id="lang-btn-text" class="text-sm">Switch to Español</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+
+        <!-- Context & Essential Question -->
+        <section class="glass-card p-6 sm:p-8 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-1.5 h-full bg-indigo-500 shadow-[0_0_15px_rgba(139,92,246,0.5)]"></div>
+            <p class="text-xs font-mono font-bold tracking-widest uppercase mb-3 flex items-center gap-2" style="color: var(--accent-indigo);">
+                <span class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></span>
+                <span id="eq-label">Essential Question</span>
+            </p>
+            <h1 class="text-2xl sm:text-4xl font-display font-extrabold text-main mb-4 leading-tight" id="eq-text">
+                How do we convert wave energy into information that can be sent over long distances?
+            </h1>
+            <p class="text-muted max-w-3xl leading-relaxed" id="intro-context">
+                Before diving into the reading, use the interactive simulator below. This tool illustrates the core
+                concepts of the text: how continuous waves (Analog) differ from discrete binary waves (Digital), and why
+                one is better at handling interference (Noise).
+            </p>
+        </section>
+
+        <!-- Wave Simulator (The Hook) -->
+        <section class="glass-card p-6 border-l-4 border-l-cyan-500/50">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-6">
+                <div>
+                    <h2 class="text-xl font-display font-bold" id="sim-title" style="color: var(--accent-cyan);">Signal Simulator Sandbox</h2>
+                    <p class="text-sm text-muted font-mono" id="sim-desc">Observe how interference (noise) affects signal fidelity.</p>
+                </div>
+
+                <div class="flex flex-wrap gap-4 items-center">
+                    <div class="flex p-1 rounded-xl bg-black/10 border border-white/5 backdrop-blur-sm">
+                        <button onclick="setSignalType('analog')" id="btn-analog"
+                            class="px-5 py-2 rounded-lg font-bold text-xs transition shadow-lg bg-indigo-600 text-white border border-indigo-400/50">
+                            Analog
+                        </button>
+                        <button onclick="setSignalType('digital')" id="btn-digital"
+                            class="px-5 py-2 rounded-lg font-bold text-xs transition hover:text-white border border-transparent"
+                            style="color: var(--text-muted);">
+                            Digital
+                        </button>
+                    </div>
+
+                    <div class="flex p-1 rounded-xl bg-black/10 border border-white/5 backdrop-blur-sm">
+                        <button onclick="setComplexity('basic')" id="btn-basic"
+                            class="px-5 py-2 rounded-lg font-bold text-xs transition shadow-lg bg-emerald-600 text-white border border-emerald-400/50">
+                            Basic
+                        </button>
+                        <button onclick="setComplexity('encoded')" id="btn-encoded"
+                            class="px-5 py-2 rounded-lg font-bold text-xs transition hover:text-white border border-transparent"
+                            style="color: var(--text-muted);">
+                            Encoded
+                        </button>
+                    </div>
+
+                    <button onclick="toggleSim()" id="btn-toggle-sim"
+                        class="px-5 py-2.5 rounded-xl font-bold text-xs transition border border-[var(--pill-border)] flex items-center gap-2"
+                        style="background: var(--pill-bg); color: var(--text-main);">
+                        <span id="sim-icon">⏸️</span>
+                        <span id="sim-text">Pause Sim</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- OSCILLOSCOPE CONTAINER -->
+            <div class="canvas-container relative">
+                <div class="absolute inset-0 pointer-events-none opacity-20" style="background-image: linear-gradient(#334155 1px, transparent 1px), linear-gradient(90deg, #334155 1px, transparent 1px); background-size: 40px 40px;"></div>
+                <canvas id="waveCanvas"></canvas>
+                <div class="absolute top-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded border border-white/10 flex items-center gap-2">
+                    <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                    <span class="text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-widest">Live_Feed</span>
+                </div>
+            </div>
+
+            <div class="mt-8 flex flex-col lg:flex-row items-center gap-8 themed-container p-6 rounded-xl">
+                <div class="w-full lg:w-1/2 space-y-6">
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <label class="text-sm font-bold uppercase tracking-wider" id="noise-label" style="color: var(--accent-cyan);">Interference (Noise) Level:</label>
+                            <span id="noise-value" class="font-mono font-bold text-cyan-500">0%</span>
+                        </div>
+                        <input type="range" id="noiseSlider" min="0" max="100" value="0" 
+                            class="w-full h-1.5 rounded-lg appearance-none cursor-pointer accent-cyan-500" style="background: var(--pill-border);">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <label class="text-sm font-bold uppercase tracking-wider" id="attenuation-label" style="color: var(--accent-violet);">Signal Strength (Attenuation):</label>
+                            <span id="attenuation-value" class="font-mono font-bold text-violet-500">100%</span>
+                        </div>
+                        <input type="range" id="attenuationSlider" min="10" max="100" value="100" 
+                            class="w-full h-1.5 rounded-lg appearance-none cursor-pointer accent-violet-500" style="background: var(--pill-border);">
+                    </div>
+                </div>
+                <div class="w-full lg:w-1/2 p-4 rounded-lg" style="background: rgba(99, 102, 241, 0.05); border: 1px solid var(--card-border);">
+                    <p class="text-sm text-main leading-relaxed italic" id="noise-insight">
+                        Notice how the Analog wave gets distorted immediately. The Digital wave's "high" and "low" states
+                        remain readable until the noise becomes extreme.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- AVID Interactive Notebook Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+            <!-- Left Column: Reading Material -->
+            <div class="lg:col-span-7 space-y-6" id="reading-container">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 border-b border-white/5 pb-4">
+                    <h2 class="text-2xl font-display font-bold text-main flex items-center gap-3">
+                        <span class="text-indigo-500">01</span>
+                        <span id="reading-title">Close Reading</span>
+                    </h2>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="toggleSpeech()" id="btn-speak"
+                            class="text-xs px-4 py-2 rounded-lg transition-all font-bold uppercase tracking-widest flex items-center gap-2 border border-[var(--pill-border)]"
+                            style="background: var(--pill-bg); color: var(--accent-cyan);">
+                            <span id="speak-icon">🔊</span>
+                            <span id="speak-text">Listen to Text</span>
+                        </button>
+                        <button onclick="toggleHighlights()" id="btn-highlight"
+                            class="text-xs px-4 py-2 rounded-lg transition-all font-bold uppercase tracking-widest flex items-center gap-2 border border-[var(--pill-border)]"
+                            style="background: var(--pill-bg); color: var(--accent-indigo);">
+                            <span>&#128394;</span>
+                            <span id="highlight-btn-text">AVID Step 2: Circle Key Terms</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="prose max-w-none space-y-6 text-lg leading-relaxed text-main" id="text-content">
+                    <!-- Content injected via JS -->
+                </div>
+            </div>
+
+            <!-- Right Column: AVID Tools -->
+            <div class="lg:col-span-5 space-y-8">
+                <!-- Step 4: Gist Statements -->
+                <div class="glass-card p-6 border-t-2 border-t-indigo-500/30">
+                    <h3 class="text-lg font-display font-bold text-main mb-2 flex items-center gap-3">
+                        <span style="color: var(--accent-indigo);">02</span>
+                        <span id="gist-title">Gist Statements</span>
+                    </h3>
+                    <p class="text-xs text-muted font-mono mb-6" id="gist-desc">Process the text with 3-word summaries.</p>
+
+                    <div class="space-y-5">
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase tracking-widest mb-1.5" id="gist-l1" style="color: var(--accent-indigo);">Paragraph 1</label>
+                            <input type="text" placeholder="Modifying waves communicates"
+                                class="terminal-input w-full px-4 py-2.5 rounded-lg text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase tracking-widest mb-1.5" id="gist-l2" style="color: var(--accent-indigo);">Paragraph 2</label>
+                            <input type="text" placeholder="3 words max..."
+                                class="terminal-input w-full px-4 py-2.5 rounded-lg text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase tracking-widest mb-1.5" id="gist-l3" style="color: var(--accent-indigo);">Paragraph 3</label>
+                            <input type="text" placeholder="3 words max..."
+                                class="terminal-input w-full px-4 py-2.5 rounded-lg text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase tracking-widest mb-1.5" id="gist-l4" style="color: var(--accent-indigo);">Paragraph 4</label>
+                            <input type="text" placeholder="3 words max..."
+                                class="terminal-input w-full px-4 py-2.5 rounded-lg text-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Processing Tool: Venn Diagram (Organize Goal) -->
+                <div class="glass-card p-6 border-t-2 border-t-cyan-500/30">
+                    <h3 class="text-lg font-display font-bold text-main mb-2 flex items-center gap-3">
+                        <span style="color: var(--accent-cyan);">03</span>
+                        <span id="venn-title">Compare & Contrast</span>
+                    </h3>
+                    <p class="text-xs text-muted font-mono mb-8" id="venn-desc">Sort the traits into the correct categories.</p>
+
+                    <!-- Interactive Venn Display -->
+                    <div class="relative h-[280px] flex justify-center items-center mb-8 mx-auto w-full max-w-[400px]">
+                        <!-- Left Circle (Analog) -->
+                        <div class="venn-circle venn-analog">
+                            <span class="font-mono font-bold mb-4 uppercase text-[10px] tracking-widest" id="venn-l-title" style="color: var(--accent-indigo);">Analog</span>
+                            <ul id="list-analog" class="flex flex-col gap-1.5 w-full px-4 list-none p-0 overflow-y-auto max-h-[140px] custom-scroll"></ul>
+                        </div>
+                        <!-- Right Circle (Digital) -->
+                        <div class="venn-circle venn-digital">
+                            <span class="font-mono font-bold mb-4 uppercase text-[10px] tracking-widest" id="venn-r-title" style="color: var(--accent-cyan);">Digital</span>
+                            <ul id="list-digital" class="flex flex-col gap-1.5 w-full px-4 list-none p-0 overflow-y-auto max-h-[140px] custom-scroll"></ul>
+                        </div>
+                        <!-- Center (Both) -->
+                        <div class="venn-both mt-8">
+                            <span class="font-mono font-bold mb-2 uppercase text-[9px] tracking-widest opacity-70" id="venn-c-title" style="color: var(--text-main);">Both</span>
+                            <ul id="list-both" class="flex flex-col gap-1 list-none p-0 w-full px-2 items-center"></ul>
+                        </div>
+                    </div>
+
+                    <!-- Word Bank -->
+                    <div class="themed-container p-4 rounded-xl">
+                        <p class="text-[9px] font-mono font-bold uppercase tracking-widest mb-4 text-center" id="bank-title" style="color: var(--text-muted);">Word Bank (Click to sort)</p>
+                        <div class="flex flex-wrap justify-center gap-2" id="trait-bank">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- 1. STATE MANAGEMENT & DATA STORAGE ---
+        let synth = window.speechSynthesis;
+        let utterance = null;
+
+        let state = {
+            lang: 'en',
+            theme: 'dark', 
+            signalType: 'analog',
+            noise: 0,
+            highlightsActive: false,
+            selectedTrait: null,
+            isSpeechPaused: false,
+            simRunning: true,
+            attenuation: 100,
+            complexity: 'basic'
+        };
+
+        function setComplexity(level) {
+            state.complexity = level;
+            const btnB = document.getElementById('btn-basic');
+            const btnE = document.getElementById('btn-encoded');
+
+            if (level === 'basic') {
+                btnB.className = "px-5 py-2 rounded-lg font-bold text-xs transition shadow-lg bg-emerald-600 text-white border border-emerald-400/50";
+                btnE.className = "px-5 py-2 rounded-lg font-bold text-xs transition hover:text-white border border-transparent";
+                btnE.style.color = "var(--text-muted)";
+            } else {
+                btnE.className = "px-5 py-2 rounded-lg font-bold text-xs transition shadow-lg bg-emerald-600 text-white border border-emerald-400/50";
+                btnB.className = "px-5 py-2 rounded-lg font-bold text-xs transition hover:text-white border border-transparent";
+                btnB.style.color = "var(--text-muted)";
+            }
+        }
+
+        document.getElementById('attenuationSlider').addEventListener('input', (e) => {
+            state.attenuation = e.target.value;
+            document.getElementById('attenuation-value').innerText = state.attenuation + '%';
+        });
+
+        const contentData = {
+            en: {
+                navTitle: "Physics: Signals",
+                btnLang: "Switch to Español",
+                eqLabel: "Essential Question",
+                eqText: "How do we convert wave energy into information that can be sent over long distances?",
+                intro: "Before diving into the reading, use the interactive simulator below. This tool illustrates the core concepts of the text: how continuous waves (Analog) differ from discrete binary waves (Digital), and why one is better at handling interference (Noise).",
+                simTitle: "Signal Simulator Sandbox",
+                simDesc: "Observe how interference (noise) affects signal fidelity.",
+                simAnalog: "Analog (Continuous)",
+                simDigital: "Digital (Discrete)",
+                noiseLabel: "Interference (Noise) Level:",
+                attenuationLabel: "Signal Strength (Attenuation):",
+                noiseInsight: "Notice how the Analog wave gets distorted immediately. The Digital wave's \"high\" and \"low\" states remain readable until the noise becomes extreme.",
+                readingTitle: "AVID Step 2: Circle Key Terms",
+                btnHighlight: "AVID Step 2: Circle Key Terms",
+                btnSpeak: "Listen to Text",
+                btnPause: "Pause Listening",
+                btnResume: "Resume Listening",
+                btnPauseSim: "Pause Sim",
+                btnResumeSim: "Resume Sim",
+                btnBasic: "Basic",
+                btnEncoded: "Encoded",
+                gistTitle: "Gist Statements",
+                gistDesc: "Process the text with 3-word summaries.",
+                g1: "Paragraph 1", g2: "Paragraph 2", g3: "Paragraph 3", g4: "Paragraph 4",
+                vennTitle: "Compare & Contrast",
+                vennDesc: "Sort the traits into the correct categories.",
+                vLeft: "Analog", vRight: "Digital", vCenter: "Both", bankTitle: "Word Bank (Click to sort)",
+                paragraphs: [
+                    "In the modern world, information is constantly moving around us in the form of a {Signal}. A {Signal} is a wave that has been modified to carry information, such as a voice over the phone or a video on a screen. Engineers categorize these into two main types based on how the information is encoded: {Analog Signals} and {Digital Signals}. Understanding the difference between these two is the key to understanding why our modern technology is so much faster and more reliable than the technology used just a few decades ago.",
+                    "An {Analog Signal} is a continuous wave that changes smoothly over time. Think of it like a dimmer switch on a light; you can slide it to any position to get an infinite variety of brightness. In an {Analog Signal}, the amplitude or frequency of the wave varies exactly in proportion to the information being sent. For example, when you speak into an old landline telephone, the sound waves of your voice are converted into an electrical {Signal} that has the same 'shape' as your voice. While these signals are great for capturing a high level of detail, they are very susceptible to noise—interference from outside sources that can distort the wave and make the information fuzzy or static.",
+                    "On the other hand, a {Digital Signal} is a discrete wave that carries information in a binary format, meaning it only uses two states: 'on' or 'off' (represented as 1s and 0s). Instead of a smooth curve, a {Digital Signal} looks like a series of square pulses. This is similar to a standard light switch that is either up or down. Because the computer only has to distinguish between a 'high' voltage and a 'low' voltage, it is much easier to filter out interference. Even if the wave gets slightly distorted during travel, the receiver can still tell if the signal was meant to be a 1 or a 0, resulting in a much clearer transmission.",
+                    "The shift from analog to digital has revolutionized how we store and send data. {Digital Signals} can be compressed, which means they take up less space and can be sent much faster than {Analog Signals}. This is why you can stream high-definition movies on a smartphone today, whereas old analog televisions struggled to show a clear picture during a rainstorm. Furthermore, {Digital Signals} can be encrypted for security, making it possible to send private information like bank details or text messages across the globe without them being easily intercepted.",
+                    "In conclusion, while {Analog Signals} are the most natural way to represent sound and light, {Digital Signals} are the superior choice for modern communication. By converting the smooth, continuous waves of the physical world into the 1s and 0s of the digital world, we have created a communication system that is faster, clearer, and more secure than ever before."
+                ],
+                traits: [
+                    { id: 't1', text: 'Continuous Wave', answer: 'analog' },
+                    { id: 't2', text: 'Binary (1s & 0s)', answer: 'digital' },
+                    { id: 't3', text: 'Carries Information', answer: 'both' },
+                    { id: 't4', text: 'Susceptible to Noise', answer: 'analog' },
+                    { id: 't5', text: 'Can be Compressed', answer: 'digital' },
+                    { id: 't6', text: 'Modified Energy Wave', answer: 'both' }
+                ]
+            },
+            es: {
+                navTitle: "Física: Señales",
+                btnLang: "Switch to English",
+                eqLabel: "Pregunta Esencial",
+                eqText: "¿Cómo convertimos la energía de las ondas en información que se puede enviar a largas distancias?",
+                intro: "Antes de sumergirte en la lectura, usa el simulador interactivo a continuación. Esta herramienta ilustra los conceptos centrales del texto: cómo difieren las ondas continuas (Analog) de las ondas binarias discretas (Digital), y por qué una es mejor para manejar interferencias (Ruido).",
+                simTitle: "Simulador de Señales",
+                simDesc: "Observa cómo la interferencia (ruido) afecta la fidelidad de la señal.",
+                simAnalog: "Analog (Continua)",
+                simDigital: "Digital (Discreta)",
+                noiseLabel: "Nivel de Interferencia (Ruido):",
+                attenuationLabel: "Fuerza de la Señal (Atenuación):",
+                noiseInsight: "Nota cómo la onda Analog se distorsiona inmediatamente. Los estados 'alto' y 'bajo' de la onda Digital permanecen legibles hasta que el ruido se vuelve extremo.",
+                readingTitle: "AVID Paso 2: Marcar Términos Clave",
+                btnHighlight: "AVID Paso 2: Marcar Términos Clave",
+                btnSpeak: "Escuchar Texto",
+                btnPause: "Pausar Lectura",
+                btnResume: "Reanudar Lectura",
+                btnPauseSim: "Pausar Sim",
+                btnResumeSim: "Reanudar Sim",
+                btnBasic: "Básico",
+                btnEncoded: "Codificado",
+                gistTitle: "Declaraciones Gist",
+                gistDesc: "Procesa el texto con resúmenes de 3 palabras.",
+                g1: "Párrafo 1", g2: "Párrafo 2", g3: "Párrafo 3", g4: "Párrafo 4",
+                vennTitle: "Comparar y Contrastar",
+                vennDesc: "Clasifica los rasgos en las categorías correctas.",
+                vLeft: "Analog", vRight: "Digital", vCenter: "Ambos", bankTitle: "Banco de Palabras (Haz clic)",
+                paragraphs: [
+                    "En el mundo moderno, la información se mueve constantemente a nuestro alrededor en forma de un {Signal}. Un {Signal} es una onda que ha sido modificada para transportar información, como una voz por teléfono o un video en una pantalla. Los ingenieros los categorizan en dos tipos principales según cómo se codifica la información: {Analog Signals} y {Digital Signals}. Comprender la diferencia entre estos dos es la clave para entender por qué nuestra tecnología moderna es mucho más rápida y confiable que la tecnología utilizada hace apenas unas décadas.",
+                    "Un {Analog Signal} es una onda continua que cambia suavemente con el tiempo. Piénsalo como un interruptor de atenuación (dimmer) en una luz; puedes deslizarlo a cualquier posición para obtener una variedad infinita de brillo. En un {Analog Signal}, la amplitud o frecuencia de la onda varía exactamente in proporción a la información que se envía. Por ejemplo, cuando hablas por un teléfono fijo antiguo, las ondas sonoras de tu voz se envían en un {Signal} eléctrico que tiene la misma 'forma' que tu voz. Si bien estas señales son excelentes para capturar un alto nivel de detalle, son muy susceptibles al ruido: interferencias de fuentes externas que pueden distorsionar la onda y hacer que la información se vea borrosa o con estática.",
+                    "Por otro lado, un {Digital Signal} es una onda discreta que transporta información en un formato binario, lo que significa que solo utiliza dos estados: 'encendido' o 'apagado' (representado como 1 y 0). En lugar de una curva suave, un {Digital Signal} parece una serie de pulsos cuadrados. Esto es similar a un interruptor de luz estándar que está arriba o abajo. Debido a que la computadora solo tiene que distinguir entre un voltaje 'alto' y un voltaje 'bajo', es mucho más fácil filtrar la interferencia. Incluso si la onda se distorsiona ligeramente durante el viaje, el receptor aún puede saber si el {Signal} debía ser un 1 o un 0, lo que resulta en una transmisión mucho más clara.",
+                    "El cambio de analógico a digital ha revolucionado la forma en que almacenamos y enviamos datos. Los {Digital Signals} se pueden comprimir, lo que significa que ocupan menos espacio y se pueden enviar mucho más rápido que los {Analog Signals}. Es por eso que hoy puedes ver películas en alta definición en un teléfono inteligente, mientras que los televisores analógicos antiguos tenían dificultades para mostrar una imagen clara durante una tormenta de lluvia. Además, los {Digital Signals} se pueden cifrar para mayor seguridad, lo que permite enviar información privada como datos bancarios o mensajes de texto por todo el mundo sin que sean interceptados fácilmente.",
+                    "En conclusión, si bien los {Analog Signals} son la forma más natural de representar el sonido y la luz, los {Digital Signals} son la opción superior para la comunicación moderna. Al convertir las ondas suaves y continuas del mundo físico en los 1 y 0 del mundo digital, hemos creado un sistema de comunicación que es más rápido, más claro y más seguro que nunca."
+                ],
+                traits: [
+                    { id: 't1', text: 'Onda Continua', answer: 'analog' },
+                    { id: 't2', text: 'Binario (1 y 0)', answer: 'digital' },
+                    { id: 't3', text: 'Lleva Información', answer: 'both' },
+                    { id: 't4', text: 'Susceptible al Ruido', answer: 'analog' },
+                    { id: 't5', text: 'Se Puede Comprimir', answer: 'digital' },
+                    { id: 't6', text: 'Onda de Energía', answer: 'both' }
+                ]
+            }
+        };
+
+        let vennState = { analog: [], digital: [], both: [], bank: [] };
+
+        // --- 2. CORE INTERACTION & DOM UPDATES ---
+
+        function toggleTheme() {
+            state.theme = state.theme === 'dark' ? 'light' : 'dark';
+            applyTheme();
+            localStorage.setItem('preferred-theme', state.theme);
+        }
+
+        function applyTheme() {
+            const root = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            const textContent = document.getElementById('text-content');
+            
+            if (state.theme === 'light') {
+                root.classList.add('light');
+                root.classList.remove('dark');
+                if (textContent) textContent.classList.remove('prose-invert');
+                icon.innerText = '☀️';
+            } else {
+                root.classList.add('dark');
+                root.classList.remove('light');
+                if (textContent) textContent.classList.add('prose-invert');
+                icon.innerText = '🌙';
+            }
+        }
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('preferred-theme');
+            if (savedTheme) {
+                state.theme = savedTheme;
+            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+                state.theme = 'light';
+            }
+            applyTheme();
+        }
+
+        function toggleLanguage() {
+            state.lang = state.lang === 'en' ? 'es' : 'en';
+            if (synth.speaking) {
+                synth.cancel();
+                updateSpeechUI('idle');
+            }
+            renderContent();
+            resetVenn();
+        }
+
+        function toggleHighlights() {
+            state.highlightsActive = !state.highlightsActive;
+            const btn = document.getElementById('btn-highlight');
+            const readingContainer = document.getElementById('reading-container');
+
+            if (state.highlightsActive) {
+                btn.style.backgroundColor = "var(--accent-indigo)";
+                btn.style.color = "#ffffff";
+                readingContainer.classList.add('highlight-mode');
+            } else {
+                btn.style.backgroundColor = "var(--pill-bg)";
+                btn.style.color = "var(--accent-indigo)";
+                readingContainer.classList.remove('highlight-mode');
+            }
+        }
+
+        function getBestVoice(lang) {
+            const voices = synth.getVoices();
+            // Try to find a Google voice first, then any voice matching the language
+            const googleVoice = voices.find(v => v.lang.startsWith(lang) && v.name.includes('Google'));
+            if (googleVoice) return googleVoice;
+            return voices.find(v => v.lang.startsWith(lang));
+        }
+
+        function toggleSpeech() {
+            if (synth.speaking) {
+                if (state.isSpeechPaused) {
+                    synth.resume();
+                    state.isSpeechPaused = false;
+                    updateSpeechUI('playing');
+                } else {
+                    synth.pause();
+                    state.isSpeechPaused = true;
+                    updateSpeechUI('paused');
+                }
+            } else {
+                synth.cancel();
+                state.isSpeechPaused = false;
+                const paragraphs = contentData[state.lang].paragraphs.map(p => p.replace(/{|}/g, ''));
+                const fullText = paragraphs.join('. ');
+                
+                utterance = new SpeechSynthesisUtterance(fullText);
+                const langCode = state.lang === 'en' ? 'en' : 'es';
+                const bestVoice = getBestVoice(langCode);
+                if (bestVoice) {
+                    utterance.voice = bestVoice;
+                }
+                utterance.lang = state.lang === 'en' ? 'en-US' : 'es-ES';
+                
+                utterance.onstart = () => { updateSpeechUI('playing'); state.isSpeechPaused = false; };
+                utterance.onresume = () => { updateSpeechUI('playing'); state.isSpeechPaused = false; };
+                utterance.onpause = () => { updateSpeechUI('paused'); state.isSpeechPaused = true; };
+                utterance.onend = () => { updateSpeechUI('idle'); state.isSpeechPaused = false; };
+                utterance.onerror = () => { updateSpeechUI('idle'); state.isSpeechPaused = false; };
+                
+                synth.speak(utterance);
+            }
+        }
+
+        function updateSpeechUI(status) {
+            const btn = document.getElementById('btn-speak');
+            const icon = document.getElementById('speak-icon');
+            const text = document.getElementById('speak-text');
+            const data = contentData[state.lang];
+
+            if (status === 'playing') {
+                btn.style.backgroundColor = "var(--accent-cyan)";
+                btn.style.color = "#ffffff";
+                icon.innerText = "⏸️";
+                text.innerText = data.btnPause;
+                btn.classList.add('animate-pulse');
+            } else if (status === 'paused') {
+                btn.style.backgroundColor = "var(--pill-bg)";
+                btn.style.color = "var(--accent-cyan)";
+                icon.innerText = "▶️";
+                text.innerText = data.btnResume;
+                btn.classList.remove('animate-pulse');
+            } else {
+                btn.style.backgroundColor = "var(--pill-bg)";
+                btn.style.color = "var(--accent-cyan)";
+                icon.innerText = "🔊";
+                text.innerText = data.btnSpeak;
+                btn.classList.remove('animate-pulse');
+            }
+        }
+
+        function setSignalType(type) {
+            state.signalType = type;
+            const btnA = document.getElementById('btn-analog');
+            const btnD = document.getElementById('btn-digital');
+
+            if (type === 'analog') {
+                btnA.className = "px-5 py-2.5 rounded-lg font-bold text-sm transition shadow-lg bg-indigo-600 text-white border border-indigo-400/50";
+                btnD.className = "px-5 py-2.5 rounded-lg font-bold text-sm transition hover:text-white border border-transparent";
+                btnD.style.color = "var(--text-muted)";
+            } else {
+                btnD.className = "px-5 py-2.5 rounded-lg font-bold text-sm transition shadow-lg bg-cyan-600 text-white border border-cyan-400/50";
+                btnA.className = "px-5 py-2.5 rounded-lg font-bold text-sm transition hover:text-white border border-transparent";
+                btnA.style.color = "var(--text-muted)";
+            }
+        }
+
+        document.getElementById('noiseSlider').addEventListener('input', function (e) {
+            state.noise = parseInt(e.target.value);
+            document.getElementById('noise-value').innerText = state.noise + '%';
+        });
+
+        // --- 3. TEXT RENDERING ---
+
+        function renderParagraphs() {
+            const container = document.getElementById('text-content');
+            const paras = contentData[state.lang].paragraphs;
+            container.innerHTML = '';
+
+            paras.forEach((pText) => {
+                const p = document.createElement('p');
+                const chunks = pText.split(/({[^}]+})|(\s+)/).filter(Boolean);
+
+                chunks.forEach((chunk) => {
+                    if (chunk.match(/^\s+$/)) {
+                        p.appendChild(document.createTextNode(chunk));
+                        return;
+                    }
+
+                    const span = document.createElement('span');
+                    span.className = 'highlight-word';
+                    
+                    if (chunk.startsWith('{') && chunk.endsWith('}')) {
+                        span.innerText = chunk.substring(1, chunk.length - 1);
+                        span.classList.add('master-term');
+                    } else {
+                        span.innerText = chunk;
+                    }
+                    
+                    span.onclick = () => {
+                        if (state.highlightsActive) {
+                            span.classList.toggle('active');
+                        }
+                    };
+                    
+                    p.appendChild(span);
+                });
+                container.appendChild(p);
+            });
+        }
+
+        function renderContent() {
+            const data = contentData[state.lang];
+            document.getElementById('nav-title').innerText = data.navTitle;
+            document.getElementById('lang-btn-text').innerText = data.btnLang;
+            document.getElementById('eq-label').innerText = data.eqLabel;
+            document.getElementById('eq-text').innerText = data.eqText;
+            document.getElementById('intro-context').innerText = data.intro;
+            document.getElementById('sim-title').innerText = data.simTitle;
+            document.getElementById('sim-desc').innerText = data.simDesc;
+            document.getElementById('btn-analog').innerText = data.simAnalog;
+            document.getElementById('btn-digital').innerText = data.simDigital;
+            document.getElementById('sim-text').innerText = state.simRunning ? data.btnPauseSim : data.btnResumeSim;
+            document.getElementById('sim-icon').innerText = state.simRunning ? "⏸️" : "▶️";
+            document.getElementById('btn-basic').innerText = data.btnBasic;
+            document.getElementById('btn-encoded').innerText = data.btnEncoded;
+            document.getElementById('noise-label').innerText = data.noiseLabel;
+            document.getElementById('attenuation-label').innerText = data.attenuationLabel;
+            document.getElementById('noise-insight').innerText = data.noiseInsight;
+            document.getElementById('reading-title').innerText = data.readingTitle;
+            document.getElementById('highlight-btn-text').innerText = data.btnHighlight;
+            document.getElementById('speak-text').innerText = data.btnSpeak;
+            document.getElementById('gist-title').innerText = data.gistTitle;
+            document.getElementById('gist-desc').innerText = data.gistDesc;
+            document.getElementById('gist-l1').innerText = data.g1;
+            document.getElementById('gist-l2').innerText = data.g2;
+            document.getElementById('gist-l3').innerText = data.g3;
+            document.getElementById('gist-l4').innerText = data.g4;
+            document.getElementById('venn-title').innerText = data.vennTitle;
+            document.getElementById('venn-desc').innerText = data.vennDesc;
+            document.getElementById('venn-l-title').innerText = data.vLeft;
+            document.getElementById('venn-r-title').innerText = data.vRight;
+            document.getElementById('venn-c-title').innerText = data.vCenter;
+            document.getElementById('bank-title').innerText = data.bankTitle;
+            renderParagraphs();
+        }
+
+        // --- 4. VENN DIAGRAM LOGIC ---
+
+        function resetVenn() {
+            vennState = { analog: [], digital: [], both: [], bank: [...contentData[state.lang].traits] };
+            state.selectedTrait = null;
+            renderVenn();
+        }
+
+        function handleTraitSelect(traitId) {
+            let currentList = '';
+            for (let key in vennState) {
+                if (vennState[key].find(t => t.id === traitId)) {
+                    currentList = key;
+                    break;
+                }
+            }
+            if (currentList !== 'bank' && currentList !== '') {
+                const idx = vennState[currentList].findIndex(t => t.id === traitId);
+                const trait = vennState[currentList].splice(idx, 1)[0];
+                vennState.bank.push(trait);
+                state.selectedTrait = null;
+                renderVenn();
+                return;
+            }
+            state.selectedTrait = (state.selectedTrait === traitId) ? null : traitId;
+            renderVenn();
+        }
+
+        function assignToCircle(circleType) {
+            if (!state.selectedTrait) return;
+            const idx = vennState.bank.findIndex(t => t.id === state.selectedTrait);
+            const trait = vennState.bank.splice(idx, 1)[0];
+            vennState[circleType].push(trait);
+            if (circleType !== trait.answer) {
+                const circle = document.querySelector(`.venn-${circleType}`);
+                circle.style.borderColor = "#ef4444";
+                circle.style.backgroundColor = "rgba(239, 68, 68, 0.2)";
+                setTimeout(() => {
+                    circle.style.borderColor = "";
+                    circle.style.backgroundColor = "";
+                }, 600);
+            }
+            state.selectedTrait = null;
+            renderVenn();
+        }
+
+        function createTraitPill(trait, isSelected, currentList) {
+            const btn = document.createElement('button');
+            const baseClass = "text-[10px] px-3 py-1.5 rounded-lg border transition-all cursor-pointer font-bold uppercase tracking-wider w-full sm:w-auto ";
+            let statusClass = "border-[var(--pill-border)] ";
+            if (isSelected) {
+                statusClass += "bg-cyan-500 text-white border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.5)] scale-105";
+            } else if (currentList === 'bank') {
+                btn.style.backgroundColor = "var(--pill-bank-bg)";
+                btn.style.color = "var(--pill-bank-text)";
+            } else {
+                if (currentList === trait.answer) {
+                    statusClass += "bg-emerald-500/20 text-emerald-500 border-emerald-500/50 shadow-[0_0_10px_rgba(16,185,129,0.2)]";
+                } else {
+                    statusClass += "bg-red-500/20 text-red-500 border-red-500/50 shadow-[0_0_10px_rgba(239,68,68,0.2)]";
+                }
+            }
+            btn.className = baseClass + statusClass;
+            btn.innerText = trait.text;
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                handleTraitSelect(trait.id);
+            };
+            return btn;
+        }
+
+        function renderVenn() {
+            const bankDiv = document.getElementById('trait-bank');
+            const ulAnalog = document.getElementById('list-analog');
+            const ulDigital = document.getElementById('list-digital');
+            const ulBoth = document.getElementById('list-both');
+            bankDiv.innerHTML = ''; ulAnalog.innerHTML = ''; ulDigital.innerHTML = ''; ulBoth.innerHTML = '';
+            vennState.bank.forEach(t => bankDiv.appendChild(createTraitPill(t, state.selectedTrait === t.id, 'bank')));
+            const renderTraitInList = (t, container, listName) => {
+                const li = document.createElement('li');
+                li.className = "flex justify-center w-full";
+                li.appendChild(createTraitPill(t, false, listName));
+                container.appendChild(li);
+            };
+            vennState.analog.forEach(t => renderTraitInList(t, ulAnalog, 'analog'));
+            vennState.digital.forEach(t => renderTraitInList(t, ulDigital, 'digital'));
+            vennState.both.forEach(t => renderTraitInList(t, ulBoth, 'both'));
+            document.querySelector('.venn-analog').onclick = () => assignToCircle('analog');
+            document.querySelector('.venn-digital').onclick = () => assignToCircle('digital');
+            const bothDetector = document.querySelector('.venn-both');
+            bothDetector.onclick = (e) => {
+                if (state.selectedTrait) {
+                    e.stopPropagation();
+                    assignToCircle('both');
+                }
+            };
+            bothDetector.style.pointerEvents = "auto";
+        }
+
+        function toggleSim() {
+            state.simRunning = !state.simRunning;
+            const icon = document.getElementById('sim-icon');
+            const text = document.getElementById('sim-text');
+            const data = contentData[state.lang];
+            if (state.simRunning) {
+                icon.innerText = "⏸️";
+                text.innerText = data.btnPauseSim;
+            } else {
+                icon.innerText = "▶️";
+                text.innerText = data.btnResumeSim;
+            }
+        }
+
+        // --- 5. CANVAS WAVE SIMULATOR ---
+        const canvas = document.getElementById('waveCanvas');
+        const ctx = canvas.getContext('2d');
+        let time = 0;
+
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            const rect = container.getBoundingClientRect();
+            canvas.width = rect.width * window.devicePixelRatio;
+            canvas.height = rect.height * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            canvas.style.width = rect.width + 'px';
+            canvas.style.height = rect.height + 'px';
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        function drawWave() {
+            const width = canvas.width / window.devicePixelRatio;
+            const height = canvas.height / window.devicePixelRatio;
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0,0,width,height);
+            ctx.lineWidth = 3;
+            ctx.lineJoin = 'round';
+            
+            if (state.signalType === 'analog') {
+                ctx.strokeStyle = '#8b5cf6';
+                ctx.shadowColor = '#8b5cf6';
+                ctx.shadowBlur = 10;
+            } else {
+                ctx.strokeStyle = '#06b6d4';
+                ctx.shadowColor = '#06b6d4';
+                ctx.shadowBlur = 15;
+            }
+            
+            ctx.beginPath();
+            const baseAmplitude = height * 0.15;
+            const attenuationFactor = state.attenuation / 100;
+            const amplitude = baseAmplitude * attenuationFactor;
+            const maxNoisePixels = (state.noise / 100) * (height * 0.4);
+            
+            // Scrolling speed in pixels per frame
+            const scrollSpeed = 2;
+            const offset = time * 50; 
+
+            // Optimization: Skip pixels to reduce math load (Step-sampling)
+            const step = 3; 
+
+            for (let x = 0; x < width; x += step) {
+                let y = height / 2;
+                let xPos = x - offset;
+                
+                if (state.signalType === 'analog') {
+                    if (state.complexity === 'basic') {
+                        y += Math.sin(xPos * 0.02) * (amplitude * 1.5);
+                    } else {
+                        // Complex sum
+                        y += Math.sin(xPos * 0.015) * amplitude;
+                        y += Math.sin(xPos * 0.037 + 2) * (amplitude * 0.6);
+                        y += Math.sin(xPos * 0.052 - 1) * (amplitude * 0.4);
+                        y += Math.sin(xPos * 0.081 + 3) * (amplitude * 0.3);
+                        y += Math.sin(xPos * 0.007) * (amplitude * 0.5);
+                    }
+                } else {
+                    if (state.complexity === 'basic') {
+                        y += (Math.sin(xPos * 0.02) > 0 ? 1 : -1) * (amplitude * 1.5);
+                    } else {
+                        // Digital uses fast sign-check instead of tanh
+                        let sum = Math.sin(xPos * 0.015) * amplitude + 
+                                  Math.sin(xPos * 0.037 + 2) * (amplitude * 0.6) + 
+                                  Math.sin(xPos * 0.052 - 1) * (amplitude * 0.4) + 
+                                  Math.sin(xPos * 0.081 + 3) * (amplitude * 0.3) +
+                                  Math.sin(xPos * 0.007) * (amplitude * 0.5);
+                        y += (sum > 0 ? 1 : -1) * (amplitude * 1.5);
+                    }
+                }
+                
+                if (state.noise > 0) {
+                    y += (Math.random() - 0.5) * 2 * maxNoisePixels;
+                }
+                
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            
+            // Scan line (fixed position or scrolling)
+            const scanX = (Math.abs(offset * 2) % width);
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+            ctx.lineWidth = 1;
+            ctx.moveTo(scanX, 0);
+            ctx.lineTo(scanX, height);
+            ctx.stroke();
+            
+            if (state.simRunning) {
+                time += 0.04;
+            }
+            requestAnimationFrame(drawWave);
+        }
+
+        // --- Initialization ---
+        initTheme();
+        renderContent();
+        resetVenn();
+        // Wake up voices
+        if (synth.onvoiceschanged !== undefined) {
+            synth.onvoiceschanged = () => synth.getVoices();
+        }
+        synth.getVoices(); 
+
+        setTimeout(() => {
+            resizeCanvas();
+            drawWave();
+        }, 100);
+    </script>
+</body>
+
+</html>
