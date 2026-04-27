@@ -105,16 +105,17 @@ const lessonsData = [
     date: "2026-04-24",
     day: 20,
     unit: 6,
-    title: "Evidence for Particles & Rapid Review",
-    summary: "Intro to the Photoelectric Effect + EM Spectrum Rapid Fire Review.",
-    details: "Students analyze the particle-like behavior of light and complete the interactive Rapid Review assessment.",
+    title: "Spectrum City: Final Master Plan",
+    summary: "Project Completion: Finalizing hazard maps & EM Rapid Review.",
+    details: "Students complete their Spectrum City Hazard Maps, ensuring all district interactions are modeled. Following project submission, students perform the EM Spectrum Rapid Review assessment.",
     type: "Assessment",
     dok: 3,
     semester: 2,
     isFeatured: true,
-    essentialQuestion: "How does the photoelectric effect demonstrate the particle nature of light?",
-    links: { 
-      "EM Spectrum Rapid Review": "Unit_6_Waves_Radiation/EM_Spectrum_Rapid_Review/index.html"
+    essentialQuestion: "How do the physical properties of the EM spectrum determine its real-world hazards and applications?",
+    links: {
+      "Spectrum City Map": "Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html",
+      "EM Rapid Review": "Unit_6_Waves_Radiation/EM_Spectrum_Rapid_Review/index.html"
     }
   },
   {
