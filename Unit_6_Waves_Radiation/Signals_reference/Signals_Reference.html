@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analog vs. Digital Signals | Physics Reference</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Flip Card CSS */
+        .flip-card {
+            background-color: transparent;
+            height: 140px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        .flip-card.is-flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front,
+        .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .flip-card-front {
+            background-color: #f8fafc;
+            border: 2px solid #e2e8f0;
+        }
+
+        .flip-card-front:hover {
+            border-color: #cbd5e1;
+            background-color: #f1f5f9;
+        }
+
+        .flip-card-back {
+            background-color: #eff6ff;
+            transform: rotateY(180deg);
+            border: 2px solid #bfdbfe;
+        }
+
+        /* Voyager Game Scanlines */
+        .scanlines {
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.1) 50%, rgba(0, 0, 0, 0.1));
+            background-size: 100% 4px;
+        }
+
+        /* Custom range slider styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            margin-top: -8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #cbd5e1;
+            border-radius: 2px;
+        }
+
+        input[type=range]:focus {
+            outline: none;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800 font-sans antialiased">
+
+    <!-- Navigation -->
+    <nav class="bg-blue-900 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+                <span class="font-bold text-xl tracking-wider">Analog and Digital Signals</span>
+            </div>
+            <div>
+                <button id="langToggle" onclick="toggleLanguage()"
+                    class="bg-blue-700 hover:bg-blue-600 px-4 py-2 rounded-full font-semibold transition-colors duration-200">
+                    Español
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Content -->
+    <header class="max-w-6xl mx-auto px-4 py-12 text-center">
+        <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">
+            <span class="lang-en">Signals and Communication</span>
+            <span class="lang-es hidden">Señales y Comunicación</span>
+        </h1>
+        <p class="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
+            <span class="lang-en">How do we convert wave energy into information that can be sent over long distances?
+                Use this guide to complete your investigation worksheet.</span>
+            <span class="lang-es hidden">¿Cómo convertimos la energía de las ondas en información que se puede enviar a
+                largas distancias? Usa esta guía para completar tu hoja de trabajo de investigación.</span>
+        </p>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 pb-16 space-y-12">
+
+        <!-- Glossary Banner (Interactive Flashcards) -->
+        <section class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+            <h2 class="text-2xl font-bold text-blue-900 mb-4 border-b pb-2 flex justify-between items-center">
+                <span>
+                    <span class="lang-en">Key Vocabulary</span>
+                    <span class="lang-es hidden">Vocabulario Clave</span>
+                </span>
+                <span class="text-sm font-normal text-blue-500 flex items-center">
+                    <svg class="w-4 h-4 mr-1 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122">
+                        </path>
+                    </svg>
+                    <span class="lang-en">Click cards to flip</span>
+                    <span class="lang-es hidden">Haz clic para voltear</span>
+                </span>
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+                <!-- Card 1 -->
+                <div class="flip-card" onclick="this.classList.toggle('is-flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <h3 class="font-bold text-blue-800 text-xl">Analog Signal</h3>
+                        </div>
+                        <div class="flip-card-back">
+                            <p class="text-sm text-blue-900 font-medium">
+                                <span class="lang-en">A continuous wave that changes smoothly over time.</span>
+                                <span class="lang-es hidden">Una onda continua que cambia suavemente con el
+                                    tiempo.</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="flip-card" onclick="this.classList.toggle('is-flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <h3 class="font-bold text-blue-800 text-xl">Digital Signal</h3>
+                        </div>
+                        <div class="flip-card-back">
+                            <p class="text-sm text-blue-900 font-medium">
+                                <span class="lang-en">A discrete wave that carries information in a binary format (1s
+                                    and 0s).</span>
+                                <span class="lang-es hidden">Una onda discreta que transporta información en un formato
+                                    binario (1 y 0).</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="flip-card" onclick="this.classList.toggle('is-flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <h3 class="font-bold text-red-800 text-xl">Noise</h3>
+                        </div>
+                        <div class="flip-card-back !bg-red-50 !border-red-200">
+                            <p class="text-sm text-red-900 font-medium">
+                                <span class="lang-en">Interference from outside sources that distorts a wave.</span>
+                                <span class="lang-es hidden">Interferencia de fuentes externas que distorsiona una
+                                    onda.</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="flip-card" onclick="this.classList.toggle('is-flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <h3 class="font-bold text-green-800 text-xl">Binary Format</h3>
+                        </div>
+                        <div class="flip-card-back !bg-green-50 !border-green-200">
+                            <p class="text-sm text-green-900 font-medium">
+                                <span class="lang-en">Data represented by only two states: "on" (1) or "off" (0).</span>
+                                <span class="lang-es hidden">Datos representados por solo dos estados: "encendido" (1) o
+                                    "apagado" (0).</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Noise Simulation Controls -->
+        <section class="bg-slate-800 rounded-2xl shadow-lg p-6 text-white text-center">
+            <h2 class="text-2xl font-bold mb-4">
+                <span class="lang-en">Interactive Simulation: Add Space Noise</span>
+                <span class="lang-es hidden">Simulación Interactiva: Agregar Ruido Espacial</span>
+            </h2>
+            <div class="max-w-2xl mx-auto flex items-center space-x-4">
+                <span class="text-slate-300 font-mono text-sm">0%</span>
+                <input type="range" id="noiseSlider" class="flex-1" min="0" max="100" value="0">
+                <span class="text-slate-300 font-mono text-sm">100%</span>
+            </div>
+            <p class="mt-4 text-sm text-slate-400">
+                <span class="lang-en">Drag the slider to add interference. Watch how it affects the waves and the data
+                    below!</span>
+                <span class="lang-es hidden">Arrastra el control deslizante para agregar interferencia. ¡Observa cómo
+                    afecta las ondas y los datos a continuación!</span>
+            </p>
+        </section>
+
+        <!-- Analog vs Digital Comparison -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+            <!-- Analog Column -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-t-4 border-orange-500">
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-2">
+                        <h2 class="text-3xl font-bold text-gray-900">Analog Signals</h2>
+                        <button onclick="playAnalogSound()"
+                            class="bg-orange-100 hover:bg-orange-200 text-orange-700 px-3 py-1 rounded-full text-sm font-bold flex items-center transition-colors">
+                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            Listen
+                        </button>
+                    </div>
+                    <p class="text-gray-600 mb-6">
+                        <span class="lang-en">Continuous waves representing infinite details.</span>
+                        <span class="lang-es hidden">Ondas continuas que representan detalles infinitos.</span>
+                    </p>
+
+                    <!-- SVG Analog Wave -->
+                    <div
+                        class="bg-gray-100 rounded-lg p-4 mb-2 flex justify-center h-32 items-center relative overflow-hidden">
+                        <svg class="w-full h-full" viewBox="0 0 200 50" preserveAspectRatio="none">
+                            <path id="analog-path"
+                                d="M0,25 C25,0 25,50 50,25 C75,0 75,50 100,25 C125,0 125,50 150,25 C175,0 175,50 200,25"
+                                fill="none" stroke="#f97316" stroke-width="3"></path>
+                        </svg>
+                    </div>
+
+                    <!-- Data Readout -->
+                    <div class="bg-gray-800 text-orange-400 font-mono text-center p-2 rounded mb-6 text-xl tracking-widest"
+                        id="analog-readout">
+                        HELLO
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="lang-en">
+                            <p>An analog signal is a continuous wave that changes smoothly over time. Think of it like a
+                                dimmer switch on a light; you can slide it to any position to get an infinite variety of
+                                brightness.</p>
+                            <p><strong>The Weakness:</strong> While these signals are great for capturing a high level
+                                of detail, they are very susceptible to <strong>Noise</strong>. Because the wave is
+                                smooth, if interference changes the shape of the wave slightly, the data is ruined
+                                forever.</p>
+
+                            <div class="mt-6 p-4 border-l-4 border-orange-300 bg-orange-50 rounded-r-lg">
+                                <h4 class="font-bold text-orange-800 flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                                        </path>
+                                    </svg>
+                                    Old Tech Example: Cassette Tapes
+                                </h4>
+                                <p class="text-sm mt-2">Inside a cassette tape is a magnetic ribbon. The magnet arranges
+                                    particles in a continuous pattern. If the tape stretches, the physical pattern is
+                                    ruined, and the music sounds hissy.</p>
+                            </div>
+                        </div>
+
+                        <div class="lang-es hidden">
+                            <p>Una Analog signal es una onda continua que cambia suavemente con el tiempo. Piénsalo como
+                                un interruptor de atenuación en una luz; puedes deslizarlo a cualquier posición para
+                                obtener una variedad infinita de brillo.</p>
+                            <p><strong>La Debilidad:</strong> Aunque estas señales son excelentes para capturar un alto
+                                nivel de detalle, son muy susceptibles al <strong>Noise</strong>. Debido a que la onda
+                                es suave, si la interferencia cambia ligeramente la forma de la onda, los datos se
+                                arruinan para siempre.</p>
+
+                            <div class="mt-6 p-4 border-l-4 border-orange-300 bg-orange-50 rounded-r-lg">
+                                <h4 class="font-bold text-orange-800 flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                                        </path>
+                                    </svg>
+                                    Ejemplo Antiguo: Cintas de Casete
+                                </h4>
+                                <p class="text-sm mt-2">Dentro de una cinta de casete hay una cinta magnética. El imán
+                                    organiza las partículas en un patrón continuo. Si la cinta se estira, el patrón
+                                    físico se arruina y la música suena con estática.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Digital Column -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-t-4 border-blue-500">
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-2">
+                        <h2 class="text-3xl font-bold text-gray-900">Digital Signals</h2>
+                        <button onclick="playDigitalSound()"
+                            class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded-full text-sm font-bold flex items-center transition-colors">
+                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            Listen
+                        </button>
+                    </div>
+                    <p class="text-gray-600 mb-6">
+                        <span class="lang-en">Discrete waves using binary format.</span>
+                        <span class="lang-es hidden">Ondas discretas usando formato binario.</span>
+                    </p>
+
+                    <!-- SVG Digital Wave -->
+                    <div class="bg-gray-100 rounded-lg p-4 mb-2 flex justify-center h-32 items-center">
+                        <svg class="w-full h-full" viewBox="0 0 200 50" preserveAspectRatio="none">
+                            <path id="digital-path"
+                                d="M0,40 L25,40 L25,10 L50,10 L50,40 L75,40 L75,10 L100,10 L100,40 L125,40 L125,10 L150,10 L150,40 L175,40 L175,10 L200,10"
+                                fill="none" stroke="#3b82f6" stroke-width="3"></path>
+                        </svg>
+                    </div>
+
+                    <!-- Data Readout -->
+                    <div class="bg-gray-800 text-blue-400 font-mono text-center p-2 rounded mb-6 text-xl tracking-widest"
+                        id="digital-readout">
+                        HELLO
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="lang-en">
+                            <p>A digital signal is a discrete wave that carries information in a <strong>binary
+                                    format</strong>, meaning it only uses two states: a "high" voltage (1) or a "low"
+                                voltage (0).</p>
+                            <p><strong>The Strength:</strong> Digital signals are highly <strong>reliable</strong>. If
+                                Noise affects the wave, the computer only has to determine if the signal is "high" or
+                                "low," making it easy to filter out interference. Digital signals can also be
+                                <strong>compressed</strong>, meaning they take up less space and send faster.
+                            </p>
+
+                            <div class="mt-6 p-4 border-l-4 border-blue-300 bg-blue-50 rounded-r-lg">
+                                <h4 class="font-bold text-blue-800 flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 19V6l12-3v13M9 19c-1.105 0-2 .895-2 2s.895 2 2 2 2-.895 2-2-.895-2-2-2zM21 16c-1.105 0-2 .895-2 2s.895 2 2 2 2-.895 2-2-.895-2-2-2z">
+                                        </path>
+                                    </svg>
+                                    New Tech Example: MP3 Audio
+                                </h4>
+                                <p class="text-sm mt-2">When you stream a song, your phone receives millions of 1s and
+                                    0s. The computer chip reads this binary data. If the file is copied a million times,
+                                    the 1s and 0s stay exactly the same.</p>
+                            </div>
+                        </div>
+
+                        <div class="lang-es hidden">
+                            <p>Una Digital signal es una onda discreta que transporta información en un <strong>formato
+                                    binario</strong>, lo que significa que solo usa dos estados: un voltaje "alto" (1) o
+                                un voltaje "bajo" (0).</p>
+                            <p><strong>La Fuerza:</strong> Las señales digitales son muy <strong>confiables</strong>. Si
+                                el Noise afecta la onda, la computadora solo tiene que determinar si la señal es "alta"
+                                o "baja", lo que facilita filtrar la interferencia. Las señales digitales también se
+                                pueden <strong>comprimir</strong>, lo que significa que ocupan menos espacio y se envían
+                                más rápido.</p>
+
+                            <div class="mt-6 p-4 border-l-4 border-blue-300 bg-blue-50 rounded-r-lg">
+                                <h4 class="font-bold text-blue-800 flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 19V6l12-3v13M9 19c-1.105 0-2 .895-2 2s.895 2 2 2 2-.895 2-2-.895-2-2-2zM21 16c-1.105 0-2 .895-2 2s.895 2 2 2 2-.895 2-2-.895-2-2-2z">
+                                        </path>
+                                    </svg>
+                                    Nuevo Ejemplo: Audio MP3
+                                </h4>
+                                <p class="text-sm mt-2">Cuando transmites una canción, tu teléfono recibe millones de 1
+                                    y 0. El chip de la computadora lee estos datos binarios. Si el archivo se copia un
+                                    millón de veces, los 1 y 0 siguen siendo exactamente los mismos.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Deep Space Case Study & Mini-Game -->
+        <section class="bg-slate-900 rounded-2xl shadow-xl overflow-hidden text-white mt-12">
+            <div class="md:flex">
+                <div
+                    class="md:w-1/3 bg-black flex flex-col items-center justify-center p-8 border-b md:border-b-0 md:border-r border-slate-700">
+                    <svg class="w-32 h-32 text-indigo-400 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                        </path>
+                    </svg>
+
+                    <!-- Voyager Mini Game -->
+                    <div class="w-full relative overflow-hidden rounded border border-slate-700 bg-slate-900 p-4">
+                        <div class="scanlines absolute inset-0 pointer-events-none"></div>
+                        <h3 class="text-xs font-mono text-green-400 mb-2 text-center">INCOMING TRANSMISSION</h3>
+
+                        <div class="relative h-24 bg-black rounded border border-slate-800 mb-4">
+                            <svg class="w-full h-full" viewBox="0 0 200 100" preserveAspectRatio="none">
+                                <line id="threshold-line" x1="0" y1="50" x2="200" y2="50" stroke="#ef4444"
+                                    stroke-width="2" stroke-dasharray="4,4" />
+                                <path id="voyager-wave" fill="none" stroke="#4ade80" stroke-width="1.5" />
+                            </svg>
+                        </div>
+
+                        <div class="flex flex-col space-y-2 mb-2">
+                            <label class="text-[10px] font-mono text-slate-400 text-center">ADJUST THRESHOLD TO
+                                DECODE</label>
+                            <input type="range" id="voyagerSlider" class="accent-red-500" min="0" max="100" value="50">
+                        </div>
+
+                        <div id="voyager-output"
+                            class="mt-2 font-mono text-xs text-green-500 bg-black p-2 rounded h-8 flex items-center justify-center break-all overflow-hidden">
+                            [ DECODING... ]
+                        </div>
+                    </div>
+                </div>
+
+                <div class="md:w-2/3 p-8">
+                    <h2 class="text-3xl font-bold text-indigo-300 mb-4">
+                        <span class="lang-en">Case Study: Deep Space Signals</span>
+                        <span class="lang-es hidden">Estudio de Caso: Señales del Espacio Profundo</span>
+                    </h2>
+
+                    <div class="lang-en space-y-4 text-slate-300">
+                        <p>NASA's Voyager 1 spacecraft is currently over <strong>15 billion miles</strong> away from
+                            Earth. It takes pictures of the universe and sends them back to Earth using radio waves.</p>
+                        <p>Because the spacecraft is so incredibly far away, the waves pick up a massive amount of
+                            <strong>Noise</strong> (interference from stars, radiation, and space dust) along the
+                            journey.
+                        </p>
+                        <ul class="list-disc pl-5 space-y-2 mt-4 text-slate-200">
+                            <li><strong>If NASA used an Analog Signal:</strong> The picture of the galaxy would arrive
+                                looking completely blurry and full of static. Computers on Earth wouldn't be able to
+                                separate the actual image data from the space noise.</li>
+                            <li><strong>Because NASA uses a Digital Signal:</strong> The spacecraft sends the picture in
+                                a <strong>binary format</strong> (1, 0, 1, 1, 0...). Even if the radio signal gets weak
+                                and noisy, the computers on Earth only have to distinguish between a "high" voltage and
+                                a "low" voltage. They can easily filter out the interference. The picture arrives
+                                perfectly clear!</li>
+                        </ul>
+                    </div>
+
+                    <div class="lang-es hidden space-y-4 text-slate-300">
+                        <p>La nave espacial Voyager 1 de la NASA se encuentra actualmente a más de <strong>15 mil
+                                millones de millas</strong> de la Tierra. Toma fotografías del universo y las envía de
+                            regreso a la Tierra mediante ondas de radio.</p>
+                        <p>Debido a que la nave espacial está tan increíblemente lejos, las ondas recogen una gran
+                            cantidad de <strong>Noise</strong> (interferencia de estrellas, radiación y polvo espacial)
+                            a lo largo del viaje.</p>
+                        <ul class="list-disc pl-5 space-y-2 mt-4 text-slate-200">
+                            <li><strong>Si la NASA usara una Analog Signal:</strong> La imagen de la galaxia llegaría
+                                completamente borrosa y llena de estática. Las computadoras en la Tierra no podrían
+                                separar los datos reales de la imagen del ruido espacial.</li>
+                            <li><strong>Debido a que la NASA usa una Digital Signal:</strong> La nave espacial envía la
+                                imagen en un <strong>formato binario</strong> (1, 0, 1, 1, 0...). Incluso si la señal de
+                                radio se vuelve débil y ruidosa, las computadoras en la Tierra solo tienen que
+                                distinguir entre un voltaje "alto" y un voltaje "bajo". Pueden filtrar fácilmente la
+                                interferencia. ¡La imagen llega perfectamente clara!</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Capstone Activity: Project SETI -->
+        <section class="bg-gray-900 rounded-2xl shadow-xl overflow-hidden border border-gray-700 mt-12 p-6 md:p-8 relative">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-green-500"></div>
+            
+            <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center">
+                <div>
+                    <h2 class="text-3xl font-bold text-white mb-2 flex items-center">
+                        <svg class="w-8 h-8 mr-3 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5"></path></svg>
+                        <span class="lang-en">Capstone: Project SETI</span>
+                        <span class="lang-es hidden">Proyecto Final: SETI</span>
+                    </h2>
+                    <p class="text-gray-400 max-w-2xl text-sm">
+                        <span class="lang-en">The Search for Extraterrestrial Intelligence involves scanning cosmic noise for artificial, digital patterns. Tune the radio array to find the hidden signal!</span>
+                        <span class="lang-es hidden">La Búsqueda de Inteligencia Extraterrestre implica escanear el ruido cósmico en busca de patrones digitales artificiales. ¡Sintoniza la matriz de radio para encontrar la señal oculta!</span>
+                    </p>
+                </div>
+                <div class="mt-4 md:mt-0 px-4 py-2 bg-black rounded-lg border border-green-500/30 text-green-400 font-mono text-xl shadow-[0_0_15px_rgba(74,222,128,0.2)] flex items-center">
+                    <button id="seti-tune-down" class="px-2 py-1 text-gray-500 hover:text-green-400 hover:bg-gray-800 rounded transition-colors" title="- 0.01 GHz">◀</button>
+                    <span id="seti-freq-display" class="mx-2 inline-block w-16 text-center">1.00</span> GHz
+                    <button id="seti-tune-up" class="px-2 py-1 text-gray-500 hover:text-green-400 hover:bg-gray-800 rounded transition-colors" title="+ 0.01 GHz">▶</button>
+                </div>
+            </div>
+
+            <div class="bg-black rounded-xl p-4 border border-gray-800 relative overflow-hidden group cursor-crosshair">
+                <div class="scanlines absolute inset-0 pointer-events-none opacity-50"></div>
+                <button id="seti-audio-btn" class="absolute top-2 right-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded p-1.5 transition-colors z-10" title="Toggle Audio">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5 10v4a2 2 0 002 2h2l4 4V4L9 8H7a2 2 0 00-2 2z"></path></svg>
+                </button>
+                <div class="h-48 w-full relative">
+                    <svg class="w-full h-full" viewBox="0 0 1000 200" preserveAspectRatio="none">
+                        <path id="seti-wave" fill="none" stroke="#22c55e" stroke-width="2" style="filter: drop-shadow(0 0 4px rgba(34,197,94,0.5));"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="mt-6 space-y-4">
+                <div>
+                    <div class="flex justify-between text-xs font-mono text-gray-500 mb-1 px-1">
+                        <span>1.00 GHz</span>
+                        <span class="text-gray-400">COARSE TUNING</span>
+                        <span>10.00 GHz</span>
+                    </div>
+                    <input type="range" id="seti-slider" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500" min="100" max="1000" value="100">
+                </div>
+                <div>
+                    <div class="flex justify-between text-xs font-mono text-gray-500 mb-1 px-1">
+                        <span>LOW</span>
+                        <span class="text-gray-400">ANTENNA GAIN</span>
+                        <span>HIGH</span>
+                    </div>
+                    <input type="range" id="seti-gain-slider" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-500" min="1" max="100" value="50">
+                </div>
+            </div>
+
+            <div class="mt-8 flex flex-col md:flex-row gap-4 items-center border-t border-gray-800 pt-6">
+                <button id="seti-lock-btn" disabled class="px-6 py-3 bg-gray-700 text-gray-400 font-bold rounded-lg uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                    Lock Signal & Decode
+                </button>
+                
+                <div id="seti-decoder-output" class="flex-1 w-full bg-gray-950 rounded-lg p-3 border border-gray-800 font-mono text-sm hidden">
+                    <div class="text-green-500 mb-1 flex items-center">
+                        <span class="animate-pulse mr-2">▶</span> DECODING BINARY STREAM...
+                    </div>
+                    <div id="seti-binary-text" class="text-xs text-gray-500 break-all leading-tight mb-2"></div>
+                    <div id="seti-translated-text" class="text-lg text-white font-bold opacity-0 transition-opacity duration-1000"></div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-gray-400 py-6 text-center">
+        <p class="lang-en">© 2026 Mr. Mudry • Orange High School Panthers</p>
+        <p class="lang-es hidden">© 2026 Mr. Mudry • Orange High School Panthers</p>
+    </footer>
+
+    <!-- Interactive Scripts -->
+    <script>
+        // Language Toggle
+        function toggleLanguage() {
+            const enElements = document.querySelectorAll('.lang-en');
+            const esElements = document.querySelectorAll('.lang-es');
+            const btn = document.getElementById('langToggle');
+
+            const isCurrentlyEnglish = btn.innerText.includes('Español');
+
+            if (isCurrentlyEnglish) {
+                enElements.forEach(el => el.classList.add('hidden'));
+                esElements.forEach(el => el.classList.remove('hidden'));
+                btn.innerText = 'English';
+            } else {
+                enElements.forEach(el => el.classList.remove('hidden'));
+                esElements.forEach(el => el.classList.add('hidden'));
+                btn.innerText = 'Español';
+            }
+        }
+
+        // Noise Simulation Logic
+        const noiseSlider = document.getElementById('noiseSlider');
+        const analogPath = document.getElementById('analog-path');
+        const digitalPath = document.getElementById('digital-path');
+        const analogReadout = document.getElementById('analog-readout');
+        const digitalReadout = document.getElementById('digital-readout');
+
+        function drawWaves() {
+            const noiseLevel = parseInt(noiseSlider.value); // 0 to 100
+
+            // Draw Analog Wave
+            let analogD = "M0,25 ";
+            for (let x = 0; x <= 200; x += 2) {
+                let y = 25 - Math.sin(x * Math.PI / 50) * 15; // Base sine wave
+                let noiseOffset = (Math.random() - 0.5) * (noiseLevel / 100) * 40;
+                analogD += `L${x},${y + noiseOffset} `;
+            }
+            analogPath.setAttribute('d', analogD);
+
+            // Draw Digital Wave
+            let digitalD = "M0,40 ";
+            for (let x = 0; x <= 200; x += 25) {
+                let baseY = (Math.floor(x / 25) % 2 === 0) ? 40 : 10;
+                let noiseOffset = (Math.random() - 0.5) * (noiseLevel / 100) * 30;
+
+                // Extreme noise flips the digital bits
+                if (noiseLevel > 80 && Math.random() > 0.5) {
+                    baseY = (baseY === 40) ? 10 : 40;
+                }
+
+                let noisyY = baseY + noiseOffset;
+                digitalD += `L${x},${noisyY} L${x + 25},${noisyY} `;
+            }
+            digitalPath.setAttribute('d', digitalD);
+
+            // Update Text Readouts
+            const originalText = "HELLO";
+            let garbled = "";
+            for (let i = 0; i < originalText.length; i++) {
+                if (Math.random() * 100 < (noiseLevel * 0.8)) {
+                    // Replace with random character
+                    garbled += String.fromCharCode(33 + Math.floor(Math.random() * 60));
+                } else {
+                    garbled += originalText[i];
+                }
+            }
+            analogReadout.innerText = noiseLevel === 0 ? originalText : garbled;
+
+            if (noiseLevel > 80) {
+                digitalReadout.innerText = "ERROR_DATA_LOST";
+                digitalReadout.classList.replace("text-blue-400", "text-red-500");
+            } else {
+                digitalReadout.innerText = originalText;
+                digitalReadout.classList.replace("text-red-500", "text-blue-400");
+            }
+        }
+
+        noiseSlider.addEventListener('input', drawWaves);
+        // Initial draw
+        drawWaves();
+
+        // Voyager Mini-Game Logic
+        const voyagerSlider = document.getElementById('voyagerSlider');
+        const thresholdLine = document.getElementById('threshold-line');
+        const voyagerWave = document.getElementById('voyager-wave');
+        const voyagerOutput = document.getElementById('voyager-output');
+
+        // Draw static noisy digital wave for Voyager
+        function initVoyagerWave() {
+            let d = "M0,80 ";
+            const data = [0, 1, 0, 1, 1, 0, 0, 1, 0, 1]; // Length 10
+            for (let i = 0; i < data.length; i++) {
+                let x1 = i * 20;
+                let x2 = (i + 1) * 20;
+                let baseY = data[i] === 1 ? 20 : 80; // 1 is high (20), 0 is low (80)
+
+                for (let px = x1; px < x2; px += 2) {
+                    let noisyY = baseY + (Math.random() - 0.5) * 45; // Heavy space noise
+                    // Constrain within SVG bounds
+                    noisyY = Math.max(0, Math.min(100, noisyY));
+                    d += `L${px},${noisyY} `;
+                }
+            }
+            voyagerWave.setAttribute('d', d);
+        }
+
+        function updateVoyagerGame() {
+            const sliderVal = parseInt(voyagerSlider.value);
+            // Invert slider to match visual Y axis (0 top, 100 bottom)
+            const thresholdY = 100 - sliderVal;
+            thresholdLine.setAttribute('y1', thresholdY);
+            thresholdLine.setAttribute('y2', thresholdY);
+
+            // Correct threshold is between peaks (roughly 40-60)
+            if (thresholdY >= 40 && thresholdY <= 60) {
+                voyagerOutput.innerHTML = "<span class='text-green-400 font-bold'>SUCCESS: ALIEN GALAXY_IMG</span>";
+            } else {
+                let randomGarbage = "";
+                for (let i = 0; i < 12; i++) {
+                    randomGarbage += Math.random() > 0.5 ? "1" : "0";
+                }
+                voyagerOutput.innerHTML = `<span class='text-red-500'>ERR ${randomGarbage}</span>`;
+            }
+        }
+
+        voyagerSlider.addEventListener('input', updateVoyagerGame);
+        initVoyagerWave();
+        updateVoyagerGame(); // Initial state
+
+        // Web Audio API Synthesis
+        let audioCtx = null;
+        let currentOsc = null;
+        let noiseNode = null;
+        let glitchInterval = null;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function stopSound() {
+            if (currentOsc) {
+                try { currentOsc.stop(); } catch (e) { }
+                currentOsc = null;
+            }
+            if (noiseNode) {
+                try { noiseNode.stop(); } catch (e) { }
+                noiseNode = null;
+            }
+            if (glitchInterval) {
+                clearInterval(glitchInterval);
+                glitchInterval = null;
+            }
+        }
+
+        function playAnalogSound() {
+            initAudio();
+            stopSound();
+
+            currentOsc = audioCtx.createOscillator();
+            currentOsc.type = 'sine';
+            currentOsc.frequency.value = 440; // A4
+
+            const noiseLevel = parseInt(noiseSlider.value) / 100;
+
+            // Pitch wobble (wow and flutter)
+            const lfo = audioCtx.createOscillator();
+            lfo.type = 'sine';
+            lfo.frequency.value = 2; // 2 Hz wobble
+            const lfoGain = audioCtx.createGain();
+            lfoGain.gain.value = noiseLevel * 30; // Amount of pitch variation
+            lfo.connect(lfoGain);
+            lfoGain.connect(currentOsc.frequency);
+            lfo.start();
+
+            // White noise
+            const bufferSize = audioCtx.sampleRate * 2;
+            const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const output = noiseBuffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                output[i] = Math.random() * 2 - 1;
+            }
+            noiseNode = audioCtx.createBufferSource();
+            noiseNode.buffer = noiseBuffer;
+            noiseNode.loop = true;
+
+            const noiseVol = audioCtx.createGain();
+            noiseVol.gain.value = noiseLevel * 0.15; // Volume of noise
+            noiseNode.connect(noiseVol);
+
+            const masterGain = audioCtx.createGain();
+            masterGain.gain.value = 0.3;
+
+            currentOsc.connect(masterGain);
+            noiseVol.connect(masterGain);
+            masterGain.connect(audioCtx.destination);
+
+            currentOsc.start();
+            noiseNode.start();
+
+            setTimeout(stopSound, 1500); // Play for 1.5 seconds
+        }
+
+        function playDigitalSound() {
+            initAudio();
+            stopSound();
+
+            currentOsc = audioCtx.createOscillator();
+            currentOsc.type = 'square';
+            currentOsc.frequency.value = 440;
+
+            const noiseLevel = parseInt(noiseSlider.value) / 100;
+            const masterGain = audioCtx.createGain();
+
+            if (noiseLevel > 0.8) {
+                // Digital Dropout / Skipping
+                masterGain.gain.value = 0;
+                glitchInterval = setInterval(() => {
+                    masterGain.gain.value = Math.random() > 0.5 ? 0.1 : 0;
+                }, 50);
+            } else {
+                // Perfect signal regardless of noise < 80%
+                masterGain.gain.value = 0.1;
+            }
+
+            currentOsc.connect(masterGain);
+            masterGain.connect(audioCtx.destination);
+            currentOsc.start();
+
+            setTimeout(stopSound, 1500);
+        }
+
+        // SETI Mini-Game Logic
+        const setiSlider = document.getElementById('seti-slider');
+        const setiGainSlider = document.getElementById('seti-gain-slider');
+        const setiTuneDown = document.getElementById('seti-tune-down');
+        const setiTuneUp = document.getElementById('seti-tune-up');
+        const setiFreqDisplay = document.getElementById('seti-freq-display');
+        const setiWave = document.getElementById('seti-wave');
+        const setiLockBtn = document.getElementById('seti-lock-btn');
+        const setiAudioBtn = document.getElementById('seti-audio-btn');
+        const setiDecoderOutput = document.getElementById('seti-decoder-output');
+        const setiBinaryText = document.getElementById('seti-binary-text');
+        const setiTranslatedText = document.getElementById('seti-translated-text');
+
+        const TARGET_FREQ = 142; // 1.42 GHz
+        let setiAudioCtx = null;
+        let setiNoiseNode = null;
+        let setiBeepOsc = null;
+        let setiGainNode = null;
+        let setiBeepGain = null;
+        let setiAudioPlaying = false;
+        let animationId;
+        let isLocked = false;
+        let timeOffset = 0;
+
+        function initSetiAudio() {
+            if (!setiAudioCtx) {
+                setiAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Noise generator
+                const bufferSize = setiAudioCtx.sampleRate * 2;
+                const noiseBuffer = setiAudioCtx.createBuffer(1, bufferSize, setiAudioCtx.sampleRate);
+                const output = noiseBuffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    output[i] = Math.random() * 2 - 1;
+                }
+                setiNoiseNode = setiAudioCtx.createBufferSource();
+                setiNoiseNode.buffer = noiseBuffer;
+                setiNoiseNode.loop = true;
+                
+                setiGainNode = setiAudioCtx.createGain();
+                setiGainNode.gain.value = 0;
+                setiNoiseNode.connect(setiGainNode);
+                setiGainNode.connect(setiAudioCtx.destination);
+                setiNoiseNode.start();
+
+                // Beep generator
+                setiBeepOsc = setiAudioCtx.createOscillator();
+                setiBeepOsc.type = 'square';
+                setiBeepOsc.frequency.value = 880;
+                
+                setiBeepGain = setiAudioCtx.createGain();
+                setiBeepGain.gain.value = 0;
+                
+                setiBeepOsc.connect(setiBeepGain);
+                setiBeepGain.connect(setiAudioCtx.destination);
+                setiBeepOsc.start();
+                
+                setInterval(() => {
+                    if (setiAudioPlaying && !isLocked) {
+                        const currentFreq = parseInt(setiSlider.value);
+                        const distance = Math.abs(currentFreq - TARGET_FREQ);
+                        if (distance < 20) {
+                            const targetVol = (20 - distance) / 20 * 0.15;
+                            setiBeepGain.gain.value = setiBeepGain.gain.value > 0 ? 0 : targetVol;
+                        } else {
+                            setiBeepGain.gain.value = 0;
+                        }
+                    }
+                }, 125);
+            }
+            if (setiAudioCtx.state === 'suspended') setiAudioCtx.resume();
+        }
+
+        function toggleSetiAudio() {
+            if (!setiAudioPlaying) {
+                initSetiAudio();
+                setiAudioPlaying = true;
+                setiAudioBtn.classList.replace('text-gray-300', 'text-green-400');
+                updateSetiAudio();
+            } else {
+                setiAudioPlaying = false;
+                if(setiGainNode) setiGainNode.gain.value = 0;
+                if(setiBeepGain) setiBeepGain.gain.value = 0;
+                setiAudioBtn.classList.replace('text-green-400', 'text-gray-300');
+            }
+        }
+
+        function updateSetiAudio() {
+            if (!setiAudioPlaying || isLocked) return;
+            const currentFreq = parseInt(setiSlider.value);
+            const distance = Math.abs(currentFreq - TARGET_FREQ);
+            let noiseVol = 0.05 + (Math.min(distance, 100) / 100) * 0.1;
+            setiGainNode.gain.value = noiseVol;
+        }
+
+        setiAudioBtn.addEventListener('click', toggleSetiAudio);
+
+        function drawSetiWave() {
+            if (isLocked) return;
+            timeOffset += 2;
+            const currentFreq = parseInt(setiSlider.value);
+            const distance = Math.abs(currentFreq - TARGET_FREQ);
+            
+            setiFreqDisplay.innerText = (currentFreq / 100).toFixed(2);
+            
+            if (distance <= 30) {
+                setiLockBtn.disabled = false;
+                setiLockBtn.classList.add('bg-purple-600', 'hover:bg-purple-500', 'text-white', 'shadow-[0_0_15px_rgba(168,85,247,0.5)]');
+                setiLockBtn.classList.remove('bg-gray-700', 'text-gray-400');
+            } else {
+                setiLockBtn.disabled = true;
+                setiLockBtn.classList.remove('bg-purple-600', 'hover:bg-purple-500', 'text-white', 'shadow-[0_0_15px_rgba(168,85,247,0.5)]');
+                setiLockBtn.classList.add('bg-gray-700', 'text-gray-400');
+            }
+
+            let d = "M0,100 ";
+            const maxPoints = 500;
+            const step = 1000 / maxPoints;
+            const signalStrength = Math.max(0, 1 - (distance / 20)); 
+            const noiseLevel = 1 - (signalStrength * 0.8);
+            const antennaGain = parseInt(setiGainSlider.value) / 50; // 0.02 to 2.0
+            
+            for (let i = 0; i <= maxPoints; i++) {
+                let x = i * step;
+                let noiseY = (Math.random() - 0.5) * 100 * noiseLevel * antennaGain;
+                let signalY = 0;
+                if (signalStrength > 0) {
+                    let patternIndex = Math.floor(((x + timeOffset) % 400) / 50);
+                    let bit = [0, 1, 0, 1, 1, 0, 1, 1][patternIndex];
+                    signalY = (bit === 1 ? -40 : 40) * signalStrength * antennaGain;
+                }
+                let y = 100 + noiseY + signalY;
+                y = Math.max(10, Math.min(190, y));
+                d += `L${x},${y} `;
+            }
+            setiWave.setAttribute('d', d);
+            
+            updateSetiAudio();
+            animationId = requestAnimationFrame(drawSetiWave);
+        }
+
+        setiSlider.addEventListener('input', () => {
+            if(!animationId && !isLocked) drawSetiWave();
+        });
+
+        setiTuneDown.addEventListener('click', () => {
+            if (isLocked) return;
+            setiSlider.value = Math.max(100, parseInt(setiSlider.value) - 1);
+            if(!animationId) drawSetiWave();
+        });
+
+        setiTuneUp.addEventListener('click', () => {
+            if (isLocked) return;
+            setiSlider.value = Math.min(1000, parseInt(setiSlider.value) + 1);
+            if(!animationId) drawSetiWave();
+        });
+        
+        drawSetiWave();
+
+        setiLockBtn.addEventListener('click', () => {
+            isLocked = true;
+            cancelAnimationFrame(animationId);
+            setiSlider.disabled = true;
+            setiGainSlider.disabled = true;
+            setiTuneDown.disabled = true;
+            setiTuneUp.disabled = true;
+            
+            const currentFreq = parseInt(setiSlider.value);
+            const distance = Math.abs(currentFreq - TARGET_FREQ);
+            const isPerfect = distance === 0;
+
+            if(setiGainNode) setiGainNode.gain.value = 0;
+            if(setiBeepGain) setiBeepGain.gain.value = 0;
+            if(setiAudioCtx && setiAudioPlaying) {
+                const osc1 = setiAudioCtx.createOscillator(); osc1.type = 'sine'; osc1.frequency.value = 523.25;
+                const osc2 = setiAudioCtx.createOscillator(); osc2.type = 'sine'; osc2.frequency.value = isPerfect ? 659.25 : 630;
+                const osc3 = setiAudioCtx.createOscillator(); osc3.type = 'sine'; osc3.frequency.value = isPerfect ? 783.99 : 800;
+                const chordGain = setiAudioCtx.createGain();
+                chordGain.gain.setValueAtTime(0.3, setiAudioCtx.currentTime);
+                chordGain.gain.exponentialRampToValueAtTime(0.01, setiAudioCtx.currentTime + 2);
+                osc1.connect(chordGain); osc2.connect(chordGain); osc3.connect(chordGain);
+                chordGain.connect(setiAudioCtx.destination);
+                osc1.start(); osc2.start(); osc3.start();
+                osc1.stop(setiAudioCtx.currentTime + 2); osc2.stop(setiAudioCtx.currentTime + 2); osc3.stop(setiAudioCtx.currentTime + 2);
+            }
+
+            let d = "M0,160 ";
+            for (let x = 0; x <= 1000; x += 50) {
+                let patternIndex = Math.floor((x % 400) / 50);
+                let bit = [0, 1, 0, 1, 1, 0, 1, 1][patternIndex];
+                let baseY = bit === 1 ? 40 : 160;
+                let noiseY = isPerfect ? 0 : (Math.random() - 0.5) * distance * 2;
+                let y = Math.max(10, Math.min(190, baseY + noiseY));
+                d += `L${x},${y} `;
+                
+                let noiseY2 = isPerfect ? 0 : (Math.random() - 0.5) * distance * 2;
+                let y2 = Math.max(10, Math.min(190, baseY + noiseY2));
+                if(x < 1000) d += `L${x+50},${y2} `;
+            }
+            setiWave.setAttribute('d', d);
+            setiWave.setAttribute('stroke', isPerfect ? '#a855f7' : '#eab308');
+            setiWave.style.filter = isPerfect ? "drop-shadow(0 0 8px rgba(168,85,247,0.8))" : "drop-shadow(0 0 8px rgba(234,179,8,0.5))";
+            
+            setiLockBtn.innerText = isPerfect ? "SIGNAL LOCKED" : "PARTIAL LOCK";
+            setiLockBtn.classList.replace('bg-purple-600', isPerfect ? 'bg-green-600' : 'bg-yellow-600');
+            setiLockBtn.classList.remove('hover:bg-purple-500');
+
+            setiDecoderOutput.classList.remove('hidden');
+            
+            let binaryStr = "01010111 01000101 00100000 01000001 01010010 01000101 00100000 01001110 01001111 01010100 00100000 01000001 01001100 01001111 01001110 01000101";
+            let trueMsg = "WE ARE NOT ALONE";
+            let garbledMsg = "";
+            for(let c=0; c<trueMsg.length; c++) {
+                if(!isPerfect && trueMsg[c] !== ' ' && Math.random() < (distance / 30)) {
+                    garbledMsg += String.fromCharCode(33 + Math.floor(Math.random() * 60)); // Random char
+                } else {
+                    garbledMsg += trueMsg[c];
+                }
+            }
+            
+            let displayStr = "";
+            let i = 0;
+            
+            const typeInterval = setInterval(() => {
+                let bit = binaryStr[i];
+                if (!isPerfect && bit !== ' ' && Math.random() < (distance / 40)) {
+                    bit = bit === '1' ? '0' : '1';
+                }
+                displayStr += bit;
+                setiBinaryText.innerText = displayStr;
+                i++;
+                if (i >= binaryStr.length) {
+                    clearInterval(typeInterval);
+                    setTimeout(() => {
+                        setiTranslatedText.innerText = `"${garbledMsg}"`;
+                        setiTranslatedText.classList.remove('text-white');
+                        setiTranslatedText.classList.add(isPerfect ? 'text-green-400' : 'text-yellow-400');
+                        setiTranslatedText.classList.remove('opacity-0');
+                    }, 500);
+                }
+            }, 30);
+        });
+    </script>
+</body>
+
+</html>
