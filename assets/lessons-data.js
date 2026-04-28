@@ -77,7 +77,11 @@ const lessonsData = [
     dok: 2,
     semester: 2,
     isFeatured: true,
-    essentialQuestion: "How has the transition from analog to digital technology changed the way we share information?"
+    essentialQuestion: "How has the transition from analog to digital technology changed the way we share information?",
+    links: {
+      "Interactive: Signals Reference": "Unit_6_Waves_Radiation/Signals_reference/Signals_Reference.html",
+      "WebQuest: Digital Revolution": "https://docs.google.com/document/d/1Bl6WI0cS01nbkmJR3nSa5d2htQ_8-ugwACPnsnmacHQ/edit?usp=sharing"
+    }
   },
   {
     date: "2026-04-27",
