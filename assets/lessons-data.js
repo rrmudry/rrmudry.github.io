@@ -15,43 +15,30 @@
 const lessonsData = [
   // --- Unit 6: Waves and Electromagnetic Radiation ---
   {
-    date: "2026-05-04",
-    day: 26,
-    unit: 6,
-    title: "Final Performance Task",
-    summary: "Students complete/present their 'How Technology Uses Waves' project.",
-    details: "Project presentations and final notebook submissions.",
-    type: "Activity",
-    dok: 4,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How can we apply our knowledge to explain the physics of a specific technology?"
-  },
-  {
     date: "2026-05-01",
     day: 25,
     unit: 6,
-    title: "Signal Assessment (CER)",
-    summary: "Final Assessment: Which signal is better for deep-space missions?",
-    details: "Students write a Claim-Evidence-Reasoning (CER) argument evaluating signal types for emergency communications in deep-space environments.",
+    title: "Unit 6 Summative Assessment",
+    summary: "Comprehensive assessment covering mechanical waves, EM radiation, and signal technology.",
+    details: "Final unit exam covering all major concepts from the past 5 weeks including the wave equation, interference, the EM spectrum, and digital/analog signals.",
     type: "Assessment",
     dok: 4,
     semester: 2,
     isFeatured: true,
-    essentialQuestion: "Which signal type provides the most reliable data transmission in high-interference environments?"
+    essentialQuestion: "How do we demonstrate mastery of wave properties, electromagnetic radiation, and information technology?"
   },
   {
     date: "2026-04-30",
     day: 24,
     unit: 6,
-    title: "Quantizing & Binary",
-    summary: "Pulse-Code Modulation (PCM) Simulation.",
-    details: "Interactive graphing activity. Students learn to 'Quantize' a wave—turning a physical curve into a series of binary numbers (1s and 0s).",
+    title: "Unit 6 Review Day",
+    summary: "Collaborative review session covering the full unit curriculum.",
+    details: "Students rotate through review stations focusing on math practice, vocabulary mastery, and conceptual modeling in preparation for the summative assessment.",
     type: "Activity",
     dok: 3,
     semester: 2,
     isFeatured: true,
-    essentialQuestion: "How do we mathematically 'digitize' a physical wave using PCM?"
+    essentialQuestion: "How can we synthesize our understanding of waves and radiation to prepare for the final evaluation?"
   },
   {
     date: "2026-04-29",
@@ -64,7 +51,10 @@ const lessonsData = [
     dok: 3,
     semester: 2,
     isFeatured: true,
-    essentialQuestion: "Why are digital signals more robust against interference (noise) than analog signals?"
+    essentialQuestion: "Why are digital signals more robust against interference (noise) than analog signals?",
+    links: {
+      "Interactive: Wave Signals Lab": "Unit_6_Waves_Radiation/Wave_Signals/Wave_signals.html"
+    }
   },
   {
     date: "2026-04-28",
