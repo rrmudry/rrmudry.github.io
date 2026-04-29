@@ -1,0 +1,404 @@
+/* Cyber Styles for AI Topics Portal */
+:root {
+    --future-cyan: #0ea5e9; /* Light blue/sky */
+    --future-blue: #3b82f6; /* Blue */
+    --future-bg: #f8fafc; /* Very light slate */
+    --future-text: #0f172a; /* Dark slate text */
+    --future-card-bg: rgba(255, 255, 255, 0.6);
+    --collapse-red: #ff003c;
+    --collapse-orange: #ff8c00;
+    --collapse-bg: #0d0208;
+    --font-cyber: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--future-bg);
+    color: var(--future-text);
+    font-family: var(--font-cyber);
+    overflow-x: hidden;
+}
+
+/* --- FUTURE THEME (Top) --- */
+.future-section {
+    position: relative;
+    /* Updated to include a subtle geometric grid */
+    background: 
+        radial-gradient(circle at top right, rgba(14, 165, 233, 0.15), transparent),
+        radial-gradient(rgba(14, 165, 233, 0.1) 1px, transparent 1px),
+        var(--future-bg);
+    background-size: 100% 100%, 20px 20px;
+    padding: 100px 20px;
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border-bottom: 1px solid rgba(14, 165, 233, 0.1);
+    transition: all 0.5s ease;
+}
+
+.glass-card {
+    background: var(--future-card-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 24px;
+    padding: 40px;
+    max-width: 800px;
+    box-shadow: 0 8px 32px rgba(14, 165, 233, 0.15);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Holographic animated border */
+.glass-card::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%; width: 200%; height: 200%;
+    background: conic-gradient(from 0deg, transparent 70%, var(--future-cyan) 80%, transparent 100%);
+    animation: rotate-border 4s linear infinite;
+    z-index: -1;
+    opacity: 0.5;
+}
+
+.glass-card::after {
+    content: '';
+    position: absolute;
+    inset: 2px; /* Inner card masking the rotating border */
+    background: rgba(248, 250, 252, 0.95); /* Match new future-bg */
+    border-radius: 22px;
+    z-index: -1;
+}
+
+@keyframes rotate-border {
+    100% { transform: rotate(360deg); }
+}
+
+.glass-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--future-cyan);
+}
+
+.glow-text {
+    text-shadow: 0 0 20px rgba(14, 165, 233, 0.3);
+    color: var(--future-cyan);
+    position: relative;
+    z-index: 1;
+}
+
+.pulse-icon {
+    animation: pulse-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes pulse-glow {
+    from { text-shadow: 0 0 10px rgba(14, 165, 233, 0.3); transform: scale(0.98); }
+    to { text-shadow: 0 0 30px rgba(14, 165, 233, 0.6); transform: scale(1.02); }
+}
+
+/* --- COLLAPSE THEME (Bottom) --- */
+.collapse-section {
+    position: relative;
+    background-color: var(--collapse-bg);
+    padding: 100px 20px;
+    min-height: 100vh;
+    color: var(--collapse-red);
+    font-family: var(--font-mono);
+    overflow: hidden;
+}
+
+.collapse-section::before {
+    content: " ";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    z-index: 2;
+    background-size: 100% 4px, 3px 100%;
+    pointer-events: none;
+}
+
+/* Scanline animation */
+@keyframes scanline {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
+}
+
+.scanline {
+    position: absolute;
+    width: 100%;
+    height: 100px;
+    background: linear-gradient(to bottom, transparent, rgba(255, 0, 60, 0.05), transparent);
+    animation: scanline 8s linear infinite;
+    pointer-events: none;
+}
+
+/* Glitch Effect */
+.glitch {
+    position: relative;
+    display: inline-block;
+}
+
+.glitch::before,
+.glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--collapse-bg);
+}
+
+.glitch::before {
+    left: 2px;
+    text-shadow: -2px 0 var(--collapse-orange);
+    clip: rect(44px, 450px, 56px, 0);
+    animation: glitch-anim 5s infinite linear alternate-reverse;
+}
+
+.glitch::after {
+    left: -2px;
+    text-shadow: -2px 0 var(--future-cyan);
+    clip: rect(44px, 450px, 56px, 0);
+    animation: glitch-anim2 1s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim {
+    0% { clip: rect(10px, 9999px, 50px, 0); }
+    20% { clip: rect(80px, 9999px, 90px, 0); }
+    40% { clip: rect(20px, 9999px, 30px, 0); }
+    60% { clip: rect(60px, 9999px, 70px, 0); }
+    80% { clip: rect(40px, 9999px, 50px, 0); }
+    100% { clip: rect(90px, 9999px, 100px, 0); }
+}
+
+@keyframes glitch-anim2 {
+    0% { clip: rect(15px, 9999px, 25px, 0); }
+    100% { clip: rect(70px, 9999px, 80px, 0); }
+}
+
+/* --- BUTTONS --- */
+.btn-cyber {
+    display: inline-block;
+    padding: 12px 32px;
+    border: 1px solid var(--future-cyan);
+    background: transparent;
+    color: var(--future-cyan);
+    text-decoration: none;
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 2px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-cyber:hover {
+    background: var(--future-cyan);
+    color: white;
+    box-shadow: 0 0 20px var(--future-cyan);
+}
+
+.btn-dystopian {
+    display: inline-block;
+    padding: 12px 32px;
+    border: 1px solid var(--collapse-red);
+    background: rgba(255, 0, 60, 0.1);
+    color: var(--collapse-red);
+    text-decoration: none;
+    text-transform: uppercase;
+    font-family: var(--font-mono);
+    font-weight: 800;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.btn-dystopian:hover {
+    background: var(--collapse-red);
+    color: black;
+    box-shadow: 0 0 30px var(--collapse-red);
+    transform: skewX(-5deg);
+}
+
+/* Corruption grid */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    max-width: 1200px;
+    margin: 40px auto;
+}
+
+.dystopian-card {
+    background: rgba(255, 0, 60, 0.05);
+    border: 1px solid rgba(255, 0, 60, 0.2);
+    padding: 30px;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.dystopian-card:hover {
+    border-color: var(--collapse-red);
+    background: rgba(255, 0, 60, 0.1);
+    transform: rotate(1deg);
+}
+
+.dystopian-card h3 {
+    margin-top: 0;
+    font-size: 1.5rem;
+}
+
+.noise {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('https://grainy-gradients.vercel.app/noise.svg');
+    opacity: 0.1;
+    pointer-events: none;
+}
+
+/* --- TAKEOVER EFFECTS --- */
+.corrupted {
+    --future-bg: var(--collapse-bg);
+    --future-text: var(--collapse-red);
+    --future-cyan: var(--collapse-red);
+    --future-card-bg: rgba(255, 0, 60, 0.05);
+    background: 
+        radial-gradient(circle at top right, rgba(255, 0, 60, 0.15), transparent),
+        radial-gradient(rgba(255, 0, 60, 0.1) 1px, transparent 1px),
+        var(--future-bg) !important;
+    border-bottom: 1px solid rgba(255, 0, 60, 0.3) !important;
+}
+
+.corrupted .glass-card {
+    border-color: var(--collapse-red);
+    box-shadow: 0 8px 32px rgba(255, 0, 60, 0.2);
+}
+
+.corrupted .glass-card::before {
+    background: conic-gradient(from 0deg, transparent 70%, var(--collapse-red) 80%, transparent 100%);
+}
+
+.corrupted .glass-card::after {
+    background: rgba(13, 2, 8, 0.95); /* Match collapse-bg */
+}
+
+.corrupted .btn-cyber {
+    border-color: var(--collapse-red);
+    color: var(--collapse-red);
+}
+
+@keyframes shake {
+    0% { transform: translate(1px, 1px) rotate(0deg); }
+    10% { transform: translate(-1px, -2px) rotate(-1deg); }
+    20% { transform: translate(-3px, 0px) rotate(1deg); }
+    30% { transform: translate(3px, 2px) rotate(0deg); }
+    40% { transform: translate(1px, -1px) rotate(1deg); }
+    50% { transform: translate(-1px, 2px) rotate(-1deg); }
+    60% { transform: translate(-3px, 1px) rotate(0deg); }
+    70% { transform: translate(3px, 1px) rotate(-1deg); }
+    80% { transform: translate(-1px, -1px) rotate(1deg); }
+    90% { transform: translate(1px, 2px) rotate(0deg); }
+    100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+
+.hack-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(13, 2, 8, 0.95);
+    z-index: 9999;
+    display: none; /* Controlled by JS */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: var(--collapse-red);
+    font-family: var(--font-mono);
+    pointer-events: none;
+}
+
+.terminal-text {
+    width: 80%;
+    height: 60%;
+    overflow: hidden;
+    font-size: 0.8rem;
+    line-height: 1.2;
+    opacity: 0.7;
+}
+
+.breach-tag {
+    position: fixed;
+    padding: 5px 15px;
+    background: var(--collapse-red);
+    color: black;
+    font-weight: 900;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    z-index: 1000;
+    display: none;
+}
+
+/* Hostile Cursor Override */
+.hostile-cursor, .hostile-cursor * {
+    cursor: crosshair !important; /* Forces a hostile targeting reticle globally */
+}
+
+/* Corruption Tracker Progress Bar */
+.corruption-tracker-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 10000;
+}
+
+.corruption-tracker-bar {
+    height: 100%;
+    width: 0%;
+    background: var(--collapse-red);
+    box-shadow: 0 0 15px var(--collapse-red);
+    transition: width 0.1s linear;
+}
+
+.corruption-tracker-label {
+    position: fixed;
+    top: 6px;
+    left: 10px;
+    font-family: var(--font-mono);
+    color: var(--collapse-red);
+    font-size: 0.6rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* Screen Tearing Animation */
+.tear-effect {
+    animation: tear-anim 0.5s ease-out 1; /* Runs exactly once */
+}
+
+@keyframes tear-anim {
+    0% { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); transform: skewX(0deg); }
+    5% { clip-path: polygon(0 15%, 100% 15%, 100% 25%, 0 25%); transform: skewX(-5deg) translateX(10px); }
+    10% { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); transform: skewX(0deg); }
+    15% { clip-path: polygon(0 60%, 100% 60%, 100% 75%, 0 75%); transform: skewX(8deg) translateX(-15px); }
+    20% { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); transform: skewX(0deg); }
+    25% { clip-path: polygon(0 30%, 100% 30%, 100% 40%, 0 40%); transform: skewX(-2deg) translateX(5px); }
+    30% { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); transform: skewX(0deg); }
+    100% { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); transform: skewX(0deg); }
+}

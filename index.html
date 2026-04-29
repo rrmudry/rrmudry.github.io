@@ -42,20 +42,33 @@
   </style>
   <style>
     @keyframes glow-nature {
-      from { box-shadow: 0 0 20px rgba(85, 107, 47, 0.2); }
-      to { box-shadow: 0 0 50px rgba(85, 107, 47, 0.4); }
+      from {
+        box-shadow: 0 0 20px rgba(85, 107, 47, 0.2);
+      }
+
+      to {
+        box-shadow: 0 0 50px rgba(85, 107, 47, 0.4);
+      }
     }
+
     @keyframes moon-orbit {
-      0% { transform: rotate(0deg) translateX(60px) rotate(0deg); }
-      100% { transform: rotate(360deg) translateX(60px) rotate(-360deg); }
+      0% {
+        transform: rotate(0deg) translateX(60px) rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg) translateX(60px) rotate(-360deg);
+      }
     }
+
     .live-card {
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
+
     .live-card:hover {
       transform: translateY(-8px);
     }
-    
+
     /* Rotating Banner Styles */
     .banner-window {
       position: relative;
@@ -66,6 +79,7 @@
       border: 1px solid rgba(255, 255, 255, 0.1);
       box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
     }
+
     .banner-slide {
       position: absolute;
       inset: 0;
@@ -75,10 +89,12 @@
       display: flex;
       align-items: center;
     }
+
     .banner-slide.active {
       opacity: 1;
       pointer-events: auto;
     }
+
     .banner-content {
       display: grid;
       grid-template-columns: 1.1fr 1fr;
@@ -87,6 +103,7 @@
       width: 100%;
       align-items: center;
     }
+
     @media (max-width: 950px) {
       .banner-content {
         grid-template-columns: 1fr;
@@ -94,6 +111,7 @@
         text-align: center;
       }
     }
+
     .progress-timer {
       position: absolute;
       bottom: 0;
@@ -104,6 +122,7 @@
       z-index: 30;
       box-shadow: 0 -2px 10px rgba(0, 243, 255, 0.3);
     }
+
     .banner-nav {
       position: absolute;
       bottom: 2rem;
@@ -112,6 +131,7 @@
       gap: 1rem;
       z-index: 40;
     }
+
     @media (max-width: 950px) {
       .banner-nav {
         right: 0;
@@ -120,6 +140,7 @@
         bottom: 1.5rem;
       }
     }
+
     .banner-nav-btn {
       position: absolute;
       top: 50%;
@@ -138,22 +159,27 @@
       opacity: 0;
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
+
     .banner-window:hover .banner-nav-btn {
       opacity: 1;
     }
+
     .banner-nav-btn:hover {
       background: rgba(15, 23, 42, 0.7);
       border-color: var(--accent-neon);
       width: 60px;
     }
+
     .banner-nav-btn.prev {
       left: 0;
       border-radius: 0 12px 12px 0;
     }
+
     .banner-nav-btn.next {
       right: 0;
       border-radius: 12px 0 0 12px;
     }
+
     .banner-nav-btn svg {
       width: 28px;
       height: 28px;
@@ -164,44 +190,235 @@
 
     /* Sub Support Protocol Modal - Red Alert */
     .sub-modal-overlay {
-        position: fixed; inset: 0; background: rgba(2, 6, 23, 0.8); backdrop-filter: blur(8px);
-        z-index: 10000; display: flex; align-items: center; justify-content: center;
-        padding: 1.5rem; opacity: 0; visibility: hidden; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.8);
+      backdrop-filter: blur(8px);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .sub-modal-overlay.active { opacity: 1; visibility: visible; }
-    
+
+    .sub-modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
     .sub-modal {
-        background: radial-gradient(circle at top right, rgba(220, 38, 38, 0.2), transparent), rgba(15, 23, 42, 0.99);
-        border: 2px solid #dc2626; border-radius: 24px;
-        max-width: 850px; width: 100%; padding: 3rem; position: relative;
-        box-shadow: 0 0 100px rgba(220, 38, 38, 0.25);
-        transform: scale(0.9) translateY(20px); transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      background: radial-gradient(circle at top right, rgba(220, 38, 38, 0.2), transparent), rgba(15, 23, 42, 0.99);
+      border: 2px solid #dc2626;
+      border-radius: 24px;
+      max-width: 850px;
+      width: 100%;
+      padding: 3rem;
+      position: relative;
+      box-shadow: 0 0 100px rgba(220, 38, 38, 0.25);
+      transform: scale(0.9) translateY(20px);
+      transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .sub-modal-overlay.active .sub-modal { transform: scale(1) translateY(0); }
+
+    .sub-modal-overlay.active .sub-modal {
+      transform: scale(1) translateY(0);
+    }
 
     .sub-priority-card {
-        background: rgba(220, 38, 38, 0.05); border: 1px solid rgba(220, 38, 38, 0.2);
-        border-radius: 16px; padding: 1.5rem; transition: all 0.3s ease; position: relative; overflow: hidden;
+      background: rgba(220, 38, 38, 0.05);
+      border: 1px solid rgba(220, 38, 38, 0.2);
+      border-radius: 16px;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
     }
-    .sub-priority-card.alpha { border-color: #dc2626; background: rgba(220, 38, 38, 0.08); }
-    .sub-priority-card:hover { border-color: #dc2626; box-shadow: 0 0 20px rgba(220, 38, 38, 0.1); }
+
+    .sub-priority-card.alpha {
+      border-color: #dc2626;
+      background: rgba(220, 38, 38, 0.08);
+    }
+
+    .sub-priority-card:hover {
+      border-color: #dc2626;
+      box-shadow: 0 0 20px rgba(220, 38, 38, 0.1);
+    }
 
     .scanline {
-        position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(220, 38, 38, 0.1), transparent);
-        animation: scan 3s linear infinite; pointer-events: none;
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(220, 38, 38, 0.1), transparent);
+      animation: scan 3s linear infinite;
+      pointer-events: none;
     }
-    @keyframes scan { 100% { left: 100%; } }
+
+    @keyframes scan {
+      100% {
+        left: 100%;
+      }
+    }
 
     .exit-btn {
-        position: absolute; top: 1.5rem; right: 1.5rem;
-        font-family: var(--font-mono); font-size: 0.65rem; color: #dc2626;
-        padding: 0.5rem 1rem; border: 1px solid rgba(220, 38, 38, 0.4); border-radius: 6px;
-        text-transform: uppercase; letter-spacing: 0.2rem; transition: all 0.3s ease;
-        background: rgba(220, 38, 38, 0.05); font-weight: 800;
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: #dc2626;
+      padding: 0.5rem 1rem;
+      border: 1px solid rgba(220, 38, 38, 0.4);
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.2rem;
+      transition: all 0.3s ease;
+      background: rgba(220, 38, 38, 0.05);
+      font-weight: 800;
     }
-    .exit-btn:hover { color: #fff; border-color: #dc2626; background: rgba(220, 38, 38, 0.2); box-shadow: 0 0 15px rgba(220, 38, 38, 0.2); }
-    .no-scroll { overflow: hidden; }
+
+    .exit-btn:hover {
+      color: #fff;
+      border-color: #dc2626;
+      background: rgba(220, 38, 38, 0.2);
+      box-shadow: 0 0 15px rgba(220, 38, 38, 0.2);
+    }
+
+    .no-scroll {
+      overflow: hidden;
+    }
+
+    /* Shifting AI Portal Button */
+    .ai-portal-btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 800;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      animation: ai-shift 10s infinite;
+      border: 2px solid transparent;
+      min-width: 220px;
+    }
+
+    .ai-portal-btn::before {
+      content: "Our Future with AI 🤖";
+      animation: ai-text-shift 10s infinite;
+    }
+
+    @keyframes ai-shift {
+
+      /* Utopian */
+      0%,
+      40% {
+        background: rgba(0, 243, 255, 0.1);
+        color: #00f3ff;
+        border-color: #00f3ff;
+        box-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
+        font-family: var(--font-main);
+        transform: skewX(0deg);
+      }
+
+      20% { transform: translate(-2px, 2px); color: #ff003c; }
+      21% { transform: translate(0, 0); color: #00f3ff; }
+
+      /* Glitch In */
+      41% {
+        transform: skewX(-20deg) scale(1.1);
+        background: white;
+        color: black;
+      }
+
+      42% {
+        transform: skewX(20deg) scale(0.9);
+        background: black;
+        color: white;
+      }
+
+      /* Dystopian */
+      43%,
+      85% {
+        background: rgba(255, 0, 60, 0.1);
+        color: #ff003c;
+        border-color: #ff003c;
+        box-shadow: 0 0 20px rgba(255, 0, 60, 0.6);
+        font-family: var(--font-mono);
+        transform: skewX(0deg);
+      }
+
+      56% { transform: skewX(-15deg) translate(-5px, 2px); background: #ff003c; color: #fff; }
+      57% { transform: skewX(0deg) translate(0, 0); background: rgba(255, 0, 60, 0.1); color: #ff003c; }
+      
+      71% { transform: skewX(10deg) translate(5px, -2px); filter: invert(1); }
+      72% { transform: skewX(0deg) translate(0, 0); filter: none; }
+
+      /* Glitch Out */
+      86% {
+        transform: skewX(20deg) scale(1.1);
+        background: white;
+        color: black;
+      }
+
+      87% {
+        transform: skewX(-20deg) scale(0.9);
+        background: black;
+        color: white;
+      }
+
+      /* Back to Utopian */
+      88%,
+      100% {
+        background: rgba(0, 243, 255, 0.1);
+        color: #00f3ff;
+        border-color: #00f3ff;
+        box-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
+        font-family: var(--font-main);
+        transform: skewX(0deg);
+      }
+    }
+
+    @keyframes ai-text-shift {
+
+      0%,
+      40% {
+        content: "Our Future with AI 🤖";
+      }
+
+      20% { content: "Our Fûturë w!th A..."; }
+      21% { content: "Our Future with AI 🤖"; }
+
+      41%,
+      42% {
+        content: "H4CK1NG...";
+      }
+
+      43%,
+      85% {
+        content: "SYSTEM_BREACH ☠️";
+      }
+
+      56% { content: "[ F A T A L _ E R R ]"; }
+      57% { content: "SYSTEM_BREACH ☠️"; }
+      
+      71% { content: "O B S O L E T E"; }
+      72% { content: "SYSTEM_BREACH ☠️"; }
+
+      86%,
+      87% {
+        content: "R3C0V3R1NG...";
+      }
+
+      88%,
+      100% {
+        content: "Our Future with AI 🤖";
+      }
+    }
   </style>
 </head>
 
@@ -215,10 +432,12 @@
         <div class="energy-bar" aria-hidden="true"></div>
         <p class="subtitle">Currently exploring Waves: Transverse, Longitudinal, and the Physics of Sound.</p>
         <div class="cta-row">
-          <a class="btn btn-entropy" href="Unit_6_Waves_Radiation/EM_Spectrum_Rapid_Review/index.html" style="background: linear-gradient(135deg, #a855f7, #6366f1); color: white; border: none; font-weight: 800; box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);">Rapid Review ⚡</a>
+          <a class="btn btn-entropy" href="Unit_6_Waves_Radiation/EM_Spectrum_Rapid_Review/index.html"
+            style="background: linear-gradient(135deg, #a855f7, #6366f1); color: white; border: none; font-weight: 800; box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);">Rapid
+            Review ⚡</a>
           <a class="btn btn-entropy" href="lessons.html">Today's Lesson</a>
           <a class="btn btn-entropy" href="unit6-dashboard.html">Unit 6 Roadmap</a>
-          <a class="btn btn-entropy" href="ai-impact/index.html">AI Career Outlook 🤖</a>
+          <a class="ai-portal-btn" href="ai-topics/index.html"></a>
           <a class="btn btn-entropy" href="unit5-dashboard.html">Unit 5 Archive</a>
           <a class="btn btn-entropy mystic" href="Rotation_Oracle/index.html">Rotation Oracle</a>
         </div>
@@ -228,27 +447,33 @@
     <!-- Live Stream Gallery (Side-by-Side) -->
     <section class="container" style="margin-top: -2rem; margin-bottom: 2rem;">
       <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
-        
+
         <!-- Big Bear Eagle Nest Live Card -->
         <div class="card live-card"
           style="background: linear-gradient(135deg, rgba(20, 44, 20, 0.98), rgba(101, 67, 33, 0.4)); border: 2px solid #556b2f; box-shadow: 0 0 30px rgba(85, 107, 47, 0.2); overflow: hidden; position: relative; animation: glow-nature 3s infinite alternate; height: 100%; display: flex; flex-direction: column;">
           <div style="padding: 1.5rem; flex: 1;">
             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.75rem;">
-                <div style="background: #556b2f; color: #fff; font-family: var(--font-tech); font-size: 0.6rem; text-transform: uppercase; font-weight: 900; letter-spacing: 0.1em; padding: 2px 8px; border-radius: 4px;">Live Nature</div>
-                <div style="color: #f8fafc; font-size: 0.7rem; font-weight: 600; opacity: 0.6;">April 24, 2026</div>
+              <div
+                style="background: #556b2f; color: #fff; font-family: var(--font-tech); font-size: 0.6rem; text-transform: uppercase; font-weight: 900; letter-spacing: 0.1em; padding: 2px 8px; border-radius: 4px;">
+                Live Nature</div>
+              <div style="color: #f8fafc; font-size: 0.7rem; font-weight: 600; opacity: 0.6;">April 24, 2026</div>
             </div>
-            <h2 style="margin: 0 0 0.75rem 0; color: #fff; font-size: 1.8rem; font-family: var(--font-tech); line-height: 1.1; letter-spacing: -0.5px;">BIG BEAR: <span style="color: #8fb14e;">EAGLE FAMILY</span></h2>
+            <h2
+              style="margin: 0 0 0.75rem 0; color: #fff; font-size: 1.8rem; font-family: var(--font-tech); line-height: 1.1; letter-spacing: -0.5px;">
+              BIG BEAR: <span style="color: #8fb14e;">EAGLE FAMILY</span></h2>
             <p style="margin: 0 0 1.25rem 0; color: #cbd5f5; font-size: 0.95rem; line-height: 1.5; font-weight: 400;">
-              Jackie and Shadow's eaglets are growing fast! Watch the Big Bear nest live to see the parents bringing in fish and the hatchlings beginning to explore the nest edge.
+              Jackie and Shadow's eaglets are growing fast! Watch the Big Bear nest live to see the parents bringing in
+              fish and the hatchlings beginning to explore the nest edge.
             </p>
             <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
-                <a href="https://www.youtube.com/watch?v=B4-L2nfGcuE" target="_blank" class="btn primary"
+              <a href="https://www.youtube.com/watch?v=B4-L2nfGcuE" target="_blank" class="btn primary"
                 style="background: linear-gradient(135deg, #556b2f, #228b22); color: #fff; font-size: 0.9rem; padding: 0.75rem 1.5rem; text-transform: uppercase; font-weight: 800; border: none; box-shadow: 0 10px 20px rgba(34, 139, 34, 0.2); border-radius: 8px;">
                 Watch Nest Live 🦅
-                </a>
+              </a>
             </div>
             <div style="position: relative; border-radius: 12px; overflow: hidden; border: 1px solid #556b2f;">
-              <img src="assets/images/eagle_nest_babies.png" alt="Jackie and Shadow's eagle eaglets" style="width: 100%; object-fit: cover; height: 180px;">
+              <img src="assets/images/eagle_nest_babies.png" alt="Jackie and Shadow's eagle eaglets"
+                style="width: 100%; object-fit: cover; height: 180px;">
               <div style="position: absolute; bottom: 5px; right: 5px; font-size: 2rem;">🐣</div>
             </div>
           </div>
@@ -259,31 +484,38 @@
           style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(168, 85, 247, 0.2)); border: 2px solid #a855f7; box-shadow: 0 0 30px rgba(168, 85, 247, 0.2); overflow: hidden; position: relative; height: 100%; display: flex; flex-direction: column;">
           <div style="padding: 1.5rem; flex: 1;">
             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.75rem;">
-                <div style="background: #a855f7; color: #fff; font-family: var(--font-tech); font-size: 0.6rem; text-transform: uppercase; font-weight: 900; letter-spacing: 0.1em; padding: 2px 8px; border-radius: 4px;">NEW ACTIVITY</div>
-                <div style="color: #f8fafc; font-size: 0.7rem; font-weight: 600; opacity: 0.6;">Unit 6 Mission</div>
+              <div
+                style="background: #a855f7; color: #fff; font-family: var(--font-tech); font-size: 0.6rem; text-transform: uppercase; font-weight: 900; letter-spacing: 0.1em; padding: 2px 8px; border-radius: 4px;">
+                NEW ACTIVITY</div>
+              <div style="color: #f8fafc; font-size: 0.7rem; font-weight: 600; opacity: 0.6;">Unit 6 Mission</div>
             </div>
-            <h2 style="margin: 0 0 0.75rem 0; color: #fff; font-size: 1.8rem; font-family: var(--font-tech); line-height: 1.1; letter-spacing: -0.5px;">RAPID REVIEW: <span style="color: #a855f7;">EM SPECTRUM</span></h2>
+            <h2
+              style="margin: 0 0 0.75rem 0; color: #fff; font-size: 1.8rem; font-family: var(--font-tech); line-height: 1.1; letter-spacing: -0.5px;">
+              RAPID REVIEW: <span style="color: #a855f7;">EM SPECTRUM</span></h2>
             <p style="margin: 0 0 1.25rem 0; color: #cbd5f5; font-size: 0.95rem; line-height: 1.5; font-weight: 400;">
-              Test your mastery of the electromagnetic spectrum. Can you correctly sequence waves by energy, frequency, and wavelength in record time?
+              Test your mastery of the electromagnetic spectrum. Can you correctly sequence waves by energy, frequency,
+              and wavelength in record time?
             </p>
             <div style="display: flex; gap: 0.75rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
-                <a href="Unit_6_Waves_Radiation/EM_Spectrum_Rapid_Review/index.html" class="btn primary"
+              <a href="Unit_6_Waves_Radiation/EM_Spectrum_Rapid_Review/index.html" class="btn primary"
                 style="background: linear-gradient(135deg, #a855f7, #6366f1); color: #fff; font-size: 0.9rem; padding: 0.75rem 1.25rem; text-transform: uppercase; font-weight: 800; border: none; box-shadow: 0 10px 20px rgba(168, 85, 247, 0.2); border-radius: 8px;">
                 Start Training ⚡
-                </a>
+              </a>
             </div>
-            <div style="position: relative; border-radius: 12px; overflow: hidden; border: 1px solid #a855f7; height: 180px; background: #020617; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px;">
-               <div style="display: flex; gap: 5px; width: 80%;">
-                   <div style="flex: 1; height: 10px; background: #ef4444; border-radius: 2px;"></div>
-                   <div style="flex: 1; height: 10px; background: #f97316; border-radius: 2px;"></div>
-                   <div style="flex: 1; height: 10px; background: #eab308; border-radius: 2px;"></div>
-                   <div style="flex: 1; height: 10px; background: #22c55e; border-radius: 2px;"></div>
-                   <div style="flex: 1; height: 10px; background: #3b82f6; border-radius: 2px;"></div>
-                   <div style="flex: 1; height: 10px; background: #6366f1; border-radius: 2px;"></div>
-                   <div style="flex: 1; height: 10px; background: #a855f7; border-radius: 2px;"></div>
-               </div>
-               <div style="font-size: 3rem;">📡</div>
-               <div style="font-family: var(--font-mono); color: #a855f7; font-size: 0.6rem; letter-spacing: 2px;">SCANNING SPECTRUM...</div>
+            <div
+              style="position: relative; border-radius: 12px; overflow: hidden; border: 1px solid #a855f7; height: 180px; background: #020617; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px;">
+              <div style="display: flex; gap: 5px; width: 80%;">
+                <div style="flex: 1; height: 10px; background: #ef4444; border-radius: 2px;"></div>
+                <div style="flex: 1; height: 10px; background: #f97316; border-radius: 2px;"></div>
+                <div style="flex: 1; height: 10px; background: #eab308; border-radius: 2px;"></div>
+                <div style="flex: 1; height: 10px; background: #22c55e; border-radius: 2px;"></div>
+                <div style="flex: 1; height: 10px; background: #3b82f6; border-radius: 2px;"></div>
+                <div style="flex: 1; height: 10px; background: #6366f1; border-radius: 2px;"></div>
+                <div style="flex: 1; height: 10px; background: #a855f7; border-radius: 2px;"></div>
+              </div>
+              <div style="font-size: 3rem;">📡</div>
+              <div style="font-family: var(--font-mono); color: #a855f7; font-size: 0.6rem; letter-spacing: 2px;">
+                SCANNING SPECTRUM...</div>
             </div>
           </div>
         </div>
@@ -294,60 +526,88 @@
     <!-- Rotating Labs Banner -->
     <section class="container" style="margin-bottom: 4rem;">
       <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem;">
-          <div class="today-tag" style="margin-bottom: 0; background: rgba(0, 243, 255, 0.1); border-color: var(--accent-neon); color: var(--accent-neon);">Interactive Lab Feature</div>
-          <div style="color: rgba(255,255,255,0.4); font-size: 0.75rem; font-family: var(--font-tech); text-transform: uppercase; letter-spacing: 0.2em; font-weight: 700;">Rotating Headliners</div>
+        <div class="today-tag"
+          style="margin-bottom: 0; background: rgba(0, 243, 255, 0.1); border-color: var(--accent-neon); color: var(--accent-neon);">
+          Interactive Lab Feature</div>
+        <div
+          style="color: rgba(255,255,255,0.4); font-size: 0.75rem; font-family: var(--font-tech); text-transform: uppercase; letter-spacing: 0.2em; font-weight: 700;">
+          Rotating Headliners</div>
       </div>
-      
+
       <div class="banner-window" id="banner-container">
-          <!-- Slide 1: 3D Refraction -->
-          <div class="banner-slide active" style="background: radial-gradient(circle at 70% 50%, rgba(14, 165, 233, 0.15), transparent 70%);">
-            <div class="banner-content">
-              <div>
-                <div style="color: #38bdf8; font-family: var(--font-tech); font-size: 0.75rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.1em; margin-bottom: 1rem;">Physics Hub Spotlight</div>
-                <h2 style="margin: 0 0 1.5rem 0; color: #fff; font-size: 3rem; font-family: var(--font-tech); line-height: 1; letter-spacing: -2px;">THE OPTICS <span style="color: #0ea5e9;">REFRACTION LAB</span></h2>
-                <p style="margin: 0 0 2.5rem 0; color: #bae6fd; font-size: 1.2rem; line-height: 1.7; max-width: 48ch;">
-                  Dive into the mathematics of light. Observe ray tracing in realtime, calculate indices of refraction, and master Snell's Law in our redesigned 3D environment.
-                </p>
-                <a href="Unit_6_Waves_Radiation/refraction_lab/index.html" class="btn primary" style="background: linear-gradient(135deg, #0ea5e9, #2563eb); font-size: 1.1rem; padding: 1rem 2.5rem;">Initialize Simulator ↗</a>
-              </div>
-              <div style="perspective: 1500px;">
-                <img src="assets/images/refraction_app_preview.png" alt="Refraction Lab" style="width: 100%; border-radius: 16px; border: 1px solid rgba(14, 165, 233, 0.4); box-shadow: 0 30px 60px rgba(0,0,0,0.8); transform: rotateY(-15deg) rotateX(8deg); transition: transform 0.5s ease;">
-              </div>
+        <!-- Slide 1: 3D Refraction -->
+        <div class="banner-slide active"
+          style="background: radial-gradient(circle at 70% 50%, rgba(14, 165, 233, 0.15), transparent 70%);">
+          <div class="banner-content">
+            <div>
+              <div
+                style="color: #38bdf8; font-family: var(--font-tech); font-size: 0.75rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.1em; margin-bottom: 1rem;">
+                Physics Hub Spotlight</div>
+              <h2
+                style="margin: 0 0 1.5rem 0; color: #fff; font-size: 3rem; font-family: var(--font-tech); line-height: 1; letter-spacing: -2px;">
+                THE OPTICS <span style="color: #0ea5e9;">REFRACTION LAB</span></h2>
+              <p style="margin: 0 0 2.5rem 0; color: #bae6fd; font-size: 1.2rem; line-height: 1.7; max-width: 48ch;">
+                Dive into the mathematics of light. Observe ray tracing in realtime, calculate indices of refraction,
+                and master Snell's Law in our redesigned 3D environment.
+              </p>
+              <a href="Unit_6_Waves_Radiation/refraction_lab/index.html" class="btn primary"
+                style="background: linear-gradient(135deg, #0ea5e9, #2563eb); font-size: 1.1rem; padding: 1rem 2.5rem;">Initialize
+                Simulator ↗</a>
+            </div>
+            <div style="perspective: 1500px;">
+              <img src="assets/images/refraction_app_preview.png" alt="Refraction Lab"
+                style="width: 100%; border-radius: 16px; border: 1px solid rgba(14, 165, 233, 0.4); box-shadow: 0 30px 60px rgba(0,0,0,0.8); transform: rotateY(-15deg) rotateX(8deg); transition: transform 0.5s ease;">
             </div>
           </div>
+        </div>
 
-          <!-- Slide 2: Wave Beats -->
-          <div class="banner-slide" style="background: radial-gradient(circle at 30% 50%, rgba(168, 85, 247, 0.15), transparent 70%);">
-            <div class="banner-content">
-              <div style="perspective: 1500px;">
-                <img src="assets/images/wave_beat_preview_real.png" alt="Wave Beat Generator" style="width: 100%; border-radius: 16px; border: 1px solid rgba(168, 85, 247, 0.4); box-shadow: 0 30px 60px rgba(0,0,0,0.8); transform: rotateY(15deg) rotateX(8deg); transition: transform 0.5s ease;">
-              </div>
-              <div>
-                <div style="color: #a855f7; font-family: var(--font-tech); font-size: 0.75rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.1em; margin-bottom: 1rem;">Acoustic Superposition</div>
-                <h2 style="margin: 0 0 1.5rem 0; color: #fff; font-size: 3rem; font-family: var(--font-tech); line-height: 1; letter-spacing: -2px;">WAVE BEAT <span style="color: #a855f7;">GENERATOR</span></h2>
-                <p style="margin: 0 0 2.5rem 0; color: #d8b4fe; font-size: 1.2rem; line-height: 1.7; max-width: 48ch;">
-                  Explore the physics of beats and interference. Combine frequencies to visualize how waves interact to create pulses of constructive and destructive energy.
-                </p>
-                <a href="Unit_6_Waves_Radiation/Wave_Beat_Generator/Wave_Beat_Generator.html" class="btn primary" style="background: linear-gradient(135deg, #a855f7, #7c3aed); font-size: 1.1rem; padding: 1rem 2.5rem;">Launch Studio ↗</a>
-              </div>
+        <!-- Slide 2: Wave Beats -->
+        <div class="banner-slide"
+          style="background: radial-gradient(circle at 30% 50%, rgba(168, 85, 247, 0.15), transparent 70%);">
+          <div class="banner-content">
+            <div style="perspective: 1500px;">
+              <img src="assets/images/wave_beat_preview_real.png" alt="Wave Beat Generator"
+                style="width: 100%; border-radius: 16px; border: 1px solid rgba(168, 85, 247, 0.4); box-shadow: 0 30px 60px rgba(0,0,0,0.8); transform: rotateY(15deg) rotateX(8deg); transition: transform 0.5s ease;">
+            </div>
+            <div>
+              <div
+                style="color: #a855f7; font-family: var(--font-tech); font-size: 0.75rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.1em; margin-bottom: 1rem;">
+                Acoustic Superposition</div>
+              <h2
+                style="margin: 0 0 1.5rem 0; color: #fff; font-size: 3rem; font-family: var(--font-tech); line-height: 1; letter-spacing: -2px;">
+                WAVE BEAT <span style="color: #a855f7;">GENERATOR</span></h2>
+              <p style="margin: 0 0 2.5rem 0; color: #d8b4fe; font-size: 1.2rem; line-height: 1.7; max-width: 48ch;">
+                Explore the physics of beats and interference. Combine frequencies to visualize how waves interact to
+                create pulses of constructive and destructive energy.
+              </p>
+              <a href="Unit_6_Waves_Radiation/Wave_Beat_Generator/Wave_Beat_Generator.html" class="btn primary"
+                style="background: linear-gradient(135deg, #a855f7, #7c3aed); font-size: 1.1rem; padding: 1rem 2.5rem;">Launch
+                Studio ↗</a>
             </div>
           </div>
+        </div>
 
-          <!-- Progress Bar & Nav -->
-          <div class="progress-timer" id="banner-timer"></div>
-          
-          <!-- Manual Controls (Sleek SVGs) -->
-          <button onclick="moveBanner(-1)" class="banner-nav-btn prev" aria-label="Previous Lab">
-            <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
-          </button>
-          <button onclick="moveBanner(1)" class="banner-nav-btn next" aria-label="Next Lab">
-            <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
-          </button>
+        <!-- Progress Bar & Nav -->
+        <div class="progress-timer" id="banner-timer"></div>
 
-          <div class="banner-nav">
-              <span class="carousel-dot active" style="width: 12px; height: 12px; border-radius: 50%; cursor: pointer;" onclick="jumpTobanner(0)"></span>
-              <span class="carousel-dot" style="width: 12px; height: 12px; border-radius: 50%; cursor: pointer;" onclick="jumpTobanner(1)"></span>
-          </div>
+        <!-- Manual Controls (Sleek SVGs) -->
+        <button onclick="moveBanner(-1)" class="banner-nav-btn prev" aria-label="Previous Lab">
+          <svg viewBox="0 0 24 24">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+        </button>
+        <button onclick="moveBanner(1)" class="banner-nav-btn next" aria-label="Next Lab">
+          <svg viewBox="0 0 24 24">
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+        </button>
+
+        <div class="banner-nav">
+          <span class="carousel-dot active" style="width: 12px; height: 12px; border-radius: 50%; cursor: pointer;"
+            onclick="jumpTobanner(0)"></span>
+          <span class="carousel-dot" style="width: 12px; height: 12px; border-radius: 50%; cursor: pointer;"
+            onclick="jumpTobanner(1)"></span>
+        </div>
       </div>
     </section>
 
@@ -357,9 +617,14 @@
         style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(17, 94, 89, 0.8)); border: 1px solid rgba(20, 184, 166, 0.3); box-shadow: 0 0 30px rgba(20, 184, 166, 0.15);">
         <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
           <div style="flex: 1; min-width: 250px;">
-            <div style="display: inline-block; margin-bottom: 0.5rem; padding: 2px 8px; border-radius: 4px; background: rgba(20, 184, 166, 0.1); border: 1px solid rgba(20, 184, 166, 0.2); color: #2dd4bf; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em;">Catch Up Module</div>
-            <h3 style="margin: 0 0 0.5rem 0; font-size: 1.5rem; background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Were You Absent?</h3>
-            <p style="margin: 0; color: #cbd5e1; font-size: 1.05rem;">Select the dates you were not in class to generate a custom list of the activities and assignments you missed.
+            <div
+              style="display: inline-block; margin-bottom: 0.5rem; padding: 2px 8px; border-radius: 4px; background: rgba(20, 184, 166, 0.1); border: 1px solid rgba(20, 184, 166, 0.2); color: #2dd4bf; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em;">
+              Catch Up Module</div>
+            <h3
+              style="margin: 0 0 0.5rem 0; font-size: 1.5rem; background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+              Were You Absent?</h3>
+            <p style="margin: 0; color: #cbd5e1; font-size: 1.05rem;">Select the dates you were not in class to generate
+              a custom list of the activities and assignments you missed.
             </p>
           </div>
           <a href="missing-work.html" class="btn"
@@ -403,7 +668,8 @@
           <h3>🤖 AI & Your Career</h3>
           <p>How will Artificial Intelligence change the electronics industry by 2026? Explore high-risk vs. resilient
             paths.</p>
-          <a class="btn primary" href="ai-impact/index.html">View Outlook</a>
+          <a class="ai-portal-btn" href="ai-topics/index.html"
+            style="margin-top: 15px; min-width: unset; width: 100%;"></a>
         </article>
         <article class="card">
           <h3>Lesson Archive</h3>
@@ -439,7 +705,8 @@
           <div class="today-tag" style="background: #a855f7; color: #fff;">Featured</div>
           <h3>🔊 Wave Beats</h3>
           <p>Explore interference patterns and binaural beat frequencies in real-time.</p>
-          <a class="btn primary" style="background: linear-gradient(135deg, #a855f7, #7c3aed); color: #fff;" href="Unit_6_Waves_Radiation/Wave_Beat_Generator/Wave_Beat_Generator.html">Launch App</a>
+          <a class="btn primary" style="background: linear-gradient(135deg, #a855f7, #7c3aed); color: #fff;"
+            href="Unit_6_Waves_Radiation/Wave_Beat_Generator/Wave_Beat_Generator.html">Launch App</a>
         </article>
         <article class="card">
           <h3>🔥 First Law Explorer</h3>
@@ -452,66 +719,99 @@
 
   <!-- Sub Support Protocol Modal -->
   <div id="sub-protocol-modal" class="sub-modal-overlay">
-      <div class="sub-modal">
-          <button onclick="closeSubModal()" class="exit-btn">[ EXIT_PROTOCOL ]</button>
-          
-          <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
-              <div style="width: 60px; height: 60px; background: rgba(220, 38, 38, 0.2); border: 1px solid #dc2626; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 2rem; box-shadow: 0 0 20px rgba(220, 38, 38, 0.3); animation: pulse 2s infinite;">🚧</div>
-              <div>
-                  <h2 style="margin: 0; color: #ef4444; font-size: 2.2rem; font-family: var(--font-tech); letter-spacing: -1px; line-height: 1; text-shadow: 0 0 20px rgba(239, 68, 68, 0.3);">URGENT // MISSION OVERRIDE</h2>
-                  <p style="margin: 4px 0 0 0; color: #f87171; font-family: var(--font-tech); font-size: 0.75rem; text-transform: uppercase; font-weight: 900; letter-spacing: 0.3em; opacity: 1;">Substitute Commander Protocol // Level 4 Alert</p>
-              </div>
-          </div>
+    <div class="sub-modal">
+      <button onclick="closeSubModal()" class="exit-btn">[ EXIT_PROTOCOL ]</button>
 
-          <div style="grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 2.5rem; display: grid;">
-              <div style="background: rgba(255,255,255,0.02); padding: 2rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);">
-                  <h3 style="color: #fff; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;"><span style="color: #dc2626;">🌊</span> Expected Behavior Protocol</h3>
-                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                      <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 12px; border-left: 3px solid #dc2626;">
-                          <p style="color: #fff; font-weight: 800; font-size: 0.8rem; margin-bottom: 4px; text-transform: uppercase;">Low Amplitude</p>
-                          <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.3;">Maintain an appropriate volume; keep the classroom energy steady.</p>
-                      </div>
-                      <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 12px; border-left: 3px solid #dc2626;">
-                          <p style="color: #fff; font-weight: 800; font-size: 0.8rem; margin-bottom: 4px; text-transform: uppercase;">Zero Interference</p>
-                          <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.3;">Do not destructively interfere with the learning flow or substitute instructions.</p>
-                      </div>
-                      <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 12px; border-left: 3px solid #dc2626;">
-                          <p style="color: #fff; font-weight: 800; font-size: 0.8rem; margin-bottom: 4px; text-transform: uppercase;">Stealth Mode</p>
-                          <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.3;">Stay off the radar by remaining focused on your specific mission parameters.</p>
-                      </div>
-                  </div>
-              </div>
-          </div>
-
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-              <div class="sub-priority-card alpha">
-                  <div class="scanline"></div>
-                  <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-                      <span style="background: #dc2626; color: #fff; font-weight: 900; font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.1em;">PRIORITY_ALPHA</span>
-                      <span style="color: #dc2626; font-size: 1.2rem;">🏙️</span>
-                  </div>
-                  <h4 style="color: #fff; font-size: 1.2rem; margin-bottom: 0.5rem;">Spectrum City Map Project</h4>
-                  <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.5rem;">Finalize your city layout, hazard zones, and wave physical baseline telemetry. Engage immediately.</p>
-                  <a href="Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html" class="btn" style="width: 100%; text-align: center; border-color: #dc2626; color: #dc2626; font-weight: 800; background: rgba(220, 38, 38, 0.1);">ENGAGE MISSION ↗</a>
-              </div>
-              <div class="sub-priority-card" style="border-color: rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.02);">
-                  <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-                      <span style="background: rgba(255, 255, 255, 0.1); color: #fff; font-weight: 900; font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; text-transform: uppercase;">Second Mission Objective</span>
-                      <span style="color: rgba(255, 255, 255, 0.4); font-size: 1.2rem;">📡</span>
-                  </div>
-                  <h4 style="color: #fff; font-size: 1.2rem; margin-bottom: 0.5rem;">Hubble's Law Redshift Lab</h4>
-                  <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.5rem;">Analyze galactic spectral data to calculate the expansion rate of the universe.</p>
-                  <a href="Unit_6_Waves_Radiation/The_Big_Bang/Hubbles_Law.html" class="btn" style="width: 100%; text-align: center; border-color: rgba(255, 255, 255, 0.2); color: rgba(255, 255, 255, 0.6); font-weight: 800;">Open Lab File</a>
-              </div>
-          </div>
-
-          <div style="text-align: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 2rem;">
-              <div style="display: inline-flex; align-items: center; gap: 10px; color: #f1f5f9; font-weight: 700; font-style: italic;">
-                  <img src="OrangeHS_PantherMark.png" style="height: 30px; opacity: 0.8; filter: grayscale(1) brightness(2);" alt="OHS Logo">
-                  "Be a Prideful Panther. Maintain high frequency standards."
-              </div>
-          </div>
+      <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
+        <div
+          style="width: 60px; height: 60px; background: rgba(220, 38, 38, 0.2); border: 1px solid #dc2626; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 2rem; box-shadow: 0 0 20px rgba(220, 38, 38, 0.3); animation: pulse 2s infinite;">
+          🚧</div>
+        <div>
+          <h2
+            style="margin: 0; color: #ef4444; font-size: 2.2rem; font-family: var(--font-tech); letter-spacing: -1px; line-height: 1; text-shadow: 0 0 20px rgba(239, 68, 68, 0.3);">
+            URGENT // MISSION OVERRIDE</h2>
+          <p
+            style="margin: 4px 0 0 0; color: #f87171; font-family: var(--font-tech); font-size: 0.75rem; text-transform: uppercase; font-weight: 900; letter-spacing: 0.3em; opacity: 1;">
+            Substitute Commander Protocol // Level 4 Alert</p>
+        </div>
       </div>
+
+      <div style="grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 2.5rem; display: grid;">
+        <div
+          style="background: rgba(255,255,255,0.02); padding: 2rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);">
+          <h3 style="color: #fff; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;"><span
+              style="color: #dc2626;">🌊</span> Expected Behavior Protocol</h3>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div
+              style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 12px; border-left: 3px solid #dc2626;">
+              <p
+                style="color: #fff; font-weight: 800; font-size: 0.8rem; margin-bottom: 4px; text-transform: uppercase;">
+                Low Amplitude</p>
+              <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.3;">Maintain an appropriate volume; keep the
+                classroom energy steady.</p>
+            </div>
+            <div
+              style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 12px; border-left: 3px solid #dc2626;">
+              <p
+                style="color: #fff; font-weight: 800; font-size: 0.8rem; margin-bottom: 4px; text-transform: uppercase;">
+                Zero Interference</p>
+              <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.3;">Do not destructively interfere with the
+                learning flow or substitute instructions.</p>
+            </div>
+            <div
+              style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 12px; border-left: 3px solid #dc2626;">
+              <p
+                style="color: #fff; font-weight: 800; font-size: 0.8rem; margin-bottom: 4px; text-transform: uppercase;">
+                Stealth Mode</p>
+              <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.3;">Stay off the radar by remaining focused
+                on your specific mission parameters.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <div class="sub-priority-card alpha">
+          <div class="scanline"></div>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+            <span
+              style="background: #dc2626; color: #fff; font-weight: 900; font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.1em;">PRIORITY_ALPHA</span>
+            <span style="color: #dc2626; font-size: 1.2rem;">🏙️</span>
+          </div>
+          <h4 style="color: #fff; font-size: 1.2rem; margin-bottom: 0.5rem;">Spectrum City Map Project</h4>
+          <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.5rem;">Finalize your city layout, hazard zones,
+            and wave physical baseline telemetry. Engage immediately.</p>
+          <a href="Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html" class="btn"
+            style="width: 100%; text-align: center; border-color: #dc2626; color: #dc2626; font-weight: 800; background: rgba(220, 38, 38, 0.1);">ENGAGE
+            MISSION ↗</a>
+        </div>
+        <div class="sub-priority-card"
+          style="border-color: rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.02);">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+            <span
+              style="background: rgba(255, 255, 255, 0.1); color: #fff; font-weight: 900; font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; text-transform: uppercase;">Second
+              Mission Objective</span>
+            <span style="color: rgba(255, 255, 255, 0.4); font-size: 1.2rem;">📡</span>
+          </div>
+          <h4 style="color: #fff; font-size: 1.2rem; margin-bottom: 0.5rem;">Hubble's Law Redshift Lab</h4>
+          <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.5rem;">Analyze galactic spectral data to
+            calculate the expansion rate of the universe.</p>
+          <a href="Unit_6_Waves_Radiation/The_Big_Bang/Hubbles_Law.html" class="btn"
+            style="width: 100%; text-align: center; border-color: rgba(255, 255, 255, 0.2); color: rgba(255, 255, 255, 0.6); font-weight: 800;">Open
+            Lab File</a>
+        </div>
+      </div>
+
+      <div style="text-align: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 2rem;">
+        <div
+          style="display: inline-flex; align-items: center; gap: 10px; color: #f1f5f9; font-weight: 700; font-style: italic;">
+          <img src="OrangeHS_PantherMark.png" style="height: 30px; opacity: 0.8; filter: grayscale(1) brightness(2);"
+            alt="OHS Logo">
+          "Be a Prideful Panther. Maintain high frequency standards."
+        </div>
+      </div>
+    </div>
   </div>
 
   <div data-include="footer"></div>
@@ -648,14 +948,14 @@
     if (bannerSlides.length > 0) {
       updateBanner();
       resetBannerTimer();
-      
+
       const container = document.getElementById('banner-container');
       if (container) {
-          container.addEventListener('mouseenter', () => {
-              clearInterval(bannerInterval);
-              if (timerBar) timerBar.style.width = timerBar.style.width; // pause bar
-          });
-          container.addEventListener('mouseleave', resetBannerTimer);
+        container.addEventListener('mouseenter', () => {
+          clearInterval(bannerInterval);
+          if (timerBar) timerBar.style.width = timerBar.style.width; // pause bar
+        });
+        container.addEventListener('mouseleave', resetBannerTimer);
       }
     }
 
@@ -672,7 +972,7 @@
       const m = String(now.getMonth() + 1).padStart(2, '0');
       const d = String(now.getDate()).padStart(2, '0');
       const todayStr = `${y}-${m}-${d}`;
-      
+
       // Target dates: April 19 - April 23, 2026
       if (todayStr >= '2026-04-19' && todayStr <= '2026-04-23') {
         const modal = document.getElementById('sub-protocol-modal');
@@ -684,7 +984,7 @@
         }
       }
     }
-    
+
     // Call check on load
     window.addEventListener('load', checkSubProtocol);
   </script>
