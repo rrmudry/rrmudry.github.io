@@ -69,15 +69,15 @@ Week 5: Application & Summative Assessment
 
 Focus: Integration of concepts and final evaluation
 
-Monday: Real-World Physics: How medical imaging (MRIs/X-rays) and solar cells utilize wave principles.
+Monday: Introduction to Signals: AVID Annotated Reading & Vocabulary; Analog vs. Digital.
 
-Tuesday: Review Session Part 1: Mechanical waves and interactions (Weeks 1 & 2).
+Tuesday: The Digital Revolution: Independent WebQuest mapping the shift from analog to digital tech.
 
-Wednesday: Review Session Part 2: EM radiation, duality, and technology (Weeks 3 & 4).
+Wednesday: The 'Noise' Problem: Lab & Demo on signal degradation and why digital is robust.
 
-Thursday: Unit Summative Exam: Comprehensive assessment of the Waves unit.
+Thursday: Unit 6 Review Day: Collaborative review stations and exam prep.
 
-Friday: Final Performance Task: Students complete/present their "How Technology Uses Waves" project; Final notebook/work submission.
+Friday: Unit 6 Summative Assessment: Comprehensive evaluation of the Waves & Radiation unit.
 
 Cross-Cutting Concepts to Emphasize
 
