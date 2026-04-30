@@ -305,6 +305,7 @@
         let lookDownCount = 0;
         let timerInterval;
         let detectionInterval;
+        let heartbeatInterval; // New heartbeat tracker
 
         // --- AUTH LOGIC ---
         async function handleLogin() {
@@ -367,6 +368,14 @@
             document.getElementById('display-name').textContent = student.name;
             
             syncResults("LOGIN_ESTABLISHED", 5);
+            
+            // Start the 30-second heartbeat to keep the dashboard updated
+            if (heartbeatInterval) clearInterval(heartbeatInterval);
+            heartbeatInterval = setInterval(() => {
+                console.log("[PROCTOR] Sending heartbeat...");
+                syncResults("HEARTBEAT_STABLE");
+            }, 30000);
+
             setTimeout(() => document.getElementById('login-overlay').classList.add('hidden'), 500);
         }
 
@@ -374,6 +383,13 @@
             if (!student.id) return;
             if (score !== null) currentScore = score;
             
+            // Safety: If syncing has been 'stuck' for more than 15 seconds, reset it
+            const nowTime = Date.now();
+            if (isSyncing && (nowTime - lastSyncTime > 15000)) {
+                console.warn("[PROCTOR] Sync was stuck. Resetting safety guard.");
+                isSyncing = false;
+            }
+
             // If already syncing, we'll try again shortly
             if (isSyncing) {
                 lastSyncTime = Date.now(); 
@@ -381,6 +397,7 @@
             }
 
             isSyncing = true;
+            lastSyncTime = Date.now(); // Track when this sync started
             const syncInd = document.getElementById('sync-indicator');
             if (syncInd) syncInd.classList.add('bg-green-400', 'animate-pulse');
 
