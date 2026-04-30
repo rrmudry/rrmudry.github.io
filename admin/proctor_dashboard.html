@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proctor Control Center // Integrity Monitor</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@400;700;900&display=swap');
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #020617;
+            color: #f8fafc;
+            overflow: hidden;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .glass {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .status-pulse-red {
+            animation: pulse-red 2s infinite;
+        }
+
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .alert-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .alert-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+    </style>
+</head>
+
+<body class="h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="p-4 border-b border-white/10 flex justify-between items-center bg-slate-950/50 backdrop-blur-md">
+        <div class="flex items-center gap-4">
+            <div class="bg-indigo-600 p-2 rounded-lg shadow-lg shadow-indigo-500/20">
+                <i data-lucide="shield-alert" class="text-white w-6 h-6"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-black uppercase tracking-tighter italic">Proctor<span class="text-indigo-500">Master</span> // Integrity HUD</h1>
+                <p class="text-[9px] font-bold text-slate-500 uppercase tracking-[0.3em]">Real-Time Behavioral Monitoring Node</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-6">
+            <select id="period-filter" class="bg-slate-900 border border-white/10 rounded-lg px-4 py-2 text-xs font-bold outline-none focus:border-indigo-500 transition-all">
+                <option value="ALL">ALL PERIODS</option>
+                <option value="1">PERIOD 1</option>
+                <option value="2">PERIOD 2</option>
+                <option value="3">PERIOD 3</option>
+                <option value="4">PERIOD 4</option>
+                <option value="5">PERIOD 5</option>
+                <option value="6">PERIOD 6</option>
+            </select>
+            
+            <div class="flex items-center gap-2 bg-slate-900/50 px-3 py-1.5 rounded-full border border-white/5">
+                <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">System Live</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Grid -->
+    <main class="flex-grow flex p-6 gap-6 overflow-hidden">
+        
+        <!-- Student Integrity Grid -->
+        <div class="flex-grow flex flex-col gap-4">
+            <div class="flex justify-between items-end mb-2">
+                <h2 class="text-sm font-black uppercase tracking-widest text-slate-400">Classroom Grid // <span id="active-count" class="text-indigo-500">0</span> Active Nodes</h2>
+                <div class="text-[10px] text-slate-500 font-bold uppercase italic">Updating every 5s</div>
+            </div>
+            
+            <div id="integrity-grid" class="flex-grow grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto pr-2 pb-10">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+
+        <!-- Global Activity Feed -->
+        <div class="w-80 flex flex-col gap-4">
+            <h2 class="text-sm font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                <i data-lucide="list" class="w-4 h-4"></i>
+                Violation Log
+            </h2>
+            <div id="violation-feed" class="flex-grow glass rounded-2xl p-4 overflow-y-auto space-y-3 border-l-2 border-indigo-500/30">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- SUPABASE CONFIG ---
+        const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
+        const sbClient = supabase.createClient(SB_URL, SB_KEY);
+
+        async function fetchIntegrityData() {
+            const period = document.getElementById('period-filter').value;
+            
+            let query = sbClient
+                .from('student_results')
+                .select('*')
+                .eq('assignment_name', 'AI Integrity Test');
+
+            if (period !== 'ALL') {
+                query = query.eq('class_period', period);
+            }
+
+            const { data, error } = await query;
+            if (error) {
+                console.error("Fetch error:", error);
+                return;
+            }
+
+            updateGrid(data);
+            updateGlobalFeed(data);
+            document.getElementById('active-count').textContent = data.filter(s => s.score < 100).length;
+        }
+
+        function updateGrid(students) {
+            const grid = document.getElementById('integrity-grid');
+            
+            if (students.length === 0) {
+                grid.innerHTML = `<div class="col-span-full h-40 flex items-center justify-center text-slate-600 font-bold uppercase tracking-widest text-xs italic">Waiting for nodes to establish connection...</div>`;
+                return;
+            }
+
+            // Sort by most recent activity
+            const sorted = students.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+
+            grid.innerHTML = sorted.map(s => {
+                const details = s.details || {};
+                const violations = details.violations || [];
+                const lastAlert = details.last_alert || "NONE";
+                
+                const isCritical = lastAlert !== "NONE" && lastAlert !== "SUBMITTED";
+                const isFinished = s.score === 100;
+                
+                let statusColor = "bg-emerald-500";
+                let borderColor = "border-white/5";
+                let pulseClass = "";
+
+                if (isCritical) {
+                    statusColor = "bg-red-500";
+                    borderColor = "border-red-500/50";
+                    pulseClass = "status-pulse-red";
+                } else if (isFinished) {
+                    statusColor = "bg-indigo-500";
+                    borderColor = "border-indigo-500/30";
+                }
+
+                return `
+                    <div class="alert-card glass rounded-2xl p-5 border ${borderColor} ${pulseClass} relative overflow-hidden">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center font-black text-indigo-400 border border-white/5">
+                                    ${s.student_name.charAt(0)}
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-sm uppercase tracking-tight">${s.student_name}</h3>
+                                    <p class="text-[9px] font-bold text-slate-500 mono uppercase">ID: ${s.student_id} // P${s.class_period || '?'}</p>
+                                </div>
+                            </div>
+                            <div class="flex flex-col items-end">
+                                <span class="text-[9px] font-black mono text-indigo-400">${s.score}%</span>
+                                <div class="w-1.5 h-1.5 rounded-full ${statusColor}"></div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center text-[10px] font-bold">
+                                <span class="text-slate-500 uppercase tracking-widest">Integrity_State</span>
+                                <span class="${isCritical ? 'text-red-400' : 'text-emerald-400'} uppercase">${isCritical ? 'CRITICAL_ALERT' : (isFinished ? 'MISSION_ARCHIVED' : 'NOMINAL')}</span>
+                            </div>
+                            <div class="bg-black/20 p-2 rounded-lg border border-white/5 mono text-[10px]">
+                                <span class="text-slate-500 uppercase">Last_Event:</span>
+                                <span class="${isCritical ? 'text-red-400 font-bold' : 'text-slate-300'}">${lastAlert}</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-4 border-t border-white/5 flex justify-between items-center text-[9px] font-bold">
+                            <span class="text-slate-600 uppercase">Violations: ${violations.length}</span>
+                            <span class="text-slate-600 uppercase">${new Date(s.updated_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'})}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateGlobalFeed(students) {
+            const feed = document.getElementById('violation-feed');
+            let allViolations = [];
+
+            students.forEach(s => {
+                const violations = s.details?.violations || [];
+                violations.forEach(v => {
+                    allViolations.push({
+                        name: s.student_name,
+                        period: s.class_period,
+                        ...v
+                    });
+                });
+            });
+
+            // Sort by time (most recent first)
+            // Note: v.time is a locale string like "10:00:00 AM", so we sort by updated_at or similar if needed, 
+            // but for simplicity we'll just sort by the raw count here.
+            // In a better version we'd use ISO timestamps.
+            allViolations.sort((a, b) => b.time.localeCompare(a.time));
+
+            if (allViolations.length === 0) {
+                feed.innerHTML = `<div class="text-center text-slate-700 text-[10px] font-black uppercase tracking-widest py-10 italic">No violations detected in class.</div>`;
+                return;
+            }
+
+            feed.innerHTML = allViolations.slice(0, 30).map(v => `
+                <div class="p-3 bg-white/5 rounded-xl border-l-2 ${v.type.includes('ALERT') || v.type.includes('Phone') ? 'border-red-500' : 'border-yellow-500'} animate-in slide-in-from-right-4 duration-300">
+                    <div class="flex justify-between items-start mb-1">
+                        <span class="text-[9px] font-black text-indigo-400 uppercase tracking-tighter">${v.name}</span>
+                        <span class="text-[8px] mono text-slate-600">${v.time}</span>
+                    </div>
+                    <p class="text-[10px] font-bold text-slate-300 leading-tight">
+                        <span class="text-red-500 uppercase">${v.type}:</span> ${v.message}
+                    </p>
+                </div>
+            `).join('');
+        }
+
+        // Initialize Lucide
+        lucide.createIcons();
+
+        // Start polling
+        fetchIntegrityData();
+        setInterval(fetchIntegrityData, 5000);
+
+        // Filter change trigger
+        document.getElementById('period-filter').addEventListener('change', fetchIntegrityData);
+    </script>
+</body>
+
+</html>
