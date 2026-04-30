@@ -413,15 +413,26 @@
 
                 if (fetchError) throw fetchError;
 
-                // 2. Merge logic (Session logs + Database logs)
+                // 2. Merge logic: Pure accumulation based on unique IDs
                 let dbViolations = (existing && existing.details && existing.details.violations) ? existing.details.violations : [];
                 
-                // Combine and remove duplicates based on unique timestamps
-                const combinedMap = new Map();
-                dbViolations.forEach(v => combinedMap.set(v.ts, v));
-                integrityLogs.forEach(v => combinedMap.set(v.ts, v));
-                
-                const finalViolations = Array.from(combinedMap.values()).sort((a, b) => new Date(b.ts) - new Date(a.ts));
+                // Combine everything and filter out duplicates by ID
+                const all = [...dbViolations, ...integrityLogs];
+                const finalViolations = [];
+                const seenIds = new Set();
+
+                all.forEach(v => {
+                    if (v.id && !seenIds.has(v.id)) {
+                        finalViolations.push(v);
+                        seenIds.add(v.id);
+                    } else if (!v.id) {
+                        // Fallback for legacy logs without IDs
+                        finalViolations.push(v);
+                    }
+                });
+
+                // Sort by time (most recent first)
+                finalViolations.sort((a, b) => new Date(b.ts) - new Date(a.ts));
 
                 console.log(`[PROCTOR] FINAL PAYLOAD PREP: ${finalViolations.length} violations found.`);
                 
@@ -861,6 +872,7 @@
         function logViolation(type, message) {
             const now = new Date();
             const logEntry = {
+                id: 'v-' + Math.random().toString(36).substr(2, 9), // Unique ID for accumulation
                 time: now.toLocaleTimeString(),
                 ts: now.toISOString(), 
                 type: type,
