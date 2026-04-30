@@ -374,9 +374,9 @@
             if (!student.id) return;
             if (score !== null) currentScore = score;
             
-            // If already syncing, flag that we need another sync and wait
+            // If already syncing, we'll try again shortly
             if (isSyncing) {
-                lastSyncTime = Date.now(); // Mark intent to sync
+                lastSyncTime = Date.now(); 
                 return;
             }
 
@@ -386,24 +386,25 @@
 
             try {
                 const assignmentName = "AI Integrity Test";
-                // 1. Fetch current record to merge violations (Prevent overwriting history on refresh)
-                const { data: existing } = await sbClient.from('student_results')
+                
+                // 1. Fetch current record to merge violations
+                const { data: existing, error: fetchError } = await sbClient.from('student_results')
                     .select('id, details')
                     .eq('student_id', student.id)
                     .eq('assignment_name', assignmentName)
                     .maybeSingle();
 
-                let combinedViolations = [...integrityLogs];
-                if (existing && existing.details && existing.details.violations) {
-                    // Merge and unique-ify by timestamp/type to prevent duplicates
-                    const existingV = existing.details.violations;
-                    const logKeys = new Set(integrityLogs.map(l => l.ts + l.type));
-                    existingV.forEach(v => {
-                        if (!logKeys.has(v.ts + v.type)) {
-                            combinedViolations.push(v);
-                        }
-                    });
-                }
+                if (fetchError) throw fetchError;
+
+                // 2. Merge logic (Session logs + Database logs)
+                let dbViolations = (existing && existing.details && existing.details.violations) ? existing.details.violations : [];
+                
+                // Combine and remove duplicates based on unique timestamps
+                const combinedMap = new Map();
+                dbViolations.forEach(v => combinedMap.set(v.ts, v));
+                integrityLogs.forEach(v => combinedMap.set(v.ts, v));
+                
+                const finalViolations = Array.from(combinedMap.values()).sort((a, b) => new Date(b.ts) - new Date(a.ts));
 
                 const payload = {
                     student_name: student.name,
@@ -413,28 +414,32 @@
                     score: currentScore,
                     details: {
                         status: statusLabel,
-                        violations: combinedViolations,
-                        last_alert: combinedViolations.length > 0 ? combinedViolations.sort((a,b) => new Date(b.ts) - new Date(a.ts))[0].type : "NONE",
-                        ts: new Date().toISOString()
+                        violations: finalViolations,
+                        last_alert: finalViolations.length > 0 ? finalViolations[0].type : "NONE",
+                        ts: new Date().toISOString(),
+                        sync_count: (existing?.details?.sync_count || 0) + 1 // Forces a change for Realtime
                     }
                 };
 
-                console.log(`[PROCTOR] Syncing: ${statusLabel} for ${student.name} (${currentScore}%)`);
-                // Upsert logic
+                console.log(`[PROCTOR] Syncing ${finalViolations.length} total violations...`);
+
                 if (existing) {
-                    await sbClient.from('student_results').update(payload).eq('id', existing.id);
+                    const { error: upError } = await sbClient.from('student_results').update(payload).eq('id', existing.id);
+                    if (upError) throw upError;
                 } else {
-                    await sbClient.from('student_results').insert([payload]);
+                    const { error: insError } = await sbClient.from('student_results').insert([payload]);
+                    if (insError) throw insError;
                 }
             } catch (e) {
-                console.error("Sync error:", e);
+                console.error("Sync Error:", e);
+                // Fail silently for student, but log locally
             } finally {
                 isSyncing = false;
                 if (syncInd) syncInd.classList.remove('animate-pulse');
                 
-                // If a sync was requested during our process, run it now
-                if (Date.now() - lastSyncTime < 1000) {
-                    setTimeout(() => syncResults("QUEUE_SYNC"), 500);
+                // If a sync was requested during the process, trigger it
+                if (Date.now() - lastSyncTime < 2000) {
+                    setTimeout(() => syncResults("RETRY_SYNC"), 1000);
                 }
             }
         }
