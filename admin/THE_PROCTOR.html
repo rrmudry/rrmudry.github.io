@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Test Environment Prototype</title>
+
+    <!-- Tailwind CSS for Styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- TensorFlow.js and COCO-SSD for AI Object Detection -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        /* Prevent text selection globally to add extra friction */
+        .no-select {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+        }
+
+        /* Toast animation */
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast-enter {
+            animation: slideIn 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col no-select">
+
+    <!-- Navbar -->
+    <nav class="bg-indigo-600 text-white p-4 shadow-md flex justify-between items-center">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+            <div class="flex items-center gap-2 font-bold text-xl">
+                <i data-lucide="shield-check"></i>
+                ProctorWeb Prototype
+            </div>
+            <button id="btn-stealth-toggle" class="text-[10px] uppercase tracking-widest bg-indigo-500 hover:bg-indigo-400 px-2 py-1 rounded transition-colors flex items-center gap-1">
+                <i data-lucide="eye" class="w-3 h-3" id="stealth-icon"></i>
+                <span id="stealth-text">Debug View: ON</span>
+            </button>
+        </div>
+        <div id="status-indicator" class="text-sm bg-indigo-800 px-3 py-1 rounded-full flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse" id="status-dot"></div>
+            <span id="status-text">System Idle</span>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow flex flex-col items-center justify-center p-6 relative">
+
+        <!-- SCREEN 1: Setup & Calibration -->
+        <div id="screen-setup" class="bg-white p-8 rounded-xl shadow-lg max-w-lg w-full text-center">
+            <h2 class="text-2xl font-bold mb-4">Environment Setup</h2>
+            <p class="text-gray-600 mb-6">Before starting the test, we need to initialize the proctoring tools. This
+                process runs entirely on your device.</p>
+
+            <div class="space-y-4 mb-6 text-left">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="camera" class="text-gray-400" id="icon-cam"></i>
+                    <span id="step-cam">1. Allow webcam access</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <i data-lucide="cpu" class="text-gray-400" id="icon-ai"></i>
+                    <span id="step-ai">2. Load AI Model (May take ~10 seconds)</span>
+                </div>
+            </div>
+
+            <button id="btn-setup"
+                class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg w-full transition flex justify-center items-center gap-2">
+                Begin Setup
+            </button>
+            <button id="btn-start-test"
+                class="hidden bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg w-full transition flex justify-center items-center gap-2 mt-4">
+                Start Test Now
+            </button>
+        </div>
+
+        <!-- SCREEN 2: The Test -->
+        <div id="screen-test" class="hidden w-full max-w-3xl">
+            <div class="bg-white p-8 rounded-xl shadow-lg mb-6">
+                <div class="flex justify-between items-center mb-6 border-b pb-4">
+                    <h2 class="text-2xl font-bold">Midterm Examination: General Knowledge</h2>
+                    <div class="text-red-500 font-mono text-xl" id="timer">15:00</div>
+                </div>
+
+                <form id="test-form" class="space-y-8">
+                    <!-- Question 1 -->
+                    <div class="question-block">
+                        <p class="font-semibold text-lg mb-3">1. What is the capital of France?</p>
+                        <div class="space-y-2 ml-4">
+                            <label class="flex items-center gap-2"><input type="radio" name="q1" value="London">
+                                London</label>
+                            <label class="flex items-center gap-2"><input type="radio" name="q1" value="Paris">
+                                Paris</label>
+                            <label class="flex items-center gap-2"><input type="radio" name="q1" value="Berlin">
+                                Berlin</label>
+                        </div>
+                    </div>
+
+                    <!-- Question 2 -->
+                    <div class="question-block">
+                        <p class="font-semibold text-lg mb-3">2. Which planet is known as the Red Planet?</p>
+                        <div class="space-y-2 ml-4">
+                            <label class="flex items-center gap-2"><input type="radio" name="q2" value="Venus">
+                                Venus</label>
+                            <label class="flex items-center gap-2"><input type="radio" name="q2" value="Mars">
+                                Mars</label>
+                            <label class="flex items-center gap-2"><input type="radio" name="q2" value="Jupiter">
+                                Jupiter</label>
+                        </div>
+                    </div>
+
+                    <!-- Question 3 -->
+                    <div class="question-block">
+                        <p class="font-semibold text-lg mb-3">3. What is the largest ocean on Earth?</p>
+                        <div class="space-y-2 ml-4">
+                            <label class="flex items-center gap-2"><input type="radio" name="q3" value="Atlantic">
+                                Atlantic Ocean</label>
+                            <label class="flex items-center gap-2"><input type="radio" name="q3" value="Indian"> Indian
+                                Ocean</label>
+                            <label class="flex items-center gap-2"><input type="radio" name="q3" value="Pacific">
+                                Pacific Ocean</label>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 border-t">
+                        <button type="button" id="btn-submit"
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-lg transition w-full md:w-auto">
+                            Submit Examination
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- SCREEN 3: Results & Logs -->
+        <div id="screen-results" class="hidden w-full max-w-3xl space-y-6">
+            <div class="bg-white p-8 rounded-xl shadow-lg text-center">
+                <i data-lucide="check-circle" class="text-green-500 w-16 h-16 mx-auto mb-4"></i>
+                <h2 class="text-3xl font-bold mb-2">Test Submitted</h2>
+                <p class="text-xl text-gray-600">Your score: <span id="final-score"
+                        class="font-bold text-indigo-600">--</span></p>
+            </div>
+
+            <div class="bg-white p-8 rounded-xl shadow-lg border-l-4 border-red-500">
+                <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                    <i data-lucide="alert-triangle" class="text-red-500"></i>
+                    Proctoring Integrity Report
+                </h3>
+                <p class="text-sm text-gray-600 mb-4">The following events were flagged during the session. In a real
+                    app, this data would be sent to the teacher's dashboard.</p>
+                <div class="bg-gray-100 rounded p-4 h-48 overflow-y-auto font-mono text-sm" id="final-logs">
+                    <!-- Logs go here -->
+                </div>
+            </div>
+
+            <button onclick="location.reload()" class="text-indigo-600 underline font-semibold w-full text-center">Start
+                Over</button>
+        </div>
+
+    </main>
+
+    <!-- Floating Webcam Feed (Visible during test) -->
+    <div id="webcam-container"
+        class="opacity-0 pointer-events-none fixed bottom-6 right-6 w-80 h-60 bg-black rounded-lg shadow-2xl border-2 border-indigo-500 overflow-hidden z-40 transition-opacity duration-300">
+        <video id="webcam" class="absolute top-0 left-0 w-full h-full object-cover transform scale-x-[-1]" autoplay
+            playsinline muted></video>
+        <!-- Canvas for rendering AI bounding boxes -->
+        <canvas id="detection-overlay"
+            class="absolute top-0 left-0 w-full h-full object-cover pointer-events-none"></canvas>
+        <div class="absolute bottom-1 left-1 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded z-50">
+            AI Proctoring Active
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-6 right-6 z-50 flex flex-col gap-2 w-80"></div>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Application State
+        let model = null;
+        let faceModel = null;
+        let isTesting = false;
+        let isStealthMode = false;
+        let integrityLogs = [];
+        let lastPhoneWarning = 0;
+        let lastGazeWarning = 0;
+        let lookDownCount = 0;
+        let timerInterval;
+        let detectionInterval;
+
+        // DOM Elements
+        const video = document.getElementById('webcam');
+        const setupScreen = document.getElementById('screen-setup');
+        const testScreen = document.getElementById('screen-test');
+        const resultsScreen = document.getElementById('screen-results');
+        const webcamContainer = document.getElementById('webcam-container');
+        const toastContainer = document.getElementById('toast-container');
+
+        // Canvas elements for debugging
+        const canvas = document.getElementById('detection-overlay');
+        const ctx = canvas.getContext('2d');
+
+        const btnSetup = document.getElementById('btn-setup');
+        const btnStartTest = document.getElementById('btn-start-test');
+        const btnSubmit = document.getElementById('btn-submit');
+        const btnStealth = document.getElementById('btn-stealth-toggle');
+
+        const statusDot = document.getElementById('status-dot');
+        const statusText = document.getElementById('status-text');
+
+        // --- STEALTH TOGGLE ---
+        btnStealth.addEventListener('click', () => {
+            isStealthMode = !isStealthMode;
+            const icon = document.getElementById('stealth-icon');
+            const text = document.getElementById('stealth-text');
+            
+            if (isStealthMode) {
+                webcamContainer.style.opacity = '0';
+                webcamContainer.style.pointerEvents = 'none';
+                text.innerText = "Debug View: OFF";
+                icon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                webcamContainer.style.opacity = '1';
+                webcamContainer.style.pointerEvents = 'auto';
+                text.innerText = "Debug View: ON";
+                icon.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons();
+        });
+
+        // --- SETUP PHASE ---
+
+        btnSetup.addEventListener('click', async () => {
+            btnSetup.disabled = true;
+            btnSetup.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> Requesting Camera...';
+            lucide.createIcons();
+
+            try {
+                // 1. Get Webcam Access
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                video.srcObject = stream;
+
+                // Wait for video to be ready
+                await new Promise((resolve) => {
+                    video.onloadedmetadata = () => {
+                        // Set canvas resolution to perfectly match the raw video feed
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        resolve();
+                    };
+                });
+
+                document.getElementById('icon-cam').classList.replace('text-gray-400', 'text-green-500');
+                document.getElementById('step-cam').classList.add('font-bold');
+
+                // 2. Load AI Models
+                btnSetup.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> Loading AI Models (Be patient)...';
+                lucide.createIcons();
+
+                // UPGRADE: Load both Object Detection and Face/Gaze Detection models
+                const [loadedCoco, loadedFace] = await Promise.all([
+                    cocoSsd.load({ base: 'mobilenet_v2' }),
+                    blazeface.load()
+                ]);
+                model = loadedCoco;
+                faceModel = loadedFace;
+
+                document.getElementById('icon-ai').classList.replace('text-gray-400', 'text-green-500');
+                document.getElementById('step-ai').classList.add('font-bold');
+
+                // Ready to start
+                btnSetup.classList.add('hidden');
+                btnStartTest.classList.remove('hidden');
+
+                setStatus('System Ready', 'bg-green-500');
+
+            } catch (error) {
+                console.error("Setup error:", error);
+                logViolation("System", "Failed to access webcam or load model.");
+                showToast("Error: Please allow camera access and ensure you have internet connection.", "error");
+                btnSetup.disabled = false;
+                btnSetup.innerHTML = 'Try Setup Again';
+            }
+        });
+
+        // --- TESTING PHASE ---
+
+        btnStartTest.addEventListener('click', () => {
+            setupScreen.classList.add('hidden');
+            testScreen.classList.remove('hidden');
+            
+            // Show webcam but keep it stealthy initially if desired
+            webcamContainer.classList.remove('opacity-0');
+            webcamContainer.classList.add('opacity-100');
+            webcamContainer.classList.remove('pointer-events-none');
+
+            isTesting = true;
+            setStatus('Proctoring Active', 'bg-red-500');
+            startTimer(15 * 60); // 15 minutes
+
+            // Start Detection Loop
+            detectLoop();
+
+            // Attach Anti-Cheat Event Listeners
+            attachProctorListeners();
+
+            showToast("Test started. Proctoring is active.", "info");
+        });
+
+        function attachProctorListeners() {
+            // 1. Blur / Focus Loss (Tab Switching)
+            window.addEventListener('blur', handleBlur);
+
+            // 2. Prevent Copy
+            document.addEventListener('copy', handleClipboard);
+
+            // 3. Prevent Paste
+            document.addEventListener('paste', handleClipboard);
+
+            // 4. Prevent Context Menu (Right Click)
+            document.addEventListener('contextmenu', handleContextMenu);
+        }
+
+        function removeProctorListeners() {
+            window.removeEventListener('blur', handleBlur);
+            document.removeEventListener('copy', handleClipboard);
+            document.removeEventListener('paste', handleClipboard);
+            document.removeEventListener('contextmenu', handleContextMenu);
+        }
+
+        // --- EVENT HANDLERS ---
+
+        const handleBlur = () => {
+            if (!isTesting) return;
+            logViolation("Focus Loss", "User switched tabs or minimized the window.");
+            showToast("Warning: Navigating away from the test is not allowed!", "error");
+        };
+
+        const handleClipboard = (e) => {
+            if (!isTesting) return;
+            e.preventDefault();
+            const action = e.type === 'copy' ? 'Copied text' : 'Pasted text';
+            logViolation("Clipboard Alert", `Attempted to ${e.type} content.`);
+            showToast(`Warning: ${action} is disabled during the test.`, "error");
+        };
+
+        const handleContextMenu = (e) => {
+            if (!isTesting) return;
+            e.preventDefault();
+            logViolation("Interface Alert", "Attempted to open right-click context menu.");
+            showToast("Warning: Right-click is disabled.", "error");
+        };
+
+
+        // --- AI DETECTION LOOP ---
+
+        async function detectLoop() {
+            if (!isTesting) return;
+
+            if (model && faceModel && video.readyState === 4) {
+                try {
+                    // OPTIMIZATION: Run both object detection and face detection concurrently
+                    const [predictions, faces] = await Promise.all([
+                        model.detect(video, 10),
+                        faceModel.estimateFaces(video, false)
+                    ]);
+
+                    // Clear previous drawings every frame
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    let phoneDetected = false;
+                    let isLookingDown = false;
+
+                    // --- 1. PROCESS OBJECT DETECTION (Phones/Remotes) ---
+                    predictions.forEach(prediction => {
+                        // FILTER: Include 'remote' since older phones are often misidentified as remotes
+                        if (prediction.class !== 'cell phone' && prediction.class !== 'person' && prediction.class !== 'remote') {
+                            return; // Skip the rest of the loop for this object
+                        }
+
+                        // --- DEBUG VISUALIZATION ---
+                        const [x, y, width, height] = prediction.bbox;
+                        const flippedX = canvas.width - x - width;
+
+                        // Treat 'remote' and 'cell phone' as the same cheating threat
+                        const isContraband = prediction.class === 'cell phone' || prediction.class === 'remote';
+
+                        // Set styles based on whether it's contraband (Red) or Person (Green)
+                        ctx.strokeStyle = isContraband ? '#ef4444' : '#22c55e';
+                        ctx.lineWidth = 4;
+                        ctx.strokeRect(flippedX, y, width, height);
+
+                        // Draw label background
+                        ctx.fillStyle = isContraband ? '#ef4444' : '#22c55e';
+                        const text = `${prediction.class} (${Math.round(prediction.score * 100)}%)`;
+                        ctx.font = '18px Arial';
+                        const textWidth = ctx.measureText(text).width;
+                        ctx.fillRect(flippedX, y - 24, textWidth + 10, 24);
+
+                        // Draw label text
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillText(text, flippedX + 5, y - 6);
+                        // --- END DEBUG VISUALIZATION ---
+
+                        // Check if contraband is detected with a slightly lowered threshold
+                        if (isContraband && prediction.score > 0.50) {
+                            phoneDetected = true;
+                        }
+                    });
+
+                    // --- 2. PROCESS GAZE/FACE TRACKING ---
+                    if (faces.length > 0) {
+                        const landmarks = faces[0].landmarks;
+
+                        // Draw Facial Landmarks (Blue dots) for debugging
+                        ctx.fillStyle = '#3b82f6';
+                        landmarks.forEach(point => {
+                            ctx.beginPath();
+                            ctx.arc(canvas.width - point[0], point[1], 4, 0, 2 * Math.PI);
+                            ctx.fill();
+                        });
+
+                        // Calculate Head Pitch (Looking Down Heuristic)
+                        // landmarks: 0=Right Eye, 1=Left Eye, 2=Nose, 3=Mouth
+                        const eyeY = (landmarks[0][1] + landmarks[1][1]) / 2;
+                        const noseY = landmarks[2][1];
+                        const mouthY = landmarks[3][1];
+
+                        const eyeToNose = noseY - eyeY;
+                        const noseToMouth = mouthY - noseY;
+
+                        // If the ratio of top-half of face to bottom-half is high, head is pitched down
+                        if (noseToMouth > 0) {
+                            const pitchRatio = eyeToNose / noseToMouth;
+
+                            // Debug text for Gaze
+                            ctx.fillStyle = '#ffffff';
+                            ctx.font = '16px Arial';
+                            ctx.fillText(`Gaze Ratio: ${pitchRatio.toFixed(2)}`, 10, 25);
+
+                            // Threshold: 1.8 generally means looking down significantly at a lap/desk
+                            if (pitchRatio > 1.8) {
+                                isLookingDown = true;
+                                ctx.fillStyle = '#ef4444';
+                                ctx.fillText(`STATUS: LOOKING DOWN`, 10, 45);
+                            } else {
+                                ctx.fillStyle = '#22c55e';
+                                ctx.fillText(`STATUS: EYES FORWARD`, 10, 45);
+                            }
+                        }
+                    } else {
+                        // No face found - could be looking completely away
+                        ctx.fillStyle = '#eab308';
+                        ctx.font = '16px Arial';
+                        ctx.fillText(`STATUS: NO FACE DETECTED`, 10, 25);
+                    }
+
+                    // --- 3. HANDLE ALERTS ---
+                    const now = Date.now();
+
+                    if (phoneDetected) {
+                        // Throttle alerts to once every 10 seconds
+                        if (now - lastPhoneWarning > 10000) {
+                            logViolation("AI Detection", `Cell phone detected in webcam frame.`);
+                            showToast("Violation: Cell phone detected! Put your device away immediately.", "error");
+                            lastPhoneWarning = now;
+                        }
+                    }
+
+                    // Handle Gaze Alerts
+                    if (isLookingDown) {
+                        lookDownCount++;
+                        // Flag if looking down for 3 consecutive frames (~4.5 seconds) to avoid penalizing quick typing glances
+                        if (lookDownCount >= 3) {
+                            if (now - lastGazeWarning > 12000) {
+                                logViolation("Gaze Alert", "Prolonged downward gaze detected (possible hidden device).");
+                                showToast("Warning: Please keep your eyes on your screen.", "error");
+                                lastGazeWarning = now;
+                            }
+                            lookDownCount = 0; // Reset counter after warning
+                        }
+                    } else {
+                        lookDownCount = 0; // Reset if they look back up
+                    }
+
+                } catch (e) {
+                    console.error("Detection error: ", e);
+                }
+            }
+
+            // Run detection every 1.5 seconds to save CPU
+            detectionInterval = setTimeout(detectLoop, 1500);
+        }
+
+        // --- SUBMISSION PHASE ---
+
+        btnSubmit.addEventListener('click', () => {
+            // Stop everything
+            isTesting = false;
+            removeProctorListeners();
+            clearTimeout(detectionInterval);
+            clearInterval(timerInterval);
+
+            // Turn off camera
+            const stream = video.srcObject;
+            if (stream) {
+                const tracks = stream.getTracks();
+                tracks.forEach(track => track.stop());
+            }
+
+            setStatus('Test Completed', 'bg-gray-500');
+
+            // Grade Test (Mock logic)
+            const formData = new FormData(document.getElementById('test-form'));
+            let score = 0;
+            if (formData.get('q1') === 'Paris') score++;
+            if (formData.get('q2') === 'Mars') score++;
+            if (formData.get('q3') === 'Pacific') score++;
+
+            document.getElementById('final-score').innerText = `${score} / 3`;
+
+            // Render Logs
+            const logsContainer = document.getElementById('final-logs');
+            if (integrityLogs.length === 0) {
+                logsContainer.innerHTML = '<span class="text-green-600">No violations detected. Excellent!</span>';
+            } else {
+                logsContainer.innerHTML = integrityLogs.map(log =>
+                    `<div class="mb-2 border-b border-gray-200 pb-1">
+                        <span class="text-xs text-gray-500">[${log.time}]</span> 
+                        <span class="font-bold">${log.type}:</span> ${log.message}
+                    </div>`
+                ).join('');
+            }
+
+            // Switch screens
+            testScreen.classList.add('hidden');
+            webcamContainer.classList.add('opacity-0');
+            webcamContainer.classList.add('pointer-events-none');
+            resultsScreen.classList.remove('hidden');
+        });
+
+        // --- UTILS ---
+
+        function showToast(message, type = "info") {
+            const toast = document.createElement('div');
+            const bgColor = type === 'error' ? 'bg-red-600' : 'bg-indigo-600';
+            const icon = type === 'error' ? 'alert-triangle' : 'info';
+
+            toast.className = `${bgColor} text-white px-4 py-3 rounded shadow-lg flex items-start gap-3 toast-enter`;
+            toast.innerHTML = `
+                <i data-lucide="${icon}" class="mt-0.5 flex-shrink-0"></i>
+                <div class="text-sm font-medium">${message}</div>
+            `;
+
+            toastContainer.appendChild(toast);
+            lucide.createIcons();
+
+            // Auto remove after 4 seconds
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                toast.style.transition = 'all 0.3s ease-out';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        function logViolation(type, message) {
+            const now = new Date();
+            integrityLogs.push({
+                time: now.toLocaleTimeString(),
+                type: type,
+                message: message
+            });
+            console.warn(`[PROCTOR LOG] ${type}: ${message}`);
+        }
+
+        function setStatus(text, colorClass) {
+            statusText.innerText = text;
+            statusDot.className = `w-2 h-2 rounded-full ${colorClass} animate-pulse`;
+        }
+
+        function startTimer(durationInSeconds) {
+            let timer = durationInSeconds;
+            const display = document.getElementById('timer');
+
+            timerInterval = setInterval(() => {
+                let minutes = parseInt(timer / 60, 10);
+                let seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                display.textContent = minutes + ":" + seconds;
+
+                if (--timer < 0) {
+                    clearInterval(timerInterval);
+                    btnSubmit.click(); // Auto submit
+                }
+            }, 1000);
+        }
+
+    </script>
+</body>
+
+</html>
