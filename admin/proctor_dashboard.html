@@ -84,9 +84,12 @@
                 <option value="6">PERIOD 6</option>
             </select>
             
-            <div class="flex items-center gap-2 bg-slate-900/50 px-3 py-1.5 rounded-full border border-white/5">
-                <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">System Live</span>
+            <div class="flex flex-col items-end">
+                <div class="flex items-center gap-2 bg-slate-900/50 px-3 py-1.5 rounded-full border border-white/5">
+                    <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">System Live</span>
+                </div>
+                <div class="text-[8px] text-slate-600 font-bold uppercase mt-1">Sync: <span id="last-sync-time">---</span></div>
             </div>
         </div>
     </header>
@@ -126,6 +129,7 @@
 
         async function fetchIntegrityData() {
             const period = document.getElementById('period-filter').value;
+            console.log(`[DASHBOARD] Fetching data for period: ${period}...`);
             
             let query = sbClient
                 .from('student_results')
@@ -138,13 +142,15 @@
 
             const { data, error } = await query;
             if (error) {
-                console.error("Fetch error:", error);
+                console.error("[DASHBOARD] Fetch error:", error);
                 return;
             }
 
+            console.log(`[DASHBOARD] Received ${data.length} records.`);
             updateGrid(data);
             updateGlobalFeed(data);
             document.getElementById('active-count').textContent = data.filter(s => s.score < 100).length;
+            document.getElementById('last-sync-time').textContent = new Date().toLocaleTimeString();
         }
 
         function updateGrid(students) {
@@ -262,17 +268,16 @@
         lucide.createIcons();
 
         // --- REALTIME SUBSCRIPTION ---
-        // Instead of just polling, we listen for direct database changes
         const studentSubscription = sbClient
             .channel('public:student_results')
             .on('postgres_changes', { 
                 event: '*', 
                 schema: 'public', 
-                table: 'student_results',
-                filter: `assignment_name=eq.AI Integrity Test`
+                table: 'student_results'
+                // Filter removed for reliability; we check in fetchIntegrityData
             }, (payload) => {
-                console.log('Realtime change received!', payload);
-                fetchIntegrityData(); // Refresh everything on any change
+                console.log('[DASHBOARD] Realtime change detected!', payload.new?.student_name);
+                fetchIntegrityData(); 
             })
             .subscribe();
 
