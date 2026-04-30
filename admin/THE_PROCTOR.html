@@ -415,21 +415,21 @@
 
                 if (fetchError) throw fetchError;
 
-                // 2. Merge logic: Pure accumulation based on unique IDs
+                // 2. Merge logic: Strict accumulation with de-duplication
                 let dbViolations = (existing && existing.details && existing.details.violations) ? existing.details.violations : [];
                 
-                // Combine everything and filter out duplicates by ID
+                // Combine everything and filter out duplicates
                 const all = [...dbViolations, ...integrityLogs];
                 const finalViolations = [];
-                const seenIds = new Set();
+                const seenKeys = new Set();
 
                 all.forEach(v => {
-                    if (v.id && !seenIds.has(v.id)) {
+                    // Create a unique key based on ID or (Timestamp + Type)
+                    const key = v.id || `${v.ts}-${v.type}`;
+                    
+                    if (!seenKeys.has(key)) {
                         finalViolations.push(v);
-                        seenIds.add(v.id);
-                    } else if (!v.id) {
-                        // Fallback for legacy logs without IDs
-                        finalViolations.push(v);
+                        seenKeys.add(key);
                     }
                 });
 
