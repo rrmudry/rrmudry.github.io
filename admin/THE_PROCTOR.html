@@ -369,6 +369,12 @@
             if (!student.id) return;
             if (score !== null) currentScore = score;
             
+            // If already syncing, flag that we need another sync and wait
+            if (isSyncing) {
+                lastSyncTime = Date.now(); // Mark intent to sync
+                return;
+            }
+
             isSyncing = true;
             const syncInd = document.getElementById('sync-indicator');
             if (syncInd) syncInd.classList.add('bg-green-400', 'animate-pulse');
@@ -406,6 +412,11 @@
             } finally {
                 isSyncing = false;
                 if (syncInd) syncInd.classList.remove('animate-pulse');
+                
+                // If a sync was requested during our process, run it now
+                if (Date.now() - lastSyncTime < 1000) {
+                    setTimeout(() => syncResults("QUEUE_SYNC"), 500);
+                }
             }
         }
 
@@ -801,6 +812,7 @@
             const now = new Date();
             integrityLogs.push({
                 time: now.toLocaleTimeString(),
+                ts: now.toISOString(), // ISO timestamp for dashboard sorting
                 type: type,
                 message: message
             });
