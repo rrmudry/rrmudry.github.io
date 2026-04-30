@@ -150,7 +150,8 @@
                 return;
             }
 
-            console.log(`[DASHBOARD] Received ${data.length} records.`);
+            // Reduced noise: only log if debug is needed
+            // console.log(`[DASHBOARD] Received ${data.length} records.`);
             updateGrid(data);
             updateGlobalFeed(data);
             document.getElementById('active-count').textContent = data.filter(s => s.score < 100).length;
@@ -364,7 +365,11 @@
                 table: 'student_results'
                 // Filter removed for reliability; we check in fetchIntegrityData
             }, (payload) => {
-                console.log('[DASHBOARD] Realtime change detected!', payload.new?.student_name);
+                // Only log if it's a meaningful state change (like a new violation)
+                const isViolation = payload.new?.details?.violations?.length > payload.old?.details?.violations?.length;
+                if (isViolation) {
+                    console.warn(`[DASHBOARD] !!! ALERT DETECTED for ${payload.new?.student_name} !!!`);
+                }
                 fetchIntegrityData(); 
             })
             .subscribe();
