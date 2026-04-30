@@ -799,8 +799,8 @@
                     // Trigger alerts and logs if we are in test OR calibration phase
                     if (isTesting || isCalibrating) {
                         if (phoneDetected) {
-                            // Throttle alerts to once every 10 seconds
-                            if (now - lastPhoneWarning > 10000) {
+                            // REDUCED THROTTLE: Now alerts every 2 seconds for continuous visibility
+                            if (now - lastPhoneWarning > 2000) {
                                 const type = isTesting ? "Cell Phone" : "PRE-TEST: Phone Detected";
                                 logViolation(type, `Restricted device detected in webcam frame.`);
                                 showToast(`Warning: ${type}`, "error");
@@ -811,9 +811,10 @@
                         // Handle Gaze Alerts
                         if (isLookingDown) {
                             lookDownCount++;
-                            // Flag if looking down for 3 consecutive frames
-                            if (lookDownCount >= 3) {
-                                if (now - lastGazeWarning > 12000) {
+                            // Flag faster (2 frames instead of 3)
+                            if (lookDownCount >= 2) {
+                                // REDUCED THROTTLE: Now alerts every 4 seconds
+                                if (now - lastGazeWarning > 4000) {
                                     const type = isTesting ? "Gaze Alert" : "PRE-TEST: Gaze Alert";
                                     logViolation(type, "Prolonged downward gaze detected (possible hidden device).");
                                     showToast(`Warning: ${type}`, "error");
