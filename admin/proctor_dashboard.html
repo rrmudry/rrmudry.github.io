@@ -232,11 +232,13 @@
                 });
             });
 
-            // Sort by time (most recent first)
-            // Note: v.time is a locale string like "10:00:00 AM", so we sort by updated_at or similar if needed, 
-            // but for simplicity we'll just sort by the raw count here.
-            // In a better version we'd use ISO timestamps.
-            allViolations.sort((a, b) => b.time.localeCompare(a.time));
+            // Sort by actual ISO timestamp from details if available
+            allViolations.sort((a, b) => {
+                // If the violation has a 'ts' (ISO) we use that, otherwise we try to infer from updated_at
+                const timeA = new Date(a.ts || 0);
+                const timeB = new Date(b.ts || 0);
+                return timeB - timeA;
+            });
 
             if (allViolations.length === 0) {
                 feed.innerHTML = `<div class="text-center text-slate-700 text-[10px] font-black uppercase tracking-widest py-10 italic">No violations detected in class.</div>`;
@@ -259,9 +261,26 @@
         // Initialize Lucide
         lucide.createIcons();
 
-        // Start polling
+        // --- REALTIME SUBSCRIPTION ---
+        // Instead of just polling, we listen for direct database changes
+        const studentSubscription = sbClient
+            .channel('public:student_results')
+            .on('postgres_changes', { 
+                event: '*', 
+                schema: 'public', 
+                table: 'student_results',
+                filter: `assignment_name=eq.AI Integrity Test`
+            }, (payload) => {
+                console.log('Realtime change received!', payload);
+                fetchIntegrityData(); // Refresh everything on any change
+            })
+            .subscribe();
+
+        // Initial load
         fetchIntegrityData();
-        setInterval(fetchIntegrityData, 5000);
+
+        // Fallback polling (slower now since we have realtime)
+        setInterval(fetchIntegrityData, 10000);
 
         // Filter change trigger
         document.getElementById('period-filter').addEventListener('change', fetchIntegrityData);
