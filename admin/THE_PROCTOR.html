@@ -537,6 +537,9 @@
 
                 setStatus('System Ready', 'bg-green-500');
                 syncResults("READY_TO_CALIBRATE", 35);
+                
+                // START MONITORING IMMEDIATELY
+                detectLoop();
 
             } catch (error) {
                 console.error("Setup error:", error);
@@ -557,8 +560,6 @@
             webcamContainer.style.opacity = '0';
             webcamContainer.style.pointerEvents = 'none';
             
-            // Start detection loop early but without logging violations
-            detectLoop();
             syncResults("CALIBRATION_IN_PROGRESS", 45);
         });
 
@@ -668,10 +669,7 @@
         // --- AI DETECTION LOOP ---
 
         async function detectLoop() {
-            // Only stop entirely if we aren't testing AND aren't calibrating
-            const isCalibrating = !calibrationScreen.classList.contains('hidden');
-            if (!isTesting && !isCalibrating) return;
-
+            // Run as long as the model is loaded and video is active
             if (model && faceModel && video.readyState === 4) {
                 try {
                     // PERFORMANCE OPTIMIZATION:
@@ -794,37 +792,34 @@
 
                     // --- 3. HANDLE ALERTS ---
                     const now = Date.now();
-                    const isCalibrating = !calibrationScreen.classList.contains('hidden');
 
-                    // Trigger alerts and logs if we are in test OR calibration phase
-                    if (isTesting || isCalibrating) {
-                        if (phoneDetected) {
-                            // REDUCED THROTTLE: Now alerts every 2 seconds for continuous visibility
-                            if (now - lastPhoneWarning > 2000) {
-                                const type = isTesting ? "Cell Phone" : "PRE-TEST: Phone Detected";
-                                logViolation(type, `Restricted device detected in webcam frame.`);
+                    // ALWAYS ON MONITORING: Trigger alerts if anything is detected
+                    if (phoneDetected) {
+                        // REDUCED THROTTLE: Now alerts every 2 seconds for continuous visibility
+                        if (now - lastPhoneWarning > 2000) {
+                            const type = isTesting ? "Cell Phone" : "PRE-TEST: Phone Detected";
+                            logViolation(type, `Restricted device detected in webcam frame.`);
+                            showToast(`Warning: ${type}`, "error");
+                            lastPhoneWarning = now;
+                        }
+                    }
+
+                    // Handle Gaze Alerts
+                    if (isLookingDown) {
+                        lookDownCount++;
+                        // Flag faster (2 frames instead of 3)
+                        if (lookDownCount >= 2) {
+                            // REDUCED THROTTLE: Now alerts every 4 seconds
+                            if (now - lastGazeWarning > 4000) {
+                                const type = isTesting ? "Gaze Alert" : "PRE-TEST: Gaze Alert";
+                                logViolation(type, "Prolonged downward gaze detected (possible hidden device).");
                                 showToast(`Warning: ${type}`, "error");
-                                lastPhoneWarning = now;
+                                lastGazeWarning = now;
                             }
+                            lookDownCount = 0; // Reset counter after warning
                         }
-
-                        // Handle Gaze Alerts
-                        if (isLookingDown) {
-                            lookDownCount++;
-                            // Flag faster (2 frames instead of 3)
-                            if (lookDownCount >= 2) {
-                                // REDUCED THROTTLE: Now alerts every 4 seconds
-                                if (now - lastGazeWarning > 4000) {
-                                    const type = isTesting ? "Gaze Alert" : "PRE-TEST: Gaze Alert";
-                                    logViolation(type, "Prolonged downward gaze detected (possible hidden device).");
-                                    showToast(`Warning: ${type}`, "error");
-                                    lastGazeWarning = now;
-                                }
-                                lookDownCount = 0; // Reset counter after warning
-                            }
-                        } else {
-                            lookDownCount = 0; // Reset if they look back up
-                        }
+                    } else {
+                        lookDownCount = 0; // Reset if they look back up
                     }
 
                 } catch (e) {
