@@ -812,7 +812,8 @@
 
                             // Threshold: Use baseline + offset
                             // 0.2 is a safe buffer above their natural sitting position
-                            if (pitchRatio > (baselinePitchRatio + 0.2)) {
+                            // INCREASED TOLERANCE: 0.35 buffer instead of 0.2 to reduce false positives
+                            if (pitchRatio > (baselinePitchRatio + 0.35)) {
                                 isLookingDown = true;
                                 ctx.fillStyle = '#ef4444';
                                 ctx.fillText(`STATUS: LOOKING DOWN`, 10, 45);
@@ -845,8 +846,8 @@
                     // Handle Gaze Alerts
                     if (isLookingDown) {
                         lookDownCount++;
-                        // Flag faster (2 frames instead of 3)
-                        if (lookDownCount >= 2) {
+                        // LONGER CONFIRMATION: Now requires 4 frames (~6 seconds) of looking down
+                        if (lookDownCount >= 4) {
                             // REDUCED THROTTLE: Now alerts every 4 seconds
                             if (now - lastGazeWarning > 4000) {
                                 const type = isTesting ? "Down Gaze" : "PRE-TEST: Down Gaze";
