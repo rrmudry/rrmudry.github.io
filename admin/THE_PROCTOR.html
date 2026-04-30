@@ -58,7 +58,7 @@
         <div class="bg-white max-w-md w-full p-10 rounded-3xl text-center space-y-8 shadow-2xl">
             <div class="space-y-3">
                 <div class="w-16 h-16 bg-indigo-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-indigo-500/20 mb-4">
-                    <i data-lucide="shield-lock" class="text-white w-8 h-8"></i>
+                    <i data-lucide="lock" class="text-white w-8 h-8"></i>
                 </div>
                 <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Proctor<span class="text-indigo-600">Web</span></h1>
                 <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Authentication Required // Secure Node</p>
@@ -406,6 +406,8 @@
                 
                 const finalViolations = Array.from(combinedMap.values()).sort((a, b) => new Date(b.ts) - new Date(a.ts));
 
+                console.log(`[PROCTOR] FINAL PAYLOAD PREP: ${finalViolations.length} violations found.`);
+                
                 const payload = {
                     student_name: student.name,
                     student_id: student.id,
@@ -417,11 +419,11 @@
                         violations: finalViolations,
                         last_alert: finalViolations.length > 0 ? finalViolations[0].type : "NONE",
                         ts: new Date().toISOString(),
-                        sync_count: (existing?.details?.sync_count || 0) + 1 // Forces a change for Realtime
+                        sync_count: (existing?.details?.sync_count || 0) + 1 
                     }
                 };
 
-                console.log(`[PROCTOR] Syncing ${finalViolations.length} total violations...`);
+                console.log(`[PROCTOR] >>> PUSHING TO SUPABASE:`, payload);
 
                 if (existing) {
                     const { error: upError } = await sbClient.from('student_results').update(payload).eq('id', existing.id);
@@ -430,6 +432,7 @@
                     const { error: insError } = await sbClient.from('student_results').insert([payload]);
                     if (insError) throw insError;
                 }
+                console.log(`[PROCTOR] <<< SYNC SUCCESSFUL`);
             } catch (e) {
                 console.error("Sync Error:", e);
                 // Fail silently for student, but log locally
@@ -840,13 +843,15 @@
 
         function logViolation(type, message) {
             const now = new Date();
-            integrityLogs.push({
+            const logEntry = {
                 time: now.toLocaleTimeString(),
-                ts: now.toISOString(), // ISO timestamp for dashboard sorting
+                ts: now.toISOString(), 
                 type: type,
                 message: message
-            });
-            console.warn(`[PROCTOR LOG] ${type}: ${message}`);
+            };
+            integrityLogs.push(logEntry);
+            console.warn(`[PROCTOR LOG] Violation Triggered! Total in session: ${integrityLogs.length}`, logEntry);
+            
             // SYNC ALERT IMMEDIATELY
             syncResults(`ALERT: ${type}`);
         }
