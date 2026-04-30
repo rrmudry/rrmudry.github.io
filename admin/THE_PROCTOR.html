@@ -415,7 +415,14 @@
 
                 if (fetchError) throw fetchError;
 
-                // 2. Merge logic: Strict accumulation with de-duplication
+                // 2. REMOTE RESET CHECK: If teacher cleared the record, wipe local logs
+                const remoteStatus = existing?.details?.status;
+                if (remoteStatus === "CLEARED_BY_TEACHER" || remoteStatus === "CLASS_CLEARED") {
+                    console.log("[PROCTOR] Teacher has cleared the log. Resetting local violations.");
+                    integrityLogs = []; 
+                }
+
+                // 3. Merge logic: Strict accumulation with de-duplication
                 let dbViolations = (existing && existing.details && existing.details.violations) ? existing.details.violations : [];
                 
                 // Combine everything and filter out duplicates
