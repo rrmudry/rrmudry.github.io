@@ -169,8 +169,12 @@
                 const violations = details.violations || [];
                 const lastAlert = details.last_alert || "NONE";
                 
-                const isCritical = lastAlert !== "NONE" && lastAlert !== "SUBMITTED";
+                // CRITICAL if any violation exists or status is an ALERT
+                const hasViolations = violations.length > 0;
+                const isAlertStatus = details.status && details.status.includes('ALERT');
                 const isFinished = s.score === 100;
+
+                const isCritical = (hasViolations || isAlertStatus) && !isFinished;
                 
                 let statusColor = "bg-emerald-500";
                 let borderColor = "border-white/5";
@@ -251,17 +255,20 @@
                 return;
             }
 
-            feed.innerHTML = allViolations.slice(0, 30).map(v => `
-                <div class="p-3 bg-white/5 rounded-xl border-l-2 ${v.type.includes('ALERT') || v.type.includes('Phone') ? 'border-red-500' : 'border-yellow-500'} animate-in slide-in-from-right-4 duration-300">
-                    <div class="flex justify-between items-start mb-1">
-                        <span class="text-[9px] font-black text-indigo-400 uppercase tracking-tighter">${v.name}</span>
-                        <span class="text-[8px] mono text-slate-600">${v.time}</span>
+            feed.innerHTML = allViolations.slice(0, 30).map(v => {
+                const isDanger = v.type === 'Cell Phone' || v.type === 'Focus Loss' || v.type.includes('ALERT');
+                return `
+                    <div class="p-3 bg-white/5 rounded-xl border-l-2 ${isDanger ? 'border-red-500' : 'border-yellow-500'} animate-in slide-in-from-right-4 duration-300">
+                        <div class="flex justify-between items-start mb-1">
+                            <span class="text-[9px] font-black text-indigo-400 uppercase tracking-tighter">${v.name}</span>
+                            <span class="text-[8px] mono text-slate-600">${v.time}</span>
+                        </div>
+                        <p class="text-[10px] font-bold text-slate-300 leading-tight">
+                            <span class="${isDanger ? 'text-red-500' : 'text-yellow-500'} uppercase">${v.type}:</span> ${v.message}
+                        </p>
                     </div>
-                    <p class="text-[10px] font-bold text-slate-300 leading-tight">
-                        <span class="text-red-500 uppercase">${v.type}:</span> ${v.message}
-                    </p>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         // Initialize Lucide

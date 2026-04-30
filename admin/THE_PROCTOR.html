@@ -381,6 +381,25 @@
 
             try {
                 const assignmentName = "AI Integrity Test";
+                // 1. Fetch current record to merge violations (Prevent overwriting history on refresh)
+                const { data: existing } = await sbClient.from('student_results')
+                    .select('id, details')
+                    .eq('student_id', student.id)
+                    .eq('assignment_name', assignmentName)
+                    .maybeSingle();
+
+                let combinedViolations = [...integrityLogs];
+                if (existing && existing.details && existing.details.violations) {
+                    // Merge and unique-ify by timestamp/type to prevent duplicates
+                    const existingV = existing.details.violations;
+                    const logKeys = new Set(integrityLogs.map(l => l.ts + l.type));
+                    existingV.forEach(v => {
+                        if (!logKeys.has(v.ts + v.type)) {
+                            combinedViolations.push(v);
+                        }
+                    });
+                }
+
                 const payload = {
                     student_name: student.name,
                     student_id: student.id,
@@ -389,20 +408,14 @@
                     score: currentScore,
                     details: {
                         status: statusLabel,
-                        violations: integrityLogs,
-                        last_alert: integrityLogs.length > 0 ? integrityLogs[integrityLogs.length - 1].type : "NONE",
+                        violations: combinedViolations,
+                        last_alert: combinedViolations.length > 0 ? combinedViolations.sort((a,b) => new Date(b.ts) - new Date(a.ts))[0].type : "NONE",
                         ts: new Date().toISOString()
                     }
                 };
 
                 console.log(`[PROCTOR] Syncing: ${statusLabel} for ${student.name} (${currentScore}%)`);
                 // Upsert logic
-                const { data: existing } = await sbClient.from('student_results')
-                    .select('id')
-                    .eq('student_id', student.id)
-                    .eq('assignment_name', assignmentName)
-                    .maybeSingle();
-
                 if (existing) {
                     await sbClient.from('student_results').update(payload).eq('id', existing.id);
                 } else {
