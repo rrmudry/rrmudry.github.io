@@ -361,6 +361,41 @@
             }
         }
 
+        function calculateCurrentScore() {
+            let correctCount = 0;
+            const total = questionsData.length;
+            if (total === 0) return 0;
+            
+            questionsData.forEach((q, index) => {
+                const selected = document.querySelector(`input[name="q${index}"]:checked`);
+                if (selected && selected.value === q.correct_answer) {
+                    correctCount++;
+                }
+            });
+            return Math.round((correctCount / total) * 100);
+        }
+
+        function submitTest() {
+            if (isSessionTerminated) return;
+            
+            const finalScore = calculateCurrentScore();
+            syncResults("TEST_SUBMITTED", finalScore);
+            
+            // UI Update
+            isTesting = false;
+            isSessionTerminated = true;
+            document.getElementById('screen-test').classList.add('hidden');
+            document.getElementById('screen-results').classList.remove('hidden');
+            document.getElementById('final-score').textContent = finalScore + "%";
+            
+            // Cleanup
+            if (detectionInterval) clearTimeout(detectionInterval);
+            if (heartbeatInterval) clearInterval(heartbeatInterval);
+            if (video.srcObject) {
+                video.srcObject.getTracks().forEach(track => track.stop());
+            }
+        }
+
         function finalizeLogin() {
             document.getElementById('login-overlay').classList.add('opacity-0', 'pointer-events-none');
             document.getElementById('student-display').classList.remove('hidden');
@@ -919,9 +954,28 @@
             }
         }
 
+        function calculateCurrentScore() {
+            if (!assessmentData || !assessmentData.questions) return currentScore;
+            
+            let correct = 0;
+            const total = assessmentData.questions.length;
+            
+            assessmentData.questions.forEach((q, idx) => {
+                const selected = document.querySelector(`input[name="q${idx}"]:checked`);
+                if (selected && selected.value === q.correct_answer) {
+                    correct++;
+                }
+            });
+            
+            return Math.round((correct / total) * 100);
+        }
+
         function changeQuestion(delta) {
             const nextIndex = currentQuestionIndex + delta;
             if (nextIndex < 0 || nextIndex >= totalQuestions) return;
+
+            // Calculate grade before moving
+            const performanceScore = calculateCurrentScore();
 
             // Hide current page
             document.getElementById(`q-page-${currentQuestionIndex}`).classList.add('hidden');
@@ -941,8 +995,8 @@
             document.getElementById('btn-next').classList.toggle('hidden', currentQuestionIndex === totalQuestions - 1);
             document.getElementById('btn-submit').classList.toggle('hidden', currentQuestionIndex !== totalQuestions - 1);
 
-            // Sync progress (optional, but good for dashboard)
-            syncResults(`Q${currentQuestionIndex + 1} ACTIVE`);
+            // Sync REAL performance score
+            syncResults(`Q${currentQuestionIndex + 1} ACTIVE`, performanceScore);
         }
 
         async function fetchAssessmentConfig() {
