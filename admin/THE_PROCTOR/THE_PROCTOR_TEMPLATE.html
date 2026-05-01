@@ -679,7 +679,7 @@
         const handleBlur = () => {
             if (!isTesting) return;
             logViolation("Focus Loss", "User switched tabs or minimized the window.");
-            showToast("Warning: Navigating away from the test is not allowed!", "error");
+            penalizeCurrentQuestion();
         };
 
         const handleClipboard = (e) => {
@@ -687,14 +687,12 @@
             e.preventDefault();
             const action = e.type === 'copy' ? 'Copied text' : 'Pasted text';
             logViolation("Clipboard Alert", `Attempted to ${e.type} content.`);
-            showToast(`Warning: ${action} is disabled during the test.`, "error");
         };
 
         const handleContextMenu = (e) => {
             if (!isTesting) return;
             e.preventDefault();
             logViolation("Interface Alert", "Attempted to open right-click context menu.");
-            showToast("Warning: Right-click is disabled.", "error");
         };
 
 
@@ -834,7 +832,6 @@
                         if (now - lastPhoneWarning > 2000) {
                             const type = isTesting ? "Cell Phone" : "PRE-TEST: Phone Detected";
                             logViolation(type, `Restricted device detected in webcam frame.`);
-                            showToast(`Warning: ${type}`, "error");
                             lastPhoneWarning = now;
                         }
                     }
@@ -848,7 +845,6 @@
                             if (now - lastGazeWarning > 4000) {
                                 const type = isTesting ? "Down Gaze" : "PRE-TEST: Down Gaze";
                                 logViolation(type, "Student is looking down (possible hidden device in lap).");
-                                showToast(`Warning: ${type}`, "error");
                                 lastGazeWarning = now;
                             }
                             lookDownCount = 0; // Reset counter after warning
@@ -865,7 +861,6 @@
                             if (now - lastVisualLossWarning > 10000) {
                                 const type = isTesting ? "Visual Loss" : "PRE-TEST: Visual Loss";
                                 logViolation(type, "Camera is obscured or student's face is not visible.");
-                                showToast(`Critical: ${type}! Ensure your face is in view.`, "error");
                                 lastVisualLossWarning = now;
                             }
                         }
@@ -900,6 +895,28 @@
             
             // SYNC ALERT IMMEDIATELY
             syncResults(`ALERT: ${type}`);
+        }
+
+        function penalizeCurrentQuestion() {
+            if (isSessionTerminated || !isTesting) return;
+
+            // 1. Get current question page
+            const container = document.getElementById(`q-page-${currentQuestionIndex}`);
+            if (container) {
+                // 2. Disable and uncheck all options to mark as incorrect
+                const radios = container.querySelectorAll('input[type="radio"]');
+                radios.forEach(r => {
+                    r.disabled = true;
+                    r.checked = false;
+                });
+            }
+
+            // 3. Move to next question or submit
+            if (currentQuestionIndex < totalQuestions - 1) {
+                setTimeout(() => changeQuestion(1), 500); // Small delay so they might see the lock briefly
+            } else {
+                setTimeout(() => submitTest(), 1000);
+            }
         }
 
         function changeQuestion(delta) {
@@ -980,12 +997,74 @@
                 // Limit question count
                 questionsData = questionsData.slice(0, MAX_QUESTIONS);
 
+                // PROCESS DYNAMIC QUESTIONS
+                processDynamicQuestions();
+
                 totalQuestions = questionsData.length;
                 renderQuestions();
             } catch (e) {
                 console.error("Question fetch error:", e);
                 alert("Critical error loading questions. Please contact the proctor.");
             }
+        }
+
+        function processDynamicQuestions() {
+            questionsData = questionsData.map(q => {
+                if (!q.text.includes('|||')) return q;
+
+                try {
+                    const parts = q.text.split('|||');
+                    const textTemplate = parts[0].trim();
+                    const config = JSON.parse(parts[1].trim());
+
+                    const vars = {};
+                    for (const [name, cfg] of Object.entries(config.vars)) {
+                        const step = cfg.step || 1;
+                        const range = (cfg.max - cfg.min) / step;
+                        const rand = Math.floor(Math.random() * (range + 1));
+                        vars[name] = cfg.min + (rand * step);
+                    }
+
+                    // Replace placeholders
+                    let newText = textTemplate;
+                    for (const [name, val] of Object.entries(vars)) {
+                        newText = newText.replace(new RegExp(`{{${name}}}`, 'g'), val);
+                    }
+
+                    // Calculate answer
+                    const calcFn = new Function(...Object.keys(vars), `return ${config.calc}`);
+                    const rawAnswer = calcFn(...Object.values(vars));
+                    const answer = Number(rawAnswer.toFixed(2));
+                    
+                    const unit = config.unit || "";
+                    const correctAnswer = `${answer}${unit ? ' ' + unit : ''}`;
+
+                    // Generate distractors
+                    const options = [correctAnswer];
+                    const modifiers = [0.5, 2, 1.5, 0.8, 1.2];
+                    while (options.length < 4 && modifiers.length > 0) {
+                        const mod = modifiers.shift();
+                        const distractor = `${Number((answer * mod).toFixed(2))}${unit ? ' ' + unit : ''}`;
+                        if (!options.includes(distractor)) options.push(distractor);
+                    }
+
+                    // Shuffle options
+                    for (let i = options.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [options[i], options[j]] = [options[j], options[i]];
+                    }
+
+                    return {
+                        ...q,
+                        text: newText,
+                        options: options,
+                        correct_answer: correctAnswer
+                    };
+                } catch (err) {
+                    console.error("Dynamic parsing error for question:", q.text, err);
+                    return q; // Fallback to original
+                }
+            });
         }
 
         function renderQuestions() {
