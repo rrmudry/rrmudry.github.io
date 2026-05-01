@@ -361,47 +361,12 @@
             }
         }
 
-        function calculateCurrentScore() {
-            let correctCount = 0;
-            const total = questionsData.length;
-            if (total === 0) return 0;
-            
-            questionsData.forEach((q, index) => {
-                const selected = document.querySelector(`input[name="q${index}"]:checked`);
-                if (selected && selected.value === q.correct_answer) {
-                    correctCount++;
-                }
-            });
-            return Math.round((correctCount / total) * 100);
-        }
-
-        function submitTest() {
-            if (isSessionTerminated) return;
-            
-            const finalScore = calculateCurrentScore();
-            syncResults("TEST_SUBMITTED", finalScore);
-            
-            // UI Update
-            isTesting = false;
-            isSessionTerminated = true;
-            document.getElementById('screen-test').classList.add('hidden');
-            document.getElementById('screen-results').classList.remove('hidden');
-            document.getElementById('final-score').textContent = finalScore + "%";
-            
-            // Cleanup
-            if (detectionInterval) clearTimeout(detectionInterval);
-            if (heartbeatInterval) clearInterval(heartbeatInterval);
-            if (video.srcObject) {
-                video.srcObject.getTracks().forEach(track => track.stop());
-            }
-        }
-
         function finalizeLogin() {
             document.getElementById('login-overlay').classList.add('opacity-0', 'pointer-events-none');
             document.getElementById('student-display').classList.remove('hidden');
             document.getElementById('display-name').textContent = student.name;
             
-            syncResults("LOGIN_ESTABLISHED", 5);
+            syncResults("LOGIN_ESTABLISHED", 0); // Start at 0 points
             
             // Start the 30-second heartbeat to keep the dashboard updated
             if (heartbeatInterval) clearInterval(heartbeatInterval);
@@ -530,10 +495,9 @@
         const statusText = document.getElementById('status-text');
 
         // --- CONSENT PHASE ---
-        btnAcceptNotice.addEventListener('click', () => {
             noticeScreen.classList.add('hidden');
             setupScreen.classList.remove('hidden');
-            syncResults("CONSENT_GIVEN", 15);
+            syncResults("CONSENT_GIVEN", 0);
         });
 
         // --- DEBUG / TEST SYNC ---
@@ -544,11 +508,10 @@
 
         // --- SETUP PHASE ---
 
-        btnSetup.addEventListener('click', async () => {
             btnSetup.disabled = true;
             btnSetup.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> Requesting Camera...';
             lucide.createIcons();
-            syncResults("HARDWARE_SETUP", 20);
+            syncResults("HARDWARE_SETUP", 0);
 
             try {
                 // 1. Get Webcam Access
@@ -601,7 +564,7 @@
                 btnStartCalibration.classList.remove('hidden');
 
                 setStatus('System Ready', 'bg-green-500');
-                syncResults("READY_TO_CALIBRATE", 35);
+                syncResults("READY_TO_CALIBRATE", 0);
                 
                 // START MONITORING IMMEDIATELY
                 detectLoop();
@@ -617,7 +580,6 @@
 
         // --- CALIBRATION PHASE ---
 
-        btnStartCalibration.addEventListener('click', () => {
             setupScreen.classList.add('hidden');
             calibrationScreen.classList.remove('hidden');
             
@@ -625,7 +587,7 @@
             webcamContainer.style.opacity = '0';
             webcamContainer.style.pointerEvents = 'none';
             
-            syncResults("CALIBRATION_IN_PROGRESS", 45);
+            syncResults("CALIBRATION_IN_PROGRESS", 0);
         });
 
         const calibrationPoints = [
@@ -685,7 +647,7 @@
             attachProctorListeners();
 
             showToast("Test started. Proctoring is active.", "info");
-            syncResults("TEST_ACTIVE", 60);
+            syncResults("TEST_ACTIVE", 0);
         });
 
         function attachProctorListeners() {
@@ -954,28 +916,9 @@
             }
         }
 
-        function calculateCurrentScore() {
-            if (!assessmentData || !assessmentData.questions) return currentScore;
-            
-            let correct = 0;
-            const total = assessmentData.questions.length;
-            
-            assessmentData.questions.forEach((q, idx) => {
-                const selected = document.querySelector(`input[name="q${idx}"]:checked`);
-                if (selected && selected.value === q.correct_answer) {
-                    correct++;
-                }
-            });
-            
-            return Math.round((correct / total) * 100);
-        }
-
         function changeQuestion(delta) {
             const nextIndex = currentQuestionIndex + delta;
             if (nextIndex < 0 || nextIndex >= totalQuestions) return;
-
-            // Calculate grade before moving
-            const performanceScore = calculateCurrentScore();
 
             // Hide current page
             document.getElementById(`q-page-${currentQuestionIndex}`).classList.add('hidden');
@@ -995,8 +938,8 @@
             document.getElementById('btn-next').classList.toggle('hidden', currentQuestionIndex === totalQuestions - 1);
             document.getElementById('btn-submit').classList.toggle('hidden', currentQuestionIndex !== totalQuestions - 1);
 
-            // Sync REAL performance score
-            syncResults(`Q${currentQuestionIndex + 1} ACTIVE`, performanceScore);
+            // Sync progress (optional, but good for dashboard)
+            syncResults(`Q${currentQuestionIndex + 1} ACTIVE`);
         }
 
         async function fetchAssessmentConfig() {
@@ -1193,15 +1136,27 @@
 
                 // Sync progress occasionally during test (every 30 seconds)
                 if (timer % 30 === 0) {
-                    syncResults("TEST_PROGRESS");
-                }
             }, 1000);
         }
 
-        function submitTest() {
-            // Stop everything
+        async function submitTest() {
+            if (isSessionTerminated) return;
             isSessionTerminated = true;
-            isTesting = false;
+            
+            // 1. Calculate Score (Number Correct)
+            let points = 0;
+            const form = document.getElementById('test-form');
+            questionsData.forEach((q, index) => {
+                const selected = form.querySelector(`input[name="q${index}"]:checked`);
+                if (selected && selected.value === q.correct_answer) {
+                    points++;
+                }
+            });
+
+            currentScore = points;
+            console.log(`[PROCTOR] Final Score: ${points} out of ${totalQuestions}`);
+
+            // 2. Clear intervals
             removeProctorListeners();
             clearTimeout(detectionInterval);
             clearInterval(timerInterval);
