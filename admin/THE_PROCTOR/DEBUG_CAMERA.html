@@ -1,1231 +1,149 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE_PROCTOR // Secure Assessment Environment</title>
-
-    <!-- Tailwind CSS for Styling -->
+    <title>AI VISION LAB // Object Detection Debug</title>
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- TensorFlow.js and COCO-SSD for AI Object Detection -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface"></script>
-
-    <!-- Supabase SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-
-        /* Prevent text selection globally to add extra friction */
-        .no-select {
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-        }
-
-        /* Toast animation */
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        .toast-enter {
-            animation: slideIn 0.3s ease-out forwards;
+        body { background: #020617; color: #f8fafc; overflow: hidden; font-family: monospace; }
+        .lab-border { border: 2px solid #334155; }
+        .detection-flash { animation: flash 0.5s ease-out; }
+        @keyframes flash {
+            0% { background: rgba(239, 68, 68, 0.3); }
+            100% { background: transparent; }
         }
     </style>
 </head>
+<body class="h-screen flex flex-col items-center justify-center p-10">
 
-<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col no-select">
-
-    <!-- Login Overlay -->
-    <div id="login-overlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-indigo-950/90 backdrop-blur-md transition-all duration-500">
-        <div class="bg-white max-w-md w-full p-10 rounded-3xl text-center space-y-8 shadow-2xl">
-            <div class="space-y-3">
-                <div class="w-16 h-16 bg-indigo-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-indigo-500/20 mb-4">
-                    <i data-lucide="lock" class="text-white w-8 h-8"></i>
-                </div>
-                <h1 class="text-3xl font-bold text-slate-900 tracking-tight italic uppercase">The_<span class="text-indigo-600">Proctor</span></h1>
-                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Authentication Required // Secure Node</p>
-            </div>
-            
-            <div id="login-form" class="space-y-4">
-                <div class="space-y-1">
-                    <input type="text" id="student-id" placeholder="Student ID" maxlength="6" 
-                        class="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl outline-none transition-all text-center font-bold text-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5">
-                </div>
-                <div id="name-entry" class="hidden space-y-1 animate-in fade-in">
-                    <input type="text" id="student-name" placeholder="Full Name" 
-                        class="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl outline-none transition-all text-center font-bold">
-                </div>
-                <button id="login-btn" onclick="handleLogin()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-xl font-bold uppercase tracking-widest text-sm transition-all active:scale-[0.98]">
-                    Establish Connection
-                </button>
-                <p id="login-status" class="text-[10px] font-medium text-slate-400 h-4"></p>
-            </div>
-        </div>
+    <div class="mb-8 text-center">
+        <h1 class="text-3xl font-black tracking-tighter uppercase text-indigo-400">AI Vision Lab</h1>
+        <p class="text-slate-500 text-xs mt-2 uppercase tracking-[0.3em]">Object Recognition & Bounding Box Debugger</p>
     </div>
 
-    <!-- Navbar -->
-    <nav class="bg-indigo-600 text-white p-4 shadow-md flex justify-between items-center">
-        <div class="flex items-center gap-4">
-            <div class="flex items-center gap-2 font-bold text-xl">
-                <i data-lucide="shield-check"></i>
-                THE_PROCTOR Node v2.0
+    <div id="main-lab" class="relative lab-border rounded-3xl overflow-hidden bg-black shadow-2xl shadow-indigo-500/10">
+        <!-- The Feed -->
+        <video id="webcam" class="w-[800px] h-[600px] object-cover transform scale-x-[-1]" autoplay playsinline muted></video>
+        <canvas id="overlay" class="absolute top-0 left-0 w-full h-full pointer-events-none"></video>
+        
+        <!-- Status HUD -->
+        <div class="absolute top-6 left-6 flex flex-col gap-2">
+            <div id="model-status" class="bg-black/60 backdrop-blur px-4 py-2 rounded-lg border border-white/10 flex items-center gap-3">
+                <div id="status-dot" class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
+                <span id="status-text" class="text-[10px] font-bold uppercase tracking-widest text-slate-300">Initializing AI...</span>
             </div>
-            <div id="student-display" class="hidden text-xs bg-indigo-500/50 px-3 py-1 rounded border border-indigo-400/30">
-                <span id="display-name" class="font-bold opacity-80 uppercase tracking-tighter"></span>
-            </div>
-        </div>
-        <div id="status-indicator" class="text-sm bg-indigo-800 px-3 py-1 rounded-full flex items-center gap-2">
-            <div class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse" id="status-dot"></div>
-            <span id="status-text">System Idle</span>
-            <div id="sync-indicator" class="w-1.5 h-1.5 rounded-full bg-white/20 ml-1"></div>
-        </div>
-    </nav>
-
-    <!-- Main Content Area -->
-    <main class="flex-grow flex flex-col items-center justify-center p-6 relative">
-
-        <!-- SCREEN 0: Privacy Notice -->
-        <div id="screen-notice" class="bg-white p-8 rounded-xl shadow-lg max-w-lg w-full">
-            <div class="flex items-center gap-3 text-amber-600 mb-4">
-                <i data-lucide="info" class="w-8 h-8"></i>
-                <h2 class="text-2xl font-bold">Privacy & Integrity Notice</h2>
-            </div>
-            <div class="space-y-4 text-gray-600 text-sm leading-relaxed mb-8">
-                <p>To ensure the integrity of this examination, this application uses **AI-powered proctoring**. Please review the following before proceeding:</p>
-                <ul class="list-disc pl-5 space-y-2">
-                    <li><strong>Active Monitoring:</strong> Your webcam will be active throughout the duration of the test.</li>
-                    <li><strong>Face in Frame:</strong> You must remain visible and centered in the camera view at all times.</li>
-                    <li><strong>Privacy First:</strong> No video or images are recorded or sent to a server. All AI analysis happens **locally on your device**.</li>
-                    <li><strong>Classroom Transparency:</strong> Any detected violations (e.g., cell phones, looking away) will be logged for teacher review.</li>
-                </ul>
-            </div>
-
-            <button id="btn-accept-notice"
-                class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg w-full transition flex justify-center items-center gap-2">
-                I Understand & Consent
-            </button>
-        </div>
-
-        <!-- SCREEN 1: Setup & Calibration -->
-        <div id="screen-setup" class="hidden bg-white p-8 rounded-xl shadow-lg max-w-lg w-full text-center">
-            <h2 class="text-2xl font-bold mb-4">Environment Setup</h2>
-            <p class="text-gray-600 mb-6">Before starting the test, we need to initialize the proctoring tools. This
-                process runs entirely on your device.</p>
-
-            <div class="space-y-4 mb-6 text-left">
-                <div class="flex items-center gap-3">
-                    <i data-lucide="camera" class="text-gray-400" id="icon-cam"></i>
-                    <span id="step-cam">1. Allow webcam access</span>
-                </div>
-                <div class="flex items-center gap-3">
-                    <i data-lucide="cpu" class="text-gray-400" id="icon-ai"></i>
-                    <span id="step-ai" class="font-semibold">2. Preparing System (May take ~60 seconds)</span>
-                </div>
-                
-                <div class="mt-6 p-5 bg-amber-50 border-2 border-amber-400 rounded-2xl text-slate-900 leading-relaxed text-left flex gap-4 shadow-sm">
-                    <i data-lucide="alert-triangle" class="w-12 h-12 flex-shrink-0 text-amber-600"></i>
-                    <div>
-                        <p class="font-black uppercase tracking-tighter text-[11px] text-amber-700 mb-1">Important Action Required</p>
-                        <p class="text-sm font-medium">If your browser prompts you with a <strong>"Page Unresponsive"</strong> message, you <strong>MUST CLICK WAIT</strong>.</p>
-                        <p class="text-[11px] mt-2 text-slate-600">The system is not frozen; it is initializing proctoring tools locally on your device. This process is normal.</p>
-                    </div>
-                </div>
-            </div>
-
-            <button id="btn-setup"
-                class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg w-full transition flex justify-center items-center gap-2">
-                Begin Setup
-            </button>
-            
-            <button id="btn-test-sync"
-                class="mt-4 text-[10px] uppercase tracking-widest text-slate-400 hover:text-indigo-500 transition-colors font-bold flex items-center justify-center gap-1 mx-auto">
-                <i data-lucide="refresh-cw" class="w-3 h-3"></i> Test Supabase Connection
-            </button>
-            <button id="btn-start-calibration"
-                class="hidden bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg w-full transition flex justify-center items-center gap-2 mt-4">
-                Enter Calibration
-            </button>
-        </div>
-
-        <!-- SCREEN 1.5: Calibration -->
-        <div id="screen-calibration" class="hidden bg-white p-8 rounded-xl shadow-lg max-w-lg w-full text-center relative overflow-hidden h-[400px] flex flex-col items-center justify-center">
-            <div id="calibration-intro">
-                <h2 class="text-2xl font-bold mb-4">Gaze Calibration</h2>
-                <p class="text-gray-600 mb-6 text-sm">To ensure proctoring accuracy, please sit naturally and click the target as it moves across the screen.</p>
-                <button id="btn-begin-dots" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold">Start Calibration</button>
-            </div>
-            
-            <!-- The Moving Target -->
-            <div id="calibration-dot" class="hidden absolute w-8 h-8 bg-red-500 rounded-full cursor-crosshair shadow-lg border-4 border-white flex items-center justify-center text-white transition-all duration-300 ease-out z-50">
-                <i data-lucide="crosshair" class="w-4 h-4"></i>
-            </div>
-
-            <div id="calibration-success" class="hidden">
-                <i data-lucide="check-circle" class="text-green-500 w-12 h-12 mx-auto mb-4"></i>
-                <h3 class="text-xl font-bold">Calibration Complete</h3>
-                <p class="text-gray-500 text-sm mt-2">Baseline gaze established. You are ready to begin.</p>
-                <button id="btn-start-test" class="bg-green-600 text-white px-6 py-2 rounded-lg font-bold mt-6">Launch Examination</button>
+            <div id="frame-counter" class="bg-black/60 backdrop-blur px-4 py-2 rounded-lg border border-white/10 text-[10px] font-bold text-indigo-400 uppercase tracking-widest">
+                Frames: 0
             </div>
         </div>
 
-        <!-- SCREEN 2: The Test -->
-        <div id="screen-test" class="hidden w-full max-w-3xl">
-            <div class="bg-white p-8 rounded-xl shadow-lg mb-6">
-                <div class="flex justify-between items-center mb-6 border-b pb-4">
-                    <h2 class="text-2xl font-bold" id="assessment-title">Loading Assessment...</h2>
-                    <div class="text-red-500 font-mono text-xl" id="timer">15:00</div>
-                </div>
-
-                <form id="test-form" class="space-y-8">
-                    <!-- Questions will be injected here via renderQuestions() -->
-                    <div class="flex flex-col items-center justify-center py-20 opacity-20">
-                        <i data-lucide="loader-2" class="w-10 h-10 animate-spin mb-4"></i>
-                        <p class="text-xs font-bold uppercase tracking-widest">Loading Examination Questions...</p>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- SCREEN 3: Results & Logs -->
-        <div id="screen-results" class="hidden w-full max-w-3xl space-y-6">
-            <div class="bg-white p-8 rounded-xl shadow-lg text-center">
-                <i data-lucide="check-circle" class="text-green-500 w-16 h-16 mx-auto mb-4"></i>
-                <h2 class="text-3xl font-bold mb-2">Test Submitted</h2>
-                <p class="text-xl text-gray-600">Your score: <span id="final-score"
-                        class="font-bold text-indigo-600">--</span></p>
-                <p class="text-xs text-slate-400 mt-6 uppercase tracking-widest font-bold italic">Node Secured // Connection Terminated</p>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- Floating Webcam Feed (Visible during test) -->
-    <div id="webcam-container"
-        class="opacity-100 fixed bottom-6 right-6 w-[480px] h-[360px] bg-black rounded-lg shadow-2xl border-4 border-indigo-500 overflow-hidden z-40 transition-opacity duration-300">
-        <video id="webcam" class="absolute top-0 left-0 w-full h-full object-cover transform scale-x-[-1]" autoplay
-            playsinline muted></video>
-        <!-- Canvas for rendering AI bounding boxes -->
-        <canvas id="detection-overlay"
-            class="absolute top-0 left-0 w-full h-full object-cover pointer-events-none"></canvas>
-        <div class="absolute bottom-1 left-1 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded z-50">
-            AI Proctoring Active
-        </div>
+        <div id="detection-alert" class="absolute inset-0 pointer-events-none border-[12px] border-red-500/0 transition-all duration-300"></div>
     </div>
 
-    <!-- Toast Notification Container -->
-    <div id="toast-container" class="fixed top-6 right-6 z-50 flex flex-col gap-2 w-80"></div>
+    <div class="mt-8 grid grid-cols-3 gap-6 w-full max-w-4xl">
+        <div class="bg-slate-900/50 p-4 rounded-2xl border border-white/5">
+            <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Target Object</p>
+            <p class="text-xl font-black text-white">Cell Phone</p>
+        </div>
+        <div id="last-seen-box" class="bg-slate-900/50 p-4 rounded-2xl border border-white/5">
+            <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Last Detection</p>
+            <p id="last-seen-text" class="text-xl font-black text-slate-500">None</p>
+        </div>
+        <div class="bg-slate-900/50 p-4 rounded-2xl border border-white/5">
+            <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Confidence Thresh</p>
+            <p class="text-xl font-black text-white">0.50</p>
+        </div>
+    </div>
 
     <script>
-        // Initialize Lucide Icons
-        lucide.createIcons();
-
-        // --- SUPABASE CONFIG ---
-        const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
-        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
-        const sbClient = supabase.createClient(SB_URL, SB_KEY);
-
-        // --- ASSESSMENT CONFIG ---
-        // Change this name to match the 'assignment_name' in your Supabase questions table
-        // OR pass it in the URL like: THE_PROCTOR.html?a=YourTestName
-        const urlParams = new URLSearchParams(window.location.search);
-        const ASSIGNMENT_NAME = urlParams.get('a') || urlParams.get('assignment') || "AI Integrity Test";
-
-        // Assessment Rules (Fetched from DB)
-        let MAX_QUESTIONS = 999; 
-        let TIME_LIMIT_MINS = 15;
-
-        // Application State
-        let model = null;
-        let faceModel = null;
-        let isTesting = false;
-        let isStealthMode = false;
-        let integrityLogs = [];
-        let baselinePitchRatio = 1.6;
-        let currentPitchRatio = 1.6;
-        let calibrationStep = 0;
-        let currentScore = 0;
-        let student = { id: '', name: '', period: null };
-        let isSyncing = false;
-        let lastSyncTime = 0;
-        let lastPhoneWarning = 0;
-        let lastGazeWarning = 0;
-        let lookDownCount = 0;
-        let timerInterval;
-        let detectionInterval;
-        let heartbeatInterval; 
-        let isSessionTerminated = false; 
-        let currentQuestionIndex = 0;
-        let totalQuestions = 0; 
-        let questionsData = [];
-        let pendingStatus = null;
-        let pendingScore = null;
-
-        // --- AUTH LOGIC ---
-        async function handleLogin() {
-            const idInput = document.getElementById('student-id');
-            const nameInput = document.getElementById('student-name');
-            const status = document.getElementById('login-status');
-            const btn = document.getElementById('login-btn');
-            const id = idInput.value.trim();
-
-            if (id.length !== 6) {
-                status.textContent = "INVALID ID // 6 DIGITS REQUIRED";
-                return;
-            }
-            btn.disabled = true;
-            status.textContent = "ESTABLISHING CONNECTION...";
-
-            try {
-                // 1. SEARCH FOR IDENTITY: Look for the student in ANY past record to get their name/period
-                const { data: profile } = await sbClient.from('student_results')
-                    .select('student_name, class_period')
-                    .eq('student_id', id)
-                    .order('created_at', { ascending: false })
-                    .limit(1)
-                    .maybeSingle();
-
-                // 2. CHECK FOR COMPLETION: See if they have a 'COMPLETED' status for THIS specific assignment
-                const { data: completionCheck } = await sbClient.from('student_results')
-                    .select('status')
-                    .eq('student_id', id)
-                    .eq('assignment_name', ASSIGNMENT_NAME)
-                    .order('created_at', { ascending: false })
-                    .limit(1)
-                    .maybeSingle();
-
-                if (completionCheck && completionCheck.status && completionCheck.status.startsWith("COMPLETED")) {
-                    status.textContent = "ACCESS DENIED // TEST ALREADY SUBMITTED";
-                    btn.disabled = false;
-                    btn.textContent = "CONNECTION BLOCKED";
-                    return;
-                }
-
-                if (profile) {
-                    // Student found in database
-                    student.id = id;
-                    student.name = profile.student_name;
-                    student.period = profile.class_period;
-                    
-                    await fetchAssessmentConfig(); // Get rules (timer/question count)
-                    await fetchQuestions();        // Get questions
-                    
-                    finalizeLogin();
-                } else if (document.getElementById('name-entry').classList.contains('hidden')) {
-                    // New Student - Show name entry field
-                    document.getElementById('name-entry').classList.remove('hidden');
-                    btn.disabled = false;
-                    btn.textContent = "REGISTER NODE";
-                    status.textContent = "NEW STUDENT ID DETECTED";
-                } else {
-                    // Registering new student
-                    const name = nameInput.value.trim();
-                    if (name.length < 3) {
-                        status.textContent = "ERROR // FULL NAME REQUIRED";
-                        btn.disabled = false;
-                        return;
-                    }
-                    student.id = id;
-                    student.name = name;
-                    
-                    // Try to get period from URL if available
-                    const urlParams = new URLSearchParams(window.location.search);
-                    student.period = urlParams.get('p') || urlParams.get('period') || null;
-                    
-                    await fetchAssessmentConfig(); // Get rules
-                    await fetchQuestions();        // Get questions
-                    
-                    finalizeLogin();
-                }
-            } catch (e) {
-                console.error(e);
-                status.textContent = "SYNC ERROR // CHECK CONNECTION";
-                btn.disabled = false;
-            }
-        }
-
-        function finalizeLogin() {
-            document.getElementById('login-overlay').classList.add('opacity-0', 'pointer-events-none');
-            document.getElementById('student-display').classList.remove('hidden');
-            document.getElementById('display-name').textContent = student.name;
-            
-            syncResults("LOGIN_ESTABLISHED", 5);
-            
-            // Start the 30-second heartbeat to keep the dashboard updated
-            if (heartbeatInterval) clearInterval(heartbeatInterval);
-            heartbeatInterval = setInterval(() => {
-                console.log("[PROCTOR] Sending heartbeat...");
-                syncResults("HEARTBEAT_STABLE");
-            }, 30000);
-
-            setTimeout(() => document.getElementById('login-overlay').classList.add('hidden'), 500);
-        }
-
-        async function syncResults(statusLabel, score = null) {
-            if (!student.id) return;
-            if (score !== null) currentScore = score;
-            
-            // If already syncing, queue this update and return
-            if (isSyncing) {
-                pendingStatus = statusLabel;
-                if (score !== null) pendingScore = score;
-                return;
-            }
-
-            isSyncing = true;
-            lastSyncTime = Date.now(); 
-            const syncInd = document.getElementById('sync-indicator');
-            if (syncInd) syncInd.classList.add('bg-green-400', 'animate-pulse');
-
-            try {
-                const assignmentName = ASSIGNMENT_NAME;
-                
-                // 1. Fetch current record to merge violations
-                const { data: existing, error: fetchError } = await sbClient.from('student_results')
-                    .select('id, details, status')
-                    .eq('student_id', student.id)
-                    .eq('assignment_name', assignmentName)
-                    .maybeSingle();
-
-                if (fetchError) throw fetchError;
-
-                // 2. REMOTE RESET CHECK
-                const remoteStatus = existing?.details?.status;
-                if (remoteStatus === "CLEARED_BY_TEACHER" || remoteStatus === "CLASS_CLEARED") {
-                    integrityLogs = [];
-                    showToast("Record reset by proctor.", "info");
-                }
-
-                // Merge Violations
-                const seenKeys = new Set();
-                const finalViolations = [];
-                const incoming = [...integrityLogs];
-                const existingV = existing?.details?.violations || [];
-                
-                [...incoming, ...existingV].forEach(v => {
-                    const key = v.id || `${v.ts}-${v.type}`;
-                    if (!seenKeys.has(key)) {
-                        finalViolations.push(v);
-                        seenKeys.add(key);
-                    }
-                });
-
-                finalViolations.sort((a, b) => new Date(b.ts) - new Date(a.ts));
-
-                const payload = {
-                    student_name: student.name,
-                    student_id: student.id,
-                    class_period: student.period,
-                    assignment_name: assignmentName,
-                    score: currentScore,
-                    status: statusLabel,
-                    details: {
-                        status: statusLabel,
-                        violations: finalViolations,
-                        last_alert: finalViolations.length > 0 ? finalViolations[0].type : "NONE",
-                        ts: new Date().toISOString(),
-                        sync_count: (existing?.details?.sync_count || 0) + 1 
-                    }
-                };
-
-                if (existing) {
-                    const { error: upError } = await sbClient.from('student_results').update(payload).eq('id', existing.id);
-                    if (upError) throw upError;
-                } else {
-                    const { error: insError } = await sbClient.from('student_results').insert([payload]);
-                    if (insError) throw insError;
-                }
-            } catch (e) {
-                console.error("Sync Error:", e);
-            } finally {
-                isSyncing = false;
-                if (syncInd) syncInd.classList.remove('animate-pulse');
-                
-                // Process pending sync if one was queued
-                if (pendingStatus) {
-                    const nextStatus = pendingStatus;
-                    const nextScore = pendingScore;
-                    pendingStatus = null;
-                    pendingScore = null;
-                    setTimeout(() => syncResults(nextStatus, nextScore), 500);
-                }
-            }
-        }
-
-        // DOM Elements
         const video = document.getElementById('webcam');
-        const noticeScreen = document.getElementById('screen-notice');
-        const setupScreen = document.getElementById('screen-setup');
-        const calibrationScreen = document.getElementById('screen-calibration');
-        const testScreen = document.getElementById('screen-test');
-        const resultsScreen = document.getElementById('screen-results');
-        const webcamContainer = document.getElementById('webcam-container');
-        const toastContainer = document.getElementById('toast-container');
-
-        // Canvas elements for debugging
-        const canvas = document.getElementById('detection-overlay');
+        const canvas = document.getElementById('overlay');
         const ctx = canvas.getContext('2d');
+        let model = null;
+        let frameCount = 0;
 
-        const btnSetup = document.getElementById('btn-setup');
-        const btnAcceptNotice = document.getElementById('btn-accept-notice');
-        const btnStartCalibration = document.getElementById('btn-start-calibration');
-        const btnBeginDots = document.getElementById('btn-begin-dots');
-        const btnStartTest = document.getElementById('btn-start-test');
-        const btnSubmit = document.getElementById('btn-submit');
-        const btnTestSync = document.getElementById('btn-test-sync');
-
-        const statusDot = document.getElementById('status-dot');
-        const statusText = document.getElementById('status-text');
-
-        // --- CONSENT PHASE ---
-        btnAcceptNotice.addEventListener('click', () => {
-            noticeScreen.classList.add('hidden');
-            setupScreen.classList.remove('hidden');
-            syncResults("CONSENT_GIVEN", 15);
-        });
-
-        // --- DEBUG / TEST SYNC ---
-        btnTestSync.addEventListener('click', () => {
-            logViolation("Connection Test", "Verification signal sent from setup screen.");
-            showToast("Test alert sent to dashboard!", "success");
-        });
-
-        // --- SETUP PHASE ---
-
-        btnSetup.addEventListener('click', async () => {
-            btnSetup.disabled = true;
-            btnSetup.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> Requesting Camera...';
-            lucide.createIcons();
-            syncResults("HARDWARE_SETUP", 20);
-
+        async function init() {
             try {
-                // 1. Get Webcam Access
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                // 1. Get Webcam
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 800, height: 600 } });
                 video.srcObject = stream;
 
-                // Wait for video to be ready
-                await new Promise((resolve) => {
-                    video.onloadedmetadata = () => {
-                        // Set canvas resolution to perfectly match the raw video feed
-                        canvas.width = video.videoWidth;
-                        canvas.height = video.videoHeight;
-                        resolve();
-                    };
-                });
-
-                document.getElementById('icon-cam').classList.replace('text-gray-400', 'text-green-500');
-                document.getElementById('step-cam').classList.add('font-bold');
-
-                // 2. Load AI Models
-                btnSetup.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> Initializing GPU...';
-                lucide.createIcons();
-
-                // Explicitly set WebGL backend for GPU acceleration
-                await tf.setBackend('webgl');
-                await tf.ready();
-
-                btnSetup.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> Preparing System (Part 1/2)...';
-                lucide.createIcons();
-                model = await cocoSsd.load({ base: 'mobilenet_v2' });
-
-                btnSetup.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> Preparing System (Part 2/2)...';
-                lucide.createIcons();
-                faceModel = await blazeface.load();
-
-                btnSetup.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> Warming up engines...';
-                lucide.createIcons();
+                // 2. Load Model
+                document.getElementById('status-text').textContent = "Loading COCO-SSD...";
+                model = await cocoSsd.load();
                 
-                // Warm-up inference to prevent lag during the actual test
-                await Promise.all([
-                    model.detect(video),
-                    faceModel.estimateFaces(video)
-                ]);
-
-                document.getElementById('icon-ai').classList.replace('text-gray-400', 'text-green-500');
-                document.getElementById('step-ai').classList.add('font-bold');
-
-                // Ready to start
-                btnSetup.classList.add('hidden');
-                btnStartCalibration.classList.remove('hidden');
-
-                setStatus('System Ready', 'bg-green-500');
-                syncResults("READY_TO_CALIBRATE", 35);
+                document.getElementById('status-text').textContent = "AI System Live";
+                document.getElementById('status-dot').classList.replace('bg-red-500', 'bg-green-500');
                 
-                // START MONITORING IMMEDIATELY
-                detectLoop();
-
-            } catch (error) {
-                console.error("Setup error:", error);
-                logViolation("System", "Failed to access webcam or load model.");
-                showToast("Error: Please allow camera access and ensure you have internet connection.", "error");
-                btnSetup.disabled = false;
-                btnSetup.innerHTML = 'Try Setup Again';
+                // 3. Start Loop
+                detect();
+            } catch (err) {
+                document.getElementById('status-text').textContent = "ERROR: " + err.message;
+                console.error(err);
             }
-        });
-
-        // --- CALIBRATION PHASE ---
-
-        btnStartCalibration.addEventListener('click', () => {
-            setupScreen.classList.add('hidden');
-            calibrationScreen.classList.remove('hidden');
-            
-            // Keep webcam completely hidden during calibration and test
-            webcamContainer.style.opacity = '0';
-            webcamContainer.style.pointerEvents = 'none';
-            
-            syncResults("CALIBRATION_IN_PROGRESS", 45);
-        });
-
-        const calibrationPoints = [
-            { x: '50%', y: '50%', label: 'Center' }, // Capture baseline here
-            { x: '10%', y: '10%', label: 'TL' },
-            { x: '90%', y: '10%', label: 'TR' },
-            { x: '10%', y: '90%', label: 'BL' },
-            { x: '90%', y: '90%', label: 'BR' }
-        ];
-
-        btnBeginDots.addEventListener('click', () => {
-            document.getElementById('calibration-intro').classList.add('hidden');
-            const dot = document.getElementById('calibration-dot');
-            dot.classList.remove('hidden');
-            nextCalibrationDot();
-        });
-
-        function nextCalibrationDot() {
-            const dot = document.getElementById('calibration-dot');
-            if (calibrationStep >= calibrationPoints.length) {
-                dot.classList.add('hidden');
-                document.getElementById('calibration-success').classList.remove('hidden');
-                return;
-            }
-
-            const pt = calibrationPoints[calibrationStep];
-            dot.style.left = pt.x;
-            dot.style.top = pt.y;
-            dot.style.transform = 'translate(-50%, -50%)';
-            
-            lucide.createIcons();
         }
 
-        document.getElementById('calibration-dot').addEventListener('click', () => {
-            if (calibrationStep === 0) {
-                // Capturing baseline from center click
-                baselinePitchRatio = currentPitchRatio;
-                console.log("Baseline established:", baselinePitchRatio);
-            }
-            calibrationStep++;
-            nextCalibrationDot();
-        });
+        async function detect() {
+            if (!model) return;
 
-        // --- TESTING PHASE ---
+            frameCount++;
+            document.getElementById('frame-counter').textContent = `Frames: ${frameCount}`;
 
-        btnStartTest.addEventListener('click', () => {
-            calibrationScreen.classList.add('hidden');
-            testScreen.classList.remove('hidden');
+            // Sync canvas size
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
 
-            isTesting = true;
-            setStatus('Proctoring Active', 'bg-red-500');
+            const predictions = await model.detect(video);
             
-            // USE DYNAMIC TIMER FROM DB
-            startTimer(TIME_LIMIT_MINS * 60);
-
-            // Attach Anti-Cheat Event Listeners
-            attachProctorListeners();
-
-            showToast("Test started. Proctoring is active.", "info");
-            syncResults("TEST_ACTIVE", 60);
-        });
-
-        function attachProctorListeners() {
-            // 1. Blur / Focus Loss (Tab Switching)
-            window.addEventListener('blur', handleBlur);
-
-            // 2. Prevent Copy
-            document.addEventListener('copy', handleClipboard);
-
-            // 3. Prevent Paste
-            document.addEventListener('paste', handleClipboard);
-
-            // 4. Prevent Context Menu (Right Click)
-            document.addEventListener('contextmenu', handleContextMenu);
-        }
-
-        function removeProctorListeners() {
-            window.removeEventListener('blur', handleBlur);
-            document.removeEventListener('copy', handleClipboard);
-            document.removeEventListener('paste', handleClipboard);
-            document.removeEventListener('contextmenu', handleContextMenu);
-        }
-
-        // --- EVENT HANDLERS ---
-
-        const handleBlur = () => {
-            if (!isTesting) return;
-            logViolation("Focus Loss", "User switched tabs or minimized the window.");
-            penalizeCurrentQuestion();
-        };
-
-        const handleClipboard = (e) => {
-            if (!isTesting) return;
-            e.preventDefault();
-            const action = e.type === 'copy' ? 'Copied text' : 'Pasted text';
-            logViolation("Clipboard Alert", `Attempted to ${e.type} content.`);
-        };
-
-        const handleContextMenu = (e) => {
-            if (!isTesting) return;
-            e.preventDefault();
-            logViolation("Interface Alert", "Attempted to open right-click context menu.");
-        };
-
-
-        // --- AI DETECTION LOOP ---
-
-        async function detectLoop() {
-            if (isSessionTerminated) return;
-
-            // Run as long as the model is loaded and video is active
-            if (model && faceModel && video.readyState === 4) {
-                try {
-                    // PERFORMANCE OPTIMIZATION:
-                    // We now tell the model to return EVERYTHING it sees (down to 20% confidence)
-                    // so our custom 'Bottom Edge' logic can catch partially hidden phones.
-                    const [predictions, faces] = await Promise.all([
-                        model.detect(video, 10, 0.2), 
-                        faceModel.estimateFaces(video, false)
-                    ]);
-
-                    // Clear previous frame
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                    // --- AI HEARTBEAT INDICATOR ---
-                    ctx.fillStyle = (Date.now() % 1000 < 500) ? '#22c55e' : '#1e293b';
-                    ctx.beginPath();
-                    ctx.arc(15, 15, 6, 0, 2 * Math.PI);
-                    ctx.fill();
-                    ctx.fillStyle = '#ffffff';
-                    ctx.font = 'bold 10px Arial';
-                    ctx.fillText("AI PROCESSING", 28, 18);
-
-                    // --- 1. PROCESS OBJECT DETECTION ---Zone" indicator for the teacher in debug mode
-                    if (!isStealthMode) {
-                        ctx.strokeStyle = 'rgba(239, 68, 68, 0.2)';
-                        ctx.setLineDash([5, 5]);
-                        ctx.beginPath();
-                        ctx.moveTo(0, canvas.height * 0.75);
-                        ctx.lineTo(canvas.width, canvas.height * 0.75);
-                        ctx.stroke();
-                        ctx.setLineDash([]);
-                    }
-
-                    let phoneDetected = false;
-                    let isLookingDown = false;
-
-                    // --- 1. PROCESS OBJECT DETECTION (Phones/Remotes) ---
-                    predictions.forEach(prediction => {
-                        const [x, y, width, height] = prediction.bbox;
-                        const flippedX = canvas.width - x - width;
-                        const bottomPos = y + height;
-                        
-                        // SENSITIVITY BOOST: If the object is near the bottom edge, it's likely a hidden phone
-                        const isAtBottom = (y + height) > (canvas.height * 0.75);
-                        const confidenceThreshold = isAtBottom ? 0.25 : 0.50;
-
-                        // List of objects that are suspicious in a test environment
-                        // Added 'handbag' and 'mouse' because partial phones are often misidentified as these.
-                        const contrabandClasses = ['cell phone', 'remote', 'book', 'calculator', 'handbag', 'mouse'];
-                        const isContraband = contrabandClasses.includes(prediction.class);
-
-                        // If it's not a person and not one of our contraband items, skip it
-                        if (prediction.class !== 'person' && !isContraband) return;
-
-                        // --- DEBUG VISUALIZATION ---
-                        // Set styles based on whether it's contraband (Red) or Person (Green)
-                        ctx.strokeStyle = isContraband ? '#ef4444' : '#22c55e';
-                        ctx.lineWidth = isAtBottom ? 6 : 4; // Thicker lines for bottom-edge detections
-                        ctx.strokeRect(flippedX, y, width, height);
-
-                        // Draw label background
-                        ctx.fillStyle = isContraband ? '#ef4444' : '#22c55e';
-                        const text = `${prediction.class} (${Math.round(prediction.score * 100)}%)`;
-                        ctx.font = '18px Arial';
-                        const textWidth = ctx.measureText(text).width;
-                        ctx.fillRect(flippedX, y - 24, textWidth + 10, 24);
-
-                        // Draw label text
-                        ctx.fillStyle = '#ffffff';
-                        ctx.fillText(text, flippedX + 5, y - 6);
-                        // --- END DEBUG VISUALIZATION ---
-
-                        // Trigger alert if it meets the adaptive threshold
-                        if (isContraband && prediction.score > confidenceThreshold) {
-                            // If it's a 'book', only alert if it's actually in the lap area
-                            if (prediction.class === 'book' && !isAtBottom) return;
-                            phoneDetected = true;
-                        }
-                    });
-
-                    // --- 2. PROCESS GAZE/FACE TRACKING ---
-                    if (faces.length > 0) {
-                        const landmarks = faces[0].landmarks;
-
-                        // Draw Facial Landmarks (Blue dots) for debugging
-                        ctx.fillStyle = '#3b82f6';
-                        landmarks.forEach(point => {
-                            ctx.beginPath();
-                            ctx.arc(canvas.width - point[0], point[1], 4, 0, 2 * Math.PI);
-                            ctx.fill();
-                        });
-
-                        // Calculate Head Pitch (Looking Down Heuristic)
-                        // landmarks: 0=Right Eye, 1=Left Eye, 2=Nose, 3=Mouth
-                        const eyeY = (landmarks[0][1] + landmarks[1][1]) / 2;
-                        const noseY = landmarks[2][1];
-                        const mouthY = landmarks[3][1];
-
-                        const eyeToNose = noseY - eyeY;
-                        const noseToMouth = mouthY - noseY;
-
-                        // If the ratio of top-half of face to bottom-half is high, head is pitched down
-                        if (noseToMouth > 0) {
-                            const pitchRatio = eyeToNose / noseToMouth;
-                            currentPitchRatio = pitchRatio; // Store for calibration
-
-                            // Debug text for Gaze
-                            ctx.fillStyle = '#ffffff';
-                            ctx.font = 'bold 18px Arial';
-                            ctx.fillText(`Gaze Ratio: ${pitchRatio.toFixed(3)} (Base: ${baselinePitchRatio.toFixed(3)})`, 10, 50);
-
-                            // Threshold: Use baseline + offset
-                            // 0.2 is a safe buffer above their natural sitting position
-                            // INCREASED TOLERANCE: 0.35 buffer instead of 0.2 to reduce false positives
-                            if (pitchRatio > (baselinePitchRatio + 0.35)) {
-                                isLookingDown = true;
-                                ctx.fillStyle = '#ef4444';
-                                ctx.font = 'black 22px Arial';
-                                ctx.fillText(`STATUS: !!! DOWN GAZE DETECTED !!!`, 10, 85);
-                            } else {
-                                ctx.fillStyle = '#22c55e';
-                                ctx.font = 'bold 22px Arial';
-                                ctx.fillText(`STATUS: EYES FORWARD (NOMINAL)`, 10, 85);
-                            }
-                        }
-                    } else {
-                        // No face found - could be looking completely away
-                        ctx.fillStyle = '#eab308';
-                        ctx.font = 'bold 22px Arial';
-                        ctx.fillText(`STATUS: FACE MISSING / OBSCURED`, 10, 50);
-                    }
-
-                    // --- 3. HANDLE ALERTS ---
-                    const now = Date.now();
-
-                    // ALWAYS ON MONITORING: Trigger alerts if anything is detected
-                    if (phoneDetected) {
-                        // REDUCED THROTTLE: Now alerts every 2 seconds for continuous visibility
-                        if (now - lastPhoneWarning > 2000) {
-                            const type = isTesting ? "Cell Phone" : "PRE-TEST: Phone Detected";
-                            logViolation(type, `Restricted device detected in webcam frame.`);
-                            lastPhoneWarning = now;
-                        }
-                    }
-
-                    // Handle Gaze Alerts
-                    if (isLookingDown) {
-                        lookDownCount++;
-                        // LONGER CONFIRMATION: Now requires 4 frames (~6 seconds) of looking down
-                        if (lookDownCount >= 4) {
-                            // REDUCED THROTTLE: Now alerts every 4 seconds
-                            if (now - lastGazeWarning > 4000) {
-                                const type = isTesting ? "Down Gaze" : "PRE-TEST: Down Gaze";
-                                logViolation(type, "Student is looking down (possible hidden device in lap).");
-                                lastGazeWarning = now;
-                            }
-                            lookDownCount = 0; // Reset counter after warning
-                        }
-                    } else {
-                        lookDownCount = 0; // Reset if they look back up
-                    }
-
-                    // --- 4. VISUAL LOSS CHECK (Camera Covered/Obscured) ---
-                    if (faces.length === 0) {
-                        faceMissingCount++;
-                        // If face is gone for ~5 seconds (approx 3-4 detection loops)
-                        if (faceMissingCount >= 3) {
-                            if (now - lastVisualLossWarning > 10000) {
-                                const type = isTesting ? "Visual Loss" : "PRE-TEST: Visual Loss";
-                                logViolation(type, "Camera is obscured or student's face is not visible.");
-                                lastVisualLossWarning = now;
-                            }
-                        }
-                    } else {
-                        faceMissingCount = 0; // Reset as soon as face is back
-                    }
-
-                } catch (e) {
-                    console.error("Detection error: ", e);
-                }
-            }
-
-            // Run detection every 1.5 seconds to save CPU
-            detectionInterval = setTimeout(detectLoop, 1500);
-        }
-
-        // --- SUBMISSION PHASE ---
-
-        function logViolation(type, message) {
-            if (isSessionTerminated) return;
-            const now = new Date();
-            const qNum = currentQuestionIndex + 1;
-            const logEntry = {
-                id: 'v-' + Math.random().toString(36).substr(2, 9), // Unique ID for accumulation
-                time: now.toLocaleTimeString(),
-                ts: now.toISOString(), 
-                type: type,
-                message: `[Q${qNum}] ${message}`
-            };
-            integrityLogs.push(logEntry);
-            console.warn(`[PROCTOR LOG] Violation Triggered! Total in session: ${integrityLogs.length}`, logEntry);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // SYNC ALERT IMMEDIATELY
-            syncResults(`ALERT: ${type}`);
-        }
+            let phoneFound = false;
 
-        function penalizeCurrentQuestion() {
-            if (isSessionTerminated || !isTesting) return;
+            predictions.forEach(prediction => {
+                const [x, y, width, height] = prediction.bbox;
+                const flippedX = canvas.width - x - width;
+                
+                const isPhone = prediction.class === 'cell phone';
+                if (isPhone) phoneFound = true;
 
-            // 1. Get current question page
-            const container = document.getElementById(`q-page-${currentQuestionIndex}`);
-            if (container) {
-                // 2. Disable and uncheck all options to mark as incorrect
-                const radios = container.querySelectorAll('input[type="radio"]');
-                radios.forEach(r => {
-                    r.disabled = true;
-                    r.checked = false;
-                });
-            }
+                // DRAW Bounding Box
+                ctx.strokeStyle = isPhone ? '#ef4444' : '#22c55e';
+                ctx.lineWidth = isPhone ? 8 : 2;
+                ctx.strokeRect(flippedX, y, width, height);
 
-            // 3. Move to next question or submit
-            if (currentQuestionIndex < totalQuestions - 1) {
-                setTimeout(() => changeQuestion(1), 500); // Small delay so they might see the lock briefly
+                // DRAW Label
+                ctx.fillStyle = isPhone ? '#ef4444' : '#22c55e';
+                ctx.font = 'bold 20px monospace';
+                const label = `${prediction.class.toUpperCase()} [${Math.round(prediction.score * 100)}%]`;
+                const textWidth = ctx.measureText(label).width;
+                ctx.fillRect(flippedX, y - 30, textWidth + 10, 30);
+                
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText(label, flippedX + 5, y - 8);
+            });
+
+            // Alert visuals
+            const alertBox = document.getElementById('detection-alert');
+            const lastSeen = document.getElementById('last-seen-text');
+            const lastSeenBox = document.getElementById('last-seen-box');
+
+            if (phoneFound) {
+                alertBox.style.borderColor = 'rgba(239, 68, 68, 0.6)';
+                lastSeen.textContent = new Date().toLocaleTimeString();
+                lastSeen.classList.replace('text-slate-500', 'text-red-500');
+                lastSeenBox.classList.add('detection-flash');
+                setTimeout(() => lastSeenBox.classList.remove('detection-flash'), 500);
             } else {
-                setTimeout(() => submitTest(), 1000);
-            }
-        }
-
-        function changeQuestion(delta) {
-            const nextIndex = currentQuestionIndex + delta;
-            if (nextIndex < 0 || nextIndex >= totalQuestions) return;
-
-            // Hide current page
-            document.getElementById(`q-page-${currentQuestionIndex}`).classList.add('hidden');
-            
-            // Update index
-            currentQuestionIndex = nextIndex;
-            
-            // Show new page
-            const nextPane = document.getElementById(`q-page-${currentQuestionIndex}`);
-            nextPane.classList.remove('hidden');
-
-            // Update Labels
-            document.getElementById('q-current-label').textContent = currentQuestionIndex + 1;
-
-            // Update Nav Buttons
-            document.getElementById('btn-prev').classList.toggle('hidden', currentQuestionIndex === 0);
-            document.getElementById('btn-next').classList.toggle('hidden', currentQuestionIndex === totalQuestions - 1);
-            document.getElementById('btn-submit').classList.toggle('hidden', currentQuestionIndex !== totalQuestions - 1);
-
-            // Sync progress (optional, but good for dashboard)
-            syncResults(`Q${currentQuestionIndex + 1} ACTIVE`);
-        }
-
-        async function fetchAssessmentConfig() {
-            try {
-                // Fetch rules from 'assessments' table
-                const { data, error } = await sbClient
-                    .from('assessments')
-                    .select('max_questions, time_limit_mins')
-                    .eq('assignment_name', ASSIGNMENT_NAME)
-                    .maybeSingle();
-
-                if (error) throw error;
-
-                if (data) {
-                    MAX_QUESTIONS = data.max_questions || 999;
-                    TIME_LIMIT_MINS = data.time_limit_mins || 15;
-                    console.log(`[CONFIG] Rules Loaded: ${MAX_QUESTIONS} Qs, ${TIME_LIMIT_MINS} Mins`);
-                } else {
-                    console.warn(`[CONFIG] No assessment record found for "${ASSIGNMENT_NAME}". Using defaults.`);
-                }
-            } catch (e) {
-                console.error("Config fetch error:", e);
-            }
-        }
-
-        async function fetchQuestions() {
-            try {
-                // Expected Supabase Schema: table 'questions' with columns [assignment_name, text, options (json array)]
-                const { data, error } = await sbClient
-                    .from('questions')
-                    .select('*')
-                    .eq('assignment_name', ASSIGNMENT_NAME);
-                
-                if (error) throw error;
-
-                if (!data || data.length === 0) {
-                    console.error(`No questions found for assignment: ${ASSIGNMENT_NAME}`);
-                    alert(`Error: No questions found for "${ASSIGNMENT_NAME}". Please check the assignment name.`);
-                    return;
-                }
-
-                // Update Header Title to match assignment
-                document.getElementById('assessment-title').textContent = ASSIGNMENT_NAME;
-
-                // Randomize without replacement (Fisher-Yates Shuffle)
-                questionsData = [...data];
-                for (let i = questionsData.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [questionsData[i], questionsData[j]] = [questionsData[j], questionsData[i]];
-                }
-
-                // Limit question count
-                questionsData = questionsData.slice(0, MAX_QUESTIONS);
-
-                // PROCESS DYNAMIC QUESTIONS
-                processDynamicQuestions();
-
-                totalQuestions = questionsData.length;
-                renderQuestions();
-            } catch (e) {
-                console.error("Question fetch error:", e);
-                alert("Critical error loading questions. Please contact the proctor.");
-            }
-        }
-
-        function processDynamicQuestions() {
-            questionsData = questionsData.map(q => {
-                if (!q.text.includes('|||')) return q;
-
-                try {
-                    const parts = q.text.split('|||');
-                    const textTemplate = parts[0].trim();
-                    const config = JSON.parse(parts[1].trim());
-
-                    const vars = {};
-                    for (const [name, cfg] of Object.entries(config.vars)) {
-                        const step = cfg.step || 1;
-                        const range = (cfg.max - cfg.min) / step;
-                        const rand = Math.floor(Math.random() * (range + 1));
-                        vars[name] = cfg.min + (rand * step);
-                    }
-
-                    // Replace placeholders
-                    let newText = textTemplate;
-                    for (const [name, val] of Object.entries(vars)) {
-                        newText = newText.replace(new RegExp(`{{${name}}}`, 'g'), val);
-                    }
-
-                    // Calculate answer
-                    const calcFn = new Function(...Object.keys(vars), `return ${config.calc}`);
-                    const rawAnswer = calcFn(...Object.values(vars));
-                    const answer = Number(rawAnswer.toFixed(2));
-                    
-                    const unit = config.unit || "";
-                    const correctAnswer = `${answer}${unit ? ' ' + unit : ''}`;
-
-                    // Generate distractors
-                    const options = [correctAnswer];
-                    const modifiers = [0.5, 2, 1.5, 0.8, 1.2];
-                    while (options.length < 4 && modifiers.length > 0) {
-                        const mod = modifiers.shift();
-                        const distractor = `${Number((answer * mod).toFixed(2))}${unit ? ' ' + unit : ''}`;
-                        if (!options.includes(distractor)) options.push(distractor);
-                    }
-
-                    // Shuffle options
-                    for (let i = options.length - 1; i > 0; i--) {
-                        const j = Math.floor(Math.random() * (i + 1));
-                        [options[i], options[j]] = [options[j], options[i]];
-                    }
-
-                    return {
-                        ...q,
-                        text: newText,
-                        options: options,
-                        correct_answer: correctAnswer
-                    };
-                } catch (err) {
-                    console.error("Dynamic parsing error for question:", q.text, err);
-                    return q; // Fallback to original
-                }
-            });
-        }
-
-        function renderQuestions() {
-            const form = document.getElementById('test-form');
-            if (questionsData.length === 0) return;
-
-            const html = questionsData.map((q, idx) => `
-                <div id="q-page-${idx}" class="question-page ${idx === 0 ? '' : 'hidden'} animate-in fade-in slide-in-from-right-4 duration-300">
-                    <div class="question-block">
-                        <p class="font-semibold text-lg mb-4">${idx + 1}. ${q.text}</p>
-                        <div class="space-y-3 ml-4">
-                            ${q.options.map(opt => `
-                                <label class="flex items-center gap-3 cursor-pointer p-3 hover:bg-slate-50 rounded-xl transition-all border border-transparent hover:border-slate-100">
-                                    <input type="radio" name="q${idx}" value="${opt}" class="w-5 h-5 text-indigo-600 focus:ring-indigo-500">
-                                    <span class="text-slate-700 font-medium">${opt}</span>
-                                </label>
-                            `).join('')}
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-
-            const navHtml = `
-                <div class="pt-6 border-t flex justify-between items-center gap-4">
-                    <button type="button" id="btn-prev" onclick="changeQuestion(-1)"
-                        class="hidden bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3 px-8 rounded-xl transition-all border border-slate-200 uppercase tracking-widest text-xs">
-                        Previous
-                    </button>
-                    
-                    <div class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                        Question <span id="q-current-label">1</span> of <span id="q-total-label">${totalQuestions}</span>
-                    </div>
-
-                    <button type="button" id="btn-next" onclick="changeQuestion(1)"
-                        class="${totalQuestions > 1 ? '' : 'hidden'} bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-10 rounded-xl transition-all shadow-lg shadow-indigo-500/20 uppercase tracking-widest text-xs">
-                        Next
-                    </button>
-
-                    <button type="button" id="btn-submit" onclick="submitTest()"
-                        class="${totalQuestions === 1 ? 'block' : 'hidden'} bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-10 rounded-xl transition-all shadow-lg shadow-green-500/20 uppercase tracking-widest text-xs">
-                        Submit Test
-                    </button>
-                </div>
-            `;
-
-            form.innerHTML = html + navHtml;
-            lucide.createIcons();
-        }
-
-        function setStatus(text, colorClass) {
-            statusText.innerText = text;
-            statusDot.className = `w-2 h-2 rounded-full ${colorClass} animate-pulse`;
-        }
-
-        function startTimer(durationInSeconds) {
-            let timer = durationInSeconds;
-            const display = document.getElementById('timer');
-
-            timerInterval = setInterval(() => {
-                let minutes = parseInt(timer / 60, 10);
-                let seconds = parseInt(timer % 60, 10);
-
-                minutes = minutes < 10 ? "0" + minutes : minutes;
-                seconds = seconds < 10 ? "0" + seconds : seconds;
-
-                display.textContent = minutes + ":" + seconds;
-
-                if (--timer < 0) {
-                    clearInterval(timerInterval);
-                    submitTest(); // Auto submit
-                }
-
-                // Sync progress occasionally during test (every 30 seconds)
-                if (timer % 30 === 0) {
-                    syncResults("TEST_PROGRESS");
-                }
-            }, 1000);
-        }
-
-        function submitTest() {
-            // Stop everything
-            isSessionTerminated = true;
-            isTesting = false;
-            removeProctorListeners();
-            clearTimeout(detectionInterval);
-            clearInterval(timerInterval);
-            clearInterval(heartbeatInterval); // Stop heartbeat alerts
-
-            // Turn off camera
-            const stream = video.srcObject;
-            if (stream) {
-                const tracks = stream.getTracks();
-                tracks.forEach(track => track.stop());
+                alertBox.style.borderColor = 'transparent';
             }
 
-            // Hide test screen, show results
-            testScreen.classList.add('hidden');
-            webcamContainer.style.opacity = '0';
-            webcamContainer.style.pointerEvents = 'none';
-            resultsScreen.classList.remove('hidden');
-
-            setStatus('Test Completed', 'bg-gray-500');
-
-            // Grade Test (Dynamic logic)
-            const formData = new FormData(document.getElementById('test-form'));
-            let rawScore = 0;
-            questionsData.forEach((q, idx) => {
-                const selected = formData.get(`q${idx}`);
-                if (selected === q.correct_answer) {
-                    rawScore++;
-                }
-            });
-
-            const finalDisplayScore = `${rawScore} / ${totalQuestions}`;
-            document.getElementById('final-score').innerText = finalDisplayScore;
-            currentScore = rawScore; // Use raw count instead of percentage
-
-            // FINAL SYNC
-            syncResults(`COMPLETED: ${finalDisplayScore}`, rawScore);
-            
-            // Re-initialize icons in results screen
-            lucide.createIcons();
+            requestAnimationFrame(detect);
         }
 
-        // --- UTILS ---
-
-        function showToast(message, type = "info") {
-            const toast = document.createElement('div');
-            const bgColor = type === 'error' ? 'bg-red-600' : 'bg-indigo-600';
-            const icon = type === 'error' ? 'alert-triangle' : 'info';
-
-            toast.className = `${bgColor} text-white px-4 py-3 rounded shadow-lg flex items-start gap-3 toast-enter`;
-            toast.innerHTML = `
-                <i data-lucide="${icon}" class="mt-0.5 flex-shrink-0"></i>
-                <div class="text-sm font-medium">${message}</div>
-            `;
-
-            toastContainer.appendChild(toast);
-            lucide.createIcons();
-
-            // Auto remove after 4 seconds
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateX(100%)';
-                toast.style.transition = 'all 0.3s ease-out';
-                setTimeout(() => toast.remove(), 300);
-            }, 4000);
-        }
-
+        init();
     </script>
 </body>
-
 </html>
