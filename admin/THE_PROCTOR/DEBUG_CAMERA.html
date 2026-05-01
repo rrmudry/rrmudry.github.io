@@ -24,9 +24,9 @@
         <p class="text-slate-500 text-xs mt-2 uppercase tracking-[0.3em]">Object Recognition & Bounding Box Debugger</p>
     </div>
 
-    <div id="main-lab" class="relative lab-border rounded-3xl overflow-hidden bg-black shadow-2xl shadow-indigo-500/10 transform scale-x-[-1]">
+    <div id="main-lab" class="relative lab-border rounded-3xl overflow-hidden bg-black shadow-2xl shadow-indigo-500/10">
         <!-- The Feed -->
-        <video id="webcam" class="w-full max-w-[1200px] object-contain" autoplay playsinline muted></video>
+        <video id="webcam" class="max-w-[90vw] max-h-[70vh] object-contain transform scale-x-[-1]" autoplay playsinline muted></video>
         <canvas id="overlay" class="absolute top-0 left-0 w-full h-full pointer-events-none"></canvas>
         
         <!-- Status HUD -->
@@ -67,8 +67,13 @@
 
         async function init() {
             try {
-                // 1. Get Webcam
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 800, height: 600 } });
+                // 1. Get Webcam (Ask for ideal resolution, but don't force it)
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        width: { ideal: 1280 }, 
+                        height: { ideal: 720 } 
+                    } 
+                });
                 video.srcObject = stream;
 
                 // 2. Load Model
@@ -104,23 +109,25 @@
 
             predictions.forEach(prediction => {
                 const [x, y, width, height] = prediction.bbox;
-                // No longer need flippedX because we mirrored the entire container via CSS
-                const drawX = x; 
+                const flippedX = canvas.width - x - width;
+                
+                const isPhone = prediction.class === 'cell phone';
+                if (isPhone) phoneFound = true;
 
                 // DRAW Bounding Box
                 ctx.strokeStyle = isPhone ? '#ef4444' : '#22c55e';
                 ctx.lineWidth = isPhone ? 8 : 2;
-                ctx.strokeRect(drawX, y, width, height);
+                ctx.strokeRect(flippedX, y, width, height);
 
                 // DRAW Label
                 ctx.fillStyle = isPhone ? '#ef4444' : '#22c55e';
                 ctx.font = 'bold 20px monospace';
                 const label = `${prediction.class.toUpperCase()} [${Math.round(prediction.score * 100)}%]`;
                 const textWidth = ctx.measureText(label).width;
-                ctx.fillRect(drawX, y - 30, textWidth + 10, 30);
+                ctx.fillRect(flippedX, y - 30, textWidth + 10, 30);
                 
                 ctx.fillStyle = '#ffffff';
-                ctx.fillText(label, drawX + 5, y - 8);
+                ctx.fillText(label, flippedX + 5, y - 8);
             });
 
             // Alert visuals
