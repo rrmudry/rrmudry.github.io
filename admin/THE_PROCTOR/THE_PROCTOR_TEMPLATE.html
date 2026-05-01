@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure Test Environment Prototype</title>
+    <title>THE_PROCTOR // Secure Assessment Environment</title>
 
     <!-- Tailwind CSS for Styling -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -60,7 +60,7 @@
                 <div class="w-16 h-16 bg-indigo-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-indigo-500/20 mb-4">
                     <i data-lucide="lock" class="text-white w-8 h-8"></i>
                 </div>
-                <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Proctor<span class="text-indigo-600">Web</span></h1>
+                <h1 class="text-3xl font-bold text-slate-900 tracking-tight italic uppercase">The_<span class="text-indigo-600">Proctor</span></h1>
                 <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Authentication Required // Secure Node</p>
             </div>
             
@@ -86,7 +86,7 @@
         <div class="flex items-center gap-4">
             <div class="flex items-center gap-2 font-bold text-xl">
                 <i data-lucide="shield-check"></i>
-                ProctorWeb Prototype
+                THE_PROCTOR Node v2.0
             </div>
             <div id="student-display" class="hidden text-xs bg-indigo-500/50 px-3 py-1 rounded border border-indigo-400/30">
                 <span id="display-name" class="font-bold opacity-80 uppercase tracking-tighter"></span>
@@ -137,7 +137,16 @@
                 </div>
                 <div class="flex items-center gap-3">
                     <i data-lucide="cpu" class="text-gray-400" id="icon-ai"></i>
-                    <span id="step-ai">2. Load AI Model (May take ~10 seconds)</span>
+                    <span id="step-ai" class="font-semibold">2. Preparing System (May take ~60 seconds)</span>
+                </div>
+                
+                <div class="mt-6 p-5 bg-amber-50 border-2 border-amber-400 rounded-2xl text-slate-900 leading-relaxed text-left flex gap-4 shadow-sm">
+                    <i data-lucide="alert-triangle" class="w-12 h-12 flex-shrink-0 text-amber-600"></i>
+                    <div>
+                        <p class="font-black uppercase tracking-tighter text-[11px] text-amber-700 mb-1">Important Action Required</p>
+                        <p class="text-sm font-medium">If your browser prompts you with a <strong>"Page Unresponsive"</strong> message, you <strong>MUST CLICK WAIT</strong>.</p>
+                        <p class="text-[11px] mt-2 text-slate-600">The system is not frozen; it is initializing proctoring tools locally on your device. This process is normal.</p>
+                    </div>
                 </div>
             </div>
 
@@ -181,55 +190,15 @@
         <div id="screen-test" class="hidden w-full max-w-3xl">
             <div class="bg-white p-8 rounded-xl shadow-lg mb-6">
                 <div class="flex justify-between items-center mb-6 border-b pb-4">
-                    <h2 class="text-2xl font-bold">Midterm Examination: General Knowledge</h2>
+                    <h2 class="text-2xl font-bold" id="assessment-title">Loading Assessment...</h2>
                     <div class="text-red-500 font-mono text-xl" id="timer">15:00</div>
                 </div>
 
                 <form id="test-form" class="space-y-8">
-                    <!-- Question 1 -->
-                    <div class="question-block">
-                        <p class="font-semibold text-lg mb-3">1. What is the capital of France?</p>
-                        <div class="space-y-2 ml-4">
-                            <label class="flex items-center gap-2"><input type="radio" name="q1" value="London">
-                                London</label>
-                            <label class="flex items-center gap-2"><input type="radio" name="q1" value="Paris">
-                                Paris</label>
-                            <label class="flex items-center gap-2"><input type="radio" name="q1" value="Berlin">
-                                Berlin</label>
-                        </div>
-                    </div>
-
-                    <!-- Question 2 -->
-                    <div class="question-block">
-                        <p class="font-semibold text-lg mb-3">2. Which planet is known as the Red Planet?</p>
-                        <div class="space-y-2 ml-4">
-                            <label class="flex items-center gap-2"><input type="radio" name="q2" value="Venus">
-                                Venus</label>
-                            <label class="flex items-center gap-2"><input type="radio" name="q2" value="Mars">
-                                Mars</label>
-                            <label class="flex items-center gap-2"><input type="radio" name="q2" value="Jupiter">
-                                Jupiter</label>
-                        </div>
-                    </div>
-
-                    <!-- Question 3 -->
-                    <div class="question-block">
-                        <p class="font-semibold text-lg mb-3">3. What is the largest ocean on Earth?</p>
-                        <div class="space-y-2 ml-4">
-                            <label class="flex items-center gap-2"><input type="radio" name="q3" value="Atlantic">
-                                Atlantic Ocean</label>
-                            <label class="flex items-center gap-2"><input type="radio" name="q3" value="Indian"> Indian
-                                Ocean</label>
-                            <label class="flex items-center gap-2"><input type="radio" name="q3" value="Pacific">
-                                Pacific Ocean</label>
-                        </div>
-                    </div>
-
-                    <div class="pt-6 border-t">
-                        <button type="button" id="btn-submit"
-                            class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-lg transition w-full md:w-auto">
-                            Submit Examination
-                        </button>
+                    <!-- Questions will be injected here via renderQuestions() -->
+                    <div class="flex flex-col items-center justify-center py-20 opacity-20">
+                        <i data-lucide="loader-2" class="w-10 h-10 animate-spin mb-4"></i>
+                        <p class="text-xs font-bold uppercase tracking-widest">Loading Examination Questions...</p>
                     </div>
                 </form>
             </div>
@@ -242,22 +211,8 @@
                 <h2 class="text-3xl font-bold mb-2">Test Submitted</h2>
                 <p class="text-xl text-gray-600">Your score: <span id="final-score"
                         class="font-bold text-indigo-600">--</span></p>
+                <p class="text-xs text-slate-400 mt-6 uppercase tracking-widest font-bold italic">Node Secured // Connection Terminated</p>
             </div>
-
-            <div class="bg-white p-8 rounded-xl shadow-lg border-l-4 border-red-500">
-                <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
-                    <i data-lucide="alert-triangle" class="text-red-500"></i>
-                    Proctoring Integrity Report
-                </h3>
-                <p class="text-sm text-gray-600 mb-4">The following events were flagged during the session. In a real
-                    app, this data would be sent to the teacher's dashboard.</p>
-                <div class="bg-gray-100 rounded p-4 h-48 overflow-y-auto font-mono text-sm" id="final-logs">
-                    <!-- Logs go here -->
-                </div>
-            </div>
-
-            <button onclick="location.reload()" class="text-indigo-600 underline font-semibold w-full text-center">Start
-                Over</button>
         </div>
 
     </main>
@@ -287,6 +242,16 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
         const sbClient = supabase.createClient(SB_URL, SB_KEY);
 
+        // --- ASSESSMENT CONFIG ---
+        // Change this name to match the 'assignment_name' in your Supabase questions table
+        // OR pass it in the URL like: THE_PROCTOR.html?a=YourTestName
+        const urlParams = new URLSearchParams(window.location.search);
+        const ASSIGNMENT_NAME = urlParams.get('a') || urlParams.get('assignment') || "AI Integrity Test";
+
+        // Assessment Rules (Fetched from DB)
+        let MAX_QUESTIONS = 999; 
+        let TIME_LIMIT_MINS = 15;
+
         // Application State
         let model = null;
         let faceModel = null;
@@ -306,8 +271,12 @@
         let timerInterval;
         let detectionInterval;
         let heartbeatInterval; 
-        let faceMissingCount = 0; // Track how long the face has been gone
-        let lastVisualLossWarning = 0;
+        let isSessionTerminated = false; 
+        let currentQuestionIndex = 0;
+        let totalQuestions = 0; 
+        let questionsData = [];
+        let pendingStatus = null;
+        let pendingScore = null;
 
         // --- AUTH LOGIC ---
         async function handleLogin() {
@@ -325,25 +294,48 @@
             status.textContent = "ESTABLISHING CONNECTION...";
 
             try {
-                // Check if student exists
-                const { data, error } = await sbClient.from('student_results')
+                // 1. SEARCH FOR IDENTITY: Look for the student in ANY past record to get their name/period
+                const { data: profile } = await sbClient.from('student_results')
                     .select('student_name, class_period')
                     .eq('student_id', id)
                     .order('created_at', { ascending: false })
                     .limit(1)
                     .maybeSingle();
 
-                if (data) {
+                // 2. CHECK FOR COMPLETION: See if they have a 'COMPLETED' status for THIS specific assignment
+                const { data: completionCheck } = await sbClient.from('student_results')
+                    .select('status')
+                    .eq('student_id', id)
+                    .eq('assignment_name', ASSIGNMENT_NAME)
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .maybeSingle();
+
+                if (completionCheck && completionCheck.status && completionCheck.status.startsWith("COMPLETED")) {
+                    status.textContent = "ACCESS DENIED // TEST ALREADY SUBMITTED";
+                    btn.disabled = false;
+                    btn.textContent = "CONNECTION BLOCKED";
+                    return;
+                }
+
+                if (profile) {
+                    // Student found in database
                     student.id = id;
-                    student.name = data.student_name;
-                    student.period = data.class_period;
+                    student.name = profile.student_name;
+                    student.period = profile.class_period;
+                    
+                    await fetchAssessmentConfig(); // Get rules (timer/question count)
+                    await fetchQuestions();        // Get questions
+                    
                     finalizeLogin();
                 } else if (document.getElementById('name-entry').classList.contains('hidden')) {
+                    // New Student - Show name entry field
                     document.getElementById('name-entry').classList.remove('hidden');
                     btn.disabled = false;
                     btn.textContent = "REGISTER NODE";
                     status.textContent = "NEW STUDENT ID DETECTED";
                 } else {
+                    // Registering new student
                     const name = nameInput.value.trim();
                     if (name.length < 3) {
                         status.textContent = "ERROR // FULL NAME REQUIRED";
@@ -352,9 +344,14 @@
                     }
                     student.id = id;
                     student.name = name;
+                    
                     // Try to get period from URL if available
                     const urlParams = new URLSearchParams(window.location.search);
                     student.period = urlParams.get('p') || urlParams.get('period') || null;
+                    
+                    await fetchAssessmentConfig(); // Get rules
+                    await fetchQuestions();        // Get questions
+                    
                     finalizeLogin();
                 }
             } catch (e) {
@@ -385,72 +382,60 @@
             if (!student.id) return;
             if (score !== null) currentScore = score;
             
-            // Safety: If syncing has been 'stuck' for more than 15 seconds, reset it
-            const nowTime = Date.now();
-            if (isSyncing && (nowTime - lastSyncTime > 15000)) {
-                console.warn("[PROCTOR] Sync was stuck. Resetting safety guard.");
-                isSyncing = false;
-            }
-
-            // If already syncing, we'll try again shortly
+            // If already syncing, queue this update and return
             if (isSyncing) {
-                lastSyncTime = Date.now(); 
+                pendingStatus = statusLabel;
+                if (score !== null) pendingScore = score;
                 return;
             }
 
             isSyncing = true;
-            lastSyncTime = Date.now(); // Track when this sync started
+            lastSyncTime = Date.now(); 
             const syncInd = document.getElementById('sync-indicator');
             if (syncInd) syncInd.classList.add('bg-green-400', 'animate-pulse');
 
             try {
-                const assignmentName = "AI Integrity Test";
+                const assignmentName = ASSIGNMENT_NAME;
                 
                 // 1. Fetch current record to merge violations
                 const { data: existing, error: fetchError } = await sbClient.from('student_results')
-                    .select('id, details')
+                    .select('id, details, status')
                     .eq('student_id', student.id)
                     .eq('assignment_name', assignmentName)
                     .maybeSingle();
 
                 if (fetchError) throw fetchError;
 
-                // 2. REMOTE RESET CHECK: If teacher cleared the record, wipe local logs
+                // 2. REMOTE RESET CHECK
                 const remoteStatus = existing?.details?.status;
                 if (remoteStatus === "CLEARED_BY_TEACHER" || remoteStatus === "CLASS_CLEARED") {
-                    console.log("[PROCTOR] Teacher has cleared the log. Resetting local violations.");
-                    integrityLogs = []; 
+                    integrityLogs = [];
+                    showToast("Record reset by proctor.", "info");
                 }
 
-                // 3. Merge logic: Strict accumulation with de-duplication
-                let dbViolations = (existing && existing.details && existing.details.violations) ? existing.details.violations : [];
-                
-                // Combine everything and filter out duplicates
-                const all = [...dbViolations, ...integrityLogs];
-                const finalViolations = [];
+                // Merge Violations
                 const seenKeys = new Set();
-
-                all.forEach(v => {
-                    // Create a unique key based on ID or (Timestamp + Type)
+                const finalViolations = [];
+                const incoming = [...integrityLogs];
+                const existingV = existing?.details?.violations || [];
+                
+                [...incoming, ...existingV].forEach(v => {
                     const key = v.id || `${v.ts}-${v.type}`;
-                    
                     if (!seenKeys.has(key)) {
                         finalViolations.push(v);
                         seenKeys.add(key);
                     }
                 });
 
-                // Sort by time (most recent first)
                 finalViolations.sort((a, b) => new Date(b.ts) - new Date(a.ts));
 
-                console.log(`[PROCTOR] FINAL PAYLOAD PREP: ${finalViolations.length} violations found.`);
-                
                 const payload = {
                     student_name: student.name,
                     student_id: student.id,
                     class_period: student.period,
                     assignment_name: assignmentName,
                     score: currentScore,
+                    status: statusLabel,
                     details: {
                         status: statusLabel,
                         violations: finalViolations,
@@ -460,8 +445,6 @@
                     }
                 };
 
-                console.log(`[PROCTOR] >>> PUSHING TO SUPABASE:`, payload);
-
                 if (existing) {
                     const { error: upError } = await sbClient.from('student_results').update(payload).eq('id', existing.id);
                     if (upError) throw upError;
@@ -469,17 +452,19 @@
                     const { error: insError } = await sbClient.from('student_results').insert([payload]);
                     if (insError) throw insError;
                 }
-                console.log(`[PROCTOR] <<< SYNC SUCCESSFUL`);
             } catch (e) {
                 console.error("Sync Error:", e);
-                // Fail silently for student, but log locally
             } finally {
                 isSyncing = false;
                 if (syncInd) syncInd.classList.remove('animate-pulse');
                 
-                // If a sync was requested during the process, trigger it
-                if (Date.now() - lastSyncTime < 2000) {
-                    setTimeout(() => syncResults("RETRY_SYNC"), 1000);
+                // Process pending sync if one was queued
+                if (pendingStatus) {
+                    const nextStatus = pendingStatus;
+                    const nextScore = pendingScore;
+                    pendingStatus = null;
+                    pendingScore = null;
+                    setTimeout(() => syncResults(nextStatus, nextScore), 500);
                 }
             }
         }
@@ -556,11 +541,11 @@
                 await tf.setBackend('webgl');
                 await tf.ready();
 
-                btnSetup.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> Loading AI Part 1/2...';
+                btnSetup.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> Preparing System (Part 1/2)...';
                 lucide.createIcons();
                 model = await cocoSsd.load({ base: 'mobilenet_v2' });
 
-                btnSetup.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> Loading AI Part 2/2...';
+                btnSetup.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> Preparing System (Part 2/2)...';
                 lucide.createIcons();
                 faceModel = await blazeface.load();
 
@@ -657,7 +642,9 @@
 
             isTesting = true;
             setStatus('Proctoring Active', 'bg-red-500');
-            startTimer(15 * 60); // 15 minutes
+            
+            // USE DYNAMIC TIMER FROM DB
+            startTimer(TIME_LIMIT_MINS * 60);
 
             // Attach Anti-Cheat Event Listeners
             attachProctorListeners();
@@ -714,6 +701,8 @@
         // --- AI DETECTION LOOP ---
 
         async function detectLoop() {
+            if (isSessionTerminated) return;
+
             // Run as long as the model is loaded and video is active
             if (model && faceModel && video.readyState === 4) {
                 try {
@@ -896,19 +885,154 @@
         // --- SUBMISSION PHASE ---
 
         function logViolation(type, message) {
+            if (isSessionTerminated) return;
             const now = new Date();
+            const qNum = currentQuestionIndex + 1;
             const logEntry = {
                 id: 'v-' + Math.random().toString(36).substr(2, 9), // Unique ID for accumulation
                 time: now.toLocaleTimeString(),
                 ts: now.toISOString(), 
                 type: type,
-                message: message
+                message: `[Q${qNum}] ${message}`
             };
             integrityLogs.push(logEntry);
             console.warn(`[PROCTOR LOG] Violation Triggered! Total in session: ${integrityLogs.length}`, logEntry);
             
             // SYNC ALERT IMMEDIATELY
             syncResults(`ALERT: ${type}`);
+        }
+
+        function changeQuestion(delta) {
+            const nextIndex = currentQuestionIndex + delta;
+            if (nextIndex < 0 || nextIndex >= totalQuestions) return;
+
+            // Hide current page
+            document.getElementById(`q-page-${currentQuestionIndex}`).classList.add('hidden');
+            
+            // Update index
+            currentQuestionIndex = nextIndex;
+            
+            // Show new page
+            const nextPane = document.getElementById(`q-page-${currentQuestionIndex}`);
+            nextPane.classList.remove('hidden');
+
+            // Update Labels
+            document.getElementById('q-current-label').textContent = currentQuestionIndex + 1;
+
+            // Update Nav Buttons
+            document.getElementById('btn-prev').classList.toggle('hidden', currentQuestionIndex === 0);
+            document.getElementById('btn-next').classList.toggle('hidden', currentQuestionIndex === totalQuestions - 1);
+            document.getElementById('btn-submit').classList.toggle('hidden', currentQuestionIndex !== totalQuestions - 1);
+
+            // Sync progress (optional, but good for dashboard)
+            syncResults(`Q${currentQuestionIndex + 1} ACTIVE`);
+        }
+
+        async function fetchAssessmentConfig() {
+            try {
+                // Fetch rules from 'assessments' table
+                const { data, error } = await sbClient
+                    .from('assessments')
+                    .select('max_questions, time_limit_mins')
+                    .eq('assignment_name', ASSIGNMENT_NAME)
+                    .maybeSingle();
+
+                if (error) throw error;
+
+                if (data) {
+                    MAX_QUESTIONS = data.max_questions || 999;
+                    TIME_LIMIT_MINS = data.time_limit_mins || 15;
+                    console.log(`[CONFIG] Rules Loaded: ${MAX_QUESTIONS} Qs, ${TIME_LIMIT_MINS} Mins`);
+                } else {
+                    console.warn(`[CONFIG] No assessment record found for "${ASSIGNMENT_NAME}". Using defaults.`);
+                }
+            } catch (e) {
+                console.error("Config fetch error:", e);
+            }
+        }
+
+        async function fetchQuestions() {
+            try {
+                // Expected Supabase Schema: table 'questions' with columns [assignment_name, text, options (json array)]
+                const { data, error } = await sbClient
+                    .from('questions')
+                    .select('*')
+                    .eq('assignment_name', ASSIGNMENT_NAME);
+                
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
+                    console.error(`No questions found for assignment: ${ASSIGNMENT_NAME}`);
+                    alert(`Error: No questions found for "${ASSIGNMENT_NAME}". Please check the assignment name.`);
+                    return;
+                }
+
+                // Update Header Title to match assignment
+                document.getElementById('assessment-title').textContent = ASSIGNMENT_NAME;
+
+                // Randomize without replacement (Fisher-Yates Shuffle)
+                questionsData = [...data];
+                for (let i = questionsData.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [questionsData[i], questionsData[j]] = [questionsData[j], questionsData[i]];
+                }
+
+                // Limit question count
+                questionsData = questionsData.slice(0, MAX_QUESTIONS);
+
+                totalQuestions = questionsData.length;
+                renderQuestions();
+            } catch (e) {
+                console.error("Question fetch error:", e);
+                alert("Critical error loading questions. Please contact the proctor.");
+            }
+        }
+
+        function renderQuestions() {
+            const form = document.getElementById('test-form');
+            if (questionsData.length === 0) return;
+
+            const html = questionsData.map((q, idx) => `
+                <div id="q-page-${idx}" class="question-page ${idx === 0 ? '' : 'hidden'} animate-in fade-in slide-in-from-right-4 duration-300">
+                    <div class="question-block">
+                        <p class="font-semibold text-lg mb-4">${idx + 1}. ${q.text}</p>
+                        <div class="space-y-3 ml-4">
+                            ${q.options.map(opt => `
+                                <label class="flex items-center gap-3 cursor-pointer p-3 hover:bg-slate-50 rounded-xl transition-all border border-transparent hover:border-slate-100">
+                                    <input type="radio" name="q${idx}" value="${opt}" class="w-5 h-5 text-indigo-600 focus:ring-indigo-500">
+                                    <span class="text-slate-700 font-medium">${opt}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            const navHtml = `
+                <div class="pt-6 border-t flex justify-between items-center gap-4">
+                    <button type="button" id="btn-prev" onclick="changeQuestion(-1)"
+                        class="hidden bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3 px-8 rounded-xl transition-all border border-slate-200 uppercase tracking-widest text-xs">
+                        Previous
+                    </button>
+                    
+                    <div class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                        Question <span id="q-current-label">1</span> of <span id="q-total-label">${totalQuestions}</span>
+                    </div>
+
+                    <button type="button" id="btn-next" onclick="changeQuestion(1)"
+                        class="${totalQuestions > 1 ? '' : 'hidden'} bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-10 rounded-xl transition-all shadow-lg shadow-indigo-500/20 uppercase tracking-widest text-xs">
+                        Next
+                    </button>
+
+                    <button type="button" id="btn-submit" onclick="submitTest()"
+                        class="${totalQuestions === 1 ? 'block' : 'hidden'} bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-10 rounded-xl transition-all shadow-lg shadow-green-500/20 uppercase tracking-widest text-xs">
+                        Submit Test
+                    </button>
+                </div>
+            `;
+
+            form.innerHTML = html + navHtml;
+            lucide.createIcons();
         }
 
         function setStatus(text, colorClass) {
@@ -931,7 +1055,7 @@
 
                 if (--timer < 0) {
                     clearInterval(timerInterval);
-                    btnSubmit.click(); // Auto submit
+                    submitTest(); // Auto submit
                 }
 
                 // Sync progress occasionally during test (every 30 seconds)
@@ -941,12 +1065,14 @@
             }, 1000);
         }
 
-        btnSubmit.addEventListener('click', () => {
+        function submitTest() {
             // Stop everything
+            isSessionTerminated = true;
             isTesting = false;
             removeProctorListeners();
             clearTimeout(detectionInterval);
             clearInterval(timerInterval);
+            clearInterval(heartbeatInterval); // Stop heartbeat alerts
 
             // Turn off camera
             const stream = video.srcObject;
@@ -955,38 +1081,34 @@
                 tracks.forEach(track => track.stop());
             }
 
-            setStatus('Test Completed', 'bg-gray-500');
-
-            // Grade Test (Mock logic)
-            const formData = new FormData(document.getElementById('test-form'));
-            let score = 0;
-            if (formData.get('q1') === 'Paris') score++;
-            if (formData.get('q2') === 'Mars') score++;
-            if (formData.get('q3') === 'Pacific') score++;
-
-            document.getElementById('final-score').innerText = `${score} / 3`;
-
-            // Render Logs
-            const logsContainer = document.getElementById('final-logs');
-            if (integrityLogs.length === 0) {
-                logsContainer.innerHTML = '<span class="text-green-600">No violations detected. Excellent!</span>';
-            } else {
-                logsContainer.innerHTML = integrityLogs.map(log =>
-                    `<div class="mb-2 border-b border-gray-200 pb-1">
-                        <span class="text-xs text-gray-500">[${log.time}]</span> 
-                        <span class="font-bold">${log.type}:</span> ${log.message}
-                    </div>`
-                ).join('');
-            }
-
-            // Switch screens
+            // Hide test screen, show results
             testScreen.classList.add('hidden');
             webcamContainer.style.opacity = '0';
             webcamContainer.style.pointerEvents = 'none';
             resultsScreen.classList.remove('hidden');
 
-            syncResults("TEST_SUBMITTED", 100);
-        });
+            setStatus('Test Completed', 'bg-gray-500');
+
+            // Grade Test (Dynamic logic)
+            const formData = new FormData(document.getElementById('test-form'));
+            let rawScore = 0;
+            questionsData.forEach((q, idx) => {
+                const selected = formData.get(`q${idx}`);
+                if (selected === q.correct_answer) {
+                    rawScore++;
+                }
+            });
+
+            const finalDisplayScore = `${rawScore} / ${totalQuestions}`;
+            document.getElementById('final-score').innerText = finalDisplayScore;
+            currentScore = rawScore; // Use raw count instead of percentage
+
+            // FINAL SYNC
+            syncResults(`COMPLETED: ${finalDisplayScore}`, rawScore);
+            
+            // Re-initialize icons in results screen
+            lucide.createIcons();
+        }
 
         // --- UTILS ---
 
@@ -1011,41 +1133,6 @@
                 toast.style.transition = 'all 0.3s ease-out';
                 setTimeout(() => toast.remove(), 300);
             }, 4000);
-        }
-
-        function logViolation(type, message) {
-            const now = new Date();
-            integrityLogs.push({
-                time: now.toLocaleTimeString(),
-                type: type,
-                message: message
-            });
-            console.warn(`[PROCTOR LOG] ${type}: ${message}`);
-        }
-
-        function setStatus(text, colorClass) {
-            statusText.innerText = text;
-            statusDot.className = `w-2 h-2 rounded-full ${colorClass} animate-pulse`;
-        }
-
-        function startTimer(durationInSeconds) {
-            let timer = durationInSeconds;
-            const display = document.getElementById('timer');
-
-            timerInterval = setInterval(() => {
-                let minutes = parseInt(timer / 60, 10);
-                let seconds = parseInt(timer % 60, 10);
-
-                minutes = minutes < 10 ? "0" + minutes : minutes;
-                seconds = seconds < 10 ? "0" + seconds : seconds;
-
-                display.textContent = minutes + ":" + seconds;
-
-                if (--timer < 0) {
-                    clearInterval(timerInterval);
-                    btnSubmit.click(); // Auto submit
-                }
-            }, 1000);
         }
 
     </script>
