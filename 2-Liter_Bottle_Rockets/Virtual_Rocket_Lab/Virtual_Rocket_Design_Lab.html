@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Rocket Design Lab</title>
+    
+    <!-- Dependencies -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --accent-blue: #3b82f6;
+            --accent-cyan: #06b6d4;
+            --bg-dark: #0f172a;
+        }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: #020617; 
+            color: #f8fafc; 
+            overflow: hidden;
+            height: 100vh;
+        }
+        .font-orbitron { font-family: 'Orbitron', sans-serif; }
+        
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.98);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(12px);
+        }
+        .glass {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(16px);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #3b82f6, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .slider-thumb::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+        .slider-track {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            background: #1e293b;
+            border-radius: 3px;
+            outline: none;
+        }
+
+        @keyframes pulse-soft {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+        .animate-pulse-soft { animation: pulse-soft 3s infinite ease-in-out; }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useMemo, useCallback } = React;
+
+        // --- Supabase Config ---
+        const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
+        const sbClient = supabase.createClient(SB_URL, SB_KEY);
+
+        // --- Lucide Icon Wrapper ---
+        const Icon = ({ name, className = "w-5 h-5", size, color }) => {
+            const containerRef = useRef(null);
+            useEffect(() => {
+                if (window.lucide && containerRef.current) {
+                    containerRef.current.innerHTML = `<i data-lucide="${name}"></i>`;
+                    window.lucide.createIcons({ targets: [containerRef.current.firstElementChild] });
+                }
+            }, [name]);
+            return <span ref={containerRef} className={`inline-flex items-center justify-center ${className}`} style={{ width: size, height: size, color: color }}></span>;
+        };
+
+        // --- Physics Constants ---
+        const BOTTLE_MASS_G = 45;
+        const NOSE_CONE_BASE_MASS_G = 25; 
+        const CARDBOARD_G_PER_CM2 = 0.05;
+        const FIN_COUNT = 3;
+        const SVG_TO_CM = 0.1375;
+
+        // --- Components ---
+
+        const LoginOverlay = ({ onLogin }) => {
+            const [idInput, setIdInput] = useState('');
+            const [nameInput, setNameInput] = useState('');
+            const [showNameEntry, setShowNameEntry] = useState(false);
+            const [status, setStatus] = useState('');
+
+            const handleLogin = async () => {
+                if (idInput.length !== 6) return;
+                setStatus("VERIFYING...");
+                try {
+                    const { data } = await sbClient.from('student_results')
+                        .select('student_name, class_period, details')
+                        .eq('student_id', idInput)
+                        .order('created_at', { ascending: false })
+                        .limit(1)
+                        .maybeSingle();
+
+                    if (data) {
+                        onLogin({ id: idInput, name: data.student_name, period: data.class_period, details: data.details });
+                    } else if (!showNameEntry) {
+                        setShowNameEntry(true);
+                        setStatus("NEW_ID_DETECTED");
+                    } else {
+                        if (nameInput.length < 3) return;
+                        onLogin({ id: idInput, name: nameInput, details: {} });
+                    }
+                } catch (e) { setStatus("CONNECTION_ERROR"); }
+            };
+
+            return (
+                <div className="overlay">
+                    <div className="glass max-w-md w-full p-10 rounded-[2rem] text-center space-y-8 animate-in zoom-in duration-300">
+                        <div className="space-y-2">
+                            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-blue-500/20 mb-4">
+                                <Icon name="rocket" className="w-10 h-10 text-white" />
+                            </div>
+                            <h1 className="text-3xl font-orbitron font-black gradient-text tracking-tighter uppercase">Rocket_Lab</h1>
+                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em]">Design & Stability // Unit 7</p>
+                        </div>
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] text-left px-1">Access_Node // Student ID</p>
+                                <input type="text" value={idInput} onChange={e => setIdInput(e.target.value)} placeholder="6-Digit ID" maxLength="6" className="w-full bg-slate-900 border border-white/10 p-5 rounded-xl outline-none text-center font-bold text-xl text-blue-400" />
+                            </div>
+                            {showNameEntry && (
+                                <div className="space-y-2 animate-in fade-in">
+                                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] text-left px-1">Register // Full Name</p>
+                                    <input type="text" value={nameInput} onChange={e => setNameInput(e.target.value)} placeholder="Student Name" className="w-full bg-slate-900 border border-white/10 p-5 rounded-xl text-center font-bold text-white outline-none" />
+                                </div>
+                            )}
+                            <button onClick={handleLogin} className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 p-5 rounded-xl font-black uppercase tracking-widest text-sm text-white shadow-xl">Establish Link</button>
+                            <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest animate-pulse h-4 text-center">{status}</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const QuizSection = ({ onComplete }) => {
+            const [currentQ, setCurrentQ] = useState(0);
+            const [answers, setAnswers] = useState([]);
+            const [showResults, setShowResults] = useState(false);
+
+            const questions = [
+                {
+                    q: "What is the 'Golden Rule' of rocket stability?",
+                    options: ["CM must be behind CP", "CM must be ahead of CP", "CM and CP must be at the same point", "Weight must equal drag"],
+                    correct: 1
+                },
+                {
+                    q: "How does adding mass to the nose affect the Center of Mass (CM)?",
+                    options: ["Shifts it backward (down)", "Shifts it forward (up)", "Has no effect on CM", "Moves it outside the rocket"],
+                    correct: 1
+                },
+                {
+                    q: "What happens to the Center of Pressure (CP) when you use larger fins?",
+                    options: ["Shifts it forward", "Shifts it backward", "Decreases its surface area", "Makes it yellow"],
+                    correct: 1
+                },
+                {
+                    q: "Why does a taller rocket (more bottles) tend to be more stable?",
+                    options: ["It is heavier", "It looks cooler", "It increases the lever arm between CM and CP", "It reduces air resistance"],
+                    correct: 2
+                },
+                {
+                    q: "What does a 'Static Margin' of 1.0 Caliber mean?",
+                    options: ["The rocket is exactly 1 meter long", "The CM and CP are separated by one rocket diameter", "The rocket has 1 fin", "The rocket will fly for 1 minute"],
+                    correct: 1
+                },
+                {
+                    q: "If the Center of Pressure (CP) is ahead of the Center of Mass (CM), what happens?",
+                    options: ["Perfectly straight flight", "The rocket will tumble", "The rocket will fly faster", "The engine will fail"],
+                    correct: 1
+                },
+                {
+                    q: "Moving the fins UP towards the nose has what effect?",
+                    options: ["Moves CP forward, decreasing stability", "Moves CP backward, increasing stability", "Moves CM forward", "Increases the fuel capacity"],
+                    correct: 0
+                },
+                {
+                    q: "Which component primarily determines the position of the CP?",
+                    options: ["Total weight", "Nose weight", "Surface area / Aerodynamic silhouette", "The color of the paint"],
+                    correct: 2
+                },
+                {
+                    q: "What is the main purpose of adding nose weight?",
+                    options: ["To make the rocket look more professional", "To move the Center of Mass forward", "To make the rocket fall faster", "To balance the fin area"],
+                    correct: 1
+                },
+                {
+                    q: "In this simulation, what color marker represents the Center of Pressure?",
+                    options: ["Yellow", "Blue", "Red", "Green"],
+                    correct: 2
+                }
+            ];
+
+            const handleAnswer = (idx) => {
+                const newAnswers = [...answers, idx];
+                if (currentQ < questions.length - 1) {
+                    setAnswers(newAnswers);
+                    setCurrentQ(currentQ + 1);
+                } else {
+                    setAnswers(newAnswers);
+                    setShowResults(true);
+                }
+            };
+
+            const score = answers.filter((a, i) => a === questions[i].correct).length;
+
+            if (showResults) {
+                return (
+                    <div className="space-y-6 text-center py-8 animate-in zoom-in duration-500">
+                        <div className="w-20 h-20 bg-green-500/20 text-green-400 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-500/50">
+                            <Icon name="award" size={40} />
+                        </div>
+                        <h2 className="text-3xl font-black font-orbitron gradient-text tracking-tight">Post-Mission Debrief</h2>
+                        <div className="space-y-2">
+                            <p className="text-slate-400 text-sm font-bold uppercase tracking-widest">Mastery Score</p>
+                            <p className="text-6xl font-black text-white">{score * 10}%</p>
+                        </div>
+                        <p className="text-slate-400 max-w-xs mx-auto text-sm leading-relaxed">
+                            {score >= 8 ? "Excellent engineering intuition! You have mastered the fundamentals of aerodynamic stability." : "Good effort. Consider reviewing the relationship between CM and CP to improve your stability margin."}
+                        </p>
+                        <button onClick={() => onComplete(score)} className="bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-xl font-bold uppercase tracking-widest transition-all shadow-lg shadow-blue-500/20">Finalize Records</button>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="space-y-6 animate-in slide-in-from-right duration-500">
+                    <div className="flex justify-between items-end">
+                        <div>
+                            <p className="text-blue-400 text-[10px] font-black uppercase tracking-widest mb-1">Debriefing // Question {currentQ + 1}</p>
+                            <h3 className="text-lg font-bold text-white leading-tight">{questions[currentQ].q}</h3>
+                        </div>
+                        <div className="text-right">
+                            <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest">{currentQ + 1} / {questions.length}</span>
+                        </div>
+                    </div>
+                    
+                    <div className="grid gap-3">
+                        {questions[currentQ].options.map((opt, i) => (
+                            <button key={i} onClick={() => handleAnswer(i)} className="w-full text-left p-4 rounded-xl border border-white/5 bg-slate-800/50 hover:bg-slate-800 hover:border-blue-500/50 transition-all text-sm text-slate-300 font-medium hover:text-white">
+                                {opt}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        const MainApp = ({ user }) => {
+            // Simulation State
+            const [height, setHeight] = useState(1);
+            const [noseWeight, setNoseWeight] = useState(50);
+            const [finSize, setFinSize] = useState(3);
+            const [finPos, setFinPos] = useState(0);
+
+            // Mission State
+            const [completedTasks, setCompletedTasks] = useState(user.details?.tasks || []);
+            const [quizScore, setQuizScore] = useState(user.details?.quizScore || null);
+            const [isSyncing, setIsSyncing] = useState(false);
+            const [isCompleted, setIsCompleted] = useState(user.details?.isCompleted || false);
+
+            // Physics Derived State
+            const physics = useMemo(() => {
+                const finSizeLabels = { 1: "X-Small", 2: "Small", 3: "Medium", 4: "Large", 5: "X-Large" };
+                const finSizeValues = { 1: 30, 2: 50, 3: 70, 4: 90, 5: 110 };
+                const fSize = finSizeValues[finSize];
+
+                const heightMultipliers = { 1: 1.0, 2: 1.25, 3: 1.5, 4: 1.75 };
+                const hMult = heightMultipliers[height];
+
+                const svgArea = fSize * (fSize * 0.8);
+                const realAreaCm2 = svgArea * (SVG_TO_CM * SVG_TO_CM);
+
+                const addedHeight = 160 * (hMult - 1);
+                const bodyTopY = 150 - addedHeight;
+                const payloadTipY = bodyTopY - 110;
+                const payloadBaseY = bodyTopY;
+                const finBaseY = 330 - (3.0 / SVG_TO_CM) - finPos;
+                const finTopY = finBaseY - fSize;
+                const finWidth = fSize * 0.8;
+
+                // CM Calculation
+                const currentBottleMass = BOTTLE_MASS_G * hMult;
+                const baseBottleCMY = 230;
+                const addedMass = BOTTLE_MASS_G * (hMult - 1);
+                const addedCMY = 150 - (addedHeight / 2);
+                const currentBottleCMY = ((BOTTLE_MASS_G * baseBottleCMY) + (addedMass * addedCMY)) / currentBottleMass;
+                const noseMass = NOSE_CONE_BASE_MASS_G + noseWeight;
+                const noseY = payloadTipY + 70;
+                const singleFinAreaCm2 = realAreaCm2 / 2;
+                const totalFinAreaCm2 = singleFinAreaCm2 * FIN_COUNT;
+                const finMass = totalFinAreaCm2 * CARDBOARD_G_PER_CM2;
+                const finCMY = finBaseY - (fSize / 3);
+                const totalMass = currentBottleMass + noseMass + finMass;
+                const cmY = ((currentBottleMass * currentBottleCMY) + (noseMass * noseY) + (finMass * finCMY)) / totalMass;
+
+                // CP Calculation
+                const noseConeHeight = payloadBaseY - payloadTipY;
+                const noseConeBaseWidth = 84;
+                const noseConeArea = 0.5 * noseConeBaseWidth * noseConeHeight;
+                const noseConeCPY = payloadTipY + (noseConeHeight * 2 / 3);
+                const cylinderHeight = 160 + addedHeight;
+                const cylinderArea = 80 * cylinderHeight;
+                const cylinderCPY = bodyTopY + (cylinderHeight / 2);
+                const tailArea = 80 * 20;
+                const tailCPY = 320;
+                const finAreaSVG = (fSize * finWidth);
+                const finEffectiveArea = finAreaSVG * 4.0; 
+                const finCPY = finBaseY - (fSize / 3);
+                const totalArea = noseConeArea + cylinderArea + tailArea + finEffectiveArea;
+                const cpY = ((noseConeArea * noseConeCPY) + (cylinderArea * cylinderCPY) + (tailArea * tailCPY) + (finEffectiveArea * finCPY)) / totalArea;
+
+                const margin = cpY - cmY;
+                let status = "UNSTABLE";
+                let statusColor = "text-red-400 bg-red-500/20 border-red-500/50";
+                if (margin >= 80) {
+                    status = "STABLE";
+                    statusColor = "text-green-400 bg-green-500/20 border-green-500/50";
+                } else if (margin >= 60) {
+                    status = "MARGINAL";
+                    statusColor = "text-yellow-400 bg-yellow-500/20 border-yellow-500/50";
+                }
+
+                return { 
+                    cmY, cpY, status, statusColor, margin, fSize, fWidth: finWidth, 
+                    finBaseY, finTopY, bodyTopY, bodyHeight: 160 + addedHeight,
+                    payloadTipY, payloadBaseY, hMult, noseTipY: 100 - addedHeight,
+                    realAreaCm2, finSizeLabel: finSizeLabels[finSize],
+                    realPosCm: 3.0 + (finPos * SVG_TO_CM)
+                };
+            }, [height, noseWeight, finSize, finPos]);
+
+            // Sync Progress to Supabase
+            const syncProgress = useCallback(async (tasks, score, completed) => {
+                setIsSyncing(true);
+                try {
+                    const missionPoints = tasks.length * 2.5; // 4 tasks = 10 points
+                    const quizPoints = score !== null ? score : 0; // 10 questions = 10 points
+                    const totalPoints = missionPoints + quizPoints;
+                    
+                    const payload = {
+                        student_id: user.id,
+                        student_name: user.name,
+                        assignment_name: "Virtual Rocket Lab",
+                        score: totalPoints * 5, // Convert 0-20 to 0-100 for database compatibility
+                        details: { tasks, quizScore: score, isCompleted: completed, lastUpdated: new Date().toISOString() }
+                    };
+                    const { data } = await sbClient.from('student_results').select('id').eq('student_id', user.id).eq('assignment_name', "Virtual Rocket Lab").maybeSingle();
+                    if (data) await sbClient.from('student_results').update(payload).eq('id', data.id);
+                    else await sbClient.from('student_results').insert([payload]);
+                } catch (e) { console.error(e); }
+                finally { setIsSyncing(false); }
+            }, [user]);
+
+            useEffect(() => {
+                if (completedTasks.length > 0 || quizScore !== null) {
+                    syncProgress(completedTasks, quizScore, isCompleted);
+                }
+            }, [completedTasks, quizScore, isCompleted, syncProgress]);
+
+            const checkTask = (taskId) => {
+                if (completedTasks.includes(taskId)) return;
+                
+                let success = false;
+                if (taskId === 1 && physics.status === "STABLE" && height === 4 && finSize === 2) success = true;
+                if (taskId === 2 && physics.status !== "UNSTABLE" && noseWeight === 0) success = true;
+                if (taskId === 3 && finPos >= 70 && physics.status === "UNSTABLE") success = true;
+                if (taskId === 4 && physics.status === "STABLE" && finSize === 1) success = true;
+                
+                if (success) setCompletedTasks([...completedTasks, taskId]);
+            };
+
+            const handleQuizComplete = (score) => {
+                setQuizScore(score);
+                setIsCompleted(true);
+            };
+
+            const handleReset = () => {
+                setCompletedTasks([]);
+                setQuizScore(null);
+                setIsCompleted(false);
+                setHeight(1);
+                setNoseWeight(50);
+                setFinSize(3);
+                setFinPos(0);
+            };
+
+            return (
+                <div className="h-screen flex flex-col p-4 md:p-6 max-w-7xl mx-auto w-full overflow-hidden">
+                    <header className="mb-6 flex justify-between items-center border-b border-white/10 pb-4">
+                        <div>
+                            <h1 className="text-2xl md:text-3xl font-black flex items-center gap-3">
+                                <Icon name="monitor" className="text-blue-500" size={32} />
+                                <span className="font-orbitron tracking-tighter uppercase">Virtual Rocket Design Lab</span>
+                            </h1>
+                            <div className="flex items-center gap-2 mt-1">
+                                <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">{user.name} // NODE_{user.id}</p>
+                                <div className={`w-2 h-2 rounded-full ${isSyncing ? 'bg-orange-500 animate-pulse' : 'bg-green-500'}`}></div>
+                            </div>
+                        </div>
+                        <div className="hidden md:block text-right">
+                            <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Engineering Environment v2.4</p>
+                        </div>
+                    </header>
+
+                    <div className="flex-1 grid md:grid-cols-12 gap-6 min-h-0">
+                        {/* Controls Sidebar */}
+                        <div className="md:col-span-4 flex flex-col gap-6 overflow-y-auto pr-2">
+                            {isCompleted ? (
+                                <div className="glass p-8 rounded-3xl text-center space-y-6 animate-in fade-in duration-500">
+                                    <div className="w-20 h-20 bg-blue-500/20 text-blue-400 rounded-full flex items-center justify-center mx-auto border border-blue-500/50">
+                                        <Icon name="check-circle" size={40} />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-2xl font-black font-orbitron uppercase tracking-tight">Assignment Complete</h2>
+                                        <p className="text-slate-400 text-xs font-bold uppercase tracking-[0.2em] mt-1">Telemetry Data Synced</p>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="bg-slate-800/50 p-4 rounded-2xl border border-white/5">
+                                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Missions</p>
+                                            <p className="text-xl font-black text-white">4 / 4</p>
+                                        </div>
+                                        <div className="bg-slate-800/50 p-4 rounded-2xl border border-white/5">
+                                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Final Score</p>
+                                            <p className="text-xl font-black text-white">{(completedTasks.length * 2.5 + quizScore).toFixed(1)} / 20</p>
+                                        </div>
+                                    </div>
+                                    <button onClick={handleReset} className="w-full bg-blue-600 hover:bg-blue-500 text-white py-4 rounded-xl font-black uppercase tracking-widest text-xs transition-all shadow-lg shadow-blue-500/20">Restart Engineering Mission</button>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="glass p-6 rounded-2xl space-y-6">
+                                        <h2 className="text-sm font-black uppercase tracking-[0.2em] text-blue-400 flex items-center gap-2">
+                                            <Icon name="sliders" size={16} /> Engineering Controls
+                                        </h2>
+
+                                        <div className="space-y-4">
+                                            <div className="space-y-2">
+                                                <div className="flex justify-between text-xs font-bold">
+                                                    <span className="text-slate-400 uppercase tracking-widest">Rocket Height</span>
+                                                    <span className="text-blue-400">{height === 1 ? "1 Bottle" : height === 2 ? "1.25 Bottles" : height === 3 ? "1.5 Bottles" : "1.75 Bottles"}</span>
+                                                </div>
+                                                <input type="range" min="1" max="4" step="1" value={height} onChange={e => setHeight(parseInt(e.target.value))} className="slider-track slider-thumb" />
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <div className="flex justify-between text-xs font-bold">
+                                                    <span className="text-slate-400 uppercase tracking-widest">Added Nose Weight</span>
+                                                    <span className="text-blue-400">{noseWeight}g</span>
+                                                </div>
+                                                <input type="range" min="0" max="200" step="10" value={noseWeight} onChange={e => setNoseWeight(parseInt(e.target.value))} className="slider-track slider-thumb" />
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <div className="flex justify-between text-xs font-bold">
+                                                    <span className="text-slate-400 uppercase tracking-widest">Fin Size</span>
+                                                    <span className="text-blue-400">{physics.finSizeLabel}</span>
+                                                </div>
+                                                <input type="range" min="1" max="5" step="1" value={finSize} onChange={e => setFinSize(parseInt(e.target.value))} className="slider-track slider-thumb" />
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <div className="flex justify-between text-xs font-bold">
+                                                    <span className="text-slate-400 uppercase tracking-widest">Fin Position</span>
+                                                    <span className="text-blue-400">{physics.realPosCm.toFixed(1)} cm up</span>
+                                                </div>
+                                                <input type="range" min="0" max="150" step="10" value={finPos} onChange={e => setFinPos(parseInt(e.target.value))} className="slider-track slider-thumb" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="glass p-6 rounded-2xl flex-1 overflow-y-auto">
+                                        {completedTasks.length < 4 ? (
+                                            <>
+                                                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-cyan-400 flex items-center gap-2 mb-4">
+                                                    <Icon name="clipboard-list" size={16} /> Mission Objectives
+                                                </h3>
+                                                <div className="space-y-3">
+                                                    <TaskCard id={1} title="The Long Rocket" desc="Stabilize a 1.75-bottle rocket with Small fins." completed={completedTasks.includes(1)} onCheck={() => checkTask(1)} />
+                                                    <TaskCard id={2} title="Weightless Efficiency" desc="Achieve MARGINAL or STABLE status with 0g added nose weight." completed={completedTasks.includes(2)} onCheck={() => checkTask(2)} />
+                                                    <TaskCard id={3} title="Aerodynamic Failure" desc="Create an UNSTABLE rocket by moving fins up (at least 10cm)." completed={completedTasks.includes(3)} onCheck={() => checkTask(3)} />
+                                                    <TaskCard id={4} title="Micro-Stabilization" desc="Make a rocket STABLE using only X-Small fins." completed={completedTasks.includes(4)} onCheck={() => checkTask(4)} />
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <QuizSection onComplete={handleQuizComplete} />
+                                        )}
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
+                        {/* Visualization Area */}
+                        <div className="md:col-span-8 glass rounded-3xl relative overflow-hidden flex items-center justify-center border border-white/5 group">
+                            <div className={`absolute top-0 left-0 right-0 p-4 text-center font-black text-xl tracking-widest z-10 border-b ${physics.statusColor} transition-all duration-500`}>
+                                {physics.status} {physics.status === "STABLE" ? "✓" : physics.status === "MARGINAL" ? "!" : "✗"}
+                            </div>
+
+                            <div className="absolute top-20 right-6 flex flex-col gap-2 text-right">
+                                <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Static Margin</div>
+                                <div className={`text-2xl font-mono font-bold ${physics.statusColor.split(' ')[0]}`}>{(physics.margin / 80).toFixed(2)} CAL</div>
+                            </div>
+
+                            <svg id="rocket-svg" viewBox="-50 -200 300 680" className="h-[90%] w-full drop-shadow-2xl overflow-visible pt-10">
+                                <line x1="100" y1="-180" x2="100" y2="500" stroke="rgba(255,255,255,0.05)" strokeDasharray="4,4" strokeWidth="1" />
+
+                                <path d={`M 60 ${physics.finTopY} L ${60 - physics.fWidth} ${physics.finBaseY} L 60 ${physics.finBaseY} Z`} fill="#3b82f6" stroke="#2563eb" strokeWidth="2" />
+                                <path d={`M 140 ${physics.finTopY} L ${140 + physics.fWidth} ${physics.finBaseY} L 140 ${physics.finBaseY} Z`} fill="#3b82f6" stroke="#2563eb" strokeWidth="2" />
+
+                                <rect x="60" y={physics.bodyTopY} width="80" height={physics.bodyHeight} fill="#e2e8f0" stroke="#94a3b8" strokeWidth="3" />
+                                
+                                {Array.from({ length: height - 1 }).map((_, i) => (
+                                    <rect key={i} x="60" y={150 - (40 * i) - 2} width="80" height="4" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
+                                ))}
+
+                                <path d={`M 60 ${physics.bodyTopY} C 60 ${physics.bodyTopY - 30}, 100 ${physics.noseTipY}, 100 ${physics.noseTipY} C 100 ${physics.noseTipY}, 140 ${physics.bodyTopY - 30}, 140 ${physics.bodyTopY}`} fill="#e2e8f0" stroke="#94a3b8" strokeWidth="3" />
+                                <path d="M 60 310 Q 60 330 80 330 L 120 330 Q 140 330 140 310" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="3" />
+                                <rect x="90" y="330" width="20" height="15" fill="#64748b" stroke="#475569" strokeWidth="2" />
+
+                                <path d={`M 100 ${physics.payloadTipY} L 142 ${physics.payloadBaseY} Q 100 ${physics.payloadBaseY + 15} 58 ${physics.payloadBaseY} Z`} fill="rgba(239, 68, 68, 0.85)" stroke="#dc2626" strokeWidth="2" />
+                                <circle cx="100" cy={physics.payloadTipY + 45} r={5 + (noseWeight / 15)} fill="#7f1d1d" opacity="0.7" />
+
+                                <g transform={`translate(100, ${physics.cmY})`} className="drop-shadow-lg">
+                                    <circle cx="0" cy="0" r="12" fill="none" stroke="#fbbf24" strokeWidth="3" />
+                                    <line x1="-18" y1="0" x2="18" y2="0" stroke="#fbbf24" strokeWidth="3" />
+                                    <line x1="0" y1="-18" x2="0" y2="18" stroke="#fbbf24" strokeWidth="3" />
+                                    <text x="25" y="5" fill="#fbbf24" fontWeight="bold" fontSize="16" className="font-orbitron">CM</text>
+                                    <circle cx="0" cy="0" r="4" fill="#fbbf24" />
+                                </g>
+
+                                <g transform={`translate(100, ${physics.cpY})`} className="drop-shadow-lg">
+                                    <circle cx="0" cy="0" r="12" fill="none" stroke="#ef4444" strokeWidth="3" />
+                                    <line x1="-15" y1="-15" x2="15" y2="15" stroke="#ef4444" strokeWidth="3" />
+                                    <line x1="-15" y1="15" x2="15" y2="-15" stroke="#ef4444" strokeWidth="3" />
+                                    <text x="-45" y="5" fill="#ef4444" fontWeight="bold" fontSize="16" className="font-orbitron">CP</text>
+                                    <circle cx="0" cy="0" r="4" fill="#ef4444" />
+                                </g>
+                            </svg>
+
+                            <div className="absolute bottom-6 left-6 flex gap-8">
+                                <div className="text-center">
+                                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Center of Mass</p>
+                                    <p className="font-mono text-sm text-yellow-400">{physics.cmY.toFixed(1)}u</p>
+                                </div>
+                                <div className="text-center">
+                                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Center of Pressure</p>
+                                    <p className="font-mono text-sm text-red-400">{physics.cpY.toFixed(1)}u</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const TaskCard = ({ id, title, desc, completed, onCheck }) => (
+            <div className={`p-4 rounded-xl border-2 transition-all cursor-pointer group ${completed ? 'bg-green-500/10 border-green-500/30' : 'bg-slate-800/50 border-white/5 hover:border-blue-500/30'}`} onClick={onCheck}>
+                <div className="flex justify-between items-start mb-1">
+                    <h4 className={`text-xs font-black uppercase tracking-widest ${completed ? 'text-green-400' : 'text-slate-200 group-hover:text-blue-400'}`}>{id}. {title}</h4>
+                    {completed ? <Icon name="check-circle" className="text-green-400" size={14} /> : <button className="text-[10px] font-black text-slate-500 uppercase hover:text-white">Verify</button>}
+                </div>
+                <p className="text-[10px] text-slate-400 leading-relaxed">{desc}</p>
+            </div>
+        );
+
+        const App = () => {
+            const [user, setUser] = useState(null);
+            if (!user) return <LoginOverlay onLogin={setUser} />;
+            return <MainApp user={user} />;
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+
+</html>
