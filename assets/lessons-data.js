@@ -13,6 +13,24 @@
  * }
  */
 const lessonsData = [
+  // --- Unit 7: Rocketry & Aerodynamics ---
+  {
+    date: "2026-05-05",
+    day: 26,
+    unit: 7,
+    title: "Virtual Rocket Design Lab (Sub Assignment)",
+    summary: "Independent simulation & mastery quiz. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
+    details: "Students will use the Virtual Rocket Lab to design, test, and stabilize a 2-liter bottle rocket. A 10-question debrief quiz follows the simulation. GRADING: This assignment is graded on accuracy (out of 20 points).",
+    type: "Lab",
+    dok: 3,
+    semester: 2,
+    isFeatured: true,
+    essentialQuestion: "How do the Center of Mass and Center of Pressure determine the stability of a rocket?",
+    links: {
+      "Interactive: Virtual Rocket Lab": "2-Liter_Bottle_Rockets/Virtual_Rocket_Lab/Virtual_Rocket_Design_Lab.html"
+    }
+  },
+
   // --- Unit 6: Waves and Electromagnetic Radiation ---
   {
     date: "2026-05-01",
