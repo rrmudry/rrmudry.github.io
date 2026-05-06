@@ -66,6 +66,18 @@
 
 <body class="min-h-screen flex flex-col relative">
 
+    <!-- Video Popup Modal -->
+    <div id="video-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-500">
+        <div class="bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-4 max-w-4xl w-full mx-4 relative transform scale-95 transition-transform duration-500" id="video-modal-content">
+            <button onclick="closeVideoModal()" class="absolute -top-4 -right-4 bg-slate-800 hover:bg-red-500 text-white rounded-full p-2 shadow-lg transition-colors border border-slate-600 hover:border-red-500 z-10">
+                <i data-feather="x" class="w-5 h-5"></i>
+            </button>
+            <div class="relative w-full overflow-hidden rounded-lg bg-black" style="padding-top: 56.25%;">
+                <iframe id="youtube-player" class="absolute inset-0 w-full h-full" src="" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
     <!-- Full Page Background -->
     <div class="fixed inset-0 z-[-1] overflow-hidden">
         <img src="Moon_surface_exploration.jpg" alt="Moon Surface" class="w-full h-full object-cover">
@@ -369,9 +381,37 @@
             setTimeout(updateClock, 1000);
         }
 
-        // Start clock on load
+        // Video Modal Logic
+        function openVideoModal() {
+            const modal = document.getElementById('video-modal');
+            const content = document.getElementById('video-modal-content');
+            const player = document.getElementById('youtube-player');
+            player.src = "https://www.youtube.com/embed/GJN74BvKQ50?si=NqPwqaJrK4Q8E7sa&autoplay=1";
+            
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.classList.add('opacity-100');
+            content.classList.remove('scale-95');
+            content.classList.add('scale-100');
+        }
+
+        function closeVideoModal() {
+            const modal = document.getElementById('video-modal');
+            const content = document.getElementById('video-modal-content');
+            const player = document.getElementById('youtube-player');
+            
+            modal.classList.remove('opacity-100');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            
+            // Stop video after transition
+            setTimeout(() => { player.src = ""; }, 500);
+        }
+
+        // Initialize on load
         window.onload = () => {
             updateClock();
+            setTimeout(openVideoModal, 500); // Slight delay for dramatic effect
         };
     </script>
 </body>
