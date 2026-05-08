@@ -421,7 +421,7 @@
                 
                 const isGlobalLocked = assignmentSettings.is_global_locked;
                 const isPeriodLocked = assignmentSettings.locked_periods.includes(parseInt(s.class_period));
-                const isIndividualLocked = s.status === "LOCKED_BY_PROCTOR";
+                const isIndividualLocked = s.details?.is_locked || s.status === "LOCKED_BY_PROCTOR";
                 const isAnyLocked = isGlobalLocked || isPeriodLocked || isIndividualLocked;
                 
                 let statusColor = "bg-emerald-500";
@@ -559,12 +559,24 @@
         }
 
         async function lockStudent(recordId, currentStatus) {
-            const isCurrentlyLocked = currentStatus === "LOCKED_BY_PROCTOR";
-            const newStatus = isCurrentlyLocked ? "TEST_ACTIVE" : "LOCKED_BY_PROCTOR";
+            // Find student in current local state to get existing details
+            const s = window.currentStudents.find(std => std.id === recordId);
+            const isCurrentlyLocked = s?.details?.is_locked || currentStatus === "LOCKED_BY_PROCTOR";
+            const newLockedState = !isCurrentlyLocked;
             
+            const newDetails = {
+                ...(s?.details || {}),
+                is_locked: newLockedState,
+                last_alert: newLockedState ? "NODE_LOCKED" : (s?.details?.last_alert || "NONE"),
+                ts: new Date().toISOString()
+            };
+
             const { error } = await sbClient
                 .from('student_results')
-                .update({ status: newStatus })
+                .update({ 
+                    status: newLockedState ? "LOCKED_BY_PROCTOR" : "TEST_ACTIVE",
+                    details: newDetails 
+                })
                 .eq('id', recordId);
 
             if (error) {
@@ -722,7 +734,7 @@
             clearBtn.style.display = (isCritical || violations.length > 0) ? 'block' : 'none';
 
             const lockBtn = document.getElementById('modal-btn-lock');
-            const isLocked = s.status === "LOCKED_BY_PROCTOR";
+            const isLocked = s.details?.is_locked || s.status === "LOCKED_BY_PROCTOR";
             lockBtn.textContent = isLocked ? "Unlock Node" : "Lock Node";
             lockBtn.className = isLocked ? "bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 border border-emerald-500/20 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all" : "bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border border-amber-500/20 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all";
             lockBtn.onclick = () => lockStudent(s.id, s.status);
