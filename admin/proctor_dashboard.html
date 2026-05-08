@@ -393,6 +393,7 @@
                 const isFinished = s.score === 100;
 
                 const isCritical = (hasViolations || isAlertStatus) && !isFinished;
+                const isIndividualLocked = s.status === "LOCKED_BY_PROCTOR";
                 
                 let statusColor = "bg-emerald-500";
                 let borderColor = "border-white/5";
@@ -402,17 +403,21 @@
                     statusColor = "bg-red-500";
                     borderColor = "border-red-500/50";
                     pulseClass = "status-pulse-red";
+                } else if (isIndividualLocked) {
+                    statusColor = "bg-amber-500";
+                    borderColor = "border-amber-500/50";
                 } else if (isFinished) {
                     statusColor = "bg-indigo-500";
                     borderColor = "border-indigo-500/30";
                 }
 
                 return `
-                    <div onclick="showStudentDetail('${s.id}')" class="alert-card glass rounded-2xl p-4 border ${borderColor} ${pulseClass} relative overflow-hidden flex flex-col cursor-pointer">
+                    <div onclick="showStudentDetail('${s.id}')" class="alert-card glass rounded-2xl p-4 border ${borderColor} ${pulseClass} relative overflow-hidden flex flex-col cursor-pointer ${isIndividualLocked ? 'opacity-60' : ''}">
                         <div class="flex justify-between items-start mb-2">
                             <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center font-black text-indigo-400 border border-white/5 text-xs">
+                                <div class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center font-black text-indigo-400 border border-white/5 text-xs relative">
                                     ${s.student_name.charAt(0)}
+                                    ${isIndividualLocked ? `<div class="absolute -top-1 -right-1 bg-amber-500 rounded-full p-0.5 border border-slate-900"><i data-lucide="lock" class="w-2 h-2 text-white"></i></div>` : ''}
                                 </div>
                                 <div>
                                     <h3 class="font-bold text-[11px] uppercase tracking-tight leading-none">${s.student_name}</h3>
@@ -428,7 +433,7 @@
                         <div class="space-y-1.5 flex-grow">
                             <div class="bg-black/20 p-1.5 rounded-lg border border-white/5 mono text-[9px] flex justify-between items-center">
                                 <span class="text-slate-500 uppercase">Event:</span>
-                                <span class="${isCritical ? 'text-red-400 font-bold' : 'text-slate-300'} truncate ml-2">${lastAlert}</span>
+                                <span class="${isCritical ? 'text-red-400 font-bold' : 'text-slate-300'} truncate ml-2">${isIndividualLocked ? 'NODE_LOCKED' : lastAlert}</span>
                             </div>
                         </div>
 
@@ -436,7 +441,7 @@
                             <span class="text-slate-600 uppercase">V: ${violations.length}</span>
                             <div class="flex gap-2">
                                 ${isCritical ? `
-                                    <button onclick="acknowledgeStudent('${s.id}')" class="text-red-400 hover:text-red-300 uppercase flex items-center gap-1 transition-colors">
+                                    <button onclick="acknowledgeStudent(event, '${s.id}')" class="text-red-400 hover:text-red-300 uppercase flex items-center gap-1 transition-colors">
                                         Dismiss
                                     </button>
                                 ` : ''}
@@ -494,7 +499,8 @@
             }).join('');
         }
 
-        async function acknowledgeStudent(recordId) {
+        async function acknowledgeStudent(event, recordId) {
+            if (event) event.stopPropagation(); // Prevent modal from opening
             if (window.isSimulating) {
                 alert("Simulation Mode: Resetting local state (mock only).");
                 return;
@@ -799,14 +805,17 @@
             const assignment = document.getElementById('assignment-filter').value;
             console.log(`[DASHBOARD] Saving settings for ${assignment}...`);
 
+            // Use upsert to handle case where assessment record doesn't exist yet
             const { error } = await sbClient
                 .from('assessments')
-                .update({ details: assignmentSettings })
-                .eq('assignment_name', assignment);
+                .upsert({ 
+                    assignment_name: assignment, 
+                    details: assignmentSettings 
+                }, { onConflict: 'assignment_name' });
 
             if (error) {
                 console.error("Save settings error:", error);
-                alert("Failed to save settings. Table might need a 'details' column.");
+                alert("Failed to save settings. Table might need a 'details' column and 'assignment_name' should be a unique key.");
             } else {
                 closeSettingsModal();
                 fetchIntegrityData();
