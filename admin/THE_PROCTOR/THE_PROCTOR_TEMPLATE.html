@@ -1001,16 +1001,26 @@
                 if (data) {
                     MAX_QUESTIONS = data.max_questions || 999;
                     TIME_LIMIT_MINS = data.time_limit_mins || 15;
-                    if (data.details) {
-                        assignmentSettings = {
-                            is_global_locked: data.details.is_global_locked || false,
-                            locked_periods: data.details.locked_periods || [],
-                            silenced_alerts: data.details.silenced_alerts || []
-                        };
-                        checkAccessControl();
-                    }
-                    console.log(`[CONFIG] Rules Loaded: ${MAX_QUESTIONS} Qs, ${TIME_LIMIT_MINS} Mins`);
-                } else {
+                    console.log(`[CONFIG] Base Rules Loaded: ${MAX_QUESTIONS} Qs, ${TIME_LIMIT_MINS} Mins`);
+                }
+
+                // SECOND: Fetch proctoring settings (lock/silence) from student_results config
+                const { data: proctorConfig } = await sbClient
+                    .from('student_results')
+                    .select('details')
+                    .eq('assignment_name', ASSIGNMENT_NAME)
+                    .eq('student_id', '__CONFIG__')
+                    .maybeSingle();
+
+                if (proctorConfig && proctorConfig.details) {
+                    assignmentSettings = {
+                        is_global_locked: proctorConfig.details.is_global_locked || false,
+                        locked_periods: proctorConfig.details.locked_periods || [],
+                        silenced_alerts: proctorConfig.details.silenced_alerts || []
+                    };
+                    checkAccessControl();
+                }
+                if (!data && !proctorConfig) {
                     console.warn(`[CONFIG] No assessment record found for "${ASSIGNMENT_NAME}". Using defaults.`);
                 }
             } catch (e) {
