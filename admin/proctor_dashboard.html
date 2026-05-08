@@ -286,26 +286,45 @@
             const assignment = document.getElementById('assignment-filter').value;
             console.log(`[DASHBOARD] Fetching data for ${assignment}, period: ${period}...`);
             
-            let query = sbClient
-                .from('student_results')
-                .select('*')
-                .eq('assignment_name', assignment);
+            try {
+                // First: Fetch current assignment settings to reflect locks in UI
+                const { data: configData } = await sbClient
+                    .from('student_results')
+                    .select('details')
+                    .eq('assignment_name', assignment)
+                    .eq('student_id', '__CONFIG__')
+                    .maybeSingle();
 
-            if (period !== 'ALL') {
-                query = query.eq('class_period', period);
+                if (configData && configData.details) {
+                    assignmentSettings = {
+                        is_global_locked: configData.details.is_global_locked || false,
+                        locked_periods: configData.details.locked_periods || [],
+                        silenced_alerts: configData.details.silenced_alerts || []
+                    };
+                }
+
+                // Second: Fetch student results
+                let query = sbClient
+                    .from('student_results')
+                    .select('*')
+                    .eq('assignment_name', assignment)
+                    .neq('student_id', '__CONFIG__');
+
+                if (period !== 'ALL') {
+                    query = query.eq('class_period', parseInt(period));
+                }
+
+                const { data, error } = await query;
+                if (error) throw error;
+
+                window.currentStudents = data;
+                updateGrid(data);
+                updateGlobalFeed(data);
+                document.getElementById('active-count').textContent = data.filter(s => s.score < 100).length;
+                document.getElementById('last-sync-time').textContent = new Date().toLocaleTimeString();
+            } catch (e) {
+                console.error("[DASHBOARD] Fetch error:", e);
             }
-
-            const { data, error } = await query;
-            if (error) {
-                console.error("[DASHBOARD] Fetch error:", error);
-                return;
-            }
-
-            window.currentStudents = data;
-            updateGrid(data);
-            updateGlobalFeed(data);
-            document.getElementById('active-count').textContent = data.filter(s => s.score < 100).length;
-            document.getElementById('last-sync-time').textContent = new Date().toLocaleTimeString();
         }
 
         function generateMockData(count) {
@@ -393,7 +412,11 @@
                 const isFinished = s.score === 100;
 
                 const isCritical = (hasViolations || isAlertStatus) && !isFinished;
+                
+                const isGlobalLocked = assignmentSettings.is_global_locked;
+                const isPeriodLocked = assignmentSettings.locked_periods.includes(parseInt(s.class_period));
                 const isIndividualLocked = s.status === "LOCKED_BY_PROCTOR";
+                const isAnyLocked = isGlobalLocked || isPeriodLocked || isIndividualLocked;
                 
                 let statusColor = "bg-emerald-500";
                 let borderColor = "border-white/5";
@@ -403,7 +426,7 @@
                     statusColor = "bg-red-500";
                     borderColor = "border-red-500/50";
                     pulseClass = "status-pulse-red";
-                } else if (isIndividualLocked) {
+                } else if (isAnyLocked) {
                     statusColor = "bg-amber-500";
                     borderColor = "border-amber-500/50";
                 } else if (isFinished) {
@@ -412,12 +435,12 @@
                 }
 
                 return `
-                    <div onclick="showStudentDetail('${s.id}')" class="alert-card glass rounded-2xl p-4 border ${borderColor} ${pulseClass} relative overflow-hidden flex flex-col cursor-pointer ${isIndividualLocked ? 'opacity-60' : ''}">
+                    <div onclick="showStudentDetail('${s.id}')" class="alert-card glass rounded-2xl p-4 border ${borderColor} ${pulseClass} relative overflow-hidden flex flex-col cursor-pointer ${isAnyLocked ? 'opacity-60' : ''}">
                         <div class="flex justify-between items-start mb-2">
                             <div class="flex items-center gap-2">
                                 <div class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center font-black text-indigo-400 border border-white/5 text-xs relative">
                                     ${s.student_name.charAt(0)}
-                                    ${isIndividualLocked ? `<div class="absolute -top-1 -right-1 bg-amber-500 rounded-full p-0.5 border border-slate-900"><i data-lucide="lock" class="w-2 h-2 text-white"></i></div>` : ''}
+                                    ${isAnyLocked ? `<div class="absolute -top-1 -right-1 bg-amber-500 rounded-full p-0.5 border border-slate-900"><i data-lucide="lock" class="w-2 h-2 text-white"></i></div>` : ''}
                                 </div>
                                 <div>
                                     <h3 class="font-bold text-[11px] uppercase tracking-tight leading-none">${s.student_name}</h3>
@@ -433,7 +456,9 @@
                         <div class="space-y-1.5 flex-grow">
                             <div class="bg-black/20 p-1.5 rounded-lg border border-white/5 mono text-[9px] flex justify-between items-center">
                                 <span class="text-slate-500 uppercase">Event:</span>
-                                <span class="${isCritical ? 'text-red-400 font-bold' : 'text-slate-300'} truncate ml-2">${isIndividualLocked ? 'NODE_LOCKED' : lastAlert}</span>
+                                <span class="${isCritical ? 'text-red-400 font-bold' : 'text-slate-300'} truncate ml-2">
+                                    ${isGlobalLocked ? 'GLOBAL_LOCK' : (isPeriodLocked ? 'PERIOD_LOCK' : (isIndividualLocked ? 'NODE_LOCKED' : lastAlert))}
+                                </span>
                             </div>
                         </div>
 
