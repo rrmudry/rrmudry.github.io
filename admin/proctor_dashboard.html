@@ -559,31 +559,31 @@
             }
         }
 
-        async function lockStudent(recordId, currentStatus) {
+        async function lockStudent(recordId) {
             // Find student in current local state to get existing details
             const s = window.currentStudents.find(std => std.id === recordId);
-            const isCurrentlyLocked = s?.details?.is_locked || currentStatus === "LOCKED_BY_PROCTOR";
+            if (!s) return;
+            
+            const isCurrentlyLocked = s.details?.is_locked || s.status === "LOCKED_BY_PROCTOR";
             const newLockedState = !isCurrentlyLocked;
             
             const newDetails = {
-                ...(s?.details || {}),
+                ...(s.details || {}),
                 is_locked: newLockedState,
-                last_alert: newLockedState ? "NODE_LOCKED" : (s?.details?.last_alert || "NONE"),
+                last_alert: newLockedState ? "NODE_LOCKED" : (s.details?.last_alert || "NONE"),
                 ts: new Date().toISOString()
             };
 
             // Optimistic UI Update
-            if (s) {
-                s.status = newLockedState ? "LOCKED_BY_PROCTOR" : "TEST_ACTIVE";
-                s.details = newDetails;
-                updateGrid(window.currentStudents);
-                
-                // Update modal button if it's still open
-                const lockBtn = document.getElementById('modal-btn-lock');
-                if (lockBtn) {
-                    lockBtn.textContent = newLockedState ? "Unlock Node" : "Lock Node";
-                    lockBtn.className = newLockedState ? "bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 border border-emerald-500/20 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all" : "bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border border-amber-500/20 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all";
-                }
+            s.status = newLockedState ? "LOCKED_BY_PROCTOR" : "TEST_ACTIVE";
+            s.details = newDetails;
+            updateGrid(window.currentStudents);
+            
+            // Update modal button if it's still open
+            const lockBtn = document.getElementById('modal-btn-lock');
+            if (lockBtn) {
+                lockBtn.textContent = newLockedState ? "Unlock Node" : "Lock Node";
+                lockBtn.className = newLockedState ? "bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 border border-emerald-500/20 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all" : "bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border border-amber-500/20 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all";
             }
 
             const { error } = await sbClient
@@ -596,12 +596,12 @@
 
             if (error) {
                 console.error("Lock error:", error);
-                // Revert optimistic update on error
+                // The realtime subscription will eventually fix the UI if there was a real desync,
+                // or we could manually revert, but letting it fail silently and relying on sync is okay.
                 fetchIntegrityData();
-            } else {
-                fetchIntegrityData();
-                // Optionally keep modal open to see the change, user can close it manually
             }
+            // Success: Do nothing. The optimistic update holds, and the realtime subscription 
+            // will fire postgres_changes to fetch the guaranteed fresh data.
         }
 
         async function resetStudentScore(recordId) {
@@ -754,7 +754,7 @@
             const isLocked = s.details?.is_locked || s.status === "LOCKED_BY_PROCTOR";
             lockBtn.textContent = isLocked ? "Unlock Node" : "Lock Node";
             lockBtn.className = isLocked ? "bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 border border-emerald-500/20 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all" : "bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border border-amber-500/20 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all";
-            lockBtn.onclick = () => lockStudent(s.id, s.status);
+            lockBtn.onclick = () => lockStudent(s.id);
 
             const resetBtn = document.getElementById('modal-btn-reset-score');
             resetBtn.onclick = () => resetStudentScore(s.id);
@@ -915,7 +915,7 @@
                         updateGrid(window.currentStudents);
                     }
                     closeSettingsModal();
-                    fetchIntegrityData();
+                    // Let realtime subscription handle the follow-up fetch to avoid read-after-write race conditions
                 }
             } catch (e) {
                 console.error("Critical save error:", e);
