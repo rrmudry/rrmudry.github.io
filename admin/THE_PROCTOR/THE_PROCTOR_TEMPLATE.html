@@ -387,7 +387,7 @@
             
             const isGlobalLocked = assignmentSettings.is_global_locked;
             const isPeriodLocked = assignmentSettings.locked_periods.includes(parseInt(student.period));
-            const isIndividualLocked = student.status === "LOCKED_BY_PROCTOR";
+            const isIndividualLocked = student.details?.is_locked || student.status === "LOCKED_BY_PROCTOR";
 
             const lockOverlay = document.getElementById('lock-overlay');
             if (isGlobalLocked || isPeriodLocked || isIndividualLocked) {
@@ -471,13 +471,28 @@
 
                 finalViolations.sort((a, b) => new Date(b.ts) - new Date(a.ts));
 
-                        sync_count: (existing?.details?.sync_count || 0) + 1 
+                const payload = {
+                    student_id: student.id,
+                    student_name: student.name,
+                    assignment_name: assignmentName,
+                    class_period: student.period,
+                    status: statusLabel,
+                    score: currentScore,
+                    details: {
+                        status: statusLabel,
+                        violations: finalViolations,
+                        last_alert: finalViolations.length > 0 ? finalViolations[0].type : (existing?.details?.last_alert || "NONE"),
+                        ts: new Date().toISOString(),
+                        sync_count: (existing?.details?.sync_count || 0) + 1,
+                        is_locked: existing?.details?.is_locked || false // Preserve lock state
                     }
                 };
 
                 if (existing) {
-                    // Update local student status from remote
+                    // Update local student state from remote
                     student.status = existing.status;
+                    student.details = existing.details || {}; // Store details locally for access control
+                    
                     if (existing.status === "SCORE_RESET") {
                         handleScoreReset();
                     }
