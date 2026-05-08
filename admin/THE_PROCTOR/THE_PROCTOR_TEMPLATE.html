@@ -242,13 +242,9 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
         const sbClient = supabase.createClient(SB_URL, SB_KEY);
 
-        // --- ASSESSMENT CONFIG ---
-        // Change this name to match the 'assignment_name' in your Supabase questions table
-        // OR pass it in the URL like: THE_PROCTOR.html?a=YourTestName
+        // --- DYNAMIC CONFIGURATION ---
         const urlParams = new URLSearchParams(window.location.search);
-        const ASSIGNMENT_NAME = urlParams.get('a') || urlParams.get('assignment') || "AI Integrity Test";
-
-        // Assessment Rules (Fetched from DB)
+        let ASSIGNMENT_NAME = (urlParams.get('a') || urlParams.get('assignment') || "AI Integrity Test").trim();
         let MAX_QUESTIONS = 999; 
         let TIME_LIMIT_MINS = 15;
 
@@ -386,7 +382,8 @@
             if (!student.id) return;
             
             const isGlobalLocked = assignmentSettings.is_global_locked;
-            const isPeriodLocked = assignmentSettings.locked_periods.includes(parseInt(student.period));
+            const safePeriod = parseInt(String(student.period || "").replace(/\D/g, ''));
+            const isPeriodLocked = !isNaN(safePeriod) && assignmentSettings.locked_periods.includes(safePeriod);
             const isIndividualLocked = student.details?.is_locked || student.status === "LOCKED_BY_PROCTOR";
 
             const lockOverlay = document.getElementById('lock-overlay');
