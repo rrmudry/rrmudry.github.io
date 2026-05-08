@@ -728,11 +728,12 @@
             const modal = document.getElementById('settings-modal');
             const assignment = document.getElementById('assignment-filter').value;
 
-            // Fetch current settings from 'assessments' table
+            // Fetch current settings from 'student_results' using a hidden config record
             const { data, error } = await sbClient
-                .from('assessments')
+                .from('student_results')
                 .select('details')
                 .eq('assignment_name', assignment)
+                .eq('student_id', '__CONFIG__')
                 .maybeSingle();
 
             if (data && data.details) {
@@ -740,6 +741,13 @@
                     is_global_locked: data.details.is_global_locked || false,
                     locked_periods: data.details.locked_periods || [],
                     silenced_alerts: data.details.silenced_alerts || []
+                };
+            } else {
+                // Reset to defaults if no config found
+                assignmentSettings = {
+                    is_global_locked: false,
+                    locked_periods: [],
+                    silenced_alerts: []
                 };
             }
 
@@ -805,17 +813,20 @@
             const assignment = document.getElementById('assignment-filter').value;
             console.log(`[DASHBOARD] Saving settings for ${assignment}...`);
 
-            // Use upsert to handle case where assessment record doesn't exist yet
+            // Use student_results with a special ID to store config (since it has the 'details' JSONB column)
             const { error } = await sbClient
-                .from('assessments')
+                .from('student_results')
                 .upsert({ 
+                    student_id: '__CONFIG__',
+                    student_name: 'SYSTEM_CONFIG',
                     assignment_name: assignment, 
-                    details: assignmentSettings 
-                }, { onConflict: 'assignment_name' });
+                    details: assignmentSettings,
+                    status: 'CONFIG'
+                }, { onConflict: 'student_id,assignment_name' });
 
             if (error) {
                 console.error("Save settings error:", error);
-                alert("Failed to save settings. Table might need a 'details' column and 'assignment_name' should be a unique key.");
+                alert("Failed to save settings. Ensure 'student_id' and 'assignment_name' allow for configuration storage.");
             } else {
                 closeSettingsModal();
                 fetchIntegrityData();
@@ -830,7 +841,7 @@
             }, 300);
         }
 
-        document.getElementById('btn-simulate').addEventListener('click', toggleSimulation);
+        // document.getElementById('btn-simulate').addEventListener('click', toggleSimulation);
 
         // Close modal on escape key or clicking outside
         window.addEventListener('keydown', (e) => {
