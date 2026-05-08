@@ -207,17 +207,23 @@
                         class="bg-brand-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">2</span>
                     <h2 class="text-2xl font-bold text-gray-900">Find the Center of Pressure (CP)</h2>
                 </div>
-                <span class="bg-brand-100 text-brand-800 text-xs font-semibold px-2.5 py-0.5 rounded flex items-center">
-                    <i data-feather="camera" class="w-3 h-3 mr-1"></i> Digital Tool
-                </span>
+                <div class="flex space-x-2">
+                    <button id="mode-auto" class="mode-btn active bg-brand-600 text-white text-xs font-semibold px-3 py-1 rounded-l-md border border-brand-600">Auto Scan</button>
+                    <button id="mode-manual" class="mode-btn bg-gray-200 text-gray-700 text-xs font-semibold px-3 py-1 rounded-r-md border border-gray-300">Manual Trace</button>
+                </div>
             </div>
 
             <div class="p-6 md:p-8">
-                <p class="text-gray-600 mb-6">
+                <p id="desc-auto" class="text-gray-600 mb-6">
                     The Center of Pressure is the point where wind forces act on your rocket. We can find it by
                     calculating the geometric center (centroid) of the rocket's 2D silhouette. <strong>Hold your camera
                         perfectly steady!</strong> First, capture a picture of an empty background. Then, place your
-                    rocket in the frame and scan it. The tool will compare the two to find the rocket!
+                    rocket in the frame and scan it.
+                </p>
+                <p id="desc-manual" class="text-gray-600 mb-6 hidden">
+                    If your rocket is clear or hard to detect automatically, use the <strong>Manual Trace</strong> tool. 
+                    Take a photo of your rocket, then click around its edges to create an outline. The tool will 
+                    calculate the center of that shape.
                 </p>
 
                 <!-- Tool UI -->
@@ -247,6 +253,15 @@
                                 <span id="instruction-text">1. Point at an empty wall or background.</span>
                             </span>
                         </div>
+                        
+                        <!-- Manual Trace Overlay -->
+                        <div id="trace-instructions"
+                            class="hidden absolute top-4 left-4 right-4 text-center pointer-events-none z-10">
+                            <span class="bg-brand-600/90 text-white text-xs px-3 py-1.5 rounded-md shadow-lg flex items-center justify-center gap-2">
+                                <i data-feather="edit-3" class="w-3 h-3"></i>
+                                <span>Click edges to trace. Click the first point to close shape.</span>
+                            </span>
+                        </div>
                     </div>
 
                     <!-- Controls -->
@@ -270,14 +285,31 @@
                                 class="flex-1 md:flex-none bg-gray-700 hover:bg-gray-600 text-white font-medium py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center">
                                 <i data-feather="video" class="w-4 h-4 mr-2"></i> Start Camera
                             </button>
+                            
+                            <!-- Auto Controls -->
                             <button id="btn-capture-bg"
                                 class="hidden flex-1 md:flex-none bg-blue-600 hover:bg-blue-500 text-white font-medium py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center">
-                                <i data-feather="image" class="w-4 h-4 mr-2"></i> 1. Capture Background
+                                <i data-feather="image" class="w-4 h-4 mr-2"></i> 1. Capture BG
                             </button>
                             <button id="btn-capture-fg" disabled
                                 class="hidden flex-1 md:flex-none bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 px-6 rounded-lg transition-colors shadow-lg shadow-brand-500/30 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
                                 <i data-feather="crosshair" class="w-4 h-4 mr-2"></i> 2. Scan Rocket
                             </button>
+                            
+                            <!-- Manual Controls -->
+                            <button id="btn-take-photo"
+                                class="hidden flex-1 md:flex-none bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 px-6 rounded-lg transition-colors shadow-lg shadow-brand-500/30 flex items-center justify-center">
+                                <i data-feather="camera" class="w-4 h-4 mr-2"></i> Take Photo
+                            </button>
+                            <button id="btn-undo-trace"
+                                class="hidden flex-1 md:flex-none bg-gray-700 hover:bg-gray-600 text-white font-medium py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center">
+                                <i data-feather="corner-up-left" class="w-4 h-4 mr-2"></i> Undo
+                            </button>
+                            <button id="btn-calc-trace" disabled
+                                class="hidden flex-1 md:flex-none bg-green-600 hover:bg-green-500 text-white font-bold py-2.5 px-6 rounded-lg transition-colors shadow-lg shadow-green-500/30 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
+                                <i data-feather="check-circle" class="w-4 h-4 mr-2"></i> Calculate CP
+                            </button>
+                            
                             <button id="btn-reset-scan"
                                 class="hidden flex-1 md:flex-none bg-orange-600 hover:bg-orange-500 text-white font-bold py-2.5 px-6 rounded-lg transition-colors shadow-lg shadow-orange-500/30 flex items-center justify-center">
                                 <i data-feather="rotate-ccw" class="w-4 h-4 mr-2"></i> Start Over
@@ -467,7 +499,6 @@
         });
 
         // --- Digital CP Tool Logic ---
-
         const video = document.getElementById('video-feed');
         const canvas = document.getElementById('capture-canvas');
         const ctx = canvas.getContext('2d');
@@ -479,15 +510,58 @@
         const toleranceVal = document.getElementById('tolerance-val');
         const videoInstructions = document.getElementById('video-instructions');
         const instructionText = document.getElementById('instruction-text');
+        const traceInstructions = document.getElementById('trace-instructions');
+        
+        // Mode Selectors
+        const modeAuto = document.getElementById('mode-auto');
+        const modeManual = document.getElementById('mode-manual');
+        const descAuto = document.getElementById('desc-auto');
+        const descManual = document.getElementById('desc-manual');
+        
+        // New Buttons
+        const btnTakePhoto = document.getElementById('btn-take-photo');
+        const btnUndoTrace = document.getElementById('btn-undo-trace');
+        const btnCalcTrace = document.getElementById('btn-calc-trace');
 
         let stream = null;
         let isVideoActive = false;
         let bgImageData = null;
+        let originalPhotoData = null; 
+        let currentMode = 'auto'; // 'auto' or 'manual'
+        let tracePoints = [];
+        let isShapeClosed = false;
 
         // UI Event Listeners
         toleranceSlider.addEventListener('input', (e) => {
             toleranceVal.textContent = e.target.value;
         });
+
+        // --- Mode Switching ---
+        modeAuto.addEventListener('click', () => switchMode('auto'));
+        modeManual.addEventListener('click', () => switchMode('manual'));
+
+        function switchMode(mode) {
+            currentMode = mode;
+            stopCamera();
+            
+            if (mode === 'auto') {
+                modeAuto.classList.add('bg-brand-600', 'text-white');
+                modeAuto.classList.remove('bg-gray-200', 'text-gray-700');
+                modeManual.classList.remove('bg-brand-600', 'text-white');
+                modeManual.classList.add('bg-gray-200', 'text-gray-700');
+                descAuto.classList.remove('hidden');
+                descManual.classList.add('hidden');
+                toleranceSlider.parentElement.parentElement.classList.remove('opacity-20', 'pointer-events-none');
+            } else {
+                modeManual.classList.add('bg-brand-600', 'text-white');
+                modeManual.classList.remove('bg-gray-200', 'text-gray-700');
+                modeAuto.classList.remove('bg-brand-600', 'text-white');
+                modeAuto.classList.add('bg-gray-200', 'text-gray-700');
+                descManual.classList.remove('hidden');
+                descAuto.classList.add('hidden');
+                toleranceSlider.parentElement.parentElement.classList.add('opacity-20', 'pointer-events-none');
+            }
+        }
 
         // Stop Camera Logic
         function stopCamera() {
@@ -497,16 +571,28 @@
             }
             isVideoActive = false;
             bgImageData = null;
+            originalPhotoData = null;
 
             // Reset UI
             canvas.classList.add('hidden');
             video.classList.remove('hidden');
             videoInstructions.classList.remove('hidden');
+            traceInstructions.classList.add('hidden');
+            
             btnCaptureBg.classList.add('hidden');
             btnCaptureFg.classList.add('hidden');
+            btnTakePhoto.classList.add('hidden');
+            btnUndoTrace.classList.add('hidden');
+            btnCalcTrace.classList.add('hidden');
             btnResetScan.classList.add('hidden');
+            
             btnCaptureFg.disabled = true;
-            instructionText.textContent = "1. Point at an empty wall or background.";
+            btnCalcTrace.disabled = true;
+            
+            tracePoints = [];
+            isShapeClosed = false;
+            
+            instructionText.textContent = currentMode === 'auto' ? "1. Point at an empty wall or background." : "1. Point at your rocket.";
             btnStartCamera.classList.remove('bg-red-600', 'hover:bg-red-500');
             btnStartCamera.classList.add('bg-gray-700', 'hover:bg-gray-600');
             btnStartCamera.innerHTML = `<i data-feather="video" class="w-4 h-4 mr-2"></i> Start Camera`;
@@ -529,8 +615,14 @@
                 btnStartCamera.classList.remove('bg-gray-700', 'hover:bg-gray-600');
                 btnStartCamera.classList.add('bg-red-600', 'hover:bg-red-500');
                 btnStartCamera.innerHTML = `<i data-feather="video-off" class="w-4 h-4 mr-2"></i> Stop Camera`;
-                btnCaptureBg.classList.remove('hidden');
-                btnCaptureFg.classList.remove('hidden');
+                
+                if (currentMode === 'auto') {
+                    btnCaptureBg.classList.remove('hidden');
+                    btnCaptureFg.classList.remove('hidden');
+                } else {
+                    btnTakePhoto.classList.remove('hidden');
+                }
+                
                 feather.replace();
                 document.getElementById('camera-error').classList.add('hidden');
             } catch (err) {
@@ -539,141 +631,222 @@
             }
         });
 
-        // Capture Background
+        // --- Auto Scan Logic ---
         btnCaptureBg.addEventListener('click', () => {
             if (!isVideoActive) return;
-
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             bgImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
             btnCaptureFg.disabled = false;
             instructionText.innerHTML = "2. Place rocket in frame. <span class='text-yellow-300 font-bold'>Keep camera still!</span>";
         });
 
-        // Capture Foreground and Process
         btnCaptureFg.addEventListener('click', () => {
-            if (!isVideoActive) return;
-            if (!bgImageData) {
-                alert("Please capture the background first!");
-                return;
-            }
-
+            if (!isVideoActive || !bgImageData) return;
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             const fgImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-            // Hide video & capture buttons, show canvas and reset button
             video.classList.add('hidden');
             videoInstructions.classList.add('hidden');
             btnCaptureBg.classList.add('hidden');
             btnCaptureFg.classList.add('hidden');
-
             canvas.classList.remove('hidden');
             btnResetScan.classList.remove('hidden');
-
             processImageSubtraction(fgImageData);
         });
 
-        // Start Over Logic
+        // --- Manual Trace Logic ---
+        btnTakePhoto.addEventListener('click', () => {
+            if (!isVideoActive) return;
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            originalPhotoData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            
+            video.classList.add('hidden');
+            videoInstructions.classList.add('hidden');
+            traceInstructions.classList.remove('hidden');
+            btnTakePhoto.classList.add('hidden');
+            btnUndoTrace.classList.remove('hidden');
+            btnCalcTrace.classList.remove('hidden');
+            btnResetScan.classList.remove('hidden');
+            canvas.classList.remove('hidden');
+            
+            tracePoints = [];
+            isShapeClosed = false;
+            redrawManualTrace();
+        });
+
+        canvas.addEventListener('click', (e) => {
+            if (currentMode !== 'manual' || isShapeClosed || !originalPhotoData) return;
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const x = (e.clientX - rect.left) * scaleX;
+            const y = (e.clientY - rect.top) * scaleY;
+            
+            if (tracePoints.length > 2) {
+                const first = tracePoints[0];
+                const dist = Math.sqrt(Math.pow(x - first.x, 2) + Math.pow(y - first.y, 2));
+                if (dist < 30) {
+                    isShapeClosed = true;
+                    btnCalcTrace.disabled = false;
+                    redrawManualTrace();
+                    return;
+                }
+            }
+            tracePoints.push({ x, y });
+            redrawManualTrace();
+        });
+
+        function redrawManualTrace() {
+            if (!originalPhotoData) return;
+            ctx.putImageData(originalPhotoData, 0, 0);
+            if (tracePoints.length < 1) return;
+            
+            ctx.lineWidth = 5;
+            ctx.lineJoin = "round";
+            ctx.lineCap = "round";
+            ctx.beginPath();
+            ctx.moveTo(tracePoints[0].x, tracePoints[0].y);
+            for (let i = 1; i < tracePoints.length; i++) {
+                ctx.lineTo(tracePoints[i].x, tracePoints[i].y);
+            }
+            
+            if (isShapeClosed) {
+                ctx.closePath();
+                ctx.fillStyle = "rgba(59, 130, 246, 0.4)";
+                ctx.fill();
+                ctx.strokeStyle = "#2563eb";
+            } else {
+                ctx.strokeStyle = "#fbbf24";
+            }
+            ctx.stroke();
+            
+            tracePoints.forEach((p, index) => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, index === 0 ? 10 : 5, 0, Math.PI * 2);
+                ctx.fillStyle = index === 0 ? "#ef4444" : "white";
+                ctx.fill();
+                ctx.strokeStyle = "black";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+        }
+
+        btnUndoTrace.addEventListener('click', () => {
+            if (isShapeClosed) {
+                isShapeClosed = false;
+                btnCalcTrace.disabled = true;
+            } else {
+                tracePoints.pop();
+            }
+            redrawManualTrace();
+        });
+
+        btnCalcTrace.addEventListener('click', () => {
+            if (!isShapeClosed || tracePoints.length < 3) return;
+            calculatePolygonCentroid(tracePoints);
+        });
+
+        function calculatePolygonCentroid(points) {
+            let area = 0;
+            let cx = 0;
+            let cy = 0;
+            const n = points.length;
+            for (let i = 0; i < n; i++) {
+                const p1 = points[i];
+                const p2 = points[(i + 1) % n];
+                const factor = (p1.x * p2.y - p2.x * p1.y);
+                area += factor;
+                cx += (p1.x + p2.x) * factor;
+                cy += (p1.y + p2.y) * factor;
+            }
+            area /= 2;
+            cx /= (6 * area);
+            cy /= (6 * area);
+            drawCentroidMarker(cx, cy);
+        }
+
+        function drawCentroidMarker(cpX, cpY) {
+            ctx.beginPath();
+            ctx.arc(cpX, cpY, 15, 0, 2 * Math.PI, false);
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = '#ef4444';
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(cpX, cpY, 4, 0, 2 * Math.PI, false);
+            ctx.fillStyle = '#ef4444';
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(cpX - 25, cpY);
+            ctx.lineTo(cpX + 25, cpY);
+            ctx.moveTo(cpX, cpY - 25);
+            ctx.lineTo(cpX, cpY + 25);
+            ctx.strokeStyle = '#ef4444';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.font = "bold 24px Arial";
+            ctx.fillStyle = "#ef4444";
+            ctx.fillText("Center of Pressure", cpX + 20, cpY - 20);
+            traceInstructions.classList.add('hidden');
+        }
+
         btnResetScan.addEventListener('click', () => {
             if (!isVideoActive) return;
-
-            // Reset state
             bgImageData = null;
-
-            // Reset UI
+            originalPhotoData = null;
             canvas.classList.add('hidden');
             btnResetScan.classList.add('hidden');
-
             video.classList.remove('hidden');
             videoInstructions.classList.remove('hidden');
-            btnCaptureBg.classList.remove('hidden');
-            btnCaptureFg.classList.remove('hidden');
-            btnCaptureFg.disabled = true;
-
-            instructionText.textContent = "1. Point at an empty wall or background.";
+            if (currentMode === 'auto') {
+                btnCaptureBg.classList.remove('hidden');
+                btnCaptureFg.classList.remove('hidden');
+                btnCaptureFg.disabled = true;
+                instructionText.textContent = "1. Point at an empty wall or background.";
+            } else {
+                btnTakePhoto.classList.remove('hidden');
+                btnUndoTrace.classList.add('hidden');
+                btnCalcTrace.classList.add('hidden');
+                instructionText.textContent = "1. Point at your rocket.";
+            }
         });
 
         function processImageSubtraction(fgImageData) {
             const bgData = bgImageData.data;
             const data = fgImageData.data;
             const tolerance = parseInt(toleranceSlider.value);
-
             let sumX = 0;
             let sumY = 0;
             let rocketPixelCount = 0;
-
-            // Iterate through every pixel
             for (let i = 0; i < data.length; i += 4) {
                 const rDiff = Math.abs(data[i] - bgData[i]);
                 const gDiff = Math.abs(data[i + 1] - bgData[i + 1]);
                 const bDiff = Math.abs(data[i + 2] - bgData[i + 2]);
-
-                // Calculate color distance (Euclidean) between bg and current frame
-                const distance = Math.sqrt(
-                    Math.pow(rDiff, 2) +
-                    Math.pow(gDiff, 2) +
-                    Math.pow(bDiff, 2)
-                );
-
+                const distance = Math.sqrt(Math.pow(rDiff, 2) + Math.pow(gDiff, 2) + Math.pow(bDiff, 2));
                 if (distance > tolerance) {
-                    // This is the Rocket (Difference detected)
-                    // Keep original colors for visibility
                     const pixelIndex = i / 4;
                     const x = pixelIndex % canvas.width;
                     const y = Math.floor(pixelIndex / canvas.width);
-
                     sumX += x;
                     sumY += y;
                     rocketPixelCount++;
                 } else {
-                    // This is the Background (No change detected)
-                    // Turn it white to create a clear silhouette
-                    data[i] = 255;     // R
-                    data[i + 1] = 255; // G
-                    data[i + 2] = 255; // B
+                    data[i] = 255;
+                    data[i + 1] = 255;
+                    data[i + 2] = 255;
                 }
             }
-
-            // Put processed image back
             ctx.putImageData(fgImageData, 0, 0);
-
-            // Calculate and draw Centroid (CP)
             if (rocketPixelCount > 0) {
                 const cpX = sumX / rocketPixelCount;
                 const cpY = sumY / rocketPixelCount;
-
-                // Draw Target Graphic at CP
-                ctx.beginPath();
-                ctx.arc(cpX, cpY, 15, 0, 2 * Math.PI, false);
-                ctx.lineWidth = 4;
-                ctx.strokeStyle = '#ef4444'; // Red
-                ctx.stroke();
-
-                ctx.beginPath();
-                ctx.arc(cpX, cpY, 4, 0, 2 * Math.PI, false);
-                ctx.fillStyle = '#ef4444';
-                ctx.fill();
-
-                // Crosshairs
-                ctx.beginPath();
-                ctx.moveTo(cpX - 25, cpY);
-                ctx.lineTo(cpX + 25, cpY);
-                ctx.moveTo(cpX, cpY - 25);
-                ctx.lineTo(cpX, cpY + 25);
-                ctx.strokeStyle = '#ef4444';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-
-                // Add Text Label
-                ctx.font = "bold 24px Arial";
-                ctx.fillStyle = "#ef4444";
-                ctx.fillText("Center of Pressure", cpX + 20, cpY - 20);
+                drawCentroidMarker(cpX, cpY);
             } else {
-                alert("Could not detect the rocket. Make sure the rocket is in the frame and try lowering the detection sensitivity.");
+                alert("Could not detect the rocket. Try lowering the detection sensitivity.");
             }
         }
     </script>
