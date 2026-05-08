@@ -872,26 +872,32 @@
 
         async function populateAssignments() {
             try {
-                // Better to fetch from questions table to see all available tests
-                const { data, error } = await sbClient
-                    .from('questions')
-                    .select('assignment_name');
+                // Fetch from both assessments (config) and questions (content)
+                const [assessmentsRes, questionsRes] = await Promise.all([
+                    sbClient.from('assessments').select('assignment_name'),
+                    sbClient.from('questions').select('assignment_name')
+                ]);
 
-                if (data) {
-                    let unique = [...new Set(data.map(d => d.assignment_name))];
-                    
-                    // Always ensure the default "AI Integrity Test" is in the list
-                    if (!unique.includes('AI Integrity Test')) {
-                        unique.push('AI Integrity Test');
-                    }
-                    
-                    unique.sort();
-                    
-                    const filter = document.getElementById('assignment-filter');
-                    const currentVal = filter.value;
-                    
-                    filter.innerHTML = unique.map(name => `<option value="${name}" ${name === currentVal ? 'selected' : ''}>${name.toUpperCase()}</option>`).join('');
+                let allNames = [];
+                if (assessmentsRes.data) allNames.push(...assessmentsRes.data.map(d => d.assignment_name));
+                if (questionsRes.data) allNames.push(...questionsRes.data.map(d => d.assignment_name));
+
+                let unique = [...new Set(allNames)].filter(Boolean);
+                
+                // Always ensure the default "AI Integrity Test" is in the list
+                if (!unique.includes('AI Integrity Test')) {
+                    unique.push('AI Integrity Test');
                 }
+                
+                unique.sort();
+                
+                const filter = document.getElementById('assignment-filter');
+                const currentVal = filter.value;
+                
+                filter.innerHTML = unique.map(name => `<option value="${name}" ${name === currentVal ? 'selected' : ''}>${name.toUpperCase()}</option>`).join('');
+                
+                // If the list changed, trigger a data fetch for the current selection
+                if (unique.length > 0) fetchIntegrityData();
             } catch (e) {
                 console.error("Failed to populate assignments:", e);
             }
