@@ -277,6 +277,7 @@
         let questionsData = [];
         let pendingStatus = null;
         let pendingScore = null;
+        let assignmentSettings = { is_global_locked: false, locked_periods: [], silenced_alerts: [] };
 
         // --- AUTH LOGIC ---
         async function handleLogin() {
@@ -376,6 +377,47 @@
             }, 30000);
 
             setTimeout(() => document.getElementById('login-overlay').classList.add('hidden'), 500);
+            
+            // Check for lock status immediately
+            checkAccessControl();
+        }
+
+        function checkAccessControl() {
+            if (!student.id) return;
+            
+            const isGlobalLocked = assignmentSettings.is_global_locked;
+            const isPeriodLocked = assignmentSettings.locked_periods.includes(parseInt(student.period));
+            const isIndividualLocked = student.status === "LOCKED_BY_PROCTOR";
+
+            const lockOverlay = document.getElementById('lock-overlay');
+            if (isGlobalLocked || isPeriodLocked || isIndividualLocked) {
+                if (!lockOverlay) createLockOverlay();
+                document.getElementById('lock-overlay').classList.remove('hidden');
+                document.getElementById('lock-message').textContent = isIndividualLocked ? "YOUR NODE HAS BEEN INDIVIDUALLY LOCKED BY THE PROCTOR." : "THIS ASSESSMENT IS CURRENTLY LOCKED BY THE PROCTOR.";
+                isTesting = false;
+                if (timerInterval) clearInterval(timerInterval);
+            } else if (lockOverlay) {
+                lockOverlay.classList.add('hidden');
+            }
+        }
+
+        function createLockOverlay() {
+            const div = document.createElement('div');
+            div.id = 'lock-overlay';
+            div.className = 'fixed inset-0 z-[200] bg-slate-950 flex flex-col items-center justify-center p-10 text-center';
+            div.innerHTML = `
+                <div class="w-24 h-24 bg-red-500/10 rounded-3xl flex items-center justify-center border border-red-500/20 mb-8 animate-pulse">
+                    <i data-lucide="lock" class="text-red-500 w-12 h-12"></i>
+                </div>
+                <h1 class="text-4xl font-black tracking-tighter text-white mb-4 uppercase italic">Node_Locked</h1>
+                <p id="lock-message" class="text-slate-400 max-w-md font-medium leading-relaxed uppercase text-[10px] tracking-[0.2em]"></p>
+                <div class="mt-12 flex items-center gap-2 text-[8px] font-black text-slate-600 uppercase tracking-[0.5em]">
+                    <div class="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+                    Integrity Protocol Active
+                </div>
+            `;
+            document.body.appendChild(div);
+            lucide.createIcons();
         }
 
         async function syncResults(statusLabel, score = null) {
@@ -429,23 +471,18 @@
 
                 finalViolations.sort((a, b) => new Date(b.ts) - new Date(a.ts));
 
-                const payload = {
-                    student_name: student.name,
-                    student_id: student.id,
-                    class_period: student.period,
-                    assignment_name: assignmentName,
-                    score: currentScore,
-                    status: statusLabel,
-                    details: {
-                        status: statusLabel,
-                        violations: finalViolations,
-                        last_alert: finalViolations.length > 0 ? finalViolations[0].type : "NONE",
-                        ts: new Date().toISOString(),
                         sync_count: (existing?.details?.sync_count || 0) + 1 
                     }
                 };
 
                 if (existing) {
+                    // Update local student status from remote
+                    student.status = existing.status;
+                    if (existing.status === "SCORE_RESET") {
+                        handleScoreReset();
+                    }
+                    checkAccessControl();
+
                     const { error: upError } = await sbClient.from('student_results').update(payload).eq('id', existing.id);
                     if (upError) throw upError;
                 } else {
@@ -879,6 +916,13 @@
 
         function logViolation(type, message) {
             if (isSessionTerminated) return;
+            
+            // Check if this alert type is silenced
+            if (assignmentSettings.silenced_alerts.includes(type)) {
+                console.log(`[PROCTOR] Alert Silenced: ${type}`);
+                return;
+            }
+
             const now = new Date();
             const qNum = currentQuestionIndex + 1;
             const logEntry = {
@@ -957,6 +1001,14 @@
                 if (data) {
                     MAX_QUESTIONS = data.max_questions || 999;
                     TIME_LIMIT_MINS = data.time_limit_mins || 15;
+                    if (data.details) {
+                        assignmentSettings = {
+                            is_global_locked: data.details.is_global_locked || false,
+                            locked_periods: data.details.locked_periods || [],
+                            silenced_alerts: data.details.silenced_alerts || []
+                        };
+                        checkAccessControl();
+                    }
                     console.log(`[CONFIG] Rules Loaded: ${MAX_QUESTIONS} Qs, ${TIME_LIMIT_MINS} Mins`);
                 } else {
                     console.warn(`[CONFIG] No assessment record found for "${ASSIGNMENT_NAME}". Using defaults.`);
@@ -1138,8 +1190,35 @@
                 // Sync progress occasionally during test (every 30 seconds)
                 if (timer % 30 === 0) {
                     syncResults("TEST_PROGRESS");
+                    fetchAssessmentConfig(); // Update global lock/silence settings every 30s
                 }
             }, 1000);
+        }
+
+        function handleScoreReset() {
+            if (!isSessionTerminated && currentScore === 0) return; // Already reset or not finished
+            
+            console.warn("[PROCTOR] Score Reset Detected from Dashboard!");
+            isSessionTerminated = false;
+            currentScore = 0;
+            currentQuestionIndex = 0;
+            integrityLogs = [];
+            
+            // Reset UI
+            resultsScreen.classList.add('hidden');
+            testScreen.classList.remove('hidden');
+            
+            // Re-render questions to clear selections
+            renderQuestions();
+            
+            // Re-start proctoring if needed
+            if (isTesting) {
+                if (timerInterval) clearInterval(timerInterval);
+                startTimer(TIME_LIMIT_MINS * 60);
+                if (!detectionInterval) detectLoop();
+            }
+            
+            showToast("Your assessment has been reset by the proctor.", "info");
         }
 
         async function submitTest() {
