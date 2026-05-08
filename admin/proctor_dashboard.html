@@ -813,23 +813,49 @@
             const assignment = document.getElementById('assignment-filter').value;
             console.log(`[DASHBOARD] Saving settings for ${assignment}...`);
 
-            // Use student_results with a special ID to store config (since it has the 'details' JSONB column)
-            const { error } = await sbClient
-                .from('student_results')
-                .upsert({ 
+            try {
+                // Manually check if config exists
+                const { data: existing } = await sbClient
+                    .from('student_results')
+                    .select('id')
+                    .eq('student_id', '__CONFIG__')
+                    .eq('assignment_name', assignment)
+                    .maybeSingle();
+
+                const payload = {
                     student_id: '__CONFIG__',
                     student_name: 'SYSTEM_CONFIG',
+                    class_period: 0,
                     assignment_name: assignment, 
+                    score: 0,
                     details: assignmentSettings,
                     status: 'CONFIG'
-                }, { onConflict: 'student_id,assignment_name' });
+                };
 
-            if (error) {
-                console.error("Save settings error:", error);
-                alert("Failed to save settings. Ensure 'student_id' and 'assignment_name' allow for configuration storage.");
-            } else {
-                closeSettingsModal();
-                fetchIntegrityData();
+                let error;
+                if (existing) {
+                    const res = await sbClient
+                        .from('student_results')
+                        .update(payload)
+                        .eq('id', existing.id);
+                    error = res.error;
+                } else {
+                    const res = await sbClient
+                        .from('student_results')
+                        .insert([payload]);
+                    error = res.error;
+                }
+
+                if (error) {
+                    console.error("Save settings error:", error);
+                    alert(`Failed to save settings: ${error.message || 'Unknown Error'}. Ensure student_results table allows CONFIG storage.`);
+                } else {
+                    closeSettingsModal();
+                    fetchIntegrityData();
+                }
+            } catch (e) {
+                console.error("Critical save error:", e);
+                alert("Critical error during save process.");
             }
         }
 
