@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Wind Tunnel | Aerospace Simulation</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="hud-grid"></div>
+    <div id="canvas-container"></div>
+    
+    <div id="ui-layer">
+        <header>
+            <h1>AeroSim <span style="font-weight: 400; opacity: 0.5;">V1.0</span></h1>
+        </header>
+
+        <div class="controls-sidebar panel">
+            <div class="control-group">
+                <label>Wind Velocity</label>
+                <input type="range" id="wind-speed" min="0" max="100" value="50">
+            </div>
+            
+            <div class="control-group">
+                <label>Smoke Density</label>
+                <input type="range" id="particle-density" min="1000" max="50000" step="1000" value="10000">
+            </div>
+
+            <div class="control-group">
+                <label>Visual Mode</label>
+                <select id="visual-mode" style="background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--border-color); padding: 5px;">
+                    <option value="particles">Discrete Particles</option>
+                    <option value="streamlines">Flow Streamlines</option>
+                </select>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 0.5rem 0;">
+
+            <div class="upload-area" id="drop-zone">
+                <p>Drag & Drop 3D Model</p>
+                <p style="font-size: 0.7rem; opacity: 0.6; margin-top: 0.5rem;">.GLB, .GLTF supported</p>
+                <button id="upload-btn" style="margin-top: 1rem;">Select File</button>
+                <input type="file" id="file-input" accept=".glb,.gltf">
+            </div>
+
+            <div class="control-group">
+                <button id="reset-view">Reset Camera</button>
+            </div>
+        </div>
+
+        <div class="stats-overlay panel">
+            <div class="stat-item">LIFT COEFFICIENT: <span id="lift-val" class="stat-value">0.000</span></div>
+            <div class="stat-item">DRAG FORCE: <span id="drag-val" class="stat-value">0.000</span> N</div>
+            <div class="stat-item">ACTIVE PARTICLES: <span id="particle-count" class="stat-value">10,000</span></div>
+        </div>
+    </div>
+
+    <script type="module" src="main.js"></script>
+</body>
+</html>
