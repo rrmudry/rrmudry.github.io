@@ -100,8 +100,8 @@
                 <option value="6">PERIOD 6</option>
             </select>
             
-            <button id="btn-simulate" class="bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-500 border border-indigo-500/20 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">
-                Simulate 40 Nodes
+            <button id="btn-assignment-settings" class="bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-500 border border-indigo-500/20 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2">
+                <i data-lucide="settings" class="w-3.5 h-3.5"></i> Node Config
             </button>
 
             <button id="btn-clear-all" class="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">
@@ -196,13 +196,64 @@
             <div class="p-6 border-t border-white/10 flex justify-between items-center bg-slate-950/50">
                 <p class="text-[9px] text-slate-600 font-bold uppercase">Report Generated: <span id="modal-timestamp">---</span></p>
                 <div class="flex gap-3">
-                    <button id="modal-btn-clear" class="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
-                        Clear All Violations
+                    <button id="modal-btn-lock" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border border-amber-500/20 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
+                        Lock Node
                     </button>
-                    <button onclick="closeModal()" class="bg-white/5 hover:bg-white/10 text-slate-300 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-white/10 transition-all">
-                        Close Report
+                    <button id="modal-btn-reset-score" class="bg-blue-500/10 hover:bg-blue-500/20 text-blue-500 border border-blue-500/20 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
+                        Reset Score
+                    </button>
+                    <button id="modal-btn-clear" class="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
+                        Clear Violations
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assignment Settings Modal -->
+    <div id="settings-modal" class="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-6 hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-slate-900 w-full max-w-xl rounded-3xl border border-white/10 shadow-2xl flex flex-col overflow-hidden">
+            <div class="p-6 border-b border-white/10 flex justify-between items-center bg-slate-950/50">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="settings" class="text-indigo-400"></i>
+                    <h2 class="text-xl font-bold tracking-tight">Assignment Configuration</h2>
+                </div>
+                <button onclick="closeSettingsModal()" class="text-slate-500 hover:text-white transition-colors">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <div class="p-8 space-y-8">
+                <!-- Access Control -->
+                <div class="space-y-4">
+                    <h3 class="text-xs font-black uppercase tracking-widest text-slate-500 italic">Access Control // Real-Time</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button onclick="toggleGlobalLock()" id="btn-global-lock" class="p-4 rounded-2xl border border-white/5 flex flex-col gap-2 transition-all">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Global Node Lock</span>
+                            <span id="global-lock-status" class="text-lg font-black text-emerald-500 uppercase italic">UNLOCKED</span>
+                        </button>
+                        <div class="p-4 rounded-2xl border border-white/5 space-y-3">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Locked Periods</span>
+                            <div class="flex flex-wrap gap-2" id="locked-periods-container">
+                                <!-- JS Injected -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alert Silencing -->
+                <div class="space-y-4">
+                    <h3 class="text-xs font-black uppercase tracking-widest text-slate-500 italic">Alert Silencing // Behavioral Mute</h3>
+                    <div class="grid grid-cols-2 gap-3" id="silence-options">
+                        <!-- JS Injected -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 border-t border-white/10 flex justify-end bg-slate-950/50">
+                <button onclick="saveAssignmentSettings()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-bold uppercase tracking-widest text-xs transition-all shadow-lg shadow-indigo-500/20">
+                    Apply Changes
+                </button>
             </div>
         </div>
     </div>
@@ -212,6 +263,13 @@
         const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
         const sbClient = supabase.createClient(SB_URL, SB_KEY);
+
+        // Global Settings State
+        let assignmentSettings = {
+            is_global_locked: false,
+            locked_periods: [],
+            silenced_alerts: []
+        };
 
         async function fetchIntegrityData() {
             if (window.isSimulating) {
@@ -455,11 +513,50 @@
                 })
                 .eq('id', recordId);
 
-            if (error) {
-                console.error("Acknowledge error:", error);
-                alert("Failed to acknowledge student. Check connection.");
             } else {
                 fetchIntegrityData();
+            }
+        }
+
+        async function lockStudent(recordId, currentStatus) {
+            const isCurrentlyLocked = currentStatus === "LOCKED_BY_PROCTOR";
+            const newStatus = isCurrentlyLocked ? "TEST_ACTIVE" : "LOCKED_BY_PROCTOR";
+            
+            const { error } = await sbClient
+                .from('student_results')
+                .update({ status: newStatus })
+                .eq('id', recordId);
+
+            if (error) {
+                console.error("Lock error:", error);
+            } else {
+                fetchIntegrityData();
+                closeModal();
+            }
+        }
+
+        async function resetStudentScore(recordId) {
+            if (!confirm("Are you sure you want to reset this student's score to 0? They will be able to retake the test.")) return;
+            
+            const { error } = await sbClient
+                .from('student_results')
+                .update({ 
+                    score: 0, 
+                    status: "SCORE_RESET",
+                    details: {
+                        status: "SCORE_RESET",
+                        violations: [],
+                        last_alert: "SCORE_RESET",
+                        ts: new Date().toISOString()
+                    }
+                })
+                .eq('id', recordId);
+
+            if (error) {
+                console.error("Reset score error:", error);
+            } else {
+                fetchIntegrityData();
+                closeModal();
             }
         }
 
@@ -582,7 +679,17 @@
                 acknowledgeStudent(s.id);
                 closeModal();
             };
-            clearBtn.style.display = isCritical ? 'block' : 'none';
+            clearBtn.style.display = (isCritical || violations.length > 0) ? 'block' : 'none';
+
+            const lockBtn = document.getElementById('modal-btn-lock');
+            const isLocked = s.status === "LOCKED_BY_PROCTOR";
+            lockBtn.textContent = isLocked ? "Unlock Node" : "Lock Node";
+            lockBtn.className = isLocked ? "bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 border border-emerald-500/20 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all" : "bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border border-amber-500/20 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all";
+            lockBtn.onclick = () => lockStudent(s.id, s.status);
+
+            const resetBtn = document.getElementById('modal-btn-reset-score');
+            resetBtn.onclick = () => resetStudentScore(s.id);
+            resetBtn.style.display = s.score > 0 ? 'block' : 'none';
 
             // Show Modal
             modal.classList.remove('hidden');
@@ -605,6 +712,112 @@
 
         // Bind Global Buttons
         document.getElementById('btn-clear-all').addEventListener('click', acknowledgeAll);
+        document.getElementById('btn-assignment-settings').addEventListener('click', showSettingsModal);
+
+        // --- SETTINGS MODAL LOGIC ---
+        async function showSettingsModal() {
+            const modal = document.getElementById('settings-modal');
+            const assignment = document.getElementById('assignment-filter').value;
+
+            // Fetch current settings from 'assessments' table
+            const { data, error } = await sbClient
+                .from('assessments')
+                .select('details')
+                .eq('assignment_name', assignment)
+                .maybeSingle();
+
+            if (data && data.details) {
+                assignmentSettings = {
+                    is_global_locked: data.details.is_global_locked || false,
+                    locked_periods: data.details.locked_periods || [],
+                    silenced_alerts: data.details.silenced_alerts || []
+                };
+            }
+
+            renderSettingsUI();
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.add('opacity-100');
+                lucide.createIcons();
+            }, 10);
+        }
+
+        function renderSettingsUI() {
+            // Global Lock
+            const lockStatus = document.getElementById('global-lock-status');
+            const lockBtn = document.getElementById('btn-global-lock');
+            lockStatus.textContent = assignmentSettings.is_global_locked ? "LOCKED" : "UNLOCKED";
+            lockStatus.className = `text-lg font-black uppercase italic ${assignmentSettings.is_global_locked ? 'text-red-500' : 'text-emerald-500'}`;
+            lockBtn.className = `p-4 rounded-2xl border flex flex-col gap-2 transition-all ${assignmentSettings.is_global_locked ? 'border-red-500/50 bg-red-500/5' : 'border-white/5 bg-white/5'}`;
+
+            // Periods
+            const periodsContainer = document.getElementById('locked-periods-container');
+            periodsContainer.innerHTML = [1,2,3,4,5,6].map(p => `
+                <button onclick="togglePeriodLock(${p})" class="px-3 py-1.5 rounded-lg border text-[10px] font-bold uppercase transition-all ${assignmentSettings.locked_periods.includes(p) ? 'bg-red-500/20 border-red-500/50 text-red-400' : 'bg-white/5 border-white/5 text-slate-500'}">
+                    P${p}
+                </button>
+            `).join('');
+
+            // Alerts
+            const alertTypes = ["Cell Phone", "Down Gaze", "Focus Loss", "Visual Loss", "Clipboard Alert", "Interface Alert"];
+            const silenceContainer = document.getElementById('silence-options');
+            silenceContainer.innerHTML = alertTypes.map(type => `
+                <label class="flex items-center gap-3 p-3 rounded-xl border border-white/5 bg-white/5 cursor-pointer hover:bg-white/10 transition-all">
+                    <input type="checkbox" onchange="toggleAlertSilence('${type}')" ${assignmentSettings.silenced_alerts.includes(type) ? 'checked' : ''} class="w-4 h-4 rounded border-white/10 bg-slate-900 text-indigo-600 focus:ring-indigo-500">
+                    <span class="text-[10px] font-bold text-slate-300 uppercase tracking-wider">${type}</span>
+                </label>
+            `).join('');
+        }
+
+        function toggleGlobalLock() {
+            assignmentSettings.is_global_locked = !assignmentSettings.is_global_locked;
+            renderSettingsUI();
+        }
+
+        function togglePeriodLock(p) {
+            if (assignmentSettings.locked_periods.includes(p)) {
+                assignmentSettings.locked_periods = assignmentSettings.locked_periods.filter(item => item !== p);
+            } else {
+                assignmentSettings.locked_periods.push(p);
+            }
+            renderSettingsUI();
+        }
+
+        function toggleAlertSilence(type) {
+            if (assignmentSettings.silenced_alerts.includes(type)) {
+                assignmentSettings.silenced_alerts = assignmentSettings.silenced_alerts.filter(item => item !== type);
+            } else {
+                assignmentSettings.silenced_alerts.push(type);
+            }
+        }
+
+        async function saveAssignmentSettings() {
+            const assignment = document.getElementById('assignment-filter').value;
+            console.log(`[DASHBOARD] Saving settings for ${assignment}...`);
+
+            const { error } = await sbClient
+                .from('assessments')
+                .update({ details: assignmentSettings })
+                .eq('assignment_name', assignment);
+
+            if (error) {
+                console.error("Save settings error:", error);
+                alert("Failed to save settings. Table might need a 'details' column.");
+            } else {
+                closeSettingsModal();
+                fetchIntegrityData();
+            }
+        }
+
+        function closeSettingsModal() {
+            const modal = document.getElementById('settings-modal');
+            modal.classList.remove('opacity-100');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
         document.getElementById('btn-simulate').addEventListener('click', toggleSimulation);
 
         // Close modal on escape key or clicking outside
