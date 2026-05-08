@@ -420,7 +420,8 @@
                 const isCritical = (hasViolations || isAlertStatus) && !isFinished;
                 
                 const isGlobalLocked = assignmentSettings.is_global_locked;
-                const isPeriodLocked = assignmentSettings.locked_periods.includes(parseInt(s.class_period));
+                const safePeriod = parseInt(String(s.class_period || "").replace(/\D/g, ''));
+                const isPeriodLocked = !isNaN(safePeriod) && assignmentSettings.locked_periods.includes(safePeriod);
                 const isIndividualLocked = s.details?.is_locked || s.status === "LOCKED_BY_PROCTOR";
                 const isAnyLocked = isGlobalLocked || isPeriodLocked || isIndividualLocked;
                 
@@ -539,13 +540,19 @@
             }
             console.log(`[DASHBOARD] Acknowledging student record: ${recordId}`);
             
+            const s = window.currentStudents.find(std => std.id === recordId);
+            const preservedLock = s?.details?.is_locked || false;
+
             const { error } = await sbClient
                 .from('student_results')
                 .update({ 
+                    status: preservedLock ? "LOCKED_BY_PROCTOR" : "CLEARED_BY_TEACHER",
                     details: { 
+                        ...(s?.details || {}),
                         status: "CLEARED_BY_TEACHER", 
                         violations: [], 
                         last_alert: "NONE",
+                        is_locked: preservedLock,
                         ts: new Date().toISOString() 
                     } 
                 })
