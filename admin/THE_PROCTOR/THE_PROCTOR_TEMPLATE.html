@@ -273,7 +273,7 @@
         let questionsData = [];
         let pendingStatus = null;
         let pendingScore = null;
-        let assignmentSettings = { is_global_locked: false, locked_periods: [], silenced_alerts: [] };
+        let assignmentSettings = { is_global_locked: true, locked_periods: [], silenced_alerts: [] };
 
         // --- AUTH LOGIC ---
         async function handleLogin() {
@@ -1026,12 +1026,15 @@
 
                 if (proctorConfig && proctorConfig.details) {
                     assignmentSettings = {
-                        is_global_locked: proctorConfig.details.is_global_locked || false,
+                        is_global_locked: proctorConfig.details.hasOwnProperty('is_global_locked') ? proctorConfig.details.is_global_locked : true,
                         locked_periods: proctorConfig.details.locked_periods || [],
                         silenced_alerts: proctorConfig.details.silenced_alerts || []
                     };
-                    checkAccessControl();
+                } else {
+                    // Default to locked if no config exists
+                    assignmentSettings.is_global_locked = true;
                 }
+                checkAccessControl();
                 if (!data && !proctorConfig) {
                     console.warn(`[CONFIG] No assessment record found for "${ASSIGNMENT_NAME}". Using defaults.`);
                 }
