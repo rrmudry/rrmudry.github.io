@@ -11,9 +11,13 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@400;700;900&display=swap');
-        body { font-family: 'Outfit', sans-serif; background-color: #020617; color: #f8fafc; }
-        .glass { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        body { font-family: 'Outfit', sans-serif; background-color: #010409; color: #ffffff; }
+        .glass { background: rgba(13, 17, 23, 0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.15); }
         .mono { font-family: 'JetBrains Mono', monospace; }
+        /* High contrast for accessibility */
+        .label-text { font-size: 0.75rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; }
+        .accent-indigo { color: #818cf8; }
+        .bg-accent-indigo { background-color: #4f46e5; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col p-6 md:p-10">
@@ -39,37 +43,37 @@
                     <i data-lucide="book-open" class="text-white w-8 h-8"></i>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-black uppercase tracking-tighter italic">Question<span class="text-indigo-500">Editor</span></h1>
-                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Master Curriculum Management Node</p>
+                    <h1 class="text-3xl font-black uppercase tracking-tighter italic">Question<span class="text-indigo-400">Editor</span></h1>
+                    <p class="label-text">Master Curriculum Management Node</p>
                 </div>
             </div>
 
-            <div class="flex items-center gap-4">
-                <select id="assignment-select" class="bg-slate-900 border border-white/10 rounded-2xl px-6 py-4 text-sm font-bold focus:border-indigo-500 outline-none transition-all min-w-[240px]">
+            <div class="flex items-center gap-6">
+                <select id="assignment-select" class="bg-slate-900 border-2 border-white/10 rounded-2xl px-6 py-4 text-base font-bold focus:border-indigo-500 outline-none transition-all min-w-[300px]">
                     <option value="">SELECT ASSIGNMENT...</option>
                 </select>
-                <button id="btn-add-question" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center gap-2">
-                    <i data-lucide="plus" class="w-4 h-4"></i> New Question
+                <button id="btn-add-question" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all flex items-center gap-3">
+                    <i data-lucide="plus" class="w-5 h-5"></i> New Question
                 </button>
-                <button id="btn-logout" class="bg-white/5 hover:bg-white/10 text-slate-400 p-4 rounded-2xl border border-white/5 transition-all">
-                    <i data-lucide="log-out" class="w-5 h-5"></i>
+                <button id="btn-logout" class="bg-white/5 hover:bg-white/10 text-slate-400 p-4 rounded-2xl border-2 border-white/5 transition-all">
+                    <i data-lucide="log-out" class="w-6 h-6"></i>
                 </button>
             </div>
         </header>
 
         <!-- Stats Bar -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="glass p-6 rounded-3xl border-l-4 border-indigo-500">
-                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Total Questions</p>
-                <p id="stat-total" class="text-2xl font-black italic">0</p>
+            <div class="glass p-8 rounded-3xl border-l-8 border-indigo-500">
+                <p class="label-text mb-2">Total Questions</p>
+                <p id="stat-total" class="text-4xl font-black italic">0</p>
             </div>
-            <div class="glass p-6 rounded-3xl border-l-4 border-emerald-500">
-                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Static MCQs</p>
-                <p id="stat-static" class="text-2xl font-black italic">0</p>
+            <div class="glass p-8 rounded-3xl border-l-8 border-emerald-500">
+                <p class="label-text mb-2">Static MCQs</p>
+                <p id="stat-static" class="text-4xl font-black italic">0</p>
             </div>
-            <div class="glass p-6 rounded-3xl border-l-4 border-amber-500">
-                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Calculated Questions</p>
-                <p id="stat-calculated" class="text-2xl font-black italic">0</p>
+            <div class="glass p-8 rounded-3xl border-l-8 border-amber-500">
+                <p class="label-text mb-2">Calculated Questions</p>
+                <p id="stat-calculated" class="text-4xl font-black italic">0</p>
             </div>
         </div>
 
@@ -98,46 +102,46 @@
                 <form id="question-form" class="space-y-6">
                     <input type="hidden" id="edit-id">
                     
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-2 gap-6">
                         <div>
-                            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-2 mb-2 block">Question Type</label>
-                            <select id="input-type" class="w-full bg-slate-900 border border-white/10 rounded-2xl px-4 py-3 text-sm font-bold outline-none focus:border-indigo-500 transition-all">
+                            <label class="label-text ml-2 mb-3 block">Question Type</label>
+                            <select id="input-type" class="w-full bg-slate-900 border-2 border-white/10 rounded-2xl px-6 py-4 text-base font-bold outline-none focus:border-indigo-500 transition-all">
                                 <option value="static">Static Multiple Choice</option>
                                 <option value="calculated">Calculated (Math)</option>
                             </select>
                         </div>
                         <div>
-                            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-2 mb-2 block">Sort Order (ID)</label>
-                            <input type="number" id="input-id" class="w-full bg-slate-900 border border-white/10 rounded-2xl px-4 py-3 text-sm font-bold outline-none focus:border-indigo-500 transition-all">
+                            <label class="label-text ml-2 mb-3 block">Sort Order (ID)</label>
+                            <input type="number" id="input-id" class="w-full bg-slate-900 border-2 border-white/10 rounded-2xl px-6 py-4 text-base font-bold outline-none focus:border-indigo-500 transition-all">
                         </div>
                     </div>
 
                     <div>
-                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-2 mb-2 block">Question Text</label>
-                        <textarea id="input-text" rows="3" class="w-full bg-slate-900 border border-white/10 rounded-2xl px-4 py-3 text-sm font-bold outline-none focus:border-indigo-500 transition-all resize-none"></textarea>
-                        <p class="text-[9px] text-slate-500 mt-2 ml-2">Use {{var}} for variables in calculated questions.</p>
+                        <label class="label-text ml-2 mb-3 block">Question Text</label>
+                        <textarea id="input-text" rows="4" class="w-full bg-slate-900 border-2 border-white/10 rounded-2xl px-6 py-4 text-lg font-bold outline-none focus:border-indigo-500 transition-all resize-none"></textarea>
+                        <p class="text-xs text-slate-400 mt-3 ml-2 font-medium italic">Use {{var}} for variables in calculated questions.</p>
                     </div>
 
                     <!-- Static Options -->
-                    <div id="section-static" class="space-y-4">
-                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-2 block">Answer Options</label>
-                        <div id="options-container" class="space-y-2">
+                    <div id="section-static" class="space-y-6">
+                        <label class="label-text ml-2 block">Answer Options</label>
+                        <div id="options-container" class="space-y-3">
                             <!-- Injected options -->
                         </div>
-                        <button type="button" onclick="addOption()" class="text-[10px] font-black text-indigo-400 uppercase tracking-widest ml-2 flex items-center gap-1">
-                            <i data-lucide="plus-circle" class="w-3 h-3"></i> Add Option
+                        <button type="button" onclick="addOption()" class="text-xs font-black text-indigo-400 uppercase tracking-widest ml-2 flex items-center gap-2">
+                            <i data-lucide="plus-circle" class="w-4 h-4"></i> Add Option
                         </button>
-                        <div>
-                            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-2 mb-2 block">Correct Answer</label>
-                            <input type="text" id="input-correct" class="w-full bg-emerald-500/10 border border-emerald-500/30 rounded-2xl px-4 py-3 text-sm font-bold text-emerald-400 outline-none focus:border-emerald-500 transition-all">
+                        <div class="pt-4">
+                            <label class="label-text ml-2 mb-3 block">Correct Answer</label>
+                            <input type="text" id="input-correct" class="w-full bg-emerald-500/5 border-2 border-emerald-500/30 rounded-2xl px-6 py-4 text-base font-bold text-emerald-400 outline-none focus:border-emerald-500 transition-all">
                         </div>
                     </div>
 
                     <!-- Calculated Config -->
-                    <div id="section-calculated" class="hidden space-y-4">
-                        <div class="glass p-4 rounded-2xl border-indigo-500/30">
-                            <label class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2 block">Math Configuration (JSON)</label>
-                            <textarea id="input-config" rows="5" class="w-full bg-slate-950 border border-white/5 rounded-xl px-4 py-3 text-xs font-mono outline-none focus:border-indigo-500 transition-all resize-none"></textarea>
+                    <div id="section-calculated" class="hidden space-y-6">
+                        <div class="glass p-6 rounded-3xl border-2 border-indigo-500/30">
+                            <label class="label-text text-indigo-400 mb-3 block">Math Configuration (JSON)</label>
+                            <textarea id="input-config" rows="6" class="w-full bg-slate-950 border-2 border-white/5 rounded-2xl px-6 py-4 text-sm font-mono outline-none focus:border-indigo-500 transition-all resize-none"></textarea>
                         </div>
                     </div>
                 </form>
@@ -247,26 +251,29 @@
             }
 
             list.innerHTML = questions.map(q => `
-                <div class="glass p-6 rounded-3xl border border-white/5 hover:border-indigo-500/30 transition-all group">
-                    <div class="flex justify-between items-start gap-4">
+                <div class="glass p-8 rounded-[2rem] border-2 border-white/5 hover:border-indigo-500/50 transition-all group">
+                    <div class="flex justify-between items-start gap-8">
                         <div class="flex-grow">
-                            <div class="flex items-center gap-3 mb-2">
-                                <span class="mono text-[10px] font-bold text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded">#${q.id}</span>
-                                <span class="text-[9px] font-black uppercase tracking-widest ${q.type === 'calculated' ? 'text-amber-500' : 'text-emerald-500'}">${q.type}</span>
+                            <div class="flex items-center gap-4 mb-4">
+                                <span class="mono text-xs font-black text-indigo-400 bg-indigo-500/10 px-3 py-1.5 rounded-lg">#${q.id}</span>
+                                <span class="text-xs font-black uppercase tracking-widest ${q.type === 'calculated' ? 'text-amber-400' : 'text-emerald-400'}">${q.type}</span>
                             </div>
-                            <p class="text-sm font-bold text-slate-200 mb-4">${q.text}</p>
+                            <p class="text-xl font-bold text-white mb-6 leading-relaxed">${q.text}</p>
                             ${q.type === 'static' ? `
-                                <div class="flex flex-wrap gap-2">
-                                    ${q.options.map(opt => `<span class="text-[10px] px-3 py-1 rounded-lg border ${opt === q.correct_answer ? 'border-emerald-500/50 text-emerald-400 bg-emerald-500/5' : 'border-white/5 text-slate-500'}">${opt}</span>`).join('')}
+                                <div class="flex flex-wrap gap-3">
+                                    ${q.options.map(opt => `
+                                        <span class="text-xs px-4 py-2 rounded-xl border-2 font-bold ${opt === q.correct_answer ? 'border-emerald-500/50 text-emerald-400 bg-emerald-500/10' : 'border-white/5 text-slate-400'}">
+                                            ${opt}
+                                        </span>`).join('')}
                                 </div>
                             ` : `
-                                <div class="bg-slate-950/50 p-3 rounded-xl border border-white/5 mono text-[10px] text-slate-400">
-                                    Formula: ${q.config?.calc || 'N/A'} | Unit: ${q.config?.unit || 'N/A'}
+                                <div class="bg-slate-950/80 p-4 rounded-2xl border-2 border-white/5 mono text-xs text-slate-300">
+                                    <span class="text-indigo-400 font-bold">FORMULA:</span> ${q.config?.calc || 'N/A'} <span class="mx-3 text-white/10">|</span> <span class="text-indigo-400 font-bold">UNIT:</span> ${q.config?.unit || 'N/A'}
                                 </div>
                             `}
                         </div>
-                        <button onclick="editQuestion('${q.id}')" class="text-slate-500 hover:text-indigo-400 p-3 rounded-2xl hover:bg-indigo-500/10 transition-all opacity-0 group-hover:opacity-100">
-                            <i data-lucide="edit-3" class="w-5 h-5"></i>
+                        <button onclick="editQuestion('${q.id}')" class="bg-indigo-600/10 hover:bg-indigo-600 text-indigo-400 hover:text-white p-5 rounded-2xl transition-all opacity-0 group-hover:opacity-100 shadow-xl">
+                            <i data-lucide="edit-3" class="w-6 h-6"></i>
                         </button>
                     </div>
                 </div>
