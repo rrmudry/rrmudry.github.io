@@ -333,10 +333,22 @@
             showModal();
         };
 
-        document.getElementById('btn-add-question').onclick = () => {
-            document.getElementById('modal-title').innerHTML = `Add <span class="text-indigo-500">Question</span>`;
+        document.getElementById('btn-add-question').onclick = async () => {
+            // Find the highest ID globally to suggest the next one
+            let nextId = 1;
+            try {
+                const snapshot = await db.collection('questions').orderBy('id', 'desc').limit(1).get();
+                if (!snapshot.empty) {
+                    nextId = snapshot.docs[0].data().id + 1;
+                }
+            } catch (err) {
+                console.error("Error fetching max ID:", err);
+            }
+
+            document.getElementById('modal-title').innerHTML = `Add <span class="text-indigo-400">New Question</span>`;
             document.getElementById('edit-id').value = '';
             document.getElementById('question-form').reset();
+            document.getElementById('input-id').value = nextId;
             document.getElementById('options-container').innerHTML = '';
             ['Option A', 'Option B', 'Option C'].forEach(opt => addOption(opt));
             document.getElementById('btn-delete').classList.add('hidden');
