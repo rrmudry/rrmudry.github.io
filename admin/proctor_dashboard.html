@@ -72,7 +72,24 @@
     </style>
 </head>
 
-<body class="h-screen flex flex-col">
+<body class="h-screen flex flex-col overflow-hidden">
+    <!-- Auth Guard Overlay -->
+    <div id="auth-overlay" class="fixed inset-0 z-[100] glass flex items-center justify-center p-6">
+        <div class="max-w-md w-full text-center space-y-8">
+            <div class="bg-indigo-600 w-24 h-24 rounded-[2rem] flex items-center justify-center mx-auto shadow-2xl">
+                <i data-lucide="shield-check" class="text-white w-12 h-12"></i>
+            </div>
+            <div>
+                <h1 class="text-4xl font-black uppercase tracking-tighter italic mb-4">Proctor<span class="text-indigo-400">Secure</span></h1>
+                <p class="text-slate-400 font-bold leading-relaxed">Authorized access only. Please sign in with your teacher account.</p>
+            </div>
+            <button id="btn-login" class="w-full bg-white text-black py-5 rounded-2xl font-black uppercase tracking-widest hover:scale-[1.02] transition-all flex items-center justify-center gap-4">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-6 h-6">
+                Sign in with Google
+            </button>
+            <p id="auth-error" class="text-rose-500 font-bold text-sm hidden">Unauthorized account. Contact system administrator.</p>
+        </div>
+    </div>
 
     <!-- Header -->
     <header class="p-4 border-b border-white/10 flex justify-between items-center bg-slate-950/50 backdrop-blur-md">
@@ -261,6 +278,11 @@
     </div>
 
     <script>
+        // Check for file protocol
+        if (window.location.protocol === 'file:') {
+            alert("⚠️ WARNING: Firebase Auth does not work via 'file://' protocol. Please use 'http://localhost:8080' to access the dashboard.");
+        }
+
         // --- FIREBASE CONFIG ---
         const firebaseConfig = {
             projectId: "site-6e500",
@@ -274,6 +296,30 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        const auth = firebase.auth();
+        const REQUIRED_EMAIL = "rmudry@orangeusd.org";
+
+        // Auth Guard Logic
+        auth.onAuthStateChanged(user => {
+            if (user && user.email === REQUIRED_EMAIL) {
+                document.getElementById('auth-overlay').classList.add('hidden');
+                initDashboard();
+            } else {
+                document.getElementById('auth-overlay').classList.remove('hidden');
+                if (user) {
+                    document.getElementById('auth-error').classList.remove('hidden');
+                    auth.signOut();
+                }
+            }
+        });
+
+        document.getElementById('btn-login').onclick = () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider).catch(err => {
+                console.error("Auth error:", err);
+                alert("Login failed. Make sure you are using http://localhost:8080");
+            });
+        };
 
         // Global Settings State
         let assignmentSettings = {
@@ -721,9 +767,6 @@
         document.getElementById('btn-assignment-settings').addEventListener('click', showSettingsModal);
         window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
         document.getElementById('report-modal').addEventListener('click', (e) => { if (e.target.id === 'report-modal') closeModal(); });
-
-        // Start
-        initDashboard();
     </script>
 </body>
 
