@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Question Editor // Curriculum Node</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@400;700;900&display=swap');
+        body { font-family: 'Outfit', sans-serif; background-color: #020617; color: #f8fafc; }
+        .glass { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col p-6 md:p-10">
+
+    <!-- Auth Guard Layer -->
+    <div id="auth-overlay" class="fixed inset-0 z-[100] bg-slate-950 flex flex-col items-center justify-center hidden">
+        <div class="bg-indigo-600 p-4 rounded-3xl shadow-2xl shadow-indigo-500/20 mb-8">
+            <i data-lucide="shield-alert" class="text-white w-12 h-12"></i>
+        </div>
+        <h1 class="text-3xl font-black uppercase tracking-tighter italic mb-2">Curriculum <span class="text-indigo-500">Editor</span></h1>
+        <p class="text-slate-500 font-bold uppercase tracking-widest text-[10px] mb-8">Authorized Personnel Only</p>
+        <button id="btn-login" class="bg-white text-slate-950 px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-indigo-500 hover:text-white transition-all flex items-center gap-3">
+            <i data-lucide="log-in" class="w-4 h-4"></i> Sign In with Google
+        </button>
+        <p id="auth-error" class="mt-6 text-rose-500 text-xs font-bold uppercase tracking-widest hidden">Access Denied</p>
+    </div>
+
+    <main id="main-content" class="opacity-0 transition-opacity duration-1000 flex flex-col gap-8 max-w-6xl mx-auto w-full">
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div class="flex items-center gap-4">
+                <div class="bg-indigo-600 p-3 rounded-2xl shadow-lg shadow-indigo-500/20">
+                    <i data-lucide="book-open" class="text-white w-8 h-8"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-black uppercase tracking-tighter italic">Question<span class="text-indigo-500">Editor</span></h1>
+                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Master Curriculum Management Node</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <select id="assignment-select" class="bg-slate-900 border border-white/10 rounded-2xl px-6 py-4 text-sm font-bold focus:border-indigo-500 outline-none transition-all min-w-[240px]">
+                    <option value="">SELECT ASSIGNMENT...</option>
+                </select>
+                <button id="btn-add-question" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center gap-2">
+                    <i data-lucide="plus" class="w-4 h-4"></i> New Question
+                </button>
+                <button id="btn-logout" class="bg-white/5 hover:bg-white/10 text-slate-400 p-4 rounded-2xl border border-white/5 transition-all">
+                    <i data-lucide="log-out" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Stats Bar -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="glass p-6 rounded-3xl border-l-4 border-indigo-500">
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Total Questions</p>
+                <p id="stat-total" class="text-2xl font-black italic">0</p>
+            </div>
+            <div class="glass p-6 rounded-3xl border-l-4 border-emerald-500">
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Static MCQs</p>
+                <p id="stat-static" class="text-2xl font-black italic">0</p>
+            </div>
+            <div class="glass p-6 rounded-3xl border-l-4 border-amber-500">
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Calculated Questions</p>
+                <p id="stat-calculated" class="text-2xl font-black italic">0</p>
+            </div>
+        </div>
+
+        <!-- Question List -->
+        <div id="question-list" class="grid grid-cols-1 gap-4">
+            <!-- Questions will be injected here -->
+            <div class="glass p-12 rounded-[2.5rem] text-center">
+                <p class="text-slate-500 font-bold uppercase tracking-widest text-sm italic">Select an assignment to view questions.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Editor Modal -->
+    <div id="modal-editor" class="fixed inset-0 z-[110] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center hidden">
+        <div class="glass w-full max-w-3xl mx-4 rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 max-h-[90vh] flex flex-col">
+            <div class="p-8 border-b border-white/5 flex justify-between items-center">
+                <div>
+                    <h2 id="modal-title" class="text-xl font-black italic uppercase tracking-tight">Add <span class="text-indigo-500">Question</span></h2>
+                    <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Question Configuration Interface</p>
+                </div>
+                <button onclick="closeModal()" class="text-slate-500 hover:text-white transition-colors">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div class="p-8 overflow-y-auto">
+                <form id="question-form" class="space-y-6">
+                    <input type="hidden" id="edit-id">
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-2 mb-2 block">Question Type</label>
+                            <select id="input-type" class="w-full bg-slate-900 border border-white/10 rounded-2xl px-4 py-3 text-sm font-bold outline-none focus:border-indigo-500 transition-all">
+                                <option value="static">Static Multiple Choice</option>
+                                <option value="calculated">Calculated (Math)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-2 mb-2 block">Sort Order (ID)</label>
+                            <input type="number" id="input-id" class="w-full bg-slate-900 border border-white/10 rounded-2xl px-4 py-3 text-sm font-bold outline-none focus:border-indigo-500 transition-all">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-2 mb-2 block">Question Text</label>
+                        <textarea id="input-text" rows="3" class="w-full bg-slate-900 border border-white/10 rounded-2xl px-4 py-3 text-sm font-bold outline-none focus:border-indigo-500 transition-all resize-none"></textarea>
+                        <p class="text-[9px] text-slate-500 mt-2 ml-2">Use {{var}} for variables in calculated questions.</p>
+                    </div>
+
+                    <!-- Static Options -->
+                    <div id="section-static" class="space-y-4">
+                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-2 block">Answer Options</label>
+                        <div id="options-container" class="space-y-2">
+                            <!-- Injected options -->
+                        </div>
+                        <button type="button" onclick="addOption()" class="text-[10px] font-black text-indigo-400 uppercase tracking-widest ml-2 flex items-center gap-1">
+                            <i data-lucide="plus-circle" class="w-3 h-3"></i> Add Option
+                        </button>
+                        <div>
+                            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-2 mb-2 block">Correct Answer</label>
+                            <input type="text" id="input-correct" class="w-full bg-emerald-500/10 border border-emerald-500/30 rounded-2xl px-4 py-3 text-sm font-bold text-emerald-400 outline-none focus:border-emerald-500 transition-all">
+                        </div>
+                    </div>
+
+                    <!-- Calculated Config -->
+                    <div id="section-calculated" class="hidden space-y-4">
+                        <div class="glass p-4 rounded-2xl border-indigo-500/30">
+                            <label class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2 block">Math Configuration (JSON)</label>
+                            <textarea id="input-config" rows="5" class="w-full bg-slate-950 border border-white/5 rounded-xl px-4 py-3 text-xs font-mono outline-none focus:border-indigo-500 transition-all resize-none"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="p-8 bg-slate-950/50 border-t border-white/5 flex gap-4">
+                <button id="btn-delete" type="button" class="px-6 py-4 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 text-[10px] font-black uppercase tracking-widest transition-all hidden">Delete</button>
+                <div class="flex-grow"></div>
+                <button onclick="closeModal()" class="px-8 py-4 rounded-2xl bg-white/5 hover:bg-white/10 text-[10px] font-black uppercase tracking-widest transition-all">Cancel</button>
+                <button id="btn-save" form="question-form" class="px-12 py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black uppercase tracking-widest transition-all">Save Question</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-8 right-8 z-[200] transform translate-y-20 opacity-0 transition-all duration-500">
+        <div class="glass px-6 py-4 rounded-2xl border-l-4 border-indigo-500 flex items-center gap-4 shadow-2xl">
+            <i id="toast-icon" data-lucide="info" class="w-5 h-5 text-indigo-500"></i>
+            <p id="toast-message" class="text-sm font-bold"></p>
+        </div>
+    </div>
+
+    <script>
+        // --- FIREBASE SETUP ---
+        const firebaseConfig = {
+            projectId: "site-6e500",
+            appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+            storageBucket: "site-6e500.firebasestorage.app",
+            apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+            authDomain: "site-6e500.firebaseapp.com",
+            messagingSenderId: "591530758858"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        const REQUIRED_EMAIL = "rmudry@orangeusd.org";
+        let currentQuestions = [];
+        let unsubscribe = null;
+
+        // --- AUTH LOGIC ---
+        auth.onAuthStateChanged((user) => {
+            const overlay = document.getElementById('auth-overlay');
+            const main = document.getElementById('main-content');
+            const error = document.getElementById('auth-error');
+
+            if (user) {
+                if (user.email === REQUIRED_EMAIL) {
+                    overlay.classList.add('hidden');
+                    main.classList.remove('opacity-0');
+                    initEditor();
+                } else {
+                    error.classList.remove('hidden');
+                    auth.signOut();
+                }
+            } else {
+                overlay.classList.remove('hidden');
+                main.classList.add('opacity-0');
+            }
+        });
+
+        document.getElementById('btn-login').onclick = () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider);
+        };
+
+        document.getElementById('btn-logout').onclick = () => auth.signOut();
+
+        // --- EDITOR LOGIC ---
+        async function initEditor() {
+            // Populate Assignments Dropdown
+            const snapshot = await db.collection('assessments').get();
+            const select = document.getElementById('assignment-select');
+            select.innerHTML = '<option value="">SELECT ASSIGNMENT...</option>' + 
+                snapshot.docs.map(doc => `<option value="${doc.id}">${doc.id.replace(/_/g, ' ')}</option>`).join('');
+
+            select.onchange = (e) => loadQuestions(e.target.value);
+        }
+
+        function loadQuestions(assignmentId) {
+            if (unsubscribe) unsubscribe();
+            if (!assignmentId) {
+                renderList([]);
+                return;
+            }
+
+            unsubscribe = db.collection('questions')
+                .where('assignment_name', '==', assignmentId)
+                .orderBy('id', 'asc')
+                .onSnapshot(snapshot => {
+                    currentQuestions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderList(currentQuestions);
+                });
+        }
+
+        function renderList(questions) {
+            const list = document.getElementById('question-list');
+            
+            // Update Stats
+            document.getElementById('stat-total').textContent = questions.length;
+            document.getElementById('stat-static').textContent = questions.filter(q => q.type === 'static').length;
+            document.getElementById('stat-calculated').textContent = questions.filter(q => q.type === 'calculated').length;
+
+            if (questions.length === 0) {
+                list.innerHTML = `<div class="glass p-12 rounded-[2.5rem] text-center text-slate-500 font-bold uppercase tracking-widest text-sm italic">No questions found for this assignment.</div>`;
+                return;
+            }
+
+            list.innerHTML = questions.map(q => `
+                <div class="glass p-6 rounded-3xl border border-white/5 hover:border-indigo-500/30 transition-all group">
+                    <div class="flex justify-between items-start gap-4">
+                        <div class="flex-grow">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="mono text-[10px] font-bold text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded">#${q.id}</span>
+                                <span class="text-[9px] font-black uppercase tracking-widest ${q.type === 'calculated' ? 'text-amber-500' : 'text-emerald-500'}">${q.type}</span>
+                            </div>
+                            <p class="text-sm font-bold text-slate-200 mb-4">${q.text}</p>
+                            ${q.type === 'static' ? `
+                                <div class="flex flex-wrap gap-2">
+                                    ${q.options.map(opt => `<span class="text-[10px] px-3 py-1 rounded-lg border ${opt === q.correct_answer ? 'border-emerald-500/50 text-emerald-400 bg-emerald-500/5' : 'border-white/5 text-slate-500'}">${opt}</span>`).join('')}
+                                </div>
+                            ` : `
+                                <div class="bg-slate-950/50 p-3 rounded-xl border border-white/5 mono text-[10px] text-slate-400">
+                                    Formula: ${q.config?.calc || 'N/A'} | Unit: ${q.config?.unit || 'N/A'}
+                                </div>
+                            `}
+                        </div>
+                        <button onclick="editQuestion('${q.id}')" class="text-slate-500 hover:text-indigo-400 p-3 rounded-2xl hover:bg-indigo-500/10 transition-all opacity-0 group-hover:opacity-100">
+                            <i data-lucide="edit-3" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        // --- MODAL LOGIC ---
+        function showModal() { document.getElementById('modal-editor').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('modal-editor').classList.add('hidden'); }
+
+        document.getElementById('input-type').onchange = (e) => {
+            document.getElementById('section-static').classList.toggle('hidden', e.target.value !== 'static');
+            document.getElementById('section-calculated').classList.toggle('hidden', e.target.value !== 'calculated');
+        };
+
+        function addOption(val = '') {
+            const container = document.getElementById('options-container');
+            const div = document.createElement('div');
+            div.className = "flex gap-2";
+            div.innerHTML = `
+                <input type="text" value="${val}" class="flex-grow bg-slate-950 border border-white/5 rounded-xl px-4 py-2 text-xs font-bold outline-none focus:border-indigo-500 transition-all option-input">
+                <button type="button" onclick="this.parentElement.remove()" class="text-rose-500/50 hover:text-rose-500 p-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+            `;
+            container.appendChild(div);
+            lucide.createIcons();
+        }
+
+        window.editQuestion = (id) => {
+            const q = currentQuestions.find(qst => qst.id === id);
+            if (!q) return;
+
+            document.getElementById('modal-title').innerHTML = `Edit <span class="text-indigo-500">Question</span>`;
+            document.getElementById('edit-id').value = q.id;
+            document.getElementById('input-id').value = q.id;
+            document.getElementById('input-type').value = q.type;
+            document.getElementById('input-text').value = q.text;
+            document.getElementById('input-correct').value = q.correct_answer || '';
+            
+            // Reset Sections
+            document.getElementById('section-static').classList.toggle('hidden', q.type !== 'static');
+            document.getElementById('section-calculated').classList.toggle('hidden', q.type !== 'calculated');
+
+            // Populate Static Options
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            if (q.options) q.options.forEach(opt => addOption(opt));
+
+            // Populate Calculated Config
+            document.getElementById('input-config').value = q.config ? JSON.stringify(q.config, null, 2) : '';
+
+            document.getElementById('btn-delete').classList.remove('hidden');
+            showModal();
+        };
+
+        document.getElementById('btn-add-question').onclick = () => {
+            document.getElementById('modal-title').innerHTML = `Add <span class="text-indigo-500">Question</span>`;
+            document.getElementById('edit-id').value = '';
+            document.getElementById('question-form').reset();
+            document.getElementById('options-container').innerHTML = '';
+            ['Option A', 'Option B', 'Option C'].forEach(opt => addOption(opt));
+            document.getElementById('btn-delete').classList.add('hidden');
+            showModal();
+        };
+
+        document.getElementById('question-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const assignmentId = document.getElementById('assignment-select').value;
+            if (!assignmentId) {
+                showToast("Please select an assignment first.", "error");
+                return;
+            }
+
+            const id = document.getElementById('edit-id').value;
+            const type = document.getElementById('input-type').value;
+            
+            const data = {
+                id: parseInt(document.getElementById('input-id').value),
+                type: type,
+                text: document.getElementById('input-text').value,
+                assignment_name: assignmentId,
+                updated_at: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            if (type === 'static') {
+                data.options = Array.from(document.querySelectorAll('.option-input')).map(input => input.value);
+                data.correct_answer = document.getElementById('input-correct').value;
+                data.config = null;
+            } else {
+                try {
+                    data.config = JSON.parse(document.getElementById('input-config').value);
+                    data.options = [];
+                    data.correct_answer = ""; // Calculated questions handle answers via logic
+                } catch (err) {
+                    showToast("Invalid JSON in Math Config", "error");
+                    return;
+                }
+            }
+
+            try {
+                // Use the numerical ID as the document name for consistency
+                await db.collection('questions').doc(String(data.id)).set(data);
+                showToast("Question saved successfully!", "success");
+                closeModal();
+            } catch (err) {
+                showToast("Error saving: " + err.message, "error");
+            }
+        };
+
+        document.getElementById('btn-delete').onclick = async () => {
+            if (!confirm("Are you sure? This action cannot be undone.")) return;
+            const id = document.getElementById('edit-id').value;
+            try {
+                await db.collection('questions').doc(String(id)).delete();
+                showToast("Question deleted.", "info");
+                closeModal();
+            } catch (err) {
+                showToast("Error deleting: " + err.message, "error");
+            }
+        };
+
+        function showToast(message, type = "info") {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+            toastMsg.textContent = message;
+            
+            const config = {
+                success: { border: 'border-emerald-500', icon: 'check-circle', text: 'text-emerald-500' },
+                error: { border: 'border-rose-500', icon: 'alert-circle', text: 'text-rose-500' },
+                info: { border: 'border-indigo-500', icon: 'info', text: 'text-indigo-500' }
+            }[type];
+
+            toast.children[0].className = `glass px-6 py-4 rounded-2xl border-l-4 ${config.border} flex items-center gap-4 shadow-2xl`;
+            toastIcon.setAttribute('data-lucide', config.icon);
+            toastIcon.className = `w-5 h-5 ${config.text}`;
+            lucide.createIcons();
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 4000);
+        }
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>
