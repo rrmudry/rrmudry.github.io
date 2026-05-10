@@ -382,14 +382,11 @@
             if (!student.id) return;
             
             const isGlobalLocked = assignmentSettings.is_global_locked;
-            const safePeriod = parseInt(String(student.period || "").replace(/\D/g, ''));
-            const isPeriodLocked = !isNaN(safePeriod) && assignmentSettings.locked_periods.includes(safePeriod);
             const isIndividualLocked = student.details?.is_locked || student.status === "LOCKED_BY_PROCTOR";
-            const hasUnlockOverride = student.details?.is_unlocked_override || false;
 
             const lockOverlay = document.getElementById('lock-overlay');
-            // Logic: Block if (Global or Period locked AND no override) OR individually locked
-            const shouldBeLocked = ((isGlobalLocked || isPeriodLocked) && !hasUnlockOverride) || isIndividualLocked;
+            // Simplified logic: Block if global lock is ON or student is individually locked
+            const shouldBeLocked = isGlobalLocked || isIndividualLocked;
 
             if (shouldBeLocked) {
                 if (!lockOverlay) createLockOverlay();
