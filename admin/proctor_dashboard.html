@@ -119,12 +119,21 @@
                 <option value="6">PERIOD 6</option>
             </select>
             
-            <button id="btn-assignment-settings" class="bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-500 border border-indigo-500/20 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2">
-                <i data-lucide="settings" class="w-3.5 h-3.5"></i> Node Config
+            <div class="flex items-center gap-2 bg-slate-900/50 p-1 rounded-xl border border-white/10">
+                <button id="btn-quick-lock" class="bg-amber-500/10 hover:bg-amber-500 text-amber-500 hover:text-white px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 border border-amber-500/20">
+                    <i data-lucide="lock" class="w-3 h-3"></i> Lock All
+                </button>
+                <button id="btn-quick-unlock" class="bg-emerald-500/10 hover:bg-emerald-500 text-emerald-500 hover:text-white px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 border border-emerald-500/20">
+                    <i data-lucide="unlock" class="w-3 h-3"></i> Unlock All
+                </button>
+            </div>
+
+            <button id="btn-assignment-settings" class="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2">
+                <i data-lucide="settings" class="w-3.5 h-3.5"></i> Config
             </button>
 
             <button id="btn-clear-all" class="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">
-                Acknowledge All
+                Clear HUD
             </button>
 
             <div class="flex flex-col items-end">
@@ -423,34 +432,19 @@
                 const isFinished = s.score === 100;
                 const isCritical = (violations.length > 0 || (details.status && details.status.includes('ALERT'))) && !isFinished;
                 
-                const isGlobalLocked = assignmentSettings.is_global_locked;
-                const safePeriod = parseInt(String(s.class_period || "").replace(/\D/g, ''));
-                const isPeriodLocked = !isNaN(safePeriod) && assignmentSettings.locked_periods.includes(safePeriod);
-                const isIndividualLocked = s.details?.is_locked || s.status === "LOCKED_BY_PROCTOR";
-                const hasUnlockOverride = s.details?.is_unlocked_override || false;
-                
-                // Final lock state: Locked if (Global or Period) AND no individual unlock override, 
-                // OR if explicitly locked individually.
-                const isAnyLocked = ((isGlobalLocked || isPeriodLocked) && !hasUnlockOverride) || isIndividualLocked;
+                const isLocked = s.details?.is_locked || false;
                 
                 let statusText = lastAlert;
                 let statusColor = "bg-emerald-500";
                 let borderColor = "border-white/5";
+                let cardOpacity = "opacity-100";
                 let pulseClass = "";
 
-                if (isIndividualLocked) {
-                    statusText = "NODE_LOCKED";
-                    statusColor = "bg-rose-500";
-                    borderColor = "border-rose-500/50";
-                    pulseClass = "status-pulse-red";
-                } else if ((isGlobalLocked || isPeriodLocked) && !hasUnlockOverride) {
-                    statusText = isGlobalLocked ? "GLOBAL_LOCK" : "PERIOD_LOCK";
-                    statusColor = "bg-amber-500";
-                    borderColor = "border-amber-500/50";
-                } else if (hasUnlockOverride && (isGlobalLocked || isPeriodLocked)) {
-                    statusText = "MANUAL_BYPASS";
-                    statusColor = "bg-emerald-600";
-                    borderColor = "border-emerald-500/50";
+                if (isLocked) {
+                    statusText = "LOCKED";
+                    statusColor = "bg-slate-500";
+                    borderColor = "border-white/10";
+                    cardOpacity = "opacity-40";
                 } else if (isCritical) {
                     statusColor = "bg-red-500";
                     borderColor = "border-red-500/50";
@@ -461,12 +455,12 @@
                 }
 
                 return `
-                    <div onclick="showStudentDetail('${s.id}')" class="alert-card glass rounded-2xl p-4 border ${borderColor} ${pulseClass} relative overflow-hidden flex flex-col cursor-pointer ${isGlobalLocked || isPeriodLocked || isIndividualLocked ? 'opacity-80' : ''}">
+                    <div onclick="showStudentDetail('${s.id}')" class="alert-card glass rounded-2xl p-4 border ${borderColor} ${pulseClass} relative overflow-hidden flex flex-col cursor-pointer ${cardOpacity}">
                         <div class="flex justify-between items-start mb-2">
                             <div class="flex items-center gap-2">
                                 <div class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center font-black text-indigo-400 border border-white/5 text-xs relative">
                                     ${s.student_name.charAt(0)}
-                                    ${(isGlobalLocked || isPeriodLocked || isIndividualLocked) ? `<div class="absolute -top-1 -right-1 ${isIndividualLocked ? 'bg-rose-500' : 'bg-amber-500'} rounded-full p-0.5 border border-slate-900"><i data-lucide="${isIndividualLocked ? 'shield-off' : 'lock'}" class="w-2 h-2 text-white"></i></div>` : ''}
+                                    ${isLocked ? `<div class="absolute -top-1 -right-1 bg-slate-600 rounded-full p-0.5 border border-slate-900"><i data-lucide="lock" class="w-2 h-2 text-white"></i></div>` : ''}
                                 </div>
                                 <div>
                                     <h3 class="font-bold text-[11px] uppercase tracking-tight leading-none">${s.student_name}</h3>
@@ -482,7 +476,7 @@
                         <div class="space-y-1.5 flex-grow">
                             <div class="bg-black/20 p-1.5 rounded-lg border border-white/5 mono text-[9px] flex justify-between items-center">
                                 <span class="text-slate-500 uppercase">State:</span>
-                                <span class="${isIndividualLocked || isGlobalLocked ? 'text-amber-400 font-bold' : (isCritical ? 'text-red-400 font-bold' : 'text-slate-300')} truncate ml-2">
+                                <span class="${isLocked ? 'text-slate-500' : (isCritical ? 'text-red-400 font-bold' : 'text-slate-300')} truncate ml-2">
                                     ${statusText}
                                 </span>
                             </div>
@@ -592,15 +586,42 @@
                 ts: new Date().toISOString()
             };
 
+            const lockBtn = document.getElementById('modal-btn-lock');
+            if (lockBtn) {
+                lockBtn.disabled = true;
+                lockBtn.dataset.originalText = lockBtn.textContent;
+                lockBtn.textContent = "SYNCING...";
+            }
+
             try {
                 // Explicitly cast to string to prevent Firebase path errors
                 await db.collection('student_results').doc(String(recordId)).update({
                     status: newLockedState ? "LOCKED_BY_PROCTOR" : "TEST_ACTIVE",
                     details: newDetails 
                 });
+
+                // Immediate UI update for the local state and open modal
+                s.details = newDetails;
+                s.status = newLockedState ? "LOCKED_BY_PROCTOR" : "TEST_ACTIVE";
+                
+                if (lockBtn) {
+                    lockBtn.disabled = false;
+                    if (newLockedState) {
+                        lockBtn.textContent = 'Unlock Node';
+                        lockBtn.className = "bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 border border-emerald-500/20 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all";
+                    } else {
+                        lockBtn.textContent = 'Lock Node';
+                        lockBtn.className = "bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border border-amber-500/20 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all";
+                    }
+                }
+
                 console.log(`[DASHBOARD] Student ${recordId} ${newLockedState ? 'LOCKED' : 'UNLOCKED'} successfully.`);
             } catch (e) {
                 console.error("Lock error:", e);
+                if (lockBtn) {
+                    lockBtn.disabled = false;
+                    lockBtn.textContent = lockBtn.dataset.originalText || "RETRY";
+                }
                 alert("Failed to update lock status. Check console for details.");
             }
         }
@@ -608,22 +629,25 @@
         async function resetStudentScore(recordId) {
             console.log("[DASHBOARD] Resetting score for ID:", recordId);
             if (!confirm("Are you sure you want to reset this student's score to 0?")) return;
+            
+            const btn = document.getElementById('modal-btn-reset-score');
+            if (btn) { btn.disabled = true; btn.textContent = "RESETTING..."; }
+
             try {
                 await db.collection('student_results').doc(String(recordId)).update({
                     score: 0, 
                     status: "SCORE_RESET",
                     details: {
-                        status: "SCORE_RESET",
-                        violations: [],
+                        ...(window.currentStudents.find(s => s.id === recordId)?.details || {}),
                         last_alert: "SCORE_RESET",
                         ts: new Date().toISOString()
                     }
                 });
-                console.log(`[DASHBOARD] Score reset successful for: ${recordId}`);
-                closeModal();
+                console.log(`[DASHBOARD] Score reset for: ${recordId}`);
+                if (btn) { btn.textContent = "SUCCESS"; setTimeout(() => { btn.disabled = false; btn.textContent = "Reset Score"; }, 1000); }
             } catch (e) {
-                console.error("Reset score error:", e);
-                alert("Failed to reset score.");
+                console.error("Reset error:", e);
+                if (btn) { btn.disabled = false; btn.textContent = "RETRY RESET"; }
             }
         }
 
@@ -746,11 +770,64 @@
             `).join('');
         }
 
-        function toggleGlobalLock() { assignmentSettings.is_global_locked = !assignmentSettings.is_global_locked; renderSettingsUI(); }
-        function togglePeriodLock(p) { 
-            if (assignmentSettings.locked_periods.includes(p)) assignmentSettings.locked_periods = assignmentSettings.locked_periods.filter(item => item !== p);
-            else assignmentSettings.locked_periods.push(p);
+        async function setBatchLock(locked) {
+            const assignment = document.getElementById('assignment-filter').value;
+            if (!assignment) return;
+            
+            // 1. Update Local Config & Save to Firebase (affects future students)
+            assignmentSettings.is_global_locked = locked;
+            renderSettingsUI(); // Visual sync
+            await saveAssignmentSettings();
+
+            // 2. Propagate to ALL existing student records in the current view
+            const batch = db.batch();
+            let count = 0;
+            window.currentStudents.forEach(s => {
+                const ref = db.collection('student_results').doc(String(s.id));
+                batch.update(ref, {
+                    'details.is_locked': locked,
+                    status: locked ? "LOCKED_BY_PROCTOR" : "TEST_ACTIVE"
+                });
+                count++;
+            });
+            
+            if (count > 0) await batch.commit();
+            console.log(`[DASHBOARD] Batch ${locked ? 'LOCK' : 'UNLOCK'} applied to ${count} nodes.`);
+        }
+
+        // Initialize button listeners
+        document.getElementById('btn-quick-lock').onclick = () => setBatchLock(true);
+        document.getElementById('btn-quick-unlock').onclick = () => setBatchLock(false);
+
+        async function toggleGlobalLock() { 
+            const newState = !assignmentSettings.is_global_locked;
+            await setBatchLock(newState);
+        }
+
+        async function togglePeriodLock(p) { 
+            const isCurrentlyLocked = assignmentSettings.locked_periods.includes(p);
+            const newState = !isCurrentlyLocked;
+
+            if (newState) assignmentSettings.locked_periods.push(p);
+            else assignmentSettings.locked_periods = assignmentSettings.locked_periods.filter(item => item !== p);
+            
             renderSettingsUI();
+            await saveAssignmentSettings();
+
+            const batch = db.batch();
+            let count = 0;
+            window.currentStudents.forEach(s => {
+                const safePeriod = parseInt(String(s.class_period || "").replace(/\D/g, ''));
+                if (safePeriod === p) {
+                    const ref = db.collection('student_results').doc(String(s.id));
+                    batch.update(ref, {
+                        'details.is_locked': newState,
+                        status: newState ? "LOCKED_BY_PROCTOR" : "TEST_ACTIVE"
+                    });
+                    count++;
+                }
+            });
+            if (count > 0) await batch.commit();
         }
         function toggleAlertSilence(type) {
             if (assignmentSettings.silenced_alerts.includes(type)) assignmentSettings.silenced_alerts = assignmentSettings.silenced_alerts.filter(item => item !== type);
