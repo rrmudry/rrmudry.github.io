@@ -102,6 +102,13 @@
                 <form id="question-form" class="space-y-6">
                     <input type="hidden" id="edit-id">
                     
+                    <div>
+                        <label class="label-text ml-2 mb-3 block">Assignment</label>
+                        <select id="input-assignment" class="w-full bg-slate-900 border-2 border-white/10 rounded-2xl px-6 py-4 text-base font-bold outline-none focus:border-indigo-500 transition-all">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+
                     <div class="grid grid-cols-2 gap-6">
                         <div>
                             <label class="label-text ml-2 mb-3 block">Question Type</label>
@@ -213,9 +220,16 @@
         async function initEditor() {
             // Populate Assignments Dropdown
             const snapshot = await db.collection('assessments').get();
+            const assignments = snapshot.docs.map(doc => ({ id: doc.id, name: doc.id.replace(/_/g, ' ') }));
+            
             const select = document.getElementById('assignment-select');
-            select.innerHTML = '<option value="">SELECT ASSIGNMENT...</option>' + 
-                snapshot.docs.map(doc => `<option value="${doc.id}">${doc.id.replace(/_/g, ' ')}</option>`).join('');
+            const modalSelect = document.getElementById('input-assignment');
+            
+            const options = '<option value="">SELECT ASSIGNMENT...</option>' + 
+                assignments.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
+            
+            select.innerHTML = options;
+            modalSelect.innerHTML = options;
 
             select.onchange = (e) => loadQuestions(e.target.value);
         }
@@ -274,9 +288,14 @@
                                 </div>
                             `}
                         </div>
-                        <button onclick="editQuestion('${q.id}')" class="bg-indigo-600 hover:bg-indigo-500 text-white p-5 rounded-2xl transition-all shadow-xl">
-                            <i data-lucide="edit-3" class="w-6 h-6"></i>
-                        </button>
+                        <div class="flex gap-3">
+                            <button onclick="cloneQuestion('${q.id}')" class="bg-amber-600/10 hover:bg-amber-600 text-amber-400 hover:text-white p-5 rounded-2xl transition-all shadow-xl" title="Clone Question">
+                                <i data-lucide="copy" class="w-6 h-6"></i>
+                            </button>
+                            <button onclick="editQuestion('${q.id}')" class="bg-indigo-600 hover:bg-indigo-500 text-white p-5 rounded-2xl transition-all shadow-xl" title="Edit Question">
+                                <i data-lucide="edit-3" class="w-6 h-6"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             `).join('');
@@ -316,6 +335,7 @@
             document.getElementById('modal-title').innerHTML = `Edit <span class="text-indigo-500">Question</span>`;
             document.getElementById('edit-id').value = q.id;
             document.getElementById('input-id').value = q.id;
+            document.getElementById('input-assignment').value = q.assignment_name;
             document.getElementById('input-type').value = q.type;
             document.getElementById('input-text').value = q.text;
             
@@ -342,6 +362,42 @@
             showModal();
         };
 
+        window.cloneQuestion = async (id) => {
+            const q = currentQuestions.find(qst => String(qst.id) === String(id));
+            if (!q) return;
+
+            // Get next ID
+            let nextId = 1;
+            try {
+                const snapshot = await db.collection('questions').orderBy('id', 'desc').limit(1).get();
+                if (!snapshot.empty) nextId = snapshot.docs[0].data().id + 1;
+            } catch (err) {}
+
+            document.getElementById('modal-title').innerHTML = `Clone <span class="text-amber-500">Question</span>`;
+            document.getElementById('edit-id').value = ''; // New document
+            document.getElementById('input-id').value = nextId;
+            document.getElementById('input-assignment').value = q.assignment_name;
+            document.getElementById('input-type').value = q.type;
+            document.getElementById('input-text').value = q.text;
+            
+            // Populate Sections
+            document.getElementById('section-static').classList.toggle('hidden', q.type !== 'static');
+            document.getElementById('section-calculated').classList.toggle('hidden', q.type !== 'calculated');
+
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            if (q.options) {
+                q.options.forEach(opt => {
+                    const isCorrect = Array.isArray(q.correct_answers) ? q.correct_answers.includes(opt) : opt === q.correct_answer;
+                    addOption(opt, isCorrect);
+                });
+            }
+            document.getElementById('input-config').value = q.config ? JSON.stringify(q.config, null, 2) : '';
+            
+            document.getElementById('btn-delete').classList.add('hidden');
+            showModal();
+        };
+
         document.getElementById('btn-add-question').onclick = async () => {
             // Find the highest ID globally to suggest the next one
             let nextId = 1;
@@ -358,6 +414,7 @@
             document.getElementById('edit-id').value = '';
             document.getElementById('question-form').reset();
             document.getElementById('input-id').value = nextId;
+            document.getElementById('input-assignment').value = document.getElementById('assignment-select').value;
             document.getElementById('options-container').innerHTML = '';
             ['Option A', 'Option B', 'Option C'].forEach(opt => addOption(opt));
             document.getElementById('btn-delete').classList.add('hidden');
@@ -366,9 +423,9 @@
 
         document.getElementById('question-form').onsubmit = async (e) => {
             e.preventDefault();
-            const assignmentId = document.getElementById('assignment-select').value;
+            const assignmentId = document.getElementById('input-assignment').value;
             if (!assignmentId) {
-                showToast("Please select an assignment first.", "error");
+                showToast("Please select an assignment for this question.", "error");
                 return;
             }
 
