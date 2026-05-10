@@ -427,15 +427,30 @@
                 const safePeriod = parseInt(String(s.class_period || "").replace(/\D/g, ''));
                 const isPeriodLocked = !isNaN(safePeriod) && assignmentSettings.locked_periods.includes(safePeriod);
                 const isIndividualLocked = s.details?.is_locked || s.status === "LOCKED_BY_PROCTOR";
-                const isAnyLocked = isGlobalLocked || isPeriodLocked || isIndividualLocked;
+                const hasUnlockOverride = s.details?.is_unlocked_override || false;
                 
+                // Final lock state: Locked if (Global or Period) AND no individual unlock override, 
+                // OR if explicitly locked individually.
+                const isAnyLocked = ((isGlobalLocked || isPeriodLocked) && !hasUnlockOverride) || isIndividualLocked;
+                
+                let statusText = lastAlert;
                 let statusColor = "bg-emerald-500";
                 let borderColor = "border-white/5";
                 let pulseClass = "";
 
-                if (isAnyLocked) {
+                if (isIndividualLocked) {
+                    statusText = "NODE_LOCKED";
+                    statusColor = "bg-rose-500";
+                    borderColor = "border-rose-500/50";
+                    pulseClass = "status-pulse-red";
+                } else if ((isGlobalLocked || isPeriodLocked) && !hasUnlockOverride) {
+                    statusText = isGlobalLocked ? "GLOBAL_LOCK" : "PERIOD_LOCK";
                     statusColor = "bg-amber-500";
                     borderColor = "border-amber-500/50";
+                } else if (hasUnlockOverride && (isGlobalLocked || isPeriodLocked)) {
+                    statusText = "MANUAL_BYPASS";
+                    statusColor = "bg-emerald-600";
+                    borderColor = "border-emerald-500/50";
                 } else if (isCritical) {
                     statusColor = "bg-red-500";
                     borderColor = "border-red-500/50";
@@ -446,12 +461,12 @@
                 }
 
                 return `
-                    <div onclick="showStudentDetail('${s.id}')" class="alert-card glass rounded-2xl p-4 border ${borderColor} ${pulseClass} relative overflow-hidden flex flex-col cursor-pointer ${isAnyLocked ? 'opacity-60' : ''}">
+                    <div onclick="showStudentDetail('${s.id}')" class="alert-card glass rounded-2xl p-4 border ${borderColor} ${pulseClass} relative overflow-hidden flex flex-col cursor-pointer ${isGlobalLocked || isPeriodLocked || isIndividualLocked ? 'opacity-80' : ''}">
                         <div class="flex justify-between items-start mb-2">
                             <div class="flex items-center gap-2">
                                 <div class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center font-black text-indigo-400 border border-white/5 text-xs relative">
                                     ${s.student_name.charAt(0)}
-                                    ${isAnyLocked ? `<div class="absolute -top-1 -right-1 bg-amber-500 rounded-full p-0.5 border border-slate-900"><i data-lucide="lock" class="w-2 h-2 text-white"></i></div>` : ''}
+                                    ${(isGlobalLocked || isPeriodLocked || isIndividualLocked) ? `<div class="absolute -top-1 -right-1 ${isIndividualLocked ? 'bg-rose-500' : 'bg-amber-500'} rounded-full p-0.5 border border-slate-900"><i data-lucide="${isIndividualLocked ? 'shield-off' : 'lock'}" class="w-2 h-2 text-white"></i></div>` : ''}
                                 </div>
                                 <div>
                                     <h3 class="font-bold text-[11px] uppercase tracking-tight leading-none">${s.student_name}</h3>
@@ -466,9 +481,9 @@
 
                         <div class="space-y-1.5 flex-grow">
                             <div class="bg-black/20 p-1.5 rounded-lg border border-white/5 mono text-[9px] flex justify-between items-center">
-                                <span class="text-slate-500 uppercase">Event:</span>
-                                <span class="${isCritical ? 'text-red-400 font-bold' : 'text-slate-300'} truncate ml-2">
-                                    ${isGlobalLocked ? 'GLOBAL_LOCK' : (isPeriodLocked ? 'PERIOD_LOCK' : (isIndividualLocked ? 'NODE_LOCKED' : lastAlert))}
+                                <span class="text-slate-500 uppercase">State:</span>
+                                <span class="${isIndividualLocked || isGlobalLocked ? 'text-amber-400 font-bold' : (isCritical ? 'text-red-400 font-bold' : 'text-slate-300')} truncate ml-2">
+                                    ${statusText}
                                 </span>
                             </div>
                         </div>
@@ -535,7 +550,7 @@
             const preservedLock = s?.details?.is_locked || false;
 
             try {
-                await db.collection('student_results').doc(recordId).update({
+                await db.collection('student_results').doc(String(recordId)).update({
                     status: preservedLock ? "LOCKED_BY_PROCTOR" : "CLEARED_BY_TEACHER",
                     details: { 
                         ...(s?.details || {}),
@@ -546,14 +561,24 @@
                         ts: new Date().toISOString() 
                     }
                 });
+                console.log(`[DASHBOARD] Acknowledged student: ${recordId}`);
             } catch (e) {
                 console.error("Acknowledge error:", e);
             }
         }
 
         async function lockStudent(recordId) {
+            console.log("[DASHBOARD] lockStudent action for ID:", recordId);
+            if (!recordId) {
+                console.error("[DASHBOARD] No recordId provided to lockStudent");
+                return;
+            }
+
             const s = window.currentStudents.find(std => std.id === recordId);
-            if (!s) return;
+            if (!s) {
+                console.error("[DASHBOARD] Could not find student record in local state for ID:", recordId);
+                return;
+            }
             
             const isCurrentlyLocked = s.details?.is_locked || s.status === "LOCKED_BY_PROCTOR";
             const newLockedState = !isCurrentlyLocked;
@@ -561,24 +586,30 @@
             const newDetails = {
                 ...(s.details || {}),
                 is_locked: newLockedState,
+                // If we are manually unlocking, we set an override to bypass global lock
+                is_unlocked_override: !newLockedState, 
                 last_alert: newLockedState ? "NODE_LOCKED" : (s.details?.last_alert || "NONE"),
                 ts: new Date().toISOString()
             };
 
             try {
-                await db.collection('student_results').doc(recordId).update({
+                // Explicitly cast to string to prevent Firebase path errors
+                await db.collection('student_results').doc(String(recordId)).update({
                     status: newLockedState ? "LOCKED_BY_PROCTOR" : "TEST_ACTIVE",
                     details: newDetails 
                 });
+                console.log(`[DASHBOARD] Student ${recordId} ${newLockedState ? 'LOCKED' : 'UNLOCKED'} successfully.`);
             } catch (e) {
                 console.error("Lock error:", e);
+                alert("Failed to update lock status. Check console for details.");
             }
         }
 
         async function resetStudentScore(recordId) {
+            console.log("[DASHBOARD] Resetting score for ID:", recordId);
             if (!confirm("Are you sure you want to reset this student's score to 0?")) return;
             try {
-                await db.collection('student_results').doc(recordId).update({
+                await db.collection('student_results').doc(String(recordId)).update({
                     score: 0, 
                     status: "SCORE_RESET",
                     details: {
@@ -588,9 +619,11 @@
                         ts: new Date().toISOString()
                     }
                 });
+                console.log(`[DASHBOARD] Score reset successful for: ${recordId}`);
                 closeModal();
             } catch (e) {
                 console.error("Reset score error:", e);
+                alert("Failed to reset score.");
             }
         }
 
@@ -662,7 +695,18 @@
             }
 
             document.getElementById('modal-btn-clear').onclick = () => { acknowledgeStudent(null, s.id); closeModal(); };
-            document.getElementById('modal-btn-lock').onclick = () => lockStudent(s.id);
+            const isIndividualLocked = s.details?.is_locked || s.status === "LOCKED_BY_PROCTOR";
+            const lockBtn = document.getElementById('modal-btn-lock');
+            
+            lockBtn.onclick = () => lockStudent(s.id);
+            if (isIndividualLocked) {
+                lockBtn.textContent = 'Unlock Node';
+                lockBtn.className = "bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 border border-emerald-500/20 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all";
+            } else {
+                lockBtn.textContent = 'Lock Node';
+                lockBtn.className = "bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border border-amber-500/20 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all";
+            }
+
             document.getElementById('modal-btn-reset-score').onclick = () => resetStudentScore(s.id);
 
             modal.classList.remove('hidden');
