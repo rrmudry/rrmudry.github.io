@@ -94,8 +94,14 @@
                             <input type="number" id="input-max" placeholder="20" class="w-full bg-slate-900 border-2 border-white/10 rounded-2xl px-6 py-4 text-base font-bold outline-none focus:border-indigo-500 transition-all">
                         </div>
                         <div>
-                            <label class="label-text ml-2 mb-3 block">Time Limit (Mins)</label>
-                            <input type="number" id="input-time" placeholder="40" class="w-full bg-slate-900 border-2 border-white/10 rounded-2xl px-6 py-4 text-base font-bold outline-none focus:border-indigo-500 transition-all">
+                            <label class="label-text ml-2 mb-3 block">Time Limit</label>
+                            <div class="flex gap-4">
+                                <select id="select-time-mode" class="bg-slate-900 border-2 border-white/10 rounded-2xl px-6 py-4 text-base font-bold outline-none focus:border-indigo-500 transition-all">
+                                    <option value="none">No Limit</option>
+                                    <option value="timed">Timed</option>
+                                </select>
+                                <input type="number" id="input-time" min="1" placeholder="Mins" class="flex-grow bg-slate-900 border-2 border-white/10 rounded-2xl px-6 py-4 text-base font-bold outline-none focus:border-indigo-500 transition-all hidden">
+                            </div>
                         </div>
                     </div>
                 </form>
@@ -212,10 +218,16 @@
         function showModal() { document.getElementById('modal-editor').classList.remove('hidden'); }
         function closeModal() { document.getElementById('modal-editor').classList.add('hidden'); }
 
+        document.getElementById('select-time-mode').onchange = (e) => {
+            document.getElementById('input-time').classList.toggle('hidden', e.target.value !== 'timed');
+        };
+
         document.getElementById('btn-add-assessment').onclick = () => {
             document.getElementById('modal-title').innerHTML = `Add <span class="text-indigo-400">Assessment</span>`;
             document.getElementById('edit-id').value = '';
             document.getElementById('assessment-form').reset();
+            document.getElementById('select-time-mode').value = 'none';
+            document.getElementById('input-time').classList.add('hidden');
             document.getElementById('input-id').disabled = false;
             document.getElementById('btn-delete').classList.add('hidden');
             showModal();
@@ -231,7 +243,16 @@
             document.getElementById('input-id').disabled = true; // Cannot rename ID
             document.getElementById('input-name').value = a.assignment_name || a.id;
             document.getElementById('input-max').value = a.max_questions || '';
-            document.getElementById('input-time').value = a.time_limit_mins || '';
+            
+            if (a.time_limit_mins) {
+                document.getElementById('select-time-mode').value = 'timed';
+                document.getElementById('input-time').value = a.time_limit_mins;
+                document.getElementById('input-time').classList.remove('hidden');
+            } else {
+                document.getElementById('select-time-mode').value = 'none';
+                document.getElementById('input-time').value = '';
+                document.getElementById('input-time').classList.add('hidden');
+            }
             
             document.getElementById('btn-delete').classList.remove('hidden');
             showModal();
@@ -248,7 +269,7 @@
             const data = {
                 assignment_name: document.getElementById('input-name').value.trim() || id,
                 max_questions: parseInt(document.getElementById('input-max').value) || null,
-                time_limit_mins: parseInt(document.getElementById('input-time').value) || null,
+                time_limit_mins: document.getElementById('select-time-mode').value === 'timed' ? (parseInt(document.getElementById('input-time').value) || null) : null,
                 updated_at: firebase.firestore.FieldValue.serverTimestamp()
             };
 
