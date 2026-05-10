@@ -323,7 +323,7 @@
 
         // Global Settings State
         let assignmentSettings = {
-            is_global_locked: false,
+            is_global_locked: true,
             locked_periods: [],
             silenced_alerts: []
         };
@@ -357,15 +357,22 @@
                     if (!snapshot.empty) {
                         const configData = snapshot.docs[0].data();
                         assignmentSettings = {
-                            is_global_locked: configData.details?.is_global_locked || false,
+                            is_global_locked: configData.details?.hasOwnProperty('is_global_locked') ? configData.details.is_global_locked : true,
                             locked_periods: configData.details?.locked_periods || [],
                             silenced_alerts: configData.details?.silenced_alerts || []
                         };
-                        
-                        const modal = document.getElementById('settings-modal');
-                        if (modal && !modal.classList.contains('hidden')) {
-                            renderSettingsUI();
-                        }
+                    } else {
+                        // Default to locked if no config exists yet
+                        assignmentSettings = {
+                            is_global_locked: true,
+                            locked_periods: [],
+                            silenced_alerts: []
+                        };
+                    }
+                    
+                    const modal = document.getElementById('settings-modal');
+                    if (modal && !modal.classList.contains('hidden')) {
+                        renderSettingsUI();
                     }
                 }, err => console.error("Config stream error:", err));
 
