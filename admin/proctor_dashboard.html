@@ -8,8 +8,10 @@
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Supabase SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
@@ -80,13 +82,13 @@
             </div>
             <div>
                 <h1 class="text-xl font-black uppercase tracking-tighter italic">Proctor<span class="text-indigo-500">Master</span> // Integrity HUD</h1>
-                <p class="text-[9px] font-bold text-slate-500 uppercase tracking-[0.3em]">Real-Time Behavioral Monitoring Node</p>
+                <p class="text-[9px] font-bold text-slate-500 uppercase tracking-[0.3em]">Real-Time Behavioral Monitoring Node (FIREBASE)</p>
             </div>
         </div>
 
         <div class="flex items-center gap-4">
             <select id="assignment-filter" class="bg-slate-900 border border-white/10 rounded-lg px-4 py-2 text-xs font-bold outline-none focus:border-indigo-500 transition-all min-w-[180px]">
-                <option value="AI Integrity Test">AI Integrity Test</option>
+                <option value="">LOADING TESTS...</option>
             </select>
 
             <select id="period-filter" class="bg-slate-900 border border-white/10 rounded-lg px-4 py-2 text-xs font-bold outline-none focus:border-indigo-500 transition-all">
@@ -125,7 +127,7 @@
         <div class="flex-grow flex flex-col gap-4">
             <div class="flex justify-between items-end mb-2">
                 <h2 class="text-sm font-black uppercase tracking-widest text-slate-400">Classroom Grid // <span id="active-count" class="text-indigo-500">0</span> Active Nodes</h2>
-                <div class="text-[10px] text-slate-500 font-bold uppercase italic">Updating every 5s</div>
+                <div class="text-[10px] text-slate-500 font-bold uppercase italic">Real-Time Firestore Streams</div>
             </div>
             
             <div id="integrity-grid" class="flex-grow grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto pr-2 pb-10">
@@ -259,10 +261,19 @@
     </div>
 
     <script>
-        // --- SUPABASE CONFIG ---
-        const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
-        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
-        const sbClient = supabase.createClient(SB_URL, SB_KEY);
+        // --- FIREBASE CONFIG ---
+        const firebaseConfig = {
+            projectId: "site-6e500",
+            appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+            storageBucket: "site-6e500.firebasestorage.app",
+            apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+            authDomain: "site-6e500.firebaseapp.com",
+            messagingSenderId: "591530758858"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
         // Global Settings State
         let assignmentSettings = {
@@ -271,117 +282,66 @@
             silenced_alerts: []
         };
 
-        async function fetchIntegrityData() {
-            if (window.isSimulating) {
-                const mockData = generateMockData(40);
-                window.currentStudents = mockData;
-                updateGrid(mockData);
-                updateGlobalFeed(mockData);
-                document.getElementById('active-count').textContent = mockData.filter(s => s.score < 100).length;
-                document.getElementById('last-sync-time').textContent = "SIMULATION";
-                return;
-            }
+        let unsubscribeStudents = null;
+        let unsubscribeConfig = null;
+
+        async function initDashboard() {
+            console.log("[DASHBOARD] Initializing Firebase Streams...");
+            await populateAssignments();
+            setupStreams();
+        }
+
+        function setupStreams() {
+            // Cleanup existing listeners
+            if (unsubscribeStudents) unsubscribeStudents();
+            if (unsubscribeConfig) unsubscribeConfig();
 
             const period = document.getElementById('period-filter').value;
             const assignment = document.getElementById('assignment-filter').value;
-            console.log(`[DASHBOARD] Fetching data for ${assignment}, period: ${period}...`);
-            
-            try {
-                // First: Fetch current assignment settings to reflect locks in UI
-                const { data: configData } = await sbClient
-                    .from('student_results')
-                    .select('details')
-                    .eq('assignment_name', assignment)
-                    .eq('student_id', '__CONFIG__')
-                    .maybeSingle();
 
-                if (configData && configData.details) {
-                    assignmentSettings = {
-                        is_global_locked: configData.details.is_global_locked || false,
-                        locked_periods: configData.details.locked_periods || [],
-                        silenced_alerts: configData.details.silenced_alerts || []
-                    };
-                    
-                    // If the settings modal is open, refresh its UI in real-time
-                    const modal = document.getElementById('settings-modal');
-                    if (modal && !modal.classList.contains('hidden')) {
-                        renderSettingsUI();
+            if (!assignment) return;
+
+            console.log(`[DASHBOARD] Setting up listeners for ${assignment}, period: ${period}...`);
+
+            // 1. Config Stream
+            unsubscribeConfig = db.collection('student_results')
+                .where('assignment_name', '==', assignment)
+                .where('student_id', '==', '__CONFIG__')
+                .onSnapshot(snapshot => {
+                    if (!snapshot.empty) {
+                        const configData = snapshot.docs[0].data();
+                        assignmentSettings = {
+                            is_global_locked: configData.details?.is_global_locked || false,
+                            locked_periods: configData.details?.locked_periods || [],
+                            silenced_alerts: configData.details?.silenced_alerts || []
+                        };
+                        
+                        const modal = document.getElementById('settings-modal');
+                        if (modal && !modal.classList.contains('hidden')) {
+                            renderSettingsUI();
+                        }
                     }
-                }
+                }, err => console.error("Config stream error:", err));
 
-                // Second: Fetch student results
-                let query = sbClient
-                    .from('student_results')
-                    .select('*')
-                    .eq('assignment_name', assignment)
-                    .neq('student_id', '__CONFIG__');
+            // 2. Students Stream
+            let studentQuery = db.collection('student_results')
+                .where('assignment_name', '==', assignment);
 
-                if (period !== 'ALL') {
-                    query = query.eq('class_period', parseInt(period));
-                }
+            if (period !== 'ALL') {
+                studentQuery = studentQuery.where('class_period', '==', parseInt(period));
+            }
 
-                const { data, error } = await query;
-                if (error) throw error;
+            unsubscribeStudents = studentQuery.onSnapshot(snapshot => {
+                const data = snapshot.docs
+                    .map(doc => ({ id: doc.id, ...doc.data() }))
+                    .filter(s => s.student_id !== '__CONFIG__'); // Local filter for config
 
                 window.currentStudents = data;
                 updateGrid(data);
                 updateGlobalFeed(data);
                 document.getElementById('active-count').textContent = data.filter(s => s.score < 100).length;
                 document.getElementById('last-sync-time').textContent = new Date().toLocaleTimeString();
-            } catch (e) {
-                console.error("[DASHBOARD] Fetch error:", e);
-            }
-        }
-
-        function generateMockData(count) {
-            const names = ["Alex", "Jordan", "Taylor", "Morgan", "Casey", "Riley", "Quinn", "Parker", "Sam", "Charlie", "Blake", "Avery", "River", "Sage", "Phoenix", "Skyler", "Dakota", "Jamie", "Hayden", "Rowan"];
-            const surnames = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez"];
-            const violationTypes = [
-                { type: "Cell Phone", msg: "Restricted device detected in webcam frame." },
-                { type: "Focus Loss", msg: "User switched tabs or minimized the window." },
-                { type: "Down Gaze", msg: "Student is looking down (possible hidden device)." },
-                { type: "Visual Loss", msg: "Camera is obscured or student's face is not visible." },
-                { type: "Clipboard Alert", msg: "Attempted to copy or paste content." }
-            ];
-            
-            const data = [];
-            for (let i = 0; i < count; i++) {
-                const name = names[i % names.length] + " " + surnames[Math.floor(i / names.length)];
-                const isFinished = i > 35;
-                
-                // Varied violation patterns: 
-                // Every 7th student gets 3 different violations.
-                // Every 5th student gets 1 violation.
-                const vCount = (i % 7 === 0 && i !== 0) ? 3 : (i % 5 === 0 && i !== 0 ? 1 : 0);
-                
-                let violations = [];
-                for (let j = 0; j < vCount; j++) {
-                    const vInfo = violationTypes[(i + j) % violationTypes.length];
-                    const offsetMs = j * 1000 * 60 * 5; // Space them out by 5 mins
-                    violations.push({
-                        type: vInfo.type,
-                        message: vInfo.msg,
-                        time: new Date(Date.now() - offsetMs).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-                        ts: new Date(Date.now() - offsetMs).toISOString()
-                    });
-                }
-
-                data.push({
-                    id: `mock-${i}`,
-                    student_name: name,
-                    student_id: (100000 + i).toString(),
-                    class_period: (i % 6) + 1,
-                    score: isFinished ? 100 : Math.floor(Math.random() * 95),
-                    updated_at: new Date().toISOString(),
-                    details: {
-                        status: violations.length > 0 ? `ALERT: ${violations[0].type}` : (isFinished ? "TEST_SUBMITTED" : "TEST_ACTIVE"),
-                        violations: violations,
-                        last_alert: violations.length > 0 ? violations[0].type : "NONE",
-                        ts: new Date().toISOString()
-                    }
-                });
-            }
-            return data;
+            }, err => console.error("Students stream error:", err));
         }
 
         function updateGrid(students) {
@@ -392,18 +352,14 @@
                 return;
             }
 
-            // Always use high-density mode for consistent UI/UX
             grid.classList.add('compact-grid');
 
-            // MULTI-TIER SORT: 1. Critical Status First, 2. Alphabetical by Name
             const sorted = [...students].sort((a, b) => {
                 const aCrit = (a.details?.violations?.length > 0 || (a.details?.status && a.details.status.includes('ALERT'))) && (a.score < 100);
                 const bCrit = (b.details?.violations?.length > 0 || (b.details?.status && b.details.status.includes('ALERT'))) && (b.score < 100);
 
                 if (aCrit && !bCrit) return -1;
                 if (!aCrit && bCrit) return 1;
-
-                // Secondary sort: Alphabetical
                 return a.student_name.localeCompare(b.student_name);
             });
 
@@ -411,13 +367,8 @@
                 const details = s.details || {};
                 const violations = details.violations || [];
                 const lastAlert = details.last_alert || "NONE";
-                
-                // CRITICAL if any violation exists or status is an ALERT
-                const hasViolations = violations.length > 0;
-                const isAlertStatus = details.status && details.status.includes('ALERT');
                 const isFinished = s.score === 100;
-
-                const isCritical = (hasViolations || isAlertStatus) && !isFinished;
+                const isCritical = (violations.length > 0 || (details.status && details.status.includes('ALERT'))) && !isFinished;
                 
                 const isGlobalLocked = assignmentSettings.is_global_locked;
                 const safePeriod = parseInt(String(s.class_period || "").replace(/\D/g, ''));
@@ -429,7 +380,6 @@
                 let borderColor = "border-white/5";
                 let pulseClass = "";
 
-                // Prioritize "LOCKED" visually over "CRITICAL"
                 if (isAnyLocked) {
                     statusColor = "bg-amber-500";
                     borderColor = "border-amber-500/50";
@@ -478,14 +428,13 @@
                                         Dismiss
                                     </button>
                                 ` : ''}
-                                <span class="text-slate-600 uppercase opacity-50">${s.updated_at ? new Date(s.updated_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'}) : 'ACTIVE'}</span>
+                                <span class="text-slate-600 uppercase opacity-50">${s.created_at ? new Date(s.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'}) : 'ACTIVE'}</span>
                             </div>
                         </div>
                     </div>
                 `;
             }).join('');
 
-            // Re-run Lucide for new buttons
             lucide.createIcons();
         }
 
@@ -504,12 +453,7 @@
                 });
             });
 
-            // Sort by actual ISO timestamp from details if available
-            allViolations.sort((a, b) => {
-                const timeA = new Date(a.ts || 0);
-                const timeB = new Date(b.ts || 0);
-                return timeB - timeA;
-            });
+            allViolations.sort((a, b) => new Date(b.ts || 0) - new Date(a.ts || 0));
 
             if (allViolations.length === 0) {
                 feed.innerHTML = `<div class="text-center text-slate-700 text-[10px] font-black uppercase tracking-widest py-10 italic">No violations detected in class.</div>`;
@@ -522,7 +466,7 @@
                     <div class="p-3 bg-white/5 rounded-xl border-l-2 ${isDanger ? 'border-red-500' : 'border-yellow-500'} animate-in slide-in-from-right-4 duration-300">
                         <div class="flex justify-between items-start mb-1">
                             <span class="text-[9px] font-black text-indigo-400 uppercase tracking-tighter">${v.name}</span>
-                            <span class="text-[8px] mono text-slate-600">${v.time}</span>
+                            <span class="text-[8px] mono text-slate-600">${v.time || '---'}</span>
                         </div>
                         <p class="text-[10px] font-bold text-slate-300 leading-tight">
                             <span class="${isDanger ? 'text-red-500' : 'text-yellow-500'} uppercase">${v.type}:</span> ${v.message}
@@ -533,19 +477,12 @@
         }
 
         async function acknowledgeStudent(event, recordId) {
-            if (event) event.stopPropagation(); // Prevent modal from opening
-            if (window.isSimulating) {
-                alert("Simulation Mode: Resetting local state (mock only).");
-                return;
-            }
-            console.log(`[DASHBOARD] Acknowledging student record: ${recordId}`);
-            
+            if (event) event.stopPropagation();
             const s = window.currentStudents.find(std => std.id === recordId);
             const preservedLock = s?.details?.is_locked || false;
 
-            const { error } = await sbClient
-                .from('student_results')
-                .update({ 
+            try {
+                await db.collection('student_results').doc(recordId).update({
                     status: preservedLock ? "LOCKED_BY_PROCTOR" : "CLEARED_BY_TEACHER",
                     details: { 
                         ...(s?.details || {}),
@@ -554,20 +491,14 @@
                         last_alert: "NONE",
                         is_locked: preservedLock,
                         ts: new Date().toISOString() 
-                    } 
-                })
-                .eq('id', recordId);
-
-            if (error) {
-                console.error("Acknowledge error:", error);
-                alert("Failed to acknowledge student. Check connection.");
-            } else {
-                fetchIntegrityData();
+                    }
+                });
+            } catch (e) {
+                console.error("Acknowledge error:", e);
             }
         }
 
         async function lockStudent(recordId) {
-            // Find student in current local state to get existing details
             const s = window.currentStudents.find(std => std.id === recordId);
             if (!s) return;
             
@@ -581,42 +512,20 @@
                 ts: new Date().toISOString()
             };
 
-            // Optimistic UI Update
-            s.status = newLockedState ? "LOCKED_BY_PROCTOR" : "TEST_ACTIVE";
-            s.details = newDetails;
-            updateGrid(window.currentStudents);
-            
-            // Update modal button if it's still open
-            const lockBtn = document.getElementById('modal-btn-lock');
-            if (lockBtn) {
-                lockBtn.textContent = newLockedState ? "Unlock Node" : "Lock Node";
-                lockBtn.className = newLockedState ? "bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 border border-emerald-500/20 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all" : "bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border border-amber-500/20 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all";
-            }
-
-            const { error } = await sbClient
-                .from('student_results')
-                .update({ 
+            try {
+                await db.collection('student_results').doc(recordId).update({
                     status: newLockedState ? "LOCKED_BY_PROCTOR" : "TEST_ACTIVE",
                     details: newDetails 
-                })
-                .eq('id', recordId);
-
-            if (error) {
-                console.error("Lock error:", error);
-                // The realtime subscription will eventually fix the UI if there was a real desync,
-                // or we could manually revert, but letting it fail silently and relying on sync is okay.
-                fetchIntegrityData();
+                });
+            } catch (e) {
+                console.error("Lock error:", e);
             }
-            // Success: Do nothing. The optimistic update holds, and the realtime subscription 
-            // will fire postgres_changes to fetch the guaranteed fresh data.
         }
 
         async function resetStudentScore(recordId) {
-            if (!confirm("Are you sure you want to reset this student's score to 0? They will be able to retake the test.")) return;
-            
-            const { error } = await sbClient
-                .from('student_results')
-                .update({ 
+            if (!confirm("Are you sure you want to reset this student's score to 0?")) return;
+            try {
+                await db.collection('student_results').doc(recordId).update({
                     score: 0, 
                     status: "SCORE_RESET",
                     details: {
@@ -625,79 +534,44 @@
                         last_alert: "SCORE_RESET",
                         ts: new Date().toISOString()
                     }
-                })
-                .eq('id', recordId);
-
-            if (error) {
-                console.error("Reset score error:", error);
-            } else {
-                fetchIntegrityData();
+                });
                 closeModal();
+            } catch (e) {
+                console.error("Reset score error:", e);
             }
         }
 
         async function acknowledgeAll() {
-            if (window.isSimulating) {
-                alert("Simulation Mode: Clearing mock data.");
-                return;
-            }
-            if (!confirm("Are you sure you want to clear ALL violations for the entire class?")) return;
-            
-            const period = document.getElementById('period-filter').value;
+            if (!confirm("Are you sure you want to clear ALL violations?")) return;
             const assignment = document.getElementById('assignment-filter').value;
-            console.log(`[DASHBOARD] Clearing all for ${assignment}, period: ${period}`);
+            const period = document.getElementById('period-filter').value;
 
-            let query = sbClient
-                .from('student_results')
-                .update({ 
+            const snapshot = await db.collection('student_results')
+                .where('assignment_name', '==', assignment)
+                .get();
+
+            const batch = db.batch();
+            snapshot.docs.forEach(doc => {
+                const data = doc.data();
+                if (data.student_id === '__CONFIG__') return;
+                if (period !== 'ALL' && data.class_period != period) return;
+
+                batch.update(doc.ref, {
                     details: { 
                         status: "CLASS_CLEARED", 
                         violations: [], 
                         last_alert: "NONE",
                         ts: new Date().toISOString() 
-                    } 
-                })
-                .eq('assignment_name', assignment);
+                    }
+                });
+            });
 
-            if (period !== 'ALL') {
-                query = query.eq('class_period', period);
-            }
-
-            const { error } = await query;
-
-            if (error) {
-                console.error("Clear All error:", error);
-                alert("Failed to clear all records.");
-            } else {
-                fetchIntegrityData();
-            }
+            await batch.commit();
         }
 
-        // --- SIMULATION TOGGLE ---
-        window.isSimulating = false;
-        function toggleSimulation() {
-            window.isSimulating = !window.isSimulating;
-            const btn = document.getElementById('btn-simulate');
-            if (window.isSimulating) {
-                btn.classList.replace('bg-indigo-500/10', 'bg-indigo-600');
-                btn.classList.replace('text-indigo-500', 'text-white');
-                btn.textContent = "Exit Simulation";
-            } else {
-                btn.classList.replace('bg-indigo-600', 'bg-indigo-500/10');
-                btn.classList.replace('text-white', 'text-indigo-500');
-                btn.textContent = "Simulate 40 Nodes";
-            }
-            fetchIntegrityData();
-        }
-
-        // --- MODAL LOGIC ---
         function showStudentDetail(recordId) {
-            // Use loose equality to handle potential string/number ID mismatches from Supabase
             const s = window.currentStudents.find(student => student.id == recordId);
-            if (!s) {
-                console.error("[DASHBOARD] Could not find student record with ID:", recordId);
-                return;
-            }
+            if (!s) return;
 
             const modal = document.getElementById('report-modal');
             const details = s.details || {};
@@ -705,7 +579,6 @@
             const isFinished = s.score === 100;
             const isCritical = (violations.length > 0 || (details.status && details.status.includes('ALERT'))) && !isFinished;
 
-            // Populate Info
             document.getElementById('modal-avatar').textContent = s.student_name.charAt(0);
             document.getElementById('modal-name').textContent = s.student_name;
             document.getElementById('modal-meta').textContent = `ID: ${s.student_id} // PERIOD ${s.class_period || '?'}`;
@@ -717,136 +590,58 @@
             statusEl.textContent = isCritical ? 'CRITICAL_ALERT' : (isFinished ? 'MISSION_ARCHIVED' : 'NOMINAL');
             statusEl.className = `text-[10px] font-bold uppercase mt-2 px-2 py-1 rounded-lg inline-block border ${isCritical ? 'bg-red-500/10 text-red-400 border-red-500/20' : (isFinished ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20')}`;
 
-            // Populate Timeline
             const timeline = document.getElementById('modal-timeline');
             if (violations.length === 0) {
-                timeline.innerHTML = `
-                    <div class="flex flex-col items-center justify-center py-10 opacity-30 italic">
-                        <i data-lucide="shield-check" class="w-10 h-10 mb-2"></i>
-                        <p class="text-[10px] font-bold uppercase">No violations recorded for this session.</p>
-                    </div>
-                `;
+                timeline.innerHTML = `<div class="flex flex-col items-center justify-center py-10 opacity-30 italic"><i data-lucide="shield-check" class="w-10 h-10 mb-2"></i><p class="text-[10px] font-bold uppercase">No violations recorded.</p></div>`;
             } else {
-                timeline.innerHTML = violations.map(v => {
-                    const vType = v.type || "Event";
-                    const vMsg = v.message || "No description provided.";
-                    const vTime = v.time || "---";
-                    const isDanger = vType === 'Cell Phone' || vType === 'Focus Loss' || vType.includes('ALERT');
-                    return `
-                        <div class="p-4 bg-white/5 rounded-2xl border border-white/5 flex gap-4">
-                            <div class="mt-1">
-                                <div class="w-2 h-2 rounded-full ${isDanger ? 'bg-red-500' : 'bg-yellow-500'}"></div>
+                timeline.innerHTML = violations.map(v => `
+                    <div class="p-4 bg-white/5 rounded-2xl border border-white/5 flex gap-4">
+                        <div class="mt-1"><div class="w-2 h-2 rounded-full ${v.type === 'Cell Phone' ? 'bg-red-500' : 'bg-yellow-500'}"></div></div>
+                        <div class="flex-grow">
+                            <div class="flex justify-between items-start mb-1">
+                                <span class="text-[10px] font-black uppercase tracking-widest">${v.type}</span>
+                                <span class="text-[9px] mono text-slate-600 font-bold">${v.time || '---'}</span>
                             </div>
-                            <div class="flex-grow">
-                                <div class="flex justify-between items-start mb-1">
-                                    <span class="text-[10px] font-black ${isDanger ? 'text-red-400' : 'text-yellow-400'} uppercase tracking-widest">${vType}</span>
-                                    <span class="text-[9px] mono text-slate-600 font-bold">${vTime}</span>
-                                </div>
-                                <p class="text-xs text-slate-300 font-medium">${vMsg}</p>
-                            </div>
+                            <p class="text-xs text-slate-300 font-medium">${v.message}</p>
                         </div>
-                    `;
-                }).join('');
+                    </div>
+                `).join('');
             }
 
-            // Setup Buttons
-            const clearBtn = document.getElementById('modal-btn-clear');
-            clearBtn.onclick = () => {
-                acknowledgeStudent(s.id);
-                closeModal();
-            };
-            clearBtn.style.display = (isCritical || violations.length > 0) ? 'block' : 'none';
+            document.getElementById('modal-btn-clear').onclick = () => { acknowledgeStudent(null, s.id); closeModal(); };
+            document.getElementById('modal-btn-lock').onclick = () => lockStudent(s.id);
+            document.getElementById('modal-btn-reset-score').onclick = () => resetStudentScore(s.id);
 
-            const lockBtn = document.getElementById('modal-btn-lock');
-            const isLocked = s.details?.is_locked || s.status === "LOCKED_BY_PROCTOR";
-            lockBtn.textContent = isLocked ? "Unlock Node" : "Lock Node";
-            lockBtn.className = isLocked ? "bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 border border-emerald-500/20 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all" : "bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border border-amber-500/20 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all";
-            lockBtn.onclick = () => lockStudent(s.id);
-
-            const resetBtn = document.getElementById('modal-btn-reset-score');
-            resetBtn.onclick = () => resetStudentScore(s.id);
-            resetBtn.style.display = s.score > 0 ? 'block' : 'none';
-
-            // Show Modal
             modal.classList.remove('hidden');
-            setTimeout(() => {
-                modal.classList.add('opacity-100');
-                lucide.createIcons();
-            }, 10);
+            setTimeout(() => { modal.classList.add('opacity-100'); lucide.createIcons(); }, 10);
         }
 
         function closeModal() {
             const modal = document.getElementById('report-modal');
             modal.classList.remove('opacity-100');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 300);
+            setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
-        // Initialize Lucide
-        lucide.createIcons();
-
-        // Bind Global Buttons
-        document.getElementById('btn-clear-all').addEventListener('click', acknowledgeAll);
-        document.getElementById('btn-assignment-settings').addEventListener('click', showSettingsModal);
-
-        // --- SETTINGS MODAL LOGIC ---
         async function showSettingsModal() {
             const modal = document.getElementById('settings-modal');
-            const assignment = document.getElementById('assignment-filter').value;
-
-            // Fetch current settings from 'student_results' using a hidden config record
-            const { data, error } = await sbClient
-                .from('student_results')
-                .select('details')
-                .eq('assignment_name', assignment)
-                .eq('student_id', '__CONFIG__')
-                .maybeSingle();
-
-            if (data && data.details) {
-                assignmentSettings = {
-                    is_global_locked: data.details.is_global_locked || false,
-                    locked_periods: data.details.locked_periods || [],
-                    silenced_alerts: data.details.silenced_alerts || []
-                };
-            } else {
-                // Reset to defaults if no config found
-                assignmentSettings = {
-                    is_global_locked: false,
-                    locked_periods: [],
-                    silenced_alerts: []
-                };
-            }
-
             renderSettingsUI();
-
             modal.classList.remove('hidden');
-            setTimeout(() => {
-                modal.classList.add('opacity-100');
-                lucide.createIcons();
-            }, 10);
+            setTimeout(() => { modal.classList.add('opacity-100'); lucide.createIcons(); }, 10);
         }
 
         function renderSettingsUI() {
-            // Global Lock
             const lockStatus = document.getElementById('global-lock-status');
             const lockBtn = document.getElementById('btn-global-lock');
             lockStatus.textContent = assignmentSettings.is_global_locked ? "LOCKED" : "UNLOCKED";
             lockStatus.className = `text-lg font-black uppercase italic ${assignmentSettings.is_global_locked ? 'text-red-500' : 'text-emerald-500'}`;
             lockBtn.className = `p-4 rounded-2xl border flex flex-col gap-2 transition-all ${assignmentSettings.is_global_locked ? 'border-red-500/50 bg-red-500/5' : 'border-white/5 bg-white/5'}`;
 
-            // Periods
-            const periodsContainer = document.getElementById('locked-periods-container');
-            periodsContainer.innerHTML = [0,1,2,3,4,5,6].map(p => `
-                <button onclick="togglePeriodLock(${p})" class="px-3 py-1.5 rounded-lg border text-[10px] font-bold uppercase transition-all ${assignmentSettings.locked_periods.includes(p) ? 'bg-red-500/20 border-red-500/50 text-red-400' : 'bg-white/5 border-white/5 text-slate-500'}">
-                    P${p}
-                </button>
+            document.getElementById('locked-periods-container').innerHTML = [0,1,2,3,4,5,6].map(p => `
+                <button onclick="togglePeriodLock(${p})" class="px-3 py-1.5 rounded-lg border text-[10px] font-bold uppercase transition-all ${assignmentSettings.locked_periods.includes(p) ? 'bg-red-500/20 border-red-500/50 text-red-400' : 'bg-white/5 border-white/5 text-slate-500'}">P${p}</button>
             `).join('');
 
-            // Alerts
             const alertTypes = ["Cell Phone", "Down Gaze", "Focus Loss", "Visual Loss", "Clipboard Alert", "Interface Alert"];
-            const silenceContainer = document.getElementById('silence-options');
-            silenceContainer.innerHTML = alertTypes.map(type => `
+            document.getElementById('silence-options').innerHTML = alertTypes.map(type => `
                 <label class="flex items-center gap-3 p-3 rounded-xl border border-white/5 bg-white/5 cursor-pointer hover:bg-white/10 transition-all">
                     <input type="checkbox" onchange="toggleAlertSilence('${type}')" ${assignmentSettings.silenced_alerts.includes(type) ? 'checked' : ''} class="w-4 h-4 rounded border-white/10 bg-slate-900 text-indigo-600 focus:ring-indigo-500">
                     <span class="text-[10px] font-bold text-slate-300 uppercase tracking-wider">${type}</span>
@@ -854,40 +649,24 @@
             `).join('');
         }
 
-        function toggleGlobalLock() {
-            assignmentSettings.is_global_locked = !assignmentSettings.is_global_locked;
+        function toggleGlobalLock() { assignmentSettings.is_global_locked = !assignmentSettings.is_global_locked; renderSettingsUI(); }
+        function togglePeriodLock(p) { 
+            if (assignmentSettings.locked_periods.includes(p)) assignmentSettings.locked_periods = assignmentSettings.locked_periods.filter(item => item !== p);
+            else assignmentSettings.locked_periods.push(p);
             renderSettingsUI();
         }
-
-        function togglePeriodLock(p) {
-            if (assignmentSettings.locked_periods.includes(p)) {
-                assignmentSettings.locked_periods = assignmentSettings.locked_periods.filter(item => item !== p);
-            } else {
-                assignmentSettings.locked_periods.push(p);
-            }
-            renderSettingsUI();
-        }
-
         function toggleAlertSilence(type) {
-            if (assignmentSettings.silenced_alerts.includes(type)) {
-                assignmentSettings.silenced_alerts = assignmentSettings.silenced_alerts.filter(item => item !== type);
-            } else {
-                assignmentSettings.silenced_alerts.push(type);
-            }
+            if (assignmentSettings.silenced_alerts.includes(type)) assignmentSettings.silenced_alerts = assignmentSettings.silenced_alerts.filter(item => item !== type);
+            else assignmentSettings.silenced_alerts.push(type);
         }
 
         async function saveAssignmentSettings() {
             const assignment = document.getElementById('assignment-filter').value;
-            console.log(`[DASHBOARD] Saving settings for ${assignment}...`);
-
             try {
-                // Manually check if config exists
-                const { data: existing } = await sbClient
-                    .from('student_results')
-                    .select('id')
-                    .eq('student_id', '__CONFIG__')
-                    .eq('assignment_name', assignment)
-                    .maybeSingle();
+                const snapshot = await db.collection('student_results')
+                    .where('assignment_name', '==', assignment)
+                    .where('student_id', '==', '__CONFIG__')
+                    .get();
 
                 const payload = {
                     student_id: '__CONFIG__',
@@ -899,120 +678,52 @@
                     status: 'CONFIG'
                 };
 
-                let error;
-                if (existing) {
-                    const res = await sbClient
-                        .from('student_results')
-                        .update(payload)
-                        .eq('id', existing.id);
-                    error = res.error;
+                if (!snapshot.empty) {
+                    await snapshot.docs[0].ref.update(payload);
                 } else {
-                    const res = await sbClient
-                        .from('student_results')
-                        .insert([payload]);
-                    error = res.error;
+                    await db.collection('student_results').add(payload);
                 }
-
-                if (error) {
-                    console.error("Save settings error:", error);
-                    alert(`Failed to save settings: ${error.message || 'Unknown Error'}. Ensure student_results table allows CONFIG storage.`);
-                } else {
-                    // Optimistically update grid with local assignmentSettings before the DB fetch returns
-                    if (window.currentStudents) {
-                        updateGrid(window.currentStudents);
-                    }
-                    closeSettingsModal();
-                    // Let realtime subscription handle the follow-up fetch to avoid read-after-write race conditions
-                }
+                closeSettingsModal();
             } catch (e) {
-                console.error("Critical save error:", e);
-                alert("Critical error during save process.");
+                console.error("Save settings error:", e);
             }
         }
 
         function closeSettingsModal() {
             const modal = document.getElementById('settings-modal');
             modal.classList.remove('opacity-100');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 300);
+            setTimeout(() => modal.classList.add('hidden'), 300);
         }
-
-        // document.getElementById('btn-simulate').addEventListener('click', toggleSimulation);
-
-        // Close modal on escape key or clicking outside
-        window.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeModal();
-        });
-
-        document.getElementById('report-modal').addEventListener('click', (e) => {
-            if (e.target.id === 'report-modal') closeModal();
-        });
-
-        // --- REALTIME SUBSCRIPTION ---
-        const studentSubscription = sbClient
-            .channel('public:student_results')
-            .on('postgres_changes', { 
-                event: '*', 
-                schema: 'public', 
-                table: 'student_results'
-                // Filter removed for reliability; we check in fetchIntegrityData
-            }, (payload) => {
-                if (window.isSimulating) return;
-                // Only log if it's a meaningful state change (like a new violation)
-                const isViolation = payload.new?.details?.violations?.length > payload.old?.details?.violations?.length;
-                if (isViolation) {
-                    console.warn(`[DASHBOARD] !!! ALERT DETECTED for ${payload.new?.student_name} !!!`);
-                }
-                fetchIntegrityData(); 
-            })
-            .subscribe();
-
-        // Initial load
-        fetchIntegrityData();
-
-        // Fallback polling (slower now since we have realtime)
-        setInterval(fetchIntegrityData, 10000);
-
-        // Filter change trigger
-        document.getElementById('period-filter').addEventListener('change', fetchIntegrityData);
-        document.getElementById('assignment-filter').addEventListener('change', fetchIntegrityData);
 
         async function populateAssignments() {
             try {
-                // Fetch from both assessments (config) and questions (content)
-                const [assessmentsRes, questionsRes] = await Promise.all([
-                    sbClient.from('assessments').select('assignment_name'),
-                    sbClient.from('questions').select('assignment_name')
-                ]);
-
-                let allNames = [];
-                if (assessmentsRes.data) allNames.push(...assessmentsRes.data.map(d => d.assignment_name));
-                if (questionsRes.data) allNames.push(...questionsRes.data.map(d => d.assignment_name));
-
-                let unique = [...new Set(allNames)].filter(Boolean);
+                const snapshot = await db.collection('assessments').get();
+                let names = snapshot.docs.map(doc => doc.data().assignment_name).filter(Boolean);
                 
-                // Always ensure the default "AI Integrity Test" is in the list
-                if (!unique.includes('AI Integrity Test')) {
-                    unique.push('AI Integrity Test');
-                }
-                
-                unique.sort();
+                if (!names.includes('AI Integrity Test')) names.push('AI Integrity Test');
+                names.sort();
                 
                 const filter = document.getElementById('assignment-filter');
                 const currentVal = filter.value;
+                filter.innerHTML = names.map(name => `<option value="${name}" ${name === currentVal ? 'selected' : ''}>${name.toUpperCase()}</option>`).join('');
                 
-                filter.innerHTML = unique.map(name => `<option value="${name}" ${name === currentVal ? 'selected' : ''}>${name.toUpperCase()}</option>`).join('');
-                
-                // If the list changed, trigger a data fetch for the current selection
-                if (unique.length > 0) fetchIntegrityData();
+                // Set initial stream after population
+                setupStreams();
             } catch (e) {
                 console.error("Failed to populate assignments:", e);
             }
         }
 
-        // Run assignment population
-        populateAssignments();
+        // Global Event Listeners
+        document.getElementById('period-filter').addEventListener('change', setupStreams);
+        document.getElementById('assignment-filter').addEventListener('change', setupStreams);
+        document.getElementById('btn-clear-all').addEventListener('click', acknowledgeAll);
+        document.getElementById('btn-assignment-settings').addEventListener('click', showSettingsModal);
+        window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+        document.getElementById('report-modal').addEventListener('click', (e) => { if (e.target.id === 'report-modal') closeModal(); });
+
+        // Start
+        initDashboard();
     </script>
 </body>
 

@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roster Manager // Orange USD Secure Node</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@400;700;900&display=swap');
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #020617;
+            color: #f8fafc;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .glass {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .table-row:hover {
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col p-6 md:p-10">
+
+    <!-- Auth Guard Layer -->
+    <div id="auth-overlay" class="fixed inset-0 z-[100] bg-slate-950 flex flex-col items-center justify-center hidden">
+        <div class="bg-indigo-600 p-4 rounded-3xl shadow-2xl shadow-indigo-500/20 mb-8">
+            <i data-lucide="shield-lock" class="text-white w-12 h-12"></i>
+        </div>
+        <h1 class="text-3xl font-black uppercase tracking-tighter italic mb-2">Secure <span class="text-indigo-500">Roster</span> Access</h1>
+        <p class="text-slate-500 font-bold uppercase tracking-widest text-[10px] mb-8">Authorized Orange USD Personnel Only</p>
+        
+        <button id="btn-login" class="bg-white text-slate-950 px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center gap-3 hover:bg-indigo-50 transition-all active:scale-95 shadow-xl">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" class="w-5 h-5">
+            Sign In with Google
+        </button>
+        
+        <p id="auth-error" class="text-red-500 text-[10px] font-bold uppercase tracking-widest mt-6 hidden">Access Denied: District Domain Required</p>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main-content" class="max-w-6xl mx-auto w-full space-y-8 opacity-0 transition-opacity duration-500">
+        
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div class="flex items-center gap-4">
+                <div class="bg-indigo-600 p-2.5 rounded-2xl shadow-lg shadow-indigo-500/20">
+                    <i data-lucide="users" class="text-white w-8 h-8"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-black uppercase tracking-tighter italic">Student<span class="text-indigo-500">Roster</span> // 2025-26</h1>
+                    <p class="text-[9px] font-bold text-slate-500 uppercase tracking-[0.3em]">Master Database Node</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="flex flex-col items-end mr-4">
+                    <span id="user-display-name" class="text-xs font-bold text-slate-300">---</span>
+                    <span id="user-email" class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">---</span>
+                </div>
+                <button id="btn-logout" class="bg-white/5 hover:bg-white/10 text-slate-400 p-2 rounded-xl border border-white/5 transition-all">
+                    <i data-lucide="log-out" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="glass p-6 rounded-3xl border-l-4 border-indigo-500">
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Total Students</p>
+                <p id="stat-total" class="text-3xl font-black italic">0</p>
+            </div>
+            <div class="glass p-6 rounded-3xl border-l-4 border-emerald-500">
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Active Periods</p>
+                <p id="stat-periods" class="text-3xl font-black italic">0</p>
+            </div>
+            <div class="glass p-6 rounded-3xl border-l-4 border-amber-500">
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Unassigned</p>
+                <p id="stat-unassigned" class="text-3xl font-black italic">0</p>
+            </div>
+            <div class="glass p-6 rounded-3xl border-l-4 border-blue-500 flex items-center justify-center">
+                <button id="btn-add-student" class="bg-indigo-600 hover:bg-indigo-700 text-white w-full h-full rounded-2xl font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2">
+                    <i data-lucide="plus" class="w-4 h-4"></i> Add Student
+                </button>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="flex flex-col md:flex-row gap-4">
+            <div class="flex-grow relative">
+                <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4"></i>
+                <input type="text" id="search-input" placeholder="Search by name or ID..." class="w-full bg-slate-900 border border-white/10 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold focus:border-indigo-500 outline-none transition-all">
+            </div>
+            <select id="filter-period" class="bg-slate-900 border border-white/10 rounded-2xl px-6 py-4 text-sm font-bold focus:border-indigo-500 outline-none transition-all min-w-[160px]">
+                <option value="ALL">ALL PERIODS</option>
+                <option value="0">PERIOD 0</option>
+                <option value="1">PERIOD 1</option>
+                <option value="2">PERIOD 2</option>
+                <option value="3">PERIOD 3</option>
+                <option value="4">PERIOD 4</option>
+                <option value="5">PERIOD 5</option>
+                <option value="6">PERIOD 6</option>
+            </select>
+            <button id="btn-export" class="bg-white/5 hover:bg-white/10 border border-white/10 px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2">
+                <i data-lucide="download" class="w-4 h-4"></i> CSV
+            </button>
+        </div>
+
+        <!-- Roster Table -->
+        <div class="glass rounded-[2.5rem] overflow-hidden border border-white/5 shadow-2xl">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-950/50">
+                        <tr>
+                            <th class="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5">Student ID</th>
+                            <th class="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5">Period</th>
+                            <th class="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5">Full Name</th>
+                            <th class="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="roster-table-body" class="divide-y divide-white/5">
+                        <!-- Injected via JS -->
+                        <tr>
+                            <td colspan="4" class="px-8 py-20 text-center text-slate-500 font-bold uppercase tracking-widest text-xs italic">
+                                Initializing Database Connection...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Edit Modal -->
+    <div id="student-modal" class="fixed inset-0 z-[110] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-6 hidden">
+        <div class="bg-slate-900 w-full max-w-md rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
+            <div class="p-6 border-b border-white/10 flex justify-between items-center bg-slate-950/50">
+                <h2 id="modal-title" class="text-xl font-bold italic uppercase tracking-tighter">Edit Student</h2>
+                <button onclick="closeModal()" class="text-slate-500 hover:text-white transition-colors">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <form id="student-form" class="p-8 space-y-6">
+                <input type="hidden" id="edit-id">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Student ID</label>
+                    <input type="text" id="input-student-id" required class="w-full bg-slate-800 border border-white/5 rounded-xl px-4 py-3 text-sm font-bold focus:border-indigo-500 outline-none transition-all">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">First Name</label>
+                        <input type="text" id="input-first-name" required class="w-full bg-slate-800 border border-white/5 rounded-xl px-4 py-3 text-sm font-bold focus:border-indigo-500 outline-none transition-all">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Last Name</label>
+                        <input type="text" id="input-last-name" required class="w-full bg-slate-800 border border-white/5 rounded-xl px-4 py-3 text-sm font-bold focus:border-indigo-500 outline-none transition-all">
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Class Period</label>
+                    <select id="input-period" class="w-full bg-slate-800 border border-white/5 rounded-xl px-4 py-3 text-sm font-bold focus:border-indigo-500 outline-none transition-all">
+                        <option value="0">Period 0</option>
+                        <option value="1">Period 1</option>
+                        <option value="2">Period 2</option>
+                        <option value="3">Period 3</option>
+                        <option value="4">Period 4</option>
+                        <option value="5">Period 5</option>
+                        <option value="6">Period 6</option>
+                    </select>
+                </div>
+                <div class="pt-4 flex gap-3">
+                    <button type="submit" class="flex-grow bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-lg shadow-indigo-500/20">
+                        Save Changes
+                    </button>
+                    <button type="button" id="btn-delete" class="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 px-6 rounded-2xl transition-all">
+                        <i data-lucide="trash-2" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // --- FIREBASE CONFIG ---
+        const firebaseConfig = {
+            projectId: "site-6e500",
+            appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+            storageBucket: "site-6e500.firebasestorage.app",
+            apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+            authDomain: "site-6e500.firebaseapp.com",
+            messagingSenderId: "591530758858"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        const REQUIRED_DOMAIN = "@orangeusd.org";
+        let fullRoster = [];
+
+        // --- AUTH LOGIC ---
+        auth.onAuthStateChanged((user) => {
+            const overlay = document.getElementById('auth-overlay');
+            const main = document.getElementById('main-content');
+            const error = document.getElementById('auth-error');
+
+            if (user) {
+                if (user.email.endsWith(REQUIRED_DOMAIN)) {
+                    overlay.classList.add('hidden');
+                    main.classList.remove('opacity-0');
+                    document.getElementById('user-display-name').textContent = user.displayName || 'Teacher';
+                    document.getElementById('user-email').textContent = user.email;
+                    initRoster();
+                } else {
+                    error.classList.remove('hidden');
+                    auth.signOut();
+                }
+            } else {
+                overlay.classList.remove('hidden');
+                main.classList.add('opacity-0');
+            }
+        });
+
+        document.getElementById('btn-login').onclick = () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider);
+        };
+
+        document.getElementById('btn-logout').onclick = () => auth.signOut();
+
+        // --- ROSTER LOGIC ---
+        function initRoster() {
+            db.collection('roster').onSnapshot(snapshot => {
+                fullRoster = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                updateStats();
+                renderTable();
+            });
+        }
+
+        function updateStats() {
+            document.getElementById('stat-total').textContent = fullRoster.length;
+            const periods = [...new Set(fullRoster.map(s => s.class_period))].filter(p => p !== null);
+            document.getElementById('stat-periods').textContent = periods.length;
+            document.getElementById('stat-unassigned').textContent = fullRoster.filter(s => s.class_period === null).length;
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('roster-table-body');
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const periodFilter = document.getElementById('filter-period').value;
+
+            const filtered = fullRoster.filter(s => {
+                const matchesSearch = s.full_name?.toLowerCase().includes(searchTerm) || s.student_id?.includes(searchTerm);
+                const matchesPeriod = periodFilter === 'ALL' || s.class_period == periodFilter;
+                return matchesSearch && matchesPeriod;
+            });
+
+            // Sort by period, then by name
+            filtered.sort((a, b) => {
+                if (a.class_period !== b.class_period) return a.class_period - b.class_period;
+                return (a.last_name || '').localeCompare(b.last_name || '');
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="px-8 py-20 text-center text-slate-500 font-bold uppercase tracking-widest text-xs italic">No students match your current filters.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(s => `
+                <tr class="table-row transition-all duration-200">
+                    <td class="px-8 py-5 mono text-xs font-bold text-indigo-400">${s.student_id}</td>
+                    <td class="px-8 py-5">
+                        <span class="bg-white/5 border border-white/5 px-3 py-1 rounded-lg text-[10px] font-bold uppercase text-slate-400">P${s.class_period ?? '?'}</span>
+                    </td>
+                    <td class="px-8 py-5 text-sm font-bold text-slate-200">${s.full_name || (s.first_name + ' ' + s.last_name)}</td>
+                    <td class="px-8 py-5 text-right">
+                        <button onclick="editStudent('${s.id}')" class="text-slate-500 hover:text-indigo-400 p-2 rounded-xl hover:bg-indigo-500/10 transition-all">
+                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        // --- MODAL & CRUD ---
+        function editStudent(id) {
+            const s = fullRoster.find(std => std.id === id);
+            if (!s) return;
+
+            document.getElementById('modal-title').textContent = "Edit Student";
+            document.getElementById('edit-id').value = id;
+            document.getElementById('input-student-id').value = s.student_id;
+            document.getElementById('input-first-name').value = s.first_name;
+            document.getElementById('input-last-name').value = s.last_name;
+            document.getElementById('input-period').value = s.class_period ?? 0;
+            
+            document.getElementById('btn-delete').style.display = 'block';
+            showModal();
+        }
+
+        document.getElementById('btn-add-student').onclick = () => {
+            document.getElementById('modal-title').textContent = "Add New Student";
+            document.getElementById('edit-id').value = "";
+            document.getElementById('student-form').reset();
+            document.getElementById('btn-delete').style.display = 'none';
+            showModal();
+        };
+
+        document.getElementById('student-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-id').value;
+            const data = {
+                student_id: document.getElementById('input-student-id').value,
+                first_name: document.getElementById('input-first-name').value,
+                last_name: document.getElementById('input-last-name').value,
+                full_name: `${document.getElementById('input-first-name').value} ${document.getElementById('input-last-name').value}`,
+                class_period: parseInt(document.getElementById('input-period').value),
+                updated_at: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            try {
+                if (id) {
+                    await db.collection('roster').doc(id).update(data);
+                } else {
+                    await db.collection('roster').doc(data.student_id).set(data);
+                }
+                closeModal();
+            } catch (err) {
+                alert("Error saving student: " + err.message);
+            }
+        };
+
+        document.getElementById('btn-delete').onclick = async () => {
+            if (!confirm("Are you sure you want to remove this student from the roster?")) return;
+            const id = document.getElementById('edit-id').value;
+            try {
+                await db.collection('roster').doc(id).delete();
+                closeModal();
+            } catch (err) {
+                alert("Error deleting student: " + err.message);
+            }
+        };
+
+        function showModal() { document.getElementById('student-modal').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('student-modal').classList.add('hidden'); }
+
+        // Event listeners for filters
+        document.getElementById('search-input').oninput = renderTable;
+        document.getElementById('filter-period').onchange = renderTable;
+
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>
