@@ -643,6 +643,14 @@
                         ts: new Date().toISOString()
                     }
                 });
+                
+                // Immediate UI update for the local state and open modal
+                const s = window.currentStudents.find(std => std.id === recordId);
+                if (s) s.score = 0;
+                
+                const scoreDisplay = document.getElementById('modal-score');
+                if (scoreDisplay) scoreDisplay.textContent = "0";
+
                 console.log(`[DASHBOARD] Score reset for: ${recordId}`);
                 if (btn) { btn.textContent = "SUCCESS"; setTimeout(() => { btn.disabled = false; btn.textContent = "Reset Score"; }, 1000); }
             } catch (e) {
