@@ -272,7 +272,7 @@
                                 </div>
                             `}
                         </div>
-                        <button onclick="editQuestion('${q.id}')" class="bg-indigo-600/10 hover:bg-indigo-600 text-indigo-400 hover:text-white p-5 rounded-2xl transition-all opacity-0 group-hover:opacity-100 shadow-xl">
+                        <button onclick="editQuestion('${q.id}')" class="bg-indigo-600 hover:bg-indigo-500 text-white p-5 rounded-2xl transition-all shadow-xl">
                             <i data-lucide="edit-3" class="w-6 h-6"></i>
                         </button>
                     </div>
@@ -304,8 +304,11 @@
         }
 
         window.editQuestion = (id) => {
-            const q = currentQuestions.find(qst => qst.id === id);
-            if (!q) return;
+            const q = currentQuestions.find(qst => String(qst.id) === String(id));
+            if (!q) {
+                console.warn("Question not found:", id);
+                return;
+            }
 
             document.getElementById('modal-title').innerHTML = `Edit <span class="text-indigo-500">Question</span>`;
             document.getElementById('edit-id').value = q.id;
