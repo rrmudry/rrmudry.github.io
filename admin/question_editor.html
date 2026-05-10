@@ -124,17 +124,16 @@
 
                     <!-- Static Options -->
                     <div id="section-static" class="space-y-6">
-                        <label class="label-text ml-2 block">Answer Options</label>
+                        <div class="flex justify-between items-center px-2">
+                            <label class="label-text">Answer Options</label>
+                            <label class="label-text text-indigo-400">Correct?</label>
+                        </div>
                         <div id="options-container" class="space-y-3">
                             <!-- Injected options -->
                         </div>
                         <button type="button" onclick="addOption()" class="text-xs font-black text-indigo-400 uppercase tracking-widest ml-2 flex items-center gap-2">
                             <i data-lucide="plus-circle" class="w-4 h-4"></i> Add Option
                         </button>
-                        <div class="pt-4">
-                            <label class="label-text ml-2 mb-3 block">Correct Answer</label>
-                            <input type="text" id="input-correct" class="w-full bg-emerald-500/5 border-2 border-emerald-500/30 rounded-2xl px-6 py-4 text-base font-bold text-emerald-400 outline-none focus:border-emerald-500 transition-all">
-                        </div>
                     </div>
 
                     <!-- Calculated Config -->
@@ -261,10 +260,13 @@
                             <p class="text-xl font-bold text-white mb-6 leading-relaxed">${q.text}</p>
                             ${q.type === 'static' ? `
                                 <div class="flex flex-wrap gap-3">
-                                    ${q.options.map(opt => `
-                                        <span class="text-xs px-4 py-2 rounded-xl border-2 font-bold ${opt === q.correct_answer ? 'border-emerald-500/50 text-emerald-400 bg-emerald-500/10' : 'border-white/5 text-slate-400'}">
+                                    ${q.options.map(opt => {
+                                        const isCorrect = Array.isArray(q.correct_answers) ? q.correct_answers.includes(opt) : opt === q.correct_answer;
+                                        return `
+                                        <span class="text-xs px-4 py-2 rounded-xl border-2 font-bold ${isCorrect ? 'border-emerald-500/50 text-emerald-400 bg-emerald-500/10' : 'border-white/5 text-slate-400'}">
                                             ${opt}
-                                        </span>`).join('')}
+                                        </span>`;
+                                    }).join('')}
                                 </div>
                             ` : `
                                 <div class="bg-slate-950/80 p-4 rounded-2xl border-2 border-white/5 mono text-xs text-slate-300">
@@ -291,13 +293,14 @@
             document.getElementById('section-calculated').classList.toggle('hidden', e.target.value !== 'calculated');
         };
 
-        function addOption(val = '') {
+        function addOption(val = '', isCorrect = false) {
             const container = document.getElementById('options-container');
             const div = document.createElement('div');
-            div.className = "flex gap-2";
+            div.className = "flex gap-3 items-center";
             div.innerHTML = `
-                <input type="text" value="${val}" class="flex-grow bg-slate-950 border border-white/5 rounded-xl px-4 py-2 text-xs font-bold outline-none focus:border-indigo-500 transition-all option-input">
-                <button type="button" onclick="this.parentElement.remove()" class="text-rose-500/50 hover:text-rose-500 p-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                <input type="text" value="${val}" class="flex-grow bg-slate-950 border-2 border-white/5 rounded-2xl px-6 py-4 text-base font-bold outline-none focus:border-indigo-500 transition-all option-input">
+                <input type="checkbox" ${isCorrect ? 'checked' : ''} class="w-8 h-8 rounded-xl bg-slate-900 border-2 border-white/10 checked:bg-indigo-600 checked:border-indigo-600 transition-all cursor-pointer option-correct">
+                <button type="button" onclick="this.parentElement.remove()" class="text-rose-500/50 hover:text-rose-500 p-2"><i data-lucide="trash-2" class="w-6 h-6"></i></button>
             `;
             container.appendChild(div);
             lucide.createIcons();
@@ -315,7 +318,6 @@
             document.getElementById('input-id').value = q.id;
             document.getElementById('input-type').value = q.type;
             document.getElementById('input-text').value = q.text;
-            document.getElementById('input-correct').value = q.correct_answer || '';
             
             // Reset Sections
             document.getElementById('section-static').classList.toggle('hidden', q.type !== 'static');
@@ -324,7 +326,14 @@
             // Populate Static Options
             const container = document.getElementById('options-container');
             container.innerHTML = '';
-            if (q.options) q.options.forEach(opt => addOption(opt));
+            if (q.options) {
+                q.options.forEach(opt => {
+                    const isCorrect = Array.isArray(q.correct_answers) 
+                        ? q.correct_answers.includes(opt) 
+                        : opt === q.correct_answer;
+                    addOption(opt, isCorrect);
+                });
+            }
 
             // Populate Calculated Config
             document.getElementById('input-config').value = q.config ? JSON.stringify(q.config, null, 2) : '';
@@ -375,14 +384,21 @@
             };
 
             if (type === 'static') {
-                data.options = Array.from(document.querySelectorAll('.option-input')).map(input => input.value);
-                data.correct_answer = document.getElementById('input-correct').value;
+                const rows = Array.from(document.querySelectorAll('#options-container > div'));
+                data.options = rows.map(row => row.querySelector('.option-input').value);
+                data.correct_answers = rows
+                    .filter(row => row.querySelector('.option-correct').checked)
+                    .map(row => row.querySelector('.option-input').value);
+                
+                // Backward compatibility for single-answer systems
+                data.correct_answer = data.correct_answers[0] || "";
                 data.config = null;
             } else {
                 try {
                     data.config = JSON.parse(document.getElementById('input-config').value);
                     data.options = [];
-                    data.correct_answer = ""; // Calculated questions handle answers via logic
+                    data.correct_answers = [];
+                    data.correct_answer = ""; 
                 } catch (err) {
                     showToast("Invalid JSON in Math Config", "error");
                     return;
