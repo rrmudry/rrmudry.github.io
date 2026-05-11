@@ -20,6 +20,7 @@ service cloud.firestore {
     // --- ROSTER RULES ---
     match /roster/{studentId} {
       allow read, write: if isTeacher();
+      allow read: if isSignedIn() && request.auth.token.email.matches('(?i)^' + studentId + '@.*');
     }
 
     // --- STUDENT RESULTS RULES ---
