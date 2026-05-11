@@ -10,11 +10,11 @@ service cloud.firestore {
 
     // Helper: Is this an authorized Orange USD Teacher?
     function isTeacher() {
-      return isSignedIn() && 
-             request.auth.token.email_verified == true && 
-             (request.auth.token.email.matches('.*@orangeusd\\.org$') || 
-              request.auth.token.email == 'ryan.mudry@gmail.com' ||
-              request.auth.token.email == 'ryanmudry@gmail.com');
+      return isSignedIn() && (
+        request.auth.token.email == "ryan.mudry@gmail.com" ||
+        request.auth.token.email == "ryanmudry@gmail.com" ||
+        request.auth.token.email == "rmudry@orangeusd.org"
+      );
     }
 
     // --- ROSTER RULES ---
@@ -42,6 +42,12 @@ service cloud.firestore {
     
     match /questions/{questionId} {
       allow read: if true; // Students need to read questions
+      allow write: if isTeacher();
+    }
+
+    // --- SYSTEM CONFIG RULES ---
+    match /system_config/broadcast {
+      allow read: if isSignedIn();
       allow write: if isTeacher();
     }
 

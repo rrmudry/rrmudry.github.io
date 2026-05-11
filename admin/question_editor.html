@@ -232,7 +232,10 @@
         async function initEditor() {
             // Populate Assignments Dropdown
             const snapshot = await db.collection('assessments').get();
-            const assignments = snapshot.docs.map(doc => ({ id: doc.id, name: doc.id.replace(/_/g, ' ') }));
+            const assignments = snapshot.docs.map(doc => ({ 
+                id: doc.id, 
+                name: doc.data().assignment_name || doc.id.replace(/_/g, ' ') 
+            }));
             
             const select = document.getElementById('assignment-select');
             const modalSelect = document.getElementById('input-assignment');
@@ -242,7 +245,7 @@
             
             select.innerHTML = options;
             modalSelect.innerHTML = options;
-
+            
             select.onchange = (e) => loadQuestions(e.target.value);
         }
 

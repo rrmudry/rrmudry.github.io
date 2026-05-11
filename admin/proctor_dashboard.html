@@ -311,11 +311,11 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
-        const REQUIRED_EMAIL = "rmudry@orangeusd.org";
+        const AUTHORIZED_EMAILS = ["rmudry@orangeusd.org", "ryan.mudry@gmail.com", "ryanmudry@gmail.com"];
 
         // Auth Guard Logic
         auth.onAuthStateChanged(user => {
-            if (user && user.email === REQUIRED_EMAIL) {
+            if (user && AUTHORIZED_EMAILS.includes(user.email.toLowerCase())) {
                 document.getElementById('auth-overlay').classList.add('hidden');
                 initDashboard();
             } else {
@@ -345,8 +345,8 @@
 
         async function initDashboard() {
             console.log("[DASHBOARD] Initializing Firebase Streams...");
-            await populateAssignments();
-            await setupStreams();
+            // No need to call populateAssignments as it's now a real-time listener setupAssessmentListener
+            setupStreams();
         }
 
         async function setupStreams() {
@@ -373,7 +373,7 @@
                     return {
                         id: doc.id,
                         student_id: d.student_id || doc.id,
-                        student_name: d.full_name || 'Unknown',
+                        student_name: d.name || d.full_name || 'Unknown',
                         class_period: d.class_period,
                         score: '-', // Default score
                         details: {
@@ -451,6 +451,24 @@
                 document.getElementById('active-count').textContent = mergedData.filter(s => typeof s.score === 'number' && s.score < 100).length;
                 document.getElementById('last-sync-time').textContent = new Date().toLocaleTimeString();
             }, err => console.error("Students stream error:", err));
+
+            // 3. Broadcast this as the active assessment for the selected period
+            broadcastActive(assignment, period);
+        }
+
+        async function broadcastActive(assignmentId, period) {
+            try {
+                const update = {};
+                if (period === 'ALL') {
+                    update.global_active = assignmentId;
+                } else {
+                    update[`period_${period}`] = assignmentId;
+                }
+                
+                await db.collection('system_config').doc('broadcast').set(update, { merge: true });
+            } catch (e) {
+                console.error("Failed to broadcast active assessment:", e);
+            }
         }
 
         function updateGrid(students) {
@@ -976,26 +994,34 @@
             setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
-        async function populateAssignments() {
-            try {
-                const snapshot = await db.collection('assessments').get();
-                let names = snapshot.docs.map(doc => doc.data().assignment_name).filter(Boolean);
+        function setupAssessmentListener() {
+            db.collection('assessments').onSnapshot(snapshot => {
+                let assignments = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    name: doc.data().assignment_name || doc.id
+                }));
                 
-                if (!names.includes('AI Integrity Test')) names.push('AI Integrity Test');
-                names.sort();
+                // Add default if missing
+                if (!assignments.find(a => a.id === 'AI Integrity Test')) {
+                    assignments.push({ id: 'AI Integrity Test', name: 'AI Integrity Test' });
+                }
+                
+                assignments.sort((a, b) => a.name.localeCompare(b.name));
                 
                 const filter = document.getElementById('assignment-filter');
                 const currentVal = filter.value;
-                filter.innerHTML = names.map(name => `<option value="${name}" ${name === currentVal ? 'selected' : ''}>${name.toUpperCase()}</option>`).join('');
+                filter.innerHTML = assignments.map(a => `<option value="${a.id}" ${a.id === currentVal ? 'selected' : ''}>${a.name.toUpperCase()}</option>`).join('');
                 
-                // Set initial stream after population
-                setupStreams();
-            } catch (e) {
-                console.error("Failed to populate assignments:", e);
-            }
+                // If no value is selected and we have assignments, select the first one and trigger setup
+                if (!filter.value && assignments.length > 0) {
+                    filter.value = assignments[0].id;
+                    setupStreams();
+                }
+            }, err => console.error("Failed to listen to assessments:", err));
         }
 
         // Global Event Listeners
+        window.addEventListener('load', setupAssessmentListener);
         document.getElementById('period-filter').addEventListener('change', setupStreams);
         document.getElementById('assignment-filter').addEventListener('change', setupStreams);
         document.getElementById('btn-clear-all').addEventListener('click', acknowledgeAll);

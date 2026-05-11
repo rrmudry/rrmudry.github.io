@@ -354,7 +354,7 @@
                 // Listen to Assessments
                 db.collection('assessments').onSnapshot(snap => {
                     assessments = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    setupLockListeners();
+                    setupBroadcastListener();
                     if (!assessmentsReady) {
                         assessmentsReady = true;
                         resolve();
@@ -469,109 +469,155 @@
 
         let lockConfigs = {};
         let lockUnsubscribers = [];
+        let activeAssessmentId = null;
 
-        function setupLockListeners() {
+        function setupBroadcastListener() {
+            // 1. Listen for the broadcast signal
+            db.collection('system_config').doc('broadcast').onSnapshot(doc => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    const period = studentData?.class_period;
+                    // Preference: Period-specific active > Global active
+                    activeAssessmentId = data[`period_${period}`] || data.global_active || null;
+                    
+                    // 2. Setup listeners for ONLY the active assessment
+                    setupActiveListeners(activeAssessmentId);
+                }
+            }, err => console.error("Broadcast listener error:", err));
+        }
+
+        function setupActiveListeners(id) {
+            // Clean up old listeners
             lockUnsubscribers.forEach(unsub => unsub());
             lockUnsubscribers = [];
             
+            if (!id) {
+                renderAssessmentsGrid();
+                return;
+            }
+
             const studentId = currentUser.email.split('@')[0];
+            
+            // Ensure config object exists
+            if (!lockConfigs[id]) {
+                lockConfigs[id] = { global: { is_global_locked: true }, student: {} };
+            }
 
-            assessments.forEach(assessment => {
-                if (!lockConfigs[assessment.id]) {
-                    lockConfigs[assessment.id] = { global: { is_global_locked: true }, student: {} };
-                }
-
-                const unsubGlobal = db.collection("student_results").doc(assessment.id).onSnapshot(doc => {
-                    if (doc.exists) {
-                        lockConfigs[assessment.id].global = doc.data();
-                    } else {
-                        lockConfigs[assessment.id].global = { is_global_locked: true };
-                    }
-                    renderAssessmentsGrid();
-                }, error => {
-                    console.error("Global config listen error:", error);
-                });
-                lockUnsubscribers.push(unsubGlobal);
-
-                const unsubStudent = db.collection("student_results").doc(assessment.id).collection("students").doc(studentId).onSnapshot(doc => {
-                    if (doc.exists) {
-                        lockConfigs[assessment.id].student = doc.data();
-                    } else {
-                        lockConfigs[assessment.id].student = {};
-                    }
-                    renderAssessmentsGrid();
-                }, error => {
-                    console.error("Student config listen error:", error);
-                });
-                lockUnsubscribers.push(unsubStudent);
+            // Listen to Global Lock for the ACTIVE assessment
+            const unsubGlobal = db.collection("student_results").doc(id).onSnapshot(doc => {
+                lockConfigs[id].global = doc.exists ? doc.data() : { is_global_locked: true };
+                renderAssessmentsGrid();
             });
+            lockUnsubscribers.push(unsubGlobal);
+
+            // Listen to Personal Lock for the ACTIVE assessment
+            const unsubStudent = db.collection("student_results").doc(id).collection("students").doc(studentId).onSnapshot(doc => {
+                lockConfigs[id].student = doc.exists ? doc.data() : {};
+                renderAssessmentsGrid();
+            });
+            lockUnsubscribers.push(unsubStudent);
         }
 
         function renderAssessmentsGrid() {
             const grid = document.getElementById('assessments-grid');
             grid.innerHTML = '';
 
-            for (const assessment of assessments) {
-                const config = (lockConfigs[assessment.id] && lockConfigs[assessment.id].global) || { is_global_locked: true };
-                const studentStatus = (lockConfigs[assessment.id] && lockConfigs[assessment.id].student) || {};
-                
-                const periodLocked = config.locked_periods && config.locked_periods.includes(studentData?.class_period);
-                const globalLocked = config.is_global_locked !== undefined ? config.is_global_locked : true;
-                
-                const isIndividuallyLocked = studentStatus?.details?.is_locked || studentStatus.status === "LOCKED_BY_PROCTOR";
-                const isUnlockedOverride = studentStatus?.details?.is_unlocked_override;
+            // Separate active from others
+            const activeAssessments = assessments.filter(a => a.id === activeAssessmentId);
+            const otherAssessments = assessments.filter(a => a.id !== activeAssessmentId);
 
-                const isLocked = (globalLocked || periodLocked || isIndividuallyLocked) && !isUnlockedOverride;
-                
-                const card = document.createElement('div');
-                card.className = `glass-card p-6 flex flex-col gap-4 relative overflow-hidden group ${isLocked ? 'opacity-75' : ''}`;
-                
-                card.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <span class="status-badge ${isLocked ? 'status-locked' : 'status-unlocked'}">
-                                ${isLocked ? 'Locked' : 'Available'}
-                            </span>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Assessment ID</p>
-                            <p class="text-xs font-mono text-slate-300">${assessment.id}</p>
-                        </div>
+            if (activeAssessments.length === 0 && !activeAssessmentId) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-20 text-center glass-card">
+                        <i data-lucide="radio" class="w-16 h-16 text-slate-800 mx-auto mb-4 animate-pulse"></i>
+                        <h2 class="text-xl font-bold text-slate-600 uppercase tracking-widest">Waiting for Broadcast</h2>
+                        <p class="text-sm text-slate-500 mt-2">Your proctor hasn't activated an assessment yet.</p>
                     </div>
-
-                    <div>
-                        <h3 class="text-xl font-bold mb-1 group-hover:text-orange-500 transition-colors">${assessment.title || assessment.id}</h3>
-                        <p class="text-sm text-slate-400 line-clamp-2">${assessment.description || 'No description provided.'}</p>
-                    </div>
-
-                    <div class="mt-auto pt-4 flex items-center justify-between">
-                        <div class="flex flex-col">
-                            <span class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Time Limit</span>
-                            <span class="text-sm font-bold">${assessment.time_limit || '---'} mins</span>
-                        </div>
-                        <button 
-                            onclick="launchAssessment('${assessment.id}')"
-                            ${isLocked ? 'disabled' : ''}
-                            class="launch-btn px-6 py-2 rounded-xl font-bold text-sm text-black disabled:opacity-50"
-                        >
-                            ${isLocked ? 'Access Denied' : 'Launch Exam'}
-                        </button>
-                    </div>
-
-                    ${isLocked ? `
-                    <div class="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center p-6 text-center z-10 pointer-events-none">
-                        <div class="transform translate-y-4 group-hover:translate-y-0 transition-transform">
-                             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-red-500 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                            </svg>
-                            <p class="font-black text-red-400 uppercase tracking-tighter">Station Restricted</p>
-                            <p class="text-[10px] text-slate-300">Wait for proctor to unlock your node</p>
-                        </div>
-                    </div>
-                    ` : ''}
                 `;
-                grid.appendChild(card);
+                lucide.createIcons();
+                return;
             }
+
+            // Render Active Assessment first with special styling
+            activeAssessments.forEach(assessment => {
+                grid.appendChild(createAssessmentCard(assessment, true));
+            });
+
+            // Render Other Assessments (Optional: keep them static/hidden)
+            if (otherAssessments.length > 0) {
+                const divider = document.createElement('div');
+                divider.className = 'col-span-full mt-8 mb-4 border-b border-white/5 pb-2';
+                divider.innerHTML = '<h3 class="text-xs font-black text-slate-600 uppercase tracking-[0.2em]">Other Assessments</h3>';
+                grid.appendChild(divider);
+                
+                otherAssessments.forEach(assessment => {
+                    grid.appendChild(createAssessmentCard(assessment, false));
+                });
+            }
+            
+            lucide.createIcons();
+        }
+
+        function createAssessmentCard(assessment, isActive) {
+            const id = assessment.id;
+            const config = (lockConfigs[id] && lockConfigs[id].global) || { is_global_locked: true };
+            const studentStatus = (lockConfigs[id] && lockConfigs[id].student) || {};
+            
+            const periodLocked = config.locked_periods && config.locked_periods.includes(studentData?.class_period);
+            const globalLocked = config.is_global_locked !== undefined ? config.is_global_locked : true;
+            
+            const isIndividuallyLocked = studentStatus?.details?.is_locked || studentStatus.status === "LOCKED_BY_PROCTOR";
+            const isUnlockedOverride = studentStatus?.details?.is_unlocked_override;
+
+            const isLocked = (globalLocked || periodLocked || isIndividuallyLocked) && !isUnlockedOverride;
+            
+            const card = document.createElement('div');
+            card.className = `glass-card p-6 flex flex-col gap-4 relative overflow-hidden group ${isLocked ? 'opacity-75' : ''} ${isActive ? 'border-indigo-500/50 ring-1 ring-indigo-500/20' : ''}`;
+            
+            card.innerHTML = `
+                ${isActive ? '<div class="absolute top-0 right-0 bg-indigo-600 text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-bl-xl text-white">Active Session</div>' : ''}
+                <div class="flex justify-between items-start">
+                    <div>
+                        <span class="status-badge ${isLocked ? 'status-locked' : 'status-unlocked'}">
+                            ${isLocked ? 'Locked' : 'Available'}
+                        </span>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">ID</p>
+                        <p class="text-xs font-mono text-slate-300">${id}</p>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-bold mb-1 group-hover:text-indigo-400 transition-colors">${assessment.title || id}</h3>
+                    <p class="text-sm text-slate-400 line-clamp-2">${assessment.description || 'No description provided.'}</p>
+                </div>
+
+                <div class="mt-auto pt-4 flex items-center justify-between">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Time Limit</span>
+                        <span class="text-sm font-bold">${assessment.time_limit || '---'} mins</span>
+                    </div>
+                    <button 
+                        onclick="launchAssessment('${id}')"
+                        ${isLocked ? 'disabled' : ''}
+                        class="px-6 py-2 rounded-xl font-bold text-sm ${isActive ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/20' : 'bg-white/10 text-slate-300'} disabled:opacity-50 transition-all hover:scale-105 active:scale-95"
+                    >
+                        ${isLocked ? 'Restricted' : 'Launch Exam'}
+                    </button>
+                </div>
+
+                ${isLocked ? `
+                <div class="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center p-6 text-center z-10 pointer-events-none">
+                    <div class="transform translate-y-4 group-hover:translate-y-0 transition-transform">
+                         <i data-lucide="lock" class="h-10 w-10 text-red-500 mx-auto mb-2"></i>
+                        <p class="font-black text-red-400 uppercase tracking-tighter">Station Restricted</p>
+                        <p class="text-[10px] text-slate-300">Wait for proctor to unlock your node</p>
+                    </div>
+                </div>
+                ` : ''}
+            `;
+            return card;
         }
 
         function launchAssessment(id) {
@@ -579,7 +625,7 @@
             // Assuming the assessment pages are at /assessments/[id].html or similar
             // But THE_PROCTOR uses a template. 
             // The user usually opens THE_PROCTOR_TEMPLATE.html?id=...
-            window.location.href = `admin/THE_PROCTOR/THE_PROCTOR_TEMPLATE.html?id=${id}&student_id=${currentUser.email.split('@')[0]}`;
+            window.location.href = `admin/THE_PROCTOR/THE_PROCTOR_TEMPLATE.html?a=${id}&student_id=${currentUser.email.split('@')[0]}`;
         }
     </script>
 </body>
