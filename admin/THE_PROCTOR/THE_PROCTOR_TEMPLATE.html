@@ -51,6 +51,69 @@
         .toast-enter {
             animation: slideIn 0.3s ease-out forwards;
         }
+
+        /* Sidebar Calculator Layout */
+        #screen-test.has-sidebar {
+            max-width: none !important;
+            display: flex !important;
+            gap: 32px;
+            align-items: flex-start;
+            padding: 0 40px;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #screen-test.has-sidebar > .test-main {
+            flex: 1;
+            min-width: 0;
+            max-width: 850px;
+            transition: all 0.5s ease;
+        }
+        #sidebar-calculator {
+            width: 400px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 100px;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #screen-test.has-sidebar #sidebar-calculator {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Webcam Relocation */
+        #webcam-container.on-left {
+            right: auto !important;
+            left: 24px !important;
+        }
+
+        @media (max-width: 1024px) {
+            #screen-test.has-sidebar {
+                flex-direction: column;
+                padding: 0 20px;
+                align-items: center;
+            }
+            #sidebar-calculator {
+                width: 100%;
+                position: static;
+                margin-top: 32px;
+            }
+            #screen-test.has-sidebar > .test-main {
+                max-width: 100%;
+            }
+            #webcam-container {
+                width: 120px;
+                height: 90px;
+                bottom: auto;
+                top: 80px;
+            }
+        }
+
+        /* Calculator Focus Glow */
+        #sidebar-calculator iframe:focus {
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.4);
+        }
     </style>
 </head>
 
@@ -192,7 +255,7 @@
 
         <!-- SCREEN 2: The Test -->
         <div id="screen-test" class="hidden w-full max-w-3xl">
-            <div class="bg-white p-8 rounded-xl shadow-lg mb-6">
+            <div class="bg-white p-8 rounded-xl shadow-lg mb-6 test-main">
                 <div class="flex justify-between items-center mb-6 border-b pb-4">
                     <h2 class="text-2xl font-bold" id="assessment-title">Loading Assessment...</h2>
                     <div class="text-red-500 font-mono text-xl" id="timer">15:00</div>
@@ -205,6 +268,32 @@
                         <p class="text-xs font-bold uppercase tracking-widest">Loading Examination Questions...</p>
                     </div>
                 </form>
+            </div>
+
+            <!-- Sidebar Calculator (shown when assessment has calculator enabled) -->
+            <div id="sidebar-calculator" class="hidden">
+                <div class="bg-white rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden border border-slate-200/60 group transition-all hover:shadow-[0_30px_60px_rgba(79,70,229,0.15)]">
+                    <div class="bg-gradient-to-r from-indigo-600 via-indigo-500 to-blue-600 px-5 py-4 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-white/20 p-1.5 rounded-lg">
+                                <i data-lucide="calculator" class="w-4 h-4 text-white"></i>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-[10px] font-black uppercase tracking-[0.15em] text-white">Scientific Calculator</span>
+                                <span class="text-[8px] font-bold text-indigo-100/70 uppercase">Mastery Tools</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[9px] font-bold text-indigo-200 bg-black/20 px-2 py-1 rounded-md backdrop-blur-sm">DESMOS</span>
+                        </div>
+                    </div>
+                    <div class="p-1 bg-slate-50">
+                        <iframe id="desmos-iframe" class="w-full h-[450px] rounded-2xl bg-white shadow-inner" frameborder="0"></iframe>
+                    </div>
+                    <div class="bg-slate-50 px-4 py-3 border-t border-slate-100 flex justify-center">
+                        <p class="text-[9px] text-slate-400 font-medium uppercase tracking-widest italic">Node Secured // Encrypted Frame</p>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -257,7 +346,7 @@
 
         // --- DYNAMIC CONFIGURATION ---
         const urlParams = new URLSearchParams(window.location.search);
-        let ASSIGNMENT_NAME = (urlParams.get('a') || urlParams.get('assignment') || "AI Integrity Test").trim();
+        let ASSIGNMENT_NAME = (urlParams.get('a') || urlParams.get('id') || urlParams.get('assignment') || "AI Integrity Test").trim();
         let MAX_QUESTIONS = 999; 
         let TIME_LIMIT_MINS = 15;
 
@@ -668,10 +757,9 @@
             try {
                 const assignmentName = ASSIGNMENT_NAME;
                 
-                // 1. Fetch current record to merge violations
+                // 1. Use locally synced student object to merge violations (saves reads)
                 const studentDocRef = db.collection('student_results').doc(assignmentName).collection('students').doc(student.id);
-                const docSnap = await studentDocRef.get();
-                const existing = docSnap.exists ? docSnap.data() : null;
+                const existing = student;
 
                 // 2. REMOTE RESET CHECK
                 const remoteStatus = existing?.details?.status;
@@ -973,8 +1061,18 @@
 
         const handleBlur = () => {
             if (!isTesting) return;
-            logViolation("Focus Loss", "User switched tabs or minimized the window.");
-            penalizeCurrentQuestion();
+            // Delay check: when focus moves to an iframe (e.g. Desmos calculator),
+            // the browser fires blur on the window. We wait briefly, then check
+            // if the active element is an iframe — if so, the student is still
+            // on-page and this is NOT a violation.
+            setTimeout(() => {
+                if (document.activeElement && document.activeElement.tagName === 'IFRAME') {
+                    console.log('[PROCTOR] Focus moved to embedded iframe (calculator) — not a violation.');
+                    return;
+                }
+                logViolation("Focus Loss", "User switched tabs or minimized the window.");
+                penalizeCurrentQuestion();
+            }, 150);
         };
 
         const handleClipboard = (e) => {
@@ -1243,8 +1341,44 @@
             document.getElementById('btn-next').classList.toggle('hidden', currentQuestionIndex === totalQuestions - 1);
             document.getElementById('btn-submit').classList.toggle('hidden', currentQuestionIndex !== totalQuestions - 1);
 
+            // Update sidebar calculator visibility
+            updateSidebarCalculator();
+
             // Sync progress (optional, but good for dashboard)
             syncResults(`Q${currentQuestionIndex + 1} ACTIVE`);
+        }
+
+        // Show/hide the sidebar calculator based on current question
+        let desmosLoaded = false;
+        function updateSidebarCalculator() {
+            // Check if ANY question in the entire test has a calculator enabled.
+            // This prevents the sidebar from jumping in and out as students navigate.
+            const hasAnyCalc = questionsData.some(q => q.has_calculator);
+            
+            const sidebar = document.getElementById('sidebar-calculator');
+            const testScreen = document.getElementById('screen-test');
+            const webcam = document.getElementById('webcam-container');
+
+            if (hasAnyCalc) {
+                sidebar.classList.remove('hidden');
+                // Use a small delay for the layout class to allow the 'hidden' removal to register for transitions
+                setTimeout(() => {
+                    testScreen.classList.add('has-sidebar');
+                    if (webcam) webcam.classList.add('on-left');
+                }, 10);
+                
+                // Lazy-load Desmos only once
+                if (!desmosLoaded) {
+                    document.getElementById('desmos-iframe').src = 'https://www.desmos.com/scientific?embed';
+                    desmosLoaded = true;
+                }
+            } else {
+                testScreen.classList.remove('has-sidebar');
+                if (webcam) webcam.classList.remove('on-left');
+                setTimeout(() => {
+                    sidebar.classList.add('hidden');
+                }, 500); // Match transition duration
+            }
         }
 
         async function fetchAssessmentConfig() {
@@ -1400,18 +1534,7 @@
                                 </label>
                             `).join('')}
                         </div>
-                        ${q.has_calculator ? `
-                            <div class="mt-8 border-2 border-slate-100 rounded-2xl overflow-hidden shadow-inner bg-slate-50 animate-in zoom-in-95 duration-500">
-                                <div class="bg-slate-100 px-4 py-2 flex items-center justify-between border-b border-slate-200">
-                                    <div class="flex items-center gap-2">
-                                        <i data-lucide="calculator" class="w-4 h-4 text-slate-500"></i>
-                                        <span class="text-[10px] font-black uppercase tracking-widest text-slate-500">Embedded Scientific Calculator</span>
-                                    </div>
-                                    <span class="text-[9px] font-bold text-slate-400 bg-white px-2 py-0.5 rounded border border-slate-200">DESMOS</span>
-                                </div>
-                                <iframe src="https://www.desmos.com/scientific?embed" class="w-full h-[350px]" frameborder="0"></iframe>
-                            </div>
-                        ` : ''}
+                        ${/* Sidebar calculator is used instead of inline */''}
                     </div>
                 </div>
             `).join('');
@@ -1441,6 +1564,7 @@
 
             form.innerHTML = html + navHtml;
             lucide.createIcons();
+            updateSidebarCalculator();
         }
 
         function setStatus(text, colorClass) {
@@ -1477,7 +1601,6 @@
                 // Sync progress occasionally during test (every 10 seconds for better live updates)
                 if (timer % 10 === 0) {
                     syncResults("TEST_PROGRESS");
-                    fetchAssessmentConfig(); // Update global lock/silence settings
                 }
             }, 1000);
         }
