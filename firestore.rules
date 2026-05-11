@@ -12,7 +12,9 @@ service cloud.firestore {
     function isTeacher() {
       return isSignedIn() && 
              request.auth.token.email_verified == true && 
-             request.auth.token.email == 'rmudry@orangeusd.org';
+             (request.auth.token.email.matches('.*@orangeusd\\.org$') || 
+              request.auth.token.email == 'ryan.mudry@gmail.com' ||
+              request.auth.token.email == 'ryanmudry@gmail.com');
     }
 
     // --- ROSTER RULES ---
@@ -21,13 +23,15 @@ service cloud.firestore {
     }
 
     // --- STUDENT RESULTS RULES ---
-    match /student_results/{docId} {
-      allow read, write: if isTeacher();
+    match /student_results/{assignmentId} {
+      allow read: if isSignedIn();
+      allow write: if isTeacher();
       
-      // Students can only access their own results
-      // (Future proofing for when students log in with their own IDs)
-      allow read, write: if isSignedIn() && request.auth.uid == resource.data.student_id;
-      allow create: if isSignedIn();
+      match /students/{studentId} {
+        allow read, write: if isTeacher();
+        allow read, write: if isSignedIn() && request.auth.token.email.matches('(?i)^' + studentId + '@.*');
+        allow create: if isSignedIn();
+      }
     }
 
     // --- ASSESSMENTS & QUESTIONS ---

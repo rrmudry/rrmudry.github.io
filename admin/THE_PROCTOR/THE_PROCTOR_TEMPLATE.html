@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>THE_PROCTOR // Secure Assessment Environment</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
 
     <!-- Tailwind CSS for Styling -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,8 +15,10 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface"></script>
 
-    <!-- Supabase SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -66,15 +69,16 @@
             
             <div id="login-form" class="space-y-4">
                 <div class="space-y-1">
-                    <input type="text" id="student-id" placeholder="Student ID" maxlength="6" 
-                        class="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl outline-none transition-all text-center font-bold text-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5">
+                    <input type="text" id="student-id" placeholder="Authenticating..." readonly disabled 
+                        class="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl outline-none transition-all text-center font-bold text-xl opacity-75 cursor-not-allowed">
                 </div>
                 <div id="name-entry" class="hidden space-y-1 animate-in fade-in">
                     <input type="text" id="student-name" placeholder="Full Name" 
                         class="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl outline-none transition-all text-center font-bold">
                 </div>
-                <button id="login-btn" onclick="handleLogin()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-xl font-bold uppercase tracking-widest text-sm transition-all active:scale-[0.98]">
-                    Establish Connection
+                <button id="login-btn" onclick="handleGoogleLogin()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-xl font-bold uppercase tracking-widest text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-3">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5 bg-white rounded-full p-0.5" alt="Google">
+                    Sign in to Continue
                 </button>
                 <p id="login-status" class="text-[10px] font-medium text-slate-400 h-4"></p>
             </div>
@@ -157,7 +161,7 @@
             
             <button id="btn-test-sync"
                 class="mt-4 text-[10px] uppercase tracking-widest text-slate-400 hover:text-indigo-500 transition-colors font-bold flex items-center justify-center gap-1 mx-auto">
-                <i data-lucide="refresh-cw" class="w-3 h-3"></i> Test Supabase Connection
+                <i data-lucide="refresh-cw" class="w-3 h-3"></i> Test Cloud Connection
             </button>
             <button id="btn-start-calibration"
                 class="hidden bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg w-full transition flex justify-center items-center gap-2 mt-4">
@@ -237,10 +241,19 @@
         // Initialize Lucide Icons
         lucide.createIcons();
 
-        // --- SUPABASE CONFIG ---
-        const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
-        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
-        const sbClient = supabase.createClient(SB_URL, SB_KEY);
+        // --- FIREBASE CONFIG ---
+        const firebaseConfig = {
+            projectId: "site-6e500",
+            appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+            storageBucket: "site-6e500.firebasestorage.app",
+            apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+            authDomain: "site-6e500.firebaseapp.com",
+            messagingSenderId: "591530758858"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
 
         // --- DYNAMIC CONFIGURATION ---
         const urlParams = new URLSearchParams(window.location.search);
@@ -249,6 +262,7 @@
         let TIME_LIMIT_MINS = 15;
 
         // Application State
+        let currentUser = null;
         let model = null;
         let faceModel = null;
         let isTesting = false;
@@ -265,6 +279,7 @@
         let lastGazeWarning = 0;
         let lookDownCount = 0;
         let timerInterval;
+        let timerRemaining = 0;
         let detectionInterval;
         let heartbeatInterval; 
         let isSessionTerminated = false; 
@@ -274,39 +289,95 @@
         let pendingStatus = null;
         let pendingScore = null;
         let assignmentSettings = { is_global_locked: true, locked_periods: [], silenced_alerts: [] };
+        
+        // --- AUTH LISTENER ---
+        const TEST_EMAILS = ['ryan.mudry@gmail.com', 'ryanmudry@gmail.com'];
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                console.log("Logged in as:", user.email);
+                const email = user.email.toLowerCase();
+                const isOUSD = email.endsWith('@orangeusd.org');
+                const isTest = TEST_EMAILS.some(e => e.toLowerCase() === email);
+
+                if (isOUSD || isTest) {
+                    currentUser = user;
+                    const studentId = user.email.split('@')[0];
+                    const idInput = document.getElementById('student-id');
+                    if (idInput) {
+                        idInput.value = studentId;
+                        // Auto-trigger login if we are not already logged in
+                        if (!student.id) {
+                            handleLogin();
+                        }
+                    }
+                } else {
+                    alert(`Access Restricted: ${user.email} is not authorized.`);
+                    auth.signOut();
+                }
+            } else {
+                // Not logged in
+                const btn = document.getElementById('login-btn');
+                if(btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = `<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5 bg-white rounded-full p-0.5" alt="Google"> Sign in to Continue`;
+                }
+                const idInput = document.getElementById('student-id');
+                if(idInput) {
+                    idInput.value = "";
+                    idInput.placeholder = "Sign in to authenticate";
+                }
+            }
+        });
 
         // --- AUTH LOGIC ---
+        async function handleGoogleLogin() {
+            if (currentUser) {
+                handleLogin();
+                return;
+            }
+            
+            const btn = document.getElementById('login-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader" class="animate-spin w-5 h-5"></i> Authenticating...';
+            lucide.createIcons();
+            
+            const provider = new firebase.auth.GoogleAuthProvider();
+            try {
+                await auth.signInWithPopup(provider);
+            } catch (error) {
+                console.error(error);
+                btn.disabled = false;
+                btn.innerHTML = `<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5 bg-white rounded-full p-0.5" alt="Google"> Sign in to Continue`;
+                document.getElementById('login-status').textContent = 'Sign in failed: ' + error.message;
+            }
+        }
+
         async function handleLogin() {
-            const idInput = document.getElementById('student-id');
+            if (!currentUser) {
+                handleGoogleLogin();
+                return;
+            }
+
             const nameInput = document.getElementById('student-name');
             const status = document.getElementById('login-status');
             const btn = document.getElementById('login-btn');
-            const id = idInput.value.trim();
+            const id = currentUser.email.split('@')[0];
 
-            if (id.length !== 6) {
-                status.textContent = "INVALID ID // 6 DIGITS REQUIRED";
-                return;
-            }
             btn.disabled = true;
             status.textContent = "ESTABLISHING CONNECTION...";
 
             try {
-                // 1. SEARCH FOR IDENTITY: Look for the student in ANY past record to get their name/period
-                const { data: profile } = await sbClient.from('student_results')
-                    .select('student_name, class_period')
-                    .eq('student_id', id)
-                    .order('created_at', { ascending: false })
-                    .limit(1)
-                    .maybeSingle();
+                // 1. SEARCH FOR IDENTITY: Look for the student in Roster
+                const rosterSnap = await db.collection('roster').doc(id).get();
+                const profile = rosterSnap.exists ? rosterSnap.data() : null;
 
-                // 2. CHECK FOR COMPLETION: See if they have a 'COMPLETED' status for THIS specific assignment
-                const { data: completionCheck } = await sbClient.from('student_results')
-                    .select('status')
-                    .eq('student_id', id)
-                    .eq('assignment_name', ASSIGNMENT_NAME)
-                    .order('created_at', { ascending: false })
-                    .limit(1)
-                    .maybeSingle();
+                // 2. CHECK FOR COMPLETION OR EXISTING SESSION for THIS specific assignment
+                const completionSnap = await db.collection('student_results')
+                    .doc(ASSIGNMENT_NAME)
+                    .collection('students')
+                    .doc(id)
+                    .get();
+                const completionCheck = completionSnap.exists ? completionSnap.data() : null;
 
                 if (completionCheck && completionCheck.status && completionCheck.status.startsWith("COMPLETED")) {
                     status.textContent = "ACCESS DENIED // TEST ALREADY SUBMITTED";
@@ -318,13 +389,18 @@
                 if (profile) {
                     // Student found in database
                     student.id = id;
-                    student.name = profile.student_name;
+                    student.name = profile.name;
                     student.period = profile.class_period;
                     
                     await fetchAssessmentConfig(); // Get rules (timer/question count)
                     await fetchQuestions();        // Get questions
                     
-                    finalizeLogin();
+                    // Check for existing session progress to resume
+                    if (completionCheck && completionCheck.session_progress && completionCheck.status !== "SCORE_RESET") {
+                        await resumeSession(completionCheck);
+                    } else {
+                        finalizeLogin();
+                    }
                 } else if (document.getElementById('name-entry').classList.contains('hidden')) {
                     // New Student - Show name entry field
                     document.getElementById('name-entry').classList.remove('hidden');
@@ -343,7 +419,6 @@
                     student.name = name;
                     
                     // Try to get period from URL if available
-                    const urlParams = new URLSearchParams(window.location.search);
                     student.period = urlParams.get('p') || urlParams.get('period') || null;
                     
                     await fetchAssessmentConfig(); // Get rules
@@ -376,26 +451,182 @@
             
             // Check for lock status immediately
             checkAccessControl();
+
+            // Real-time listener for individual student lock/unlock actions from the proctor
+            db.collection('student_results').doc(ASSIGNMENT_NAME).collection('students').doc(student.id)
+                .onSnapshot(doc => {
+                    if (doc.exists) {
+                        const data = doc.data();
+                        student.status = data.status || student.status;
+                        student.details = data.details || student.details || {};
+                        
+                        // Handle score reset from proctor
+                        if (data.status === "SCORE_RESET") {
+                            handleScoreReset();
+                        }
+                        checkAccessControl();
+                    }
+                }, err => {
+                    console.error("Student doc listener error:", err);
+                });
+        }
+
+        async function resumeSession(savedData) {
+            const progress = savedData.session_progress;
+            console.warn("[PROCTOR] Resuming session from saved progress. Question:", progress.current_question);
+            
+            // 1. Hide login, show student display
+            document.getElementById('login-overlay').classList.add('opacity-0', 'pointer-events-none');
+            document.getElementById('student-display').classList.remove('hidden');
+            document.getElementById('display-name').textContent = student.name;
+            setTimeout(() => document.getElementById('login-overlay').classList.add('hidden'), 500);
+            
+            // 2. Restore score and question index
+            currentScore = savedData.score || 0;
+            currentQuestionIndex = progress.current_question || 0;
+            
+            // 3. Render the questions first
+            renderQuestions();
+            
+            // 4. Restore saved answers and lock penalized questions
+            const form = document.getElementById('test-form');
+            if (form) {
+                // Re-select saved answers
+                const savedAnswers = progress.answers || {};
+                Object.keys(savedAnswers).forEach(idx => {
+                    const radio = form.querySelector(`input[name="q${idx}"][value="${CSS.escape(savedAnswers[idx])}"]`);
+                    if (radio) radio.checked = true;
+                });
+                
+                // Re-lock penalized questions (disable all radios, uncheck)
+                const lockedQs = progress.locked_questions || [];
+                lockedQs.forEach(idx => {
+                    const radios = form.querySelectorAll(`input[name="q${idx}"]`);
+                    radios.forEach(r => {
+                        r.disabled = true;
+                        r.checked = false;
+                    });
+                });
+            }
+            
+            // 5. Navigate to the saved question
+            document.querySelectorAll('.question-page').forEach(p => p.classList.add('hidden'));
+            const targetPage = document.getElementById(`q-page-${currentQuestionIndex}`);
+            if (targetPage) targetPage.classList.remove('hidden');
+            
+            // Update nav labels
+            const qLabel = document.getElementById('q-current-label');
+            if (qLabel) qLabel.textContent = currentQuestionIndex + 1;
+            
+            // Update nav button visibility
+            const prevBtn = document.getElementById('btn-prev');
+            const nextBtn = document.getElementById('btn-next');
+            const submitBtn = document.getElementById('btn-submit');
+            if (prevBtn) prevBtn.classList.toggle('hidden', currentQuestionIndex === 0);
+            if (nextBtn) nextBtn.classList.toggle('hidden', currentQuestionIndex >= totalQuestions - 1);
+            if (submitBtn) submitBtn.classList.toggle('hidden', currentQuestionIndex < totalQuestions - 1);
+            
+            // 6. Skip directly to the test screen (camera will start via setup flow)
+            // Hide all screens first, then show notice for camera re-init
+            noticeScreen.classList.add('hidden');
+            setupScreen.classList.add('hidden');
+            calibrationScreen.classList.add('hidden');
+            testScreen.classList.remove('hidden');
+            
+            // 7. Start camera and proctoring (essential for integrity)
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                webcamContainer.style.opacity = '0';
+                webcamContainer.style.pointerEvents = 'none';
+                
+                // Load AI models for proctoring
+                if (!model) {
+                    model = await cocoSsd.load();
+                }
+                if (!faceModel) {
+                    faceModel = await faceLandmarksDetection.createDetector(
+                        faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh,
+                        { runtime: 'tfjs', maxFaces: 1, refineLandmarks: true }
+                    );
+                }
+                
+                // Start detection loop
+                detectLoop();
+            } catch (camErr) {
+                console.error("[PROCTOR] Camera resume failed:", camErr);
+                showToast("Camera access required. Please allow camera and refresh.", "error");
+            }
+            
+            // 8. Resume timer from saved remaining time
+            isTesting = true;
+            setStatus('Proctoring Active (Resumed)', 'bg-yellow-500');
+            const resumeTime = progress.timer_remaining || (TIME_LIMIT_MINS * 60);
+            timerRemaining = resumeTime;
+            startTimer(resumeTime);
+            
+            // 9. Attach anti-cheat listeners
+            attachProctorListeners();
+            
+            // 10. Start heartbeat
+            if (heartbeatInterval) clearInterval(heartbeatInterval);
+            heartbeatInterval = setInterval(() => {
+                syncResults("HEARTBEAT_STABLE");
+            }, 30000);
+            
+            // 11. Sync to dashboard that session resumed
+            syncResults("SESSION_RESUMED", currentScore);
+            
+            // 12. Set up real-time listener for proctor actions
+            db.collection('student_results').doc(ASSIGNMENT_NAME).collection('students').doc(student.id)
+                .onSnapshot(doc => {
+                    if (doc.exists) {
+                        const data = doc.data();
+                        student.status = data.status || student.status;
+                        student.details = data.details || student.details || {};
+                        
+                        if (data.status === "SCORE_RESET") {
+                            handleScoreReset();
+                        }
+                        checkAccessControl();
+                    }
+                }, err => {
+                    console.error("Student doc listener error:", err);
+                });
+            
+            showToast("Session restored. Your previous progress has been loaded.", "info");
         }
 
         function checkAccessControl() {
             if (!student.id) return;
             
             const isGlobalLocked = assignmentSettings.is_global_locked;
+            const periodLocked = assignmentSettings.locked_periods && assignmentSettings.locked_periods.includes(student.period);
             const isIndividualLocked = student.details?.is_locked || student.status === "LOCKED_BY_PROCTOR";
+            const isUnlockedOverride = student.details?.is_unlocked_override;
 
             const lockOverlay = document.getElementById('lock-overlay');
-            // Simplified logic: Block if global lock is ON or student is individually locked
-            const shouldBeLocked = isGlobalLocked || isIndividualLocked;
+            // Global/period lock applies, but individual unlock override (from batch unlock) takes precedence
+            const shouldBeLocked = (isGlobalLocked || periodLocked || isIndividualLocked) && !isUnlockedOverride;
 
             if (shouldBeLocked) {
                 if (!lockOverlay) createLockOverlay();
                 document.getElementById('lock-overlay').classList.remove('hidden');
                 document.getElementById('lock-message').textContent = isIndividualLocked ? "YOUR NODE HAS BEEN INDIVIDUALLY LOCKED BY THE PROCTOR." : "THIS ASSESSMENT IS CURRENTLY LOCKED BY THE PROCTOR.";
                 isTesting = false;
-                if (timerInterval) clearInterval(timerInterval);
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
             } else if (lockOverlay) {
                 lockOverlay.classList.add('hidden');
+                // Resume the test when unlocked
+                if (!isTesting && totalQuestions > 0) {
+                    isTesting = true;
+                    if (!timerInterval && timerRemaining > 0) {
+                        startTimer(timerRemaining);
+                    }
+                }
             }
         }
 
@@ -438,13 +669,9 @@
                 const assignmentName = ASSIGNMENT_NAME;
                 
                 // 1. Fetch current record to merge violations
-                const { data: existing, error: fetchError } = await sbClient.from('student_results')
-                    .select('id, details, status')
-                    .eq('student_id', student.id)
-                    .eq('assignment_name', assignmentName)
-                    .maybeSingle();
-
-                if (fetchError) throw fetchError;
+                const studentDocRef = db.collection('student_results').doc(assignmentName).collection('students').doc(student.id);
+                const docSnap = await studentDocRef.get();
+                const existing = docSnap.exists ? docSnap.data() : null;
 
                 // 2. REMOTE RESET CHECK
                 const remoteStatus = existing?.details?.status;
@@ -469,6 +696,19 @@
 
                 finalViolations.sort((a, b) => new Date(b.ts) - new Date(a.ts));
 
+                // Build session progress snapshot for resume-on-refresh
+                const sessionAnswers = {};
+                const lockedQuestions = [];
+                const form = document.getElementById('test-form');
+                if (form && questionsData.length > 0) {
+                    questionsData.forEach((q, idx) => {
+                        const selected = form.querySelector(`input[name="q${idx}"]:checked`);
+                        if (selected) sessionAnswers[idx] = selected.value;
+                        const radios = form.querySelectorAll(`input[name="q${idx}"]`);
+                        if (radios.length > 0 && radios[0].disabled) lockedQuestions.push(idx);
+                    });
+                }
+
                 const payload = {
                     student_id: student.id,
                     student_name: student.name,
@@ -476,32 +716,39 @@
                     class_period: student.period,
                     status: statusLabel,
                     score: currentScore,
+                    total_points: totalQuestions,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                     details: {
                         status: statusLabel,
                         violations: finalViolations,
                         last_alert: finalViolations.length > 0 ? finalViolations[0].type : (existing?.details?.last_alert || "NONE"),
                         ts: new Date().toISOString(),
                         sync_count: (existing?.details?.sync_count || 0) + 1,
-                        is_locked: existing?.details?.is_locked || false // Preserve lock state
+                        is_locked: existing?.details?.is_locked || false,
+                        is_unlocked_override: existing?.details?.is_unlocked_override || false
+                    },
+                    session_progress: {
+                        current_question: currentQuestionIndex,
+                        answers: sessionAnswers,
+                        locked_questions: lockedQuestions,
+                        timer_remaining: timerRemaining,
+                        updated_at: new Date().toISOString()
                     }
                 };
 
+                // Update local student state from remote
                 if (existing) {
-                    // Update local student state from remote
                     student.status = existing.status;
-                    student.details = existing.details || {}; // Store details locally for access control
+                    student.details = existing.details || {};
                     
                     if (existing.status === "SCORE_RESET") {
                         handleScoreReset();
                     }
-                    checkAccessControl();
-
-                    const { error: upError } = await sbClient.from('student_results').update(payload).eq('id', existing.id);
-                    if (upError) throw upError;
-                } else {
-                    const { error: insError } = await sbClient.from('student_results').insert([payload]);
-                    if (insError) throw insError;
                 }
+                checkAccessControl();
+
+                await studentDocRef.set(payload, { merge: true });
+
             } catch (e) {
                 console.error("Sync Error:", e);
             } finally {
@@ -1003,40 +1250,38 @@
         async function fetchAssessmentConfig() {
             try {
                 // Fetch rules from 'assessments' table
-                const { data, error } = await sbClient
-                    .from('assessments')
-                    .select('max_questions, time_limit_mins')
-                    .eq('assignment_name', ASSIGNMENT_NAME)
-                    .maybeSingle();
-
-                if (error) throw error;
+                const assmtSnap = await db.collection('assessments').doc(ASSIGNMENT_NAME).get();
+                const data = assmtSnap.exists ? assmtSnap.data() : null;
 
                 if (data) {
-                    MAX_QUESTIONS = data.max_questions || 999;
-                    TIME_LIMIT_MINS = data.time_limit_mins || 15;
+                    MAX_QUESTIONS = parseInt(data.max_questions) || 999;
+                    TIME_LIMIT_MINS = parseFloat(data.time_limit_mins) || 15;
                     console.log(`[CONFIG] Base Rules Loaded: ${MAX_QUESTIONS} Qs, ${TIME_LIMIT_MINS} Mins`);
                 }
 
-                // SECOND: Fetch proctoring settings (lock/silence) from student_results config
-                const { data: proctorConfig } = await sbClient
-                    .from('student_results')
-                    .select('details')
-                    .eq('assignment_name', ASSIGNMENT_NAME)
-                    .eq('student_id', '__CONFIG__')
-                    .maybeSingle();
+                // SECOND: Real-time listener for proctoring settings (lock/silence)
+                // This ensures the lock overlay responds immediately when the proctor toggles the lock
+                db.collection('student_results').doc(ASSIGNMENT_NAME).onSnapshot(configDoc => {
+                    const proctorConfig = configDoc.exists ? configDoc.data() : null;
 
-                if (proctorConfig && proctorConfig.details) {
-                    assignmentSettings = {
-                        is_global_locked: proctorConfig.details.hasOwnProperty('is_global_locked') ? proctorConfig.details.is_global_locked : true,
-                        locked_periods: proctorConfig.details.locked_periods || [],
-                        silenced_alerts: proctorConfig.details.silenced_alerts || []
-                    };
-                } else {
-                    // Default to locked if no config exists
+                    if (proctorConfig) {
+                        assignmentSettings = {
+                            is_global_locked: proctorConfig.is_global_locked !== undefined ? proctorConfig.is_global_locked : true,
+                            locked_periods: proctorConfig.locked_periods || [],
+                            silenced_alerts: proctorConfig.silenced_alerts || []
+                        };
+                    } else {
+                        // Default to locked if no config exists
+                        assignmentSettings.is_global_locked = true;
+                    }
+                    checkAccessControl();
+                }, err => {
+                    console.error("Config listener error:", err);
+                    // Default to locked on error
                     assignmentSettings.is_global_locked = true;
-                }
-                checkAccessControl();
-                if (!data && !proctorConfig) {
+                    checkAccessControl();
+                });
+                if (!data) {
                     console.warn(`[CONFIG] No assessment record found for "${ASSIGNMENT_NAME}". Using defaults.`);
                 }
             } catch (e) {
@@ -1046,15 +1291,11 @@
 
         async function fetchQuestions() {
             try {
-                // Expected Supabase Schema: table 'questions' with columns [assignment_name, text, options (json array)]
-                const { data, error } = await sbClient
-                    .from('questions')
-                    .select('*')
-                    .eq('assignment_name', ASSIGNMENT_NAME);
+                // Fetch questions from root 'questions' collection matching the assignment
+                const qSnap = await db.collection('questions').where('assignment_name', '==', ASSIGNMENT_NAME).get();
+                const data = qSnap.docs.map(doc => doc.data());
                 
-                if (error) throw error;
-
-                if (!data || data.length === 0) {
+                if (data.length === 0) {
                     console.error(`No questions found for assignment: ${ASSIGNMENT_NAME}`);
                     alert(`Error: No questions found for "${ASSIGNMENT_NAME}". Please check the assignment name.`);
                     return;
@@ -1154,7 +1395,7 @@
                         <div class="space-y-3 ml-4">
                             ${q.options.map(opt => `
                                 <label class="flex items-center gap-3 cursor-pointer p-3 hover:bg-slate-50 rounded-xl transition-all border border-transparent hover:border-slate-100">
-                                    <input type="radio" name="q${idx}" value="${opt}" class="w-5 h-5 text-indigo-600 focus:ring-indigo-500">
+                                    <input type="radio" name="q${idx}" value="${opt}" onchange="updateLiveScore()" class="w-5 h-5 text-indigo-600 focus:ring-indigo-500">
                                     <span class="text-slate-700 font-medium">${opt}</span>
                                 </label>
                             `).join('')}
@@ -1199,6 +1440,12 @@
             let timer = durationInSeconds;
             const display = document.getElementById('timer');
 
+            // Clear any existing timer to prevent duplicates
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+
             timerInterval = setInterval(() => {
                 let minutes = parseInt(timer / 60, 10);
                 let seconds = parseInt(timer % 60, 10);
@@ -1207,44 +1454,115 @@
                 seconds = seconds < 10 ? "0" + seconds : seconds;
 
                 display.textContent = minutes + ":" + seconds;
+                timerRemaining = timer; // Track remaining time for pause/resume
 
                 if (--timer < 0) {
                     clearInterval(timerInterval);
+                    timerInterval = null;
                     submitTest(); // Auto submit
                 }
 
-                // Sync progress occasionally during test (every 30 seconds)
-                if (timer % 30 === 0) {
+                // Sync progress occasionally during test (every 10 seconds for better live updates)
+                if (timer % 10 === 0) {
                     syncResults("TEST_PROGRESS");
-                    fetchAssessmentConfig(); // Update global lock/silence settings every 30s
+                    fetchAssessmentConfig(); // Update global lock/silence settings
                 }
             }, 1000);
+        }
+
+        let lastScoreSync = 0;
+        function updateLiveScore() {
+            let points = 0;
+            const form = document.getElementById('test-form');
+            questionsData.forEach((q, index) => {
+                const selected = form.querySelector(`input[name="q${index}"]:checked`);
+                if (selected && selected.value === q.correct_answer) {
+                    points++;
+                }
+            });
+            currentScore = points;
+            
+            // Throttled sync (max once every 3 seconds) when score changes
+            const now = Date.now();
+            if (now - lastScoreSync > 3000) {
+                syncResults("TEST_PROGRESS");
+                lastScoreSync = now;
+            }
         }
 
         function handleScoreReset() {
             if (!isSessionTerminated && currentScore === 0) return; // Already reset or not finished
             
-            console.warn("[PROCTOR] Score Reset Detected from Dashboard!");
-            isSessionTerminated = false;
-            currentScore = 0;
-            currentQuestionIndex = 0;
-            integrityLogs = [];
+            console.warn("[PROCTOR] Score Reset Detected from Dashboard! Restarting full procedure.");
             
-            // Reset UI
-            resultsScreen.classList.add('hidden');
-            testScreen.classList.remove('hidden');
+            // 1. Stop all active proctoring
+            removeProctorListeners();
+            clearTimeout(detectionInterval);
+            detectionInterval = null;
+            clearInterval(timerInterval);
+            timerInterval = null;
+            clearInterval(heartbeatInterval);
+            heartbeatInterval = null;
             
-            // Re-render questions to clear selections
-            renderQuestions();
-            
-            // Re-start proctoring if needed
-            if (isTesting) {
-                if (timerInterval) clearInterval(timerInterval);
-                startTimer(TIME_LIMIT_MINS * 60);
-                if (!detectionInterval) detectLoop();
+            // 2. Stop camera stream
+            const stream = video.srcObject;
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                video.srcObject = null;
             }
             
-            showToast("Your assessment has been reset by the proctor.", "info");
+            // 3. Reset ALL state variables
+            isSessionTerminated = false;
+            isTesting = false;
+            currentScore = 0;
+            currentQuestionIndex = 0;
+            timerRemaining = 0;
+            integrityLogs = [];
+            calibrationStep = 0;
+            baselinePitchRatio = null;
+            
+            // 4. Reset setup screen UI (so "Begin Setup" shows again)
+            const btnSetupEl = document.getElementById('btn-setup');
+            btnSetupEl.classList.remove('hidden');
+            btnSetupEl.disabled = false;
+            btnSetupEl.innerHTML = 'Begin Setup';
+            document.getElementById('btn-start-calibration').classList.add('hidden');
+            document.getElementById('icon-cam').classList.replace('text-green-500', 'text-gray-400');
+            document.getElementById('icon-ai').classList.replace('text-green-500', 'text-gray-400');
+            
+            // 5. Reset calibration screen
+            document.getElementById('calibration-intro').classList.remove('hidden');
+            document.getElementById('calibration-dot').classList.add('hidden');
+            const calSuccess = document.getElementById('calibration-success');
+            if (calSuccess) calSuccess.classList.add('hidden');
+            
+            // 6. Hide webcam container
+            webcamContainer.style.opacity = '0';
+            webcamContainer.style.pointerEvents = 'none';
+            
+            // 7. Hide ALL screens, show Privacy Notice (screen 0)
+            setupScreen.classList.add('hidden');
+            calibrationScreen.classList.add('hidden');
+            testScreen.classList.add('hidden');
+            resultsScreen.classList.add('hidden');
+            noticeScreen.classList.remove('hidden');
+            
+            // 8. Re-render questions to clear selections
+            renderQuestions();
+            
+            // 9. Reset status bar
+            setStatus('Assessment Reset — Awaiting Re-entry', 'bg-amber-500');
+            
+            // 10. Clear session progress so next login starts fresh
+            const studentDocRef = db.collection('student_results').doc(ASSIGNMENT_NAME).collection('students').doc(student.id);
+            studentDocRef.set({ 
+                session_progress: firebase.firestore.FieldValue.delete(),
+                status: "SCORE_RESET_ACKNOWLEDGED",
+                score: 0
+            }, { merge: true }).catch(e => console.error("Session clear error:", e));
+            
+            syncResults("SCORE_RESET_ACKNOWLEDGED", 0);
+            showToast("Your assessment has been reset by the proctor. Please go through the setup process again.", "info");
         }
 
         async function submitTest() {

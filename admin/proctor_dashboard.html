@@ -14,7 +14,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="THE_PROCTOR/favicon.svg">
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@400;700;900&display=swap');
@@ -336,12 +336,9 @@
             });
         };
 
-        // Global Settings State
-        let assignmentSettings = {
-            is_global_locked: true,
-            locked_periods: [],
-            silenced_alerts: []
-        };
+        let rosterDataCache = [];
+        let assignmentSettings = { is_global_locked: true, locked_periods: [], silenced_alerts: [] };
+        window.currentOpenedStudentId = null;
 
         let unsubscribeStudents = null;
         let unsubscribeConfig = null;
@@ -349,10 +346,10 @@
         async function initDashboard() {
             console.log("[DASHBOARD] Initializing Firebase Streams...");
             await populateAssignments();
-            setupStreams();
+            await setupStreams();
         }
 
-        function setupStreams() {
+        async function setupStreams() {
             // Cleanup existing listeners
             if (unsubscribeStudents) unsubscribeStudents();
             if (unsubscribeConfig) unsubscribeConfig();
@@ -364,50 +361,94 @@
 
             console.log(`[DASHBOARD] Setting up listeners for ${assignment}, period: ${period}...`);
 
-            // 1. Config Stream
-            unsubscribeConfig = db.collection('student_results')
-                .where('assignment_name', '==', assignment)
-                .where('student_id', '==', '__CONFIG__')
-                .onSnapshot(snapshot => {
-                    if (!snapshot.empty) {
-                        const configData = snapshot.docs[0].data();
-                        assignmentSettings = {
-                            is_global_locked: configData.details?.hasOwnProperty('is_global_locked') ? configData.details.is_global_locked : true,
-                            locked_periods: configData.details?.locked_periods || [],
-                            silenced_alerts: configData.details?.silenced_alerts || []
-                        };
-                    } else {
-                        // Default to locked if no config exists yet
-                        assignmentSettings = {
-                            is_global_locked: true,
-                            locked_periods: [],
-                            silenced_alerts: []
-                        };
-                    }
-                    
-                    const modal = document.getElementById('settings-modal');
-                    if (modal && !modal.classList.contains('hidden')) {
-                        renderSettingsUI();
-                    }
-                }, err => console.error("Config stream error:", err));
-
-            // 2. Students Stream
-            let studentQuery = db.collection('student_results')
-                .where('assignment_name', '==', assignment);
-
+            // 0. Fetch Roster
+            let rosterQuery = db.collection('roster');
             if (period !== 'ALL') {
-                studentQuery = studentQuery.where('class_period', '==', parseInt(period));
+                rosterQuery = rosterQuery.where('class_period', '==', parseInt(period));
+            }
+            try {
+                const rosterSnap = await rosterQuery.get();
+                rosterDataCache = rosterSnap.docs.map(doc => {
+                    const d = doc.data();
+                    return {
+                        id: doc.id,
+                        student_id: d.student_id || doc.id,
+                        student_name: d.full_name || 'Unknown',
+                        class_period: d.class_period,
+                        score: '-', // Default score
+                        details: {
+                            status: 'OFFLINE',
+                            last_alert: 'WAITING FOR CONNECTION',
+                            violations: [],
+                            is_locked: false
+                        }
+                    };
+                });
+            } catch (e) {
+                console.error("Failed to fetch roster:", e);
+                rosterDataCache = [];
             }
 
-            unsubscribeStudents = studentQuery.onSnapshot(snapshot => {
-                const data = snapshot.docs
-                    .map(doc => ({ id: doc.id, ...doc.data() }))
-                    .filter(s => s.student_id !== '__CONFIG__'); // Local filter for config
+            // 1. Config Stream
+            unsubscribeConfig = db.collection('student_results').doc(assignment).onSnapshot(doc => {
+                if (doc.exists) {
+                    const proctorConfig = doc.data();
+                    assignmentSettings = {
+                        is_global_locked: proctorConfig.is_global_locked !== undefined ? proctorConfig.is_global_locked : true,
+                        locked_periods: proctorConfig.locked_periods || [],
+                        silenced_alerts: proctorConfig.silenced_alerts || []
+                    };
+                } else {
+                    assignmentSettings = {
+                        is_global_locked: true,
+                        locked_periods: [],
+                        silenced_alerts: []
+                    };
+                }
+                
+                const modal = document.getElementById('settings-modal');
+                if (modal && !modal.classList.contains('hidden')) {
+                    renderSettingsUI();
+                }
+            }, err => console.error("Config stream error:", err));
 
-                window.currentStudents = data;
-                updateGrid(data);
-                updateGlobalFeed(data);
-                document.getElementById('active-count').textContent = data.filter(s => s.score < 100).length;
+            // 2. Students Stream
+            let studentQuery = db.collection('student_results').doc(assignment).collection('students');
+
+            unsubscribeStudents = studentQuery.onSnapshot(snapshot => {
+                const liveData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                // Merge roster with live data
+                const mergedData = rosterDataCache.map(rosterStudent => {
+                    const liveStudent = liveData.find(s => s.id === rosterStudent.id);
+                    if (liveStudent) {
+                        return {
+                            ...rosterStudent,
+                            ...liveStudent,
+                            id: rosterStudent.id, // ensure ID is maintained
+                            student_name: rosterStudent.student_name, // Prefer roster name
+                            class_period: rosterStudent.class_period, // Prefer roster period
+                            score: liveStudent.score !== undefined ? liveStudent.score : rosterStudent.score,
+                            details: liveStudent.details || rosterStudent.details,
+                            created_at: liveStudent.created_at
+                        };
+                    }
+                    return rosterStudent;
+                });
+
+                window.currentStudents = mergedData;
+                updateGrid(mergedData);
+                updateGlobalFeed(mergedData);
+                
+                // LIVE MODAL UPDATE: If a student detail modal is open, update its fields
+                if (window.currentOpenedStudentId) {
+                    const student = mergedData.find(s => s.id === window.currentOpenedStudentId);
+                    if (student) {
+                        updateModalFields(student);
+                    }
+                }
+
+                document.getElementById('active-count').textContent = mergedData.filter(s => typeof s.score === 'number' && s.score < 100).length;
                 document.getElementById('last-sync-time').textContent = new Date().toLocaleTimeString();
             }, err => console.error("Students stream error:", err));
         }
@@ -435,54 +476,74 @@
                 const details = s.details || {};
                 const violations = details.violations || [];
                 const lastAlert = details.last_alert || "NONE";
-                const isFinished = s.score === 100;
+                const isFinished = (s.status && s.status.startsWith('COMPLETED')) || (details.status && details.status.startsWith('COMPLETED'));
                 const isCritical = (violations.length > 0 || (details.status && details.status.includes('ALERT'))) && !isFinished;
                 
-                const isLocked = s.details?.is_locked || false;
+                // Check ALL lock sources: global, period, and individual
+                const isGlobalLocked = assignmentSettings.is_global_locked;
+                const studentPeriod = parseInt(String(s.class_period || '').replace(/\D/g, ''));
+                const isPeriodLocked = assignmentSettings.locked_periods && assignmentSettings.locked_periods.includes(studentPeriod);
+                const isIndividualLocked = s.details?.is_locked || false;
+                const isUnlockedOverride = s.details?.is_unlocked_override || false;
+                const isLocked = isUnlockedOverride ? false : (isGlobalLocked || isPeriodLocked || isIndividualLocked);
+                const lockSource = isGlobalLocked ? 'GLOBAL' : (isPeriodLocked ? `P${studentPeriod}` : 'INDIVIDUAL');
+
+                // Extract score display (e.g. "3 / 5" from "COMPLETED: 3 / 5")
+                const scoreDisplay = isFinished && s.status ? s.status.replace('COMPLETED: ', '') : s.score;
                 
-                let statusText = lastAlert;
+                // Use live status over stale last_alert for display
+                const liveStatus = s.status || details.status || '';
+                let statusText = liveStatus || lastAlert;
                 let statusColor = "bg-emerald-500";
                 let borderColor = "border-white/5";
                 let cardOpacity = "opacity-100";
                 let pulseClass = "";
 
                 if (isLocked) {
-                    statusText = "LOCKED";
+                    statusText = `LOCKED (${lockSource})`;
                     statusColor = "bg-slate-500";
-                    borderColor = "border-white/10";
+                    borderColor = isGlobalLocked ? 'border-red-500/30' : 'border-white/10';
                     cardOpacity = "opacity-40";
+                } else if (isFinished) {
+                    statusText = "SUBMITTED";
+                    statusColor = "bg-emerald-500";
+                    borderColor = "border-emerald-500/30";
                 } else if (isCritical) {
                     statusColor = "bg-red-500";
                     borderColor = "border-red-500/50";
                     pulseClass = "status-pulse-red";
-                } else if (isFinished) {
-                    statusColor = "bg-indigo-500";
-                    borderColor = "border-indigo-500/30";
+                } else if (details.status === "OFFLINE") {
+                    statusColor = "bg-slate-700";
+                    borderColor = "border-white/5";
+                    cardOpacity = "opacity-40 grayscale";
                 }
 
                 return `
                     <div onclick="showStudentDetail('${s.id}')" class="alert-card glass rounded-2xl p-4 border ${borderColor} ${pulseClass} relative overflow-hidden flex flex-col cursor-pointer ${cardOpacity}">
+                        ${isFinished ? '<div class="absolute top-0 right-0 w-16 h-16 overflow-hidden"><div class="absolute top-2 -right-4 w-20 bg-emerald-500 text-white text-[7px] font-black uppercase text-center py-0.5 rotate-45 tracking-widest shadow-lg">Done</div></div>' : ''}
                         <div class="flex justify-between items-start mb-2">
                             <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center font-black text-indigo-400 border border-white/5 text-xs relative">
-                                    ${s.student_name.charAt(0)}
+                                <div class="w-8 h-8 rounded-lg ${isFinished ? 'bg-emerald-900/50 border-emerald-500/30' : 'bg-slate-800 border-white/5'} flex items-center justify-center font-black ${isFinished ? 'text-emerald-400' : 'text-indigo-400'} border text-xs relative">
+                                    ${isFinished ? '<i data-lucide="check" class="w-4 h-4"></i>' : s.student_name.charAt(0)}
                                     ${isLocked ? `<div class="absolute -top-1 -right-1 bg-slate-600 rounded-full p-0.5 border border-slate-900"><i data-lucide="lock" class="w-2 h-2 text-white"></i></div>` : ''}
                                 </div>
                                 <div>
                                     <h3 class="font-bold text-[11px] uppercase tracking-tight leading-none">${s.student_name}</h3>
-                                    <p class="text-[8px] font-bold text-slate-500 mono uppercase mt-1">P${s.class_period || '?'}</p>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <p class="text-[8px] font-bold text-slate-500 mono uppercase">P${s.class_period || '?'}</p>
+                                        <span class="text-[8px] font-black mono ${isFinished ? 'text-emerald-400' : 'text-indigo-400'}">${scoreDisplay}</span>
+                                    </div>
                                 </div>
                             </div>
                             <div class="flex flex-col items-end">
-                                <span class="text-[10px] font-black mono text-indigo-400 leading-none">${s.score}</span>
-                                <div class="w-1.5 h-1.5 rounded-full ${statusColor} mt-1"></div>
+                                <div class="w-1.5 h-1.5 rounded-full ${statusColor}"></div>
                             </div>
                         </div>
 
                         <div class="space-y-1.5 flex-grow">
-                            <div class="bg-black/20 p-1.5 rounded-lg border border-white/5 mono text-[9px] flex justify-between items-center">
+                            <div class="bg-black/20 p-1.5 rounded-lg border ${isFinished ? 'border-emerald-500/10' : 'border-white/5'} mono text-[9px] flex justify-between items-center">
                                 <span class="text-slate-500 uppercase">State:</span>
-                                <span class="${isLocked ? 'text-slate-500' : (isCritical ? 'text-red-400 font-bold' : 'text-slate-300')} truncate ml-2">
+                                <span class="${isFinished ? 'text-emerald-400 font-bold' : (isLocked ? 'text-slate-500' : (isCritical ? 'text-red-400 font-bold' : 'text-slate-300'))} truncate ml-2">
                                     ${statusText}
                                 </span>
                             </div>
@@ -546,11 +607,12 @@
 
         async function acknowledgeStudent(event, recordId) {
             if (event) event.stopPropagation();
+            const assignment = document.getElementById('assignment-filter').value;
             const s = window.currentStudents.find(std => std.id === recordId);
             const preservedLock = s?.details?.is_locked || false;
 
             try {
-                await db.collection('student_results').doc(String(recordId)).update({
+                await db.collection('student_results').doc(assignment).collection('students').doc(String(recordId)).set({
                     status: preservedLock ? "LOCKED_BY_PROCTOR" : "CLEARED_BY_TEACHER",
                     details: { 
                         ...(s?.details || {}),
@@ -560,7 +622,7 @@
                         is_locked: preservedLock,
                         ts: new Date().toISOString() 
                     }
-                });
+                }, { merge: true });
                 console.log(`[DASHBOARD] Acknowledged student: ${recordId}`);
             } catch (e) {
                 console.error("Acknowledge error:", e);
@@ -569,16 +631,11 @@
 
         async function lockStudent(recordId) {
             console.log("[DASHBOARD] lockStudent action for ID:", recordId);
-            if (!recordId) {
-                console.error("[DASHBOARD] No recordId provided to lockStudent");
-                return;
-            }
+            if (!recordId) return;
+            const assignment = document.getElementById('assignment-filter').value;
 
             const s = window.currentStudents.find(std => std.id === recordId);
-            if (!s) {
-                console.error("[DASHBOARD] Could not find student record in local state for ID:", recordId);
-                return;
-            }
+            if (!s) return;
             
             const isCurrentlyLocked = s.details?.is_locked || s.status === "LOCKED_BY_PROCTOR";
             const newLockedState = !isCurrentlyLocked;
@@ -586,7 +643,6 @@
             const newDetails = {
                 ...(s.details || {}),
                 is_locked: newLockedState,
-                // If we are manually unlocking, we set an override to bypass global lock
                 is_unlocked_override: !newLockedState, 
                 last_alert: newLockedState ? "NODE_LOCKED" : (s.details?.last_alert || "NONE"),
                 ts: new Date().toISOString()
@@ -600,13 +656,11 @@
             }
 
             try {
-                // Explicitly cast to string to prevent Firebase path errors
-                await db.collection('student_results').doc(String(recordId)).update({
+                await db.collection('student_results').doc(assignment).collection('students').doc(String(recordId)).set({
                     status: newLockedState ? "LOCKED_BY_PROCTOR" : "TEST_ACTIVE",
                     details: newDetails 
-                });
+                }, { merge: true });
 
-                // Immediate UI update for the local state and open modal
                 s.details = newDetails;
                 s.status = newLockedState ? "LOCKED_BY_PROCTOR" : "TEST_ACTIVE";
                 
@@ -620,27 +674,25 @@
                         lockBtn.className = "bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border border-amber-500/20 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all";
                     }
                 }
-
-                console.log(`[DASHBOARD] Student ${recordId} ${newLockedState ? 'LOCKED' : 'UNLOCKED'} successfully.`);
             } catch (e) {
                 console.error("Lock error:", e);
                 if (lockBtn) {
                     lockBtn.disabled = false;
                     lockBtn.textContent = lockBtn.dataset.originalText || "RETRY";
                 }
-                alert("Failed to update lock status. Check console for details.");
             }
         }
 
         async function resetStudentScore(recordId) {
             console.log("[DASHBOARD] Resetting score for ID:", recordId);
             if (!confirm("Are you sure you want to reset this student's score to 0?")) return;
+            const assignment = document.getElementById('assignment-filter').value;
             
             const btn = document.getElementById('modal-btn-reset-score');
             if (btn) { btn.disabled = true; btn.textContent = "RESETTING..."; }
 
             try {
-                await db.collection('student_results').doc(String(recordId)).update({
+                await db.collection('student_results').doc(assignment).collection('students').doc(String(recordId)).set({
                     score: 0, 
                     status: "SCORE_RESET",
                     details: {
@@ -648,16 +700,13 @@
                         last_alert: "SCORE_RESET",
                         ts: new Date().toISOString()
                     }
-                });
+                }, { merge: true });
                 
-                // Immediate UI update for the local state and open modal
                 const s = window.currentStudents.find(std => std.id === recordId);
                 if (s) s.score = 0;
-                
                 const scoreDisplay = document.getElementById('modal-score');
                 if (scoreDisplay) scoreDisplay.textContent = "0";
 
-                console.log(`[DASHBOARD] Score reset for: ${recordId}`);
                 if (btn) { btn.textContent = "SUCCESS"; setTimeout(() => { btn.disabled = false; btn.textContent = "Reset Score"; }, 1000); }
             } catch (e) {
                 console.error("Reset error:", e);
@@ -670,43 +719,52 @@
             const assignment = document.getElementById('assignment-filter').value;
             const period = document.getElementById('period-filter').value;
 
-            const snapshot = await db.collection('student_results')
-                .where('assignment_name', '==', assignment)
-                .get();
+            const snapshot = await db.collection('student_results').doc(assignment).collection('students').get();
 
             const batch = db.batch();
             snapshot.docs.forEach(doc => {
                 const data = doc.data();
-                if (data.student_id === '__CONFIG__') return;
                 if (period !== 'ALL' && data.class_period != period) return;
 
-                batch.update(doc.ref, {
+                batch.set(doc.ref, {
                     details: { 
+                        ...(data.details || {}),
                         status: "CLASS_CLEARED", 
                         violations: [], 
                         last_alert: "NONE",
                         ts: new Date().toISOString() 
                     }
-                });
+                }, { merge: true });
             });
 
             await batch.commit();
         }
 
         function showStudentDetail(recordId) {
+            window.currentOpenedStudentId = recordId;
             const s = window.currentStudents.find(student => student.id == recordId);
             if (!s) return;
-
             const modal = document.getElementById('report-modal');
+            updateModalFields(s);
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.add('opacity-100');
+                lucide.createIcons();
+            }, 10);
+        }
+
+        function updateModalFields(s) {
             const details = s.details || {};
             const violations = details.violations || [];
-            const isFinished = s.score === 100;
+            const isFinished = (s.status && s.status.startsWith('COMPLETED')) || (details.status && details.status.startsWith('COMPLETED'));
             const isCritical = (violations.length > 0 || (details.status && details.status.includes('ALERT'))) && !isFinished;
 
             document.getElementById('modal-avatar').textContent = s.student_name.charAt(0);
             document.getElementById('modal-name').textContent = s.student_name;
             document.getElementById('modal-meta').textContent = `ID: ${s.student_id} // PERIOD ${s.class_period || '?'}`;
-            document.getElementById('modal-score').textContent = `${s.score}`;
+            const scoreDisplay = isFinished && s.status ? s.status.replace('COMPLETED: ', '') : s.score;
+            document.getElementById('modal-score').textContent = `${scoreDisplay}`;
             document.getElementById('modal-violation-count').textContent = violations.length;
             document.getElementById('modal-timestamp').textContent = new Date().toLocaleString();
 
@@ -715,27 +773,28 @@
             statusEl.className = `text-[10px] font-bold uppercase mt-2 px-2 py-1 rounded-lg inline-block border ${isCritical ? 'bg-red-500/10 text-red-400 border-red-500/20' : (isFinished ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20')}`;
 
             const timeline = document.getElementById('modal-timeline');
-            if (violations.length === 0) {
-                timeline.innerHTML = `<div class="flex flex-col items-center justify-center py-10 opacity-30 italic"><i data-lucide="shield-check" class="w-10 h-10 mb-2"></i><p class="text-[10px] font-bold uppercase">No violations recorded.</p></div>`;
-            } else {
-                timeline.innerHTML = violations.map(v => `
-                    <div class="p-4 bg-white/5 rounded-2xl border border-white/5 flex gap-4">
-                        <div class="mt-1"><div class="w-2 h-2 rounded-full ${v.type === 'Cell Phone' ? 'bg-red-500' : 'bg-yellow-500'}"></div></div>
+            timeline.innerHTML = violations.map(v => {
+                const isDanger = v.type === 'Cell Phone' || v.type === 'Focus Loss' || v.type.includes('ALERT');
+                return `
+                    <div class="p-4 bg-white/5 rounded-2xl border border-white/5 flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-xl ${isDanger ? 'bg-red-500/10 text-red-500' : 'bg-amber-500/10 text-amber-500'} flex items-center justify-center shrink-0">
+                            <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                        </div>
                         <div class="flex-grow">
-                            <div class="flex justify-between items-start mb-1">
-                                <span class="text-[10px] font-black uppercase tracking-widest">${v.type}</span>
-                                <span class="text-[9px] mono text-slate-600 font-bold">${v.time || '---'}</span>
+                            <div class="flex justify-between items-center mb-1">
+                                <h4 class="text-[10px] font-black uppercase tracking-widest text-slate-400">${v.type}</h4>
+                                <span class="text-[9px] font-bold text-slate-600 italic">${v.time || '---'}</span>
                             </div>
-                            <p class="text-xs text-slate-300 font-medium">${v.message}</p>
+                            <p class="text-xs text-slate-300 leading-relaxed">${v.message}</p>
                         </div>
                     </div>
-                `).join('');
-            }
-
-            document.getElementById('modal-btn-clear').onclick = () => { acknowledgeStudent(null, s.id); closeModal(); };
+                `;
+            }).join('') || `<div class="text-center py-8 text-slate-700 text-[10px] font-black uppercase tracking-widest italic">No Behavioral Violations Logged</div>`;
+            
+            // Buttons logic
+            document.getElementById('modal-btn-clear').onclick = () => { acknowledgeStudent(null, s.id); };
             const isIndividualLocked = s.details?.is_locked || s.status === "LOCKED_BY_PROCTOR";
             const lockBtn = document.getElementById('modal-btn-lock');
-            
             lockBtn.onclick = () => lockStudent(s.id);
             if (isIndividualLocked) {
                 lockBtn.textContent = 'Unlock Node';
@@ -746,12 +805,12 @@
             }
 
             document.getElementById('modal-btn-reset-score').onclick = () => resetStudentScore(s.id);
-
-            modal.classList.remove('hidden');
-            setTimeout(() => { modal.classList.add('opacity-100'); lucide.createIcons(); }, 10);
+            
+            lucide.createIcons();
         }
 
         function closeModal() {
+            window.currentOpenedStudentId = null;
             const modal = document.getElementById('report-modal');
             modal.classList.remove('opacity-100');
             setTimeout(() => modal.classList.add('hidden'), 300);
@@ -788,20 +847,37 @@
             const assignment = document.getElementById('assignment-filter').value;
             if (!assignment) return;
             
-            // 1. Update Local Config & Save to Firebase (affects future students)
             assignmentSettings.is_global_locked = locked;
-            renderSettingsUI(); // Visual sync
+            renderSettingsUI();
+
+            // INSTANT visual feedback: update local state and re-render grid immediately
+            window.currentStudents.forEach(s => {
+                if (!s.details) s.details = {};
+                s.details.is_locked = locked;
+                s.details.is_unlocked_override = !locked;
+                s.status = locked ? "LOCKED_BY_PROCTOR" : "TEST_ACTIVE";
+            });
+            updateGrid(window.currentStudents);
+            updateGlobalFeed(window.currentStudents);
+
+            // Then persist to Firestore
             await saveAssignmentSettings();
 
-            // 2. Propagate to ALL existing student records in the current view
             const batch = db.batch();
             let count = 0;
             window.currentStudents.forEach(s => {
-                const ref = db.collection('student_results').doc(String(s.id));
-                batch.update(ref, {
-                    'details.is_locked': locked,
-                    status: locked ? "LOCKED_BY_PROCTOR" : "TEST_ACTIVE"
-                });
+                const ref = db.collection('student_results').doc(assignment).collection('students').doc(String(s.id));
+                const existingDetails = s.details || {};
+                batch.set(ref, {
+                    status: locked ? "LOCKED_BY_PROCTOR" : "TEST_ACTIVE",
+                    details: {
+                        ...existingDetails,
+                        is_locked: locked,
+                        is_unlocked_override: !locked,
+                        last_alert: locked ? "NODE_LOCKED" : (existingDetails.last_alert || "NONE"),
+                        ts: new Date().toISOString()
+                    }
+                }, { merge: true });
                 count++;
             });
             
@@ -830,6 +906,7 @@
         }
 
         async function togglePeriodLock(p) { 
+            const assignment = document.getElementById('assignment-filter').value;
             const isCurrentlyLocked = assignmentSettings.locked_periods.includes(p);
             const newState = !isCurrentlyLocked;
 
@@ -837,6 +914,19 @@
             else assignmentSettings.locked_periods = assignmentSettings.locked_periods.filter(item => item !== p);
             
             renderSettingsUI();
+
+            // INSTANT visual feedback: update local state for affected period students
+            window.currentStudents.forEach(s => {
+                const safePeriod = parseInt(String(s.class_period || "").replace(/\D/g, ''));
+                if (safePeriod === p) {
+                    if (!s.details) s.details = {};
+                    s.details.is_locked = newState;
+                    s.details.is_unlocked_override = !newState;
+                    s.status = newState ? "LOCKED_BY_PROCTOR" : "TEST_ACTIVE";
+                }
+            });
+            updateGrid(window.currentStudents);
+
             await saveAssignmentSettings();
 
             const batch = db.batch();
@@ -844,11 +934,18 @@
             window.currentStudents.forEach(s => {
                 const safePeriod = parseInt(String(s.class_period || "").replace(/\D/g, ''));
                 if (safePeriod === p) {
-                    const ref = db.collection('student_results').doc(String(s.id));
-                    batch.update(ref, {
-                        'details.is_locked': newState,
-                        status: newState ? "LOCKED_BY_PROCTOR" : "TEST_ACTIVE"
-                    });
+                    const ref = db.collection('student_results').doc(assignment).collection('students').doc(String(s.id));
+                    const existingDetails = s.details || {};
+                    batch.set(ref, {
+                        status: newState ? "LOCKED_BY_PROCTOR" : "TEST_ACTIVE",
+                        details: {
+                            ...existingDetails,
+                            is_locked: newState,
+                            is_unlocked_override: !newState,
+                            last_alert: newState ? "NODE_LOCKED" : (existingDetails.last_alert || "NONE"),
+                            ts: new Date().toISOString()
+                        }
+                    }, { merge: true });
                     count++;
                 }
             });
@@ -862,26 +959,11 @@
         async function saveAssignmentSettings() {
             const assignment = document.getElementById('assignment-filter').value;
             try {
-                const snapshot = await db.collection('student_results')
-                    .where('assignment_name', '==', assignment)
-                    .where('student_id', '==', '__CONFIG__')
-                    .get();
-
-                const payload = {
-                    student_id: '__CONFIG__',
-                    student_name: 'SYSTEM_CONFIG',
-                    class_period: 0,
-                    assignment_name: assignment, 
-                    score: 0,
-                    details: assignmentSettings,
-                    status: 'CONFIG'
-                };
-
-                if (!snapshot.empty) {
-                    await snapshot.docs[0].ref.update(payload);
-                } else {
-                    await db.collection('student_results').add(payload);
-                }
+                await db.collection('student_results').doc(assignment).set({
+                    is_global_locked: assignmentSettings.is_global_locked,
+                    locked_periods: assignmentSettings.locked_periods,
+                    silenced_alerts: assignmentSettings.silenced_alerts
+                }, { merge: true });
                 closeSettingsModal();
             } catch (e) {
                 console.error("Save settings error:", e);
