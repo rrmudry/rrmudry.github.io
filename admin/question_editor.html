@@ -130,6 +130,11 @@
                         <p class="text-xs text-slate-400 mt-3 ml-2 font-medium italic">Use {{var}} for variables in calculated questions.</p>
                     </div>
 
+                    <div class="flex items-center gap-3 px-2 py-4 bg-white/5 rounded-2xl border border-white/5">
+                        <input type="checkbox" id="input-has-calculator" class="w-6 h-6 rounded-lg bg-slate-900 border-2 border-white/10 checked:bg-indigo-600 checked:border-indigo-600 transition-all cursor-pointer">
+                        <label for="input-has-calculator" class="label-text cursor-pointer">Enable Embedded Desmos Calculator</label>
+                    </div>
+
                     <!-- Static Options -->
                     <div id="section-static" class="space-y-6">
                         <div class="flex justify-between items-center px-2">
@@ -277,6 +282,11 @@
                             <div class="flex items-center gap-4 mb-4">
                                 <span class="mono text-xs font-black text-indigo-400 bg-indigo-500/10 px-3 py-1.5 rounded-lg">#${q.id}</span>
                                 <span class="text-xs font-black uppercase tracking-widest ${q.type === 'calculated' ? 'text-amber-400' : 'text-emerald-400'}">${q.type}</span>
+                                ${q.has_calculator ? `
+                                    <span class="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded-md border border-indigo-500/20">
+                                        <i data-lucide="calculator" class="w-3 h-3"></i> Calculator
+                                    </span>
+                                ` : ''}
                             </div>
                             <p class="text-xl font-bold text-white mb-6 leading-relaxed">${q.text}</p>
                             ${q.type === 'static' ? `
@@ -345,6 +355,7 @@
             document.getElementById('input-assignment').value = q.assignment_name;
             document.getElementById('input-type').value = q.type;
             document.getElementById('input-text').value = q.text;
+            document.getElementById('input-has-calculator').checked = !!q.has_calculator;
             
             // Reset Sections
             document.getElementById('section-static').classList.toggle('hidden', q.type !== 'static');
@@ -386,6 +397,7 @@
             document.getElementById('input-assignment').value = q.assignment_name;
             document.getElementById('input-type').value = q.type;
             document.getElementById('input-text').value = q.text;
+            document.getElementById('input-has-calculator').checked = !!q.has_calculator;
             
             // Populate Sections
             document.getElementById('section-static').classList.toggle('hidden', q.type !== 'static');
@@ -420,6 +432,7 @@
             document.getElementById('modal-title').innerHTML = `Add <span class="text-indigo-400">New Question</span>`;
             document.getElementById('edit-id').value = '';
             document.getElementById('question-form').reset();
+            document.getElementById('input-has-calculator').checked = false;
             document.getElementById('input-id').value = nextId;
             document.getElementById('input-assignment').value = document.getElementById('assignment-select').value;
             document.getElementById('options-container').innerHTML = '';
@@ -444,6 +457,7 @@
                 type: type,
                 text: document.getElementById('input-text').value,
                 assignment_name: assignmentId,
+                has_calculator: document.getElementById('input-has-calculator').checked,
                 updated_at: firebase.firestore.FieldValue.serverTimestamp()
             };
 
