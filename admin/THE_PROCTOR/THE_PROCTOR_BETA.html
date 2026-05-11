@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE_PROCTOR // Secure Assessment Environment</title>
+    <title>THE_PROCTOR // BETA — Calculator Position Testing</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
 
     <!-- Tailwind CSS for Styling -->
@@ -52,67 +52,125 @@
             animation: slideIn 0.3s ease-out forwards;
         }
 
-        /* Sidebar Calculator Layout */
-        #screen-test.has-sidebar {
+        /* ========== BETA: Calculator Position Modes ========== */
+
+        /* Floating Calculator Panel */
+        #floating-calculator {
+            position: fixed;
+            bottom: 80px;
+            left: 20px;
+            width: 360px;
+            z-index: 90;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 0 1px rgba(99,102,241,0.3);
+            display: none;
+            transition: box-shadow 0.3s;
+        }
+        #floating-calculator.active { display: block; }
+        #floating-calculator:hover { box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 0 2px rgba(99,102,241,0.5); }
+
+        #floating-calculator .calc-header {
+            cursor: grab;
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            padding: 8px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            user-select: none;
+        }
+        #floating-calculator .calc-header:active { cursor: grabbing; }
+
+        /* Sidebar Mode */
+        .calc-mode-sidebar #screen-test {
             max-width: none !important;
             display: flex !important;
-            gap: 32px;
+            gap: 24px;
             align-items: flex-start;
-            padding: 0 40px;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        #screen-test.has-sidebar > .test-main {
+        .calc-mode-sidebar #screen-test > .bg-white {
             flex: 1;
             min-width: 0;
-            max-width: 850px;
-            transition: all 0.5s ease;
         }
-        #sidebar-calculator {
-            width: 400px;
+        .calc-mode-sidebar #sidebar-calculator {
+            display: block !important;
+            width: 380px;
             flex-shrink: 0;
             position: sticky;
-            top: 100px;
-            opacity: 0;
-            transform: translateX(20px);
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        #screen-test.has-sidebar #sidebar-calculator {
-            opacity: 1;
-            transform: translateX(0);
+            top: 80px;
         }
 
-        /* Webcam Relocation */
-        #webcam-container.on-left {
-            right: auto !important;
-            left: 24px !important;
+        /* Inline mode: calculator is rendered inside the question block (default) */
+        .calc-mode-inline .inline-calculator { display: block !important; }
+        .calc-mode-sidebar .inline-calculator { display: none !important; }
+        .calc-mode-floating .inline-calculator { display: none !important; }
+
+        /* Beta control bar */
+        #beta-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 200;
+            background: linear-gradient(135deg, #1e1b4b, #312e81);
+            border-top: 2px solid #6366f1;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            font-family: -apple-system, sans-serif;
+        }
+        #beta-bar .beta-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #a5b4fc;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+        #beta-bar .beta-label .dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #f59e0b;
+            animation: pulse 2s infinite;
+        }
+        #beta-bar .mode-buttons {
+            display: flex;
+            gap: 6px;
+        }
+        #beta-bar .mode-btn {
+            padding: 6px 16px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.05);
+            color: #c7d2fe;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        #beta-bar .mode-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+        #beta-bar .mode-btn.active {
+            background: #6366f1;
+            color: white;
+            border-color: #818cf8;
+            box-shadow: 0 0 12px rgba(99,102,241,0.4);
+        }
+        #beta-bar .mode-info {
+            color: #818cf8;
+            font-size: 10px;
+            font-weight: 500;
+            max-width: 400px;
         }
 
-        @media (max-width: 1024px) {
-            #screen-test.has-sidebar {
-                flex-direction: column;
-                padding: 0 20px;
-                align-items: center;
-            }
-            #sidebar-calculator {
-                width: 100%;
-                position: static;
-                margin-top: 32px;
-            }
-            #screen-test.has-sidebar > .test-main {
-                max-width: 100%;
-            }
-            #webcam-container {
-                width: 120px;
-                height: 90px;
-                bottom: auto;
-                top: 80px;
-            }
-        }
-
-        /* Calculator Focus Glow */
-        #sidebar-calculator iframe:focus {
-            outline: none;
-            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.4);
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
         }
     </style>
 </head>
@@ -153,7 +211,7 @@
         <div class="flex items-center gap-4">
             <div class="flex items-center gap-2 font-bold text-xl">
                 <i data-lucide="shield-check"></i>
-                THE_PROCTOR Node v2.0
+                THE_PROCTOR <span class="text-xs bg-amber-500 text-amber-950 px-2 py-0.5 rounded font-black ml-2">BETA</span>
             </div>
             <div id="student-display" class="hidden text-xs bg-indigo-500/50 px-3 py-1 rounded border border-indigo-400/30">
                 <span id="display-name" class="font-bold opacity-80 uppercase tracking-tighter"></span>
@@ -255,7 +313,7 @@
 
         <!-- SCREEN 2: The Test -->
         <div id="screen-test" class="hidden w-full max-w-3xl">
-            <div class="bg-white p-8 rounded-xl shadow-lg mb-6 test-main">
+            <div class="bg-white p-8 rounded-xl shadow-lg mb-6">
                 <div class="flex justify-between items-center mb-6 border-b pb-4">
                     <h2 class="text-2xl font-bold" id="assessment-title">Loading Assessment...</h2>
                     <div class="text-red-500 font-mono text-xl" id="timer">15:00</div>
@@ -270,29 +328,17 @@
                 </form>
             </div>
 
-            <!-- Sidebar Calculator (shown when assessment has calculator enabled) -->
+            <!-- SIDEBAR Calculator (hidden by default, shown in sidebar mode) -->
             <div id="sidebar-calculator" class="hidden">
-                <div class="bg-white rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden border border-slate-200/60 group transition-all hover:shadow-[0_30px_60px_rgba(79,70,229,0.15)]">
-                    <div class="bg-gradient-to-r from-indigo-600 via-indigo-500 to-blue-600 px-5 py-4 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="bg-white/20 p-1.5 rounded-lg">
-                                <i data-lucide="calculator" class="w-4 h-4 text-white"></i>
-                            </div>
-                            <div class="flex flex-col">
-                                <span class="text-[10px] font-black uppercase tracking-[0.15em] text-white">Scientific Calculator</span>
-                                <span class="text-[8px] font-bold text-indigo-100/70 uppercase">Mastery Tools</span>
-                            </div>
-                        </div>
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-200">
+                    <div class="bg-gradient-to-r from-indigo-600 to-indigo-500 px-4 py-3 flex items-center justify-between">
                         <div class="flex items-center gap-2">
-                            <span class="text-[9px] font-bold text-indigo-200 bg-black/20 px-2 py-1 rounded-md backdrop-blur-sm">DESMOS</span>
+                            <i data-lucide="calculator" class="w-4 h-4 text-white"></i>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-white/90">Scientific Calculator</span>
                         </div>
+                        <span class="text-[9px] font-bold text-indigo-200 bg-white/10 px-2 py-0.5 rounded">DESMOS</span>
                     </div>
-                    <div class="p-1 bg-slate-50">
-                        <iframe id="desmos-iframe" class="w-full h-[450px] rounded-2xl bg-white shadow-inner" frameborder="0"></iframe>
-                    </div>
-                    <div class="bg-slate-50 px-4 py-3 border-t border-slate-100 flex justify-center">
-                        <p class="text-[9px] text-slate-400 font-medium uppercase tracking-widest italic">Node Secured // Encrypted Frame</p>
-                    </div>
+                    <iframe src="https://www.desmos.com/scientific?embed" class="w-full h-[400px]" frameborder="0"></iframe>
                 </div>
             </div>
         </div>
@@ -325,6 +371,37 @@
 
     <!-- Toast Notification Container -->
     <div id="toast-container" class="fixed top-6 right-6 z-50 flex flex-col gap-2 w-80"></div>
+
+    <!-- FLOATING Calculator Panel (hidden by default) -->
+    <div id="floating-calculator">
+        <div class="calc-header" id="float-calc-drag-handle">
+            <div class="flex items-center gap-2">
+                <i data-lucide="calculator" class="w-3.5 h-3.5 text-white"></i>
+                <span class="text-[9px] font-black uppercase tracking-widest text-white/90">Scientific Calculator</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-[8px] font-bold text-indigo-200 bg-white/10 px-2 py-0.5 rounded">DESMOS</span>
+                <button onclick="toggleFloatingCalc()" class="text-white/60 hover:text-white transition-colors">
+                    <i data-lucide="minimize-2" class="w-3.5 h-3.5"></i>
+                </button>
+            </div>
+        </div>
+        <iframe src="https://www.desmos.com/scientific?embed" class="w-full h-[320px] bg-white" frameborder="0"></iframe>
+    </div>
+
+    <!-- BETA Control Bar -->
+    <div id="beta-bar">
+        <div class="beta-label">
+            <div class="dot"></div>
+            BETA — Calculator Position Testing
+        </div>
+        <div class="mode-buttons">
+            <button class="mode-btn active" onclick="setCalcMode('inline')" id="btn-mode-inline">📥 Inline</button>
+            <button class="mode-btn" onclick="setCalcMode('sidebar')" id="btn-mode-sidebar">📐 Sidebar</button>
+            <button class="mode-btn" onclick="setCalcMode('floating')" id="btn-mode-floating">🪟 Floating</button>
+        </div>
+        <div class="mode-info" id="mode-description">Calculator appears below each question (current production behavior)</div>
+    </div>
 
     <script>
         // Initialize Lucide Icons
@@ -377,150 +454,43 @@
         let questionsData = [];
         let pendingStatus = null;
         let pendingScore = null;
-        let assignmentSettings = { is_global_locked: true, locked_periods: [], silenced_alerts: [] };
+        let assignmentSettings = { is_global_locked: false, locked_periods: [], silenced_alerts: [] }; // BETA: unlocked by default
         
-        // --- AUTH LISTENER ---
-        const TEST_EMAILS = ['ryan.mudry@gmail.com', 'ryanmudry@gmail.com'];
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                console.log("Logged in as:", user.email);
-                const email = user.email.toLowerCase();
-                const isOUSD = email.endsWith('@orangeusd.org');
-                const isTest = TEST_EMAILS.some(e => e.toLowerCase() === email);
+        
+        // --- BETA: Auth Bypassed ---
+        // Auto-login with mock student for calculator position testing
+        (async function betaAutoLogin() {
+            student.id = 'beta_tester';
+            student.name = 'Beta Tester';
+            student.period = 1;
+            currentUser = { email: 'beta@test.local' };
 
-                if (isOUSD || isTest) {
-                    currentUser = user;
-                    const studentId = user.email.split('@')[0];
-                    const idInput = document.getElementById('student-id');
-                    if (idInput) {
-                        idInput.value = studentId;
-                        // Auto-trigger login if we are not already logged in
-                        if (!student.id) {
-                            handleLogin();
-                        }
-                    }
-                } else {
-                    alert(`Access Restricted: ${user.email} is not authorized.`);
-                    auth.signOut();
-                }
-            } else {
-                // Not logged in
-                const btn = document.getElementById('login-btn');
-                if(btn) {
-                    btn.disabled = false;
-                    btn.innerHTML = `<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5 bg-white rounded-full p-0.5" alt="Google"> Sign in to Continue`;
-                }
-                const idInput = document.getElementById('student-id');
-                if(idInput) {
-                    idInput.value = "";
-                    idInput.placeholder = "Sign in to authenticate";
-                }
-            }
-        });
+            // Hide login overlay immediately
+            document.getElementById('login-overlay').classList.add('hidden');
+            document.getElementById('student-display').classList.remove('hidden');
+            document.getElementById('display-name').textContent = student.name;
 
-        // --- AUTH LOGIC ---
-        async function handleGoogleLogin() {
-            if (currentUser) {
-                handleLogin();
-                return;
-            }
-            
-            const btn = document.getElementById('login-btn');
-            btn.disabled = true;
-            btn.innerHTML = '<i data-lucide="loader" class="animate-spin w-5 h-5"></i> Authenticating...';
+            // Load assessment config and questions
+            await fetchAssessmentConfig();
+            await fetchQuestions();
+
+            // Skip directly to the test screen with questions rendered
+            document.getElementById('screen-notice').classList.add('hidden');
+            document.getElementById('screen-setup').classList.add('hidden');
+            document.getElementById('screen-calibration').classList.add('hidden');
+            document.getElementById('screen-test').classList.remove('hidden');
+
+            renderQuestions();
+            isTesting = true;
+            setStatus('BETA — Calculator Testing', 'bg-amber-500');
+            startTimer(TIME_LIMIT_MINS * 60);
             lucide.createIcons();
-            
-            const provider = new firebase.auth.GoogleAuthProvider();
-            try {
-                await auth.signInWithPopup(provider);
-            } catch (error) {
-                console.error(error);
-                btn.disabled = false;
-                btn.innerHTML = `<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5 bg-white rounded-full p-0.5" alt="Google"> Sign in to Continue`;
-                document.getElementById('login-status').textContent = 'Sign in failed: ' + error.message;
-            }
-        }
+        })();
 
-        async function handleLogin() {
-            if (!currentUser) {
-                handleGoogleLogin();
-                return;
-            }
+        async function handleGoogleLogin() { /* BETA: no-op */ }
+        async function handleLogin() { /* BETA: no-op */ }
 
-            const nameInput = document.getElementById('student-name');
-            const status = document.getElementById('login-status');
-            const btn = document.getElementById('login-btn');
-            const id = currentUser.email.split('@')[0];
-
-            btn.disabled = true;
-            status.textContent = "ESTABLISHING CONNECTION...";
-
-            try {
-                // 1. SEARCH FOR IDENTITY: Look for the student in Roster
-                const rosterSnap = await db.collection('roster').doc(id).get();
-                const profile = rosterSnap.exists ? rosterSnap.data() : null;
-
-                // 2. CHECK FOR COMPLETION OR EXISTING SESSION for THIS specific assignment
-                const completionSnap = await db.collection('student_results')
-                    .doc(ASSIGNMENT_NAME)
-                    .collection('students')
-                    .doc(id)
-                    .get();
-                const completionCheck = completionSnap.exists ? completionSnap.data() : null;
-
-                if (completionCheck && completionCheck.status && completionCheck.status.startsWith("COMPLETED")) {
-                    status.textContent = "ACCESS DENIED // TEST ALREADY SUBMITTED";
-                    btn.disabled = false;
-                    btn.textContent = "CONNECTION BLOCKED";
-                    return;
-                }
-
-                if (profile) {
-                    // Student found in database
-                    student.id = id;
-                    student.name = profile.name;
-                    student.period = profile.class_period;
-                    
-                    await fetchAssessmentConfig(); // Get rules (timer/question count)
-                    await fetchQuestions();        // Get questions
-                    
-                    // Check for existing session progress to resume
-                    if (completionCheck && completionCheck.session_progress && completionCheck.status !== "SCORE_RESET") {
-                        await resumeSession(completionCheck);
-                    } else {
-                        finalizeLogin();
-                    }
-                } else if (document.getElementById('name-entry').classList.contains('hidden')) {
-                    // New Student - Show name entry field
-                    document.getElementById('name-entry').classList.remove('hidden');
-                    btn.disabled = false;
-                    btn.textContent = "REGISTER NODE";
-                    status.textContent = "NEW STUDENT ID DETECTED";
-                } else {
-                    // Registering new student
-                    const name = nameInput.value.trim();
-                    if (name.length < 3) {
-                        status.textContent = "ERROR // FULL NAME REQUIRED";
-                        btn.disabled = false;
-                        return;
-                    }
-                    student.id = id;
-                    student.name = name;
-                    
-                    // Try to get period from URL if available
-                    student.period = urlParams.get('p') || urlParams.get('period') || null;
-                    
-                    await fetchAssessmentConfig(); // Get rules
-                    await fetchQuestions();        // Get questions
-                    
-                    finalizeLogin();
-                }
-            } catch (e) {
-                console.error(e);
-                status.textContent = "SYNC ERROR // CHECK CONNECTION";
-                btn.disabled = false;
-            }
-        }
+        // (Original auth functions removed for BETA)
 
         function finalizeLogin() {
             document.getElementById('login-overlay').classList.add('opacity-0', 'pointer-events-none');
@@ -687,7 +657,8 @@
         }
 
         function checkAccessControl() {
-            if (!student.id) return;
+            // BETA: access control disabled for calculator testing
+            return;
             
             const isGlobalLocked = assignmentSettings.is_global_locked;
             const periodLocked = assignmentSettings.locked_periods && assignmentSettings.locked_periods.includes(student.period);
@@ -1341,44 +1312,8 @@
             document.getElementById('btn-next').classList.toggle('hidden', currentQuestionIndex === totalQuestions - 1);
             document.getElementById('btn-submit').classList.toggle('hidden', currentQuestionIndex !== totalQuestions - 1);
 
-            // Update sidebar calculator visibility
-            updateSidebarCalculator();
-
             // Sync progress (optional, but good for dashboard)
             syncResults(`Q${currentQuestionIndex + 1} ACTIVE`);
-        }
-
-        // Show/hide the sidebar calculator based on current question
-        let desmosLoaded = false;
-        function updateSidebarCalculator() {
-            // Check if ANY question in the entire test has a calculator enabled.
-            // This prevents the sidebar from jumping in and out as students navigate.
-            const hasAnyCalc = questionsData.some(q => q.has_calculator);
-            
-            const sidebar = document.getElementById('sidebar-calculator');
-            const testScreen = document.getElementById('screen-test');
-            const webcam = document.getElementById('webcam-container');
-
-            if (hasAnyCalc) {
-                sidebar.classList.remove('hidden');
-                // Use a small delay for the layout class to allow the 'hidden' removal to register for transitions
-                setTimeout(() => {
-                    testScreen.classList.add('has-sidebar');
-                    if (webcam) webcam.classList.add('on-left');
-                }, 10);
-                
-                // Lazy-load Desmos only once
-                if (!desmosLoaded) {
-                    document.getElementById('desmos-iframe').src = 'https://www.desmos.com/scientific?embed';
-                    desmosLoaded = true;
-                }
-            } else {
-                testScreen.classList.remove('has-sidebar');
-                if (webcam) webcam.classList.remove('on-left');
-                setTimeout(() => {
-                    sidebar.classList.add('hidden');
-                }, 500); // Match transition duration
-            }
         }
 
         async function fetchAssessmentConfig() {
@@ -1534,7 +1469,18 @@
                                 </label>
                             `).join('')}
                         </div>
-                        ${/* Sidebar calculator is used instead of inline */''}
+                        ${q.has_calculator ? `
+                            <div class="inline-calculator mt-8 border-2 border-slate-100 rounded-2xl overflow-hidden shadow-inner bg-slate-50 animate-in zoom-in-95 duration-500">
+                                <div class="bg-slate-100 px-4 py-2 flex items-center justify-between border-b border-slate-200">
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="calculator" class="w-4 h-4 text-slate-500"></i>
+                                        <span class="text-[10px] font-black uppercase tracking-widest text-slate-500">Embedded Scientific Calculator</span>
+                                    </div>
+                                    <span class="text-[9px] font-bold text-slate-400 bg-white px-2 py-0.5 rounded border border-slate-200">DESMOS</span>
+                                </div>
+                                <iframe src="https://www.desmos.com/scientific?embed" class="w-full h-[350px]" frameborder="0"></iframe>
+                            </div>
+                        ` : ''}
                     </div>
                 </div>
             `).join('');
@@ -1564,7 +1510,6 @@
 
             form.innerHTML = html + navHtml;
             lucide.createIcons();
-            updateSidebarCalculator();
         }
 
         function setStatus(text, colorClass) {
@@ -1783,6 +1728,82 @@
                 setTimeout(() => toast.remove(), 300);
             }, 4000);
         }
+
+        // ============================================================
+        // BETA: Calculator Position Mode Switcher
+        // ============================================================
+
+        let currentCalcMode = 'inline';
+        const MODE_DESCRIPTIONS = {
+            inline: 'Calculator appears below each question (current production behavior)',
+            sidebar: 'Calculator is pinned to the right side of the test area, always visible',
+            floating: 'Calculator is a draggable overlay panel that stays on screen'
+        };
+
+        function setCalcMode(mode) {
+            currentCalcMode = mode;
+            const body = document.body;
+
+            // Remove all mode classes
+            body.classList.remove('calc-mode-inline', 'calc-mode-sidebar', 'calc-mode-floating');
+            body.classList.add(`calc-mode-${mode}`);
+
+            // Update button states
+            document.querySelectorAll('#beta-bar .mode-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-mode-${mode}`).classList.add('active');
+
+            // Update description
+            document.getElementById('mode-description').textContent = MODE_DESCRIPTIONS[mode];
+
+            // Toggle floating calculator visibility
+            const floatCalc = document.getElementById('floating-calculator');
+            if (mode === 'floating') {
+                floatCalc.classList.add('active');
+            } else {
+                floatCalc.classList.remove('active');
+            }
+
+            console.log(`[BETA] Calculator mode set to: ${mode}`);
+        }
+
+        function toggleFloatingCalc() {
+            const floatCalc = document.getElementById('floating-calculator');
+            floatCalc.classList.toggle('active');
+        }
+
+        // Draggable floating calculator
+        (function initDrag() {
+            const panel = document.getElementById('floating-calculator');
+            const handle = document.getElementById('float-calc-drag-handle');
+            let isDragging = false;
+            let offsetX = 0, offsetY = 0;
+
+            handle.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                offsetX = e.clientX - panel.getBoundingClientRect().left;
+                offsetY = e.clientY - panel.getBoundingClientRect().top;
+                panel.style.transition = 'none';
+                e.preventDefault();
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const x = Math.max(0, Math.min(window.innerWidth - panel.offsetWidth, e.clientX - offsetX));
+                const y = Math.max(0, Math.min(window.innerHeight - panel.offsetHeight, e.clientY - offsetY));
+                panel.style.left = x + 'px';
+                panel.style.top = y + 'px';
+                panel.style.bottom = 'auto';
+                panel.style.right = 'auto';
+            });
+
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+                panel.style.transition = 'box-shadow 0.3s';
+            });
+        })();
+
+        // Initialize default mode
+        document.body.classList.add('calc-mode-inline');
 
     </script>
 </body>
