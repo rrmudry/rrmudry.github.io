@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard | THE_PROCTOR</title>
+    <link rel="icon" type="image/svg+xml" href="admin/THE_PROCTOR/favicon.svg">
+    <link rel="stylesheet" href="assets/theme.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #050811;
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: rgba(13, 19, 40, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-unlocked {
+            background: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .status-locked {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .launch-btn {
+            background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .launch-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(249, 115, 22, 0.4);
+        }
+
+        .launch-btn:disabled {
+            background: #334155;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        /* Animated background elements */
+        .bg-glow {
+            position: fixed;
+            width: 40vw;
+            height: 40vw;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(249, 115, 22, 0.08) 0%, transparent 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        #auth-overlay {
+            position: fixed;
+            inset: 0;
+            background: #050811;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease;
+        }
+
+        #auth-overlay.hidden {
+            display: none !important;
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+        }
+
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+    <div class="bg-glow top-[-10%] left-[-10%]"></div>
+    <div class="bg-glow bottom-[-10%] right-[-10%]"></div>
+
+    <!-- Auth Overlay -->
+    <div id="auth-overlay">
+        <div class="text-center p-8 glass-card max-w-md w-full mx-4">
+            <h1 class="text-3xl font-extrabold mb-2 tracking-tight">THE_PROCTOR</h1>
+            <p class="text-slate-400 mb-8">Assessment Portal</p>
+            
+            <div id="login-container">
+                <button onclick="login()" class="w-full bg-white text-black font-bold py-3 px-6 rounded-xl flex items-center justify-center gap-3 hover:bg-slate-200 transition-colors">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5" alt="Google">
+                    Sign in with District Account
+                </button>
+                <p class="text-xs text-slate-500 mt-4">Use your @orangeusd.org email to continue</p>
+            </div>
+
+            <div id="auth-loading" class="hidden">
+                <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-500 mx-auto"></div>
+                <p class="mt-4 text-slate-400">Verifying credentials...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="app-content" class="hidden">
+        <!-- Navigation -->
+        <nav class="sticky top-0 z-50 border-b border-white/5 bg-[#050811]/80 backdrop-blur-md">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-20 items-center">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xl font-black tracking-tighter text-orange-500">THE_PROCTOR</span>
+                        <div class="h-6 w-[1px] bg-white/10"></div>
+                        <span class="text-sm font-medium text-slate-400 uppercase tracking-widest hidden sm:block">Student Dashboard</span>
+                    </div>
+                    
+                    <div class="flex items-center gap-4">
+                        <div class="text-right hidden sm:block">
+                            <p id="student-name" class="text-sm font-bold">---</p>
+                            <p id="student-info" class="text-[10px] text-slate-500 uppercase tracking-tighter">ID: --- | Period ---</p>
+                        </div>
+                        <a href="admin/THE_PROCTOR/how_it_works.html" target="_blank" class="p-2 hover:bg-white/5 rounded-full transition-colors" title="How THE_PROCTOR Works">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </a>
+                        <button onclick="logout()" class="p-2 hover:bg-white/5 rounded-full transition-colors" title="Logout">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                <div class="glass-card p-6 border-l-4 border-orange-500">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Status</p>
+                    <h3 class="text-2xl font-bold flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                        Connected
+                    </h3>
+                </div>
+                <div class="glass-card p-6 border-l-4 border-blue-500">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Assessments Completed</p>
+                    <h3 id="completed-count" class="text-2xl font-bold">0</h3>
+                </div>
+                </div>
+
+            <!-- Assessments Section -->
+            <div class="mb-16">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold tracking-tight">Active Assessments</h2>
+                    <span class="text-xs text-slate-500">Real-time Sync Active</span>
+                </div>
+                
+                <div id="assessments-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Skeleton -->
+                    <div class="glass-card p-6 h-64 skeleton opacity-50"></div>
+                    <div class="glass-card p-6 h-64 skeleton opacity-50"></div>
+                    <div class="glass-card p-6 h-64 skeleton opacity-50"></div>
+                </div>
+            </div>
+
+            <!-- Previous Results -->
+            <div>
+                <h2 class="text-2xl font-bold tracking-tight mb-6">Performance History</h2>
+                <div class="glass-card overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="bg-white/5 border-b border-white/10">
+                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">Assessment</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">Date</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">Score</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="results-body">
+                            <!-- Results will be injected here -->
+                            <tr>
+                                <td colspan="4" class="px-6 py-12 text-center text-slate-500 italic">No previous records found</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Details Modal -->
+    <div id="details-modal" class="fixed inset-0 z-50 flex items-center justify-center p-6 hidden" style="background:rgba(5,8,17,0.85);backdrop-filter:blur(8px)">
+        <div class="glass-card max-w-lg w-full overflow-hidden">
+            <div class="p-6 border-b border-white/10 flex justify-between items-center">
+                <div>
+                    <h2 id="detail-title" class="text-xl font-bold">Assessment</h2>
+                    <p id="detail-id" class="text-[10px] text-slate-500 uppercase tracking-widest mt-1">---</p>
+                </div>
+                <button onclick="closeDetailModal()" class="text-slate-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/5">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+            <div class="p-6 space-y-6">
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="bg-white/5 rounded-2xl p-4 border border-white/5">
+                        <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Score</p>
+                        <p id="detail-score" class="text-2xl font-black text-orange-500">0</p>
+                    </div>
+                    <div class="bg-white/5 rounded-2xl p-4 border border-white/5">
+                        <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Status</p>
+                        <p id="detail-status" class="text-sm font-bold text-emerald-400 mt-1 uppercase">---</p>
+                    </div>
+                    <div class="bg-white/5 rounded-2xl p-4 border border-white/5">
+                        <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Submitted</p>
+                        <p id="detail-date" class="text-sm font-bold text-slate-300 mt-1">---</p>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">Integrity Log</h3>
+                    <div id="detail-violations" class="space-y-2 max-h-48 overflow-y-auto">
+                        <p class="text-sm text-slate-600 italic text-center py-4">No violations recorded</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 border-t border-white/5 text-center">
+                <p class="text-[9px] text-slate-600 uppercase tracking-widest font-bold">THE_PROCTOR // Academic Integrity Record</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            projectId: "site-6e500",
+            appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+            storageBucket: "site-6e500.firebasestorage.app",
+            apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+            authDomain: "site-6e500.firebaseapp.com",
+            messagingSenderId: "591530758858"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        let currentUser = null;
+        let studentData = null;
+        let assessments = [];
+        let results = [];
+
+        // Auth Listener
+        const TEST_EMAILS = ['ryan.mudry@gmail.com', 'ryanmudry@gmail.com'];
+
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                console.log("Logged in as:", user.email); // Debugging
+                const email = user.email.toLowerCase();
+                const isOUSD = email.endsWith('@orangeusd.org');
+                const isTest = TEST_EMAILS.some(e => e.toLowerCase() === email);
+
+                if (isOUSD || isTest) {
+                    currentUser = user;
+                    await initializeDashboard();
+                } else {
+                    alert(`Access Restricted: ${user.email} is not authorized.`);
+                    auth.signOut();
+                }
+            } else {
+                showAuthOverlay();
+            }
+        });
+
+        async function login() {
+            document.getElementById('login-container').classList.add('hidden');
+            document.getElementById('auth-loading').classList.remove('hidden');
+            
+            const provider = new firebase.auth.GoogleAuthProvider();
+            // provider.setCustomParameters({ hd: 'orangeusd.org' }); // Disabled for testing
+            
+            try {
+                await auth.signInWithPopup(provider);
+            } catch (error) {
+                console.error(error);
+                document.getElementById('login-container').classList.remove('hidden');
+                document.getElementById('auth-loading').classList.add('hidden');
+                alert('Sign in failed: ' + error.message);
+            }
+        }
+
+        function logout() {
+            auth.signOut();
+            window.location.reload();
+        }
+
+        function showAuthOverlay() {
+            document.getElementById('auth-overlay').style.opacity = '1';
+            document.getElementById('auth-overlay').classList.remove('hidden');
+            document.getElementById('app-content').classList.add('hidden');
+        }
+
+        async function initializeDashboard() {
+            const studentId = currentUser.email.split('@')[0];
+            
+            // Show loading state in overlay
+            document.getElementById('login-container').classList.add('hidden');
+            document.getElementById('auth-loading').classList.remove('hidden');
+            document.querySelector('#auth-loading p').textContent = "Loading Dashboard...";
+
+            // 1. Fetch Student Profile from Roster
+            try {
+                const rosterSnap = await db.collection('roster').doc(studentId).get();
+                if (rosterSnap.exists) {
+                    studentData = rosterSnap.data();
+                    document.getElementById('student-name').textContent = studentData.name;
+                    document.getElementById('student-info').textContent = `ID: ${studentId} | Period ${studentData.class_period}`;
+                } else {
+                    document.getElementById('student-name').textContent = currentUser.displayName;
+                    document.getElementById('student-info').textContent = `ID: ${studentId} | UNKNOWN PERIOD`;
+                    studentData = { name: currentUser.displayName, class_period: "UNKNOWN", student_id: studentId };
+                }
+            } catch (e) {
+                console.error("Error fetching roster:", e);
+            }
+
+            // 2. Setup Real-time Listeners and wait for first batch
+            await new Promise(resolve => {
+                let assessmentsReady = false;
+                
+                // Listen to Assessments
+                db.collection('assessments').onSnapshot(snap => {
+                    assessments = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    setupLockListeners();
+                    if (!assessmentsReady) {
+                        assessmentsReady = true;
+                        resolve();
+                    }
+                });
+            });
+
+            // Fetch results in background (don't block initial UI)
+            fetchResults(studentId);
+
+            // 3. Hide overlay once ready
+            document.getElementById('auth-overlay').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('auth-overlay').classList.add('hidden');
+                document.getElementById('app-content').classList.remove('hidden');
+            }, 500);
+        }
+
+
+        async function fetchResults(studentId) {
+            const resultsBody = document.getElementById('results-body');
+            const completedCount = document.getElementById('completed-count');
+            
+            // This is a bit tricky if we have many assessments. 
+            // Ideally we'd use a collection group query if results were in subcollections.
+            // But proctor_dashboard seems to use doc(assessmentId).collection("students").doc(studentId) pattern potentially?
+            // Actually, let's check proctor_dashboard's loadStudentResults function.
+            
+            // Wait, looking at proctor_dashboard.html:
+            // const studentDoc = await db.collection("student_results").doc(assessmentId).collection("students").doc(studentId).get();
+            
+            let completed = 0;
+            resultsBody.innerHTML = '';
+            window._resultsCache = {};
+
+            for (const assessment of assessments) {
+                const resSnap = await db.collection("student_results").doc(assessment.id).collection("students").doc(studentId).get();
+                if (resSnap.exists) {
+                    const data = resSnap.data();
+                    if (data.status === 'SUBMITTED' || data.score !== undefined) {
+                        completed++;
+                        window._resultsCache[assessment.id] = { title: assessment.title || assessment.id, data: data };
+                        const row = document.createElement('tr');
+                        row.className = 'border-b border-white/5 hover:bg-white/5 transition-colors';
+                        row.innerHTML = `
+                            <td class="px-6 py-4">
+                                <p class="font-bold text-sm">${assessment.title || assessment.id}</p>
+                                <p class="text-[10px] text-slate-500 uppercase">${assessment.id}</p>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-slate-400">
+                                ${data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleDateString() : '---'}
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="text-lg font-black text-orange-500">${data.score || 0}</span>
+                                <span class="text-[10px] text-slate-500">/ ${data.total_points || 100}</span>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <button onclick="showDetailsByKey('${assessment.id}')" class="text-xs font-bold text-slate-400 hover:text-white underline uppercase tracking-widest">View Details</button>
+                            </td>
+                        `;
+                        resultsBody.appendChild(row);
+                    }
+                }
+            }
+            completedCount.textContent = completed;
+            if (completed === 0) {
+                resultsBody.innerHTML = '<tr><td colspan="4" class="px-6 py-12 text-center text-slate-500 italic">No previous records found</td></tr>';
+            }
+        }
+
+        function showDetailsByKey(assessmentId) {
+            const cached = window._resultsCache[assessmentId];
+            if (!cached) return;
+            showDetails(cached.title, assessmentId, cached.data);
+        }
+
+        function showDetails(title, id, data) {
+            document.getElementById('detail-title').textContent = title;
+            document.getElementById('detail-id').textContent = 'ID: ' + id;
+            document.getElementById('detail-score').textContent = (data.score || 0) + ' / ' + (data.total_points || '?');
+            
+            const status = data.status || 'UNKNOWN';
+            const statusEl = document.getElementById('detail-status');
+            statusEl.textContent = status.startsWith('COMPLETED') ? 'Submitted' : status;
+            statusEl.className = 'text-sm font-bold mt-1 uppercase ' + (status.startsWith('COMPLETED') ? 'text-emerald-400' : 'text-orange-400');
+            
+            const ts = data.timestamp;
+            document.getElementById('detail-date').textContent = ts ? new Date(ts.seconds * 1000).toLocaleString() : '---';
+            
+            const violations = data.details?.violations || [];
+            const container = document.getElementById('detail-violations');
+            if (violations.length === 0) {
+                container.innerHTML = '<p class="text-sm text-emerald-500/60 italic text-center py-4">✓ No violations recorded — Clean session</p>';
+            } else {
+                container.innerHTML = violations.map(v => `
+                    <div class="bg-white/5 rounded-xl p-3 border-l-2 ${v.type === 'Cell Phone' || v.type === 'Focus Loss' ? 'border-red-500' : 'border-amber-500'}">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[10px] font-bold uppercase tracking-widest ${v.type === 'Cell Phone' ? 'text-red-400' : 'text-amber-400'}">${v.type}</span>
+                            <span class="text-[9px] text-slate-600 font-mono">${v.time || '---'}</span>
+                        </div>
+                        <p class="text-xs text-slate-400">${v.message || ''}</p>
+                    </div>
+                `).join('');
+            }
+            
+            document.getElementById('details-modal').classList.remove('hidden');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('details-modal').classList.add('hidden');
+        }
+
+        let lockConfigs = {};
+        let lockUnsubscribers = [];
+
+        function setupLockListeners() {
+            lockUnsubscribers.forEach(unsub => unsub());
+            lockUnsubscribers = [];
+            
+            const studentId = currentUser.email.split('@')[0];
+
+            assessments.forEach(assessment => {
+                if (!lockConfigs[assessment.id]) {
+                    lockConfigs[assessment.id] = { global: { is_global_locked: true }, student: {} };
+                }
+
+                const unsubGlobal = db.collection("student_results").doc(assessment.id).onSnapshot(doc => {
+                    if (doc.exists) {
+                        lockConfigs[assessment.id].global = doc.data();
+                    } else {
+                        lockConfigs[assessment.id].global = { is_global_locked: true };
+                    }
+                    renderAssessmentsGrid();
+                }, error => {
+                    console.error("Global config listen error:", error);
+                });
+                lockUnsubscribers.push(unsubGlobal);
+
+                const unsubStudent = db.collection("student_results").doc(assessment.id).collection("students").doc(studentId).onSnapshot(doc => {
+                    if (doc.exists) {
+                        lockConfigs[assessment.id].student = doc.data();
+                    } else {
+                        lockConfigs[assessment.id].student = {};
+                    }
+                    renderAssessmentsGrid();
+                }, error => {
+                    console.error("Student config listen error:", error);
+                });
+                lockUnsubscribers.push(unsubStudent);
+            });
+        }
+
+        function renderAssessmentsGrid() {
+            const grid = document.getElementById('assessments-grid');
+            grid.innerHTML = '';
+
+            for (const assessment of assessments) {
+                const config = (lockConfigs[assessment.id] && lockConfigs[assessment.id].global) || { is_global_locked: true };
+                const studentStatus = (lockConfigs[assessment.id] && lockConfigs[assessment.id].student) || {};
+                
+                const periodLocked = config.locked_periods && config.locked_periods.includes(studentData?.class_period);
+                const globalLocked = config.is_global_locked !== undefined ? config.is_global_locked : true;
+                
+                const isIndividuallyLocked = studentStatus?.details?.is_locked || studentStatus.status === "LOCKED_BY_PROCTOR";
+                const isUnlockedOverride = studentStatus?.details?.is_unlocked_override;
+
+                const isLocked = (globalLocked || periodLocked || isIndividuallyLocked) && !isUnlockedOverride;
+                
+                const card = document.createElement('div');
+                card.className = `glass-card p-6 flex flex-col gap-4 relative overflow-hidden group ${isLocked ? 'opacity-75' : ''}`;
+                
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="status-badge ${isLocked ? 'status-locked' : 'status-unlocked'}">
+                                ${isLocked ? 'Locked' : 'Available'}
+                            </span>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Assessment ID</p>
+                            <p class="text-xs font-mono text-slate-300">${assessment.id}</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xl font-bold mb-1 group-hover:text-orange-500 transition-colors">${assessment.title || assessment.id}</h3>
+                        <p class="text-sm text-slate-400 line-clamp-2">${assessment.description || 'No description provided.'}</p>
+                    </div>
+
+                    <div class="mt-auto pt-4 flex items-center justify-between">
+                        <div class="flex flex-col">
+                            <span class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Time Limit</span>
+                            <span class="text-sm font-bold">${assessment.time_limit || '---'} mins</span>
+                        </div>
+                        <button 
+                            onclick="launchAssessment('${assessment.id}')"
+                            ${isLocked ? 'disabled' : ''}
+                            class="launch-btn px-6 py-2 rounded-xl font-bold text-sm text-black disabled:opacity-50"
+                        >
+                            ${isLocked ? 'Access Denied' : 'Launch Exam'}
+                        </button>
+                    </div>
+
+                    ${isLocked ? `
+                    <div class="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center p-6 text-center z-10 pointer-events-none">
+                        <div class="transform translate-y-4 group-hover:translate-y-0 transition-transform">
+                             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-red-500 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                            <p class="font-black text-red-400 uppercase tracking-tighter">Station Restricted</p>
+                            <p class="text-[10px] text-slate-300">Wait for proctor to unlock your node</p>
+                        </div>
+                    </div>
+                    ` : ''}
+                `;
+                grid.appendChild(card);
+            }
+        }
+
+        function launchAssessment(id) {
+            // Forward to the assessment page with the student context
+            // Assuming the assessment pages are at /assessments/[id].html or similar
+            // But THE_PROCTOR uses a template. 
+            // The user usually opens THE_PROCTOR_TEMPLATE.html?id=...
+            window.location.href = `admin/THE_PROCTOR/THE_PROCTOR_TEMPLATE.html?id=${id}&student_id=${currentUser.email.split('@')[0]}`;
+        }
+    </script>
+</body>
+</html>
