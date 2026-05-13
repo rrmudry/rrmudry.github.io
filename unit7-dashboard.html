@@ -532,11 +532,28 @@
                 </div>`;
 
                 const escapedTopic = day.topic.replace(/'/g, "\\'");
-                html += `<div class="flex flex-wrap gap-3 mb-2"><button onclick="generateAnalogy('${escapedTopic}')" class="text-xs bg-gradient-to-r from-amber-500/20 to-orange-600/20 text-amber-400 px-4 py-2 rounded-lg hover:from-amber-500/30 hover:to-orange-600/30 border border-amber-500/30">✨ Generate Analogy</button>`;
+                html += `<div class="flex flex-wrap gap-3 mb-4">
+                    <button onclick="generateAnalogy('${escapedTopic}')" class="text-xs bg-gradient-to-r from-amber-500/20 to-orange-600/20 text-amber-400 px-4 py-2 rounded-lg hover:from-amber-500/30 hover:to-orange-600/30 border border-amber-500/30">✨ Generate Analogy</button>`;
+                
                 if(day.links) {
                     html += Object.entries(day.links).map(([lbl, u]) => `<a href="${u}" target="_blank" class="text-xs bg-white/5 hover:bg-white/10 px-4 py-2 rounded-lg border border-white/10 capitalize">Open ${lbl} ↗</a>`).join('');
                 }
                 html += `</div>`;
+
+                if(day.links) {
+                    Object.values(day.links).forEach(u => {
+                        if (u.includes('docs.google.com/document')) {
+                            const previewUrl = u.replace(/\/edit.*$/, '/preview');
+                            html += `<div class="mt-6 border border-white/10 rounded-xl overflow-hidden bg-white/5 h-[500px] shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-700">
+                                <div class="bg-white/10 px-4 py-2 text-[10px] text-white/60 uppercase font-bold tracking-widest border-b border-white/10 flex justify-between items-center">
+                                    <span class="flex items-center gap-2"><span class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span> Document Preview</span>
+                                    <span class="text-amber-500/50 font-mono italic">Google_Docs_Stream</span>
+                                </div>
+                                <iframe src="${previewUrl}" class="w-full h-full border-none" allow="autoplay"></iframe>
+                            </div>`;
+                        }
+                    });
+                }
 
                 content.innerHTML = html;
                 document.body.classList.add('no-scroll');

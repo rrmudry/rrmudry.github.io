@@ -19,7 +19,7 @@
 
 ### Day 3: The Van de Graaff Spark & Annotated Reading
 *   **Focus:** Introduce charge, fields, and action at a distance (HS-PS2-4, HS-PS3-5).
-*   **Activity:** Van de Graaff generator demonstrations (hair standing, sparks). Students work on an annotated reading regarding Coulomb's Law and the "Invisible Field" concept.
+*   **Activity:** Van de Graaff generator demonstrations (hair standing, sparks). Students work on the [Annotated Reading](https://docs.google.com/document/d/1sZa3-Rs5Z5VwNP0NrhcdVlkp_yHXZMGY0rN0QmRrf28/edit?usp=sharing) regarding Coulomb's Law and the "Invisible Field" concept.
 
 ### Day 4: Simple Circuits & Energy Flow
 *   **Focus:** Transitioning from static charge to moving current. Define voltage, current, and resistance.
