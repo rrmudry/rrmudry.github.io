@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Data Export // SIG_DATA</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -32,13 +33,17 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(34, 211, 238, 0.2); border-radius: 10px; }
     </style>
 </head>
 <body class="p-8 flex items-center justify-center">
     <div class="glass max-w-4xl w-full p-10 rounded-[2.5rem] space-y-10">
         <div class="text-center space-y-2">
             <h1 class="text-5xl font-orbitron font-black gradient-text tracking-tighter uppercase">Data_Export</h1>
-            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.5em]">Central Intelligence Archive // Supabase</p>
+            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.5em]">Central Intelligence Archive // Firebase</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
@@ -55,7 +60,7 @@
                 
                 <div class="flex flex-wrap items-center gap-2 p-3 bg-white/5 rounded-xl border border-white/5">
                     <span class="text-[8px] font-black text-slate-500 uppercase tracking-widest">Smart_Presets:</span>
-                    <button onclick="applyPreset('april6-10')" class="px-3 py-1 bg-slate-950 border border-white/10 rounded-lg text-[9px] font-black hover:border-cyan-500 hover:text-cyan-400 transition-all uppercase tracking-tighter">Week: April 06-10</button>
+                    <button onclick="applyPreset('unit6')" class="px-3 py-1 bg-slate-950 border border-white/10 rounded-lg text-[9px] font-black hover:border-cyan-500 hover:text-cyan-400 transition-all uppercase tracking-tighter">Unit 6 Assessments</button>
                 </div>
 
                 <div id="assignment-list" class="w-full bg-slate-900 border border-white/10 p-4 rounded-2xl max-h-[160px] overflow-y-auto custom-scrollbar space-y-2">
@@ -116,18 +121,27 @@
     </div>
 
     <script>
-        const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
-        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
-        const sbClient = supabase.createClient(SB_URL, SB_KEY);
+        const firebaseConfig = {
+            projectId: "site-6e500",
+            appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+            storageBucket: "site-6e500.firebasestorage.app",
+            apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+            authDomain: "site-6e500.firebaseapp.com",
+            messagingSenderId: "591530758858"
+        };
 
-        let aggregationMode = 'SUM'; // 'SUM' or 'AVERAGE'
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let aggregationMode = 'SUM'; // 'SUM' or 'AVERAGE' or 'DETAILED'
 
         const PRESETS = {
-            'april6-10': [
+            'unit6': [
                 'WaveMaster Lab',
                 'Wave Diffraction Lab',
                 'Wave Interference Tutorial',
-                'Unit 6 Rapid Review'
+                'Unit 6 Rapid Review',
+                'Waves_Unit_Test'
             ]
         };
 
@@ -159,10 +173,7 @@
             if (!query) return true;
             target = target.toLowerCase();
             query = query.toLowerCase();
-            
             if (target.includes(query)) return true;
-            
-            // Simple fuzzy: check if characters of query appear in order in target
             let i = 0, j = 0;
             while (i < target.length && j < query.length) {
                 if (target[i] === query[j]) j++;
@@ -173,14 +184,15 @@
 
         async function init() {
             try {
-                // Fetch unique assignments
-                const { data, error } = await sbClient
-                    .from('student_results')
-                    .select('assignment_name');
+                // Fetch assignments from 'assessments' collection
+                const assmtSnap = await db.collection('assessments').get();
+                const assessmentIds = assmtSnap.docs.map(doc => doc.id);
                 
-                if (error) throw error;
-
-                const uniques = [...new Set(data.map(r => r.assignment_name))].sort();
+                // Also scan 'student_results' collection group for any dynamic assignment names
+                const resultsSnap = await db.collectionGroup('students').limit(500).get();
+                const dynamicAssignments = [...new Set(resultsSnap.docs.map(doc => doc.data().assignment_name))];
+                
+                const uniques = [...new Set([...assessmentIds, ...dynamicAssignments])].filter(Boolean).sort();
                 const container = document.getElementById('assignment-list');
                 
                 container.innerHTML = uniques.map(a => `
@@ -202,6 +214,30 @@
             loadPreview();
         }
 
+        async function fetchFilteredResults(selectedAssignments) {
+            let allResults = [];
+            
+            // Because Firestore doesn't support 'in' on collectionGroup fields easily without large indexes,
+            // and our structure is nested student_results/{assignment}/students/{student},
+            // we iterate over the selected assignments for clarity and precision.
+            for (const assignment of selectedAssignments) {
+                const snap = await db.collection('student_results').doc(assignment).collection('students').get();
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    // Map Firestore fields to our internal schema
+                    allResults.push({
+                        student_id: data.student_id || doc.id,
+                        student_name: data.student_name || "Unknown",
+                        class_period: data.class_period || "---",
+                        assignment_name: data.assignment_name || assignment,
+                        score: data.score || 0,
+                        created_at: data.timestamp ? new Date(data.timestamp.seconds * 1000).toISOString() : new Date().toISOString()
+                    });
+                });
+            }
+            return allResults;
+        }
+
         async function loadPreview() {
             const selectedAssignments = Array.from(document.querySelectorAll('.assignment-cb:checked')).map(cb => cb.value);
             const tbody = document.getElementById('preview-body');
@@ -213,191 +249,114 @@
                 return;
             }
 
-            const { data, error } = await sbClient
-                .from('student_results')
-                .select('*')
-                .in('assignment_name', selectedAssignments);
-
-            if (error) {
-                console.error(error);
-                return;
-            }
-
-            const aggregated = reduceToGradebook(data, aggregationMode);
-            
-            // Apply Search Filter
-            const searchQuery = document.getElementById('student-search').value.trim();
-            const filteredStudents = Object.values(aggregated).filter(s => {
-                if (!searchQuery) return true;
-                const matchesId = s.id.includes(searchQuery);
-                const matchesName = fuzzyMatch(s.name, searchQuery);
-                return matchesId || matchesName;
-            });
-
-            countEl.textContent = filteredStudents.length;
-
-            const sortedStudents = filteredStudents.sort((a, b) => a.name.localeCompare(b.name));
-
-            if (aggregationMode === 'DETAILED') {
-                // Update headers for detailed view
-                document.getElementById('table-header-row').innerHTML = `
-                    <th class="p-4 border-b border-white/5">Student_Name</th>
-                    <th class="p-4 border-b border-white/5">Assignment_Name</th>
-                    <th class="p-4 border-b border-white/5">Score</th>
-                    <th class="p-4 border-b border-white/5 text-right">Submitted</th>
-                `;
-
-                // Flatten to individual assignments
-                const detailedRows = sortedStudents.flatMap(s => s.raw.map(r => ({
-                    name: s.name,
-                    id: s.id,
-                    assignment: r.assignment_name,
-                    score: r.score,
-                    date: new Date(r.created_at).toLocaleDateString()
-                })));
-
-                tbody.innerHTML = detailedRows.slice(0, 30).map(r => `
-                    <tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                        <td class="p-4 font-medium text-slate-300 capitalize">${r.name} <span class="text-[9px] text-slate-600 block">${r.id}</span></td>
-                        <td class="p-4 font-bold text-cyan-400">${r.assignment}</td>
-                        <td class="p-4 font-black text-violet-400">${r.score}</td>
-                        <td class="p-4 text-right text-slate-600 font-mono text-[10px]">${r.date}</td>
-                    </tr>
-                `).join('');
-
-                if (detailedRows.length > 30) {
-                    tbody.innerHTML += `<tr><td colspan="4" class="p-4 text-center text-[8px] uppercase tracking-widest text-slate-700 font-bold">+ ${detailedRows.length - 30} additional records truncated from preview</td></tr>`;
-                }
-            } else {
-                // Restore standard headers
-                document.getElementById('table-header-row').innerHTML = `
-                    <th class="p-4 border-b border-white/5">Student_ID</th>
-                    <th class="p-4 border-b border-white/5">Student_Name</th>
-                    <th class="p-4 border-b border-white/5">Period</th>
-                    <th class="p-4 border-b border-white/5">Total_Score</th>
-                    <th class="p-4 border-b border-white/5 text-right">Count</th>
-                `;
-
-                tbody.innerHTML = sortedStudents.slice(0, 15).map(s => `
-                    <tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                        <td class="p-4 font-mono font-bold text-cyan-400">${s.id}</td>
-                        <td class="p-4 font-medium text-slate-300 capitalize">${s.name}</td>
-                        <td class="p-4 font-bold text-slate-400">P${s.period || '?'}</td>
-                        <td class="p-4 font-black text-violet-400">${s.totalScore}</td>
-                        <td class="p-4 text-right">
-                            <span class="px-2 py-0.5 rounded-full bg-slate-800 text-[8px] font-black text-slate-500 border border-white/5">${s.assignmentCount} Assignments</span>
-                        </td>
-                    </tr>
-                `).join('');
+            try {
+                const data = await fetchFilteredResults(selectedAssignments);
+                const aggregated = reduceToGradebook(data, aggregationMode);
                 
-                if (sortedStudents.length > 15) {
-                    tbody.innerHTML += `<tr><td colspan="5" class="p-4 text-center text-[8px] uppercase tracking-widest text-slate-700 font-bold">+ ${sortedStudents.length - 15} additional students truncated from preview</td></tr>`;
+                const searchQuery = document.getElementById('student-search').value.trim();
+                const filteredStudents = Object.values(aggregated).filter(s => {
+                    if (!searchQuery) return true;
+                    return s.id.includes(searchQuery) || fuzzyMatch(s.name, searchQuery);
+                });
+
+                countEl.textContent = filteredStudents.length;
+                const sortedStudents = filteredStudents.sort((a, b) => a.name.localeCompare(b.name));
+
+                if (aggregationMode === 'DETAILED') {
+                    document.getElementById('table-header-row').innerHTML = `
+                        <th class="p-4 border-b border-white/5">Student_Name</th>
+                        <th class="p-4 border-b border-white/5">Assignment_Name</th>
+                        <th class="p-4 border-b border-white/5">Score</th>
+                        <th class="p-4 border-b border-white/5 text-right">Submitted</th>
+                    `;
+                    const detailedRows = sortedStudents.flatMap(s => s.raw.map(r => ({
+                        name: s.name, id: s.id, assignment: r.assignment_name, score: r.score, date: new Date(r.created_at).toLocaleDateString()
+                    })));
+
+                    tbody.innerHTML = detailedRows.slice(0, 30).map(r => `
+                        <tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                            <td class="p-4 font-medium text-slate-300 capitalize">${r.name} <span class="text-[9px] text-slate-600 block">${r.id}</span></td>
+                            <td class="p-4 font-bold text-cyan-400">${r.assignment}</td>
+                            <td class="p-4 font-black text-violet-400">${r.score}</td>
+                            <td class="p-4 text-right text-slate-600 font-mono text-[10px]">${r.date}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    document.getElementById('table-header-row').innerHTML = `
+                        <th class="p-4 border-b border-white/5">Student_ID</th>
+                        <th class="p-4 border-b border-white/5">Student_Name</th>
+                        <th class="p-4 border-b border-white/5">Period</th>
+                        <th class="p-4 border-b border-white/5">Total_Score</th>
+                        <th class="p-4 border-b border-white/5 text-right">Count</th>
+                    `;
+                    tbody.innerHTML = sortedStudents.slice(0, 15).map(s => `
+                        <tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                            <td class="p-4 font-mono font-bold text-cyan-400">${s.id}</td>
+                            <td class="p-4 font-medium text-slate-300 capitalize">${s.name}</td>
+                            <td class="p-4 font-bold text-slate-400">P${s.period || '?'}</td>
+                            <td class="p-4 font-black text-violet-400">${s.totalScore}</td>
+                            <td class="p-4 text-right"><span class="px-2 py-0.5 rounded-full bg-slate-800 text-[8px] font-black text-slate-500 border border-white/5">${s.assignmentCount} Assignments</span></td>
+                        </tr>
+                    `).join('');
                 }
+            } catch (err) {
+                console.error("Preview failed:", err);
+                tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-rose-500 font-bold uppercase">Sync_Error</td></tr>';
             }
         }
 
         function reduceToGradebook(rows, mode = 'SUM') {
-            // Group by student_id and sum scores
             const grouped = rows.reduce((acc, row) => {
                 const id = row.student_id || 'UNKNOWN';
-                if (!acc[id]) {
-                    acc[id] = {
-                        id: id,
-                        name: row.student_name,
-                        period: row.class_period,
-                        totalScore: 0,
-                        assignmentCount: 0,
-                        raw: []
-                    };
-                }
-                
-                // Add score
+                if (!acc[id]) acc[id] = { id: id, name: row.student_name, period: row.class_period, totalScore: 0, assignmentCount: 0, raw: [] };
                 acc[id].totalScore += (row.score || 0);
                 acc[id].assignmentCount += 1;
                 acc[id].raw.push(row);
-                
-                // Keep latest name/period if available
                 if (row.student_name) acc[id].name = row.student_name;
                 if (row.class_period) acc[id].period = row.class_period;
-                
                 return acc;
             }, {});
 
             if (mode === 'AVERAGE') {
-                Object.values(grouped).forEach(s => {
-                    s.totalScore = Math.round(s.totalScore / s.assignmentCount);
-                });
+                Object.values(grouped).forEach(s => s.totalScore = Math.round(s.totalScore / s.assignmentCount));
             }
-
             return grouped;
         }
 
         async function exportCSV() {
             const selectedAssignments = Array.from(document.querySelectorAll('.assignment-cb:checked')).map(cb => cb.value);
-            if (selectedAssignments.length === 0) {
-                alert("Please select at least one assignment.");
-                return;
+            if (selectedAssignments.length === 0) { alert("Please select at least one assignment."); return; }
+
+            try {
+                const data = await fetchFilteredResults(selectedAssignments);
+                const aggregated = reduceToGradebook(data, aggregationMode);
+                const searchQuery = document.getElementById('student-search').value.trim();
+                const filteredStudents = Object.values(aggregated).filter(s => {
+                    if (!searchQuery) return true;
+                    return s.id.includes(searchQuery) || fuzzyMatch(s.name, searchQuery);
+                });
+
+                const sortedStudents = filteredStudents.sort((a, b) => a.name.localeCompare(b.name));
+                let headers, rows;
+                if (aggregationMode === 'DETAILED') {
+                    headers = ["Student_ID", "Student_Name", "Assignment_Name", "Score", "Submitted_At"];
+                    rows = sortedStudents.flatMap(s => s.raw.map(r => [s.id, s.name, r.assignment_name, r.score, r.created_at]));
+                } else {
+                    headers = ["Student_ID", "Student_Name", "Class_Period", "Total_Score", "Assignment_Count"];
+                    rows = sortedStudents.map(s => [s.id, s.name, s.period || "", s.totalScore, s.assignmentCount]);
+                }
+
+                const csvContent = [headers.join(","), ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))].join("\n");
+                const filename = `${aggregationMode}_REPORT_${selectedAssignments.length}_ITEMS_${new Date().toISOString().split('T')[0]}.csv`;
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement("a");
+                link.setAttribute("href", URL.createObjectURL(blob));
+                link.setAttribute("download", filename);
+                link.click();
+            } catch (err) {
+                console.error("Export failed:", err);
+                alert("Critical Export Failure");
             }
-
-            const { data, error } = await sbClient
-                .from('student_results')
-                .select('*')
-                .in('assignment_name', selectedAssignments);
-
-            if (error) {
-                alert("Export Failure");
-                return;
-            }
-
-            const aggregated = reduceToGradebook(data, aggregationMode);
-            
-            // Apply Search Filter for Export
-            const searchQuery = document.getElementById('student-search').value.trim();
-            const filteredStudents = Object.values(aggregated).filter(s => {
-                if (!searchQuery) return true;
-                const matchesId = s.id.includes(searchQuery);
-                const matchesName = fuzzyMatch(s.name, searchQuery);
-                return matchesId || matchesName;
-            });
-
-            const sortedStudents = filteredStudents.sort((a, b) => a.name.localeCompare(b.name));
-
-            let headers, rows;
-            if (aggregationMode === 'DETAILED') {
-                headers = ["Student_ID", "Student_Name", "Assignment_Name", "Score", "Submitted_At"];
-                rows = sortedStudents.flatMap(s => s.raw.map(r => [
-                    s.id,
-                    s.name,
-                    r.assignment_name,
-                    r.score,
-                    r.created_at
-                ]));
-            } else {
-                headers = ["Student_ID", "Student_Name", "Class_Period", "Total_Score", "Assignment_Count"];
-                rows = sortedStudents.map(s => [
-                    s.id,
-                    s.name,
-                    s.period || "",
-                    s.totalScore,
-                    s.assignmentCount
-                ]);
-            }
-
-            const csvContent = [
-                headers.join(","),
-                ...rows.map(row => row.map(cell => `"${cell}"`).join(","))
-            ].join("\n");
-
-            const filename = `${aggregationMode}_REPORT_${selectedAssignments.length}_ITEMS_${new Date().toISOString().split('T')[0]}.csv`;
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            link.setAttribute("download", filename);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
         }
 
         init();

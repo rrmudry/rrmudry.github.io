@@ -9,8 +9,9 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <!-- React & ReactDOM (Development versions for CDN usage) -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
@@ -25,6 +26,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <script>
+        const firebaseConfig = {
+            projectId: "site-6e500",
+            appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+            storageBucket: "site-6e500.firebasestorage.app",
+            apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+            authDomain: "site-6e500.firebaseapp.com",
+            messagingSenderId: "591530758858"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         tailwind.config = {
             theme: {
                 extend: {
@@ -94,11 +106,6 @@
 
     <script type="text/babel">
         const { useState, useEffect, useRef, useCallback } = React;
-
-        // --- Supabase Client ---
-        const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
-        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
-        const sbClient = supabase.createClient(SB_URL, SB_KEY);
 
         // --- SVG Icons ---
         const PlayIcon = ({ size = 24, fill = "none", className = "" }) => (
@@ -205,6 +212,7 @@
             const [student, setStudent] = useState({ id: '', name: '', period: null, isLogged: false });
             const [step, setStep] = useState(0);
             const [isSyncing, setIsSyncing] = useState(false);
+            const syncStateRef = useRef({ isSyncing: false, needsSync: false });
 
             // Wave States
             const [analogDraw1, setAnalogDraw1] = useState(new Array(WAVE_RESOLUTION).fill(0.5));
@@ -372,9 +380,15 @@
                 setScore(calculatedScore);
             };
 
-            // Sync Results to Supabase
+            // Sync Results to Firestore
             const syncResults = useCallback(async (currentStep, currentQuizzes, currentScore) => {
-                if (!student.isLogged) return;
+                if (!student.id) return;
+                if (syncStateRef.current.isSyncing) {
+                    syncStateRef.current.needsSync = true;
+                    return;
+                }
+                syncStateRef.current.isSyncing = true;
+                syncStateRef.current.needsSync = false;
                 setIsSyncing(true);
 
                 try {
@@ -391,6 +405,7 @@
                         class_period: student.period,
                         assignment_name: assignmentName,
                         score: Math.round(totalCompletion),
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                         details: {
                             currentStep: currentStep,
                             quizzesPassed: currentQuizzes,
@@ -398,21 +413,24 @@
                         }
                     };
 
-                    const { data } = await sbClient.from('student_results')
-                        .select('id')
-                        .eq('student_id', student.id)
-                        .eq('assignment_name', assignmentName)
-                        .limit(1);
+                    const batch = db.batch();
+                    // 1. Live Session Node (Nested)
+                    const liveRef = db.collection('student_results').doc(assignmentName).collection('students').doc(student.id);
+                    batch.set(liveRef, payload, { merge: true });
 
-                    if (data && data.length > 0) {
-                        await sbClient.from('student_results').update(payload).eq('id', data[0].id);
-                    } else {
-                        await sbClient.from('student_results').insert([payload]);
-                    }
+                    // 2. Archive Node (Flat)
+                    const archiveRef = db.collection('student_results_archive').doc(`${student.id}_${assignmentName}`);
+                    batch.set(archiveRef, payload, { merge: true });
+
+                    await batch.commit();
                 } catch (e) {
                     console.error("Sync Error:", e);
                 } finally {
                     setIsSyncing(false);
+                    syncStateRef.current.isSyncing = false;
+                    if (syncStateRef.current.needsSync) {
+                        syncResults(currentStep, currentQuizzes, currentScore);
+                    }
                 }
             }, [student]);
 
@@ -590,24 +608,29 @@
                     const urlParams = new URLSearchParams(window.location.search);
                     let urlPeriod = urlParams.get('p') || urlParams.get('period');
 
-                    const { data, error } = await sbClient.from('student_results')
-                        .select('student_name, class_period, details')
-                        .eq('student_id', id)
-                        .order('created_at', { ascending: false })
-                        .limit(1)
-                        .maybeSingle();
+                    const assignmentName = "Wave Signals Lab";
+                    // 1. Check Roster
+                    const rosterSnap = await db.collection('roster').doc(id).get();
 
-                    if (data) {
+                    if (rosterSnap.exists) {
+                        const rosterData = rosterSnap.data();
                         const studentData = {
                             id: id,
-                            name: data.student_name,
-                            period: urlPeriod || data.class_period || null,
+                            name: rosterData.full_name,
+                            period: urlPeriod || rosterData.class_period || null,
                             isLogged: true
                         };
                         setStudent(studentData);
-                        if (data.details) {
-                            if (data.details.currentStep !== undefined) setStep(data.details.currentStep);
-                            if (data.details.quizzesPassed) setQuizzesPassed(data.details.quizzesPassed);
+
+                        // 2. Check for existing progress
+                        const progressSnap = await db.collection('student_results').doc(assignmentName).collection('students').doc(id).get();
+
+                        if (progressSnap.exists) {
+                            const data = progressSnap.data();
+                            if (data.details) {
+                                if (data.details.currentStep !== undefined) setStep(data.details.currentStep);
+                                if (data.details.quizzesPassed) setQuizzesPassed(data.details.quizzesPassed);
+                            }
                         }
                     } else if (!showNameEntry) {
                         setShowNameEntry(true);

@@ -8,7 +8,20 @@
     
     <!-- Dependencies -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            projectId: "site-6e500",
+            appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+            storageBucket: "site-6e500.firebasestorage.app",
+            apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+            authDomain: "site-6e500.firebaseapp.com",
+            messagingSenderId: "591530758858"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -66,10 +79,6 @@
     <script type="text/babel">
         const { useState, useEffect, useRef, useCallback, useMemo } = React;
 
-        // --- Supabase Config ---
-        const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
-        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
-        const sbClient = supabase.createClient(SB_URL, SB_KEY);
 
         // --- Lucide Icon Wrapper ---
         const Icon = ({ name, className = "w-5 h-5", size, color }) => {
@@ -278,6 +287,8 @@
             const [s3UserW, setS3UserW] = useState(3);
             const [s3Status, setS3Status] = useState('building');
             const [s3Feedback, setS3Feedback] = useState('');
+            const [isSyncing, setIsSyncing] = useState(false);
+            const syncStateRef = useRef({ isSyncing: false, needsSync: false });
 
             // Auto-scroll sidebar when status changes
             useEffect(() => {
@@ -307,54 +318,57 @@
                 syncResults();
             }, [currentView]);
 
-            const syncResults = async () => {
+            const syncResults = useCallback(async () => {
                 if (!user || !user.id) return;
+                if (syncStateRef.current.isSyncing) {
+                    syncStateRef.current.needsSync = true;
+                    return;
+                }
+                syncStateRef.current.isSyncing = true;
+                syncStateRef.current.needsSync = false;
+                setIsSyncing(true);
+
                 const scores = { 'intro': 5, 'stage1': 20, 'stage1_drill': 35, 'review1': 50, 'stage2': 65, 'review2': 80, 'stage3': 95, 'completed': 100 };
                 const currentScore = scores[currentView] || 0;
                 const indicator = document.getElementById('sync-indicator');
+                const assignmentName = "Wave Interference Tutorial";
                 
                 try {
                     if (indicator) indicator.innerText = "Syncing...";
                     
-                    // Check for existing record and its score
-                    const { data: existing, error: fetchError } = await sbClient
-                        .from('student_results')
-                        .select('id, score')
-                        .eq('student_id', user.id)
-                        .eq('assignment_name', "Wave Interference Tutorial")
-                        .maybeSingle();
-
-                    if (fetchError) throw fetchError;
-
-                    // If existing score is already higher or equal, don't overwrite (prevent regression)
-                    if (existing && existing.score >= currentScore) {
-                        if (indicator) indicator.innerText = "Saved";
-                        return;
-                    }
-
                     const payload = {
                         student_name: user.name,
                         student_id: user.id,
                         class_period: user.period,
-                        assignment_name: "Wave Interference Tutorial",
+                        assignment_name: assignmentName,
                         score: currentScore,
-                        details: { view: currentView, timestamp: new Date().toISOString() }
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                        details: { view: currentView, ts: new Date().toISOString() }
                     };
 
-                    let result;
-                    if (existing) {
-                        result = await sbClient.from('student_results').update(payload).eq('id', existing.id);
-                    } else {
-                        result = await sbClient.from('student_results').insert([payload]);
-                    }
+                    const batch = db.batch();
+                    // 1. Live Session Node (Nested)
+                    const liveRef = db.collection('student_results').doc(assignmentName).collection('students').doc(user.id);
+                    batch.set(liveRef, payload, { merge: true });
 
-                    if (result.error) throw result.error;
+                    // 2. Archive Node (Flat)
+                    const archiveRef = db.collection('student_results_archive').doc(`${user.id}_${assignmentName}`);
+                    batch.set(archiveRef, payload, { merge: true });
+
+                    await batch.commit();
+
                     if (indicator) indicator.innerText = "Saved";
                 } catch (e) {
                     console.error("Sync Error:", e);
                     if (indicator) indicator.innerText = "Sync Error";
+                } finally {
+                    setIsSyncing(false);
+                    syncStateRef.current.isSyncing = false;
+                    if (syncStateRef.current.needsSync) {
+                        syncResults();
+                    }
                 }
-            };
+            }, [user, currentView]);
 
             const sidebarRefInternal = useRef(null);
             const canvasRef = useRef(null);
@@ -840,17 +854,14 @@
                     const urlParams = new URLSearchParams(window.location.search);
                     const urlPeriod = urlParams.get('p') || urlParams.get('period');
 
-                    const { data } = await sbClient.from('student_results')
-                        .select('student_name, class_period')
-                        .eq('student_id', idInput)
-                        .order('created_at', { ascending: false })
-                        .limit(1)
-                        .maybeSingle();
+                    // 1. Check Roster
+                    const rosterSnap = await db.collection('roster').doc(idInput).get();
 
-                    if (data) { 
+                    if (rosterSnap.exists) { 
+                        const data = rosterSnap.data();
                         setUser({ 
                             id: idInput, 
-                            name: data.student_name,
+                            name: data.full_name,
                             period: urlPeriod || data.class_period || null
                         }); 
                     }

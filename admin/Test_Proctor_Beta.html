@@ -14,8 +14,21 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface"></script>
 
-    <!-- Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            projectId: "site-6e500",
+            appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+            storageBucket: "site-6e500.firebasestorage.app",
+            apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+            authDomain: "site-6e500.firebaseapp.com",
+            messagingSenderId: "591530758858"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
 
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -203,11 +216,6 @@
     <div id="toast-container" class="fixed top-6 right-6 z-50 flex flex-col gap-2 w-80"></div>
 
     <script>
-        // Supabase Initialization
-        const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
-        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
-        const sbClient = supabase.createClient(SB_URL, SB_KEY);
-
         // Initialize Lucide Icons
         lucide.createIcons();
 
@@ -589,15 +597,16 @@
             });
             console.warn(`[PROCTOR LOG] ${type}: ${message}`);
 
-            // Send to Supabase
+            // Send to Firestore
             try {
-                await sbClient.from('proctor_events').insert([{
+                await db.collection('proctor_events').add({
                     student_name: studentName,
                     event_type: type,
-                    details: message
-                }]);
+                    details: message,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
             } catch (err) {
-                console.error("Failed to insert proctor event into Supabase", err);
+                console.error("Failed to insert proctor event into Firestore", err);
             }
         }
 
