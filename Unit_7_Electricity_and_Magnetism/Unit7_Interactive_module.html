@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 7: The Invisible Force</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Chosen Palette: Warm Neutrals with Electric Blue and Amber Accents -->
+    <!-- Application Structure Plan: The application transforms a static, bilingual reading assignment into a 'Guided Interactive Reading'. It uses a split-pane dashboard layout. The left pane provides navigation and persistent AVID tools (Checklist, Margin Notes, Reflection), acting as a digital workbook. The right pane displays the content, paginated by paragraph. Each paragraph is paired with a dynamic, non-SVG interaction or visualization (e.g., Chart.js for Coulomb's Law) that visually demonstrates the physical concept being read, enhancing comprehension and engagement. This structure supports the FNT (Focused Note-Taking) process by scaffolding the reading and processing phases. -->
+    <!-- Visualization & Content Choices: 
+        1. Paragraph 1 (Field) -> Goal: Inform -> Method: HTML/CSS pulsing animation -> Justification: Visually represents 'invisible influence' and action at a distance. Library: Vanilla CSS.
+        2. Paragraph 2 (Coulomb) -> Goal: Compare/Relationships -> Method: Chart.js Line Chart (Force vs Distance) with interactive slider -> Justification: Allows students to physically see the non-linear drop in force as distance doubles, reinforcing the text. Library: Chart.js.
+        3. Paragraph 3 (Current) -> Goal: Change/Process -> Method: Interactive HTML toggles (Source, Conductor, Loop) -> Justification: Gamifies the 'three requirements' text, requiring active participation to 'turn on' the current. Library: Vanilla JS/HTML.
+        4. Paragraph 4 (Engineering) -> Goal: Inform/Context -> Method: Chart.js Doughnut Gauge (Resistance vs Heat) -> Justification: Connects 'short circuit' concept to a visual warning gauge. Library: Chart.js.
+        CONFIRMING: NO SVG used. NO Mermaid JS used. 
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Strict Chart Container Styling */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Custom Animations for Non-SVG graphics */
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+
+            100% {
+                transform: scale(2.5);
+                opacity: 0;
+            }
+        }
+
+        .field-ring {
+            position: absolute;
+            border: 2px solid #3b82f6;
+            /* Tailwind blue-500 */
+            border-radius: 50%;
+            animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+
+        .field-ring:nth-child(2) {
+            animation-delay: 0.6s;
+        }
+
+        .field-ring:nth-child(3) {
+            animation-delay: 1.2s;
+        }
+
+        /* Hide scrollbar for clean UI */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 h-screen flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header
+        class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-6 py-4 flex justify-between items-center shrink-0 z-10 shadow-lg">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-50" id="app-title">Unit 7: The Invisible Force</h1>
+            <p class="text-sm text-slate-400 italic mt-1" id="eq-text">Essential Question: How do invisible fields and
+                the movement of electrons power our modern world?</p>
+        </div>
+        <div class="flex items-center space-x-4">
+            <span class="text-sm font-medium text-slate-400">Language:</span>
+            <div class="flex bg-slate-800 rounded-lg p-1 border border-slate-700">
+                <button onclick="setLanguage('en')" id="btn-en"
+                    class="px-3 py-1 text-sm rounded-md font-semibold bg-slate-700 shadow-md text-blue-400 transition-all">English</button>
+                <button onclick="setLanguage('es')" id="btn-es"
+                    class="px-3 py-1 text-sm rounded-md font-semibold text-slate-500 hover:text-slate-300 transition-all">Español</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-1 flex overflow-hidden">
+
+        <!-- Left Sidebar: AVID Digital Notebook -->
+        <aside
+            class="w-1/3 min-w-[320px] max-w-[400px] bg-slate-900/50 backdrop-blur-md border-r border-slate-800 flex flex-col overflow-y-auto">
+            <div class="p-6">
+                <h2
+                    class="text-lg font-bold text-slate-200 mb-2 border-b border-slate-700 pb-2 flex items-center justify-between">
+                    <span id="avid-title">AVID Workspace</span>
+                    <span class="text-xl">📝</span>
+                </h2>
+                <p class="text-xs text-slate-400 mb-6" id="avid-intro">Use this digital notebook to track your reading
+                    progress, complete the checklist, and record your margin notes. This supports the 'Processing' phase
+                    of Focused Note-Taking.</p>
+
+                <!-- Navigation -->
+                <div class="mb-8">
+                    <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3" id="nav-title">
+                        Reading Sections</h3>
+                    <nav class="space-y-2" id="nav-container">
+                        <!-- Populated by JS -->
+                    </nav>
+                </div>
+
+                <!-- Checklist -->
+                <div class="mb-8 bg-white/5 backdrop-blur-sm p-4 rounded-xl border border-white/10 shadow-lg">
+                    <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-3" id="checklist-title">
+                        Checklist</h3>
+                    <div class="space-y-3" id="checklist-container">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Reflection (Phase 4) -->
+                <div class="bg-amber-500/10 backdrop-blur-sm p-4 rounded-xl border border-amber-500/20 shadow-lg">
+                    <h3 class="text-sm font-bold text-amber-400 uppercase tracking-wider mb-2">FNT Phase 4: Reflection
+                    </h3>
+                    <p class="text-sm text-amber-200/80 italic mb-3" id="reflection-prompt">Based on the reading, how is
+                        the transition from "Static Electricity" to "Current Electricity" similar to the transition from
+                        "Potential Energy" to "Kinetic Energy"?</p>
+                    <textarea
+                        class="w-full text-sm p-2 rounded-lg border border-amber-500/30 bg-slate-950/50 text-slate-200 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-none transition-all placeholder-slate-600"
+                        rows="4" placeholder="Write your reflection here..."></textarea>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Right Content Area: Interactive Reading -->
+        <section class="flex-1 bg-slate-950 overflow-y-auto relative p-8 md:p-12">
+            <div class="max-w-4xl mx-auto">
+
+                <!-- Section Intro -->
+                <div class="mb-8 pb-4 border-b border-slate-800">
+                    <h2 class="text-3xl font-bold text-slate-100 mb-4" id="content-title">Welcome</h2>
+                    <p class="text-slate-400 leading-relaxed text-lg" id="content-text">Select a section from the left
+                        to begin reading.</p>
+                </div>
+
+                <!-- Interactive Visualization Container -->
+                <div id="interactive-zone" class="bg-slate-900/40 backdrop-blur-md rounded-2xl border border-white/10 p-6 mb-8 hidden shadow-2xl relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 pointer-events-none"></div>
+                    <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 text-center relative z-10"
+                        id="viz-title">Interactive Model</h3>
+
+                    <!-- Dynamic Viz Containers -->
+                    <div id="viz-1" class="hidden flex-col items-center justify-center h-64 relative z-10">
+                        <div class="relative w-32 h-32 flex items-center justify-center">
+                            <div class="field-ring w-full h-full shadow-[0_0_20px_rgba(59,130,246,0.8)]"></div>
+                            <div class="field-ring w-full h-full shadow-[0_0_20px_rgba(59,130,246,0.8)]"></div>
+                            <div class="field-ring w-full h-full shadow-[0_0_20px_rgba(59,130,246,0.8)]"></div>
+                            <div
+                                class="w-8 h-8 bg-blue-500 rounded-full shadow-[0_0_30px_rgba(59,130,246,1)] z-10 flex items-center justify-center text-white font-bold text-xl ring-2 ring-blue-300">
+                                +</div>
+                        </div>
+                        <p class="mt-8 text-sm text-slate-400 italic text-center max-w-sm" id="viz-1-desc">An Electric
+                            Field extends outward, influencing other charges without physical contact.</p>
+                    </div>
+
+                    <div id="viz-2" class="hidden flex-col items-center w-full relative z-10">
+                        <div class="chart-container">
+                            <canvas id="coulombChart"></canvas>
+                        </div>
+                        <div class="w-full max-w-md mt-4 flex items-center space-x-4 bg-slate-900/50 p-4 rounded-xl border border-white/5">
+                            <label class="text-sm font-medium text-slate-400" id="slider-label">Distance:</label>
+                            <input type="range" id="distanceSlider" min="1" max="5" value="1"
+                                class="flex-1 accent-blue-500 bg-slate-800 rounded-lg cursor-pointer">
+                            <span id="distanceValue" class="text-sm font-bold w-8 text-right text-blue-400">1x</span>
+                        </div>
+                    </div>
+
+                    <div id="viz-3" class="hidden flex-col items-center justify-center py-6 w-full relative z-10">
+                        <div class="grid grid-cols-3 gap-4 mb-8 w-full max-w-lg">
+                            <button onclick="toggleCircuit('source')" id="btn-source"
+                                class="p-4 rounded-xl border-2 border-slate-700 bg-slate-800 text-slate-400 font-bold transition-all hover:bg-slate-700 hover:border-slate-600 hover:text-slate-200 shadow-lg">1.
+                                Source (Battery)</button>
+                            <button onclick="toggleCircuit('conductor')" id="btn-conductor"
+                                class="p-4 rounded-xl border-2 border-slate-700 bg-slate-800 text-slate-400 font-bold transition-all hover:bg-slate-700 hover:border-slate-600 hover:text-slate-200 shadow-lg">2.
+                                Conductor (Wire)</button>
+                            <button onclick="toggleCircuit('loop')" id="btn-loop"
+                                class="p-4 rounded-xl border-2 border-slate-700 bg-slate-800 text-slate-400 font-bold transition-all hover:bg-slate-700 hover:border-slate-600 hover:text-slate-200 shadow-lg">3.
+                                Complete Loop</button>
+                        </div>
+                        <div class="relative w-64 h-32 border-4 border-slate-800 rounded-full flex items-center justify-center transition-all duration-500 bg-slate-950/50 shadow-inner"
+                            id="circuit-wire">
+                            <div id="circuit-flow"
+                                class="absolute inset-0 rounded-full border-4 border-transparent transition-all duration-500">
+                            </div>
+                            <div id="circuit-bulb"
+                                class="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center text-2xl shadow-inner transition-all duration-500 z-10 border-2 border-slate-700">
+                                💡</div>
+                        </div>
+                        <p class="mt-6 text-sm font-medium text-amber-500 text-center h-5 tracking-wide" id="circuit-status"></p>
+                    </div>
+
+                    <div id="viz-4" class="hidden flex-col items-center w-full relative z-10">
+                        <div class="chart-container" style="height: 250px;">
+                            <canvas id="gaugeChart"></canvas>
+                        </div>
+                        <div class="w-full max-w-md mt-4 flex items-center space-x-4 bg-slate-900/50 p-4 rounded-xl border border-white/5">
+                            <label class="text-sm font-medium text-slate-400" id="res-slider-label">Resistance:</label>
+                            <input type="range" id="resSlider" min="0" max="100" value="50"
+                                class="flex-1 accent-amber-500 bg-slate-800 rounded-lg cursor-pointer">
+                            <span id="resValue" class="text-sm font-bold w-12 text-right text-emerald-400">High</span>
+                        </div>
+                        <p class="mt-4 text-xs text-slate-500 text-center uppercase tracking-widest font-semibold">Lower resistance increases current.<br/>Near zero resistance causes a short circuit.</p>
+                    </div>
+
+                </div>
+
+                <!-- Digital Margin Notes Container -->
+                <div id="margin-notes-zone"
+                    class="hidden grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 pt-8 border-t border-slate-800">
+                    <div class="bg-slate-900/50 backdrop-blur-sm p-4 rounded-xl border border-white/10 shadow-lg">
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2"
+                            id="label-gist">Left Margin: Gist Statement</label>
+                        <textarea
+                            class="w-full text-sm p-2 rounded-lg border border-slate-700 bg-slate-950 text-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all placeholder-slate-600"
+                            rows="2" placeholder="10 words or less..."></textarea>
+                    </div>
+                    <div class="bg-slate-900/50 backdrop-blur-sm p-4 rounded-xl border border-white/10 shadow-lg">
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2"
+                            id="label-l2">Right Margin: Level 2 Question</label>
+                        <textarea
+                            class="w-full text-sm p-2 rounded-lg border border-slate-700 bg-slate-950 text-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all placeholder-slate-600"
+                            rows="2" placeholder="Analyze the text..."></textarea>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Data Structure storing English and Spanish content
+        const appData = {
+            en: {
+                title: "Unit 7: The Invisible Force",
+                eq: "Essential Question: How do invisible fields and the movement of electrons power our modern world?",
+                avidWorkspace: "AVID Workspace",
+                avidIntro: "Use this digital notebook to track your reading progress, complete the checklist, and record your margin notes. This supports the 'Processing' phase of Focused Note-Taking.",
+                navTitle: "Reading Sections",
+                checklistTitle: "AVID Checklist",
+                labels: { gist: "Left Margin: Gist Statement", l2: "Right Margin: Level 2 Question", viz: "Interactive Model" },
+                sections: [
+                    {
+                        id: "p1",
+                        title: "Paragraph 1: The Concept of the Field",
+                        text: "In the previous weeks, we explored how a rocket moves through the air based on physical contact and thrust. However, electricity and magnetism work differently—they involve \"action at a distance.\" Imagine a Van de Graaff generator: when it is turned on, your hair might stand up before you even touch the machine. This happens because of an Electric Field. A field is an invisible region of influence where a force is felt. Just like gravity keeps your feet on the ground without a physical rope pulling you down, electric fields exert force on charges. In this unit, we move from the visible world of Newtonian mechanics into the invisible world of fields.",
+                        vizDesc: "An Electric Field extends outward, influencing other charges without physical contact."
+                    },
+                    {
+                        id: "p2",
+                        title: "Paragraph 2: Coulomb’s Law and Charge",
+                        text: "At the heart of every spark is the Electric Charge. Atoms contain protons (positive) and electrons (negative). Coulomb’s Law describes the mathematical relationship between these charges: like charges repel each other, while opposite charges attract. The strength of this force depends on two things: the amount of charge and the distance between them. If you double the distance between two charged objects, the force doesn't just get smaller; it drops significantly. This is why a spark from a Van de Graaff generator only jumps when your hand gets close enough—the field strength must be high enough to \"break\" the air.",
+                        sliderLabel: "Distance:"
+                    },
+                    {
+                        id: "p3",
+                        title: "Paragraph 3: From Static to Current",
+                        text: "Static electricity is like a lake—the water (charge) is just sitting there. But when we build a Circuit, we turn that lake into a flowing river. This flow of charge is called Current. For a current to flow, we need three things: a source of energy (like a battery), a conductor (like copper wire), and a complete loop. In our \"Fruit Battery Lab,\" we will see that chemical reactions can push electrons through a wire. This \"push\" is known as Voltage. Without voltage, the electrons stay still. When they move, they encounter Resistance, which is the material’s tendency to slow the flow down, often turning that energy into light or heat.",
+                        circuitLabels: ["1. Source (Battery)", "2. Conductor (Wire)", "3. Complete Loop"],
+                        statusWait: "Activate all components to close circuit.",
+                        statusFlow: "Current is flowing!"
+                    },
+                    {
+                        id: "p4",
+                        title: "Paragraph 4: Engineering for Stability",
+                        text: "As we transition from our Rocket Project to Circuit Engineering, we apply the same \"iteration\" mindset. In physics, a Short Circuit occurs when electricity finds a path with almost zero resistance. This causes a massive surge of energy that can create heat and fire—much like a rocket with poor stability can lead to a crash. Understanding the balance between voltage, current, and resistance allows us to engineer systems that are safe and efficient. Whether we are wiring a simple LED or the entire California Power Grid, we are simply managing the flow of these invisible fields.",
+                        resLabel: "Resistance:",
+                        resHigh: "High", resLow: "Short!"
+                    }
+                ],
+                checklist: [
+                    "Step 1: Number the paragraphs.",
+                    "Step 2: Identify and Circle at least 5 key academic terms.",
+                    "Step 3: Underline the three requirements for a circuit to flow.",
+                    "Step 4: Left Margin: Write a 'Gist Statement'.",
+                    "Step 5: Right Margin: Write one Level 2 Question."
+                ],
+                reflection: "Based on the reading, how is the transition from \"Static Electricity\" to \"Current Electricity\" similar to the transition from \"Potential Energy\" to \"Kinetic Energy\"?"
+            },
+            es: {
+                title: "Unidad 7: La Fuerza Invisible",
+                eq: "Pregunta Esencial: ¿Cómo los campos invisibles y el movimiento de los electrones impulsan nuestro mundo moderno?",
+                avidWorkspace: "Espacio AVID",
+                avidIntro: "Utilice este cuaderno digital para seguir su progreso de lectura, completar la lista de verificación y registrar sus notas al margen.",
+                navTitle: "Secciones de Lectura",
+                checklistTitle: "Lista de Verificación",
+                labels: { gist: "Margen Izquierdo: Idea Principal", l2: "Margen Derecho: Pregunta Nivel 2", viz: "Modelo Interactivo" },
+                sections: [
+                    {
+                        id: "p1",
+                        title: "Párrafo 1: El concepto del Field",
+                        text: "En las semanas anteriores, exploramos cómo un cohete se mueve por el aire basándose en el contacto físico y el empuje. Sin embargo, la electricidad y el magnetismo funcionan de manera diferente: implican \"acción a distancia\". Imagina un generador Van de Graaff: cuando se enciende, tu cabello podría erizarse incluso antes de que toques la máquina. Esto sucede debido a un Electric Field. Un field es una región invisible de influencia donde se siente una fuerza. Al igual que la gravedad mantiene tus pies en el suelo sin una cuerda física que te jale, los electric fields ejercen fuerza sobre las cargas. En esta unidad, pasamos del mundo visible de la mecánica Newtoniana al mundo invisible de los fields.",
+                        vizDesc: "Un Electric Field se extiende hacia afuera, influyendo en otras cargas sin contacto físico."
+                    },
+                    {
+                        id: "p2",
+                        title: "Párrafo 2: Coulomb’s Law y Charge",
+                        text: "En el corazón de cada chispa está la Electric Charge. Los átomos contienen protones (positivos) y electrones (negativos). Coulomb’s Law describe la relación matemática entre estas cargas: las cargas iguales se repelen, mientras que las cargas opuestas se atraen. La fuerza de esta interacción depende de dos cosas: la cantidad de charge y la distancia entre ellas. Si duplicas la distancia entre dos objetos cargados, la fuerza no solo se reduce; disminuye significativamente. Es por eso que una chispa de un generador Van de Graaff solo salta cuando tu mano está lo suficientemente cerca: la fuerza del field debe ser lo suficientemente alta como para \"romper\" el aire.",
+                        sliderLabel: "Distancia:"
+                    },
+                    {
+                        id: "p3",
+                        title: "Párrafo 3: De lo estático al Current",
+                        text: "La electricidad estática es como un lago: el agua (charge) simplemente está allí. Pero cuando construimos un Circuit, convertimos ese lago en un río que fluye. Este flujo de carga se llama Current. Para que fluya una corriente, necesitamos tres cosas: una fuente de energía (como una batería), un conductor (como un cable de cobre) y un lazo completo. En nuestro \"Lab de Batería de Frutas\", veremos que las reacciones químicas pueden empujar electrones a través de un cable. Este \"empuje\" se conoce como Voltage. Sin voltage, los electrones se quedan quietos. Cuando se mueven, encuentran Resistance, que es la tendencia del material a ralentizar el flujo, a menudo convirtiendo esa energía en luz o calor.",
+                        circuitLabels: ["1. Fuente (Batería)", "2. Conductor (Cable)", "3. Lazo Completo"],
+                        statusWait: "Active todos los componentes.",
+                        statusFlow: "¡La corriente fluye!"
+                    },
+                    {
+                        id: "p4",
+                        title: "Párrafo 4: Ingeniería para la estabilidad",
+                        text: "A medida que pasamos de nuestro Proyecto de Cohetes a la Ingeniería de Circuitos, aplicamos la misma mentalidad de \"iteración\". En física, un Short Circuit ocurre cuando la electricidad encuentra un camino con casi cero resistencia. Esto provoca una oleada masiva de energía que puede generar calor y fuego, de manera similar a cómo un cohete con poca estabilidad puede provocar un choque. Comprender el equilibrio entre voltage, current y resistance nos permite diseñar sistemas que sean seguros y eficientes. Ya sea que estemos cableando un simple LED o toda la red eléctrica de California, simplemente estamos gestionando el flujo de estos fields invisibles.",
+                        resLabel: "Resistencia:",
+                        resHigh: "Alta", resLow: "¡Corto!"
+                    }
+                ],
+                checklist: [
+                    "Paso 1: Numerar los párrafos.",
+                    "Paso 2: Identificar y Circular al menos 5 términos académicos clave.",
+                    "Paso 3: Subrayar los 3 requisitos para que fluya un circuito.",
+                    "Paso 4: Margen Izq: Escribe una 'Idea Principal'.",
+                    "Paso 5: Margen Der: Escribe una Pregunta de Nivel 2."
+                ],
+                reflection: "(En base a la lectura, ¿cómo es la transición de la \"Electricidad Estática\" a la \"Electricidad de Corriente\" similar a la transición de \"Energía Potencial\" a \"Energía Cinética\"?)"
+            }
+        };
+
+        // Application State
+        let currentLang = 'en';
+        let currentSectionIndex = -1;
+        let circuitState = { source: false, conductor: false, loop: false };
+        let charts = {};
+
+        // DOM Elements
+        const els = {
+            title: document.getElementById('app-title'),
+            eq: document.getElementById('eq-text'),
+            avidTitle: document.getElementById('avid-title'),
+            avidIntro: document.getElementById('avid-intro'),
+            navTitle: document.getElementById('nav-title'),
+            checklistTitle: document.getElementById('checklist-title'),
+            navContainer: document.getElementById('nav-container'),
+            checklistContainer: document.getElementById('checklist-container'),
+            reflection: document.getElementById('reflection-prompt'),
+            contentTitle: document.getElementById('content-title'),
+            contentText: document.getElementById('content-text'),
+            interactiveZone: document.getElementById('interactive-zone'),
+            marginNotesZone: document.getElementById('margin-notes-zone'),
+            vizTitle: document.getElementById('viz-title'),
+            labelGist: document.getElementById('label-gist'),
+            labelL2: document.getElementById('label-l2'),
+            btnEn: document.getElementById('btn-en'),
+            btnEs: document.getElementById('btn-es')
+        };
+
+        // Initialization
+        function init() {
+            buildNav();
+            buildChecklist();
+            updateStaticText();
+            initCharts();
+            setupListeners();
+        }
+
+        // Build Navigation based on language
+        function buildNav() {
+            els.navContainer.innerHTML = '';
+            appData[currentLang].sections.forEach((sec, index) => {
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all ${currentSectionIndex === index ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.2)]' : 'bg-transparent text-slate-400 hover:bg-white/5 border border-transparent'}`;
+                btn.innerText = sec.title;
+                btn.onclick = () => loadSection(index);
+                els.navContainer.appendChild(btn);
+            });
+        }
+
+        // Build Checklist based on language
+        function buildChecklist() {
+            els.checklistContainer.innerHTML = '';
+            appData[currentLang].checklist.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = "flex items-start space-x-3";
+                div.innerHTML = `
+                    <input type="checkbox" id="chk-${index}" class="mt-1 w-4 h-4 text-blue-600 rounded border-stone-300 focus:ring-blue-500">
+                    <label for="chk-${index}" class="text-xs text-stone-600 leading-tight">${item}</label>
+                `;
+                els.checklistContainer.appendChild(div);
+            });
+        }
+
+        // Update UI text fields
+        function updateStaticText() {
+            const data = appData[currentLang];
+            els.title.innerText = data.title;
+            els.eq.innerText = data.eq;
+            els.avidTitle.innerText = data.avidWorkspace;
+            els.avidIntro.innerText = data.avidIntro;
+            els.navTitle.innerText = data.navTitle;
+            els.checklistTitle.innerText = data.checklistTitle;
+            els.reflection.innerText = data.reflection;
+            els.vizTitle.innerText = data.labels.viz;
+            els.labelGist.innerText = data.labels.gist;
+            els.labelL2.innerText = data.labels.l2;
+
+            // Toggle language button styling
+            if (currentLang === 'en') {
+                els.btnEn.classList.add('bg-white', 'shadow', 'text-blue-600');
+                els.btnEn.classList.remove('text-stone-500', 'hover:text-stone-700');
+                els.btnEs.classList.remove('bg-white', 'shadow', 'text-blue-600');
+                els.btnEs.classList.add('text-stone-500', 'hover:text-stone-700');
+            } else {
+                els.btnEs.classList.add('bg-white', 'shadow', 'text-blue-600');
+                els.btnEs.classList.remove('text-stone-500', 'hover:text-stone-700');
+                els.btnEn.classList.remove('bg-white', 'shadow', 'text-blue-600');
+                els.btnEn.classList.add('text-stone-500', 'hover:text-stone-700');
+            }
+        }
+
+        // Set Language
+        function setLanguage(lang) {
+            if (currentLang === lang) return;
+
+            // Save state of checkboxes
+            const chkStates = [];
+            document.querySelectorAll('#checklist-container input[type="checkbox"]').forEach(cb => chkStates.push(cb.checked));
+
+            currentLang = lang;
+            updateStaticText();
+            buildNav();
+            buildChecklist();
+
+            // Restore state
+            document.querySelectorAll('#checklist-container input[type="checkbox"]').forEach((cb, i) => cb.checked = chkStates[i]);
+
+            if (currentSectionIndex !== -1) {
+                loadSection(currentSectionIndex); // Reload current content in new lang
+            }
+        }
+
+        // Load specific paragraph section
+        function loadSection(index) {
+            currentSectionIndex = index;
+            const secData = appData[currentLang].sections[index];
+
+            // Update Text
+            els.contentTitle.innerText = secData.title;
+            els.contentText.innerHTML = highlightTerms(secData.text); // Highlight logic could go here if pre-highlighted, but instruction says students circle. So just raw text.
+
+            // Update Nav Highlighting
+            buildNav();
+
+            // Show Zones
+            els.interactiveZone.classList.remove('hidden');
+            els.marginNotesZone.classList.remove('hidden');
+
+            // Hide all viz, show active
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById(`viz-${i}`).classList.add('hidden');
+                document.getElementById(`viz-${i}`).classList.remove('flex', 'animate-in', 'fade-in', 'slide-in-from-bottom-4', 'duration-500');
+            }
+            const activeViz = document.getElementById(`viz-${index + 1}`);
+            activeViz.classList.remove('hidden');
+            activeViz.classList.add('flex', 'animate-in', 'fade-in', 'slide-in-from-bottom-4', 'duration-500');
+
+            // Apply specific language data to Viz elements
+            if (index === 0) {
+                document.getElementById('viz-1-desc').innerText = secData.vizDesc;
+            }
+            if (index === 1) {
+                document.getElementById('slider-label').innerText = secData.sliderLabel;
+            }
+            if (index === 2) {
+                document.getElementById('btn-source').innerText = secData.circuitLabels[0];
+                document.getElementById('btn-conductor').innerText = secData.circuitLabels[1];
+                document.getElementById('btn-loop').innerText = secData.circuitLabels[2];
+                updateCircuitUI(); // Refresh text
+            }
+            if (index === 3) {
+                document.getElementById('res-slider-label').innerText = secData.resLabel;
+                updateGaugeUI(); // Refresh text based on slider
+            }
+        }
+
+        // Highlighting helper (Optional: currently just returns text as requested to let students 'circle')
+        function highlightTerms(text) {
+            return text;
+        }
+
+        // --- Chart.js and Visualizations Logic ---
+
+        function initCharts() {
+            // Coulomb's Law Chart (Force vs Distance)
+            const ctx1 = document.getElementById('coulombChart').getContext('2d');
+            
+            // Add gradient fill
+            const gradient1 = ctx1.createLinearGradient(0, 0, 0, 400);
+            gradient1.addColorStop(0, 'rgba(59, 130, 246, 0.5)'); // blue-500
+            gradient1.addColorStop(1, 'rgba(59, 130, 246, 0)');
+
+            charts.coulomb = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: [1, 2, 3, 4, 5],
+                    datasets: [{
+                        label: 'Electric Force (Relative)',
+                        data: [100, 25, 11.1, 6.25, 4], // 1/d^2 relationship
+                        borderColor: '#60a5fa', // blue-400
+                        backgroundColor: gradient1,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#60a5fa',
+                        pointBorderColor: '#1e3a8a',
+                        pointRadius: [6, 0, 0, 0, 0], // Only highlight first point initially
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: { enabled: true } },
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            title: { display: true, text: 'Force', color: '#94a3b8' },
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#64748b' }
+                        },
+                        x: { 
+                            title: { display: true, text: 'Distance (d)', color: '#94a3b8' },
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#64748b' }
+                        }
+                    }
+                }
+            });
+
+            // Gauge Chart (Resistance/Heat)
+            const ctx2 = document.getElementById('gaugeChart').getContext('2d');
+            charts.gauge = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Safe', 'Warning', 'Short Circuit!'],
+                    datasets: [{
+                        data: [50, 50, 0], // Initial state (Safe)
+                        backgroundColor: ['#10b981', '#334155', '#334155'], // emerald-500, slate-700
+                        borderWidth: 0,
+                        circumference: 180,
+                        rotation: 270
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '80%',
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                    animation: { animateRotate: true, animateScale: true, duration: 800 }
+                }
+            });
+        }
+
+        function setupListeners() {
+            // Distance Slider (Coulomb's Law)
+            const distSlider = document.getElementById('distanceSlider');
+            const distVal = document.getElementById('distanceValue');
+            distSlider.addEventListener('input', (e) => {
+                const val = parseInt(e.target.value);
+                distVal.innerText = val + 'x';
+
+                // Update chart points
+                const radii = [0, 0, 0, 0, 0];
+                radii[val - 1] = 6;
+                charts.coulomb.data.datasets[0].pointRadius = radii;
+                charts.coulomb.update();
+            });
+
+            // Resistance Slider (Short Circuit Gauge)
+            const resSlider = document.getElementById('resSlider');
+            resSlider.addEventListener('input', (e) => {
+                updateGaugeUI(e.target.value);
+            });
+        }
+
+        // Circuit Logic (Paragraph 3)
+        function toggleCircuit(part) {
+            circuitState[part] = !circuitState[part];
+            const btn = document.getElementById(`btn-${part}`);
+
+            if (circuitState[part]) {
+                btn.classList.remove('border-slate-700', 'text-slate-400', 'bg-slate-800');
+                btn.classList.add('border-emerald-500', 'text-emerald-400', 'bg-emerald-900/30', 'shadow-[0_0_15px_rgba(16,185,129,0.3)]');
+            } else {
+                btn.classList.add('border-slate-700', 'text-slate-400', 'bg-slate-800');
+                btn.classList.remove('border-emerald-500', 'text-emerald-400', 'bg-emerald-900/30', 'shadow-[0_0_15px_rgba(16,185,129,0.3)]');
+            }
+            updateCircuitUI();
+        }
+
+        function updateCircuitUI() {
+            const status = document.getElementById('circuit-status');
+            const flow = document.getElementById('circuit-flow');
+            const bulb = document.getElementById('circuit-bulb');
+            const data = appData[currentLang].sections[2];
+
+            if (circuitState.source && circuitState.conductor && circuitState.loop) {
+                status.innerText = data.statusFlow;
+                status.classList.remove('text-amber-500');
+                status.classList.add('text-emerald-400', 'drop-shadow-[0_0_5px_rgba(52,211,153,0.8)]');
+                flow.classList.replace('border-transparent', 'border-blue-500');
+                flow.classList.add('shadow-[0_0_20px_rgba(59,130,246,0.8)]');
+                bulb.classList.replace('bg-slate-800', 'bg-yellow-300');
+                bulb.classList.replace('border-slate-700', 'border-yellow-200');
+                bulb.classList.add('shadow-[0_0_40px_rgba(253,224,71,1)]');
+            } else {
+                status.innerText = data.statusWait;
+                status.classList.add('text-amber-500');
+                status.classList.remove('text-emerald-400', 'drop-shadow-[0_0_5px_rgba(52,211,153,0.8)]');
+                flow.classList.replace('border-blue-500', 'border-transparent');
+                flow.classList.remove('shadow-[0_0_20px_rgba(59,130,246,0.8)]');
+                bulb.classList.replace('bg-yellow-300', 'bg-slate-800');
+                bulb.classList.replace('border-yellow-200', 'border-slate-700');
+                bulb.classList.remove('shadow-[0_0_40px_rgba(253,224,71,1)]');
+            }
+        }
+
+        // Gauge Logic (Paragraph 4)
+        function updateGaugeUI(val) {
+            const value = val !== undefined ? val : document.getElementById('resSlider').value;
+            const resValSpan = document.getElementById('resValue');
+            const data = appData[currentLang].sections[3];
+
+            if (value > 60) {
+                resValSpan.innerText = data.resHigh;
+                resValSpan.className = "text-sm font-bold w-12 text-right text-emerald-400 drop-shadow-[0_0_5px_rgba(52,211,153,0.8)]";
+                charts.gauge.data.datasets[0].data = [value, 100 - value, 0];
+                charts.gauge.data.datasets[0].backgroundColor = ['#10b981', '#334155', '#334155']; // emerald
+            } else if (value > 20) {
+                resValSpan.innerText = "Med";
+                resValSpan.className = "text-sm font-bold w-12 text-right text-amber-400 drop-shadow-[0_0_5px_rgba(251,191,36,0.8)]";
+                charts.gauge.data.datasets[0].data = [0, value, 100 - value];
+                charts.gauge.data.datasets[0].backgroundColor = ['#334155', '#fbbf24', '#334155']; // amber
+            } else {
+                resValSpan.innerText = data.resLow;
+                resValSpan.className = "text-sm font-bold w-12 text-right text-red-500 animate-pulse drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]";
+                charts.gauge.data.datasets[0].data = [0, 0, 100];
+                charts.gauge.data.datasets[0].backgroundColor = ['#334155', '#334155', '#ef4444']; // red
+            }
+            charts.gauge.update();
+        }
+
+        // Run
+        init();
+
+    </script>
+</body>
+
+</html>
