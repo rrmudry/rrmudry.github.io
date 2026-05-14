@@ -89,6 +89,7 @@
                 <div class="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-slate-600">
                     <span>Database_Status: <span id="db-status" class="text-cyan-500">Connecting...</span></span>
                     <span>Students_Aggregated: <span id="record-count" class="text-white">0</span></span>
+                    <span>Total_Records: <span id="total-archive-count" class="text-violet-400">---</span></span>
                 </div>
                 
                 <!-- Search Component -->
@@ -134,6 +135,11 @@
         const db = firebase.firestore();
 
         let aggregationMode = 'SUM'; // 'SUM' or 'AVERAGE' or 'DETAILED'
+
+        // Cache: all flat archive records loaded once at init
+        let archiveCache = [];
+        // Cache: known assignment names that exist as nested subcollection parents
+        let nestedAssignments = new Set();
 
         const PRESETS = {
             'unit6': [
@@ -183,29 +189,85 @@
         }
 
         async function init() {
+            const statusEl = document.getElementById('db-status');
+            const archiveCountEl = document.getElementById('total-archive-count');
+
             try {
-                // Fetch assignments from 'assessments' collection
-                const assmtSnap = await db.collection('assessments').get();
-                const assessmentIds = assmtSnap.docs.map(doc => doc.id);
+                statusEl.textContent = "Scanning...";
+
+                // ── STEP 1: Load ALL flat archive records from student_results ──
+                // These are the migrated Supabase records stored as top-level docs
+                // with fields: assignment_name, student_id, student_name, score, etc.
+                const archiveSnap = await db.collection('student_results').get();
                 
-                // Also scan 'student_results' collection group for any dynamic assignment names
-                const resultsSnap = await db.collectionGroup('students').limit(500).get();
-                const dynamicAssignments = [...new Set(resultsSnap.docs.map(doc => doc.data().assignment_name))];
-                
-                const uniques = [...new Set([...assessmentIds, ...dynamicAssignments])].filter(Boolean).sort();
+                const assignmentNamesFromArchive = new Set();
+                archiveCache = [];
+
+                archiveSnap.docs.forEach(doc => {
+                    const data = doc.data();
+                    // Skip config documents (assignment parent docs with subcollections)
+                    // These have fields like is_global_locked, locked_periods, etc.
+                    if (data.is_global_locked !== undefined || (!data.student_id && !data.student_name && !data.score && data.score !== 0)) {
+                        // This is an assignment config doc (parent for nested subcollections)
+                        // Track it as a nested assignment
+                        nestedAssignments.add(doc.id);
+                        return;
+                    }
+
+                    const assignmentName = data.assignment_name || 'Unknown';
+                    assignmentNamesFromArchive.add(assignmentName);
+
+                    archiveCache.push({
+                        student_id: data.student_id || doc.id,
+                        student_name: data.student_name || "Unknown",
+                        class_period: data.class_period || "---",
+                        assignment_name: assignmentName,
+                        score: data.score || 0,
+                        created_at: data.created_at || (data.timestamp ? new Date(data.timestamp.seconds * 1000).toISOString() : new Date().toISOString())
+                    });
+                });
+
+                archiveCountEl.textContent = archiveCache.length;
+
+                // ── STEP 2: Also check the assessments collection for registered tests ──
+                const assessmentsSnap = await db.collection('assessments').get();
+                const assessmentNames = assessmentsSnap.docs.map(doc => doc.data().assignment_name || doc.id);
+
+                // ── STEP 3: Merge all known assignment names ──
+                const allAssignments = [...new Set([
+                    ...assignmentNamesFromArchive,
+                    ...assessmentNames,
+                    ...nestedAssignments
+                ])].filter(Boolean).sort();
+
+                // ── STEP 4: Render assignment checkboxes ──
                 const container = document.getElementById('assignment-list');
                 
-                container.innerHTML = uniques.map(a => `
-                    <label class="flex items-center gap-3 p-2 hover:bg-white/5 rounded-lg cursor-pointer transition-colors group">
-                        <input type="checkbox" value="${a}" class="assignment-cb accent-cyan-500 w-4 h-4 rounded border-white/10" onchange="loadPreview()">
-                        <span class="text-xs font-bold text-slate-400 group-hover:text-slate-200 transition-colors">${a}</span>
-                    </label>
-                `).join('');
+                container.innerHTML = allAssignments.map(a => {
+                    // Count records per assignment from cache for the badge
+                    const count = archiveCache.filter(r => r.assignment_name === a).length;
+                    const isNested = nestedAssignments.has(a);
+                    const badge = count > 0 
+                        ? `<span class="ml-auto text-[8px] font-black px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">${count}</span>`
+                        : (isNested ? `<span class="ml-auto text-[8px] font-black px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/20">LIVE</span>` : '');
+                    
+                    return `
+                        <label class="flex items-center gap-3 p-2 hover:bg-white/5 rounded-lg cursor-pointer transition-colors group">
+                            <input type="checkbox" value="${a}" class="assignment-cb accent-cyan-500 w-4 h-4 rounded border-white/10" onchange="loadPreview()">
+                            <span class="text-xs font-bold text-slate-400 group-hover:text-slate-200 transition-colors">${a}</span>
+                            ${badge}
+                        </label>
+                    `;
+                }).join('');
                 
-                document.getElementById('db-status').textContent = "Connection_Ready";
+                statusEl.textContent = "Connection_Ready";
+                statusEl.className = "text-emerald-400";
+                console.log(`[DATA_EXPORT] Init complete. ${archiveCache.length} archive records loaded. ${allAssignments.length} assignments discovered. ${nestedAssignments.size} nested (live) assignments.`);
             } catch (err) {
-                console.error(err);
-                document.getElementById('db-status').textContent = "Access_Denied";
+                console.error("[DATA_EXPORT] Init error:", err);
+                statusEl.textContent = "Access_Denied";
+                statusEl.className = "text-rose-500";
+                archiveCountEl.textContent = "ERR";
             }
         }
 
@@ -216,25 +278,49 @@
 
         async function fetchFilteredResults(selectedAssignments) {
             let allResults = [];
-            
-            // Because Firestore doesn't support 'in' on collectionGroup fields easily without large indexes,
-            // and our structure is nested student_results/{assignment}/students/{student},
-            // we iterate over the selected assignments for clarity and precision.
+            const seenKeys = new Set(); // Deduplicate across sources
+
+            // ── SOURCE 1: Pull from flat archive cache ──
             for (const assignment of selectedAssignments) {
-                const snap = await db.collection('student_results').doc(assignment).collection('students').get();
-                snap.forEach(doc => {
-                    const data = doc.data();
-                    // Map Firestore fields to our internal schema
-                    allResults.push({
-                        student_id: data.student_id || doc.id,
-                        student_name: data.student_name || "Unknown",
-                        class_period: data.class_period || "---",
-                        assignment_name: data.assignment_name || assignment,
-                        score: data.score || 0,
-                        created_at: data.timestamp ? new Date(data.timestamp.seconds * 1000).toISOString() : new Date().toISOString()
-                    });
+                const matching = archiveCache.filter(r => r.assignment_name === assignment);
+                matching.forEach(r => {
+                    const key = `${r.student_id}_${r.assignment_name}_${r.created_at}`;
+                    if (!seenKeys.has(key)) {
+                        seenKeys.add(key);
+                        allResults.push(r);
+                    }
                 });
             }
+
+            // ── SOURCE 2: Pull from nested subcollections (live proctored data) ──
+            for (const assignment of selectedAssignments) {
+                if (!nestedAssignments.has(assignment)) continue;
+                
+                try {
+                    const snap = await db.collection('student_results').doc(assignment).collection('students').get();
+                    snap.forEach(doc => {
+                        const data = doc.data();
+                        const record = {
+                            student_id: data.student_id || doc.id,
+                            student_name: data.student_name || "Unknown",
+                            class_period: data.class_period || "---",
+                            assignment_name: data.assignment_name || assignment,
+                            score: data.score || 0,
+                            created_at: data.timestamp 
+                                ? (data.timestamp.seconds ? new Date(data.timestamp.seconds * 1000).toISOString() : data.timestamp)
+                                : (data.created_at || new Date().toISOString())
+                        };
+                        const key = `${record.student_id}_${record.assignment_name}_nested`;
+                        if (!seenKeys.has(key)) {
+                            seenKeys.add(key);
+                            allResults.push(record);
+                        }
+                    });
+                } catch (err) {
+                    console.warn(`[DATA_EXPORT] Could not read nested subcollection for "${assignment}":`, err.message);
+                }
+            }
+
             return allResults;
         }
 
