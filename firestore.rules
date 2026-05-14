@@ -1,8 +1,68 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{allPaths=**} {
-      allow read, write: if true;
+    
+    // -------------------------------------------------------------------------
+    // HELPER FUNCTIONS
+    // -------------------------------------------------------------------------
+
+    // Check if the user is an admin
+    function isAdmin() {
+      return request.auth != null && (
+        request.auth.token.email == "rmudry@orangeusd.org" ||
+        request.auth.token.email == "ryan.mudry@gmail.com" ||
+        request.auth.token.email == "ryanmudry@gmail.com"
+      );
+    }
+
+    // Check if the user is a valid student requesting their own data
+    function isStudent(studentId) {
+      return request.auth != null && 
+             request.auth.token.email == string(studentId) + "@orangeusd.org";
+    }
+
+    // -------------------------------------------------------------------------
+    // GLOBAL ADMIN ACCESS
+    // -------------------------------------------------------------------------
+    match /{document=**} {
+      allow read, write: if isAdmin();
+    }
+
+    // -------------------------------------------------------------------------
+    // STUDENT ACCESS RULES
+    // -------------------------------------------------------------------------
+
+    // 1. Roster & Identity
+    match /roster/{studentId} {
+      allow read: if isStudent(studentId);
+    }
+
+    // 2. Accommodations
+    match /student_accommodations/{studentId} {
+      allow read: if isStudent(studentId);
+    }
+
+    // 3. System Configuration (Read-only for all logged-in users)
+    match /system_config/{configDoc} {
+      allow read: if request.auth != null;
+    }
+
+    // 4. Assessments List (Read-only for all logged-in users)
+    match /assessments/{assessmentId} {
+      allow read: if request.auth != null;
+    }
+
+    // 5. Live Student Results (Nested)
+    match /student_results/{assignmentId}/students/{studentId} {
+      allow read, write: if isStudent(studentId);
+    }
+
+    // 6. Archived Flat Results
+    match /student_results_archive/{docId} {
+      // The docId format is `${studentId}_${assignmentName}`
+      // We extract the studentId prefix to verify ownership
+      allow read, write: if request.auth != null && 
+                         docId.split('_')[0] == request.auth.token.email.split('@')[0];
     }
   }
 }
