@@ -1,60 +1,8 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Helper: Is the user signed in?
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    // Helper: Is this an authorized Orange USD Teacher?
-    function isTeacher() {
-      return isSignedIn() && (
-        request.auth.token.email == "ryan.mudry@gmail.com" ||
-        request.auth.token.email == "ryanmudry@gmail.com" ||
-        request.auth.token.email == "rmudry@orangeusd.org"
-      );
-    }
-
-    // --- ROSTER RULES ---
-    match /roster/{studentId} {
-      allow read, write: if isTeacher();
-      allow read: if isSignedIn() && request.auth.token.email.matches('(?i)^' + studentId + '@.*');
-    }
-
-    // --- STUDENT RESULTS RULES ---
-    match /student_results/{assignmentId} {
-      allow read: if isSignedIn();
-      allow write: if isTeacher();
-      
-      match /students/{studentId} {
-        allow read, write: if isTeacher();
-        allow read, write: if isSignedIn() && request.auth.token.email.matches('(?i)^' + studentId + '@.*');
-        allow create: if isSignedIn();
-      }
-    }
-
-    // --- ASSESSMENTS & QUESTIONS ---
-    match /assessments/{assessment} {
-      allow read: if true; // Students need to read test configs
-      allow write: if isTeacher();
-    }
-    
-    match /questions/{questionId} {
-      allow read: if true; // Students need to read questions
-      allow write: if isTeacher();
-    }
-
-    // --- SYSTEM CONFIG RULES ---
-    match /system_config/broadcast {
-      allow read: if isSignedIn();
-      allow write: if isTeacher();
-    }
-
-    // Default deny
-    match /{document=**} {
-      allow read, write: if false;
+    match /{allPaths=**} {
+      allow read, write: if true;
     }
   }
 }
