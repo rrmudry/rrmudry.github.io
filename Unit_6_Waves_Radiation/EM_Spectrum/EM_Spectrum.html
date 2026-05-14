@@ -8,8 +8,20 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            projectId: "site-6e500",
+            appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+            storageBucket: "site-6e500.firebasestorage.app",
+            apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+            authDomain: "site-6e500.firebaseapp.com",
+            messagingSenderId: "591530758858"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
     <script>
         tailwind.config = {
             theme: {
@@ -333,10 +345,6 @@
     <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 bg-slate-800 text-white rounded-full text-sm font-bold border border-white/10 opacity-0 pointer-events-none transition-opacity z-[300] shadow-2xl">Message</div>
 
     <script>
-        // --- Supabase Config ---
-        const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
-        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
-        const sbClient = supabase.createClient(SB_URL, SB_KEY);
         
         // --- SPECTRUM DATA ---
         const spectrumData = [
@@ -400,28 +408,16 @@
             ui.loginStatus.textContent = "SYNCING_IDENTITY...";
 
             try {
-                // 1. Search for the student's name globally across ANY assignment
-                const { data: globalMatch } = await sbClient.from('student_results')
-                    .select('student_name')
-                    .eq('student_id', id)
-                    .limit(1)
-                    .maybeSingle();
+                // 1. Check Roster
+                const rosterSnap = await db.collection('roster').doc(id).get();
 
-                // 2. Search for existing progress for THIS specific assignment
-                const { data: progressMatch } = await sbClient.from('student_results')
-                    .select('*')
-                    .eq('student_id', id)
-                    .eq('assignment_name', state.assignmentName)
-                    .order('created_at', { ascending: false })
-                    .limit(1)
-                    .maybeSingle();
-
-                if (progressMatch) {
-                    // Returning student for THIS mission
-                    finalizeLogin(progressMatch.student_name, id, progressMatch);
-                } else if (globalMatch) {
-                    // Recognized student from OTHER missions
-                    finalizeLogin(globalMatch.student_name, id, null);
+                if (rosterSnap.exists) {
+                    const rosterData = rosterSnap.data();
+                    
+                    // 2. Fetch existing progress
+                    const progressSnap = await db.collection('student_results').doc(state.assignmentName).collection('students').doc(id).get();
+                    
+                    finalizeLogin(rosterData.full_name, id, progressSnap.exists ? progressSnap.data() : null);
                 } else {
                     // Entirely new student
                     ui.loginNameEntry.classList.remove('hidden');
@@ -470,9 +466,6 @@
             ui.syncIndicator.classList.replace('text-slate-600', 'text-amber-500');
 
             try {
-                // Calculate completion percentage based on discovery and high score
-                // - Discovery: 7 regions * 10% = 70%
-                // - High Score: Score > 500 = 30% bonus
                 let completionScore = Math.min(70, state.discoveredRegions.length * 10);
                 if (state.highScore > 500) completionScore += 30;
 
@@ -481,26 +474,24 @@
                     student_name: state.studentName,
                     assignment_name: state.assignmentName,
                     score: completionScore,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                     details: {
                         discoveredRegions: state.discoveredRegions,
                         highScore: state.highScore,
-                        timestamp: new Date().toISOString()
+                        ts: new Date().toISOString()
                     }
                 };
 
-                const { data } = await sbClient.from('student_results')
-                    .select('id')
-                    .eq('student_id', state.studentId)
-                    .eq('assignment_name', state.assignmentName)
-                    .order('created_at', { ascending: false })
-                    .limit(1)
-                    .maybeSingle();
+                const batch = db.batch();
+                // 1. Live Session Node (Nested)
+                const liveRef = db.collection('student_results').doc(state.assignmentName).collection('students').doc(state.studentId);
+                batch.set(liveRef, payload, { merge: true });
 
-                if (data) {
-                    await sbClient.from('student_results').update(payload).eq('id', data.id);
-                } else {
-                    await sbClient.from('student_results').insert([payload]);
-                }
+                // 2. Archive Node (Flat)
+                const archiveRef = db.collection('student_results_archive').doc(`${state.studentId}_${state.assignmentName}`);
+                batch.set(archiveRef, payload, { merge: true });
+
+                await batch.commit();
 
                 ui.syncIndicator.textContent = "DATABASE_SECURE";
                 ui.syncIndicator.classList.replace('text-amber-500', 'text-emerald-500');

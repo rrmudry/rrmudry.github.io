@@ -8,7 +8,20 @@
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            projectId: "site-6e500",
+            appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+            storageBucket: "site-6e500.firebasestorage.app",
+            apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+            authDomain: "site-6e500.firebaseapp.com",
+            messagingSenderId: "591530758858"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
 
 
     <style>
@@ -33,10 +46,6 @@
     <script type="text/babel">
         const { useState, useEffect, useRef, useMemo } = React;
 
-        // --- SUPABASE CONFIGURATION ---
-        const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
-        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
-        const sbClient = supabase.createClient(SB_URL, SB_KEY);
 
 
         // --- Custom Icons (Internal for maximum reliability) ---
@@ -325,10 +334,6 @@
                 setSyncStatus('Syncing...');
                 try {
                     const assignmentName = "Wave Diffraction Lab";
-                    const { data: existing } = await sbClient.from('student_results')
-                        .select('id')
-                        .eq('student_id', studentId)
-                        .eq('assignment_name', assignmentName);
 
                     // Calculate score
                     let score = Math.round((currentStepIndex / (labSteps.length - 1)) * 100);
@@ -341,19 +346,25 @@
                         class_period: studentPeriod,
                         assignment_name: assignmentName,
                         score: score,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                         details: {
                             currentStep: currentStepIndex,
                             snapshotsCount: snapshots.length,
                             isComplete: isLabComplete,
-                            lastUpdate: new Date().toISOString()
+                            ts: new Date().toISOString()
                         }
                     };
 
-                    if (existing && existing.length > 0) {
-                        await sbClient.from('student_results').update(payload).eq('id', existing[0].id);
-                    } else {
-                        await sbClient.from('student_results').insert([payload]);
-                    }
+                    const batch = db.batch();
+                    // 1. Live Session Node (Nested)
+                    const liveRef = db.collection('student_results').doc(assignmentName).collection('students').doc(studentId);
+                    batch.set(liveRef, payload, { merge: true });
+
+                    // 2. Archive Node (Flat)
+                    const archiveRef = db.collection('student_results_archive').doc(`${studentId}_${assignmentName}`);
+                    batch.set(archiveRef, payload, { merge: true });
+
+                    await batch.commit();
                     setSyncStatus('Database_Secure');
                 } catch (e) {
                     console.error("Sync Error:", e);
@@ -377,29 +388,26 @@
                     const urlParams = new URLSearchParams(window.location.search);
                     const urlPeriod = urlParams.get('p') || urlParams.get('period');
 
-                    const { data: nameData } = await sbClient.from('student_results')
-                        .select('student_name, class_period')
-                        .eq('student_id', tempId)
-                        .order('created_at', { ascending: false })
-                        .limit(1)
-                        .maybeSingle();
+                    // 1. Check Roster
+                    const rosterSnap = await db.collection('roster').doc(tempId).get();
 
-                    if (nameData) {
-                        setStudentPeriod(urlPeriod || nameData.class_period || null);
-                        // Restore progress if available for THIS specific lab
-                        const { data: progressData } = await sbClient.from('student_results')
-                            .select('details')
-                            .eq('student_id', tempId)
-                            .eq('assignment_name', assignmentName)
-                            .maybeSingle();
+                    if (rosterSnap.exists) {
+                        const rosterData = rosterSnap.data();
+                        setStudentPeriod(urlPeriod || rosterData.class_period || null);
+                        
+                        // 2. Fetch progress for this lab
+                        const progressSnap = await db.collection('student_results').doc(assignmentName).collection('students').doc(tempId).get();
 
-                        if (progressData && progressData.details) {
-                            if (progressData.details.currentStep !== undefined) setCurrentStepIndex(progressData.details.currentStep);
-                            if (progressData.details.isComplete !== undefined) setIsLabComplete(progressData.details.isComplete);
+                        if (progressSnap.exists) {
+                            const progressData = progressSnap.data();
+                            if (progressData.details) {
+                                if (progressData.details.currentStep !== undefined) setCurrentStepIndex(progressData.details.currentStep);
+                                if (progressData.details.isComplete !== undefined) setIsLabComplete(progressData.details.isComplete);
+                            }
                         }
 
                         setStudentId(tempId);
-                        setStudentName(nameData.student_name);
+                        setStudentName(rosterData.full_name);
                         setIsAuthorized(true);
                     } else if (!showNameEntry) {
                         setShowNameEntry(true);
