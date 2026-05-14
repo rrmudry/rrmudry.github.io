@@ -133,6 +133,10 @@
                 <i data-lucide="settings" class="w-3.5 h-3.5"></i> Config
             </button>
 
+            <button id="btn-end-broadcast" class="bg-orange-500/10 hover:bg-orange-500/20 text-orange-500 border border-orange-500/20 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">
+                End Broadcast
+            </button>
+
             <button id="btn-clear-all" class="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">
                 Clear HUD
             </button>
@@ -1020,10 +1024,33 @@
             }, err => console.error("Failed to listen to assessments:", err));
         }
 
+        async function endBroadcast() {
+            if (!confirm("Are you sure you want to stop broadcasting this assessment? Students will return to 'Waiting for Broadcast'.")) return;
+            const period = document.getElementById('period-filter').value;
+            try {
+                const update = {};
+                if (period === 'ALL') {
+                    update.global_active = firebase.firestore.FieldValue.delete();
+                } else {
+                    update[`period_${period}`] = firebase.firestore.FieldValue.delete();
+                }
+                await db.collection('system_config').doc('broadcast').update(update);
+                console.log("[DASHBOARD] Broadcast ended for period:", period);
+            } catch (e) {
+                console.error("Failed to end broadcast:", e);
+                // If the document doesn't exist yet, we can't update it. But set() with merge works.
+                const fallbackUpdate = {};
+                if (period === 'ALL') fallbackUpdate.global_active = null;
+                else fallbackUpdate[`period_${period}`] = null;
+                await db.collection('system_config').doc('broadcast').set(fallbackUpdate, { merge: true });
+            }
+        }
+
         // Global Event Listeners
         window.addEventListener('load', setupAssessmentListener);
         document.getElementById('period-filter').addEventListener('change', setupStreams);
         document.getElementById('assignment-filter').addEventListener('change', setupStreams);
+        document.getElementById('btn-end-broadcast').addEventListener('click', endBroadcast);
         document.getElementById('btn-clear-all').addEventListener('click', acknowledgeAll);
         document.getElementById('btn-assignment-settings').addEventListener('click', showSettingsModal);
         window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
