@@ -8,7 +8,20 @@
     
     <!-- Dependencies -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            projectId: "site-6e500",
+            appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+            storageBucket: "site-6e500.firebasestorage.app",
+            apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+            authDomain: "site-6e500.firebaseapp.com",
+            messagingSenderId: "591530758858"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -91,11 +104,6 @@
     <script type="text/babel">
         const { useState, useEffect, useRef, useMemo, useCallback } = React;
 
-        // --- Supabase Config ---
-        const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
-        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
-        const sbClient = supabase.createClient(SB_URL, SB_KEY);
-
         // --- Lucide Icon Wrapper ---
         const Icon = ({ name, className = "w-5 h-5", size, color }) => {
             const containerRef = useRef(null);
@@ -127,15 +135,24 @@
                 if (idInput.length !== 6) return;
                 setStatus("VERIFYING...");
                 try {
-                    const { data } = await sbClient.from('student_results')
-                        .select('student_name, class_period, details')
-                        .eq('student_id', idInput)
-                        .order('created_at', { ascending: false })
-                        .limit(1)
-                        .maybeSingle();
+                    const assignmentName = "Virtual Rocket Lab";
+                    
+                    // 1. Check Roster
+                    const rosterSnap = await db.collection('roster').doc(idInput).get();
 
-                    if (data) {
-                        onLogin({ id: idInput, name: data.student_name, period: data.class_period, details: data.details });
+                    if (rosterSnap.exists) {
+                        const rosterData = rosterSnap.data();
+                        
+                        // 2. Fetch progress for this lab
+                        const progressSnap = await db.collection('student_results').doc(assignmentName).collection('students').doc(idInput).get();
+                        const progressData = progressSnap.exists ? progressSnap.data() : { details: {} };
+
+                        onLogin({ 
+                            id: idInput, 
+                            name: rosterData.full_name, 
+                            period: rosterData.class_period, 
+                            details: progressData.details 
+                        });
                     } else if (!showNameEntry) {
                         setShowNameEntry(true);
                         setStatus("NEW_ID_DETECTED");
@@ -376,6 +393,7 @@
             const syncProgress = useCallback(async (tasks, score, completed) => {
                 setIsSyncing(true);
                 try {
+                    const assignmentName = "Virtual Rocket Lab";
                     const missionPoints = tasks.length * 2.5; // 4 tasks = 10 points
                     const quizPoints = score !== null ? score : 0; // 10 questions = 10 points
                     const totalPoints = missionPoints + quizPoints;
@@ -383,13 +401,27 @@
                     const payload = {
                         student_id: user.id,
                         student_name: user.name,
-                        assignment_name: "Virtual Rocket Lab",
+                        assignment_name: assignmentName,
                         score: totalPoints * 5, // Convert 0-20 to 0-100 for database compatibility
-                        details: { tasks, quizScore: score, isCompleted: completed, lastUpdated: new Date().toISOString() }
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                        details: { 
+                            tasks, 
+                            quizScore: score, 
+                            isCompleted: completed, 
+                            ts: new Date().toISOString() 
+                        }
                     };
-                    const { data } = await sbClient.from('student_results').select('id').eq('student_id', user.id).eq('assignment_name', "Virtual Rocket Lab").maybeSingle();
-                    if (data) await sbClient.from('student_results').update(payload).eq('id', data.id);
-                    else await sbClient.from('student_results').insert([payload]);
+
+                    const batch = db.batch();
+                    // 1. Live Session Node (Nested)
+                    const liveRef = db.collection('student_results').doc(assignmentName).collection('students').doc(user.id);
+                    batch.set(liveRef, payload, { merge: true });
+
+                    // 2. Archive Node (Flat)
+                    const archiveRef = db.collection('student_results_archive').doc(`${user.id}_${assignmentName}`);
+                    batch.set(archiveRef, payload, { merge: true });
+
+                    await batch.commit();
                 } catch (e) { console.error(e); }
                 finally { setIsSyncing(false); }
             }, [user]);

@@ -6,7 +6,20 @@
     <title>Frequency...Practice 'til it Hertz</title>
     <link rel="icon" type="image/svg+xml" href="../../assets/unit6-favicon.svg">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            projectId: "site-6e500",
+            appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+            storageBucket: "site-6e500.firebasestorage.app",
+            apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+            authDomain: "site-6e500.firebaseapp.com",
+            messagingSenderId: "591530758858"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -328,9 +341,6 @@
     </div>
 
     <script>
-        const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
-        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
-        const sbClient = supabase.createClient(SB_URL, SB_KEY);
 
         // Safe Initialization of Polyfill
         try {
@@ -370,23 +380,25 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 const urlPeriod = urlParams.get('p') || urlParams.get('period');
 
-                const { data } = await sbClient.from('student_results')
-                    .select('student_name, class_period, details')
-                    .eq('student_id', id)
-                    .order('created_at', { ascending: false })
-                    .limit(1)
-                    .maybeSingle();
+                // 1. Check Roster
+                const rosterSnap = await db.collection('roster').doc(id).get();
 
-                if (data) {
-                    state.name = data.student_name;
+                if (rosterSnap.exists) {
+                    const rosterData = rosterSnap.data();
+                    state.name = rosterData.full_name;
                     state.id = id;
-                    state.period = urlPeriod || data.class_period || null;
+                    state.period = urlPeriod || rosterData.class_period || null;
                     
-                    const { data: assignmentData } = await sbClient.from('student_results').select('details').eq('student_id', id).eq('assignment_name', "Frequency...Practice 'til it Hertz").maybeSingle();
+                    // 2. Fetch existing progress
+                    const assignmentName = "Frequency...Practice 'til it Hertz";
+                    const progressSnap = await db.collection('student_results').doc(assignmentName).collection('students').doc(id).get();
 
-                    if (assignmentData && assignmentData.details) {
-                        state.level = assignmentData.details.level || 1;
-                        state.mastery = assignmentData.details.mastery || 0;
+                    if (progressSnap.exists) {
+                        const progressData = progressSnap.data();
+                        if (progressData.details) {
+                            state.level = progressData.details.level || 1;
+                            state.mastery = progressData.details.mastery || 0;
+                        }
                     }
                     status.textContent = "ID_VERIFIED // LOADING_STATE";
                     setTimeout(finalizeLogin, 800);
@@ -590,8 +602,6 @@
             if(!isSilent) ind.textContent = "Syncing...";
             try {
                 const assignmentName = "Frequency...Practice 'til it Hertz";
-                // Get all existing rows for this student/assignment combo to avoid maybeSingle() errors with duplicates
-                const { data: existingRows } = await sbClient.from('student_results').select('id').eq('student_id', state.id).eq('assignment_name', assignmentName);
                 
                 const payload = {
                     student_name: state.name,
@@ -599,16 +609,25 @@
                     class_period: state.period,
                     assignment_name: assignmentName,
                     score: Math.min(100, Math.round(((state.level - 1) * 33.3) + ((state.mastery / state.targetMastery) * 33.4))),
-                    details: { level: state.level, mastery: state.mastery, timestamp: new Date().toISOString() }
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    details: { 
+                        level: state.level, 
+                        mastery: state.mastery, 
+                        ts: new Date().toISOString() 
+                    }
                 };
 
-                if (existingRows && existingRows.length > 0) {
-                    // Update the first one found
-                    await sbClient.from('student_results').update(payload).eq('id', existingRows[0].id);
-                } else {
-                    // Insert new if none exist
-                    await sbClient.from('student_results').insert([payload]);
-                }
+                const batch = db.batch();
+                // 1. Live Session Node (Nested)
+                const liveRef = db.collection('student_results').doc(assignmentName).collection('students').doc(state.id);
+                batch.set(liveRef, payload, { merge: true });
+
+                // 2. Archive Node (Flat)
+                const archiveRef = db.collection('student_results_archive').doc(`${state.id}_${assignmentName}`);
+                batch.set(archiveRef, payload, { merge: true });
+
+                await batch.commit();
+
                 ind.textContent = "Database_Secure";
             } catch (e) {
                 console.error(e);

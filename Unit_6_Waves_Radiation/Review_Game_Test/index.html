@@ -13,7 +13,8 @@
         rel="stylesheet">
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="questions.js"></script>
 
     <script>
@@ -280,19 +281,24 @@
     </main>
 
     <script>
-        /**
-         * Auth & Supabase
-         */
-        const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
-        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
-        const sbClient = supabase.createClient(SB_URL, SB_KEY);
+        const firebaseConfig = {
+            projectId: "site-6e500",
+            appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+            storageBucket: "site-6e500.firebasestorage.app",
+            apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+            authDomain: "site-6e500.firebaseapp.com",
+            messagingSenderId: "591530758858"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
         const state = {
             student: { id: '', name: '', period: null },
             lang: 'en',
             history: [], // Array of 1s (correct) and 0s (incorrect)
             currentQ: null,
-            timerLimit: 15, // Default timer limit
+            timerLimit: 15,
             timer: 15,
             timerInterval: null,
             isSyncing: false,
@@ -301,7 +307,6 @@
             animFrame: null
         };
 
-        // Utility to shuffle an array
         function shuffleArray(array) {
             let cur = array.length, ran;
             while (cur !== 0) {
@@ -312,9 +317,6 @@
             return array;
         }
         
-        /**
-         * Security / Anti-Cheat Detection
-         */
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'hidden') handleFocusLoss();
         });
@@ -323,10 +325,8 @@
         function handleFocusLoss() {
             const gameContainer = document.getElementById('game-container');
             const nextOverlay = document.getElementById('next-overlay');
-            
-            // Only trigger if the game is visible and the question hasn't been answered yet
             if (gameContainer && !gameContainer.classList.contains('hidden') && nextOverlay && nextOverlay.classList.contains('hidden')) {
-                handleAnswer(-2, null); // Special code -2 for focus loss
+                handleAnswer(-2, null);
             }
         }
 
@@ -346,45 +346,32 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 state.student.period = urlParams.get('p') || urlParams.get('period');
 
-                const { data } = await sbClient.from('student_results').select('student_name, class_period')
-                    .eq('student_id', id).order('created_at', { ascending: false }).limit(1).maybeSingle();
+                // 1. Check Roster for Name/Period
+                const rosterSnap = await db.collection('roster').doc(id).get();
+                const assignmentName = "Unit 6 Rapid Review";
 
-                if (data) {
-                    state.student.name = data.student_name;
+                if (rosterSnap.exists) {
+                    const data = rosterSnap.data();
+                    state.student.name = data.full_name;
                     state.student.id = id;
                     if (!state.student.period) state.student.period = data.class_period;
 
-                    // Fetch existing rolling score
-                    const { data: progress } = await sbClient.from('student_results')
-                        .select('details')
-                        .eq('student_id', id)
-                        .eq('assignment_name', "Unit 6 Rapid Review")
-                        .maybeSingle();
+                    // 2. Check for existing progress
+                    const studentDocRef = db.collection('student_results').doc(assignmentName).collection('students').doc(id);
+                    const progressSnap = await studentDocRef.get();
 
-                    if (progress && progress.details && progress.details.history) {
-                        state.history = progress.details.history;
-                        state.questionIndex = progress.details.totalQuestionsAnswered || 0;
+                    if (progressSnap.exists) {
+                        const progress = progressSnap.data();
+                        if (progress.details && progress.details.history) {
+                            state.history = progress.details.history;
+                            state.questionIndex = progress.details.totalQuestionsAnswered || 0;
+                        }
                     }
 
-                    // --- NEW: Check for Accommodations ---
-                    try {
-                        const { data: accData, error: accError } = await sbClient.from('student_accommodations')
-                            .select('timer_limit')
-                            .eq('student_id', id)
-                            .maybeSingle();
-                        
-                        if (accError) throw accError;
-
-                        if (accData && accData.timer_limit) {
-                            state.timerLimit = accData.timer_limit;
-                        } else {
-                            state.timerLimit = 15; // Reset to default
-                        }
-                    } catch (accErr) {
-                        console.error("Accommodation check failed:", accErr);
-                        // We don't block login, but we'll show a subtle warning
-                        status.textContent = "ACC_SYNC_ERR // USING_DEFAULT";
-                        state.timerLimit = 15;
+                    // 3. Check for Accommodations
+                    const accSnap = await db.collection('student_accommodations').doc(id).get();
+                    if (accSnap.exists && accSnap.data().timer_limit) {
+                        state.timerLimit = accSnap.data().timer_limit;
                     }
 
                     finalizeLogin();
@@ -395,24 +382,11 @@
                     const name = nameInput.value.trim();
                     if (name.length < 3) { status.textContent = "NAME TOO SHORT"; btn.disabled = false; return; }
                     state.student.name = name; state.student.id = id;
-
-                    // --- NEW: Check for Accommodations (New User) ---
-                    try {
-                        const { data: accData, error: accError } = await sbClient.from('student_accommodations')
-                            .select('timer_limit')
-                            .eq('student_id', id)
-                            .maybeSingle();
-                        
-                        if (accError) throw accError;
-
-                        if (accData && accData.timer_limit) {
-                            state.timerLimit = accData.timer_limit;
-                        } else {
-                            state.timerLimit = 15;
-                        }
-                    } catch (accErr) {
-                        console.error("Accommodation check failed:", accErr);
-                        state.timerLimit = 15;
+                    
+                    // New user check for accommodations
+                    const accSnap = await db.collection('student_accommodations').doc(id).get();
+                    if (accSnap.exists && accSnap.data().timer_limit) {
+                        state.timerLimit = accSnap.data().timer_limit;
                     }
 
                     finalizeLogin();
@@ -430,18 +404,13 @@
             document.getElementById('student-tag').textContent = `${state.student.name} // ${state.student.id}`;
             document.getElementById('sync-indicator').classList.add('bg-emerald-500', 'shadow-[0_0_8px_#10b981]');
 
-            // Update UI for accommodations
             if (state.timerLimit !== 15) {
                 const tag = document.getElementById('student-tag');
                 tag.innerHTML += ` <span class="bg-amber-500/20 text-amber-500 px-2 py-0.5 rounded ml-2 border border-amber-500/30 animate-pulse">🕒 ${state.timerLimit}s</span>`;
-                
                 const instructions = document.getElementById('pre-game-instructions');
-                if (instructions) {
-                    instructions.textContent = instructions.textContent.replace('15 seconds', `${state.timerLimit} seconds`);
-                }
+                if (instructions) instructions.textContent = instructions.textContent.replace('15 seconds', `${state.timerLimit} seconds`);
             }
-
-            updateHistoryUI(); // Initial draw of history
+            updateHistoryUI();
         }
 
         async function syncData() {
@@ -452,20 +421,17 @@
             ind.className = 'w-2 h-2 rounded-full bg-orange-500 animate-pulse shadow-[0_0_8px_#f97316]';
 
             try {
-                // Calculate score: out of 20, how many 1s?
                 let correctCount = state.history.filter(x => x === 1).length;
-                let finalScore = state.history.length === 20 ? (correctCount / 20) * 100 : (correctCount / 20) * 100; // Even if < 20, out of 20.
+                let finalScore = Math.round((correctCount / 20) * 100);
 
                 const assignmentName = "Unit 6 Rapid Review";
-                const { data } = await sbClient.from('student_results')
-                    .select('id').eq('student_id', state.student.id).eq('assignment_name', assignmentName).limit(1);
-
                 const payload = {
                     student_name: state.student.name,
                     student_id: state.student.id,
                     class_period: state.student.period,
                     assignment_name: assignmentName,
-                    score: Math.round(finalScore),
+                    score: finalScore,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                     details: {
                         history: state.history,
                         totalQuestionsAnswered: state.questionIndex,
@@ -474,11 +440,16 @@
                     }
                 };
 
-                if (data && data.length > 0) {
-                    await sbClient.from('student_results').update(payload).eq('id', data[0].id);
-                } else {
-                    await sbClient.from('student_results').insert([payload]);
-                }
+                const batch = db.batch();
+                // 1. Live Session Node (Nested)
+                const liveRef = db.collection('student_results').doc(assignmentName).collection('students').doc(state.student.id);
+                batch.set(liveRef, payload, { merge: true });
+
+                // 2. Archive Node (Flat)
+                const archiveRef = db.collection('student_results_archive').doc(`${state.student.id}_${assignmentName}`);
+                batch.set(archiveRef, payload, { merge: true });
+
+                await batch.commit();
                 ind.className = 'w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]';
             } catch (e) {
                 console.error(e);

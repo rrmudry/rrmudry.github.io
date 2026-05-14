@@ -12,7 +12,20 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            projectId: "site-6e500",
+            appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+            storageBucket: "site-6e500.firebasestorage.app",
+            apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+            authDomain: "site-6e500.firebaseapp.com",
+            messagingSenderId: "591530758858"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
     
     <script>
         tailwind.config = {
@@ -384,9 +397,6 @@
         /**
          * Authentication & Persistence Setup
          */
-        const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
-        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
-        const sbClient = supabase.createClient(SB_URL, SB_KEY);
 
         /**
          * Application State
@@ -531,31 +541,33 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 let urlPeriod = urlParams.get('p') || urlParams.get('period');
 
-                const { data, error } = await sbClient.from('student_results')
-                    .select('student_name, class_period')
-                    .eq('student_id', id)
-                    .order('created_at', { ascending: false })
-                    .limit(1)
-                    .maybeSingle();
+                // 1. Check Roster
+                const rosterSnap = await db.collection('roster').doc(id).get();
 
-                if (data) {
-                    state.student.name = data.student_name;
+                if (rosterSnap.exists) {
+                    const rosterData = rosterSnap.data();
+                    state.student.name = rosterData.full_name;
                     state.student.id = id;
-                    state.student.period = urlPeriod || data.class_period || null;
+                    state.student.period = urlPeriod || rosterData.class_period || null;
                     
-                    const { data: progressData } = await sbClient.from('student_results').select('details').eq('student_id', id).eq('assignment_name', "WaveMaster Lab").maybeSingle();
-                    if (progressData && progressData.details) {
-                        state.module = progressData.details.currentModule || 1;
-                        state.mod1.taskIndex = progressData.details.tasks?.m1 || 0;
-                        state.mod2.taskIndex = progressData.details.tasks?.m2 || 0;
-                        state.mod3.taskIndex = progressData.details.tasks?.m3 || 0;
-                        state.mod4.taskIndex = progressData.details.tasks?.m4 || 0;
-                        state.taskConfig = progressData.details.taskConfig || {};
-                        
-                        // Restore visual targets if we were mid-task
-                        if (state.taskConfig.m1t0) {
-                            state.mod1.targetA = state.taskConfig.m1t0.targetA;
-                            state.mod1.targetL = state.taskConfig.m1t0.targetL;
+                    const assignmentName = "WaveMaster Lab";
+                    const progressSnap = await db.collection('student_results').doc(assignmentName).collection('students').doc(id).get();
+
+                    if (progressSnap.exists) {
+                        const progressData = progressSnap.data();
+                        if (progressData.details) {
+                            state.module = progressData.details.currentModule || 1;
+                            state.mod1.taskIndex = progressData.details.tasks?.m1 || 0;
+                            state.mod2.taskIndex = progressData.details.tasks?.m2 || 0;
+                            state.mod3.taskIndex = progressData.details.tasks?.m3 || 0;
+                            state.mod4.taskIndex = progressData.details.tasks?.m4 || 0;
+                            state.taskConfig = progressData.details.taskConfig || {};
+                            
+                            // Restore visual targets if we were mid-task
+                            if (state.taskConfig.m1t0) {
+                                state.mod1.targetA = state.taskConfig.m1t0.targetA;
+                                state.mod1.targetL = state.taskConfig.m1t0.targetL;
+                            }
                         }
                     }
                     finalizeLogin();
@@ -617,7 +629,6 @@
             
             try {
                 const assignmentName = "WaveMaster Lab";
-                const { data } = await sbClient.from('student_results').select('id').eq('student_id', state.student.id).eq('assignment_name', assignmentName).limit(1);
                 
                 // Cumulative Scoring Logic: 25 points per module weighted by task count
                 let totalScore = 0;
@@ -633,6 +644,7 @@
                     class_period: state.student.period,
                     assignment_name: assignmentName,
                     score: Math.min(100, Math.round(totalScore)),
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                     details: { 
                         currentModule: state.module,
                         tasks: {
@@ -646,11 +658,16 @@
                     }
                 };
 
-                if (data && data.length > 0) {
-                    await sbClient.from('student_results').update(payload).eq('id', data[0].id);
-                } else {
-                    await sbClient.from('student_results').insert([payload]);
-                }
+                const batch = db.batch();
+                // 1. Live Session Node (Nested)
+                const liveRef = db.collection('student_results').doc(assignmentName).collection('students').doc(state.student.id);
+                batch.set(liveRef, payload, { merge: true });
+
+                // 2. Archive Node (Flat)
+                const archiveRef = db.collection('student_results_archive').doc(`${state.student.id}_${assignmentName}`);
+                batch.set(archiveRef, payload, { merge: true });
+
+                await batch.commit();
                 
                 if (ind) {
                     ind.classList.remove('bg-orange-500', 'animate-pulse');

@@ -6,7 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live Progress Race // Teacher Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            projectId: "site-6e500",
+            appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+            storageBucket: "site-6e500.firebasestorage.app",
+            apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+            authDomain: "site-6e500.firebaseapp.com",
+            messagingSenderId: "591530758858"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
     <link
         href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap"
         rel="stylesheet">
@@ -468,21 +481,15 @@
     </div>
 
     <script>
-        const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
-        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
-        const sbClient = supabase.createClient(SB_URL, SB_KEY);
 
         const premiumIcons = ["🏎️", "🚀", "🛸", "🏍️", "🏃", "🚴", "🏇", "🐆"];
 
         async function init() {
             try {
-                const { data, error } = await sbClient
-                    .from('student_results')
-                    .select('assignment_name');
-
-                if (error) throw error;
-
-                const uniques = [...new Set(data.map(r => r.assignment_name))].filter(Boolean).sort();
+                // In Firestore, assignments are document IDs in 'student_results'
+                const snap = await db.collection('student_results').get();
+                const uniques = snap.docs.map(doc => doc.id).sort();
+                
                 const select = document.getElementById('assignment-select');
                 select.innerHTML = uniques.map(a => `<option value="${a}">${a}</option>`).join('');
 
@@ -505,37 +512,38 @@
             const period = document.getElementById('period-select').value;
             if (!assignment) return;
 
-            let query = sbClient
-                .from('student_results')
-                .select('*')
-                .eq('assignment_name', assignment);
+            try {
+                let query = db.collection('student_results').doc(assignment).collection('students');
+                
+                if (period !== "ALL") {
+                    query = query.where('class_period', '==', period);
+                }
 
-            if (period !== "ALL") {
-                query = query.eq('class_period', period);
+                const snap = await query.get();
+                const data = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                // Partition into Finished and Active
+                const finished = data.filter(s => s.score === 100);
+                const active = data.filter(s => s.score < 100);
+
+                // Detailed Sorting Logic for Podium:
+                // 1. Score (100 is best)
+                // 2. Finish Time or Update Time (Earlier is better)
+                const allSorted = [...data].sort((a, b) => {
+                    if (b.score !== a.score) return b.score - a.score;
+                    // Tie-breaker: use details.ts if available, otherwise updated_at, otherwise created_at
+                    const timeA = new Date(a.details?.ts || a.updated_at || a.created_at);
+                    const timeB = new Date(b.details?.ts || b.updated_at || b.created_at);
+                    return timeA - timeB;
+                });
+
+                updatePodium(allSorted);
+                updateTrack(active);
+                updateFinishedList(finished);
+                updateStats(data);
+            } catch (err) {
+                console.error("Refresh Error:", err);
             }
-
-            const { data, error } = await query;
-            if (error) return;
-
-            // Partition into Finished and Active
-            const finished = data.filter(s => s.score === 100);
-            const active = data.filter(s => s.score < 100);
-
-            // Detailed Sorting Logic for Podium:
-            // 1. Score (100 is best)
-            // 2. Finish Time or Update Time (Earlier is better)
-            const allSorted = [...data].sort((a, b) => {
-                if (b.score !== a.score) return b.score - a.score;
-                // Tie-breaker: use details.ts if available, otherwise updated_at, otherwise created_at
-                const timeA = new Date(a.details?.ts || a.updated_at || a.created_at);
-                const timeB = new Date(b.details?.ts || b.updated_at || b.created_at);
-                return timeA - timeB;
-            });
-
-            updatePodium(allSorted);
-            updateTrack(active);
-            updateFinishedList(finished);
-            updateStats(data);
         }
 
         function updatePodium(sorted) {

@@ -7,10 +7,21 @@
     <title>Big Bang Theory & Hubble's Law Explorer</title>
     <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Desmos API -->
     <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
-    <!-- Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            projectId: "site-6e500",
+            appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+            storageBucket: "site-6e500.firebasestorage.app",
+            apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+            authDomain: "site-6e500.firebaseapp.com",
+            messagingSenderId: "591530758858"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
     <style>
         /* Custom Styles for Interactive Elements */
         body {
@@ -1090,10 +1101,6 @@
 
     <!-- Application Logic -->
     <script>
-        // --- Supabase Setup ---
-        const SB_URL = "https://ddekegwvaunpsbxrwdqf.supabase.co";
-        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWtlZ3d2YXVucHNieHJ3ZHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjI3NjAsImV4cCI6MjA5MDAzODc2MH0.9cP15n9olbF4TWO5Vc9Z3mnroE3FiQPcEYTtFtjNWRI";
-        const sbClient = supabase.createClient(SB_URL, SB_KEY);
 
         /**
          * Simulation Data & Constants
@@ -1250,39 +1257,35 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 const urlPeriod = urlParams.get('p') || urlParams.get('period');
 
-                const { data: userData } = await sbClient.from('student_results')
-                    .select('student_name, class_period')
-                    .eq('student_id', id)
-                    .limit(1)
-                    .maybeSingle();
+                // 1. Check Roster
+                const rosterSnap = await db.collection('roster').doc(id).get();
 
-                if (userData) {
-                    state.studentName = userData.student_name;
+                if (rosterSnap.exists) {
+                    const rosterData = rosterSnap.data();
+                    state.studentName = rosterData.full_name;
                     state.studentId = id;
-                    state.classPeriod = urlPeriod || userData.class_period;
+                    state.classPeriod = urlPeriod || rosterData.class_period;
 
-                    const { data: progressData } = await sbClient.from('student_results')
-                        .select('details, score')
-                        .eq('student_id', id)
-                        .eq('assignment_name', state.assignmentName)
-                        .order('created_at', { ascending: false })
-                        .limit(1)
-                        .maybeSingle();
+                    // 2. Check for existing progress
+                    const progressSnap = await db.collection('student_results').doc(state.assignmentName).collection('students').doc(id).get();
 
-                    if (progressData && progressData.details) {
-                        state.recordedData = progressData.details.recordedData || [];
-                        state.isCalculated = progressData.details.isCalculated || false;
-                        state.assessmentFinished = progressData.details.assessmentFinished || false;
-                        
-                        // Protect against legacy saves where assessmentScore was missing
-                        if (progressData.details.assessmentScore !== undefined) {
-                            state.assessment.score = progressData.details.assessmentScore;
-                        } else if (state.assessmentFinished) {
-                            // Recover score if they had a runaway exponential score glitch
-                            state.assessment.score = Math.floor(Math.max((progressData.score - 60) / 4, 0));
-                            if (state.assessment.score > 10) state.assessment.score = 10;
-                        } else {
-                            state.assessment.score = 0;
+                    if (progressSnap.exists) {
+                        const progressData = progressSnap.data();
+                        if (progressData.details) {
+                            state.recordedData = progressData.details.recordedData || [];
+                            state.isCalculated = progressData.details.isCalculated || false;
+                            state.assessmentFinished = progressData.details.assessmentFinished || false;
+                            
+                            // Protect against legacy saves where assessmentScore was missing
+                            if (progressData.details.assessmentScore !== undefined) {
+                                state.assessment.score = progressData.details.assessmentScore;
+                            } else if (state.assessmentFinished) {
+                                // Recover score if they had a runaway exponential score glitch
+                                state.assessment.score = Math.floor(Math.max((progressData.score - 60) / 4, 0));
+                                if (state.assessment.score > 10) state.assessment.score = 10;
+                            } else {
+                                state.assessment.score = 0;
+                            }
                         }
                     }
 
@@ -1342,9 +1345,6 @@
 
             try {
                 // Dynamically calculate score out of 100 to show progressive completion
-                // - Up to 50% for recording 5 galaxies (10% each)
-                // - 10% for correctly calculating the Hubble Constant
-                // - Up to 40% for the final assessment (10 questions * 4% each)
                 let finalScore = Math.min(50, state.recordedData.length * 10);
                 if (state.isCalculated) finalScore += 10;
                 if (state.assessmentFinished && state.assessment.score) {
@@ -1357,28 +1357,26 @@
                     class_period: state.classPeriod,
                     assignment_name: state.assignmentName,
                     score: finalScore,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                     details: {
                         recordedData: state.recordedData,
                         isCalculated: state.isCalculated,
                         assessmentFinished: state.assessmentFinished,
                         assessmentScore: state.assessment.score,
-                        timestamp: new Date().toISOString()
+                        ts: new Date().toISOString()
                     }
                 };
 
-                const { data } = await sbClient.from('student_results')
-                    .select('id')
-                    .eq('student_id', state.studentId)
-                    .eq('assignment_name', state.assignmentName)
-                    .order('created_at', { ascending: false })
-                    .limit(1)
-                    .maybeSingle();
+                const batch = db.batch();
+                // 1. Live Session Node (Nested)
+                const liveRef = db.collection('student_results').doc(state.assignmentName).collection('students').doc(state.studentId);
+                batch.set(liveRef, payload, { merge: true });
 
-                if (data) {
-                    await sbClient.from('student_results').update(payload).eq('id', data.id);
-                } else {
-                    await sbClient.from('student_results').insert([payload]);
-                }
+                // 2. Archive Node (Flat)
+                const archiveRef = db.collection('student_results_archive').doc(`${state.studentId}_${state.assignmentName}`);
+                batch.set(archiveRef, payload, { merge: true });
+
+                await batch.commit();
 
                 ui.syncIndicator.textContent = "DATABASE_SECURE";
                 ui.syncIndicator.classList.replace('text-amber-500', 'text-green-500');
