@@ -6,28 +6,28 @@
 
 ---
 
-## Week 1: The Spark – Charge, Fields, and Energy Flow
-**Goal:** Move from static electricity concepts to the dynamic flow of energy in simple circuits.
+## Week 1: Launch & Spark – From Rockets to Fields
+**Goal:** Wrap up the Rocketry engineering cycle and transition into the fundamental forces of Electricity.
 
-### Day 1: Invisible Forces (Coulomb's Law & Static)
-*   **Focus:** Introduce charge, attraction/repulsion, and Coulomb's Law conceptually. Compare it to gravity (HS-PS2-4).
-*   **Activity:** Classic static demonstrations (balloons, electroscopes, or John Travoltage PhET simulation) to visualize invisible forces.
+### Day 1: Rocket Project Extension (Stability Iteration)
+*   **Focus:** Engineering iteration. Using flight data from previous weeks to improve fin stability and recovery.
+*   **Activity:** Workshop day for rebuilding/modifying 2-liter bottle rockets.
 
-### Day 2: The Electric Field
-*   **Focus:** Shift from "action at a distance" to field theory (HS-PS3-5). How do fields store potential energy?
-*   **Activity:** Draw electric field lines. Map the similarities to magnetic and gravitational fields.
+### Day 2: Final Launch & Analysis
+*   **Focus:** Data collection and final performance testing.
+*   **Activity:** Final rocket launches. Students record stability observations and calculate basic trajectory metrics.
 
-### Day 3: The Simple Circuit & Energy Transfer
-*   **Focus:** Introduce the EUDAX kits. Define voltage (push), current (flow), and resistance (obstacle).
-*   **Activity:** Build the simplest circuit: battery, switch, and lightbulb. Trace the energy conversion: Chemical -> Electrical Field -> Light/Thermal.
+### Day 3: The Van de Graaff Spark & Annotated Reading
+*   **Focus:** Introduce charge, fields, and action at a distance (HS-PS2-4, HS-PS3-5).
+*   **Activity:** Van de Graaff generator demonstrations (hair standing, sparks). Students work on the [Annotated Reading](https://docs.google.com/document/d/1sZa3-Rs5Z5VwNP0NrhcdVlkp_yHXZMGY0rN0QmRrf28/edit?usp=sharing) regarding Coulomb's Law and the "Invisible Field" concept.
 
-### Day 4: Conductors, Insulators, and "The Short"
-*   **Focus:** What makes a material conductive? What happens when energy has no safe place to go?
-*   **Activity:** Test materials in the room for conductivity using a simple circuit. Perform the controlled "short circuit" demonstration (feeling the wire get warm) to discuss thermal energy dissipation safely.
+### Day 4: Simple Circuits & Energy Flow
+*   **Focus:** Transitioning from static charge to moving current. Define voltage, current, and resistance.
+*   **Activity:** Build the simplest circuit with EUDAX kits. Test room materials for conductivity (HS-PS3-3). Discuss the "short circuit" as thermal energy dissipation.
 
 ### Day 5: The Fruit Battery Lab
-*   **Focus:** Reinforce that batteries are chemical reactors, not magic.
-*   **Activity:** Stick copper and zinc electrodes into lemons/potatoes. Use the kit's voltmeter to measure the output and try to light a small LED.
+*   **Focus:** Reinforce that batteries are chemical reactors (HS-PS3-3).
+*   **Activity:** Construct lemon/potato batteries. Measure voltage and attempt to power a small LED.
 
 ---
 
