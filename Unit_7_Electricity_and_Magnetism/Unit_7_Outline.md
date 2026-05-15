@@ -25,9 +25,9 @@
 *   **Focus:** Transitioning from static charge to moving current. Define voltage, current, and resistance.
 *   **Activity:** Build the simplest circuit with EUDAX kits. Test room materials for conductivity (HS-PS3-3). Discuss the "short circuit" as thermal energy dissipation.
 
-### Day 5: The Fruit Battery Lab
-*   **Focus:** Reinforce that batteries are chemical reactors (HS-PS3-3).
-*   **Activity:** Construct lemon/potato batteries. Measure voltage and attempt to power a small LED.
+### Day 5: Circuit Diagram Symbols & Virtual Lab
+*   **Focus:** Master the visual language of electronics using standard symbols and virtual simulations (HS-PS3-3).
+*   **Activity:** Learn to translate physical components into standard schematic symbols. Use the [PhET DC Circuit Construction Kit](https://phet.colorado.edu/en/simulations/circuit-construction-kit-dc-virtual-lab) to build virtual circuits and complete the guided [Analysis Document](https://docs.google.com/document/d/1R2oaA7OXGS9rTVmTqJ1pqz9px860v6jGDGwirT3Z1Fs/edit?usp=sharing).
 
 ---
 
