@@ -809,11 +809,11 @@
                     details: {
                         status: statusLabel,
                         violations: finalViolations,
-                        last_alert: finalViolations.length > 0 ? finalViolations[0].type : (existing?.details?.last_alert || "NONE"),
+                        last_alert: finalViolations.length > 0 ? finalViolations[0].type : (student.details?.last_alert || "NONE"),
                         ts: new Date().toISOString(),
-                        sync_count: (existing?.details?.sync_count || 0) + 1,
-                        is_locked: existing?.details?.is_locked || false,
-                        is_unlocked_override: existing?.details?.is_unlocked_override || false
+                        sync_count: (student.details?.sync_count || 0) + 1
+                        // NOTE: is_locked and is_unlocked_override are managed by the proctor dashboard
+                        // and should not be overwritten by the student client.
                     },
                     session_progress: {
                         current_question: currentQuestionIndex,
@@ -1392,9 +1392,19 @@
                     TIME_LIMIT_MINS = parseFloat(data.time_limit_mins) || 15;
                     console.log(`[CONFIG] Base Rules Loaded: ${MAX_QUESTIONS} Qs, ${TIME_LIMIT_MINS} Mins`);
                 }
+                
+                // FIRST: Fetch the current proctoring config once
+                const configSnap = await db.collection('student_results').doc(ASSIGNMENT_NAME).get();
+                const initialConfig = configSnap.exists ? configSnap.data() : null;
+                if (initialConfig) {
+                    assignmentSettings = {
+                        is_global_locked: initialConfig.is_global_locked !== undefined ? initialConfig.is_global_locked : true,
+                        locked_periods: initialConfig.locked_periods || [],
+                        silenced_alerts: initialConfig.silenced_alerts || []
+                    };
+                }
 
                 // SECOND: Real-time listener for proctoring settings (lock/silence)
-                // This ensures the lock overlay responds immediately when the proctor toggles the lock
                 db.collection('student_results').doc(ASSIGNMENT_NAME).onSnapshot(configDoc => {
                     const proctorConfig = configDoc.exists ? configDoc.data() : null;
 
@@ -1404,17 +1414,12 @@
                             locked_periods: proctorConfig.locked_periods || [],
                             silenced_alerts: proctorConfig.silenced_alerts || []
                         };
-                    } else {
-                        // Default to locked if no config exists
-                        assignmentSettings.is_global_locked = true;
                     }
                     checkAccessControl();
                 }, err => {
                     console.error("Config listener error:", err);
-                    // Default to locked on error
-                    assignmentSettings.is_global_locked = true;
-                    checkAccessControl();
                 });
+
                 if (!data) {
                     console.warn(`[CONFIG] No assessment record found for "${ASSIGNMENT_NAME}". Using defaults.`);
                 }
