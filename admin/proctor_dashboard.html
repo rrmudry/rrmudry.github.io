@@ -465,6 +465,18 @@
             broadcastActive(assignment, period);
         }
 
+        function isStudentLocked(s) {
+            const isGlobalLocked = assignmentSettings.is_global_locked;
+            const studentPeriod = parseInt(String(s.class_period || '').replace(/\D/g, ''));
+            const isPeriodLocked = assignmentSettings.locked_periods && assignmentSettings.locked_periods.includes(studentPeriod);
+            const isIndividualLocked = s.details?.is_locked || s.status === "LOCKED_BY_PROCTOR";
+            const isUnlockedOverride = s.details?.is_unlocked_override || false;
+            
+            // Override takes precedence over all other lock sources
+            if (isUnlockedOverride) return false;
+            return isGlobalLocked || isPeriodLocked || isIndividualLocked;
+        }
+
         async function broadcastActive(assignmentId, period) {
             try {
                 const update = {};
@@ -506,14 +518,9 @@
                 const isFinished = (s.status && s.status.startsWith('COMPLETED')) || (details.status && details.status.startsWith('COMPLETED'));
                 const isCritical = (violations.length > 0 || (details.status && details.status.includes('ALERT'))) && !isFinished;
                 
-                // Check ALL lock sources: global, period, and individual
-                const isGlobalLocked = assignmentSettings.is_global_locked;
+                const isLocked = isStudentLocked(s);
                 const studentPeriod = parseInt(String(s.class_period || '').replace(/\D/g, ''));
-                const isPeriodLocked = assignmentSettings.locked_periods && assignmentSettings.locked_periods.includes(studentPeriod);
-                const isIndividualLocked = s.details?.is_locked || false;
-                const isUnlockedOverride = s.details?.is_unlocked_override || false;
-                const isLocked = isUnlockedOverride ? false : (isGlobalLocked || isPeriodLocked || isIndividualLocked);
-                const lockSource = isGlobalLocked ? 'GLOBAL' : (isPeriodLocked ? `P${studentPeriod}` : 'INDIVIDUAL');
+                const lockSource = assignmentSettings.is_global_locked ? 'GLOBAL' : (assignmentSettings.locked_periods.includes(studentPeriod) ? `P${studentPeriod}` : 'INDIVIDUAL');
 
                 // Extract score display (e.g. "3 / 5" from "COMPLETED: 3 / 5")
                 const scoreDisplay = isFinished && s.status ? s.status.replace('COMPLETED: ', '') : s.score;
@@ -664,7 +671,7 @@
             const s = window.currentStudents.find(std => std.id === recordId);
             if (!s) return;
             
-            const isCurrentlyLocked = s.details?.is_locked || s.status === "LOCKED_BY_PROCTOR";
+            const isCurrentlyLocked = isStudentLocked(s);
             const newLockedState = !isCurrentlyLocked;
             
             const newDetails = {
@@ -820,10 +827,10 @@
             
             // Buttons logic
             document.getElementById('modal-btn-clear').onclick = () => { acknowledgeStudent(null, s.id); };
-            const isIndividualLocked = s.details?.is_locked || s.status === "LOCKED_BY_PROCTOR";
+            const isLocked = isStudentLocked(s);
             const lockBtn = document.getElementById('modal-btn-lock');
             lockBtn.onclick = () => lockStudent(s.id);
-            if (isIndividualLocked) {
+            if (isLocked) {
                 lockBtn.textContent = 'Unlock Node';
                 lockBtn.className = "bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 border border-emerald-500/20 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all";
             } else {
