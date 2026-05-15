@@ -4,10 +4,10 @@ service cloud.firestore {
     
     // Check if the user is an admin
     function isAdmin() {
-      return request.auth != null && (
-        request.auth.token.email == "rmudry@orangeusd.org" ||
-        request.auth.token.email == "ryan.mudry@gmail.com" ||
-        request.auth.token.email == "ryanmudry@gmail.com"
+      return request.auth != null && request.auth.token.email != null && (
+        request.auth.token.email.lower() == "rmudry@orangeusd.org" ||
+        request.auth.token.email.lower() == "ryan.mudry@gmail.com" ||
+        request.auth.token.email.lower() == "ryanmudry@gmail.com"
       );
     }
 
