@@ -1202,6 +1202,18 @@
 
                     if (faces.length === 0) {
                         faceMissingCount++;
+                        // If face is gone for ~5 seconds (approx 3-4 detection loops)
+                        if (faceMissingCount >= 3) {
+                            if (now - lastVisualLossWarning > 10000) {
+                                const type = isTesting ? "Visual Loss" : "PRE-TEST: Visual Loss";
+                                logViolation(type, "Camera is obscured or student's face is not visible.");
+                                lastVisualLossWarning = now;
+                            }
+                        }
+                    } else {
+                        faceMissingCount = 0; // Reset as soon as face is back
+                    }
+
                 } catch (e) {
                     console.error("Detection error: ", e);
                 }

@@ -444,14 +444,17 @@
                             details: liveStudent.details || mergedData[existingIndex].details
                         };
                     } else {
-                        // Add live student NOT in roster
-                        mergedData.push({
-                            ...liveStudent,
-                            student_name: liveStudent.student_name || 'Unknown Student',
-                            class_period: liveStudent.class_period || '?',
-                            score: liveStudent.score || 0,
-                            details: liveStudent.details || { status: 'OFFLINE', violations: [] }
-                        });
+                        // Add live student NOT in roster, ONLY IF they match the current period filter
+                        let studentPeriod = String(liveStudent.class_period || '').replace(/\D/g, '');
+                        if (period === 'ALL' || studentPeriod === String(period)) {
+                            mergedData.push({
+                                ...liveStudent,
+                                student_name: liveStudent.student_name || 'Unknown Student',
+                                class_period: liveStudent.class_period || '?',
+                                score: liveStudent.score || 0,
+                                details: liveStudent.details || { status: 'OFFLINE', violations: [] }
+                            });
+                        }
                     }
                 });
 
