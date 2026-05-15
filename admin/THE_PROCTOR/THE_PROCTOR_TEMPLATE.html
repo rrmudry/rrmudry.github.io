@@ -478,8 +478,8 @@
                 if (profile) {
                     // Student found in database
                     student.id = id;
-                    student.name = profile.name;
-                    student.period = profile.class_period;
+                    student.name = profile.name || profile.student_name || currentUser.displayName || "Unknown Student";
+                    student.period = profile.class_period || null;
                     
                     await fetchAssessmentConfig(); // Get rules (timer/question count)
                     await fetchQuestions();        // Get questions
@@ -798,8 +798,8 @@
                 }
 
                 const payload = {
-                    student_id: student.id,
-                    student_name: student.name,
+                    student_id: student.id || "000000",
+                    student_name: student.name || currentUser?.displayName || "Unknown Student",
                     assignment_name: assignmentName,
                     class_period: student.period,
                     status: statusLabel,
