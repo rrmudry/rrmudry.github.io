@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circuit Diagram Builder</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons for the UI -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Custom scrollbar for the canvas area */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .tool-btn.active {
+            background-color: #eff6ff;
+            border-color: #3b82f6;
+            color: #1d4ed8;
+        }
+
+        .canvas-container {
+            cursor: crosshair;
+        }
+
+        .canvas-container.tool-select {
+            cursor: default;
+        }
+
+        /* Selection highlight */
+        .selected-component use {
+            filter: drop-shadow(0px 0px 3px #3b82f6);
+        }
+
+        .selected-wire {
+            stroke: #3b82f6 !important;
+            stroke-width: 4 !important;
+        }
+    </style>
+</head>
+
+<body class="flex h-screen w-full bg-slate-50 text-slate-800 font-sans overflow-hidden">
+
+    <!-- Sidebar / Toolbar -->
+    <aside
+        class="w-20 md:w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-10 shadow-[2px_0_8px_rgba(0,0,0,0.05)]">
+        <div class="p-4 border-b border-slate-100 hidden md:block">
+            <h1 class="font-bold text-lg text-slate-800">Circuit Builder</h1>
+            <p class="text-xs text-slate-500 mt-1">Standard symbols for physics.</p>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-3 space-y-2 flex flex-col items-center md:items-stretch" id="toolbar">
+            <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 hidden md:block mt-2">Tools
+            </h2>
+
+            <button
+                class="tool-btn active flex items-center justify-center md:justify-start gap-3 w-full p-3 rounded-lg border border-transparent hover:bg-slate-50 transition-colors"
+                data-tool="select" title="Select (V)">
+                <i data-lucide="mouse-pointer-2" class="w-5 h-5"></i>
+                <span class="font-medium text-sm hidden md:block">Select / Move</span>
+            </button>
+
+            <button
+                class="tool-btn flex items-center justify-center md:justify-start gap-3 w-full p-3 rounded-lg border border-transparent hover:bg-slate-50 transition-colors"
+                data-tool="wire" title="Draw Wire (W)">
+                <i data-lucide="minus" class="w-5 h-5"></i>
+                <span class="font-medium text-sm hidden md:block">Draw Wire</span>
+            </button>
+
+            <div class="h-px bg-slate-100 my-2 w-full"></div>
+            <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 hidden md:block">Components
+            </h2>
+
+            <button
+                class="tool-btn flex items-center justify-center md:justify-start gap-3 w-full p-3 rounded-lg border border-transparent hover:bg-slate-50 transition-colors"
+                data-tool="battery" title="Battery (B)">
+                <i data-lucide="battery-medium" class="w-5 h-5"></i>
+                <span class="font-medium text-sm hidden md:block">Battery</span>
+            </button>
+
+            <button
+                class="tool-btn flex items-center justify-center md:justify-start gap-3 w-full p-3 rounded-lg border border-transparent hover:bg-slate-50 transition-colors"
+                data-tool="bulb" title="Lightbulb (L)">
+                <i data-lucide="lightbulb" class="w-5 h-5"></i>
+                <span class="font-medium text-sm hidden md:block">Lightbulb</span>
+            </button>
+
+            <button
+                class="tool-btn flex items-center justify-center md:justify-start gap-3 w-full p-3 rounded-lg border border-transparent hover:bg-slate-50 transition-colors"
+                data-tool="switch" title="Switch (S)">
+                <i data-lucide="toggle-left" class="w-5 h-5"></i>
+                <span class="font-medium text-sm hidden md:block">Switch</span>
+            </button>
+
+            <button
+                class="tool-btn flex items-center justify-center md:justify-start gap-3 w-full p-3 rounded-lg border border-transparent hover:bg-slate-50 transition-colors"
+                data-tool="resistor" title="Resistor (R)">
+                <i data-lucide="activity" class="w-5 h-5"></i>
+                <span class="font-medium text-sm hidden md:block">Resistor</span>
+            </button>
+        </div>
+
+        <div class="p-3 border-t border-slate-100 space-y-2 flex flex-col items-center md:items-stretch">
+            <button id="btn-rotate"
+                class="flex items-center justify-center md:justify-start gap-3 w-full p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
+                title="Rotate Selected (R)">
+                <i data-lucide="rotate-cw" class="w-5 h-5"></i>
+                <span class="font-medium text-sm hidden md:block">Rotate (R)</span>
+            </button>
+            <button id="btn-delete"
+                class="flex items-center justify-center md:justify-start gap-3 w-full p-2 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
+                title="Delete Selected (Del)">
+                <i data-lucide="trash-2" class="w-5 h-5"></i>
+                <span class="font-medium text-sm hidden md:block">Delete</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main class="flex-1 flex flex-col relative h-full w-full bg-slate-200">
+        <!-- Topbar -->
+        <header
+            class="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-6 shadow-sm z-10 flex-shrink-0">
+            <div class="flex items-center gap-2 text-sm text-slate-500">
+                <i data-lucide="info" class="w-4 h-4"></i>
+                <span class="hidden sm:inline">Grid snaps automatically. Wires draw strictly horizontally or
+                    vertically.</span>
+                <span class="sm:hidden">Auto-snapping enabled.</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <button id="btn-clear"
+                    class="text-sm font-medium text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded hover:bg-slate-100 transition-colors">
+                    Clear All
+                </button>
+                <button id="btn-export"
+                    class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-md font-medium text-sm shadow-sm transition-colors">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                    Export PNG
+                </button>
+            </div>
+        </header>
+
+        <!-- Canvas Container -->
+        <div id="canvas-wrapper" class="flex-1 overflow-auto p-4 sm:p-12 canvas-container tool-select relative">
+            <!-- Centralized SVG wrapper for centering -->
+            <div class="w-max mx-auto shadow-xl bg-white ring-1 ring-slate-200">
+                <svg id="canvas" width="1600" height="1200" class="block bg-white select-none">
+                    <defs>
+                        <!-- Grid Pattern -->
+                        <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                            <circle cx="2" cy="2" r="1" fill="#e2e8f0" />
+                        </pattern>
+
+                        <!-- Standard Physics Symbols (Centered at 0,0) -->
+                        <g id="sym-battery" stroke="#0f172a" stroke-width="2" stroke-linecap="round" fill="none">
+                            <line x1="-20" y1="0" x2="-6" y2="0" />
+                            <line x1="-6" y1="-16" x2="-6" y2="16" /> <!-- Positive (Long) -->
+                            <line x1="6" y1="-8" x2="6" y2="8" stroke-width="4" /> <!-- Negative (Short thick) -->
+                            <line x1="6" y1="0" x2="20" y2="0" />
+                            <!-- Invisible hit box for easier selection -->
+                            <rect x="-20" y="-20" width="40" height="40" fill="transparent" stroke="none"
+                                class="hitbox" />
+                        </g>
+
+                        <g id="sym-bulb" stroke="#0f172a" stroke-width="2" stroke-linecap="round" fill="none">
+                            <line x1="-20" y1="0" x2="-10" y2="0" />
+                            <circle cx="0" cy="0" r="10" />
+                            <path d="M-6,-6 L6,6 M-6,6 L6,-6" /> <!-- Filament X -->
+                            <line x1="10" y1="0" x2="20" y2="0" />
+                            <rect x="-20" y="-20" width="40" height="40" fill="transparent" stroke="none"
+                                class="hitbox" />
+                        </g>
+
+                        <g id="sym-switch" stroke="#0f172a" stroke-width="2" stroke-linecap="round" fill="none">
+                            <line x1="-20" y1="0" x2="-10" y2="0" />
+                            <circle cx="-10" cy="0" r="2" fill="#0f172a" />
+                            <circle cx="10" cy="0" r="2" fill="#0f172a" />
+                            <line x1="-10" y1="0" x2="6" y2="-12" /> <!-- Open gate -->
+                            <line x1="10" y1="0" x2="20" y2="0" />
+                            <rect x="-20" y="-20" width="40" height="40" fill="transparent" stroke="none"
+                                class="hitbox" />
+                        </g>
+
+                        <g id="sym-resistor" stroke="#0f172a" stroke-width="2" stroke-linejoin="round"
+                            stroke-linecap="round" fill="none">
+                            <line x1="-20" y1="0" x2="-14" y2="0" />
+                            <polyline points="-14,0 -10,-10 -2,10 6,-10 14,10 18,0" />
+                            <line x1="18" y1="0" x2="20" y2="0" />
+                            <rect x="-20" y="-20" width="40" height="40" fill="transparent" stroke="none"
+                                class="hitbox" />
+                        </g>
+                    </defs>
+
+                    <!-- Background Base -->
+                    <rect id="bg-rect" width="100%" height="100%" fill="url(#grid)" />
+
+                    <!-- Drawing Layer (Wires) -->
+                    <g id="layer-wires"></g>
+
+                    <!-- Temporary Wire (While drawing) -->
+                    <line id="temp-wire" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4"
+                        style="display: none;" />
+
+                    <!-- Component Layer -->
+                    <g id="layer-components"></g>
+                </svg>
+            </div>
+        </div>
+    </main>
+
+    <!-- Application Logic -->
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        // State
+        let currentTool = 'select';
+        let elements = []; // Stores { id, type, x, y, rotation } or { id, type='wire', x1, y1, x2, y2 }
+        let selectedId = null;
+        let idCounter = 0;
+        const GRID_SIZE = 20;
+
+        // Drawing state
+        let isDrawingWire = false;
+        let wireStart = { x: 0, y: 0 };
+        let isDraggingComponent = false;
+        let dragOffset = { x: 0, y: 0 };
+
+        // DOM Elements
+        const wrapper = document.getElementById('canvas-wrapper');
+        const svg = document.getElementById('canvas');
+        const layerWires = document.getElementById('layer-wires');
+        const layerComponents = document.getElementById('layer-components');
+        const tempWire = document.getElementById('temp-wire');
+
+        // Setup Tool Switching
+        document.querySelectorAll('.tool-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+                const button = e.currentTarget;
+                button.classList.add('active');
+                currentTool = button.dataset.tool;
+
+                if (currentTool === 'select') {
+                    wrapper.classList.add('tool-select');
+                } else {
+                    wrapper.classList.remove('tool-select');
+                    clearSelection();
+                }
+            });
+        });
+
+        // Utility: Snap to grid
+        function snap(val) {
+            return Math.round(val / GRID_SIZE) * GRID_SIZE;
+        }
+
+        // Utility: Get mouse coordinates relative to SVG
+        function getMousePos(e) {
+            const rect = svg.getBoundingClientRect();
+            return {
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
+            };
+        }
+
+        // --- Core Interaction Logic ---
+        svg.addEventListener('mousedown', (e) => {
+            const pos = getMousePos(e);
+            const snappedX = snap(pos.x);
+            const snappedY = snap(pos.y);
+
+            // Check if we clicked an existing element
+            const clickedGroup = e.target.closest('[data-id]');
+            const clickedId = clickedGroup ? parseInt(clickedGroup.dataset.id) : null;
+
+            if (currentTool === 'select') {
+                if (clickedId !== null) {
+                    selectedId = clickedId;
+                    const el = elements.find(el => el.id === selectedId);
+                    if (el && el.type !== 'wire') {
+                        isDraggingComponent = true;
+                        dragOffset = { x: pos.x - el.x, y: pos.y - el.y };
+                    }
+                } else {
+                    clearSelection();
+                }
+                render();
+            }
+            else if (currentTool === 'wire') {
+                isDrawingWire = true;
+                wireStart = { x: snappedX, y: snappedY };
+                tempWire.setAttribute('x1', wireStart.x);
+                tempWire.setAttribute('y1', wireStart.y);
+                tempWire.setAttribute('x2', wireStart.x);
+                tempWire.setAttribute('y2', wireStart.y);
+                tempWire.style.display = 'block';
+            }
+            else {
+                // Placing a component
+                elements.push({
+                    id: idCounter++,
+                    type: currentTool,
+                    x: snappedX,
+                    y: snappedY,
+                    rotation: 0
+                });
+                render();
+            }
+        });
+
+        svg.addEventListener('mousemove', (e) => {
+            const pos = getMousePos(e);
+
+            if (isDrawingWire) {
+                // Orthogonal drawing logic (lock to purely vertical or horizontal lines)
+                let dx = pos.x - wireStart.x;
+                let dy = pos.y - wireStart.y;
+                let endX, endY;
+
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    endX = snap(pos.x);
+                    endY = wireStart.y;
+                } else {
+                    endX = wireStart.x;
+                    endY = snap(pos.y);
+                }
+
+                tempWire.setAttribute('x2', endX);
+                tempWire.setAttribute('y2', endY);
+            }
+
+            if (isDraggingComponent && selectedId !== null) {
+                const el = elements.find(el => el.id === selectedId);
+                if (el) {
+                    el.x = snap(pos.x - dragOffset.x);
+                    el.y = snap(pos.y - dragOffset.y);
+                    render();
+                }
+            }
+        });
+
+        svg.addEventListener('mouseup', (e) => {
+            if (isDrawingWire) {
+                isDrawingWire = false;
+                tempWire.style.display = 'none';
+
+                const x1 = parseInt(tempWire.getAttribute('x1'));
+                const y1 = parseInt(tempWire.getAttribute('y1'));
+                const x2 = parseInt(tempWire.getAttribute('x2'));
+                const y2 = parseInt(tempWire.getAttribute('y2'));
+
+                // Only add if it has actual length
+                if (x1 !== x2 || y1 !== y2) {
+                    elements.push({
+                        id: idCounter++,
+                        type: 'wire',
+                        x1: x1,
+                        y1: y1,
+                        x2: x2,
+                        y2: y2
+                    });
+                    render();
+                }
+            }
+            isDraggingComponent = false;
+        });
+
+        svg.addEventListener('mouseleave', () => {
+            if (isDrawingWire) {
+                isDrawingWire = false;
+                tempWire.style.display = 'none';
+            }
+            isDraggingComponent = false;
+        });
+
+        // --- Keyboard Shortcuts & Actions ---
+        function clearSelection() {
+            selectedId = null;
+            render();
+        }
+
+        function deleteSelected() {
+            if (selectedId !== null) {
+                elements = elements.filter(el => el.id !== selectedId);
+                clearSelection();
+            }
+        }
+
+        function rotateSelected() {
+            if (selectedId !== null) {
+                const el = elements.find(el => el.id === selectedId);
+                if (el && el.type !== 'wire') {
+                    el.rotation = (el.rotation + 90) % 360;
+                    render();
+                }
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            // Prevent interference with input fields if any are added later
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+            if (e.key === 'Delete' || e.key === 'Backspace') {
+                deleteSelected();
+            } else if (e.key === 'r' || e.key === 'R') {
+                rotateSelected();
+            } else if (e.key === 'v' || e.key === 'V') { document.querySelector('[data-tool="select"]').click(); }
+            else if (e.key === 'w' || e.key === 'W') { document.querySelector('[data-tool="wire"]').click(); }
+            else if (e.key === 'b' || e.key === 'B') { document.querySelector('[data-tool="battery"]').click(); }
+            else if (e.key === 'l' || e.key === 'L') { document.querySelector('[data-tool="bulb"]').click(); }
+            else if (e.key === 's' || e.key === 'S') { document.querySelector('[data-tool="switch"]').click(); }
+        });
+
+        document.getElementById('btn-delete').addEventListener('click', deleteSelected);
+        document.getElementById('btn-rotate').addEventListener('click', rotateSelected);
+        document.getElementById('btn-clear').addEventListener('click', () => {
+            if (confirm("Are you sure you want to clear the entire canvas?")) {
+                elements = [];
+                clearSelection();
+            }
+        });
+
+        // --- Render Loop ---
+        function render() {
+            layerWires.innerHTML = '';
+            layerComponents.innerHTML = '';
+
+            elements.forEach(el => {
+                if (el.type === 'wire') {
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', el.x1);
+                    line.setAttribute('y1', el.y1);
+                    line.setAttribute('x2', el.x2);
+                    line.setAttribute('y2', el.y2);
+                    line.setAttribute('stroke', '#0f172a');
+                    line.setAttribute('stroke-width', '2');
+                    line.setAttribute('stroke-linecap', 'round');
+                    line.style.cursor = 'pointer';
+                    // Invisible wider hit area for easy clicking
+                    line.setAttribute('pointer-events', 'stroke');
+
+                    if (el.id === selectedId) {
+                        line.classList.add('selected-wire');
+                    }
+
+                    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                    g.setAttribute('data-id', el.id);
+
+                    // Add invisible thick line for better hit detection
+                    const hitLine = line.cloneNode();
+                    hitLine.setAttribute('stroke', 'transparent');
+                    hitLine.setAttribute('stroke-width', '16');
+                    hitLine.classList.remove('selected-wire');
+
+                    g.appendChild(hitLine);
+                    g.appendChild(line);
+                    layerWires.appendChild(g);
+                }
+                else {
+                    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                    g.setAttribute('data-id', el.id);
+                    g.style.cursor = currentTool === 'select' ? 'move' : 'pointer';
+
+                    if (el.id === selectedId) {
+                        g.classList.add('selected-component');
+                    }
+
+                    const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+                    use.setAttribute('href', `#sym-${el.type}`);
+                    // SVG transformations: translate to x/y, then rotate around its own center (which is 0,0)
+                    use.setAttribute('transform', `translate(${el.x}, ${el.y}) rotate(${el.rotation})`);
+
+                    g.appendChild(use);
+                    layerComponents.appendChild(g);
+                }
+            });
+        }
+
+        // --- Export logic ---
+        document.getElementById('btn-export').addEventListener('click', () => {
+            if (elements.length === 0) {
+                alert("Nothing to export! Draw a circuit first.");
+                return;
+            }
+
+            // 1. Calculate Bounding Box of all elements to auto-crop the PNG perfectly
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+            elements.forEach(el => {
+                if (el.type === 'wire') {
+                    minX = Math.min(minX, el.x1, el.x2);
+                    maxX = Math.max(maxX, el.x1, el.x2);
+                    minY = Math.min(minY, el.y1, el.y2);
+                    maxY = Math.max(maxY, el.y1, el.y2);
+                } else {
+                    // Components are 40x40 centered
+                    minX = Math.min(minX, el.x - 20);
+                    maxX = Math.max(maxX, el.x + 20);
+                    minY = Math.min(minY, el.y - 20);
+                    maxY = Math.max(maxY, el.y + 20);
+                }
+            });
+
+            // Add padding
+            const pad = 40;
+            minX -= pad; minY -= pad; maxX += pad; maxY += pad;
+            const width = maxX - minX;
+            const height = maxY - minY;
+
+            // 2. Clone SVG and prepare for export
+            const svgClone = svg.cloneNode(true);
+
+            // Remove the dotted background grid for a clean white background
+            svgClone.querySelector('#bg-rect').setAttribute('fill', 'white');
+            svgClone.querySelector('#temp-wire').remove();
+
+            // Remove selection highlights
+            svgClone.querySelectorAll('.selected-component').forEach(el => el.classList.remove('selected-component'));
+            svgClone.querySelectorAll('.selected-wire').forEach(el => el.classList.remove('selected-wire'));
+
+            // Apply bounding box crop
+            svgClone.setAttribute('viewBox', `${minX} ${minY} ${width} ${height}`);
+            svgClone.setAttribute('width', width);
+            svgClone.setAttribute('height', height);
+
+            // 3. Serialize to Image and trigger download
+            const xml = new XMLSerializer().serializeToString(svgClone);
+            const svg64 = btoa(unescape(encodeURIComponent(xml)));
+            const b64Start = 'data:image/svg+xml;base64,';
+            const image64 = b64Start + svg64;
+
+            const img = new Image();
+            img.onload = function () {
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+
+                // Draw white background
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, width, height);
+                // Draw SVG on top
+                ctx.drawImage(img, 0, 0);
+
+                // Trigger download
+                const a = document.createElement('a');
+                a.download = 'circuit-diagram.png';
+                a.href = canvas.toDataURL('image/png');
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            };
+            img.src = image64;
+        });
+
+        // Setup Initial View: Center the scroll area
+        window.onload = () => {
+            wrapper.scrollLeft = (svg.clientWidth - wrapper.clientWidth) / 2;
+            wrapper.scrollTop = (svg.clientHeight - wrapper.clientHeight) / 2;
+        };
+
+    </script>
+</body>
+
+</html>
