@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Mission Widget</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent-primary: #fbbf24;
+            --accent-secondary: #3b82f6;
+            --bg-dark: #020617;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: #f1f5f9;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .font-mono { font-family: 'Fira Code', monospace; }
+        .glass-card {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(251, 191, 36, 0.2);
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            height: calc(100% - 20px);
+            margin: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+        .scanline {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(251, 191, 36, 0.1);
+            animation: scan 4s linear infinite;
+            z-index: 50;
+            pointer-events: none;
+        }
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+        .blink { animation: blink 1.5s step-end infinite; }
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="scanline"></div>
+    
+    <div class="glass-card overflow-hidden">
+        <!-- Header -->
+        <div class="bg-amber-500/10 border-b border-amber-500/20 p-4 flex justify-between items-center">
+            <div>
+                <h1 class="text-amber-400 font-black tracking-tighter text-2xl uppercase italic">Today's Mission</h1>
+                <p id="current-date" class="font-mono text-[10px] text-amber-500/60 tracking-widest uppercase">Initializing...</p>
+            </div>
+            <div class="text-right">
+                <span id="lesson-type" class="bg-amber-500 text-black font-black text-[10px] px-2 py-0.5 rounded tracking-widest uppercase">Status: Live</span>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 p-6 flex flex-col justify-center">
+            <div id="lesson-header" class="mb-4">
+                <div class="flex items-center gap-2 mb-1">
+                    <span id="unit-label" class="text-blue-400 font-mono text-[10px] font-bold">UNIT_??</span>
+                    <span class="text-slate-600 font-mono text-[10px]">|</span>
+                    <span id="day-label" class="text-blue-400 font-mono text-[10px] font-bold">DAY_??</span>
+                </div>
+                <h2 id="lesson-title" class="text-3xl font-black text-white leading-tight tracking-tight">Mission Briefing Pending...</h2>
+            </div>
+
+            <div id="mission-body" class="space-y-4">
+                <div class="bg-white/5 p-4 rounded-lg border border-white/5">
+                    <h3 class="text-amber-400/70 font-mono text-[10px] uppercase font-bold mb-2">Essential Question</h3>
+                    <p id="essential-question" class="text-lg font-bold text-amber-100 leading-snug">"Are we ready for the objective?"</p>
+                </div>
+                
+                <div class="flex items-start gap-3">
+                    <span class="text-blue-500 text-xl font-mono mt-1">▶</span>
+                    <p id="lesson-summary" class="text-slate-400 text-sm leading-relaxed italic">Stand by for data synchronization with the central lesson repository.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="p-4 border-t border-white/5 bg-black/20 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 bg-emerald-500 rounded-full blink shadow-[0_0_8px_#10b981]"></div>
+                <span class="text-[10px] font-mono text-emerald-500/80 font-bold uppercase tracking-widest">System Operational</span>
+            </div>
+            <div id="dok-container" class="hidden">
+                <span class="text-[10px] font-mono text-slate-500 mr-2">DOK_LEVEL:</span>
+                <span id="dok-label" class="text-[10px] font-mono font-black text-amber-500">?</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Import -->
+    <script src="assets/lessons-data.js"></script>
+    <script>
+        function updateWidget() {
+            const dateEl = document.getElementById('current-date');
+            const titleEl = document.getElementById('lesson-title');
+            const eqEl = document.getElementById('essential-question');
+            const summaryEl = document.getElementById('lesson-summary');
+            const unitEl = document.getElementById('unit-label');
+            const dayEl = document.getElementById('day-label');
+            const typeEl = document.getElementById('lesson-type');
+            const dokEl = document.getElementById('dok-label');
+            const dokContainer = document.getElementById('dok-container');
+
+            // Set current date
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+            dateEl.innerText = dateStr.toUpperCase();
+
+            // Find lesson
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const d = String(now.getDate()).padStart(2, '0');
+            const todayStr = `${y}-${m}-${d}`;
+
+            if (typeof lessonsData !== 'undefined' && lessonsData.length > 0) {
+                // Find today or the most recent past lesson
+                const pastLessons = lessonsData.filter(l => l.date <= todayStr);
+                pastLessons.sort((a, b) => b.date.localeCompare(a.date));
+                const lesson = pastLessons[0];
+
+                if (lesson) {
+                    titleEl.innerText = lesson.title;
+                    eqEl.innerText = `"${lesson.essentialQuestion || 'How do we master the principles of physics?'}"`;
+                    summaryEl.innerText = lesson.summary;
+                    unitEl.innerText = `UNIT_${lesson.unit}`;
+                    dayEl.innerText = `DAY_${String(lesson.day).padStart(2, '0')}`;
+                    typeEl.innerText = lesson.type || 'Activity';
+                    
+                    if (lesson.dok) {
+                        dokEl.innerText = lesson.dok;
+                        dokContainer.classList.remove('hidden');
+                    }
+
+                    // Style based on type
+                    if (lesson.type === 'Lab') {
+                        typeEl.className = 'bg-blue-600 text-white font-black text-[10px] px-2 py-0.5 rounded tracking-widest uppercase';
+                    } else if (lesson.type === 'Assessment') {
+                        typeEl.className = 'bg-red-600 text-white font-black text-[10px] px-2 py-0.5 rounded tracking-widest uppercase';
+                    }
+                }
+            }
+        }
+
+        // Initialize and update every minute
+        updateWidget();
+        setInterval(updateWidget, 60000);
+    </script>
+</body>
+</html>
