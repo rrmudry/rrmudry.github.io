@@ -354,10 +354,10 @@
         let currentUser = null;
         let model = null;
         let faceModel = null;
+        let baselinePitchRatio = null;
         let isTesting = false;
         let isStealthMode = false;
         let integrityLogs = [];
-        let baselinePitchRatio = 1.6;
         let currentPitchRatio = 1.6;
         let calibrationStep = 0;
         let currentScore = 0;
@@ -366,7 +366,9 @@
         let lastSyncTime = 0;
         let lastPhoneWarning = 0;
         let lastGazeWarning = 0;
-        let lookDownCount = 0;
+        let lastVisualLossWarning = 0;
+        let faceMissingCount = 0;
+        let lookDownCounter = 0;
         let timerInterval;
         let timerRemaining = 0;
         let detectionInterval;
@@ -460,15 +462,22 @@
                 const rosterSnap = await db.collection('roster').doc(id).get();
                 const profile = rosterSnap.exists ? rosterSnap.data() : null;
 
-                // 2. CHECK FOR COMPLETION OR EXISTING SESSION for THIS specific assignment
+                // 2. FETCH STUDENT SESSION DOC: Needed for lock state and resume logic
                 const completionSnap = await db.collection('student_results')
                     .doc(ASSIGNMENT_NAME)
                     .collection('students')
                     .doc(id)
                     .get();
-                const completionCheck = completionSnap.exists ? completionSnap.data() : null;
+                const completionData = completionSnap.exists ? completionSnap.data() : null;
 
-                if (completionCheck && completionCheck.status && completionCheck.status.startsWith("COMPLETED")) {
+                // 3. STORE INITIAL STUDENT DATA (Crucial for immediate lock check)
+                student.id = id;
+                if (completionData) {
+                    student.status = completionData.status || '';
+                    student.details = completionData.details || {};
+                }
+
+                if (completionData && completionData.status && completionData.status.startsWith("COMPLETED")) {
                     status.textContent = "ACCESS DENIED // TEST ALREADY SUBMITTED";
                     btn.disabled = false;
                     btn.textContent = "CONNECTION BLOCKED";
@@ -477,16 +486,18 @@
 
                 if (profile) {
                     // Student found in database
-                    student.id = id;
                     student.name = profile.name || profile.student_name || currentUser.displayName || "Unknown Student";
                     student.period = profile.class_period || null;
                     
-                    await fetchAssessmentConfig(); // Get rules (timer/question count)
-                    await fetchQuestions();        // Get questions
+                    // AWAIT ALL CONFIG BEFORE UI SHOWS
+                    await Promise.all([
+                        fetchAssessmentConfig(), // Get rules (timer/question count)
+                        fetchQuestions()         // Get questions
+                    ]);
                     
                     // Check for existing session progress to resume
-                    if (completionCheck && completionCheck.session_progress && completionCheck.status !== "SCORE_RESET") {
-                        await resumeSession(completionCheck);
+                    if (completionData && completionData.session_progress && completionData.status !== "SCORE_RESET") {
+                        await resumeSession(completionData);
                     } else {
                         finalizeLogin();
                     }
@@ -504,19 +515,20 @@
                         btn.disabled = false;
                         return;
                     }
-                    student.id = id;
                     student.name = name;
                     
                     // Try to get period from URL if available
                     student.period = urlParams.get('p') || urlParams.get('period') || null;
                     
-                    await fetchAssessmentConfig(); // Get rules
-                    await fetchQuestions();        // Get questions
+                    await Promise.all([
+                        fetchAssessmentConfig(),
+                        fetchQuestions()
+                    ]);
                     
                     finalizeLogin();
                 }
             } catch (e) {
-                console.error(e);
+                console.error("Login initialization error:", e);
                 status.textContent = "SYNC ERROR // CHECK CONNECTION";
                 btn.disabled = false;
             }
@@ -538,7 +550,7 @@
 
             setTimeout(() => document.getElementById('login-overlay').classList.add('hidden'), 500);
             
-            // Check for lock status immediately
+            // Check for lock status immediately (Identity and Global Config are now loaded)
             checkAccessControl();
 
             // Real-time listener for individual student lock/unlock actions from the proctor
@@ -574,7 +586,13 @@
             currentScore = savedData.score || 0;
             currentQuestionIndex = progress.current_question || 0;
             
-            // 3. Render the questions first
+            // Restore baseline pitch if available
+            if (progress.baseline_pitch) {
+                baselinePitchRatio = progress.baseline_pitch;
+                console.log("[PROCTOR] Restored gaze baseline:", baselinePitchRatio);
+            }
+
+            // 3. Render the questions
             renderQuestions();
             
             // 4. Restore saved answers and lock penalized questions
@@ -690,7 +708,8 @@
             if (!student.id) return;
             
             const isGlobalLocked = assignmentSettings.is_global_locked;
-            const periodLocked = assignmentSettings.locked_periods && assignmentSettings.locked_periods.includes(student.period);
+            const studentPeriod = student.period ? parseInt(String(student.period).replace(/\D/g, '')) : null;
+            const periodLocked = assignmentSettings.locked_periods && studentPeriod && assignmentSettings.locked_periods.includes(studentPeriod);
             const isIndividualLocked = student.details?.is_locked || student.status === "LOCKED_BY_PROCTOR";
             const isUnlockedOverride = student.details?.is_unlocked_override;
 
@@ -700,17 +719,22 @@
 
             if (shouldBeLocked) {
                 if (!lockOverlay) createLockOverlay();
-                document.getElementById('lock-overlay').classList.remove('hidden');
+                const overlayEl = document.getElementById('lock-overlay');
+                overlayEl.classList.remove('hidden');
                 document.getElementById('lock-message').textContent = isIndividualLocked ? "YOUR NODE HAS BEEN INDIVIDUALLY LOCKED BY THE PROCTOR." : "THIS ASSESSMENT IS CURRENTLY LOCKED BY THE PROCTOR.";
-                isTesting = false;
-                if (timerInterval) {
-                    clearInterval(timerInterval);
-                    timerInterval = null;
+                
+                // If mid-test, pause the test
+                if (isTesting) {
+                    isTesting = false;
+                    if (timerInterval) {
+                        clearInterval(timerInterval);
+                        timerInterval = null;
+                    }
                 }
             } else if (lockOverlay) {
                 lockOverlay.classList.add('hidden');
-                // Resume the test when unlocked
-                if (!isTesting && totalQuestions > 0) {
+                // Resume the test when unlocked (only if we were already in the testing phase)
+                if (!isTesting && totalQuestions > 0 && testScreen && !testScreen.classList.contains('hidden')) {
                     isTesting = true;
                     if (!timerInterval && timerRemaining > 0) {
                         startTimer(timerRemaining);
@@ -812,14 +836,13 @@
                         last_alert: finalViolations.length > 0 ? finalViolations[0].type : (student.details?.last_alert || "NONE"),
                         ts: new Date().toISOString(),
                         sync_count: (student.details?.sync_count || 0) + 1
-                        // NOTE: is_locked and is_unlocked_override are managed by the proctor dashboard
-                        // and should not be overwritten by the student client.
                     },
                     session_progress: {
                         current_question: currentQuestionIndex,
                         answers: sessionAnswers,
                         locked_questions: lockedQuestions,
                         timer_remaining: timerRemaining,
+                        baseline_pitch: baselinePitchRatio,
                         updated_at: new Date().toISOString()
                     }
                 };
@@ -1090,177 +1113,95 @@
 
 
         // --- AI DETECTION LOOP ---
-
         async function detectLoop() {
             if (isSessionTerminated) return;
 
             // Run as long as the model is loaded and video is active
             if (model && faceModel && video.readyState === 4) {
                 try {
-                    // PERFORMANCE OPTIMIZATION:
-                    // We now tell the model to return EVERYTHING it sees (down to 20% confidence)
-                    // so our custom 'Bottom Edge' logic can catch partially hidden phones.
                     const [predictions, faces] = await Promise.all([
                         model.detect(video, 10, 0.2), 
                         faceModel.estimateFaces(video, false)
                     ]);
 
-                    // Clear previous drawings every frame
+                    // Clear previous drawings
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                    // Draw a faint "Warning Zone" indicator for the teacher in debug mode
-                    if (!isStealthMode) {
-                        ctx.strokeStyle = 'rgba(239, 68, 68, 0.2)';
-                        ctx.setLineDash([5, 5]);
-                        ctx.beginPath();
-                        ctx.moveTo(0, canvas.height * 0.75);
-                        ctx.lineTo(canvas.width, canvas.height * 0.75);
-                        ctx.stroke();
-                        ctx.setLineDash([]);
-                    }
 
                     let phoneDetected = false;
                     let isLookingDown = false;
 
-                    // --- 1. PROCESS OBJECT DETECTION (Phones/Remotes) ---
+                    // --- 1. PROCESS OBJECT DETECTION ---
                     predictions.forEach(prediction => {
                         const [x, y, width, height] = prediction.bbox;
                         const flippedX = canvas.width - x - width;
-                        const bottomPos = y + height;
                         
-                        // SENSITIVITY BOOST: If the object is near the bottom edge, it's likely a hidden phone
                         const isAtBottom = (y + height) > (canvas.height * 0.75);
                         const confidenceThreshold = isAtBottom ? 0.25 : 0.50;
-
-                        // List of objects that are suspicious in a test environment
-                        // Added 'handbag' and 'mouse' because partial phones are often misidentified as these.
-                        const contrabandClasses = ['cell phone', 'remote', 'book', 'calculator', 'handbag', 'mouse'];
+                        const contrabandClasses = ['cell phone', 'remote', 'book', 'calculator'];
                         const isContraband = contrabandClasses.includes(prediction.class);
 
-                        // If it's not a person and not one of our contraband items, skip it
                         if (prediction.class !== 'person' && !isContraband) return;
 
-                        // --- DEBUG VISUALIZATION ---
-                        // Set styles based on whether it's contraband (Red) or Person (Green)
-                        ctx.strokeStyle = isContraband ? '#ef4444' : '#22c55e';
-                        ctx.lineWidth = isAtBottom ? 6 : 4; // Thicker lines for bottom-edge detections
-                        ctx.strokeRect(flippedX, y, width, height);
+                        // Visual Feedback (if not stealth)
+                        if (!isStealthMode) {
+                            ctx.strokeStyle = isContraband ? '#ef4444' : '#22c55e';
+                            ctx.lineWidth = 4;
+                            ctx.strokeRect(flippedX, y, width, height);
+                        }
 
-                        // Draw label background
-                        ctx.fillStyle = isContraband ? '#ef4444' : '#22c55e';
-                        const text = `${prediction.class} (${Math.round(prediction.score * 100)}%)`;
-                        ctx.font = '18px Arial';
-                        const textWidth = ctx.measureText(text).width;
-                        ctx.fillRect(flippedX, y - 24, textWidth + 10, 24);
-
-                        // Draw label text
-                        ctx.fillStyle = '#ffffff';
-                        ctx.fillText(text, flippedX + 5, y - 6);
-                        // --- END DEBUG VISUALIZATION ---
-
-                        // Trigger alert if it meets the adaptive threshold
                         if (isContraband && prediction.score > confidenceThreshold) {
-                            // If it's a 'book', only alert if it's actually in the lap area
-                            if (prediction.class === 'book' && !isAtBottom) return;
                             phoneDetected = true;
                         }
                     });
 
-                    // --- 2. PROCESS GAZE/FACE TRACKING ---
+                    // --- 2. PROCESS FACE/GAZE ---
                     if (faces.length > 0) {
                         const landmarks = faces[0].landmarks;
-
-                        // Draw Facial Landmarks (Blue dots) for debugging
-                        ctx.fillStyle = '#3b82f6';
-                        landmarks.forEach(point => {
-                            ctx.beginPath();
-                            ctx.arc(canvas.width - point[0], point[1], 4, 0, 2 * Math.PI);
-                            ctx.fill();
-                        });
-
-                        // Calculate Head Pitch (Looking Down Heuristic)
-                        // landmarks: 0=Right Eye, 1=Left Eye, 2=Nose, 3=Mouth
                         const eyeY = (landmarks[0][1] + landmarks[1][1]) / 2;
                         const noseY = landmarks[2][1];
                         const mouthY = landmarks[3][1];
-
-                        const eyeToNose = noseY - eyeY;
                         const noseToMouth = mouthY - noseY;
 
-                        // If the ratio of top-half of face to bottom-half is high, head is pitched down
                         if (noseToMouth > 0) {
-                            const pitchRatio = eyeToNose / noseToMouth;
-                            currentPitchRatio = pitchRatio; // Store for calibration
+                            currentPitchRatio = (noseY - eyeY) / noseToMouth;
 
-                            // Debug text for Gaze
-                            ctx.fillStyle = '#ffffff';
-                            ctx.font = '16px Arial';
-                            ctx.fillText(`Gaze Ratio: ${pitchRatio.toFixed(2)}`, 10, 25);
-
-                            // Threshold: Use baseline + offset
-                            // 0.2 is a safe buffer above their natural sitting position
-                            // INCREASED TOLERANCE: 0.35 buffer instead of 0.2 to reduce false positives
-                            if (pitchRatio > (baselinePitchRatio + 0.35)) {
+                            if (baselinePitchRatio && currentPitchRatio > (baselinePitchRatio + 0.35)) {
                                 isLookingDown = true;
-                                ctx.fillStyle = '#ef4444';
-                                ctx.fillText(`STATUS: LOOKING DOWN`, 10, 45);
-                            } else {
-                                ctx.fillStyle = '#22c55e';
-                                ctx.fillText(`STATUS: EYES FORWARD`, 10, 45);
                             }
                         }
+
+                        if (!isStealthMode) {
+                            ctx.fillStyle = isLookingDown ? '#ef4444' : '#22c55e';
+                            ctx.font = '14px Arial';
+                            ctx.fillText(isLookingDown ? "LOOKING DOWN" : "EYES FORWARD", 10, 25);
+                        }
                     } else {
-                        // No face found - could be looking completely away
-                        ctx.fillStyle = '#eab308';
-                        ctx.font = '16px Arial';
-                        ctx.fillText(`STATUS: NO FACE DETECTED`, 10, 25);
+                        if (!isStealthMode) {
+                            ctx.fillStyle = '#eab308';
+                            ctx.fillText("NO FACE DETECTED", 10, 25);
+                        }
                     }
 
-                    // --- 3. HANDLE ALERTS ---
+                    // --- 3. ALERTS ---
                     const now = Date.now();
-
-                    // ALWAYS ON MONITORING: Trigger alerts if anything is detected
-                    if (phoneDetected) {
-                        // REDUCED THROTTLE: Now alerts every 2 seconds for continuous visibility
-                        if (now - lastPhoneWarning > 2000) {
-                            const type = isTesting ? "Cell Phone" : "PRE-TEST: Phone Detected";
-                            logViolation(type, `Restricted device detected in webcam frame.`);
-                            lastPhoneWarning = now;
-                        }
+                    if (phoneDetected && (now - lastPhoneWarning > 3000)) {
+                        logViolation(isTesting ? "Cell Phone" : "PRE-TEST: Phone", "Restricted device detected.");
+                        lastPhoneWarning = now;
                     }
 
-                    // Handle Gaze Alerts
                     if (isLookingDown) {
-                        lookDownCount++;
-                        // LONGER CONFIRMATION: Now requires 4 frames (~6 seconds) of looking down
-                        if (lookDownCount >= 4) {
-                            // REDUCED THROTTLE: Now alerts every 4 seconds
-                            if (now - lastGazeWarning > 4000) {
-                                const type = isTesting ? "Down Gaze" : "PRE-TEST: Down Gaze";
-                                logViolation(type, "Student is looking down (possible hidden device in lap).");
-                                lastGazeWarning = now;
-                            }
-                            lookDownCount = 0; // Reset counter after warning
+                        lookDownCounter++;
+                        if (lookDownCounter > 10 && (now - lastGazeWarning > 5000)) {
+                            logViolation(isTesting ? "Down Gaze" : "PRE-TEST: Gaze", "Looking away from screen.");
+                            lastGazeWarning = now;
+                            lookDownCounter = 0;
                         }
                     } else {
-                        lookDownCount = 0; // Reset if they look back up
+                        lookDownCounter = 0;
                     }
 
-                    // --- 4. VISUAL LOSS CHECK (Camera Covered/Obscured) ---
                     if (faces.length === 0) {
                         faceMissingCount++;
-                        // If face is gone for ~5 seconds (approx 3-4 detection loops)
-                        if (faceMissingCount >= 3) {
-                            if (now - lastVisualLossWarning > 10000) {
-                                const type = isTesting ? "Visual Loss" : "PRE-TEST: Visual Loss";
-                                logViolation(type, "Camera is obscured or student's face is not visible.");
-                                lastVisualLossWarning = now;
-                            }
-                        }
-                    } else {
-                        faceMissingCount = 0; // Reset as soon as face is back
-                    }
-
                 } catch (e) {
                     console.error("Detection error: ", e);
                 }
