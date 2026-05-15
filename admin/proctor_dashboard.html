@@ -445,6 +445,21 @@
                     return rosterStudent;
                 });
 
+                // Add students who are in the live test but not in the roster
+                liveData.forEach(liveStudent => {
+                    if (!mergedData.find(s => s.id === liveStudent.id)) {
+                        mergedData.push({
+                            id: liveStudent.id,
+                            student_id: liveStudent.student_id || liveStudent.id,
+                            student_name: liveStudent.student_name || 'Unknown Student',
+                            class_period: liveStudent.class_period || null,
+                            score: liveStudent.score !== undefined ? liveStudent.score : '-',
+                            details: liveStudent.details || { status: 'OFFLINE', last_alert: 'WAITING FOR CONNECTION', violations: [], is_locked: false },
+                            created_at: liveStudent.created_at || null
+                        });
+                    }
+                });
+
                 window.currentStudents = mergedData;
                 updateGrid(mergedData);
                 updateGlobalFeed(mergedData);
