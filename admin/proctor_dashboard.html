@@ -428,21 +428,31 @@
                 const liveData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
                 // Merge roster with live data
-                const mergedData = rosterDataCache.map(rosterStudent => {
-                    const liveStudent = liveData.find(s => s.id === rosterStudent.id);
-                    if (liveStudent) {
-                        return {
-                            ...rosterStudent,
+                const mergedData = [...rosterDataCache];
+                
+                liveData.forEach(liveStudent => {
+                    const existingIndex = mergedData.findIndex(s => s.id === liveStudent.id);
+                    if (existingIndex > -1) {
+                        // Update existing roster student with live data
+                        mergedData[existingIndex] = {
+                            ...mergedData[existingIndex],
                             ...liveStudent,
-                            id: rosterStudent.id, // ensure ID is maintained
-                            student_name: rosterStudent.student_name, // Prefer roster name
-                            class_period: rosterStudent.class_period, // Prefer roster period
-                            score: liveStudent.score !== undefined ? liveStudent.score : rosterStudent.score,
-                            details: liveStudent.details || rosterStudent.details,
-                            created_at: liveStudent.created_at
+                            id: mergedData[existingIndex].id,
+                            student_name: mergedData[existingIndex].student_name, // Prefer roster name
+                            class_period: mergedData[existingIndex].class_period, // Prefer roster period
+                            score: liveStudent.score !== undefined ? liveStudent.score : mergedData[existingIndex].score,
+                            details: liveStudent.details || mergedData[existingIndex].details
                         };
+                    } else {
+                        // Add live student NOT in roster
+                        mergedData.push({
+                            ...liveStudent,
+                            student_name: liveStudent.student_name || 'Unknown Student',
+                            class_period: liveStudent.class_period || '?',
+                            score: liveStudent.score || 0,
+                            details: liveStudent.details || { status: 'OFFLINE', violations: [] }
+                        });
                     }
-                    return rosterStudent;
                 });
 
                 window.currentStudents = mergedData;

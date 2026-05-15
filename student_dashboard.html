@@ -563,7 +563,8 @@
             const config = (lockConfigs[id] && lockConfigs[id].global) || { is_global_locked: true };
             const studentStatus = (lockConfigs[id] && lockConfigs[id].student) || {};
             
-            const periodLocked = config.locked_periods && config.locked_periods.includes(studentData?.class_period);
+            const studentPeriod = studentData?.class_period ? parseInt(String(studentData.class_period).replace(/\D/g, '')) : null;
+            const periodLocked = config.locked_periods && studentPeriod && config.locked_periods.includes(studentPeriod);
             const globalLocked = config.is_global_locked !== undefined ? config.is_global_locked : true;
             
             const isIndividuallyLocked = studentStatus?.details?.is_locked || studentStatus.status === "LOCKED_BY_PROCTOR";
