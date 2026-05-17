@@ -34,25 +34,25 @@
 ## Week 2: Circuit Engineering – Series, Parallel, and Logic
 **Goal:** Hands-on building to understand how different pathways affect current and voltage, prioritizing systems thinking over heavy math.
 
-### Day 6: Series Circuits (The "All or Nothing" Path)
-*   **Focus:** Understand single-pathway circuits.
-*   **Activity:** Wire multiple bulbs and buzzers in series. Observe the dimming of bulbs (voltage drops) and what happens when one component is unscrewed.
+### Day 6: Voltage & Batteries (Conceptual Intro)
+*   **Focus:** Understand electric potential difference (Voltage) and how batteries store chemical energy.
+*   **Activity:** Dissect a 9V battery (conceptually/diagram) and use the EUDAX voltmeter to test various batteries. Discuss how voltage acts as the "push" for current.
 
-### Day 7: Parallel Circuits (The "Grid" Path)
+### Day 7: Lab: Fruit Batteries
+*   **Focus:** Creating a functioning wet cell battery using household items (HS-PS3-3).
+*   **Activity:** Use lemons, potatoes, and apples with zinc/copper electrodes to generate a measurable voltage. Experiment with series vs. parallel combinations of fruit to increase output.
+
+### Day 8: Series Circuits (The "All or Nothing" Path)
+*   **Focus:** Understand single-pathway circuits and voltage drops.
+*   **Activity:** Wire multiple bulbs and buzzers in series. Observe the dimming of bulbs and what happens when one component is unscrewed. Use meters to measure the cumulative voltage.
+
+### Day 9: Parallel Circuits (The "Grid" Path)
 *   **Focus:** Understand multi-pathway circuits and why our homes are wired this way.
-*   **Activity:** Wire the same bulbs in parallel. Compare brightness to Day 6. Unscrew one bulb and observe that the others stay on.
+*   **Activity:** Wire the same bulbs in parallel. Compare brightness to Day 8. Unscrew one bulb and observe that the others stay on.
 
-### Day 8: Using the Meters (Conceptual Ohm's Law)
-*   **Focus:** Introduce the ammeter and voltmeter from the kit.
-*   **Activity:** Have students measure the voltage across the battery and the current in simple vs. series circuits. Focus on the proportionality (more batteries = brighter bulb) rather than intense calculations.
-
-### Day 9: Logic Gates & Constraints Challenge
-*   **Focus:** Engineering under constraints (HS-PS3-3).
-*   **Activity:** Give them a scenario. Challenge: Build an "AND" circuit (needs two switches closed to ring a buzzer) and an "OR" circuit (either of two switches will turn on a light).
-
-### Day 10: Circuit Troubleshooting Practicum
-*   **Focus:** Assessment of Week 2 skills.
-*   **Activity:** Set up broken or intentionally miswired circuits around the room. Have student groups rotate, diagnose the problem (e.g., a short, an open switch, a dead battery, backwards LED), and fix it.
+### Day 10: Practicum: Logic Gates & Troubleshooting
+*   **Focus:** Engineering under constraints and system diagnostics (HS-PS3-3).
+*   **Activity:** Challenge: Build an "AND" circuit and an "OR" circuit. Rotate through "broken" circuit stations to diagnose and fix faults (shorts, open circuits, dead components).
 
 ---
 
