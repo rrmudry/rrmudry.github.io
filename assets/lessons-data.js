@@ -207,7 +207,11 @@ const lessonsData = [
     dok: 2,
     semester: 2,
     isFeatured: true,
-    essentialQuestion: "What is voltage, and how do batteries provide the necessary 'push' for an electrical circuit?"
+    essentialQuestion: "What is voltage, and how do batteries provide the necessary 'push' for an electrical circuit?",
+    links: {
+      "Reading Resource": "https://docs.google.com/document/d/1RngZHHhh-DNdu4tW6ifUW949sCGWyxFUEZ0UluMLgiE/edit?usp=sharing",
+      "Fruit Battery Simulation": "Unit_7_Electricity_and_Magnetism/Fruit_Battery/Fruit_Battery_Simulation.html"
+    }
   },
   {
     date: "2026-05-15",
