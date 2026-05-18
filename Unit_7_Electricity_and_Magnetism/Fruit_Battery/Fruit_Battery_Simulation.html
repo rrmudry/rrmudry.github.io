@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electrochemical Cell Simulator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Prevent text selection during rapid clicking */
+        .no-select {
+            user-select: none;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen bg-slate-50 text-slate-800 font-sans p-4 md:p-8 flex flex-col items-center">
+
+    <!-- Header -->
+    <div class="w-full max-w-5xl mb-6 text-center">
+        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-2">Electrochemical Cell Simulator</h1>
+        <p class="text-slate-600 max-w-2xl mx-auto">
+            Observe how metals interact with electrolytes. Notice how the container scale encapsulates the electrodes,
+            how ions migrate, and how H₂ gas bubbles form.
+        </p>
+    </div>
+
+    <div class="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Left Column: Controls -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col gap-6">
+            <h2 class="text-xl font-bold border-b pb-2 text-slate-800">Lab Setup</h2>
+
+            <!-- Metal 1 -->
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Left Electrode (Metal 1)</label>
+                <select id="metalLeft"
+                    class="w-full p-2 border border-slate-300 rounded-lg bg-slate-50 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                    <option value="Zn" selected>Zinc (Zn)</option>
+                    <option value="Fe">Iron (Fe)</option>
+                    <option value="Cu">Copper (Cu)</option>
+                    <option value="Ag">Silver (Ag)</option>
+                </select>
+            </div>
+
+            <!-- Metal 2 -->
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Right Electrode (Metal 2)</label>
+                <select id="metalRight"
+                    class="w-full p-2 border border-slate-300 rounded-lg bg-slate-50 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                    <option value="Zn">Zinc (Zn)</option>
+                    <option value="Fe">Iron (Fe)</option>
+                    <option value="Cu" selected>Copper (Cu)</option>
+                    <option value="Ag">Silver (Ag)</option>
+                </select>
+            </div>
+
+            <!-- Electrolyte -->
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Electrolyte (Solution)</label>
+                <select id="electrolyte"
+                    class="w-full p-2 border border-slate-300 rounded-lg bg-slate-50 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                    <option value="lemon" selected>Lemon</option>
+                    <option value="orange">Orange</option>
+                    <option value="cup">Citric Acid Cup</option>
+                    <option value="water">Pure Water</option>
+                </select>
+                <p id="electrolyteHelp" class="text-xs text-slate-500 mt-2 italic">
+                    Lemon has high internal resistance.
+                </p>
+            </div>
+
+            <!-- Circuit Switch -->
+            <div class="mt-auto pt-4 border-t">
+                <button id="switchBtn"
+                    class="w-full py-3 rounded-xl font-bold text-white shadow-md transition-all bg-green-500 hover:bg-green-600">
+                    Close Circuit (Connect)
+                </button>
+            </div>
+        </div>
+
+        <!-- Middle Column: Visualization -->
+        <div
+            class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden relative flex flex-col items-center justify-center p-4 min-h-[440px]">
+
+            <!-- Voltmeter HUD -->
+            <div
+                class="absolute top-4 left-1/2 -translate-x-1/2 bg-slate-800 text-white p-3 rounded-lg shadow-lg border-2 border-slate-700 z-30 w-48 text-center flex flex-col items-center">
+                <span class="text-xs text-slate-300 font-mono tracking-widest uppercase mb-1">Multimeter</span>
+                <div class="text-3xl font-mono text-red-400" id="voltmeter">
+                    0.00 <span class="text-xl">V</span>
+                </div>
+                <div class="text-xs text-blue-300 mt-1 hidden" id="currentLabel">Current: LOW</div>
+            </div>
+
+            <!-- SVG & Canvas Overlay Wrapper -->
+            <div class="relative w-[500px] h-[400px] mt-10">
+
+                <!-- 1. Base SVG (Wires, container, electrodes) -->
+                <svg id="visualizerSvg" width="500" height="400" class="absolute top-0 left-0 z-10"
+                    viewBox="0 0 500 400">
+                    <!-- Left Wire -->
+                    <path id="wireLeft" d="M 157.5 120 L 157.5 50 L 220 50 L 220 70" fill="none" stroke="#475569"
+                        stroke-width="4" />
+                    <!-- Right Wire -->
+                    <path id="wireRight" d="M 342.5 120 L 342.5 50 L 280 50 L 280 70" fill="none" stroke="#475569"
+                        stroke-width="4" />
+
+                    <!-- Lemon Container -->
+                    <ellipse id="containerLemon" cx="250" cy="250" rx="175" ry="120" fill="#fef08a" stroke="#ca8a04"
+                        stroke-width="4" opacity="0.65" class="transition-all duration-300" />
+                    <!-- Orange Container -->
+                    <circle id="containerOrange" cx="250" cy="255" r="145" fill="#fdba74" stroke="#ea580c"
+                        stroke-width="4" opacity="0.65" class="hidden transition-all duration-300" />
+                    <!-- Citric Acid Cup (Beaker) Container -->
+                    <g id="containerCup" class="hidden">
+                        <!-- Beaker back -->
+                        <path d="M 110 150 L 110 330 Q 110 340 120 340 L 380 340 Q 390 340 390 330 L 390 150"
+                            fill="none" stroke="#cbd5e1" stroke-width="4" />
+                        <!-- Liquid volume encapsulating plates -->
+                        <path id="cupLiquid"
+                            d="M 112 180 L 112 330 Q 112 338 120 338 L 380 338 Q 388 338 388 330 L 388 180 Z"
+                            fill="#bae6fd" opacity="0.65" />
+                        <!-- Beaker front lip -->
+                        <line x1="95" y1="150" x2="405" y2="150" stroke="#cbd5e1" stroke-width="4"
+                            stroke-linecap="round" />
+                    </g>
+
+                    <!-- Left Electrode -->
+                    <rect id="rectLeft" x="140" y="110" width="35" height="170" rx="4" fill="#94a3b8" stroke="#334155"
+                        stroke-width="2.5" />
+                    <text id="textLeft" x="157.5" y="265" text-anchor="middle" fill="#0f172a" font-weight="extrabold"
+                        font-size="15">Zn</text>
+
+                    <!-- Right Electrode -->
+                    <rect id="rectRight" x="325" y="110" width="35" height="170" rx="4" fill="#ca6a1f" stroke="#334155"
+                        stroke-width="2.5" />
+                    <text id="textRight" x="342.5" y="265" text-anchor="middle" fill="#0f172a" font-weight="extrabold"
+                        font-size="15">Cu</text>
+
+                    <!-- Switch System -->
+                    <g transform="translate(200, 60)">
+                        <rect x="0" y="0" width="100" height="20" rx="2" fill="#334155" />
+                        <circle cx="20" cy="10" r="4" fill="#94a3b8" />
+                        <circle cx="80" cy="10" r="4" fill="#94a3b8" />
+                        <!-- Switch blade -->
+                        <line id="switchBlade" x1="20" y1="10" x2="70" y2="-10" stroke="#ef4444" stroke-width="4"
+                            stroke-linecap="round" style="transition: all 0.3s ease-in-out" />
+                    </g>
+                </svg>
+
+                <!-- 2. Canvas Overlay - Elevated to z-20 to strictly render in front of fruits -->
+                <canvas id="animationCanvas" width="500" height="400"
+                    class="absolute top-0 left-0 z-20 pointer-events-none"></canvas>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Bottom Chemistry Explanation Panel -->
+    <div class="w-full max-w-5xl mt-6 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+        <h2 class="text-xl font-bold border-b pb-2 mb-4 text-slate-800 flex items-center gap-2">
+            🧪 Chemistry & Physics Breakdown
+        </h2>
+
+        <!-- Inactive placeholder panel -->
+        <div id="inactiveMessage" class="text-slate-500 italic p-4 text-center bg-slate-50 rounded-lg">
+            Close the circuit to observe the chemical reactions!
+        </div>
+
+        <!-- Active analysis columns -->
+        <div id="analysisPanel" class="hidden grid grid-cols-1 md:grid-cols-2 gap-8 animate-fade-in">
+            <!-- Oxidation Box -->
+            <div class="bg-red-50 p-4 rounded-xl border border-red-100">
+                <h3 class="text-red-800 font-bold text-lg mb-2 flex justify-between">
+                    <span>Anode (Oxidation)</span>
+                    <span id="anodeSideLabel">Left Side</span>
+                </h3>
+                <p class="text-sm text-slate-700 mb-3" id="anodeExplanation">
+                    Zinc has a lower reduction potential, meaning it wants to give up electrons. It dissolves into the
+                    solution as ions.
+                </p>
+                <div class="bg-white p-3 rounded-lg font-mono text-center text-sm shadow-inner border border-slate-100"
+                    id="anodeEquation">
+                    Zn → Zn²⁺ + 2e⁻
+                </div>
+            </div>
+
+            <!-- Reduction Box -->
+            <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                <h3 class="text-blue-800 font-bold text-lg mb-2 flex justify-between">
+                    <span>Cathode (Reduction)</span>
+                    <span id="cathodeSideLabel">Right Side</span>
+                </h3>
+                <p class="text-sm text-slate-700 mb-3" id="cathodeExplanation">
+                    Electrons travel through the wire to the Copper electrode. Here, Hydrogen ions (H⁺) from the acid
+                    grab the electrons and turn into Hydrogen gas bubbles!
+                </p>
+                <div class="bg-white p-3 rounded-lg font-mono text-center text-sm shadow-inner border border-slate-100"
+                    id="cathodeEquation">
+                    2H⁺ + 2e⁻ → H₂ (gas)
+                </div>
+            </div>
+
+            <!-- General Info -->
+            <div class="md:col-span-2 text-sm text-slate-600 bg-slate-50 p-4 rounded-xl">
+                <strong>Observe the movement of particles:</strong>
+                <ul class="list-disc pl-5 mt-2 space-y-1">
+                    <li><strong>Electrons (e⁻):</strong> Form during oxidation at the anode, travel up the metal plate,
+                        through the wire pathway, across the switch, down the cathode plate, and combine with H⁺ at the
+                        active interface.</li>
+                    <li><strong>Anode Metal Ions (<span class="anodeIonLabel">Zn²⁺</span>):</strong> Migrate across the
+                        electrolyte solution toward the cathode, attracted by the negative charge but fading on arrival
+                        as they disperse/react. They do not pass beyond the cathode barrier.</li>
+                    <li><strong>Acidic Hydronium Ions (H⁺):</strong> Migrate directly to the cathode and get reduced by
+                        arriving electrons to form bubbles.</li>
+                    <li><strong>Hydrogen Gas Bubbles (H₂):</strong> Form directly at the cathode plate surface and float
+                        straight up to escape.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript logic to handle state, rendering, and custom animation physics -->
+    <script>
+        // --- Data Models ---
+        const METALS = {
+            Zn: { id: 'Zn', name: 'Zinc', symbol: 'Zn', potential: -0.76, color: '#94a3b8', textColor: 'text-slate-400', ion: 'Zn²⁺', e: 2 },
+            Fe: { id: 'Fe', name: 'Iron', symbol: 'Fe', potential: -0.44, color: '#78716c', textColor: 'text-stone-600', ion: 'Fe²⁺', e: 2 },
+            Cu: { id: 'Cu', name: 'Copper', symbol: 'Cu', potential: 0.34, color: '#ca6a1f', textColor: 'text-amber-700', ion: 'Cu²⁺', e: 2 },
+            Ag: { id: 'Ag', name: 'Silver', symbol: 'Ag', potential: 0.80, color: '#cbd5e1', textColor: 'text-slate-200', ion: 'Ag⁺', e: 1 },
+        };
+
+        const ELECTROLYTES = {
+            lemon: { id: 'lemon', name: 'Lemon', ph: 2.2, internalResistance: 5000, color: '#fef08a', help: 'Lemon has high internal resistance.' },
+            orange: { id: 'orange', name: 'Orange', ph: 3.5, internalResistance: 8000, color: '#fdba74', help: 'Orange is larger, but sugar restricts ion motility.' },
+            cup: { id: 'cup', name: 'Citric Acid Cup', ph: 2.0, internalResistance: 500, color: '#bae6fd', help: 'Citric Acid Cup: minimized resistance, optimal ion movement!' },
+            water: { id: 'water', name: 'Pure Water', ph: 7.0, internalResistance: 9999999, color: '#f0f9ff', help: 'Water lacks mobile charged ions to carry a current.' }
+        };
+
+        // --- State Variables ---
+        let metalLeft = 'Zn';
+        let metalRight = 'Cu';
+        let electrolyte = 'lemon';
+        let circuitClosed = false;
+
+        // --- Dom Elements ---
+        const selectMetalLeft = document.getElementById('metalLeft');
+        const selectMetalRight = document.getElementById('metalRight');
+        const selectElectrolyte = document.getElementById('electrolyte');
+        const btnSwitch = document.getElementById('switchBtn');
+        const txtElectrolyteHelp = document.getElementById('electrolyteHelp');
+
+        // SVG nodes to mutate dynamically
+        const containerLemon = document.getElementById('containerLemon');
+        const containerOrange = document.getElementById('containerOrange');
+        const containerCup = document.getElementById('containerCup');
+        const cupLiquid = document.getElementById('cupLiquid');
+        const rectLeft = document.getElementById('rectLeft');
+        const textLeft = document.getElementById('textLeft');
+        const rectRight = document.getElementById('rectRight');
+        const textRight = document.getElementById('textRight');
+        const switchBlade = document.getElementById('switchBlade');
+
+        // Voltmeter + Analysis elements
+        const txtVoltmeter = document.getElementById('voltmeter');
+        const badgeCurrent = document.getElementById('currentLabel');
+        const inactiveMessage = document.getElementById('inactiveMessage');
+        const analysisPanel = document.getElementById('analysisPanel');
+        const anodeSideLabel = document.getElementById('anodeSideLabel');
+        const anodeExplanation = document.getElementById('anodeExplanation');
+        const anodeEquation = document.getElementById('anodeEquation');
+        const cathodeSideLabel = document.getElementById('cathodeSideLabel');
+        const cathodeExplanation = document.getElementById('cathodeExplanation');
+        const cathodeEquation = document.getElementById('cathodeEquation');
+        const labelsAnodeIon = document.querySelectorAll('.anodeIonLabel');
+
+        // Canvas Settings
+        const canvas = document.getElementById('animationCanvas');
+        const ctx = canvas.getContext('2d');
+        const width = 500;
+        const height = 400;
+        const fluidTop = 180;
+
+        // Electrode Positioning coordinates
+        const leftElX = 140;
+        const rightElX = 325;
+        const elWidth = 35;
+        const elDepth = 170;
+        const leftElCenterX = leftElX + elWidth / 2;
+        const rightElCenterX = rightElX + elWidth / 2;
+
+        // --- Physics Entities Arrays ---
+        let ions = [];
+        let bubbles = [];
+        let electrons = [];
+        let animationFrameId = null;
+
+        // --- Utility: Generate dynamic wire routes for electrons ---
+        function generateElectronPath(yTarget, anodeSide, cathodeSide) {
+            const anodeCenterX = anodeSide === 'left' ? leftElCenterX : rightElCenterX;
+            const cathodeCenterX = cathodeSide === 'left' ? leftElCenterX : rightElCenterX;
+            const anodeSurface = anodeSide === 'left' ? (leftElX + elWidth) : rightElX;
+            const cathodeSurface = cathodeSide === 'left' ? (leftElX + elWidth) : rightElX;
+
+            const path = [];
+            path.push({ x: anodeSurface, y: yTarget });
+            path.push({ x: anodeCenterX, y: yTarget });
+            path.push({ x: anodeCenterX, y: 120 });
+            path.push({ x: anodeCenterX, y: 50 });
+
+            const nearSwitchX = anodeSide === 'left' ? 220 : 280;
+            path.push({ x: nearSwitchX, y: 50 });
+            path.push({ x: nearSwitchX, y: 70 });
+
+            const farSwitchX = anodeSide === 'left' ? 280 : 220;
+            path.push({ x: farSwitchX, y: 70 });
+            path.push({ x: farSwitchX, y: 50 });
+
+            path.push({ x: cathodeCenterX, y: 50 });
+            path.push({ x: cathodeCenterX, y: 120 });
+            path.push({ x: cathodeCenterX, y: yTarget });
+            path.push({ x: cathodeSurface, y: yTarget });
+
+            return path;
+        }
+
+        // --- Core Chemical Engine & State Update ---
+        function updateState() {
+            metalLeft = selectMetalLeft.value;
+            metalRight = selectMetalRight.value;
+            electrolyte = selectElectrolyte.value;
+
+            const m1 = METALS[metalLeft];
+            const m2 = METALS[metalRight];
+            const el = ELECTROLYTES[electrolyte];
+
+            // 1. Update drop down help copy
+            txtElectrolyteHelp.textContent = el.help;
+
+            // 2. Adjust color & labels of physical visualizer
+            rectLeft.setAttribute('fill', m1.color);
+            textLeft.textContent = m1.symbol;
+            rectRight.setAttribute('fill', m2.color);
+            textRight.textContent = m2.symbol;
+
+            // Toggle container visibility
+            containerLemon.classList.add('hidden');
+            containerOrange.classList.add('hidden');
+            containerCup.classList.add('hidden');
+
+            if (electrolyte === 'lemon') {
+                containerLemon.classList.remove('hidden');
+            } else if (electrolyte === 'orange') {
+                containerOrange.classList.remove('hidden');
+            } else {
+                containerCup.classList.remove('hidden');
+                cupLiquid.setAttribute('fill', el.color);
+            }
+
+            // 3. Evaluate Chemistry Direction (Anode vs Cathode)
+            let anode, cathode, anodeSide, cathodeSide;
+            let voltage = "0.00";
+            let currentFlows = false;
+
+            if (m1.id !== m2.id && el.id !== 'water') {
+                if (m1.potential < m2.potential) {
+                    anode = m1;
+                    cathode = m2;
+                    anodeSide = 'left';
+                    cathodeSide = 'right';
+                } else {
+                    anode = m2;
+                    cathode = m1;
+                    anodeSide = 'right';
+                    cathodeSide = 'left';
+                }
+                voltage = Math.abs(0.00 - anode.potential).toFixed(2);
+                currentFlows = circuitClosed;
+            } else {
+                voltage = "0.00";
+            }
+
+            // 4. Render HUD Multimeter values
+            txtVoltmeter.textContent = circuitClosed ? `${voltage} V` : `0.00 V`;
+            if (circuitClosed) {
+                txtVoltmeter.classList.remove('text-red-400');
+                txtVoltmeter.classList.add('text-green-400');
+            } else {
+                txtVoltmeter.classList.remove('text-green-400');
+                txtVoltmeter.classList.add('text-red-400');
+            }
+
+            const currentLevel = currentFlows ? Math.max(0.1, 10000 / el.internalResistance) : 0;
+            if (currentFlows) {
+                badgeCurrent.classList.remove('hidden');
+                badgeCurrent.textContent = `Current: ${currentLevel > 10 ? 'HIGH' : 'LOW'}`;
+            } else {
+                badgeCurrent.classList.add('hidden');
+            }
+
+            // 5. Build Dynamic Text Explanation Cards
+            if (currentFlows) {
+                inactiveMessage.classList.add('hidden');
+                analysisPanel.classList.remove('hidden');
+
+                anodeSideLabel.textContent = anodeSide === 'left' ? 'Left Side' : 'Right Side';
+                anodeExplanation.innerHTML = `<strong class="${anode.textColor}">${anode.name}</strong> has a lower reduction potential, meaning it wants to give up electrons. It dissolves into the solution as ions.`;
+                anodeEquation.textContent = `${anode.symbol} → ${anode.ion} + ${anode.e}e⁻`;
+
+                cathodeSideLabel.textContent = cathodeSide === 'left' ? 'Left Side' : 'Right Side';
+                cathodeExplanation.innerHTML = `Electrons travel through the wire to the <strong class="${cathode.textColor}">${cathode.name}</strong> electrode. Here, Hydrogen ions (H⁺) from the acid grab the electrons and turn into Hydrogen gas bubbles!`;
+                cathodeEquation.textContent = `2H⁺ + 2e⁻ → H₂ (gas)`;
+
+                labelsAnodeIon.forEach(el => el.textContent = anode.ion);
+            } else {
+                inactiveMessage.classList.remove('hidden');
+                analysisPanel.classList.add('hidden');
+                if (el.id === 'water') {
+                    inactiveMessage.textContent = 'Pure water lacks the free ions necessary to complete the circuit. Try an acidic solution like lemon or citric acid!';
+                } else if (m1.id === m2.id) {
+                    inactiveMessage.textContent = 'You need two DIFFERENT metals to create a potential difference (voltage). Try changing one of the electrodes.';
+                } else {
+                    inactiveMessage.textContent = 'Close the circuit to observe the chemical reactions!';
+                }
+            }
+        }
+
+        // --- Switch UI Toggle ---
+        btnSwitch.addEventListener('click', () => {
+            circuitClosed = !circuitClosed;
+            if (circuitClosed) {
+                btnSwitch.textContent = "Open Circuit (Disconnect)";
+                btnSwitch.className = "w-full py-3 rounded-xl font-bold text-white shadow-md transition-all bg-red-500 hover:bg-red-600";
+                switchBlade.setAttribute('x2', '80');
+                switchBlade.setAttribute('y2', '10');
+            } else {
+                btnSwitch.textContent = "Close Circuit (Connect)";
+                btnSwitch.className = "w-full py-3 rounded-xl font-bold text-white shadow-md transition-all bg-green-500 hover:bg-green-600";
+                switchBlade.setAttribute('x2', '70');
+                switchBlade.setAttribute('y2', '-10');
+                // Purge particle trails
+                ions = [];
+                electrons = [];
+            }
+            updateState();
+        });
+
+        // Setup input listeners
+        selectMetalLeft.addEventListener('change', updateState);
+        selectMetalRight.addEventListener('change', updateState);
+        selectElectrolyte.addEventListener('change', updateState);
+
+        // --- Animation Logic Loop ---
+        function loop() {
+            ctx.clearRect(0, 0, width, height);
+
+            const m1 = METALS[metalLeft];
+            const m2 = METALS[metalRight];
+            const el = ELECTROLYTES[electrolyte];
+
+            let anode, cathode, anodeSide, cathodeSide;
+            let currentFlows = false;
+
+            if (m1.id !== m2.id && el.id !== 'water') {
+                if (m1.potential < m2.potential) {
+                    anode = m1;
+                    cathode = m2;
+                    anodeSide = 'left';
+                    cathodeSide = 'right';
+                } else {
+                    anode = m2;
+                    cathode = m1;
+                    anodeSide = 'right';
+                    cathodeSide = 'left';
+                }
+                currentFlows = circuitClosed;
+            }
+
+            const currentLevel = currentFlows ? Math.max(0.1, 10000 / el.internalResistance) : 0;
+            const spawnRate = currentLevel * 0.6;
+
+            if (currentFlows) {
+                const targetCathodeX = cathodeSide === 'right' ? rightElX : leftElX + elWidth;
+                const anodeSurfaceX = anodeSide === 'left' ? leftElX + elWidth : rightElX;
+
+                // 1. Spawn Anode Ions (Metal dissolving and migrating to Cathode)
+                if (Math.random() < spawnRate * 0.08) {
+                    const dir = targetCathodeX > anodeSurfaceX ? 1 : -1;
+                    ions.push({
+                        type: 'anode-ion',
+                        x: anodeSurfaceX,
+                        y: fluidTop + 20 + Math.random() * 70,
+                        targetX: targetCathodeX,
+                        dir: dir, // Locked direction of movement (1 for right, -1 for left)
+                        vx: dir * (0.22 + Math.random() * 0.15),
+                        vy: (Math.random() - 0.5) * 0.1,
+                        life: 1.0,
+                        text: anode.ion,
+                        color: anode.color
+                    });
+                }
+
+                // 2. Spawn Hydrogen Ions (H⁺) migrating directly to Cathode
+                if (Math.random() < spawnRate * 0.08) {
+                    const startX = cathodeSide === 'right'
+                        ? targetCathodeX - 120 - Math.random() * 40
+                        : targetCathodeX + 120 + Math.random() * 40;
+                    const dir = targetCathodeX > startX ? 1 : -1;
+                    const yTarget = fluidTop + 10 + Math.random() * 80;
+                    ions.push({
+                        type: 'h-ion',
+                        x: startX,
+                        y: yTarget,
+                        targetX: targetCathodeX,
+                        dir: dir,
+                        vx: dir * (0.35 + Math.random() * 0.2),
+                        vy: 0,
+                        life: 1.0,
+                        text: 'H⁺',
+                        color: '#1d4ed8'
+                    });
+                }
+
+                // 3. Spawn Labeled Electrons (e⁻) traveling along the complete circuit
+                if (Math.random() < spawnRate * 0.08) {
+                    const yTarget = fluidTop + 20 + Math.random() * 70;
+                    electrons.push({
+                        x: anodeSurfaceX,
+                        y: yTarget,
+                        path: generateElectronPath(yTarget, anodeSide, cathodeSide),
+                        currentSegment: 0,
+                        t: 0,
+                        speed: 1.1,
+                        reachedEnd: false,
+                        waiting: false,
+                        waitTimer: 0
+                    });
+                }
+            }
+
+            // --- Update & Draw Electrons ---
+            for (let i = electrons.length - 1; i >= 0; i--) {
+                let e = electrons[i];
+
+                if (e.reachedEnd) {
+                    if (e.waiting) {
+                        e.waitTimer--;
+
+                        // Check if there is a waiting H⁺ ion at the cathode to neutralize
+                        const partnerIndex = ions.findIndex(ion => ion.type === 'h-ion' && ion.waiting && Math.abs(ion.y - e.y) < 20);
+                        if (partnerIndex !== -1) {
+                            const partner = ions[partnerIndex];
+                            // Remove both particles (Reduction occurred!)
+                            ions.splice(partnerIndex, 1);
+                            electrons.splice(i, 1);
+
+                            // Spawn a large, beautifully labeled H₂ bubble!
+                            bubbles.push({
+                                x: e.x + (cathodeSide === 'right' ? -15 : 15),
+                                y: e.y,
+                                vx: (cathodeSide === 'right' ? -0.15 : 0.15) + (Math.random() - 0.5) * 0.1,
+                                vy: -0.5 - Math.random() * 0.8,
+                                life: 1.0,
+                                radius: 12 + Math.random() * 3
+                            });
+                            continue;
+                        }
+
+                        if (e.waitTimer <= 0) {
+                            electrons.splice(i, 1);
+                        }
+                    } else {
+                        e.waiting = true;
+                        e.waitTimer = 180; // Wait up to 3 seconds for H⁺ pairing
+                    }
+                } else {
+                    // Travel along segments
+                    const p1 = e.path[e.currentSegment];
+                    const p2 = e.path[e.currentSegment + 1];
+                    const dx = p2.x - p1.x;
+                    const dy = p2.y - p1.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    e.t += e.speed / dist;
+                    if (e.t >= 1) {
+                        e.t = 0;
+                        e.currentSegment++;
+                        if (e.currentSegment >= e.path.length - 1) {
+                            e.reachedEnd = true;
+                            e.x = p2.x;
+                            e.y = p2.y;
+                        }
+                    } else {
+                        e.x = p1.x + dx * e.t;
+                        e.y = p1.y + dy * e.t;
+                    }
+                }
+
+                // Draw Electron Particle
+                ctx.globalAlpha = e.waiting ? e.waitTimer / 180 : 1.0;
+                ctx.beginPath();
+                ctx.arc(e.x, e.y, 8, 0, Math.PI * 2);
+                ctx.fillStyle = '#f59e0b'; // Premium amber
+                ctx.strokeStyle = '#b45309';
+                ctx.lineWidth = 1.5;
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 9px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('e⁻', e.x, e.y);
+            }
+
+            // --- Update & Draw Ions ---
+            for (let i = ions.length - 1; i >= 0; i--) {
+                let p = ions[i];
+
+                if (p.type === 'anode-ion') {
+                    const reached = p.dir === 1 ? p.x >= p.targetX : p.x <= p.targetX;
+                    if (reached) {
+                        p.x = p.targetX;
+                        p.vx = 0;
+                        p.vy = 0;
+                        p.life -= 0.03;
+                    } else {
+                        p.x += p.vx;
+                        p.y += p.vy;
+                        p.life -= 0.001;
+                    }
+                } else if (p.type === 'h-ion') {
+                    const reached = p.dir === 1 ? p.x >= p.targetX : p.x <= p.targetX;
+                    if (reached) {
+                        p.x = p.targetX;
+                        p.vx = 0;
+                        p.vy = 0;
+                        p.waiting = true;
+
+                        // Check if there is a waiting electron at the cathode to pair with
+                        const partnerIndex = electrons.findIndex(el => el.reachedEnd && el.waiting && Math.abs(el.y - p.y) < 20);
+                        if (partnerIndex !== -1) {
+                            const partner = electrons[partnerIndex];
+                            // Remove both particles
+                            electrons.splice(partnerIndex, 1);
+                            ions.splice(i, 1);
+
+                            // Spawn labeled bubble
+                            bubbles.push({
+                                x: p.targetX + (cathodeSide === 'right' ? -15 : 15),
+                                y: p.y,
+                                vx: (cathodeSide === 'right' ? -0.15 : 0.15) + (Math.random() - 0.5) * 0.1,
+                                vy: -0.5 - Math.random() * 0.8,
+                                life: 1.0,
+                                radius: 12 + Math.random() * 3
+                            });
+                            continue;
+                        }
+                    } else {
+                        p.x += p.vx;
+                        p.y += p.vy;
+                        p.life -= 0.002;
+                    }
+                }
+
+                // Draw Ion Spheres with clean text formatting
+                ctx.globalAlpha = Math.max(0, p.life);
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.type === 'h-ion' ? 10 : 13, 0, Math.PI * 2);
+                ctx.fillStyle = p.type === 'h-ion' ? '#2563eb' : p.color;
+                ctx.strokeStyle = p.type === 'h-ion' ? '#1d4ed8' : '#334155';
+                ctx.lineWidth = 1.5;
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = p.type === 'h-ion' ? 'bold 8px sans-serif' : 'bold 9px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(p.text, p.x, p.y);
+
+                if (p.life <= 0) ions.splice(i, 1);
+            }
+
+            // --- Update & Draw Labeled Gas Bubbles ---
+            for (let i = bubbles.length - 1; i >= 0; i--) {
+                let b = bubbles[i];
+                b.x += b.vx;
+                b.y += b.vy;
+                b.life -= 0.005;
+
+                // Gentle stabilization of horizontal drift
+                b.vx *= 0.95;
+
+                ctx.globalAlpha = Math.max(0, b.life);
+
+                // Bubble body
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(2, 132, 199, 0.8)';
+                ctx.fillStyle = 'rgba(186, 230, 253, 0.55)'; // Translucent sky blue
+                ctx.lineWidth = 1.5;
+                ctx.fill();
+                ctx.stroke();
+
+                // High contrast H₂ label
+                ctx.fillStyle = '#0369a1';
+                ctx.font = 'bold 10px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('H₂', b.x, b.y);
+
+                // Remove bubble when transparent or floats past the very top of the canvas (y < 40)
+                if (b.life <= 0 || b.y < 40) bubbles.splice(i, 1);
+            }
+
+            animationFrameId = requestAnimationFrame(loop);
+        }
+
+        // --- On Load Init ---
+        updateState();
+        loop();
+    </script>
+</body>
+
+</html>
