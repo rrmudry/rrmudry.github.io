@@ -211,9 +211,9 @@
                     <li><strong>Electrons (e⁻):</strong> Form during oxidation at the anode, travel up the metal plate,
                         through the wire pathway, across the switch, down the cathode plate, and combine with H⁺ at the
                         active interface.</li>
-                    <li><strong>Anode Metal Ions (<span class="anodeIonLabel">Zn²⁺</span>):</strong> Migrate across the
-                        electrolyte solution toward the cathode, attracted by the negative charge but fading on arrival
-                        as they disperse/react. They do not pass beyond the cathode barrier.</li>
+                    <li><strong>Anode Metal Ions (<span class="anodeIonLabel">Zn²⁺</span>):</strong> Dissolve off the
+                        anode plate and accumulate in the surrounding electrolyte solution, forming a localized region
+                        of dissolved positive ions.</li>
                     <li><strong>Acidic Hydronium Ions (H⁺):</strong> Migrate directly to the cathode and get reduced by
                         arriving electrons to form bubbles.</li>
                     <li><strong>Hydrogen Gas Bubbles (H₂):</strong> Form directly at the cathode plate surface and float
@@ -486,17 +486,15 @@
                 const targetCathodeX = cathodeSide === 'right' ? rightElX : leftElX + elWidth;
                 const anodeSurfaceX = anodeSide === 'left' ? leftElX + elWidth : rightElX;
 
-                // 1. Spawn Anode Ions (Metal dissolving and migrating to Cathode)
+                // 1. Spawn Anode Ions (Metal dissolving and accumulating around the anode)
                 if (Math.random() < spawnRate * 0.08) {
-                    const dir = targetCathodeX > anodeSurfaceX ? 1 : -1;
+                    const driftDir = anodeSide === 'left' ? 1 : -1;
                     ions.push({
                         type: 'anode-ion',
                         x: anodeSurfaceX,
                         y: fluidTop + 20 + Math.random() * 70,
-                        targetX: targetCathodeX,
-                        dir: dir, // Locked direction of movement (1 for right, -1 for left)
-                        vx: dir * (0.22 + Math.random() * 0.15),
-                        vy: (Math.random() - 0.5) * 0.1,
+                        vx: driftDir * (0.12 + Math.random() * 0.12), // Gentle outward drift
+                        vy: (Math.random() - 0.5) * 0.15, // Simple vertical diffusion
                         life: 1.0,
                         text: anode.ion,
                         color: anode.color
@@ -621,17 +619,12 @@
                 let p = ions[i];
 
                 if (p.type === 'anode-ion') {
-                    const reached = p.dir === 1 ? p.x >= p.targetX : p.x <= p.targetX;
-                    if (reached) {
-                        p.x = p.targetX;
-                        p.vx = 0;
-                        p.vy = 0;
-                        p.life -= 0.03;
-                    } else {
-                        p.x += p.vx;
-                        p.y += p.vy;
-                        p.life -= 0.001;
-                    }
+                    // Accumulate around the anode: gently drift outward and slow to a stop (friction/diffusion decay)
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vx *= 0.96;
+                    p.vy *= 0.96;
+                    p.life -= 0.0035; // Lingers cleanly around the anode as a cloud
                 } else if (p.type === 'h-ion') {
                     const reached = p.dir === 1 ? p.x >= p.targetX : p.x <= p.targetX;
                     if (reached) {
