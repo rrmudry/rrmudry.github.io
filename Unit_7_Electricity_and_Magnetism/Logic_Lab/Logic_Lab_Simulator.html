@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LogicLab Simulator</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* Custom Scrollbar for Sidebar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 1);
+            /* slate-900 */
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(51, 65, 85, 1);
+            /* slate-700 */
+            border-radius: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(71, 85, 105, 1);
+            /* slate-600 */
+        }
+
+        /* Prevent text selection while interacting with canvas */
+        .no-select {
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Gate CSS variables for Tailwind classes mapping in JS */
+        .node-shadow {
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+    </style>
+</head>
+
+<body class="flex h-screen bg-slate-950 text-slate-200 font-sans overflow-hidden no-select">
+
+    <!-- --- SIDEBAR --- -->
+    <div class="w-80 bg-slate-900 border-r border-slate-800 flex flex-col z-30 shadow-xl relative shrink-0">
+        <div class="p-6 border-b border-slate-800">
+            <h1 class="text-2xl font-bold flex items-center gap-2 text-white">
+                <i data-lucide="cpu" class="text-blue-500"></i> LogicLab
+            </h1>
+            <p class="text-sm text-slate-400 mt-2">Interactive digital circuit builder for students.</p>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="flex border-b border-slate-800 shrink-0">
+            <button id="tab-playground"
+                class="flex-1 py-3 flex items-center justify-center gap-2 font-medium transition-colors text-blue-400 border-b-2 border-blue-500 bg-slate-800/50">
+                <i data-lucide="play" class="w-[18px] h-[18px]"></i> Playground
+            </button>
+            <button id="tab-learn"
+                class="flex-1 py-3 flex items-center justify-center gap-2 font-medium transition-colors text-slate-400 hover:text-slate-200">
+                <i data-lucide="book-open" class="w-[18px] h-[18px]"></i> Learn
+            </button>
+        </div>
+
+        <!-- Sidebar Content -->
+        <div class="flex-1 overflow-y-auto p-4 custom-scrollbar">
+
+            <!-- PLAYGROUND TAB -->
+            <div id="content-playground" class="space-y-6">
+                <div>
+                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Input / Output</h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="app.addNode('SWITCH')"
+                            class="flex flex-col items-center p-3 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 transition-colors">
+                            <i data-lucide="toggle-left" class="text-slate-400 mb-2"></i>
+                            <span class="text-sm">Switch</span>
+                        </button>
+                        <button onclick="app.addNode('BULB')"
+                            class="flex flex-col items-center p-3 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 transition-colors">
+                            <i data-lucide="lightbulb" class="text-yellow-500 mb-2"></i>
+                            <span class="text-sm">Bulb</span>
+                        </button>
+                        <button onclick="app.addNode('DISPLAY')"
+                            class="flex flex-col items-center p-3 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 transition-colors col-span-2">
+                            <div class="text-xl font-mono text-green-400 font-bold mb-1 leading-none">0-F</div>
+                            <span class="text-sm">Number Display</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Logic Gates</h3>
+                    <div id="logic-gates-container" class="flex flex-col gap-2">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <div class="mt-8 p-4 bg-blue-900/20 border border-blue-900/50 rounded-lg text-sm text-blue-200">
+                    <p class="flex items-start gap-2">
+                        <i data-lucide="info" class="shrink-0 mt-0.5 text-blue-400 w-4 h-4"></i>
+                        <span><strong>Pro Tip:</strong> You can zoom in/out with your mouse wheel and pan around by
+                            clicking and dragging the background!</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- LEARN TAB -->
+            <div id="content-learn" class="space-y-8 pb-10 text-sm hidden">
+
+                <!-- CHALLENGES SECTION -->
+                <div class="bg-slate-800/80 rounded-xl border border-slate-700 overflow-hidden">
+                    <div class="bg-slate-800 px-4 py-3 border-b border-slate-700 flex items-center gap-2">
+                        <i data-lucide="flask-conical" class="text-fuchsia-400 w-[18px] h-[18px]"></i>
+                        <h2 class="text-md font-bold text-white">Classic Challenges</h2>
+                    </div>
+                    <div id="challenges-container" class="p-3 flex flex-col gap-2">
+                        <p class="text-slate-400 text-xs mb-1 px-1">Click a challenge below to load the starting
+                            components onto your canvas.</p>
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- THE BIG PICTURE -->
+                <div class="bg-blue-900/20 border border-blue-900/50 rounded-xl p-5">
+                    <h2 class="text-lg font-bold text-blue-300 mb-3">The Big Picture: Is this a computer?</h2>
+                    <p class="text-slate-300 mb-4 text-sm leading-relaxed">
+                        It's hard to see how turning on a lightbulb translates to a modern machine. Modern computers
+                        just combine billions of these microscopic gates to do three main things:
+                    </p>
+                    <ul class="space-y-4 text-sm text-slate-300">
+                        <li><strong class="text-blue-400 block mb-1">1. Math (The Brain)</strong> Look at the
+                            <strong>Mini Calculator</strong> challenge. By combining 7 logic gates, we created a circuit
+                            that can literally add numbers! Chain 32 of these block-groups together, and you have a
+                            processor that adds millions in a fraction of a second. This is the core of a CPU.</li>
+                        <li><strong class="text-blue-400 block mb-1">2. Memory (The Notebook)</strong> Look at the
+                            <strong>SR Latch</strong> challenge. Notice how the lightbulb stays ON even after you turn
+                            the switch OFF? The gates trapped the electricity in a loop. By doing this billions of
+                            times, we create computer RAM.</li>
+                        <li><strong class="text-blue-400 block mb-1">3. Data (The Alphabet)</strong> Look at the
+                            <strong>Binary Numbers</strong> challenge. If we group 4 wires together, a specific pattern
+                            of ON/OFFs can represent numbers. If we group 8 wires (a Byte), it can represent a letter
+                            like 'A', or a single red pixel on your screen!</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h2 class="text-lg font-bold text-white mb-2">The Basics</h2>
+                    <p class="text-slate-400 leading-relaxed mb-3">
+                        Computers run on electricity. Wires can either have power (<strong class="text-blue-400">ON /
+                            1</strong>) or no power (<strong class="text-slate-400">OFF / 0</strong>). Logic gates look
+                        at the state of their input wires and use simple mathematical rules to decide whether their
+                        output wire should be ON or OFF.
+                    </p>
+                </div>
+
+                <!-- AND GATE -->
+                <div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-4 h-4 rounded-full bg-blue-600 border border-blue-400"></div>
+                        <h3 class="text-md font-bold text-white">AND Gate</h3>
+                    </div>
+                    <p class="text-slate-400 mb-2">The output is ON <strong>only if BOTH</strong> inputs are ON.</p>
+                    <div class="bg-slate-800 rounded-lg border border-slate-700 overflow-hidden">
+                        <table class="w-full text-center">
+                            <thead class="bg-slate-900 text-slate-300 border-b border-slate-700">
+                                <tr>
+                                    <th class="p-2">Input A</th>
+                                    <th class="p-2">Input B</th>
+                                    <th class="p-2 text-blue-300">Output</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-slate-400">
+                                <tr>
+                                    <td class="p-2">0</td>
+                                    <td class="p-2">0</td>
+                                    <td class="p-2 font-bold">0</td>
+                                </tr>
+                                <tr class="bg-slate-800/50">
+                                    <td class="p-2">1</td>
+                                    <td class="p-2">0</td>
+                                    <td class="p-2 font-bold">0</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2">0</td>
+                                    <td class="p-2">1</td>
+                                    <td class="p-2 font-bold">0</td>
+                                </tr>
+                                <tr class="bg-blue-900/30 text-blue-300">
+                                    <td class="p-2">1</td>
+                                    <td class="p-2">1</td>
+                                    <td class="p-2 font-bold">1</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- OR GATE -->
+                <div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-4 h-4 rounded-full bg-green-600 border border-green-400"></div>
+                        <h3 class="text-md font-bold text-white">OR Gate</h3>
+                    </div>
+                    <p class="text-slate-400 mb-2">The output is ON <strong>if AT LEAST ONE</strong> input is ON.</p>
+                    <div class="bg-slate-800 rounded-lg border border-slate-700 overflow-hidden">
+                        <table class="w-full text-center">
+                            <thead class="bg-slate-900 text-slate-300 border-b border-slate-700">
+                                <tr>
+                                    <th class="p-2">Input A</th>
+                                    <th class="p-2">Input B</th>
+                                    <th class="p-2 text-green-300">Output</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-slate-400">
+                                <tr>
+                                    <td class="p-2">0</td>
+                                    <td class="p-2">0</td>
+                                    <td class="p-2 font-bold">0</td>
+                                </tr>
+                                <tr class="bg-green-900/30 text-green-300">
+                                    <td class="p-2">1</td>
+                                    <td class="p-2">0</td>
+                                    <td class="p-2 font-bold">1</td>
+                                </tr>
+                                <tr class="bg-green-900/30 text-green-300">
+                                    <td class="p-2">0</td>
+                                    <td class="p-2">1</td>
+                                    <td class="p-2 font-bold">1</td>
+                                </tr>
+                                <tr class="bg-green-900/30 text-green-300">
+                                    <td class="p-2">1</td>
+                                    <td class="p-2">1</td>
+                                    <td class="p-2 font-bold">1</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- NOT GATE -->
+                <div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-4 h-4 rounded-full bg-red-600 border border-red-400"></div>
+                        <h3 class="text-md font-bold text-white">NOT Gate (Inverter)</h3>
+                    </div>
+                    <p class="text-slate-400 mb-2">Reverses the signal. If input is ON, output is OFF.</p>
+                    <div class="bg-slate-800 rounded-lg border border-slate-700 overflow-hidden">
+                        <table class="w-full text-center">
+                            <thead class="bg-slate-900 text-slate-300 border-b border-slate-700">
+                                <tr>
+                                    <th class="p-2">Input A</th>
+                                    <th class="p-2 text-red-300">Output</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-slate-400">
+                                <tr class="bg-red-900/30 text-red-300">
+                                    <td class="p-2">0</td>
+                                    <td class="p-2 font-bold">1</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2">1</td>
+                                    <td class="p-2 font-bold">0</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- XOR GATE -->
+                <div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-4 h-4 rounded-full bg-purple-600 border border-purple-400"></div>
+                        <h3 class="text-md font-bold text-white">XOR Gate (Exclusive OR)</h3>
+                    </div>
+                    <p class="text-slate-400 mb-2">The output is ON <strong>if EXACTLY ONE</strong> input is ON.</p>
+                    <div class="bg-slate-800 rounded-lg border border-slate-700 overflow-hidden">
+                        <table class="w-full text-center">
+                            <thead class="bg-slate-900 text-slate-300 border-b border-slate-700">
+                                <tr>
+                                    <th class="p-2">Input A</th>
+                                    <th class="p-2">Input B</th>
+                                    <th class="p-2 text-purple-300">Output</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-slate-400">
+                                <tr>
+                                    <td class="p-2">0</td>
+                                    <td class="p-2">0</td>
+                                    <td class="p-2 font-bold">0</td>
+                                </tr>
+                                <tr class="bg-purple-900/30 text-purple-300">
+                                    <td class="p-2">1</td>
+                                    <td class="p-2">0</td>
+                                    <td class="p-2 font-bold">1</td>
+                                </tr>
+                                <tr class="bg-purple-900/30 text-purple-300">
+                                    <td class="p-2">0</td>
+                                    <td class="p-2">1</td>
+                                    <td class="p-2 font-bold">1</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2">1</td>
+                                    <td class="p-2">1</td>
+                                    <td class="p-2 font-bold">0</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- --- CANVAS AREA --- -->
+    <div id="canvas-area" class="flex-1 relative overflow-hidden transition-colors cursor-grab"
+        style="background-image: radial-gradient(circle at 1px 1px, #334155 1px, transparent 0); background-position: 0px 0px; background-size: 40px 40px;">
+
+        <!-- WORLD SPACE CONTAINER (Scales and Pans) -->
+        <div id="world-container" class="absolute inset-0 origin-top-left"
+            style="transform: translate(0px, 0px) scale(1);">
+
+            <!-- SVG Layer for Wires -->
+            <svg id="wires-layer" class="absolute inset-0 overflow-visible pointer-events-none z-0"
+                xmlns="http://www.w3.org/2000/svg">
+                <!-- Wires injected via JS -->
+            </svg>
+
+            <!-- DOM Layer for Nodes -->
+            <div id="nodes-layer" class="absolute inset-0 pointer-events-none z-10">
+                <!-- Nodes injected via JS -->
+            </div>
+        </div>
+
+        <!-- Instruction overlay if empty -->
+        <div id="empty-state-overlay"
+            class="absolute inset-0 flex items-center justify-center pointer-events-none z-20 hidden">
+            <div
+                class="bg-slate-900/80 backdrop-blur border border-slate-700 p-6 rounded-2xl flex flex-col items-center max-w-sm text-center">
+                <i data-lucide="mouse-pointer-2" class="text-slate-500 mb-4 w-8 h-8"></i>
+                <h2 class="text-white font-bold text-lg mb-2">Canvas is empty</h2>
+                <p class="text-slate-400 text-sm">Add components from the sidebar or click a Challenge from the Learn
+                    tab to get started.</p>
+            </div>
+        </div>
+
+        <!-- Floating Canvas Controls -->
+        <div class="absolute bottom-6 right-6 flex items-center gap-2 z-30">
+            <button onclick="app.requestClearBoard()"
+                class="flex items-center gap-2 px-4 h-10 bg-red-950/80 hover:bg-red-900/90 border border-red-800/50 text-red-200 rounded-lg shadow-lg backdrop-blur-sm transition-colors mr-2"
+                title="Clear the entire canvas">
+                <i data-lucide="trash-2" class="w-4 h-4"></i> <span class="font-medium text-sm">Clear Board</span>
+            </button>
+
+            <div
+                class="flex items-center bg-slate-900/80 border border-slate-700 rounded-lg shadow-lg backdrop-blur-sm overflow-hidden h-10">
+                <button onclick="app.zoom(-0.2)"
+                    class="w-10 h-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-colors border-r border-slate-700"
+                    title="Zoom Out">
+                    <i data-lucide="zoom-out" class="w-[18px] h-[18px]"></i>
+                </button>
+                <button onclick="app.resetView()"
+                    class="px-3 h-full flex items-center justify-center text-slate-300 font-mono text-xs hover:bg-slate-800 transition-colors border-r border-slate-700"
+                    title="Reset View">
+                    <span id="zoom-level-text">100%</span>
+                </button>
+                <button onclick="app.zoom(0.2)"
+                    class="w-10 h-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-colors border-r border-slate-700"
+                    title="Zoom In">
+                    <i data-lucide="zoom-in" class="w-[18px] h-[18px]"></i>
+                </button>
+                <button onclick="app.resetView()"
+                    class="w-10 h-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                    title="Center Origin">
+                    <i data-lucide="target" class="w-[18px] h-[18px]"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Custom Confirmation Modal -->
+        <div id="modal-overlay"
+            class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center pointer-events-auto hidden">
+            <div class="bg-slate-900 border border-slate-700 p-6 rounded-xl shadow-2xl max-w-sm w-full">
+                <h3 id="modal-title" class="text-xl font-bold text-white mb-2">Title</h3>
+                <p id="modal-message" class="text-slate-400 mb-6">Message</p>
+                <div class="flex justify-end gap-3">
+                    <button onclick="app.closeModal()"
+                        class="px-4 py-2 rounded-lg text-slate-300 hover:bg-slate-800 transition-colors">
+                        Cancel
+                    </button>
+                    <button id="modal-confirm-btn"
+                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors shadow-lg shadow-blue-900/20">
+                        Confirm
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- CONSTANTS & DEFINITIONS ---
+        const GATE_TYPES = {
+            SWITCH: { id: 'SWITCH', name: 'Switch (Input)', color: 'bg-slate-700', border: 'border-slate-500', inputs: 0, outputs: 1, evaluate: (s, i) => s },
+            BULB: { id: 'BULB', name: 'Lightbulb (Output)', color: 'bg-yellow-900/50', border: 'border-yellow-600', inputs: 1, outputs: 0, evaluate: (s, i) => i[0] || false },
+            AND: { id: 'AND', name: 'AND Gate', color: 'bg-blue-900/80', border: 'border-blue-500', inputs: 2, outputs: 1, evaluate: (s, i) => (i[0] && i[1]) },
+            OR: { id: 'OR', name: 'OR Gate', color: 'bg-green-900/80', border: 'border-green-500', inputs: 2, outputs: 1, evaluate: (s, i) => (i[0] || i[1]) },
+            NOT: { id: 'NOT', name: 'NOT Gate', color: 'bg-red-900/80', border: 'border-red-500', inputs: 1, outputs: 1, evaluate: (s, i) => (!i[0]) },
+            XOR: { id: 'XOR', name: 'XOR Gate', color: 'bg-purple-900/80', border: 'border-purple-500', inputs: 2, outputs: 1, evaluate: (s, i) => ((i[0] || false) !== (i[1] || false)) },
+            NAND: { id: 'NAND', name: 'NAND Gate', color: 'bg-cyan-900/80', border: 'border-cyan-500', inputs: 2, outputs: 1, evaluate: (s, i) => !(i[0] && i[1]) },
+            NOR: { id: 'NOR', name: 'NOR Gate', color: 'bg-fuchsia-900/80', border: 'border-fuchsia-500', inputs: 2, outputs: 1, evaluate: (s, i) => !(i[0] || i[1]) },
+            DISPLAY: {
+                id: 'DISPLAY', name: 'Number Display', color: 'bg-black', border: 'border-slate-600', inputs: 4, outputs: 0,
+                evaluate: (s, i) => {
+                    let val = 0;
+                    if (i[0]) val += 1;
+                    if (i[1]) val += 2;
+                    if (i[2]) val += 4;
+                    if (i[3]) val += 8;
+                    return val;
+                }
+            }
+        };
+
+        const CHALLENGES = [
+            {
+                id: 'xor', title: 'Build an XOR Gate', description: 'The XOR gate only outputs ON if exactly ONE input is ON. Can you recreate this behavior using only AND, OR, and NOT gates?',
+                nodes: [{ id: 'sw1', type: 'SWITCH', x: 100, y: 150, state: false, inputs: [] }, { id: 'sw2', type: 'SWITCH', x: 100, y: 300, state: false, inputs: [] }, { id: 'bulb1', type: 'BULB', x: 600, y: 225, state: false, inputs: [false] }], wires: []
+            },
+            {
+                id: 'half-adder', title: 'The Half-Adder', description: 'Add two binary bits! Create a circuit that takes two inputs and outputs a "Sum" and a "Carry". Hint: Use an XOR gate for the Sum, and an AND gate for the Carry.',
+                nodes: [{ id: 'swA', type: 'SWITCH', x: 100, y: 150, state: false, inputs: [] }, { id: 'swB', type: 'SWITCH', x: 100, y: 300, state: false, inputs: [] }, { id: 'sum', type: 'BULB', x: 500, y: 150, state: false, inputs: [false] }, { id: 'carry', type: 'BULB', x: 500, y: 300, state: false, inputs: [false] }], wires: []
+            },
+            {
+                id: 'sr-latch', title: 'Memory (SR Latch)', description: 'Computers need memory! Build a latch using two NOR gates. Connect the output of the first NOR to the input of the second, and vice versa. Use the switches to "Set" and "Reset" the state.',
+                nodes: [{ id: 'set', type: 'SWITCH', x: 100, y: 100, state: false, inputs: [] }, { id: 'reset', type: 'SWITCH', x: 100, y: 350, state: false, inputs: [] }, { id: 'nor1', type: 'NOR', x: 300, y: 100, state: false, inputs: [false, false] }, { id: 'nor2', type: 'NOR', x: 300, y: 350, state: false, inputs: [false, false] }, { id: 'q', type: 'BULB', x: 550, y: 100, state: false, inputs: [false] }, { id: 'notq', type: 'BULB', x: 550, y: 350, state: false, inputs: [false] }],
+                wires: [{ id: 'w1', fromNode: 'set', toNode: 'nor1', toPin: 0 }, { id: 'w2', fromNode: 'reset', toNode: 'nor2', toPin: 1 }]
+            },
+            {
+                id: 'binary-display', title: 'Hello Data: Binary Numbers', description: 'See how abstract ON/OFF switches turn into readable data! Connect four switches to the Number Display from top to bottom. By turning different combinations ON and OFF, you can create any number from 0 to 15 (0-F in Hexadecimal).',
+                nodes: [{ id: 'sw1', type: 'SWITCH', x: 100, y: 100, state: false, inputs: [] }, { id: 'sw2', type: 'SWITCH', x: 100, y: 180, state: false, inputs: [] }, { id: 'sw4', type: 'SWITCH', x: 100, y: 260, state: false, inputs: [] }, { id: 'sw8', type: 'SWITCH', x: 100, y: 340, state: false, inputs: [] }, { id: 'disp', type: 'DISPLAY', x: 450, y: 220, state: 0, inputs: [false, false, false, false] }], wires: []
+            },
+            {
+                id: 'mini-calculator', title: 'The Mini Calculator', description: 'This is a 2-bit Adder! It adds two numbers together. The top two switches are "Number A" (up to 3). The bottom two switches are "Number B" (up to 3). Flip them and watch the logic gates carry the 1s and 2s to calculate the exact sum on the display!',
+                nodes: [
+                    { id: 'swA0', type: 'SWITCH', x: 100, y: 100, state: false, inputs: [] }, { id: 'swB0', type: 'SWITCH', x: 100, y: 200, state: false, inputs: [] }, { id: 'swA1', type: 'SWITCH', x: 100, y: 350, state: false, inputs: [] }, { id: 'swB1', type: 'SWITCH', x: 100, y: 450, state: false, inputs: [] },
+                    { id: 'xor0', type: 'XOR', x: 300, y: 100, state: false, inputs: [false, false] }, { id: 'and0', type: 'AND', x: 300, y: 200, state: false, inputs: [false, false] }, { id: 'xor1a', type: 'XOR', x: 300, y: 350, state: false, inputs: [false, false] }, { id: 'and1a', type: 'AND', x: 300, y: 450, state: false, inputs: [false, false] },
+                    { id: 'xor1b', type: 'XOR', x: 500, y: 200, state: false, inputs: [false, false] }, { id: 'and1b', type: 'AND', x: 500, y: 350, state: false, inputs: [false, false] }, { id: 'or1', type: 'OR', x: 700, y: 400, state: false, inputs: [false, false] }, { id: 'disp', type: 'DISPLAY', x: 850, y: 150, state: 0, inputs: [false, false, false, false] }
+                ],
+                wires: [
+                    { id: 'w1', fromNode: 'swA0', toNode: 'xor0', toPin: 0 }, { id: 'w2', fromNode: 'swB0', toNode: 'xor0', toPin: 1 }, { id: 'w3', fromNode: 'swA0', toNode: 'and0', toPin: 0 }, { id: 'w4', fromNode: 'swB0', toNode: 'and0', toPin: 1 }, { id: 'w5', fromNode: 'swA1', toNode: 'xor1a', toPin: 0 }, { id: 'w6', fromNode: 'swB1', toNode: 'xor1a', toPin: 1 }, { id: 'w7', fromNode: 'swA1', toNode: 'and1a', toPin: 0 }, { id: 'w8', fromNode: 'swB1', toNode: 'and1a', toPin: 1 }, { id: 'w9', fromNode: 'xor0', toNode: 'disp', toPin: 0 }, { id: 'w10', fromNode: 'xor1a', toNode: 'xor1b', toPin: 0 }, { id: 'w11', fromNode: 'and0', toNode: 'xor1b', toPin: 1 }, { id: 'w12', fromNode: 'xor1a', toNode: 'and1b', toPin: 0 }, { id: 'w13', fromNode: 'and0', toNode: 'and1b', toPin: 1 }, { id: 'w14', fromNode: 'xor1b', toNode: 'disp', toPin: 1 }, { id: 'w15', fromNode: 'and1b', toNode: 'or1', toPin: 0 }, { id: 'w16', fromNode: 'and1a', toNode: 'or1', toPin: 1 }, { id: 'w17', fromNode: 'or1', toNode: 'disp', toPin: 2 }
+                ]
+            }
+        ];
+
+        // --- APPLICATION STATE & LOGIC ---
+        const app = {
+            nodes: [],
+            wires: [],
+            panZoom: { x: 0, y: 0, scale: 1 },
+
+            panStart: null,
+            draggingNode: null,
+            dragOffset: { x: 0, y: 0 },
+            wiringStart: null,
+            mousePos: { x: 0, y: 0 },
+
+            pendingConfirmAction: null,
+
+            // DOM Elements
+            els: {
+                canvasArea: document.getElementById('canvas-area'),
+                worldContainer: document.getElementById('world-container'),
+                nodesLayer: document.getElementById('nodes-layer'),
+                wiresLayer: document.getElementById('wires-layer'),
+                emptyState: document.getElementById('empty-state-overlay'),
+                modalOverlay: document.getElementById('modal-overlay'),
+                modalTitle: document.getElementById('modal-title'),
+                modalMessage: document.getElementById('modal-message'),
+                modalConfirmBtn: document.getElementById('modal-confirm-btn')
+            },
+
+            init() {
+                this.populateSidebar();
+                this.setupEventListeners();
+                this.loadChallenge(CHALLENGES[0]);
+                lucide.createIcons();
+
+                // Start simulation loop
+                setInterval(() => this.simulationTick(), 50);
+            },
+
+            generateId() {
+                return Math.random().toString(36).substr(2, 9);
+            },
+
+            screenToWorld(clientX, clientY) {
+                const rect = this.els.canvasArea.getBoundingClientRect();
+                return {
+                    x: (clientX - rect.left - this.panZoom.x) / this.panZoom.scale,
+                    y: (clientY - rect.top - this.panZoom.y) / this.panZoom.scale
+                };
+            },
+
+            // --- SIDEBAR SETUP ---
+            populateSidebar() {
+                // Populate Logic Gates
+                const gateContainer = document.getElementById('logic-gates-container');
+                Object.keys(GATE_TYPES).filter(k => k !== 'SWITCH' && k !== 'BULB' && k !== 'DISPLAY').forEach(type => {
+                    const typeDef = GATE_TYPES[type];
+                    const btn = document.createElement('button');
+                    btn.className = "flex items-center p-3 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 transition-colors text-left group";
+                    btn.onclick = () => this.addNode(type);
+                    btn.innerHTML = `
+            <div class="w-3 h-3 rounded-full mr-3 ${typeDef.color.split('/')[0]} border border-white/20 shadow-sm"></div>
+            <span class="flex-1 font-medium">${typeDef.name}</span>
+            <i data-lucide="plus" class="text-slate-500 group-hover:text-white transition-colors w-4 h-4"></i>
+          `;
+                    gateContainer.appendChild(btn);
+                });
+
+                // Populate Challenges
+                const chalContainer = document.getElementById('challenges-container');
+                CHALLENGES.forEach((challenge, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = "text-left p-3 rounded-lg border border-slate-700 bg-slate-900 hover:border-fuchsia-500/50 hover:bg-fuchsia-900/10 transition-all group";
+                    btn.onclick = () => this.requestLoadChallenge(challenge);
+                    btn.innerHTML = `
+            <h3 class="font-bold text-slate-200 group-hover:text-fuchsia-300 transition-colors">#${idx + 1}: ${challenge.title}</h3>
+            <p class="text-slate-500 mt-1 text-xs leading-relaxed">${challenge.description}</p>
+          `;
+                    chalContainer.appendChild(btn);
+                });
+
+                // Tabs
+                const btnPlayground = document.getElementById('tab-playground');
+                const btnLearn = document.getElementById('tab-learn');
+                const contentPlayground = document.getElementById('content-playground');
+                const contentLearn = document.getElementById('content-learn');
+
+                btnPlayground.onclick = () => {
+                    btnPlayground.className = "flex-1 py-3 flex items-center justify-center gap-2 font-medium transition-colors text-blue-400 border-b-2 border-blue-500 bg-slate-800/50";
+                    btnLearn.className = "flex-1 py-3 flex items-center justify-center gap-2 font-medium transition-colors text-slate-400 hover:text-slate-200";
+                    contentPlayground.classList.remove('hidden');
+                    contentLearn.classList.add('hidden');
+                };
+
+                btnLearn.onclick = () => {
+                    btnLearn.className = "flex-1 py-3 flex items-center justify-center gap-2 font-medium transition-colors text-blue-400 border-b-2 border-blue-500 bg-slate-800/50";
+                    btnPlayground.className = "flex-1 py-3 flex items-center justify-center gap-2 font-medium transition-colors text-slate-400 hover:text-slate-200";
+                    contentLearn.classList.remove('hidden');
+                    contentPlayground.classList.add('hidden');
+                };
+            },
+
+            // --- SIMULATION LOOP ---
+            simulationTick() {
+                let changed = false;
+
+                const outputs = {};
+                this.nodes.forEach(node => {
+                    const typeDef = GATE_TYPES[node.type];
+                    outputs[node.id] = typeDef.evaluate(node.state, node.inputs || []);
+                });
+
+                const nextInputs = {};
+                this.nodes.forEach(n => { nextInputs[n.id] = Array(GATE_TYPES[n.type].inputs).fill(false); });
+
+                this.wires.forEach(wire => {
+                    if (nextInputs[wire.toNode]) {
+                        nextInputs[wire.toNode][wire.toPin] = outputs[wire.fromNode] || false;
+                    }
+                });
+
+                this.nodes.forEach(node => {
+                    const newInputs = nextInputs[node.id];
+                    const typeDef = GATE_TYPES[node.type];
+                    const newState = typeDef.evaluate(node.state, newInputs);
+
+                    if (node.state !== newState || JSON.stringify(node.inputs) !== JSON.stringify(newInputs)) {
+                        changed = true;
+                        node.state = newState;
+                        node.inputs = newInputs;
+                    }
+                });
+
+                if (changed) {
+                    this.syncNodeVisuals();
+                    this.renderWires();
+                }
+            },
+
+            // --- MODAL / ACTIONS ---
+            openModal(title, message, onConfirm) {
+                this.els.modalTitle.innerText = title;
+                this.els.modalMessage.innerText = message;
+                this.els.modalOverlay.classList.remove('hidden');
+
+                this.els.modalConfirmBtn.onclick = () => {
+                    onConfirm();
+                    this.closeModal();
+                };
+            },
+
+            closeModal() {
+                this.els.modalOverlay.classList.add('hidden');
+            },
+
+            requestClearBoard() {
+                if (this.nodes.length === 0) return;
+                this.openModal('Clear Canvas?', 'Are you sure you want to clear all components and wires? This cannot be undone.', () => {
+                    this.nodes = [];
+                    this.wires = [];
+                    this.rebuildDOM();
+                });
+            },
+
+            requestLoadChallenge(challenge) {
+                const performLoad = () => this.loadChallenge(challenge);
+                if (this.nodes.length > 0) {
+                    this.openModal('Load Challenge', `Clear current canvas and load the "${challenge.title}" challenge?`, performLoad);
+                } else {
+                    performLoad();
+                }
+            },
+
+            loadChallenge(challenge) {
+                this.nodes = JSON.parse(JSON.stringify(challenge.nodes));
+                this.wires = JSON.parse(JSON.stringify(challenge.wires));
+                this.panZoom = { x: 0, y: 0, scale: 1 };
+                document.getElementById('tab-playground').click(); // Switch to playground tab
+                this.updateTransform();
+                this.rebuildDOM();
+            },
+
+            // --- NODE MANAGEMENT ---
+            addNode(type) {
+                const viewportCenterX = (300 - this.panZoom.x) / this.panZoom.scale;
+                const viewportCenterY = (200 - this.panZoom.y) / this.panZoom.scale;
+
+                const newNode = {
+                    id: this.generateId(),
+                    type,
+                    x: viewportCenterX + (Math.random() * 50 - 25),
+                    y: viewportCenterY + (Math.random() * 50 - 25),
+                    state: type === 'DISPLAY' ? 0 : false,
+                    inputs: Array(GATE_TYPES[type].inputs).fill(false)
+                };
+                this.nodes.push(newNode);
+                document.getElementById('tab-playground').click();
+
+                // Rebuild DOM and force a visual sync
+                this.rebuildDOM();
+            },
+
+            deleteNode(id) {
+                this.nodes = this.nodes.filter(n => n.id !== id);
+                this.wires = this.wires.filter(w => w.fromNode !== id && w.toNode !== id);
+                this.rebuildDOM();
+            },
+
+            deleteWire(id) {
+                this.wires = this.wires.filter(w => w.id !== id);
+                this.renderWires();
+            },
+
+            toggleSwitch(id) {
+                const node = this.nodes.find(n => n.id === id);
+                if (node && node.type === 'SWITCH') {
+                    node.state = !node.state;
+                    this.simulationTick(); // Force immediate evaluation
+                }
+            },
+
+            // --- RENDERING ---
+            updateTransform() {
+                this.els.worldContainer.style.transform = `translate(${this.panZoom.x}px, ${this.panZoom.y}px) scale(${this.panZoom.scale})`;
+                this.els.canvasArea.style.backgroundPosition = `${this.panZoom.x}px ${this.panZoom.y}px`;
+                this.els.canvasArea.style.backgroundSize = `${40 * this.panZoom.scale}px ${40 * this.panZoom.scale}px`;
+                document.getElementById('zoom-level-text').innerText = `${Math.round(this.panZoom.scale * 100)}%`;
+            },
+
+            zoom(delta) {
+                this.panZoom.scale = Math.min(Math.max(0.2, this.panZoom.scale + delta), 3);
+                this.updateTransform();
+            },
+
+            resetView() {
+                this.panZoom = { x: 0, y: 0, scale: 1 };
+                this.updateTransform();
+            },
+
+            // Completely reconstructs the HTML for nodes
+            rebuildDOM() {
+                this.els.emptyState.style.display = this.nodes.length === 0 ? 'flex' : 'none';
+
+                let html = '';
+                this.nodes.forEach(node => {
+                    const typeDef = GATE_TYPES[node.type];
+
+                    let inputHtml = '';
+                    for (let i = 0; i < typeDef.inputs; i++) {
+                        inputHtml += `
+               <div data-id="${node.id}" data-pin="${i}" class="input-pin w-4 h-4 bg-slate-800 border-2 border-slate-500 rounded-full hover:border-white hover:scale-125 transition-all cursor-crosshair z-20 flex items-center justify-center pointer-events-auto">
+                 <div class="pin-indicator w-1.5 h-1.5 rounded-full bg-transparent"></div>
+               </div>
+             `;
+                    }
+
+                    let contentHtml = '';
+                    if (node.type === 'SWITCH') {
+                        contentHtml = `<button class="switch-btn w-full h-10 rounded-lg flex items-center justify-center font-bold text-lg shadow-inner transition-colors pointer-events-auto bg-slate-800 text-slate-400 border-slate-700">OFF</button>`;
+                    } else if (node.type === 'BULB') {
+                        contentHtml = `<div class="bulb-visual w-10 h-10 rounded-full flex items-center justify-center shadow-[inset_0_-2px_10px_rgba(0,0,0,0.5)] transition-colors duration-200 bg-slate-800">
+              <i data-lucide="lightbulb" class="text-slate-600 w-5 h-5"></i>
+            </div>`;
+                    } else if (node.type === 'DISPLAY') {
+                        contentHtml = `<div class="w-12 h-12 bg-black border-2 border-slate-800 rounded flex items-center justify-center shadow-inner">
+               <span class="display-val font-mono text-3xl font-bold text-green-500" style="text-shadow: 0 0 10px rgba(34, 197, 94, 0.8)">0</span>
+             </div>`;
+                    } else {
+                        contentHtml = `<span class="font-bold text-white tracking-widest pointer-events-none">${typeDef.name.replace(' Gate', '')}</span>`;
+                    }
+
+                    let outputHtml = '';
+                    if (typeDef.outputs > 0) {
+                        outputHtml = `
+              <div data-id="${node.id}" class="output-pin absolute -right-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 hover:border-white hover:scale-125 transition-all cursor-crosshair z-20 flex items-center justify-center pointer-events-auto bg-slate-800 border-slate-500">
+                <div class="wiring-indicator w-2 h-2 bg-white rounded-full animate-pulse hidden"></div>
+              </div>
+            `;
+                    }
+
+                    html += `
+            <div id="node-${node.id}" data-id="${node.id}" class="node absolute flex items-center justify-between w-[120px] h-[60px] rounded-xl node-shadow border-2 ${typeDef.color} ${typeDef.border} cursor-grab active:cursor-grabbing backdrop-blur-sm z-10 transition-colors select-none pointer-events-auto" style="left: ${node.x}px; top: ${node.y}px;">
+              
+              <div class="absolute -left-2 top-0 bottom-0 flex flex-col justify-evenly">
+                ${inputHtml}
+              </div>
+
+              <div class="flex-1 flex items-center justify-center px-2 relative group h-full">
+                <button class="delete-btn absolute -top-3 -right-3 w-6 h-6 bg-red-500 hover:bg-red-600 rounded-full text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-30 shadow border border-red-200 pointer-events-auto">
+                  <i data-lucide="trash-2" class="w-3 h-3"></i>
+                </button>
+                ${contentHtml}
+              </div>
+
+              ${outputHtml}
+            </div>
+          `;
+                });
+
+                this.els.nodesLayer.innerHTML = html;
+                lucide.createIcons(); // Re-initialize icons for new nodes
+                this.syncNodeVisuals(); // Apply state colors
+                this.renderWires();     // Redraw SVG
+            },
+
+            // Updates existing DOM elements without tearing down HTML (for performance)
+            syncNodeVisuals() {
+                this.nodes.forEach(node => {
+                    const el = document.getElementById(`node-${node.id}`);
+                    if (!el) return;
+
+                    // Update position
+                    el.style.left = `${node.x}px`;
+                    el.style.top = `${node.y}px`;
+
+                    // Update Input Indicators
+                    const pins = el.querySelectorAll('.input-pin .pin-indicator');
+                    pins.forEach((pin, i) => {
+                        if (node.inputs[i]) {
+                            pin.classList.remove('bg-transparent');
+                            pin.classList.add('bg-blue-400');
+                        } else {
+                            pin.classList.add('bg-transparent');
+                            pin.classList.remove('bg-blue-400');
+                        }
+                    });
+
+                    // Update Output Pin Glowing
+                    const outPin = el.querySelector('.output-pin');
+                    if (outPin) {
+                        const isWiring = this.wiringStart === node.id;
+                        const wiringInd = outPin.querySelector('.wiring-indicator');
+                        if (wiringInd) wiringInd.style.display = isWiring ? 'block' : 'none';
+
+                        if (node.state) {
+                            outPin.classList.replace('bg-slate-800', 'bg-blue-500');
+                            outPin.classList.replace('border-slate-500', 'border-blue-300');
+                            outPin.style.boxShadow = '0 0 10px rgba(59,130,246,0.8)';
+                        } else {
+                            outPin.classList.replace('bg-blue-500', 'bg-slate-800');
+                            outPin.classList.replace('border-blue-300', 'border-slate-500');
+                            outPin.style.boxShadow = 'none';
+                        }
+                    }
+
+                    // Update Component Specific Visuals
+                    if (node.type === 'SWITCH') {
+                        const btn = el.querySelector('.switch-btn');
+                        btn.innerText = node.state ? 'ON' : 'OFF';
+                        if (node.state) {
+                            btn.className = "switch-btn w-full h-10 rounded-lg flex items-center justify-center font-bold text-lg shadow-inner transition-colors pointer-events-auto bg-blue-500 text-white border-blue-400";
+                        } else {
+                            btn.className = "switch-btn w-full h-10 rounded-lg flex items-center justify-center font-bold text-lg shadow-inner transition-colors pointer-events-auto bg-slate-800 text-slate-400 border-slate-700";
+                        }
+                    } else if (node.type === 'BULB') {
+                        const bulb = el.querySelector('.bulb-visual');
+                        const icon = bulb.querySelector('.lucide-lightbulb');
+                        if (node.state) {
+                            bulb.className = "bulb-visual w-10 h-10 rounded-full flex items-center justify-center shadow-[inset_0_-2px_10px_rgba(0,0,0,0.5)] transition-colors duration-200 bg-yellow-400 shadow-[0_0_20px_rgba(250,204,21,0.6)]";
+                            if (icon) { icon.classList.remove('text-slate-600'); icon.classList.add('text-yellow-100'); }
+                        } else {
+                            bulb.className = "bulb-visual w-10 h-10 rounded-full flex items-center justify-center shadow-[inset_0_-2px_10px_rgba(0,0,0,0.5)] transition-colors duration-200 bg-slate-800";
+                            if (icon) { icon.classList.add('text-slate-600'); icon.classList.remove('text-yellow-100'); }
+                        }
+                    } else if (node.type === 'DISPLAY') {
+                        const disp = el.querySelector('.display-val');
+                        disp.innerText = Number(node.state || 0).toString(16).toUpperCase();
+                    }
+                });
+            },
+
+            getWirePath(startX, startY, endX, endY) {
+                const controlPointX = Math.abs(endX - startX) / 2;
+                return `M ${startX} ${startY} C ${startX + controlPointX} ${startY}, ${endX - controlPointX} ${endY}, ${endX} ${endY}`;
+            },
+
+            renderWires() {
+                let svgHtml = '';
+
+                // Draw established wires
+                this.wires.forEach(wire => {
+                    const fromNode = this.nodes.find(n => n.id === wire.fromNode);
+                    const toNode = this.nodes.find(n => n.id === wire.toNode);
+                    if (!fromNode || !toNode) return;
+
+                    const startX = fromNode.x + 120;
+                    const startY = fromNode.y + 30;
+
+                    const toDef = GATE_TYPES[toNode.type];
+                    const endX = toNode.x;
+                    const pinSpacing = 60 / (toDef.inputs + 1);
+                    const endY = toNode.y + (pinSpacing * (wire.toPin + 1));
+
+                    const d = this.getWirePath(startX, startY, endX, endY);
+                    const strokeColor = fromNode.state ? '#3b82f6' : '#475569';
+
+                    svgHtml += `
+            <g class="group pointer-events-auto">
+              <path d="${d}" fill="none" stroke="transparent" stroke-width="20" class="cursor-pointer" onclick="app.deleteWire('${wire.id}')"></path>
+              <path d="${d}" fill="none" stroke="${strokeColor}" stroke-width="4" class="transition-colors duration-200 group-hover:stroke-red-500 cursor-pointer" style="pointer-events: none;"></path>
+              ${fromNode.state ? `<path d="${d}" fill="none" stroke="#60a5fa" stroke-width="8" opacity="0.4" style="filter: blur(4px); pointer-events: none;"></path>` : ''}
+            </g>
+          `;
+                });
+
+                // Draw active dragging wire
+                if (this.wiringStart) {
+                    const fromNode = this.nodes.find(n => n.id === this.wiringStart);
+                    if (fromNode) {
+                        const startX = fromNode.x + 120;
+                        const startY = fromNode.y + 30;
+                        const d = this.getWirePath(startX, startY, this.mousePos.x, this.mousePos.y);
+                        const strokeColor = fromNode.state ? '#3b82f6' : '#475569';
+                        svgHtml += `
+              <g>
+                <path d="${d}" fill="none" stroke="${strokeColor}" stroke-width="4" style="pointer-events: none;"></path>
+                ${fromNode.state ? `<path d="${d}" fill="none" stroke="#60a5fa" stroke-width="8" opacity="0.4" style="filter: blur(4px); pointer-events: none;"></path>` : ''}
+              </g>
+            `;
+                    }
+                }
+
+                this.els.wiresLayer.innerHTML = svgHtml;
+            },
+
+            // --- EVENT DELEGATION & HANDLING ---
+            setupEventListeners() {
+                const area = this.els.canvasArea;
+
+                area.addEventListener('mousedown', (e) => {
+                    // Identify what was clicked via closest()
+                    const deleteBtn = e.target.closest('.delete-btn');
+                    const switchBtn = e.target.closest('.switch-btn');
+                    const outputPin = e.target.closest('.output-pin');
+                    const inputPin = e.target.closest('.input-pin');
+                    const nodeEl = e.target.closest('.node');
+
+                    if (deleteBtn) {
+                        const id = nodeEl.dataset.id;
+                        this.deleteNode(id);
+                        return; // Stop processing
+                    }
+
+                    if (switchBtn) {
+                        const id = nodeEl.dataset.id;
+                        this.toggleSwitch(id);
+                        return;
+                    }
+
+                    if (outputPin) {
+                        const id = outputPin.dataset.id;
+                        if (this.wiringStart === id) {
+                            this.wiringStart = null;
+                        } else {
+                            this.wiringStart = id;
+                            this.mousePos = this.screenToWorld(e.clientX, e.clientY);
+                        }
+                        this.syncNodeVisuals();
+                        this.renderWires();
+                        return;
+                    }
+
+                    // If click on node body (but not a sub-button) -> Dragging
+                    if (nodeEl && !inputPin) {
+                        const id = nodeEl.dataset.id;
+                        const node = this.nodes.find(n => n.id === id);
+                        if (node) {
+                            this.draggingNode = id;
+                            const worldPos = this.screenToWorld(e.clientX, e.clientY);
+                            this.dragOffset = { x: worldPos.x - node.x, y: worldPos.y - node.y };
+
+                            // Bring to front
+                            nodeEl.style.zIndex = "20";
+                        }
+                        return;
+                    }
+
+                    // If clicked on empty background -> Panning
+                    if (e.target === area || e.target === this.els.worldContainer || e.target === this.els.wiresLayer) {
+                        this.panStart = { x: e.clientX, y: e.clientY };
+                        area.classList.add('cursor-grabbing');
+                    }
+                });
+
+                area.addEventListener('mousemove', (e) => {
+                    if (this.panStart) {
+                        const dx = e.clientX - this.panStart.x;
+                        const dy = e.clientY - this.panStart.y;
+                        this.panZoom.x += dx;
+                        this.panZoom.y += dy;
+                        this.panStart = { x: e.clientX, y: e.clientY };
+                        this.updateTransform();
+                        return;
+                    }
+
+                    const worldPos = this.screenToWorld(e.clientX, e.clientY);
+
+                    if (this.wiringStart) {
+                        this.mousePos = worldPos;
+                        this.renderWires(); // update live wire visual
+                    }
+
+                    if (this.draggingNode) {
+                        const node = this.nodes.find(n => n.id === this.draggingNode);
+                        if (node) {
+                            node.x = worldPos.x - this.dragOffset.x;
+                            node.y = worldPos.y - this.dragOffset.y;
+                            this.syncNodeVisuals(); // Update position immediately
+                            this.renderWires();     // Update attached wires immediately
+                        }
+                    }
+                });
+
+                const handleMouseUp = (e) => {
+                    if (this.panStart) {
+                        this.panStart = null;
+                        area.classList.remove('cursor-grabbing');
+                    }
+
+                    if (this.draggingNode) {
+                        const el = document.getElementById(`node-${this.draggingNode}`);
+                        if (el) el.style.zIndex = "10";
+                        this.draggingNode = null;
+                    }
+
+                    if (this.wiringStart) {
+                        const inputPin = e.target.closest('.input-pin');
+                        if (inputPin) {
+                            const targetId = inputPin.dataset.id;
+                            const targetPin = parseInt(inputPin.dataset.pin, 10);
+
+                            // Prevent self loop
+                            if (this.wiringStart !== targetId) {
+                                // Remove existing wire to this pin
+                                this.wires = this.wires.filter(w => !(w.toNode === targetId && w.toPin === targetPin));
+                                // Add new wire
+                                this.wires.push({
+                                    id: this.generateId(),
+                                    fromNode: this.wiringStart,
+                                    toNode: targetId,
+                                    toPin: targetPin
+                                });
+                            }
+                        }
+                        this.wiringStart = null;
+                        this.syncNodeVisuals();
+                        this.renderWires();
+                    }
+                };
+
+                area.addEventListener('mouseup', handleMouseUp);
+                area.addEventListener('mouseleave', handleMouseUp);
+
+                area.addEventListener('wheel', (e) => {
+                    e.preventDefault();
+                    const scaleChange = e.deltaY * -0.001;
+                    const newScale = Math.min(Math.max(0.2, this.panZoom.scale + scaleChange), 3);
+
+                    const rect = area.getBoundingClientRect();
+                    const mouseX = e.clientX - rect.left;
+                    const mouseY = e.clientY - rect.top;
+
+                    const worldX = (mouseX - this.panZoom.x) / this.panZoom.scale;
+                    const worldY = (mouseY - this.panZoom.y) / this.panZoom.scale;
+
+                    this.panZoom.x = mouseX - worldX * newScale;
+                    this.panZoom.y = mouseY - worldY * newScale;
+                    this.panZoom.scale = newScale;
+
+                    this.updateTransform();
+                }, { passive: false });
+            }
+        };
+
+        // Boot up
+        window.onload = () => {
+            app.init();
+        };
+
+    </script>
+</body>
+
+</html>
