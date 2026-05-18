@@ -36,7 +36,7 @@
 
 ### Day 6: Voltage & Batteries (Conceptual Intro)
 *   **Focus:** Understand electric potential difference (Voltage) and how batteries store chemical energy.
-*   **Activity:** Dissect a 9V battery (conceptually/diagram) and use the EUDAX voltmeter to test various batteries. Discuss how voltage acts as the "push" for current.
+*   **Activity:** Dissect a 9V battery (conceptually/diagram) and use the EUDAX voltmeter to test various batteries. Discuss how voltage acts as the "push" for current. Access the [Reading Resource](https://docs.google.com/document/d/1RngZHHhh-DNdu4tW6ifUW949sCGWyxFUEZ0UluMLgiE/edit?usp=sharing) and interactive [Fruit Battery Simulation](Fruit_Battery/Fruit_Battery_Simulation.html).
 
 ### Day 7: Lab: Fruit Batteries
 *   **Focus:** Creating a functioning wet cell battery using household items (HS-PS3-3).
