@@ -40,7 +40,7 @@
 
 ### Day 7: Lab: Fruit Batteries
 *   **Focus:** Creating a functioning wet cell battery using household items (HS-PS3-3).
-*   **Activity:** Use lemons, potatoes, and apples with zinc/copper electrodes to generate a measurable voltage. Experiment with series vs. parallel combinations of fruit to increase output.
+*   **Activity:** Use lemons, potatoes, and apples with zinc/copper electrodes to generate a measurable voltage. Experiment with series vs. parallel combinations of fruit to increase output. Follow the [Lab Guide](https://docs.google.com/document/d/1JqCjePXRHLkZDq3AIfAvVi-TEN4iSrhszef7YzSvbqg/edit?usp=sharing) and use the interactive [Fruit Battery Simulation](Fruit_Battery/Fruit_Battery_Simulation.html).
 
 ### Day 8: Series Circuits (The "All or Nothing" Path)
 *   **Focus:** Understand single-pathway circuits and voltage drops.
