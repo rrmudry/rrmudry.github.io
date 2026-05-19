@@ -836,16 +836,26 @@
                         last_alert: finalViolations.length > 0 ? finalViolations[0].type : (student.details?.last_alert || "NONE"),
                         ts: new Date().toISOString(),
                         sync_count: (student.details?.sync_count || 0) + 1
-                    },
-                    session_progress: {
+                    }
+                };
+
+                // Only include session_progress if the test is active, paused, or resumeable,
+                // and NOT when the score is reset, before the test starts, or after completion.
+                const isCompleted = statusLabel && statusLabel.startsWith("COMPLETED");
+                const isReset = statusLabel === "SCORE_RESET_ACKNOWLEDGED";
+                
+                if (!isCompleted && !isReset && (isTesting || (timerRemaining > 0 && timerRemaining < TIME_LIMIT_MINS * 60))) {
+                    payload.session_progress = {
                         current_question: currentQuestionIndex,
                         answers: sessionAnswers,
                         locked_questions: lockedQuestions,
                         timer_remaining: timerRemaining,
                         baseline_pitch: baselinePitchRatio,
                         updated_at: new Date().toISOString()
-                    }
-                };
+                    };
+                } else {
+                    payload.session_progress = firebase.firestore.FieldValue.delete();
+                }
 
                 // Update local student state from remote
                 if (existing) {
@@ -1584,8 +1594,6 @@
         }
 
         function handleScoreReset() {
-            if (!isSessionTerminated && currentScore === 0) return; // Already reset or not finished
-            
             console.warn("[PROCTOR] Score Reset Detected from Dashboard! Restarting full procedure.");
             
             // 1. Stop all active proctoring
@@ -1647,13 +1655,6 @@
             setStatus('Assessment Reset — Awaiting Re-entry', 'bg-amber-500');
             
             // 10. Clear session progress so next login starts fresh
-            const studentDocRef = db.collection('student_results').doc(ASSIGNMENT_NAME).collection('students').doc(student.id);
-            studentDocRef.set({ 
-                session_progress: firebase.firestore.FieldValue.delete(),
-                status: "SCORE_RESET_ACKNOWLEDGED",
-                score: 0
-            }, { merge: true }).catch(e => console.error("Session clear error:", e));
-            
             syncResults("SCORE_RESET_ACKNOWLEDGED", 0);
             showToast("Your assessment has been reset by the proctor. Please go through the setup process again.", "info");
         }
@@ -1661,6 +1662,7 @@
         async function submitTest() {
             if (isSessionTerminated) return;
             isSessionTerminated = true;
+            isTesting = false;
             
             // 1. Calculate Score (Number Correct)
             let points = 0;
