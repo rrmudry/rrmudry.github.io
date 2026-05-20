@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en" class="dark-theme">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 1 Dashboard: Foundations & Measurement</title>
+    <link rel="icon" type="image/png" href="head.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/theme.css" />
+    <style>
+        html { scroll-behavior: smooth; }
+
+        :root {
+            /* Foundations Theme: Emerald, Cyan, Teal */
+            --accent-foundations: #10b981;
+            --accent-light: #06b6d4;
+            --accent-soft: #2dd4bf;
+            --font-tech: 'Inter', sans-serif;
+            --font-mono: 'Fira Code', monospace;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #020617;
+            color: #f1f5f9;
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-foundations);
+            box-shadow: 0 15px 40px rgba(6, 182, 212, 0.2), inset 0 0 20px rgba(16, 185, 129, 0.15);
+        }
+
+        .nav-btn { position: relative; padding: 1rem 1.5rem; color: #e2e8f0; transition: color 0.3s ease; }
+        .nav-btn.active { color: var(--accent-foundations); font-weight: 700; }
+        .nav-btn.active::after {
+            content: ""; position: absolute; bottom: 0; left: 0; width: 100%; height: 2px;
+            background: var(--accent-foundations); box-shadow: 0 0 10px var(--accent-foundations);
+        }
+
+        .font-mono { font-family: var(--font-mono); }
+        .blink-cursor::after { content: '_'; animation: blink 1s step-end infinite; color: var(--accent-foundations); margin-left: 2px; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        .chart-bg { background: rgba(0, 0, 0, 0.4); border-radius: 12px; padding: 1rem; }
+        
+        .gemini-loader {
+            display: inline-block; border: 2px solid rgba(255, 255, 255, 0.1); border-top: 2px solid var(--accent-foundations);
+            border-radius: 50%; width: 14px; height: 14px; animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(16, 185, 129, 0.2); border-radius: 10px; }
+        .content-section { scroll-margin-top: 100px; padding-bottom: 4rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .content-section:last-child { border-bottom: none; }
+
+        .no-scroll { overflow: hidden !important; }
+
+        /* Blueprint/Metric Grid Background */
+        .metric-grid-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background-image: 
+                linear-gradient(rgba(16, 185, 129, 0.07) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(16, 185, 129, 0.07) 1px, transparent 1px),
+                linear-gradient(rgba(6, 182, 212, 0.03) 5px, transparent 5px),
+                linear-gradient(90deg, rgba(6, 182, 212, 0.03) 5px, transparent 5px);
+            background-size: 20px 20px, 20px 20px, 100px 100px, 100px 100px;
+            background-color: #020617;
+        }
+
+        .metric-grid-bg::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(180deg, rgba(2,6,23,0) 0%, rgba(2,6,23,0.9) 100%);
+            pointer-events: none;
+        }
+
+        /* Floating Sweep Line */
+        .sweep-line {
+            position: absolute;
+            background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.25), transparent);
+            height: 1px;
+            width: 100%;
+            opacity: 0;
+            animation: shoot-sweep 12s infinite linear;
+        }
+        
+        .sweep-line:nth-child(1) { top: 15%; animation-delay: 0s; }
+        .sweep-line:nth-child(2) { top: 45%; animation-duration: 15s; animation-delay: 3s; background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.25), transparent); }
+        .sweep-line:nth-child(3) { top: 75%; animation-delay: 6s; }
+
+        @keyframes shoot-sweep {
+            0% { transform: translateY(-50px); opacity: 0; }
+            10% { opacity: 0.4; }
+            90% { opacity: 0.4; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+    </style>
+</head>
+
+<body class="bg-slate-950">
+    <div class="metric-grid-bg">
+        <div class="sweep-line"></div>
+        <div class="sweep-line"></div>
+        <div class="sweep-line"></div>
+    </div>
+
+    <div data-include="header"></div>
+
+    <div id="app-container" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-teal-500 to-cyan-400">
+                Interactive Unit Plan</h1>
+            <p class="text-xl text-emerald-200 mt-2 font-medium">Unit 1: Foundations & Measurement</p>
+            <div class="w-32 h-1 bg-emerald-500 mx-auto mt-4 rounded-full shadow-[0_0_20px_rgba(16,185,129,0.6)] mb-8"></div>
+            
+            <!-- Unit Progress Bar -->
+            <div class="max-w-md mx-auto bg-slate-900/50 rounded-full h-4 border border-emerald-500/20 overflow-hidden relative mb-4">
+                <div id="unit-progress-bar" class="h-full bg-gradient-to-r from-emerald-500 to-cyan-400 shadow-[0_0_15px_rgba(16,185,129,0.5)] transition-all duration-1000" style="width: 0%"></div>
+                <div class="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white uppercase tracking-tighter mix-blend-difference">
+                    <span id="progress-text">Calculating...</span>
+                </div>
+            </div>
+        </header>
+
+        <nav class="flex justify-center border-b border-emerald-900/30 mb-10 sticky top-[73px] bg-slate-950/80 backdrop-blur-md z-40">
+            <button data-target="at-a-glance" class="nav-btn active">At a Glance</button>
+            <button data-target="pacing-guide" class="nav-btn">Pacing Guide</button>
+            <button data-target="resources" class="nav-btn">Resources</button>
+        </nav>
+
+        <main id="main-content">
+            <!-- At a Glance Section -->
+            <section id="at-a-glance" class="content-section space-y-8">
+                <div class="glass-card p-8">
+                    <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
+                        <h2 class="text-2xl font-bold text-emerald-100">Unit Overview</h2>
+                        <button id="suggest-project-btn"
+                            class="bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold px-5 py-2.5 rounded-full hover:shadow-[0_0_20px_rgba(16,185,129,0.5)] transition-all flex items-center gap-2">
+                            📏 Suggest Project Idea
+                        </button>
+                    </div>
+                    <p class="text-emerald-100/80 leading-relaxed text-lg">
+                        This unit establishes the fundamental language of physics: **measurement**. Students will begin by understanding the critical need for a standardized system of units (SI) and will learn to identify and use base and derived units. They will develop practical skills in unit conversion, scientific notation, and assessing the quality of measurements (accuracy, precision, and significant figures). The unit culminates in students applying these skills to solve complex problems and design their own scientific investigations, building a strong foundation for all future physics topics.
+                    </p>
+                    <div id="project-idea-container" class="mt-6 hidden"></div>
+                </div>
+
+                <!-- Featured Mission: Non-Standard Unit Challenge -->
+                <div class="glass-card p-0 overflow-hidden border-l-4 border-l-emerald-500 shadow-[0_0_30px_rgba(16,185,129,0.15)]">
+                    <div class="flex flex-col md:flex-row">
+                        <!-- Left Content: Briefing -->
+                        <div class="flex-1 p-8 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center gap-4 mb-6">
+                                    <div class="w-12 h-12 rounded-lg bg-emerald-600/20 flex items-center justify-center text-2xl border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+                                        📐
+                                    </div>
+                                    <div>
+                                        <h2 class="text-2xl font-bold text-emerald-400 tracking-tight">MISSION: NON-STANDARD UNIT CHALLENGE</h2>
+                                        <p class="text-xs text-emerald-300/60 font-mono uppercase tracking-[0.2em]">Operational Focus: Standardisation & Scientific Collaboration</p>
+                                    </div>
+                                </div>
+                                <div class="space-y-4 mb-8">
+                                    <div class="flex gap-2">
+                                        <span class="text-emerald-500 font-mono">[01]</span>
+                                        <p class="text-slate-300 leading-relaxed italic text-lg">
+                                            "Discover why standardized units are necessary through a hands-on challenge using unique, non-standard objects."
+                                        </p>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <span class="text-emerald-500 font-mono">[02]</span>
+                                        <p class="text-slate-400 text-sm">
+                                            Create a custom measuring tool from classroom materials. Measure common targets, observe the chaotic lack of consistency, and verify the stabilizing impact of standardizing data using the SI framework.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="flex flex-wrap gap-3 mt-6">
+                                    <a href="https://docs.google.com/document/d/188xprYNY0eogCYww45he7McWXoHCAKxVZZWibX7KaPU/edit?usp=sharing" target="_blank" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold text-sm transition-all shadow-[0_0_15px_rgba(16,185,129,0.3)] flex items-center gap-2">
+                                        📝 Student Instructions
+                                    </a>
+                                    <a href="https://docs.google.com/document/d/1JMY5nWw3dZ_hrxVKjLZisXVsBmV_fQf317EwaEZiS_U/edit?usp=sharing" target="_blank" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-bold text-sm transition-all border border-emerald-500/30 flex items-center gap-2">
+                                        📖 Lesson Plan
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Content: Intel Preview -->
+                        <div class="w-full md:w-[40%] bg-emerald-950/40 p-4 border-t md:border-t-0 md:border-l border-emerald-500/10 flex flex-col justify-center">
+                            <div class="bg-emerald-900/20 border border-emerald-500/30 rounded-lg overflow-hidden h-64 relative group">
+                                <div class="absolute top-0 left-0 right-0 bg-emerald-500/20 px-3 py-1 text-[10px] font-mono text-emerald-300 border-b border-emerald-500/20 flex justify-between items-center z-10">
+                                    <span>METRIC_STREAM: INSTRUCTION_PREVIEW</span>
+                                    <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                                </div>
+                                <iframe src="https://docs.google.com/document/d/188xprYNY0eogCYww45he7McWXoHCAKxVZZWibX7KaPU/preview" class="w-full h-full border-none pt-6" style="filter: opacity(0.85) contrast(1.1);"></iframe>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="glass-card p-8">
+                        <h2 class="text-2xl font-bold mb-4 text-emerald-400 blink-cursor">Essential_Qs</h2>
+                        <ul class="space-y-4 text-slate-300">
+                            <li class="flex items-start gap-3"><span class="text-emerald-500 font-mono font-bold">>_</span> Why is a universal standard for measurement essential for science and society?</li>
+                            <li class="flex items-start gap-3"><span class="text-emerald-500 font-mono font-bold">>_</span> How does the way we measure something affect what we know about it?</li>
+                            <li class="flex items-start gap-3"><span class="text-emerald-500 font-mono font-bold">>_</span> How can we mathematically represent and communicate quantities that are incredibly large or small?</li>
+                            <li class="flex items-start gap-3"><span class="text-emerald-500 font-mono font-bold">>_</span> When is a measurement "good enough"?</li>
+                        </ul>
+                    </div>
+                    <div class="glass-card p-8">
+                        <h2 class="text-2xl font-bold mb-4 text-emerald-400 blink-cursor">Foundational_Concepts</h2>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="flex items-center gap-3 p-3 bg-emerald-900/20 border border-emerald-500/20 rounded-lg shadow-inner group">
+                                <div class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981] animate-pulse"></div>
+                                <span class="text-xs font-mono text-slate-300 tracking-wide">SI_Base_Units</span>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 bg-emerald-900/20 border border-emerald-500/20 rounded-lg shadow-inner group">
+                                <div class="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_#06b6d4]"></div>
+                                <span class="text-xs font-mono text-slate-300 tracking-wide">Derived_Units</span>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 bg-emerald-900/20 border border-emerald-500/20 rounded-lg shadow-inner group">
+                                <div class="w-2 h-2 rounded-full bg-teal-400 shadow-[0_0_8px_#2dd4bf]"></div>
+                                <span class="text-xs font-mono text-slate-300 tracking-wide">Factor_Label_Method</span>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 bg-emerald-900/20 border border-emerald-500/20 rounded-lg shadow-inner group">
+                                <div class="w-2 h-2 rounded-full bg-yellow-400 shadow-[0_0_8px_#facc15]"></div>
+                                <span class="text-xs font-mono text-slate-300 tracking-wide">Scientific_Notation</span>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 bg-emerald-900/20 border border-emerald-500/20 rounded-lg shadow-inner group">
+                                <div class="w-2 h-2 rounded-full bg-red-400 shadow-[0_0_8px_#f87171]"></div>
+                                <span class="text-xs font-mono text-slate-300 tracking-wide">Accuracy_vs_Precision</span>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 bg-emerald-900/20 border border-emerald-500/20 rounded-lg shadow-inner group">
+                                <div class="w-2 h-2 rounded-full bg-blue-400 shadow-[0_0_8px_#60a5fa]"></div>
+                                <span class="text-xs font-mono text-slate-300 tracking-wide">Significant_Figures</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-8">
+                    <h2 class="text-2xl font-bold mb-6 text-emerald-100">Learning Objectives</h2>
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="bg-emerald-950/30 p-4 rounded-xl border border-emerald-500/20 hover:border-cyan-500/40 transition-colors">
+                            <div class="text-emerald-400 font-bold mb-1">DOK 1</div>
+                            <p class="text-sm text-slate-300">Identify the seven SI base units, their quantities, and metric prefixes.</p>
+                        </div>
+                        <div class="bg-emerald-950/30 p-4 rounded-xl border border-emerald-500/20 hover:border-cyan-500/40 transition-colors">
+                            <div class="text-emerald-400 font-bold mb-1">DOK 2</div>
+                            <p class="text-sm text-slate-300">Convert quantities using the dimensional analysis factor-label system; analyze measurements for accuracy and precision.</p>
+                        </div>
+                        <div class="bg-emerald-950/30 p-4 rounded-xl border border-emerald-500/20 hover:border-cyan-500/40 transition-colors">
+                            <div class="text-emerald-400 font-bold mb-1">DOK 3</div>
+                            <p class="text-sm text-slate-300">Evaluate derived quantities and justify mathematical operations using significant figure parameters.</p>
+                        </div>
+                        <div class="bg-emerald-950/30 p-4 rounded-xl border border-emerald-500/20 hover:border-cyan-500/40 transition-colors lg:col-span-3">
+                            <div class="text-emerald-400 font-bold mb-1">DOK 4</div>
+                            <p class="text-sm text-slate-300">Design procedural experiments to isolate constant values; construct robust, evidence-backed arguments validating the absolute necessity of standardized global unit systems.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pacing Guide Section -->
+            <section id="pacing-guide" class="content-section">
+                <div class="text-center mb-10">
+                    <h2 class="text-3xl font-bold text-emerald-100">Cognitive Progression Chart</h2>
+                    <p class="text-emerald-300/70 mt-2">DOK levels by lesson day. Calibration is key!</p>
+                </div>
+                <div class="chart-bg h-80 mb-12 border border-emerald-900/30">
+                    <canvas id="dokChart"></canvas>
+                </div>
+                <div id="pacing-cards-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                    <!-- Filled by JS -->
+                </div>
+            </section>
+
+            <!-- Resources Section -->
+            <section id="resources" class="content-section">
+                <div class="grid md:grid-cols-2 gap-10">
+                    <div>
+                        <h2 class="text-2xl font-bold mb-6 flex items-center gap-3 text-emerald-100">
+                            <span class="w-8 h-8 bg-emerald-500/20 text-emerald-400 rounded-lg flex items-center justify-center text-sm">📏</span>
+                            Labs & Activities
+                        </h2>
+                        <ul id="labs-list" class="space-y-4"></ul>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold mb-6 flex items-center gap-3 text-emerald-100">
+                            <span class="w-8 h-8 bg-cyan-500/20 text-cyan-400 rounded-lg flex items-center justify-center text-sm">🎯</span>
+                            Assessments
+                        </h2>
+                        <ul id="assessments-list" class="space-y-4"></ul>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Footer Partial -->
+    <div data-include="footer"></div>
+
+    <!-- Modal -->
+    <div id="modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 hidden z-50">
+        <div class="glass-card w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-300 border-emerald-500/30">
+            <div class="p-8">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <h3 id="modal-title" class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-teal-200">
+                        </h3>
+                        <p id="modal-subtitle" class="text-emerald-300 font-medium mt-1"></p>
+                    </div>
+                    <button id="close-modal" class="text-white/40 hover:text-white transition-colors text-3xl">&times;</button>
+                </div>
+                <div id="modal-content" class="text-slate-200 space-y-4 custom-scroll overflow-y-auto max-h-[60vh]">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/partials.js"></script>
+    <script>
+        // Inline Unit 1 lesson data matching central formats
+        const unit1Lessons = [
+            { 
+                day: 1, 
+                date: "2025-09-02",
+                topic: 'Why Standardize? Non-Standard Unit Challenge', 
+                dok: 2, 
+                type: 'Activity',
+                summary: 'Hands-on calibration challenge introducing standardized units.',
+                activity: 'Students discover **why** standardized units are necessary through a hands-on challenge. Each group uses a unique, non-standard object (like a marker) to create their own measuring tool and measure a common classroom item. After comparing their varied and confusing initial results, they convert their measurements to a standard unit (cm), revealing a new consistency and leading to a class discussion on the importance of the SI system for scientific collaboration.', 
+                essentialQuestion: "Why is a universal standard for measurement essential for science and global collaboration?",
+                wicor: {
+                    Writing: "Drafting a reflection detailing scientific breakdowns caused by non-standard frameworks.",
+                    Inquiry: "Formulating hypotheses as to why individual reference lines produce skewed measurement data sets.",
+                    Collaboration: "Pair-based data alignment challenges to construct a common calibration baseline.",
+                    Organization: "Compiling comparative metrics tables linking arbitrary standard objects.",
+                    Reading: "Evaluating informational text detailing the historical transition to the metric standard."
+                },
+                links: {
+                    'Student Instructions': 'https://docs.google.com/document/d/188xprYNY0eogCYww45he7McWXoHCAKxVZZWibX7KaPU/edit?usp=sharing',
+                    'Lesson Plan': 'https://docs.google.com/document/d/1JMY5nWw3dZ_hrxVKjLZisXVsBmV_fQf317EwaEZiS_U/edit?usp=sharing'
+                } 
+            },
+            { 
+                day: 2, 
+                date: "2025-09-03",
+                topic: 'Making the Standard & The Language of SI', 
+                dok: 2, 
+                type: 'Activity',
+                summary: 'Constructing manual meter sticks to map prefixes and base quantities.',
+                activity: '1. The Meter Stick Challenge: As a bridge from Day 1, groups get a 1-meter paper strip to turn into a useful measuring tool by subdividing it. 2. Introducing Prefixes: The teacher uses the student-made meter sticks to introduce formal metric prefixes (centi-, milli-). 3. Guided Notes & Practice: Formal instruction on the 7 SI base units and common prefixes, reinforced with recall games.',
+                essentialQuestion: "How do prefix systems expand our capability to mathematically model micro and macro realities?",
+                wicor: {
+                    Writing: "Writing procedural guides outlining the geometric breakdown of a raw 1-meter span.",
+                    Inquiry: "Investigating the mathematical ratios existing between cascading prefix layers.",
+                    Collaboration: "Sub-divisional work groups to sketch and align millimeter benchmarks.",
+                    Organization: "Mapping metric subdivisions on long grid-ruled blueprints.",
+                    Reading: "Parsing definition guidelines mapping out the 7 fundamental physical base units."
+                }
+            },
+            { 
+                day: 3, 
+                date: "2025-09-04",
+                topic: 'Unit Conversions', 
+                dok: 2, 
+                type: 'Practice',
+                summary: 'Mastering single and multi-step factor-label dimensional analysis.',
+                activity: '"I do, We do, You do" guided practice. Students work through converting single-step and multi-step problems (e.g., km/h to m/s) using the factor-label method.', 
+                essentialQuestion: "How does dimensional analysis safeguard mathematical models across different dimensional levels?",
+                wicor: {
+                    Writing: "Formulating step-by-step conversion rationale grids in structured analysis blocks.",
+                    Inquiry: "Deconstructing compound units to trace mathematical cancellations and dimensional integrity.",
+                    Collaboration: "Pair-share verification check-ins validating cross-multiplication accuracy.",
+                    Organization: "Setting up matrix boards ensuring vertical and horizontal unit cancellations.",
+                    Reading: "Reading conversion factor reference matrices to select appropriate multipliers."
+                },
+                links: {
+                    'Practice Worksheet': 'https://docs.google.com/document/d/19L0sKqt97x8hOCWEDIpL3pkUmgLGjwcYPnmkPXi8wnM/edit?usp=sharing'
+                }
+            },
+            { 
+                day: 4, 
+                date: "2025-09-05",
+                topic: 'Quality of Measurement', 
+                dok: 2, 
+                type: 'Lab',
+                summary: 'Precision vs. accuracy lab exploring uncertainty and sig-figs.',
+                activity: 'Use the "dartboard" analogy for accuracy vs. precision. Lab: Students perform a simple measurement (e.g., length of a block) and analyze their data for accuracy and precision.',
+                essentialQuestion: "What is the critical scientific boundary separating a precise measurement from an accurate one?",
+                wicor: {
+                    Writing: "Writing formal lab reports detailing calculated percentage error and standard deviations.",
+                    Inquiry: "Isolating mechanical ruler errors from systematic environmental variances.",
+                    Collaboration: "Pooling class data to build scatter plots of measuring consistency.",
+                    Organization: "Structuring variance distribution charts mapping accuracy levels.",
+                    Reading: "Analyzing significant figure regulations to determine correct rounding boundaries."
+                }
+            },
+            { 
+                day: 5, 
+                date: "2025-09-08",
+                topic: 'Practice & Check-In', 
+                dok: 2, 
+                type: 'Assessment',
+                summary: 'Station rotation review and mid-unit formative check-in.',
+                activity: 'Station rotation with practice problems on conversions and significant figures. A short formative quiz to check understanding.',
+                essentialQuestion: "How do scientific figures communicate the intrinsic resolution of our measurement instruments?",
+                wicor: {
+                    Writing: "Articulating rounding methodologies during live peer station audits.",
+                    Inquiry: "Solving diagnostic error challenges featuring deliberate calibration flaws.",
+                    Collaboration: "Peer-to-peer station rotations to resolve complex diagnostic conversion boards.",
+                    Organization: "Navigating categorized review dossiers in timed increments.",
+                    Reading: "Interpreting diagnostic problem prompts on a diverse range of unit scenarios."
+                }
+            },
+            { 
+                day: 6, 
+                date: "2025-09-09",
+                topic: 'Derived Units', 
+                dok: 3, 
+                type: 'Lab',
+                summary: 'Density modeling using volume derivation and mass metrics.',
+                activity: 'Lab: Students are given blocks of known materials. They measure mass and dimensions, calculate density, and compare to the known value. They must justify their choice of units.',
+                essentialQuestion: "How do mass and dimensional constraints synthesize to describe derived physical qualities like density?",
+                wicor: {
+                    Writing: "Writing technical justifications for derived unit selections in data summary tables.",
+                    Inquiry: "Deriving custom compound quantities from base metrics to identify physical compositions.",
+                    Collaboration: "Lab partnership assignments to divide measuring, weighing, and calculation duties.",
+                    Organization: "Tabulating mass, volume, and derived density coefficients systematically.",
+                    Reading: "Comparing calculated density scores with certified handbook constant values."
+                }
+            },
+            { 
+                day: 7, 
+                date: "2025-09-10",
+                topic: 'Complex Measurement Lab', 
+                dok: 3, 
+                type: 'Lab',
+                summary: 'Procedural design lab utilizing fluid displacement techniques.',
+                activity: 'Lab: "Find the Density of a Rock." Students design a procedure using water displacement, choose the correct tools, and justify their unit choices to find the density in SI units.',
+                essentialQuestion: "How can we design indirect physical indicators to quantify highly irregular geometric objects?",
+                wicor: {
+                    Writing: "Publishing a complete, replicable procedural blueprint for complex objects.",
+                    Inquiry: "Evaluating fluid displacement parameters to isolate volume variables.",
+                    Collaboration: "Lab cohorts executing procedure cross-checks to verify data replicability.",
+                    Organization: "Drafting procedural flowcharts tracking every physical step of the investigation.",
+                    Reading: "Auditing peer procedure drafts against critical safety and accuracy guidelines."
+                }
+            },
+            { 
+                day: 8, 
+                date: "2025-09-11",
+                topic: 'Experimental Design', 
+                dok: 4, 
+                type: 'Activity',
+                summary: 'Engineering challenge to outline a model for determining acceleration (g).',
+                activity: 'Challenge: Design an experiment to determine g using only a meter stick and a stopwatch. Groups outline procedure, variables, measurements, and formula.',
+                essentialQuestion: "How can simple measurement constraints isolate grand gravitational constants?",
+                wicor: {
+                    Writing: "Drafting comprehensive experimental design briefs outlining variable control blocks.",
+                    Inquiry: "Formulating mathematical hypotheses linking freefall distance metrics and temporal increments.",
+                    Collaboration: "Jigsaw design groups co-authoring experimental protocols under resource limitations.",
+                    Organization: "Constructing matrix charts separating independent, dependent, and control variables.",
+                    Reading: "Reviewing classical equations of motion to select modeling frameworks."
+                }
+            },
+            { 
+                day: 9, 
+                date: "2025-09-12",
+                topic: 'The "Why" of the SI System', 
+                dok: 4, 
+                type: 'Activity',
+                summary: 'Structured jigsaw debate on global scientific standardisation.',
+                activity: 'Group research or jigsaw activity on the history of the SI system. Conclude with a structured debate or a written argument on why a standard system is crucial for global science.',
+                essentialQuestion: "What are the cultural, economic, and scientific costs of a fragmented measurement framework?",
+                wicor: {
+                    Writing: "Writing formal evidence-based arguments (CER) validating system standardization policies.",
+                    Inquiry: "Investigating historical engineering failures caused by metric mismatching.",
+                    Collaboration: "Structured team-based debate on industrial measurement mandates.",
+                    Organization: "Coordinating debate assertion scripts based on historical research categories.",
+                    Reading: "Analyzing historical case studies on complex industrial failures (e.g., Mars Climate Orbiter)."
+                }
+            },
+            { 
+                day: 10, 
+                date: "2025-09-15",
+                topic: 'Unit Review & Assessment', 
+                dok: 3, 
+                type: 'Assessment',
+                summary: 'Summative evaluation of metric foundations, precision, and design.',
+                activity: 'Review game followed by a summative test that includes a mix of DOK 1-3 problems and one DOK 4-level question (e.g., the experimental design or argumentation prompt).',
+                essentialQuestion: "How do our measurement tools shape the accuracy of our scientific theories?",
+                wicor: {
+                    Writing: "Writing detailed analytical proofs for multi-tier DOK 4 problems.",
+                    Inquiry: "Synthesizing unit concepts to resolve novel experimental failure scenarios.",
+                    Collaboration: "Review circle groups checking logical flows of sample proof problems.",
+                    Organization: "Allocating exam time constraints across cognitive challenge blocks.",
+                    Reading: "Reading complex prompt instructions carefully to identify explicit constraints."
+                }
+            }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const unitData = unit1Lessons.sort((a, b) => a.day - b.day);
+
+            function getLessonStatus(dateStr) {
+                if (!dateStr) return 'planned';
+                const now = new Date();
+                const lessonDate = new Date(dateStr + 'T00:00:00');
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+                if (lessonDate < today) return 'completed';
+                if (lessonDate.getTime() === today.getTime()) {
+                    const currentHour = now.getHours();
+                    if (currentHour > 15) return 'completed';
+                    return 'in-progress';
+                }
+                return 'planned';
+            }
+
+            // Update Progress Bar
+            const completedLessons = unitData.filter(d => getLessonStatus(d.date) === 'completed').length;
+            const inProgressLessons = unitData.filter(d => getLessonStatus(d.date) === 'in-progress').length;
+            const totalLessons = unitData.length;
+            const progressPercent = totalLessons > 0 ? ((completedLessons + inProgressLessons * 0.5) / totalLessons) * 100 : 0;
+            
+            const progressBar = document.getElementById('unit-progress-bar');
+            const progressText = document.getElementById('progress-text');
+            if (progressBar && progressText) {
+                progressBar.style.width = `${progressPercent}%`;
+                progressText.innerText = `UNIT PROGRESS: ${completedLessons} / ${totalLessons} DAYS COMPLETE`;
+            }
+
+            const navButtons = document.querySelectorAll('.nav-btn');
+            const contentSections = document.querySelectorAll('.content-section');
+            const pacingCards = document.getElementById('pacing-cards-container');
+            const modal = document.getElementById('modal');
+            const closeModal = document.getElementById('close-modal');
+            const labsList = document.getElementById('labs-list');
+            const assessmentsList = document.getElementById('assessments-list');
+
+            // Scroll Nav
+            navButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const targetEl = document.getElementById(btn.dataset.target);
+                    if (targetEl) targetEl.scrollIntoView({ behavior: 'smooth' });
+                });
+            });
+
+            // Intersection Observer
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.target === entry.target.id));
+                    }
+                });
+            }, { rootMargin: '-150px 0px -50% 0px' });
+            contentSections.forEach(section => observer.observe(section));
+
+            // Populate pacing guide and resources
+            unitData.forEach(day => {
+                const status = getLessonStatus(day.date);
+                const statusStyles = {
+                    'completed': 'border-emerald-500/50 hover:border-emerald-400',
+                    'in-progress': 'border-cyan-500/50 hover:border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.2)]',
+                    'planned': 'hover:border-emerald-500/50'
+                };
+                const statusLabel = {
+                    'completed': '<span class="text-emerald-400 text-[10px] font-bold">✓ DONE</span>',
+                    'in-progress': '<span class="text-cyan-400 text-[10px] font-bold animate-pulse">● IN PROGRESS</span>',
+                    'planned': '<span class="text-emerald-300/40 text-[10px] font-bold">SCHEDULED</span>'
+                };
+
+                const card = document.createElement('div');
+                card.className = `glass-card p-5 cursor-pointer transition-all ${statusStyles[status]}`;
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-3 relative z-10">
+                        <div>
+                            <span class="text-emerald-400 font-mono font-bold block tracking-wider">DAY_${String(day.day).padStart(2, '0')}</span>
+                            <span class="text-[10px] text-emerald-300/60 font-mono tracking-wider">${day.date || ''}</span>
+                        </div>
+                        <div class="flex flex-col items-end gap-1">
+                            <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30 font-mono">DOK_${day.dok || 1}</span>
+                            ${statusLabel[status]}
+                        </div>
+                    </div>
+                    <p class="text-sm font-semibold text-white/90 leading-tight relative z-10">${day.topic}</p>
+                `;
+                card.onclick = () => openLessonModal(day);
+                pacingCards.appendChild(card);
+
+                const li = document.createElement('li');
+                li.className = 'glass-card p-4 hover:bg-white/5 transition-colors border-l-4 border-l-transparent hover:border-l-emerald-500 flex flex-col gap-2';
+                
+                let links = '';
+                if(day.links) {
+                    links = Object.entries(day.links).map(([lbl, u]) => `<a href="${u}" target="_blank" class="text-[10px] bg-emerald-950/40 hover:bg-emerald-500/20 px-2 py-1 rounded border border-emerald-500/20 text-emerald-200 transition-colors inline-flex items-center gap-1">${lbl} ↗</a>`).join('');
+                }
+
+                li.innerHTML = `
+                    <div class="flex justify-between items-center relative z-10">
+                        <span class="text-xs font-bold text-emerald-400 font-mono tracking-wider">DAY_${String(day.day).padStart(2, '0')}</span>
+                        <span class="text-[9px] text-emerald-100/40 uppercase font-mono">${day.type}</span>
+                    </div>
+                    <p class="text-sm font-semibold text-white/90 leading-tight relative z-10">${day.topic}</p>
+                    <div class="flex flex-wrap gap-2 mt-1 relative z-10">${links}</div>
+                `;
+                if (day.type === 'Assessment') assessmentsList.appendChild(li);
+                else labsList.appendChild(li);
+            });
+
+            closeModal.onclick = () => {
+                modal.classList.add('hidden');
+                document.body.classList.remove('no-scroll');
+            };
+
+            window.addEventListener('click', (e) => { if (e.target === modal) closeModal.onclick(); });
+
+            function openLessonModal(day) {
+                document.getElementById('modal-title').textContent = `DAY_${String(day.day).padStart(2, '0')} // ${day.topic}`;
+                document.getElementById('modal-subtitle').textContent = `${day.date ? day.date + ' • ' : ''}DOK_${day.dok}`;
+                
+                const content = document.getElementById('modal-content');
+                let html = '';
+
+                if (day.essentialQuestion) {
+                    html += `<div class="bg-gradient-to-br from-emerald-500/10 to-teal-600/10 p-5 rounded-xl border border-emerald-500/20 mb-4 shadow-inner">
+                        <h4 class="text-emerald-400 font-bold mb-2 text-xs uppercase tracking-widest flex items-center gap-2"><span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>Essential Question</h4>
+                        <p class="text-xl font-bold text-emerald-50/90 leading-tight">"${day.essentialQuestion}"</p>
+                    </div>`;
+                }
+
+                if (day.wicor) {
+                    html += `<div class="bg-gradient-to-br from-teal-500/10 to-cyan-600/10 p-5 rounded-xl border border-teal-500/20 mb-4 shadow-inner">
+                        <h4 class="text-teal-400 font-bold mb-3 text-xs uppercase tracking-widest flex items-center gap-2">WICOR / AVID Strategies</h4>
+                        <div class="grid gap-3">${Object.entries(day.wicor).map(([k, v]) => `<div class="flex gap-3"><span class="text-xs font-bold text-teal-300 uppercase w-24">${k}:</span><p class="text-sm text-emerald-100/70">${v}</p></div>`).join('')}</div>
+                    </div>`;
+                }
+
+                html += `<div class="bg-white/5 p-4 rounded-xl border border-white/5 mb-4">
+                    <h4 class="text-teal-400 font-bold mb-2 text-xs uppercase tracking-widest">Focus & Summary</h4>
+                    <p class="text-md leading-relaxed text-slate-300 italic mb-3">${day.summary}</p>
+                    <h4 class="text-cyan-400 font-bold mb-2 text-xs uppercase tracking-widest">Activity Detail</h4>
+                    <p class="text-lg leading-relaxed text-slate-100">${day.activity}</p>
+                </div>`;
+
+                // Precision sandbox placeholder for day 4
+                if (day.day === 4) {
+                    html += `<div class="bg-emerald-950/40 p-6 rounded-xl border border-emerald-500/30 mb-6 shadow-lg">
+                        <h4 class="text-cyan-400 font-bold text-xs uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                            Interactive Sandbox: Significant Figures & Ruler Precision
+                        </h4>
+                        <div class="grid md:grid-cols-2 gap-6 items-center">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="text-[10px] text-emerald-300 block mb-1">Set Block Length: <span id="length-val" class="text-white font-bold ml-1">8.36</span> cm</label>
+                                    <input type="range" id="length-slider" min="1.00" max="15.00" step="0.01" value="8.36" class="w-full accent-emerald-500 h-1.5 bg-emerald-900/50 rounded-lg appearance-none cursor-pointer">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] text-emerald-300 block mb-1">Choose Measuring Tool:</label>
+                                    <select id="tool-select" class="w-full bg-slate-900 border border-emerald-500/30 text-slate-200 text-xs rounded-lg p-2 focus:ring-1 focus:ring-emerald-500 focus:outline-none">
+                                        <option value="rough">Rough Ruler (1 cm divisions, ±0.5 cm)</option>
+                                        <option value="standard" selected>Standard Ruler (1 mm divisions, ±0.05 cm)</option>
+                                        <option value="caliper">Precision Caliper (0.1 mm divisions, ±0.005 cm)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="bg-black/50 p-4 rounded-lg border border-white/5 shadow-inner space-y-2">
+                                <div class="flex justify-between items-center text-[10px]">
+                                    <span class="text-emerald-400/80 font-mono">ESTIMATED MEASUREMENT:</span>
+                                    <span id="meas-readout" class="text-white font-bold font-mono text-sm">8.4 cm</span>
+                                </div>
+                                <div class="flex justify-between items-center text-[10px]">
+                                    <span class="text-emerald-400/80 font-mono">UNCERTAINTY:</span>
+                                    <span id="unc-readout" class="text-cyan-400 font-bold font-mono">± 0.05 cm</span>
+                                </div>
+                                <div class="flex justify-between items-center text-[10px]">
+                                    <span class="text-emerald-400/80 font-mono">SIGNIFICANT FIGURES:</span>
+                                    <span id="sf-readout" class="text-teal-400 font-bold font-mono">3 Sig Figs</span>
+                                </div>
+                                <div class="flex justify-between items-center text-[10px]">
+                                    <span class="text-emerald-400/80 font-mono">SCIENTIFIC NOTATION:</span>
+                                    <span id="sci-readout" class="text-emerald-300 font-bold font-mono">8.36 × 10⁰ cm</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-6 bg-slate-950 border border-white/10 rounded-lg h-24 relative overflow-hidden flex flex-col justify-end">
+                            <canvas id="rulerCanvas" class="w-full h-full"></canvas>
+                        </div>
+                        <p class="mt-3 text-[9px] text-emerald-400/50 font-mono text-center">// SIMULATION: Observe how tool resolution dictates the estimate boundaries of significant digits.</p>
+                    </div>`;
+                    setTimeout(initPrecisionSandbox, 100);
+                }
+
+                const escapedTopic = day.topic.replace(/'/g, "\\'");
+                html += `<div class="flex flex-wrap gap-3 mb-4">
+                    <button onclick="generateAnalogy('${escapedTopic}')" class="text-xs bg-gradient-to-r from-emerald-500/20 to-teal-600/20 text-emerald-400 px-4 py-2 rounded-lg hover:from-emerald-500/30 hover:to-teal-600/30 border border-emerald-500/30 shadow-lg shadow-emerald-500/10">✨ Generate Analogy</button>`;
+                
+                if(day.links) {
+                    html += Object.entries(day.links).map(([lbl, u]) => `<a href="${u}" target="_blank" class="text-xs bg-white/5 hover:bg-white/10 px-4 py-2 rounded-lg border border-white/10 capitalize">Open ${lbl} ↗</a>`).join('');
+                }
+                html += `</div>`;
+
+                if(day.links) {
+                    Object.values(day.links).forEach(u => {
+                        if (u.includes('docs.google.com/document')) {
+                            const previewUrl = u.replace(/\/edit.*$/, '/preview');
+                            html += `<div class="mt-6 border border-white/10 rounded-xl overflow-hidden bg-white/5 h-[500px] shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-700">
+                                <div class="bg-white/10 px-4 py-2 text-[10px] text-white/60 uppercase font-bold tracking-widest border-b border-white/10 flex justify-between items-center">
+                                    <span class="flex items-center gap-2"><span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Document Preview</span>
+                                    <span class="text-emerald-500/50 font-mono italic">Google_Docs_Stream</span>
+                                </div>
+                                <iframe src="${previewUrl}" class="w-full h-full border-none" allow="autoplay"></iframe>
+                            </div>`;
+                        }
+                    });
+                }
+
+                content.innerHTML = html;
+                document.body.classList.add('no-scroll');
+                modal.classList.remove('hidden');
+            }
+
+            // Pacing Guide chart render
+            const chartCanvas = document.getElementById('dokChart');
+            if (chartCanvas) {
+                const ctx = chartCanvas.getContext('2d');
+                const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                gradient.addColorStop(0, 'rgba(16, 185, 129, 0.6)'); // Emerald
+                gradient.addColorStop(0.5, 'rgba(6, 182, 212, 0.3)'); // Cyan
+                gradient.addColorStop(1, 'rgba(15, 23, 42, 0)'); // Fade
+
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: unitData.map(d => `D_${String(d.day).padStart(2,'0')}`),
+                        datasets: [{
+                            data: unitData.map(d => d.dok),
+                            borderColor: '#10b981',
+                            backgroundColor: gradient,
+                            borderWidth: 3,
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#06b6d4',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }]
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { beginAtZero: true, max: 4, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                            x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                        },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+
+            // Project ideas suggest engine
+            const projectIdeas = [
+                { title: "Non-Standard Unit Map", description: "Design a blueprints map of a school district using custom, group-made objects. Calibrate conversion factors to convert it to standardized metric specs.", icon: "🗺️" },
+                { title: "Standard Calibration Rig", description: "Engineer an operational balance scale using recycled materials. Standardize and calibrate it using precise volumetric water increments.", icon: "⚖️" },
+                { title: "Mars Landover Report", description: "Conduct a retro engineering failure investigation of historic metric-mismatch spacecraft accidents, creating error mitigation design blueprints.", icon: "🚀" }
+            ];
+            let pIdx = 0;
+            const suggestBtn = document.getElementById('suggest-project-btn');
+            if (suggestBtn) {
+                suggestBtn.onclick = () => {
+                    const p = projectIdeas[pIdx];
+                    const container = document.getElementById('project-idea-container');
+                    container.innerHTML = `<div class="bg-white/5 p-6 rounded-2xl border border-emerald-500/30 animate-in zoom-in duration-300"><div class="flex items-center gap-4 mb-3"><span class="text-3xl">${p.icon}</span><h3 class="text-xl font-bold text-emerald-400">${p.title}</h3></div><p class="text-slate-300 text-sm leading-relaxed">${p.description}</p></div>`;
+                    container.classList.remove('hidden');
+                    pIdx = (pIdx + 1) % projectIdeas.length;
+                };
+            }
+        });
+
+        // AI Analogy preprogrammed generator
+        function generateAnalogy(topic) {
+            const analogies = {
+                'Why Standardize? Non-Standard Unit Challenge': "Using non-standard units is like everyone speaking their own invented language; it might work inside your own head, but as soon as you try to share a recipe or build a bridge together, total chaos erupts because a 'word' or 'marker-length' means something different to everyone. Standardized units are the Google Translate of the scientific universe.",
+                'Making the Standard & The Language of SI': "SI Base Units are like the primary colors (Red, Yellow, Blue). You only need a few basic ones, but by mixing them in different ways, you can paint every single color in the universe. Derived units like density or speed are just color mixes of the basic SI units.",
+                'Unit Conversions': "Unit conversion using the factor-label method is like exchanging money at the airport. You aren't changing how much wealth you have (the actual quantity); you're just multiplying by '1' in different currencies (conversion factors) to write the same value in a language the locals understand.",
+                'Quality of Measurement': "Accuracy vs. Precision is like playing soccer. If you kick the ball and hit the crossbar 10 times in a row, you are extremely precise (incredibly consistent) but not accurate (you didn't score). If you score a goal but the next 9 kicks fly all over the stadium, you had average accuracy but terrible precision. To be a star player, you need both: kicking the ball exactly into the top corner every single time.",
+                'Practice & Check-In': "Scientific notation is like writing in shorthand. Instead of saying 'a million million million billion', we say 10 to the power of a specific index. Significant figures tell us the honesty of the measuring tool—we never over-claim details the tool didn't actually see.",
+                'Derived Units': "Derived units are like Lego structures. The base units (mass, length, time) are individual Lego bricks. When you combine them to build a car (speed: meters per second) or a castle (density: kg per cubic meter), you've derived a brand new compound unit from the simple base bricks.",
+                'Complex Measurement Lab': "Finding the density of a rock using water displacement is like trying to find the volume of a crown. By dunking it in water, the rising water level acts as a perfectly matching mold, revealing the exact volume of the irregular shape.",
+                'Experimental Design': "Designing an experiment is like writing a movie script. You must control every single actor (controlled variables) so that when you change one main character's actions (independent variable), you can clearly see and measure the effect on the plot (dependent variable) without any outside distractions.",
+                'The "Why" of the SI System': "A unified metric standard is like the global internet. If every country used its own proprietary protocol, computers would never talk to each other. Standardized systems allow global science and commerce to run on one single operational pipeline.",
+                'Unit Review & Assessment': "Mastering measurement foundations is like calibrating the navigation systems on a starship. If your baseline measurements are off by even a tiny millimeter, by the time you travel to the next galaxy, you will be off by millions of miles. Foundations are the anchor for everything else we construct."
+            };
+            
+            const key = Object.keys(analogies).find(k => topic.includes(k)) || 'Unit Review & Assessment';
+            const analogy = analogies[key];
+            const btn = event.target;
+            const original = btn.innerText;
+            btn.innerHTML = `<span class="gemini-loader mr-2"></span> Thinking...`; btn.disabled = true;
+            setTimeout(() => {
+                const div = document.createElement('div');
+                div.className = 'mt-4 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl animate-in slide-in-from-top-4 duration-500';
+                div.innerHTML = `<div class="flex items-start gap-3"><span class="text-emerald-400 text-xl">💡</span><div><h4 class="text-emerald-400 font-bold text-xs uppercase tracking-widest mb-1">AI Analogy</h4><p class="text-slate-200 italic">"${analogy}"</p></div></div>`;
+                btn.parentElement.after(div); btn.innerText = original; btn.disabled = false; btn.onclick = null; btn.classList.add('opacity-50', 'cursor-not-allowed');
+            }, 800);
+        }
+
+        // Significant Figures & Ruler Precision Sandbox
+        function initPrecisionSandbox() {
+            const lengthSlider = document.getElementById('length-slider');
+            const toolSelect = document.getElementById('tool-select');
+            
+            const measReadout = document.getElementById('meas-readout');
+            const uncReadout = document.getElementById('unc-readout');
+            const sfReadout = document.getElementById('sf-readout');
+            const sciReadout = document.getElementById('sci-readout');
+            const lengthValLabel = document.getElementById('length-val');
+            
+            const canvas = document.getElementById('rulerCanvas');
+            if(!canvas || !lengthSlider) return;
+            const ctx = canvas.getContext('2d');
+
+            function getMeasurementDetails(len, tool) {
+                let reading = "";
+                let uncertainty = "";
+                let sigFigs = 0;
+                let sciNote = "";
+
+                if (tool === 'rough') {
+                    // 1-cm marks. Read to nearest 0.1 cm (1 decimal place)
+                    // The last digit is estimated.
+                    const val = Math.round(len * 10) / 10;
+                    reading = val.toFixed(1) + " cm";
+                    uncertainty = "± 0.5 cm";
+                    
+                    // Sig figs: count significant digits
+                    const str = val.toFixed(1);
+                    sigFigs = countSigFigs(str);
+                    sciNote = convertToSciNote(val, 1) + " cm";
+                } else if (tool === 'standard') {
+                    // 1-mm marks. Read to nearest 0.01 cm (2 decimal places)
+                    const val = Math.round(len * 100) / 100;
+                    reading = val.toFixed(2) + " cm";
+                    uncertainty = "± 0.05 cm";
+                    
+                    const str = val.toFixed(2);
+                    sigFigs = countSigFigs(str);
+                    sciNote = convertToSciNote(val, 2) + " cm";
+                } else {
+                    // Caliper (0.1 mm marks). Read to nearest 0.001 cm (3 decimal places)
+                    const val = Math.round(len * 1000) / 1000;
+                    reading = val.toFixed(3) + " cm";
+                    uncertainty = "± 0.005 cm";
+                    
+                    const str = val.toFixed(3);
+                    sigFigs = countSigFigs(str);
+                    sciNote = convertToSciNote(val, 3) + " cm";
+                }
+
+                return { reading, uncertainty, sigFigs, sciNote };
+            }
+
+            function countSigFigs(str) {
+                // Remove units and decimal sign (preserving structural digits)
+                let s = str.replace(/[^\d]/g, '');
+                // Basic counting algorithm:
+                if (parseFloat(str) === 0) return 0;
+                
+                // Count sig figs of formatted decimal floats
+                if (str.includes('.')) {
+                    // Leading zeroes are not significant
+                    let match = str.match(/^0\.0*([1-9]\d*)/);
+                    if (match) {
+                        return match[1].length;
+                    }
+                    // Non-zero leading numbers: all digits are significant
+                    return s.replace(/^0+/, '').length;
+                } else {
+                    // Non-decimal integers: trailing zeroes might not be significant
+                    // In school physics, we treat trailing zeroes in decimals as significant, e.g. 8.00 has 3.
+                    return s.replace(/^0+/, '').length;
+                }
+            }
+
+            function convertToSciNote(val, decimals) {
+                if (val === 0) return "0.0 × 10⁰";
+                const exponent = Math.floor(Math.log10(val));
+                const base = val / Math.pow(10, exponent);
+                return base.toFixed(decimals) + " × 10<sup>" + exponent + "</sup>";
+            }
+
+            function drawRuler() {
+                const w = canvas.width = canvas.offsetWidth;
+                const h = canvas.height = canvas.offsetHeight;
+                ctx.clearRect(0, 0, w, h);
+
+                const len = parseFloat(lengthSlider.value);
+                const tool = toolSelect.value;
+                
+                // Update text readout
+                lengthValLabel.innerText = len.toFixed(2);
+                const details = getMeasurementDetails(len, tool);
+                
+                measReadout.innerText = details.reading;
+                uncReadout.innerText = details.uncertainty;
+                sfReadout.innerText = details.sigFigs + " Sig Fig" + (details.sigFigs !== 1 ? "s" : "");
+                sciReadout.innerHTML = details.sciNote;
+
+                // Scale: 1 cm = 40 pixels. Margins: left = 30px
+                const scale = 40;
+                const offset = 30;
+
+                // Draw Block
+                const blockWidth = len * scale;
+                const blockHeight = 24;
+                const blockY = 16;
+                ctx.fillStyle = 'rgba(16, 185, 129, 0.2)';
+                ctx.strokeStyle = '#10b981';
+                ctx.lineWidth = 2;
+                ctx.fillRect(offset, blockY, blockWidth, blockHeight);
+                ctx.strokeRect(offset, blockY, blockWidth, blockHeight);
+
+                // Highlight measuring edge
+                ctx.beginPath();
+                ctx.strokeStyle = '#2dd4bf';
+                ctx.lineWidth = 2.5;
+                ctx.moveTo(offset + blockWidth, blockY - 6);
+                ctx.lineTo(offset + blockWidth, blockY + blockHeight + 6);
+                ctx.stroke();
+
+                // Draw Ruler Board (Bottom of canvas)
+                const rulerY = 48;
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+                ctx.fillRect(0, rulerY, w, h - rulerY);
+                ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+                ctx.beginPath();
+                ctx.moveTo(0, rulerY);
+                ctx.lineTo(w, rulerY);
+                ctx.stroke();
+
+                // Draw Ticks
+                ctx.fillStyle = '#94a3b8';
+                ctx.strokeStyle = '#94a3b8';
+                ctx.lineWidth = 1;
+                ctx.font = '9px "Fira Code", monospace';
+                ctx.textAlign = 'center';
+
+                const maxCm = Math.floor((w - offset) / scale);
+
+                for (let i = 0; i <= maxCm + 1; i++) {
+                    const x = offset + i * scale;
+                    if (x > w) break;
+
+                    // Large 1 cm ticks
+                    ctx.beginPath();
+                    ctx.moveTo(x, rulerY);
+                    ctx.lineTo(x, rulerY + 15);
+                    ctx.stroke();
+                    ctx.fillText(i, x, rulerY + 28);
+
+                    if (i === maxCm + 1) break;
+
+                    // Standard (1 mm) ticks
+                    if (tool === 'standard' || tool === 'caliper') {
+                        for (let j = 1; j <= 9; j++) {
+                            const subX = x + (j * scale) / 10;
+                            if (subX > w) break;
+                            const tickLen = j === 5 ? 10 : 6;
+                            ctx.beginPath();
+                            ctx.moveTo(subX, rulerY);
+                            ctx.lineTo(subX, rulerY + tickLen);
+                            ctx.stroke();
+                        }
+                    }
+
+                    // Caliper subdivisions (0.5 mm or high res indicators represented)
+                    if (tool === 'caliper') {
+                        ctx.strokeStyle = 'rgba(6, 182, 212, 0.4)';
+                        for (let j = 0; j < 10; j++) {
+                            const subX = x + (j * scale) / 10 + (scale / 20);
+                            if (subX > w) break;
+                            ctx.beginPath();
+                            ctx.moveTo(subX, rulerY);
+                            ctx.lineTo(subX, rulerY + 4);
+                            ctx.stroke();
+                        }
+                        ctx.strokeStyle = '#94a3b8'; // reset
+                    }
+                }
+            }
+
+            lengthSlider.addEventListener('input', drawRuler);
+            toolSelect.addEventListener('change', drawRuler);
+            
+            // Initial render
+            setTimeout(drawRuler, 150);
+            window.addEventListener('resize', drawRuler);
+        }
+    </script>
+</body>
+
+</html>
