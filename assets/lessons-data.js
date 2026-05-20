@@ -148,19 +148,6 @@ const lessonsData = [
     date: "2026-05-22",
     day: 10,
     unit: 7,
-    title: "Practicum: Logic Gates & Troubleshooting",
-    summary: "Engineering under constraints and system diagnostics.",
-    details: "Challenge: Build an 'AND' circuit and an 'OR' circuit. Rotate through 'broken' circuit stations to diagnose and fix faults like shorts, open circuits, and dead components.",
-    type: "Assessment",
-    dok: 4,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How can we apply systematic troubleshooting to identify and repair faults in complex electrical systems?"
-  },
-  {
-    date: "2026-05-21",
-    day: 9,
-    unit: 7,
     title: "Parallel Circuits (The 'Grid' Path)",
     summary: "Understand multi-pathway circuits and why our homes are wired this way.",
     details: "Wire the same bulbs in parallel. Compare brightness to Day 8. Observe that unscrewing one bulb does not affect the others.",
@@ -171,8 +158,8 @@ const lessonsData = [
     essentialQuestion: "Why are parallel pathways more reliable for residential and industrial electrical grids?"
   },
   {
-    date: "2026-05-20",
-    day: 8,
+    date: "2026-05-21",
+    day: 9,
     unit: 7,
     title: "Series Circuits (The 'All or Nothing' Path)",
     summary: "Understand single-pathway circuits and voltage drops.",
@@ -182,6 +169,23 @@ const lessonsData = [
     semester: 2,
     isFeatured: true,
     essentialQuestion: "How does adding components in a single pathway affect the overall voltage and current in a system?"
+  },
+  {
+    date: "2026-05-20",
+    day: 8,
+    unit: 7,
+    title: "Lab: Fruit Batteries (Continued)",
+    summary: "Completing our wet cell batteries using household items.",
+    details: "Finish generating a measurable voltage using lemons, potatoes, and apples with zinc/copper electrodes. Experiment with series vs. parallel combinations of fruit to increase output.",
+    type: "Lab",
+    dok: 3,
+    semester: 2,
+    isFeatured: true,
+    essentialQuestion: "How can series and parallel combinations of chemical cells increase electrical output?",
+    links: {
+      "Lab Guide": "https://docs.google.com/document/d/1JqCjePXRHLkZDq3AIfAvVi-TEN4iSrhszef7YzSvbqg/edit?usp=sharing",
+      "Fruit Battery Simulation": "Unit_7_Electricity_and_Magnetism/Fruit_Battery/Fruit_Battery_Simulation.html"
+    }
   },
   {
     date: "2026-05-19",
