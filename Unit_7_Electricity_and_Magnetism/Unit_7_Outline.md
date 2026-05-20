@@ -42,17 +42,17 @@
 *   **Focus:** Creating a functioning wet cell battery using household items (HS-PS3-3).
 *   **Activity:** Use lemons, potatoes, and apples with zinc/copper electrodes to generate a measurable voltage. Experiment with series vs. parallel combinations of fruit to increase output. Follow the [Lab Guide](https://docs.google.com/document/d/1JqCjePXRHLkZDq3AIfAvVi-TEN4iSrhszef7YzSvbqg/edit?usp=sharing) and use the interactive [Fruit Battery Simulation](Fruit_Battery/Fruit_Battery_Simulation.html).
 
-### Day 8: Series Circuits (The "All or Nothing" Path)
+### Day 8: Lab: Fruit Batteries (Continued)
+*   **Focus:** Creating a functioning wet cell battery using household items (HS-PS3-3).
+*   **Activity:** Finish generating a measurable voltage using lemons, potatoes, and apples with zinc/copper electrodes. Experiment with series vs. parallel combinations of fruit to increase output. Follow the [Lab Guide](https://docs.google.com/document/d/1JqCjePXRHLkZDq3AIfAvVi-TEN4iSrhszef7YzSvbqg/edit?usp=sharing) and use the interactive [Fruit Battery Simulation](Fruit_Battery/Fruit_Battery_Simulation.html).
+
+### Day 9: Series Circuits (The "All or Nothing" Path)
 *   **Focus:** Understand single-pathway circuits and voltage drops.
 *   **Activity:** Wire multiple bulbs and buzzers in series. Observe the dimming of bulbs and what happens when one component is unscrewed. Use meters to measure the cumulative voltage.
 
-### Day 9: Parallel Circuits (The "Grid" Path)
+### Day 10: Parallel Circuits (The "Grid" Path)
 *   **Focus:** Understand multi-pathway circuits and why our homes are wired this way.
 *   **Activity:** Wire the same bulbs in parallel. Compare brightness to Day 8. Unscrew one bulb and observe that the others stay on.
-
-### Day 10: Practicum: Logic Gates & Troubleshooting
-*   **Focus:** Engineering under constraints and system diagnostics (HS-PS3-3).
-*   **Activity:** Challenge: Build an "AND" circuit and an "OR" circuit. Rotate through "broken" circuit stations to diagnose and fix faults (shorts, open circuits, dead components).
 
 ---
 
