@@ -50,9 +50,9 @@
 *   **Focus:** Understand single-pathway circuits and voltage drops.
 *   **Activity:** Wire multiple bulbs and buzzers in series. Observe the dimming of bulbs and what happens when one component is unscrewed. Use meters to measure the cumulative voltage.
 
-### Day 10: Parallel Circuits (The "Grid" Path)
+### Day 10: Parallel Circuit Construction & Analysis
 *   **Focus:** Understand multi-pathway circuits and why our homes are wired this way.
-*   **Activity:** Wire the same bulbs in parallel. Compare brightness to Day 8. Unscrew one bulb and observe that the others stay on.
+*   **Activity:** Wire the same bulbs in parallel. Compare brightness to Day 8. Unscrew one bulb and observe that the others stay on. Complete the [Analysis Document](https://docs.google.com/document/d/1h3akDW6z-lk6M_8thxP_pp1lSAwcWW9dsMuL149cEiQ/edit?usp=sharing).
 
 ---
 
