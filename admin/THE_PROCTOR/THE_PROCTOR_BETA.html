@@ -1396,19 +1396,35 @@
 
         function processDynamicQuestions() {
             questionsData = questionsData.map(q => {
-                if (!q.text.includes('|||')) return q;
+                const isLegacy = q.text && q.text.includes('|||');
+                const isStructured = q.type === 'calculated' || q.config;
+
+                if (!isLegacy && !isStructured) return q;
 
                 try {
-                    const parts = q.text.split('|||');
-                    const textTemplate = parts[0].trim();
-                    const config = JSON.parse(parts[1].trim());
+                    let textTemplate = q.text;
+                    let config = q.config;
+
+                    if (isLegacy) {
+                        const parts = q.text.split('|||');
+                        textTemplate = parts[0].trim();
+                        config = JSON.parse(parts[1].trim());
+                    } else if (typeof config === 'string') {
+                        config = JSON.parse(config);
+                    }
+
+                    if (!config || !config.vars) {
+                        return q;
+                    }
 
                     const vars = {};
                     for (const [name, cfg] of Object.entries(config.vars)) {
-                        const step = cfg.step || 1;
-                        const range = (cfg.max - cfg.min) / step;
+                        const min = Number(cfg.min);
+                        const max = Number(cfg.max);
+                        const step = Number(cfg.step || 1);
+                        const range = (max - min) / step;
                         const rand = Math.floor(Math.random() * (range + 1));
-                        vars[name] = cfg.min + (rand * step);
+                        vars[name] = min + (rand * step);
                     }
 
                     // Replace placeholders
@@ -1444,7 +1460,8 @@
                         ...q,
                         text: newText,
                         options: options,
-                        correct_answer: correctAnswer
+                        correct_answer: correctAnswer,
+                        has_calculator: q.has_calculator !== undefined ? q.has_calculator : true
                     };
                 } catch (err) {
                     console.error("Dynamic parsing error for question:", q.text, err);
