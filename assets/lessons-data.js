@@ -148,14 +148,17 @@ const lessonsData = [
     date: "2026-05-22",
     day: 10,
     unit: 7,
-    title: "Parallel Circuits (The 'Grid' Path)",
+    title: "Parallel Circuit Construction & Analysis",
     summary: "Understand multi-pathway circuits and why our homes are wired this way.",
     details: "Wire the same bulbs in parallel. Compare brightness to Day 8. Observe that unscrewing one bulb does not affect the others.",
     type: "Lab",
     dok: 3,
     semester: 2,
     isFeatured: true,
-    essentialQuestion: "Why are parallel pathways more reliable for residential and industrial electrical grids?"
+    essentialQuestion: "Why are parallel pathways more reliable for residential and industrial electrical grids?",
+    links: {
+      "Analysis Document": "https://docs.google.com/document/d/1h3akDW6z-lk6M_8thxP_pp1lSAwcWW9dsMuL149cEiQ/edit?usp=sharing"
+    }
   },
   {
     date: "2026-05-21",
