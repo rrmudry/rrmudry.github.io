@@ -82,17 +82,17 @@
         #floating-calculator .calc-header:active { cursor: grabbing; }
 
         /* Sidebar Mode */
-        .calc-mode-sidebar #screen-test {
+        .calc-mode-sidebar #screen-test:not(.hidden) {
             max-width: none !important;
             display: flex !important;
             gap: 24px;
             align-items: flex-start;
         }
-        .calc-mode-sidebar #screen-test > .bg-white {
+        .calc-mode-sidebar #screen-test:not(.hidden) > .bg-white {
             flex: 1;
             min-width: 0;
         }
-        .calc-mode-sidebar #sidebar-calculator {
+        .calc-mode-sidebar #screen-test:not(.hidden) #sidebar-calculator {
             display: block !important;
             width: 380px;
             flex-shrink: 0;
@@ -599,16 +599,23 @@
                 webcamContainer.style.opacity = '0';
                 webcamContainer.style.pointerEvents = 'none';
                 
+                // Explicitly set WebGL backend for GPU acceleration
+                await tf.setBackend('webgl');
+                await tf.ready();
+
                 // Load AI models for proctoring
                 if (!model) {
-                    model = await cocoSsd.load();
+                    model = await cocoSsd.load({ base: 'mobilenet_v2' });
                 }
                 if (!faceModel) {
-                    faceModel = await faceLandmarksDetection.createDetector(
-                        faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh,
-                        { runtime: 'tfjs', maxFaces: 1, refineLandmarks: true }
-                    );
+                    faceModel = await blazeface.load();
                 }
+                
+                // Warm up inference to prevent lag on resume
+                await Promise.all([
+                    model.detect(video),
+                    faceModel.estimateFaces(video)
+                ]);
                 
                 // Start detection loop
                 detectLoop();
@@ -720,6 +727,8 @@
                 return;
             }
 
+            student.status = statusLabel; // Keep local status updated with what we are syncing
+
             isSyncing = true;
             lastSyncTime = Date.now(); 
             const syncInd = document.getElementById('sync-indicator');
@@ -785,25 +794,26 @@
                         sync_count: (existing?.details?.sync_count || 0) + 1,
                         is_locked: existing?.details?.is_locked || false,
                         is_unlocked_override: existing?.details?.is_unlocked_override || false
-                    },
-                    session_progress: {
+                    }
+                };
+
+                // Only include session_progress if the test is active, paused, or resumeable,
+                // and NOT when the score is reset, before the test starts, or after completion.
+                const isCompleted = statusLabel && statusLabel.startsWith("COMPLETED");
+                const isReset = statusLabel === "SCORE_RESET_ACKNOWLEDGED";
+                
+                if (!isCompleted && !isReset && (isTesting || (timerRemaining > 0 && timerRemaining < TIME_LIMIT_MINS * 60))) {
+                    payload.session_progress = {
                         current_question: currentQuestionIndex,
                         answers: sessionAnswers,
                         locked_questions: lockedQuestions,
                         timer_remaining: timerRemaining,
                         updated_at: new Date().toISOString()
-                    }
-                };
-
-                // Update local student state from remote
-                if (existing) {
-                    student.status = existing.status;
-                    student.details = existing.details || {};
-                    
-                    if (existing.status === "SCORE_RESET") {
-                        handleScoreReset();
-                    }
+                    };
+                } else {
+                    payload.session_progress = firebase.firestore.FieldValue.delete();
                 }
+
                 checkAccessControl();
 
                 await studentDocRef.set(payload, { merge: true });

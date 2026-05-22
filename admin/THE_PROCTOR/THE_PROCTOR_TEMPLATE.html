@@ -53,7 +53,7 @@
         }
 
         /* Sidebar Calculator Layout */
-        #screen-test.has-sidebar {
+        #screen-test.has-sidebar:not(.hidden) {
             max-width: none !important;
             display: flex !important;
             gap: 32px;
@@ -61,7 +61,7 @@
             padding: 0 40px;
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        #screen-test.has-sidebar > .test-main {
+        #screen-test.has-sidebar:not(.hidden) > .test-main {
             flex: 1;
             min-width: 0;
             max-width: 850px;
@@ -76,7 +76,7 @@
             transform: translateX(20px);
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        #screen-test.has-sidebar #sidebar-calculator {
+        #screen-test.has-sidebar:not(.hidden) #sidebar-calculator {
             opacity: 1;
             transform: translateX(0);
         }
@@ -496,7 +496,21 @@
                     ]);
                     
                     // Check for existing session progress to resume
-                    if (completionData && completionData.session_progress && completionData.status !== "SCORE_RESET") {
+                    const isResetOrSetup = ["SCORE_RESET", "SCORE_RESET_ACKNOWLEDGED", "LOGIN_ESTABLISHED", "CONSENT_GIVEN", "HARDWARE_SETUP", "READY_TO_CALIBRATE", "CALIBRATION_IN_PROGRESS"].includes(completionData?.status);
+                    const isCompleted = completionData?.status && completionData.status.startsWith("COMPLETED");
+
+                    let isProgressValid = false;
+                    if (completionData && completionData.session_progress) {
+                        const progress = completionData.session_progress;
+                        const updatedAt = progress.updated_at ? new Date(progress.updated_at) : null;
+                        const now = new Date();
+                        // Session is valid if it exists, is less than 4 hours old, and belongs to the same calendar day
+                        if (updatedAt && (now - updatedAt < 4 * 60 * 60 * 1000) && (now.toDateString() === updatedAt.toDateString())) {
+                            isProgressValid = true;
+                        }
+                    }
+
+                    if (isProgressValid && !isResetOrSetup && !isCompleted) {
                         await resumeSession(completionData);
                     } else {
                         finalizeLogin();
@@ -647,16 +661,23 @@
                 webcamContainer.style.opacity = '0';
                 webcamContainer.style.pointerEvents = 'none';
                 
+                // Explicitly set WebGL backend for GPU acceleration
+                await tf.setBackend('webgl');
+                await tf.ready();
+
                 // Load AI models for proctoring
                 if (!model) {
-                    model = await cocoSsd.load();
+                    model = await cocoSsd.load({ base: 'mobilenet_v2' });
                 }
                 if (!faceModel) {
-                    faceModel = await faceLandmarksDetection.createDetector(
-                        faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh,
-                        { runtime: 'tfjs', maxFaces: 1, refineLandmarks: true }
-                    );
+                    faceModel = await blazeface.load();
                 }
+                
+                // Warm up inference to prevent lag on resume
+                await Promise.all([
+                    model.detect(video),
+                    faceModel.estimateFaces(video)
+                ]);
                 
                 // Start detection loop
                 detectLoop();
@@ -773,6 +794,8 @@
                 return;
             }
 
+            student.status = statusLabel; // Keep local status updated with what we are syncing
+
             isSyncing = true;
             lastSyncTime = Date.now(); 
             const syncInd = document.getElementById('sync-indicator');
@@ -857,15 +880,6 @@
                     payload.session_progress = firebase.firestore.FieldValue.delete();
                 }
 
-                // Update local student state from remote
-                if (existing) {
-                    student.status = existing.status;
-                    student.details = existing.details || {};
-                    
-                    if (existing.status === "SCORE_RESET") {
-                        handleScoreReset();
-                    }
-                }
                 checkAccessControl();
 
                 await studentDocRef.set(payload, { merge: true });
