@@ -16,7 +16,7 @@ const lessonsData = [
   // --- Unit 7: Electricity & Magnetism ---
   {
     date: "2026-06-05",
-    day: 20,
+    day: 19,
     unit: 7,
     title: "Unit Wrap-Up & Final Reflection",
     summary: "Reflection and cleanup.",
@@ -29,7 +29,7 @@ const lessonsData = [
   },
   {
     date: "2026-06-04",
-    day: 19,
+    day: 18,
     unit: 7,
     title: "The 'Rube Goldberg' Energy Challenge",
     summary: "Culminating system build.",
@@ -42,7 +42,7 @@ const lessonsData = [
   },
   {
     date: "2026-06-03",
-    day: 18,
+    day: 17,
     unit: 7,
     title: "The California Power Grid",
     summary: "Real-world application of induction.",
@@ -55,7 +55,7 @@ const lessonsData = [
   },
   {
     date: "2026-06-02",
-    day: 17,
+    day: 16,
     unit: 7,
     title: "The Hand Crank Generator",
     summary: "Mechanical energy to electrical energy.",
@@ -68,7 +68,7 @@ const lessonsData = [
   },
   {
     date: "2026-06-01",
-    day: 16,
+    day: 15,
     unit: 7,
     title: "Faraday & Lenz (Induction)",
     summary: "Proving that a changing magnetic field creates a current.",
@@ -81,7 +81,7 @@ const lessonsData = [
   },
   {
     date: "2026-05-29",
-    day: 15,
+    day: 14,
     unit: 7,
     title: "Intro to Motors",
     summary: "Using electromagnetism to create continuous kinetic energy.",
@@ -94,7 +94,7 @@ const lessonsData = [
   },
   {
     date: "2026-05-28",
-    day: 14,
+    day: 13,
     unit: 7,
     title: "Maximizing Magnetic Force",
     summary: "Using experimental design to alter field strength.",
@@ -107,7 +107,7 @@ const lessonsData = [
   },
   {
     date: "2026-05-27",
-    day: 13,
+    day: 12,
     unit: 7,
     title: "Building the Electromagnet",
     summary: "Concentrating magnetic fields using coils (solenoids) and iron cores.",
@@ -120,29 +120,20 @@ const lessonsData = [
   },
   {
     date: "2026-05-26",
-    day: 12,
-    unit: 7,
-    title: "Oersted’s Discovery",
-    summary: "The link between electricity and magnetism (HS-PS2-5).",
-    details: "Place the kit's compass under a straight copper wire. Close the switch and watch the needle deflect. Reverse the battery and watch it deflect the other way.",
-    type: "Activity",
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "What evidence connects moving electric charges to the creation of magnetic fields?"
-  },
-  {
-    date: "2026-05-25",
     day: 11,
     unit: 7,
-    title: "Magnetic Fields & Potential Energy",
-    summary: "Review permanent magnets, domains, and magnetic field lines.",
-    details: "Use bar magnets and iron filings/compasses to map fields. Discuss the potential energy required to push like poles together.",
-    type: "Activity",
-    dok: 2,
+    title: "Lab: Measuring Resistance",
+    summary: "Construct electrical circuits to measure voltage and current, and experimentally calculate resistance using Ohm's Law.",
+    details: "Using the EUDAX kits, wire resistors in series with ammeters and voltmeters. Measure voltage and current to calculate resistance, verifying Ohm's Law.",
+    type: "Lab",
+    dok: 3,
     semester: 2,
     isFeatured: true,
-    essentialQuestion: "How do magnetic fields store and release potential energy?"
+    essentialQuestion: "How can we experimentally determine the electrical resistance of a circuit component?",
+    links: {
+      "Lab Guide": "https://docs.google.com/document/d/1Z-SxsWJtH0KioUbKowQLXkdWQnZQqO-lhXS-XFW_dtg/edit?usp=sharing"
+    },
+    embed: "https://docs.google.com/document/d/1Z-SxsWJtH0KioUbKowQLXkdWQnZQqO-lhXS-XFW_dtg/preview"
   },
   {
     date: "2026-05-22",
