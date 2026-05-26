@@ -16,7 +16,7 @@ const lessonsData = [
   // --- Unit 7: Electricity & Magnetism ---
   {
     date: "2026-06-05",
-    day: 19,
+    day: 20,
     unit: 7,
     title: "Unit Wrap-Up & Final Reflection",
     summary: "Reflection and cleanup.",
@@ -29,7 +29,7 @@ const lessonsData = [
   },
   {
     date: "2026-06-04",
-    day: 18,
+    day: 19,
     unit: 7,
     title: "The 'Rube Goldberg' Energy Challenge",
     summary: "Culminating system build.",
@@ -42,7 +42,7 @@ const lessonsData = [
   },
   {
     date: "2026-06-03",
-    day: 17,
+    day: 18,
     unit: 7,
     title: "The California Power Grid",
     summary: "Real-world application of induction.",
@@ -55,7 +55,7 @@ const lessonsData = [
   },
   {
     date: "2026-06-02",
-    day: 16,
+    day: 17,
     unit: 7,
     title: "The Hand Crank Generator",
     summary: "Mechanical energy to electrical energy.",
@@ -68,7 +68,7 @@ const lessonsData = [
   },
   {
     date: "2026-06-01",
-    day: 15,
+    day: 16,
     unit: 7,
     title: "Faraday & Lenz (Induction)",
     summary: "Proving that a changing magnetic field creates a current.",
@@ -81,7 +81,7 @@ const lessonsData = [
   },
   {
     date: "2026-05-29",
-    day: 14,
+    day: 15,
     unit: 7,
     title: "Intro to Motors",
     summary: "Using electromagnetism to create continuous kinetic energy.",
@@ -94,7 +94,7 @@ const lessonsData = [
   },
   {
     date: "2026-05-28",
-    day: 13,
+    day: 14,
     unit: 7,
     title: "Maximizing Magnetic Force",
     summary: "Using experimental design to alter field strength.",
@@ -107,7 +107,7 @@ const lessonsData = [
   },
   {
     date: "2026-05-27",
-    day: 12,
+    day: 13,
     unit: 7,
     title: "Building the Electromagnet",
     summary: "Concentrating magnetic fields using coils (solenoids) and iron cores.",
@@ -120,7 +120,7 @@ const lessonsData = [
   },
   {
     date: "2026-05-26",
-    day: 11,
+    day: 12,
     unit: 7,
     title: "Lab: Measuring Resistance",
     summary: "Construct electrical circuits to measure voltage and current, and experimentally calculate resistance using Ohm's Law.",
@@ -134,6 +134,19 @@ const lessonsData = [
       "Lab Guide": "https://docs.google.com/document/d/1Z-SxsWJtH0KioUbKowQLXkdWQnZQqO-lhXS-XFW_dtg/edit?usp=sharing"
     },
     embed: "https://docs.google.com/document/d/1Z-SxsWJtH0KioUbKowQLXkdWQnZQqO-lhXS-XFW_dtg/preview"
+  },
+  {
+    date: "2026-05-25",
+    day: 11,
+    unit: 7,
+    title: "No School - Memorial Day",
+    summary: "No School - Memorial Day Holiday.",
+    details: "No School - Memorial Day Holiday.",
+    type: "Activity",
+    dok: 1,
+    semester: 2,
+    isFeatured: false,
+    essentialQuestion: "No School - Memorial Day Holiday."
   },
   {
     date: "2026-05-22",
