@@ -11,7 +11,7 @@ An interactive physics simulation for designing and testing 2-liter bottle rocke
   - Determines flight status (**Stable**, **Marginal**, or **Unstable**) based on the "Golden Rule" of stability (CM must be ahead of CP).
 - **Interactive Engineering Missions**: Four guided tasks that require students to manipulate rocket variables to achieve specific stability goals.
 - **Post-Mission Debrief (Quiz)**: A 10-question multiple-choice assessment that unlocks upon completing all missions.
-- **Supabase Integration**: Secure student authentication and real-time progress syncing to the teacher dashboard.
+- **Firebase Integration**: Secure student authentication and real-time progress syncing to the teacher dashboard.
 - **20-Point Assessment System**: Scoring is split between mission completion (10 points) and quiz performance (10 points).
 
 ## 🧪 Educational Objectives
@@ -25,7 +25,7 @@ An interactive physics simulation for designing and testing 2-liter bottle rocke
 
 - **React & Babel**: UI and State management.
 - **Tailwind CSS**: Modern, glassmorphic styling.
-- **Supabase**: Backend-as-a-Service for student data persistence.
+- **Firebase**: Backend-as-a-Service for student data persistence.
 - **Lucide Icons**: Standardized engineering iconography.
 
 ## 📖 How to Use
@@ -43,4 +43,4 @@ An interactive physics simulation for designing and testing 2-liter bottle rocke
 | :--- | :--- | :--- |
 | **Engineering Missions** | 10 pts | 2.5 pts for each verified configuration task. |
 | **Post-Mission Quiz** | 10 pts | 1.0 pt for each correct answer on the debrief. |
-| **TOTAL** | **20 pts** | Final grade synced to Supabase. |
+| **TOTAL** | **20 pts** | Final grade synced to Firebase. |
