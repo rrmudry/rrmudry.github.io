@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -39,11 +40,48 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(34, 211, 238, 0.2); border-radius: 10px; }
     </style>
 </head>
-<body class="p-8 flex items-center justify-center">
-    <div class="glass max-w-4xl w-full p-10 rounded-[2.5rem] space-y-10">
-        <div class="text-center space-y-2">
-            <h1 class="text-5xl font-orbitron font-black gradient-text tracking-tighter uppercase">Data_Export</h1>
-            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.5em]">Central Intelligence Archive // Firebase</p>
+<body class="p-8 flex items-center justify-center min-h-screen">
+    <!-- Auth Guard Layer -->
+    <div id="auth-overlay" class="fixed inset-0 z-[100] bg-slate-950 flex flex-col items-center justify-center hidden">
+        <div class="glass max-w-md w-full p-10 rounded-[2.5rem] border border-cyan-500/20 text-center space-y-8">
+            <div class="flex justify-center">
+                <div class="bg-cyan-500/10 border border-cyan-500/30 p-5 rounded-3xl shadow-xl shadow-cyan-500/5 animate-pulse">
+                    <svg class="text-cyan-400 w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                </div>
+            </div>
+            <div class="space-y-2">
+                <h1 class="text-3xl font-orbitron font-black gradient-text tracking-tighter uppercase">Secure_Archive</h1>
+                <p class="text-slate-500 font-bold uppercase tracking-widest text-[9px]">Authorized Orange USD Personnel Only</p>
+            </div>
+            
+            <button id="btn-login" class="w-full bg-white text-slate-950 py-4 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 hover:bg-cyan-50 transition-all active:scale-95 shadow-xl">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5" alt="Google">
+                Sign In with Google
+            </button>
+            
+            <p id="auth-error" class="text-rose-500 text-[9px] font-bold uppercase tracking-widest hidden">Access Denied: District Domain Required</p>
+        </div>
+    </div>
+
+    <div id="main-content" class="glass max-w-4xl w-full p-10 rounded-[2.5rem] space-y-10 opacity-0 transition-opacity duration-500">
+        <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-6">
+            <div class="space-y-2 text-center md:text-left">
+                <h1 class="text-5xl font-orbitron font-black gradient-text tracking-tighter uppercase">Data_Export</h1>
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.5em]">Central Intelligence Archive // Firebase</p>
+            </div>
+            <div id="user-profile" class="hidden flex items-center justify-center md:justify-end gap-4 bg-white/5 border border-white/5 px-5 py-3 rounded-2xl">
+                <div class="flex flex-col items-end text-right">
+                    <span id="user-display-name" class="text-xs font-bold text-slate-300">Teacher</span>
+                    <span id="user-email" class="text-[8px] font-bold text-slate-500 uppercase tracking-widest">---</span>
+                </div>
+                <button id="btn-logout" class="bg-slate-950 hover:bg-white/5 text-slate-400 hover:text-cyan-400 p-2.5 rounded-xl border border-white/10 transition-all active:scale-95">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                </button>
+            </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
@@ -133,11 +171,53 @@
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        const auth = firebase.auth();
         
         // Enable local caching to prevent massive reads on refresh
         db.enablePersistence({ synchronizeTabs: true }).catch(err => {
             console.warn("Firebase persistence error:", err.code);
         });
+
+        const ALLOWED_EMAILS = [
+            "rmudry@orangeusd.org",
+            "ryan.mudry@gmail.com",
+            "ryanmudry@gmail.com"
+        ];
+
+        // --- AUTH GUARD LOGIC ---
+        auth.onAuthStateChanged((user) => {
+            const overlay = document.getElementById('auth-overlay');
+            const main = document.getElementById('main-content');
+            const error = document.getElementById('auth-error');
+            const profile = document.getElementById('user-profile');
+
+            if (user) {
+                const userEmailLower = user.email ? user.email.toLowerCase() : "";
+                if (ALLOWED_EMAILS.some(email => email.toLowerCase() === userEmailLower)) {
+                    overlay.classList.add('hidden');
+                    main.classList.remove('opacity-0');
+                    profile.classList.remove('hidden');
+                    document.getElementById('user-display-name').textContent = user.displayName || 'Teacher';
+                    document.getElementById('user-email').textContent = user.email;
+                    init();
+                } else {
+                    error.textContent = "Access Denied: Admin Privileges Required";
+                    error.classList.remove('hidden');
+                    auth.signOut();
+                }
+            } else {
+                overlay.classList.remove('hidden');
+                main.classList.add('opacity-0');
+                profile.classList.add('hidden');
+            }
+        });
+
+        document.getElementById('btn-login').onclick = () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider);
+        };
+
+        document.getElementById('btn-logout').onclick = () => auth.signOut();
 
         let aggregationMode = 'SUM'; // 'SUM' or 'AVERAGE' or 'DETAILED'
 
@@ -449,8 +529,6 @@
                 alert("Critical Export Failure");
             }
         }
-
-        init();
     </script>
 </body>
 </html>
