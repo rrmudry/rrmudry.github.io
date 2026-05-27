@@ -10,6 +10,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script>
         const firebaseConfig = {
             projectId: "site-6e500",
@@ -126,51 +127,88 @@
         // --- Components ---
 
         const LoginOverlay = ({ onLogin }) => {
-            const [idInput, setIdInput] = useState('');
-            const [nameInput, setNameInput] = useState('');
-            const [showNameEntry, setShowNameEntry] = useState(false);
             const [status, setStatus] = useState('');
+            const [testId, setTestId] = useState('');
+            const [showTestIdInput, setShowTestIdInput] = useState(false);
+            const [tempUser, setTempUser] = useState(null);
 
-            const handleLogin = async () => {
-                if (idInput.length !== 6) return;
-                setStatus("VERIFYING...");
+            const handleGoogleLogin = async () => {
+                setStatus("CONNECTING TO GOOGLE...");
+                const provider = new firebase.auth.GoogleAuthProvider();
+                try {
+                    const result = await firebase.auth().signInWithPopup(provider);
+                    const user = result.user;
+                    
+                    if (!user.email) {
+                        setStatus("ERROR: NO EMAIL");
+                        return;
+                    }
+
+                    const emailLower = user.email.toLowerCase();
+                    const isOrangeUSD = emailLower.endsWith("@orangeusd.org") || emailLower.endsWith("@student.orangeusd.org");
+                    const isTeacherBackup = emailLower === "ryan.mudry@gmail.com" || emailLower === "ryanmudry@gmail.com";
+
+                    if (!isOrangeUSD && !isTeacherBackup) {
+                        setStatus("DENIED: @orangeusd.org REQUIRED");
+                        await firebase.auth().signOut();
+                        return;
+                    }
+
+                    const prefix = emailLower.split('@')[0];
+                    const isNumericId = /^\d+$/.test(prefix);
+
+                    if (isNumericId) {
+                        await proceedLogin(prefix, user.displayName || prefix);
+                    } else {
+                        setTempUser(user);
+                        setShowTestIdInput(true);
+                        setStatus("ADMIN AUTHENTICATED");
+                    }
+                } catch (e) {
+                    console.error(e);
+                    setStatus("SIGN IN FAILED");
+                }
+            };
+
+            const proceedLogin = async (studentId, fallbackName) => {
+                setStatus("VERIFYING TELEMETRY...");
                 try {
                     const assignmentName = "Virtual Rocket Lab";
                     
-                    // Check URL for period
                     const urlParams = new URLSearchParams(window.location.search);
                     const urlPeriod = urlParams.get('p') || urlParams.get('period');
                     const parsedPeriod = urlPeriod ? parseInt(urlPeriod) : null;
                     
-                    // 1. Check Roster
-                    const rosterSnap = await db.collection('roster').doc(idInput).get();
+                    const rosterSnap = await db.collection('roster').doc(studentId).get();
 
                     if (rosterSnap.exists) {
                         const rosterData = rosterSnap.data();
-                        
-                        // 2. Fetch progress for this lab
-                        const progressSnap = await db.collection('student_results').doc(assignmentName).collection('students').doc(idInput).get();
+                        const progressSnap = await db.collection('student_results').doc(assignmentName).collection('students').doc(studentId).get();
                         const progressData = progressSnap.exists ? progressSnap.data() : { details: {} };
 
                         onLogin({ 
-                            id: idInput, 
+                            id: studentId, 
                             name: rosterData.full_name, 
                             period: parsedPeriod !== null ? parsedPeriod : (rosterData.class_period || null), 
                             details: progressData.details 
                         });
-                    } else if (!showNameEntry) {
-                        setShowNameEntry(true);
-                        setStatus("NEW_ID_DETECTED");
                     } else {
-                        if (nameInput.length < 3) return;
                         onLogin({ 
-                            id: idInput, 
-                            name: nameInput, 
+                            id: studentId, 
+                            name: fallbackName, 
                             period: parsedPeriod,
                             details: {} 
                         });
                     }
-                } catch (e) { setStatus("CONNECTION_ERROR"); }
+                } catch (e) {
+                    console.error(e);
+                    setStatus("TELEMETRY ERROR");
+                }
+            };
+
+            const handleTestIdSubmit = () => {
+                if (!testId || testId.length < 3) return;
+                proceedLogin(testId, tempUser.displayName || "Test User");
             };
 
             return (
@@ -183,20 +221,28 @@
                             <h1 className="text-3xl font-orbitron font-black gradient-text tracking-tighter uppercase">Rocket_Lab</h1>
                             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em]">Design & Stability // Unit 7</p>
                         </div>
-                        <div className="space-y-4">
-                            <div className="space-y-2">
-                                <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] text-left px-1">Access_Node // Student ID</p>
-                                <input type="text" value={idInput} onChange={e => setIdInput(e.target.value)} placeholder="6-Digit ID" maxLength="6" className="w-full bg-slate-900 border border-white/10 p-5 rounded-xl outline-none text-center font-bold text-xl text-blue-400" />
+
+                        {!showTestIdInput ? (
+                            <div className="space-y-6">
+                                <button onClick={handleGoogleLogin} className="w-full bg-white text-slate-950 p-5 rounded-xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 hover:bg-cyan-50 transition-all active:scale-95 shadow-xl">
+                                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-5 h-5" alt="Google">
+                                    Sign In with Google
+                                </button>
+                                <p className="text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em] leading-relaxed">
+                                    Use your school-issued <span className="text-cyan-400">@orangeusd.org</span> account
+                                </p>
                             </div>
-                            {showNameEntry && (
-                                <div className="space-y-2 animate-in fade-in">
-                                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] text-left px-1">Register // Full Name</p>
-                                    <input type="text" value={nameInput} onChange={e => setNameInput(e.target.value)} placeholder="Student Name" className="w-full bg-slate-900 border border-white/10 p-5 rounded-xl text-center font-bold text-white outline-none" />
+                        ) : (
+                            <div className="space-y-4 animate-in fade-in">
+                                <div className="space-y-2">
+                                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] text-left px-1">Admin Mode // Enter Target Student ID</p>
+                                    <input type="text" value={testId} onChange={e => setTestId(e.target.value)} placeholder="Student ID (e.g. 73001)" className="w-full bg-slate-900 border border-white/10 p-5 rounded-xl text-center font-bold text-xl text-cyan-400 outline-none" />
                                 </div>
-                            )}
-                            <button onClick={handleLogin} className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 p-5 rounded-xl font-black uppercase tracking-widest text-sm text-white shadow-xl">Establish Link</button>
-                            <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest animate-pulse h-4 text-center">{status}</p>
-                        </div>
+                                <button onClick={handleTestIdSubmit} className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 p-5 rounded-xl font-black uppercase tracking-widest text-sm text-white shadow-xl">Inspect Session</button>
+                            </div>
+                        )}
+
+                        <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest animate-pulse h-4 text-center">{status}</p>
                     </div>
                 </div>
             );
@@ -485,8 +531,13 @@
                                 <div className={`w-2 h-2 rounded-full ${isSyncing ? 'bg-orange-500 animate-pulse' : 'bg-green-500'}`}></div>
                             </div>
                         </div>
-                        <div className="hidden md:block text-right">
-                            <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Engineering Environment v2.4</p>
+                        <div className="flex items-center gap-4">
+                            <div className="hidden md:block text-right">
+                                <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Engineering Environment v2.4</p>
+                            </div>
+                            <button onClick={() => firebase.auth().signOut()} title="Sign Out" className="bg-white/5 hover:bg-white/10 text-slate-400 hover:text-cyan-400 p-2.5 rounded-xl border border-white/10 transition-all active:scale-95">
+                                <Icon name="log-out" className="w-4 h-4" />
+                            </button>
                         </div>
                     </header>
 
@@ -652,6 +703,61 @@
 
         const App = () => {
             const [user, setUser] = useState(null);
+            const [loading, setLoading] = useState(true);
+
+            useEffect(() => {
+                const unsubscribe = firebase.auth().onAuthStateChanged(async (firebaseUser) => {
+                    if (firebaseUser) {
+                        const emailLower = firebaseUser.email ? firebaseUser.email.toLowerCase() : "";
+                        const isOrangeUSD = emailLower.endsWith("@orangeusd.org") || emailLower.endsWith("@student.orangeusd.org");
+                        const isTeacherBackup = emailLower === "ryan.mudry@gmail.com" || emailLower === "ryanmudry@gmail.com";
+
+                        if (isOrangeUSD || isTeacherBackup) {
+                            const prefix = emailLower.split('@')[0];
+                            const isNumericId = /^\d+$/.test(prefix);
+
+                            if (isNumericId) {
+                                // Direct numeric login
+                                try {
+                                    const studentId = prefix;
+                                    const assignmentName = "Virtual Rocket Lab";
+                                    
+                                    const urlParams = new URLSearchParams(window.location.search);
+                                    const urlPeriod = urlParams.get('p') || urlParams.get('period');
+                                    const parsedPeriod = urlPeriod ? parseInt(urlPeriod) : null;
+
+                                    const rosterSnap = await db.collection('roster').doc(studentId).get();
+                                    const progressSnap = await db.collection('student_results').doc(assignmentName).collection('students').doc(studentId).get();
+                                    const progressData = progressSnap.exists ? progressSnap.data() : { details: {} };
+
+                                    setUser({
+                                        id: studentId,
+                                        name: rosterSnap.exists ? rosterSnap.data().full_name : (firebaseUser.displayName || prefix),
+                                        period: parsedPeriod !== null ? parsedPeriod : (rosterSnap.exists ? (rosterSnap.data().class_period || null) : null),
+                                        details: progressData.details
+                                    });
+                                } catch (e) { console.error(e); }
+                            } else {
+                                // Admin account - wait for them to enter student ID in LoginOverlay
+                            }
+                        }
+                    } else {
+                        setUser(null);
+                    }
+                    setLoading(false);
+                });
+                return () => unsubscribe();
+            }, []);
+
+            if (loading) {
+                return (
+                    <div className="overlay flex flex-col items-center justify-center space-y-4">
+                        <div className="w-10 h-10 border-4 border-t-blue-500 border-r-blue-500/20 border-b-blue-500/20 border-l-blue-500/20 rounded-full animate-spin"></div>
+                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Verifying Telemetry Link...</p>
+                    </div>
+                );
+            }
+
             if (!user) return <LoginOverlay onLogin={setUser} />;
             return <MainApp user={user} />;
         };
