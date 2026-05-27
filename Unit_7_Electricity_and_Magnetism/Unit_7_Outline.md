@@ -67,9 +67,9 @@
 *   **Focus:** The link between electricity and magnetism (HS-PS2-5).
 *   **Activity:** Place the kit's compass under a straight copper wire. Close the switch and watch the needle deflect. Reverse the battery and watch it deflect the other way.
 
-### Day 13: Building the Electromagnet
-*   **Focus:** Concentrating magnetic fields using coils (solenoids) and iron cores.
-*   **Activity:** Wrap wire around the iron nail/rod. Hook it to a battery and see how many paperclips it can pick up.
+### Day 13: The Jumping Wire
+*   **Focus:** Observe how moving electric charges (current) create a magnetic field, and how that field interacts with other magnets to create a physical force.
+*   **Activity:** Construct a circuit with a thin aluminum foil strip suspended over a permanent magnet. Briefly close the switch to observe the electromagnetic force ('jumping') acting on the wire. Test the effects of reversing current and flipping magnetic poles. Follow the [The Jumping Wire Lab Guide](https://docs.google.com/document/d/1RqSFUnC39sCqbsYbOsCqsZj73Bzvo7FSJoWpjEDbueA/edit?usp=sharing).
 
 ### Day 14: Maximizing Magnetic Force
 *   **Focus:** Using experimental design to alter field strength.
