@@ -126,11 +126,21 @@
 
         // --- Components ---
 
-        const LoginOverlay = ({ onLogin }) => {
+        const LoginOverlay = ({ onLogin, initialShowAdminInput = false, setAdminMode }) => {
             const [status, setStatus] = useState('');
             const [testId, setTestId] = useState('');
-            const [showTestIdInput, setShowTestIdInput] = useState(false);
+            const [showTestIdInput, setShowTestIdInput] = useState(initialShowAdminInput);
             const [tempUser, setTempUser] = useState(null);
+
+            useEffect(() => {
+                setShowTestIdInput(initialShowAdminInput);
+            }, [initialShowAdminInput]);
+
+            useEffect(() => {
+                if (firebase.auth().currentUser) {
+                    setTempUser(firebase.auth().currentUser);
+                }
+            }, []);
 
             const handleGoogleLogin = async () => {
                 setStatus("CONNECTING TO GOOGLE...");
@@ -155,15 +165,7 @@
                     }
 
                     const prefix = emailLower.split('@')[0];
-                    const isNumericId = /^\d+$/.test(prefix);
-
-                    if (isNumericId) {
-                        await proceedLogin(prefix, user.displayName || prefix);
-                    } else {
-                        setTempUser(user);
-                        setShowTestIdInput(true);
-                        setStatus("ADMIN AUTHENTICATED");
-                    }
+                    await proceedLogin(prefix, user.displayName || prefix);
                 } catch (e) {
                     console.error(e);
                     setStatus("SIGN IN FAILED");
@@ -208,7 +210,26 @@
 
             const handleTestIdSubmit = () => {
                 if (!testId || testId.length < 3) return;
-                proceedLogin(testId, tempUser.displayName || "Test User");
+                proceedLogin(testId, tempUser?.displayName || "Test User");
+            };
+
+            const handleSignOut = async () => {
+                await firebase.auth().signOut();
+                if (setAdminMode) setAdminMode(false);
+                setShowTestIdInput(false);
+                setTempUser(null);
+                setTestId('');
+                setStatus('');
+            };
+
+            const handleCancelInspect = async () => {
+                if (firebase.auth().currentUser) {
+                    const prefix = firebase.auth().currentUser.email.toLowerCase().split('@')[0];
+                    if (setAdminMode) setAdminMode(false);
+                    await proceedLogin(prefix, firebase.auth().currentUser.displayName || prefix);
+                } else {
+                    handleSignOut();
+                }
             };
 
             return (
@@ -236,9 +257,33 @@
                             <div className="space-y-4 animate-in fade-in">
                                 <div className="space-y-2">
                                     <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] text-left px-1">Admin Mode // Enter Target Student ID</p>
-                                    <input type="text" value={testId} onChange={e => setTestId(e.target.value)} placeholder="Student ID (e.g. 73001)" className="w-full bg-slate-900 border border-white/10 p-5 rounded-xl text-center font-bold text-xl text-cyan-400 outline-none" />
+                                    <input type="text" value={testId} onChange={e => setTestId(e.target.value.replace(/[^0-9]/g, ''))} placeholder="Student ID (e.g. 73001)" className="w-full bg-slate-900 border border-white/10 p-5 rounded-xl text-center font-bold text-xl text-cyan-400 outline-none" />
                                 </div>
-                                <button onClick={handleTestIdSubmit} className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 p-5 rounded-xl font-black uppercase tracking-widest text-sm text-white shadow-xl">Inspect Session</button>
+                                <button onClick={handleTestIdSubmit} className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 p-5 rounded-xl font-black uppercase tracking-widest text-sm text-white shadow-xl hover:shadow-cyan-500/20 active:scale-95">Inspect Session</button>
+                                
+                                {firebase.auth().currentUser ? (
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={handleCancelInspect}
+                                            className="flex-1 py-3.5 rounded-xl bg-slate-800/60 hover:bg-slate-700 text-slate-300 text-[10px] font-bold uppercase tracking-widest transition-all border border-white/5"
+                                        >
+                                            Back to My Session
+                                        </button>
+                                        <button
+                                            onClick={handleSignOut}
+                                            className="px-4 py-3.5 rounded-xl bg-rose-950/20 hover:bg-rose-900/30 text-rose-400 text-[10px] font-bold uppercase tracking-widest transition-all border border-rose-500/20"
+                                        >
+                                            Sign Out
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <button
+                                        onClick={handleSignOut}
+                                        className="w-full py-3.5 rounded-xl bg-slate-800/60 hover:bg-slate-700 text-slate-400 text-[10px] font-bold uppercase tracking-widest transition-all border border-white/5"
+                                    >
+                                        Cancel / Sign Out
+                                    </button>
+                                )}
                             </div>
                         )}
 
@@ -361,7 +406,7 @@
             );
         };
 
-        const MainApp = ({ user }) => {
+        const MainApp = ({ user, setAdminMode, setUser }) => {
             // Simulation State
             const [height, setHeight] = useState(1);
             const [noseWeight, setNoseWeight] = useState(50);
@@ -535,7 +580,19 @@
                             <div className="hidden md:block text-right">
                                 <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Engineering Environment v2.4</p>
                             </div>
-                            <button onClick={() => firebase.auth().signOut()} title="Sign Out" className="bg-white/5 hover:bg-white/10 text-slate-400 hover:text-cyan-400 p-2.5 rounded-xl border border-white/10 transition-all active:scale-95">
+                            {user.id && !/^\d+$/.test(user.id) && (
+                                <button 
+                                    onClick={() => {
+                                        setAdminMode(true);
+                                        setUser(null);
+                                    }}
+                                    title="Inspect Student Session (Admin Mode)"
+                                    className="bg-white/5 hover:bg-white/10 text-slate-400 hover:text-cyan-400 p-2.5 rounded-xl border border-white/10 transition-all active:scale-95 flex items-center justify-center animate-in slide-in-from-right-2 duration-300"
+                                >
+                                    <Icon name="search" className="w-4 h-4" />
+                                </button>
+                            )}
+                            <button onClick={() => firebase.auth().signOut()} title="Sign Out" className="bg-white/5 hover:bg-white/10 text-slate-400 hover:text-rose-400 p-2.5 rounded-xl border border-white/10 transition-all active:scale-95">
                                 <Icon name="log-out" className="w-4 h-4" />
                             </button>
                         </div>
@@ -704,6 +761,7 @@
         const App = () => {
             const [user, setUser] = useState(null);
             const [loading, setLoading] = useState(true);
+            const [adminMode, setAdminMode] = useState(false);
 
             useEffect(() => {
                 const unsubscribe = firebase.auth().onAuthStateChanged(async (firebaseUser) => {
@@ -714,32 +772,32 @@
 
                         if (isOrangeUSD || isTeacherBackup) {
                             const prefix = emailLower.split('@')[0];
-                            const isNumericId = /^\d+$/.test(prefix);
-
-                            if (isNumericId) {
-                                // Direct numeric login
-                                try {
-                                    const studentId = prefix;
-                                    const assignmentName = "Virtual Rocket Lab";
-                                    
-                                    const urlParams = new URLSearchParams(window.location.search);
-                                    const urlPeriod = urlParams.get('p') || urlParams.get('period');
-                                    const parsedPeriod = urlPeriod ? parseInt(urlPeriod) : null;
-
-                                    const rosterSnap = await db.collection('roster').doc(studentId).get();
-                                    const progressSnap = await db.collection('student_results').doc(assignmentName).collection('students').doc(studentId).get();
-                                    const progressData = progressSnap.exists ? progressSnap.data() : { details: {} };
-
-                                    setUser({
-                                        id: studentId,
-                                        name: rosterSnap.exists ? rosterSnap.data().full_name : (firebaseUser.displayName || prefix),
-                                        period: parsedPeriod !== null ? parsedPeriod : (rosterSnap.exists ? (rosterSnap.data().class_period || null) : null),
-                                        details: progressData.details
-                                    });
-                                } catch (e) { console.error(e); }
-                            } else {
-                                // Admin account - wait for them to enter student ID in LoginOverlay
+                            
+                            // Guard against overwriting an active student inspection session
+                            if (user) {
+                                setLoading(false);
+                                return;
                             }
+
+                            try {
+                                const studentId = prefix;
+                                const assignmentName = "Virtual Rocket Lab";
+                                
+                                const urlParams = new URLSearchParams(window.location.search);
+                                const urlPeriod = urlParams.get('p') || urlParams.get('period');
+                                const parsedPeriod = urlPeriod ? parseInt(urlPeriod) : null;
+
+                                const rosterSnap = await db.collection('roster').doc(studentId).get();
+                                const progressSnap = await db.collection('student_results').doc(assignmentName).collection('students').doc(studentId).get();
+                                const progressData = progressSnap.exists ? progressSnap.data() : { details: {} };
+
+                                setUser({
+                                    id: studentId,
+                                    name: rosterSnap.exists ? rosterSnap.data().full_name : (firebaseUser.displayName || prefix),
+                                    period: parsedPeriod !== null ? parsedPeriod : (rosterSnap.exists ? (rosterSnap.data().class_period || null) : null),
+                                    details: progressData.details
+                                });
+                            } catch (e) { console.error(e); }
                         }
                     } else {
                         setUser(null);
@@ -747,7 +805,7 @@
                     setLoading(false);
                 });
                 return () => unsubscribe();
-            }, []);
+            }, [user]);
 
             if (loading) {
                 return (
@@ -758,8 +816,8 @@
                 );
             }
 
-            if (!user) return <LoginOverlay onLogin={setUser} />;
-            return <MainApp user={user} />;
+            if (!user) return <LoginOverlay onLogin={setUser} initialShowAdminInput={adminMode} setAdminMode={setAdminMode} />;
+            return <MainApp user={user} setAdminMode={setAdminMode} setUser={setUser} />;
         };
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
