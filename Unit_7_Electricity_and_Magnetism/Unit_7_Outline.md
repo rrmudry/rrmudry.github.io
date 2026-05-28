@@ -71,9 +71,9 @@
 *   **Focus:** Observe how moving electric charges (current) create a magnetic field, and how that field interacts with other magnets to create a physical force.
 *   **Activity:** Construct a circuit with a thin aluminum foil strip suspended over a permanent magnet. Briefly close the switch to observe the electromagnetic force ('jumping') acting on the wire. Test the effects of reversing current and flipping magnetic poles. Follow the [The Jumping Wire Lab Guide](https://docs.google.com/document/d/1RqSFUnC39sCqbsYbOsCqsZj73Bzvo7FSJoWpjEDbueA/edit?usp=sharing).
 
-### Day 14: Maximizing Magnetic Force
-*   **Focus:** Using experimental design to alter field strength.
-*   **Activity:** Have students design an experiment to test variables: What happens if you double the coils? What if you add a second battery in series? Graph the results.
+### Day 14: Tesla vs. Edison – War of the Currents
+*   **Focus:** Alternating current (AC) vs. direct current (DC) conceptual and historical comparison.
+*   **Activity:** Watch the Tesla vs. Edison educational video. Complete the required EdPuzzle assignment (with embedded checks for understanding), which will go directly into the gradebook.
 
 ### Day 15: Intro to Motors
 *   **Focus:** Using electromagnetism to create continuous kinetic energy.
