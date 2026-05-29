@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fish Grinder BLE Dashboard</title>
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --primary-glow: rgba(59, 130, 246, 0.3);
+      --accent: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --bg-gradient: linear-gradient(135deg, #0b0f19 0%, #111827 100%);
+      --panel-bg: rgba(17, 24, 39, 0.7);
+      --border: rgba(255, 255, 255, 0.08);
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    body {
+      background: var(--bg-gradient);
+      color: #f3f4f6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+    .container {
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      background: linear-gradient(to right, #60a5fa, #34d399);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.05em;
+      margin-bottom: 5px;
+    }
+    .ble-status {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--danger);
+      transition: background-color 0.3s ease;
+    }
+    .status-dot.connected {
+      background-color: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+    }
+    .status-dot.connecting {
+      background-color: var(--warning);
+      box-shadow: 0 0 8px var(--warning);
+      animation: pulse 1s infinite alternate;
+    }
+    @keyframes pulse {
+      from { opacity: 0.4; }
+      to { opacity: 1; }
+    }
+    .glass-panel {
+      background: var(--panel-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    .clock-display {
+      font-family: monospace;
+      font-size: 2.5rem;
+      font-weight: bold;
+      text-align: center;
+      color: #fff;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+      letter-spacing: 0.05em;
+    }
+    .panel-title {
+      font-size: 1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 15px;
+      color: #9ca3af;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 0.95rem;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: white;
+      box-shadow: 0 4px 15px var(--primary-glow);
+    }
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+    .btn-danger:hover {
+      background: var(--danger);
+      color: white;
+    }
+    .btn-accent {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+    .btn-disabled {
+      background: rgba(255, 255, 255, 0.05) !important;
+      color: #6b7280 !important;
+      border: 1px solid var(--border);
+      cursor: not-allowed;
+      box-shadow: none !important;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+    label {
+      font-size: 0.8rem;
+      font-weight: bold;
+      color: #9ca3af;
+      text-transform: uppercase;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: white;
+      font-size: 1rem;
+      outline: none;
+    }
+    input:focus {
+      border-color: var(--primary);
+    }
+    .schedule-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 250px;
+      overflow-y: auto;
+    }
+    .schedule-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 12px 15px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    .schedule-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .schedule-time {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #fff;
+    }
+    .schedule-meta {
+      font-size: 0.75rem;
+      color: #9ca3af;
+    }
+    .empty-schedules {
+      text-align: center;
+      color: #6b7280;
+      font-size: 0.85rem;
+      padding: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Fish Grinder BLE</h1>
+      <div class="ble-status">
+        <div id="status-dot" class="status-dot"></div>
+        <span id="status-text">Disconnected</span>
+      </div>
+    </header>
+
+    <!-- BLE Connection Button -->
+    <div class="glass-panel" id="conn-panel">
+      <button class="btn btn-primary" id="connect-btn" onclick="toggleConnection()">Connect via Bluetooth</button>
+    </div>
+
+    <!-- Fail-Safe Active Warning Alert -->
+    <div class="glass-panel" id="failsafe-alert" style="display:none; border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.05); animate-in fade-in duration-300;">
+      <div class="panel-title" style="color: #fbbf24; border-color: rgba(245, 158, 11, 0.15);">⚠️ Backup Fail-Safe Active</div>
+      <p style="font-size: 0.85rem; color: #fef08a; line-height: 1.4; margin-bottom: 12px;">
+        The system rebooted and has not connected to a device. A fallback feed is scheduled to protect the fish. Connecting now will instantly restore your normal schedule.
+      </p>
+      <div style="font-size: 0.95rem; font-family: monospace; font-weight: bold; color: #fff; text-align: center; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05);" id="failsafe-timer">
+        Next backup feed in: --:--:--
+      </div>
+    </div>
+
+    <!-- Live Clock Panel -->
+    <div class="glass-panel">
+      <div class="panel-title">Current Time</div>
+      <div id="clock" class="clock-display">--:--:--</div>
+    </div>
+
+    <!-- Manual Feed Panel -->
+    <div class="glass-panel">
+      <div class="panel-title">Manual Override</div>
+      <div class="form-group">
+        <label for="manual-duration">Food Amount (seconds)</label>
+        <input type="number" id="manual-duration" value="3" min="1" max="20" disabled class="input-disabled">
+      </div>
+      <button class="btn btn-primary btn-disabled" id="feed-btn" disabled onclick="feedNow()">Feed Now</button>
+    </div>
+
+    <!-- Schedule Manager Panel -->
+    <div class="glass-panel">
+      <div class="panel-title">Feeding Schedule</div>
+      <div class="schedule-list" id="schedule-container">
+        <div class="empty-schedules">Please connect to display schedules.</div>
+      </div>
+    </div>
+
+    <!-- Add Schedule Panel -->
+    <div class="glass-panel">
+      <div class="panel-title">Add Scheduled Feed</div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div class="form-group">
+          <label for="sched-time">Time</label>
+          <input type="time" id="sched-time" value="08:00" disabled>
+        </div>
+        <div class="form-group">
+          <label for="sched-duration">Amount (secs)</label>
+          <input type="number" id="sched-duration" value="3" min="1" max="20" disabled>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-disabled" id="add-btn" disabled style="margin-top: 10px;" onclick="addSchedule()">Add Schedule</button>
+    </div>
+  </div>
+
+  <script>
+    // Nordic UART Service UUIDs
+    const SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+    const RX_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
+    const TX_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
+
+    let bleDevice = null;
+    let rxCharacteristic = null;
+    let txCharacteristic = null;
+    let rxBuffer = "";
+
+    function setUIConnected(connected) {
+      const dot = document.getElementById('status-dot');
+      const text = document.getElementById('status-text');
+      const connBtn = document.getElementById('connect-btn');
+      
+      const elementsToToggle = [
+        document.getElementById('manual-duration'),
+        document.getElementById('feed-btn'),
+        document.getElementById('sched-time'),
+        document.getElementById('sched-duration'),
+        document.getElementById('add-btn')
+      ];
+
+      if (connected) {
+        dot.className = "status-dot connected";
+        text.innerText = "Connected to Grinder";
+        connBtn.innerText = "Disconnect Bluetooth";
+        connBtn.className = "btn btn-danger";
+        
+        elementsToToggle.forEach(el => {
+          el.removeAttribute('disabled');
+          el.classList.remove('btn-disabled');
+        });
+      } else {
+        dot.className = "status-dot";
+        text.innerText = "Disconnected";
+        connBtn.innerText = "Connect via Bluetooth";
+        connBtn.className = "btn btn-primary";
+        
+        elementsToToggle.forEach(el => {
+          el.setAttribute('disabled', 'true');
+          if (el.tagName === 'BUTTON') {
+            el.classList.add('btn-disabled');
+          }
+        });
+        
+        document.getElementById('clock').innerText = "--:--:--";
+        document.getElementById('failsafe-alert').style.display = 'none';
+        document.getElementById('schedule-container').innerHTML = '<div class="empty-schedules">Please connect to display schedules.</div>';
+      }
+    }
+
+    async function toggleConnection() {
+      if (bleDevice && bleDevice.gatt.connected) {
+        console.log("Disconnecting...");
+        await bleDevice.gatt.disconnect();
+        return;
+      }
+
+      const dot = document.getElementById('status-dot');
+      const text = document.getElementById('status-text');
+      dot.className = "status-dot connecting";
+      text.innerText = "Connecting...";
+
+      try {
+        console.log("Requesting Bluetooth Device...");
+        bleDevice = await navigator.bluetooth.requestDevice({
+          filters: [{ name: 'Fish_Grinder' }],
+          optionalServices: [SERVICE_UUID]
+        });
+
+        bleDevice.addEventListener('gattserverdisconnected', onDisconnected);
+
+        console.log("Connecting to GATT Server...");
+        const server = await bleDevice.gatt.connect();
+
+        console.log("Getting Service...");
+        const service = await server.getPrimaryService(SERVICE_UUID);
+
+        console.log("Getting Characteristics...");
+        rxCharacteristic = await service.getCharacteristic(RX_UUID);
+        txCharacteristic = await service.getCharacteristic(TX_UUID);
+
+        console.log("Starting Notifications...");
+        txCharacteristic.addEventListener('characteristicvaluechanged', handleNotifications);
+        await txCharacteristic.startNotifications();
+
+        console.log("Connected successfully!");
+        setUIConnected(true);
+        
+        // Auto sync clock on connection
+        autoSyncTime();
+      } catch (err) {
+        console.error("Bluetooth connection failed:", err);
+        setUIConnected(false);
+      }
+    }
+
+    function onDisconnected() {
+      console.log("GATT Server disconnected.");
+      setUIConnected(false);
+      rxCharacteristic = null;
+      txCharacteristic = null;
+    }
+
+    async function sendCommand(cmd) {
+      if (!rxCharacteristic) return;
+      try {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(cmd);
+        await rxCharacteristic.writeValue(data);
+      } catch (err) {
+        console.error("Error writing BLE characteristic:", err);
+      }
+    }
+
+    function handleNotifications(event) {
+      const value = event.target.value;
+      const decoder = new TextDecoder();
+      const chunk = decoder.decode(value);
+      rxBuffer += chunk;
+      
+      // Attempt to parse complete JSON packets
+      if (rxBuffer.includes('{') && rxBuffer.includes('}')) {
+        const startIdx = rxBuffer.indexOf('{');
+        const endIdx = rxBuffer.lastIndexOf('}');
+        
+        if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
+          const jsonStr = rxBuffer.substring(startIdx, endIdx + 1);
+          try {
+            const data = JSON.parse(jsonStr);
+            rxBuffer = rxBuffer.substring(endIdx + 1); // keep remainder
+            updateUI(data);
+          } catch (e) {
+            // If parse fails, it might be incomplete, let more data compile in buffer
+          }
+        }
+      }
+    }
+
+    function updateUI(data) {
+      document.getElementById('clock').innerText = data.time;
+      
+      const dot = document.getElementById('status-dot');
+      const text = document.getElementById('status-text');
+      if (data.synced) {
+        dot.className = "status-dot connected";
+        text.innerText = "Connected & Time Synced";
+      } else {
+        dot.className = "status-dot connecting";
+        text.innerText = "Time Out of Sync (Syncing...)";
+        autoSyncTime();
+      }
+
+      // Render Fail-Safe Banner
+      const fsAlert = document.getElementById('failsafe-alert');
+      if (data.failsafe) {
+        fsAlert.style.display = 'block';
+        const sTotal = data.next_failsafe;
+        const h = Math.floor(sTotal / 3600).toString().padStart(2, '0');
+        const m = Math.floor((sTotal % 3600) / 60).toString().padStart(2, '0');
+        const s = (sTotal % 60).toString().padStart(2, '0');
+        document.getElementById('failsafe-timer').innerText = `Next backup feed in: ${h}:${m}:${s}`;
+      } else {
+        fsAlert.style.display = 'none';
+      }
+
+      // Render schedules
+      const container = document.getElementById('schedule-container');
+      const schedList = data.schedules;
+      if (schedList.length === 0) {
+        container.innerHTML = '<div class="empty-schedules">No feedings scheduled.</div>';
+      } else {
+        let html = '';
+        schedList.forEach(item => {
+          html += `
+            <div class="schedule-item">
+              <div class="schedule-info">
+                <span class="schedule-time">${item.time}</span>
+                <span class="schedule-meta">Duration: ${item.duration}s (${item.duration <= 3 ? 'Light' : item.duration <= 5 ? 'Medium' : 'Heavy'} Feed)</span>
+              </div>
+              <button class="btn btn-danger" style="width: auto; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem;" onclick="deleteSchedule(${item.id})">Delete</button>
+            </div>
+          `;
+        });
+        container.innerHTML = html;
+      }
+    }
+
+    function autoSyncTime() {
+      const now = new Date();
+      const h = now.getHours().toString().padStart(2, '0');
+      const m = now.getMinutes().toString().padStart(2, '0');
+      const s = now.getSeconds().toString().padStart(2, '0');
+      sendCommand(`sync ${h}:${m}:${s}`);
+    }
+
+    function feedNow() {
+      const dur = document.getElementById('manual-duration').value;
+      sendCommand(`feed ${dur}`);
+    }
+
+    function addSchedule() {
+      const timeVal = document.getElementById('sched-time').value;
+      if (!timeVal) return;
+      const [h, m] = timeVal.split(':');
+      const dur = document.getElementById('sched-duration').value;
+      sendCommand(`add ${h}:${m} ${dur}`);
+    }
+
+    function deleteSchedule(id) {
+      sendCommand(`delete ${id}`);
+    }
+  </script>
+</body>
+</html>
