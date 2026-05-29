@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fish Grinder BLE Dashboard</title>
+  <!-- Firebase SDK Compat -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <style>
     :root {
       --primary: #3b82f6;
@@ -216,71 +219,170 @@
 <body>
   <div class="container">
     <header>
-      <h1>Fish Grinder BLE</h1>
+      <h1>Fish Feeder Control</h1>
       <div class="ble-status">
         <div id="status-dot" class="status-dot"></div>
         <span id="status-text">Disconnected</span>
       </div>
+      <!-- User Profile Header -->
+      <div id="user-profile" style="display: none; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; font-size: 0.85rem;">
+        <span id="user-email" style="color: #9ca3af; font-weight: 500;"></span>
+        <button class="btn" style="width: auto; padding: 4px 10px; font-size: 0.75rem; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: #9ca3af;" onclick="signOutUser()">Sign Out</button>
+      </div>
     </header>
 
-    <!-- BLE Connection Button -->
-    <div class="glass-panel" id="conn-panel">
-      <button class="btn btn-primary" id="connect-btn" onclick="toggleConnection()">Connect via Bluetooth</button>
-    </div>
-
-    <!-- Fail-Safe Active Warning Alert -->
-    <div class="glass-panel" id="failsafe-alert" style="display:none; border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.05); animate-in fade-in duration-300;">
-      <div class="panel-title" style="color: #fbbf24; border-color: rgba(245, 158, 11, 0.15);">⚠️ Backup Fail-Safe Active</div>
-      <p style="font-size: 0.85rem; color: #fef08a; line-height: 1.4; margin-bottom: 12px;">
-        The system rebooted and has not connected to a device. A fallback feed is scheduled to protect the fish. Connecting now will instantly restore your normal schedule.
+    <!-- Authentication Overlay -->
+    <div id="auth-overlay" class="glass-panel" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; text-align: center; padding: 40px 20px; border-color: rgba(59, 130, 246, 0.2);">
+      <div style="font-size: 3rem; margin-bottom: -10px;">🐠</div>
+      <h2 style="font-size: 1.4rem; font-weight: 800; background: linear-gradient(to right, #60a5fa, #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Feeder Access Control</h2>
+      <p id="auth-message" style="font-size: 0.9rem; color: #9ca3af; line-height: 1.5; max-width: 320px;">
+        To prevent unauthorized feeding, access to the Fish Grinder controls is restricted to the classroom administrator.
       </p>
-      <div style="font-size: 0.95rem; font-family: monospace; font-weight: bold; color: #fff; text-align: center; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05);" id="failsafe-timer">
-        Next backup feed in: --:--:--
+      <button class="btn btn-primary" id="login-btn" onclick="signInWithGoogle()" style="max-width: 280px;">
+        <svg style="width: 18px; height: 18px;" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M21.35,11.1H12v2.7h5.38c-0.24,1.28-0.96,2.37-2.04,3.1v2.57h3.3C20.57,17.72,21.6,14.7,21.35,11.1z" />
+          <path fill="currentColor" d="M12,20.7c2.35,0,4.32-0.78,5.76-2.13l-3.3-2.57c-0.91,0.61-2.08,0.98-3.46,0.98c-2.66,0-4.91-1.8-5.72-4.22H1.93v2.66C3.37,18.27,7.42,20.7,12,20.7z" />
+          <path fill="currentColor" d="M6.28,12.77c-0.2-0.61-0.32-1.26-0.32-1.93s0.12-1.32,0.32-1.93V6.25H1.93c-0.69,1.38-1.08,2.94-1.08,4.59s0.39,3.21,1.08,4.59L6.28,12.77z" />
+          <path fill="currentColor" d="M12,5.28c1.28,0,2.42,0.44,3.33,1.31l2.5-2.5C16.32,2.78,14.35,2,12,2C7.42,2,3.37,4.43,1.93,8.22l4.35,3.38C7.09,9.18,9.34,5.28,12,5.28z" />
+        </svg>
+        Sign In with Google
+      </button>
+      <button class="btn btn-danger" id="switch-account-btn" onclick="signOutUser()" style="display: none; max-width: 280px;">
+        Sign In with Another Account
+      </button>
+    </div>
+
+    <!-- Feeder Dashboard Content (Visible only to authorized user) -->
+    <div id="dashboard-content" style="display: none; flex-direction: column; gap: 20px; width: 100%;">
+      <!-- BLE Connection Button -->
+      <div class="glass-panel" id="conn-panel">
+        <button class="btn btn-primary" id="connect-btn" onclick="toggleConnection()">Connect via Bluetooth</button>
       </div>
-    </div>
 
-    <!-- Live Clock Panel -->
-    <div class="glass-panel">
-      <div class="panel-title">Current Time</div>
-      <div id="clock" class="clock-display">--:--:--</div>
-    </div>
-
-    <!-- Manual Feed Panel -->
-    <div class="glass-panel">
-      <div class="panel-title">Manual Override</div>
-      <div class="form-group">
-        <label for="manual-duration">Food Amount (seconds)</label>
-        <input type="number" id="manual-duration" value="3" min="1" max="20" disabled class="input-disabled">
-      </div>
-      <button class="btn btn-primary btn-disabled" id="feed-btn" disabled onclick="feedNow()">Feed Now</button>
-    </div>
-
-    <!-- Schedule Manager Panel -->
-    <div class="glass-panel">
-      <div class="panel-title">Feeding Schedule</div>
-      <div class="schedule-list" id="schedule-container">
-        <div class="empty-schedules">Please connect to display schedules.</div>
-      </div>
-    </div>
-
-    <!-- Add Schedule Panel -->
-    <div class="glass-panel">
-      <div class="panel-title">Add Scheduled Feed</div>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-        <div class="form-group">
-          <label for="sched-time">Time</label>
-          <input type="time" id="sched-time" value="08:00" disabled>
-        </div>
-        <div class="form-group">
-          <label for="sched-duration">Amount (secs)</label>
-          <input type="number" id="sched-duration" value="3" min="1" max="20" disabled>
+      <!-- Fail-Safe Active Warning Alert -->
+      <div class="glass-panel" id="failsafe-alert" style="display:none; border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.05); animate-in fade-in duration-300;">
+        <div class="panel-title" style="color: #fbbf24; border-color: rgba(245, 158, 11, 0.15);">⚠️ Backup Fail-Safe Active</div>
+        <p style="font-size: 0.85rem; color: #fef08a; line-height: 1.4; margin-bottom: 12px;">
+          The system rebooted and has not connected to a device. A fallback feed is scheduled to protect the fish. Connecting now will instantly restore your normal schedule.
+        </p>
+        <div style="font-size: 0.95rem; font-family: monospace; font-weight: bold; color: #fff; text-align: center; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05);" id="failsafe-timer">
+          Next backup feed in: --:--:--
         </div>
       </div>
-      <button class="btn btn-primary btn-disabled" id="add-btn" disabled style="margin-top: 10px;" onclick="addSchedule()">Add Schedule</button>
+
+      <!-- Live Clock Panel -->
+      <div class="glass-panel">
+        <div class="panel-title">Current Time</div>
+        <div id="clock" class="clock-display">--:--:--</div>
+      </div>
+
+      <!-- Manual Feed Panel -->
+      <div class="glass-panel">
+        <div class="panel-title">Manual Override</div>
+        <div class="form-group">
+          <label for="manual-duration">Food Amount (seconds)</label>
+          <input type="number" id="manual-duration" value="3" min="1" max="20" disabled class="input-disabled">
+        </div>
+        <button class="btn btn-primary btn-disabled" id="feed-btn" disabled onclick="feedNow()">Feed Now</button>
+      </div>
+
+      <!-- Schedule Manager Panel -->
+      <div class="glass-panel">
+        <div class="panel-title">Feeding Schedule</div>
+        <div class="schedule-list" id="schedule-container">
+          <div class="empty-schedules">Please connect to display schedules.</div>
+        </div>
+      </div>
+
+      <!-- Add Schedule Panel -->
+      <div class="glass-panel">
+        <div class="panel-title">Add Scheduled Feed</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label for="sched-time">Time</label>
+            <input type="time" id="sched-time" value="08:00" disabled>
+          </div>
+          <div class="form-group">
+            <label for="sched-duration">Amount (secs)</label>
+            <input type="number" id="sched-duration" value="3" min="1" max="20" disabled>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-disabled" id="add-btn" disabled style="margin-top: 10px;" onclick="addSchedule()">Add Schedule</button>
+      </div>
     </div>
   </div>
 
   <script>
+    // Firebase Config & Init
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const auth = firebase.auth();
+    const ALLOWED_EMAIL = "rmudry@orangeusd.org";
+
+    // Authentication States & Controls
+    auth.onAuthStateChanged(user => {
+      const authOverlay = document.getElementById('auth-overlay');
+      const dashboardContent = document.getElementById('dashboard-content');
+      const userProfile = document.getElementById('user-profile');
+      const userEmailSpan = document.getElementById('user-email');
+      const authMessage = document.getElementById('auth-message');
+      const loginBtn = document.getElementById('login-btn');
+      const switchAccountBtn = document.getElementById('switch-account-btn');
+
+      if (user) {
+        if (user.email === ALLOWED_EMAIL) {
+          // Access Granted!
+          authOverlay.style.display = 'none';
+          dashboardContent.style.display = 'flex';
+          userProfile.style.display = 'flex';
+          userEmailSpan.innerText = user.email;
+        } else {
+          // Access Denied!
+          authOverlay.style.display = 'flex';
+          dashboardContent.style.display = 'none';
+          userProfile.style.display = 'none';
+          authMessage.innerHTML = `Access Denied!<br><span style="font-size: 0.8rem; color: #f87171;">Signed in as <strong>${user.email}</strong>, but only <strong>${ALLOWED_EMAIL}</strong> has control permissions.</span>`;
+          loginBtn.style.display = 'none';
+          switchAccountBtn.style.display = 'block';
+        }
+      } else {
+        // Not Signed In
+        authOverlay.style.display = 'flex';
+        dashboardContent.style.display = 'none';
+        userProfile.style.display = 'none';
+        authMessage.innerText = "To prevent unauthorized feeding, access to the Fish Grinder controls is restricted to the classroom administrator.";
+        loginBtn.style.display = 'flex';
+        switchAccountBtn.style.display = 'none';
+      }
+    });
+
+    function signInWithGoogle() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider).catch(err => {
+        console.error("Sign in failed:", err);
+        alert("Google sign-in failed. Please try again.");
+      });
+    }
+
+    function signOutUser() {
+      if (bleDevice && bleDevice.gatt.connected) {
+        bleDevice.gatt.disconnect();
+      }
+      auth.signOut().catch(err => {
+        console.error("Sign out failed:", err);
+      });
+    }
+
     // Nordic UART Service UUIDs
     const SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
     const RX_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
