@@ -183,7 +183,11 @@ const lessonsData = [
     dok: 3,
     semester: 2,
     isFeatured: true,
-    essentialQuestion: "How does adding components in a single pathway affect the overall voltage and current in a system?"
+    essentialQuestion: "How does adding components in a single pathway affect the overall voltage and current in a system?",
+    links: {
+      "Series Circuits Lab Guide": "https://docs.google.com/document/d/19saFSDiEkrrwfXqvs8RcJLT6ZN4E6EdARxewIaZ2v3A/edit?usp=sharing"
+    },
+    embed: "https://docs.google.com/document/d/19saFSDiEkrrwfXqvs8RcJLT6ZN4E6EdARxewIaZ2v3A/preview"
   },
   {
     date: "2026-05-20",
