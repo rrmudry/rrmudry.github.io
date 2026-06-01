@@ -31,14 +31,14 @@ const lessonsData = [
     date: "2026-06-04",
     day: 19,
     unit: 7,
-    title: "The 'Rube Goldberg' Energy Challenge",
-    summary: "Culminating system build.",
-    details: "Using everything in the kit, have students build a multi-step energy transfer system. (e.g., Hand crank -> powers an electromagnet -> picks up an iron rod -> drops it on a switch -> turns on a buzzer).",
+    title: "Flex Day // Project Completion",
+    summary: "A flexible catches-up and final studio day to finish up projects.",
+    details: "A dedicated flexible studio day. Students utilize this time to finalize wiring, debug, and troubleshoot their Matching Game Boxes, DIY Speakers, or any outstanding labs before final submission.",
     type: "Activity",
-    dok: 4,
+    dok: 2,
     semester: 2,
     isFeatured: true,
-    essentialQuestion: "How can we chain multiple energy conversions to perform a complex task?"
+    essentialQuestion: "How does engineering iteration and systematic troubleshooting lead to a polished final product?"
   },
   {
     date: "2026-06-03",
