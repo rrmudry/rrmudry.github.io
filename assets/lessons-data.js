@@ -44,27 +44,27 @@ const lessonsData = [
     date: "2026-06-03",
     day: 18,
     unit: 7,
-    title: "The California Power Grid",
-    summary: "Real-world application of induction.",
-    details: "Lecture/Discussion and diagramming. Connect the hand crank generator to real-world power plants (wind turbines, steam turbines in nuclear/gas plants, hydro-dams). Discuss energy loss over long transmission lines.",
-    type: "Activity",
-    dok: 2,
+    title: "DIY Speaker Testing & Analysis",
+    summary: "Connect speakers to audio sources to test, measure, and analyze performance.",
+    details: "Students connect their DIY speakers to a function generator app or audio amplifier. They test the frequency response of their speakers, observe mechanical vibrations at different pitches, and analyze how voice coil windings and plate size affect amplitude and volume.",
+    type: "Lab",
+    dok: 3,
     semester: 2,
     isFeatured: true,
-    essentialQuestion: "How does the principle of induction power our homes and cities?"
+    essentialQuestion: "What scientific variables determine the volume and frequency response of a homemade speaker?"
   },
   {
     date: "2026-06-02",
     day: 17,
     unit: 7,
-    title: "The Hand Crank Generator",
-    summary: "Mechanical energy to electrical energy.",
-    details: "Use the kit's hand crank generator. Connect it to the LED and the voltmeter. Feel the physical resistance increase when a load (like the lightbulb) is added to the circuit.",
+    title: "DIY Speaker Build",
+    summary: "Students construct an electromagnetic speaker from scratch using wire, plates, and magnets.",
+    details: "Students build their own functioning speaker using magnet wire, a paper plate, a strong neodymium magnet, and tape. They wind the voice coil, secure it to the plate, and position the permanent magnet to establish the magnetic field interface.",
     type: "Lab",
     dok: 3,
     semester: 2,
     isFeatured: true,
-    essentialQuestion: "What does it actually 'feel' like to generate electrical power mechanically?"
+    essentialQuestion: "How do electrical signals and permanent magnets interact to create physical sound waves?"
   },
   {
     date: "2026-06-01",

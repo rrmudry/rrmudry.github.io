@@ -88,13 +88,13 @@
 *   **Focus:** Proving that a changing magnetic field creates a current and prototyping logic circuits.
 *   **Activity:** If you have copper pipes and neodymium magnets, do the "magnet falling slowly through a pipe" demo. Alternatively, pass a magnet back and forth through a coiled wire connected to a sensitive galvanometer. In the second half of class, students will begin prototyping their matching game boxes by mapping out logical electrical paths and wire layouts using the [Lecture Slides](https://docs.google.com/presentation/d/1c1EjPrm7TfrSmSsvtHfzrf8WNQBMUz_fa2OsyMa1y-Y/edit?usp=sharing).
 
-### Day 17: The Hand Crank Generator
-*   **Focus:** Mechanical energy to electrical energy.
-*   **Activity:** Use the kit's hand crank generator. Connect it to the LED and the voltmeter. Feel the physical resistance increase when a load (like the lightbulb) is added to the circuit.
+### Day 17: DIY Speaker Build
+*   **Focus:** Electromagnetic force (Lorentz Force) and acoustic conversions (HS-PS2-5, HS-PS3-3).
+*   **Activity:** Students build their own functioning speaker using magnet wire, a paper plate, a strong neodymium magnet, and tape. They wind the voice coil, secure it to the plate, and position the permanent magnet to establish the magnetic field interface.
 
-### Day 18: The California Power Grid
-*   **Focus:** Real-world application of induction.
-*   **Activity:** Lecture/Discussion and diagramming. Connect the hand crank generator to real-world power plants (wind turbines, steam turbines in nuclear/gas plants, hydro-dams). Discuss energy loss over long transmission lines.
+### Day 18: DIY Speaker Testing & Analysis
+*   **Focus:** Wave properties, frequency response, and system optimization.
+*   **Activity:** Students connect their DIY speakers to a function generator app or audio amplifier. They test the frequency response of their speakers, observe mechanical vibrations at different pitches, and analyze how voice coil windings and plate size affect amplitude and volume.
 
 ### Day 19: The "Rube Goldberg" Energy Challenge
 *   **Focus:** Culminating system build.
