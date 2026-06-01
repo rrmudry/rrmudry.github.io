@@ -95,7 +95,8 @@ const lessonsData = [
     isFeatured: true,
     essentialQuestion: "How can we apply circuit principles to design a multi-pathway electrical matching game?",
     links: {
-      "Project Instructions": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQCsSySzcLnISaGhGr6Amqe-AYCUUUVxrg1-p0ZU8Iu2p8c?e=6JRJ1c"
+      "Project Instructions": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQCsSySzcLnISaGhGr6Amqe-AYCUUUVxrg1-p0ZU8Iu2p8c?e=6JRJ1c",
+      "Interactive: Simulator": "Unit_7_Electricity_and_Magnetism/Matching_Game_Box_Simulation.html"
     },
     embed: "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQCsSySzcLnISaGhGr6Amqe-AYCUUUVxrg1-p0ZU8Iu2p8c?e=6JRJ1c&action=embedview"
   },
