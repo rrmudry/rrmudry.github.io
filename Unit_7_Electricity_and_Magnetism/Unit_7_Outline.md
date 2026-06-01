@@ -75,9 +75,9 @@
 *   **Focus:** Alternating current (AC) vs. direct current (DC) conceptual and historical comparison.
 *   **Activity:** Watch the Tesla vs. Edison educational video. Complete the required EdPuzzle assignment (with embedded checks for understanding), which will go directly into the gradebook.
 
-### Day 15: Intro to Motors
-*   **Focus:** Using electromagnetism to create continuous kinetic energy.
-*   **Activity:** Use the DC motor module in the kit. Attach the fan blade. Trace the energy: Chemical -> Electrical -> Magnetic -> Kinetic.
+### Day 15: Introduction to the "Matching Game Box Project"
+*   **Focus:** Circuit engineering and design layout.
+*   **Activity:** Introduction to the Matching Game Box Project, where students will design and wire a custom game board. Review the [Project Instructions](https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQCsSySzcLnISaGhGr6Amqe-AYCUUUVxrg1-p0ZU8Iu2p8c?e=6JRJ1c) and project criteria.
 
 ---
 
