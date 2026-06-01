@@ -96,9 +96,9 @@
 *   **Focus:** Wave properties, frequency response, and system optimization.
 *   **Activity:** Students connect their DIY speakers to a function generator app or audio amplifier. They test the frequency response of their speakers, observe mechanical vibrations at different pitches, and analyze how voice coil windings and plate size affect amplitude and volume.
 
-### Day 19: The "Rube Goldberg" Energy Challenge
-*   **Focus:** Culminating system build.
-*   **Activity:** Using everything in the kit, have students build a multi-step energy transfer system. (e.g., Hand crank -> powers an electromagnet -> picks up an iron rod -> drops it on a switch -> turns on a buzzer).
+### Day 19: Flex Day // Project Completion
+*   **Focus:** Engineering troubleshooting, debugging, and final prototyping.
+*   **Activity:** A dedicated flexible catches-up and final studio day. Students utilize this time to finalize wiring, debug, and troubleshoot their Matching Game Boxes, DIY Speakers, or any outstanding labs before final submission.
 
 ### Day 20: Unit Wrap-Up & Final Reflection
 *   **Focus:** Reflection and cleanup.
