@@ -85,8 +85,8 @@
 **Goal:** Fulfill the California Earth & Space Science requirement by connecting induction to real-world power generation and the energy grid.
 
 ### Day 16: Faraday & Lenz (Induction)
-*   **Focus:** Proving that a changing magnetic field creates a current.
-*   **Activity:** If you have copper pipes and neodymium magnets, do the "magnet falling slowly through a pipe" demo. Alternatively, pass a magnet back and forth through a coiled wire connected to a sensitive galvanometer.
+*   **Focus:** Proving that a changing magnetic field creates a current and prototyping logic circuits.
+*   **Activity:** If you have copper pipes and neodymium magnets, do the "magnet falling slowly through a pipe" demo. Alternatively, pass a magnet back and forth through a coiled wire connected to a sensitive galvanometer. In the second half of class, students will begin prototyping their matching game boxes by mapping out logical electrical paths and wire layouts using the [Lecture Slides](https://docs.google.com/presentation/d/1c1EjPrm7TfrSmSsvtHfzrf8WNQBMUz_fa2OsyMa1y-Y/edit?usp=sharing).
 
 ### Day 17: The Hand Crank Generator
 *   **Focus:** Mechanical energy to electrical energy.
