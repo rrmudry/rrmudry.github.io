@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Matching Game Box Simulator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;600&family=Outfit:wght@700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --primary: #fbbf24;
+            --font-main: 'Inter', sans-serif;
+            --font-display: 'Outfit', sans-serif;
+            --font-mono: 'Fira Code', monospace;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background: #020617;
+            color: #f1f5f9;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism styling */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(251, 191, 36, 0.2);
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Wood Box styles */
+        .box-body {
+            position: relative;
+            background-color: #3b2314;
+            background-image: 
+                linear-gradient(rgba(0, 0, 0, 0.15) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.15) 1px, transparent 1px);
+            background-size: 20px 20px;
+            border: 12px solid #231207;
+            border-radius: 16px;
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.8),
+                inset 0 4px 20px rgba(255, 255, 255, 0.1),
+                inset 0 -10px 30px rgba(0, 0, 0, 0.4);
+            transition: all 0.5s ease;
+        }
+
+        /* SpongeBob Theme style overrides */
+        .theme-spongebob {
+            background-color: #facc15 !important;
+            border-color: #ca8a04 !important;
+            background-image: radial-gradient(#eab308 15%, transparent 20%) !important;
+            background-size: 40px 40px !important;
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.8),
+                inset 0 4px 20px rgba(255, 255, 255, 0.3),
+                inset 0 -10px 30px rgba(202, 138, 4, 0.4);
+        }
+
+        /* Finding Nemo Theme style overrides */
+        .theme-nemo {
+            background-color: #0284c7 !important;
+            border-color: #0369a1 !important;
+            background-image: 
+                radial-gradient(ellipse at 50% 50%, rgba(255,255,255,0.15), transparent),
+                linear-gradient(180deg, #0284c7 0%, #0c4a6e 100%) !important;
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.8),
+                inset 0 4px 20px rgba(255, 255, 255, 0.2),
+                inset 0 -10px 30px rgba(12, 74, 110, 0.5);
+        }
+
+        /* Winnie Pooh Theme style overrides */
+        .theme-winnie {
+            background-color: #ef4444 !important;
+            border-color: #b91c1c !important;
+            background-image: 
+                radial-gradient(circle at 100% 150%, #facc15 24%, transparent 25%),
+                radial-gradient(circle at 0% 150%, #facc15 24%, transparent 25%) !important;
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.8),
+                inset 0 4px 20px rgba(255, 255, 255, 0.2),
+                inset 0 -10px 30px rgba(185, 28, 28, 0.4);
+        }
+
+        /* Metal Pegs styling */
+        .peg {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #e2e8f0, #475569);
+            border: 2px solid #1e293b;
+            box-shadow: 
+                0 4px 6px rgba(0,0,0,0.3),
+                inset 0 1px 3px rgba(255,255,255,0.6);
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+        }
+
+        .peg:active {
+            transform: scale(0.9);
+        }
+
+        .peg-connected {
+            box-shadow: 0 0 10px rgba(251, 191, 36, 0.8), inset 0 1px 3px rgba(255,255,255,0.6);
+        }
+
+        /* Probes styling */
+        .probe {
+            position: absolute;
+            width: 16px;
+            height: 120px;
+            border-radius: 8px 8px 4px 4px;
+            cursor: grab;
+            z-index: 50;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
+            touch-action: none;
+        }
+
+        .probe:active {
+            cursor: grabbing;
+        }
+
+        .probe-red {
+            background: linear-gradient(90deg, #ef4444, #b91c1c);
+            border: 2px solid #7f1d1d;
+        }
+
+        .probe-black {
+            background: linear-gradient(90deg, #374151, #111827);
+            border: 2px solid #030712;
+        }
+
+        .probe-tip {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 16px;
+            background: linear-gradient(90deg, #e2e8f0, #94a3b8);
+            border-radius: 3px 3px 0 0;
+            border: 1px solid #475569;
+        }
+
+        /* Light Bulb styling */
+        .bulb-base {
+            width: 50px;
+            height: 30px;
+            background: linear-gradient(90deg, #94a3b8, #475569);
+            border-radius: 4px 4px 0 0;
+            border: 2px solid #334155;
+            position: relative;
+        }
+
+        .bulb-glass {
+            width: 70px;
+            height: 70px;
+            background: rgba(241, 245, 249, 0.15);
+            border: 3px solid rgba(241, 245, 249, 0.3);
+            border-radius: 50%;
+            position: absolute;
+            top: -55px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: inset 0 5px 15px rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .bulb-glow {
+            background: rgba(251, 191, 36, 0.95) !important;
+            border-color: #fbbf24 !important;
+            box-shadow: 
+                0 0 50px rgba(251, 191, 36, 0.8),
+                0 0 100px rgba(251, 191, 36, 0.6),
+                inset 0 5px 20px rgba(255, 255, 255, 0.8) !important;
+        }
+
+        .bulb-filament {
+            width: 20px;
+            height: 25px;
+            border: 2px solid #64748b;
+            border-bottom: none;
+            border-radius: 10px 10px 0 0;
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: all 0.3s ease;
+        }
+
+        .bulb-filament-glow {
+            border-color: #fff !important;
+            box-shadow: 0 0 10px #fbbf24;
+        }
+
+        /* Tab buttons active state */
+        .tab-btn.active {
+            background: var(--primary);
+            color: #020617;
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
+            font-weight: 700;
+        }
+
+        /* Spark particle animation */
+        .spark {
+            position: absolute;
+            background: #fbbf24;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 100;
+            animation: explode 0.6s ease-out forwards;
+        }
+
+        @keyframes explode {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 flex flex-col items-center">
+
+    <!-- Header -->
+    <header class="text-center mb-8 max-w-4xl">
+        <h1 class="text-4xl md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-amber-400 via-amber-500 to-orange-400 font-display tracking-tight">
+            Matching Game Box Simulator
+        </h1>
+        <p class="text-sm md:text-md text-amber-200 mt-2 font-mono">
+            ⚡ Physics Lab Simulation: Parallel Circuit Logic & Hookup Design
+        </p>
+        <div class="w-24 h-1 bg-amber-500 mx-auto mt-3 rounded-full shadow-[0_0_15px_rgba(251,191,36,0.6)]"></div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="w-full max-w-6xl grid lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Left Side: Controls & Info -->
+        <div class="lg:col-span-4 space-y-6">
+            
+            <!-- Controls Box -->
+            <div class="glass-panel p-6">
+                <h2 class="text-xl font-bold text-amber-400 mb-4 flex items-center gap-2">
+                    🛠️ Panel Controls
+                </h2>
+                
+                <!-- Tab Controls -->
+                <div class="mb-5">
+                    <label class="text-xs text-slate-400 font-mono block mb-2">OPERATIONAL MODE:</label>
+                    <div class="flex gap-2 bg-slate-950/50 p-1.5 rounded-xl border border-slate-800">
+                        <button id="btn-play" class="tab-btn flex-1 py-2 px-3 text-xs font-semibold rounded-lg text-slate-300 hover:text-white transition-all active">
+                            PLAY FRONT
+                        </button>
+                        <button id="btn-wire" class="tab-btn flex-1 py-2 px-3 text-xs font-semibold rounded-lg text-slate-300 hover:text-white transition-all">
+                            WIRE BACK
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Theme presets selection -->
+                <div class="mb-5">
+                    <label class="text-xs text-slate-400 font-mono block mb-2">BOX ART & TRIVIA THEME:</label>
+                    <select id="theme-selector" class="w-full bg-slate-900 border border-amber-500/20 text-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-amber-400">
+                        <option value="spongebob">🍍 SpongeBob SquarePants Presets</option>
+                        <option value="nemo">🐠 Finding Nemo Presets</option>
+                        <option value="winnie">🍯 Winnie the Pooh Presets</option>
+                        <option value="custom">✏️ Custom Workspace (Make Your Own)</option>
+                    </select>
+                </div>
+
+                <!-- Reset buttons -->
+                <div class="grid grid-cols-2 gap-3">
+                    <button id="btn-reset-wires" class="py-2.5 px-3 bg-slate-900 border border-slate-700 hover:bg-slate-850 hover:border-slate-600 rounded-xl text-xs font-semibold text-slate-200 transition-all">
+                        Reset Wires
+                    </button>
+                    <button id="btn-reset-probes" class="py-2.5 px-3 bg-slate-900 border border-slate-700 hover:bg-slate-850 hover:border-slate-600 rounded-xl text-xs font-semibold text-slate-200 transition-all">
+                        Dock Probes
+                    </button>
+                </div>
+            </div>
+
+            <!-- Operational Briefing -->
+            <div class="glass-panel p-6">
+                <h2 class="text-xl font-bold text-blue-400 mb-3 flex items-center gap-2">
+                    📋 Technical Operations
+                </h2>
+                <div class="space-y-4 text-sm text-slate-300">
+                    <div id="brief-play" class="space-y-2">
+                        <p class="font-semibold text-white">PLAYING THE GAME (FRONT VIEW):</p>
+                        <p>1. Drag the **Red Probe tip** to any Question peg.</p>
+                        <p>2. Drag the **Black Probe tip** to any Answer peg.</p>
+                        <p>3. If they match the internal electrical wiring connected on the back of the box, the circuit closes and the **light bulb glows!** 💡</p>
+                    </div>
+                    <div id="brief-wire" class="space-y-2 hidden">
+                        <p class="font-semibold text-white">WIRING THE BOX (BACK VIEW):</p>
+                        <p>1. Click a peg on the left, then drag your wire to any peg on the right to establish a secret pathway.</p>
+                        <p>2. Double-click any peg to clear its wire connection.</p>
+                        <p>3. Toggle back to **PLAY FRONT** to test your custom circuitry wiring!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Custom Editor Panel (Visible only on Custom Theme) -->
+            <div id="editor-panel" class="glass-panel p-6 hidden">
+                <h3 class="text-lg font-bold text-orange-400 mb-3">✏️ Label Customizer</h3>
+                <p class="text-xs text-slate-400 mb-4 leading-normal">Customize the text inputs. They will update the cards on the front face of the matching box immediately.</p>
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-[10px] text-slate-400 block mb-1">BOX TITLE:</label>
+                        <input type="text" id="custom-title-input" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white" value="Custom Topic Matcher">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[10px] text-slate-400 block mb-1">QUESTIONS:</label>
+                            <input type="text" id="q0-edit" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-[11px] text-white" value="Question 1">
+                            <input type="text" id="q1-edit" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 mt-1.5 text-[11px] text-white" value="Question 2">
+                            <input type="text" id="q2-edit" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 mt-1.5 text-[11px] text-white" value="Question 3">
+                            <input type="text" id="q3-edit" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 mt-1.5 text-[11px] text-white" value="Question 4">
+                            <input type="text" id="q4-edit" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 mt-1.5 text-[11px] text-white" value="Question 5">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-slate-400 block mb-1">ANSWERS:</label>
+                            <input type="text" id="a0-edit" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-[11px] text-white" value="Answer A">
+                            <input type="text" id="a1-edit" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 mt-1.5 text-[11px] text-white" value="Answer B">
+                            <input type="text" id="a2-edit" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 mt-1.5 text-[11px] text-white" value="Answer C">
+                            <input type="text" id="a3-edit" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 mt-1.5 text-[11px] text-white" value="Answer D">
+                            <input type="text" id="a4-edit" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 mt-1.5 text-[11px] text-white" value="Answer E">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Side: The Box Simulator -->
+        <div class="lg:col-span-8 flex flex-col items-center">
+            
+            <!-- Box Outline Wrapper -->
+            <div id="sim-box" class="box-body w-full max-w-2xl min-h-[580px] p-6 flex flex-col items-center theme-spongebob select-none">
+                
+                <!-- Back View Wire Drawing Canvas Panel Overlay -->
+                <div id="wire-view-overlay" class="absolute inset-0 bg-zinc-900/95 border-4 border-zinc-700 rounded-lg hidden flex-col items-center justify-between p-6 z-25">
+                    <div class="absolute top-2 right-4 text-[9px] font-mono text-zinc-500 tracking-widest uppercase">BACK VIEW // INTERNAL WIRING SYSTEM</div>
+                </div>
+
+                <!-- Top: Bulb Station -->
+                <div class="flex flex-col items-center mb-6 mt-2 relative z-30">
+                    <div class="relative">
+                        <!-- Filament -->
+                        <div id="filament" class="bulb-filament"></div>
+                        <!-- Light Glass sphere -->
+                        <div id="lightbulb" class="bulb-glass"></div>
+                    </div>
+                    <!-- Metal Base -->
+                    <div class="bulb-base shadow-lg"></div>
+                </div>
+
+                <!-- Mid: Custom Title -->
+                <div class="mb-6 relative z-10">
+                    <div id="board-title-plate" class="px-6 py-2 bg-stone-900/80 border-2 border-stone-600 rounded-lg text-lg md:text-xl font-extrabold text-amber-300 font-display tracking-widest text-center shadow-md">
+                        SPONGEBOB MATCHING GAME
+                    </div>
+                </div>
+
+                <!-- Board Columns Layout -->
+                <div class="grid grid-cols-12 w-full gap-4 flex-grow relative px-4 z-10">
+                    
+                    <!-- Left Side: Questions Cards & Pegs -->
+                    <div class="col-span-5 flex flex-col justify-between py-2 space-y-4">
+                        <div class="text-[10px] text-stone-300 font-bold uppercase font-mono tracking-widest text-center border-b border-stone-600/40 pb-1">Pegboard // Questions</div>
+                        <!-- Loop Questions -->
+                        <div class="space-y-4 flex-grow flex flex-col justify-around">
+                            <!-- Items filled by JS -->
+                            <div id="q-items" class="space-y-4 flex flex-col justify-around h-full"></div>
+                        </div>
+                    </div>
+
+                    <!-- Middle Column: Empty Spacing -->
+                    <div class="col-span-2 flex flex-col items-center justify-center relative">
+                        <!-- Center battery / circuit components illustration -->
+                        <div class="w-10 h-16 bg-slate-800 rounded border border-slate-700 flex flex-col items-center justify-around p-1 shadow-inner relative opacity-40">
+                            <div class="text-[8px] font-mono font-bold text-slate-500 rotate-90">9V BATTERY</div>
+                            <div class="w-6 h-2 bg-stone-900 rounded"></div>
+                        </div>
+                    </div>
+
+                    <!-- Right Side: Answers Pegs & Cards -->
+                    <div class="col-span-5 flex flex-col justify-between py-2 space-y-4">
+                        <div class="text-[10px] text-stone-300 font-bold uppercase font-mono tracking-widest text-center border-b border-stone-600/40 pb-1">Pegboard // Answers</div>
+                        <!-- Loop Answers -->
+                        <div class="space-y-4 flex-grow flex flex-col justify-around">
+                            <!-- Items filled by JS -->
+                            <div id="a-items" class="space-y-4 flex flex-col justify-around h-full"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SVG Wire Overlay Layer for Front & Back Views -->
+                <svg id="svg-overlay" class="absolute inset-0 w-full h-full pointer-events-none z-30" style="mix-blend-mode: normal;"></svg>
+
+                <!-- Probes Resting Stations (Visible in Play Mode) -->
+                <div id="probe-docks" class="w-full flex justify-around mt-8 border-t-2 border-stone-850 pt-4 relative z-10">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-12 bg-stone-900 border border-stone-700 rounded-md relative shadow-inner flex items-center justify-center">
+                            <div id="red-dock" class="w-3 h-8 bg-red-950/50 rounded-full border border-red-500/20"></div>
+                        </div>
+                        <span class="text-[10px] text-red-400 font-bold tracking-wider font-mono">RED PROBE (+)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-12 bg-stone-900 border border-stone-700 rounded-md relative shadow-inner flex items-center justify-center">
+                            <div id="black-dock" class="w-3 h-8 bg-slate-900 rounded-full border border-slate-700"></div>
+                        </div>
+                        <span class="text-[10px] text-slate-400 font-bold tracking-wider font-mono">BLACK PROBE (-)</span>
+                    </div>
+                </div>
+
+                <!-- Physical Test Probes Elements -->
+                <div id="probe-red-el" class="probe probe-red">
+                    <div class="probe-tip"></div>
+                </div>
+                <div id="probe-black-el" class="probe probe-black">
+                    <div class="probe-tip"></div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- JS logic -->
+    <script>
+        // Web Audio API Sound Effects Helper
+        class AudioSynth {
+            constructor() {
+                this.ctx = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+
+            playSnap() {
+                this.init();
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(10, this.ctx.currentTime + 0.1);
+
+                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.1);
+            }
+
+            playCorrect() {
+                this.init();
+                if (!this.ctx) return;
+                
+                // Play a bright double chime
+                const now = this.ctx.currentTime;
+                
+                // Chime 1
+                const osc1 = this.ctx.createOscillator();
+                const gain1 = this.ctx.createGain();
+                osc1.connect(gain1);
+                gain1.connect(this.ctx.destination);
+                osc1.type = 'sine';
+                osc1.frequency.setValueAtTime(523.25, now); // C5
+                gain1.gain.setValueAtTime(0.2, now);
+                gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                osc1.start(now);
+                osc1.stop(now + 0.3);
+
+                // Chime 2
+                const osc2 = this.ctx.createOscillator();
+                const gain2 = this.ctx.createGain();
+                osc2.connect(gain2);
+                gain2.connect(this.ctx.destination);
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(659.25, now + 0.08); // E5
+                gain2.gain.setValueAtTime(0.25, now + 0.08);
+                gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                osc2.start(now + 0.08);
+                osc2.stop(now + 0.4);
+            }
+
+            playWiringConnect() {
+                this.init();
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(330, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(440, this.ctx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.15);
+            }
+        }
+
+        const audio = new AudioSynth();
+
+        // Preset Themes Definitions
+        const themes = {
+            spongebob: {
+                title: "🍍 SPONGEBOB MATCHING BOX",
+                boxClass: "theme-spongebob",
+                questions: [
+                    "Squidward's Instrument",
+                    "SpongeBob's House",
+                    "Patrick's Instrument?",
+                    "Mr. Krabs' Love",
+                    "Smitty Werben..."
+                ],
+                answers: [
+                    "Mayonnaise",
+                    "Money, Money, Money",
+                    "Pineapple",
+                    "Clarinet",
+                    "He Was Number One"
+                ],
+                // Connections map left peg indices to right peg indices
+                connections: { 0: 3, 1: 2, 2: 0, 3: 1, 4: 4 }
+            },
+            nemo: {
+                title: "🐠 FINDING NEMO MATCHING BOX",
+                boxClass: "theme-nemo",
+                questions: [
+                    "Peach",
+                    "Coral",
+                    "Darla",
+                    "Pearl",
+                    "Deb"
+                ],
+                answers: [
+                    "Octopus",
+                    "Dentist's Niece",
+                    "Starfish",
+                    "Nemo's Mom",
+                    "Flo's Sister"
+                ],
+                connections: { 0: 2, 1: 3, 2: 1, 3: 0, 4: 4 }
+            },
+            winnie: {
+                title: "🍯 WINNIE THE POOH MATCH BOX",
+                boxClass: "theme-winnie",
+                questions: [
+                    "Pooh Bear's Favorite Food",
+                    "Pink, Timid Friend",
+                    "Always Blue, tail has a bow",
+                    "Christopher Robin spends days at",
+                    "Who calls Pooh: 'silly old bear'?"
+                ],
+                answers: [
+                    "Hundred Acre Wood",
+                    "Christopher Robin",
+                    "Eeyore",
+                    "Piglet",
+                    "\"Hunny\""
+                ],
+                connections: { 0: 4, 1: 3, 2: 2, 3: 0, 4: 1 }
+            },
+            custom: {
+                title: "✏️ CUSTOM WORKSPACE",
+                boxClass: "box-body",
+                questions: ["Question 1", "Question 2", "Question 3", "Question 4", "Question 5"],
+                answers: ["Answer A", "Answer B", "Answer C", "Answer D", "Answer E"],
+                connections: { 0: 0, 1: 1, 2: 2, 3: 3, 4: 4 }
+            }
+        };
+
+        // App States
+        let currentTheme = 'spongebob';
+        let currentMode = 'play'; // 'play' or 'wire'
+        let internalConnections = { ...themes.spongebob.connections };
+        let activeWiringStartPeg = null;
+
+        // Probes snap targets
+        let redProbeTargetPeg = null; // {type: 'q', index: i}
+        let blackProbeTargetPeg = null; // {type: 'a', index: i}
+
+        // Element handles
+        const boardTitle = document.getElementById('board-title-plate');
+        const qItemsContainer = document.getElementById('q-items');
+        const aItemsContainer = document.getElementById('a-items');
+        const simBox = document.getElementById('sim-box');
+        const themeSelector = document.getElementById('theme-selector');
+        const btnPlay = document.getElementById('btn-play');
+        const btnWire = document.getElementById('btn-wire');
+        const briefPlay = document.getElementById('brief-play');
+        const briefWire = document.getElementById('brief-wire');
+        const editorPanel = document.getElementById('editor-panel');
+        const svgOverlay = document.getElementById('svg-overlay');
+        const wireViewOverlay = document.getElementById('wire-view-overlay');
+
+        // Probe elements
+        const redProbeEl = document.getElementById('probe-red-el');
+        const blackProbeEl = document.getElementById('probe-black-el');
+        const redDock = document.getElementById('red-dock');
+        const blackDock = document.getElementById('black-dock');
+
+        // Bulb
+        const lightbulb = document.getElementById('lightbulb');
+        const filament = document.getElementById('filament');
+
+        // Custom theme editor fields
+        const customTitleInput = document.getElementById('custom-title-input');
+        const qEdits = [0,1,2,3,4].map(i => document.getElementById(`q${i}-edit`));
+        const aEdits = [0,1,2,3,4].map(i => document.getElementById(`a${i}-edit`));
+
+        // Probes initial coordinate positions (on docking)
+        let redDockCoords = { x: 0, y: 0 };
+        let blackDockCoords = { x: 0, y: 0 };
+
+        // Render Cards and Pegs UI dynamically
+        function renderBoard() {
+            const data = themes[currentTheme];
+            boardTitle.innerText = currentTheme === 'custom' ? customTitleInput.value : data.title;
+
+            // Generate Questions
+            qItemsContainer.innerHTML = '';
+            data.questions.forEach((qText, index) => {
+                const item = document.createElement('div');
+                item.className = "flex items-center justify-between gap-3 bg-stone-900/60 p-2.5 rounded-xl border border-stone-700/30 flex-grow shadow-sm";
+                item.innerHTML = `
+                    <div class="text-[12px] md:text-sm font-semibold text-slate-100 flex-1">${qText}</div>
+                    <div id="peg-q-${index}" class="peg flex-shrink-0" data-type="q" data-index="${index}"></div>
+                `;
+                qItemsContainer.appendChild(item);
+            });
+
+            // Generate Answers
+            aItemsContainer.innerHTML = '';
+            data.answers.forEach((aText, index) => {
+                const item = document.createElement('div');
+                item.className = "flex items-center justify-start gap-3 bg-stone-900/60 p-2.5 rounded-xl border border-stone-700/30 flex-grow shadow-sm";
+                item.innerHTML = `
+                    <div id="peg-a-${index}" class="peg flex-shrink-0" data-type="a" data-index="${index}"></div>
+                    <div class="text-[12px] md:text-sm font-semibold text-slate-100 flex-1 text-left">${aText}</div>
+                `;
+                aItemsContainer.appendChild(item);
+            });
+
+            setupPegClickHandlers();
+            // Recalculate dimensions & redock probes
+            setTimeout(() => {
+                dockProbes();
+                drawLines();
+            }, 100);
+        }
+
+        // Handle custom theme changes dynamically
+        function updateCustomThemeData() {
+            if (currentTheme !== 'custom') return;
+            themes.custom.title = customTitleInput.value;
+            for(let i=0; i<5; i++) {
+                themes.custom.questions[i] = qEdits[i].value;
+                themes.custom.answers[i] = aEdits[i].value;
+            }
+            renderBoard();
+        }
+
+        // Wire View Switch Toggle
+        function setMode(mode) {
+            currentMode = mode;
+            btnPlay.classList.toggle('active', mode === 'play');
+            btnWire.classList.toggle('active', mode === 'wire');
+            briefPlay.classList.toggle('hidden', mode === 'wire');
+            briefWire.classList.toggle('hidden', mode === 'play');
+            
+            // Adjust overlay visual
+            wireViewOverlay.classList.toggle('hidden', mode === 'play');
+
+            if (mode === 'wire') {
+                // Dock probes automatically in wiring mode
+                dockProbes();
+                // Clear any probe snapping
+                redProbeTargetPeg = null;
+                blackProbeTargetPeg = null;
+                checkBulbCircuit();
+            }
+
+            drawLines();
+        }
+
+        // Dock probes at the bottom station
+        function dockProbes() {
+            const redDockRect = redDock.getBoundingClientRect();
+            const blackDockRect = blackDock.getBoundingClientRect();
+            const boxRect = simBox.getBoundingClientRect();
+
+            redDockCoords = {
+                x: redDockRect.left - boxRect.left + (redDockRect.width / 2) - 8,
+                y: redDockRect.top - boxRect.top - 80
+            };
+
+            blackDockCoords = {
+                x: blackDockRect.left - boxRect.left + (blackDockRect.width / 2) - 8,
+                y: blackDockRect.top - boxRect.top - 80
+            };
+
+            redProbeEl.style.left = `${redDockCoords.x}px`;
+            redProbeEl.style.top = `${redDockCoords.y}px`;
+
+            blackProbeEl.style.left = `${blackDockCoords.x}px`;
+            blackProbeEl.style.top = `${blackDockCoords.y}px`;
+
+            redProbeTargetPeg = null;
+            blackProbeTargetPeg = null;
+            checkBulbCircuit();
+            drawLines();
+        }
+
+        // SVG Bezier Curves drawing logic
+        function drawLines() {
+            svgOverlay.innerHTML = '';
+            const boxRect = simBox.getBoundingClientRect();
+
+            // 1. Draw secret inside wiring lines in BACK VIEW (Wire Mode)
+            if (currentMode === 'wire') {
+                Object.entries(internalConnections).forEach(([qIdx, aIdx]) => {
+                    const qPeg = document.getElementById(`peg-q-${qIdx}`);
+                    const aPeg = document.getElementById(`peg-a-${aIdx}`);
+                    if (!qPeg || !aPeg) return;
+
+                    const qRect = qPeg.getBoundingClientRect();
+                    const aRect = aPeg.getBoundingClientRect();
+
+                    const x1 = qRect.left - boxRect.left + (qRect.width / 2);
+                    const y1 = qRect.top - boxRect.top + (qRect.height / 2);
+                    const x2 = aRect.left - boxRect.left + (aRect.width / 2);
+                    const y2 = aRect.top - boxRect.top + (aRect.height / 2);
+
+                    // Draw curved colorful cables representing wires
+                    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    const ctrlX1 = x1 + 80;
+                    const ctrlY1 = y1;
+                    const ctrlX2 = x2 - 80;
+                    const ctrlY2 = y2;
+
+                    path.setAttribute("d", `M ${x1} ${y1} C ${ctrlX1} ${ctrlY1} ${ctrlX2} ${ctrlY2} ${x2} ${y2}`);
+                    
+                    // Assign random distinct colors to back wires
+                    const colors = ["#ef4444", "#3b82f6", "#10b981", "#fbbf24", "#8b5cf6"];
+                    path.setAttribute("stroke", colors[qIdx % colors.length]);
+                    path.setAttribute("stroke-width", "4");
+                    path.setAttribute("fill", "none");
+                    path.setAttribute("stroke-linecap", "round");
+                    path.setAttribute("class", "cursor-pointer");
+                    path.setAttribute("title", "Double-click peg to delete connection");
+
+                    svgOverlay.appendChild(path);
+                });
+            }
+
+            // 2. Draw probes flexible cable wires
+            if (currentMode === 'play') {
+                // Red Cable
+                const redRect = redProbeEl.getBoundingClientRect();
+                const rDockRect = redDock.getBoundingClientRect();
+                const rx1 = rDockRect.left - boxRect.left + (rDockRect.width / 2);
+                const ry1 = rDockRect.top - boxRect.top + (rDockRect.height / 2);
+                const rx2 = redRect.left - boxRect.left + 8;
+                const ry2 = redRect.top - boxRect.top + 110;
+
+                const redPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                redPath.setAttribute("d", `M ${rx1} ${ry1} C ${rx1} ${ry1 + 100} ${rx2} ${ry2 + 80} ${rx2} ${ry2}`);
+                redPath.setAttribute("stroke", "#dc2626");
+                redPath.setAttribute("stroke-width", "5");
+                redPath.setAttribute("fill", "none");
+                svgOverlay.appendChild(redPath);
+
+                // Black Cable
+                const blackRect = blackProbeEl.getBoundingClientRect();
+                const bDockRect = blackDock.getBoundingClientRect();
+                const bx1 = bDockRect.left - boxRect.left + (bDockRect.width / 2);
+                const by1 = bDockRect.top - boxRect.top + (bDockRect.height / 2);
+                const bx2 = blackRect.left - boxRect.left + 8;
+                const by2 = blackRect.top - boxRect.top + 110;
+
+                const blackPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                blackPath.setAttribute("d", `M ${bx1} ${by1} C ${bx1} ${by1 + 100} ${bx2} ${by2 + 80} ${bx2} ${by2}`);
+                blackPath.setAttribute("stroke", "#1f2937");
+                blackPath.setAttribute("stroke-width", "5");
+                blackPath.setAttribute("fill", "none");
+                svgOverlay.appendChild(blackPath);
+            }
+        }
+
+        // Logic check: verify if the completed circuit lights up the bulb
+        // Web Audio API Sound Effects Helper
+        function checkBulbCircuit() {
+            if (redProbeTargetPeg && blackProbeTargetPeg) {
+                const qIdx = redProbeTargetPeg.index;
+                const aIdx = blackProbeTargetPeg.index;
+
+                // If internal connections has a mapping from qIdx to aIdx
+                if (internalConnections[qIdx] !== undefined && Number(internalConnections[qIdx]) === Number(aIdx)) {
+                    lightbulb.classList.add('bulb-glow');
+                    filament.classList.add('bulb-filament-glow');
+                    audio.playCorrect();
+                    createSparks();
+                    return;
+                }
+            }
+            lightbulb.classList.remove('bulb-glow');
+            filament.classList.remove('bulb-filament-glow');
+        }
+
+        // Visual Sparkles upon correct connection
+        function createSparks() {
+            const bulbRect = lightbulb.getBoundingClientRect();
+            const parent = document.body;
+
+            for (let i = 0; i < 20; i++) {
+                const spark = document.createElement('div');
+                spark.className = 'spark';
+                
+                const size = Math.random() * 8 + 4;
+                spark.style.width = `${size}px`;
+                spark.style.height = `${size}px`;
+
+                const startX = bulbRect.left + bulbRect.width / 2;
+                const startY = bulbRect.top + bulbRect.height / 2;
+                spark.style.left = `${startX}px`;
+                spark.style.top = `${startY}px`;
+
+                const angle = Math.random() * Math.PI * 2;
+                const distance = Math.random() * 80 + 30;
+                const dx = Math.cos(angle) * distance;
+                const dy = Math.sin(angle) * distance;
+
+                spark.style.setProperty('--dx', `${dx}px`);
+                spark.style.setProperty('--dy', `${dy}px`);
+
+                parent.appendChild(spark);
+
+                // Clean up particles
+                setTimeout(() => spark.remove(), 600);
+            }
+        }
+
+        // Setup Back Wiring Peg Interaction Click-to-Connect handlers
+        function setupPegClickHandlers() {
+            const pegs = document.querySelectorAll('.peg');
+            pegs.forEach(peg => {
+                peg.addEventListener('click', (e) => {
+                    if (currentMode !== 'wire') return;
+                    audio.playSnap();
+
+                    const type = peg.dataset.type;
+                    const index = parseInt(peg.dataset.index);
+
+                    if (type === 'q') {
+                        // Set active peg to draw wire
+                        if (activeWiringStartPeg === null) {
+                            activeWiringStartPeg = index;
+                            peg.classList.add('peg-connected', 'ring-4', 'ring-amber-500');
+                        } else {
+                            // If user clicked another Q peg, switch starting pegs
+                            document.getElementById(`peg-q-${activeWiringStartPeg}`).classList.remove('peg-connected', 'ring-4', 'ring-amber-500');
+                            activeWiringStartPeg = index;
+                            peg.classList.add('peg-connected', 'ring-4', 'ring-amber-500');
+                        }
+                    } else if (type === 'a' && activeWiringStartPeg !== null) {
+                        // Complete a link connection
+                        internalConnections[activeWiringStartPeg] = index;
+                        audio.playWiringConnect();
+                        
+                        // Reset indicators
+                        document.getElementById(`peg-q-${activeWiringStartPeg}`).classList.remove('peg-connected', 'ring-4', 'ring-amber-500');
+                        activeWiringStartPeg = null;
+                        drawLines();
+                    }
+                });
+
+                // Clear peg wiring line upon double click
+                peg.addEventListener('dblclick', () => {
+                    if (currentMode !== 'wire') return;
+                    const type = peg.dataset.type;
+                    const index = parseInt(peg.dataset.index);
+
+                    if (type === 'q') {
+                        delete internalConnections[index];
+                    } else {
+                        // Search and remove key/value matching answer index
+                        Object.keys(internalConnections).forEach(key => {
+                            if (internalConnections[key] === index) {
+                                delete internalConnections[key];
+                            }
+                        });
+                    }
+                    audio.playSnap();
+                    drawLines();
+                });
+            });
+        }
+
+        // Physical probes dragging logic setup
+        function initDragProbes() {
+            setupDrag(redProbeEl, 'red');
+            setupDrag(blackProbeEl, 'black');
+        }
+
+        function setupDrag(probeEl, color) {
+            let activeDrag = false;
+            let offset = { x: 0, y: 0 };
+            
+            probeEl.addEventListener('mousedown', startDrag);
+            probeEl.addEventListener('touchstart', startDrag, { passive: false });
+
+            function startDrag(e) {
+                if (currentMode !== 'play') return;
+                e.preventDefault();
+                audio.init();
+
+                activeDrag = true;
+                const clientX = e.clientX || e.touches[0].clientX;
+                const clientY = e.clientY || e.touches[0].clientY;
+
+                const rect = probeEl.getBoundingClientRect();
+                offset = {
+                    x: clientX - rect.left,
+                    y: clientY - rect.top
+                };
+
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('touchmove', drag, { passive: false });
+                document.addEventListener('mouseup', endDrag);
+                document.addEventListener('touchend', endDrag);
+            }
+
+            function drag(e) {
+                if (!activeDrag) return;
+                e.preventDefault();
+
+                const clientX = e.clientX || e.touches[0].clientX;
+                const clientY = e.clientY || e.touches[0].clientY;
+
+                const boxRect = simBox.getBoundingClientRect();
+                
+                // Calculate cursor coordinate offset inside simulation box
+                let px = clientX - boxRect.left - offset.x;
+                let py = clientY - boxRect.top - offset.y;
+
+                // Constraint boundaries check
+                px = Math.max(-50, Math.min(boxRect.width + 50, px));
+                py = Math.max(-50, Math.min(boxRect.height + 50, py));
+
+                probeEl.style.left = `${px}px`;
+                probeEl.style.top = `${py}px`;
+
+                drawLines();
+                checkPegSnapping(clientX, clientY);
+            }
+
+            function endDrag() {
+                if (!activeDrag) return;
+                activeDrag = false;
+
+                document.removeEventListener('mousemove', drag);
+                document.removeEventListener('touchmove', drag);
+                document.removeEventListener('mouseup', endDrag);
+                document.removeEventListener('touchend', endDrag);
+
+                // If probes were not snapped on any peg, release them back to their docks
+                if (color === 'red' && !redProbeTargetPeg) {
+                    probeEl.style.left = `${redDockCoords.x}px`;
+                    probeEl.style.top = `${redDockCoords.y}px`;
+                } else if (color === 'black' && !blackProbeTargetPeg) {
+                    probeEl.style.left = `${blackDockCoords.x}px`;
+                    probeEl.style.top = `${blackDockCoords.y}px`;
+                }
+
+                audio.playSnap();
+                drawLines();
+                checkBulbCircuit();
+            }
+
+            // Snapping algorithm for pegs
+            function checkPegSnapping(clientX, clientY) {
+                const pegs = document.querySelectorAll('.peg');
+                let foundSnap = false;
+
+                pegs.forEach(peg => {
+                    const pegRect = peg.getBoundingClientRect();
+                    const distance = Math.hypot(
+                        clientX - (pegRect.left + pegRect.width / 2),
+                        clientY - (pegRect.top + pegRect.height / 2)
+                    );
+
+                    const type = peg.dataset.type;
+                    const index = parseInt(peg.dataset.index);
+
+                    // Snap radius threshold: 30 pixels
+                    if (distance < 30) {
+                        // Red probe only snaps on Questions pegs (left)
+                        if (color === 'red' && type === 'q') {
+                            redProbeTargetPeg = { index };
+                            foundSnap = true;
+                            
+                            // Visual snap positioning
+                            const boxRect = simBox.getBoundingClientRect();
+                            const snapX = pegRect.left - boxRect.left + (pegRect.width/2) - 8;
+                            const snapY = pegRect.top - boxRect.top + (pegRect.height/2) + 12; // Adjusted offset for tip
+                            probeEl.style.left = `${snapX}px`;
+                            probeEl.style.top = `${snapY}px`;
+                        }
+                        
+                        // Black probe only snaps on Answers pegs (right)
+                        if (color === 'black' && type === 'a') {
+                            blackProbeTargetPeg = { index };
+                            foundSnap = true;
+
+                            const boxRect = simBox.getBoundingClientRect();
+                            const snapX = pegRect.left - boxRect.left + (pegRect.width/2) - 8;
+                            const snapY = pegRect.top - boxRect.top + (pegRect.height/2) + 12;
+                            probeEl.style.left = `${snapX}px`;
+                            probeEl.style.top = `${snapY}px`;
+                        }
+                    }
+                });
+
+                if (!foundSnap) {
+                    if (color === 'red') redProbeTargetPeg = null;
+                    if (color === 'black') blackProbeTargetPeg = null;
+                }
+            }
+        }
+
+        // Global Event Listeners & Theme Selection Setup
+        themeSelector.addEventListener('change', (e) => {
+            const theme = e.target.value;
+            
+            // Remove previous theme class names
+            simBox.classList.remove(themes[currentTheme].boxClass);
+            
+            currentTheme = theme;
+            internalConnections = { ...themes[theme].connections };
+            activeWiringStartPeg = null;
+
+            // Apply new theme class name
+            simBox.classList.add(themes[theme].boxClass);
+            
+            editorPanel.classList.toggle('hidden', theme !== 'custom');
+
+            renderBoard();
+        });
+
+        // Mode switch tabs
+        btnPlay.addEventListener('click', () => setMode('play'));
+        btnWire.addEventListener('click', () => setMode('wire'));
+
+        // Reset control handlers
+        document.getElementById('btn-reset-wires').addEventListener('click', () => {
+            internalConnections = {};
+            activeWiringStartPeg = null;
+            audio.playSnap();
+            drawLines();
+            checkBulbCircuit();
+        });
+
+        document.getElementById('btn-reset-probes').addEventListener('click', () => {
+            dockProbes();
+        });
+
+        // Handle Custom Label Input Customizations
+        customTitleInput.addEventListener('input', updateCustomThemeData);
+        qEdits.forEach(el => el.addEventListener('input', updateCustomThemeData));
+        aEdits.forEach(el => el.addEventListener('input', updateCustomThemeData));
+
+        window.addEventListener('resize', () => {
+            dockProbes();
+            drawLines();
+        });
+
+        // Initialize App on load
+        renderBoard();
+        initDragProbes();
+        setMode('play');
+
+    </script>
+</body>
+</html>
