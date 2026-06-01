@@ -545,6 +545,68 @@
                 html += `<div class="flex flex-wrap gap-3 mb-4">
                     <button onclick="generateAnalogy('${escapedTopic}')" class="text-xs bg-gradient-to-r from-amber-500/20 to-orange-600/20 text-amber-400 px-4 py-2 rounded-lg hover:from-amber-500/30 hover:to-orange-600/30 border border-amber-500/30">✨ Generate Analogy</button>`;
                 
+                if (day.day === 15) {
+                    window.currentDashboardSlide = 0;
+                    html += `
+                    <div class="bg-white/5 p-6 rounded-xl border border-white/5 mb-6">
+                        <h4 class="text-amber-400 font-bold mb-4 text-xs uppercase tracking-widest flex items-center gap-2 font-mono">
+                            📸 Previous Years' Matching Game Boxes
+                        </h4>
+                        <!-- Slideshow Container -->
+                        <div class="relative w-full aspect-video rounded-lg overflow-hidden border border-white/10 bg-black/40 group shadow-2xl mb-4">
+                            <!-- Slides -->
+                            <div class="slide-item transition-all duration-500 absolute inset-0 opacity-100 flex items-center justify-center">
+                                <img src="assets/images/matching-game-1.jpg" alt="Finding Nemo Matching Game" class="w-full h-full object-contain">
+                                <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-4 text-center">
+                                    <p class="text-sm font-bold text-amber-400 font-mono tracking-wide">"Finding Nemo" Matching Box Project</p>
+                                </div>
+                            </div>
+                            <div class="slide-item transition-all duration-500 absolute inset-0 opacity-0 hidden flex items-center justify-center">
+                                <img src="assets/images/matching-game-2.jpg" alt="SpongeBob Matching Game" class="w-full h-full object-contain">
+                                <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-4 text-center">
+                                    <p class="text-sm font-bold text-amber-400 font-mono tracking-wide">"SpongeBob SquarePants" Matching Box Project</p>
+                                </div>
+                            </div>
+                            <div class="slide-item transition-all duration-500 absolute inset-0 opacity-0 hidden flex items-center justify-center">
+                                <img src="assets/images/matching-game-3.jpg" alt="One Direction Matching Game" class="w-full h-full object-contain">
+                                <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-4 text-center">
+                                    <p class="text-sm font-bold text-amber-400 font-mono tracking-wide">"One Direction" Matching Box Project</p>
+                                </div>
+                            </div>
+                            <div class="slide-item transition-all duration-500 absolute inset-0 opacity-0 hidden flex items-center justify-center">
+                                <img src="assets/images/matching-game-4.jpg" alt="Winnie the Pooh Matching Game" class="w-full h-full object-contain">
+                                <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-4 text-center">
+                                    <p class="text-sm font-bold text-amber-400 font-mono tracking-wide">"Winnie the Pooh" Matching Box Project</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Navigation Controls -->
+                            <button onclick="changeDashboardSlide(-1)" class="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 hover:bg-black/80 border border-white/20 text-white flex items-center justify-center hover:scale-105 transition-all z-20 font-bold">
+                                ❮
+                            </button>
+                            <button onclick="changeDashboardSlide(1)" class="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 hover:bg-black/80 border border-white/20 text-white flex items-center justify-center hover:scale-105 transition-all z-20 font-bold">
+                                ❯
+                            </button>
+                        </div>
+                        
+                        <!-- Thumbnail Navigation -->
+                        <div class="flex justify-center gap-2">
+                            <button onclick="setDashboardSlide(0)" class="thumb-btn w-12 h-12 rounded border-2 border-amber-500 overflow-hidden opacity-100 hover:opacity-100 transition-all">
+                                <img src="assets/images/matching-game-1.jpg" alt="Thumb 1" class="w-full h-full object-cover">
+                            </button>
+                            <button onclick="setDashboardSlide(1)" class="thumb-btn w-12 h-12 rounded border border-white/10 overflow-hidden opacity-60 hover:opacity-100 transition-all">
+                                <img src="assets/images/matching-game-2.jpg" alt="Thumb 2" class="w-full h-full object-cover">
+                            </button>
+                            <button onclick="setDashboardSlide(2)" class="thumb-btn w-12 h-12 rounded border border-white/10 overflow-hidden opacity-60 hover:opacity-100 transition-all">
+                                <img src="assets/images/matching-game-3.jpg" alt="Thumb 3" class="w-full h-full object-cover">
+                            </button>
+                            <button onclick="setDashboardSlide(3)" class="thumb-btn w-12 h-12 rounded border border-white/10 overflow-hidden opacity-60 hover:opacity-100 transition-all">
+                                <img src="assets/images/matching-game-4.jpg" alt="Thumb 4" class="w-full h-full object-cover">
+                            </button>
+                        </div>
+                    </div>`;
+                }
+                
                 if(day.links) {
                     html += Object.entries(day.links).map(([lbl, u]) => `<a href="${u}" target="_blank" class="text-xs bg-white/5 hover:bg-white/10 px-4 py-2 rounded-lg border border-white/10 capitalize">Open ${lbl} ↗</a>`).join('');
                 }
@@ -644,6 +706,51 @@
                 div.innerHTML = `<div class="flex items-start gap-3"><span class="text-amber-400 text-xl">💡</span><div><h4 class="text-amber-400 font-bold text-xs uppercase tracking-widest mb-1">AI Analogy</h4><p class="text-slate-200 italic">"${analogy}"</p></div></div>`;
                 btn.parentElement.after(div); btn.innerText = original; btn.disabled = false; btn.onclick = null; btn.classList.add('opacity-50', 'cursor-not-allowed');
             }, 800);
+        }
+
+        window.currentDashboardSlide = 0;
+        window.changeDashboardSlide = function(direction) {
+            const slides = document.querySelectorAll('.slide-item');
+            const thumbs = document.querySelectorAll('.thumb-btn');
+            if (slides.length === 0) return;
+            
+            // Hide current slide
+            slides[window.currentDashboardSlide].classList.remove('opacity-100');
+            slides[window.currentDashboardSlide].classList.add('opacity-0', 'hidden');
+            thumbs[window.currentDashboardSlide].classList.remove('border-amber-500');
+            thumbs[window.currentDashboardSlide].classList.add('border-white/10', 'opacity-100');
+            thumbs[window.currentDashboardSlide].classList.add('opacity-60');
+            
+            // Update index
+            window.currentDashboardSlide = (window.currentDashboardSlide + direction + slides.length) % slides.length;
+            
+            // Show new slide
+            slides[window.currentDashboardSlide].classList.remove('opacity-0', 'hidden');
+            slides[window.currentDashboardSlide].classList.add('opacity-100');
+            thumbs[window.currentDashboardSlide].classList.remove('border-white/10', 'opacity-60');
+            thumbs[window.currentDashboardSlide].classList.add('border-amber-500', 'opacity-100');
+        }
+        
+        window.setDashboardSlide = function(index) {
+            const slides = document.querySelectorAll('.slide-item');
+            const thumbs = document.querySelectorAll('.thumb-btn');
+            if (slides.length === 0) return;
+            
+            // Hide current slide
+            slides[window.currentDashboardSlide].classList.remove('opacity-100');
+            slides[window.currentDashboardSlide].classList.add('opacity-0', 'hidden');
+            thumbs[window.currentDashboardSlide].classList.remove('border-amber-500');
+            thumbs[window.currentDashboardSlide].classList.add('border-white/10', 'opacity-100');
+            thumbs[window.currentDashboardSlide].classList.add('opacity-60');
+            
+            // Update index
+            window.currentDashboardSlide = index;
+            
+            // Show new slide
+            slides[window.currentDashboardSlide].classList.remove('opacity-0', 'hidden');
+            slides[window.currentDashboardSlide].classList.add('opacity-100');
+            thumbs[window.currentDashboardSlide].classList.remove('border-white/10', 'opacity-60');
+            thumbs[window.currentDashboardSlide].classList.add('border-amber-500', 'opacity-100');
         }
     </script>
 </body>
