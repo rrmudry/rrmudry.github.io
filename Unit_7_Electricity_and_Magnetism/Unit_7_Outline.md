@@ -77,7 +77,7 @@
 
 ### Day 15: Introduction to the "Matching Game Box Project"
 *   **Focus:** Circuit engineering and design layout.
-*   **Activity:** Introduction to the Matching Game Box Project, where students will design and wire a custom game board. Review the [Project Instructions](https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQCsSySzcLnISaGhGr6Amqe-AYCUUUVxrg1-p0ZU8Iu2p8c?e=6JRJ1c) and project criteria.
+*   **Activity:** Introduction to the Matching Game Box Project, where students will design and wire a custom game board. Review the [Project Instructions](https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQCsSySzcLnISaGhGr6Amqe-AYCUUUVxrg1-p0ZU8Iu2p8c?e=6JRJ1c) and project criteria, and explore circuit logic with the [Interactive Simulator](Matching_Game_Box_Simulation.html).
 
 ---
 
