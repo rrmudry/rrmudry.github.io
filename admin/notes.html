@@ -272,6 +272,7 @@
         let activeNote = null;
         let searchFilter = "";
         let tagFilter = "ALL";
+        let notesListenerUnsubscribe = null;
 
         // --- AUTH LOGIC ---
         auth.onAuthStateChanged((user) => {
@@ -293,6 +294,12 @@
                     setTimeout(() => auth.signOut(), 2500);
                 }
             } else {
+                // Unsubscribe from database real-time listener on logout
+                if (notesListenerUnsubscribe) {
+                    notesListenerUnsubscribe();
+                    notesListenerUnsubscribe = null;
+                }
+
                 overlay.classList.remove('hidden');
                 overlay.style.pointerEvents = "auto";
                 shell.classList.add('opacity-0');
@@ -320,7 +327,11 @@
 
         // --- LOAD DATA FROM FIRESTORE ---
         function loadNotes() {
-            db.collection('notes')
+            if (notesListenerUnsubscribe) {
+                notesListenerUnsubscribe();
+            }
+
+            notesListenerUnsubscribe = db.collection('notes')
               .orderBy('updated_at', 'desc')
               .onSnapshot(snapshot => {
                   notes = snapshot.docs.map(doc => ({
