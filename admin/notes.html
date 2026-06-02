@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planning Journal | Admin Terminal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;600;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --slate-950: #020617;
+            --fuchsia-500: #d946ef;
+        }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--slate-950);
+            color: white;
+            overflow-x: hidden;
+        }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .glass {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .bg-grid {
+            background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.015) 1px, transparent 0);
+            background-size: 40px 40px;
+        }
+        .glow-orb {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(217, 70, 239, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.02);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        /* Markdown Preview Styling */
+        .markdown-body h1 { font-size: 1.75rem; font-weight: 800; margin-top: 1.5rem; margin-bottom: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.25rem; }
+        .markdown-body h2 { font-size: 1.4rem; font-weight: 700; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+        .markdown-body h3 { font-size: 1.15rem; font-weight: 600; margin-top: 1rem; margin-bottom: 0.5rem; }
+        .markdown-body p { margin-bottom: 0.75rem; color: #cbd5e1; line-height: 1.625; }
+        .markdown-body ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 0.75rem; }
+        .markdown-body ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 0.75rem; }
+        .markdown-body li { margin-bottom: 0.25rem; color: #cbd5e1; }
+        .markdown-body code { font-family: 'JetBrains Mono', monospace; font-size: 0.85em; background: rgba(255,255,255,0.08); padding: 0.2rem 0.4rem; border-radius: 4px; color: #f472b6; }
+        .markdown-body pre { background: #0f172a; padding: 1rem; border-radius: 12px; overflow-x: auto; margin-bottom: 0.75rem; border: 1px solid rgba(255,255,255,0.05); }
+        .markdown-body pre code { background: transparent; padding: 0; color: #e2e8f0; font-size: 0.9em; }
+        .markdown-body blockquote { border-left: 4px solid #d946ef; padding-left: 1rem; color: #94a3b8; font-style: italic; margin-bottom: 0.75rem; }
+        .markdown-body a { color: #f472b6; text-decoration: underline; }
+        .markdown-body strong { color: #ffffff; font-weight: 700; }
+        .markdown-body em { font-style: italic; }
+    </style>
+</head>
+<body class="min-h-screen bg-grid flex flex-col relative overflow-hidden">
+
+    <!-- Decorative Orbs -->
+    <div class="glow-orb top-[-150px] right-[-150px]"></div>
+    <div class="glow-orb bottom-[-150px] left-[-150px]"></div>
+
+    <!-- Auth Guard Overlay -->
+    <div id="auth-overlay" class="fixed inset-0 z-[100] glass flex items-center justify-center p-6 transition-all duration-500">
+        <div class="max-w-md w-full text-center space-y-8 bg-slate-900/80 p-10 rounded-[3rem] border border-white/5 relative z-10">
+            <div class="bg-fuchsia-600 w-24 h-24 rounded-[2.2rem] flex items-center justify-center mx-auto shadow-[0_0_50px_rgba(217,70,239,0.3)] animate-pulse">
+                <i data-lucide="lock" class="text-white w-12 h-12"></i>
+            </div>
+            <div>
+                <h1 class="text-4xl font-black uppercase tracking-tighter italic mb-4">Planning<span class="text-fuchsia-400">Journal</span></h1>
+                <p class="text-slate-400 font-bold leading-relaxed text-sm">Please sign in with your verified teacher credentials to access your private planning terminal.</p>
+            </div>
+            <button id="btn-login" class="w-full bg-white text-black py-5 rounded-2xl font-black uppercase tracking-widest hover:scale-[1.02] hover:bg-slate-100 transition-all flex items-center justify-center gap-4 shadow-2xl">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-6 h-6">
+                Sign in with Google
+            </button>
+            <p id="auth-error" class="text-rose-500 font-bold text-xs uppercase tracking-widest hidden">Unauthorized Account</p>
+        </div>
+    </div>
+
+    <!-- App Shell (Loaded once authenticated) -->
+    <div id="app-shell" class="flex-grow flex flex-col h-screen opacity-0 transition-opacity duration-1000 relative z-10 hidden">
+        
+        <!-- Header -->
+        <header class="border-b border-white/5 glass px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="bg-white/5 hover:bg-white/10 text-slate-400 p-3 rounded-xl transition-all border border-white/5">
+                    <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                </a>
+                <div class="h-8 w-[1px] bg-white/5"></div>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-black uppercase tracking-tighter italic flex items-center gap-2">
+                        Planning<span class="text-fuchsia-500">Journal</span>
+                        <span class="text-[9px] font-extrabold uppercase tracking-widest bg-fuchsia-500/10 border border-fuchsia-500/20 text-fuchsia-400 px-2 py-0.5 rounded-full ml-2">Secure Workspace Link</span>
+                    </h1>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="hidden md:flex items-center gap-2 text-xs font-bold text-slate-400 bg-white/5 px-4 py-2 rounded-xl border border-white/5">
+                    <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                    <span id="user-display">rmudry@orangeusd.org</span>
+                </div>
+                <button id="btn-logout" class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 p-3 rounded-xl transition-all" title="Sign Out">
+                    <i data-lucide="log-out" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Body Grid -->
+        <div class="flex-grow flex overflow-hidden">
+            
+            <!-- Sidebar (Notes List) -->
+            <aside class="w-full md:w-[380px] border-r border-white/5 glass flex flex-col flex-shrink-0 h-full overflow-hidden">
+                <!-- Search & Actions -->
+                <div class="p-4 border-b border-white/5 space-y-3">
+                    <button id="btn-new" class="w-full bg-fuchsia-600 hover:bg-fuchsia-700 text-white font-black uppercase tracking-widest text-xs py-4 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-fuchsia-600/10">
+                        <i data-lucide="plus" class="w-4 h-4"></i> New Note Entry
+                    </button>
+                    <div class="relative">
+                        <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4"></i>
+                        <input type="text" id="input-search" placeholder="Search brainstorms..." class="w-full bg-slate-950 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm font-semibold outline-none focus:border-fuchsia-500 transition-all text-white">
+                    </div>
+                </div>
+
+                <!-- Tag Filtering -->
+                <div class="px-4 py-2.5 border-b border-white/5 flex gap-1.5 overflow-x-auto select-none" id="tag-filters">
+                    <button class="filter-tab active px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider bg-white/10 text-white transition-all whitespace-nowrap" data-tag="ALL">All</button>
+                    <button class="filter-tab px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider bg-white/5 text-slate-400 hover:text-white transition-all whitespace-nowrap" data-tag="💡 Idea">💡 Idea</button>
+                    <button class="filter-tab px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider bg-white/5 text-slate-400 hover:text-white transition-all whitespace-nowrap" data-tag="📈 Improvement">📈 Impv</button>
+                    <button class="filter-tab px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider bg-white/5 text-slate-400 hover:text-white transition-all whitespace-nowrap" data-tag="🎯 Challenge">🎯 Chal</button>
+                    <button class="filter-tab px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider bg-white/5 text-slate-400 hover:text-white transition-all whitespace-nowrap" data-tag="📅 Planning">📅 Plan</button>
+                    <button class="filter-tab px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider bg-white/5 text-slate-400 hover:text-white transition-all whitespace-nowrap" data-tag="📚 Resource">📚 Res</button>
+                </div>
+
+                <!-- List Content -->
+                <div id="notes-list" class="flex-grow overflow-y-auto p-4 space-y-3">
+                    <!-- Dynamic Notes injected here -->
+                    <div class="text-center py-10 text-slate-500 text-sm font-medium italic">Loading journal entries...</div>
+                </div>
+
+                <!-- Sync Warning Banner at bottom of list -->
+                <div class="p-4 border-t border-white/5 bg-slate-950/40 text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                    <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-fuchsia-400 animate-spin"></i>
+                    <span>Run <code class="text-fuchsia-400 mono lowercase px-1.5 py-0.5 rounded bg-white/5">npm run sync-notes</code> to download</span>
+                </div>
+            </aside>
+
+            <!-- Editor Work Area -->
+            <main class="flex-grow flex flex-col h-full bg-slate-950/20 overflow-hidden relative">
+                
+                <!-- Empty State -->
+                <div id="editor-empty" class="absolute inset-0 flex flex-col items-center justify-center p-8 text-center space-y-6 z-10 transition-all duration-300">
+                    <div class="w-20 h-20 rounded-[2rem] bg-white/5 flex items-center justify-center border border-white/10 text-slate-400">
+                        <i data-lucide="edit-3" class="w-9 h-9"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-black uppercase tracking-tight italic">Journal Console Idle</h2>
+                        <p class="text-slate-400 text-sm max-w-sm font-semibold mt-2">Select an entry from the list, or create a brand new note to log ideas, solutions, and goals securely.</p>
+                    </div>
+                </div>
+
+                <!-- Active Editor Form -->
+                <div id="editor-content" class="flex-grow flex flex-col h-full opacity-0 pointer-events-none transition-all duration-300 overflow-hidden">
+                    
+                    <!-- Editor Toolbar (Metadata / Tabs) -->
+                    <div class="p-4 border-b border-white/5 glass flex flex-wrap items-center justify-between gap-4">
+                        <div class="flex items-center gap-4">
+                            <select id="select-category" class="bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-xs font-black uppercase tracking-widest text-fuchsia-400 outline-none focus:border-fuchsia-500 transition-all">
+                                <option value="💡 Idea">💡 Idea / Brainstorm</option>
+                                <option value="📈 Improvement">📈 Improvement Idea</option>
+                                <option value="🎯 Challenge">🎯 Challenge to Solve</option>
+                                <option value="📅 Planning">📅 Calendar / Planning</option>
+                                <option value="📚 Resource">📚 Curricular Resource</option>
+                                <option value="📝 General">📝 General Notes</option>
+                            </select>
+                            <span id="note-saved-status" class="text-[10px] font-black uppercase tracking-widest text-slate-500 transition-all flex items-center gap-1">
+                                <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 hidden" id="status-icon"></i>
+                                <span id="status-text">Drafting Mode</span>
+                            </span>
+                        </div>
+                        
+                        <!-- Toggle Tab (Edit vs Preview) -->
+                        <div class="flex items-center bg-slate-900 border border-white/10 rounded-xl p-1 select-none">
+                            <button id="tab-write" class="active px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest bg-fuchsia-600 text-white transition-all">Write</button>
+                            <button id="tab-preview" class="px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all">Preview</button>
+                        </div>
+                    </div>
+
+                    <!-- Editor Workspace Panel -->
+                    <div class="flex-grow flex overflow-hidden relative">
+                        
+                        <!-- Textarea Editor -->
+                        <div id="panel-write" class="absolute inset-0 flex flex-col p-6 space-y-4">
+                            <input type="text" id="input-title" placeholder="Note Title..." class="w-full bg-transparent text-3xl font-black uppercase tracking-tight italic outline-none border-b border-transparent focus:border-white/5 pb-2 transition-all placeholder:text-slate-700 text-white">
+                            <textarea id="input-body" placeholder="Brainstorm ideas, outline concepts, or list lesson solutions... (Supports Markdown)" class="w-full flex-grow bg-transparent resize-none outline-none text-slate-300 text-base font-semibold leading-relaxed placeholder:text-slate-650"></textarea>
+                        </div>
+
+                        <!-- Markdown HTML Preview -->
+                        <div id="panel-preview" class="absolute inset-0 p-8 overflow-y-auto hidden">
+                            <div class="max-w-3xl mx-auto markdown-body" id="markdown-render-target">
+                                <!-- Rendered Markdown injected here -->
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Editor Bottom Actions -->
+                    <div class="p-6 border-t border-white/5 bg-slate-950/30 flex justify-between items-center gap-4">
+                        <button id="btn-delete" class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 px-6 py-4 rounded-xl font-black uppercase tracking-widest text-xs transition-all flex items-center gap-2">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i> Delete Note
+                        </button>
+                        <button id="btn-save" class="bg-fuchsia-600 hover:bg-fuchsia-700 text-white px-10 py-4 rounded-xl font-black uppercase tracking-widest text-xs transition-all flex items-center gap-2 shadow-lg shadow-fuchsia-600/15">
+                            <i data-lucide="save" class="w-4 h-4"></i> Save & Cloud Sync
+                        </button>
+                    </div>
+
+                </div>
+
+            </main>
+        </div>
+
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-8 right-8 z-[200] transform translate-y-20 opacity-0 transition-all duration-500">
+        <div class="glass px-6 py-4 rounded-2xl border-l-4 border-fuchsia-500 flex items-center gap-4 shadow-2xl">
+            <i id="toast-icon" data-lucide="info" class="w-5 h-5 text-fuchsia-500"></i>
+            <p id="toast-message" class="text-sm font-bold text-white"></p>
+        </div>
+    </div>
+
+    <script>
+        // Check for file protocol warning
+        if (window.location.protocol === 'file:') {
+            alert("⚠️ WARNING: Firebase Auth does not work via 'file://' protocol. Please run 'npm run dev' to access the terminal.");
+        }
+
+        // --- FIREBASE CONFIGURATION ---
+        const firebaseConfig = {
+            projectId: "site-6e500",
+            appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+            storageBucket: "site-6e500.firebasestorage.app",
+            apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+            authDomain: "site-6e500.firebaseapp.com",
+            messagingSenderId: "591530758858"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        const REQUIRED_EMAIL = "rmudry@orangeusd.org";
+        
+        let notes = [];
+        let activeNote = null;
+        let searchFilter = "";
+        let tagFilter = "ALL";
+
+        // --- AUTH LOGIC ---
+        auth.onAuthStateChanged((user) => {
+            const overlay = document.getElementById('auth-overlay');
+            const shell = document.getElementById('app-shell');
+            const error = document.getElementById('auth-error');
+
+            if (user) {
+                if (user.email.toLowerCase() === REQUIRED_EMAIL.toLowerCase()) {
+                    overlay.classList.add('hidden');
+                    overlay.style.pointerEvents = "none";
+                    shell.classList.remove('hidden');
+                    setTimeout(() => shell.classList.remove('opacity-0'), 100);
+                    document.getElementById('user-display').textContent = user.email;
+                    loadNotes();
+                } else {
+                    error.classList.remove('hidden');
+                    showToast("Unauthorized account. Access denied.", "error");
+                    setTimeout(() => auth.signOut(), 2500);
+                }
+            } else {
+                overlay.classList.remove('hidden');
+                overlay.style.pointerEvents = "auto";
+                shell.classList.add('opacity-0');
+                setTimeout(() => shell.classList.add('hidden'), 500);
+                notes = [];
+                activeNote = null;
+                renderNotesList();
+                showEditorEmptyState();
+            }
+        });
+
+        document.getElementById('btn-login').onclick = () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            provider.setCustomParameters({ prompt: 'select_account' });
+            auth.signInWithPopup(provider).catch(err => {
+                showToast("Sign-in failed: " + err.message, "error");
+            });
+        };
+
+        document.getElementById('btn-logout').onclick = () => {
+            auth.signOut().then(() => {
+                showToast("Signed out successfully.", "info");
+            });
+        };
+
+        // --- LOAD DATA FROM FIRESTORE ---
+        function loadNotes() {
+            db.collection('notes')
+              .orderBy('updated_at', 'desc')
+              .onSnapshot(snapshot => {
+                  notes = snapshot.docs.map(doc => ({
+                      id: doc.id,
+                      ...doc.data(),
+                      created_at: doc.data().created_at?.toDate(),
+                      updated_at: doc.data().updated_at?.toDate()
+                  }));
+                  renderNotesList();
+                  if (activeNote) {
+                      // Update the active note reference if it was changed in the cloud
+                      const updated = notes.find(n => n.id === activeNote.id);
+                      if (updated) {
+                          // Keep locally edited content if it's currently focused to avoid typing override
+                          if (document.activeElement !== document.getElementById('input-title') &&
+                              document.activeElement !== document.getElementById('input-body')) {
+                              activeNote = updated;
+                              populateEditor();
+                          }
+                      } else {
+                          // Note was deleted
+                          activeNote = null;
+                          showEditorEmptyState();
+                      }
+                  }
+              }, err => {
+                  console.error(err);
+                  showToast("Error loading notes: " + err.message, "error");
+              });
+        }
+
+        // --- RENDER NOTES LIST ---
+        function renderNotesList() {
+            const listContainer = document.getElementById('notes-list');
+            
+            // Filter notes
+            const filteredNotes = notes.filter(note => {
+                const matchesSearch = note.title?.toLowerCase().includes(searchFilter.toLowerCase()) ||
+                                      note.body?.toLowerCase().includes(searchFilter.toLowerCase());
+                const matchesTag = tagFilter === "ALL" || note.category === tagFilter;
+                return matchesSearch && matchesTag;
+            });
+
+            if (filteredNotes.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="text-center py-12 text-slate-500">
+                        <i data-lucide="folder-open" class="w-8 h-8 mx-auto text-slate-650 mb-3"></i>
+                        <p class="text-xs font-bold uppercase tracking-wider">No matching entries</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            listContainer.innerHTML = filteredNotes.map(n => {
+                const isActive = activeNote && activeNote.id === n.id;
+                const activeClasses = isActive 
+                    ? 'border-fuchsia-500 bg-fuchsia-500/5 shadow-[inset_0_0_15px_rgba(217,70,239,0.05)]' 
+                    : 'border-white/5 hover:border-white/10 hover:bg-white/5';
+                
+                const dateString = n.updated_at 
+                    ? n.updated_at.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                    : 'Draft';
+                
+                const snippet = n.body ? escapeHtml(n.body.substring(0, 75)) + (n.body.length > 75 ? '...' : '') : 'No content...';
+                
+                return `
+                    <div class="glass p-5 rounded-2xl border-2 transition-all cursor-pointer group relative ${activeClasses}" onclick="selectNote('${n.id}')">
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-start gap-2">
+                                <span class="text-[9px] font-black uppercase tracking-widest text-fuchsia-400 bg-fuchsia-500/10 px-2.5 py-1 rounded-full border border-fuchsia-500/20">${n.category || '💡 Idea'}</span>
+                                <span class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mono">${dateString}</span>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-black text-white leading-snug group-hover:text-fuchsia-300 transition-colors uppercase tracking-tight">${n.title || 'Untitled Note'}</h3>
+                                <p class="text-xs text-slate-400 font-semibold leading-relaxed mt-1.5">${snippet}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            lucide.createIcons();
+        }
+
+        // --- FILTER ACTION ---
+        document.getElementById('tag-filters').addEventListener('click', (e) => {
+            const tab = e.target.closest('.filter-tab');
+            if (!tab) return;
+
+            document.querySelectorAll('.filter-tab').forEach(b => {
+                b.classList.remove('active', 'bg-white/10', 'text-white');
+                b.classList.add('bg-white/5', 'text-slate-400');
+            });
+
+            tab.classList.add('active', 'bg-white/10', 'text-white');
+            tab.classList.remove('bg-white/5', 'text-slate-400');
+
+            tagFilter = tab.getAttribute('data-tag');
+            renderNotesList();
+        });
+
+        document.getElementById('input-search').addEventListener('input', (e) => {
+            searchFilter = e.target.value;
+            renderNotesList();
+        });
+
+        // --- SELECT NOTE ---
+        window.selectNote = (id) => {
+            const note = notes.find(n => n.id === id);
+            if (!note) return;
+
+            activeNote = { ...note };
+            showEditorActiveState();
+            populateEditor();
+            renderNotesList(); // update active highlight
+        };
+
+        // --- NEW NOTE ENTRY ---
+        document.getElementById('btn-new').onclick = () => {
+            activeNote = {
+                id: null,
+                title: "New Planning Entry",
+                body: "",
+                category: "💡 Idea",
+                created_at: new Date(),
+                updated_at: new Date()
+            };
+            showEditorActiveState();
+            populateEditor();
+            document.getElementById('input-title').focus();
+            document.getElementById('input-title').select();
+        };
+
+        // --- POPULATE EDITOR ---
+        function populateEditor() {
+            document.getElementById('input-title').value = activeNote.title || "";
+            document.getElementById('input-body').value = activeNote.body || "";
+            document.getElementById('select-category').value = activeNote.category || "💡 Idea";
+            
+            // Set mode status
+            setSavedStatus(activeNote.id ? "Synced to Cloud" : "Local Draft", !!activeNote.id);
+            
+            // Reset tab
+            switchTab("write");
+        }
+
+        function setSavedStatus(text, isSaved) {
+            const statusIcon = document.getElementById('status-icon');
+            const statusText = document.getElementById('status-text');
+            statusText.textContent = text;
+            if (isSaved) {
+                statusIcon.classList.remove('hidden');
+                statusText.classList.add('text-emerald-500');
+                statusText.classList.remove('text-fuchsia-400', 'text-slate-500');
+            } else {
+                statusIcon.classList.add('hidden');
+                statusText.classList.add('text-fuchsia-400');
+                statusText.classList.remove('text-emerald-500', 'text-slate-500');
+            }
+        }
+
+        // --- EDITOR STATE SWITCHES ---
+        function showEditorEmptyState() {
+            document.getElementById('editor-empty').classList.remove('opacity-0', 'pointer-events-none', 'hidden');
+            document.getElementById('editor-content').classList.add('opacity-0', 'pointer-events-none');
+            document.getElementById('editor-content').style.pointerEvents = "none";
+        }
+
+        function showEditorActiveState() {
+            document.getElementById('editor-empty').classList.add('opacity-0', 'pointer-events-none', 'hidden');
+            document.getElementById('editor-content').classList.remove('opacity-0', 'pointer-events-none');
+            document.getElementById('editor-content').style.pointerEvents = "auto";
+        }
+
+        // --- SAVE NOTE ---
+        document.getElementById('btn-save').onclick = async () => {
+            if (!activeNote) return;
+
+            const title = document.getElementById('input-title').value.trim();
+            const body = document.getElementById('input-body').value;
+            const category = document.getElementById('select-category').value;
+
+            if (!title) {
+                showToast("Note title cannot be blank.", "error");
+                return;
+            }
+
+            const data = {
+                title: title,
+                body: body,
+                category: category,
+                updated_at: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            setSavedStatus("Syncing...", false);
+
+            try {
+                if (activeNote.id) {
+                    // Update existing
+                    await db.collection('notes').doc(activeNote.id).update(data);
+                    showToast("Note synced securely!", "success");
+                } else {
+                    // Create new
+                    data.created_at = firebase.firestore.FieldValue.serverTimestamp();
+                    const docRef = await db.collection('notes').add(data);
+                    activeNote.id = docRef.id;
+                    showToast("Note created and synced securely!", "success");
+                }
+                setSavedStatus("Synced to Cloud", true);
+            } catch (err) {
+                console.error(err);
+                setSavedStatus("Sync Failed", false);
+                showToast("Sync Error: " + err.message, "error");
+            }
+        };
+
+        // --- DELETE NOTE ---
+        document.getElementById('btn-delete').onclick = async () => {
+            if (!activeNote) return;
+
+            if (!activeNote.id) {
+                // local only draft deletion
+                activeNote = null;
+                showEditorEmptyState();
+                renderNotesList();
+                showToast("Draft discarded.", "info");
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to delete "${activeNote.title}"? This cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                await db.collection('notes').doc(activeNote.id).delete();
+                activeNote = null;
+                showEditorEmptyState();
+                showToast("Note removed from cloud.", "info");
+            } catch (err) {
+                console.error(err);
+                showToast("Delete Error: " + err.message, "error");
+            }
+        };
+
+        // --- TABS (WRITE VS PREVIEW) ---
+        function switchTab(tab) {
+            const btnWrite = document.getElementById('tab-write');
+            const btnPreview = document.getElementById('tab-preview');
+            const panelWrite = document.getElementById('panel-write');
+            const panelPreview = document.getElementById('panel-preview');
+
+            if (tab === "write") {
+                btnWrite.classList.add('active', 'bg-fuchsia-600', 'text-white');
+                btnWrite.classList.remove('text-slate-400');
+                btnPreview.classList.remove('active', 'bg-fuchsia-600', 'text-white');
+                btnPreview.classList.add('text-slate-400');
+                panelWrite.classList.remove('hidden');
+                panelPreview.classList.add('hidden');
+            } else {
+                btnPreview.classList.add('active', 'bg-fuchsia-600', 'text-white');
+                btnPreview.classList.remove('text-slate-400');
+                btnWrite.classList.remove('active', 'bg-fuchsia-600', 'text-white');
+                btnWrite.classList.add('text-slate-400');
+                panelWrite.classList.add('hidden');
+                panelPreview.classList.remove('hidden');
+                
+                // Render Preview
+                const bodyText = document.getElementById('input-body').value;
+                const renderTarget = document.getElementById('markdown-render-target');
+                renderTarget.innerHTML = parseMarkdown(bodyText);
+            }
+        }
+
+        document.getElementById('tab-write').onclick = () => switchTab("write");
+        document.getElementById('tab-preview').onclick = () => switchTab("preview");
+
+        // --- MICRO-MARKDOWN PARSER ---
+        function parseMarkdown(text) {
+            if (!text) return '<p class="italic text-slate-500">No content loaded. Start writing to view preview!</p>';
+            
+            let html = escapeHtml(text);
+
+            // Code Blocks: ```code```
+            html = html.replace(/```([\s\S]+?)```/g, (match, code) => {
+                return `<pre><code>${code.trim()}</code></pre>`;
+            });
+
+            // Inline Code: `code`
+            html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+            // Headers: # Heading
+            html = html.replace(/^\s*#\s+(.+)$/gm, '<h1>$1</h1>');
+            html = html.replace(/^\s*##\s+(.+)$/gm, '<h2>$1</h2>');
+            html = html.replace(/^\s*###\s+(.+)$/gm, '<h3>$1</h3>');
+
+            // Blockquotes: > quote
+            html = html.replace(/^\s*&gt;\s+(.+)$/gm, '<blockquote>$1</blockquote>');
+
+            // Bold: **text**
+            html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+
+            // Italics: *text* or _text_
+            html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+            html = html.replace(/_([^_]+)_/g, '<em>$1</em>');
+
+            // Unordered list: - item or * item
+            html = html.replace(/^\s*[-*]\s+(.+)$/gm, '<li>$1</li>');
+            // Wrap contiguous list items in <ul>
+            html = html.replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>');
+            // Fix double nesting <ul> if triggered multiple times
+            html = html.replace(/<\/ul>\s*<ul>/g, '');
+
+            // Paragraphs: double newlines
+            html = html.replace(/([^\n]+)\n\n/g, '<p>$1</p>');
+            // Wrap lone remaining lines that aren't inside standard elements
+            html = html.split('\n').map(line => {
+                const trimmed = line.trim();
+                if (!trimmed) return '';
+                if (trimmed.startsWith('<h') || trimmed.startsWith('<ul') || trimmed.startsWith('<li') || trimmed.startsWith('<pre') || trimmed.startsWith('<block') || trimmed.startsWith('<p>')) {
+                    return line;
+                }
+                return `<p>${line}</p>`;
+            }).join('\n');
+
+            return html;
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
+        // --- TOAST NOTIFICATIONS ---
+        function showToast(message, type = "info") {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+            toastMsg.textContent = message;
+            
+            const config = {
+                success: { border: 'border-emerald-500', icon: 'check-circle', text: 'text-emerald-500' },
+                error: { border: 'border-rose-500', icon: 'alert-circle', text: 'text-rose-500' },
+                info: { border: 'border-fuchsia-500', icon: 'info', text: 'text-fuchsia-500' }
+            }[type];
+
+            toast.children[0].className = `glass px-6 py-4 rounded-2xl border-l-4 ${config.border} flex items-center gap-4 shadow-2xl`;
+            toastIcon.setAttribute('data-lucide', config.icon);
+            toastIcon.className = `w-5 h-5 ${config.text}`;
+            lucide.createIcons();
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>
