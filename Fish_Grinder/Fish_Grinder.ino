@@ -4,8 +4,8 @@
 #include <BLE2902.h>
 
 #define RELAY 18
-#define RELAY_ON HIGH  // Change to LOW if using an Active-LOW relay
-#define RELAY_OFF LOW  // Change to HIGH if using an Active-LOW relay
+#define RELAY_ON LOW   // Changed to LOW for Active-LOW relay
+#define RELAY_OFF HIGH // Changed to HIGH for Active-LOW relay
 
 // Nordic UART Service UUIDs
 #define SERVICE_UUID           "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"
