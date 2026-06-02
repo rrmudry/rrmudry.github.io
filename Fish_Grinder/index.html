@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fish Grinder BLE Dashboard</title>
+  <title>Fish Feeder BLE Dashboard</title>
   <!-- Firebase SDK Compat -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -236,7 +236,7 @@
       <div style="font-size: 3rem; margin-bottom: -10px;">🐠</div>
       <h2 style="font-size: 1.4rem; font-weight: 800; background: linear-gradient(to right, #60a5fa, #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Feeder Access Control</h2>
       <p id="auth-message" style="font-size: 0.9rem; color: #9ca3af; line-height: 1.5; max-width: 320px;">
-        To prevent unauthorized feeding, access to the Fish Grinder controls is restricted to the classroom administrator.
+        To prevent unauthorized feeding, access to the Fish Feeder controls is restricted to the classroom administrator.
       </p>
       <button class="btn btn-primary" id="login-btn" onclick="signInWithGoogle()" style="max-width: 280px;">
         <svg style="width: 18px; height: 18px;" viewBox="0 0 24 24">
@@ -408,7 +408,7 @@
 
       if (connected) {
         dot.className = "status-dot connected";
-        text.innerText = "Connected to Grinder";
+        text.innerText = "Connected to Feeder";
         connBtn.innerText = "Disconnect Bluetooth";
         connBtn.className = "btn btn-danger";
         
@@ -450,7 +450,7 @@
       try {
         console.log("Requesting Bluetooth Device...");
         bleDevice = await navigator.bluetooth.requestDevice({
-          filters: [{ name: 'Fish_Grinder' }],
+          filters: [{ namePrefix: 'Fish_' }],
           optionalServices: [SERVICE_UUID]
         });
 
