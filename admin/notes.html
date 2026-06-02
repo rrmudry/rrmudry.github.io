@@ -209,6 +209,20 @@
                         <!-- Textarea Editor -->
                         <div id="panel-write" class="absolute inset-0 flex flex-col p-6 space-y-4">
                             <input type="text" id="input-title" placeholder="Note Title..." class="w-full bg-transparent text-3xl font-black uppercase tracking-tight italic outline-none border-b border-transparent focus:border-white/5 pb-2 transition-all placeholder:text-slate-700 text-white">
+                            
+                            <!-- Markdown Formatting Toolbar -->
+                            <div class="flex items-center gap-1 bg-slate-900/40 border border-white/5 p-1 rounded-xl self-start">
+                                <button type="button" onclick="formatText('bold')" class="p-2 text-slate-400 hover:text-fuchsia-400 hover:bg-white/5 rounded-lg transition-all" title="Bold"><i data-lucide="bold" class="w-4 h-4"></i></button>
+                                <button type="button" onclick="formatText('italic')" class="p-2 text-slate-400 hover:text-fuchsia-400 hover:bg-white/5 rounded-lg transition-all" title="Italic"><i data-lucide="italic" class="w-4 h-4"></i></button>
+                                <button type="button" onclick="formatText('heading')" class="p-2 text-slate-400 hover:text-fuchsia-400 hover:bg-white/5 rounded-lg transition-all" title="Heading"><i data-lucide="heading" class="w-4 h-4"></i></button>
+                                <div class="w-[1px] h-5 bg-white/10 mx-1"></div>
+                                <button type="button" onclick="formatText('bullet')" class="p-2 text-slate-400 hover:text-fuchsia-400 hover:bg-white/5 rounded-lg transition-all" title="Bullet List"><i data-lucide="list" class="w-4 h-4"></i></button>
+                                <button type="button" onclick="formatText('number')" class="p-2 text-slate-400 hover:text-fuchsia-400 hover:bg-white/5 rounded-lg transition-all" title="Numbered List"><i data-lucide="list-ordered" class="w-4 h-4"></i></button>
+                                <div class="w-[1px] h-5 bg-white/10 mx-1"></div>
+                                <button type="button" onclick="formatText('quote')" class="p-2 text-slate-400 hover:text-fuchsia-400 hover:bg-white/5 rounded-lg transition-all" title="Quote"><i data-lucide="quote" class="w-4 h-4"></i></button>
+                                <button type="button" onclick="formatText('code')" class="p-2 text-slate-400 hover:text-fuchsia-400 hover:bg-white/5 rounded-lg transition-all" title="Code"><i data-lucide="code" class="w-4 h-4"></i></button>
+                            </div>
+
                             <textarea id="input-body" placeholder="Brainstorm ideas, outline concepts, or list lesson solutions... (Supports Markdown)" class="w-full flex-grow bg-transparent resize-none outline-none text-slate-300 text-base font-semibold leading-relaxed placeholder:text-slate-650"></textarea>
                         </div>
 
@@ -658,6 +672,118 @@
                 "'": '&#039;'
             };
             return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
+        // --- TEXT FORMATTING TOOLBAR LOGIC ---
+        function formatText(type) {
+            const textarea = document.getElementById('input-body');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            const selectedText = text.substring(start, end);
+            
+            let replacement = "";
+            
+            switch (type) {
+                case 'bold':
+                    replacement = `**${selectedText || 'bold text'}**`;
+                    textarea.value = text.substring(0, start) + replacement + text.substring(end);
+                    textarea.focus();
+                    textarea.selectionStart = start + 2;
+                    textarea.selectionEnd = start + 2 + (selectedText || 'bold text').length;
+                    break;
+                case 'italic':
+                    replacement = `*${selectedText || 'italic text'}*`;
+                    textarea.value = text.substring(0, start) + replacement + text.substring(end);
+                    textarea.focus();
+                    textarea.selectionStart = start + 1;
+                    textarea.selectionEnd = start + 1 + (selectedText || 'italic text').length;
+                    break;
+                case 'heading':
+                    // Prepend "### " to the current line
+                    const beforeText = text.substring(0, start);
+                    const lastNewline = beforeText.lastIndexOf('\n');
+                    const lineStart = lastNewline === -1 ? 0 : lastNewline + 1;
+                    const lineText = text.substring(lineStart, end);
+                    
+                    if (lineText.startsWith('### ')) {
+                        replacement = lineText.substring(4);
+                        textarea.value = text.substring(0, lineStart) + replacement + text.substring(end);
+                        textarea.selectionStart = lineStart;
+                        textarea.selectionEnd = lineStart + replacement.length;
+                    } else {
+                        replacement = `### ${lineText}`;
+                        textarea.value = text.substring(0, lineStart) + replacement + text.substring(end);
+                        textarea.selectionStart = lineStart + 4;
+                        textarea.selectionEnd = lineStart + replacement.length;
+                    }
+                    textarea.focus();
+                    break;
+                case 'bullet':
+                    applyLinePrefix('- ');
+                    break;
+                case 'number':
+                    applyLinePrefix('1. ');
+                    break;
+                case 'quote':
+                    applyLinePrefix('> ');
+                    break;
+                case 'code':
+                    if (selectedText.includes('\n')) {
+                        // Code block
+                        replacement = `\`\`\`\n${selectedText || 'code block'}\n\`\`\``;
+                        textarea.value = text.substring(0, start) + replacement + text.substring(end);
+                        textarea.focus();
+                        textarea.selectionStart = start + 4;
+                        textarea.selectionEnd = start + 4 + (selectedText || 'code block').length;
+                    } else {
+                        // Inline code
+                        replacement = `\`${selectedText || 'code'}\``;
+                        textarea.value = text.substring(0, start) + replacement + text.substring(end);
+                        textarea.focus();
+                        textarea.selectionStart = start + 1;
+                        textarea.selectionEnd = start + 1 + (selectedText || 'code').length;
+                    }
+                    break;
+            }
+            
+            // Trigger automatic preview render if preview tab is active
+            const btnPreview = document.getElementById('tab-preview');
+            if (btnPreview.classList.contains('bg-fuchsia-600')) {
+                const renderTarget = document.getElementById('markdown-render-target');
+                renderTarget.innerHTML = parseMarkdown(textarea.value);
+            }
+        }
+        
+        function applyLinePrefix(prefix) {
+            const textarea = document.getElementById('input-body');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            
+            const beforeText = text.substring(0, start);
+            const startLineIndex = beforeText.lastIndexOf('\n') + 1;
+            
+            const afterText = text.substring(end);
+            const endLineIndexIndex = afterText.indexOf('\n');
+            const endLineIndex = endLineIndexIndex === -1 ? text.length : end + endLineIndexIndex;
+            
+            const rangeText = text.substring(startLineIndex, endLineIndex);
+            const lines = rangeText.split('\n');
+            
+            const modifiedLines = lines.map(line => {
+                if (line.startsWith(prefix)) {
+                    return line.substring(prefix.length);
+                }
+                return prefix + line;
+            });
+            
+            const replacement = modifiedLines.join('\n');
+            textarea.value = text.substring(0, startLineIndex) + replacement + text.substring(endLineIndex);
+            
+            textarea.focus();
+            textarea.selectionStart = startLineIndex;
+            textarea.selectionEnd = startLineIndex + replacement.length;
         }
 
         // --- TOAST NOTIFICATIONS ---
