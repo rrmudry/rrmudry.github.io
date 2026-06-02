@@ -143,6 +143,12 @@ void sendBleStatus() {
   }
   json += "]}";
 
+  uint16_t peerMtu = pServer->getPeerMTU(pServer->getConnId());
+  Serial.print("Sending BLE Status, JSON length: ");
+  Serial.print(json.length());
+  Serial.print(", negotiated MTU: ");
+  Serial.println(peerMtu);
+
   pTxCharacteristic->setValue((uint8_t*)json.c_str(), json.length());
   pTxCharacteristic->notify();
 }
@@ -150,10 +156,12 @@ void sendBleStatus() {
 class MyServerCallbacks: public BLEServerCallbacks {
     void onConnect(BLEServer* pServer) {
       deviceConnected = true;
+      Serial.println("BLE Client Connected");
     };
 
     void onDisconnect(BLEServer* pServer) {
       deviceConnected = false;
+      Serial.println("BLE Client Disconnected");
     }
 };
 
@@ -217,7 +225,8 @@ void setup() {
   Serial.begin(115200);
 
   // Initialize BLE
-  BLEDevice::init("Fish_Grinder");
+  BLEDevice::init("Fish_Feeder_2");
+  BLEDevice::setMTU(517); // Set local MTU preference to support larger notification packets
   pServer = BLEDevice::createServer();
   pServer->setCallbacks(new MyServerCallbacks());
 
@@ -248,7 +257,7 @@ void setup() {
   pAdvertising->setMinPreferred(0x06);  // helps with iOS connection issues
   pAdvertising->setMinPreferred(0x12);
   BLEDevice::startAdvertising();
-  Serial.println("BLE Advertising Started (Name: Fish_Grinder)");
+  Serial.println("BLE Advertising Started (Name: Fish_Feeder_2)");
 
   // Pre-populate schedules
   schedules[0] = {8, 0, 3000, true, -1};
@@ -270,7 +279,6 @@ void loop() {
   // connecting
   if (deviceConnected && !oldDeviceConnected) {
       oldDeviceConnected = deviceConnected;
-      delay(500);
-      sendBleStatus(); // Send initial status on connect
+      Serial.println("BLE Connection established in loop");
   }
 }
