@@ -11,6 +11,21 @@ service cloud.firestore {
       );
     }
 
+    // Check if the user has an OUSD or approved test email domain
+    function isAuthorizedEmail(email) {
+      return email.lower().matches('.*@orangeusd\\.org$') ||
+             email.lower() == "ryan.mudry@gmail.com" ||
+             email.lower() == "ryanmudry@gmail.com";
+    }
+
+    // Check if the user matches the student record and is authorized
+    function isStudentOwner(studentId) {
+      return request.auth != null && 
+             request.auth.token.email != null &&
+             isAuthorizedEmail(request.auth.token.email) &&
+             request.auth.token.email.lower().split('@')[0] == studentId.lower();
+    }
+
     // Global Admin Access
     match /{document=**} {
       allow read, write: if isAdmin();
@@ -41,14 +56,22 @@ service cloud.firestore {
     }
 
     // 4. Live Student Results (Nested)
-    // Labs write directly here without authentication.
+    match /student_results/{assignmentId} {
+      allow read: if true;
+    }
     match /student_results/{assignmentId}/students/{studentId} {
-      allow read, write: if true;
+      allow read, write: if 
+        (exists(/databases/$(database)/documents/assessments/$(assignmentId))
+          ? isStudentOwner(studentId)
+          : true);
     }
 
     // 5. Archived Flat Results
     match /student_results_archive/{docId} {
-      allow read, write: if true;
+      allow read, write: if 
+        (request.auth != null 
+          ? (isAuthorizedEmail(request.auth.token.email) && docId.lower().matches('^' + request.auth.token.email.lower().split('@')[0] + '_.*'))
+          : true);
     }
 
     // 6. Private Notes / Journal
