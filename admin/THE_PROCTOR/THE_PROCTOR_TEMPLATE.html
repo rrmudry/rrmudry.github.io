@@ -383,6 +383,23 @@
         
         // --- AUTH LISTENER ---
         const TEST_EMAILS = ['ryan.mudry@gmail.com', 'ryanmudry@gmail.com'];
+        
+        // Prevent race condition on login button
+        const loginBtn = document.getElementById('login-btn');
+        if (loginBtn) {
+            loginBtn.disabled = true;
+            loginBtn.dataset.originalHtml = loginBtn.innerHTML;
+            loginBtn.dataset.originalClass = loginBtn.className;
+            loginBtn.innerHTML = `
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-current inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Checking secure session...
+            `;
+            loginBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 console.log("Logged in as:", user.email);
@@ -402,15 +419,20 @@
                         }
                     }
                 } else {
+                    if (loginBtn) {
+                        loginBtn.disabled = false;
+                        loginBtn.innerHTML = loginBtn.dataset.originalHtml;
+                        loginBtn.className = loginBtn.dataset.originalClass;
+                    }
                     alert(`Access Restricted: ${user.email} is not authorized.`);
                     auth.signOut();
                 }
             } else {
                 // Not logged in
-                const btn = document.getElementById('login-btn');
-                if(btn) {
-                    btn.disabled = false;
-                    btn.innerHTML = `<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5 bg-white rounded-full p-0.5" alt="Google"> Sign in to Continue`;
+                if (loginBtn) {
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = loginBtn.dataset.originalHtml;
+                    loginBtn.className = loginBtn.dataset.originalClass;
                 }
                 const idInput = document.getElementById('student-id');
                 if(idInput) {
@@ -1605,6 +1627,7 @@
         }
 
         let lastScoreSync = 0;
+        let scoreSyncTimeout = null;
         function updateLiveScore() {
             let points = 0;
             const form = document.getElementById('test-form');
@@ -1616,11 +1639,25 @@
             });
             currentScore = points;
             
+            // Clear any pending sync to prevent duplicate updates
+            if (scoreSyncTimeout) {
+                clearTimeout(scoreSyncTimeout);
+                scoreSyncTimeout = null;
+            }
+
             // Throttled sync (max once every 3 seconds) when score changes
             const now = Date.now();
-            if (now - lastScoreSync > 3000) {
+            const timeSinceLastSync = now - lastScoreSync;
+            if (timeSinceLastSync > 3000) {
                 syncResults("TEST_PROGRESS");
                 lastScoreSync = now;
+            } else {
+                // Schedule a trailing-edge sync to ensure final updates are captured
+                scoreSyncTimeout = setTimeout(() => {
+                    syncResults("TEST_PROGRESS");
+                    lastScoreSync = Date.now();
+                    scoreSyncTimeout = null;
+                }, 3100 - timeSinceLastSync);
             }
         }
 
@@ -1631,6 +1668,10 @@
             removeProctorListeners();
             clearTimeout(detectionInterval);
             detectionInterval = null;
+            if (scoreSyncTimeout) {
+                clearTimeout(scoreSyncTimeout);
+                scoreSyncTimeout = null;
+            }
             clearInterval(timerInterval);
             timerInterval = null;
             clearInterval(heartbeatInterval);
@@ -1711,6 +1752,10 @@
             // 2. Clear intervals
             removeProctorListeners();
             clearTimeout(detectionInterval);
+            if (scoreSyncTimeout) {
+                clearTimeout(scoreSyncTimeout);
+                scoreSyncTimeout = null;
+            }
             clearInterval(timerInterval);
             clearInterval(heartbeatInterval); // Stop heartbeat alerts
 
