@@ -10,6 +10,24 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const fbAuth = firebase.auth();
+    const fbDb = firebase.firestore();
+  </script>
   
   <!-- Premium Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;600;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -139,11 +157,12 @@
       </div>
     </div>
     
-    <!-- Student Badge & High Score -->
+    <!-- Student Badge -->
     <div id="student-badge" class="hidden flex items-center gap-4">
       <div class="glass px-2.5 py-1 rounded-lg border border-white/5 flex items-center gap-1.5">
-        <span class="text-[10px] text-slate-400">Student ID:</span>
-        <span id="badge-id" class="text-xs font-bold mono text-sky-400">000000</span>
+        <img id="badge-avatar" src="" class="w-5 h-5 rounded-full hidden" alt="">
+        <span class="text-[10px] text-slate-400">Signed in:</span>
+        <span id="badge-id" class="text-xs font-bold mono text-sky-400">student</span>
       </div>
       <button onclick="logout()" class="text-slate-400 hover:text-rose-400 transition-colors p-1 rounded-md hover:bg-white/5" title="Exit Laboratory">
         <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
@@ -154,34 +173,28 @@
   <!-- Main View Container -->
   <main class="flex-grow flex items-center justify-center p-2 md:p-3 z-10">
     
-    <!-- SECTION 1: REGISTRATION -->
+    <!-- SECTION 1: GOOGLE SIGN-IN -->
     <section id="view-register" class="max-w-md w-full glass p-8 md:p-10 rounded-[2.5rem] border border-white/10 relative z-10 shadow-2xl transition-all duration-500">
       <div class="text-center space-y-6">
         <div class="bg-sky-600 w-20 h-20 rounded-[2rem] flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(2,132,199,0.3)]">
-          <i data-lucide="user-check" class="text-white w-10 h-10"></i>
+          <i data-lucide="atom" class="text-white w-10 h-10"></i>
         </div>
         <div>
           <h2 class="text-3xl font-black uppercase tracking-tight italic">Initialize <span class="text-sky-400">Lab Log</span></h2>
-          <p class="text-slate-400 font-medium text-sm mt-2 leading-relaxed">Enter your 6-digit Student ID to load your kinematics speed calculator progress.</p>
+          <p class="text-slate-400 font-medium text-sm mt-2 leading-relaxed">Sign in with your school Google account to access your kinematics speed calculator progress.</p>
         </div>
         
-        <div class="space-y-4 pt-4">
-          <div class="relative">
-            <input 
-              type="text" 
-              id="input-student-id" 
-              maxlength="6" 
-              placeholder="e.g. 123456" 
-              onkeydown="if(event.key === 'Enter') handleRegister(event)"
-              class="w-full bg-slate-900/90 text-white py-4 px-6 rounded-2xl border border-white/10 text-center font-bold tracking-widest text-xl focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:outline-none transition-all mono placeholder:tracking-normal placeholder:font-normal placeholder:text-slate-600"
-              required
-            >
-          </div>
-          <button type="button" onclick="handleRegister(event)" class="w-full bg-white text-black py-4 rounded-2xl font-black uppercase tracking-widest hover:scale-[1.02] hover:bg-slate-100 transition-all flex items-center justify-center gap-2 shadow-2xl">
-            Enter Lab <i data-lucide="arrow-right" class="w-5 h-5"></i>
+        <div class="space-y-4 pt-2">
+          <button id="btn-google-signin" type="button" onclick="handleGoogleSignIn()" class="w-full bg-white text-slate-900 py-4 rounded-2xl font-black uppercase tracking-widest hover:scale-[1.02] hover:bg-slate-100 transition-all flex items-center justify-center gap-3 shadow-2xl">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5" alt="Google">
+            Sign In with Google
           </button>
+          <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] leading-relaxed">
+            Use your school-issued <span class="text-sky-400">@orangeusd.org</span> account
+          </p>
         </div>
-        <p id="register-error" class="text-rose-500 text-xs font-bold uppercase tracking-wider hidden">Please enter a valid 6-digit number</p>
+        <p id="register-error" class="text-rose-400 text-xs font-bold uppercase tracking-wider hidden">Access denied &mdash; use your @orangeusd.org school account</p>
+        <p id="register-status" class="text-sky-400 text-[10px] font-bold uppercase tracking-widest animate-pulse hidden">Connecting&hellip;</p>
       </div>
     </section>
 
@@ -201,8 +214,8 @@
         <!-- Telemetry HUD -->
         <div class="flex items-center gap-6 text-xs text-slate-400">
           <div>
-            <span class="font-semibold block md:inline">Student ID:</span> 
-            <span id="hud-student-id" class="text-white font-bold mono ml-1">000000</span>
+            <span class="font-semibold block md:inline">Student:</span> 
+            <span id="hud-student-id" class="text-white font-bold mono ml-1">—</span>
           </div>
           <div>
             <span class="font-semibold block md:inline">Progress:</span> 
@@ -758,6 +771,8 @@ const QUESTIONS = [
     // -------------------------------------------------------------
     let state = {
       studentId: '',
+      displayName: '',
+      photoURL: '',
       currentLevel: 1,
       unlockedLevels: [1],
       score: 0,
@@ -768,24 +783,55 @@ const QUESTIONS = [
       currentQuestionIndex: 0
     };
 
-    const LOCAL_STORAGE_KEY = 'physics_speed_calc_scaffold_state_v1';
     const MIN_QUESTIONS = 6;
     const REQUIRED_STREAK = 4;
     const TOLERANCE = 0.05;
+    const PHYSICS_LABS_COLLECTION = 'physics_labs';
+    const LAB_DOC_ID = 'speed_calculator';
 
     // Load elements
     const viewRegister = document.getElementById('view-register');
     const viewWorkspace = document.getElementById('view-workspace');
 
     window.addEventListener('DOMContentLoaded', () => {
-      loadState();
       lucide.createIcons();
 
-      if (state.studentId) {
-        hudInitialize();
-      } else {
-        showSection('view-register');
-      }
+      // Show login screen immediately; Firebase auth observer will redirect if already signed in
+      showSection('view-register');
+
+      // Firebase Auth observer — fires on page load and on any auth change
+      fbAuth.onAuthStateChanged(async user => {
+        if (user) {
+          const emailLower = (user.email || '').toLowerCase();
+          const isAllowed = emailLower.endsWith('@orangeusd.org') ||
+                            emailLower === 'ryan.mudry@gmail.com' ||
+                            emailLower === 'ryanmudry@gmail.com';
+
+          if (!isAllowed) {
+            // Wrong account — show error and sign out
+            document.getElementById('register-error').classList.remove('hidden');
+            document.getElementById('register-status').classList.add('hidden');
+            await fbAuth.signOut();
+            return;
+          }
+
+          // Derive a short display name from email prefix
+          const prefix = emailLower.split('@')[0];
+          state.studentId = prefix;
+          state.displayName = user.displayName || prefix;
+          state.photoURL = user.photoURL || '';
+
+          // Load progress from Firestore
+          await loadProgressFromFirestore(prefix);
+
+          // Boot the workspace
+          hudInitialize();
+        } else {
+          // Not signed in — ensure registration screen is visible
+          showSection('view-register');
+          document.getElementById('register-status').classList.add('hidden');
+        }
+      });
 
       // Add simple beep sound to buttons
       document.querySelectorAll('button').forEach(btn => {
@@ -796,25 +842,57 @@ const QUESTIONS = [
       bindDragAndDropEvents();
     });
 
-    function saveState() {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({
-        studentId: state.studentId,
-        unlockedLevels: state.unlockedLevels,
-        highScore: state.highScore
-      }));
+    async function handleGoogleSignIn() {
+      const errEl = document.getElementById('register-error');
+      const statusEl = document.getElementById('register-status');
+      errEl.classList.add('hidden');
+      statusEl.classList.remove('hidden');
+      statusEl.innerText = 'Connecting to Google...';
+      const provider = new firebase.auth.GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      try {
+        await fbAuth.signInWithPopup(provider);
+        // onAuthStateChanged will handle the rest
+      } catch (e) {
+        console.error(e);
+        statusEl.classList.add('hidden');
+        errEl.classList.remove('hidden');
+        errEl.innerText = 'Sign-in failed — please try again';
+      }
     }
 
-    function loadState() {
-      const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          state.studentId = parsed.studentId || '';
-          state.unlockedLevels = parsed.unlockedLevels || [1];
-          state.highScore = parsed.highScore || 0;
-        } catch (e) {
-          console.error("Failed to load local state", e);
+    async function saveState() {
+      if (!state.studentId) return;
+      try {
+        await fbDb.collection(PHYSICS_LABS_COLLECTION)
+          .doc(state.studentId)
+          .set({
+            studentId: state.studentId,
+            displayName: state.displayName || state.studentId,
+            unlockedLevels: state.unlockedLevels,
+            highScore: state.highScore,
+            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
+      } catch (e) {
+        console.error('Firestore save error', e);
+      }
+    }
+
+    async function loadProgressFromFirestore(studentId) {
+      try {
+        const snap = await fbDb.collection(PHYSICS_LABS_COLLECTION).doc(studentId).get();
+        if (snap.exists) {
+          const data = snap.data();
+          state.unlockedLevels = data.unlockedLevels || [1];
+          state.highScore = data.highScore || 0;
+        } else {
+          state.unlockedLevels = [1];
+          state.highScore = 0;
         }
+      } catch (e) {
+        console.error('Firestore load error', e);
+        state.unlockedLevels = [1];
+        state.highScore = 0;
       }
     }
 
@@ -859,10 +937,11 @@ const QUESTIONS = [
     }
 
     function logout() {
-      if (confirm("Logout of laboratory deck? Local student progress will reset.")) {
-        localStorage.removeItem(LOCAL_STORAGE_KEY);
+      if (confirm("Sign out of the lab? Your progress is saved to your account.")) {
         state = {
           studentId: '',
+          displayName: '',
+          photoURL: '',
           currentLevel: 1,
           unlockedLevels: [1],
           score: 0,
@@ -872,16 +951,26 @@ const QUESTIONS = [
           deck: [],
           currentQuestionIndex: 0
         };
-        document.getElementById('input-student-id').value = '';
-        showSection('view-register');
         speech.cancel();
+        fbAuth.signOut(); // onAuthStateChanged will redirect to sign-in screen
       }
     }
 
     function hudInitialize() {
-      document.getElementById('badge-id').innerText = state.studentId;
-      document.getElementById('hud-student-id').innerText = state.studentId;
-      
+      // Show name (prefer display name, fall back to email prefix)
+      const displayLabel = state.displayName || state.studentId;
+      document.getElementById('badge-id').innerText = displayLabel;
+      document.getElementById('hud-student-id').innerText = displayLabel;
+
+      // Show avatar photo if available
+      const avatarEl = document.getElementById('badge-avatar');
+      if (state.photoURL) {
+        avatarEl.src = state.photoURL;
+        avatarEl.classList.remove('hidden');
+      } else {
+        avatarEl.classList.add('hidden');
+      }
+
       // Update level buttons locks
       updateLevelButtonsUI();
       
