@@ -375,7 +375,7 @@
   </div>
 
   <!-- FLOATING DRAGGABLE CALCULATOR MODAL (p1) -->
-  <div id="modal-calculator" class="fixed z-50 w-64 bg-slate-900 border border-white/10 shadow-2xl rounded-2xl hidden" style="top: 80px; left: 30px;">
+  <div id="modal-calculator" class="fixed z-50 w-[380px] bg-slate-900 border border-white/10 shadow-2xl rounded-2xl hidden" style="top: 80px; left: 30px;">
     
     <!-- Titlebar (Draggable trigger) -->
     <div 
@@ -387,63 +387,17 @@
         <i data-lucide="calculator" class="w-4 h-4 text-sky-400"></i>
         <span class="text-xs font-bold uppercase tracking-wider font-sans">Lab Assistant</span>
       </div>
-      <button onclick="toggleCalculatorModal(false)" class="text-slate-400 hover:text-white p-0.5 rounded transition-colors">
-        <i data-lucide="x" class="w-4 h-4"></i>
-      </button>
+      <div class="flex items-center gap-2">
+        <span class="text-[9px] font-bold text-sky-300 bg-sky-950/60 px-2 py-0.5 rounded border border-sky-500/20 uppercase tracking-wider backdrop-blur-sm">DESMOS</span>
+        <button onclick="toggleCalculatorModal(false)" class="text-slate-400 hover:text-white p-0.5 rounded transition-colors">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
     </div>
 
     <!-- Calculator Body -->
-    <div class="px-3 pt-3 pb-4">
-      
-      <!-- Calc History Display -->
-      <div class="mb-1 h-5 flex items-center justify-end px-3 text-[10px] font-medium text-slate-500 mono" id="calc-history">
-        0
-      </div>
-
-      <!-- Calc Input Display -->
-      <div class="mb-3 h-12 flex items-center justify-end px-3 bg-slate-950 rounded-lg text-xl font-mono text-sky-400 border border-white/5 truncate" id="calc-display">
-        0
-      </div>
-
-      <!-- Calc Keypad Grid -->
-      <div class="grid grid-cols-4 gap-1.5 text-sm">
-        
-        <!-- Row 1 -->
-        <button onclick="calcPress('C')" class="py-2.5 bg-slate-800 hover:bg-rose-500/20 hover:text-rose-400 border border-white/5 rounded-lg font-bold text-rose-500 transition-colors">C</button>
-        <button onclick="calcPress('DEL')" class="py-2.5 bg-slate-800 hover:bg-slate-700 border border-white/5 rounded-lg font-bold text-slate-400 transition-colors">DEL</button>
-        <button onclick="calcPress('/')" class="py-2.5 bg-slate-800 hover:bg-sky-500/20 hover:text-sky-400 border border-white/5 rounded-lg font-mono font-bold text-sky-400 transition-colors">/</button>
-        <button onclick="calcPress('*')" class="py-2.5 bg-slate-800 hover:bg-sky-500/20 hover:text-sky-400 border border-white/5 rounded-lg font-mono font-bold text-sky-400 transition-colors">*</button>
-        
-        <!-- Row 2 -->
-        <button onclick="calcPress('7')" class="py-2.5 bg-slate-800/40 hover:bg-slate-800 border border-white/5 rounded-lg font-bold text-slate-200 transition-colors">7</button>
-        <button onclick="calcPress('8')" class="py-2.5 bg-slate-800/40 hover:bg-slate-800 border border-white/5 rounded-lg font-bold text-slate-200 transition-colors">8</button>
-        <button onclick="calcPress('9')" class="py-2.5 bg-slate-800/40 hover:bg-slate-800 border border-white/5 rounded-lg font-bold text-slate-200 transition-colors">9</button>
-        <button onclick="calcPress('-')" class="py-2.5 bg-slate-800 hover:bg-sky-500/20 hover:text-sky-400 border border-white/5 rounded-lg font-mono font-bold text-sky-400 transition-colors">-</button>
-        
-        <!-- Row 3 -->
-        <button onclick="calcPress('4')" class="py-2.5 bg-slate-800/40 hover:bg-slate-800 border border-white/5 rounded-lg font-bold text-slate-200 transition-colors">4</button>
-        <button onclick="calcPress('5')" class="py-2.5 bg-slate-800/40 hover:bg-slate-800 border border-white/5 rounded-lg font-bold text-slate-200 transition-colors">5</button>
-        <button onclick="calcPress('6')" class="py-2.5 bg-slate-800/40 hover:bg-slate-800 border border-white/5 rounded-lg font-bold text-slate-200 transition-colors">6</button>
-        <button onclick="calcPress('+')" class="py-2.5 bg-slate-800 hover:bg-sky-500/20 hover:text-sky-400 border border-white/5 rounded-lg font-mono font-bold text-sky-400 transition-colors">+</button>
-        
-        <!-- Row 4 -->
-        <button onclick="calcPress('1')" class="py-2.5 bg-slate-800/40 hover:bg-slate-800 border border-white/5 rounded-lg font-bold text-slate-200 transition-colors">1</button>
-        <button onclick="calcPress('2')" class="py-2.5 bg-slate-800/40 hover:bg-slate-800 border border-white/5 rounded-lg font-bold text-slate-200 transition-colors">2</button>
-        <button onclick="calcPress('3')" class="py-2.5 bg-slate-800/40 hover:bg-slate-800 border border-white/5 rounded-lg font-bold text-slate-200 transition-colors">3</button>
-        <button onclick="calcPress('=')" class="row-span-2 py-6 bg-emerald-600 hover:bg-emerald-500 border border-emerald-500/30 rounded-lg font-bold text-white transition-colors flex items-center justify-center text-lg shadow-md">=</button>
-        
-        <!-- Row 5 -->
-        <button onclick="calcPress('+/-')" class="py-2.5 bg-slate-800 hover:bg-slate-700 border border-white/5 rounded-lg font-bold text-slate-400 transition-colors font-sans text-xs">+/-</button>
-        <button onclick="calcPress('0')" class="col-span-2 py-2.5 bg-slate-800/40 hover:bg-slate-800 border border-white/5 rounded-lg font-bold text-slate-200 transition-colors">0</button>
-        <button onclick="calcPress('.')" class="py-2.5 bg-slate-800/40 hover:bg-slate-800 border border-white/5 rounded-lg font-bold text-slate-200 transition-colors">.</button>
-
-      </div>
-
-      <!-- Insert answer directly -->
-      <button onclick="insertCalcAnswer()" class="w-full mt-3 bg-slate-950 border border-sky-500/30 hover:border-sky-500 text-sky-400 py-2 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-1.5">
-        <i data-lucide="copy" class="w-3.5 h-3.5"></i> Insert answer to field
-      </button>
-
+    <div class="p-0.5 bg-slate-900 rounded-b-2xl overflow-hidden">
+      <iframe id="desmos-iframe" class="w-full h-[450px] rounded-b-2xl bg-white" frameborder="0"></iframe>
     </div>
 
   </div>
@@ -730,122 +684,9 @@ const QUESTIONS = [
     }
 
     // -------------------------------------------------------------
-    // CALCULATOR MATH LOGIC
+    // DESMOS INTEGRATION
     // -------------------------------------------------------------
-    let calcState = {
-      display: '0',
-      history: '',
-      prevVal: null,
-      operator: null,
-      resetOnNext: false
-    };
-
-    function calcPress(key) {
-      sound.playBeep();
-      const displayEl = document.getElementById('calc-display');
-      const historyEl = document.getElementById('calc-history');
-
-      const formatVal = (num) => {
-        if (!Number.isFinite(num)) return 'Error';
-        // Format to max 12 chars
-        let str = num.toPrecision(10).replace(/\.0+$/, '').replace(/(\.\d*?[1-9])0+$/, '$1').replace(/\.$/, '');
-        return str;
-      };
-
-      const operate = (a, b, op) => {
-        switch (op) {
-          case '+': return a + b;
-          case '-': return a - b;
-          case '*': return a * b;
-          case '/': return b === 0 ? null : a / b;
-          default: return b;
-        }
-      };
-
-      if (key === 'C') {
-        calcState.display = '0';
-        calcState.history = '';
-        calcState.prevVal = null;
-        calcState.operator = null;
-        calcState.resetOnNext = false;
-      } else if (key === 'DEL') {
-        if (calcState.resetOnNext) {
-          calcState.display = '0';
-          calcState.resetOnNext = false;
-        } else if (calcState.display.length > 1) {
-          calcState.display = calcState.display.slice(0, -1);
-        } else {
-          calcState.display = '0';
-        }
-      } else if (['+', '-', '*', '/'].includes(key)) {
-        const currentVal = parseFloat(calcState.display);
-        if (!isNaN(currentVal)) {
-          if (calcState.prevVal !== null && calcState.operator && !calcState.resetOnNext) {
-            const res = operate(calcState.prevVal, currentVal, calcState.operator);
-            if (res === null) {
-              calcState.display = 'Error';
-              calcState.prevVal = null;
-              calcState.operator = null;
-            } else {
-              calcState.display = formatVal(res);
-              calcState.prevVal = res;
-            }
-          } else {
-            calcState.prevVal = currentVal;
-          }
-          calcState.operator = key;
-          calcState.history = `${calcState.display} ${key}`;
-          calcState.resetOnNext = true;
-        }
-      } else if (key === '=') {
-        const currentVal = parseFloat(calcState.display);
-        if (calcState.operator && calcState.prevVal !== null && !isNaN(currentVal)) {
-          const res = operate(calcState.prevVal, currentVal, calcState.operator);
-          if (res === null) {
-            calcState.display = 'Error';
-          } else {
-            calcState.display = formatVal(res);
-          }
-          calcState.history = `${calcState.prevVal} ${calcState.operator} ${currentVal} =`;
-          calcState.prevVal = null;
-          calcState.operator = null;
-          calcState.resetOnNext = true;
-        }
-      } else if (key === '+/-') {
-        if (calcState.display !== '0' && calcState.display !== 'Error') {
-          calcState.display = calcState.display.startsWith('-') ? calcState.display.slice(1) : `-${calcState.display}`;
-        }
-      } else if (key === '.') {
-        if (calcState.resetOnNext) {
-          calcState.display = '0.';
-          calcState.resetOnNext = false;
-        } else if (!calcState.display.includes('.')) {
-          calcState.display += '.';
-        }
-      } else {
-        // Digit inputs
-        if (calcState.display === '0' || calcState.resetOnNext || calcState.display === 'Error') {
-          calcState.display = key;
-          calcState.resetOnNext = false;
-        } else {
-          calcState.display += key;
-        }
-      }
-
-      displayEl.innerText = calcState.display;
-      historyEl.innerText = calcState.history || '0';
-    }
-
-    function insertCalcAnswer() {
-      const val = parseFloat(calcState.display);
-      if (!isNaN(val)) {
-        const inputEl = document.getElementById('manual-user-answer');
-        if (inputEl) {
-          inputEl.value = val.toFixed(2);
-          sound.playCombo();
-        }
-      }
-    }
+    let desmosLoaded = false;
 
     // -------------------------------------------------------------
     // HELP MODAL FORMULA EXPLANATIONS (S1)
@@ -1674,7 +1515,10 @@ const QUESTIONS = [
       const el = document.getElementById('modal-calculator');
       if (open) {
         el.classList.remove('hidden');
-        calcPress('C'); // Clear
+        if (!desmosLoaded) {
+          document.getElementById('desmos-iframe').src = 'https://www.desmos.com/scientific?embed';
+          desmosLoaded = true;
+        }
       } else {
         el.classList.add('hidden');
       }
