@@ -274,6 +274,22 @@
         let tagFilter = "ALL";
         let notesListenerUnsubscribe = null;
 
+        // Prevent race condition on login button
+        const loginBtn = document.getElementById('btn-login');
+        if (loginBtn) {
+            loginBtn.disabled = true;
+            loginBtn.dataset.originalHtml = loginBtn.innerHTML;
+            loginBtn.dataset.originalClass = loginBtn.className;
+            loginBtn.innerHTML = `
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-current inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Checking secure session...
+            `;
+            loginBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+
         // --- AUTH LOGIC ---
         auth.onAuthStateChanged((user) => {
             const overlay = document.getElementById('auth-overlay');
@@ -289,6 +305,11 @@
                     document.getElementById('user-display').textContent = user.email;
                     loadNotes();
                 } else {
+                    if (loginBtn) {
+                        loginBtn.disabled = false;
+                        loginBtn.innerHTML = loginBtn.dataset.originalHtml;
+                        loginBtn.className = loginBtn.dataset.originalClass;
+                    }
                     error.classList.remove('hidden');
                     showToast("Unauthorized account. Access denied.", "error");
                     setTimeout(() => auth.signOut(), 2500);
@@ -304,6 +325,13 @@
                 overlay.style.pointerEvents = "auto";
                 shell.classList.add('opacity-0');
                 setTimeout(() => shell.classList.add('hidden'), 500);
+                
+                if (loginBtn) {
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = loginBtn.dataset.originalHtml;
+                    loginBtn.className = loginBtn.dataset.originalClass;
+                }
+                
                 notes = [];
                 activeNote = null;
                 renderNotesList();

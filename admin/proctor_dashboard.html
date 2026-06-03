@@ -202,10 +202,14 @@
             <!-- Modal Content -->
             <div class="flex-grow overflow-y-auto p-6 space-y-6">
                 <!-- Stats Row -->
-                <div class="grid grid-cols-3 gap-4">
+                <div class="grid grid-cols-4 gap-4">
                     <div class="bg-white/5 p-4 rounded-2xl border border-white/5">
                         <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Current Score</p>
                         <p id="modal-score" class="text-2xl font-black text-indigo-400 mono">0</p>
+                    </div>
+                    <div class="bg-white/5 p-4 rounded-2xl border border-white/5">
+                        <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Active Question</p>
+                        <p id="modal-question" class="text-2xl font-black text-blue-400 mono">--</p>
                     </div>
                     <div class="bg-white/5 p-4 rounded-2xl border border-white/5">
                         <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Total Violations</p>
@@ -322,6 +326,22 @@
         const auth = firebase.auth();
         const AUTHORIZED_EMAILS = ["rmudry@orangeusd.org", "ryan.mudry@gmail.com", "ryanmudry@gmail.com"];
 
+        // Prevent race condition on login button
+        const loginBtn = document.getElementById('btn-login');
+        if (loginBtn) {
+            loginBtn.disabled = true;
+            loginBtn.dataset.originalHtml = loginBtn.innerHTML;
+            loginBtn.dataset.originalClass = loginBtn.className;
+            loginBtn.innerHTML = `
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-current inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Checking secure session...
+            `;
+            loginBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+
         // Auth Guard Logic
         auth.onAuthStateChanged(user => {
             if (user && AUTHORIZED_EMAILS.includes(user.email.toLowerCase())) {
@@ -329,6 +349,11 @@
                 initDashboard();
             } else {
                 document.getElementById('auth-overlay').classList.remove('hidden');
+                if (loginBtn) {
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = loginBtn.dataset.originalHtml;
+                    loginBtn.className = loginBtn.dataset.originalClass;
+                }
                 if (user) {
                     document.getElementById('auth-error').classList.remove('hidden');
                     auth.signOut();
@@ -535,8 +560,10 @@
                 const studentPeriod = parseInt(String(s.class_period || '').replace(/\D/g, ''));
                 const lockSource = assignmentSettings.is_global_locked ? 'GLOBAL' : (assignmentSettings.locked_periods.includes(studentPeriod) ? `P${studentPeriod}` : 'INDIVIDUAL');
 
-                // Extract score display (e.g. "3 / 5" from "COMPLETED: 3 / 5")
-                const scoreDisplay = isFinished && s.status ? s.status.replace('COMPLETED: ', '') : s.score;
+                // Extract score display (e.g. "3 / 5" from "COMPLETED: 3 / 5", or format as "score / total" if not finished but total is available)
+                const scoreDisplay = isFinished && s.status 
+                    ? s.status.replace('COMPLETED: ', '') 
+                    : (typeof s.score === 'number' && s.total_points ? `${s.score} / ${s.total_points}` : s.score);
                 
                 // Use live status over stale last_alert for display
                 const liveStatus = s.status || details.status || '';
@@ -594,6 +621,14 @@
                                     ${statusText}
                                 </span>
                             </div>
+                            ${!isFinished ? `
+                            <div class="bg-black/20 p-1.5 rounded-lg border border-white/5 mono text-[9px] flex justify-between items-center">
+                                <span class="text-slate-500 uppercase">Question:</span>
+                                <span class="text-indigo-400 font-bold ml-2">
+                                    ${s.session_progress && s.session_progress.current_question !== undefined ? `Q${s.session_progress.current_question + 1} / ${s.total_points || '?'}` : 'WAITING'}
+                                </span>
+                            </div>
+                            ` : ''}
                         </div>
 
                         <div class="mt-3 pt-3 border-t border-white/5 flex justify-between items-center text-[8px] font-bold">
@@ -810,8 +845,16 @@
             document.getElementById('modal-avatar').textContent = s.student_name.charAt(0);
             document.getElementById('modal-name').textContent = s.student_name;
             document.getElementById('modal-meta').textContent = `ID: ${s.student_id} // PERIOD ${s.class_period || '?'}`;
-            const scoreDisplay = isFinished && s.status ? s.status.replace('COMPLETED: ', '') : s.score;
+            const scoreDisplay = isFinished && s.status 
+                ? s.status.replace('COMPLETED: ', '') 
+                : (typeof s.score === 'number' && s.total_points ? `${s.score} / ${s.total_points}` : s.score);
             document.getElementById('modal-score').textContent = `${scoreDisplay}`;
+            
+            const activeQuestion = !isFinished && s.session_progress && s.session_progress.current_question !== undefined 
+                ? `Q${s.session_progress.current_question + 1}` 
+                : (isFinished ? 'DONE' : 'WAITING');
+            document.getElementById('modal-question').textContent = activeQuestion;
+
             document.getElementById('modal-violation-count').textContent = violations.length;
             document.getElementById('modal-timestamp').textContent = new Date().toLocaleString();
 

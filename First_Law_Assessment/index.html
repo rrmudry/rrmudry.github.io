@@ -525,6 +525,7 @@
             const [showAdminInput, setShowAdminInput] = useState(false);
             const [adminTestId, setAdminTestId] = useState("");
             const [tempUser, setTempUser] = useState(null);
+            const [isAuthInitializing, setIsAuthInitializing] = useState(true);
 
             // Refs to prevent stale closures in sync callbacks
             const studentIdRef = useRef(studentId);
@@ -647,6 +648,7 @@
             // Auth State Listener
             useEffect(() => {
                 const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
+                    setIsAuthInitializing(false);
                     if (firebaseUser) {
                         const emailLower = firebaseUser.email ? firebaseUser.email.toLowerCase() : "";
                         const isOrangeUSD = emailLower.endsWith("@orangeusd.org") || emailLower.endsWith("@student.orangeusd.org");
@@ -1446,18 +1448,28 @@
                                         <p className="text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-6">First Law of Thermodynamics Assessment</p>
 
                                         {!showAdminInput ? (
-                                            <div className="w-full max-w-xs flex flex-col gap-4">
-                                                <button
-                                                    onClick={handleGoogleLogin}
-                                                    className="w-full bg-white text-slate-950 py-3.5 rounded-xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 hover:bg-cyan-50 transition-all active:scale-95 shadow-xl hover:shadow-cyan-500/10"
-                                                >
-                                                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-4 h-4" alt="Google" />
-                                                    Sign In with Google
-                                                </button>
-                                                <p className="text-[8px] font-bold text-slate-500 uppercase tracking-[0.2em] leading-relaxed">
-                                                    Use your school-issued <span className="text-blue-400">@orangeusd.org</span> account
-                                                </p>
-                                            </div>
+                                            isAuthInitializing ? (
+                                                <div className="flex flex-col items-center gap-3 py-4">
+                                                    <svg className="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                    <p className="text-[8px] font-bold text-slate-500 uppercase tracking-[0.2em]">Checking secure session...</p>
+                                                </div>
+                                            ) : (
+                                                <div className="w-full max-w-xs flex flex-col gap-4">
+                                                    <button
+                                                        onClick={handleGoogleLogin}
+                                                        className="w-full bg-white text-slate-950 py-3.5 rounded-xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 hover:bg-cyan-50 transition-all active:scale-95 shadow-xl hover:shadow-cyan-500/10"
+                                                    >
+                                                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-4 h-4" alt="Google" />
+                                                        Sign In with Google
+                                                     </button>
+                                                     <p className="text-[8px] font-bold text-slate-500 uppercase tracking-[0.2em] leading-relaxed">
+                                                         Use your school-issued <span className="text-blue-400">@orangeusd.org</span> account
+                                                     </p>
+                                                </div>
+                                            )
                                         ) : (
                                             <div className="w-full max-w-xs flex flex-col gap-4 animate-in fade-in">
                                                 <div className="flex flex-col text-left">
