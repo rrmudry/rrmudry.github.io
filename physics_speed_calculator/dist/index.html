@@ -1,13 +1,1747 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Physics Speed Calculator</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script type="module" crossorigin src="./assets/index-B3XtC2K9.js"></script>
-  </head>
-  <body class="bg-slate-50">
-    <div id="root"></div>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Physics Speed Calculator | Kinematics Lab</title>
+  
+  <!-- CDNs for styling, icons, and libraries -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  
+  <!-- Premium Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;600;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg: #070b1a;
+      --bg-alt: #0e1328;
+      --surface: rgba(13, 19, 40, 0.65);
+      --border: rgba(120, 141, 255, 0.15);
+      --accent: #f97316;
+      --accent-neon: #00f3ff;
+      --accent-purple: #d946ef;
+    }
+    
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(circle at top left, rgba(249, 115, 22, 0.08), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.08), transparent 50%);
+      color: #f8fafc;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    
+    .glass {
+      background: var(--surface);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+    }
+    
+    .glass-highlight {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .bg-grid {
+      background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.015) 1px, transparent 0);
+      background-size: 30px 30px;
+    }
+    
+    .glow-orb {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(0, 243, 255, 0.04) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Drag & Drop Visuals */
+    .drag-target {
+      transition: all 0.2s ease;
+    }
+    .drag-target.drag-over {
+      border-color: var(--accent-neon);
+      background: rgba(0, 243, 255, 0.1);
+      box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+    }
+
+    .glow-neon {
+      box-shadow: 0 0 20px rgba(0, 243, 255, 0.25);
+      border-color: var(--accent-neon);
+    }
+
+    .glow-orange {
+      box-shadow: 0 0 20px rgba(249, 115, 22, 0.25);
+      border-color: var(--accent);
+    }
+
+    .glow-purple {
+      box-shadow: 0 0 20px rgba(217, 70, 239, 0.25);
+      border-color: var(--accent-purple);
+    }
+  </style>
+</head>
+<body class="bg-grid min-h-screen flex flex-col relative overflow-hidden">
+
+  <!-- Glow orbs -->
+  <div class="glow-orb top-[-100px] right-[-100px]"></div>
+  <div class="glow-orb bottom-[-150px] left-[-150px]"></div>
+
+  <!-- Header -->
+  <header class="w-full py-4 px-6 border-b border-white/5 bg-[#050917]/70 backdrop-blur-md sticky top-0 z-50 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="../../index.html" class="flex items-center gap-2 text-slate-400 hover:text-white transition-colors mr-2">
+        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+      </a>
+      <div class="bg-orange-600/20 p-2 rounded-xl border border-orange-500/30">
+        <i data-lucide="gauge" class="text-orange-500 w-6 h-6 animate-pulse"></i>
+      </div>
+      <div>
+        <h1 class="text-xl font-bold tracking-tight">Kinematics <span class="text-orange-500">Calculator</span></h1>
+        <p class="text-xs text-slate-400 font-medium">Speed, Distance & Time Lab</p>
+      </div>
+    </div>
+    
+    <!-- Student Badge & High Score -->
+    <div id="student-badge" class="hidden flex items-center gap-4">
+      <div class="glass px-3 py-1.5 rounded-xl border border-white/5 flex items-center gap-2">
+        <div class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></div>
+        <span class="text-xs text-slate-400">Student ID:</span>
+        <span id="badge-id" class="text-sm font-bold mono text-emerald-400">000000</span>
+      </div>
+      <div class="glass px-3 py-1.5 rounded-xl border border-white/5 flex items-center gap-2">
+        <i data-lucide="trophy" class="w-4 h-4 text-yellow-500"></i>
+        <span class="text-xs text-slate-400">Best Score:</span>
+        <span id="badge-highscore" class="text-sm font-bold mono text-yellow-400">0</span>
+      </div>
+      <button onclick="logout()" class="text-slate-400 hover:text-rose-400 transition-colors p-1.5 rounded-lg hover:bg-white/5" title="Exit Laboratory">
+        <i data-lucide="log-out" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main View Container -->
+  <main class="flex-grow flex items-center justify-center p-4 md:p-8 z-10">
+    
+    <!-- SECTION 1: REGISTRATION -->
+    <section id="view-register" class="max-w-md w-full glass p-8 md:p-10 rounded-[2.5rem] border border-white/10 relative z-10 shadow-2xl transition-all duration-500">
+      <div class="text-center space-y-6">
+        <div class="bg-orange-500 w-20 h-20 rounded-[2rem] flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(249,115,22,0.3)]">
+          <i data-lucide="user-check" class="text-black w-10 h-10"></i>
+        </div>
+        <div>
+          <h2 class="text-3xl font-black uppercase tracking-tight italic">Initialize <span class="text-orange-500">Lab Log</span></h2>
+          <p class="text-slate-400 font-medium text-sm mt-2 leading-relaxed">Enter your 6-digit Student ID to load your kinematics simulator progress and track achievements.</p>
+        </div>
+        
+        <form onsubmit="handleRegister(event)" class="space-y-4 pt-4">
+          <div class="relative">
+            <input 
+              type="text" 
+              id="input-student-id" 
+              maxlength="6" 
+              placeholder="e.g. 123456" 
+              class="w-full bg-slate-900/90 text-white py-4 px-6 rounded-2xl border border-white/10 text-center font-bold tracking-widest text-xl focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none transition-all mono placeholder:tracking-normal placeholder:font-normal placeholder:text-slate-600"
+              required
+            >
+          </div>
+          <button type="submit" class="w-full bg-white text-black py-4 rounded-2xl font-black uppercase tracking-widest hover:scale-[1.02] hover:bg-slate-100 transition-all flex items-center justify-center gap-2 shadow-2xl">
+            Enter Lab <i data-lucide="arrow-right" class="w-5 h-5"></i>
+          </button>
+        </form>
+        <p id="register-error" class="text-rose-500 text-xs font-bold uppercase tracking-wider hidden">Please enter a valid 6-digit number</p>
+      </div>
+    </section>
+
+    <!-- SECTION 2: DASHBOARD -->
+    <section id="view-dashboard" class="max-w-4xl w-full hidden space-y-8 transition-all duration-500">
+      <div class="text-center space-y-2">
+        <h2 class="text-4xl font-extrabold tracking-tight">Kinematics Flight Deck</h2>
+        <p class="text-slate-400 max-w-lg mx-auto">Master velocity configurations, solve equations, and prove your speedrun mechanics.</p>
+      </div>
+
+      <!-- Level Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- LEVEL 1 CARD -->
+        <div class="glass rounded-[2rem] p-6 flex flex-col justify-between relative overflow-hidden border border-white/5 group hover:border-cyan-500/40 transition-all duration-300">
+          <div class="space-y-4">
+            <div class="flex justify-between items-start">
+              <div class="bg-cyan-500/20 text-cyan-400 p-3 rounded-2xl border border-cyan-500/30">
+                <i data-lucide="git-branch" class="w-6 h-6"></i>
+              </div>
+              <span id="status-l1" class="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 border border-white/5 uppercase tracking-wider">Locked</span>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold">Level 1: Formula Arranger</h3>
+              <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">Drag and drop the variables into the correct slot configurations to solve for distance, time, and speed.</p>
+            </div>
+          </div>
+          <button onclick="startLevel(1)" class="w-full mt-6 bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 group-hover:scale-[1.02]">
+            Launch Simulator <i data-lucide="play" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- LEVEL 2 CARD -->
+        <div class="glass rounded-[2rem] p-6 flex flex-col justify-between relative overflow-hidden border border-white/5 group hover:border-orange-500/40 transition-all duration-300">
+          <div class="space-y-4">
+            <div class="flex justify-between items-start">
+              <div class="bg-orange-500/20 text-orange-400 p-3 rounded-2xl border border-orange-500/30">
+                <i data-lucide="calculator" class="w-6 h-6"></i>
+              </div>
+              <span id="status-l2" class="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 border border-white/5 uppercase tracking-wider">Locked</span>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold">Level 2: Precision Calculator</h3>
+              <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">Select formulas and solve precision physics computations with a built-in virtual scientific calculator.</p>
+            </div>
+          </div>
+          <button onclick="startLevel(2)" class="w-full mt-6 bg-orange-600 hover:bg-orange-500 text-white font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 group-hover:scale-[1.02]">
+            Launch Simulator <i data-lucide="play" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- LEVEL 3 CARD -->
+        <div class="glass rounded-[2rem] p-6 flex flex-col justify-between relative overflow-hidden border border-white/5 group hover:border-fuchsia-500/40 transition-all duration-300">
+          <div class="space-y-4">
+            <div class="flex justify-between items-start">
+              <div class="bg-fuchsia-500/20 text-fuchsia-400 p-3 rounded-2xl border border-fuchsia-500/30">
+                <i data-lucide="zap" class="w-6 h-6"></i>
+              </div>
+              <span id="status-l3" class="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 border border-white/5 uppercase tracking-wider">Locked</span>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold">Level 3: Speed Run</h3>
+              <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">Beat the clock! Solve as many kinematics problems as possible in 60 seconds with streak multipliers.</p>
+            </div>
+          </div>
+          <button onclick="startLevel(3)" class="w-full mt-6 bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 group-hover:scale-[1.02]">
+            Launch Speed Run <i data-lucide="play" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Action Panel -->
+      <div id="action-panel" class="w-full flex justify-center pt-4">
+        <button id="btn-view-cert" onclick="viewCertificate()" class="hidden bg-emerald-600 hover:bg-emerald-500 text-white font-black uppercase tracking-wider py-4 px-10 rounded-2xl shadow-xl hover:scale-105 transition-all flex items-center gap-3">
+          <i data-lucide="award" class="w-6 h-6"></i> Generate Lab Certificate
+        </button>
+      </div>
+    </section>
+
+    <!-- SECTION 3: LEVEL 1 (Formula Arranger) -->
+    <section id="view-level1" class="max-w-4xl w-full hidden flex flex-col gap-6 transition-all duration-500">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center gap-3">
+          <button onclick="backToDashboard()" class="text-slate-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/5">
+            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+          </button>
+          <div>
+            <h3 class="text-2xl font-bold flex items-center gap-2 text-cyan-400">Level 1: Formula Arranger</h3>
+            <p class="text-xs text-slate-400 mt-0.5">Drag-and-drop the variables into the correct positions</p>
+          </div>
+        </div>
+        <div class="glass px-4 py-2 rounded-xl border border-cyan-500/20 text-xs font-bold text-cyan-400">
+          Target: <span id="l1-target-desc" class="font-extrabold uppercase ml-1">Velocity</span>
+        </div>
+      </div>
+
+      <!-- Simulator Track Canvas -->
+      <div class="glass rounded-[2rem] p-4 border border-cyan-500/10 overflow-hidden relative">
+        <div class="absolute top-4 left-4 z-10 flex gap-2">
+          <span class="text-[10px] px-2 py-1 rounded bg-[#070b1a]/95 text-slate-400 font-mono tracking-wider border border-white/5 uppercase">Kinetic Simulation Matrix</span>
+        </div>
+        <canvas id="l1-canvas" class="w-full h-32 bg-[#050918]/80 rounded-2xl border border-white/5"></canvas>
+        
+        <!-- Live Telemetry overlay -->
+        <div class="grid grid-cols-3 gap-2 mt-4 px-2">
+          <div class="glass-highlight p-2 rounded-xl text-center">
+            <span class="text-[10px] text-slate-400 uppercase tracking-widest block font-medium">Distance</span>
+            <span id="telemetry-d" class="text-sm font-bold text-cyan-400 mono">0.0 m</span>
+          </div>
+          <div class="glass-highlight p-2 rounded-xl text-center">
+            <span class="text-[10px] text-slate-400 uppercase tracking-widest block font-medium">Time</span>
+            <span id="telemetry-t" class="text-sm font-bold text-orange-400 mono">0.0 s</span>
+          </div>
+          <div class="glass-highlight p-2 rounded-xl text-center">
+            <span class="text-[10px] text-slate-400 uppercase tracking-widest block font-medium">Velocity</span>
+            <span id="telemetry-v" class="text-sm font-bold text-emerald-400 mono">0.0 m/s</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Arranging Workspace -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
+        
+        <!-- LEFT: Variable Source Dock -->
+        <div class="md:col-span-4 glass rounded-[2rem] p-6 border border-white/5 flex flex-col justify-between">
+          <div>
+            <h4 class="text-sm font-extrabold text-slate-300 uppercase tracking-wider mb-2">Variables Dock</h4>
+            <p class="text-xs text-slate-400 mb-4">Click to select, then click a slot, or drag them directly.</p>
+          </div>
+          
+          <div class="flex md:flex-col gap-3 justify-center py-4">
+            <!-- Draggable elements -->
+            <div 
+              draggable="true" 
+              data-var="d" 
+              class="var-item flex-1 bg-slate-900 border border-cyan-500/30 hover:border-cyan-400 hover:glow-neon text-cyan-400 p-4 rounded-xl cursor-grab active:cursor-grabbing font-bold flex items-center justify-between transition-all select-none"
+              onclick="selectVariableClick(this)"
+            >
+              <div class="flex items-center gap-2">
+                <span class="mono text-lg font-black italic">d</span>
+                <span class="text-[10px] text-slate-500 font-normal hidden md:inline">Distance</span>
+              </div>
+              <i data-lucide="grip-vertical" class="w-4 h-4 text-slate-600 hidden md:block"></i>
+            </div>
+            
+            <div 
+              draggable="true" 
+              data-var="t" 
+              class="var-item flex-1 bg-slate-900 border border-orange-500/30 hover:border-orange-400 hover:glow-orange text-orange-400 p-4 rounded-xl cursor-grab active:cursor-grabbing font-bold flex items-center justify-between transition-all select-none"
+              onclick="selectVariableClick(this)"
+            >
+              <div class="flex items-center gap-2">
+                <span class="mono text-lg font-black italic">t</span>
+                <span class="text-[10px] text-slate-500 font-normal hidden md:inline">Time</span>
+              </div>
+              <i data-lucide="grip-vertical" class="w-4 h-4 text-slate-600 hidden md:block"></i>
+            </div>
+
+            <div 
+              draggable="true" 
+              data-var="v" 
+              class="var-item flex-1 bg-slate-900 border border-emerald-500/30 hover:border-emerald-400 hover:glow-purple text-emerald-400 p-4 rounded-xl cursor-grab active:cursor-grabbing font-bold flex items-center justify-between transition-all select-none"
+              onclick="selectVariableClick(this)"
+            >
+              <div class="flex items-center gap-2">
+                <span class="mono text-lg font-black italic">v</span>
+                <span class="text-[10px] text-slate-500 font-normal hidden md:inline">Velocity</span>
+              </div>
+              <i data-lucide="grip-vertical" class="w-4 h-4 text-slate-600 hidden md:block"></i>
+            </div>
+          </div>
+          
+          <button onclick="resetL1Workspace()" class="text-xs font-semibold text-slate-400 hover:text-white transition-colors flex items-center justify-center gap-1 mt-2">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Reset Board
+          </button>
+        </div>
+
+        <!-- RIGHT: Puzzle Workspace -->
+        <div class="md:col-span-8 glass rounded-[2rem] p-6 border border-white/5 flex flex-col justify-between">
+          <div class="space-y-2">
+            <h4 class="text-sm font-extrabold text-slate-300 uppercase tracking-wider">Arranging Board</h4>
+            <p id="l1-puzzle-prompt" class="text-xs text-slate-400">Configure the equation to compute the unknown target variable.</p>
+          </div>
+
+          <!-- Formula Slots -->
+          <div class="my-8 flex items-center justify-center gap-3 md:gap-5 flex-wrap">
+            
+            <!-- Left Slot (Target Variable) -->
+            <div 
+              data-slot="left" 
+              class="drag-target w-20 h-20 bg-slate-950/80 rounded-2xl border-2 border-dashed border-white/10 flex items-center justify-center text-2xl font-black italic select-none cursor-pointer"
+              onclick="handleSlotClick(this)"
+            ></div>
+
+            <div class="text-3xl font-black text-slate-500 select-none">=</div>
+
+            <!-- Numerator Slot -->
+            <div class="flex flex-col items-center gap-2">
+              <div 
+                data-slot="top" 
+                class="drag-target w-20 h-20 bg-slate-950/80 rounded-2xl border-2 border-dashed border-white/10 flex items-center justify-center text-2xl font-black italic select-none cursor-pointer"
+                onclick="handleSlotClick(this)"
+              ></div>
+              
+              <!-- Fraction Divider -->
+              <div class="w-24 h-1 bg-white/20 rounded-full select-none"></div>
+
+              <!-- Denominator Slot -->
+              <div 
+                data-slot="bottom" 
+                class="drag-target w-20 h-20 bg-slate-950/80 rounded-2xl border-2 border-dashed border-white/10 flex items-center justify-center text-2xl font-black italic select-none cursor-pointer"
+                onclick="handleSlotClick(this)"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Simulation Button -->
+          <div class="flex justify-between items-center gap-4">
+            <div id="l1-status-msg" class="text-xs font-semibold text-slate-400">Assemble the formula.</div>
+            <button 
+              id="btn-l1-run" 
+              onclick="runL1Simulation()" 
+              disabled 
+              class="bg-slate-800 text-slate-500 py-3.5 px-8 rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <i data-lucide="zap" class="w-4 h-4"></i> Run Telemetry Simulation
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 4: LEVEL 2 (Precision Calculator) -->
+    <section id="view-level2" class="max-w-4xl w-full hidden flex flex-col gap-6 transition-all duration-500">
+      
+      <div class="flex justify-between items-center">
+        <div class="flex items-center gap-3">
+          <button onclick="backToDashboard()" class="text-slate-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/5">
+            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+          </button>
+          <div>
+            <h3 class="text-2xl font-bold flex items-center gap-2 text-orange-400">Level 2: Precision Calculator</h3>
+            <p class="text-xs text-slate-400 mt-0.5">Solve kinematics problems. Progress: <span id="l2-progress" class="font-bold text-orange-400 mono">1/5</span></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
+        
+        <!-- LEFT: Math Word Problem panel -->
+        <div class="md:col-span-7 flex flex-col gap-6">
+          
+          <!-- Word Problem Card -->
+          <div class="glass rounded-[2rem] p-6 border border-white/5 flex-grow flex flex-col justify-between space-y-6">
+            <div class="space-y-4">
+              <span class="text-[10px] px-2.5 py-1 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/20 font-bold uppercase tracking-wider">Kinematics Problem Case</span>
+              <p id="l2-question-text" class="text-lg md:text-xl font-semibold leading-relaxed text-slate-100">Loading problem parameters...</p>
+            </div>
+
+            <!-- Formula selector buttons -->
+            <div class="space-y-2">
+              <span class="text-[10px] text-slate-400 uppercase tracking-widest block font-medium">Select correct operational formula:</span>
+              <div class="flex gap-2">
+                <button onclick="selectL2Formula(this, 'v')" class="formula-btn flex-1 bg-slate-900 border border-white/5 py-2 px-3 rounded-xl font-bold mono italic text-slate-400 hover:border-orange-500/30 transition-all text-sm">v = d / t</button>
+                <button onclick="selectL2Formula(this, 'd')" class="formula-btn flex-1 bg-slate-900 border border-white/5 py-2 px-3 rounded-xl font-bold mono italic text-slate-400 hover:border-orange-500/30 transition-all text-sm">d = v × t</button>
+                <button onclick="selectL2Formula(this, 't')" class="formula-btn flex-1 bg-slate-900 border border-white/5 py-2 px-3 rounded-xl font-bold mono italic text-slate-400 hover:border-orange-500/30 transition-all text-sm">t = d / v</button>
+              </div>
+            </div>
+
+            <!-- Numeric Input Field -->
+            <div class="space-y-2">
+              <span class="text-[10px] text-slate-400 uppercase tracking-widest block font-medium">Compute Value (Round to 2 decimal places):</span>
+              <div class="flex gap-2 relative">
+                <input 
+                  type="number" 
+                  step="0.01" 
+                  id="l2-answer-input" 
+                  placeholder="Insert calculated result..." 
+                  class="flex-grow bg-slate-950/80 border border-white/10 rounded-xl py-3 px-4 text-white font-bold focus:border-orange-500 focus:outline-none transition-all mono placeholder:font-normal placeholder:text-slate-600"
+                >
+                <button onclick="checkL2Answer()" class="bg-orange-600 hover:bg-orange-500 text-white font-bold px-6 rounded-xl transition-all shadow-lg">Submit</button>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+
+        <!-- RIGHT: Embedded Retro Scientific Calculator -->
+        <div class="md:col-span-5 glass rounded-[2rem] p-6 border border-white/5 flex flex-col gap-4 relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-24 h-24 bg-orange-500/5 rounded-full blur-2xl pointer-events-none"></div>
+          <div>
+            <span class="text-[10px] text-slate-400 uppercase tracking-widest block font-bold mb-1">On-Board Assistant</span>
+            <h4 class="text-sm font-extrabold text-orange-400 uppercase tracking-wider">Kinetic Calculator v1.0</h4>
+          </div>
+
+          <!-- Calc Screen -->
+          <div class="bg-slate-950 border border-white/10 rounded-xl p-3.5 text-right relative overflow-hidden flex flex-col justify-end min-h-[70px]">
+            <div id="calc-history" class="text-xs text-slate-600 font-semibold mono truncate">0</div>
+            <div id="calc-screen" class="text-lg font-bold text-orange-400 mono truncate">0</div>
+          </div>
+
+          <!-- Calc Keypad Grid -->
+          <div class="grid grid-cols-4 gap-2 flex-grow">
+            <button onclick="pressCalcKey('C')" class="bg-slate-900 border border-white/5 py-2.5 rounded-xl font-bold text-rose-500 hover:bg-rose-500/10 hover:border-rose-500/20 transition-all mono text-sm">C</button>
+            <button onclick="pressCalcKey('DEL')" class="bg-slate-900 border border-white/5 py-2.5 rounded-xl font-bold text-slate-400 hover:bg-slate-800 transition-all text-xs">DEL</button>
+            <button onclick="pressCalcKey('/')" class="bg-slate-900 border border-white/5 py-2.5 rounded-xl font-bold text-orange-500 hover:bg-orange-500/10 transition-all mono text-sm">/</button>
+            <button onclick="pressCalcKey('*')" class="bg-slate-900 border border-white/5 py-2.5 rounded-xl font-bold text-orange-500 hover:bg-orange-500/10 transition-all mono text-sm">*</button>
+            
+            <button onclick="pressCalcKey('7')" class="bg-slate-900/60 border border-white/5 py-2.5 rounded-xl font-bold hover:bg-slate-800 transition-all mono text-sm">7</button>
+            <button onclick="pressCalcKey('8')" class="bg-slate-900/60 border border-white/5 py-2.5 rounded-xl font-bold hover:bg-slate-800 transition-all mono text-sm">8</button>
+            <button onclick="pressCalcKey('9')" class="bg-slate-900/60 border border-white/5 py-2.5 rounded-xl font-bold hover:bg-slate-800 transition-all mono text-sm">9</button>
+            <button onclick="pressCalcKey('-')" class="bg-slate-900 border border-white/5 py-2.5 rounded-xl font-bold text-orange-500 hover:bg-orange-500/10 transition-all mono text-sm">-</button>
+            
+            <button onclick="pressCalcKey('4')" class="bg-slate-900/60 border border-white/5 py-2.5 rounded-xl font-bold hover:bg-slate-800 transition-all mono text-sm">4</button>
+            <button onclick="pressCalcKey('5')" class="bg-slate-900/60 border border-white/5 py-2.5 rounded-xl font-bold hover:bg-slate-800 transition-all mono text-sm">5</button>
+            <button onclick="pressCalcKey('6')" class="bg-slate-900/60 border border-white/5 py-2.5 rounded-xl font-bold hover:bg-slate-800 transition-all mono text-sm">6</button>
+            <button onclick="pressCalcKey('+')" class="bg-slate-900 border border-white/5 py-2.5 rounded-xl font-bold text-orange-500 hover:bg-orange-500/10 transition-all mono text-sm">+</button>
+            
+            <button onclick="pressCalcKey('1')" class="bg-slate-900/60 border border-white/5 py-2.5 rounded-xl font-bold hover:bg-slate-800 transition-all mono text-sm">1</button>
+            <button onclick="pressCalcKey('2')" class="bg-slate-900/60 border border-white/5 py-2.5 rounded-xl font-bold hover:bg-slate-800 transition-all mono text-sm">2</button>
+            <button onclick="pressCalcKey('3')" class="bg-slate-900/60 border border-white/5 py-2.5 rounded-xl font-bold hover:bg-slate-800 transition-all mono text-sm">3</button>
+            <button onclick="pressCalcKey('=')" class="row-span-2 bg-orange-600 hover:bg-orange-500 text-white rounded-xl font-extrabold transition-all flex items-center justify-center text-base shadow-md">=</button>
+            
+            <button onclick="pressCalcKey('0')" class="col-span-2 bg-slate-900/60 border border-white/5 py-2.5 rounded-xl font-bold hover:bg-slate-800 transition-all mono text-sm">0</button>
+            <button onclick="pressCalcKey('.')" class="bg-slate-900/60 border border-white/5 py-2.5 rounded-xl font-bold hover:bg-slate-800 transition-all mono text-sm">.</button>
+          </div>
+          
+          <button onclick="insertCalcAnswer()" class="w-full bg-slate-900 border border-orange-500/30 hover:border-orange-500 text-orange-400 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2">
+            <i data-lucide="copy" class="w-4 h-4"></i> Insert into answer field
+          </button>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- SECTION 5: LEVEL 3 (Speed Run) -->
+    <section id="view-level3" class="max-w-3xl w-full hidden flex flex-col gap-6 transition-all duration-500">
+      
+      <!-- Top header panel -->
+      <div class="flex justify-between items-center glass p-6 rounded-[2rem] border border-white/5 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-r from-fuchsia-500/5 to-purple-500/5"></div>
+        <div class="flex items-center gap-3 relative z-10">
+          <button id="l3-back-btn" onclick="confirmExitLevel3()" class="text-slate-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/5">
+            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+          </button>
+          <div>
+            <h3 class="text-xl md:text-2xl font-bold text-fuchsia-400">Level 3: Speed Run</h3>
+            <p class="text-xs text-slate-400 mt-0.5">Rapid fire velocity calculations</p>
+          </div>
+        </div>
+        
+        <div class="flex items-center gap-6 relative z-10">
+          <!-- Combo Tracker -->
+          <div class="text-right">
+            <span class="text-[10px] text-slate-400 block font-bold uppercase">Streak Combo</span>
+            <span id="l3-combo" class="text-lg font-black text-fuchsia-400 mono">1x</span>
+          </div>
+          <!-- Current score -->
+          <div class="text-right">
+            <span class="text-[10px] text-slate-400 block font-bold uppercase font-medium">Points</span>
+            <span id="l3-score" class="text-2xl font-black text-white mono">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TIMER PROGRESS BAR -->
+      <div class="w-full bg-slate-950 h-3 rounded-full overflow-hidden border border-white/5 relative">
+        <div id="l3-timer-bar" class="h-full bg-gradient-to-r from-fuchsia-500 to-purple-500 transition-all duration-200" style="width: 100%;"></div>
+      </div>
+
+      <!-- L3 MAIN SCREEN CARD -->
+      <div class="glass rounded-[2.5rem] p-8 md:p-10 border border-white/5 relative flex flex-col items-center text-center justify-between min-h-[320px]">
+        
+        <!-- Pre-start View -->
+        <div id="l3-prestart" class="space-y-6 max-w-md my-auto">
+          <div class="bg-fuchsia-500/10 text-fuchsia-400 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto border border-fuchsia-500/20">
+            <i data-lucide="stopwatch" class="w-8 h-8 animate-pulse"></i>
+          </div>
+          <div>
+            <h4 class="text-xl font-bold">Speed Run Ready</h4>
+            <p class="text-xs text-slate-400 mt-2 leading-relaxed">You will have 60 seconds to answer as many kinematics math problems as possible. Multipliers stack on streaks. An incorrect answer resets the streak combo.</p>
+          </div>
+          <button onclick="startLevel3Timer()" class="bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-extrabold py-4 px-10 rounded-2xl transition-all shadow-xl hover:scale-105">
+            Begin Challenge
+          </button>
+        </div>
+
+        <!-- Active Question View -->
+        <div id="l3-active" class="hidden w-full flex flex-col gap-6 my-auto">
+          <div>
+            <span id="l3-q-type" class="text-[10px] px-2.5 py-1 rounded-full bg-fuchsia-500/10 text-fuchsia-400 border border-fuchsia-500/20 font-bold uppercase tracking-wider">Solve for Distance</span>
+            <p id="l3-question-text" class="text-2xl md:text-3xl font-black text-slate-100 tracking-tight leading-relaxed mt-4">d = 120 m, t = 4 s. Find v.</p>
+          </div>
+
+          <!-- Answer Input -->
+          <form onsubmit="submitL3Answer(event)" class="max-w-md w-full mx-auto space-y-4 pt-4">
+            <input 
+              type="number" 
+              step="0.01" 
+              id="l3-answer-input" 
+              placeholder="Type answer..." 
+              class="w-full bg-slate-950/80 border border-white/10 rounded-2xl py-4 px-6 text-center text-2xl text-white font-bold focus:border-fuchsia-500 focus:outline-none transition-all mono placeholder:font-normal placeholder:text-slate-700"
+              autocomplete="off"
+            >
+            <button type="submit" class="w-full bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg">Submit Answer</button>
+          </form>
+        </div>
+
+        <!-- Completion View -->
+        <div id="l3-postrun" class="hidden space-y-6 max-w-md my-auto">
+          <div class="bg-emerald-500/10 text-emerald-400 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto border border-emerald-500/20">
+            <i data-lucide="check-circle" class="w-8 h-8"></i>
+          </div>
+          <div>
+            <h4 class="text-xl font-bold">Speed Run Completed!</h4>
+            <p class="text-xs text-slate-400 mt-2">You solved <span id="l3-postrun-correct" class="font-bold text-white">0</span> equations and accumulated a total score of:</p>
+            <div id="l3-postrun-score" class="text-4xl font-black text-emerald-400 mono mt-3">0 pts</div>
+          </div>
+          <button onclick="backToDashboard()" class="bg-slate-900 border border-white/5 hover:border-slate-700 text-white font-bold py-3 px-8 rounded-xl transition-all">
+            Return to Dashboard
+          </button>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- SECTION 6: CERTIFICATE VIEW -->
+    <section id="view-certificate" class="max-w-xl w-full hidden flex flex-col gap-6 transition-all duration-500">
+      
+      <div class="flex justify-between items-center">
+        <button onclick="backToDashboard()" class="text-slate-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/5 flex items-center gap-1.5 text-sm font-semibold">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i> Back
+        </button>
+        <button onclick="window.print()" class="text-slate-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/5 flex items-center gap-1.5 text-sm font-semibold">
+          <i data-lucide="printer" class="w-4 h-4"></i> Print
+        </button>
+      </div>
+
+      <!-- Main Print Certificate -->
+      <div id="cert-card" class="bg-slate-950 border-4 border-double border-orange-500/40 rounded-[2.5rem] p-8 md:p-10 relative overflow-hidden shadow-2xl flex flex-col items-center text-center space-y-6">
+        
+        <!-- Ornate layout elements -->
+        <div class="absolute inset-0 bg-grid opacity-10"></div>
+        <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-orange-500 via-fuchsia-500 to-cyan-500"></div>
+
+        <!-- Seal badge -->
+        <div class="bg-gradient-to-br from-orange-500 to-yellow-400 text-black w-20 h-20 rounded-full flex items-center justify-center font-black shadow-lg relative border-4 border-slate-950">
+          <i data-lucide="award" class="w-10 h-10"></i>
+        </div>
+
+        <div class="space-y-2 relative z-10">
+          <span class="text-xs font-bold tracking-widest text-orange-400 uppercase font-mono">Mr. Mudry's Physics Simulator</span>
+          <h2 class="text-3xl font-black uppercase italic tracking-tight text-white">Certificate of Achievement</h2>
+          <p class="text-slate-400 text-xs italic">Kinematics Mastery & Velocity Puzzle Calibration</p>
+        </div>
+
+        <div class="w-full h-px bg-white/10 my-2"></div>
+
+        <div class="space-y-1 relative z-10">
+          <span class="text-xs text-slate-500 font-medium">This document certifies that student ID:</span>
+          <div id="cert-student-id" class="text-2xl font-black mono text-emerald-400 tracking-widest">000000</div>
+          <p class="text-slate-300 text-sm max-w-sm mx-auto mt-2 leading-relaxed">Has successfully resolved all formula arranging parameters, computed numerical values, and achieved telemetry verification.</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 w-full pt-2">
+          <div class="glass-highlight p-3 rounded-2xl">
+            <span class="text-[9px] text-slate-500 uppercase tracking-widest block font-bold">Speed Run High Score</span>
+            <span id="cert-highscore" class="text-lg font-black text-fuchsia-400 mono">0 pts</span>
+          </div>
+          <div class="glass-highlight p-3 rounded-2xl">
+            <span class="text-[9px] text-slate-500 uppercase tracking-widest block font-bold">Date Verified</span>
+            <span id="cert-date" class="text-lg font-black text-cyan-400 mono">--/--/----</span>
+          </div>
+        </div>
+
+        <div class="w-full h-px bg-white/10 my-2"></div>
+
+        <!-- Verification QR Code container -->
+        <div class="flex flex-col items-center gap-3 relative z-10">
+          <div class="p-3 bg-white rounded-2xl shadow-xl inline-block">
+            <div id="cert-qrcode" class="w-32 h-32 flex items-center justify-center text-black font-semibold text-xs">QR</div>
+          </div>
+          <div>
+            <span class="text-[10px] text-slate-500 uppercase tracking-widest block font-bold">Scan to Verify Lab Marks</span>
+            <code id="cert-verification-token" class="text-[9px] text-orange-500/70 mono bg-slate-900 px-2 py-0.5 rounded border border-white/5 select-all truncate max-w-[280px] inline-block mt-1">TOKEN</code>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="w-full py-4 text-center border-t border-white/5 bg-[#050917]/70 backdrop-blur-md text-[10px] text-slate-500 select-none z-10">
+    &copy; 2026 Mr. Mudry's Physics Science Laboratory &bull; Standalone Kinematics Core
+  </footer>
+
+  <!-- Web Audio Synthesizer & Game Control Logic -->
+  <script>
+    // -------------------------------------------------------------
+    // AUDIO SYNTHESIZER (Web Audio API)
+    // -------------------------------------------------------------
+    class SynthManager {
+      constructor() {
+        this.ctx = null;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      playBeep() {
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+        gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.12);
+
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.12);
+      }
+
+      playSuccess() {
+        this.init();
+        if (!this.ctx) return;
+        
+        const now = this.ctx.currentTime;
+        const playNote = (freq, delay, dur) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + delay);
+          gain.gain.setValueAtTime(0, now + delay);
+          gain.gain.linearRampToValueAtTime(0.12, now + delay + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + delay + dur);
+
+          osc.start(now + delay);
+          osc.stop(now + delay + dur);
+        };
+
+        playNote(261.63, 0, 0.4);      // C4
+        playNote(329.63, 0.08, 0.4);   // E4
+        playNote(392.00, 0.16, 0.4);   // G4
+        playNote(523.25, 0.24, 0.6);   // C5
+      }
+
+      playError() {
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(220, now);
+        osc.frequency.linearRampToValueAtTime(110, now + 0.35);
+
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+
+        osc.start();
+        osc.stop(now + 0.35);
+      }
+
+      playTimerTick() {
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1000, this.ctx.currentTime);
+        gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.05);
+
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.05);
+      }
+
+      playCombo() {
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1200, this.ctx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.15);
+
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.15);
+      }
+    }
+
+    const sound = new SynthManager();
+
+    // -------------------------------------------------------------
+    // APP STATE & CONSTANTS
+    // -------------------------------------------------------------
+    let state = {
+      studentId: '',
+      levelsCompleted: {
+        level1: false,
+        level2: false,
+        level3: false
+      },
+      highScore: 0
+    };
+
+    const LOCAL_STORAGE_KEY = 'physics_speed_calc_state_v1';
+
+    // -------------------------------------------------------------
+    // INIT & VIEW MANAGEMENT
+    // -------------------------------------------------------------
+    window.addEventListener('DOMContentLoaded', () => {
+      // Refresh lucide icons
+      lucide.createIcons();
+      loadState();
+      
+      if (state.studentId) {
+        showView('view-dashboard');
+        updateUIBadges();
+      } else {
+        showView('view-register');
+      }
+
+      // Hook up UI beep to all standard buttons
+      document.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', () => sound.playBeep());
+      });
+    });
+
+    function showView(viewId) {
+      const views = ['view-register', 'view-dashboard', 'view-level1', 'view-level2', 'view-level3', 'view-certificate'];
+      views.forEach(v => {
+        const el = document.getElementById(v);
+        if (v === viewId) {
+          el.classList.remove('hidden');
+          el.style.opacity = '0';
+          setTimeout(() => el.style.opacity = '1', 50);
+        } else {
+          el.classList.add('hidden');
+        }
+      });
+
+      // Show/Hide top bar student info badge
+      const badge = document.getElementById('student-badge');
+      if (viewId === 'view-register') {
+        badge.classList.add('hidden');
+      } else {
+        badge.classList.remove('hidden');
+      }
+    }
+
+    // -------------------------------------------------------------
+    // LOCALSTORAGE PERSISTENCE
+    // -------------------------------------------------------------
+    function saveState() {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
+      updateUIBadges();
+      updateDashboardCards();
+    }
+
+    function loadState() {
+      const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (stored) {
+        try {
+          state = JSON.parse(stored);
+        } catch (e) {
+          console.error("Failed to parse state", e);
+        }
+      }
+    }
+
+    function updateUIBadges() {
+      document.getElementById('badge-id').innerText = state.studentId || '000000';
+      document.getElementById('badge-highscore').innerText = state.highScore || '0';
+    }
+
+    function logout() {
+      if (confirm('Are you sure you want to end your simulator session? All local progress will be logged out.')) {
+        localStorage.removeItem(LOCAL_STORAGE_KEY);
+        state = {
+          studentId: '',
+          levelsCompleted: { level1: false, level2: false, level3: false },
+          highScore: 0
+        };
+        showView('view-register');
+        document.getElementById('input-student-id').value = '';
+      }
+    }
+
+    // -------------------------------------------------------------
+    // REGISTRATION
+    // -------------------------------------------------------------
+    function handleRegister(e) {
+      e.preventDefault();
+      const idInput = document.getElementById('input-student-id').value.trim();
+      
+      // Validation: Exactly 6 digits
+      if (/^\d{6}$/.test(idInput)) {
+        state.studentId = idInput;
+        document.getElementById('register-error').classList.add('hidden');
+        saveState();
+        showView('view-dashboard');
+        sound.playSuccess();
+      } else {
+        document.getElementById('register-error').classList.remove('hidden');
+        sound.playError();
+      }
+    }
+
+    // -------------------------------------------------------------
+    // DASHBOARD MANAGEMENT
+    // -------------------------------------------------------------
+    function updateDashboardCards() {
+      const updateCardStatus = (lvlId, completed) => {
+        const el = document.getElementById(`status-l${lvlId}`);
+        if (completed) {
+          el.innerText = 'Completed';
+          el.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 uppercase tracking-wider';
+        } else {
+          el.innerText = 'Locked';
+          el.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 border border-white/5 uppercase tracking-wider';
+        }
+      };
+
+      updateCardStatus(1, state.levelsCompleted.level1);
+      updateCardStatus(2, state.levelsCompleted.level2);
+      updateCardStatus(3, state.levelsCompleted.level3);
+
+      // Generate cert button visibility
+      const btnCert = document.getElementById('btn-view-cert');
+      if (state.levelsCompleted.level1 && state.levelsCompleted.level2) {
+        btnCert.classList.remove('hidden');
+      } else {
+        btnCert.classList.add('hidden');
+      }
+    }
+
+    function backToDashboard() {
+      // Kill any active intervals/loops
+      stopL1Simulation();
+      stopL3Timer();
+      showView('view-dashboard');
+    }
+
+    function startLevel(num) {
+      if (num === 1) {
+        setupLevel1();
+        showView('view-level1');
+      } else if (num === 2) {
+        setupLevel2();
+        showView('view-level2');
+      } else if (num === 3) {
+        setupLevel3();
+        showView('view-level3');
+      }
+    }
+
+    // -------------------------------------------------------------
+    // LEVEL 1: FORMULA ARRANGER
+    // -------------------------------------------------------------
+    let l1State = {
+      target: 'v', // 'v' or 'd' or 't'
+      slots: {
+        left: null,   // Left hand of equal
+        top: null,    // Numerator
+        bottom: null  // Denominator
+      },
+      selectedVar: null, // click to place holder
+      animationFrameId: null,
+      simStartTime: null,
+      isSimulating: false
+    };
+
+    const l1Canvas = document.getElementById('l1-canvas');
+    const l1Ctx = l1Canvas.getContext('2d');
+
+    // Drag-and-Drop Variables init
+    const varItems = document.querySelectorAll('.var-item');
+    const dragSlots = document.querySelectorAll('.drag-target');
+
+    varItems.forEach(item => {
+      item.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', e.target.getAttribute('data-var'));
+        item.classList.add('opacity-50');
+      });
+      item.addEventListener('dragend', () => {
+        item.classList.remove('opacity-50');
+      });
+    });
+
+    dragSlots.forEach(slot => {
+      slot.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        slot.classList.add('drag-over');
+      });
+      slot.addEventListener('dragleave', () => {
+        slot.classList.remove('drag-over');
+      });
+      slot.addEventListener('drop', (e) => {
+        e.preventDefault();
+        slot.classList.remove('drag-over');
+        const variable = e.dataTransfer.getData('text/plain');
+        placeVarInSlot(variable, slot.getAttribute('data-slot'));
+      });
+    });
+
+    function selectVariableClick(el) {
+      sound.playBeep();
+      document.querySelectorAll('.var-item').forEach(v => v.classList.remove('glow-neon', 'ring-2', 'ring-cyan-400'));
+      const variable = el.getAttribute('data-var');
+      
+      if (l1State.selectedVar === variable) {
+        l1State.selectedVar = null;
+      } else {
+        l1State.selectedVar = variable;
+        el.classList.add('glow-neon', 'ring-2', 'ring-cyan-400');
+      }
+    }
+
+    function handleSlotClick(slotEl) {
+      sound.playBeep();
+      const slotName = slotEl.getAttribute('data-slot');
+      
+      if (l1State.selectedVar) {
+        // Place selected
+        placeVarInSlot(l1State.selectedVar, slotName);
+        l1State.selectedVar = null;
+        document.querySelectorAll('.var-item').forEach(v => v.classList.remove('glow-neon', 'ring-2', 'ring-cyan-400'));
+      } else {
+        // Remove currently placed variable from slot
+        if (l1State.slots[slotName]) {
+          removeVarFromSlot(slotName);
+        }
+      }
+    }
+
+    function placeVarInSlot(variable, slotName) {
+      // If variable is already in another slot, clear that slot
+      for (let s in l1State.slots) {
+        if (l1State.slots[s] === variable) {
+          l1State.slots[s] = null;
+          updateSlotUI(s);
+        }
+      }
+
+      l1State.slots[slotName] = variable;
+      updateSlotUI(slotName);
+      checkL1EquationState();
+    }
+
+    function removeVarFromSlot(slotName) {
+      l1State.slots[slotName] = null;
+      updateSlotUI(slotName);
+      checkL1EquationState();
+    }
+
+    function updateSlotUI(slotName) {
+      const slotEl = document.querySelector(`[data-slot="${slotName}"]`);
+      const val = l1State.slots[slotName];
+
+      if (val) {
+        let colorClass = 'text-cyan-400';
+        if (val === 't') colorClass = 'text-orange-400';
+        if (val === 'v') colorClass = 'text-emerald-400';
+        
+        slotEl.innerHTML = `<span class="${colorClass}">${val}</span>`;
+        slotEl.className = "drag-target w-20 h-20 bg-slate-900 rounded-2xl border-2 border-slate-700 flex items-center justify-center text-2xl font-black italic select-none cursor-pointer scale-105 transition-all";
+      } else {
+        slotEl.innerHTML = '';
+        slotEl.className = "drag-target w-20 h-20 bg-slate-950/80 rounded-2xl border-2 border-dashed border-white/10 flex items-center justify-center text-2xl font-black italic select-none cursor-pointer transition-all";
+      }
+    }
+
+    function resetL1Workspace() {
+      l1State.slots = { left: null, top: null, bottom: null };
+      l1State.selectedVar = null;
+      document.querySelectorAll('.var-item').forEach(v => v.classList.remove('glow-neon', 'ring-2', 'ring-cyan-400'));
+      for (let slotName in l1State.slots) {
+        updateSlotUI(slotName);
+      }
+      checkL1EquationState();
+      drawL1Track(0);
+    }
+
+    function setupLevel1() {
+      const targets = ['v', 'd', 't'];
+      l1State.target = targets[Math.floor(Math.random() * targets.length)];
+      
+      const targetDescs = {
+        'v': 'Velocity (v)',
+        'd': 'Distance (d)',
+        't': 'Time (t)'
+      };
+      
+      document.getElementById('l1-target-desc').innerText = targetDescs[l1State.target];
+      document.getElementById('l1-puzzle-prompt').innerText = `Arrange the formula to solve for the target variable: ${targetDescs[l1State.target]}.`;
+      
+      l1State.slots = { left: null, top: null, bottom: null };
+      l1State.selectedVar = null;
+      document.querySelectorAll('.var-item').forEach(v => v.classList.remove('glow-neon', 'ring-2', 'ring-cyan-400'));
+      
+      renderL1WorkspaceSlots();
+      checkL1EquationState();
+      resizeL1Canvas();
+      drawL1Track(0);
+    }
+
+    function resizeL1Canvas() {
+      l1Canvas.width = l1Canvas.parentElement.clientWidth * window.devicePixelRatio;
+      l1Canvas.height = 128 * window.devicePixelRatio;
+      l1Ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    }
+
+    function renderL1WorkspaceSlots() {
+      const workspaceEl = document.querySelector('.my-8');
+      
+      if (l1State.target === 'd') {
+        // Multiplication layout: left = top * bottom (rendered horizontally)
+        workspaceEl.innerHTML = `
+          <div data-slot="left" class="drag-target w-20 h-20 bg-slate-950/80 rounded-2xl border-2 border-dashed border-white/10 flex items-center justify-center text-2xl font-black italic select-none cursor-pointer" onclick="handleSlotClick(this)"></div>
+          <div class="text-3xl font-black text-slate-500 select-none">=</div>
+          <div data-slot="top" class="drag-target w-20 h-20 bg-slate-950/80 rounded-2xl border-2 border-dashed border-white/10 flex items-center justify-center text-2xl font-black italic select-none cursor-pointer" onclick="handleSlotClick(this)"></div>
+          <div class="text-3xl font-black text-slate-500 select-none">&times;</div>
+          <div data-slot="bottom" class="drag-target w-20 h-20 bg-slate-950/80 rounded-2xl border-2 border-dashed border-white/10 flex items-center justify-center text-2xl font-black italic select-none cursor-pointer" onclick="handleSlotClick(this)"></div>
+        `;
+      } else {
+        // Division layout: left = top / bottom
+        workspaceEl.innerHTML = `
+          <div data-slot="left" class="drag-target w-20 h-20 bg-slate-950/80 rounded-2xl border-2 border-dashed border-white/10 flex items-center justify-center text-2xl font-black italic select-none cursor-pointer" onclick="handleSlotClick(this)"></div>
+          <div class="text-3xl font-black text-slate-500 select-none">=</div>
+          <div class="flex flex-col items-center gap-2">
+            <div data-slot="top" class="drag-target w-20 h-20 bg-slate-950/80 rounded-2xl border-2 border-dashed border-white/10 flex items-center justify-center text-2xl font-black italic select-none cursor-pointer" onclick="handleSlotClick(this)"></div>
+            <div class="w-24 h-1 bg-white/20 rounded-full select-none"></div>
+            <div data-slot="bottom" class="drag-target w-20 h-20 bg-slate-950/80 rounded-2xl border-2 border-dashed border-white/10 flex items-center justify-center text-2xl font-black italic select-none cursor-pointer" onclick="handleSlotClick(this)"></div>
+          </div>
+        `;
+      }
+      
+      // Bind drag and drop events to new slots
+      const dragSlots = workspaceEl.querySelectorAll('.drag-target');
+      dragSlots.forEach(slot => {
+        slot.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          slot.classList.add('drag-over');
+        });
+        slot.addEventListener('dragleave', () => {
+          slot.classList.remove('drag-over');
+        });
+        slot.addEventListener('drop', (e) => {
+          e.preventDefault();
+          slot.classList.remove('drag-over');
+          const variable = e.dataTransfer.getData('text/plain');
+          placeVarInSlot(variable, slot.getAttribute('data-slot'));
+        });
+      });
+    }
+
+    function checkL1EquationState() {
+      const btn = document.getElementById('btn-l1-run');
+      const statusMsg = document.getElementById('l1-status-msg');
+
+      const isEquationFilled = l1State.slots.left && l1State.slots.top && l1State.slots.bottom;
+      
+      if (!isEquationFilled) {
+        btn.disabled = true;
+        btn.className = "bg-slate-800 text-slate-500 py-3.5 px-8 rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed";
+        statusMsg.innerText = "Assemble the formula to unlock simulations.";
+        statusMsg.className = "text-xs font-semibold text-slate-500";
+        return;
+      }
+
+      // Check correctness
+      let isCorrect = false;
+      const left = l1State.slots.left;
+      const top = l1State.slots.top;
+      const bottom = l1State.slots.bottom;
+
+      if (l1State.target === 'v') {
+        // v = d / t
+        if (left === 'v' && top === 'd' && bottom === 't') isCorrect = true;
+      } else if (l1State.target === 't') {
+        // t = d / v
+        if (left === 't' && top === 'd' && bottom === 'v') isCorrect = true;
+      } else if (l1State.target === 'd') {
+        // d = v * t (or t * v)
+        if (left === 'd' && ((top === 'v' && bottom === 't') || (top === 't' && bottom === 'v'))) isCorrect = true;
+      }
+
+      if (isCorrect) {
+        btn.disabled = false;
+        btn.className = "bg-cyan-600 hover:bg-cyan-500 text-white py-3.5 px-8 rounded-xl font-black uppercase tracking-wider transition-all flex items-center gap-2 shadow-lg glow-neon scale-[1.02]";
+        statusMsg.innerText = "Configuration correct! Telemetry system operational.";
+        statusMsg.className = "text-xs font-bold text-emerald-400 animate-pulse";
+      } else {
+        btn.disabled = true;
+        btn.className = "bg-rose-950/40 text-rose-500/60 border border-rose-500/20 py-3.5 px-8 rounded-xl font-bold transition-all flex items-center gap-2 cursor-not-allowed";
+        statusMsg.innerText = "Formula check failed. Variables arranged incorrectly.";
+        statusMsg.className = "text-xs font-semibold text-rose-400";
+      }
+    }
+
+    // -------------------------------------------------------------
+    // CANVAS TRACK ANIMATION
+    // -------------------------------------------------------------
+    function drawL1Track(carProgress = 0, speedValue = 0) {
+      const width = l1Canvas.width / window.devicePixelRatio;
+      const height = l1Canvas.height / window.devicePixelRatio;
+      
+      l1Ctx.clearRect(0, 0, width, height);
+
+      // Neon track line
+      l1Ctx.strokeStyle = 'rgba(0, 243, 255, 0.2)';
+      l1Ctx.lineWidth = 4;
+      l1Ctx.beginPath();
+      l1Ctx.moveTo(20, height - 30);
+      l1Ctx.lineTo(width - 20, height - 30);
+      l1Ctx.stroke();
+
+      // Track grid intervals
+      l1Ctx.strokeStyle = 'rgba(0, 243, 255, 0.08)';
+      l1Ctx.lineWidth = 1;
+      for (let x = 20; x < width - 20; x += 40) {
+        l1Ctx.beginPath();
+        l1Ctx.moveTo(x, height - 30);
+        l1Ctx.lineTo(x - 5, height - 20);
+        l1Ctx.stroke();
+      }
+
+      // Draw starting line and finish line
+      l1Ctx.fillStyle = 'rgba(0, 243, 255, 0.4)';
+      l1Ctx.font = '8px monospace';
+      l1Ctx.fillText('START', 15, height - 40);
+      l1Ctx.fillText('FINISH', width - 45, height - 40);
+
+      // Draw vehicle
+      const trackLength = width - 80;
+      const carX = 30 + (carProgress * trackLength);
+      const carY = height - 48;
+
+      // Glow effect for vehicle
+      l1Ctx.shadowColor = '#00f3ff';
+      l1Ctx.shadowBlur = l1State.isSimulating ? 15 : 0;
+
+      // Draw hover car body
+      l1Ctx.fillStyle = '#00f3ff';
+      l1Ctx.beginPath();
+      l1Ctx.moveTo(carX, carY + 8);
+      l1Ctx.lineTo(carX + 5, carY);
+      l1Ctx.lineTo(carX + 25, carY);
+      l1Ctx.lineTo(carX + 30, carY + 8);
+      l1Ctx.lineTo(carX + 20, carY + 12);
+      l1Ctx.lineTo(carX + 5, carY + 12);
+      l1Ctx.closePath();
+      l1Ctx.fill();
+
+      // Vehicle canopy
+      l1Ctx.fillStyle = '#d946ef';
+      l1Ctx.beginPath();
+      l1Ctx.moveTo(carX + 10, carY);
+      l1Ctx.lineTo(carX + 13, carY - 4);
+      l1Ctx.lineTo(carX + 20, carY - 4);
+      l1Ctx.lineTo(carX + 22, carY);
+      l1Ctx.closePath();
+      l1Ctx.fill();
+
+      // Reset shadow
+      l1Ctx.shadowBlur = 0;
+
+      // Thrust particles
+      if (l1State.isSimulating && carProgress < 1.0) {
+        l1Ctx.fillStyle = 'rgba(217, 70, 239, ' + (0.3 + Math.random() * 0.7) + ')';
+        for (let i = 0; i < 4; i++) {
+          l1Ctx.fillRect(carX - 5 - Math.random() * 8, carY + 4 + Math.random() * 6, 2, 2);
+        }
+      }
+    }
+
+    function runL1Simulation() {
+      if (l1State.isSimulating) return;
+      
+      sound.playSuccess();
+      l1State.isSimulating = true;
+      l1State.simStartTime = performance.now();
+      
+      // Let's generate a randomized simulated physics problem data
+      // For instance: d = 150m, t = 6s => v = 25 m/s
+      const simulatedD = 120 + Math.floor(Math.random() * 80); // 120m to 200m
+      const simulatedT = 4 + Math.floor(Math.random() * 6);    // 4s to 10s
+      const simulatedV = (simulatedD / simulatedT).toFixed(1);
+
+      document.getElementById('btn-l1-run').disabled = true;
+
+      function update(time) {
+        const elapsed = (time - l1State.simStartTime) / 1000; // in seconds
+        const progress = Math.min(elapsed / simulatedT, 1.0);
+
+        // Calculate live telemetry values
+        const currentD = (progress * simulatedD).toFixed(1);
+        const currentT = (progress * simulatedT).toFixed(1);
+        const currentV = progress > 0 ? simulatedV : '0.0';
+
+        document.getElementById('telemetry-d').innerText = `${currentD} m`;
+        document.getElementById('telemetry-t').innerText = `${currentT} s`;
+        document.getElementById('telemetry-v').innerText = `${currentV} m/s`;
+
+        drawL1Track(progress, simulatedV);
+
+        if (progress < 1.0) {
+          l1State.animationFrameId = requestAnimationFrame(update);
+        } else {
+          // Simulation finished
+          l1State.isSimulating = false;
+          confetti({
+            particleCount: 80,
+            spread: 60,
+            origin: { y: 0.7 }
+          });
+          
+          // Mark level 1 completed
+          state.levelsCompleted.level1 = true;
+          saveState();
+          
+          document.getElementById('l1-status-msg').innerHTML = "<span class='text-emerald-400 font-bold'>Telemetry verification complete! Level 1 Passed.</span>";
+          
+          setTimeout(() => {
+            if (confirm("Telemetry Simulation Complete! Proceed back to Dashboard to unlock Level 2?")) {
+              backToDashboard();
+            } else {
+              document.getElementById('btn-l1-run').disabled = false;
+              checkL1EquationState();
+            }
+          }, 1500);
+        }
+      }
+
+      l1State.animationFrameId = requestAnimationFrame(update);
+    }
+
+    function stopL1Simulation() {
+      if (l1State.animationFrameId) {
+        cancelAnimationFrame(l1State.animationFrameId);
+        l1State.animationFrameId = null;
+      }
+      l1State.isSimulating = false;
+    }
+
+    // -------------------------------------------------------------
+    // LEVEL 2: PRECISION CALCULATOR
+    // -------------------------------------------------------------
+    let l2State = {
+      problemsSolved: 0,
+      targetProblems: 5,
+      currentProblem: null,
+      selectedFormula: null // 'v', 'd', or 't'
+    };
+
+    const l2Questions = [
+      { text: "A drone flies {d} meters in {t} seconds. What is its average speed?", solve: 'v', params: () => { const t = 4 + Math.floor(Math.random()*6); const d = t * (8 + Math.floor(Math.random()*12)); return { d, t }; } },
+      { text: "A remote control car travels at a constant velocity of {v} m/s for {t} seconds. How far does it travel?", solve: 'd', params: () => { const v = 4 + Math.floor(Math.random()*8); const t = 5 + Math.floor(Math.random()*15); return { v, t }; } },
+      { text: "A sprinter runs a distance of {d} meters at an average velocity of {v} m/s. How many seconds does it take?", solve: 't', params: () => { const v = 5 + Math.floor(Math.random()*5); const d = v * (6 + Math.floor(Math.random()*14)); return { v, d }; } },
+      { text: "A skateboarder rolls down a track of length {d} meters taking exactly {t} seconds. Compute the speed.", solve: 'v', params: () => { const t = 8 + Math.floor(Math.random()*10); const d = t * (3 + Math.floor(Math.random()*6)); return { d, t }; } },
+      { text: "A submarine navigates underwater at {v} m/s for a duration of {t} seconds. Solve for the distance covered.", solve: 'd', params: () => { const v = 3 + Math.floor(Math.random()*5); const t = 20 + Math.floor(Math.random()*30); return { v, t }; } }
+    ];
+
+    function setupLevel2() {
+      l2State.problemsSolved = 0;
+      l2State.selectedFormula = null;
+      document.getElementById('l2-progress').innerText = `1 / ${l2State.targetProblems}`;
+      generateL2Question();
+    }
+
+    function generateL2Question() {
+      document.getElementById('l2-answer-input').value = '';
+      l2State.selectedFormula = null;
+      
+      // Clear formula selection UI
+      document.querySelectorAll('.formula-btn').forEach(btn => {
+        btn.className = "formula-btn flex-1 bg-slate-900 border border-white/5 py-2 px-3 rounded-xl font-bold mono italic text-slate-400 hover:border-orange-500/30 transition-all text-sm";
+      });
+
+      // Get random template
+      const template = l2Questions[Math.floor(Math.random() * l2Questions.length)];
+      const vals = template.params();
+      
+      let qText = template.text;
+      for (let key in vals) {
+        qText = qText.replace(`{${key}}`, vals[key]);
+      }
+
+      // Compute exact mathematical answer
+      let exactAnswer = 0;
+      if (template.solve === 'v') exactAnswer = vals.d / vals.t;
+      if (template.solve === 'd') exactAnswer = vals.v * vals.t;
+      if (template.solve === 't') exactAnswer = vals.d / vals.v;
+
+      l2State.currentProblem = {
+        text: qText,
+        solve: template.solve,
+        exact: exactAnswer
+      };
+
+      document.getElementById('l2-question-text').innerText = qText;
+    }
+
+    function selectL2Formula(btn, formula) {
+      sound.playBeep();
+      l2State.selectedFormula = formula;
+      
+      document.querySelectorAll('.formula-btn').forEach(b => {
+        b.className = "formula-btn flex-1 bg-slate-900 border border-white/5 py-2 px-3 rounded-xl font-bold mono italic text-slate-400 hover:border-orange-500/30 transition-all text-sm";
+      });
+
+      btn.className = "formula-btn flex-1 bg-orange-600 border border-orange-500 text-white py-2 px-3 rounded-xl font-bold mono italic transition-all text-sm glow-orange";
+    }
+
+    function checkL2Answer() {
+      if (!l2State.selectedFormula) {
+        alert("Please select the formula you used to calculate this answer first!");
+        sound.playError();
+        return;
+      }
+
+      const inputVal = parseFloat(document.getElementById('l2-answer-input').value);
+      if (isNaN(inputVal)) {
+        alert("Please enter a valid numeric answer!");
+        sound.playError();
+        return;
+      }
+
+      // Check formula choice correctness first
+      if (l2State.selectedFormula !== l2State.currentProblem.solve) {
+        sound.playError();
+        alert("Formula selection incorrect! Rearrange the speed equation correctly to solve for the requested variable.");
+        return;
+      }
+
+      // Check precision matching within +/- 0.05
+      const difference = Math.abs(inputVal - l2State.currentProblem.exact);
+      
+      if (difference <= 0.05) {
+        // Correct answer
+        sound.playSuccess();
+        confetti({ particleCount: 30, spread: 40 });
+        
+        l2State.problemsSolved++;
+        document.getElementById('l2-progress').innerText = `${Math.min(l2State.problemsSolved + 1, l2State.targetProblems)} / ${l2State.targetProblems}`;
+        
+        if (l2State.problemsSolved >= l2State.targetProblems) {
+          state.levelsCompleted.level2 = true;
+          saveState();
+          alert("Excellent calculations! All precision telemetry questions resolved successfully.");
+          backToDashboard();
+        } else {
+          generateL2Question();
+        }
+      } else {
+        // Incorrect value
+        sound.playError();
+        alert(`Precision check failed. Your answer is too far from the exact value. Check your arithmetic and round to 2 decimal places.`);
+      }
+    }
+
+    // -------------------------------------------------------------
+    // ON-BOARD CALCULATOR LOGIC
+    // -------------------------------------------------------------
+    let calcState = {
+      display: '0',
+      history: ''
+    };
+
+    function pressCalcKey(key) {
+      sound.playBeep();
+      const screen = document.getElementById('calc-screen');
+      const hist = document.getElementById('calc-history');
+
+      if (key === 'C') {
+        calcState.display = '0';
+        calcState.history = '';
+      } else if (key === 'DEL') {
+        if (calcState.display.length > 1) {
+          calcState.display = calcState.display.slice(0, -1);
+        } else {
+          calcState.display = '0';
+        }
+      } else if (['+', '-', '*', '/'].includes(key)) {
+        calcState.history = calcState.display + ' ' + key + ' ';
+        calcState.display = '0';
+      } else if (key === '=') {
+        if (calcState.history) {
+          const expression = calcState.history + calcState.display;
+          try {
+            // Safe evaluation of basic mathematical strings
+            const mathResult = new Function(`return (${expression})`)();
+            calcState.display = String(Number(mathResult.toFixed(4)));
+            calcState.history = expression + ' =';
+          } catch (e) {
+            calcState.display = 'ERR';
+          }
+        }
+      } else if (key === '.') {
+        if (!calcState.display.includes('.')) {
+          calcState.display += '.';
+        }
+      } else {
+        // Digits
+        if (calcState.display === '0' || calcState.display === 'ERR') {
+          calcState.display = key;
+        } else {
+          calcState.display += key;
+        }
+      }
+
+      screen.innerText = calcState.display;
+      hist.innerText = calcState.history || '0';
+    }
+
+    function insertCalcAnswer() {
+      const val = parseFloat(calcState.display);
+      if (!isNaN(val)) {
+        document.getElementById('l2-answer-input').value = val.toFixed(2);
+        sound.playCombo();
+      }
+    }
+
+    // -------------------------------------------------------------
+    // LEVEL 3: SPEED RUN TIMED CHALLENGE
+    // -------------------------------------------------------------
+    let l3State = {
+      score: 0,
+      combo: 1,
+      timeLeft: 60,
+      timerInterval: null,
+      currentProblem: null,
+      isPlaying: false
+    };
+
+    const l3Prompts = [
+      { text: "d = {d} m, t = {t} s. Find v.", solve: 'v', params: () => { const t = [2, 4, 5, 10][Math.floor(Math.random()*4)]; const d = t * (2 + Math.floor(Math.random()*15)); return { d, t }; } },
+      { text: "v = {v} m/s, t = {t} s. Find d.", solve: 'd', params: () => { const v = 2 + Math.floor(Math.random()*10); const t = [5, 10, 20][Math.floor(Math.random()*3)]; return { v, t }; } },
+      { text: "d = {d} m, v = {v} m/s. Find t.", solve: 't', params: () => { const v = [2, 5, 10, 20][Math.floor(Math.random()*4)]; const d = v * (2 + Math.floor(Math.random()*12)); return { v, d }; } }
+    ];
+
+    function setupLevel3() {
+      l3State.score = 0;
+      l3State.combo = 1;
+      l3State.timeLeft = 60;
+      l3State.isPlaying = false;
+      
+      document.getElementById('l3-score').innerText = '0';
+      document.getElementById('l3-combo').innerText = '1x';
+      document.getElementById('l3-timer-bar').style.width = '100%';
+
+      document.getElementById('l3-prestart').classList.remove('hidden');
+      document.getElementById('l3-active').classList.add('hidden');
+      document.getElementById('l3-postrun').classList.add('hidden');
+      document.getElementById('l3-back-btn').classList.remove('hidden');
+    }
+
+    function startLevel3Timer() {
+      l3State.isPlaying = true;
+      document.getElementById('l3-prestart').classList.add('hidden');
+      document.getElementById('l3-active').classList.remove('hidden');
+      document.getElementById('l3-back-btn').classList.add('hidden'); // Lock exit to prevent clock reset
+
+      generateL3Question();
+      document.getElementById('l3-answer-input').focus();
+
+      l3State.timerInterval = setInterval(() => {
+        l3State.timeLeft--;
+        const percentage = (l3State.timeLeft / 60) * 100;
+        document.getElementById('l3-timer-bar').style.width = `${percentage}%`;
+
+        if (l3State.timeLeft <= 10) {
+          sound.playTimerTick();
+          document.getElementById('l3-timer-bar').classList.add('bg-rose-500');
+        }
+
+        if (l3State.timeLeft <= 0) {
+          endLevel3();
+        }
+      }, 1000);
+    }
+
+    function generateL3Question() {
+      document.getElementById('l3-answer-input').value = '';
+      
+      const q = l3Prompts[Math.floor(Math.random() * l3Prompts.length)];
+      const vals = q.params();
+      
+      let text = q.text;
+      for (let key in vals) {
+        text = text.replace(`{${key}}`, vals[key]);
+      }
+
+      let answer = 0;
+      if (q.solve === 'v') {
+        answer = vals.d / vals.t;
+        document.getElementById('l3-q-type').innerText = "Solve for Speed (v = d/t)";
+      } else if (q.solve === 'd') {
+        answer = vals.v * vals.t;
+        document.getElementById('l3-q-type').innerText = "Solve for Distance (d = v x t)";
+      } else if (q.solve === 't') {
+        answer = vals.d / vals.v;
+        document.getElementById('l3-q-type').innerText = "Solve for Time (t = d/v)";
+      }
+
+      l3State.currentProblem = {
+        text,
+        exact: answer
+      };
+
+      document.getElementById('l3-question-text').innerText = text;
+    }
+
+    function submitL3Answer(e) {
+      e.preventDefault();
+      if (!l3State.isPlaying) return;
+
+      const inputVal = parseFloat(document.getElementById('l3-answer-input').value);
+      if (isNaN(inputVal)) return;
+
+      const difference = Math.abs(inputVal - l3State.currentProblem.exact);
+      
+      if (difference <= 0.05) {
+        // Correct!
+        sound.playCombo();
+        
+        // Add points based on combo
+        l3State.score += 100 * l3State.combo;
+        l3State.combo = Math.min(l3State.combo + 1, 5); // Max 5x combo
+        
+        // Quick visual success explosion
+        confetti({
+          particleCount: 15,
+          spread: 30,
+          origin: { y: 0.6 }
+        });
+      } else {
+        // Incorrect
+        sound.playError();
+        l3State.combo = 1; // Reset combo
+      }
+
+      document.getElementById('l3-score').innerText = l3State.score;
+      document.getElementById('l3-combo').innerText = `${l3State.combo}x`;
+      generateL3Question();
+      document.getElementById('l3-answer-input').focus();
+    }
+
+    function endLevel3() {
+      clearInterval(l3State.timerInterval);
+      l3State.isPlaying = false;
+
+      sound.playSuccess();
+      confetti({ particleCount: 100, spread: 80 });
+
+      // Save highscore
+      if (l3State.score > state.highScore) {
+        state.highScore = l3State.score;
+      }
+      
+      state.levelsCompleted.level3 = true;
+      saveState();
+
+      document.getElementById('l3-active').classList.add('hidden');
+      document.getElementById('l3-postrun').classList.remove('hidden');
+      document.getElementById('l3-postrun-score').innerText = `${l3State.score} pts`;
+      
+      // Calculate correct answers estimated from points
+      // A quick estimate based on points/combos is fine for visual output
+      document.getElementById('l3-postrun-correct').innerText = Math.round(l3State.score / 150) || 1;
+    }
+
+    function stopL3Timer() {
+      if (l3State.timerInterval) {
+        clearInterval(l3State.timerInterval);
+        l3State.timerInterval = null;
+      }
+      l3State.isPlaying = false;
+    }
+
+    function confirmExitLevel3() {
+      backToDashboard();
+    }
+
+    // -------------------------------------------------------------
+    // CERTIFICATE & QR VERIFICATION GENERATION
+    // -------------------------------------------------------------
+    function viewCertificate() {
+      showView('view-certificate');
+      
+      const dateStr = new Date().toLocaleDateString();
+      document.getElementById('cert-student-id').innerText = state.studentId;
+      document.getElementById('cert-highscore').innerText = `${state.highScore} pts`;
+      document.getElementById('cert-date').innerText = dateStr;
+
+      // Construct a verification payload with basic hash checking
+      const payload = {
+        id: state.studentId,
+        l1: state.levelsCompleted.level1 ? 1 : 0,
+        l2: state.levelsCompleted.level2 ? 1 : 0,
+        score: state.highScore,
+        date: dateStr
+      };
+
+      // Simple checksum algorithm to deter manual URL manipulation
+      const dataStr = `${payload.id}-${payload.l1}-${payload.l2}-${payload.score}-${payload.date}`;
+      let check = 0;
+      for (let i = 0; i < dataStr.length; i++) {
+        check += dataStr.charCodeAt(i) * (i + 1);
+      }
+      const hash = check.toString(16).toUpperCase();
+      const token = `MUD-SPEED-${payload.id}-${payload.l1}${payload.l2}-${payload.score}-${hash}`;
+
+      document.getElementById('cert-verification-token').innerText = token;
+
+      // Render the QR code
+      const qrContainer = document.getElementById('cert-qrcode');
+      qrContainer.innerHTML = ''; // Clear previous
+      
+      try {
+        new QRCode(qrContainer, {
+          text: token,
+          width: 128,
+          height: 128,
+          colorDark: "#000000",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.H
+        });
+      } catch (err) {
+        console.error("QR Library error", err);
+        qrContainer.innerHTML = "<span class='text-[10px] text-slate-800 font-bold'>Token: " + token + "</span>";
+      }
+    }
+  </script>
+</body>
 </html>
