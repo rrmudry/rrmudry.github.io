@@ -852,13 +852,13 @@ const QUESTIONS = [
           btn.disabled = false;
           btn.classList.remove('cursor-not-allowed');
           if (state.currentLevel === lvl) {
-            btn.className = "px-4 py-2 text-sm rounded-lg font-bold transition-all bg-sky-600 text-white shadow-md glow-neon";
+            btn.className = "px-3 py-1.5 text-xs rounded-lg font-bold transition-all bg-sky-600 text-white shadow-md glow-neon";
           } else {
-            btn.className = "px-4 py-2 text-sm rounded-lg font-bold transition-all bg-white text-slate-600 hover:bg-slate-100 border border-white/5";
+            btn.className = "px-3 py-1.5 text-xs rounded-lg font-bold transition-all bg-white text-slate-800 hover:bg-slate-100 border border-white/5";
           }
         } else {
           btn.disabled = true;
-          btn.className = "px-4 py-2 text-sm rounded-lg font-bold transition-all bg-slate-900 text-slate-500 border border-white/5 cursor-not-allowed";
+          btn.className = "px-3 py-1.5 text-xs rounded-lg font-bold transition-all bg-slate-900 text-slate-500 border border-white/5 cursor-not-allowed";
         }
       }
     }
@@ -1149,6 +1149,51 @@ const QUESTIONS = [
       return null;
     }
 
+    function getSolvedUnit(solveFor) {
+      if (solveFor === 'v') {
+        const xObj = placedState['x'];
+        const tObj = placedState['t'];
+        if (xObj && xObj !== 'unknown' && tObj && tObj !== 'unknown') {
+          if (xObj.unit === 'nautical miles' && tObj.unit === 'h') {
+            return 'knots';
+          }
+          return `${xObj.unit}/${tObj.unit}`;
+        }
+        return '';
+      }
+      
+      const vObj = placedState['v'];
+      if (!vObj || vObj === 'unknown' || !vObj.unit) return '';
+      
+      if (solveFor === 'x') {
+        if (vObj.unit.includes('/')) {
+          return vObj.unit.split('/')[0];
+        }
+        if (vObj.unit === 'mph') {
+          return 'miles';
+        }
+        if (vObj.unit === 'knots') {
+          return 'nautical miles';
+        }
+        return '';
+      }
+      
+      if (solveFor === 't') {
+        if (vObj.unit.includes('/')) {
+          return vObj.unit.split('/')[1];
+        }
+        if (vObj.unit === 'mph') {
+          return 'h';
+        }
+        if (vObj.unit === 'knots') {
+          return 'h';
+        }
+        return '';
+      }
+      
+      return '';
+    }
+
     function updateEquationSlotsUI() {
       const q = state.deck[state.currentQuestionIndex];
 
@@ -1304,9 +1349,9 @@ const QUESTIONS = [
       let exactVal = 0;
       const getValObj = (vType) => placedState[vType];
  
-      const distanceVal = getValObj('x').value;
-      const timeVal = getValObj('t').value;
-      const speedVal = getValObj('v').value;
+      const distanceVal = getValObj('x') && getValObj('x') !== 'unknown' ? getValObj('x').value : null;
+      const timeVal = getValObj('t') && getValObj('t') !== 'unknown' ? getValObj('t').value : null;
+      const speedVal = getValObj('v') && getValObj('v') !== 'unknown' ? getValObj('v').value : null;
  
       if (q.solveFor === 'v') {
         exactVal = distanceVal / timeVal;
@@ -1324,9 +1369,7 @@ const QUESTIONS = [
         
         // Show answer in slot
         const unknownSlotEl = document.querySelector(`[data-slot="${q.solveFor}"]`);
-        let unitText = q.solveFor === 'v' ? getValObj('x').unit + '/' + getValObj('t').unit : q.solveFor === 'x' ? getValObj('x').unit : getValObj('t').unit;
-        // Check if there is specific unit mapping in values
-        const solvedUnit = q.values.find(v => v.variable === q.solveFor)?.unit || unitText;
+        const solvedUnit = getSolvedUnit(q.solveFor);
         
         unknownSlotEl.innerHTML = `
           <span class="text-[9px] text-slate-500 block uppercase tracking-wider">${q.solveFor}</span>
