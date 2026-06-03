@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Physics Speed Calculator | Kinematics Lab</title>
+  <title>Physics Speed Calculator | Scaffolded Kinematics</title>
   
   <!-- CDNs for styling, icons, and libraries -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -20,7 +20,8 @@
       --bg-alt: #0e1328;
       --surface: rgba(13, 19, 40, 0.65);
       --border: rgba(120, 141, 255, 0.15);
-      --accent: #f97316;
+      --accent: #0284c7; /* Sky blue matching original sky-600 */
+      --accent-soft: #38bdf8;
       --accent-neon: #00f3ff;
       --accent-purple: #d946ef;
     }
@@ -29,8 +30,8 @@
       font-family: 'Outfit', sans-serif;
       background-color: var(--bg);
       background-image: 
-        radial-gradient(circle at top left, rgba(249, 115, 22, 0.08), transparent 55%),
-        radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.08), transparent 50%);
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.08), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(217, 70, 239, 0.06), transparent 50%);
       color: #f8fafc;
       min-height: 100vh;
       overflow-x: hidden;
@@ -55,16 +56,6 @@
     .bg-grid {
       background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.015) 1px, transparent 0);
       background-size: 30px 30px;
-    }
-    
-    .glow-orb {
-      position: absolute;
-      width: 400px;
-      height: 400px;
-      background: radial-gradient(circle, rgba(0, 243, 255, 0.04) 0%, transparent 70%);
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 0;
     }
 
     /* custom scrollbar */
@@ -97,49 +88,48 @@
       border-color: var(--accent-neon);
     }
 
-    .glow-orange {
-      box-shadow: 0 0 20px rgba(249, 115, 22, 0.25);
-      border-color: var(--accent);
+    /* Drag and drop item cursor states */
+    .drag-item {
+      cursor: grab;
+      user-select: none;
+    }
+    .drag-item:active {
+      cursor: grabbing;
     }
 
-    .glow-purple {
-      box-shadow: 0 0 20px rgba(217, 70, 239, 0.25);
-      border-color: var(--accent-purple);
+    .animate-shake {
+      animation: shake 0.4s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
     }
   </style>
 </head>
 <body class="bg-grid min-h-screen flex flex-col relative overflow-hidden">
 
-  <!-- Glow orbs -->
-  <div class="glow-orb top-[-100px] right-[-100px]"></div>
-  <div class="glow-orb bottom-[-150px] left-[-150px]"></div>
-
   <!-- Header -->
-  <header class="w-full py-4 px-6 border-b border-white/5 bg-[#050917]/70 backdrop-blur-md sticky top-0 z-50 flex items-center justify-between">
+  <header class="w-full py-4 px-6 border-b border-white/5 bg-[#050917]/70 backdrop-blur-md sticky top-0 z-40 flex items-center justify-between">
     <div class="flex items-center gap-3">
       <a href="../../index.html" class="flex items-center gap-2 text-slate-400 hover:text-white transition-colors mr-2">
         <i data-lucide="arrow-left" class="w-5 h-5"></i>
       </a>
-      <div class="bg-orange-600/20 p-2 rounded-xl border border-orange-500/30">
-        <i data-lucide="gauge" class="text-orange-500 w-6 h-6 animate-pulse"></i>
+      <div class="bg-sky-600/20 p-2 rounded-xl border border-sky-500/30">
+        <i data-lucide="calculator" class="text-sky-400 w-6 h-6 animate-pulse"></i>
       </div>
       <div>
-        <h1 class="text-xl font-bold tracking-tight">Kinematics <span class="text-orange-500">Calculator</span></h1>
-        <p class="text-xs text-slate-400 font-medium">Speed, Distance & Time Lab</p>
+        <h1 class="text-xl font-bold tracking-tight">Physics Speed <span class="text-sky-400">Calculator</span></h1>
+        <p class="text-xs text-slate-400 font-medium">Kinematics Definition Lab</p>
       </div>
     </div>
     
     <!-- Student Badge & High Score -->
     <div id="student-badge" class="hidden flex items-center gap-4">
       <div class="glass px-3 py-1.5 rounded-xl border border-white/5 flex items-center gap-2">
-        <div class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></div>
         <span class="text-xs text-slate-400">Student ID:</span>
-        <span id="badge-id" class="text-sm font-bold mono text-emerald-400">000000</span>
-      </div>
-      <div class="glass px-3 py-1.5 rounded-xl border border-white/5 flex items-center gap-2">
-        <i data-lucide="trophy" class="w-4 h-4 text-yellow-500"></i>
-        <span class="text-xs text-slate-400">Best Score:</span>
-        <span id="badge-highscore" class="text-sm font-bold mono text-yellow-400">0</span>
+        <span id="badge-id" class="text-sm font-bold mono text-sky-400">000000</span>
       </div>
       <button onclick="logout()" class="text-slate-400 hover:text-rose-400 transition-colors p-1.5 rounded-lg hover:bg-white/5" title="Exit Laboratory">
         <i data-lucide="log-out" class="w-4 h-4"></i>
@@ -153,12 +143,12 @@
     <!-- SECTION 1: REGISTRATION -->
     <section id="view-register" class="max-w-md w-full glass p-8 md:p-10 rounded-[2.5rem] border border-white/10 relative z-10 shadow-2xl transition-all duration-500">
       <div class="text-center space-y-6">
-        <div class="bg-orange-500 w-20 h-20 rounded-[2rem] flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(249,115,22,0.3)]">
-          <i data-lucide="user-check" class="text-black w-10 h-10"></i>
+        <div class="bg-sky-600 w-20 h-20 rounded-[2rem] flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(2,132,199,0.3)]">
+          <i data-lucide="user-check" class="text-white w-10 h-10"></i>
         </div>
         <div>
-          <h2 class="text-3xl font-black uppercase tracking-tight italic">Initialize <span class="text-orange-500">Lab Log</span></h2>
-          <p class="text-slate-400 font-medium text-sm mt-2 leading-relaxed">Enter your 6-digit Student ID to load your kinematics simulator progress and track achievements.</p>
+          <h2 class="text-3xl font-black uppercase tracking-tight italic">Initialize <span class="text-sky-400">Lab Log</span></h2>
+          <p class="text-slate-400 font-medium text-sm mt-2 leading-relaxed">Enter your 6-digit Student ID to load your kinematics speed calculator progress.</p>
         </div>
         
         <form onsubmit="handleRegister(event)" class="space-y-4 pt-4">
@@ -168,7 +158,7 @@
               id="input-student-id" 
               maxlength="6" 
               placeholder="e.g. 123456" 
-              class="w-full bg-slate-900/90 text-white py-4 px-6 rounded-2xl border border-white/10 text-center font-bold tracking-widest text-xl focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none transition-all mono placeholder:tracking-normal placeholder:font-normal placeholder:text-slate-600"
+              class="w-full bg-slate-900/90 text-white py-4 px-6 rounded-2xl border border-white/10 text-center font-bold tracking-widest text-xl focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:outline-none transition-all mono placeholder:tracking-normal placeholder:font-normal placeholder:text-slate-600"
               required
             >
           </div>
@@ -180,492 +170,162 @@
       </div>
     </section>
 
-    <!-- SECTION 2: DASHBOARD -->
-    <section id="view-dashboard" class="max-w-4xl w-full hidden space-y-8 transition-all duration-500">
-      <div class="text-center space-y-2">
-        <h2 class="text-4xl font-extrabold tracking-tight">Kinematics Flight Deck</h2>
-        <p class="text-slate-400 max-w-lg mx-auto">Master velocity configurations, solve equations, and prove your speedrun mechanics.</p>
-      </div>
-
-      <!-- Level Cards Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        
-        <!-- LEVEL 1 CARD -->
-        <div class="glass rounded-[2rem] p-6 flex flex-col justify-between relative overflow-hidden border border-white/5 group hover:border-cyan-500/40 transition-all duration-300">
-          <div class="space-y-4">
-            <div class="flex justify-between items-start">
-              <div class="bg-cyan-500/20 text-cyan-400 p-3 rounded-2xl border border-cyan-500/30">
-                <i data-lucide="git-branch" class="w-6 h-6"></i>
-              </div>
-              <span id="status-l1" class="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 border border-white/5 uppercase tracking-wider">Locked</span>
-            </div>
-            <div>
-              <h3 class="text-xl font-bold">Level 1: Formula Arranger</h3>
-              <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">Drag and drop the variables into the correct slot configurations to solve for distance, time, and speed.</p>
-            </div>
-          </div>
-          <button onclick="startLevel(1)" class="w-full mt-6 bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 group-hover:scale-[1.02]">
-            Launch Simulator <i data-lucide="play" class="w-4 h-4"></i>
-          </button>
-        </div>
-
-        <!-- LEVEL 2 CARD -->
-        <div class="glass rounded-[2rem] p-6 flex flex-col justify-between relative overflow-hidden border border-white/5 group hover:border-orange-500/40 transition-all duration-300">
-          <div class="space-y-4">
-            <div class="flex justify-between items-start">
-              <div class="bg-orange-500/20 text-orange-400 p-3 rounded-2xl border border-orange-500/30">
-                <i data-lucide="calculator" class="w-6 h-6"></i>
-              </div>
-              <span id="status-l2" class="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 border border-white/5 uppercase tracking-wider">Locked</span>
-            </div>
-            <div>
-              <h3 class="text-xl font-bold">Level 2: Precision Calculator</h3>
-              <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">Select formulas and solve precision physics computations with a built-in virtual scientific calculator.</p>
-            </div>
-          </div>
-          <button onclick="startLevel(2)" class="w-full mt-6 bg-orange-600 hover:bg-orange-500 text-white font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 group-hover:scale-[1.02]">
-            Launch Simulator <i data-lucide="play" class="w-4 h-4"></i>
-          </button>
-        </div>
-
-        <!-- LEVEL 3 CARD -->
-        <div class="glass rounded-[2rem] p-6 flex flex-col justify-between relative overflow-hidden border border-white/5 group hover:border-fuchsia-500/40 transition-all duration-300">
-          <div class="space-y-4">
-            <div class="flex justify-between items-start">
-              <div class="bg-fuchsia-500/20 text-fuchsia-400 p-3 rounded-2xl border border-fuchsia-500/30">
-                <i data-lucide="zap" class="w-6 h-6"></i>
-              </div>
-              <span id="status-l3" class="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 border border-white/5 uppercase tracking-wider">Locked</span>
-            </div>
-            <div>
-              <h3 class="text-xl font-bold">Level 3: Speed Run</h3>
-              <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">Beat the clock! Solve as many kinematics problems as possible in 60 seconds with streak multipliers.</p>
-            </div>
-          </div>
-          <button onclick="startLevel(3)" class="w-full mt-6 bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 group-hover:scale-[1.02]">
-            Launch Speed Run <i data-lucide="play" class="w-4 h-4"></i>
-          </button>
-        </div>
-      </div>
-
-      <!-- Action Panel -->
-      <div id="action-panel" class="w-full flex justify-center pt-4">
-        <button id="btn-view-cert" onclick="viewCertificate()" class="hidden bg-emerald-600 hover:bg-emerald-500 text-white font-black uppercase tracking-wider py-4 px-10 rounded-2xl shadow-xl hover:scale-105 transition-all flex items-center gap-3">
-          <i data-lucide="award" class="w-6 h-6"></i> Generate Lab Certificate
-        </button>
-      </div>
-    </section>
-
-    <!-- SECTION 3: LEVEL 1 (Formula Arranger) -->
-    <section id="view-level1" class="max-w-4xl w-full hidden flex flex-col gap-6 transition-all duration-500">
-      <div class="flex justify-between items-center">
-        <div class="flex items-center gap-3">
-          <button onclick="backToDashboard()" class="text-slate-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/5">
-            <i data-lucide="arrow-left" class="w-5 h-5"></i>
-          </button>
-          <div>
-            <h3 class="text-2xl font-bold flex items-center gap-2 text-cyan-400">Level 1: Formula Arranger</h3>
-            <p class="text-xs text-slate-400 mt-0.5">Drag-and-drop the variables into the correct positions</p>
-          </div>
-        </div>
-        <div class="glass px-4 py-2 rounded-xl border border-cyan-500/20 text-xs font-bold text-cyan-400">
-          Target: <span id="l1-target-desc" class="font-extrabold uppercase ml-1">Velocity</span>
-        </div>
-      </div>
-
-      <!-- Simulator Track Canvas -->
-      <div class="glass rounded-[2rem] p-4 border border-cyan-500/10 overflow-hidden relative">
-        <div class="absolute top-4 left-4 z-10 flex gap-2">
-          <span class="text-[10px] px-2 py-1 rounded bg-[#070b1a]/95 text-slate-400 font-mono tracking-wider border border-white/5 uppercase">Kinetic Simulation Matrix</span>
-        </div>
-        <canvas id="l1-canvas" class="w-full h-32 bg-[#050918]/80 rounded-2xl border border-white/5"></canvas>
-        
-        <!-- Live Telemetry overlay -->
-        <div class="grid grid-cols-3 gap-2 mt-4 px-2">
-          <div class="glass-highlight p-2 rounded-xl text-center">
-            <span class="text-[10px] text-slate-400 uppercase tracking-widest block font-medium">Distance</span>
-            <span id="telemetry-d" class="text-sm font-bold text-cyan-400 mono">0.0 m</span>
-          </div>
-          <div class="glass-highlight p-2 rounded-xl text-center">
-            <span class="text-[10px] text-slate-400 uppercase tracking-widest block font-medium">Time</span>
-            <span id="telemetry-t" class="text-sm font-bold text-orange-400 mono">0.0 s</span>
-          </div>
-          <div class="glass-highlight p-2 rounded-xl text-center">
-            <span class="text-[10px] text-slate-400 uppercase tracking-widest block font-medium">Velocity</span>
-            <span id="telemetry-v" class="text-sm font-bold text-emerald-400 mono">0.0 m/s</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Arranging Workspace -->
-      <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
-        
-        <!-- LEFT: Variable Source Dock -->
-        <div class="md:col-span-4 glass rounded-[2rem] p-6 border border-white/5 flex flex-col justify-between">
-          <div>
-            <h4 class="text-sm font-extrabold text-slate-300 uppercase tracking-wider mb-2">Variables Dock</h4>
-            <p class="text-xs text-slate-400 mb-4">Click to select, then click a slot, or drag them directly.</p>
-          </div>
-          
-          <div class="flex md:flex-col gap-3 justify-center py-4">
-            <!-- Draggable elements -->
-            <div 
-              draggable="true" 
-              data-var="d" 
-              class="var-item flex-1 bg-slate-900 border border-cyan-500/30 hover:border-cyan-400 hover:glow-neon text-cyan-400 p-4 rounded-xl cursor-grab active:cursor-grabbing font-bold flex items-center justify-between transition-all select-none"
-              onclick="selectVariableClick(this)"
-            >
-              <div class="flex items-center gap-2">
-                <span class="mono text-lg font-black italic">d</span>
-                <span class="text-[10px] text-slate-500 font-normal hidden md:inline">Distance</span>
-              </div>
-              <i data-lucide="grip-vertical" class="w-4 h-4 text-slate-600 hidden md:block"></i>
-            </div>
-            
-            <div 
-              draggable="true" 
-              data-var="t" 
-              class="var-item flex-1 bg-slate-900 border border-orange-500/30 hover:border-orange-400 hover:glow-orange text-orange-400 p-4 rounded-xl cursor-grab active:cursor-grabbing font-bold flex items-center justify-between transition-all select-none"
-              onclick="selectVariableClick(this)"
-            >
-              <div class="flex items-center gap-2">
-                <span class="mono text-lg font-black italic">t</span>
-                <span class="text-[10px] text-slate-500 font-normal hidden md:inline">Time</span>
-              </div>
-              <i data-lucide="grip-vertical" class="w-4 h-4 text-slate-600 hidden md:block"></i>
-            </div>
-
-            <div 
-              draggable="true" 
-              data-var="v" 
-              class="var-item flex-1 bg-slate-900 border border-emerald-500/30 hover:border-emerald-400 hover:glow-purple text-emerald-400 p-4 rounded-xl cursor-grab active:cursor-grabbing font-bold flex items-center justify-between transition-all select-none"
-              onclick="selectVariableClick(this)"
-            >
-              <div class="flex items-center gap-2">
-                <span class="mono text-lg font-black italic">v</span>
-                <span class="text-[10px] text-slate-500 font-normal hidden md:inline">Velocity</span>
-              </div>
-              <i data-lucide="grip-vertical" class="w-4 h-4 text-slate-600 hidden md:block"></i>
-            </div>
-          </div>
-          
-          <button onclick="resetL1Workspace()" class="text-xs font-semibold text-slate-400 hover:text-white transition-colors flex items-center justify-center gap-1 mt-2">
-            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Reset Board
-          </button>
-        </div>
-
-        <!-- RIGHT: Puzzle Workspace -->
-        <div class="md:col-span-8 glass rounded-[2rem] p-6 border border-white/5 flex flex-col justify-between">
-          <div class="space-y-2">
-            <h4 class="text-sm font-extrabold text-slate-300 uppercase tracking-wider">Arranging Board</h4>
-            <p id="l1-puzzle-prompt" class="text-xs text-slate-400">Configure the equation to compute the unknown target variable.</p>
-          </div>
-
-          <!-- Formula Slots -->
-          <div class="my-8 flex items-center justify-center gap-3 md:gap-5 flex-wrap">
-            
-            <!-- Left Slot (Target Variable) -->
-            <div 
-              data-slot="left" 
-              class="drag-target w-20 h-20 bg-slate-950/80 rounded-2xl border-2 border-dashed border-white/10 flex items-center justify-center text-2xl font-black italic select-none cursor-pointer"
-              onclick="handleSlotClick(this)"
-            ></div>
-
-            <div class="text-3xl font-black text-slate-500 select-none">=</div>
-
-            <!-- Numerator Slot -->
-            <div class="flex flex-col items-center gap-2">
-              <div 
-                data-slot="top" 
-                class="drag-target w-20 h-20 bg-slate-950/80 rounded-2xl border-2 border-dashed border-white/10 flex items-center justify-center text-2xl font-black italic select-none cursor-pointer"
-                onclick="handleSlotClick(this)"
-              ></div>
-              
-              <!-- Fraction Divider -->
-              <div class="w-24 h-1 bg-white/20 rounded-full select-none"></div>
-
-              <!-- Denominator Slot -->
-              <div 
-                data-slot="bottom" 
-                class="drag-target w-20 h-20 bg-slate-950/80 rounded-2xl border-2 border-dashed border-white/10 flex items-center justify-center text-2xl font-black italic select-none cursor-pointer"
-                onclick="handleSlotClick(this)"
-              ></div>
-            </div>
-          </div>
-
-          <!-- Simulation Button -->
-          <div class="flex justify-between items-center gap-4">
-            <div id="l1-status-msg" class="text-xs font-semibold text-slate-400">Assemble the formula.</div>
-            <button 
-              id="btn-l1-run" 
-              onclick="runL1Simulation()" 
-              disabled 
-              class="bg-slate-800 text-slate-500 py-3.5 px-8 rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <i data-lucide="zap" class="w-4 h-4"></i> Run Telemetry Simulation
-            </button>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- SECTION 4: LEVEL 2 (Precision Calculator) -->
-    <section id="view-level2" class="max-w-4xl w-full hidden flex flex-col gap-6 transition-all duration-500">
+    <!-- SECTION 2: WORKSPACE -->
+    <section id="view-workspace" class="max-w-4xl w-full hidden flex flex-col gap-6 transition-all duration-500">
       
-      <div class="flex justify-between items-center">
-        <div class="flex items-center gap-3">
-          <button onclick="backToDashboard()" class="text-slate-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/5">
-            <i data-lucide="arrow-left" class="w-5 h-5"></i>
-          </button>
+      <!-- Top Stats Bar -->
+      <div class="flex flex-col md:flex-row justify-between items-center gap-4 glass p-4 rounded-2xl border border-white/5">
+        
+        <!-- Level Select Buttons -->
+        <div class="flex gap-2">
+          <button id="btn-level-1" onclick="changeLevel(1)" class="px-4 py-2 text-sm rounded-lg font-bold transition-all bg-slate-800 text-slate-400 border border-white/5">Level 1</button>
+          <button id="btn-level-2" onclick="changeLevel(2)" class="px-4 py-2 text-sm rounded-lg font-bold transition-all bg-slate-800 text-slate-400 border border-white/5 cursor-not-allowed" disabled>Level 2</button>
+          <button id="btn-level-3" onclick="changeLevel(3)" class="px-4 py-2 text-sm rounded-lg font-bold transition-all bg-slate-800 text-slate-400 border border-white/5 cursor-not-allowed" disabled>Level 3</button>
+        </div>
+
+        <!-- Telemetry HUD -->
+        <div class="flex items-center gap-6 text-sm text-slate-400">
           <div>
-            <h3 class="text-2xl font-bold flex items-center gap-2 text-orange-400">Level 2: Precision Calculator</h3>
-            <p class="text-xs text-slate-400 mt-0.5">Solve kinematics problems. Progress: <span id="l2-progress" class="font-bold text-orange-400 mono">1/5</span></p>
+            <span class="font-semibold block md:inline">Student ID:</span> 
+            <span id="hud-student-id" class="text-white font-bold mono ml-1">000000</span>
+          </div>
+          <div>
+            <span class="font-semibold block md:inline">Progress:</span> 
+            <span id="hud-answered" class="text-white font-bold mono ml-1">0 / 6 Completed</span>
+          </div>
+          <div id="hud-streak-container">
+            <span class="font-semibold block md:inline">Streak:</span> 
+            <span id="hud-streak" class="text-white font-bold mono ml-1">0 / 4</span>
           </div>
         </div>
       </div>
 
+      <!-- Question Progress Bar -->
+      <div class="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden border border-white/5">
+        <div id="progress-bar-fill" class="h-full bg-sky-500 transition-all duration-500 ease-out" style="width: 0%;"></div>
+      </div>
+
+      <!-- Main Interaction Board -->
       <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
         
-        <!-- LEFT: Math Word Problem panel -->
-        <div class="md:col-span-7 flex flex-col gap-6">
+        <!-- LEFT PANEL: Question Card & Badges -->
+        <div class="md:col-span-7 flex flex-col gap-4">
           
           <!-- Word Problem Card -->
-          <div class="glass rounded-[2rem] p-6 border border-white/5 flex-grow flex flex-col justify-between space-y-6">
-            <div class="space-y-4">
-              <span class="text-[10px] px-2.5 py-1 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/20 font-bold uppercase tracking-wider">Kinematics Problem Case</span>
-              <p id="l2-question-text" class="text-lg md:text-xl font-semibold leading-relaxed text-slate-100">Loading problem parameters...</p>
-            </div>
+          <div class="glass rounded-[2rem] p-6 border border-white/5 flex-grow flex flex-col justify-center relative min-h-[160px]">
+            <!-- Audio Speech Button -->
+            <button onclick="readQuestionAloud()" id="btn-tts" class="absolute top-4 right-4 p-2 rounded-full transition-all duration-200 bg-slate-800/80 text-slate-400 hover:text-white border border-white/5" title="Read Aloud">
+              <i data-lucide="volume-2" class="w-5 h-5"></i>
+            </button>
+            
+            <p id="question-text" class="text-lg md:text-xl font-semibold leading-relaxed text-slate-100 pr-10 text-center">
+              <!-- Inline values and unknown will be rendered here dynamically -->
+            </p>
+          </div>
 
-            <!-- Formula selector buttons -->
-            <div class="space-y-2">
-              <span class="text-[10px] text-slate-400 uppercase tracking-widest block font-medium">Select correct operational formula:</span>
-              <div class="flex gap-2">
-                <button onclick="selectL2Formula(this, 'v')" class="formula-btn flex-1 bg-slate-900 border border-white/5 py-2 px-3 rounded-xl font-bold mono italic text-slate-400 hover:border-orange-500/30 transition-all text-sm">v = d / t</button>
-                <button onclick="selectL2Formula(this, 'd')" class="formula-btn flex-1 bg-slate-900 border border-white/5 py-2 px-3 rounded-xl font-bold mono italic text-slate-400 hover:border-orange-500/30 transition-all text-sm">d = v × t</button>
-                <button onclick="selectL2Formula(this, 't')" class="formula-btn flex-1 bg-slate-900 border border-white/5 py-2 px-3 rounded-xl font-bold mono italic text-slate-400 hover:border-orange-500/30 transition-all text-sm">t = d / v</button>
+          <!-- Selection helper text -->
+          <div id="selection-helper" class="text-center text-xs text-slate-400 font-semibold h-4 select-none">
+            <!-- Selected item details -->
+          </div>
+
+          <!-- Equation Arranging Board -->
+          <div class="glass rounded-[2rem] p-6 border border-white/5 flex flex-col items-center justify-center">
+            
+            <!-- Standard Formula Template: v = x / t -->
+            <div class="flex items-center justify-center gap-6 text-4xl font-mono text-slate-600 flex-wrap py-4">
+              
+              <!-- v Slot -->
+              <div 
+                data-slot="v" 
+                class="drag-target w-32 h-24 sm:w-36 sm:h-28 bg-slate-950/80 rounded-xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-sm font-semibold select-none cursor-pointer transition-all"
+                onclick="handleSlotClick(this)"
+              >
+                <span class="text-slate-500 text-3xl sm:text-5xl font-mono select-none">v</span>
               </div>
-            </div>
 
-            <!-- Numeric Input Field -->
-            <div class="space-y-2">
-              <span class="text-[10px] text-slate-400 uppercase tracking-widest block font-medium">Compute Value (Round to 2 decimal places):</span>
-              <div class="flex gap-2 relative">
-                <input 
-                  type="number" 
-                  step="0.01" 
-                  id="l2-answer-input" 
-                  placeholder="Insert calculated result..." 
-                  class="flex-grow bg-slate-950/80 border border-white/10 rounded-xl py-3 px-4 text-white font-bold focus:border-orange-500 focus:outline-none transition-all mono placeholder:font-normal placeholder:text-slate-600"
+              <span class="font-sans text-slate-400 font-bold select-none">=</span>
+
+              <!-- Fraction Block: x / t -->
+              <div class="flex flex-col items-center gap-3">
+                
+                <!-- x Slot -->
+                <div 
+                  data-slot="x" 
+                  class="drag-target w-32 h-24 sm:w-36 sm:h-28 bg-slate-950/80 rounded-xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-sm font-semibold select-none cursor-pointer transition-all"
+                  onclick="handleSlotClick(this)"
                 >
-                <button onclick="checkL2Answer()" class="bg-orange-600 hover:bg-orange-500 text-white font-bold px-6 rounded-xl transition-all shadow-lg">Submit</button>
+                  <span class="text-slate-500 text-3xl sm:text-5xl font-mono select-none">x</span>
+                </div>
+                
+                <!-- Division Line -->
+                <div class="w-24 sm:w-32 h-1 bg-slate-700 rounded-full select-none"></div>
+
+                <!-- t Slot -->
+                <div 
+                  data-slot="t" 
+                  class="drag-target w-32 h-24 sm:w-36 sm:h-28 bg-slate-950/80 rounded-xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-sm font-semibold select-none cursor-pointer transition-all"
+                  onclick="handleSlotClick(this)"
+                >
+                  <span class="text-slate-500 text-3xl sm:text-5xl font-mono select-none">t</span>
+                </div>
+
               </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- RIGHT PANEL: Action Panel / Visual Feedback -->
+        <div class="md:col-span-5 flex flex-col gap-4">
+          
+          <!-- Feedback Message box -->
+          <div id="feedback-box" class="glass rounded-2xl p-4 text-center font-bold text-sm min-h-[60px] flex items-center justify-center border border-white/5">
+            Place the given values, enter your calculated answer, and check your work.
+          </div>
+
+          <!-- Calculation input helper (For Level 2 & 3) -->
+          <div id="calc-input-helper" class="glass rounded-[2rem] p-6 border border-white/5 flex flex-col justify-between hidden">
+            <div>
+              <span class="text-[10px] text-sky-400 uppercase tracking-widest block font-bold">Calculation Telemetry</span>
+              <p class="text-xs text-slate-400 mt-1 leading-relaxed">Enter your calculated result. Make sure to round to 2 decimal places.</p>
+            </div>
+            
+            <div class="my-4">
+              <input 
+                type="number" 
+                step="0.01" 
+                id="manual-user-answer" 
+                placeholder="Insert result..." 
+                class="w-full bg-slate-950/85 text-white py-3 px-4 rounded-xl border border-white/10 text-center font-bold tracking-wide text-lg focus:border-sky-500 focus:outline-none transition-all mono placeholder:font-normal placeholder:text-slate-700"
+              >
             </div>
           </div>
-          
-        </div>
 
-        <!-- RIGHT: Embedded Retro Scientific Calculator -->
-        <div class="md:col-span-5 glass rounded-[2rem] p-6 border border-white/5 flex flex-col gap-4 relative overflow-hidden">
-          <div class="absolute top-0 right-0 w-24 h-24 bg-orange-500/5 rounded-full blur-2xl pointer-events-none"></div>
-          <div>
-            <span class="text-[10px] text-slate-400 uppercase tracking-widest block font-bold mb-1">On-Board Assistant</span>
-            <h4 class="text-sm font-extrabold text-orange-400 uppercase tracking-wider">Kinetic Calculator v1.0</h4>
+          <!-- Workspace Actions Buttons -->
+          <div class="flex flex-col gap-3">
+            <button onclick="checkCurrentAnswer()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-black py-4 px-6 rounded-xl transition-all shadow-lg text-sm uppercase tracking-wider">
+              Check Answer
+            </button>
+            <button onclick="resetWorkspace()" class="w-full bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold py-3.5 px-6 rounded-xl transition-all border border-white/5 text-sm uppercase tracking-wider">
+              Reset Workspace
+            </button>
+            <button id="btn-next-question" onclick="nextQuestion()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 px-6 rounded-xl transition-all shadow-lg text-sm uppercase tracking-wider hidden">
+              Next Question
+            </button>
           </div>
 
-          <!-- Calc Screen -->
-          <div class="bg-slate-950 border border-white/10 rounded-xl p-3.5 text-right relative overflow-hidden flex flex-col justify-end min-h-[70px]">
-            <div id="calc-history" class="text-xs text-slate-600 font-semibold mono truncate">0</div>
-            <div id="calc-screen" class="text-lg font-bold text-orange-400 mono truncate">0</div>
+          <!-- Utility Bar: Help & Calculator buttons -->
+          <div class="grid grid-cols-2 gap-3 mt-2">
+            <button onclick="toggleHelpModal(true)" class="bg-slate-900 hover:bg-slate-800 text-slate-300 py-3 rounded-xl border border-white/5 font-semibold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-1.5">
+              <i data-lucide="help-circle" class="w-4 h-4"></i> Help Guide
+            </button>
+            <button onclick="toggleCalculatorModal(true)" class="bg-slate-900 hover:bg-slate-800 text-slate-300 py-3 rounded-xl border border-white/5 font-semibold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-1.5">
+              <i data-lucide="calculator" class="w-4 h-4"></i> Calculator
+            </button>
           </div>
 
-          <!-- Calc Keypad Grid -->
-          <div class="grid grid-cols-4 gap-2 flex-grow">
-            <button onclick="pressCalcKey('C')" class="bg-slate-900 border border-white/5 py-2.5 rounded-xl font-bold text-rose-500 hover:bg-rose-500/10 hover:border-rose-500/20 transition-all mono text-sm">C</button>
-            <button onclick="pressCalcKey('DEL')" class="bg-slate-900 border border-white/5 py-2.5 rounded-xl font-bold text-slate-400 hover:bg-slate-800 transition-all text-xs">DEL</button>
-            <button onclick="pressCalcKey('/')" class="bg-slate-900 border border-white/5 py-2.5 rounded-xl font-bold text-orange-500 hover:bg-orange-500/10 transition-all mono text-sm">/</button>
-            <button onclick="pressCalcKey('*')" class="bg-slate-900 border border-white/5 py-2.5 rounded-xl font-bold text-orange-500 hover:bg-orange-500/10 transition-all mono text-sm">*</button>
-            
-            <button onclick="pressCalcKey('7')" class="bg-slate-900/60 border border-white/5 py-2.5 rounded-xl font-bold hover:bg-slate-800 transition-all mono text-sm">7</button>
-            <button onclick="pressCalcKey('8')" class="bg-slate-900/60 border border-white/5 py-2.5 rounded-xl font-bold hover:bg-slate-800 transition-all mono text-sm">8</button>
-            <button onclick="pressCalcKey('9')" class="bg-slate-900/60 border border-white/5 py-2.5 rounded-xl font-bold hover:bg-slate-800 transition-all mono text-sm">9</button>
-            <button onclick="pressCalcKey('-')" class="bg-slate-900 border border-white/5 py-2.5 rounded-xl font-bold text-orange-500 hover:bg-orange-500/10 transition-all mono text-sm">-</button>
-            
-            <button onclick="pressCalcKey('4')" class="bg-slate-900/60 border border-white/5 py-2.5 rounded-xl font-bold hover:bg-slate-800 transition-all mono text-sm">4</button>
-            <button onclick="pressCalcKey('5')" class="bg-slate-900/60 border border-white/5 py-2.5 rounded-xl font-bold hover:bg-slate-800 transition-all mono text-sm">5</button>
-            <button onclick="pressCalcKey('6')" class="bg-slate-900/60 border border-white/5 py-2.5 rounded-xl font-bold hover:bg-slate-800 transition-all mono text-sm">6</button>
-            <button onclick="pressCalcKey('+')" class="bg-slate-900 border border-white/5 py-2.5 rounded-xl font-bold text-orange-500 hover:bg-orange-500/10 transition-all mono text-sm">+</button>
-            
-            <button onclick="pressCalcKey('1')" class="bg-slate-900/60 border border-white/5 py-2.5 rounded-xl font-bold hover:bg-slate-800 transition-all mono text-sm">1</button>
-            <button onclick="pressCalcKey('2')" class="bg-slate-900/60 border border-white/5 py-2.5 rounded-xl font-bold hover:bg-slate-800 transition-all mono text-sm">2</button>
-            <button onclick="pressCalcKey('3')" class="bg-slate-900/60 border border-white/5 py-2.5 rounded-xl font-bold hover:bg-slate-800 transition-all mono text-sm">3</button>
-            <button onclick="pressCalcKey('=')" class="row-span-2 bg-orange-600 hover:bg-orange-500 text-white rounded-xl font-extrabold transition-all flex items-center justify-center text-base shadow-md">=</button>
-            
-            <button onclick="pressCalcKey('0')" class="col-span-2 bg-slate-900/60 border border-white/5 py-2.5 rounded-xl font-bold hover:bg-slate-800 transition-all mono text-sm">0</button>
-            <button onclick="pressCalcKey('.')" class="bg-slate-900/60 border border-white/5 py-2.5 rounded-xl font-bold hover:bg-slate-800 transition-all mono text-sm">.</button>
-          </div>
-          
-          <button onclick="insertCalcAnswer()" class="w-full bg-slate-900 border border-orange-500/30 hover:border-orange-500 text-orange-400 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2">
-            <i data-lucide="copy" class="w-4 h-4"></i> Insert into answer field
-          </button>
-        </div>
-
-      </div>
-
-    </section>
-
-    <!-- SECTION 5: LEVEL 3 (Speed Run) -->
-    <section id="view-level3" class="max-w-3xl w-full hidden flex flex-col gap-6 transition-all duration-500">
-      
-      <!-- Top header panel -->
-      <div class="flex justify-between items-center glass p-6 rounded-[2rem] border border-white/5 relative overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-r from-fuchsia-500/5 to-purple-500/5"></div>
-        <div class="flex items-center gap-3 relative z-10">
-          <button id="l3-back-btn" onclick="confirmExitLevel3()" class="text-slate-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/5">
-            <i data-lucide="arrow-left" class="w-5 h-5"></i>
-          </button>
-          <div>
-            <h3 class="text-xl md:text-2xl font-bold text-fuchsia-400">Level 3: Speed Run</h3>
-            <p class="text-xs text-slate-400 mt-0.5">Rapid fire velocity calculations</p>
-          </div>
-        </div>
-        
-        <div class="flex items-center gap-6 relative z-10">
-          <!-- Combo Tracker -->
-          <div class="text-right">
-            <span class="text-[10px] text-slate-400 block font-bold uppercase">Streak Combo</span>
-            <span id="l3-combo" class="text-lg font-black text-fuchsia-400 mono">1x</span>
-          </div>
-          <!-- Current score -->
-          <div class="text-right">
-            <span class="text-[10px] text-slate-400 block font-bold uppercase font-medium">Points</span>
-            <span id="l3-score" class="text-2xl font-black text-white mono">0</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- TIMER PROGRESS BAR -->
-      <div class="w-full bg-slate-950 h-3 rounded-full overflow-hidden border border-white/5 relative">
-        <div id="l3-timer-bar" class="h-full bg-gradient-to-r from-fuchsia-500 to-purple-500 transition-all duration-200" style="width: 100%;"></div>
-      </div>
-
-      <!-- L3 MAIN SCREEN CARD -->
-      <div class="glass rounded-[2.5rem] p-8 md:p-10 border border-white/5 relative flex flex-col items-center text-center justify-between min-h-[320px]">
-        
-        <!-- Pre-start View -->
-        <div id="l3-prestart" class="space-y-6 max-w-md my-auto">
-          <div class="bg-fuchsia-500/10 text-fuchsia-400 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto border border-fuchsia-500/20">
-            <i data-lucide="stopwatch" class="w-8 h-8 animate-pulse"></i>
-          </div>
-          <div>
-            <h4 class="text-xl font-bold">Speed Run Ready</h4>
-            <p class="text-xs text-slate-400 mt-2 leading-relaxed">You will have 60 seconds to answer as many kinematics math problems as possible. Multipliers stack on streaks. An incorrect answer resets the streak combo.</p>
-          </div>
-          <button onclick="startLevel3Timer()" class="bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-extrabold py-4 px-10 rounded-2xl transition-all shadow-xl hover:scale-105">
-            Begin Challenge
-          </button>
-        </div>
-
-        <!-- Active Question View -->
-        <div id="l3-active" class="hidden w-full flex flex-col gap-6 my-auto">
-          <div>
-            <span id="l3-q-type" class="text-[10px] px-2.5 py-1 rounded-full bg-fuchsia-500/10 text-fuchsia-400 border border-fuchsia-500/20 font-bold uppercase tracking-wider">Solve for Distance</span>
-            <p id="l3-question-text" class="text-2xl md:text-3xl font-black text-slate-100 tracking-tight leading-relaxed mt-4">d = 120 m, t = 4 s. Find v.</p>
-          </div>
-
-          <!-- Answer Input -->
-          <form onsubmit="submitL3Answer(event)" class="max-w-md w-full mx-auto space-y-4 pt-4">
-            <input 
-              type="number" 
-              step="0.01" 
-              id="l3-answer-input" 
-              placeholder="Type answer..." 
-              class="w-full bg-slate-950/80 border border-white/10 rounded-2xl py-4 px-6 text-center text-2xl text-white font-bold focus:border-fuchsia-500 focus:outline-none transition-all mono placeholder:font-normal placeholder:text-slate-700"
-              autocomplete="off"
-            >
-            <button type="submit" class="w-full bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg">Submit Answer</button>
-          </form>
-        </div>
-
-        <!-- Completion View -->
-        <div id="l3-postrun" class="hidden space-y-6 max-w-md my-auto">
-          <div class="bg-emerald-500/10 text-emerald-400 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto border border-emerald-500/20">
-            <i data-lucide="check-circle" class="w-8 h-8"></i>
-          </div>
-          <div>
-            <h4 class="text-xl font-bold">Speed Run Completed!</h4>
-            <p class="text-xs text-slate-400 mt-2">You solved <span id="l3-postrun-correct" class="font-bold text-white">0</span> equations and accumulated a total score of:</p>
-            <div id="l3-postrun-score" class="text-4xl font-black text-emerald-400 mono mt-3">0 pts</div>
-          </div>
-          <button onclick="backToDashboard()" class="bg-slate-900 border border-white/5 hover:border-slate-700 text-white font-bold py-3 px-8 rounded-xl transition-all">
-            Return to Dashboard
-          </button>
-        </div>
-
-      </div>
-
-    </section>
-
-    <!-- SECTION 6: CERTIFICATE VIEW -->
-    <section id="view-certificate" class="max-w-xl w-full hidden flex flex-col gap-6 transition-all duration-500">
-      
-      <div class="flex justify-between items-center">
-        <button onclick="backToDashboard()" class="text-slate-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/5 flex items-center gap-1.5 text-sm font-semibold">
-          <i data-lucide="arrow-left" class="w-4 h-4"></i> Back
-        </button>
-        <button onclick="window.print()" class="text-slate-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/5 flex items-center gap-1.5 text-sm font-semibold">
-          <i data-lucide="printer" class="w-4 h-4"></i> Print
-        </button>
-      </div>
-
-      <!-- Main Print Certificate -->
-      <div id="cert-card" class="bg-slate-950 border-4 border-double border-orange-500/40 rounded-[2.5rem] p-8 md:p-10 relative overflow-hidden shadow-2xl flex flex-col items-center text-center space-y-6">
-        
-        <!-- Ornate layout elements -->
-        <div class="absolute inset-0 bg-grid opacity-10"></div>
-        <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-orange-500 via-fuchsia-500 to-cyan-500"></div>
-
-        <!-- Seal badge -->
-        <div class="bg-gradient-to-br from-orange-500 to-yellow-400 text-black w-20 h-20 rounded-full flex items-center justify-center font-black shadow-lg relative border-4 border-slate-950">
-          <i data-lucide="award" class="w-10 h-10"></i>
-        </div>
-
-        <div class="space-y-2 relative z-10">
-          <span class="text-xs font-bold tracking-widest text-orange-400 uppercase font-mono">Mr. Mudry's Physics Simulator</span>
-          <h2 class="text-3xl font-black uppercase italic tracking-tight text-white">Certificate of Achievement</h2>
-          <p class="text-slate-400 text-xs italic">Kinematics Mastery & Velocity Puzzle Calibration</p>
-        </div>
-
-        <div class="w-full h-px bg-white/10 my-2"></div>
-
-        <div class="space-y-1 relative z-10">
-          <span class="text-xs text-slate-500 font-medium">This document certifies that student ID:</span>
-          <div id="cert-student-id" class="text-2xl font-black mono text-emerald-400 tracking-widest">000000</div>
-          <p class="text-slate-300 text-sm max-w-sm mx-auto mt-2 leading-relaxed">Has successfully resolved all formula arranging parameters, computed numerical values, and achieved telemetry verification.</p>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4 w-full pt-2">
-          <div class="glass-highlight p-3 rounded-2xl">
-            <span class="text-[9px] text-slate-500 uppercase tracking-widest block font-bold">Speed Run High Score</span>
-            <span id="cert-highscore" class="text-lg font-black text-fuchsia-400 mono">0 pts</span>
-          </div>
-          <div class="glass-highlight p-3 rounded-2xl">
-            <span class="text-[9px] text-slate-500 uppercase tracking-widest block font-bold">Date Verified</span>
-            <span id="cert-date" class="text-lg font-black text-cyan-400 mono">--/--/----</span>
-          </div>
-        </div>
-
-        <div class="w-full h-px bg-white/10 my-2"></div>
-
-        <!-- Verification QR Code container -->
-        <div class="flex flex-col items-center gap-3 relative z-10">
-          <div class="p-3 bg-white rounded-2xl shadow-xl inline-block">
-            <div id="cert-qrcode" class="w-32 h-32 flex items-center justify-center text-black font-semibold text-xs">QR</div>
-          </div>
-          <div>
-            <span class="text-[10px] text-slate-500 uppercase tracking-widest block font-bold">Scan to Verify Lab Marks</span>
-            <code id="cert-verification-token" class="text-[9px] text-orange-500/70 mono bg-slate-900 px-2 py-0.5 rounded border border-white/5 select-all truncate max-w-[280px] inline-block mt-1">TOKEN</code>
-          </div>
         </div>
 
       </div>
@@ -674,9 +334,159 @@
 
   </main>
 
+  <!-- HELP GUIDE MODAL (Understanding the Formula - S1) -->
+  <div id="modal-help" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 hidden transition-opacity duration-300">
+    <div class="w-full max-w-xl bg-[#090e24] border border-white/10 shadow-2xl rounded-3xl p-6 md:p-8 space-y-6 relative max-h-[90vh] overflow-y-auto">
+      
+      <div class="flex justify-between items-center">
+        <h3 id="help-modal-title" class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+          <i data-lucide="graduation-cap" class="text-sky-400"></i> Understanding the Formula
+        </h3>
+        <button onclick="toggleHelpModal(false)" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/5 transition-colors">
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+      </div>
+
+      <p class="text-slate-400 text-sm leading-relaxed">
+        Click a physical variable below to understand its base equation and learn how it is rearranged algebraically to solve for distance, speed, or time.
+      </p>
+
+      <!-- Formula Variable Selector -->
+      <div class="flex gap-3 justify-center py-2">
+        <button onclick="selectHelpVariable('v')" id="btn-help-v" class="flex-1 py-4 rounded-xl font-bold text-center border transition-all text-lg mono italic">v<span class="block text-[10px] font-sans font-normal text-slate-500 uppercase not-italic tracking-wider mt-1">Velocity</span></button>
+        <button onclick="selectHelpVariable('x')" id="btn-help-x" class="flex-1 py-4 rounded-xl font-bold text-center border transition-all text-lg mono italic">x<span class="block text-[10px] font-sans font-normal text-slate-500 uppercase not-italic tracking-wider mt-1">Distance</span></button>
+        <button onclick="selectHelpVariable('t')" id="btn-help-t" class="flex-1 py-4 rounded-xl font-bold text-center border transition-all text-lg mono italic">t<span class="block text-[10px] font-sans font-normal text-slate-500 uppercase not-italic tracking-wider mt-1">Time</span></button>
+      </div>
+
+      <!-- Dynamic Formula Display Panel -->
+      <div class="bg-slate-950 border border-white/5 rounded-2xl p-6 flex flex-col items-center justify-center min-h-[140px]">
+        <div id="help-equation-render" class="text-4xl md:text-5xl font-mono text-white flex items-center gap-4">
+          <!-- Dynamic equation goes here -->
+        </div>
+      </div>
+
+      <div class="text-center pt-2">
+        <button onclick="toggleHelpModal(false)" class="bg-white text-black py-3 px-8 rounded-xl font-black uppercase tracking-wider hover:bg-slate-200 transition-all text-xs">
+          Close Help
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLOATING DRAGGABLE CALCULATOR MODAL (p1) -->
+  <div id="modal-calculator" class="fixed z-50 w-64 bg-slate-900 border border-white/10 shadow-2xl rounded-2xl hidden" style="top: 80px; left: 30px;">
+    
+    <!-- Titlebar (Draggable trigger) -->
+    <div 
+      id="calc-header" 
+      class="flex items-center justify-between px-3 py-2.5 bg-slate-800 text-white rounded-t-2xl cursor-move select-none touch-pan-y"
+      onpointerdown="dragStart(event)"
+    >
+      <div class="flex items-center gap-1 text-slate-300">
+        <i data-lucide="calculator" class="w-4 h-4 text-sky-400"></i>
+        <span class="text-xs font-bold uppercase tracking-wider font-sans">Lab Assistant</span>
+      </div>
+      <button onclick="toggleCalculatorModal(false)" class="text-slate-400 hover:text-white p-0.5 rounded transition-colors">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+
+    <!-- Calculator Body -->
+    <div class="px-3 pt-3 pb-4">
+      
+      <!-- Calc History Display -->
+      <div class="mb-1 h-5 flex items-center justify-end px-3 text-[10px] font-medium text-slate-500 mono" id="calc-history">
+        0
+      </div>
+
+      <!-- Calc Input Display -->
+      <div class="mb-3 h-12 flex items-center justify-end px-3 bg-slate-950 rounded-lg text-xl font-mono text-sky-400 border border-white/5 truncate" id="calc-display">
+        0
+      </div>
+
+      <!-- Calc Keypad Grid -->
+      <div class="grid grid-cols-4 gap-1.5 text-sm">
+        
+        <!-- Row 1 -->
+        <button onclick="calcPress('C')" class="py-2.5 bg-slate-800 hover:bg-rose-500/20 hover:text-rose-400 border border-white/5 rounded-lg font-bold text-rose-500 transition-colors">C</button>
+        <button onclick="calcPress('DEL')" class="py-2.5 bg-slate-800 hover:bg-slate-700 border border-white/5 rounded-lg font-bold text-slate-400 transition-colors">DEL</button>
+        <button onclick="calcPress('/')" class="py-2.5 bg-slate-800 hover:bg-sky-500/20 hover:text-sky-400 border border-white/5 rounded-lg font-mono font-bold text-sky-400 transition-colors">/</button>
+        <button onclick="calcPress('*')" class="py-2.5 bg-slate-800 hover:bg-sky-500/20 hover:text-sky-400 border border-white/5 rounded-lg font-mono font-bold text-sky-400 transition-colors">*</button>
+        
+        <!-- Row 2 -->
+        <button onclick="calcPress('7')" class="py-2.5 bg-slate-800/40 hover:bg-slate-800 border border-white/5 rounded-lg font-bold text-slate-200 transition-colors">7</button>
+        <button onclick="calcPress('8')" class="py-2.5 bg-slate-800/40 hover:bg-slate-800 border border-white/5 rounded-lg font-bold text-slate-200 transition-colors">8</button>
+        <button onclick="calcPress('9')" class="py-2.5 bg-slate-800/40 hover:bg-slate-800 border border-white/5 rounded-lg font-bold text-slate-200 transition-colors">9</button>
+        <button onclick="calcPress('-')" class="py-2.5 bg-slate-800 hover:bg-sky-500/20 hover:text-sky-400 border border-white/5 rounded-lg font-mono font-bold text-sky-400 transition-colors">-</button>
+        
+        <!-- Row 3 -->
+        <button onclick="calcPress('4')" class="py-2.5 bg-slate-800/40 hover:bg-slate-800 border border-white/5 rounded-lg font-bold text-slate-200 transition-colors">4</button>
+        <button onclick="calcPress('5')" class="py-2.5 bg-slate-800/40 hover:bg-slate-800 border border-white/5 rounded-lg font-bold text-slate-200 transition-colors">5</button>
+        <button onclick="calcPress('6')" class="py-2.5 bg-slate-800/40 hover:bg-slate-800 border border-white/5 rounded-lg font-bold text-slate-200 transition-colors">6</button>
+        <button onclick="calcPress('+')" class="py-2.5 bg-slate-800 hover:bg-sky-500/20 hover:text-sky-400 border border-white/5 rounded-lg font-mono font-bold text-sky-400 transition-colors">+</button>
+        
+        <!-- Row 4 -->
+        <button onclick="calcPress('1')" class="py-2.5 bg-slate-800/40 hover:bg-slate-800 border border-white/5 rounded-lg font-bold text-slate-200 transition-colors">1</button>
+        <button onclick="calcPress('2')" class="py-2.5 bg-slate-800/40 hover:bg-slate-800 border border-white/5 rounded-lg font-bold text-slate-200 transition-colors">2</button>
+        <button onclick="calcPress('3')" class="py-2.5 bg-slate-800/40 hover:bg-slate-800 border border-white/5 rounded-lg font-bold text-slate-200 transition-colors">3</button>
+        <button onclick="calcPress('=')" class="row-span-2 py-6 bg-emerald-600 hover:bg-emerald-500 border border-emerald-500/30 rounded-lg font-bold text-white transition-colors flex items-center justify-center text-lg shadow-md">=</button>
+        
+        <!-- Row 5 -->
+        <button onclick="calcPress('+/-')" class="py-2.5 bg-slate-800 hover:bg-slate-700 border border-white/5 rounded-lg font-bold text-slate-400 transition-colors font-sans text-xs">+/-</button>
+        <button onclick="calcPress('0')" class="col-span-2 py-2.5 bg-slate-800/40 hover:bg-slate-800 border border-white/5 rounded-lg font-bold text-slate-200 transition-colors">0</button>
+        <button onclick="calcPress('.')" class="py-2.5 bg-slate-800/40 hover:bg-slate-800 border border-white/5 rounded-lg font-bold text-slate-200 transition-colors">.</button>
+
+      </div>
+
+      <!-- Insert answer directly -->
+      <button onclick="insertCalcAnswer()" class="w-full mt-3 bg-slate-950 border border-sky-500/30 hover:border-sky-500 text-sky-400 py-2 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-1.5">
+        <i data-lucide="copy" class="w-3.5 h-3.5"></i> Insert answer to field
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- COMPLETION MODAL WITH QR CERTIFICATE -->
+  <div id="modal-completion" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md px-4 hidden transition-opacity duration-300">
+    <div class="w-full max-w-sm bg-slate-900 border border-white/10 shadow-2xl rounded-3xl p-6 space-y-6 text-center">
+      
+      <div class="bg-emerald-500/10 text-emerald-400 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto border border-emerald-500/20">
+        <i data-lucide="check-circle" class="w-8 h-8"></i>
+      </div>
+      
+      <div>
+        <h2 class="text-2xl font-black tracking-tight text-white uppercase italic">Well Done!</h2>
+        <p class="text-slate-400 text-sm mt-1">Quiz Completed Successfully.</p>
+      </div>
+
+      <div class="w-full h-px bg-white/10"></div>
+
+      <div class="space-y-1.5">
+        <p class="text-slate-400 text-xs">Student ID: <span id="completion-student-id" class="text-white font-bold mono">000000</span></p>
+        <p class="text-slate-400 text-xs">Final Quiz Score: <span id="completion-score" class="text-white font-bold mono">0 / 6</span></p>
+      </div>
+
+      <!-- Verification QR Code container -->
+      <div class="mx-auto w-52 h-52 bg-white flex items-center justify-center border border-slate-200 rounded-2xl p-2 relative shadow-lg">
+        <div id="completion-qrcode" class="w-full h-full flex items-center justify-center text-slate-900 font-bold text-xs select-none">Generating QR...</div>
+      </div>
+
+      <div class="flex gap-3 justify-center">
+        <button id="btn-download-qr" onclick="downloadQRCode()" class="flex-1 py-3 bg-sky-600 hover:bg-sky-500 text-white rounded-xl font-bold transition-all text-xs uppercase tracking-wider flex items-center justify-center gap-1 shadow-md">
+          <i data-lucide="download" class="w-4 h-4"></i> Download QR
+        </button>
+        <button onclick="closeCompletionModal()" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold transition-all text-xs uppercase tracking-wider border border-white/5">
+          Close
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <!-- Footer -->
   <footer class="w-full py-4 text-center border-t border-white/5 bg-[#050917]/70 backdrop-blur-md text-[10px] text-slate-500 select-none z-10">
-    &copy; 2026 Mr. Mudry's Physics Science Laboratory &bull; Standalone Kinematics Core
+    &copy; 2026 Mr. Mudry's Physics Science Laboratory &bull; Scaffolded Kinematics Core
   </footer>
 
   <!-- Web Audio Synthesizer & Game Control Logic -->
@@ -763,23 +573,6 @@
         osc.stop(now + 0.35);
       }
 
-      playTimerTick() {
-        this.init();
-        if (!this.ctx) return;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(1000, this.ctx.currentTime);
-        gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.05);
-
-        osc.start();
-        osc.stop(this.ctx.currentTime + 0.05);
-      }
-
       playCombo() {
         this.init();
         if (!this.ctx) return;
@@ -802,46 +595,381 @@
     const sound = new SynthManager();
 
     // -------------------------------------------------------------
-    // APP STATE & CONSTANTS
+    // QUESTIONS DATABASE
+    // -------------------------------------------------------------
+const QUESTIONS = [
+{id:1,textParts:["A train travels ",{variable:"x"}," in ",{variable:"t"},". What is ",{isUnknown:true},"?"],values:[{id:"q1v1",value:250,unit:"km",variable:"x"},{id:"q1v2",value:5,unit:"h",variable:"t"}],solveFor:"v",unknownText:"its average speed"},{id:2,textParts:["A cyclist maintains a constant speed of ",{variable:"v"}," for ",{variable:"t"},". ",{isUnknown:true},"?"],values:[{id:"q2v1",value:12,unit:"m/s",variable:"v"},{id:"q2v2",value:60,unit:"s",variable:"t"}],solveFor:"x",unknownText:"How far did they travel"},{id:3,textParts:["A cheetah covers a distance of ",{variable:"x"}," while running at a blistering ",{variable:"v"},". ",{isUnknown:true},"?"],values:[{id:"q3v1",value:300,unit:"m",variable:"x"},{id:"q3v2",value:30,unit:"m/s",variable:"v"}],solveFor:"t",unknownText:"How long did it take"},{id:4,textParts:["Sound travels at about ",{variable:"v"},". If you see a lightning strike and hear the thunder ",{variable:"t"}," later, ",{isUnknown:true},"?"],values:[{id:"q4v1",value:343,unit:"m/s",variable:"v"},{id:"q4v2",value:3,unit:"s",variable:"t"}],solveFor:"x",unknownText:"how far away was the strike"},{id:5,textParts:["A satellite orbits Earth covering a distance of ",{variable:"x"}," in ",{variable:"t"},". What is ",{isUnknown:true},"?"],values:[{id:"q5v1",value:42e3,unit:"km",variable:"x"},{id:"q5v2",value:1.5,unit:"h",variable:"t"}],solveFor:"v",unknownText:"its orbital speed"},{id:6,textParts:["A car needs to travel ",{variable:"x"},". If its average speed is ",{variable:"v"},", ",{isUnknown:true},"?"],values:[{id:"q6v1",value:450,unit:"miles",variable:"x"},{id:"q6v2",value:60,unit:"mph",variable:"v"}],solveFor:"t",unknownText:"how much time will the journey take"},{id:7,textParts:["A jetliner cruises at ",{variable:"v"}," for ",{variable:"t"},". ",{isUnknown:true},"?"],values:[{id:"q7v1",value:850,unit:"km/h",variable:"v"},{id:"q7v2",value:2.5,unit:"h",variable:"t"}],solveFor:"x",unknownText:"How far does it travel"},{id:8,textParts:["A river ferry needs to cross ",{variable:"x"}," at an average speed of ",{variable:"v"},". ",{isUnknown:true},"?"],values:[{id:"q8v1",value:1.2,unit:"km",variable:"x"},{id:"q8v2",value:8,unit:"km/h",variable:"v"}],solveFor:"t",unknownText:"How long will the crossing take"},{id:9,textParts:["A marathon runner keeps a steady pace of ",{variable:"v"}," and covers ",{variable:"x"},". ",{isUnknown:true},"?"],values:[{id:"q9v1",value:5.4,unit:"m/s",variable:"v"},{id:"q9v2",value:42195,unit:"m",variable:"x"}],solveFor:"t",unknownText:"How long did the marathon take"},{id:10,textParts:["A rocket stage covers ",{variable:"x"}," in just ",{variable:"t"},". What is ",{isUnknown:true},"?"],values:[{id:"q10v1",value:12e4,unit:"m",variable:"x"},{id:"q10v2",value:150,unit:"s",variable:"t"}],solveFor:"v",unknownText:"its average ascent speed"},{id:11,textParts:["A competitive swimmer maintains a speed of ",{variable:"v"}," for ",{variable:"t"},". ",{isUnknown:true},"?"],values:[{id:"q11v1",value:2.1,unit:"m/s",variable:"v"},{id:"q11v2",value:900,unit:"s",variable:"t"}],solveFor:"x",unknownText:"How far do they swim"},{id:12,textParts:["A delivery drone flies ",{variable:"x"}," at an average speed of ",{variable:"v"},". ",{isUnknown:true},"?"],values:[{id:"q12v1",value:14,unit:"km",variable:"x"},{id:"q12v2",value:28,unit:"km/h",variable:"v"}],solveFor:"t",unknownText:"How long is the delivery flight"},{id:13,textParts:["A cargo ship sails ",{variable:"x"}," over ",{variable:"t"},". What is ",{isUnknown:true},"?"],values:[{id:"q13v1",value:1800,unit:"nautical miles",variable:"x"},{id:"q13v2",value:72,unit:"h",variable:"t"}],solveFor:"v",unknownText:"its average cruising speed"},{id:14,textParts:["A hiking group covers ",{variable:"x"}," while moving at ",{variable:"v"},". ",{isUnknown:true},"?"],values:[{id:"q14v1",value:18,unit:"km",variable:"x"},{id:"q14v2",value:4.5,unit:"km/h",variable:"v"}],solveFor:"t",unknownText:"How many hours were they hiking"},{id:15,textParts:["A bullet train races at ",{variable:"v"}," for ",{variable:"t"},". ",{isUnknown:true},"?"],values:[{id:"q15v1",value:300,unit:"km/h",variable:"v"},{id:"q15v2",value:1.75,unit:"h",variable:"t"}],solveFor:"x",unknownText:"What distance does it cover"},{id:16,textParts:["A snowboarder descends ",{variable:"x"}," while averaging ",{variable:"v"},". ",{isUnknown:true},"?"],values:[{id:"q16v1",value:1800,unit:"m",variable:"x"},{id:"q16v2",value:12,unit:"m/s",variable:"v"}],solveFor:"t",unknownText:"How long is the ride down"},{id:17,textParts:["A rowing crew keeps a speed of ",{variable:"v"}," for a distance of ",{variable:"x"},". ",{isUnknown:true},"?"],values:[{id:"q17v1",value:6.2,unit:"m/s",variable:"v"},{id:"q17v2",value:2e3,unit:"m",variable:"x"}],solveFor:"t",unknownText:"How long is their race effort"},{id:18,textParts:["A dog sled team travels ",{variable:"x"}," at a steady ",{variable:"v"},". ",{isUnknown:true},"?"],values:[{id:"q18v1",value:95,unit:"km",variable:"x"},{id:"q18v2",value:15,unit:"km/h",variable:"v"}],solveFor:"t",unknownText:"How long is the run"},{id:19,textParts:["A roller coaster train covers ",{variable:"x"}," in ",{variable:"t"},". What is ",{isUnknown:true},"?"],values:[{id:"q19v1",value:1100,unit:"m",variable:"x"},{id:"q19v2",value:90,unit:"s",variable:"t"}],solveFor:"v",unknownText:"its average course speed"},{id:20,textParts:["A rescue helicopter flies at ",{variable:"v"}," for ",{variable:"t"}," to reach a stranded hiker. ",{isUnknown:true},"?"],values:[{id:"q20v1",value:220,unit:"km/h",variable:"v"},{id:"q20v2",value:.75,unit:"h",variable:"t"}],solveFor:"x",unknownText:"How far away is the hiker"},{id:21,textParts:["A research submarine travels at ",{variable:"v"}," for ",{variable:"t"}," underwater. ",{isUnknown:true},"?"],values:[{id:"q21v1",value:18,unit:"km/h",variable:"v"},{id:"q21v2",value:5,unit:"h",variable:"t"}],solveFor:"x",unknownText:"What distance does it cover"},{id:22,textParts:["A Mars rover travels ",{variable:"x"}," in ",{variable:"t"},". Compute ",{isUnknown:true},"."],values:[{id:"q22v1",value:.5,unit:"km",variable:"x"},{id:"q22v2",value:2.5,unit:"h",variable:"t"}],solveFor:"v",unknownText:"its average surface speed"},{id:23,textParts:["A cyclist climbs a mountain at ",{variable:"v"}," for ",{variable:"x"},". ",{isUnknown:true},"?"],values:[{id:"q23v1",value:14,unit:"km/h",variable:"v"},{id:"q23v2",value:28,unit:"km",variable:"x"}],solveFor:"t",unknownText:"How long is the climb"},{id:24,textParts:["A space probe travels ",{variable:"x"}," at ",{variable:"v"},". ",{isUnknown:true},"?"],values:[{id:"q24v1",value:9e5,unit:"km",variable:"x"},{id:"q24v2",value:45e3,unit:"km/h",variable:"v"}],solveFor:"t",unknownText:"How long does the leg of the mission take"},{id:25,textParts:["A glider descends steadily for ",{variable:"t"}," covering ",{variable:"x"},". Determine ",{isUnknown:true},"."],values:[{id:"q25v1",value:.75,unit:"h",variable:"t"},{id:"q25v2",value:72,unit:"km",variable:"x"}],solveFor:"v",unknownText:"its glide speed"},{id:26,textParts:["A windsurfer sails at ",{variable:"v"}," for ",{variable:"t"},". ",{isUnknown:true},"?"],values:[{id:"q26v1",value:11,unit:"m/s",variable:"v"},{id:"q26v2",value:1080,unit:"s",variable:"t"}],solveFor:"x",unknownText:"What distance do they cover"},{id:27,textParts:["A freight truck drives ",{variable:"x"}," averaging ",{variable:"v"},". ",{isUnknown:true},"?"],values:[{id:"q27v1",value:540,unit:"km",variable:"x"},{id:"q27v2",value:90,unit:"km/h",variable:"v"}],solveFor:"t",unknownText:"How long is the haul"},{id:28,textParts:["A research balloon drifts ",{variable:"x"}," in ",{variable:"t"},". Find ",{isUnknown:true},"."],values:[{id:"q28v1",value:96,unit:"km",variable:"x"},{id:"q28v2",value:4,unit:"h",variable:"t"}],solveFor:"v",unknownText:"the wind speed carrying it"},{id:29,textParts:["A person walks at ",{variable:"v"}," for ",{variable:"t"}," during a charity event. ",{isUnknown:true},"?"],values:[{id:"q29v1",value:5,unit:"km/h",variable:"v"},{id:"q29v2",value:3,unit:"h",variable:"t"}],solveFor:"x",unknownText:"How far do they walk"},{id:30,textParts:["A mountaineer covers ",{variable:"x"}," at an average speed of ",{variable:"v"},". ",{isUnknown:true},"?"],values:[{id:"q30v1",value:12,unit:"km",variable:"x"},{id:"q30v2",value:2,unit:"km/h",variable:"v"}],solveFor:"t",unknownText:"How many hours is the ascent"},{id:31,textParts:["An electric scooter travels at ",{variable:"v"}," for ",{variable:"t"},". ",{isUnknown:true},"?"],values:[{id:"q31v1",value:25,unit:"km/h",variable:"v"},{id:"q31v2",value:.58,unit:"h",variable:"t"}],solveFor:"x",unknownText:"What distance does it cover"},{id:32,textParts:["A ski lift ascends ",{variable:"x"}," while moving at ",{variable:"v"},". ",{isUnknown:true},"?"],values:[{id:"q32v1",value:1500,unit:"m",variable:"x"},{id:"q32v2",value:3,unit:"m/s",variable:"v"}],solveFor:"t",unknownText:"How long is the lift ride"},{id:33,textParts:["A kayaker paddles at ",{variable:"v"}," for ",{variable:"t"}," on calm water. ",{isUnknown:true},"?"],values:[{id:"q33v1",value:7.5,unit:"km/h",variable:"v"},{id:"q33v2",value:2.2,unit:"h",variable:"t"}],solveFor:"x",unknownText:"How far do they paddle"},{id:34,textParts:["A race car maintains ",{variable:"v"}," for ",{variable:"t"}," during a test lap. ",{isUnknown:true},"?"],values:[{id:"q34v1",value:72,unit:"m/s",variable:"v"},{id:"q34v2",value:95,unit:"s",variable:"t"}],solveFor:"x",unknownText:"What lap distance is covered"},{id:35,textParts:["A cargo plane covers ",{variable:"x"}," at ",{variable:"v"},". ",{isUnknown:true},"?"],values:[{id:"q35v1",value:2100,unit:"km",variable:"x"},{id:"q35v2",value:700,unit:"km/h",variable:"v"}],solveFor:"t",unknownText:"How long is the flight segment"},{id:36,textParts:["A school bus averages ",{variable:"v"}," while covering ",{variable:"x"},". Find ",{isUnknown:true},"."],values:[{id:"q36v1",value:45,unit:"km/h",variable:"v"},{id:"q36v2",value:27,unit:"km",variable:"x"}],solveFor:"t",unknownText:"the route duration each morning"},{id:37,textParts:["An ultra runner moves at ",{variable:"v"}," for ",{variable:"x"},". ",{isUnknown:true},"?"],values:[{id:"q37v1",value:10.5,unit:"km/h",variable:"v"},{id:"q37v2",value:75,unit:"km",variable:"x"}],solveFor:"t",unknownText:"How long is their endurance run"},{id:38,textParts:["An ice skater glides at ",{variable:"v"}," for ",{variable:"t"},". Determine ",{isUnknown:true},"."],values:[{id:"q38v1",value:8.2,unit:"m/s",variable:"v"},{id:"q38v2",value:140,unit:"s",variable:"t"}],solveFor:"x",unknownText:"the distance covered on the rink"},{id:39,textParts:["A hot air balloon drifts with the wind for ",{variable:"t"}," at ",{variable:"v"},". ",{isUnknown:true},"?"],values:[{id:"q39v1",value:2.5,unit:"h",variable:"t"},{id:"q39v2",value:18,unit:"km/h",variable:"v"}],solveFor:"x",unknownText:"How far does it travel"},{id:40,textParts:["An ocean current carries a buoy ",{variable:"x"}," in ",{variable:"t"},". ",{isUnknown:true},"?"],values:[{id:"q40v1",value:27,unit:"km",variable:"x"},{id:"q40v2",value:9,unit:"h",variable:"t"}],solveFor:"v",unknownText:"the speed of the current"},{id:41,textParts:["An autonomous taxi averages ",{variable:"v"}," for ",{variable:"t"}," during a downtown loop. ",{isUnknown:true},"?"],values:[{id:"q41v1",value:32,unit:"km/h",variable:"v"},{id:"q41v2",value:.8,unit:"h",variable:"t"}],solveFor:"x",unknownText:"What route length does it complete"},{id:42,textParts:["A fire engine drives ",{variable:"x"}," at an average of ",{variable:"v"},". ",{isUnknown:true},"?"],values:[{id:"q42v1",value:18,unit:"km",variable:"x"},{id:"q42v2",value:60,unit:"km/h",variable:"v"}],solveFor:"t",unknownText:"How long does it take to reach the call"},{id:43,textParts:["A high-speed elevator ascends ",{variable:"x"}," in ",{variable:"t"},". Find ",{isUnknown:true},"."],values:[{id:"q43v1",value:320,unit:"m",variable:"x"},{id:"q43v2",value:35,unit:"s",variable:"t"}],solveFor:"v",unknownText:"its average ascent speed"},{id:44,textParts:["A track cyclist maintains ",{variable:"v"}," for ",{variable:"x"},". ",{isUnknown:true},"?"],values:[{id:"q44v1",value:18,unit:"m/s",variable:"v"},{id:"q44v2",value:4e3,unit:"m",variable:"x"}],solveFor:"t",unknownText:"How long is the pursuit effort"},{id:45,textParts:["A maglev train glides at ",{variable:"v"}," for ",{variable:"t"}," between cities. ",{isUnknown:true},"?"],values:[{id:"q45v1",value:600,unit:"km/h",variable:"v"},{id:"q45v2",value:.9,unit:"h",variable:"t"}],solveFor:"x",unknownText:"What distance separates the cities"},{id:46,textParts:["A tugboat pulls a barge ",{variable:"x"}," at ",{variable:"v"},". ",{isUnknown:true},"?"],values:[{id:"q46v1",value:36,unit:"km",variable:"x"},{id:"q46v2",value:12,unit:"km/h",variable:"v"}],solveFor:"t",unknownText:"How long is the tow"},{id:47,textParts:["An ocean liner covers ",{variable:"x"}," in ",{variable:"t"},". Compute ",{isUnknown:true},"."],values:[{id:"q47v1",value:5200,unit:"km",variable:"x"},{id:"q47v2",value:120,unit:"h",variable:"t"}],solveFor:"v",unknownText:"its average voyage speed"},{id:48,textParts:["A rescue drone flies at ",{variable:"v"}," for ",{variable:"t"}," searching for survivors. ",{isUnknown:true},"?"],values:[{id:"q48v1",value:54,unit:"km/h",variable:"v"},{id:"q48v2",value:1.2,unit:"h",variable:"t"}],solveFor:"x",unknownText:"What search radius can it cover"},{id:49,textParts:["A speed skater maintains ",{variable:"v"}," for ",{variable:"x"},". ",{isUnknown:true},"?"],values:[{id:"q49v1",value:15,unit:"m/s",variable:"v"},{id:"q49v2",value:5e3,unit:"m",variable:"x"}],solveFor:"t",unknownText:"How long is the race effort"},{id:50,textParts:["A lunar rover covers ",{variable:"x"}," in ",{variable:"t"},". Determine ",{isUnknown:true},"."],values:[{id:"q50v1",value:3.2,unit:"km",variable:"x"},{id:"q50v2",value:1.6,unit:"h",variable:"t"}],solveFor:"v",unknownText:"its average traversal speed"}]
+];
+
+
+    // -------------------------------------------------------------
+    // SPEECH SYNTHESIS ACCESSIBILITY
+    // -------------------------------------------------------------
+    class SpeechManager {
+      constructor() {
+        this.synth = window.speechSynthesis;
+        this.speaking = false;
+        this.utterance = null;
+      }
+
+      speak(text) {
+        if (!this.synth) {
+          console.warn("Speech synthesis not supported.");
+          return;
+        }
+        
+        this.cancel();
+        
+        // Expand abbreviations to make it readable
+        let cleanText = text;
+        const expansions = {
+          "km/h": "kilometers per hour",
+          "m/s": "meters per second",
+          "mph": "miles per hour",
+          "km": "kilometers",
+          "m": "meters",
+          "h": "hours",
+          "s": "seconds"
+        };
+        
+        for (let key in expansions) {
+          // Replace matching units
+          const regex = new RegExp(`\\b${key}\\b`, 'g');
+          cleanText = cleanText.replace(regex, expansions[key]);
+        }
+
+        this.utterance = new SpeechSynthesisUtterance(cleanText);
+        this.utterance.onstart = () => {
+          this.speaking = true;
+          this.updateSpeakButton();
+        };
+        this.utterance.onend = () => {
+          this.speaking = false;
+          this.updateSpeakButton();
+        };
+        this.utterance.onerror = () => {
+          this.speaking = false;
+          this.updateSpeakButton();
+        };
+
+        this.synth.speak(this.utterance);
+      }
+
+      cancel() {
+        if (this.synth && this.synth.speaking) {
+          this.synth.cancel();
+        }
+        this.speaking = false;
+        this.updateSpeakButton();
+      }
+
+      updateSpeakButton() {
+        const btn = document.getElementById("btn-tts");
+        if (!btn) return;
+        if (this.speaking) {
+          btn.innerHTML = `<i data-lucide="square" class="w-5 h-5 text-rose-500"></i>`;
+          btn.classList.add("ring-2", "ring-rose-500/50");
+          btn.title = "Stop reading aloud";
+        } else {
+          btn.innerHTML = `<i data-lucide="volume-2" class="w-5 h-5"></i>`;
+          btn.classList.remove("ring-2", "ring-rose-500/50");
+          btn.title = "Read aloud";
+        }
+        lucide.createIcons();
+      }
+    }
+
+    const speech = new SpeechManager();
+
+    // -------------------------------------------------------------
+    // DRAGGABLE CALCULATOR WIDGET (PointerEvents)
+    // -------------------------------------------------------------
+    let calcDragState = {
+      isDragging: false,
+      startX: 0,
+      startY: 0,
+      currentX: 30,
+      currentY: 80
+    };
+
+    const calcEl = document.getElementById('modal-calculator');
+
+    function dragStart(e) {
+      if (e.target.closest('button')) return; // Avoid drag on close button
+      calcDragState.isDragging = true;
+      calcDragState.startX = e.clientX - calcDragState.currentX;
+      calcDragState.startY = e.clientY - calcDragState.currentY;
+      
+      document.addEventListener('pointermove', dragMove);
+      document.addEventListener('pointerup', dragEnd);
+      calcEl.setPointerCapture(e.pointerId);
+    }
+
+    function dragMove(e) {
+      if (!calcDragState.isDragging) return;
+      
+      let newX = e.clientX - calcDragState.startX;
+      let newY = e.clientY - calcDragState.startY;
+
+      // Keep inside bounds
+      newX = Math.max(8, Math.min(newX, window.innerWidth - calcEl.offsetWidth - 8));
+      newY = Math.max(8, Math.min(newY, window.innerHeight - calcEl.offsetHeight - 8));
+
+      calcDragState.currentX = newX;
+      calcDragState.currentY = newY;
+
+      calcEl.style.left = `${newX}px`;
+      calcEl.style.top = `${newY}px`;
+    }
+
+    function dragEnd(e) {
+      calcDragState.isDragging = false;
+      document.removeEventListener('pointermove', dragMove);
+      document.removeEventListener('pointerup', dragEnd);
+    }
+
+    // -------------------------------------------------------------
+    // CALCULATOR MATH LOGIC
+    // -------------------------------------------------------------
+    let calcState = {
+      display: '0',
+      history: '',
+      prevVal: null,
+      operator: null,
+      resetOnNext: false
+    };
+
+    function calcPress(key) {
+      sound.playBeep();
+      const displayEl = document.getElementById('calc-display');
+      const historyEl = document.getElementById('calc-history');
+
+      const formatVal = (num) => {
+        if (!Number.isFinite(num)) return 'Error';
+        // Format to max 12 chars
+        let str = num.toPrecision(10).replace(/\.0+$/, '').replace(/(\.\d*?[1-9])0+$/, '$1').replace(/\.$/, '');
+        return str;
+      };
+
+      const operate = (a, b, op) => {
+        switch (op) {
+          case '+': return a + b;
+          case '-': return a - b;
+          case '*': return a * b;
+          case '/': return b === 0 ? null : a / b;
+          default: return b;
+        }
+      };
+
+      if (key === 'C') {
+        calcState.display = '0';
+        calcState.history = '';
+        calcState.prevVal = null;
+        calcState.operator = null;
+        calcState.resetOnNext = false;
+      } else if (key === 'DEL') {
+        if (calcState.resetOnNext) {
+          calcState.display = '0';
+          calcState.resetOnNext = false;
+        } else if (calcState.display.length > 1) {
+          calcState.display = calcState.display.slice(0, -1);
+        } else {
+          calcState.display = '0';
+        }
+      } else if (['+', '-', '*', '/'].includes(key)) {
+        const currentVal = parseFloat(calcState.display);
+        if (!isNaN(currentVal)) {
+          if (calcState.prevVal !== null && calcState.operator && !calcState.resetOnNext) {
+            const res = operate(calcState.prevVal, currentVal, calcState.operator);
+            if (res === null) {
+              calcState.display = 'Error';
+              calcState.prevVal = null;
+              calcState.operator = null;
+            } else {
+              calcState.display = formatVal(res);
+              calcState.prevVal = res;
+            }
+          } else {
+            calcState.prevVal = currentVal;
+          }
+          calcState.operator = key;
+          calcState.history = `${calcState.display} ${key}`;
+          calcState.resetOnNext = true;
+        }
+      } else if (key === '=') {
+        const currentVal = parseFloat(calcState.display);
+        if (calcState.operator && calcState.prevVal !== null && !isNaN(currentVal)) {
+          const res = operate(calcState.prevVal, currentVal, calcState.operator);
+          if (res === null) {
+            calcState.display = 'Error';
+          } else {
+            calcState.display = formatVal(res);
+          }
+          calcState.history = `${calcState.prevVal} ${calcState.operator} ${currentVal} =`;
+          calcState.prevVal = null;
+          calcState.operator = null;
+          calcState.resetOnNext = true;
+        }
+      } else if (key === '+/-') {
+        if (calcState.display !== '0' && calcState.display !== 'Error') {
+          calcState.display = calcState.display.startsWith('-') ? calcState.display.slice(1) : `-${calcState.display}`;
+        }
+      } else if (key === '.') {
+        if (calcState.resetOnNext) {
+          calcState.display = '0.';
+          calcState.resetOnNext = false;
+        } else if (!calcState.display.includes('.')) {
+          calcState.display += '.';
+        }
+      } else {
+        // Digit inputs
+        if (calcState.display === '0' || calcState.resetOnNext || calcState.display === 'Error') {
+          calcState.display = key;
+          calcState.resetOnNext = false;
+        } else {
+          calcState.display += key;
+        }
+      }
+
+      displayEl.innerText = calcState.display;
+      historyEl.innerText = calcState.history || '0';
+    }
+
+    function insertCalcAnswer() {
+      const val = parseFloat(calcState.display);
+      if (!isNaN(val)) {
+        const inputEl = document.getElementById('manual-user-answer');
+        if (inputEl) {
+          inputEl.value = val.toFixed(2);
+          sound.playCombo();
+        }
+      }
+    }
+
+    // -------------------------------------------------------------
+    // HELP MODAL FORMULA EXPLANATIONS (S1)
+    // -------------------------------------------------------------
+    let helpVariable = 'v'; // Default is Velocity
+
+    function selectHelpVariable(vName) {
+      sound.playBeep();
+      helpVariable = vName;
+      
+      // Update help buttons UI
+      const vars = ['v', 'x', 't'];
+      vars.forEach(v => {
+        const btn = document.getElementById(`btn-help-${v}`);
+        if (v === vName) {
+          btn.className = "flex-1 py-4 rounded-xl font-bold text-center border-2 border-sky-500 bg-sky-600/10 text-sky-400 transition-all text-lg mono italic glow-neon";
+        } else {
+          btn.className = "flex-1 py-4 rounded-xl font-bold text-center border border-white/5 bg-slate-900/60 hover:bg-slate-800 text-slate-400 transition-all text-lg mono italic";
+        }
+      });
+
+      const equationRender = document.getElementById('help-equation-render');
+      
+      // Equation layout
+      if (vName === 'v') {
+        equationRender.innerHTML = `
+          <span class="text-sky-400">v</span>
+          <span class="font-sans text-slate-500">=</span>
+          <div class="flex flex-col items-center">
+            <span class="text-cyan-400">x</span>
+            <div class="w-12 h-1 bg-slate-500 my-1 rounded"></div>
+            <span class="text-purple-400">t</span>
+          </div>
+        `;
+      } else if (vName === 'x') {
+        equationRender.innerHTML = `
+          <span class="text-cyan-400">x</span>
+          <span class="font-sans text-slate-500">=</span>
+          <span class="text-sky-400">v</span>
+          <span class="font-sans text-slate-500">&times;</span>
+          <span class="text-purple-400">t</span>
+        `;
+      } else if (vName === 't') {
+        equationRender.innerHTML = `
+          <span class="text-purple-400">t</span>
+          <span class="font-sans text-slate-500">=</span>
+          <div class="flex flex-col items-center">
+            <span class="text-cyan-400">x</span>
+            <div class="w-12 h-1 bg-slate-500 my-1 rounded"></div>
+            <span class="text-sky-400">v</span>
+          </div>
+        `;
+      }
+    }
+
+    // -------------------------------------------------------------
+    // GAME LOOPS & STATE MANAGEMENT
     // -------------------------------------------------------------
     let state = {
       studentId: '',
-      levelsCompleted: {
-        level1: false,
-        level2: false,
-        level3: false
-      },
-      highScore: 0
+      currentLevel: 1,
+      unlockedLevels: [1],
+      score: 0,
+      answered: 0,
+      streak: 0,
+      highScore: 0,
+      deck: [],
+      currentQuestionIndex: 0
     };
 
-    const LOCAL_STORAGE_KEY = 'physics_speed_calc_state_v1';
+    const LOCAL_STORAGE_KEY = 'physics_speed_calc_scaffold_state_v1';
+    const MIN_QUESTIONS = 6;
+    const REQUIRED_STREAK = 4;
+    const TOLERANCE = 0.05;
 
-    // -------------------------------------------------------------
-    // INIT & VIEW MANAGEMENT
-    // -------------------------------------------------------------
+    // Load elements
+    const viewRegister = document.getElementById('view-register');
+    const viewWorkspace = document.getElementById('view-workspace');
+
     window.addEventListener('DOMContentLoaded', () => {
-      // Refresh lucide icons
-      lucide.createIcons();
       loadState();
-      
+      lucide.createIcons();
+
       if (state.studentId) {
-        showView('view-dashboard');
-        updateUIBadges();
+        hudInitialize();
       } else {
-        showView('view-register');
+        showSection('view-register');
       }
 
-      // Hook up UI beep to all standard buttons
+      // Add simple beep sound to buttons
       document.querySelectorAll('button').forEach(btn => {
         btn.addEventListener('click', () => sound.playBeep());
       });
+
+      // Bind drag over listener to workspace drag-targets
+      bindDragAndDropEvents();
     });
 
-    function showView(viewId) {
-      const views = ['view-register', 'view-dashboard', 'view-level1', 'view-level2', 'view-level3', 'view-certificate'];
-      views.forEach(v => {
-        const el = document.getElementById(v);
-        if (v === viewId) {
+    function saveState() {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({
+        studentId: state.studentId,
+        unlockedLevels: state.unlockedLevels,
+        highScore: state.highScore
+      }));
+    }
+
+    function loadState() {
+      const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          state.studentId = parsed.studentId || '';
+          state.unlockedLevels = parsed.unlockedLevels || [1];
+          state.highScore = parsed.highScore || 0;
+        } catch (e) {
+          console.error("Failed to load local state", e);
+        }
+      }
+    }
+
+    function showSection(id) {
+      const sections = ['view-register', 'view-workspace'];
+      sections.forEach(s => {
+        const el = document.getElementById(s);
+        if (s === id) {
           el.classList.remove('hidden');
           el.style.opacity = '0';
           setTimeout(() => el.style.opacity = '1', 50);
@@ -850,66 +978,24 @@
         }
       });
 
-      // Show/Hide top bar student info badge
+      // Student info display
       const badge = document.getElementById('student-badge');
-      if (viewId === 'view-register') {
+      if (id === 'view-register') {
         badge.classList.add('hidden');
       } else {
         badge.classList.remove('hidden');
       }
     }
 
-    // -------------------------------------------------------------
-    // LOCALSTORAGE PERSISTENCE
-    // -------------------------------------------------------------
-    function saveState() {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
-      updateUIBadges();
-      updateDashboardCards();
-    }
-
-    function loadState() {
-      const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-      if (stored) {
-        try {
-          state = JSON.parse(stored);
-        } catch (e) {
-          console.error("Failed to parse state", e);
-        }
-      }
-    }
-
-    function updateUIBadges() {
-      document.getElementById('badge-id').innerText = state.studentId || '000000';
-      document.getElementById('badge-highscore').innerText = state.highScore || '0';
-    }
-
-    function logout() {
-      if (confirm('Are you sure you want to end your simulator session? All local progress will be logged out.')) {
-        localStorage.removeItem(LOCAL_STORAGE_KEY);
-        state = {
-          studentId: '',
-          levelsCompleted: { level1: false, level2: false, level3: false },
-          highScore: 0
-        };
-        showView('view-register');
-        document.getElementById('input-student-id').value = '';
-      }
-    }
-
-    // -------------------------------------------------------------
-    // REGISTRATION
-    // -------------------------------------------------------------
     function handleRegister(e) {
       e.preventDefault();
-      const idInput = document.getElementById('input-student-id').value.trim();
+      const val = document.getElementById('input-student-id').value.trim();
       
-      // Validation: Exactly 6 digits
-      if (/^\d{6}$/.test(idInput)) {
-        state.studentId = idInput;
+      if (/^\d{6}$/.test(val)) {
+        state.studentId = val;
         document.getElementById('register-error').classList.add('hidden');
         saveState();
-        showView('view-dashboard');
+        hudInitialize();
         sound.playSuccess();
       } else {
         document.getElementById('register-error').classList.remove('hidden');
@@ -917,237 +1003,404 @@
       }
     }
 
-    // -------------------------------------------------------------
-    // DASHBOARD MANAGEMENT
-    // -------------------------------------------------------------
-    function updateDashboardCards() {
-      const updateCardStatus = (lvlId, completed) => {
-        const el = document.getElementById(`status-l${lvlId}`);
-        if (completed) {
-          el.innerText = 'Completed';
-          el.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 uppercase tracking-wider';
+    function logout() {
+      if (confirm("Logout of laboratory deck? Local student progress will reset.")) {
+        localStorage.removeItem(LOCAL_STORAGE_KEY);
+        state = {
+          studentId: '',
+          currentLevel: 1,
+          unlockedLevels: [1],
+          score: 0,
+          answered: 0,
+          streak: 0,
+          highScore: 0,
+          deck: [],
+          currentQuestionIndex: 0
+        };
+        document.getElementById('input-student-id').value = '';
+        showSection('view-register');
+        speech.cancel();
+      }
+    }
+
+    function hudInitialize() {
+      document.getElementById('badge-id').innerText = state.studentId;
+      document.getElementById('hud-student-id').innerText = state.studentId;
+      
+      // Update level buttons locks
+      updateLevelButtonsUI();
+      
+      // Launch Level 1 by default
+      changeLevel(1);
+      showSection('view-workspace');
+    }
+
+    function updateLevelButtonsUI() {
+      for (let lvl = 1; lvl <= 3; lvl++) {
+        const btn = document.getElementById(`btn-level-${lvl}`);
+        if (state.unlockedLevels.includes(lvl)) {
+          btn.disabled = false;
+          btn.classList.remove('cursor-not-allowed');
+          if (state.currentLevel === lvl) {
+            btn.className = "px-4 py-2 text-sm rounded-lg font-bold transition-all bg-sky-600 text-white shadow-md glow-neon";
+          } else {
+            btn.className = "px-4 py-2 text-sm rounded-lg font-bold transition-all bg-white text-slate-600 hover:bg-slate-100 border border-white/5";
+          }
         } else {
-          el.innerText = 'Locked';
-          el.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 border border-white/5 uppercase tracking-wider';
+          btn.disabled = true;
+          btn.className = "px-4 py-2 text-sm rounded-lg font-bold transition-all bg-slate-900 text-slate-500 border border-white/5 cursor-not-allowed";
         }
-      };
+      }
+    }
 
-      updateCardStatus(1, state.levelsCompleted.level1);
-      updateCardStatus(2, state.levelsCompleted.level2);
-      updateCardStatus(3, state.levelsCompleted.level3);
+    function changeLevel(levelNum) {
+      if (!state.unlockedLevels.includes(levelNum)) return;
+      
+      sound.playBeep();
+      speech.cancel();
+      
+      state.currentLevel = levelNum;
+      state.answered = 0;
+      state.streak = 0;
+      state.score = 0;
+      
+      updateLevelButtonsUI();
+      
+      // Select questions subset for the level
+      // Level 1: index 0 to 19, Level 2: index 20 to 39, Level 3: index 40 to 49
+      let subset = [];
+      if (levelNum === 1) {
+        subset = QUESTIONS.slice(0, 20);
+      } else if (levelNum === 2) {
+        subset = QUESTIONS.slice(20, 40);
+      } else if (levelNum === 3) {
+        subset = QUESTIONS.slice(40, 50);
+      }
+      
+      // Shuffle subset
+      state.deck = shuffleArray(subset);
+      state.currentQuestionIndex = 0;
 
-      // Generate cert button visibility
-      const btnCert = document.getElementById('btn-view-cert');
-      if (state.levelsCompleted.level1 && state.levelsCompleted.level2) {
-        btnCert.classList.remove('hidden');
+      // Level 3 score HUD visibility
+      const streakHUD = document.getElementById('hud-streak-container');
+      if (levelNum === 3) {
+        streakHUD.classList.add('hidden'); // Level 3 doesn't track streak, just minQuestions answered
       } else {
-        btnCert.classList.add('hidden');
+        streakHUD.classList.remove('hidden');
       }
+
+      loadQuestion(0);
     }
 
-    function backToDashboard() {
-      // Kill any active intervals/loops
-      stopL1Simulation();
-      stopL3Timer();
-      showView('view-dashboard');
-    }
-
-    function startLevel(num) {
-      if (num === 1) {
-        setupLevel1();
-        showView('view-level1');
-      } else if (num === 2) {
-        setupLevel2();
-        showView('view-level2');
-      } else if (num === 3) {
-        setupLevel3();
-        showView('view-level3');
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
       }
+      return copy;
     }
 
     // -------------------------------------------------------------
-    // LEVEL 1: FORMULA ARRANGER
+    // PLAYING QUESTION & SLOTS STATE
     // -------------------------------------------------------------
-    let l1State = {
-      target: 'v', // 'v' or 'd' or 't'
-      slots: {
-        left: null,   // Left hand of equal
-        top: null,    // Numerator
-        bottom: null  // Denominator
-      },
-      selectedVar: null, // click to place holder
-      animationFrameId: null,
-      simStartTime: null,
-      isSimulating: false
+    let placedState = {
+      v: null, // Velocity slot (contains value object or 'unknown')
+      x: null, // Distance slot (contains value object or 'unknown')
+      t: null  // Time slot (contains value object or 'unknown')
     };
 
-    const l1Canvas = document.getElementById('l1-canvas');
-    const l1Ctx = l1Canvas.getContext('2d');
+    let selectedDragItem = null; // Click-to-place selected item
 
-    // Drag-and-Drop Variables init
-    const varItems = document.querySelectorAll('.var-item');
-    const dragSlots = document.querySelectorAll('.drag-target');
+    function loadQuestion(idx) {
+      if (idx >= state.deck.length) {
+        // Reshuffle and start over if they exhausted the deck but haven't met requirements
+        state.deck = shuffleArray(state.deck);
+        state.currentQuestionIndex = 0;
+        idx = 0;
+      }
 
-    varItems.forEach(item => {
-      item.addEventListener('dragstart', (e) => {
-        e.dataTransfer.setData('text/plain', e.target.getAttribute('data-var'));
-        item.classList.add('opacity-50');
-      });
-      item.addEventListener('dragend', () => {
-        item.classList.remove('opacity-50');
-      });
-    });
-
-    dragSlots.forEach(slot => {
-      slot.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        slot.classList.add('drag-over');
-      });
-      slot.addEventListener('dragleave', () => {
-        slot.classList.remove('drag-over');
-      });
-      slot.addEventListener('drop', (e) => {
-        e.preventDefault();
-        slot.classList.remove('drag-over');
-        const variable = e.dataTransfer.getData('text/plain');
-        placeVarInSlot(variable, slot.getAttribute('data-slot'));
-      });
-    });
-
-    function selectVariableClick(el) {
-      sound.playBeep();
-      document.querySelectorAll('.var-item').forEach(v => v.classList.remove('glow-neon', 'ring-2', 'ring-cyan-400'));
-      const variable = el.getAttribute('data-var');
+      state.currentQuestionIndex = idx;
       
-      if (l1State.selectedVar === variable) {
-        l1State.selectedVar = null;
+      // Reset equation slots
+      placedState = { v: null, x: null, t: null };
+      selectedDragItem = null;
+      document.getElementById('manual-user-answer').value = '';
+      document.getElementById('feedback-box').innerText = getLevelInstruction();
+      document.getElementById('feedback-box').className = "glass rounded-2xl p-4 text-center font-bold text-slate-300 text-sm min-h-[60px] flex items-center justify-center border border-white/5";
+
+      // Hide/Show next button
+      document.getElementById('btn-next-question').classList.add('hidden');
+      
+      // Level 2/3 input box helper
+      const helper = document.getElementById('calc-input-helper');
+      helper.classList.add('hidden');
+
+      updateProgressHUD();
+      renderQuestionBadges();
+      updateEquationSlotsUI();
+    }
+
+    function getLevelInstruction() {
+      if (state.currentLevel === 1) {
+        return "Drag or tap the values and the unknown term from the problem into the equation.";
+      } else if (state.currentLevel === 2) {
+        return "Place the given values, enter your calculated answer, and check your work.";
       } else {
-        l1State.selectedVar = variable;
-        el.classList.add('glow-neon', 'ring-2', 'ring-cyan-400');
+        return "Final round! Earn a point for each correct calculation within the questions provided.";
+      }
+    }
+
+    function updateProgressHUD() {
+      const bar = document.getElementById('progress-bar-fill');
+      const answeredHUD = document.getElementById('hud-answered');
+      const streakHUD = document.getElementById('hud-streak');
+
+      const total = MIN_QUESTIONS;
+      const progressPercent = Math.min((state.answered / total) * 100, 100);
+      bar.style.width = `${progressPercent}%`;
+
+      if (state.currentLevel === 3) {
+        answeredHUD.innerText = `${state.answered} / ${total} Answered · Score: ${state.score} / ${total}`;
+      } else {
+        answeredHUD.innerText = `${state.answered} / ${total} Answered`;
+        streakHUD.innerText = `${state.streak} / ${REQUIRED_STREAK}`;
+      }
+    }
+
+    function renderQuestionBadges() {
+      const q = state.deck[state.currentQuestionIndex];
+      const container = document.getElementById('question-text');
+      container.innerHTML = ''; // Clear
+
+      const getValBadge = (vType) => {
+        return q.values.find(v => v.variable === vType);
+      };
+
+      q.textParts.forEach((part, i) => {
+        if (typeof part === 'string') {
+          const span = document.createElement('span');
+          span.innerText = part;
+          container.appendChild(span);
+        } else if (part.isUnknown) {
+          // Render unknown badge
+          const isPlaced = Object.values(placedState).includes('unknown');
+          
+          if (isPlaced) {
+            const span = document.createElement('span');
+            span.className = "inline-block mx-1 font-bold text-slate-500 line-through select-none";
+            span.innerText = q.unknownText;
+            container.appendChild(span);
+          } else {
+            const badge = document.createElement('div');
+            badge.className = "bg-purple-950/80 text-purple-400 border border-purple-500/30 font-bold p-1.5 px-3 rounded-lg inline-block mx-1.5 hover:bg-purple-900/50 hover:scale-102 transition-all text-sm drag-item ring-1 ring-purple-500/10";
+            badge.innerText = q.unknownText;
+            badge.draggable = true;
+            
+            badge.addEventListener('dragstart', (e) => {
+              e.dataTransfer.setData('application/json', JSON.stringify({ type: 'unknown', variable: q.solveFor }));
+              badge.classList.add('opacity-40');
+            });
+            badge.addEventListener('dragend', () => badge.classList.remove('opacity-40'));
+
+            // Click support
+            badge.addEventListener('click', (e) => {
+              selectBadgeClick(badge, { type: 'unknown', variable: q.solveFor }, q.unknownText);
+            });
+
+            container.appendChild(badge);
+          }
+        } else if (part.variable) {
+          // Render variable value badge
+          const valObj = getValBadge(part.variable);
+          if (valObj) {
+            const isPlaced = Object.values(placedState).some(p => p && p.id === valObj.id);
+            const valText = `${valObj.value} ${valObj.unit}`;
+
+            if (isPlaced) {
+              const span = document.createElement('span');
+              span.className = "inline-block mx-1 font-bold text-slate-500 line-through select-none";
+              span.innerText = valText;
+              container.appendChild(span);
+            } else {
+              const badge = document.createElement('div');
+              
+              let colorClass = "bg-sky-950/80 text-sky-400 border border-sky-500/30";
+              if (part.variable === 'x') colorClass = "bg-cyan-950/80 text-cyan-400 border border-cyan-500/30";
+              
+              badge.className = `${colorClass} font-bold p-1.5 px-3 rounded-lg inline-block mx-1.5 hover:bg-sky-900/30 hover:scale-102 transition-all text-sm drag-item ring-1 ring-white/5`;
+              badge.innerText = valText;
+              badge.draggable = true;
+
+              badge.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('application/json', JSON.stringify({ type: 'value', value: valObj }));
+                badge.classList.add('opacity-40');
+              });
+              badge.addEventListener('dragend', () => badge.classList.remove('opacity-40'));
+
+              // Click support
+              badge.addEventListener('click', (e) => {
+                selectBadgeClick(badge, { type: 'value', value: valObj }, valText);
+              });
+
+              container.appendChild(badge);
+            }
+          }
+        }
+      });
+    }
+
+    function selectBadgeClick(el, payload, text) {
+      sound.playBeep();
+      document.querySelectorAll('.drag-item').forEach(b => b.classList.remove('glow-neon', 'ring-2', 'ring-sky-400'));
+      
+      if (selectedDragItem && selectedDragItem.text === text) {
+        selectedDragItem = null;
+        document.getElementById('selection-helper').innerText = '';
+      } else {
+        selectedDragItem = { payload, text };
+        el.classList.add('glow-neon', 'ring-2', 'ring-sky-400');
+        document.getElementById('selection-helper').innerText = `Selected ${text}. Click the destination variable slot in the formula below to place it.`;
       }
     }
 
     function handleSlotClick(slotEl) {
       sound.playBeep();
       const slotName = slotEl.getAttribute('data-slot');
-      
-      if (l1State.selectedVar) {
-        // Place selected
-        placeVarInSlot(l1State.selectedVar, slotName);
-        l1State.selectedVar = null;
-        document.querySelectorAll('.var-item').forEach(v => v.classList.remove('glow-neon', 'ring-2', 'ring-cyan-400'));
+
+      if (selectedDragItem) {
+        // Place selected item in slot
+        placePayloadInSlot(selectedDragItem.payload, slotName);
+        selectedDragItem = null;
+        document.getElementById('selection-helper').innerText = '';
       } else {
-        // Remove currently placed variable from slot
-        if (l1State.slots[slotName]) {
-          removeVarFromSlot(slotName);
+        // Click slot to clear currently placed item
+        if (placedState[slotName]) {
+          clearSlot(slotName);
         }
       }
     }
 
-    function placeVarInSlot(variable, slotName) {
-      // If variable is already in another slot, clear that slot
-      for (let s in l1State.slots) {
-        if (l1State.slots[s] === variable) {
-          l1State.slots[s] = null;
-          updateSlotUI(s);
+    function placePayloadInSlot(payload, slotName) {
+      // Clear value from existing slots first
+      if (payload.type === 'value') {
+        for (let s in placedState) {
+          if (placedState[s] && placedState[s].id === payload.value.id) {
+            placedState[s] = null;
+          }
+        }
+        placedState[slotName] = payload.value;
+      } else if (payload.type === 'unknown') {
+        for (let s in placedState) {
+          if (placedState[s] === 'unknown') {
+            placedState[s] = null;
+          }
+        }
+        placedState[slotName] = 'unknown';
+      }
+
+      updateEquationSlotsUI();
+      renderQuestionBadges();
+      
+      // Update check answer state
+      validateLevel2InputHelperVisibility();
+    }
+
+    function clearSlot(slotName) {
+      placedState[slotName] = null;
+      updateEquationSlotsUI();
+      renderQuestionBadges();
+      validateLevel2InputHelperVisibility();
+    }
+
+    function validateLevel2InputHelperVisibility() {
+      const helper = document.getElementById('calc-input-helper');
+      const q = state.deck[state.currentQuestionIndex];
+      const isLvl2 = state.currentLevel >= 2;
+
+      const unknownSlot = findUnknownSlotName();
+      
+      if (isLvl2 && unknownSlot) {
+        helper.classList.remove('hidden');
+      } else {
+        helper.classList.add('hidden');
+      }
+    }
+
+    function findUnknownSlotName() {
+      for (let s in placedState) {
+        if (placedState[s] === 'unknown') {
+          return s;
         }
       }
-
-      l1State.slots[slotName] = variable;
-      updateSlotUI(slotName);
-      checkL1EquationState();
+      return null;
     }
 
-    function removeVarFromSlot(slotName) {
-      l1State.slots[slotName] = null;
-      updateSlotUI(slotName);
-      checkL1EquationState();
-    }
+    function updateEquationSlotsUI() {
+      const q = state.deck[state.currentQuestionIndex];
 
-    function updateSlotUI(slotName) {
-      const slotEl = document.querySelector(`[data-slot="${slotName}"]`);
-      const val = l1State.slots[slotName];
+      const renderSlot = (slotName) => {
+        const slotEl = document.querySelector(`[data-slot="${slotName}"]`);
+        const item = placedState[slotName];
 
-      if (val) {
-        let colorClass = 'text-cyan-400';
-        if (val === 't') colorClass = 'text-orange-400';
-        if (val === 'v') colorClass = 'text-emerald-400';
-        
-        slotEl.innerHTML = `<span class="${colorClass}">${val}</span>`;
-        slotEl.className = "drag-target w-20 h-20 bg-slate-900 rounded-2xl border-2 border-slate-700 flex items-center justify-center text-2xl font-black italic select-none cursor-pointer scale-105 transition-all";
-      } else {
-        slotEl.innerHTML = '';
-        slotEl.className = "drag-target w-20 h-20 bg-slate-950/80 rounded-2xl border-2 border-dashed border-white/10 flex items-center justify-center text-2xl font-black italic select-none cursor-pointer transition-all";
-      }
-    }
-
-    function resetL1Workspace() {
-      l1State.slots = { left: null, top: null, bottom: null };
-      l1State.selectedVar = null;
-      document.querySelectorAll('.var-item').forEach(v => v.classList.remove('glow-neon', 'ring-2', 'ring-cyan-400'));
-      for (let slotName in l1State.slots) {
-        updateSlotUI(slotName);
-      }
-      checkL1EquationState();
-      drawL1Track(0);
-    }
-
-    function setupLevel1() {
-      const targets = ['v', 'd', 't'];
-      l1State.target = targets[Math.floor(Math.random() * targets.length)];
-      
-      const targetDescs = {
-        'v': 'Velocity (v)',
-        'd': 'Distance (d)',
-        't': 'Time (t)'
+        if (item === 'unknown') {
+          // Renders unknown badge
+          let color = "bg-purple-950/80 border-purple-500 text-purple-400";
+          
+          if (state.currentLevel >= 2 && slotName === q.solveFor) {
+            // Render input box directly inside the equation slot for Level 2 & 3
+            slotEl.innerHTML = `
+              <span class="text-[9px] text-slate-500 block select-none uppercase tracking-wider mb-0.5">${slotName} (solve)</span>
+              <div onclick="event.stopPropagation();" class="w-full px-2">
+                <input 
+                  type="number" 
+                  step="0.01" 
+                  id="equation-inline-input"
+                  placeholder="?" 
+                  value="${document.getElementById('manual-user-answer').value || ''}"
+                  oninput="syncInlineInputs(this.value)"
+                  class="w-full bg-slate-950/90 border border-purple-500/40 text-center font-bold text-xl sm:text-2xl py-1 rounded-lg text-purple-400 focus:outline-none focus:border-purple-400 mono"
+                >
+              </div>
+            `;
+            slotEl.className = "drag-target w-32 h-24 sm:w-36 sm:h-28 bg-slate-900 border-2 border-slate-700 rounded-xl flex flex-col items-center justify-center transition-all scale-102";
+          } else {
+            slotEl.innerHTML = `
+              <span class="text-[9px] text-slate-500 block select-none uppercase tracking-wider">${slotName}</span>
+              <span class="text-sm font-bold text-center px-1 truncate max-w-full">${q.unknownText}</span>
+            `;
+            slotEl.className = `drag-target w-32 h-24 sm:w-36 sm:h-28 ${color} border-2 rounded-xl flex flex-col items-center justify-center transition-all scale-102`;
+          }
+        } else if (item) {
+          // Renders value badge
+          let color = "bg-sky-950/90 border-sky-500 text-sky-400";
+          if (item.variable === 'x') color = "bg-cyan-950/90 border-cyan-500 text-cyan-400";
+          
+          slotEl.innerHTML = `
+            <span class="text-[9px] text-slate-500 block select-none uppercase tracking-wider">${slotName}</span>
+            <span class="text-base sm:text-lg font-black mono mt-0.5">${item.value}</span>
+            <span class="text-[10px] text-slate-400 mono">${item.unit}</span>
+          `;
+          slotEl.className = `drag-target w-32 h-24 sm:w-36 sm:h-28 ${color} border-2 rounded-xl flex flex-col items-center justify-center transition-all scale-102`;
+        } else {
+          // Render default variable name label
+          slotEl.innerHTML = `<span class="text-slate-600 text-3xl sm:text-5xl font-mono select-none">${slotName}</span>`;
+          slotEl.className = "drag-target w-32 h-24 sm:w-36 sm:h-28 bg-slate-950/80 rounded-xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-slate-500 select-none cursor-pointer transition-all";
+        }
       };
-      
-      document.getElementById('l1-target-desc').innerText = targetDescs[l1State.target];
-      document.getElementById('l1-puzzle-prompt').innerText = `Arrange the formula to solve for the target variable: ${targetDescs[l1State.target]}.`;
-      
-      l1State.slots = { left: null, top: null, bottom: null };
-      l1State.selectedVar = null;
-      document.querySelectorAll('.var-item').forEach(v => v.classList.remove('glow-neon', 'ring-2', 'ring-cyan-400'));
-      
-      renderL1WorkspaceSlots();
-      checkL1EquationState();
-      resizeL1Canvas();
-      drawL1Track(0);
+
+      renderSlot('v');
+      renderSlot('x');
+      renderSlot('t');
     }
 
-    function resizeL1Canvas() {
-      l1Canvas.width = l1Canvas.parentElement.clientWidth * window.devicePixelRatio;
-      l1Canvas.height = 128 * window.devicePixelRatio;
-      l1Ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    function syncInlineInputs(val) {
+      document.getElementById('manual-user-answer').value = val;
     }
 
-    function renderL1WorkspaceSlots() {
-      const workspaceEl = document.querySelector('.my-8');
+    function bindDragAndDropEvents() {
+      const dragSlots = document.querySelectorAll('.drag-target');
       
-      if (l1State.target === 'd') {
-        // Multiplication layout: left = top * bottom (rendered horizontally)
-        workspaceEl.innerHTML = `
-          <div data-slot="left" class="drag-target w-20 h-20 bg-slate-950/80 rounded-2xl border-2 border-dashed border-white/10 flex items-center justify-center text-2xl font-black italic select-none cursor-pointer" onclick="handleSlotClick(this)"></div>
-          <div class="text-3xl font-black text-slate-500 select-none">=</div>
-          <div data-slot="top" class="drag-target w-20 h-20 bg-slate-950/80 rounded-2xl border-2 border-dashed border-white/10 flex items-center justify-center text-2xl font-black italic select-none cursor-pointer" onclick="handleSlotClick(this)"></div>
-          <div class="text-3xl font-black text-slate-500 select-none">&times;</div>
-          <div data-slot="bottom" class="drag-target w-20 h-20 bg-slate-950/80 rounded-2xl border-2 border-dashed border-white/10 flex items-center justify-center text-2xl font-black italic select-none cursor-pointer" onclick="handleSlotClick(this)"></div>
-        `;
-      } else {
-        // Division layout: left = top / bottom
-        workspaceEl.innerHTML = `
-          <div data-slot="left" class="drag-target w-20 h-20 bg-slate-950/80 rounded-2xl border-2 border-dashed border-white/10 flex items-center justify-center text-2xl font-black italic select-none cursor-pointer" onclick="handleSlotClick(this)"></div>
-          <div class="text-3xl font-black text-slate-500 select-none">=</div>
-          <div class="flex flex-col items-center gap-2">
-            <div data-slot="top" class="drag-target w-20 h-20 bg-slate-950/80 rounded-2xl border-2 border-dashed border-white/10 flex items-center justify-center text-2xl font-black italic select-none cursor-pointer" onclick="handleSlotClick(this)"></div>
-            <div class="w-24 h-1 bg-white/20 rounded-full select-none"></div>
-            <div data-slot="bottom" class="drag-target w-20 h-20 bg-slate-950/80 rounded-2xl border-2 border-dashed border-white/10 flex items-center justify-center text-2xl font-black italic select-none cursor-pointer" onclick="handleSlotClick(this)"></div>
-          </div>
-        `;
-      }
-      
-      // Bind drag and drop events to new slots
-      const dragSlots = workspaceEl.querySelectorAll('.drag-target');
       dragSlots.forEach(slot => {
         slot.addEventListener('dragover', (e) => {
           e.preventDefault();
@@ -1159,589 +1412,331 @@
         slot.addEventListener('drop', (e) => {
           e.preventDefault();
           slot.classList.remove('drag-over');
-          const variable = e.dataTransfer.getData('text/plain');
-          placeVarInSlot(variable, slot.getAttribute('data-slot'));
+          try {
+            const payload = JSON.parse(e.dataTransfer.getData('application/json'));
+            placePayloadInSlot(payload, slot.getAttribute('data-slot'));
+          } catch (err) {
+            console.error("Failed to drop payload", err);
+          }
         });
       });
     }
 
-    function checkL1EquationState() {
-      const btn = document.getElementById('btn-l1-run');
-      const statusMsg = document.getElementById('l1-status-msg');
+    function resetWorkspace() {
+      sound.playBeep();
+      placedState = { v: null, x: null, t: null };
+      selectedDragItem = null;
+      document.getElementById('manual-user-answer').value = '';
+      document.getElementById('feedback-box').innerText = getLevelInstruction();
+      document.getElementById('feedback-box').className = "glass rounded-2xl p-4 text-center font-bold text-slate-300 text-sm min-h-[60px] flex items-center justify-center border border-white/5";
 
-      const isEquationFilled = l1State.slots.left && l1State.slots.top && l1State.slots.bottom;
-      
-      if (!isEquationFilled) {
-        btn.disabled = true;
-        btn.className = "bg-slate-800 text-slate-500 py-3.5 px-8 rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed";
-        statusMsg.innerText = "Assemble the formula to unlock simulations.";
-        statusMsg.className = "text-xs font-semibold text-slate-500";
-        return;
-      }
-
-      // Check correctness
-      let isCorrect = false;
-      const left = l1State.slots.left;
-      const top = l1State.slots.top;
-      const bottom = l1State.slots.bottom;
-
-      if (l1State.target === 'v') {
-        // v = d / t
-        if (left === 'v' && top === 'd' && bottom === 't') isCorrect = true;
-      } else if (l1State.target === 't') {
-        // t = d / v
-        if (left === 't' && top === 'd' && bottom === 'v') isCorrect = true;
-      } else if (l1State.target === 'd') {
-        // d = v * t (or t * v)
-        if (left === 'd' && ((top === 'v' && bottom === 't') || (top === 't' && bottom === 'v'))) isCorrect = true;
-      }
-
-      if (isCorrect) {
-        btn.disabled = false;
-        btn.className = "bg-cyan-600 hover:bg-cyan-500 text-white py-3.5 px-8 rounded-xl font-black uppercase tracking-wider transition-all flex items-center gap-2 shadow-lg glow-neon scale-[1.02]";
-        statusMsg.innerText = "Configuration correct! Telemetry system operational.";
-        statusMsg.className = "text-xs font-bold text-emerald-400 animate-pulse";
-      } else {
-        btn.disabled = true;
-        btn.className = "bg-rose-950/40 text-rose-500/60 border border-rose-500/20 py-3.5 px-8 rounded-xl font-bold transition-all flex items-center gap-2 cursor-not-allowed";
-        statusMsg.innerText = "Formula check failed. Variables arranged incorrectly.";
-        statusMsg.className = "text-xs font-semibold text-rose-400";
-      }
+      validateLevel2InputHelperVisibility();
+      renderQuestionBadges();
+      updateEquationSlotsUI();
     }
 
     // -------------------------------------------------------------
-    // CANVAS TRACK ANIMATION
+    // ALGEBRAIC EQUATION VALIDATION CHECK
     // -------------------------------------------------------------
-    function drawL1Track(carProgress = 0, speedValue = 0) {
-      const width = l1Canvas.width / window.devicePixelRatio;
-      const height = l1Canvas.height / window.devicePixelRatio;
-      
-      l1Ctx.clearRect(0, 0, width, height);
+    function checkCurrentAnswer() {
+      const q = state.deck[state.currentQuestionIndex];
+      const feedbackBox = document.getElementById('feedback-box');
 
-      // Neon track line
-      l1Ctx.strokeStyle = 'rgba(0, 243, 255, 0.2)';
-      l1Ctx.lineWidth = 4;
-      l1Ctx.beginPath();
-      l1Ctx.moveTo(20, height - 30);
-      l1Ctx.lineTo(width - 20, height - 30);
-      l1Ctx.stroke();
-
-      // Track grid intervals
-      l1Ctx.strokeStyle = 'rgba(0, 243, 255, 0.08)';
-      l1Ctx.lineWidth = 1;
-      for (let x = 20; x < width - 20; x += 40) {
-        l1Ctx.beginPath();
-        l1Ctx.moveTo(x, height - 30);
-        l1Ctx.lineTo(x - 5, height - 20);
-        l1Ctx.stroke();
-      }
-
-      // Draw starting line and finish line
-      l1Ctx.fillStyle = 'rgba(0, 243, 255, 0.4)';
-      l1Ctx.font = '8px monospace';
-      l1Ctx.fillText('START', 15, height - 40);
-      l1Ctx.fillText('FINISH', width - 45, height - 40);
-
-      // Draw vehicle
-      const trackLength = width - 80;
-      const carX = 30 + (carProgress * trackLength);
-      const carY = height - 48;
-
-      // Glow effect for vehicle
-      l1Ctx.shadowColor = '#00f3ff';
-      l1Ctx.shadowBlur = l1State.isSimulating ? 15 : 0;
-
-      // Draw hover car body
-      l1Ctx.fillStyle = '#00f3ff';
-      l1Ctx.beginPath();
-      l1Ctx.moveTo(carX, carY + 8);
-      l1Ctx.lineTo(carX + 5, carY);
-      l1Ctx.lineTo(carX + 25, carY);
-      l1Ctx.lineTo(carX + 30, carY + 8);
-      l1Ctx.lineTo(carX + 20, carY + 12);
-      l1Ctx.lineTo(carX + 5, carY + 12);
-      l1Ctx.closePath();
-      l1Ctx.fill();
-
-      // Vehicle canopy
-      l1Ctx.fillStyle = '#d946ef';
-      l1Ctx.beginPath();
-      l1Ctx.moveTo(carX + 10, carY);
-      l1Ctx.lineTo(carX + 13, carY - 4);
-      l1Ctx.lineTo(carX + 20, carY - 4);
-      l1Ctx.lineTo(carX + 22, carY);
-      l1Ctx.closePath();
-      l1Ctx.fill();
-
-      // Reset shadow
-      l1Ctx.shadowBlur = 0;
-
-      // Thrust particles
-      if (l1State.isSimulating && carProgress < 1.0) {
-        l1Ctx.fillStyle = 'rgba(217, 70, 239, ' + (0.3 + Math.random() * 0.7) + ')';
-        for (let i = 0; i < 4; i++) {
-          l1Ctx.fillRect(carX - 5 - Math.random() * 8, carY + 4 + Math.random() * 6, 2, 2);
+      const isCorrectSlotPlacement = () => {
+        // 1. Verify unknown is placed in correct slot
+        const unknownSlot = findUnknownSlotName();
+        if (unknownSlot !== q.solveFor) {
+          feedbackBox.innerText = "The unknown term seems to be in the wrong place. Where should the answer go?";
+          feedbackBox.className = "glass rounded-2xl p-4 text-center font-bold text-rose-400 text-sm min-h-[60px] flex items-center justify-center border border-rose-500/20 animate-shake";
+          sound.playError();
+          state.streak = 0;
+          updateProgressHUD();
+          return false;
         }
-      }
-    }
 
-    function runL1Simulation() {
-      if (l1State.isSimulating) return;
-      
-      sound.playSuccess();
-      l1State.isSimulating = true;
-      l1State.simStartTime = performance.now();
-      
-      // Let's generate a randomized simulated physics problem data
-      // For instance: d = 150m, t = 6s => v = 25 m/s
-      const simulatedD = 120 + Math.floor(Math.random() * 80); // 120m to 200m
-      const simulatedT = 4 + Math.floor(Math.random() * 6);    // 4s to 10s
-      const simulatedV = (simulatedD / simulatedT).toFixed(1);
-
-      document.getElementById('btn-l1-run').disabled = true;
-
-      function update(time) {
-        const elapsed = (time - l1State.simStartTime) / 1000; // in seconds
-        const progress = Math.min(elapsed / simulatedT, 1.0);
-
-        // Calculate live telemetry values
-        const currentD = (progress * simulatedD).toFixed(1);
-        const currentT = (progress * simulatedT).toFixed(1);
-        const currentV = progress > 0 ? simulatedV : '0.0';
-
-        document.getElementById('telemetry-d').innerText = `${currentD} m`;
-        document.getElementById('telemetry-t').innerText = `${currentT} s`;
-        document.getElementById('telemetry-v').innerText = `${currentV} m/s`;
-
-        drawL1Track(progress, simulatedV);
-
-        if (progress < 1.0) {
-          l1State.animationFrameId = requestAnimationFrame(update);
-        } else {
-          // Simulation finished
-          l1State.isSimulating = false;
-          confetti({
-            particleCount: 80,
-            spread: 60,
-            origin: { y: 0.7 }
-          });
-          
-          // Mark level 1 completed
-          state.levelsCompleted.level1 = true;
-          saveState();
-          
-          document.getElementById('l1-status-msg').innerHTML = "<span class='text-emerald-400 font-bold'>Telemetry verification complete! Level 1 Passed.</span>";
-          
-          setTimeout(() => {
-            if (confirm("Telemetry Simulation Complete! Proceed back to Dashboard to unlock Level 2?")) {
-              backToDashboard();
-            } else {
-              document.getElementById('btn-l1-run').disabled = false;
-              checkL1EquationState();
+        // 2. Verify all other values are placed in their matching variable slots
+        for (let s in placedState) {
+          const item = placedState[s];
+          if (item && item !== 'unknown') {
+            if (item.variable !== s) {
+              feedbackBox.innerText = "Hmm, one of the values is in the wrong place. Check your variables!";
+              feedbackBox.className = "glass rounded-2xl p-4 text-center font-bold text-rose-400 text-sm min-h-[60px] flex items-center justify-center border border-rose-500/20 animate-shake";
+              sound.playError();
+              state.streak = 0;
+              updateProgressHUD();
+              return false;
             }
-          }, 1500);
-        }
-      }
-
-      l1State.animationFrameId = requestAnimationFrame(update);
-    }
-
-    function stopL1Simulation() {
-      if (l1State.animationFrameId) {
-        cancelAnimationFrame(l1State.animationFrameId);
-        l1State.animationFrameId = null;
-      }
-      l1State.isSimulating = false;
-    }
-
-    // -------------------------------------------------------------
-    // LEVEL 2: PRECISION CALCULATOR
-    // -------------------------------------------------------------
-    let l2State = {
-      problemsSolved: 0,
-      targetProblems: 5,
-      currentProblem: null,
-      selectedFormula: null // 'v', 'd', or 't'
-    };
-
-    const l2Questions = [
-      { text: "A drone flies {d} meters in {t} seconds. What is its average speed?", solve: 'v', params: () => { const t = 4 + Math.floor(Math.random()*6); const d = t * (8 + Math.floor(Math.random()*12)); return { d, t }; } },
-      { text: "A remote control car travels at a constant velocity of {v} m/s for {t} seconds. How far does it travel?", solve: 'd', params: () => { const v = 4 + Math.floor(Math.random()*8); const t = 5 + Math.floor(Math.random()*15); return { v, t }; } },
-      { text: "A sprinter runs a distance of {d} meters at an average velocity of {v} m/s. How many seconds does it take?", solve: 't', params: () => { const v = 5 + Math.floor(Math.random()*5); const d = v * (6 + Math.floor(Math.random()*14)); return { v, d }; } },
-      { text: "A skateboarder rolls down a track of length {d} meters taking exactly {t} seconds. Compute the speed.", solve: 'v', params: () => { const t = 8 + Math.floor(Math.random()*10); const d = t * (3 + Math.floor(Math.random()*6)); return { d, t }; } },
-      { text: "A submarine navigates underwater at {v} m/s for a duration of {t} seconds. Solve for the distance covered.", solve: 'd', params: () => { const v = 3 + Math.floor(Math.random()*5); const t = 20 + Math.floor(Math.random()*30); return { v, t }; } }
-    ];
-
-    function setupLevel2() {
-      l2State.problemsSolved = 0;
-      l2State.selectedFormula = null;
-      document.getElementById('l2-progress').innerText = `1 / ${l2State.targetProblems}`;
-      generateL2Question();
-    }
-
-    function generateL2Question() {
-      document.getElementById('l2-answer-input').value = '';
-      l2State.selectedFormula = null;
-      
-      // Clear formula selection UI
-      document.querySelectorAll('.formula-btn').forEach(btn => {
-        btn.className = "formula-btn flex-1 bg-slate-900 border border-white/5 py-2 px-3 rounded-xl font-bold mono italic text-slate-400 hover:border-orange-500/30 transition-all text-sm";
-      });
-
-      // Get random template
-      const template = l2Questions[Math.floor(Math.random() * l2Questions.length)];
-      const vals = template.params();
-      
-      let qText = template.text;
-      for (let key in vals) {
-        qText = qText.replace(`{${key}}`, vals[key]);
-      }
-
-      // Compute exact mathematical answer
-      let exactAnswer = 0;
-      if (template.solve === 'v') exactAnswer = vals.d / vals.t;
-      if (template.solve === 'd') exactAnswer = vals.v * vals.t;
-      if (template.solve === 't') exactAnswer = vals.d / vals.v;
-
-      l2State.currentProblem = {
-        text: qText,
-        solve: template.solve,
-        exact: exactAnswer
-      };
-
-      document.getElementById('l2-question-text').innerText = qText;
-    }
-
-    function selectL2Formula(btn, formula) {
-      sound.playBeep();
-      l2State.selectedFormula = formula;
-      
-      document.querySelectorAll('.formula-btn').forEach(b => {
-        b.className = "formula-btn flex-1 bg-slate-900 border border-white/5 py-2 px-3 rounded-xl font-bold mono italic text-slate-400 hover:border-orange-500/30 transition-all text-sm";
-      });
-
-      btn.className = "formula-btn flex-1 bg-orange-600 border border-orange-500 text-white py-2 px-3 rounded-xl font-bold mono italic transition-all text-sm glow-orange";
-    }
-
-    function checkL2Answer() {
-      if (!l2State.selectedFormula) {
-        alert("Please select the formula you used to calculate this answer first!");
-        sound.playError();
-        return;
-      }
-
-      const inputVal = parseFloat(document.getElementById('l2-answer-input').value);
-      if (isNaN(inputVal)) {
-        alert("Please enter a valid numeric answer!");
-        sound.playError();
-        return;
-      }
-
-      // Check formula choice correctness first
-      if (l2State.selectedFormula !== l2State.currentProblem.solve) {
-        sound.playError();
-        alert("Formula selection incorrect! Rearrange the speed equation correctly to solve for the requested variable.");
-        return;
-      }
-
-      // Check precision matching within +/- 0.05
-      const difference = Math.abs(inputVal - l2State.currentProblem.exact);
-      
-      if (difference <= 0.05) {
-        // Correct answer
-        sound.playSuccess();
-        confetti({ particleCount: 30, spread: 40 });
-        
-        l2State.problemsSolved++;
-        document.getElementById('l2-progress').innerText = `${Math.min(l2State.problemsSolved + 1, l2State.targetProblems)} / ${l2State.targetProblems}`;
-        
-        if (l2State.problemsSolved >= l2State.targetProblems) {
-          state.levelsCompleted.level2 = true;
-          saveState();
-          alert("Excellent calculations! All precision telemetry questions resolved successfully.");
-          backToDashboard();
-        } else {
-          generateL2Question();
-        }
-      } else {
-        // Incorrect value
-        sound.playError();
-        alert(`Precision check failed. Your answer is too far from the exact value. Check your arithmetic and round to 2 decimal places.`);
-      }
-    }
-
-    // -------------------------------------------------------------
-    // ON-BOARD CALCULATOR LOGIC
-    // -------------------------------------------------------------
-    let calcState = {
-      display: '0',
-      history: ''
-    };
-
-    function pressCalcKey(key) {
-      sound.playBeep();
-      const screen = document.getElementById('calc-screen');
-      const hist = document.getElementById('calc-history');
-
-      if (key === 'C') {
-        calcState.display = '0';
-        calcState.history = '';
-      } else if (key === 'DEL') {
-        if (calcState.display.length > 1) {
-          calcState.display = calcState.display.slice(0, -1);
-        } else {
-          calcState.display = '0';
-        }
-      } else if (['+', '-', '*', '/'].includes(key)) {
-        calcState.history = calcState.display + ' ' + key + ' ';
-        calcState.display = '0';
-      } else if (key === '=') {
-        if (calcState.history) {
-          const expression = calcState.history + calcState.display;
-          try {
-            // Safe evaluation of basic mathematical strings
-            const mathResult = new Function(`return (${expression})`)();
-            calcState.display = String(Number(mathResult.toFixed(4)));
-            calcState.history = expression + ' =';
-          } catch (e) {
-            calcState.display = 'ERR';
           }
         }
-      } else if (key === '.') {
-        if (!calcState.display.includes('.')) {
-          calcState.display += '.';
+
+        // 3. Verify all required badges are placed
+        const totalPlaced = Object.values(placedState).filter(Boolean).length;
+        if (totalPlaced !== q.values.length + 1) { // values + 1 unknown
+          feedbackBox.innerText = "Looks like not all values have been placed. Try again!";
+          feedbackBox.className = "glass rounded-2xl p-4 text-center font-bold text-rose-400 text-sm min-h-[60px] flex items-center justify-center border border-rose-500/20 animate-shake";
+          sound.playError();
+          state.streak = 0;
+          updateProgressHUD();
+          return false;
         }
+
+        return true;
+      };
+
+      if (!isCorrectSlotPlacement()) return;
+
+      // Slots are perfect. Let's calculate the exact result
+      let exactVal = 0;
+      const getValObj = (vType) => placedState[vType];
+
+      const distanceVal = getValObj('x').value;
+      const timeVal = getValObj('t').value;
+      const speedVal = getValObj('v').value;
+
+      if (q.solveFor === 'v') {
+        exactVal = distanceVal / timeVal;
+      } else if (q.solveFor === 'x') {
+        exactVal = speedVal * timeVal;
+      } else if (q.solveFor === 't') {
+        exactVal = distanceVal / speedVal;
+      }
+
+      if (state.currentLevel === 1) {
+        // Level 1: Auto-calculates math and displays it
+        sound.playSuccess();
+        confetti({ particleCount: 40, spread: 50 });
+        
+        // Show answer in slot
+        const unknownSlotEl = document.querySelector(`[data-slot="${q.solveFor}"]`);
+        let unitText = q.solveFor === 'v' ? getValObj('x').unit + '/' + getValObj('t').unit : q.solveFor === 'x' ? getValObj('x').unit : getValObj('t').unit;
+        // Check if there is specific unit mapping in values
+        const solvedUnit = q.values.find(v => v.variable === q.solveFor)?.unit || unitText;
+        
+        unknownSlotEl.innerHTML = `
+          <span class="text-[9px] text-slate-500 block uppercase tracking-wider">${q.solveFor}</span>
+          <span class="text-base font-extrabold text-emerald-400 mono">≈ ${exactVal.toFixed(2)}</span>
+          <span class="text-[9px] text-slate-500 mono">${solvedUnit}</span>
+        `;
+        unknownSlotEl.className = "drag-target w-32 h-24 sm:w-36 sm:h-28 bg-emerald-950/20 border-2 border-emerald-500 rounded-xl flex flex-col items-center justify-center transition-all scale-105";
+
+        feedbackBox.innerText = "Correct! Great job!";
+        feedbackBox.className = "glass rounded-2xl p-4 text-center font-bold text-emerald-400 text-sm min-h-[60px] flex items-center justify-center border border-emerald-500/20";
+        
+        incrementStateStats(true);
       } else {
-        // Digits
-        if (calcState.display === '0' || calcState.display === 'ERR') {
-          calcState.display = key;
+        // Level 2 & 3: Check manual student calculation input
+        const rawInput = document.getElementById('manual-user-answer').value;
+        const userInput = parseFloat(rawInput);
+
+        if (isNaN(userInput)) {
+          feedbackBox.innerText = "Please enter a valid number for your answer.";
+          feedbackBox.className = "glass rounded-2xl p-4 text-center font-bold text-rose-400 text-sm min-h-[60px] flex items-center justify-center border border-rose-500/20 animate-shake";
+          sound.playError();
+          return;
+        }
+
+        const delta = Math.abs(userInput - exactVal);
+        if (delta <= TOLERANCE) {
+          // Success calculation!
+          sound.playSuccess();
+          confetti({ particleCount: 50, spread: 60 });
+          
+          feedbackBox.innerText = state.currentLevel === 3 ? "Correct! You earned a point." : "Correct! Your calculation is spot on!";
+          feedbackBox.className = "glass rounded-2xl p-4 text-center font-bold text-emerald-400 text-sm min-h-[60px] flex items-center justify-center border border-emerald-500/20";
+          
+          // Show green verified inline slot
+          const inlineInput = document.getElementById('equation-inline-input');
+          if (inlineInput) {
+            inlineInput.disabled = true;
+            inlineInput.classList.remove('border-purple-500/40', 'text-purple-400');
+            inlineInput.classList.add('border-emerald-500', 'text-emerald-400', 'bg-emerald-950/20');
+          }
+
+          incrementStateStats(true);
         } else {
-          calcState.display += key;
+          // Calculation error
+          sound.playError();
+          feedbackBox.innerText = `Not quite. Check your calculation and make sure you're within about ±${TOLERANCE.toFixed(2)} of the correct value.`;
+          feedbackBox.className = "glass rounded-2xl p-4 text-center font-bold text-rose-400 text-sm min-h-[60px] flex items-center justify-center border border-rose-500/20 animate-shake";
+          
+          incrementStateStats(false);
         }
       }
-
-      screen.innerText = calcState.display;
-      hist.innerText = calcState.history || '0';
     }
 
-    function insertCalcAnswer() {
-      const val = parseFloat(calcState.display);
-      if (!isNaN(val)) {
-        document.getElementById('l2-answer-input').value = val.toFixed(2);
-        sound.playCombo();
-      }
-    }
-
-    // -------------------------------------------------------------
-    // LEVEL 3: SPEED RUN TIMED CHALLENGE
-    // -------------------------------------------------------------
-    let l3State = {
-      score: 0,
-      combo: 1,
-      timeLeft: 60,
-      timerInterval: null,
-      currentProblem: null,
-      isPlaying: false
-    };
-
-    const l3Prompts = [
-      { text: "d = {d} m, t = {t} s. Find v.", solve: 'v', params: () => { const t = [2, 4, 5, 10][Math.floor(Math.random()*4)]; const d = t * (2 + Math.floor(Math.random()*15)); return { d, t }; } },
-      { text: "v = {v} m/s, t = {t} s. Find d.", solve: 'd', params: () => { const v = 2 + Math.floor(Math.random()*10); const t = [5, 10, 20][Math.floor(Math.random()*3)]; return { v, t }; } },
-      { text: "d = {d} m, v = {v} m/s. Find t.", solve: 't', params: () => { const v = [2, 5, 10, 20][Math.floor(Math.random()*4)]; const d = v * (2 + Math.floor(Math.random()*12)); return { v, d }; } }
-    ];
-
-    function setupLevel3() {
-      l3State.score = 0;
-      l3State.combo = 1;
-      l3State.timeLeft = 60;
-      l3State.isPlaying = false;
-      
-      document.getElementById('l3-score').innerText = '0';
-      document.getElementById('l3-combo').innerText = '1x';
-      document.getElementById('l3-timer-bar').style.width = '100%';
-
-      document.getElementById('l3-prestart').classList.remove('hidden');
-      document.getElementById('l3-active').classList.add('hidden');
-      document.getElementById('l3-postrun').classList.add('hidden');
-      document.getElementById('l3-back-btn').classList.remove('hidden');
-    }
-
-    function startLevel3Timer() {
-      l3State.isPlaying = true;
-      document.getElementById('l3-prestart').classList.add('hidden');
-      document.getElementById('l3-active').classList.remove('hidden');
-      document.getElementById('l3-back-btn').classList.add('hidden'); // Lock exit to prevent clock reset
-
-      generateL3Question();
-      document.getElementById('l3-answer-input').focus();
-
-      l3State.timerInterval = setInterval(() => {
-        l3State.timeLeft--;
-        const percentage = (l3State.timeLeft / 60) * 100;
-        document.getElementById('l3-timer-bar').style.width = `${percentage}%`;
-
-        if (l3State.timeLeft <= 10) {
-          sound.playTimerTick();
-          document.getElementById('l3-timer-bar').classList.add('bg-rose-500');
+    function incrementStateStats(isCorrect) {
+      if (isCorrect) {
+        state.answered++;
+        if (state.currentLevel === 3) {
+          state.score++; // Score counter for final round
+        } else {
+          state.streak++;
         }
-
-        if (l3State.timeLeft <= 0) {
-          endLevel3();
-        }
-      }, 1000);
-    }
-
-    function generateL3Question() {
-      document.getElementById('l3-answer-input').value = '';
-      
-      const q = l3Prompts[Math.floor(Math.random() * l3Prompts.length)];
-      const vals = q.params();
-      
-      let text = q.text;
-      for (let key in vals) {
-        text = text.replace(`{${key}}`, vals[key]);
-      }
-
-      let answer = 0;
-      if (q.solve === 'v') {
-        answer = vals.d / vals.t;
-        document.getElementById('l3-q-type').innerText = "Solve for Speed (v = d/t)";
-      } else if (q.solve === 'd') {
-        answer = vals.v * vals.t;
-        document.getElementById('l3-q-type').innerText = "Solve for Distance (d = v x t)";
-      } else if (q.solve === 't') {
-        answer = vals.d / vals.v;
-        document.getElementById('l3-q-type').innerText = "Solve for Time (t = d/v)";
-      }
-
-      l3State.currentProblem = {
-        text,
-        exact: answer
-      };
-
-      document.getElementById('l3-question-text').innerText = text;
-    }
-
-    function submitL3Answer(e) {
-      e.preventDefault();
-      if (!l3State.isPlaying) return;
-
-      const inputVal = parseFloat(document.getElementById('l3-answer-input').value);
-      if (isNaN(inputVal)) return;
-
-      const difference = Math.abs(inputVal - l3State.currentProblem.exact);
-      
-      if (difference <= 0.05) {
-        // Correct!
-        sound.playCombo();
         
-        // Add points based on combo
-        l3State.score += 100 * l3State.combo;
-        l3State.combo = Math.min(l3State.combo + 1, 5); // Max 5x combo
+        // Hide Check button, show Next button
+        document.getElementById('btn-next-question').classList.remove('hidden');
         
-        // Quick visual success explosion
-        confetti({
-          particleCount: 15,
-          spread: 30,
-          origin: { y: 0.6 }
-        });
+        // Check level completion conditions
+        evaluateLevelUnlocks();
       } else {
-        // Incorrect
-        sound.playError();
-        l3State.combo = 1; // Reset combo
+        state.streak = 0;
       }
-
-      document.getElementById('l3-score').innerText = l3State.score;
-      document.getElementById('l3-combo').innerText = `${l3State.combo}x`;
-      generateL3Question();
-      document.getElementById('l3-answer-input').focus();
+      updateProgressHUD();
     }
 
-    function endLevel3() {
-      clearInterval(l3State.timerInterval);
-      l3State.isPlaying = false;
-
-      sound.playSuccess();
-      confetti({ particleCount: 100, spread: 80 });
-
-      // Save highscore
-      if (l3State.score > state.highScore) {
-        state.highScore = l3State.score;
+    function evaluateLevelUnlocks() {
+      if (state.currentLevel === 1) {
+        if (state.answered >= MIN_QUESTIONS && state.streak >= REQUIRED_STREAK) {
+          if (!state.unlockedLevels.includes(2)) {
+            state.unlockedLevels.push(2);
+            saveState();
+            setTimeout(() => {
+              alert("Level 2 Unlocked! Drag physics values and compute numerical answers.");
+              updateLevelButtonsUI();
+            }, 800);
+          }
+        }
+      } else if (state.currentLevel === 2) {
+        if (state.answered >= MIN_QUESTIONS && state.streak >= REQUIRED_STREAK) {
+          if (!state.unlockedLevels.includes(3)) {
+            state.unlockedLevels.push(3);
+            saveState();
+            setTimeout(() => {
+              alert("Level 3 Unlocked! Complete the final quiz evaluator.");
+              updateLevelButtonsUI();
+            }, 800);
+          }
+        }
+      } else if (state.currentLevel === 3) {
+        if (state.answered >= MIN_QUESTIONS) {
+          // Finish speedrun quiz! Show Certificate
+          if (state.score > state.highScore) {
+            state.highScore = state.score;
+            saveState();
+          }
+          setTimeout(() => {
+            triggerCompletionQR();
+          }, 800);
+        }
       }
-      
-      state.levelsCompleted.level3 = true;
-      saveState();
-
-      document.getElementById('l3-active').classList.add('hidden');
-      document.getElementById('l3-postrun').classList.remove('hidden');
-      document.getElementById('l3-postrun-score').innerText = `${l3State.score} pts`;
-      
-      // Calculate correct answers estimated from points
-      // A quick estimate based on points/combos is fine for visual output
-      document.getElementById('l3-postrun-correct').innerText = Math.round(l3State.score / 150) || 1;
     }
 
-    function stopL3Timer() {
-      if (l3State.timerInterval) {
-        clearInterval(l3State.timerInterval);
-        l3State.timerInterval = null;
-      }
-      l3State.isPlaying = false;
-    }
-
-    function confirmExitLevel3() {
-      backToDashboard();
+    function nextQuestion() {
+      state.currentQuestionIndex++;
+      loadQuestion(state.currentQuestionIndex);
     }
 
     // -------------------------------------------------------------
-    // CERTIFICATE & QR VERIFICATION GENERATION
+    // ACCESSIBILITY & AUDIO READ ALOUD
     // -------------------------------------------------------------
-    function viewCertificate() {
-      showView('view-certificate');
+    function readQuestionAloud() {
+      sound.playBeep();
+      if (speech.speaking) {
+        speech.cancel();
+      } else {
+        const q = state.deck[state.currentQuestionIndex];
+        
+        // Assemble text speech description
+        const textPartsCleaned = q.textParts.map(part => {
+          if (typeof part === 'string') return part;
+          if (part.isUnknown) return q.unknownText;
+          if (part.variable) {
+            const valObj = q.values.find(v => v.variable === part.variable);
+            return valObj ? `${valObj.value} ${valObj.unit}` : '';
+          }
+          return '';
+        });
+        
+        const textToSpeak = textPartsCleaned.join('');
+        speech.speak(textToSpeak);
+      }
+    }
+
+    // -------------------------------------------------------------
+    // MODALS TRIGGERS
+    // -------------------------------------------------------------
+    function toggleHelpModal(open) {
+      sound.playBeep();
+      const el = document.getElementById('modal-help');
+      if (open) {
+        el.classList.remove('hidden');
+        selectHelpVariable('v');
+      } else {
+        el.classList.add('hidden');
+      }
+    }
+
+    function toggleCalculatorModal(open) {
+      sound.playBeep();
+      const el = document.getElementById('modal-calculator');
+      if (open) {
+        el.classList.remove('hidden');
+        calcPress('C'); // Clear
+      } else {
+        el.classList.add('hidden');
+      }
+    }
+
+    // -------------------------------------------------------------
+    // QR CERTIFICATE & VERIFICATION CODE
+    // -------------------------------------------------------------
+    let generatedQRCode = null;
+
+    function triggerCompletionQR() {
+      const modal = document.getElementById('modal-completion');
+      document.getElementById('completion-student-id').innerText = state.studentId;
+      document.getElementById('completion-score').innerText = `${state.score} / ${MIN_QUESTIONS}`;
+
+      modal.classList.remove('hidden');
       
+      const qrContainer = document.getElementById('completion-qrcode');
+      qrContainer.innerHTML = ''; // Clear
+
       const dateStr = new Date().toLocaleDateString();
-      document.getElementById('cert-student-id').innerText = state.studentId;
-      document.getElementById('cert-highscore').innerText = `${state.highScore} pts`;
-      document.getElementById('cert-date').innerText = dateStr;
-
-      // Construct a verification payload with basic hash checking
-      const payload = {
-        id: state.studentId,
-        l1: state.levelsCompleted.level1 ? 1 : 0,
-        l2: state.levelsCompleted.level2 ? 1 : 0,
-        score: state.highScore,
-        date: dateStr
-      };
-
-      // Simple checksum algorithm to deter manual URL manipulation
-      const dataStr = `${payload.id}-${payload.l1}-${payload.l2}-${payload.score}-${payload.date}`;
+      const dataStr = `${state.studentId}-3-${state.score}-${dateStr}`;
+      
+      // Verification token checksum
       let check = 0;
       for (let i = 0; i < dataStr.length; i++) {
         check += dataStr.charCodeAt(i) * (i + 1);
       }
-      const hash = check.toString(16).toUpperCase();
-      const token = `MUD-SPEED-${payload.id}-${payload.l1}${payload.l2}-${payload.score}-${hash}`;
+      const token = `MUD-SPEED-${state.studentId}-3-${state.score}-${check.toString(16).toUpperCase()}`;
 
-      document.getElementById('cert-verification-token').innerText = token;
-
-      // Render the QR code
-      const qrContainer = document.getElementById('cert-qrcode');
-      qrContainer.innerHTML = ''; // Clear previous
-      
       try {
-        new QRCode(qrContainer, {
+        generatedQRCode = new QRCode(qrContainer, {
           text: token,
-          width: 128,
-          height: 128,
-          colorDark: "#000000",
+          width: 200,
+          height: 200,
+          colorDark: "#070b1a",
           colorLight: "#ffffff",
           correctLevel: QRCode.CorrectLevel.H
         });
       } catch (err) {
-        console.error("QR Library error", err);
-        qrContainer.innerHTML = "<span class='text-[10px] text-slate-800 font-bold'>Token: " + token + "</span>";
+        console.error("QR drawing failed", err);
+        qrContainer.innerHTML = `<span class="text-slate-800 text-xs font-semibold select-all break-all">${token}</span>`;
       }
+    }
+
+    function downloadQRCode() {
+      sound.playBeep();
+      const qrCanvas = document.querySelector('#completion-qrcode canvas');
+      if (qrCanvas) {
+        const link = document.createElement('a');
+        link.download = `mudry-physics-score-${state.studentId}.png`;
+        link.href = qrCanvas.toDataURL();
+        link.click();
+      } else {
+        alert("Cannot extract QR code canvas. Please take a screenshot of your screen to show your instructor.");
+      }
+    }
+
+    function closeCompletionModal() {
+      sound.playBeep();
+      document.getElementById('modal-completion').classList.add('hidden');
+      // Reset Level 3 progress to practice again
+      changeLevel(3);
     }
   </script>
 </body>
 </html>
+
