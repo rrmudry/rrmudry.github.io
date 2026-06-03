@@ -106,6 +106,20 @@
       20%, 60% { transform: translateX(-6px); }
       40%, 80% { transform: translateX(6px); }
     }
+
+    @keyframes levelPulse {
+      0%, 100% {
+        box-shadow: 0 0 5px rgba(245, 158, 11, 0.2);
+        border-color: rgba(245, 158, 11, 0.3);
+      }
+      50% {
+        box-shadow: 0 0 20px rgba(245, 158, 11, 0.7);
+        border-color: rgba(245, 158, 11, 0.8);
+      }
+    }
+    .pulse-amber {
+      animation: levelPulse 1.5s infinite ease-in-out;
+    }
   </style>
 </head>
 <body class="bg-grid min-h-screen flex flex-col relative overflow-hidden">
@@ -411,6 +425,37 @@
   </div>
 
 
+
+  <!-- LEVEL UNLOCKED MODAL -->
+  <div id="modal-level-unlocked" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md px-4 hidden transition-opacity duration-300">
+    <div class="w-full max-w-sm bg-slate-900 border border-white/10 shadow-2xl rounded-3xl p-6 space-y-6 text-center transform scale-95 transition-all duration-300">
+      
+      <div class="bg-amber-500/10 text-amber-400 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto border border-amber-500/20 shadow-[0_0_30px_rgba(245,158,11,0.15)] animate-bounce">
+        <i data-lucide="unlock" class="w-8 h-8"></i>
+      </div>
+      
+      <div>
+        <h2 class="text-2xl font-black tracking-tight text-white uppercase italic">Level Unlocked!</h2>
+        <p id="unlock-level-title" class="text-amber-400 font-bold text-sm mt-1">LEVEL 2 IS NOW ACCESSIBLE</p>
+      </div>
+
+      <div class="w-full h-px bg-white/10"></div>
+
+      <p id="unlock-level-description" class="text-slate-400 text-xs leading-relaxed">
+        Drag physics values and compute numerical answers with the support of the Desmos scientific calculator.
+      </p>
+
+      <div class="flex flex-col gap-2 pt-2">
+        <button id="btn-start-unlocked-level" onclick="startUnlockedLevel()" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl font-extrabold transition-all text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-1.5 hover:scale-[1.02]">
+          Go to Level <span id="unlock-level-num">2</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+        <button onclick="closeUnlockModal()" class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold transition-all text-xs uppercase tracking-wider border border-white/5">
+          Keep Practicing
+        </button>
+      </div>
+
+    </div>
+  </div>
 
   <!-- COMPLETION MODAL WITH QR CERTIFICATE -->
   <div id="modal-completion" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md px-4 hidden transition-opacity duration-300">
@@ -853,6 +898,9 @@ const QUESTIONS = [
           btn.classList.remove('cursor-not-allowed');
           if (state.currentLevel === lvl) {
             btn.className = "px-3 py-1.5 text-xs rounded-lg font-bold transition-all bg-sky-600 text-white shadow-md glow-neon";
+          } else if (lvl > state.currentLevel) {
+            // Newly unlocked level but not yet selected
+            btn.className = "px-3 py-1.5 text-xs rounded-lg font-bold transition-all bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/40 pulse-amber";
           } else {
             btn.className = "px-3 py-1.5 text-xs rounded-lg font-bold transition-all bg-white text-slate-800 hover:bg-slate-100 border border-white/5";
           }
@@ -1453,7 +1501,7 @@ const QUESTIONS = [
             state.unlockedLevels.push(2);
             saveState();
             setTimeout(() => {
-              alert("Level 2 Unlocked! Drag physics values and compute numerical answers.");
+              triggerLevelUnlockModal(2);
               updateLevelButtonsUI();
             }, 800);
           }
@@ -1464,7 +1512,7 @@ const QUESTIONS = [
             state.unlockedLevels.push(3);
             saveState();
             setTimeout(() => {
-              alert("Level 3 Unlocked! Complete the final quiz evaluator.");
+              triggerLevelUnlockModal(3);
               updateLevelButtonsUI();
             }, 800);
           }
@@ -1486,6 +1534,50 @@ const QUESTIONS = [
     function nextQuestion() {
       state.currentQuestionIndex++;
       loadQuestion(state.currentQuestionIndex);
+    }
+
+    let nextUnlockedLevel = 2;
+
+    function triggerLevelUnlockModal(levelNum) {
+      nextUnlockedLevel = levelNum;
+      document.getElementById('unlock-level-num').innerText = levelNum;
+      
+      const titleEl = document.getElementById('unlock-level-title');
+      const descEl = document.getElementById('unlock-level-description');
+      
+      if (levelNum === 2) {
+        titleEl.innerText = "LEVEL 2 IS NOW ACCESSIBLE";
+        descEl.innerText = "Formulate equations and manually compute numerical answers using the Desmos scientific calculator sidebar.";
+      } else if (levelNum === 3) {
+        titleEl.innerText = "LEVEL 3 IS NOW ACCESSIBLE";
+        descEl.innerText = "Complete the final kinematics quiz. Solve numerical questions with custom units and test your physics speed mastery!";
+      }
+      
+      sound.playSuccess();
+      confetti({ particleCount: 60, spread: 80, origin: { y: 0.6 } });
+      
+      const modal = document.getElementById('modal-level-unlocked');
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.querySelector('.transform').classList.remove('scale-95');
+        modal.querySelector('.transform').classList.add('scale-100');
+      }, 50);
+      
+      lucide.createIcons();
+    }
+
+    function startUnlockedLevel() {
+      closeUnlockModal();
+      changeLevel(nextUnlockedLevel);
+    }
+
+    function closeUnlockModal() {
+      const modal = document.getElementById('modal-level-unlocked');
+      modal.querySelector('.transform').classList.remove('scale-100');
+      modal.querySelector('.transform').classList.add('scale-95');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+      }, 150);
     }
 
     // -------------------------------------------------------------
