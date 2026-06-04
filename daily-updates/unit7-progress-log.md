@@ -163,3 +163,10 @@ Use this file to track what was completed each day for Unit 7: Electricity & Mag
 - **Notes**: Lab day — measure and analyze speaker performance variables.
 
 ---
+
+## 2026-06-04
+- **Lesson Title**: Flex Day // Project Completion
+- **Activities**: 
+  - Dedicated flexible studio day.
+  - Students finalized wiring, debugged, and troubleshot their Matching Game Boxes, DIY Speakers, or outstanding labs.
+- **Notes**: Catch-up and troubleshooting day before final project submissions.

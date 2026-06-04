@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <script>
+        const firebaseConfig = {
+            projectId: "site-6e500",
+            appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+            storageBucket: "site-6e500.firebasestorage.app",
+            apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+            authDomain: "site-6e500.firebaseapp.com",
+            messagingSenderId: "591530758858"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        async function checkMigration() {
+            try {
+                console.log('MIGRATION_CHECK_START');
+                
+                // 1. Get all assignments
+                const assmtSnap = await db.collection('student_results').get();
+                const assignments = assmtSnap.docs.map(doc => doc.id);
+                console.log('ASSIGNMENTS_FOUND:', assignments.length);
+                
+                let totalLive = 0;
+                for (const assmt of assignments) {
+                    const snap = await db.collection('student_results').doc(assmt).collection('students').get();
+                    console.log(`COUNT_${assmt}:`, snap.size);
+                    totalLive += snap.size;
+                }
+                
+                console.log('TOTAL_LIVE_RECORDS:', totalLive);
+                
+                // 2. Get archive count
+                // Since archive might be large, we might need to count in batches or just trust the size if it's < 5000
+                const archiveSnap = await db.collection('student_results_archive').get();
+                console.log('TOTAL_ARCHIVE_RECORDS:', archiveSnap.size);
+                
+                console.log('MIGRATION_CHECK_COMPLETE');
+            } catch (err) {
+                console.error('MIGRATION_CHECK_ERROR:', err.message);
+            }
+        }
+
+        checkMigration();
+    </script>
+</body>
+</html>
