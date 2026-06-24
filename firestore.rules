@@ -103,5 +103,13 @@ service cloud.firestore {
                             isAuthorizedEmail(request.auth.token.email) &&
                             request.auth.token.email.lower().split('@')[0] == studentId.lower();
     }
+
+    // 10. Bellringers
+    match /bellringers/{docId} {
+      allow read: if request.auth != null && isAuthorizedEmail(request.auth.token.email);
+      allow create, update: if request.auth != null &&
+                               isAuthorizedEmail(request.auth.token.email) &&
+                               request.resource.data.studentId == request.auth.token.email.lower().split('@')[0];
+    }
   }
 }
