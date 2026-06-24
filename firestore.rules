@@ -106,7 +106,9 @@ service cloud.firestore {
 
     // 10. Bellringers
     match /bellringers/{docId} {
-      allow read: if request.auth != null && isAuthorizedEmail(request.auth.token.email);
+      allow read: if request.auth != null && 
+                     isAuthorizedEmail(request.auth.token.email) &&
+                     (resource.data.studentId == request.auth.token.email.lower().split('@')[0] || isAdmin());
       allow create, update: if request.auth != null &&
                                isAuthorizedEmail(request.auth.token.email) &&
                                request.resource.data.studentId == request.auth.token.email.lower().split('@')[0];
