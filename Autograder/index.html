@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Bell-Ringer | Physics Autograder</title>
+    <link rel="icon" type="image/png" href="../head.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #050811;
+            background-image: 
+                radial-gradient(circle at top left, rgba(249, 115, 22, 0.15), transparent 50%),
+                radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.15), transparent 50%);
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: rgba(13, 19, 40, 0.65);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .neo-btn-primary {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            box-shadow: 0 4px 20px rgba(249, 115, 22, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .neo-btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(249, 115, 22, 0.5);
+        }
+
+        .neo-btn-primary:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .timer-glow {
+            text-shadow: 0 0 20px rgba(249, 115, 22, 0.6);
+        }
+
+        .timer-critical {
+            color: #ef4444;
+            text-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.8; }
+            100% { opacity: 1; transform: scale(1.02); }
+        }
+
+        .status-glow-pending {
+            box-shadow: 0 0 15px rgba(234, 179, 8, 0.2);
+            animation: pulse-yellow 2s infinite alternate;
+        }
+
+        .status-glow-success {
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+            border-color: rgba(34, 197, 94, 0.5) !important;
+        }
+
+        .status-glow-fail {
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+            border-color: rgba(239, 68, 68, 0.5) !important;
+        }
+
+        @keyframes pulse-yellow {
+            0% { border-color: rgba(234, 179, 8, 0.2); }
+            100% { border-color: rgba(234, 179, 8, 0.6); }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(13, 19, 40, 0.5);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(249, 115, 22, 0.3);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(249, 115, 22, 0.5);
+        }
+    </style>
+</head>
+<body class="flex flex-col justify-between">
+
+    <!-- Header / Navbar -->
+    <header class="w-full border-b border-white/5 bg-slate-950/40 backdrop-blur-md px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center font-bold text-white shadow-lg">Φ</div>
+            <div>
+                <h1 class="text-lg font-bold tracking-tight text-white leading-tight">Physics Bell-Ringer</h1>
+                <p class="text-[10px] text-slate-400 font-semibold tracking-wider uppercase">Active Session Gateway</p>
+            </div>
+        </div>
+        
+        <div id="user-profile" class="hidden flex items-center gap-3 bg-white/5 border border-white/10 rounded-full py-1 pl-3 pr-1">
+            <span id="profile-name" class="text-sm font-semibold text-slate-200">Student Name</span>
+            <button onclick="logout()" class="px-3 py-1 rounded-full text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 transition-colors">Sign Out</button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow flex items-center justify-center p-4 md:p-8">
+        
+        <!-- Auth Overlay / Sign In Panel -->
+        <div id="auth-panel" class="w-full max-w-md glass-card rounded-[24px] p-8 text-center flex flex-col items-center gap-6">
+            <div class="w-16 h-16 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-3xl shadow-inner">🔒</div>
+            <div>
+                <h2 class="text-2xl font-bold text-white mb-2">Classroom Login</h2>
+                <p class="text-slate-400 text-sm">Sign in with your school Google account to sync with today's live Bell-Ringer challenge.</p>
+            </div>
+
+            <button onclick="login()" class="w-full py-4 px-6 rounded-xl bg-white text-slate-950 font-bold flex items-center justify-center gap-3 hover:bg-slate-100 transition-colors shadow-lg shadow-white/5">
+                <svg class="w-5 h-5" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                    <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                    <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                    <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                </svg>
+                Sign In with Google
+            </button>
+            <p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Authorized Domain: @orangeusd.org</p>
+        </div>
+
+        <!-- Waiting Screen (Authenticated but timer hasn't started or is reset) -->
+        <div id="waiting-panel" class="hidden w-full max-w-md glass-card rounded-[24px] p-8 text-center flex flex-col items-center gap-6">
+            <div class="w-16 h-16 rounded-full bg-slate-900 border border-white/5 flex items-center justify-center text-3xl animate-pulse">⏳</div>
+            <div>
+                <h2 class="text-2xl font-bold text-white mb-2">Awaiting Teacher</h2>
+                <p class="text-slate-400 text-sm">You are successfully authenticated. Please wait for the teacher to launch today's countdown.</p>
+            </div>
+            <div class="text-xs text-slate-500 bg-white/5 border border-white/5 rounded-lg py-2 px-4 inline-block font-mono">
+                Student ID: <span id="waiting-student-id">...</span>
+            </div>
+        </div>
+
+        <!-- Active Bellringer Interface -->
+        <div id="bellringer-panel" class="hidden w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+            
+            <!-- Left Side: Phenomenon Anchor & Question -->
+            <div class="glass-card rounded-[24px] p-6 md:p-8 flex flex-col gap-6">
+                <!-- Anchor Image / Graph Container -->
+                <div id="phenomenon-container" class="w-full aspect-video rounded-xl bg-slate-950/80 border border-white/5 overflow-hidden relative flex items-center justify-center">
+                    <img id="phenomenon-image" src="" alt="Phenomenon Graph/Data Table" class="w-full h-full object-contain hidden">
+                    <div id="phenomenon-placeholder" class="text-center p-6 text-slate-500">
+                        <span class="text-4xl block mb-2">📊</span>
+                        <p class="text-xs font-semibold tracking-wider uppercase">Weekly Phenomenon Anchor</p>
+                        <p class="text-[11px] text-slate-600 mt-1" id="phenomenon-desc">No image provided. Refer to the projector board.</p>
+                    </div>
+                </div>
+
+                <div>
+                    <span class="text-[10px] text-orange-500 font-bold tracking-wider uppercase bg-orange-500/10 border border-orange-500/20 px-3 py-1 rounded-full">Today's Prompt</span>
+                    <h3 id="prompt-question" class="text-xl md:text-2xl font-semibold text-white mt-3 leading-snug">
+                        Loading today's prompt...
+                    </h3>
+                </div>
+            </div>
+
+            <!-- Right Side: Submission Form & Status -->
+            <div class="flex flex-col gap-6">
+                
+                <!-- Countdown Timer Card -->
+                <div class="glass-card rounded-[24px] p-6 flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] text-slate-400 font-semibold tracking-wider uppercase">Countdown Timer</p>
+                        <p id="timer-status-text" class="text-xs text-orange-400 mt-0.5">Active Submission Window</p>
+                    </div>
+                    <div id="countdown-timer" class="text-3xl md:text-4xl font-bold font-mono text-orange-500 timer-glow">
+                        04:00
+                    </div>
+                </div>
+
+                <!-- Input & Response Form -->
+                <div class="glass-card rounded-[24px] p-6 md:p-8 flex flex-col gap-6 relative overflow-hidden">
+                    <div id="lockout-shield" class="absolute inset-0 bg-slate-950/90 backdrop-blur-sm hidden z-20 flex flex-col items-center justify-center p-6 text-center">
+                        <span class="text-4xl mb-3">🔒</span>
+                        <h4 class="text-xl font-bold text-white">Input Box Locked</h4>
+                        <p class="text-slate-400 text-sm mt-1 max-w-xs">The countdown timer has hit 0:00. No further submissions are allowed.</p>
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label for="response-text" class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Your Explanation / Response</label>
+                        <textarea id="response-text" placeholder="Type your response here using complete sentences and scientific logic..." 
+                                  class="w-full min-h-[140px] rounded-xl bg-slate-950/60 border border-white/10 p-4 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all font-sans text-sm md:text-base resize-y"></textarea>
+                    </div>
+
+                    <button id="submit-btn" onclick="submitResponse()" class="w-full py-4 rounded-xl neo-btn-primary text-white font-bold tracking-wide text-sm md:text-base">
+                        Submit Response
+                    </button>
+
+                    <!-- Real-Time AI Grading Status Feed -->
+                    <div id="grading-status-card" class="mt-2 border border-white/5 bg-slate-950/40 rounded-xl p-4 flex items-center gap-4 transition-all duration-300">
+                        <div id="status-indicator" class="w-10 h-10 rounded-full bg-slate-900 border border-white/10 flex items-center justify-center text-lg">
+                            ⚪
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-slate-500 font-semibold tracking-wider uppercase">AI Verification Status</p>
+                            <p id="status-title" class="text-sm font-bold text-slate-300 mt-0.5">Not Submitted</p>
+                            <p id="status-message" class="text-xs text-slate-500 mt-0.5">Submit your answer to begin verification.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Explanation Area (Revealed post-lockout) -->
+                <div id="explanation-card" class="hidden glass-card rounded-[24px] p-6 border-l-4 border-l-cyan-500">
+                    <span class="text-[10px] text-cyan-400 font-bold tracking-wider uppercase bg-cyan-500/10 border border-cyan-500/20 px-3 py-1 rounded-full">Correct Explanation</span>
+                    <p id="explanation-text" class="text-slate-300 text-sm md:text-base mt-3 leading-relaxed">
+                        Explanation details will appear here once the lockout occurs.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full text-center py-4 border-t border-white/5 text-[10px] text-slate-600 uppercase tracking-widest font-bold bg-slate-950/20">
+        Φ Physics Dashboard // Built for Automation
+    </footer>
+
+    <script>
+        const firebaseConfig = {
+            projectId: "site-6e500",
+            appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+            storageBucket: "site-6e500.firebasestorage.app",
+            apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+            authDomain: "site-6e500.firebaseapp.com",
+            messagingSenderId: "591530758858"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        let currentUser = null;
+        let studentId = null;
+        let timerDocListener = null;
+        let submissionListener = null;
+        let timerInterval = null;
+        let activePromptText = "";
+
+        // Track Auth Changes
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                const email = user.email.toLowerCase();
+                const isApproved = email.endsWith('@orangeusd.org') || 
+                                   email === 'ryan.mudry@gmail.com' || 
+                                   email === 'ryanmudry@gmail.com';
+                
+                if (!isApproved) {
+                    alert("Unauthorized account. Please sign in with your school Google account.");
+                    auth.signOut();
+                    return;
+                }
+
+                currentUser = user;
+                studentId = email.split('@')[0];
+                
+                // Update UI state
+                document.getElementById('auth-panel').classList.add('hidden');
+                document.getElementById('user-profile').classList.remove('hidden');
+                document.getElementById('profile-name').innerText = user.displayName || studentId;
+                
+                // Initialize Listeners
+                startTimerListener();
+                startSubmissionListener();
+            } else {
+                currentUser = null;
+                studentId = null;
+                document.getElementById('auth-panel').classList.remove('hidden');
+                document.getElementById('user-profile').classList.add('hidden');
+                document.getElementById('waiting-panel').classList.add('hidden');
+                document.getElementById('bellringer-panel').classList.add('hidden');
+                
+                stopListeners();
+            }
+        });
+
+        // Google Sign In
+        async function login() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            try {
+                await auth.signInWithPopup(provider);
+            } catch (error) {
+                console.error(error);
+                alert('Sign in failed: ' + error.message);
+            }
+        }
+
+        // Sign Out
+        function logout() {
+            auth.signOut();
+            window.location.reload();
+        }
+
+        function stopListeners() {
+            if (timerDocListener) timerDocListener();
+            if (submissionListener) submissionListener();
+            if (timerInterval) clearInterval(timerInterval);
+        }
+
+        // Listen to active timer doc
+        function startTimerListener() {
+            timerDocListener = db.collection('system_config').doc('bellringer_timer')
+                .onSnapshot((doc) => {
+                    if (!doc.exists) {
+                        showWaitingPanel();
+                        return;
+                    }
+                    const data = doc.data();
+                    if (!data || !data.isActive) {
+                        showWaitingPanel();
+                        return;
+                    }
+
+                    // Display Question Prompt & Phenomenon Image
+                    showBellringerPanel(data);
+                }, (error) => {
+                    console.error("Timer listener error:", error);
+                });
+        }
+
+        function showWaitingPanel() {
+            document.getElementById('waiting-panel').classList.remove('hidden');
+            document.getElementById('waiting-student-id').innerText = studentId;
+            document.getElementById('bellringer-panel').classList.add('hidden');
+            if (timerInterval) clearInterval(timerInterval);
+        }
+
+        function showBellringerPanel(config) {
+            document.getElementById('waiting-panel').classList.add('hidden');
+            document.getElementById('bellringer-panel').classList.remove('hidden');
+            
+            // Set Question and explanation
+            activePromptText = config.promptQuestion || "";
+            document.getElementById('prompt-question').innerText = activePromptText;
+            document.getElementById('explanation-text').innerText = config.explanation || "No explanation provided yet.";
+            
+            // Phenomenon setup
+            const imgEl = document.getElementById('phenomenon-image');
+            const placeholderEl = document.getElementById('phenomenon-placeholder');
+            if (config.phenomenonImageUrl) {
+                imgEl.src = config.phenomenonImageUrl;
+                imgEl.classList.remove('hidden');
+                placeholderEl.classList.add('hidden');
+            } else {
+                imgEl.classList.add('hidden');
+                placeholderEl.classList.remove('hidden');
+                document.getElementById('phenomenon-desc').innerText = config.phenomenonDesc || "Refer to the projection board.";
+            }
+
+            // Sync Clock countdown
+            if (timerInterval) clearInterval(timerInterval);
+            const expiresAt = config.timerExpiresAt ? config.timerExpiresAt.toDate() : new Date();
+            
+            runTimerCountdown(expiresAt);
+        }
+
+        function runTimerCountdown(expiresAt) {
+            const timerEl = document.getElementById('countdown-timer');
+            const timerStatusText = document.getElementById('timer-status-text');
+            const lockoutShield = document.getElementById('lockout-shield');
+            const textarea = document.getElementById('response-text');
+            const submitBtn = document.getElementById('submit-btn');
+            const explanationCard = document.getElementById('explanation-card');
+
+            function updateClock() {
+                const now = new Date();
+                const diffMs = expiresAt - now;
+
+                if (diffMs <= 0) {
+                    timerEl.innerText = "00:00";
+                    timerEl.className = "text-3xl md:text-4xl font-bold font-mono text-red-500 timer-glow";
+                    timerStatusText.innerText = "Submission Window Closed";
+                    timerStatusText.className = "text-xs text-red-400 mt-0.5";
+                    
+                    // Lock input and show explanation
+                    lockoutShield.classList.remove('hidden');
+                    textarea.disabled = true;
+                    submitBtn.disabled = true;
+                    explanationCard.classList.remove('hidden');
+                    
+                    clearInterval(timerInterval);
+                    return;
+                }
+
+                // Normal timer counting
+                lockoutShield.classList.add('hidden');
+                textarea.disabled = false;
+                submitBtn.disabled = false;
+                explanationCard.classList.add('hidden');
+
+                const totalSeconds = Math.floor(diffMs / 1000);
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
+                
+                const timeStr = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                timerEl.innerText = timeStr;
+
+                if (totalSeconds < 30) {
+                    timerEl.className = "text-3xl md:text-4xl font-bold font-mono timer-critical";
+                    timerStatusText.innerText = "Hurry! Window closing soon...";
+                    timerStatusText.className = "text-xs text-red-400 mt-0.5 animate-pulse";
+                } else {
+                    timerEl.className = "text-3xl md:text-4xl font-bold font-mono text-orange-500 timer-glow";
+                    timerStatusText.innerText = "Active Submission Window";
+                    timerStatusText.className = "text-xs text-orange-400 mt-0.5";
+                }
+            }
+
+            updateClock();
+            timerInterval = setInterval(updateClock, 1000);
+        }
+
+        // Listen to student's submission status for the current day
+        function startSubmissionListener() {
+            // We use studentId + YYYY-MM-DD to track the doc id for today
+            const todayStr = getTodayString();
+            const docId = `${studentId}_${todayStr}`;
+
+            submissionListener = db.collection('bellringers').doc(docId)
+                .onSnapshot((doc) => {
+                    const statusCard = document.getElementById('grading-status-card');
+                    const indicator = document.getElementById('status-indicator');
+                    const title = document.getElementById('status-title');
+                    const msg = document.getElementById('status-message');
+                    const textarea = document.getElementById('response-text');
+
+                    statusCard.className = "mt-2 border border-white/5 bg-slate-950/40 rounded-xl p-4 flex items-center gap-4 transition-all duration-300";
+
+                    if (!doc.exists) {
+                        indicator.innerText = "⚪";
+                        title.innerText = "Not Submitted";
+                        msg.innerText = "Please write your response and click submit.";
+                        return;
+                    }
+
+                    const data = doc.data();
+                    
+                    // Auto-fill textarea if they load page after submitting
+                    if (data.studentResponse && document.activeElement !== textarea && textarea.value !== data.studentResponse) {
+                        textarea.value = data.studentResponse;
+                    }
+
+                    if (data.effortScore === undefined) {
+                        indicator.innerText = "⏳";
+                        indicator.className = "w-10 h-10 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 flex items-center justify-center text-lg animate-pulse";
+                        statusCard.classList.add('status-glow-pending');
+                        title.innerText = "Pending Review";
+                        msg.innerText = "AI gatekeeper is analyzing your submission for good-faith effort...";
+                    } else if (data.effortScore === "1" || data.effortScore === 1) {
+                        indicator.innerText = "✅";
+                        indicator.className = "w-10 h-10 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 flex items-center justify-center text-lg";
+                        statusCard.classList.add('status-glow-success');
+                        title.innerText = "Good Faith Effort Verified!";
+                        title.className = "text-sm font-bold text-green-400 mt-0.5";
+                        msg.innerText = "Great job! You are approved to work at the collaborative lab tables.";
+                    } else if (data.effortScore === "0" || data.effortScore === 0) {
+                        indicator.innerText = "⚠️";
+                        indicator.className = "w-10 h-10 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center text-lg";
+                        statusCard.classList.add('status-glow-fail');
+                        title.innerText = "Response Needs Revision";
+                        title.className = "text-sm font-bold text-red-400 mt-0.5";
+                        msg.innerText = "Opt-out, gibberish, or unrelated response detected. Please edit and re-submit.";
+                    }
+                }, (error) => {
+                    console.error("Submission listener error:", error);
+                });
+        }
+
+        // Submit answer to firestore
+        async function submitResponse() {
+            const textarea = document.getElementById('response-text');
+            const responseText = textarea.value.trim();
+
+            if (!responseText) {
+                alert("Please write a response before submitting.");
+                return;
+            }
+
+            const todayStr = getTodayString();
+            const docId = `${studentId}_${todayStr}`;
+
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Submitting...";
+
+            try {
+                // If editing, clear effortScore first so extension processes again
+                await db.collection('bellringers').doc(docId).set({
+                    studentId: studentId,
+                    studentName: currentUser.displayName || studentId,
+                    promptQuestion: activePromptText,
+                    studentResponse: responseText,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+
+                // Also delete effortScore field to trigger re-grade if it was set
+                await db.collection('bellringers').doc(docId).update({
+                    effortScore: firebase.firestore.FieldValue.delete()
+                }).catch(() => {});
+
+            } catch (error) {
+                console.error("Submission failed:", error);
+                alert("Submission failed: " + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Submit Response";
+            }
+        }
+
+        // Helper: get current local date in YYYY-MM-DD
+        function getTodayString() {
+            const d = new Date();
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+    </script>
+</body>
+</html>
