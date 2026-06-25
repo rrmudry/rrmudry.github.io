@@ -1,0 +1,521 @@
+/* ==========================================================================
+   Mudry Gradebook Sync - Cosmic Stylesheet
+   ========================================================================== */
+
+:root {
+  --font-family: 'DM Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Color Palette */
+  --bg-deep: #020617;
+  --bg-card: rgba(15, 23, 42, 0.45);
+  --bg-card-hover: rgba(15, 23, 42, 0.6);
+  --border-color: rgba(99, 102, 241, 0.2);
+  --border-glow: rgba(99, 102, 241, 0.4);
+  
+  /* Neon Accents */
+  --neon-blue: #38bdf8;
+  --neon-pink: #ec4899;
+  --neon-gold: #f59e0b;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  --glow-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--bg-deep);
+  color: var(--text-main);
+  overflow-x: hidden;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Background Space Visuals */
+.stars, .twinkling {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: -2;
+}
+
+.stars {
+  background: #000 url('https://rrmudry.github.io/assets/stars.png') repeat top center;
+}
+
+.twinkling {
+  background: transparent url('https://rrmudry.github.io/assets/twinkling.png') repeat top center;
+  animation: move-twink-back 200s linear infinite;
+  z-index: -1;
+  opacity: 0.4;
+}
+
+@keyframes move-twink-back {
+  from { background-position: 0 0; }
+  to { background-position: -10000px 5000px; }
+}
+
+/* Glassmorphism Panel Base */
+.glass-panel {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  box-shadow: var(--glass-shadow);
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.glass-panel:hover {
+  border-color: var(--border-glow);
+  box-shadow: var(--glass-shadow), 0 0 20px rgba(99, 102, 241, 0.15);
+}
+
+.glow-accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink));
+}
+
+/* 1. Login Container */
+#login-container {
+  width: 100%;
+  max-width: 420px;
+  padding: 40px 32px;
+  display: none;
+  text-align: center;
+}
+
+#login-container.active {
+  display: block;
+  animation: fade-in 0.5s ease-out;
+}
+
+.logo-area {
+  margin-bottom: 32px;
+}
+
+.logo-orb {
+  font-size: 3rem;
+  margin-bottom: 8px;
+  animation: float 4s ease-in-out infinite;
+}
+
+.logo-area h1 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  background: linear-gradient(135deg, #fff 30%, var(--neon-blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.logo-area p {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+/* Forms and Inputs */
+.input-group {
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.input-group.short {
+  width: 100px;
+  flex-shrink: 0;
+}
+
+.input-group label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.input-group input,
+.input-group textarea,
+.custom-select {
+  width: 100%;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.input-group input:focus,
+.input-group textarea:focus,
+.custom-select:focus {
+  border-color: var(--neon-blue);
+  box-shadow: var(--glow-shadow);
+}
+
+.select-wrapper {
+  position: relative;
+}
+
+.custom-select {
+  appearance: none;
+  cursor: pointer;
+  padding-right: 40px;
+}
+
+/* Primary Button */
+.btn-primary {
+  width: 100%;
+  background: linear-gradient(135deg, #4f46e5, #06b6d4);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  padding: 14px 24px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
+}
+
+/* Secondary Button */
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--text-muted);
+}
+
+/* 2. Main Dashboard grid layout */
+#dashboard-container {
+  display: none;
+  width: 100%;
+  max-width: 1200px;
+  height: 92vh;
+  grid-template-columns: 320px 1fr;
+  grid-template-rows: auto 1fr 180px;
+  gap: 16px;
+  padding: 16px;
+}
+
+#dashboard-container.active {
+  display: grid;
+  animation: fade-in 0.6s ease-out;
+}
+
+/* Dashboard Header */
+.dashboard-header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+}
+
+.header-branding {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pulse-indicator {
+  width: 10px;
+  height: 10px;
+  background-color: var(--neon-blue);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--neon-blue);
+  animation: pulse 2s infinite;
+}
+
+/* Sidebar Controls */
+.sidebar-controls {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  overflow: hidden;
+}
+
+.section-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin-top: 4px;
+}
+
+.scroll-container {
+  max-height: 280px;
+  overflow-y: auto;
+  margin-top: 12px;
+  padding-right: 4px;
+}
+
+.scroll-container::-webkit-scrollbar,
+.logs-feed::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scroll-container::-webkit-scrollbar-thumb,
+.logs-feed::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+/* Course checkbox list */
+.course-checkbox-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.course-checkbox-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.course-checkbox-item input {
+  margin-top: 3px;
+  cursor: pointer;
+}
+
+.course-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* Main Workspace */
+.main-workspace {
+  padding: 28px;
+  overflow-y: auto;
+}
+
+.workspace-section {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+}
+
+.form-row .input-group {
+  flex-grow: 1;
+}
+
+/* Grades Table */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.btn-action {
+  background: linear-gradient(135deg, var(--neon-blue), #0284c7);
+  border: none;
+  color: #fff;
+  padding: 10px 20px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-action:hover:not(:disabled) {
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+}
+
+.btn-action:disabled {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.data-table th,
+.data-table td {
+  padding: 12px 16px;
+  font-size: 0.85rem;
+}
+
+.data-table th {
+  background: rgba(15, 23, 42, 0.8);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.data-table tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.data-table tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.student-id-cell {
+  font-family: var(--font-mono);
+  color: var(--neon-blue);
+}
+
+.grade-badge {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--neon-gold);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 32px !important;
+  font-style: italic;
+}
+
+/* Console Logs Footer */
+.console-logs {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  padding: 14px 20px;
+  overflow: hidden;
+}
+
+.console-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.console-header h4 {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--neon-pink);
+}
+
+.btn-icon {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.btn-icon:hover {
+  color: var(--text-main);
+}
+
+.logs-feed {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  padding: 12px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.6;
+  overflow-y: auto;
+}
+
+.log-line {
+  margin-bottom: 4px;
+}
+
+.log-line.system { color: #34d399; }
+.log-line.error { color: #f87171; }
+.log-line.success { color: var(--neon-blue); }
+
+/* Utilities */
+.mt-6 { margin-top: 24px; }
+.error-msg {
+  color: #f87171;
+  font-size: 0.8rem;
+  margin-top: 12px;
+}
+
+/* Keyframes */
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
