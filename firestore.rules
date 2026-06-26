@@ -46,7 +46,7 @@ service cloud.firestore {
 
     // 3. System Config / Assessments (Needed for dashboards)
     match /system_config/{configDoc} {
-      allow read: if true;
+      allow read: if configDoc != "gemini_config" || (request.auth != null && isAuthorizedEmail(request.auth.token.email));
     }
     match /assessments/{assessmentId} {
       allow read: if true;
