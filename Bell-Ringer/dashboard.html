@@ -542,9 +542,22 @@
                 if (submission) {
                     numSubmitted++;
                     
+                    let aiResponseObj = null;
+                    if (submission.aiResponse) {
+                        if (typeof submission.aiResponse === 'string') {
+                            try {
+                                aiResponseObj = JSON.parse(submission.aiResponse);
+                            } catch (e) {
+                                console.error("Failed to parse aiResponse string on dashboard:", e);
+                            }
+                        } else if (typeof submission.aiResponse === 'object') {
+                            aiResponseObj = submission.aiResponse;
+                        }
+                    }
+
                     let score = undefined;
-                    if (submission.aiResponse && submission.aiResponse.effortScore !== undefined) {
-                        score = submission.aiResponse.effortScore;
+                    if (aiResponseObj && aiResponseObj.effortScore !== undefined) {
+                        score = aiResponseObj.effortScore;
                     } else if (submission.effortScore !== undefined) {
                         score = submission.effortScore;
                     }
