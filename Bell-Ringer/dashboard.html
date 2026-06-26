@@ -312,6 +312,9 @@
             setupRosterAndSubmissionListeners();
         }
 
+        let activeActivityType = "free_response";
+        let activeTimerData = null;
+
         // Timer document sync
         function setupTimerListener() {
             timerDocListener = db.collection('system_config').doc('bellringer_timer')
@@ -322,10 +325,13 @@
                         return;
                     }
                     const data = doc.data();
+                    activeTimerData = data;
                     if (!data || !data.isActive) {
                         promptSection.classList.add('hidden');
                         return;
                     }
+
+                    activeActivityType = data.activityType || "free_response";
 
                     // Display details
                     promptSection.classList.remove('hidden');
@@ -341,6 +347,17 @@
                     } else {
                         imgEl.classList.add('hidden');
                         placeholderEl.classList.remove('hidden');
+                        if (activeActivityType === 'connections') {
+                            placeholderEl.innerHTML = `
+                                <span class="text-4xl block">🧩</span>
+                                <p class="text-xs font-semibold uppercase tracking-wider mt-2">Connections Puzzle Active</p>
+                            `;
+                        } else {
+                            placeholderEl.innerHTML = `
+                                <span class="text-4xl block">📊</span>
+                                <p class="text-xs font-semibold uppercase tracking-wider mt-2">Refer to Projection Screen</p>
+                            `;
+                        }
                     }
 
                     // Run countdown timer
@@ -350,6 +367,34 @@
                 }, (error) => {
                     console.error("Timer listener error:", error);
                 });
+        }
+
+        function revealDashboardSolutions() {
+            if (!activeTimerData) return;
+            const explanationHint = document.getElementById('explanation-toggle-hint');
+            if (activeActivityType === 'connections' && activeTimerData.connectionsData) {
+                if (explanationHint) explanationHint.innerText = "Puzzle Solutions Revealed";
+                // Show solutions directly in the question prompt area
+                let html = '<div class="flex flex-col gap-2 mt-4">';
+                const colors = {
+                    yellow: 'banner-yellow',
+                    green: 'banner-green',
+                    blue: 'banner-blue',
+                    purple: 'banner-purple'
+                };
+                activeTimerData.connectionsData.categories.forEach(cat => {
+                    html += `
+                        <div class="category-banner ${colors[cat.color]} text-left py-2 px-3 rounded-lg text-xs md:text-sm">
+                            <span class="font-extrabold mr-2">${cat.name.toUpperCase()}:</span>
+                            <span class="opacity-95">${cat.words.join(', ')}</span>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                document.getElementById('dashboard-prompt-question').innerHTML = "Today's Connections Solutions:" + html;
+            } else {
+                if (explanationHint) explanationHint.innerText = "Explanation Revealed: " + (activeTimerData.explanation || "");
+            }
         }
 
         function runTimer(expiresAt) {
@@ -366,8 +411,8 @@
                     clockEl.className = "text-5xl giant-clock text-red-500 pt-3";
                     statusEl.innerText = "Session Locked / Closed";
                     statusEl.className = "text-[10px] text-red-400 font-semibold uppercase mt-1 animate-pulse";
-                    if (explanationHint) explanationHint.innerText = "Explanation Revealed to Students";
                     clearInterval(timerInterval);
+                    revealDashboardSolutions();
                     return;
                 }
 
@@ -394,7 +439,6 @@
 
         // Live Roster and Submissions
         function setupRosterAndSubmissionListeners() {
-            // First load/listen to the roster for the period
             rosterListener = db.collection('roster')
                 .where('class_period', '==', currentPeriod)
                 .onSnapshot((rosterSnapshot) => {
@@ -403,10 +447,7 @@
                         roster.push(doc.data());
                     });
 
-                    // Sort roster alphabetically by last name
                     roster.sort((a, b) => a.last_name.localeCompare(b.last_name));
-                    
-                    // Listen to submissions after we have the roster
                     setupSubmissionsListener();
                 }, (error) => {
                     console.error("Roster query error:", error);
@@ -416,20 +457,16 @@
         function setupSubmissionsListener() {
             const todayStr = getTodayString();
             
-            // Listen to all bellringers for today
             submissionsListener = db.collection('bellringers')
                 .onSnapshot((bellringersSnapshot) => {
                     submissions = {};
                     bellringersSnapshot.forEach(doc => {
                         const data = doc.data();
-                        
-                        // We check if the docId ends with today's date
                         if (doc.id.endsWith(`_${todayStr}`)) {
                             submissions[data.studentId] = data;
                         }
                     });
 
-                    // Render Roster Grid
                     renderStudentGrid();
                 }, (error) => {
                     console.error("Submissions listener error:", error);
@@ -459,6 +496,7 @@
                 let tileClass = 'tile-pending';
                 let statusIcon = '⚪';
                 let statusLabel = 'Offline';
+                let progressDisplayHTML = '';
 
                 if (submission) {
                     numSubmitted++;
@@ -477,6 +515,21 @@
                         statusLabel = 'Revision';
                         numRevision++;
                     }
+
+                    // Render connections live grid progress squares
+                    if (activeActivityType === 'connections') {
+                        let progressSquares = '';
+                        const catColorClasses = ['bg-yellow-500', 'bg-green-500', 'bg-blue-500', 'bg-purple-500'];
+                        for (let idx = 0; idx < 4; idx++) {
+                            const solved = submission.solvedCategories && submission.solvedCategories.includes(idx);
+                            progressSquares += `<span class="w-3 h-3 rounded-sm ${solved ? catColorClasses[idx] + ' shadow-inner animate-pulse' : 'bg-slate-900 border border-white/10'} inline-block"></span>`;
+                        }
+                        progressDisplayHTML = `<div class="flex gap-1.5">${progressSquares}</div>`;
+                    }
+                }
+
+                if (!progressDisplayHTML) {
+                    progressDisplayHTML = `<span class="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">${statusLabel}</span>`;
                 }
 
                 // Render student tile
@@ -488,7 +541,7 @@
                         <p class="text-[10px] text-slate-500 font-mono mt-0.5 uppercase tracking-tight">${student.student_id}</p>
                     </div>
                     <div class="flex items-center justify-between border-t border-white/5 pt-2">
-                        <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">${statusLabel}</span>
+                        ${progressDisplayHTML}
                         <span class="text-sm">${statusIcon}</span>
                     </div>
                 `;
