@@ -543,20 +543,34 @@
                     numSubmitted++;
                     
                     let aiResponseObj = null;
-                    if (submission.aiResponse) {
-                        if (typeof submission.aiResponse === 'string') {
-                            try {
-                                let cleaned = submission.aiResponse.trim();
-                                if (cleaned.startsWith('```')) {
-                                    cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+                    
+                    function tryParseJSON(val) {
+                        if (typeof val === 'string') {
+                            let cleaned = val.trim();
+                            if (cleaned.startsWith('{') || cleaned.startsWith('```')) {
+                                try {
+                                    if (cleaned.startsWith('```')) {
+                                        cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+                                    }
+                                    return JSON.parse(cleaned.trim());
+                                } catch (e) {
+                                    console.error("Failed to parse JSON string:", e, val);
                                 }
-                                aiResponseObj = JSON.parse(cleaned.trim());
-                            } catch (e) {
-                                console.error("Failed to parse aiResponse string on dashboard:", e, submission.aiResponse);
                             }
-                        } else if (typeof submission.aiResponse === 'object') {
-                            aiResponseObj = submission.aiResponse;
                         }
+                        return null;
+                    }
+
+                    if (submission.aiResponse) {
+                        if (typeof submission.aiResponse === 'object') {
+                            aiResponseObj = submission.aiResponse;
+                        } else {
+                            aiResponseObj = tryParseJSON(submission.aiResponse);
+                        }
+                    }
+                    
+                    if (!aiResponseObj && submission.effortScore) {
+                        aiResponseObj = tryParseJSON(submission.effortScore);
                     }
 
                     let score = undefined;

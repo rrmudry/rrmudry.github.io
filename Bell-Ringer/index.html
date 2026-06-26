@@ -921,22 +921,36 @@
                         textarea.value = data.studentResponse;
                     }
 
-                    // Robust parsing of aiResponse (can be a map/object or JSON string)
+                    // Robust parsing: JSON string might be in data.aiResponse or data.effortScore
                     let aiResponseObj = null;
-                    if (data.aiResponse) {
-                        if (typeof data.aiResponse === 'string') {
-                            try {
-                                let cleaned = data.aiResponse.trim();
-                                if (cleaned.startsWith('```')) {
-                                    cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+                    
+                    function tryParseJSON(val) {
+                        if (typeof val === 'string') {
+                            let cleaned = val.trim();
+                            if (cleaned.startsWith('{') || cleaned.startsWith('```')) {
+                                try {
+                                    if (cleaned.startsWith('```')) {
+                                        cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+                                    }
+                                    return JSON.parse(cleaned.trim());
+                                } catch (e) {
+                                    console.error("Failed to parse JSON string:", e, val);
                                 }
-                                aiResponseObj = JSON.parse(cleaned.trim());
-                            } catch (e) {
-                                console.error("Failed to parse aiResponse string:", e, data.aiResponse);
                             }
-                        } else if (typeof data.aiResponse === 'object') {
-                            aiResponseObj = data.aiResponse;
                         }
+                        return null;
+                    }
+
+                    if (data.aiResponse) {
+                        if (typeof data.aiResponse === 'object') {
+                            aiResponseObj = data.aiResponse;
+                        } else {
+                            aiResponseObj = tryParseJSON(data.aiResponse);
+                        }
+                    }
+                    
+                    if (!aiResponseObj && data.effortScore) {
+                        aiResponseObj = tryParseJSON(data.effortScore);
                     }
 
                     const score = aiResponseObj ? aiResponseObj.effortScore : data.effortScore;
