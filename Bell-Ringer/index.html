@@ -43,6 +43,15 @@
             transform: translateY(0);
         }
 
+        .neo-btn-primary:disabled {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: rgba(255, 255, 255, 0.25) !important;
+            box-shadow: none !important;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
         .timer-glow {
             text-shadow: 0 0 20px rgba(249, 115, 22, 0.6);
         }
@@ -494,6 +503,8 @@
         let connectionsMistakes = 4;
         let connectionsGuesses = [];
         let connectionsGridWords = []; // List of { word, catIndex }
+        let isTimerExpired = false;
+        let isAiReviewing = false;
 
         function showWaitingPanel() {
             document.getElementById('waiting-panel').classList.remove('hidden');
@@ -800,12 +811,25 @@
             db.collection('bellringers').doc(docId).delete().catch(() => {});
         }
 
+        function updateSubmitButtonState() {
+            const submitBtn = document.getElementById('submit-btn');
+            if (isTimerExpired) {
+                submitBtn.disabled = true;
+                submitBtn.innerText = "Time Expired";
+            } else if (isAiReviewing) {
+                submitBtn.disabled = true;
+                submitBtn.innerText = "AI Reviewing...";
+            } else {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Submit Response";
+            }
+        }
+
         function runTimerCountdown(expiresAt) {
             const timerEl = document.getElementById('countdown-timer');
             const timerStatusText = document.getElementById('timer-status-text');
             const lockoutShield = document.getElementById('lockout-shield');
             const textarea = document.getElementById('response-text');
-            const submitBtn = document.getElementById('submit-btn');
             const explanationCard = document.getElementById('explanation-card');
 
             function updateClock() {
@@ -821,7 +845,8 @@
                     // Lock input and show explanation
                     lockoutShield.classList.remove('hidden');
                     textarea.disabled = true;
-                    submitBtn.disabled = true;
+                    isTimerExpired = true;
+                    updateSubmitButtonState();
                     explanationCard.classList.remove('hidden');
                     
                     // Lock follow-up input
@@ -836,10 +861,11 @@
                 // Normal timer counting
                 lockoutShield.classList.add('hidden');
                 textarea.disabled = false;
-                submitBtn.disabled = false;
                 explanationCard.classList.add('hidden');
                 
                 document.getElementById('followup-lockout-shield').classList.add('hidden');
+                isTimerExpired = false;
+                updateSubmitButtonState();
 
                 const totalSeconds = Math.floor(diffMs / 1000);
                 const minutes = Math.floor(totalSeconds / 60);
@@ -884,6 +910,8 @@
                         msg.innerText = activeActivityType === "connections" 
                             ? "Complete the Connections Grid to verify participation." 
                             : "Please write your response and click submit.";
+                        isAiReviewing = false;
+                        updateSubmitButtonState();
                         return;
                     }
 
@@ -893,8 +921,25 @@
                         textarea.value = data.studentResponse;
                     }
 
-                    const score = data.aiResponse ? data.aiResponse.effortScore : data.effortScore;
-                    const followUp = data.aiResponse ? data.aiResponse.followUpQuestion : null;
+                    // Robust parsing of aiResponse (can be a map/object or JSON string)
+                    let aiResponseObj = null;
+                    if (data.aiResponse) {
+                        if (typeof data.aiResponse === 'string') {
+                            try {
+                                aiResponseObj = JSON.parse(data.aiResponse);
+                            } catch (e) {
+                                console.error("Failed to parse aiResponse string:", e);
+                            }
+                        } else if (typeof data.aiResponse === 'object') {
+                            aiResponseObj = data.aiResponse;
+                        }
+                    }
+
+                    const score = aiResponseObj ? aiResponseObj.effortScore : data.effortScore;
+                    const followUp = aiResponseObj ? aiResponseObj.followUpQuestion : null;
+
+                    isAiReviewing = (score === undefined && !!data.studentResponse);
+                    updateSubmitButtonState();
 
                     if (score === undefined) {
                         indicator.innerText = "⏳";
@@ -976,29 +1021,30 @@
             submitBtn.innerText = "Submitting...";
 
             try {
-                // If editing, clear effortScore first so extension processes again
+                // Combine everything into a single atomic merge operation
+                // This clears out old grading/followup fields so the extension is guaranteed to rerun and reassess
                 await db.collection('bellringers').doc(docId).set({
                     studentId: studentId,
                     studentName: currentUser.displayName || studentId,
                     promptQuestion: activePromptText,
                     studentResponse: responseText,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                }, { merge: true });
-
-                // Also delete effortScore field to trigger re-grade if it was set
-                await db.collection('bellringers').doc(docId).update({
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                     effortScore: firebase.firestore.FieldValue.delete(),
                     aiResponse: firebase.firestore.FieldValue.delete(),
                     studentFollowUpResponse: firebase.firestore.FieldValue.delete(),
                     followUpTimestamp: firebase.firestore.FieldValue.delete()
-                }).catch(() => {});
+                }, { merge: true });
 
             } catch (error) {
                 console.error("Submission failed:", error);
                 alert("Submission failed: " + error.message);
             } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerText = "Submit Response";
+                // The updateSubmitButtonState function will handle disabled state via onSnapshot
+                // but let's re-enable in finally just in case of write failure so they can try again.
+                if (!isAiReviewing) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Submit Response";
+                }
             }
         }
 
