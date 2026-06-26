@@ -393,6 +393,11 @@
                                 <span class="text-4xl block">🧩</span>
                                 <p class="text-xs font-semibold uppercase tracking-wider mt-2">Connections Puzzle Active</p>
                             `;
+                        } else if (activeActivityType === 'concept_chat') {
+                            placeholderEl.innerHTML = `
+                                <span class="text-4xl block animate-pulse">💬</span>
+                                <p class="text-xs font-semibold uppercase tracking-wider mt-2 text-cyan-400 font-bold">Concept Chat Session Active</p>
+                            `;
                         } else {
                             placeholderEl.innerHTML = `
                                 <span class="text-4xl block">📊</span>
@@ -580,20 +585,44 @@
                         score = submission.effortScore;
                     }
 
-                    if (score === undefined) {
-                        tileClass = 'tile-submitted';
-                        statusIcon = '⏳';
-                        statusLabel = 'Analyzing';
-                    } else if (score === "1" || score === 1) {
-                        tileClass = 'tile-success';
-                        statusIcon = '✅';
-                        statusLabel = 'Verified';
-                        numVerified++;
-                    } else if (score === "0" || score === 0) {
-                        tileClass = 'tile-fail';
-                        statusIcon = '⚠️';
-                        statusLabel = 'Revision';
-                        numRevision++;
+                    if (activeActivityType === 'concept_chat') {
+                        if (score === undefined) {
+                            tileClass = 'tile-submitted';
+                            statusIcon = '💬';
+                            const msgCount = (submission.chatMessages && Array.isArray(submission.chatMessages)) ? submission.chatMessages.length : 0;
+                            statusLabel = `${msgCount} turns`;
+                            progressDisplayHTML = `<span class="text-[10px] font-semibold text-orange-400 uppercase tracking-widest">💬 ${msgCount} turns</span>`;
+                        } else {
+                            const numericScore = parseInt(score) || 0;
+                            if (numericScore >= 70) {
+                                tileClass = 'tile-success';
+                                statusIcon = '✅';
+                                statusLabel = `${numericScore}%`;
+                                numVerified++;
+                            } else {
+                                tileClass = 'tile-fail';
+                                statusIcon = '⚠️';
+                                statusLabel = `${numericScore}%`;
+                                numRevision++;
+                            }
+                            progressDisplayHTML = `<span class="text-[10px] font-bold text-slate-300 uppercase tracking-widest">${numericScore}% Score</span>`;
+                        }
+                    } else {
+                        if (score === undefined) {
+                            tileClass = 'tile-submitted';
+                            statusIcon = '⏳';
+                            statusLabel = 'Analyzing';
+                        } else if (score === "1" || score === 1) {
+                            tileClass = 'tile-success';
+                            statusIcon = '✅';
+                            statusLabel = 'Verified';
+                            numVerified++;
+                        } else if (score === "0" || score === 0) {
+                            tileClass = 'tile-fail';
+                            statusIcon = '⚠️';
+                            statusLabel = 'Revision';
+                            numRevision++;
+                        }
                     }
 
                     // Render connections live grid progress squares
