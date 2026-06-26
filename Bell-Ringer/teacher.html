@@ -662,22 +662,36 @@
                         const row = document.createElement('tr');
                         row.className = 'border-b border-white/5 py-3 hover:bg-white/5 transition-colors';
                         
-                        // Robust parsing of aiResponse (can be a map/object or JSON string)
+                        // Robust parsing: JSON string might be in sub.aiResponse or sub.effortScore
                         let aiResponseObj = null;
-                        if (sub.aiResponse) {
-                            if (typeof sub.aiResponse === 'string') {
-                                try {
-                                    let cleaned = sub.aiResponse.trim();
-                                    if (cleaned.startsWith('```')) {
-                                        cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+                        
+                        function tryParseJSON(val) {
+                            if (typeof val === 'string') {
+                                let cleaned = val.trim();
+                                if (cleaned.startsWith('{') || cleaned.startsWith('```')) {
+                                    try {
+                                        if (cleaned.startsWith('```')) {
+                                            cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+                                        }
+                                        return JSON.parse(cleaned.trim());
+                                    } catch (e) {
+                                        console.error("Failed to parse JSON string:", e, val);
                                     }
-                                    aiResponseObj = JSON.parse(cleaned.trim());
-                                } catch (e) {
-                                    console.error("Failed to parse aiResponse string on teacher:", e, sub.aiResponse);
                                 }
-                            } else if (typeof sub.aiResponse === 'object') {
-                                aiResponseObj = sub.aiResponse;
                             }
+                            return null;
+                        }
+
+                        if (sub.aiResponse) {
+                            if (typeof sub.aiResponse === 'object') {
+                                aiResponseObj = sub.aiResponse;
+                            } else {
+                                aiResponseObj = tryParseJSON(sub.aiResponse);
+                            }
+                        }
+                        
+                        if (!aiResponseObj && sub.effortScore) {
+                            aiResponseObj = tryParseJSON(sub.effortScore);
                         }
 
                         // Support reading effortScore from nested aiResponse map or flat field
