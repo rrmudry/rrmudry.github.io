@@ -546,9 +546,13 @@
                     if (submission.aiResponse) {
                         if (typeof submission.aiResponse === 'string') {
                             try {
-                                aiResponseObj = JSON.parse(submission.aiResponse);
+                                let cleaned = submission.aiResponse.trim();
+                                if (cleaned.startsWith('```')) {
+                                    cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+                                }
+                                aiResponseObj = JSON.parse(cleaned.trim());
                             } catch (e) {
-                                console.error("Failed to parse aiResponse string on dashboard:", e);
+                                console.error("Failed to parse aiResponse string on dashboard:", e, submission.aiResponse);
                             }
                         } else if (typeof submission.aiResponse === 'object') {
                             aiResponseObj = submission.aiResponse;
