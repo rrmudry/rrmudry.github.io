@@ -747,12 +747,20 @@
                             aiResponseObj = tryParseJSON(sub.effortScore);
                         }
 
-                        // Support reading effortScore from nested aiResponse map or flat field
                         let score = undefined;
-                        if (aiResponseObj && aiResponseObj.effortScore !== undefined) {
-                            score = aiResponseObj.effortScore;
-                        } else if (sub.effortScore !== undefined) {
-                            score = sub.effortScore;
+                        if (activeActivityType === "concept_chat") {
+                            if (sub.effortScore !== undefined && typeof sub.effortScore !== 'object') {
+                                const val = parseInt(sub.effortScore);
+                                if (!isNaN(val) && !sub.effortScore.toString().includes('{')) {
+                                    score = val;
+                                }
+                            }
+                        } else {
+                            if (aiResponseObj && aiResponseObj.effortScore !== undefined) {
+                                score = aiResponseObj.effortScore;
+                            } else if (sub.effortScore !== undefined) {
+                                score = sub.effortScore;
+                            }
                         }
 
                         let scoreBadge = '';

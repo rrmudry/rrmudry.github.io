@@ -1023,7 +1023,17 @@
                         aiResponseObj = tryParseJSON(data.effortScore);
                     }
 
-                    const score = aiResponseObj ? aiResponseObj.effortScore : data.effortScore;
+                    let score = undefined;
+                    if (activeActivityType === "concept_chat") {
+                        if (data.effortScore !== undefined && typeof data.effortScore !== 'object') {
+                            const val = parseInt(data.effortScore);
+                            if (!isNaN(val) && !data.effortScore.toString().includes('{')) {
+                                score = val;
+                            }
+                        }
+                    } else {
+                        score = aiResponseObj ? aiResponseObj.effortScore : data.effortScore;
+                    }
                     const followUp = aiResponseObj ? aiResponseObj.followUpQuestion : null;
 
                     isAiReviewing = (score === undefined && !!data.studentResponse);
@@ -1238,7 +1248,6 @@
                         studentName: currentUser.displayName || studentId,
                         promptQuestion: config.promptQuestion || "Concept Chat",
                         activityType: "concept_chat",
-                        studentResponse: "[Concept Chat Session]",
                         chatMessages: chatMessages,
                         timestamp: firebase.firestore.FieldValue.serverTimestamp()
                     }, { merge: true });
