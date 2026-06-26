@@ -342,6 +342,28 @@
                             <p id="status-message" class="text-xs text-slate-500 mt-0.5">Submit your answer to begin verification.</p>
                         </div>
                     </div>
+
+                    <!-- AI Follow-up Question Card -->
+                    <div id="followup-card" class="hidden mt-4 border border-orange-500/20 bg-orange-500/5 rounded-xl p-5 flex flex-col gap-4 relative overflow-hidden transition-all duration-300">
+                        <div id="followup-lockout-shield" class="absolute inset-0 bg-slate-950/90 backdrop-blur-sm hidden z-20 flex flex-col items-center justify-center p-4 text-center">
+                            <span class="text-2xl mb-1">🔒</span>
+                            <p class="text-slate-400 text-xs font-bold">Lockout Active</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-base">💬</span>
+                            <span class="text-[10px] text-orange-400 font-bold tracking-wider uppercase">AI Follow-Up Challenge</span>
+                        </div>
+                        <p id="followup-question-text" class="text-xs md:text-sm font-semibold text-slate-200 leading-snug">
+                            Loading follow-up question...
+                        </p>
+                        <div class="flex flex-col gap-2">
+                            <textarea id="followup-response-text" placeholder="Type your follow-up explanation here..." 
+                                      class="w-full min-h-[80px] rounded-lg bg-slate-950/80 border border-white/10 p-3 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 text-xs resize-y"></textarea>
+                        </div>
+                        <button id="submit-followup-btn" onclick="submitFollowUpResponse()" class="w-full py-2.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs tracking-wide transition-all shadow-md shadow-orange-500/10">
+                            Submit Follow-Up Response
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Explanation Area (Revealed post-lockout) -->
@@ -802,6 +824,11 @@
                     submitBtn.disabled = true;
                     explanationCard.classList.remove('hidden');
                     
+                    // Lock follow-up input
+                    document.getElementById('followup-lockout-shield').classList.remove('hidden');
+                    document.getElementById('followup-response-text').disabled = true;
+                    document.getElementById('submit-followup-btn').disabled = true;
+                    
                     clearInterval(timerInterval);
                     return;
                 }
@@ -811,6 +838,8 @@
                 textarea.disabled = false;
                 submitBtn.disabled = false;
                 explanationCard.classList.add('hidden');
+                
+                document.getElementById('followup-lockout-shield').classList.add('hidden');
 
                 const totalSeconds = Math.floor(diffMs / 1000);
                 const minutes = Math.floor(totalSeconds / 60);
@@ -864,7 +893,10 @@
                         textarea.value = data.studentResponse;
                     }
 
-                    if (data.effortScore === undefined) {
+                    const score = data.aiResponse ? data.aiResponse.effortScore : data.effortScore;
+                    const followUp = data.aiResponse ? data.aiResponse.followUpQuestion : null;
+
+                    if (score === undefined) {
                         indicator.innerText = "⏳";
                         indicator.className = "w-10 h-10 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 flex items-center justify-center text-lg animate-pulse";
                         statusCard.classList.add('status-glow-pending');
@@ -872,7 +904,8 @@
                         msg.innerText = activeActivityType === "connections" 
                             ? `Solving... ${data.solvedCategories ? data.solvedCategories.length : 0}/4 categories completed.` 
                             : "AI gatekeeper is analyzing your submission for good-faith effort...";
-                    } else if (data.effortScore === "1" || data.effortScore === 1) {
+                        document.getElementById('followup-card').classList.add('hidden');
+                    } else if (score === "1" || score === 1) {
                         indicator.innerText = "✅";
                         indicator.className = "w-10 h-10 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 flex items-center justify-center text-lg";
                         statusCard.classList.add('status-glow-success');
@@ -885,7 +918,31 @@
                             connectionsCompleted = [0, 1, 2, 3];
                             renderConnectionsBoard();
                         }
-                    } else if (data.effortScore === "0" || data.effortScore === 0) {
+
+                        // Show follow-up question if available
+                        if (activeActivityType === "free_response" && followUp) {
+                            document.getElementById('followup-card').classList.remove('hidden');
+                            document.getElementById('followup-question-text').innerText = followUp;
+
+                            const followupTextarea = document.getElementById('followup-response-text');
+                            const followupBtn = document.getElementById('submit-followup-btn');
+                            
+                            if (data.studentFollowUpResponse) {
+                                followupTextarea.value = data.studentFollowUpResponse;
+                                followupTextarea.disabled = true;
+                                followupBtn.disabled = true;
+                                followupBtn.innerText = "Follow-Up Submitted!";
+                                followupBtn.className = "w-full py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-500 font-bold text-xs tracking-wide cursor-not-allowed";
+                            } else {
+                                followupTextarea.disabled = false;
+                                followupBtn.disabled = false;
+                                followupBtn.innerText = "Submit Follow-Up Response";
+                                followupBtn.className = "w-full py-2.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs tracking-wide transition-all shadow-md shadow-orange-500/10";
+                            }
+                        } else {
+                            document.getElementById('followup-card').classList.add('hidden');
+                        }
+                    } else if (score === "0" || score === 0) {
                         indicator.innerText = "⚠️";
                         indicator.className = "w-10 h-10 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center text-lg";
                         statusCard.classList.add('status-glow-fail');
@@ -894,6 +951,7 @@
                         msg.innerText = activeActivityType === "connections" 
                             ? "You ran out of mistakes. Click the reset button to try again." 
                             : "Opt-out, gibberish, or unrelated response detected. Please edit and re-submit.";
+                        document.getElementById('followup-card').classList.add('hidden');
                     }
                 }, (error) => {
                     console.error("Submission listener error:", error);
@@ -929,7 +987,10 @@
 
                 // Also delete effortScore field to trigger re-grade if it was set
                 await db.collection('bellringers').doc(docId).update({
-                    effortScore: firebase.firestore.FieldValue.delete()
+                    effortScore: firebase.firestore.FieldValue.delete(),
+                    aiResponse: firebase.firestore.FieldValue.delete(),
+                    studentFollowUpResponse: firebase.firestore.FieldValue.delete(),
+                    followUpTimestamp: firebase.firestore.FieldValue.delete()
                 }).catch(() => {});
 
             } catch (error) {
@@ -938,6 +999,36 @@
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerText = "Submit Response";
+            }
+        }
+
+        // Submit follow-up response to Firestore
+        async function submitFollowUpResponse() {
+            const textarea = document.getElementById('followup-response-text');
+            const responseText = textarea.value.trim();
+
+            if (!responseText) {
+                alert("Please write a response to the follow-up question before submitting.");
+                return;
+            }
+
+            const todayStr = getTodayString();
+            const docId = `${studentId}_${todayStr}`;
+
+            const submitBtn = document.getElementById('submit-followup-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Submitting...";
+
+            try {
+                await db.collection('bellringers').doc(docId).update({
+                    studentFollowUpResponse: responseText,
+                    followUpTimestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } catch (error) {
+                console.error("Follow-up submission failed:", error);
+                alert("Submission failed: " + error.message);
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Submit Follow-Up Response";
             }
         }
 

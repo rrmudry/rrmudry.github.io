@@ -541,16 +541,24 @@
 
                 if (submission) {
                     numSubmitted++;
-                    if (submission.effortScore === undefined) {
+                    
+                    let score = undefined;
+                    if (submission.aiResponse && submission.aiResponse.effortScore !== undefined) {
+                        score = submission.aiResponse.effortScore;
+                    } else if (submission.effortScore !== undefined) {
+                        score = submission.effortScore;
+                    }
+
+                    if (score === undefined) {
                         tileClass = 'tile-submitted';
                         statusIcon = '⏳';
                         statusLabel = 'Analyzing';
-                    } else if (submission.effortScore === "1" || submission.effortScore === 1) {
+                    } else if (score === "1" || score === 1) {
                         tileClass = 'tile-success';
                         statusIcon = '✅';
                         statusLabel = 'Verified';
                         numVerified++;
-                    } else if (submission.effortScore === "0" || submission.effortScore === 0) {
+                    } else if (score === "0" || score === 0) {
                         tileClass = 'tile-fail';
                         statusIcon = '⚠️';
                         statusLabel = 'Revision';
@@ -576,6 +584,12 @@
                 // Render student tile
                 const card = document.createElement('div');
                 card.className = `rounded-2xl p-4 flex flex-col justify-between h-28 relative ${tileClass}`;
+                
+                // Add a comment indicator if student completed follow-up
+                const followUpIndicator = (submission && submission.studentFollowUpResponse) 
+                    ? `<span class="text-sm cursor-help animate-pulse" title="Follow-up response submitted">💬</span>` 
+                    : '';
+
                 card.innerHTML = `
                     <div>
                         <p class="text-xs text-slate-400 font-bold tracking-wider truncate uppercase">${student.last_name}, ${student.first_name}</p>
@@ -583,7 +597,10 @@
                     </div>
                     <div class="flex items-center justify-between border-t border-white/5 pt-2">
                         ${progressDisplayHTML}
-                        <span class="text-sm">${statusIcon}</span>
+                        <div class="flex items-center gap-1.5">
+                            ${followUpIndicator}
+                            <span class="text-sm">${statusIcon}</span>
+                        </div>
                     </div>
                 `;
 
