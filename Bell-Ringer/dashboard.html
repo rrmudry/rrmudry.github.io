@@ -579,10 +579,19 @@
                     }
 
                     let score = undefined;
-                    if (aiResponseObj && aiResponseObj.effortScore !== undefined) {
-                        score = aiResponseObj.effortScore;
-                    } else if (submission.effortScore !== undefined) {
-                        score = submission.effortScore;
+                    if (activeActivityType === "concept_chat") {
+                        if (submission.effortScore !== undefined && typeof submission.effortScore !== 'object') {
+                            const val = parseInt(submission.effortScore);
+                            if (!isNaN(val) && !submission.effortScore.toString().includes('{')) {
+                                score = val;
+                            }
+                        }
+                    } else {
+                        if (aiResponseObj && aiResponseObj.effortScore !== undefined) {
+                            score = aiResponseObj.effortScore;
+                        } else if (submission.effortScore !== undefined) {
+                            score = submission.effortScore;
+                        }
                     }
 
                     if (activeActivityType === 'concept_chat') {
