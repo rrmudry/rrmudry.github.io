@@ -110,28 +110,126 @@
                 <div class="glass-panel rounded-3xl p-6 md:p-8 flex flex-col gap-6">
                     <h3 class="text-lg font-bold text-white border-b border-white/5 pb-2">Session Settings</h3>
                     
-                    <div class="flex flex-col gap-2">
-                        <label for="prompt-input" class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Prompt Question</label>
-                        <textarea id="prompt-input" placeholder="e.g. Look at the distance-time graph. Explain what the flat horizontal line indicates about the object's velocity." 
-                                  class="w-full min-h-[90px] rounded-xl bg-slate-950/60 border border-white/10 p-3 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 text-sm resize-y"></textarea>
+                    <!-- Lesson Auto-Loader -->
+                    <div class="p-3.5 rounded-xl bg-orange-500/5 border border-orange-500/10 flex flex-col gap-3">
+                        <div class="text-[10px] text-orange-400 font-bold tracking-wider uppercase">⚡ Lesson Calendar Auto-Loader</div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="flex flex-col gap-1">
+                                <label for="unit-select" class="text-[10px] text-slate-500 font-semibold tracking-wider uppercase">Unit</label>
+                                <select id="unit-select" onchange="onUnitChanged()" class="w-full rounded-lg bg-slate-950/80 border border-white/10 px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-orange-500">
+                                    <option value="">-- Choose Unit --</option>
+                                    <option value="1">Unit 1: Intro</option>
+                                    <option value="6">Unit 6: Waves</option>
+                                    <option value="7">Unit 7: Electricity</option>
+                                </select>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <label for="lesson-day-select" class="text-[10px] text-slate-500 font-semibold tracking-wider uppercase">Day / Lesson</label>
+                                <select id="lesson-day-select" onchange="onLessonChanged()" class="w-full rounded-lg bg-slate-950/80 border border-white/10 px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-orange-500" disabled>
+                                    <option value="">-- Select Day --</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="loader-status-msg" class="text-[10px] text-slate-500 font-medium hidden"></div>
                     </div>
 
                     <div class="flex flex-col gap-2">
-                        <label for="explanation-input" class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Correct Explanation (Revealed post-lockout)</label>
-                        <textarea id="explanation-input" placeholder="e.g. A flat horizontal line indicates a constant position, which means the object is stationary, resulting in a velocity of 0 m/s." 
-                                  class="w-full min-h-[90px] rounded-xl bg-slate-950/60 border border-white/10 p-3 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 text-sm resize-y"></textarea>
+                        <label for="activity-type-select" class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Activity Type</label>
+                        <select id="activity-type-select" onchange="toggleActivityFields()" class="w-full rounded-xl bg-slate-950/60 border border-white/10 px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 text-sm">
+                            <option value="free_response">Free Response Explanation</option>
+                            <option value="connections">Connections Grid Game</option>
+                        </select>
                     </div>
 
-                    <div class="flex flex-col gap-2">
-                        <label for="phenomenon-url" class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Phenomenon Image URL (Optional)</label>
-                        <input type="text" id="phenomenon-url" placeholder="https://example.com/graph.png" 
-                               class="w-full rounded-xl bg-slate-950/60 border border-white/10 px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 text-sm">
+                    <!-- Free Response Settings -->
+                    <div id="free-response-fields" class="flex flex-col gap-6">
+                        <div class="flex flex-col gap-2">
+                            <label for="prompt-input" class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Prompt Question</label>
+                            <textarea id="prompt-input" placeholder="e.g. Look at the distance-time graph. Explain what the flat horizontal line indicates about the object's velocity." 
+                                      class="w-full min-h-[90px] rounded-xl bg-slate-950/60 border border-white/10 p-3 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 text-sm resize-y"></textarea>
+                        </div>
+
+                        <div class="flex flex-col gap-2">
+                            <label for="explanation-input" class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Correct Explanation (Revealed post-lockout)</label>
+                            <textarea id="explanation-input" placeholder="e.g. A flat horizontal line indicates a constant position, which means the object is stationary, resulting in a velocity of 0 m/s." 
+                                      class="w-full min-h-[90px] rounded-xl bg-slate-950/60 border border-white/10 p-3 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 text-sm resize-y"></textarea>
+                        </div>
+
+                        <div class="flex flex-col gap-2">
+                            <label for="phenomenon-url" class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Phenomenon Image URL (Optional)</label>
+                            <input type="text" id="phenomenon-url" placeholder="https://example.com/graph.png" 
+                                   class="w-full rounded-xl bg-slate-950/60 border border-white/10 px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 text-sm">
+                        </div>
+
+                        <div class="flex flex-col gap-2">
+                            <label for="phenomenon-desc" class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Description Placeholder (If no image)</label>
+                            <input type="text" id="phenomenon-desc" placeholder="Refer to the white board graph for the distance vs time line." 
+                                   class="w-full rounded-xl bg-slate-950/60 border border-white/10 px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 text-sm">
+                        </div>
                     </div>
 
-                    <div class="flex flex-col gap-2">
-                        <label for="phenomenon-desc" class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Description Placeholder (If no image)</label>
-                        <input type="text" id="phenomenon-desc" placeholder="Refer to the white board graph for the distance vs time line." 
-                               class="w-full rounded-xl bg-slate-950/60 border border-white/10 px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 text-sm">
+                    <!-- Connections Game Settings -->
+                    <div id="connections-fields" class="hidden flex flex-col gap-4">
+                        <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                            <label class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Connections Grid Setup</label>
+                            <button onclick="loadConnectionsTemplate()" class="text-xs font-bold text-orange-400 hover:text-orange-300 transition-colors">⚡ Load Physics Template</button>
+                        </div>
+                        
+                        <!-- Category 1 (Yellow) -->
+                        <div class="p-3.5 rounded-xl bg-yellow-500/5 border border-yellow-500/20 flex flex-col gap-3">
+                            <div class="flex gap-2 items-center">
+                                <span class="w-3 h-3 rounded-full bg-yellow-400 shadow-[0_0_8px_rgba(234,179,8,0.6)]"></span>
+                                <input type="text" id="cat-title-0" placeholder="Category 1 Title (Easy)" class="w-full bg-transparent border-b border-white/10 pb-1 text-sm text-yellow-400 focus:outline-none focus:border-yellow-400 placeholder-yellow-600/50">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="text" id="cat-word-0-0" placeholder="Word 1" class="rounded-lg bg-slate-950/80 border border-white/10 px-2.5 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-yellow-400">
+                                <input type="text" id="cat-word-0-1" placeholder="Word 2" class="rounded-lg bg-slate-950/80 border border-white/10 px-2.5 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-yellow-400">
+                                <input type="text" id="cat-word-0-2" placeholder="Word 3" class="rounded-lg bg-slate-950/80 border border-white/10 px-2.5 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-yellow-400">
+                                <input type="text" id="cat-word-0-3" placeholder="Word 4" class="rounded-lg bg-slate-950/80 border border-white/10 px-2.5 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-yellow-400">
+                            </div>
+                        </div>
+
+                        <!-- Category 2 (Green) -->
+                        <div class="p-3.5 rounded-xl bg-green-500/5 border border-green-500/20 flex flex-col gap-3">
+                            <div class="flex gap-2 items-center">
+                                <span class="w-3 h-3 rounded-full bg-green-400 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
+                                <input type="text" id="cat-title-1" placeholder="Category 2 Title (Medium)" class="w-full bg-transparent border-b border-white/10 pb-1 text-sm text-green-400 focus:outline-none focus:border-green-400 placeholder-green-600/50">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="text" id="cat-word-1-0" placeholder="Word 1" class="rounded-lg bg-slate-950/80 border border-white/10 px-2.5 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-green-400">
+                                <input type="text" id="cat-word-1-1" placeholder="Word 2" class="rounded-lg bg-slate-950/80 border border-white/10 px-2.5 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-green-400">
+                                <input type="text" id="cat-word-1-2" placeholder="Word 3" class="rounded-lg bg-slate-950/80 border border-white/10 px-2.5 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-green-400">
+                                <input type="text" id="cat-word-1-3" placeholder="Word 4" class="rounded-lg bg-slate-950/80 border border-white/10 px-2.5 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-green-400">
+                            </div>
+                        </div>
+
+                        <!-- Category 3 (Blue) -->
+                        <div class="p-3.5 rounded-xl bg-blue-500/5 border border-blue-500/20 flex flex-col gap-3">
+                            <div class="flex gap-2 items-center">
+                                <span class="w-3 h-3 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(59,130,246,0.6)]"></span>
+                                <input type="text" id="cat-title-2" placeholder="Category 3 Title (Hard)" class="w-full bg-transparent border-b border-white/10 pb-1 text-sm text-blue-400 focus:outline-none focus:border-blue-400 placeholder-blue-600/50">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="text" id="cat-word-2-0" placeholder="Word 1" class="rounded-lg bg-slate-950/80 border border-white/10 px-2.5 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-blue-400">
+                                <input type="text" id="cat-word-2-1" placeholder="Word 2" class="rounded-lg bg-slate-950/80 border border-white/10 px-2.5 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-blue-400">
+                                <input type="text" id="cat-word-2-2" placeholder="Word 3" class="rounded-lg bg-slate-950/80 border border-white/10 px-2.5 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-blue-400">
+                                <input type="text" id="cat-word-2-3" placeholder="Word 4" class="rounded-lg bg-slate-950/80 border border-white/10 px-2.5 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-blue-400">
+                            </div>
+                        </div>
+
+                        <!-- Category 4 (Purple) -->
+                        <div class="p-3.5 rounded-xl bg-purple-500/5 border border-purple-500/20 flex flex-col gap-3">
+                            <div class="flex gap-2 items-center">
+                                <span class="w-3 h-3 rounded-full bg-purple-400 shadow-[0_0_8px_rgba(168,85,247,0.6)]"></span>
+                                <input type="text" id="cat-title-3" placeholder="Category 4 Title (Tricky)" class="w-full bg-transparent border-b border-white/10 pb-1 text-sm text-purple-400 focus:outline-none focus:border-purple-400 placeholder-purple-600/50">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="text" id="cat-word-3-0" placeholder="Word 1" class="rounded-lg bg-slate-950/80 border border-white/10 px-2.5 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-purple-400">
+                                <input type="text" id="cat-word-3-1" placeholder="Word 2" class="rounded-lg bg-slate-950/80 border border-white/10 px-2.5 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-purple-400">
+                                <input type="text" id="cat-word-3-2" placeholder="Word 3" class="rounded-lg bg-slate-950/80 border border-white/10 px-2.5 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-purple-400">
+                                <input type="text" id="cat-word-3-3" placeholder="Word 4" class="rounded-lg bg-slate-950/80 border border-white/10 px-2.5 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-purple-400">
+                            </div>
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
@@ -278,6 +376,179 @@
             window.location.reload();
         }
 
+        const PHYSICS_TEMPLATES = [
+            {
+                name: "Forces & Newton's Laws",
+                categories: [
+                    { name: "Contact Forces", words: ["Friction", "Tension", "Normal", "Spring"] },
+                    { name: "Field Forces", words: ["Gravity", "Electric", "Magnetic", "Strong Nuclear"] },
+                    { name: "Vector Quantities", words: ["Velocity", "Acceleration", "Displacement", "Momentum"] },
+                    { name: "Famous Physicists", words: ["Newton", "Galileo", "Einstein", "Hooke"] }
+                ]
+            },
+            {
+                name: "Waves & Optics",
+                categories: [
+                    { name: "Wave Properties", words: ["Amplitude", "Frequency", "Wavelength", "Period"] },
+                    { name: "Electromagnetic Spectrum", words: ["Gamma Rays", "Radio", "Infrared", "Ultraviolet"] },
+                    { name: "Wave Behaviors", words: ["Reflection", "Refraction", "Diffraction", "Interference"] },
+                    { name: "Types of Waves", words: ["Transverse", "Longitudinal", "Sound", "Seismic"] }
+                ]
+            },
+            {
+                name: "Thermodynamics & Energy",
+                categories: [
+                    { name: "Energy Types", words: ["Kinetic", "Potential", "Thermal", "Chemical"] },
+                    { name: "Heat Transfer Modes", words: ["Conduction", "Convection", "Radiation", "Advection"] },
+                    { name: "Thermodynamic States", words: ["Temperature", "Pressure", "Volume", "Entropy"] },
+                    { name: "Phase Changes", words: ["Melting", "Freezing", "Vaporization", "Condensation"] }
+                ]
+            }
+        ];
+
+        let activeActivityType = "free_response";
+        let activeLessonsArray = [];
+
+        async function onUnitChanged() {
+            const unitVal = document.getElementById('unit-select').value;
+            const daySelect = document.getElementById('lesson-day-select');
+            const statusMsg = document.getElementById('loader-status-msg');
+            
+            daySelect.innerHTML = '<option value="">-- Select Day --</option>';
+            daySelect.disabled = true;
+            statusMsg.classList.add('hidden');
+            activeLessonsArray = [];
+
+            if (!unitVal) return;
+
+            let path = '';
+            let globalVarName = '';
+            if (unitVal === "1") {
+                path = '../Unit_1_Introduction/unit1_lessons.json';
+                globalVarName = 'unit1Lessons';
+            } else if (unitVal === "6") {
+                path = '../Unit_6_Waves_Radiation/unit6_lessons.json';
+                globalVarName = 'unit6Lessons';
+            } else if (unitVal === "7") {
+                path = '../Unit_7_Electricity_and_Magnetism/unit7_lessons.json';
+                globalVarName = 'unit7Lessons';
+            }
+
+            statusMsg.innerText = "⏳ Loading unit calendar...";
+            statusMsg.className = "text-[10px] text-yellow-500 font-medium";
+            statusMsg.classList.remove('hidden');
+
+            try {
+                const response = await fetch(`${path}?v=${Date.now()}`);
+                if (!response.ok) throw new Error("File not found or failed to load");
+                const text = await response.text();
+                
+                // Replace 'const unitXLessons =' with 'window.unitXLessons =' to avoid redeclaration syntax error
+                const sanitizedText = text.replace(/const\s+unit\d+Lessons\s*=/g, `window.${globalVarName} =`);
+                
+                // Evaluate in global context
+                (0, eval)(sanitizedText);
+
+                const lessons = window[globalVarName];
+                if (lessons && Array.isArray(lessons)) {
+                    activeLessonsArray = lessons;
+                    lessons.forEach((les, idx) => {
+                        const opt = document.createElement('option');
+                        opt.value = idx;
+                        opt.innerText = `Day ${les.day}: ${les.title}`;
+                        daySelect.appendChild(opt);
+                    });
+                    daySelect.disabled = false;
+                    statusMsg.innerText = `✅ Loaded ${lessons.length} lessons.`;
+                    statusMsg.className = "text-[10px] text-green-500 font-medium";
+                } else {
+                    statusMsg.innerText = "❌ Failed to parse calendar array.";
+                    statusMsg.className = "text-[10px] text-red-500 font-medium";
+                }
+            } catch (err) {
+                statusMsg.innerText = "❌ Lesson plan file not found or failed to load.";
+                statusMsg.className = "text-[10px] text-red-500 font-medium";
+                console.error("Loader error:", err);
+            }
+        }
+
+        function onLessonChanged() {
+            const dayIdx = document.getElementById('lesson-day-select').value;
+            const statusMsg = document.getElementById('loader-status-msg');
+            
+            if (dayIdx === "") return;
+
+            const lesson = activeLessonsArray[dayIdx];
+            if (!lesson) return;
+
+            if (!lesson.bellRinger) {
+                statusMsg.innerText = "ℹ️ No pre-planned Bell-Ringer for this lesson.";
+                statusMsg.className = "text-[10px] text-slate-400 font-medium";
+                statusMsg.classList.remove('hidden');
+                return;
+            }
+
+            const br = lesson.bellRinger;
+            statusMsg.innerText = "⚡ Bell-Ringer loaded successfully!";
+            statusMsg.className = "text-[10px] text-green-400 font-bold";
+            statusMsg.classList.remove('hidden');
+
+            const activityType = br.type || "free_response";
+            document.getElementById('activity-type-select').value = activityType;
+            toggleActivityFields();
+
+            if (activityType === "free_response") {
+                document.getElementById('prompt-input').value = br.promptQuestion || "";
+                document.getElementById('explanation-input').value = br.explanation || "";
+                document.getElementById('phenomenon-url').value = br.phenomenonImageUrl || "";
+                document.getElementById('phenomenon-desc').value = br.phenomenonDesc || "";
+            } else if (activityType === "connections" && br.connectionsData) {
+                const cats = br.connectionsData.categories;
+                for (let c = 0; c < 4; c++) {
+                    if (cats && cats[c]) {
+                        document.getElementById(`cat-title-${c}`).value = cats[c].name || "";
+                        for (let w = 0; w < 4; w++) {
+                            document.getElementById(`cat-word-${c}-${w}`).value = cats[c].words ? (cats[c].words[w] || "") : "";
+                        }
+                    }
+                }
+            }
+
+            if (br.defaultDuration) {
+                document.getElementById('duration-input').value = br.defaultDuration;
+            }
+        }
+
+        function toggleActivityFields() {
+            const type = document.getElementById('activity-type-select').value;
+            if (type === 'free_response') {
+                document.getElementById('free-response-fields').classList.remove('hidden');
+                document.getElementById('connections-fields').classList.add('hidden');
+            } else {
+                document.getElementById('free-response-fields').classList.add('hidden');
+                document.getElementById('connections-fields').classList.remove('hidden');
+            }
+        }
+
+        function loadConnectionsTemplate() {
+            let msg = "Select a physics template by number:\n";
+            PHYSICS_TEMPLATES.forEach((tpl, idx) => {
+                msg += `${idx + 1}. ${tpl.name}\n`;
+            });
+            const choice = prompt(msg);
+            const idx = parseInt(choice) - 1;
+            if (isNaN(idx) || idx < 0 || idx >= PHYSICS_TEMPLATES.length) {
+                return;
+            }
+            const tpl = PHYSICS_TEMPLATES[idx];
+            for (let c = 0; c < 4; c++) {
+                document.getElementById(`cat-title-${c}`).value = tpl.categories[c].name;
+                for (let w = 0; w < 4; w++) {
+                    document.getElementById(`cat-word-${c}-${w}`).value = tpl.categories[c].words[w];
+                }
+            }
+        }
+
         function stopAdminSync() {
             if (activeTimerListener) activeTimerListener();
             if (submissionsListener) submissionsListener();
@@ -291,12 +562,28 @@
                     if (!doc.exists) return;
                     const data = doc.data();
                     
+                    activeActivityType = data.activityType || "free_response";
+                    document.getElementById('activity-type-select').value = activeActivityType;
+                    toggleActivityFields();
+
                     // Only fill form values if not active to avoid overwriting typing teacher
                     if (!data.isActive) {
-                        if (data.promptQuestion) document.getElementById('prompt-input').value = data.promptQuestion;
-                        if (data.explanation) document.getElementById('explanation-input').value = data.explanation;
-                        if (data.phenomenonImageUrl) document.getElementById('phenomenon-url').value = data.phenomenonImageUrl;
-                        if (data.phenomenonDesc) document.getElementById('phenomenon-desc').value = data.phenomenonDesc;
+                        if (activeActivityType === "free_response") {
+                            if (data.promptQuestion) document.getElementById('prompt-input').value = data.promptQuestion;
+                            if (data.explanation) document.getElementById('explanation-input').value = data.explanation;
+                            if (data.phenomenonImageUrl) document.getElementById('phenomenon-url').value = data.phenomenonImageUrl;
+                            if (data.phenomenonDesc) document.getElementById('phenomenon-desc').value = data.phenomenonDesc;
+                        } else if (activeActivityType === "connections" && data.connectionsData) {
+                            const cats = data.connectionsData.categories;
+                            for (let c = 0; c < 4; c++) {
+                                if (cats && cats[c]) {
+                                    document.getElementById(`cat-title-${c}`).value = cats[c].name || '';
+                                    for (let w = 0; w < 4; w++) {
+                                        document.getElementById(`cat-word-${c}-${w}`).value = cats[c].words ? cats[c].words[w] || '' : '';
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     // Update UI status cards
@@ -384,13 +671,21 @@
                             scoreBadge = `<span class="bg-red-500/10 text-red-400 border border-red-500/20 px-2 py-0.5 rounded text-xs font-mono">0</span>`;
                         }
 
+                        let responseDisplay = '';
+                        if (activeActivityType === "connections") {
+                            // Render emoji grid nicely
+                            responseDisplay = `<div class="whitespace-pre font-mono text-base leading-tight tracking-widest text-slate-300 py-1">${escapeHtml(sub.studentResponse || '')}</div>`;
+                        } else {
+                            responseDisplay = escapeHtml(sub.studentResponse);
+                        }
+
                         row.innerHTML = `
                             <td class="py-4 pr-3">
                                 <p class="font-bold text-slate-200 truncate max-w-[140px]">${sub.studentName || sub.studentId}</p>
                                 <p class="text-[10px] text-slate-500 font-mono uppercase truncate max-w-[140px]">${sub.studentId}</p>
                             </td>
                             <td class="py-4 pr-3 text-xs text-slate-300 max-w-[280px] break-words">
-                                ${escapeHtml(sub.studentResponse)}
+                                ${responseDisplay}
                             </td>
                             <td class="py-4 text-center">
                                 ${scoreBadge}
@@ -411,29 +706,64 @@
 
         // Start countdown timer in Firestore
         async function startTimer() {
-            const prompt = document.getElementById('prompt-input').value.trim();
-            const explanation = document.getElementById('explanation-input').value.trim();
-            const url = document.getElementById('phenomenon-url').value.trim();
-            const desc = document.getElementById('phenomenon-desc').value.trim();
+            const activityType = document.getElementById('activity-type-select').value;
             const durationMin = parseInt(document.getElementById('duration-input').value) || 4;
-
-            if (!prompt) {
-                alert("Please input a Prompt Question first.");
-                return;
-            }
-
             const expiresAtDate = new Date(Date.now() + durationMin * 60 * 1000);
 
+            let timerPayload = {
+                activityType: activityType,
+                isActive: true,
+                timerExpiresAt: firebase.firestore.Timestamp.fromDate(expiresAtDate),
+                startedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            if (activityType === 'free_response') {
+                const prompt = document.getElementById('prompt-input').value.trim();
+                const explanation = document.getElementById('explanation-input').value.trim();
+                const url = document.getElementById('phenomenon-url').value.trim();
+                const desc = document.getElementById('phenomenon-desc').value.trim();
+
+                if (!prompt) {
+                    alert("Please input a Prompt Question first.");
+                    return;
+                }
+
+                timerPayload.promptQuestion = prompt;
+                timerPayload.explanation = explanation;
+                timerPayload.phenomenonImageUrl = url;
+                timerPayload.phenomenonDesc = desc;
+                timerPayload.connectionsData = null;
+            } else {
+                // Connections grid
+                const categories = [];
+                const colors = ['yellow', 'green', 'blue', 'purple'];
+                for (let c = 0; c < 4; c++) {
+                    const name = document.getElementById(`cat-title-${c}`).value.trim();
+                    const words = [];
+                    for (let w = 0; w < 4; w++) {
+                        const word = document.getElementById(`cat-word-${c}-${w}`).value.trim();
+                        if (word) words.push(word);
+                    }
+                    if (!name || words.length !== 4) {
+                        alert(`Category ${c + 1} needs a title and exactly 4 words.`);
+                        return;
+                    }
+                    categories.push({
+                        name: name,
+                        words: words,
+                        color: colors[c]
+                    });
+                }
+                
+                timerPayload.connectionsData = { categories: categories };
+                timerPayload.promptQuestion = "Solve today's Connections Puzzle! Find groups of four related items.";
+                timerPayload.explanation = "Connections Category Solutions:\n" + categories.map(c => `• ${c.name.toUpperCase()} (${c.color}): ${c.words.join(', ')}`).join('\n');
+                timerPayload.phenomenonImageUrl = "";
+                timerPayload.phenomenonDesc = "Form groups of 4 related words.";
+            }
+
             try {
-                await db.collection('system_config').doc('bellringer_timer').set({
-                    promptQuestion: prompt,
-                    explanation: explanation,
-                    phenomenonImageUrl: url,
-                    phenomenonDesc: desc,
-                    isActive: true,
-                    timerExpiresAt: firebase.firestore.Timestamp.fromDate(expiresAtDate),
-                    startedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                await db.collection('system_config').doc('bellringer_timer').set(timerPayload);
             } catch (err) {
                 alert("Failed to start timer: " + err.message);
             }
