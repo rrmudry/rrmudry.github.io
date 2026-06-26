@@ -667,9 +667,13 @@
                         if (sub.aiResponse) {
                             if (typeof sub.aiResponse === 'string') {
                                 try {
-                                    aiResponseObj = JSON.parse(sub.aiResponse);
+                                    let cleaned = sub.aiResponse.trim();
+                                    if (cleaned.startsWith('```')) {
+                                        cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+                                    }
+                                    aiResponseObj = JSON.parse(cleaned.trim());
                                 } catch (e) {
-                                    console.error("Failed to parse aiResponse string on teacher:", e);
+                                    console.error("Failed to parse aiResponse string on teacher:", e, sub.aiResponse);
                                 }
                             } else if (typeof sub.aiResponse === 'object') {
                                 aiResponseObj = sub.aiResponse;
