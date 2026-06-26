@@ -662,10 +662,24 @@
                         const row = document.createElement('tr');
                         row.className = 'border-b border-white/5 py-3 hover:bg-white/5 transition-colors';
                         
+                        // Robust parsing of aiResponse (can be a map/object or JSON string)
+                        let aiResponseObj = null;
+                        if (sub.aiResponse) {
+                            if (typeof sub.aiResponse === 'string') {
+                                try {
+                                    aiResponseObj = JSON.parse(sub.aiResponse);
+                                } catch (e) {
+                                    console.error("Failed to parse aiResponse string on teacher:", e);
+                                }
+                            } else if (typeof sub.aiResponse === 'object') {
+                                aiResponseObj = sub.aiResponse;
+                            }
+                        }
+
                         // Support reading effortScore from nested aiResponse map or flat field
                         let score = undefined;
-                        if (sub.aiResponse && sub.aiResponse.effortScore !== undefined) {
-                            score = sub.aiResponse.effortScore;
+                        if (aiResponseObj && aiResponseObj.effortScore !== undefined) {
+                            score = aiResponseObj.effortScore;
                         } else if (sub.effortScore !== undefined) {
                             score = sub.effortScore;
                         }
@@ -687,7 +701,7 @@
                             responseDisplay = `<div>${escapeHtml(sub.studentResponse)}</div>`;
                             
                             // Render follow-up Q&A if follow-up question is present
-                            const followUpQ = sub.aiResponse ? sub.aiResponse.followUpQuestion : null;
+                            const followUpQ = aiResponseObj ? aiResponseObj.followUpQuestion : null;
                             if (followUpQ) {
                                 const followUpA = sub.studentFollowUpResponse || '';
                                 const answerText = followUpA 
