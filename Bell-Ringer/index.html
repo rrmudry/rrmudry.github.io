@@ -340,6 +340,42 @@
                         </button>
                     </div>
 
+                    <!-- Concept Chat Container -->
+                    <div id="concept-chat-container" class="hidden flex flex-col gap-4">
+                        <!-- Chat Feed -->
+                        <div id="chat-feed" class="flex flex-col gap-3 min-h-[300px] max-h-[380px] overflow-y-auto pr-1 border border-white/5 bg-slate-950/40 rounded-2xl p-4">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+
+                        <!-- Typing Indicator -->
+                        <div id="chat-typing-indicator" class="hidden flex items-center gap-1.5 pl-3">
+                            <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-bounce"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-bounce [animation-delay:0.2s]"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-bounce [animation-delay:0.4s]"></span>
+                            <span class="text-[10px] text-slate-500 font-medium ml-1">AI Tutor is typing...</span>
+                        </div>
+
+                        <!-- Text Input Row -->
+                        <div class="flex gap-2">
+                            <input type="text" id="chat-input-text" placeholder="Type your response to the tutor..." 
+                                   onkeydown="if(event.key === 'Enter') sendChatMessage()"
+                                   class="w-full rounded-xl bg-slate-950/60 border border-white/10 px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 transition-all">
+                            <button id="chat-send-btn" onclick="sendChatMessage()" class="px-5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm tracking-wide transition-all shadow-md shadow-orange-500/10">
+                                Send
+                            </button>
+                        </div>
+
+                        <!-- Chat Controls -->
+                        <div class="grid grid-cols-2 gap-3 mt-1">
+                            <button id="chat-help-btn" onclick="requestChatSupport()" class="py-2.5 rounded-xl border border-cyan-500/20 bg-cyan-500/5 hover:bg-cyan-500/10 text-xs font-bold text-cyan-400 transition-all flex items-center justify-center gap-1.5">
+                                💡 Request Support / Hint
+                            </button>
+                            <button id="chat-finish-btn" onclick="finishChatActivity()" class="py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold text-xs tracking-wide transition-all shadow-md shadow-orange-500/15 flex items-center justify-center gap-1.5">
+                                🏁 Finish & Submit
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Real-Time AI Grading Status Feed -->
                     <div id="grading-status-card" class="mt-2 border border-white/5 bg-slate-950/40 rounded-xl p-4 flex items-center gap-4 transition-all duration-300">
                         <div id="status-indicator" class="w-10 h-10 rounded-full bg-slate-900 border border-white/10 flex items-center justify-center text-lg">
@@ -438,6 +474,7 @@
                 document.getElementById('profile-name').innerText = user.displayName || studentId;
                 
                 // Initialize Listeners
+                loadChatConfig();
                 startTimerListener();
                 startSubmissionListener();
             } else {
@@ -451,6 +488,18 @@
                 stopListeners();
             }
         });
+
+        function loadChatConfig() {
+            db.collection('system_config').doc('chat_config').get()
+                .then((doc) => {
+                    if (doc.exists) {
+                        chatProxyUrl = doc.data().chatProxyUrl || null;
+                    }
+                })
+                .catch((err) => {
+                    console.error("Error loading chat proxy config:", err);
+                });
+        }
 
         // Google Sign In
         async function login() {
@@ -505,6 +554,11 @@
         let connectionsGridWords = []; // List of { word, catIndex }
         let isTimerExpired = false;
         let isAiReviewing = false;
+        let chatProxyUrl = null;
+        let chatMessages = []; // Local message log
+        let activeChatSystemInstruction = "";
+        let chatHasStarted = false;
+        let isChatFinished = false;
 
         function showWaitingPanel() {
             document.getElementById('waiting-panel').classList.remove('hidden');
@@ -528,15 +582,22 @@
             if (activeActivityType === "connections") {
                 document.getElementById('free-response-container').classList.add('hidden');
                 document.getElementById('connections-container').classList.remove('hidden');
+                document.getElementById('concept-chat-container').classList.add('hidden');
                 
                 const connectionsDataJson = JSON.stringify(connectionsData);
                 if (window.lastConnectionsDataJson !== connectionsDataJson) {
                     window.lastConnectionsDataJson = connectionsDataJson;
                     initConnectionsGame();
                 }
+            } else if (activeActivityType === "concept_chat") {
+                document.getElementById('free-response-container').classList.add('hidden');
+                document.getElementById('connections-container').classList.add('hidden');
+                document.getElementById('concept-chat-container').classList.remove('hidden');
+                initConceptChat(config);
             } else {
                 document.getElementById('free-response-container').classList.remove('hidden');
                 document.getElementById('connections-container').classList.add('hidden');
+                document.getElementById('concept-chat-container').classList.add('hidden');
             }
 
             // Phenomenon setup
@@ -854,6 +915,13 @@
                     document.getElementById('followup-response-text').disabled = true;
                     document.getElementById('submit-followup-btn').disabled = true;
                     
+                    // Auto-grade concept chat if active and not yet finalized
+                    if (activeActivityType === "concept_chat" && !isChatFinished) {
+                        performAutoGrading();
+                    } else if (activeActivityType === "concept_chat") {
+                        renderChatFeed();
+                    }
+                    
                     clearInterval(timerInterval);
                     return;
                 }
@@ -909,7 +977,9 @@
                         title.innerText = "Not Submitted";
                         msg.innerText = activeActivityType === "connections" 
                             ? "Complete the Connections Grid to verify participation." 
-                            : "Please write your response and click submit.";
+                            : activeActivityType === "concept_chat"
+                                ? "Tutor is waiting. Click inside the chat box to respond."
+                                : "Please write your response and click submit.";
                         isAiReviewing = false;
                         updateSubmitButtonState();
                         return;
@@ -963,11 +1033,50 @@
                         indicator.innerText = "⏳";
                         indicator.className = "w-10 h-10 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 flex items-center justify-center text-lg animate-pulse";
                         statusCard.classList.add('status-glow-pending');
-                        title.innerText = activeActivityType === "connections" ? "In Progress" : "Pending Review";
+                        title.innerText = activeActivityType === "connections" 
+                            ? "In Progress" 
+                            : activeActivityType === "concept_chat"
+                                ? "Active Session"
+                                : "Pending Review";
                         msg.innerText = activeActivityType === "connections" 
                             ? `Solving... ${data.solvedCategories ? data.solvedCategories.length : 0}/4 categories completed.` 
-                            : "AI gatekeeper is analyzing your submission for good-faith effort...";
+                            : activeActivityType === "concept_chat"
+                                ? "Keep chatting! Ask for help or click Finish when done."
+                                : "AI gatekeeper is analyzing your submission for good-faith effort...";
                         document.getElementById('followup-card').classList.add('hidden');
+                    } else if (activeActivityType === "concept_chat") {
+                        // Concept Chat score display
+                        const numericScore = parseInt(score);
+                        isChatFinished = true;
+                        
+                        indicator.innerText = numericScore >= 70 ? "✅" : "⚠️";
+                        indicator.className = numericScore >= 70 
+                            ? "w-10 h-10 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 flex items-center justify-center text-lg"
+                            : "w-10 h-10 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center text-lg";
+                        
+                        statusCard.className = numericScore >= 70
+                            ? "mt-2 border border-white/5 bg-slate-950/40 rounded-xl p-4 flex items-center gap-4 transition-all duration-300 status-glow-success"
+                            : "mt-2 border border-white/5 bg-slate-950/40 rounded-xl p-4 flex items-center gap-4 transition-all duration-300 status-glow-fail";
+                            
+                        title.innerText = "Concept Chat Graded!";
+                        title.className = numericScore >= 70 ? "text-sm font-bold text-green-400 mt-0.5" : "text-sm font-bold text-red-400 mt-0.5";
+                        msg.innerText = `Your participation score is ${numericScore}%. Great job completing today's tutoring session!`;
+                        
+                        document.getElementById('followup-card').classList.add('hidden');
+                        
+                        // Disable chat fields locally
+                        const textInput = document.getElementById('chat-input-text');
+                        const sendBtn = document.getElementById('chat-send-btn');
+                        const helpBtn = document.getElementById('chat-help-btn');
+                        const finishBtn = document.getElementById('chat-finish-btn');
+                        if (textInput) {
+                            textInput.disabled = true;
+                            textInput.placeholder = "Chat Completed";
+                            sendBtn.disabled = true;
+                            helpBtn.disabled = true;
+                            finishBtn.disabled = true;
+                            finishBtn.innerText = "Submitted";
+                        }
                     } else if (score === "1" || score === 1) {
                         indicator.innerText = "✅";
                         indicator.className = "w-10 h-10 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 flex items-center justify-center text-lg";
@@ -1093,6 +1202,350 @@
                 alert("Submission failed: " + error.message);
                 submitBtn.disabled = false;
                 submitBtn.innerText = "Submit Follow-Up Response";
+            }
+        }
+
+        // Concept Chat Functions
+        async function initConceptChat(config) {
+            if (chatHasStarted) return;
+            chatHasStarted = true;
+            isChatFinished = false;
+
+            activeChatSystemInstruction = config.chatSystemInstruction || "You are a helpful physics teaching assistant. Encourage active reasoning.";
+            
+            const todayStr = getTodayString();
+            const docId = `${studentId}_${todayStr}`;
+            
+            try {
+                const doc = await db.collection('bellringers').doc(docId).get();
+                if (doc.exists && doc.data().chatMessages && doc.data().chatMessages.length > 0) {
+                    chatMessages = doc.data().chatMessages;
+                    const score = doc.data().aiResponse ? doc.data().aiResponse.effortScore : doc.data().effortScore;
+                    isChatFinished = (score !== undefined);
+                } else {
+                    // Start a new chat session with the starting question as the first message
+                    chatMessages = [
+                        {
+                            role: "model",
+                            parts: [{ text: config.promptQuestion || "Hi! Let's talk about physics." }],
+                            timestamp: new Date()
+                        }
+                    ];
+                    
+                    // Write to Firestore immediately
+                    await db.collection('bellringers').doc(docId).set({
+                        studentId: studentId,
+                        studentName: currentUser.displayName || studentId,
+                        promptQuestion: config.promptQuestion || "Concept Chat",
+                        activityType: "concept_chat",
+                        chatMessages: chatMessages,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
+                }
+                
+                renderChatFeed();
+            } catch (err) {
+                console.error("Error initializing concept chat:", err);
+            }
+        }
+
+        function renderChatFeed() {
+            const feedEl = document.getElementById('chat-feed');
+            feedEl.innerHTML = '';
+            
+            chatMessages.forEach(msg => {
+                const text = msg.parts && msg.parts[0] ? msg.parts[0].text : '';
+                if (!text) return;
+                
+                // Do not render hidden system evaluation instruction prompts
+                if (text.startsWith('[System:')) return;
+                
+                const bubble = document.createElement('div');
+                const isStudent = msg.role === 'user';
+                
+                if (isStudent) {
+                    bubble.className = "self-end bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-2xl rounded-tr-none px-4 py-2.5 max-w-[85%] text-xs shadow-md shadow-orange-500/10 leading-normal";
+                } else {
+                    bubble.className = "self-start bg-slate-900 border border-white/10 text-slate-100 rounded-2xl rounded-tl-none px-4 py-2.5 max-w-[85%] text-xs leading-normal";
+                }
+                
+                bubble.innerText = text;
+                feedEl.appendChild(bubble);
+            });
+            
+            // Auto scroll to bottom
+            feedEl.scrollTop = feedEl.scrollHeight;
+
+            // Manage input and buttons disabled state
+            const textInput = document.getElementById('chat-input-text');
+            const sendBtn = document.getElementById('chat-send-btn');
+            const helpBtn = document.getElementById('chat-help-btn');
+            const finishBtn = document.getElementById('chat-finish-btn');
+
+            if (isChatFinished || isTimerExpired) {
+                textInput.disabled = true;
+                textInput.placeholder = isTimerExpired ? "Time Expired" : "Chat Completed";
+                sendBtn.disabled = true;
+                helpBtn.disabled = true;
+                finishBtn.disabled = true;
+                finishBtn.innerText = "Submitted";
+            } else {
+                textInput.disabled = false;
+                textInput.placeholder = "Type your response to the tutor...";
+                sendBtn.disabled = false;
+                helpBtn.disabled = false;
+                finishBtn.disabled = false;
+                finishBtn.innerText = "🏁 Finish & Submit";
+            }
+        }
+
+        async function sendChatMessage() {
+            if (isChatFinished || isTimerExpired) return;
+            
+            const textInput = document.getElementById('chat-input-text');
+            const userText = textInput.value.trim();
+            if (!userText) return;
+            
+            textInput.value = "";
+            
+            const userMsg = {
+                role: "user",
+                parts: [{ text: userText }],
+                timestamp: new Date()
+            };
+            chatMessages.push(userMsg);
+            renderChatFeed();
+            
+            const typingIndicator = document.getElementById('chat-typing-indicator');
+            typingIndicator.classList.remove('hidden');
+            
+            const todayStr = getTodayString();
+            const docId = `${studentId}_${todayStr}`;
+            
+            try {
+                await db.collection('bellringers').doc(docId).update({
+                    chatMessages: chatMessages
+                });
+                
+                if (!chatProxyUrl) {
+                    throw new Error("No chat proxy URL configured by the teacher yet.");
+                }
+                
+                const contentsPayload = chatMessages.map(m => ({
+                    role: m.role,
+                    parts: m.parts
+                }));
+                
+                const response = await fetch(chatProxyUrl, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: contentsPayload,
+                        systemInstruction: activeChatSystemInstruction
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Proxy error: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                const modelText = data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] ? data.candidates[0].content.parts[0].text : '';
+                
+                if (!modelText) {
+                    throw new Error("Empty response received from AI.");
+                }
+                
+                const modelMsg = {
+                    role: "model",
+                    parts: [{ text: modelText }],
+                    timestamp: new Date()
+                };
+                chatMessages.push(modelMsg);
+                
+                await db.collection('bellringers').doc(docId).update({
+                    chatMessages: chatMessages
+                });
+                
+                renderChatFeed();
+            } catch (err) {
+                console.error("Chat communication failure:", err);
+                const errorMsg = {
+                    role: "model",
+                    parts: [{ text: `⚠️ Connection error: ${err.message}. Please try again.` }],
+                    timestamp: new Date()
+                };
+                chatMessages.push(errorMsg);
+                renderChatFeed();
+            } finally {
+                typingIndicator.classList.add('hidden');
+            }
+        }
+
+        async function requestChatSupport() {
+            if (isChatFinished || isTimerExpired) return;
+            
+            const typingIndicator = document.getElementById('chat-typing-indicator');
+            typingIndicator.classList.remove('hidden');
+            
+            const hintPrompt = {
+                role: "user",
+                parts: [{ text: "[System: Student is stuck and clicked 'Request Support'. Give a gentle guiding hint/scaffolding step without giving away the final answer.]" }],
+                timestamp: new Date()
+            };
+            
+            chatMessages.push(hintPrompt);
+            renderChatFeed();
+            
+            const todayStr = getTodayString();
+            const docId = `${studentId}_${todayStr}`;
+            
+            try {
+                await db.collection('bellringers').doc(docId).update({
+                    chatMessages: chatMessages
+                });
+                
+                const contentsPayload = chatMessages.map(m => ({
+                    role: m.role,
+                    parts: m.parts
+                }));
+                
+                const response = await fetch(chatProxyUrl, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: contentsPayload,
+                        systemInstruction: activeChatSystemInstruction
+                    })
+                });
+                
+                const data = await response.json();
+                const modelText = data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] ? data.candidates[0].content.parts[0].text : '';
+                
+                if (modelText) {
+                    const modelMsg = {
+                        role: "model",
+                        parts: [{ text: modelText }],
+                        timestamp: new Date()
+                    };
+                    chatMessages.push(modelMsg);
+                    
+                    await db.collection('bellringers').doc(docId).update({
+                        chatMessages: chatMessages
+                    });
+                    
+                    renderChatFeed();
+                }
+            } catch (err) {
+                console.error("Support request failed:", err);
+            } finally {
+                typingIndicator.classList.add('hidden');
+            }
+        }
+
+        async function finishChatActivity() {
+            if (isChatFinished) return;
+            if (chatMessages.length <= 1) {
+                alert("Please chat with the tutor before submitting.");
+                return;
+            }
+            if (!confirm("Are you sure you want to finish your Concept Chat session and submit for grading?")) return;
+            
+            await performAutoGrading();
+        }
+
+        async function performAutoGrading() {
+            isChatFinished = true;
+            renderChatFeed(); // Lock inputs immediately
+
+            const statusTitle = document.getElementById('status-title');
+            const statusMsg = document.getElementById('status-message');
+            const indicator = document.getElementById('status-indicator');
+            const statusCard = document.getElementById('grading-status-card');
+
+            statusTitle.innerText = "Grading Session...";
+            statusMsg.innerText = "Analyzing your physics participation quality...";
+            indicator.innerText = "⏳";
+            indicator.className = "w-10 h-10 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 flex items-center justify-center text-lg animate-pulse";
+            statusCard.classList.add('status-glow-pending');
+
+            let logString = "";
+            chatMessages.forEach(m => {
+                const text = m.parts && m.parts[0] ? m.parts[0].text : '';
+                if (text.startsWith('[System:')) return;
+                const sender = m.role === 'user' ? 'Student' : 'AI Tutor';
+                logString += `${sender}: ${text}\n`;
+            });
+
+            const evalPrompt = `
+You are a physics teacher grading a student's participation in an interactive Concept Chat with an AI tutor.
+Review the following transcript of their conversation:
+---
+${logString}
+---
+
+Assign a participation score from 0 to 100 based on their effort and physics reasoning. 
+Rubric:
+- 100: Excellent, active conversation. The student made multiple good-faith responses using complete sentences/thoughts.
+- 80-99: Good effort. The student responded actively but conversations were short or incomplete.
+- 50-79: Minimal effort. The student gave brief or single-word answers.
+- 0-49: Non-participation, gibberish, letters mashed together, or explicit opt-outs like 'idk'.
+
+Output ONLY a raw JSON object containing a single key "score" with the integer value. Do not return markdown, backticks, or any other characters.
+`;
+
+            try {
+                if (!chatProxyUrl) throw new Error("No proxy URL configured.");
+
+                const response = await fetch(chatProxyUrl, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ role: 'user', parts: [{ text: evalPrompt }] }],
+                        systemInstruction: "You are a physics teacher grading student chat participation. Output a JSON object only."
+                    })
+                });
+
+                if (!response.ok) throw new Error("Grading request failed.");
+                
+                const data = await response.json();
+                const resultText = data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] ? data.candidates[0].content.parts[0].text : '';
+                
+                let scoreVal = 70; // Fallback score
+                try {
+                    let cleaned = resultText.trim();
+                    if (cleaned.startsWith('```')) {
+                        cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+                    }
+                    const obj = JSON.parse(cleaned.trim());
+                    if (obj && obj.score !== undefined) {
+                        scoreVal = parseInt(obj.score);
+                    }
+                } catch (e) {
+                    console.error("Failed to parse grading score:", resultText, e);
+                }
+
+                // Write final grade to Firestore
+                const todayStr = getTodayString();
+                const docId = `${studentId}_${todayStr}`;
+                
+                await db.collection('bellringers').doc(docId).update({
+                    effortScore: scoreVal
+                });
+
+            } catch (err) {
+                console.error("Auto grading failed:", err);
+                statusTitle.innerText = "Grading Connection Error";
+                statusMsg.innerText = "Could not reach grading agent. Default participation grade of 70% was saved.";
+                
+                const todayStr = getTodayString();
+                const docId = `${studentId}_${todayStr}`;
+                await db.collection('bellringers').doc(docId).update({
+                    effortScore: 70
+                }).catch(() => {});
             }
         }
 
