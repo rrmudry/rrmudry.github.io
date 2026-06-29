@@ -84,7 +84,7 @@
     <div id="admin-workspace" class="flex-grow flex flex-col gap-8" style="display: none;">
         
         <!-- Header -->
-        <header class="w-full flex items-center justify-between border-b border-white/5 pb-6">
+        <header class="w-full flex flex-col md:flex-row md:items-center justify-between border-b border-white/5 pb-6 gap-4">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center font-bold text-white text-xl">Φ</div>
                 <div>
@@ -93,8 +93,31 @@
                 </div>
             </div>
             
-            <div class="flex items-center gap-4">
-                <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-full py-1 pl-3 pr-1">
+            <!-- Links and Timer Area -->
+            <div class="flex flex-wrap items-center gap-4 md:gap-6">
+                <!-- Navigation Links -->
+                <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 text-xs">
+                    <span class="text-slate-400 font-semibold">Live Pages:</span>
+                    <a href="index.html" target="_blank" class="text-orange-400 hover:text-orange-300 font-bold transition-all flex items-center gap-1">
+                        Student Portal ↗
+                    </a>
+                    <span class="text-white/10">|</span>
+                    <a href="dashboard.html" target="_blank" class="text-orange-400 hover:text-orange-300 font-bold transition-all flex items-center gap-1">
+                        Presenter Board ↗
+                    </a>
+                </div>
+
+                <!-- Top-Level Timer Widget -->
+                <div class="flex items-center gap-3 bg-slate-900 border border-white/10 rounded-full px-4 py-1.5">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-slate-500" id="header-timer-dot"></span>
+                        <span id="header-status-lbl" class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Inactive</span>
+                    </div>
+                    <span id="header-timer-val" class="text-base font-bold font-mono text-slate-400">00:00</span>
+                </div>
+
+                <!-- Auth user details -->
+                <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-full py-1.5 pl-3.5 pr-1.5">
                     <span id="admin-name" class="text-sm font-semibold text-slate-200">Teacher Account</span>
                     <button onclick="logout()" class="px-3 py-1 rounded-full text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 transition-colors">Sign Out</button>
                 </div>
@@ -643,18 +666,25 @@ CRITICAL RULES:
                                     }
                                 }
                             }
-                        }
-                    }
-
-                    // Update UI status cards
+                                      // Update UI status cards
                     const statusLbl = document.getElementById('local-status-lbl');
                     const timerVal = document.getElementById('local-timer-val');
+                    const headerTimerVal = document.getElementById('header-timer-val');
+                    const headerStatusLbl = document.getElementById('header-status-lbl');
+                    const headerTimerDot = document.getElementById('header-timer-dot');
                     
                     if (localCountdownInterval) clearInterval(localCountdownInterval);
-
+ 
                     if (data.isActive) {
                         statusLbl.innerText = "Active / Counting Down";
                         statusLbl.className = "text-sm font-bold text-green-500 mt-1";
+                        if (headerStatusLbl) {
+                            headerStatusLbl.innerText = "Active";
+                            headerStatusLbl.className = "text-[10px] font-bold text-green-500 uppercase tracking-wider";
+                        }
+                        if (headerTimerDot) {
+                            headerTimerDot.className = "w-2 h-2 rounded-full bg-green-500 animate-pulse";
+                        }
                         
                         const expiresAt = data.timerExpiresAt ? data.timerExpiresAt.toDate() : new Date();
                         
@@ -666,14 +696,34 @@ CRITICAL RULES:
                                 timerVal.className = "text-3xl font-bold font-mono text-red-500 animate-pulse";
                                 statusLbl.innerText = "Locked Out";
                                 statusLbl.className = "text-sm font-bold text-red-500 mt-1";
+                                
+                                if (headerTimerVal) {
+                                    headerTimerVal.innerText = "00:00";
+                                    headerTimerVal.className = "text-base font-bold font-mono text-red-500 animate-pulse";
+                                }
+                                if (headerStatusLbl) {
+                                    headerStatusLbl.innerText = "Locked Out";
+                                    headerStatusLbl.className = "text-[10px] font-bold text-red-500 uppercase tracking-wider";
+                                }
+                                if (headerTimerDot) {
+                                    headerTimerDot.className = "w-2 h-2 rounded-full bg-red-500";
+                                }
+                                
                                 clearInterval(localCountdownInterval);
                                 return;
                             }
                             const secs = Math.floor(diff / 1000);
                             const m = Math.floor(secs / 60);
                             const s = secs % 60;
-                            timerVal.innerText = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+                            const timeStr = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+                            
+                            timerVal.innerText = timeStr;
                             timerVal.className = "text-3xl font-bold font-mono text-orange-500";
+                            
+                            if (headerTimerVal) {
+                                headerTimerVal.innerText = timeStr;
+                                headerTimerVal.className = "text-base font-bold font-mono text-orange-500";
+                            }
                         }
                         runLocalClock();
                         localCountdownInterval = setInterval(runLocalClock, 1000);
@@ -682,6 +732,18 @@ CRITICAL RULES:
                         statusLbl.className = "text-sm font-bold text-slate-500 mt-1";
                         timerVal.innerText = "00:00";
                         timerVal.className = "text-3xl font-bold font-mono text-slate-500";
+                        
+                        if (headerTimerVal) {
+                            headerTimerVal.innerText = "00:00";
+                            headerTimerVal.className = "text-base font-bold font-mono text-slate-500";
+                        }
+                        if (headerStatusLbl) {
+                            headerStatusLbl.innerText = "Inactive";
+                            headerStatusLbl.className = "text-[10px] font-bold text-slate-400 uppercase tracking-wider";
+                        }
+                        if (headerTimerDot) {
+                            headerTimerDot.className = "w-2 h-2 rounded-full bg-slate-500";
+                        }
                     }
                 });
 
