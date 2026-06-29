@@ -757,12 +757,15 @@ CRITICAL RULES:
                     tbody.innerHTML = '';
 
                     let todayDocs = [];
+                    window.loadedSubmissions = {};
                     snapshot.forEach(doc => {
                         if (doc.id.endsWith(`_${todayStr}`)) {
-                            todayDocs.push({
+                            const docData = {
                                 docId: doc.id,
                                 ...doc.data()
-                            });
+                            };
+                            todayDocs.push(docData);
+                            window.loadedSubmissions[doc.id] = docData;
                         }
                     });
 
@@ -875,6 +878,9 @@ CRITICAL RULES:
                                     <div class="max-h-[200px] overflow-y-auto pr-1 flex flex-col gap-1 max-w-[400px] border border-white/5 bg-slate-950/40 rounded-xl p-2.5">
                                         ${bubbles}
                                     </div>
+                                    <button id="copy-btn-${sub.docId}" onclick="copyChatTranscript('${sub.docId}')" class="mt-2 w-full py-1.5 rounded-xl border border-cyan-500/20 bg-cyan-500/5 hover:bg-cyan-500/10 text-cyan-400 text-xs font-bold transition-all flex items-center justify-center gap-1.5 max-w-[400px]">
+                                        📋 Copy Chat Transcript
+                                    </button>
                                 `;
                             }
                         } else {
@@ -1126,6 +1132,49 @@ CRITICAL RULES:
                 }
             } catch (err) {
                 alert("Clear failed: " + err.message);
+            }
+        }
+
+        async function copyChatTranscript(docId) {
+            const sub = window.loadedSubmissions ? window.loadedSubmissions[docId] : null;
+            if (!sub || !sub.chatMessages || sub.chatMessages.length === 0) {
+                alert("No chat messages found for this submission.");
+                return;
+            }
+            
+            let transcript = `Bell-Ringer Concept Chat Transcript\n`;
+            transcript += `Student: ${sub.studentName || sub.studentId} (${sub.studentId})\n`;
+            transcript += `Date: ${getTodayString()}\n`;
+            transcript += `========================================\n\n`;
+            
+            sub.chatMessages.forEach(msg => {
+                const text = msg.parts && msg.parts[0] ? msg.parts[0].text : '';
+                const role = msg.role === 'user' ? 'Student' : 'AI Tutor';
+                transcript += `${role}: ${text}\n\n`;
+            });
+            
+            try {
+                await navigator.clipboard.writeText(transcript.trim());
+                
+                // Show visual feedback on the button
+                const btn = document.getElementById(`copy-btn-${docId}`);
+                if (btn) {
+                    const originalHtml = btn.innerHTML;
+                    btn.innerHTML = `✅ Transcript Copied!`;
+                    btn.classList.remove('text-cyan-400', 'border-cyan-500/20', 'bg-cyan-500/5', 'hover:bg-cyan-500/10');
+                    btn.classList.add('text-green-400', 'border-green-500/20', 'bg-green-500/5');
+                    btn.disabled = true;
+                    
+                    setTimeout(() => {
+                        btn.innerHTML = originalHtml;
+                        btn.classList.add('text-cyan-400', 'border-cyan-500/20', 'bg-cyan-500/5', 'hover:bg-cyan-500/10');
+                        btn.classList.remove('text-green-400', 'border-green-500/20', 'bg-green-500/5');
+                        btn.disabled = false;
+                    }, 2000);
+                }
+            } catch (err) {
+                console.error("Failed to copy transcript:", err);
+                alert("Failed to copy transcript: " + err.message);
             }
         }
 
