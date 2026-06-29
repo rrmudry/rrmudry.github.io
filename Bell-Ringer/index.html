@@ -207,7 +207,7 @@
             </div>
         </div>
         
-        <div id="user-profile" class="hidden flex items-center gap-3 bg-white/5 border border-white/10 rounded-full py-1 pl-3 pr-1">
+        <div id="user-profile" class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-full py-1 pl-3 pr-1" style="display: none;">
             <span id="profile-name" class="text-sm font-semibold text-slate-200">Student Name</span>
             <button onclick="logout()" class="px-3 py-1 rounded-full text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 transition-colors">Sign Out</button>
         </div>
@@ -237,7 +237,7 @@
         </div>
 
         <!-- Waiting Screen (Authenticated but timer hasn't started or is reset) -->
-        <div id="waiting-panel" class="hidden w-full max-w-md glass-card rounded-[24px] p-8 text-center flex flex-col items-center gap-6">
+        <div id="waiting-panel" class="w-full max-w-md glass-card rounded-[24px] p-8 text-center flex flex-col items-center gap-6" style="display: none;">
             <div class="w-16 h-16 rounded-full bg-slate-900 border border-white/5 flex items-center justify-center text-3xl animate-pulse">⏳</div>
             <div>
                 <h2 class="text-2xl font-bold text-white mb-2">Awaiting Teacher</h2>
@@ -249,7 +249,7 @@
         </div>
 
         <!-- Active Bellringer Interface -->
-        <div id="bellringer-panel" class="hidden w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+        <div id="bellringer-panel" class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 items-start" style="display: none;">
             
             <!-- Left Side: Phenomenon Anchor & Question -->
             <div class="glass-card rounded-[24px] p-6 md:p-8 flex flex-col gap-6">
@@ -307,7 +307,7 @@
                     </div>
 
                     <!-- Connections Game Board -->
-                    <div id="connections-container" class="hidden flex flex-col gap-5">
+                    <div id="connections-container" class="flex flex-col gap-5" style="display: none;">
                         <!-- Lives / Mistakes Indicator -->
                         <div class="flex items-center justify-between text-xs text-slate-400 border-b border-white/5 pb-2">
                             <span class="font-semibold tracking-wider uppercase">Mistakes Remaining:</span>
@@ -341,7 +341,7 @@
                     </div>
 
                     <!-- Concept Chat Container -->
-                    <div id="concept-chat-container" class="hidden flex flex-col gap-4">
+                    <div id="concept-chat-container" class="flex flex-col gap-4" style="display: none;">
                         <!-- Chat Feed -->
                         <div id="chat-feed" class="flex flex-col gap-3 min-h-[300px] max-h-[380px] overflow-y-auto pr-1 border border-white/5 bg-slate-950/40 rounded-2xl p-4">
                             <!-- Populated dynamically via JS -->
@@ -469,8 +469,8 @@
                 studentId = email.split('@')[0];
                 
                 // Update UI state
-                document.getElementById('auth-panel').classList.add('hidden');
-                document.getElementById('user-profile').classList.remove('hidden');
+                document.getElementById('auth-panel').style.display = 'none';
+                document.getElementById('user-profile').style.display = 'flex';
                 document.getElementById('profile-name').innerText = user.displayName || studentId;
                 
                 // Initialize Listeners
@@ -480,10 +480,10 @@
             } else {
                 currentUser = null;
                 studentId = null;
-                document.getElementById('auth-panel').classList.remove('hidden');
-                document.getElementById('user-profile').classList.add('hidden');
-                document.getElementById('waiting-panel').classList.add('hidden');
-                document.getElementById('bellringer-panel').classList.add('hidden');
+                document.getElementById('auth-panel').style.display = 'flex';
+                document.getElementById('user-profile').style.display = 'none';
+                document.getElementById('waiting-panel').style.display = 'none';
+                document.getElementById('bellringer-panel').style.display = 'none';
                 
                 stopListeners();
             }
@@ -561,15 +561,15 @@
         let isChatFinished = false;
 
         function showWaitingPanel() {
-            document.getElementById('waiting-panel').classList.remove('hidden');
+            document.getElementById('waiting-panel').style.display = 'flex';
             document.getElementById('waiting-student-id').innerText = studentId;
-            document.getElementById('bellringer-panel').classList.add('hidden');
+            document.getElementById('bellringer-panel').style.display = 'none';
             if (timerInterval) clearInterval(timerInterval);
         }
 
         function showBellringerPanel(config) {
-            document.getElementById('waiting-panel').classList.add('hidden');
-            document.getElementById('bellringer-panel').classList.remove('hidden');
+            document.getElementById('waiting-panel').style.display = 'none';
+            document.getElementById('bellringer-panel').style.display = 'grid';
             
             // Set Question and explanation
             activePromptText = config.promptQuestion || "";
@@ -580,9 +580,9 @@
             connectionsData = config.connectionsData || null;
 
             if (activeActivityType === "connections") {
-                document.getElementById('free-response-container').classList.add('hidden');
-                document.getElementById('connections-container').classList.remove('hidden');
-                document.getElementById('concept-chat-container').classList.add('hidden');
+                document.getElementById('free-response-container').style.display = 'none';
+                document.getElementById('connections-container').style.display = 'flex';
+                document.getElementById('concept-chat-container').style.display = 'none';
                 
                 const connectionsDataJson = JSON.stringify(connectionsData);
                 if (window.lastConnectionsDataJson !== connectionsDataJson) {
@@ -590,14 +590,14 @@
                     initConnectionsGame();
                 }
             } else if (activeActivityType === "concept_chat") {
-                document.getElementById('free-response-container').classList.add('hidden');
-                document.getElementById('connections-container').classList.add('hidden');
-                document.getElementById('concept-chat-container').classList.remove('hidden');
+                document.getElementById('free-response-container').style.display = 'none';
+                document.getElementById('connections-container').style.display = 'none';
+                document.getElementById('concept-chat-container').style.display = 'flex';
                 initConceptChat(config);
             } else {
-                document.getElementById('free-response-container').classList.remove('hidden');
-                document.getElementById('connections-container').classList.add('hidden');
-                document.getElementById('concept-chat-container').classList.add('hidden');
+                document.getElementById('free-response-container').style.display = 'flex';
+                document.getElementById('connections-container').style.display = 'none';
+                document.getElementById('concept-chat-container').style.display = 'none';
             }
 
             // Phenomenon setup

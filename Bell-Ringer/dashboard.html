@@ -142,7 +142,7 @@
         </div>
     </div>
 
-    <div id="dashboard-content" class="hidden flex-grow flex flex-col justify-between">
+    <div id="dashboard-content" class="flex-grow flex flex-col justify-between" style="display: none;">
         <!-- Top Info Bar: Timer, Statistics, Period Selector -->
         <header class="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-center mb-8">
             
@@ -296,8 +296,8 @@
                 currentAdmin = user;
                 
                 // Show dashboard and load saved period
-                document.getElementById('auth-panel').classList.add('hidden');
-                document.getElementById('dashboard-content').classList.remove('hidden');
+                document.getElementById('auth-panel').style.display = 'none';
+                document.getElementById('dashboard-content').style.display = 'flex';
 
                 const savedPeriod = localStorage.getItem('bellringer_dashboard_period');
                 if (savedPeriod) {
@@ -308,8 +308,8 @@
                 initializeDashboard();
             } else {
                 currentAdmin = null;
-                document.getElementById('auth-panel').classList.remove('hidden');
-                document.getElementById('dashboard-content').classList.add('hidden');
+                document.getElementById('auth-panel').style.display = 'flex';
+                document.getElementById('dashboard-content').style.display = 'none';
                 stopDashboardSync();
             }
         });
