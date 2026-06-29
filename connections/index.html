@@ -1215,8 +1215,8 @@ CRITICAL RULES:
                         mode: 'cors',
                         headers: { 'Content-Type': 'text/plain' },
                         body: JSON.stringify({
-                            contents: [{ parts: [{ text: promptText }] }],
-                            generationConfig: { responseMimeType: "application/json" }
+                            contents: [{ role: 'user', parts: [{ text: promptText }] }],
+                            systemInstruction: "You are a helpful assistant that generates Connections puzzle games in raw JSON format. Return only JSON."
                         })
                     });
 
@@ -1241,7 +1241,8 @@ CRITICAL RULES:
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            contents: [{ parts: [{ text: promptText }] }],
+                            contents: [{ role: 'user', parts: [{ text: promptText }] }],
+                            systemInstruction: { parts: [{ text: "You are a helpful assistant that generates Connections puzzle games in raw JSON format. Return only JSON." }] },
                             generationConfig: { responseMimeType: "application/json" }
                         })
                     });
@@ -1291,10 +1292,14 @@ CRITICAL RULES:
         function parseJsonText(rawText) {
             try {
                 let cleaned = rawText.trim();
-                if (cleaned.startsWith('```json')) cleaned = cleaned.substring(7);
-                if (cleaned.startsWith('```')) cleaned = cleaned.substring(3);
-                if (cleaned.endsWith('```')) cleaned = cleaned.substring(0, cleaned.length - 3);
-                return JSON.parse(cleaned.trim());
+                const firstBrace = cleaned.indexOf('{');
+                const lastBrace = cleaned.lastIndexOf('}');
+                
+                if (firstBrace > -1 && lastBrace > -1) {
+                    cleaned = cleaned.substring(firstBrace, lastBrace + 1);
+                }
+                
+                return JSON.parse(cleaned);
             } catch (e) {
                 console.error("Error parsing JSON:", e, rawText);
                 return null;
