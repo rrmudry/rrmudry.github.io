@@ -7,6 +7,8 @@
     <link rel="icon" type="image/png" href="../head.png">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <style>
         :root {
             --slate-950: #030712;
@@ -714,6 +716,19 @@
             }
         ];
 
+        const firebaseConfig = {
+            projectId: "site-6e500",
+            appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+            storageBucket: "site-6e500.firebasestorage.app",
+            apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+            authDomain: "site-6e500.firebaseapp.com",
+            messagingSenderId: "591530758858"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        let dbProxyUrl = null;
+
         let connectionsData = null; // Active categories config
         let gridWords = [];        // Shuffled grid state {word, catIndex}
         let selectedWords = [];    // Currently selected words
@@ -723,6 +738,7 @@
 
         window.addEventListener('load', () => {
             lucide.createIcons();
+            loadDbChatConfig();
             initApp();
         });
 
@@ -1121,6 +1137,18 @@
             document.getElementById('api-settings-block').style.display = 'none';
         }
 
+        function loadDbChatConfig() {
+            db.collection('system_config').doc('chat_config').get()
+                .then((doc) => {
+                    if (doc.exists) {
+                        dbProxyUrl = doc.data().chatProxyUrl || null;
+                    }
+                })
+                .catch((err) => {
+                    console.error("Error loading chat proxy config:", err);
+                });
+        }
+
         async function generateAiPuzzle() {
             const topic = document.getElementById('ai-topic-input').value.trim();
             if (!topic) {
@@ -1129,7 +1157,12 @@
             }
 
             const apiKey = localStorage.getItem('gemini_api_key') || '';
-            const proxyUrl = localStorage.getItem('gemini_proxy_url') || '';
+            let proxyUrl = localStorage.getItem('gemini_proxy_url') || '';
+
+            // Fallback to Firestore dbProxyUrl if local settings are empty
+            if (!apiKey && !proxyUrl && dbProxyUrl) {
+                proxyUrl = dbProxyUrl;
+            }
 
             if (!apiKey && !proxyUrl) {
                 alert("Please configure your Gemini API Key or Custom Proxy URL in 'API Settings' first.");
