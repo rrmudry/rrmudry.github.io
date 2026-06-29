@@ -1274,23 +1274,17 @@
                 // Do not render hidden system evaluation instruction prompts
                 if (text.startsWith('[System:')) return;
                 
+                const bubble = document.createElement('div');
                 const isStudent = msg.role === 'user';
                 
                 if (isStudent) {
-                    const bubble = document.createElement('div');
                     bubble.className = "self-end bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-2xl rounded-tr-none px-4 py-2.5 max-w-[85%] text-xs shadow-md shadow-orange-500/10 leading-normal";
-                    bubble.innerText = text;
-                    feedEl.appendChild(bubble);
                 } else {
-                    // Split AI response into paragraphs for consecutive "texts" look
-                    const paragraphs = text.split(/\n\s*\n+/).map(p => p.trim()).filter(p => p.length > 0);
-                    paragraphs.forEach(para => {
-                        const bubble = document.createElement('div');
-                        bubble.className = "self-start bg-slate-900 border border-white/10 text-slate-100 rounded-2xl rounded-tl-none px-4 py-2.5 max-w-[85%] text-xs leading-normal";
-                        bubble.innerText = para;
-                        feedEl.appendChild(bubble);
-                    });
+                    bubble.className = "self-start bg-slate-900 border border-white/10 text-slate-100 rounded-2xl rounded-tl-none px-4 py-2.5 max-w-[85%] text-xs leading-normal";
                 }
+                
+                bubble.innerText = text;
+                feedEl.appendChild(bubble);
             });
             
             // Auto scroll to bottom
