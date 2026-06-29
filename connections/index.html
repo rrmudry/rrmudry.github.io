@@ -499,6 +499,7 @@
                     <option value="1">Waves & Optics</option>
                     <option value="2">Thermodynamics & Energy</option>
                     <option value="3">Electricity & Magnetism</option>
+                    <option value="ai">✨ Generate with AI...</option>
                 </select>
             </div>
 
@@ -524,6 +525,49 @@
                 <button onclick="shuffleGrid()" class="btn btn-outline">Shuffle</button>
                 <button onclick="deselectAll()" class="btn btn-outline">Deselect</button>
                 <button id="submit-guess-btn" onclick="submitGuess()" class="btn btn-primary" disabled>Submit</button>
+            </div>
+
+            <!-- AI Generator UI Panel -->
+            <div id="ai-generator-panel" style="display: none; flex-direction: column; gap: 1rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1rem; margin-top: 0.5rem;">
+                <div class="section-title" style="border: none; padding: 0;">
+                    <span>AI Puzzle Generator</span>
+                    <button onclick="toggleApiSettings()" class="creator-toggle-btn" style="color: var(--slate-400);">
+                        <i data-lucide="settings" style="width: 14px; height: 14px;"></i> API Settings
+                    </button>
+                </div>
+
+                <!-- Persistent Settings Block -->
+                <div id="api-settings-block" style="display: none; flex-direction: column; gap: 0.75rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 1rem; border-radius: 1rem; margin-bottom: 0.5rem;">
+                    <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--slate-400);">Gemini API Configuration</div>
+                    <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                        <label class="form-label" style="font-size: 0.7rem; color: var(--slate-400);">Gemini API Key</label>
+                        <input type="password" id="api-key-input" placeholder="AIzaSy..." class="input-text" style="font-size: 0.8rem; padding: 0.4rem 0.6rem;">
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                        <label class="form-label" style="font-size: 0.7rem; color: var(--slate-400);">Proxy URL (Optional)</label>
+                        <input type="text" id="api-proxy-input" placeholder="https://..." class="input-text" style="font-size: 0.8rem; padding: 0.4rem 0.6rem;">
+                    </div>
+                    <div style="font-size: 0.7rem; color: var(--slate-400); line-height: 1.3;">
+                        To play, get a free key from <a href="https://aistudio.google.com/" target="_blank" style="color: var(--orange-500); text-decoration: underline;">Google AI Studio</a>. Keys are stored safely in your browser.
+                    </div>
+                    <button onclick="saveApiSettings()" class="btn btn-outline" style="padding: 0.4rem; font-size: 0.75rem;">Save Settings</button>
+                </div>
+
+                <!-- Generation Form -->
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <label class="form-label">Enter a Topic</label>
+                    <input type="text" id="ai-topic-input" placeholder="e.g. Quantum Mechanics, Marvel Heroes, Famous Inventions" class="input-text">
+                </div>
+
+                <button id="generate-ai-btn" onclick="generateAiPuzzle()" class="btn btn-primary" style="padding: 0.9rem; font-size: 0.85rem;">
+                    ✨ Generate Puzzle
+                </button>
+
+                <!-- Loading Indicators -->
+                <div id="ai-loading-indicator" style="display: none; align-items: center; justify-content: center; gap: 0.75rem; padding: 1rem; color: var(--orange-500); font-weight: 700; font-size: 0.85rem;">
+                    <div class="dot active" style="width: 10px; height: 10px; background-color: var(--orange-500); animation: pulse 1s infinite alternate;"></div>
+                    <span>AI is brainstorming words and groups...</span>
+                </div>
             </div>
 
             <!-- Custom Creator Link Trigger -->
@@ -711,9 +755,42 @@
         }
 
         function onPresetSelected() {
-            const idx = parseInt(document.getElementById('preset-selector').value) || 0;
-            connectionsData = PRESETS[idx];
-            loadGame();
+            const selector = document.getElementById('preset-selector');
+            const val = selector.value;
+            
+            if (val === 'ai') {
+                showAiGeneratorPanel(true);
+            } else {
+                showAiGeneratorPanel(false);
+                const idx = parseInt(val) || 0;
+                connectionsData = PRESETS[idx];
+                loadGame();
+            }
+        }
+
+        function showAiGeneratorPanel(visible) {
+            const aiPanel = document.getElementById('ai-generator-panel');
+            const gridEl = document.getElementById('connections-grid');
+            const controls = document.querySelector('.controls');
+            const statusRow = document.querySelector('.status-row');
+            
+            if (visible) {
+                aiPanel.style.display = 'flex';
+                gridEl.style.display = 'none';
+                controls.style.display = 'none';
+                statusRow.style.display = 'none';
+                document.getElementById('loader-mode-badge').innerText = "AI Generator Mode";
+                
+                // Load saved API settings into fields
+                document.getElementById('api-key-input').value = localStorage.getItem('gemini_api_key') || '';
+                document.getElementById('api-proxy-input').value = localStorage.getItem('gemini_proxy_url') || '';
+            } else {
+                aiPanel.style.display = 'none';
+                gridEl.style.display = 'grid';
+                controls.style.display = 'grid';
+                statusRow.style.display = 'flex';
+                document.getElementById('loader-mode-badge').innerText = "Preset Puzzle Pack";
+            }
         }
 
         // Set up active board
@@ -1017,6 +1094,176 @@
                 return JSON.parse(decodeURIComponent(escape(atob(str))));
             } catch (e) {
                 console.error("Base64 parsing error:", e);
+                return null;
+            }
+        }
+
+        // --- AI GENERATION LOGIC ---
+
+        function toggleApiSettings() {
+            const block = document.getElementById('api-settings-block');
+            if (block.style.display === 'none') {
+                block.style.display = 'flex';
+                lucide.createIcons();
+            } else {
+                block.style.display = 'none';
+            }
+        }
+
+        function saveApiSettings() {
+            const apiKey = document.getElementById('api-key-input').value.trim();
+            const proxyUrl = document.getElementById('api-proxy-input').value.trim();
+            
+            localStorage.setItem('gemini_api_key', apiKey);
+            localStorage.setItem('gemini_proxy_url', proxyUrl);
+            
+            showToast("API settings saved locally!");
+            document.getElementById('api-settings-block').style.display = 'none';
+        }
+
+        async function generateAiPuzzle() {
+            const topic = document.getElementById('ai-topic-input').value.trim();
+            if (!topic) {
+                alert("Please enter a topic first.");
+                return;
+            }
+
+            const apiKey = localStorage.getItem('gemini_api_key') || '';
+            const proxyUrl = localStorage.getItem('gemini_proxy_url') || '';
+
+            if (!apiKey && !proxyUrl) {
+                alert("Please configure your Gemini API Key or Custom Proxy URL in 'API Settings' first.");
+                document.getElementById('api-settings-block').style.display = 'flex';
+                return;
+            }
+
+            const generateBtn = document.getElementById('generate-ai-btn');
+            const loadingIndicator = document.getElementById('ai-loading-indicator');
+
+            generateBtn.disabled = true;
+            loadingIndicator.style.display = 'flex';
+            
+            const promptText = `Generate a Connections puzzle game on the topic: "${topic}".
+You must respond with a JSON object in this exact schema:
+{
+  "categories": [
+    {
+      "name": "Category 1 Title",
+      "words": ["word1", "word2", "word3", "word4"]
+    },
+    {
+      "name": "Category 2 Title",
+      "words": ["word5", "word6", "word7", "word8"]
+    },
+    {
+      "name": "Category 3 Title",
+      "words": ["word9", "word10", "word11", "word12"]
+    },
+    {
+      "name": "Category 4 Title",
+      "words": ["word13", "word14", "word15", "word16"]
+    }
+  ]
+}
+
+CRITICAL RULES:
+1. Each category must have exactly 4 words.
+2. All 16 words must be unique.
+3. The categories should have varying difficulties (from straightforward to tricky/wordplay).
+4. Do not include markdown formatting or backticks around the JSON. Return raw JSON.`;
+
+            try {
+                let parsedConfig = null;
+
+                if (proxyUrl) {
+                    // Send to proxy URL
+                    const response = await fetch(proxyUrl, {
+                        method: 'POST',
+                        mode: 'cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: promptText }] }],
+                            generationConfig: { responseMimeType: "application/json" }
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Proxy error: ${response.status} ${response.statusText}`);
+                    }
+
+                    const resJson = await response.json();
+                    let rawText = '';
+                    if (resJson.candidates && resJson.candidates[0] && resJson.candidates[0].content && resJson.candidates[0].content.parts && resJson.candidates[0].content.parts[0]) {
+                        rawText = resJson.candidates[0].content.parts[0].text;
+                    } else if (resJson.text) {
+                        rawText = resJson.text;
+                    }
+
+                    parsedConfig = parseJsonText(rawText);
+
+                } else {
+                    // Send directly to Gemini API
+                    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: promptText }] }],
+                            generationConfig: { responseMimeType: "application/json" }
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const errText = await response.text();
+                        throw new Error(`Gemini API error: ${response.status} - ${errText}`);
+                    }
+
+                    const resJson = await response.json();
+                    const rawText = resJson.candidates[0].content.parts[0].text;
+                    parsedConfig = parseJsonText(rawText);
+                }
+
+                if (!parsedConfig || !parsedConfig.categories || parsedConfig.categories.length !== 4) {
+                    throw new Error("API returned invalid data format. Please try again.");
+                }
+
+                // Add colors to categories if missing
+                const colors = ['yellow', 'green', 'blue', 'purple'];
+                parsedConfig.categories.forEach((cat, idx) => {
+                    cat.color = colors[idx];
+                });
+
+                // Load and start game!
+                connectionsData = parsedConfig;
+                
+                // Hide AI generator display and restore game board grid
+                showAiGeneratorPanel(false);
+                
+                // Set custom loader mode label
+                document.getElementById('loader-mode-badge').innerText = `AI Generated: ${topic}`;
+                document.getElementById('loader-mode-badge').style.color = "var(--orange-500)";
+                
+                loadGame();
+
+            } catch (err) {
+                console.error("AI Generation Error:", err);
+                alert("Failed to generate custom game: " + err.message);
+            } finally {
+                generateBtn.disabled = false;
+                loadingIndicator.style.display = 'none';
+            }
+        }
+
+        // Helper to parse JSON from AI response cleanly
+        function parseJsonText(rawText) {
+            try {
+                let cleaned = rawText.trim();
+                if (cleaned.startsWith('```json')) cleaned = cleaned.substring(7);
+                if (cleaned.startsWith('```')) cleaned = cleaned.substring(3);
+                if (cleaned.endsWith('```')) cleaned = cleaned.substring(0, cleaned.length - 3);
+                return JSON.parse(cleaned.trim());
+            } catch (e) {
+                console.error("Error parsing JSON:", e, rawText);
                 return null;
             }
         }
