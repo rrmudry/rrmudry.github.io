@@ -188,7 +188,9 @@ app.get('/api/assignments', checkAuth, async (req, res) => {
         const data = doc.data();
         assignments.push({ 
           id: doc.id, 
-          name: data.assignmentName || data.title || doc.id
+          name: data.assignmentName || data.title || doc.id,
+          isProctorAssessment: !!data.isProctorAssessment,
+          sourceType: data.sourceType || (data.isProctorAssessment ? 'the_proctor' : 'the_gradest')
         });
       });
 
@@ -196,9 +198,9 @@ app.get('/api/assignments', checkAuth, async (req, res) => {
     } else {
       // Mock data if Firestore is not available
       res.json([
-        { id: 'Quiz 1', name: 'Quiz 1' },
-        { id: 'Kinematics Quiz', name: 'Kinematics Quiz' },
-        { id: 'Unit 7 - Electricity & Magnetism', name: 'Unit 7 - Electricity & Magnetism' }
+        { id: 'Quiz 1', name: 'Quiz 1', isProctorAssessment: false, sourceType: 'the_gradest' },
+        { id: 'Kinematics Quiz', name: 'Kinematics Quiz', isProctorAssessment: true, sourceType: 'the_proctor' },
+        { id: 'Unit 7 - Electricity & Magnetism', name: 'Unit 7 - Electricity & Magnetism', isProctorAssessment: false, sourceType: 'the_gradest' }
       ]);
     }
   } catch (error) {
