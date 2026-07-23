@@ -177,22 +177,66 @@ app.get('/api/courses', checkAuth, async (req, res) => {
   }
 });
 
-// Retrieve Assignments list from single unified Firestore collection: 'gradest_assignments'
+// Retrieve Assignments list from ALL Firestore collections (gradest_assignments, assessments, assignments)
 app.get('/api/assignments', checkAuth, async (req, res) => {
   try {
     if (db) {
       const assignments = [];
+      const seenIds = new Set();
 
-      const snap = await db.collection('gradest_assignments').get();
-      snap.forEach(doc => {
+      // 1. Fetch from 'gradest_assignments' (The Gradest OMR Bubble Sheets)
+      const gradestSnap = await db.collection('gradest_assignments').get();
+      gradestSnap.forEach(doc => {
         const data = doc.data();
+        const id = doc.id;
+        seenIds.add(id);
         assignments.push({ 
-          id: doc.id, 
-          name: data.assignmentName || data.title || doc.id,
+          id: id, 
+          name: data.assignmentName || data.title || id,
           isProctorAssessment: !!data.isProctorAssessment,
-          sourceType: data.sourceType || (data.isProctorAssessment ? 'the_proctor' : 'the_gradest')
+          sourceType: data.sourceType || 'the_gradest'
         });
       });
+
+      // 2. Fetch from 'assessments' (THE_PROCTOR's Assessment Editor)
+      try {
+        const assessmentsSnap = await db.collection('assessments').get();
+        assessmentsSnap.forEach(doc => {
+          const id = doc.id;
+          if (!seenIds.has(id)) {
+            seenIds.add(id);
+            const data = doc.data();
+            assignments.push({
+              id: id,
+              name: data.assignment_name || data.title || id,
+              isProctorAssessment: true,
+              sourceType: 'the_proctor'
+            });
+          }
+        });
+      } catch (e) {
+        console.warn("Could not query assessments collection:", e.message);
+      }
+
+      // 3. Fetch from legacy 'assignments' collection (Labs / Proctor Dashboard)
+      try {
+        const legacySnap = await db.collection('assignments').get();
+        legacySnap.forEach(doc => {
+          const id = doc.id;
+          if (!seenIds.has(id)) {
+            seenIds.add(id);
+            const data = doc.data();
+            assignments.push({
+              id: id,
+              name: data.title || data.assignment_name || id,
+              isProctorAssessment: false,
+              sourceType: 'interactive_lab'
+            });
+          }
+        });
+      } catch (e) {
+        console.warn("Could not query legacy assignments collection:", e.message);
+      }
 
       res.json(assignments);
     } else {
@@ -209,16 +253,17 @@ app.get('/api/assignments', checkAuth, async (req, res) => {
   }
 });
 
-// Retrieve Student scores for a specific assignment from unified 'gradest_assignments' collection
+// Retrieve Student scores for a specific assignment across gradest_assignments and student_results
 app.get('/api/assignments/:assignmentId/scores', checkAuth, async (req, res) => {
   const { assignmentId } = req.params;
   try {
     if (db) {
       const students = [];
 
-      const docSnap = await db.collection('gradest_assignments').doc(assignmentId).get();
-      if (docSnap.exists) {
-        const data = docSnap.data();
+      // 1. Check gradest_assignments first (The Gradest OMR sheets)
+      const gradestDoc = await db.collection('gradest_assignments').doc(assignmentId).get();
+      if (gradestDoc.exists) {
+        const data = gradestDoc.data();
         if (Array.isArray(data.grades)) {
           data.grades.forEach(g => {
             students.push({
@@ -231,6 +276,21 @@ app.get('/api/assignments/:assignmentId/scores', checkAuth, async (req, res) => 
             });
           });
         }
+      }
+
+      // 2. Check student_results subcollection if gradest_assignments returned no scores
+      if (students.length === 0) {
+        const snap = await db.collection('student_results').doc(assignmentId).collection('students').get();
+        snap.forEach(doc => {
+          const data = doc.data();
+          students.push({
+            student_id: data.student_id || doc.id,
+            name: data.student_name || 'Unknown Student',
+            class_period: data.class_period || 'N/A',
+            score: data.score || 0,
+            completed_at: data.timestamp ? (data.timestamp.toDate ? data.timestamp.toDate().toISOString() : data.timestamp) : new Date().toISOString()
+          });
+        });
       }
 
       res.json(students);
