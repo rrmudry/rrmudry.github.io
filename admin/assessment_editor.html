@@ -303,11 +303,24 @@
                 assignment_name: document.getElementById('input-name').value.trim() || id,
                 max_questions: parseInt(document.getElementById('input-max').value) || null,
                 time_limit_mins: document.getElementById('select-time-mode').value === 'timed' ? (parseInt(document.getElementById('input-time').value) || null) : null,
+                isProctorAssessment: true,
+                sourceType: 'the_proctor',
                 updated_at: firebase.firestore.FieldValue.serverTimestamp()
             };
 
             try {
                 await db.collection('assessments').doc(id).set(data, { merge: true });
+                
+                // Sync entry to unified gradest_assignments collection
+                await db.collection('gradest_assignments').doc(id).set({
+                    assignmentName: data.assignment_name,
+                    title: data.assignment_name,
+                    isProctorAssessment: true,
+                    sourceType: 'the_proctor',
+                    maxScore: data.max_questions || 100,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+
                 showToast("Assessment saved!", "success");
                 closeModal();
             } catch (err) {
