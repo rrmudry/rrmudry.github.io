@@ -129,26 +129,46 @@ app.get('/api/courses', checkAuth, async (req, res) => {
   }
 });
 
-// Retrieve Assignments list from Firestore
+// Retrieve Assignments list from Firestore (including The Gradest OMR sheets & labs)
 app.get('/api/assignments', checkAuth, async (req, res) => {
   try {
     if (db) {
-      const snap = await db.collection('assignments').get();
       const assignments = [];
-      snap.forEach(doc => {
+      const seenIds = new Set();
+
+      // 1. Fetch from 'gradest_assignments' (The Gradest OMR Bubble Sheets)
+      const gradestSnap = await db.collection('gradest_assignments').get();
+      gradestSnap.forEach(doc => {
         const data = doc.data();
+        const id = doc.id;
+        seenIds.add(id);
         assignments.push({ 
-          id: doc.id, 
-          name: data.title || doc.id 
+          id: id, 
+          name: `${data.assignmentName || id} (OMR Bubble Sheet)`
         });
       });
+
+      // 2. Fetch from legacy 'assignments' collection (Labs / Proctor Dashboard)
+      const snap = await db.collection('assignments').get();
+      snap.forEach(doc => {
+        const id = doc.id;
+        if (!seenIds.has(id)) {
+          seenIds.add(id);
+          const data = doc.data();
+          assignments.push({ 
+            id: id, 
+            name: `${data.title || id} (Lab/Proctor)`
+          });
+        }
+      });
+
       res.json(assignments);
     } else {
       // Mock data if Firestore is not available
       res.json([
-        { id: 'Kinematics_Quiz', name: 'Kinematics Quiz' },
-        { id: 'Friction_Tutorial', name: 'Friction Tutorial' },
-        { id: 'Momentum_Impulse_Sim', name: 'Momentum & Impulse Simulation' }
+        { id: 'Quiz 1', name: 'Quiz 1 (OMR Bubble Sheet)' },
+        { id: 'Kinematics_Quiz', name: 'Kinematics Quiz (Lab/Proctor)' },
+        { id: 'Unit 7 - Electricity & Magnetism', name: 'Unit 7 - Electricity & Magnetism (OMR Bubble Sheet)' }
       ]);
     }
   } catch (error) {
@@ -162,25 +182,46 @@ app.get('/api/assignments/:assignmentId/scores', checkAuth, async (req, res) => 
   const { assignmentId } = req.params;
   try {
     if (db) {
-      const snap = await db.collection('student_results').doc(assignmentId).collection('students').get();
       const students = [];
-      snap.forEach(doc => {
-        const data = doc.data();
-        students.push({
-          student_id: data.student_id || doc.id,
-          name: data.student_name || 'Unknown Student',
-          class_period: data.class_period || 'N/A',
-          score: data.score || 0,
-          completed_at: data.timestamp ? (data.timestamp.toDate ? data.timestamp.toDate().toISOString() : data.timestamp) : new Date().toISOString()
+
+      // 1. Check gradest_assignments first (The Gradest OMR sheets)
+      const gradestDoc = await db.collection('gradest_assignments').doc(assignmentId).get();
+      if (gradestDoc.exists) {
+        const data = gradestDoc.data();
+        if (Array.isArray(data.grades)) {
+          data.grades.forEach(g => {
+            students.push({
+              student_id: g.id || g.studentId || 'N/A',
+              name: g.name || 'Student ' + (g.id || g.studentId),
+              class_period: g.period || '1',
+              score: g.score !== undefined ? g.score : 0,
+              percentage: g.percentage || 0,
+              completed_at: g.timestamp || new Date().toISOString()
+            });
+          });
+        }
+      } else {
+        // 2. Fall back to student_results collection
+        const snap = await db.collection('student_results').doc(assignmentId).collection('students').get();
+        snap.forEach(doc => {
+          const data = doc.data();
+          students.push({
+            student_id: data.student_id || doc.id,
+            name: data.student_name || 'Unknown Student',
+            class_period: data.class_period || 'N/A',
+            score: data.score || 0,
+            completed_at: data.timestamp ? (data.timestamp.toDate ? data.timestamp.toDate().toISOString() : data.timestamp) : new Date().toISOString()
+          });
         });
-      });
+      }
+
       res.json(students);
     } else {
       // Mock data if Firestore is not available
       res.json([
-        { student_id: '1001', name: 'Albert Einstein', class_period: '2', score: 9.5, completed_at: new Date().toISOString() },
-        { student_id: '1002', name: 'Marie Curie', class_period: '2', score: 10.0, completed_at: new Date().toISOString() },
-        { student_id: '1003', name: 'Isaac Newton', class_period: '5', score: 8.5, completed_at: new Date().toISOString() }
+        { student_id: '1001', name: 'Albert Einstein', class_period: '2', score: 95, completed_at: new Date().toISOString() },
+        { student_id: '1002', name: 'Marie Curie', class_period: '2', score: 100, completed_at: new Date().toISOString() },
+        { student_id: '1003', name: 'Isaac Newton', class_period: '5', score: 88, completed_at: new Date().toISOString() }
       ]);
     }
   } catch (error) {
