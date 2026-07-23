@@ -374,16 +374,6 @@ app.post('/api/create-assignment', checkAuth, async (req, res) => {
   }
 });
 
-// Sync/Push grade and return submission
-app.post('/api/sync-grade', checkAuth, async (req, res) => {
-  const { courseId, courseworkId, studentId, score } = req.body;
-  if (!courseId || !courseworkId || !studentId || score === undefined) {
-    return res.status(400).json({ error: 'Missing sync parameters.' });
-  }
-
-  try {
-    const classroom = getClasroomClient();
-
 // Helper: Resolves 6-digit district student IDs to Google Classroom user identifiers/emails
 async function resolveClassroomUserId(classroom, courseId, rawStudentId) {
   const studentId = String(rawStudentId).trim();
