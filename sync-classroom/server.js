@@ -177,6 +177,22 @@ app.get('/api/courses', checkAuth, async (req, res) => {
   }
 });
 
+// Retrieve Google Classroom Coursework for a specific course
+app.get('/api/courses/:courseId/coursework', checkAuth, async (req, res) => {
+  const { courseId } = req.params;
+  try {
+    const classroom = getClasroomClient();
+    const response = await classroom.courses.courseWork.list({
+      courseId: courseId,
+      pageSize: 100
+    });
+    res.json(response.data.courseWork || []);
+  } catch (error) {
+    console.error(`Error fetching coursework for course ${courseId}:`, error);
+    res.status(500).json({ error: 'Failed to retrieve Google Classroom coursework.' });
+  }
+});
+
 // Retrieve Assignments list from ALL Firestore collections (gradest_assignments, assessments, assignments)
 app.get('/api/assignments', checkAuth, async (req, res) => {
   try {
