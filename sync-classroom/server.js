@@ -26,12 +26,60 @@ try {
     });
     db = admin.firestore();
     console.log('Firebase Admin SDK initialized successfully.');
+    migrateLegacyAssignments();
   } else {
     console.warn(`WARNING: Firebase service account key not found at: ${serviceAccountPath}. Firestore data will be mocked.`);
   }
 } catch (error) {
   console.error('Error initializing Firebase Admin SDK:', error.message);
   console.warn('Firestore data will be mocked.');
+}
+
+// Migration helper: Copy legacy assignments/student_results into unified 'gradest_assignments'
+async function migrateLegacyAssignments() {
+  if (!db) return;
+  try {
+    const legacySnap = await db.collection('assignments').get();
+    if (legacySnap.empty) return;
+
+    for (const doc of legacySnap.docs) {
+      const data = doc.data();
+      const name = data.title || data.assignmentName || doc.id;
+      const targetDoc = db.collection('gradest_assignments').doc(name);
+      const existing = await targetDoc.get();
+
+      if (!existing.exists) {
+        const scores = [];
+        try {
+          const scoresSnap = await db.collection('student_results').doc(doc.id).collection('students').get();
+          scoresSnap.forEach(sDoc => {
+            const sData = sDoc.data();
+            scores.push({
+              id: sData.student_id || sDoc.id,
+              name: sData.student_name || 'Student ' + sDoc.id,
+              score: sData.score || 0,
+              percentage: Math.round(((sData.score || 0) / (data.maxPoints || 100)) * 100),
+              timestamp: sData.timestamp ? (sData.timestamp.toDate ? sData.timestamp.toDate().toISOString() : sData.timestamp) : new Date().toISOString()
+            });
+          });
+        } catch (e) {}
+
+        await targetDoc.set({
+          assignmentName: name,
+          title: name,
+          assignmentDetails: data.description || "",
+          description: data.description || "",
+          maxScore: data.maxPoints || 100,
+          maxPoints: data.maxPoints || 100,
+          grades: scores,
+          updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        console.log(`Migrated legacy assignment "${name}" into "gradest_assignments".`);
+      }
+    }
+  } catch (err) {
+    console.error("Legacy assignment migration error:", err.message);
+  }
 }
 
 // ---------------------------------------------------------
@@ -129,46 +177,28 @@ app.get('/api/courses', checkAuth, async (req, res) => {
   }
 });
 
-// Retrieve Assignments list from Firestore (including The Gradest OMR sheets & labs)
+// Retrieve Assignments list from single unified Firestore collection: 'gradest_assignments'
 app.get('/api/assignments', checkAuth, async (req, res) => {
   try {
     if (db) {
       const assignments = [];
-      const seenIds = new Set();
 
-      // 1. Fetch from 'gradest_assignments' (The Gradest OMR Bubble Sheets)
-      const gradestSnap = await db.collection('gradest_assignments').get();
-      gradestSnap.forEach(doc => {
-        const data = doc.data();
-        const id = doc.id;
-        seenIds.add(id);
-        assignments.push({ 
-          id: id, 
-          name: `${data.assignmentName || id} (OMR Bubble Sheet)`
-        });
-      });
-
-      // 2. Fetch from legacy 'assignments' collection (Labs / Proctor Dashboard)
-      const snap = await db.collection('assignments').get();
+      const snap = await db.collection('gradest_assignments').get();
       snap.forEach(doc => {
-        const id = doc.id;
-        if (!seenIds.has(id)) {
-          seenIds.add(id);
-          const data = doc.data();
-          assignments.push({ 
-            id: id, 
-            name: `${data.title || id} (Lab/Proctor)`
-          });
-        }
+        const data = doc.data();
+        assignments.push({ 
+          id: doc.id, 
+          name: data.assignmentName || data.title || doc.id
+        });
       });
 
       res.json(assignments);
     } else {
       // Mock data if Firestore is not available
       res.json([
-        { id: 'Quiz 1', name: 'Quiz 1 (OMR Bubble Sheet)' },
-        { id: 'Kinematics_Quiz', name: 'Kinematics Quiz (Lab/Proctor)' },
-        { id: 'Unit 7 - Electricity & Magnetism', name: 'Unit 7 - Electricity & Magnetism (OMR Bubble Sheet)' }
+        { id: 'Quiz 1', name: 'Quiz 1' },
+        { id: 'Kinematics Quiz', name: 'Kinematics Quiz' },
+        { id: 'Unit 7 - Electricity & Magnetism', name: 'Unit 7 - Electricity & Magnetism' }
       ]);
     }
   } catch (error) {
@@ -177,17 +207,16 @@ app.get('/api/assignments', checkAuth, async (req, res) => {
   }
 });
 
-// Retrieve Student scores for a specific assignment
+// Retrieve Student scores for a specific assignment from unified 'gradest_assignments' collection
 app.get('/api/assignments/:assignmentId/scores', checkAuth, async (req, res) => {
   const { assignmentId } = req.params;
   try {
     if (db) {
       const students = [];
 
-      // 1. Check gradest_assignments first (The Gradest OMR sheets)
-      const gradestDoc = await db.collection('gradest_assignments').doc(assignmentId).get();
-      if (gradestDoc.exists) {
-        const data = gradestDoc.data();
+      const docSnap = await db.collection('gradest_assignments').doc(assignmentId).get();
+      if (docSnap.exists) {
+        const data = docSnap.data();
         if (Array.isArray(data.grades)) {
           data.grades.forEach(g => {
             students.push({
@@ -200,19 +229,6 @@ app.get('/api/assignments/:assignmentId/scores', checkAuth, async (req, res) => 
             });
           });
         }
-      } else {
-        // 2. Fall back to student_results collection
-        const snap = await db.collection('student_results').doc(assignmentId).collection('students').get();
-        snap.forEach(doc => {
-          const data = doc.data();
-          students.push({
-            student_id: data.student_id || doc.id,
-            name: data.student_name || 'Unknown Student',
-            class_period: data.class_period || 'N/A',
-            score: data.score || 0,
-            completed_at: data.timestamp ? (data.timestamp.toDate ? data.timestamp.toDate().toISOString() : data.timestamp) : new Date().toISOString()
-          });
-        });
       }
 
       res.json(students);
@@ -230,7 +246,7 @@ app.get('/api/assignments/:assignmentId/scores', checkAuth, async (req, res) => 
   }
 });
 
-// Create coursework (assignment) across selected courses
+// Create coursework (assignment) across selected courses & save metadata to unified 'gradest_assignments'
 app.post('/api/create-assignment', checkAuth, async (req, res) => {
   const { courseIds, title, description, maxPoints } = req.body;
   if (!courseIds || !courseIds.length || !title) {
@@ -258,17 +274,20 @@ app.post('/api/create-assignment', checkAuth, async (req, res) => {
       }
     }
 
-    // Write assignment metadata to Firestore 'assignments' collection if database is initialized
+    // Save/Merge unified assignment record into 'gradest_assignments'
     if (db) {
-      const assignmentId = title.trim().replace(/[^a-zA-Z0-9]/g, '_');
-      await db.collection('assignments').doc(assignmentId).set({
-        title,
-        description,
-        maxPoints,
-        created_at: admin.firestore.FieldValue.serverTimestamp(),
+      const docName = title.trim();
+      await db.collection('gradest_assignments').doc(docName).set({
+        assignmentName: title,
+        title: title,
+        assignmentDetails: description || "",
+        description: description || "",
+        maxScore: maxPoints || 100,
+        maxPoints: maxPoints || 100,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         classroomDeployments: results.filter(r => r.success)
-      });
-      console.log(`Saved assignment "${title}" metadata to Firestore collection "assignments".`);
+      }, { merge: true });
+      console.log(`Saved unified assignment "${title}" to Firestore collection "gradest_assignments".`);
     }
 
     res.json({ results });
