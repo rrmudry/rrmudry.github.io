@@ -384,31 +384,113 @@ app.post('/api/sync-grade', checkAuth, async (req, res) => {
   try {
     const classroom = getClasroomClient();
 
-    // 1. Resolve student profile or use raw studentId.
-    // Classroom API list studentSubmissions accepts student email or user ID.
-    // Assuming student ID corresponds to email / account if formatted.
-    let searchId = studentId;
-    if (!searchId.includes('@') && db) {
-      // Look up student email from Firestore roster collection if needed
-      const rosterDoc = await db.collection('roster').doc(studentId).get();
-      if (rosterDoc.exists && rosterDoc.data().email) {
-        searchId = rosterDoc.data().email;
+// Helper: Resolves 6-digit district student IDs to Google Classroom user identifiers/emails
+async function resolveClassroomUserId(classroom, courseId, rawStudentId) {
+  const studentId = String(rawStudentId).trim();
+  if (studentId.includes('@')) return studentId;
+
+  const cleanId = studentId.replace(/^0+/, '');
+
+  // 1. Query Firestore roster collection for saved student email or name
+  let rosterName = null;
+  let rosterEmail = null;
+  if (db) {
+    try {
+      let rosterDoc = await db.collection('roster').doc(studentId).get();
+      if (!rosterDoc.exists && cleanId !== studentId) {
+        rosterDoc = await db.collection('roster').doc(cleanId).get();
+      }
+      if (rosterDoc.exists) {
+        const data = rosterDoc.data();
+        rosterEmail = data.email || data.student_email || null;
+        rosterName = data.name || data.student_name || (data.first_name ? `${data.first_name} ${data.last_name}` : null);
+      }
+    } catch (e) {
+      console.warn("Firestore roster lookup notice:", e.message);
+    }
+  }
+
+  if (rosterEmail && rosterEmail.includes('@')) {
+    return rosterEmail;
+  }
+
+  // 2. Fetch enrolled students from Google Classroom course roster
+  try {
+    const listRes = await classroom.courses.students.list({
+      courseId: courseId,
+      pageSize: 100
+    });
+    const enrolledStudents = listRes.data.students || [];
+
+    for (const s of enrolledStudents) {
+      const profile = s.profile || {};
+      const email = (profile.emailAddress || '').toLowerCase().trim();
+      const fullName = (profile.name ? profile.name.fullName : '').toLowerCase().trim();
+
+      // Match A: Email starts with student ID (e.g. 378610@orangeusd.org or 0378610@...)
+      if (email.startsWith(studentId.toLowerCase()) || (cleanId && email.startsWith(cleanId.toLowerCase()))) {
+        console.log(`Matched Google Classroom student by email prefix: ${email} for ID ${studentId}`);
+        return s.userId || email;
+      }
+
+      // Match B: Email contains student ID
+      if (email.includes(studentId.toLowerCase()) || (cleanId && email.includes(cleanId.toLowerCase()))) {
+        console.log(`Matched Google Classroom student by ID in email: ${email} for ID ${studentId}`);
+        return s.userId || email;
+      }
+
+      // Match C: Full Name match from Firestore roster
+      if (rosterName && fullName && (fullName === rosterName.toLowerCase().trim() || fullName.includes(rosterName.toLowerCase().trim()))) {
+        console.log(`Matched Google Classroom student by name "${fullName}": ${email} for ID ${studentId}`);
+        return s.userId || email;
       }
     }
+  } catch (err) {
+    console.warn("Could not list Google Classroom course students:", err.message);
+  }
+
+  // 3. Fallback to common school district email format (@orangeusd.org)
+  return `${studentId}@orangeusd.org`;
+}
+
+// Sync/Push grade and return submission
+app.post('/api/sync-grade', checkAuth, async (req, res) => {
+  const { courseId, courseworkId, studentId, score } = req.body;
+  if (!courseId || !courseworkId || !studentId || score === undefined) {
+    return res.status(400).json({ error: 'Missing sync parameters.' });
+  }
+
+  try {
+    const classroom = getClasroomClient();
+
+    // 1. Resolve student profile / email for Google Classroom
+    const searchId = await resolveClassroomUserId(classroom, courseId, studentId);
+    console.log(`Syncing grade for studentId "${studentId}" -> resolved Classroom user: "${searchId}"`);
 
     // 2. Fetch the student submission
-    const listResponse = await classroom.courses.courseWork.studentSubmissions.list({
-      courseId,
-      courseWorkId: courseworkId,
-      userId: searchId
-    });
-
-    const submissions = listResponse.data.studentSubmissions;
-    if (!submissions || submissions.length === 0) {
-      return res.status(404).json({ error: `No student submission found for identifier: ${searchId}` });
+    let listResponse;
+    try {
+      listResponse = await classroom.courses.courseWork.studentSubmissions.list({
+        courseId,
+        courseWorkId: courseworkId,
+        userId: searchId
+      });
+    } catch (listErr) {
+      // Fallback: If searchId failed, try listing all submissions for coursework and matching student profile name/email
+      console.warn(`Direct submission lookup for "${searchId}" returned error (${listErr.message}). Fetching all submissions...`);
+      listResponse = await classroom.courses.courseWork.studentSubmissions.list({
+        courseId,
+        courseWorkId: courseworkId
+      });
     }
 
-    const submissionId = submissions[0].id;
+    const submissions = listResponse.data.studentSubmissions || [];
+    if (submissions.length === 0) {
+      return res.status(404).json({ error: `No student submission found in Classroom for ID: ${studentId} (resolved as: ${searchId})` });
+    }
+
+    const submission = submissions[0];
+    const submissionId = submission.id;
 
     // 3. Patch grades (draft and assigned)
     const patchResponse = await classroom.courses.courseWork.studentSubmissions.patch({
