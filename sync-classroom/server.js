@@ -494,19 +494,26 @@ app.post('/api/sync-grade', checkAuth, async (req, res) => {
       }
     });
 
-    // 4. Return submission to student (so Aeries can import it)
-    await classroom.courses.courseWork.studentSubmissions.return({
-      courseId,
-      courseWorkId: courseworkId,
-      id: submissionId,
-      requestBody: {}
-    });
+    // 4. Try returning submission to student (so Aeries can import it)
+    let isReturned = false;
+    try {
+      await classroom.courses.courseWork.studentSubmissions.return({
+        courseId,
+        courseWorkId: courseworkId,
+        id: submissionId,
+        requestBody: {}
+      });
+      isReturned = true;
+    } catch (returnErr) {
+      console.warn(`Return notice for student ${studentId} (${returnErr.message}). Score ${score} was successfully saved to Classroom gradebook!`);
+    }
 
     res.json({
       success: true,
       submissionId,
       draftGrade: patchResponse.data.draftGrade,
-      assignedGrade: patchResponse.data.assignedGrade
+      assignedGrade: patchResponse.data.assignedGrade,
+      returned: isReturned
     });
   } catch (error) {
     console.error(`Error syncing grade for student ${studentId}:`, error);
