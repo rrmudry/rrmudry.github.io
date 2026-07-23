@@ -266,46 +266,47 @@ createAssignmentForm.addEventListener('submit', async (e) => {
 // Helper: Auto-resolves Coursework ID by querying Google Classroom coursework and matching assignment titles
 async function resolveCourseworkId(courseId, targetAssignmentName) {
   try {
+    const targetName = targetAssignmentName || selectedAssignmentId;
     log(`Querying Google Classroom coursework for course [${courseId}]...`, 'info');
+    
     const res = await fetch(`/api/courses/${courseId}/coursework`);
-    if (!res.ok) return null;
-    const courseworkList = await res.json();
-    if (!courseworkList || courseworkList.length === 0) {
-      log(`No coursework assignments found in Classroom course [${courseId}].`, 'error');
-      return null;
+    let courseworkList = [];
+    if (res.ok) {
+      courseworkList = await res.json();
     }
 
-    // 1. Try exact title match
-    const normTarget = (targetAssignmentName || selectedAssignmentId).toLowerCase().trim();
-    const match = courseworkList.find(cw => cw.title && cw.title.toLowerCase().trim() === normTarget);
-    if (match) {
-      log(`Auto-matched Google Classroom coursework: "${match.title}" (ID: ${match.id})`, 'success');
-      return match.id;
+    const normTarget = targetName.toLowerCase().trim();
+
+    if (Array.isArray(courseworkList) && courseworkList.length > 0) {
+      // 1. Try exact title match
+      const match = courseworkList.find(cw => cw.title && cw.title.toLowerCase().trim() === normTarget);
+      if (match) {
+        log(`Auto-matched Google Classroom coursework: "${match.title}" (ID: ${match.id})`, 'success');
+        return match.id;
+      }
+
+      // 2. Try partial title match
+      const partialMatch = courseworkList.find(cw => cw.title && (cw.title.toLowerCase().includes(normTarget) || normTarget.includes(cw.title.toLowerCase())));
+      if (partialMatch) {
+        log(`Auto-matched Google Classroom coursework: "${partialMatch.title}" (ID: ${partialMatch.id})`, 'success');
+        return partialMatch.id;
+      }
+
+      // 3. Display list of published Google Classroom assignments to pick from
+      const optionsText = courseworkList.map((cw, idx) => `${idx + 1}. ${cw.title}`).join('\n');
+      const choice = prompt(`No exact title match for "${targetName}" in Google Classroom.\nSelect an assignment to sync to:\n\n${optionsText}\n\nEnter number (1-${courseworkList.length}) or enter Coursework ID:`);
+      if (choice) {
+        const num = parseInt(choice.trim());
+        if (!isNaN(num) && num >= 1 && num <= courseworkList.length) {
+          return courseworkList[num - 1].id;
+        }
+        return choice.trim();
+      }
     }
 
-    // 2. Try partial title match
-    const partialMatch = courseworkList.find(cw => cw.title && (cw.title.toLowerCase().includes(normTarget) || normTarget.includes(cw.title.toLowerCase())));
-    if (partialMatch) {
-      log(`Auto-matched Google Classroom coursework: "${partialMatch.title}" (ID: ${partialMatch.id})`, 'success');
-      return partialMatch.id;
-    }
-
-    // 3. Fallback: If only 1 coursework assignment exists in the course, auto-select it
-    if (courseworkList.length === 1) {
-      log(`Auto-selected coursework: "${courseworkList[0].title}" (ID: ${courseworkList[0].id})`, 'info');
-      return courseworkList[0].id;
-    }
-
-    // 4. Prompt with assignment title choices if multiple options exist
-    const optionsText = courseworkList.map((cw, idx) => `${idx + 1}. ${cw.title} (ID: ${cw.id})`).join('\n');
-    const choice = prompt(`Select Google Classroom Assignment for Course:\n\n${optionsText}\n\nEnter number (1-${courseworkList.length}) or enter Coursework ID:`);
-    if (!choice) return null;
-
-    const num = parseInt(choice.trim());
-    if (!isNaN(num) && num >= 1 && num <= courseworkList.length) {
-      return courseworkList[num - 1].id;
-    }
-    return choice.trim();
+    // 4. Fallback if no coursework exists in course or user entered custom value
+    const fallback = prompt(`Enter or paste the Google Classroom Coursework ID for assignment "${targetName}":`);
+    return fallback ? fallback.trim() : null;
   } catch (err) {
     console.error("Error resolving coursework ID:", err);
     return null;
