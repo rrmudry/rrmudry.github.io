@@ -262,20 +262,70 @@ createAssignmentForm.addEventListener('submit', async (e) => {
 // ---------------------------------------------------------
 // 6. Grades Synchronization Operations
 // ---------------------------------------------------------
+
+// Helper: Auto-resolves Coursework ID by querying Google Classroom coursework and matching assignment titles
+async function resolveCourseworkId(courseId, targetAssignmentName) {
+  try {
+    log(`Querying Google Classroom coursework for course [${courseId}]...`, 'info');
+    const res = await fetch(`/api/courses/${courseId}/coursework`);
+    if (!res.ok) return null;
+    const courseworkList = await res.json();
+    if (!courseworkList || courseworkList.length === 0) {
+      log(`No coursework assignments found in Classroom course [${courseId}].`, 'error');
+      return null;
+    }
+
+    // 1. Try exact title match
+    const normTarget = (targetAssignmentName || selectedAssignmentId).toLowerCase().trim();
+    const match = courseworkList.find(cw => cw.title && cw.title.toLowerCase().trim() === normTarget);
+    if (match) {
+      log(`Auto-matched Google Classroom coursework: "${match.title}" (ID: ${match.id})`, 'success');
+      return match.id;
+    }
+
+    // 2. Try partial title match
+    const partialMatch = courseworkList.find(cw => cw.title && (cw.title.toLowerCase().includes(normTarget) || normTarget.includes(cw.title.toLowerCase())));
+    if (partialMatch) {
+      log(`Auto-matched Google Classroom coursework: "${partialMatch.title}" (ID: ${partialMatch.id})`, 'success');
+      return partialMatch.id;
+    }
+
+    // 3. Fallback: If only 1 coursework assignment exists in the course, auto-select it
+    if (courseworkList.length === 1) {
+      log(`Auto-selected coursework: "${courseworkList[0].title}" (ID: ${courseworkList[0].id})`, 'info');
+      return courseworkList[0].id;
+    }
+
+    // 4. Prompt with assignment title choices if multiple options exist
+    const optionsText = courseworkList.map((cw, idx) => `${idx + 1}. ${cw.title} (ID: ${cw.id})`).join('\n');
+    const choice = prompt(`Select Google Classroom Assignment for Course:\n\n${optionsText}\n\nEnter number (1-${courseworkList.length}) or enter Coursework ID:`);
+    if (!choice) return null;
+
+    const num = parseInt(choice.trim());
+    if (!isNaN(num) && num >= 1 && num <= courseworkList.length) {
+      return courseworkList[num - 1].id;
+    }
+    return choice.trim();
+  } catch (err) {
+    console.error("Error resolving coursework ID:", err);
+    return null;
+  }
+}
+
 async function syncSingleGrade(studentId, score) {
-  // Try to find the coursework ID for this assignment.
-  // Note: To match this Firestore assignment to a specific Google Classroom assignment,
-  // we prompt the teacher to enter the Coursework ID or course ID.
   const checkedBoxes = document.querySelectorAll('.course-selector-cb:checked');
   if (checkedBoxes.length === 0) {
-    alert('Please select the target Google Classroom Course in the Control Center.');
+    alert('Please select the target Google Classroom Course in the Control Center first.');
     return;
   }
   
   const courseId = checkedBoxes[0].value;
-  const courseworkId = prompt(`Enter the Google Classroom Coursework ID for Course [${courseId}] to sync this score:`);
+  const courseworkId = await resolveCourseworkId(courseId, selectedAssignmentId);
   
-  if (!courseworkId) return;
+  if (!courseworkId) {
+    alert('Could not resolve Google Classroom Coursework ID.');
+    return;
+  }
   
   log(`Initiating grade sync for Student [${studentId}]...`, 'info');
   
@@ -309,14 +359,17 @@ async function syncSingleGrade(studentId, score) {
 btnSyncAll.addEventListener('click', async () => {
   const checkedBoxes = document.querySelectorAll('.course-selector-cb:checked');
   if (checkedBoxes.length === 0) {
-    alert('Please select a target Google Classroom Course in the Control Center.');
+    alert('Please select a target Google Classroom Course in the Control Center first.');
     return;
   }
   
   const courseId = checkedBoxes[0].value;
-  const courseworkId = prompt(`Enter the Google Classroom Coursework ID for Course [${courseId}] to sync all scores:`);
+  const courseworkId = await resolveCourseworkId(courseId, selectedAssignmentId);
   
-  if (!courseworkId) return;
+  if (!courseworkId) {
+    alert('Could not resolve Google Classroom Coursework ID.');
+    return;
+  }
   
   if (!confirm(`Are you sure you want to sync all ${activeStudents.length} grades to Coursework [${courseworkId}]?`)) return;
   
