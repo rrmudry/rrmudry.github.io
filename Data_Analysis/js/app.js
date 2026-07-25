@@ -9,6 +9,12 @@ let currentDataset = {
   xAxisUnit: "mW/cm²",
   yAxisLabel: "Oxygen Production Rate",
   yAxisUnit: "mL/min",
+  xMin: "",
+  xMax: "",
+  yMin: "",
+  yMax: "",
+  showZero: true,
+  showGrid: true,
   chartType: "scatter",
   showBestFit: true,
   data: [
@@ -20,6 +26,11 @@ let currentDataset = {
     { x: 60, y: 12.3 },
     { x: 70, y: 12.4 }
   ],
+  cer: {
+    claim: "",
+    evidence: "",
+    reasoning: ""
+  },
   questions: [
     {
       id: "q1",
@@ -55,6 +66,7 @@ const presets = {
     xAxisUnit: "mW/cm²",
     yAxisLabel: "Oxygen Production Rate",
     yAxisUnit: "mL/min",
+    xMin: "", xMax: "", yMin: "", yMax: "", showZero: true, showGrid: true,
     chartType: "scatter",
     showBestFit: true,
     data: [
@@ -66,6 +78,7 @@ const presets = {
       { x: 60, y: 12.3 },
       { x: 70, y: 12.4 }
     ],
+    cer: { claim: "", evidence: "", reasoning: "Elodea plants increase photosynthesis under higher light until enzyme/carbon saturation occurs." },
     questions: [
       {
         id: "q1",
@@ -99,6 +112,7 @@ const presets = {
     xAxisUnit: "km",
     yAxisLabel: "Seafloor Age",
     yAxisUnit: "Million Years",
+    xMin: "", xMax: "", yMin: "", yMax: "", showZero: true, showGrid: true,
     chartType: "scatter",
     showBestFit: true,
     data: [
@@ -109,6 +123,7 @@ const presets = {
       { x: 400, y: 20 },
       { x: 500, y: 25 }
     ],
+    cer: { claim: "", evidence: "", reasoning: "New oceanic crust forms at mid-ocean ridge crests and moves outward as tectonic plates diverge." },
     questions: [
       {
         id: "q1",
@@ -130,6 +145,7 @@ const presets = {
     xAxisUnit: "m",
     yAxisLabel: "Period (T)",
     yAxisUnit: "seconds",
+    xMin: "", xMax: "", yMin: "", yMax: "", showZero: true, showGrid: true,
     chartType: "scatter",
     showBestFit: true,
     data: [
@@ -139,6 +155,7 @@ const presets = {
       { x: 0.8, y: 1.79 },
       { x: 1.0, y: 2.01 }
     ],
+    cer: { claim: "", evidence: "", reasoning: "The period of a simple pendulum depends on length and gravity T = 2π√(L/g)." },
     questions: [
       {
         id: "q1",
@@ -153,8 +170,50 @@ const presets = {
         explanation: "Because T ∝ √L, quadrupling L (from 0.2m to 0.8m) doubles T (from ~0.9s to ~1.8s)."
       }
     ]
+  },
+  kinematics: {
+    title: "Toy Car Speed & Kinematics",
+    xAxisLabel: "Time",
+    xAxisUnit: "seconds (s)",
+    yAxisLabel: "Distance Traveled",
+    yAxisUnit: "meters (m)",
+    xMin: "", xMax: "", yMin: "", yMax: "", showZero: true, showGrid: true,
+    chartType: "scatter",
+    showBestFit: true,
+    data: [
+      { x: 0, y: 0 },
+      { x: 1, y: 2.5 },
+      { x: 2, y: 5.1 },
+      { x: 3, y: 7.4 },
+      { x: 4, y: 10.2 },
+      { x: 5, y: 12.6 }
+    ],
+    cer: { claim: "", evidence: "", reasoning: "A straight line on a distance vs. time graph indicates constant speed equal to the slope of the line." },
+    questions: [
+      {
+        id: "q1",
+        text: "What is the average velocity of the toy car between t = 0s and t = 5s?",
+        options: [
+          "1.25 m/s",
+          "2.52 m/s",
+          "5.00 m/s",
+          "12.6 m/s"
+        ],
+        correctIndex: 1,
+        explanation: "Velocity = ΔDistance / ΔTime = 12.6 m / 5 s = 2.52 m/s."
+      }
+    ]
   }
 };
+
+function switchTab(tabKey) {
+  ['data', 'axes', 'math', 'cer'].forEach(k => {
+    document.getElementById(`tabContent-${k}`).style.display = 'none';
+    document.getElementById(`tabBtn-${k}`).classList.remove('active');
+  });
+  document.getElementById(`tabContent-${tabKey}`).style.display = 'flex';
+  document.getElementById(`tabBtn-${tabKey}`).classList.add('active');
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
@@ -196,70 +255,115 @@ function initUI() {
     const key = e.target.value;
     if (key === 'custom') {
       currentDataset.questions = [];
+      currentDataset.data = [{ x: 0, y: 0 }];
     } else if (presets[key]) {
       currentDataset = JSON.parse(JSON.stringify(presets[key]));
-      document.getElementById('graphTitleInput').value = currentDataset.title;
-      document.getElementById('xAxisLabelInput').value = currentDataset.xAxisLabel;
-      document.getElementById('xAxisUnitInput').value = currentDataset.xAxisUnit;
-      document.getElementById('yAxisLabelInput').value = currentDataset.yAxisLabel;
-      document.getElementById('yAxisUnitInput').value = currentDataset.yAxisUnit;
-      document.getElementById('chartTypeSelect').value = currentDataset.chartType;
-      document.getElementById('bestFitToggle').checked = currentDataset.showBestFit;
     }
+    syncInputsFromState();
     renderTable();
     renderChart();
     renderQuestions();
+    updateCERPreview();
+    updatePointSelectors();
   });
 
-  document.getElementById('graphTitleInput').addEventListener('input', (e) => {
-    currentDataset.title = e.target.value;
-    renderChart();
+  // Inputs sync back to currentDataset
+  ['graphTitleInput', 'xAxisLabelInput', 'xAxisUnitInput', 'yAxisLabelInput', 'yAxisUnitInput', 'xMinInput', 'xMaxInput', 'yMinInput', 'yMaxInput'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+      syncStateFromInputs();
+      renderChart();
+    });
   });
 
-  document.getElementById('xAxisLabelInput').addEventListener('input', (e) => {
-    currentDataset.xAxisLabel = e.target.value;
-    renderChart();
-  });
-
-  document.getElementById('xAxisUnitInput').addEventListener('input', (e) => {
-    currentDataset.xAxisUnit = e.target.value;
-    renderChart();
-  });
-
-  document.getElementById('yAxisLabelInput').addEventListener('input', (e) => {
-    currentDataset.yAxisLabel = e.target.value;
-    renderChart();
-  });
-
-  document.getElementById('yAxisUnitInput').addEventListener('input', (e) => {
-    currentDataset.yAxisUnit = e.target.value;
-    renderChart();
-  });
-
-  document.getElementById('chartTypeSelect').addEventListener('change', (e) => {
-    currentDataset.chartType = e.target.value;
+  document.getElementById('chartTypeSelect').addEventListener('change', () => {
+    syncStateFromInputs();
     renderTable();
     renderChart();
   });
 
-  document.getElementById('bestFitToggle').addEventListener('change', (e) => {
-    currentDataset.showBestFit = e.target.checked;
-    renderChart();
+  ['bestFitToggle', 'showZeroToggle', 'showGridToggle'].forEach(id => {
+    document.getElementById(id).addEventListener('change', () => {
+      syncStateFromInputs();
+      renderChart();
+    });
   });
 
   document.getElementById('addRowBtn').addEventListener('click', () => {
-    currentDataset.data.push({ x: 0, y: 0 });
+    const last = currentDataset.data[currentDataset.data.length - 1] || { x: 0, y: 0 };
+    currentDataset.data.push({ x: Number(last.x) + 1, y: Number(last.y) + 1 });
     renderTable();
     renderChart();
+    updatePointSelectors();
   });
 
   document.getElementById('clearDataBtn').addEventListener('click', () => {
     currentDataset.data = [{ x: 0, y: 0 }];
     renderTable();
     renderChart();
+    updatePointSelectors();
   });
 
   document.getElementById('exportPngBtn').addEventListener('click', exportChartImage);
+  document.getElementById('saveJsonBtn').addEventListener('click', exportDataJSON);
+  document.getElementById('loadJsonInput').addEventListener('change', importDataJSON);
+  document.getElementById('autoEvidenceBtn').addEventListener('click', insertAutoEvidence);
+
+  // CER Listeners
+  ['cerClaim', 'cerEvidence', 'cerReasoning'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+      currentDataset.cer = {
+        claim: document.getElementById('cerClaim').value,
+        evidence: document.getElementById('cerEvidence').value,
+        reasoning: document.getElementById('cerReasoning').value
+      };
+      updateCERPreview();
+    });
+  });
+
+  document.getElementById('pt1Select').addEventListener('change', calculateTwoPointSlope);
+  document.getElementById('pt2Select').addEventListener('change', calculateTwoPointSlope);
+
+  syncInputsFromState();
+  updateCERPreview();
+  updatePointSelectors();
+}
+
+function syncInputsFromState() {
+  document.getElementById('graphTitleInput').value = currentDataset.title || '';
+  document.getElementById('xAxisLabelInput').value = currentDataset.xAxisLabel || '';
+  document.getElementById('xAxisUnitInput').value = currentDataset.xAxisUnit || '';
+  document.getElementById('yAxisLabelInput').value = currentDataset.yAxisLabel || '';
+  document.getElementById('yAxisUnitInput').value = currentDataset.yAxisUnit || '';
+  document.getElementById('xMinInput').value = currentDataset.xMin || '';
+  document.getElementById('xMaxInput').value = currentDataset.xMax || '';
+  document.getElementById('yMinInput').value = currentDataset.yMin || '';
+  document.getElementById('yMaxInput').value = currentDataset.yMax || '';
+  document.getElementById('chartTypeSelect').value = currentDataset.chartType || 'scatter';
+  document.getElementById('bestFitToggle').checked = currentDataset.showBestFit !== false;
+  document.getElementById('showZeroToggle').checked = currentDataset.showZero !== false;
+  document.getElementById('showGridToggle').checked = currentDataset.showGrid !== false;
+
+  if (currentDataset.cer) {
+    document.getElementById('cerClaim').value = currentDataset.cer.claim || '';
+    document.getElementById('cerEvidence').value = currentDataset.cer.evidence || '';
+    document.getElementById('cerReasoning').value = currentDataset.cer.reasoning || '';
+  }
+}
+
+function syncStateFromInputs() {
+  currentDataset.title = document.getElementById('graphTitleInput').value;
+  currentDataset.xAxisLabel = document.getElementById('xAxisLabelInput').value;
+  currentDataset.xAxisUnit = document.getElementById('xAxisUnitInput').value;
+  currentDataset.yAxisLabel = document.getElementById('yAxisLabelInput').value;
+  currentDataset.yAxisUnit = document.getElementById('yAxisUnitInput').value;
+  currentDataset.xMin = document.getElementById('xMinInput').value;
+  currentDataset.xMax = document.getElementById('xMaxInput').value;
+  currentDataset.yMin = document.getElementById('yMinInput').value;
+  currentDataset.yMax = document.getElementById('yMaxInput').value;
+  currentDataset.chartType = document.getElementById('chartTypeSelect').value;
+  currentDataset.showBestFit = document.getElementById('bestFitToggle').checked;
+  currentDataset.showZero = document.getElementById('showZeroToggle').checked;
+  currentDataset.showGrid = document.getElementById('showGridToggle').checked;
 }
 
 function renderTable() {
@@ -386,12 +490,19 @@ function renderChart() {
 
       document.getElementById('slopeVal').innerText = reg.slope.toFixed(3);
       document.getElementById('interceptVal').innerText = reg.intercept.toFixed(3);
+      document.getElementById('r2Val').innerText = reg.r2 !== undefined ? reg.r2.toFixed(3) : '--';
     } else {
       document.getElementById('slopeVal').innerText = '--';
       document.getElementById('interceptVal').innerText = '--';
+      document.getElementById('r2Val').innerText = '--';
     }
     chartDataConfig = { datasets };
   }
+
+  const xMinVal = currentDataset.xMin !== "" ? parseFloat(currentDataset.xMin) : (currentDataset.showZero ? 0 : undefined);
+  const xMaxVal = currentDataset.xMax !== "" ? parseFloat(currentDataset.xMax) : undefined;
+  const yMinVal = currentDataset.yMin !== "" ? parseFloat(currentDataset.yMin) : (currentDataset.showZero ? 0 : undefined);
+  const yMaxVal = currentDataset.yMax !== "" ? parseFloat(currentDataset.yMax) : undefined;
 
   chartInstance = new Chart(ctx, {
     type: isBar ? 'bar' : 'scatter',
@@ -404,7 +515,7 @@ function renderChart() {
           display: true,
           text: currentDataset.title,
           color: textColor,
-          font: { size: 16, weight: 'bold' }
+          font: { size: 15, weight: 'bold' }
         },
         legend: {
           labels: { color: mutedColor }
@@ -413,19 +524,146 @@ function renderChart() {
       scales: {
         x: {
           title: { display: true, text: xTitle, color: primaryAccent },
-          grid: { color: gridColor },
-          ticks: { color: mutedColor }
+          grid: { display: currentDataset.showGrid !== false, color: gridColor },
+          ticks: { color: mutedColor },
+          min: xMinVal,
+          max: xMaxVal
         },
         y: {
           title: { display: true, text: yTitle, color: primaryAccent },
-          grid: { color: gridColor },
-          ticks: { color: mutedColor }
+          grid: { display: currentDataset.showGrid !== false, color: gridColor },
+          ticks: { color: mutedColor },
+          min: yMinVal,
+          max: yMaxVal
         }
       }
     }
   });
 
   document.getElementById('dataPointCount').innerText = currentDataset.data.length;
+  document.getElementById('thXLabel').innerText = currentDataset.xAxisUnit ? `X: ${currentDataset.xAxisLabel} (${currentDataset.xAxisUnit})` : `X: ${currentDataset.xAxisLabel}`;
+  document.getElementById('thYLabel').innerText = currentDataset.yAxisUnit ? `Y: ${currentDataset.yAxisLabel} (${currentDataset.yAxisUnit})` : `Y: ${currentDataset.yAxisLabel}`;
+  document.getElementById('printReportTitle').innerText = `${currentDataset.title} - CAST Science Lab Report`;
+}
+
+function calculateLinearRegression(points) {
+  const n = points.length;
+  if (n < 2) return null;
+
+  let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0, sumYY = 0;
+  points.forEach(p => {
+    sumX += p.x;
+    sumY += p.y;
+    sumXY += p.x * p.y;
+    sumXX += p.x * p.x;
+    sumYY += p.y * p.y;
+  });
+
+  const denom = (n * sumXX - sumX * sumX);
+  if (denom === 0) return null;
+
+  const slope = (n * sumXY - sumX * sumY) / denom;
+  const intercept = (sumY - slope * sumX) / n;
+
+  const numR = (n * sumXY - sumX * sumY);
+  const denR = Math.sqrt((n * sumXX - sumX * sumX) * (n * sumYY - sumY * sumY));
+  const r2 = denR === 0 ? 0 : Math.pow(numR / denR, 2);
+
+  const minX = Math.min(...points.map(p => p.x));
+  const maxX = Math.max(...points.map(p => p.x));
+
+  return {
+    slope,
+    intercept,
+    r2,
+    trendlineData: [
+      { x: minX, y: slope * minX + intercept },
+      { x: maxX, y: slope * maxX + intercept }
+    ]
+  };
+}
+
+function updatePointSelectors() {
+  const p1 = document.getElementById('pt1Select');
+  const p2 = document.getElementById('pt2Select');
+  if (!p1 || !p2) return;
+  
+  p1.innerHTML = ''; p2.innerHTML = '';
+
+  currentDataset.data.forEach((pt, idx) => {
+    p1.innerHTML += `<option value="${idx}">Pt ${idx+1} (${pt.x}, ${pt.y})</option>`;
+    p2.innerHTML += `<option value="${idx}">Pt ${idx+1} (${pt.x}, ${pt.y})</option>`;
+  });
+
+  if (currentDataset.data.length >= 2) {
+    p2.selectedIndex = currentDataset.data.length - 1;
+  }
+  calculateTwoPointSlope();
+}
+
+function calculateTwoPointSlope() {
+  const idx1 = document.getElementById('pt1Select').value;
+  const idx2 = document.getElementById('pt2Select').value;
+  const resultBox = document.getElementById('twoPointResult');
+  if (!resultBox) return;
+
+  if (idx1 === "" || idx2 === "" || idx1 === idx2 || !currentDataset.data[idx1] || !currentDataset.data[idx2]) {
+    resultBox.innerText = "Select two distinct points above.";
+    return;
+  }
+
+  const pt1 = currentDataset.data[idx1];
+  const pt2 = currentDataset.data[idx2];
+  const dx = parseFloat(pt2.x) - parseFloat(pt1.x);
+  const dy = parseFloat(pt2.y) - parseFloat(pt1.y);
+
+  if (isNaN(dx) || isNaN(dy)) {
+    resultBox.innerText = "Numeric coordinates required for slope.";
+    return;
+  }
+
+  if (dx === 0) {
+    resultBox.innerText = "Undefined slope (Vertical line ΔX = 0).";
+    return;
+  }
+
+  const slope = dy / dx;
+  const xUnit = currentDataset.xAxisUnit || 'X units';
+  const yUnit = currentDataset.yAxisUnit || 'Y units';
+
+  resultBox.innerHTML = `
+    Average Rate ($\Delta Y / \Delta X$): <strong>${slope.toFixed(3)}</strong> ${yUnit} / ${xUnit}<br>
+    <span style="font-size:0.75rem; color:var(--text-muted);">ΔY = ${dy.toFixed(2)}, ΔX = ${dx.toFixed(2)}</span>
+  `;
+}
+
+function updateCERPreview() {
+  const claim = document.getElementById('cerClaim').value || currentDataset.cer?.claim;
+  const evidence = document.getElementById('cerEvidence').value || currentDataset.cer?.evidence;
+  const reasoning = document.getElementById('cerReasoning').value || currentDataset.cer?.reasoning;
+
+  document.getElementById('previewClaim').innerText = claim || "No claim entered yet.";
+  document.getElementById('previewEvidence').innerText = evidence || "No evidence cited yet.";
+  document.getElementById('previewReasoning').innerText = reasoning || "No scientific reasoning provided yet.";
+}
+
+function insertAutoEvidence() {
+  if (!currentDataset.data || currentDataset.data.length < 2) return;
+  const sorted = [...currentDataset.data].sort((a, b) => (parseFloat(a.x)||0) - (parseFloat(b.x)||0));
+  const first = sorted[0];
+  const last = sorted[sorted.length - 1];
+  const xName = currentDataset.xAxisLabel || "independent variable";
+  const xUnit = currentDataset.xAxisUnit || "";
+  const yName = currentDataset.yAxisLabel || "dependent variable";
+  const yUnit = currentDataset.yAxisUnit || "";
+
+  const autoText = `Based on the graph, as the ${xName} increased from ${first.x} ${xUnit} to ${last.x} ${xUnit}, the ${yName} changed from ${first.y} ${yUnit} to ${last.y} ${yUnit}.`;
+  
+  const field = document.getElementById('cerEvidence');
+  field.value = autoText + (field.value ? " " + field.value : "");
+  if (!currentDataset.cer) currentDataset.cer = {};
+  currentDataset.cer.evidence = field.value;
+  updateCERPreview();
 }
 
 function renderQuestions() {
