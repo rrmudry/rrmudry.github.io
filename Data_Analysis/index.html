@@ -15,36 +15,88 @@
 </head>
 <body>
 
-  <header>
+  <header class="no-print">
     <div class="logo-group">
       <span class="logo-icon">📊</span>
       <div>
         <h1>CAST Science Data Studio</h1>
-        <div class="subtitle">Interactive Data Graphing, Analysis & Trendline Studio</div>
+        <div class="subtitle">Interactive Data Graphing, Analysis & CER Studio</div>
       </div>
     </div>
     <div class="header-actions">
       <button id="themeToggleBtn" class="btn btn-secondary">🌙 Dark Mode</button>
-      <button id="exportPngBtn" class="btn btn-secondary">📷 Export Graph PNG</button>
-      <a href="../index.html" class="btn btn-secondary">🏠 Back to Home</a>
+      <button id="saveJsonBtn" class="btn btn-secondary">💾 Save Data</button>
+      <label class="btn btn-secondary" style="cursor: pointer; margin: 0;">
+        📂 Load Data
+        <input type="file" id="loadJsonInput" accept=".json" style="display: none;">
+      </label>
+      <button id="exportPngBtn" class="btn btn-secondary">📷 Export PNG</button>
+      <button onclick="window.print()" class="btn btn-accent">🖨️ Print Worksheet</button>
+      <a href="../index.html" class="btn btn-secondary">🏠 Home</a>
     </div>
   </header>
 
   <main class="main-container">
-    <!-- Left Control Panel & Data Input -->
-    <aside class="left-panel flex-column gap-1">
-      <div class="card">
-        <h2 class="card-title">📁 Practice Preset & Config</h2>
-        <div class="form-group">
-          <label for="presetSelect">Select Preset Dataset or Practice Scenario:</label>
-          <select id="presetSelect">
-            <option value="photosynthesis">🌿 Biology: Photosynthesis vs. Light</option>
-            <option value="tectonic">🌋 Earth Science: Crust Age vs. Distance from Ridge</option>
-            <option value="pendulum">⚛️ Physics: Pendulum Length vs. Period</option>
-            <option value="custom">✏️ Custom Data Entry (Blank Table)</option>
+    <!-- Printable Summary Header (Only visible during print) -->
+    <div class="print-only" style="margin-bottom: 1.5rem; border-bottom: 2px solid #333; padding-bottom: 0.5rem;">
+      <h1 style="font-size: 1.8rem; color: #000;" id="printReportTitle">CAST Science Data & Lab Analysis Report</h1>
+      <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-top: 0.5rem; color: #444;">
+        <p>Student Name: _______________________</p>
+        <p>Date: _______________  Class Period: _____</p>
+      </div>
+    </div>
+
+    <!-- Left Control Panel (Tabbed Navigation) -->
+    <aside class="left-panel no-print" style="display: flex; flex-direction: column; gap: 0.75rem;">
+      <!-- Tab Navigation Buttons -->
+      <nav class="tab-nav">
+        <button id="tabBtn-data" class="tab-btn active" onclick="switchTab('data')">🔢 Data Table</button>
+        <button id="tabBtn-axes" class="tab-btn" onclick="switchTab('axes')">⚙️ Axes & Limits</button>
+        <button id="tabBtn-math" class="tab-btn" onclick="switchTab('math')">📐 Rate & Slope</button>
+        <button id="tabBtn-cer" class="tab-btn" onclick="switchTab('cer')">📝 CER Studio</button>
+      </nav>
+
+      <!-- TAB 1: DATA ENTRY TABLE -->
+      <div id="tabContent-data" class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h2 class="card-title" style="border:none; padding:0;">📁 Practice Scenario & Data</h2>
+          <select id="presetSelect" style="max-width: 180px; font-size: 0.75rem; padding: 0.25rem 0.5rem;">
+            <option value="photosynthesis">🌿 Photosynthesis Rate</option>
+            <option value="tectonic">🌋 Crust Age vs Distance</option>
+            <option value="pendulum">⚛️ Pendulum Period</option>
+            <option value="kinematics">🚗 Toy Car Kinematics</option>
+            <option value="custom">✏️ Blank Custom Data</option>
           </select>
         </div>
 
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <label style="font-weight: 600; color: var(--text-main);">Scientific Data Points</label>
+          <div class="table-actions">
+            <button id="addRowBtn" class="btn btn-secondary" style="padding:0.2rem 0.5rem; font-size:0.75rem;">+ Add Row</button>
+            <button id="clearDataBtn" class="btn btn-danger" style="padding:0.2rem 0.5rem; font-size:0.75rem;">Clear</button>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th id="thXLabel">X Value</th>
+                <th id="thYLabel">Y Value</th>
+                <th style="width:36px;"></th>
+              </tr>
+            </thead>
+            <tbody id="dataTableBody">
+              <!-- Dynamically rendered rows -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 2: AXES, TITLES & LIMITS -->
+      <div id="tabContent-axes" class="card" style="display: none;">
+        <h2 class="card-title">⚙️ Axis Titles, Scale Limits & Graph Style</h2>
+        
         <div class="form-group">
           <label for="graphTitleInput">Graph Title:</label>
           <input type="text" id="graphTitleInput" value="Photosynthesis Rate vs. Light Intensity">
@@ -72,79 +124,140 @@
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+        <!-- Custom Axis Scale Limits (Min / Max) -->
+        <div style="border-top: 1px solid var(--bg-inner-border); padding-top: 0.5rem; margin-top: 0.25rem;">
+          <label style="font-weight:600; color:var(--text-main); font-size:0.8rem; display:block; margin-bottom:0.4rem;">Axis Min / Max Custom Scale Limits:</label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+            <div class="form-group">
+              <label for="xMinInput">X Min:</label>
+              <input type="number" step="any" id="xMinInput" placeholder="Auto">
+            </div>
+            <div class="form-group">
+              <label for="xMaxInput">X Max:</label>
+              <input type="number" step="any" id="xMaxInput" placeholder="Auto">
+            </div>
+            <div class="form-group">
+              <label for="yMinInput">Y Min:</label>
+              <input type="number" step="any" id="yMinInput" placeholder="Auto">
+            </div>
+            <div class="form-group">
+              <label for="yMaxInput">Y Max:</label>
+              <input type="number" step="any" id="yMaxInput" placeholder="Auto">
+            </div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; align-items: center; margin-top: 0.25rem;">
           <div class="form-group">
             <label for="chartTypeSelect">Graph Style:</label>
             <select id="chartTypeSelect">
               <option value="scatter">Scatter Plot</option>
-              <option value="line">Line Graph</option>
-              <option value="bar">Bar Chart</option>
+              <option value="line">Connected Line</option>
+              <option value="bar">Bar Graph</option>
             </select>
           </div>
-          <div class="form-group" style="justify-content: flex-end;">
-            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding-bottom: 0.4rem;">
-              <input type="checkbox" id="bestFitToggle" checked> Linear Best-Fit
+          <div class="form-group" style="gap: 0.25rem;">
+            <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; font-size:0.8rem;">
+              <input type="checkbox" id="showZeroToggle" checked> Include Origin (0,0)
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; font-size:0.8rem;">
+              <input type="checkbox" id="showGridToggle" checked> Show Gridlines
             </label>
           </div>
         </div>
       </div>
 
-      <!-- Data Table Card -->
-      <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <h2 class="card-title" style="border:none; padding:0;">🔢 Data Points</h2>
-          <div class="table-actions">
-            <button id="addRowBtn" class="btn btn-secondary" style="padding:0.25rem 0.5rem; font-size:0.8rem;">+ Add Row</button>
-            <button id="clearDataBtn" class="btn btn-danger" style="padding:0.25rem 0.5rem; font-size:0.8rem;">Clear</button>
-          </div>
+      <!-- TAB 3: MATHEMATICAL RATE & SLOPE CALCULATOR -->
+      <div id="tabContent-math" class="card" style="display: none;">
+        <h2 class="card-title">📐 Regression & Rate of Change Tools</h2>
+        
+        <div class="form-group">
+          <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: 600; cursor: pointer;">
+            <input type="checkbox" id="bestFitToggle" checked> Show Linear Best-Fit Line (y = mx + b)
+          </label>
         </div>
 
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>X Value</th>
-                <th>Y Value</th>
-                <th style="width:40px;"></th>
-              </tr>
-            </thead>
-            <tbody id="dataTableBody">
-              <!-- Dynamically rendered rows -->
-            </tbody>
-          </table>
+        <div class="stats-bar flex-column" style="gap:0.35rem; background:var(--bg-inner); padding:0.6rem; border-radius:6px; border:1px solid var(--bg-inner-border);">
+          <div class="stats-item">Total Points ($n$): <strong id="dataPointCount">0</strong></div>
+          <div class="stats-item">Slope ($m$ - Rate): <strong id="slopeVal">--</strong></div>
+          <div class="stats-item">Y-Intercept ($b$): <strong id="interceptVal">--</strong></div>
+          <div class="stats-item">Correlation ($R^2$): <strong id="r2Val">--</strong></div>
+        </div>
+
+        <!-- Point-to-Point Rate Tool -->
+        <div style="border-top: 1px solid var(--bg-inner-border); padding-top: 0.5rem; margin-top: 0.25rem;">
+          <label style="font-weight:600; color:var(--text-main); font-size:0.8rem; display:block; margin-bottom:0.4rem;">CAST Point-to-Point Average Rate ($\Delta Y / \Delta X$):</label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+            <div class="form-group">
+              <label for="pt1Select">Point 1:</label>
+              <select id="pt1Select"></select>
+            </div>
+            <div class="form-group">
+              <label for="pt2Select">Point 2:</label>
+              <select id="pt2Select"></select>
+            </div>
+          </div>
+          <div id="twoPointResult" style="margin-top:0.4rem; padding:0.5rem; background:var(--bg-inner); border-radius:6px; border:1px solid var(--bg-inner-border); font-size:0.8rem; font-family:monospace;">
+            Select points above to calculate slope.
+          </div>
         </div>
       </div>
 
-      <!-- Live Analysis Stats -->
-      <div class="card">
-        <h2 class="card-title">📈 Statistical Summary</h2>
-        <div class="stats-bar flex-column" style="gap:0.4rem;">
-          <div class="stats-item">Total Points: <strong id="dataPointCount">0</strong></div>
-          <div class="stats-item">Best-Fit Slope (m): <strong id="slopeVal">--</strong></div>
-          <div class="stats-item">Y-Intercept (b): <strong id="interceptVal">--</strong></div>
+      <!-- TAB 4: CER SCIENTIFIC WRITING STUDIO -->
+      <div id="tabContent-cer" class="card" style="display: none;">
+        <h2 class="card-title">📝 CER Scientific Response Studio</h2>
+        
+        <div class="form-group">
+          <label for="cerClaim" style="font-weight:600;">1. Claim (Direct answer to problem):</label>
+          <textarea id="cerClaim" rows="2" placeholder="State your direct conclusion regarding the relationship..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <label for="cerEvidence" style="font-weight:600;">2. Evidence (Cite specific numbers):</label>
+            <button id="autoEvidenceBtn" class="btn btn-secondary" style="padding:0.15rem 0.4rem; font-size:0.7rem;">✨ Auto-Sentence</button>
+          </div>
+          <textarea id="cerEvidence" rows="2" placeholder="As the independent variable increased from X1 to X2, the dependent variable changed from Y1 to Y2..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="cerReasoning" style="font-weight:600;">3. Scientific Reasoning:</label>
+          <textarea id="cerReasoning" rows="2" placeholder="Apply relevant science concepts (forces, energy transfer, molecular interactions)..."></textarea>
         </div>
       </div>
     </aside>
 
-    <!-- Right Panel: Graph Canvas & CAST Questions -->
+    <!-- Right Panel: Dynamic Graph Canvas & CAST Assessment Workspace -->
     <section class="right-panel">
-      <!-- Dynamic Graph Container -->
-      <div class="card" style="padding:1rem;">
+      <!-- Dynamic Graph Viewport -->
+      <div class="card" style="padding:0.75rem;">
         <div class="graph-canvas-container">
           <canvas id="mainChart"></canvas>
         </div>
       </div>
 
-      <!-- CAST Science Practice & Analysis Section -->
+      <!-- CAST Practice Questions & CER Live Summary -->
       <div class="card cast-questions-container">
-        <h2 class="card-title">🧪 CAST Practice: Analyzing & Interpreting Data</h2>
+        <h2 class="card-title">🧪 CAST Science Analysis & Assessment</h2>
+        
         <div id="questionsContainer">
-          <!-- Dynamically loaded questions -->
+          <!-- Dynamically loaded CAST questions -->
         </div>
 
-        <div class="form-group" style="margin-top: 1rem;">
-          <label for="studentNotes">📝 Student Claim, Evidence & Reasoning (CER) Notes:</label>
-          <textarea id="studentNotes" rows="3" placeholder="Write your conclusion or summary of what the data shows based on the graph..."></textarea>
+        <!-- CER Live Preview Box (Appears on screen & in print) -->
+        <div style="border-top: 1px solid var(--bg-inner-border); padding-top: 0.75rem; margin-top: 0.5rem;" class="print-card">
+          <h3 style="font-size:0.9rem; font-weight:700; margin-bottom:0.5rem; color:var(--accent-blue);">Scientific Explanation (CER Summary)</h3>
+          <div style="display:flex; flex-direction:column; gap:0.5rem; font-size:0.85rem;">
+            <div style="padding:0.5rem; background:var(--bg-inner); border-radius:6px; border:1px solid var(--bg-inner-border);">
+              <strong>Claim:</strong> <span id="previewClaim" style="font-style:italic; color:var(--text-muted);">No claim entered yet.</span>
+            </div>
+            <div style="padding:0.5rem; background:var(--bg-inner); border-radius:6px; border:1px solid var(--bg-inner-border);">
+              <strong>Evidence:</strong> <span id="previewEvidence" style="font-style:italic; color:var(--text-muted);">No evidence cited yet.</span>
+            </div>
+            <div style="padding:0.5rem; background:var(--bg-inner); border-radius:6px; border:1px solid var(--bg-inner-border);">
+              <strong>Reasoning:</strong> <span id="previewReasoning" style="font-style:italic; color:var(--text-muted);">No scientific reasoning provided yet.</span>
+            </div>
+          </div>
         </div>
       </div>
     </section>
