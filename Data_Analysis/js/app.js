@@ -157,11 +157,39 @@ const presets = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
   initUI();
   renderTable();
   renderChart();
   renderQuestions();
 });
+
+function initTheme() {
+  const toggleBtn = document.getElementById('themeToggleBtn');
+  const savedTheme = localStorage.getItem('data_analysis_theme') || 'light';
+  
+  if (savedTheme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    toggleBtn.innerText = '☀️ Light Mode';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    toggleBtn.innerText = '🌙 Dark Mode';
+  }
+
+  toggleBtn.addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme');
+    if (current === 'dark') {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('data_analysis_theme', 'light');
+      toggleBtn.innerText = '🌙 Dark Mode';
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('data_analysis_theme', 'dark');
+      toggleBtn.innerText = '☀️ Light Mode';
+    }
+    renderChart();
+  });
+}
 
 function initUI() {
   document.getElementById('presetSelect').addEventListener('change', (e) => {
@@ -301,14 +329,22 @@ function renderChart() {
     chartInstance.destroy();
   }
 
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const textColor = isDark ? '#f8fafc' : '#0f172a';
+  const mutedColor = isDark ? '#94a3b8' : '#475569';
+  const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+  const primaryAccent = isDark ? '#38bdf8' : '#0284c7';
+  const primaryFill = isDark ? 'rgba(56, 189, 248, 0.7)' : 'rgba(2, 132, 199, 0.8)';
+  const trendlineColor = isDark ? '#a855f7' : '#9333ea';
+
   const xTitle = currentDataset.xAxisUnit ? `${currentDataset.xAxisLabel} (${currentDataset.xAxisUnit})` : currentDataset.xAxisLabel;
-  const yTitle = currentDataset.yAxisUnit ? `${currentDataset.yAxisLabel} (${currentDataset.yAxisUnit})` : currentDataset.yAxisLabel;
+  const yTitle = currentDataset.yAxisUnit ? `${currentDataset.yAxisLabel} (${currentDataset.yAxisUnit})` : currentDataset.yAxisUnit;
 
   const datasets = [{
     label: currentDataset.title,
     data: currentDataset.data,
-    backgroundColor: 'rgba(56, 189, 248, 0.7)',
-    borderColor: '#38bdf8',
+    backgroundColor: primaryFill,
+    borderColor: primaryAccent,
     pointRadius: 6,
     pointHoverRadius: 9,
     showLine: currentDataset.chartType === 'line'
@@ -320,7 +356,7 @@ function renderChart() {
       label: `Linear Trendline (y = ${reg.slope.toFixed(2)}x + ${reg.intercept.toFixed(2)})`,
       data: reg.trendlineData,
       type: 'line',
-      borderColor: '#a855f7',
+      borderColor: trendlineColor,
       borderWidth: 2,
       borderDash: [6, 6],
       pointRadius: 0,
@@ -344,23 +380,23 @@ function renderChart() {
         title: {
           display: true,
           text: currentDataset.title,
-          color: '#f8fafc',
+          color: textColor,
           font: { size: 16, weight: 'bold' }
         },
         legend: {
-          labels: { color: '#94a3b8' }
+          labels: { color: mutedColor }
         }
       },
       scales: {
         x: {
-          title: { display: true, text: xTitle, color: '#38bdf8' },
-          grid: { color: 'rgba(255, 255, 255, 0.1)' },
-          ticks: { color: '#94a3b8' }
+          title: { display: true, text: xTitle, color: primaryAccent },
+          grid: { color: gridColor },
+          ticks: { color: mutedColor }
         },
         y: {
-          title: { display: true, text: yTitle, color: '#38bdf8' },
-          grid: { color: 'rgba(255, 255, 255, 0.1)' },
-          ticks: { color: '#94a3b8' }
+          title: { display: true, text: yTitle, color: primaryAccent },
+          grid: { color: gridColor },
+          ticks: { color: mutedColor }
         }
       }
     }
