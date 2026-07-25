@@ -1,0 +1,1839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Interactive Earth & Tectonic Plate Boundaries | CAST Science Review</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- OrbitControls -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            900: '#0c4a6e',
+                        },
+                        convergent: '#ef4444', // Red
+                        divergent: '#06b6d4',  // Cyan
+                        transform: '#f59e0b',  // Amber
+                        hotspot: '#a855f7',    // Purple
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            user-select: none;
+            background-color: #020617;
+            color: #f8fafc;
+        }
+
+        /* Glassmorphism styling */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.84);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.65);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.5);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(148, 163, 184, 0.8);
+        }
+
+        /* Hotspot Pins styling */
+        .hotspot-pin {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+            pointer-events: auto;
+            z-index: 10;
+            touch-action: manipulation;
+        }
+        .hotspot-pin:hover {
+            transform: translate(-50%, -50%) scale(1.2);
+            z-index: 20;
+        }
+        
+        .pulse-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            animation: pulse-animation 2.2s infinite ease-out;
+        }
+
+        @keyframes pulse-animation {
+            0% {
+                width: 8px;
+                height: 8px;
+                opacity: 0.9;
+            }
+            100% {
+                width: 38px;
+                height: 38px;
+                opacity: 0;
+            }
+        }
+
+        /* Glow effects */
+        .glow-convergent { box-shadow: 0 0 12px rgba(239, 68, 68, 0.7); }
+        .glow-divergent { box-shadow: 0 0 12px rgba(6, 182, 212, 0.7); }
+        .glow-transform { box-shadow: 0 0 12px rgba(245, 158, 11, 0.7); }
+        .glow-hotspot { box-shadow: 0 0 12px rgba(168, 85, 247, 0.7); }
+
+        #crossSectionCanvas {
+            background: #090d16;
+            border-radius: 0.75rem;
+        }
+    </style>
+</head>
+<body class="w-screen h-screen relative flex flex-col antialiased select-none">
+
+    <!-- Top Navigation Header -->
+    <header class="absolute top-0 left-0 w-full z-30 p-3 sm:p-4 flex items-center justify-between pointer-events-none">
+        <div class="flex items-center space-x-3 pointer-events-auto">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 via-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-cyan-500/30">
+                <i class="fa-solid text-lg text-white fa-earth-americas"></i>
+            </div>
+            <div>
+                <h1 class="text-base sm:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-100 to-slate-300">
+                    Tectonic Earth 3D
+                </h1>
+                <p class="text-[11px] sm:text-xs text-cyan-400 font-medium">Plate Boundaries, Seismicity & Fault Mechanics</p>
+            </div>
+        </div>
+
+        <!-- Toolbar Buttons -->
+        <div class="flex items-center space-x-2 sm:space-x-3 pointer-events-auto">
+            <button id="btnExploreMode" onclick="setAppMode('explore')" class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center space-x-2 bg-cyan-600 text-white shadow-lg shadow-cyan-600/30">
+                <i class="fa-solid fa-globe"></i>
+                <span class="hidden md:inline">3D Globe</span>
+            </button>
+            <button id="btnLabMode" onclick="setAppMode('lab')" class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-all flex items-center space-x-2">
+                <i class="fa-solid fa-volcano"></i>
+                <span>Fault Mechanics Lab</span>
+            </button>
+            <button id="btnQuizMode" onclick="openQuizModal()" class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-all flex items-center space-x-2">
+                <i class="fa-solid fa-graduation-cap"></i>
+                <span>CAST Quiz</span>
+            </button>
+            <button id="btnSoundToggle" onclick="toggleSound()" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-slate-300 flex items-center justify-center transition-all" title="Toggle Sound">
+                <i id="soundIcon" class="fa-solid fa-volume-xmark"></i>
+            </button>
+            <button id="btnFullscreen" onclick="toggleFullScreen()" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-slate-300 flex items-center justify-center transition-all" title="Toggle Fullscreen">
+                <i id="fullscreenIcon" class="fa-solid fa-expand"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Globe 3D Canvas Container -->
+    <div id="globeContainer" class="w-full h-full absolute inset-0 bg-slate-950"></div>
+
+    <!-- Projected Hotspot Pins -->
+    <div id="hotspotContainer" class="absolute inset-0 pointer-events-none overflow-hidden z-10"></div>
+
+    <!-- Left Controls HUD (Legend, Filters & Visual Layers) -->
+    <div class="absolute top-20 left-3 sm:left-6 z-20 flex flex-col space-y-3 max-w-[300px]">
+        
+        <!-- Legend & Filters Panel -->
+        <div class="glass-panel rounded-2xl p-3.5 sm:p-4 text-xs space-y-3 border border-slate-700/60 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-700/60 pb-2">
+                <span class="font-bold text-slate-200 tracking-wide uppercase text-[11px] flex items-center space-x-1.5">
+                    <i class="fa-solid fa-layer-group text-cyan-400"></i>
+                    <span>Tectonic Boundaries</span>
+                </span>
+                <button onclick="toggleFilterLegend()" class="text-slate-400 hover:text-white transition-colors">
+                    <i id="legendToggleIcon" class="fa-solid fa-chevron-up"></i>
+                </button>
+            </div>
+
+            <div id="legendBody" class="space-y-2">
+                <label class="flex items-center justify-between p-1.5 rounded-lg hover:bg-slate-800/50 cursor-pointer transition-colors">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-3.5 h-3.5 rounded-full bg-convergent border border-red-300 inline-block shadow-sm shadow-red-500"></span>
+                        <span class="text-slate-200 font-medium">Convergent (Colliding)</span>
+                    </div>
+                    <input type="checkbox" id="filterConvergent" checked onchange="updateBoundaryFilters()" class="accent-red-500 rounded cursor-pointer">
+                </label>
+
+                <label class="flex items-center justify-between p-1.5 rounded-lg hover:bg-slate-800/50 cursor-pointer transition-colors">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-3.5 h-3.5 rounded-full bg-divergent border border-cyan-300 inline-block shadow-sm shadow-cyan-500"></span>
+                        <span class="text-slate-200 font-medium">Divergent (Spreading)</span>
+                    </div>
+                    <input type="checkbox" id="filterDivergent" checked onchange="updateBoundaryFilters()" class="accent-cyan-500 rounded cursor-pointer">
+                </label>
+
+                <label class="flex items-center justify-between p-1.5 rounded-lg hover:bg-slate-800/50 cursor-pointer transition-colors">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-3.5 h-3.5 rounded-full bg-transform border border-amber-300 inline-block shadow-sm shadow-amber-500"></span>
+                        <span class="text-slate-200 font-medium">Transform (Sliding)</span>
+                    </div>
+                    <input type="checkbox" id="filterTransform" checked onchange="updateBoundaryFilters()" class="accent-amber-500 rounded cursor-pointer">
+                </label>
+
+                <div class="pt-2 border-t border-slate-700/50 space-y-2">
+                    <label class="flex items-center justify-between text-slate-300 cursor-pointer p-1">
+                        <span class="flex items-center space-x-1.5">
+                            <i class="fa-solid fa-house-crack text-orange-400"></i>
+                            <span>Live USGS Earthquakes (M2.5+)</span>
+                        </span>
+                        <input type="checkbox" id="toggleUSGSQuakes" checked onchange="toggleUSGSQuakesVisibility()" class="accent-orange-500 rounded cursor-pointer">
+                    </label>
+
+                    <!-- USGS Depth Legend -->
+                    <div id="quakeDepthLegend" class="p-2 bg-slate-900/80 rounded-xl text-[10px] space-y-1 border border-slate-800">
+                        <div class="flex items-center justify-between text-slate-400 font-semibold mb-1">
+                            <span>Quake Focal Depth (USGS)</span>
+                            <span id="quakeCountBadge" class="text-orange-400 font-bold">Loading...</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-1 text-center">
+                            <span class="bg-orange-500/20 text-orange-300 border border-orange-500/40 py-0.5 rounded">Shallow (&lt;70km)</span>
+                            <span class="bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 py-0.5 rounded">Med (70-300km)</span>
+                            <span class="bg-purple-500/20 text-purple-300 border border-purple-500/40 py-0.5 rounded">Deep (&gt;300km)</span>
+                        </div>
+                    </div>
+
+                    <label class="flex items-center justify-between text-slate-300 cursor-pointer p-1">
+                        <span class="flex items-center space-x-1.5">
+                            <i class="fa-solid fa-mountain-sun text-emerald-400"></i>
+                            <span>Topographic Elevation</span>
+                        </span>
+                        <input type="checkbox" id="toggleBumpMap" checked onchange="toggleTerrainElevation()" class="accent-emerald-500 rounded cursor-pointer">
+                    </label>
+
+                    <label class="flex items-center justify-between text-slate-300 cursor-pointer p-1">
+                        <span class="flex items-center space-x-1.5">
+                            <i class="fa-solid fa-location-dot text-amber-400"></i>
+                            <span>Key Geological Hotspots</span>
+                        </span>
+                        <input type="checkbox" id="toggleHotspots" checked onchange="toggleHotspotsVisibility()" class="accent-amber-500 rounded cursor-pointer">
+                    </label>
+
+                    <label class="flex items-center justify-between text-slate-300 cursor-pointer p-1">
+                        <span class="flex items-center space-x-1.5">
+                            <i class="fa-solid fa-cloud text-blue-300"></i>
+                            <span>Atmospheric Clouds Layer</span>
+                        </span>
+                        <input type="checkbox" id="toggleClouds" checked onchange="toggleCloudsVisibility()" class="accent-cyan-500 rounded cursor-pointer">
+                    </label>
+
+                    <label class="flex items-center justify-between text-slate-300 cursor-pointer p-1">
+                        <span class="flex items-center space-x-1.5">
+                            <i class="fa-solid fa-rotate text-purple-400"></i>
+                            <span>Auto-Rotate Globe</span>
+                        </span>
+                        <input type="checkbox" id="toggleAutoRotate" checked onchange="toggleAutoRotation()" class="accent-purple-500 rounded cursor-pointer">
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom HUD Navigation Bar -->
+    <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20 flex items-center space-x-2 bg-slate-900/90 border border-slate-700/80 backdrop-blur-md px-3 py-2 rounded-2xl shadow-2xl">
+        <button onclick="resetCameraView()" class="px-3 py-1.5 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-semibold flex items-center space-x-1.5 transition-all">
+            <i class="fa-solid fa-compass"></i>
+            <span>Reset View</span>
+        </button>
+        <div class="h-4 w-px bg-slate-700"></div>
+        <button onclick="zoomGlobe(0.8)" class="p-2 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white transition-all" title="Zoom In">
+            <i class="fa-solid fa-plus text-xs"></i>
+        </button>
+        <button onclick="zoomGlobe(1.25)" class="p-2 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white transition-all" title="Zoom Out">
+            <i class="fa-solid fa-minus text-xs"></i>
+        </button>
+        <div class="h-4 w-px bg-slate-700"></div>
+        <button onclick="focusRandomHotspot()" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-xs font-semibold flex items-center space-x-1.5 shadow-md hover:brightness-110 transition-all">
+            <i class="fa-solid fa-shuffle"></i>
+            <span>Explore Feature</span>
+        </button>
+    </div>
+
+    <!-- Side Detailed Information Panel -->
+    <div id="infoSidebar" class="absolute top-20 right-3 sm:right-6 bottom-20 w-[92vw] sm:w-[380px] md:w-[420px] z-20 transform translate-x-[110%] transition-transform duration-300 ease-in-out glass-panel rounded-3xl p-5 flex flex-col justify-between overflow-hidden">
+        
+        <!-- Sidebar Header -->
+        <div>
+            <div class="flex items-start justify-between border-b border-slate-700/80 pb-3 mb-4">
+                <div>
+                    <span id="sidebarBadge" class="inline-block px-2.5 py-0.5 text-[10px] font-extrabold uppercase rounded-full bg-red-500/20 text-red-400 border border-red-500/30 mb-1">
+                        Convergent Boundary
+                    </span>
+                    <h2 id="sidebarTitle" class="text-xl font-bold text-slate-100">Himalayan Collision Zone</h2>
+                </div>
+                <button onclick="closeSidebar()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Content Area -->
+            <div class="space-y-4 overflow-y-auto max-h-[calc(100vh-280px)] pr-1">
+                <div>
+                    <h3 class="text-xs font-bold uppercase text-slate-400 tracking-wider mb-1">Geological Context</h3>
+                    <p id="sidebarDescription" class="text-sm text-slate-300 leading-relaxed">
+                        The Himalayan mountain range was formed by the collision of the Indian Plate into the Eurasian Plate.
+                    </p>
+                </div>
+
+                <!-- Tectonic Mechanism Visual Card -->
+                <div class="glass-card rounded-2xl p-3.5 space-y-2 border border-slate-700/50">
+                    <div class="flex items-center justify-between text-xs font-semibold text-slate-200">
+                        <span>Plate Interaction Mechanics</span>
+                        <span id="sidebarMotionText" class="text-cyan-400">Plates Colliding (&rarr; &larr;)</span>
+                    </div>
+                    <div class="w-full bg-slate-950/80 rounded-xl p-3 flex items-center justify-center text-center border border-slate-800">
+                        <div id="sidebarIconDiagram" class="text-3xl text-red-400 flex items-center space-x-4">
+                            <!-- Dynamic Content Inserted Here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary Grid -->
+                <div class="space-y-2">
+                    <h3 class="text-xs font-bold uppercase text-slate-400 tracking-wider">Geological Characteristics</h3>
+                    <div id="sidebarFeaturesList" class="grid grid-cols-2 gap-2 text-xs">
+                        <!-- Dynamic Content -->
+                    </div>
+                </div>
+
+                <!-- Teacher Geology Tip -->
+                <div class="p-3 bg-cyan-950/40 border border-cyan-800/50 rounded-2xl text-xs text-cyan-200 flex items-start space-x-2.5">
+                    <i class="fa-solid fa-lightbulb text-amber-400 text-base mt-0.5 flex-shrink-0"></i>
+                    <div>
+                        <span class="font-bold text-cyan-100 block mb-0.5">Educational Insights</span>
+                        <span id="sidebarTeacherTip">
+                            Continental crust is buoyant and low density like granite. When two continental plates hit, neither sinks easily into the mantle!
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Button -->
+        <div class="pt-3 border-t border-slate-700/80">
+            <button onclick="openFaultLabForCurrent()" class="w-full py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold rounded-xl text-xs transition-all shadow-lg shadow-cyan-600/30 flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-play"></i>
+                <span>Simulate Fault Mechanics in Lab</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Fault Cross-Section Simulator Lab Modal -->
+    <div id="labModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md hidden">
+        <div class="glass-panel w-full max-w-4xl rounded-3xl overflow-hidden border border-slate-700 shadow-2xl flex flex-col max-h-[92vh]">
+            
+            <!-- Modal Header -->
+            <div class="px-5 py-4 border-b border-slate-700/80 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-9 h-9 rounded-xl bg-cyan-600/30 border border-cyan-500/50 flex items-center justify-center text-cyan-400">
+                        <i class="fa-solid fa-volcano text-lg"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base sm:text-lg font-bold text-white">Interactive Plate Boundary Mechanics Lab</h2>
+                        <p class="text-xs text-slate-400">Mantle convection loops, subduction Wadati-Benioff zone & fault slips</p>
+                    </div>
+                </div>
+                <button onclick="closeLabModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Lab Main Controls & Canvas -->
+            <div class="p-4 sm:p-6 overflow-y-auto space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-900/80 p-3 rounded-2xl border border-slate-800">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs text-slate-400 font-semibold">Select Fault Type:</span>
+                        <button onclick="setLabType('convergent')" id="labBtnConvergent" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-red-600 text-white">
+                            Convergent (Subduction)
+                        </button>
+                        <button onclick="setLabType('divergent')" id="labBtnDivergent" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700">
+                            Divergent (Rifting)
+                        </button>
+                        <button onclick="setLabType('transform')" id="labBtnTransform" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700">
+                            Transform (Strike-Slip)
+                        </button>
+                    </div>
+
+                    <div class="flex items-center space-x-3">
+                        <button onclick="toggleLabAnimation()" id="labPlayPauseBtn" class="px-4 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold flex items-center space-x-1.5 shadow-md">
+                            <i id="labPlayIcon" class="fa-solid fa-pause"></i>
+                            <span id="labPlayText">Pause</span>
+                        </button>
+                        <button onclick="triggerEarthquakePulse()" class="px-3 py-1.5 rounded-xl bg-amber-600/80 hover:bg-amber-500 text-white text-xs font-bold flex items-center space-x-1.5 shadow-md">
+                            <i class="fa-solid fa-house-crack"></i>
+                            <span>Trigger Earthquake Slip</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Simulation Rendering Area -->
+                <div class="relative w-full h-[280px] sm:h-[340px] rounded-2xl overflow-hidden border border-slate-800 shadow-inner bg-slate-950">
+                    <canvas id="crossSectionCanvas" class="w-full h-full block"></canvas>
+                    
+                    <div class="absolute bottom-3 left-3 bg-slate-900/90 border border-slate-700 px-3 py-1.5 rounded-xl text-[11px] text-slate-300 backdrop-blur-md flex items-center space-x-3">
+                        <span class="flex items-center space-x-1">
+                            <span class="w-2.5 h-2.5 rounded-full bg-slate-400 inline-block"></span>
+                            <span>Crust / Lithosphere</span>
+                        </span>
+                        <span class="flex items-center space-x-1">
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-600 inline-block"></span>
+                            <span>Mantle Convection Asthenosphere</span>
+                        </span>
+                        <span class="flex items-center space-x-1">
+                            <span class="w-2.5 h-2.5 rounded-full bg-orange-500 inline-block"></span>
+                            <span>Quake Hypocenters (Wadati-Benioff)</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-800/80 text-xs sm:text-sm text-slate-300 leading-relaxed">
+                    <h4 id="labExplanationTitle" class="font-bold text-cyan-400 text-sm mb-1">Convergent Boundary Mechanics</h4>
+                    <p id="labExplanationText">
+                        Dense oceanic crust slides underneath lighter continental crust into the mantle. Frictional melting generates buoyant magma, driving continental volcanism and explosive seismic activity.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Quiz Challenge Modal -->
+    <div id="quizModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden">
+        <div class="glass-panel w-full max-w-lg rounded-3xl overflow-hidden border border-slate-700 shadow-2xl p-6 relative">
+            <button onclick="closeQuizModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-red-500 flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-white">Plate Tectonics CAST Quiz</h3>
+                    <p class="text-xs text-slate-400">Test your understanding of boundary mechanisms & hotspots</p>
+                </div>
+            </div>
+
+            <div id="quizCard" class="space-y-4">
+                <div class="flex items-center justify-between text-xs text-slate-400 border-b border-slate-800 pb-2">
+                    <span id="quizProgressText">Question 1 of 5</span>
+                    <span id="quizScoreText" class="font-bold text-cyan-400">Score: 0</span>
+                </div>
+
+                <p id="quizQuestionText" class="text-sm sm:text-base font-semibold text-slate-100 min-h-[48px]">
+                    Which boundary type occurs where two tectonic plates pull apart from each other?
+                </p>
+
+                <div id="quizOptionsContainer" class="space-y-2 pt-2"></div>
+
+                <div id="quizFeedback" class="hidden p-3 rounded-xl text-xs font-semibold"></div>
+            </div>
+
+            <div class="mt-6 pt-3 border-t border-slate-800 flex justify-end">
+                <button id="quizNextBtn" onclick="nextQuizQuestion()" class="px-5 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs transition-all hidden">
+                    Next Question &rarr;
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* Global State Variables */
+        let scene, camera, renderer, controls;
+        let earthMesh, atmosphereMesh, cloudsMesh, starsMesh;
+        let boundaryLinesGroup = new THREE.Group();
+        let hotspotsGroup = new THREE.Group();
+        let earthquakesGroup = new THREE.Group();
+
+        let currentBoundaryFilter = {
+            convergent: true,
+            divergent: true,
+            transform: true
+        };
+
+        let autoRotateActive = true;
+        let soundEnabled = false;
+        let activeSelectedObject = null;
+        let audioCtx = null;
+        let usgsQuakesData = [];
+
+        // Texture URLs from standard high-resolution NASA Blue Marble / open satellite CDNs
+        const TEXTURE_SOURCES = {
+            day: 'https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg',
+            topology: 'https://unpkg.com/three-globe/example/img/earth-topology.png',
+            specular: 'https://unpkg.com/three-globe/example/img/earth-water.png',
+            night: 'https://unpkg.com/three-globe/example/img/earth-night.jpg',
+            clouds: 'https://unpkg.com/three-globe/example/img/earth-clouds.png'
+        };
+
+        /* Verified Geographic Coordinate Datasets for Major Tectonic Boundaries */
+        const ACCURATE_BOUNDARIES = [
+            // MID-ATLANTIC RIDGE (Divergent)
+            {
+                type: 'divergent',
+                name: 'Mid-Atlantic Ridge',
+                coords: [
+                    [82, -10], [74, -15], [68, -18], [64, -22], [54, -32], [45, -28], 
+                    [32, -41], [15, -45], [0, -20], [-15, -14], [-30, -13], 
+                    [-45, -16], [-55, -4], [-62, -18]
+                ]
+            },
+            // PACIFIC RING OF FIRE / ALEUTIAN / JAPAN / MARIANA (Convergent)
+            {
+                type: 'convergent',
+                name: 'Aleutian Subduction Arc',
+                coords: [
+                    [54, -165], [52, -178], [51, 175], [53, 160], [45, 150]
+                ]
+            },
+            {
+                type: 'convergent',
+                name: 'Japan & Kuril Trench',
+                coords: [
+                    [45, 150], [38, 144], [34, 140], [25, 142]
+                ]
+            },
+            {
+                type: 'convergent',
+                name: 'Mariana Trench (Challenger Deep Zone)',
+                coords: [
+                    [25, 142], [18, 147], [11, 143], [5, 127], [-8, 125]
+                ]
+            },
+            {
+                type: 'convergent',
+                name: 'Peru-Chile Trench (Andean Subduction)',
+                coords: [
+                    [8, -78], [2, -81], [-10, -78], [-20, -71], [-35, -73], [-52, -75]
+                ]
+            },
+            // ALPINE-HIMALAYAN OROGENIC BELT (Convergent Collision)
+            {
+                type: 'convergent',
+                name: 'Alpine-Himalayan Orogenic Belt',
+                coords: [
+                    [44, 7], [40, 15], [38, 25], [38, 45], [30, 60], [34, 73], [28, 85], [25, 95], [15, 98]
+                ]
+            },
+            // SAN ANDREAS FAULT ZONE (Transform)
+            {
+                type: 'transform',
+                name: 'San Andreas Fault System',
+                coords: [
+                    [40, -124], [38, -123], [36, -120], [34, -118], [32, -115], [28, -112]
+                ]
+            },
+            // ALPINE FAULT NEW ZEALAND (Transform)
+            {
+                type: 'transform',
+                name: 'Alpine Fault New Zealand',
+                coords: [
+                    [-37, 178], [-41, 172], [-45, 167]
+                ]
+            },
+            // NORTHERN CARIBBEAN FAULT (Transform)
+            {
+                type: 'transform',
+                name: 'Northern Caribbean Plate Boundary',
+                coords: [
+                    [16, -92], [18, -88], [18, -75], [19, -65]
+                ]
+            },
+            // EAST AFRICAN RIFT SYSTEM (Divergent)
+            {
+                type: 'divergent',
+                name: 'East African Rift System',
+                coords: [
+                    [15, 41], [10, 42], [3, 37], [-5, 36], [-15, 34], [-22, 35]
+                ]
+            },
+            // EAST PACIFIC RISE (Divergent)
+            {
+                type: 'divergent',
+                name: 'East Pacific Rise',
+                coords: [
+                    [23, -108], [10, -104], [-10, -110], [-30, -112], [-55, -118]
+                ]
+            },
+            // JAVA TRENCH (Convergent)
+            {
+                type: 'convergent',
+                name: 'Sunda / Java Subduction Trench',
+                coords: [
+                    [10, 93], [6, 95], [0, 98], [-6, 105], [-9, 115], [-10, 123]
+                ]
+            }
+        ];
+
+        /* Geological Hotspots Data (Including Intraplate Hotspots Hawaii & Yellowstone) */
+        const HOTSPOTS = [
+            {
+                id: 'hawaii',
+                name: 'Hawaiian Hotspot Plume',
+                type: 'hotspot',
+                lat: 19.4,
+                lng: -155.2,
+                badge: 'Intraplate Mantle Plume',
+                motionText: 'Plate Moving Over Fixed Plume (&rarr;)',
+                desc: 'A classic intraplate hotspot where a stationary mantle plume punches through the moving Pacific Plate, creating the Hawaiian Island-Emperor Seamount volcanic chain.',
+                features: {
+                    effect: 'Volcanic Island Chain Trail',
+                    quakes: 'Shallow Volcanic Tremors',
+                    volcanoes: 'Active Basaltic Shield Volcanoes',
+                    example: 'Kīlauea & Mauna Loa'
+                },
+                tip: 'Hotspots are INTRAPLATE features (located in plate interiors, NOT boundaries!). As the Pacific Plate slides northwest, old volcanoes become extinct while new ones form!'
+            },
+            {
+                id: 'yellowstone',
+                name: 'Yellowstone Caldera Hotspot',
+                type: 'hotspot',
+                lat: 44.4,
+                lng: -110.5,
+                badge: 'Continental Mantle Plume',
+                motionText: 'Continental Plate Sliding Over Plume (&rarr;)',
+                desc: 'A massive continental mantle plume beneath North America that has produced explosive supervolcano eruptions and left a trail of ancient calderas across the Snake River Plain.',
+                features: {
+                    effect: 'Continental Supercaldera',
+                    quakes: 'Frequent Shallow Swarms',
+                    volcanoes: 'Rhyolitic / Basaltic Caldera',
+                    example: 'Yellowstone National Park'
+                },
+                tip: 'The trail of older extinct calderas stretching across Idaho to Oregon proves that the North American Plate has been moving southwest over this fixed mantle plume!'
+            },
+            {
+                id: 'himalayas',
+                name: 'Himalayan Collision Zone',
+                type: 'convergent',
+                lat: 28.0,
+                lng: 86.9,
+                badge: 'Convergent (Continental-Continental)',
+                motionText: 'Plates Colliding ( &rarr; &larr; )',
+                desc: 'The collision of the Indian Plate into the Eurasian Plate compressed and buckled the Earth crust to form the highest mountain peak on Earth (Mt. Everest at 8,848m).',
+                features: {
+                    effect: 'Crustal Mountain Uplift',
+                    quakes: 'Shallow & Moderate/Strong',
+                    volcanoes: 'None (No subduction melting)',
+                    example: 'Mt. Everest, Tibetan Plateau'
+                },
+                tip: 'Because both plates consist of thick buoyant continental crust, neither plate sinks into the mantle—they buckle upwards!'
+            },
+            {
+                id: 'san_andreas',
+                name: 'San Andreas Fault Zone',
+                type: 'transform',
+                lat: 35.1,
+                lng: -119.6,
+                badge: 'Transform (Strike-Slip)',
+                motionText: 'Horizontal Sliding ( &#x21C5; &#x2191;&#x2193; )',
+                desc: 'A famous transform fault where the Pacific Plate slides horizontally past the North American Plate at ~33mm per year, generating major earthquakes along California.',
+                features: {
+                    effect: 'Fault Offset & Scarp Valleys',
+                    quakes: 'Severe Shallow Earthquakes',
+                    volcanoes: 'None',
+                    example: 'San Francisco, Parkfield Fault'
+                },
+                tip: 'Friction holds the plates locked until tectonic stress overcomes rock strength, suddenly snapping to release seismic shockwaves.'
+            },
+            {
+                id: 'mid_atlantic',
+                name: 'Mid-Atlantic Ridge',
+                type: 'divergent',
+                lat: 25.0,
+                lng: -45.0,
+                badge: 'Divergent (Seafloor Spreading)',
+                motionText: 'Plates Pulling Apart ( &larr; &rarr; )',
+                desc: 'A massive 16,000 km continuous underwater mountain range where the Eurasian, African, and American plates pull apart, creating new ocean crust from upwelling mantle magma.',
+                features: {
+                    effect: 'Seafloor Spreading Rift',
+                    quakes: 'Shallow Moderate Quakes',
+                    volcanoes: 'Submarine Basaltic Eruptions',
+                    example: 'Iceland, Azores Islands'
+                },
+                tip: 'Iceland sits directly atop the Mid-Atlantic Ridge, allowing scientists to walk on exposed seafloor spreading rift valleys on land!'
+            },
+            {
+                id: 'mariana_trench',
+                name: 'Mariana Trench',
+                type: 'convergent',
+                lat: 11.3,
+                lng: 142.2,
+                badge: 'Convergent (Oceanic Subduction)',
+                motionText: 'Oceanic Subduction ( &rarr; &darr; )',
+                desc: 'The deepest point on Earth (Challenger Deep ~11,000 meters deep). The old, dense Pacific oceanic plate sinks beneath the overriding Mariana plate.',
+                features: {
+                    effect: 'Deep Subduction Trench',
+                    quakes: 'Deep Focus Quakes (up to 700km)',
+                    volcanoes: 'Volcanic Island Arc Chain',
+                    example: 'Challenger Deep, Guam'
+                },
+                tip: 'Oceanic crust gets colder and denser as it ages. Old oceanic crust sinks steeply into the mantle like a heavy lead anchor!'
+            },
+            {
+                id: 'east_africa',
+                name: 'East African Rift Valley',
+                type: 'divergent',
+                lat: -3.0,
+                lng: 36.5,
+                badge: 'Divergent (Continental Rift)',
+                motionText: 'Continental Rifting ( &larr; &rarr; )',
+                desc: 'An active continental rift valley where the African Plate is splitting into the Nubian and Somalian sub-plates. Over millions of years, a new ocean will open up here.',
+                features: {
+                    effect: 'Rift Valleys & Steep Cliffs',
+                    quakes: 'Shallow Rift Earthquakes',
+                    volcanoes: 'Active Volcanism (Mt. Kilimanjaro)',
+                    example: 'Great Rift Valley, Red Sea'
+                },
+                tip: 'The Red Sea was created millions of years ago by the exact same continental rifting process currently tearing East Africa apart.'
+            },
+            {
+                id: 'andes',
+                name: 'Andes Volcanic Mountain Chain',
+                type: 'convergent',
+                lat: -23.0,
+                lng: -68.0,
+                badge: 'Convergent (Oceanic-Continental)',
+                motionText: 'Subduction Under Continent ( &rarr; &larr; )',
+                desc: 'The Nazca oceanic plate subducts under South America, buckling continental crust into the Andes Mountains and producing intense explosive volcanoes.',
+                features: {
+                    effect: 'Continental Volcanic Mountain Arc',
+                    quakes: 'Megathrust Earthquakes',
+                    volcanoes: 'High Stratovolcano Arc',
+                    example: 'Cotopaxi, Atacama Trench'
+                },
+                tip: 'This subduction zone generated the largest recorded earthquake in world history: the 1960 Valdivia, Chile magnitude 9.5 earthquake!'
+            }
+        ];
+
+        /* Utility: Convert Lat/Lng to 3D Cartesian Coordinate */
+        function latLngToVector3(lat, lng, radius, altitude = 0) {
+            const phi = (90 - lat) * (Math.PI / 180);
+            const theta = (lng + 180) * (Math.PI / 180);
+            const r = radius + altitude;
+            return new THREE.Vector3(
+                -(r * Math.sin(phi) * Math.cos(theta)),
+                r * Math.cos(phi),
+                r * Math.sin(phi) * Math.sin(theta)
+            );
+        }
+
+        function createProceduralFallbackTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 2048; canvas.height = 1024;
+            const ctx = canvas.getContext('2d');
+
+            const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            grad.addColorStop(0, '#0c2a4a');
+            grad.addColorStop(0.5, '#07162c');
+            grad.addColorStop(1, '#0c2a4a');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#1e293b';
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 2;
+
+            const continents = [
+                [[200, 200], [450, 150], [600, 250], [550, 450], [400, 500], [350, 400]],
+                [[500, 550], [620, 580], [600, 850], [520, 950], [480, 700]],
+                [[900, 200], [1150, 180], [1200, 300], [1000, 350], [920, 300]],
+                [[950, 380], [1200, 400], [1250, 600], [1150, 850], [1000, 750]],
+                [[1200, 180], [1750, 180], [1800, 450], [1500, 550], [1300, 450]],
+                [[1600, 650], [1800, 650], [1780, 820], [1620, 820]]
+            ];
+
+            continents.forEach(poly => {
+                ctx.beginPath();
+                ctx.moveTo(poly[0][0], poly[0][1]);
+                for(let i = 1; i < poly.length; i++) ctx.lineTo(poly[i][0], poly[i][1]);
+                ctx.closePath();
+                ctx.fill(); ctx.stroke();
+            });
+
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        function init3DScene() {
+            const container = document.getElementById('globeContainer');
+            
+            // Scene
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x020617, 0.0007);
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1200);
+            camera.position.set(0, 25, 340);
+
+            // WebGL Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.1;
+            container.appendChild(renderer.domElement);
+
+            // Controls with Touchscreen Enhancements for Chromebooks/iPads
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.rotateSpeed = 0.8;
+            controls.minDistance = 120;
+            controls.maxDistance = 550;
+            controls.autoRotate = true;
+            controls.autoRotateSpeed = 0.6;
+            controls.touches = {
+                ONE: THREE.TOUCH.ROTATE,
+                TWO: THREE.TOUCH.DOLLY_PAN
+            };
+
+            // Lighting Setup
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+            scene.add(ambientLight);
+
+            const sunLight = new THREE.DirectionalLight(0xffffff, 1.4);
+            sunLight.position.set(250, 150, 200);
+            scene.add(sunLight);
+
+            const blueRimLight = new THREE.DirectionalLight(0x0284c7, 0.8);
+            blueRimLight.position.set(-250, -100, -200);
+            scene.add(blueRimLight);
+
+            createStarfield();
+            createPhotorealisticEarth();
+            renderBoundaryLines();
+            createHotspotMarkers();
+            fetchUSGSRealTimeQuakes();
+
+            window.addEventListener('resize', onWindowResize);
+            renderer.domElement.addEventListener('click', onCanvasClick);
+
+            animate();
+        }
+
+        function createStarfield() {
+            const starsGeo = new THREE.BufferGeometry();
+            const count = 3500;
+            const positions = new Float32Array(count * 3);
+            const colors = new Float32Array(count * 3);
+
+            for (let i = 0; i < count * 3; i += 3) {
+                positions[i] = (Math.random() - 0.5) * 1400;
+                positions[i + 1] = (Math.random() - 0.5) * 1400;
+                positions[i + 2] = (Math.random() - 0.5) * 1400;
+
+                colors[i] = 0.8 + Math.random() * 0.2;
+                colors[i + 1] = 0.8 + Math.random() * 0.2;
+                colors[i + 2] = 1.0;
+            }
+
+            starsGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            starsGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            const starsMat = new THREE.PointsMaterial({
+                size: 1.2,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.85
+            });
+
+            starsMesh = new THREE.Points(starsGeo, starsMat);
+            scene.add(starsMesh);
+        }
+
+        function createPhotorealisticEarth() {
+            const radius = 80;
+            const segments = 64;
+
+            const textureLoader = new THREE.TextureLoader();
+            textureLoader.setCrossOrigin('anonymous');
+
+            const fallbackTex = createProceduralFallbackTexture();
+            const earthGeo = new THREE.SphereGeometry(radius, segments, segments);
+            
+            const earthMat = new THREE.MeshPhongMaterial({
+                map: fallbackTex,
+                shininess: 25,
+                bumpScale: 0.8
+            });
+
+            textureLoader.load(TEXTURE_SOURCES.day, (tex) => {
+                tex.colorSpace = THREE.SRGBColorSpace;
+                earthMat.map = tex;
+                earthMat.needsUpdate = true;
+            });
+
+            textureLoader.load(TEXTURE_SOURCES.topology, (bumpTex) => {
+                earthMat.bumpMap = bumpTex;
+                earthMat.bumpScale = 1.2;
+                earthMat.needsUpdate = true;
+            });
+
+            textureLoader.load(TEXTURE_SOURCES.specular, (specTex) => {
+                earthMat.specularMap = specTex;
+                earthMat.specular = new THREE.Color(0x224466);
+                earthMat.needsUpdate = true;
+            });
+
+            earthMesh = new THREE.Mesh(earthGeo, earthMat);
+            scene.add(earthMesh);
+
+            // Custom Atmosphere Glow Shader
+            const atmosGeo = new THREE.SphereGeometry(radius + 2.2, segments, segments);
+            const atmosMat = new THREE.ShaderMaterial({
+                vertexShader: `
+                    varying vec3 vNormal;
+                    void main() {
+                        vNormal = normalize(normalMatrix * normal);
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                    }
+                `,
+                fragmentShader: `
+                    varying vec3 vNormal;
+                    void main() {
+                        float intensity = pow(0.65 - dot(vNormal, vec3(0, 0, 1.0)), 2.0);
+                        gl_FragColor = vec4(0.06, 0.72, 0.96, 1.0) * intensity;
+                    }
+                `,
+                blending: THREE.AdditiveBlending,
+                side: THREE.BackSide,
+                transparent: true
+            });
+
+            atmosphereMesh = new THREE.Mesh(atmosGeo, atmosMat);
+            scene.add(atmosphereMesh);
+
+            // Cloud Layer
+            const cloudGeo = new THREE.SphereGeometry(radius + 0.8, segments, segments);
+            const cloudMat = new THREE.MeshPhongMaterial({
+                transparent: true,
+                opacity: 0.35,
+                blending: THREE.AdditiveBlending
+            });
+
+            textureLoader.load(TEXTURE_SOURCES.clouds, (cloudTex) => {
+                cloudMat.map = cloudTex;
+                cloudMat.needsUpdate = true;
+            });
+
+            cloudsMesh = new THREE.Mesh(cloudGeo, cloudMat);
+            scene.add(cloudsMesh);
+        }
+
+        function create3DArrow(position, dirVector, colorHex) {
+            const arrowGroup = new THREE.Group();
+            arrowGroup.position.copy(position);
+
+            const defaultDir = new THREE.Vector3(0, 1, 0);
+            const quaternion = new THREE.Quaternion().setFromUnitVectors(defaultDir, dirVector.clone().normalize());
+            arrowGroup.quaternion.copy(quaternion);
+
+            const shaftGeo = new THREE.CylinderGeometry(0.25, 0.25, 1.6, 6);
+            shaftGeo.translate(0, 0.8, 0);
+            const shaftMat = new THREE.MeshBasicMaterial({ color: colorHex });
+            arrowGroup.add(new THREE.Mesh(shaftGeo, shaftMat));
+
+            const headGeo = new THREE.ConeGeometry(0.65, 1.2, 6);
+            headGeo.translate(0, 2.0, 0);
+            const headMat = new THREE.MeshBasicMaterial({ color: colorHex });
+            arrowGroup.add(new THREE.Mesh(headGeo, headMat));
+
+            boundaryLinesGroup.add(arrowGroup);
+        }
+
+        function renderBoundaryLines() {
+            scene.remove(boundaryLinesGroup);
+            boundaryLinesGroup = new THREE.Group();
+
+            ACCURATE_BOUNDARIES.forEach((boundary) => {
+                if (!currentBoundaryFilter[boundary.type]) return;
+
+                const points = [];
+                boundary.coords.forEach(coord => {
+                    points.push(latLngToVector3(coord[0], coord[1], 80, 0.8));
+                });
+
+                if (points.length < 2) return;
+
+                const curve = new THREE.CatmullRomCurve3(points);
+                const tubeGeo = new THREE.TubeGeometry(curve, points.length * 8, 0.65, 6, false);
+
+                let colorHex = 0xef4444; // Convergent
+                if (boundary.type === 'divergent') colorHex = 0x06b6d4; // Divergent
+                if (boundary.type === 'transform') colorHex = 0xf59e0b; // Transform
+
+                const tubeMat = new THREE.MeshBasicMaterial({ color: colorHex });
+                const tubeMesh = new THREE.Mesh(tubeGeo, tubeMat);
+                tubeMesh.userData = boundary;
+                boundaryLinesGroup.add(tubeMesh);
+
+                const sampleCount = Math.max(2, Math.floor(points.length * 1.2));
+                for (let i = 0; i < sampleCount; i++) {
+                    const u = (i + 0.5) / sampleCount;
+                    const pt = curve.getPointAt(u);
+                    const tangent = curve.getTangentAt(u).normalize();
+                    const normal = pt.clone().normalize();
+                    const binormal = new THREE.Vector3().crossVectors(normal, tangent).normalize();
+
+                    const centerPt = normal.clone().multiplyScalar(81.6);
+
+                    if (boundary.type === 'convergent') {
+                        create3DArrow(centerPt.clone().add(binormal.clone().multiplyScalar(2.2)), binormal.clone().negate(), 0xef4444);
+                        create3DArrow(centerPt.clone().add(binormal.clone().multiplyScalar(-2.2)), binormal.clone(), 0xef4444);
+                    } else if (boundary.type === 'divergent') {
+                        create3DArrow(centerPt.clone().add(binormal.clone().multiplyScalar(0.8)), binormal.clone(), 0x06b6d4);
+                        create3DArrow(centerPt.clone().add(binormal.clone().multiplyScalar(-0.8)), binormal.clone().negate(), 0x06b6d4);
+                    } else if (boundary.type === 'transform') {
+                        create3DArrow(centerPt.clone().add(binormal.clone().multiplyScalar(1.5)), tangent.clone(), 0xf59e0b);
+                        create3DArrow(centerPt.clone().add(binormal.clone().multiplyScalar(-1.5)), tangent.clone().negate(), 0xf59e0b);
+                    }
+                }
+            });
+
+            scene.add(boundaryLinesGroup);
+        }
+
+        function createHotspotMarkers() {
+            const container = document.getElementById('hotspotContainer');
+            container.innerHTML = '';
+            hotspotsGroup = new THREE.Group();
+
+            HOTSPOTS.forEach((hotspot) => {
+                const vec = latLngToVector3(hotspot.lat, hotspot.lng, 80, 1.2);
+                
+                const anchor = new THREE.Object3D();
+                anchor.position.copy(vec);
+                anchor.userData = hotspot;
+                hotspotsGroup.add(anchor);
+
+                const pin = document.createElement('div');
+                pin.className = 'hotspot-pin flex items-center space-x-1.5 bg-slate-900/90 border border-slate-700 px-2.5 py-1 rounded-full text-white text-xs font-bold shadow-xl backdrop-blur-md group';
+                pin.id = `pin-${hotspot.id}`;
+                pin.onclick = () => selectHotspot(hotspot);
+
+                let dotColor = 'bg-red-500';
+                if(hotspot.type === 'divergent') dotColor = 'bg-cyan-500';
+                if(hotspot.type === 'transform') dotColor = 'bg-amber-500';
+                if(hotspot.type === 'hotspot') dotColor = 'bg-purple-500';
+
+                pin.innerHTML = `
+                    <div class="relative flex items-center justify-center w-3 h-3">
+                        <span class="pulse-ring ${dotColor}"></span>
+                        <span class="w-2 h-2 rounded-full ${dotColor}"></span>
+                    </div>
+                    <span class="text-[11px] group-hover:text-cyan-300 transition-colors">${hotspot.name}</span>
+                `;
+
+                container.appendChild(pin);
+                hotspot.el = pin;
+                hotspot.vec = vec;
+            });
+
+            scene.add(hotspotsGroup);
+        }
+
+        /* Real-Time Live USGS Earthquakes Loader (Section 1 Recommendation) */
+        async function fetchUSGSRealTimeQuakes() {
+            const badge = document.getElementById('quakeCountBadge');
+            try {
+                const response = await fetch('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson');
+                const data = await response.json();
+                usgsQuakesData = data.features;
+
+                scene.remove(earthquakesGroup);
+                earthquakesGroup = new THREE.Group();
+
+                let count = 0;
+                usgsQuakesData.forEach(quake => {
+                    const coords = quake.geometry.coordinates; // [lng, lat, depth_km]
+                    const lng = coords[0];
+                    const lat = coords[1];
+                    const depth = coords[2];
+                    const mag = quake.properties.mag || 3.0;
+
+                    // Sphere size based on magnitude
+                    const sphereRadius = Math.max(0.4, (mag - 2) * 0.45);
+                    const quakeGeo = new THREE.SphereGeometry(sphereRadius, 8, 8);
+
+                    // Depth color coding (Wadati-Benioff Subduction Zone proof)
+                    let quakeColor = 0xf97316; // Shallow (<70km): Orange
+                    if (depth >= 70 && depth < 300) quakeColor = 0xeab308; // Intermediate (70-300km): Yellow
+                    if (depth >= 300) quakeColor = 0xa855f7; // Deep (>300km): Purple
+
+                    const quakeMat = new THREE.MeshBasicMaterial({
+                        color: quakeColor,
+                        transparent: true,
+                        opacity: 0.85
+                    });
+
+                    const vec = latLngToVector3(lat, lng, 80, 0.4);
+                    const quakeMesh = new THREE.Mesh(quakeGeo, quakeMat);
+                    quakeMesh.position.copy(vec);
+                    quakeMesh.userData = {
+                        title: quake.properties.title,
+                        mag: mag,
+                        depth: depth,
+                        place: quake.properties.place,
+                        time: new Date(quake.properties.time).toLocaleString(),
+                        url: quake.properties.url
+                    };
+
+                    earthquakesGroup.add(quakeMesh);
+                    count++;
+                });
+
+                scene.add(earthquakesGroup);
+                if (badge) badge.innerText = `${count} Live M2.5+`;
+            } catch (e) {
+                console.warn('USGS Live Quake Feed unavailable:', e);
+                if (badge) badge.innerText = 'Offline';
+            }
+        }
+
+        function toggleUSGSQuakesVisibility() {
+            const show = document.getElementById('toggleUSGSQuakes').checked;
+            earthquakesGroup.visible = show;
+        }
+
+        function updateHotspotPositions() {
+            const tempV = new THREE.Vector3();
+            HOTSPOTS.forEach(hotspot => {
+                if (!hotspot.el) return;
+                
+                tempV.copy(hotspot.vec);
+                tempV.project(camera);
+
+                const isVisible = tempV.z < 0.95;
+
+                if (isVisible) {
+                    const x = (tempV.x * .5 + .5) * window.innerWidth;
+                    const y = (tempV.y * -.5 + .5) * window.innerHeight;
+                    hotspot.el.style.transform = `translate(-50%, -50%) translate(${x}px,${y}px)`;
+                    hotspot.el.style.opacity = '1';
+                    hotspot.el.style.pointerEvents = 'auto';
+                } else {
+                    hotspot.el.style.opacity = '0';
+                    hotspot.el.style.pointerEvents = 'none';
+                }
+            });
+        }
+
+        function selectHotspot(hotspot) {
+            playTone(480, 'sine', 0.15);
+
+            const targetPos = latLngToVector3(hotspot.lat, hotspot.lng, 80, 0);
+            const camTarget = targetPos.clone().multiplyScalar(2.7);
+
+            controls.autoRotate = false;
+            document.getElementById('toggleAutoRotate').checked = false;
+
+            animateCameraTo(camTarget, targetPos);
+            openSidebar(hotspot);
+        }
+
+        function animateCameraTo(targetCamPos, lookAtPos) {
+            const startCamPos = camera.position.clone();
+            const duration = 1000;
+            const startTime = performance.now();
+
+            function step(now) {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const ease = 1 - Math.pow(1 - progress, 3);
+
+                camera.position.lerpVectors(startCamPos, targetCamPos, ease);
+                controls.target.set(0, 0, 0);
+                controls.update();
+
+                if (progress < 1) {
+                    requestAnimationFrame(step);
+                }
+            }
+            requestAnimationFrame(step);
+        }
+
+        function openSidebar(data) {
+            const sidebar = document.getElementById('infoSidebar');
+            const badge = document.getElementById('sidebarBadge');
+            const title = document.getElementById('sidebarTitle');
+            const desc = document.getElementById('sidebarDescription');
+            const motionText = document.getElementById('sidebarMotionText');
+            const tip = document.getElementById('sidebarTeacherTip');
+            const list = document.getElementById('sidebarFeaturesList');
+
+            title.innerText = data.name || data.title;
+            desc.innerText = data.desc || `Live USGS Earthquake event: ${data.place}. Magnitude ${data.mag} recorded at a focal depth of ${data.depth} km.`;
+            motionText.innerHTML = data.motionText || `Seismic Energy Release (${data.mag} M)`;
+            tip.innerText = data.tip || `Quakes with focal depths >300km occur almost exclusively along subducting oceanic slabs (Wadati-Benioff Zone)!`;
+
+            badge.innerText = data.badge || `USGS Quake (${data.depth}km Depth)`;
+            badge.className = `inline-block px-2.5 py-0.5 text-[10px] font-extrabold uppercase rounded-full mb-1 `;
+            if(data.type === 'convergent') badge.className += 'bg-red-500/20 text-red-400 border border-red-500/30';
+            else if(data.type === 'divergent') badge.className += 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30';
+            else if(data.type === 'transform') badge.className += 'bg-amber-500/20 text-amber-400 border border-amber-500/30';
+            else if(data.type === 'hotspot') badge.className += 'bg-purple-500/20 text-purple-400 border border-purple-500/30';
+            else badge.className += 'bg-orange-500/20 text-orange-400 border border-orange-500/30';
+
+            const diagramContainer = document.getElementById('sidebarIconDiagram');
+            if (data.type === 'convergent') {
+                diagramContainer.innerHTML = `
+                    <div class="flex items-center space-x-2 sm:space-x-3 text-red-400">
+                        <i class="fa-solid fa-arrow-right text-xl animate-pulse"></i>
+                        <span class="px-2 py-0.5 bg-red-950/80 border border-red-500/50 rounded-md text-[11px] font-bold text-red-200 uppercase">Colliding</span>
+                        <i class="fa-solid fa-mountain text-amber-400 text-2xl"></i>
+                        <span class="px-2 py-0.5 bg-red-950/80 border border-red-500/50 rounded-md text-[11px] font-bold text-red-200 uppercase">Colliding</span>
+                        <i class="fa-solid fa-arrow-left text-xl animate-pulse"></i>
+                    </div>
+                `;
+            } else if (data.type === 'divergent') {
+                diagramContainer.innerHTML = `
+                    <div class="flex items-center space-x-2 sm:space-x-3 text-cyan-400">
+                        <i class="fa-solid fa-arrow-left text-xl animate-pulse"></i>
+                        <span class="px-2 py-0.5 bg-cyan-950/80 border border-cyan-500/50 rounded-md text-[11px] font-bold text-cyan-200 uppercase">Spreading</span>
+                        <i class="fa-solid fa-water text-cyan-300 text-2xl"></i>
+                        <span class="px-2 py-0.5 bg-cyan-950/80 border border-cyan-500/50 rounded-md text-[11px] font-bold text-cyan-200 uppercase">Spreading</span>
+                        <i class="fa-solid fa-arrow-right text-xl animate-pulse"></i>
+                    </div>
+                `;
+            } else if (data.type === 'hotspot') {
+                diagramContainer.innerHTML = `
+                    <div class="flex items-center space-x-3 text-purple-400">
+                        <i class="fa-solid fa-arrow-right text-xl animate-pulse"></i>
+                        <span class="px-2 py-0.5 bg-purple-950/80 border border-purple-500/50 rounded-md text-[11px] font-bold text-purple-200 uppercase">Moving Plate</span>
+                        <i class="fa-solid fa-fire text-amber-400 text-2xl animate-bounce"></i>
+                        <span class="px-2 py-0.5 bg-purple-950/80 border border-purple-500/50 rounded-md text-[11px] font-bold text-purple-200 uppercase">Fixed Plume</span>
+                    </div>
+                `;
+            } else { // Transform boundary
+                diagramContainer.innerHTML = `
+                    <div class="flex flex-col space-y-1.5 w-full max-w-[260px] py-1">
+                        <div class="flex items-center justify-between px-3 py-1 bg-amber-950/70 border border-amber-500/40 rounded-lg text-xs font-semibold text-amber-300">
+                            <span>Plate A</span>
+                            <i class="fa-solid fa-arrow-right text-amber-400 text-sm"></i>
+                        </div>
+                        <div class="h-0.5 w-full bg-gradient-to-r from-amber-500/20 via-amber-400 to-amber-500/20"></div>
+                        <div class="flex items-center justify-between px-3 py-1 bg-amber-950/70 border border-amber-500/40 rounded-lg text-xs font-semibold text-amber-300">
+                            <i class="fa-solid fa-arrow-left text-amber-400 text-sm"></i>
+                            <span>Plate B</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (data.features) {
+                list.innerHTML = `
+                    <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
+                        <span class="text-slate-400 block text-[10px]">Primary Landform</span>
+                        <span class="text-slate-200 font-semibold">${data.features.effect}</span>
+                    </div>
+                    <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
+                        <span class="text-slate-400 block text-[10px]">Seismicity</span>
+                        <span class="text-slate-200 font-semibold">${data.features.quakes}</span>
+                    </div>
+                    <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
+                        <span class="text-slate-400 block text-[10px]">Volcanism</span>
+                        <span class="text-slate-200 font-semibold">${data.features.volcanoes}</span>
+                    </div>
+                    <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
+                        <span class="text-slate-400 block text-[10px]">Real World Region</span>
+                        <span class="text-slate-200 font-semibold">${data.features.example}</span>
+                    </div>
+                `;
+            } else {
+                list.innerHTML = `
+                    <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
+                        <span class="text-slate-400 block text-[10px]">Magnitude</span>
+                        <span class="text-orange-400 font-bold">${data.mag} M</span>
+                    </div>
+                    <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
+                        <span class="text-slate-400 block text-[10px]">Focal Depth</span>
+                        <span class="text-yellow-400 font-bold">${data.depth} km</span>
+                    </div>
+                    <div class="col-span-2 bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
+                        <span class="text-slate-400 block text-[10px]">Event Timestamp</span>
+                        <span class="text-slate-200 font-semibold">${data.time}</span>
+                    </div>
+                `;
+            }
+
+            activeSelectedObject = data;
+            sidebar.classList.remove('translate-x-[110%]');
+        }
+
+        function closeSidebar() {
+            document.getElementById('infoSidebar').classList.add('translate-x-[110%]');
+        }
+
+        function onCanvasClick(event) {
+            const mouse = new THREE.Vector2(
+                (event.clientX / window.innerWidth) * 2 - 1,
+                -(event.clientY / window.innerHeight) * 2 + 1
+            );
+
+            const raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(mouse, camera);
+
+            // Check USGS quakes first
+            if (earthquakesGroup.visible) {
+                const quakeIntersects = raycaster.intersectObjects(earthquakesGroup.children);
+                if (quakeIntersects.length > 0) {
+                    const qData = quakeIntersects[0].object.userData;
+                    playTone(640, 'triangle', 0.1);
+                    openSidebar(qData);
+                    return;
+                }
+            }
+
+            const intersects = raycaster.intersectObjects(boundaryLinesGroup.children);
+            if (intersects.length > 0) {
+                const boundary = intersects[0].object.userData;
+                playTone(540, 'triangle', 0.1);
+                
+                const matchedHotspot = HOTSPOTS.find(h => h.type === boundary.type) || HOTSPOTS[0];
+                openSidebar({
+                    ...matchedHotspot,
+                    name: boundary.name,
+                    desc: `An active ${boundary.type.toUpperCase()} plate boundary segment. Differential movement along this boundary produces ongoing geological stress.`
+                });
+            }
+        }
+
+        /* Interactive Cross-Section Mechanics Laboratory (with Mantle Convection) */
+        let labCanvas, labCtx;
+        let labAnimationId;
+        let labActiveType = 'convergent';
+        let labIsPlaying = true;
+        let labTime = 0;
+        let earthquakePulse = 0;
+
+        function initLabCanvas() {
+            labCanvas = document.getElementById('crossSectionCanvas');
+            if(!labCanvas) return;
+            
+            const rect = labCanvas.parentElement.getBoundingClientRect();
+            labCanvas.width = rect.width;
+            labCanvas.height = rect.height;
+            labCtx = labCanvas.getContext('2d');
+
+            drawLabFrame();
+        }
+
+        function setLabType(type) {
+            labActiveType = type;
+            playTone(600, 'sine', 0.1);
+
+            const btnC = document.getElementById('labBtnConvergent');
+            const btnD = document.getElementById('labBtnDivergent');
+            const btnT = document.getElementById('labBtnTransform');
+
+            btnC.className = type === 'convergent' ? 'px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-red-600 text-white' : 'px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700';
+            btnD.className = type === 'divergent' ? 'px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-cyan-600 text-white' : 'px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700';
+            btnT.className = type === 'transform' ? 'px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-amber-600 text-white' : 'px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700';
+
+            const title = document.getElementById('labExplanationTitle');
+            const text = document.getElementById('labExplanationText');
+
+            if(type === 'convergent') {
+                title.innerText = "Convergent Subduction Mechanics & Wadati-Benioff Zone";
+                text.innerText = "Dense oceanic lithosphere sinks underneath lighter continental crust into the hot mantle. Thermal convection drives slab pull. Earthquakes increase in depth along the subducting slab (Wadati-Benioff Zone).";
+            } else if(type === 'divergent') {
+                title.innerText = "Divergent Seafloor Spreading & Mantle Convection";
+                text.innerText = "Mantle thermal convection currents pull plates apart. Rising magma depressurizes and cools to form fresh oceanic crust along central rift valleys.";
+            } else {
+                title.innerText = "Transform Strike-Slip Mechanics";
+                text.innerText = "Plates slide past each other horizontally. Frictional resistance locks the fault plane until strain violently releases as severe earthquake shockwaves.";
+            }
+        }
+
+        function drawLabFrame() {
+            if(!labCtx) return;
+            const w = labCanvas.width;
+            const h = labCanvas.height;
+
+            labCtx.clearRect(0, 0, w, h);
+
+            if(labIsPlaying) labTime += 0.03;
+            if(earthquakePulse > 0) earthquakePulse -= 0.02;
+
+            // Mantle Background Gradient
+            const bgGrad = labCtx.createLinearGradient(0, h * 0.4, 0, h);
+            bgGrad.addColorStop(0, '#7c2d12');
+            bgGrad.addColorStop(1, '#451a03');
+            labCtx.fillStyle = bgGrad;
+            labCtx.fillRect(0, h * 0.4, w, h * 0.6);
+
+            // Draw Mantle Convection Current Loop Arrows
+            drawMantleConvectionCells(w, h);
+
+            const shakeX = earthquakePulse > 0 ? (Math.random() - 0.5) * earthquakePulse * 16 : 0;
+            const shakeY = earthquakePulse > 0 ? (Math.random() - 0.5) * earthquakePulse * 16 : 0;
+
+            labCtx.save();
+            labCtx.translate(shakeX, shakeY);
+
+            if(labActiveType === 'convergent') {
+                drawConvergentLab(w, h);
+            } else if(labActiveType === 'divergent') {
+                drawDivergentLab(w, h);
+            } else {
+                drawTransformLab(w, h);
+            }
+
+            labCtx.restore();
+
+            labAnimationId = requestAnimationFrame(drawLabFrame);
+        }
+
+        function drawMantleConvectionCells(w, h) {
+            labCtx.save();
+            labCtx.strokeStyle = 'rgba(251, 146, 60, 0.4)';
+            labCtx.lineWidth = 3;
+            labCtx.setLineDash([6, 6]);
+
+            // Convection Cell 1 (Left)
+            const offset = (labTime * 20) % 40;
+            labCtx.lineDashOffset = -offset;
+            labCtx.beginPath();
+            labCtx.ellipse(w * 0.25, h * 0.75, w * 0.15, h * 0.15, 0, 0, Math.PI * 2);
+            labCtx.stroke();
+
+            // Convection Cell 2 (Right)
+            labCtx.lineDashOffset = offset;
+            labCtx.beginPath();
+            labCtx.ellipse(w * 0.75, h * 0.75, w * 0.15, h * 0.15, 0, 0, Math.PI * 2);
+            labCtx.stroke();
+
+            labCtx.restore();
+        }
+
+        function drawConvergentLab(w, h) {
+            // Oceanic Subducting Slab
+            labCtx.fillStyle = '#1e293b';
+            labCtx.strokeStyle = '#38bdf8';
+            labCtx.lineWidth = 3;
+
+            labCtx.beginPath();
+            labCtx.moveTo(0, h * 0.45);
+            labCtx.lineTo(w * 0.45, h * 0.48);
+            labCtx.lineTo(w * 0.7, h * 0.85);
+            labCtx.lineTo(w * 0.58, h * 0.95);
+            labCtx.lineTo(0, h * 0.65);
+            labCtx.closePath();
+            labCtx.fill(); labCtx.stroke();
+
+            // Continental Plate
+            labCtx.fillStyle = '#334155';
+            labCtx.strokeStyle = '#f59e0b';
+            labCtx.beginPath();
+            labCtx.moveTo(w * 0.42, h * 0.48);
+            labCtx.lineTo(w * 0.6, h * 0.45);
+            labCtx.lineTo(w * 0.7, h * 0.25);
+            labCtx.lineTo(w * 0.73, h * 0.28);
+            labCtx.lineTo(w * 0.8, h * 0.45);
+            labCtx.lineTo(w, h * 0.45);
+            labCtx.lineTo(w, h * 0.8);
+            labCtx.lineTo(w * 0.65, h * 0.8);
+            labCtx.closePath();
+            labCtx.fill(); labCtx.stroke();
+
+            // Ocean
+            labCtx.fillStyle = 'rgba(14, 165, 233, 0.35)';
+            labCtx.fillRect(0, h * 0.35, w * 0.55, h * 0.12);
+
+            // Magma Plume
+            const magmaY = h * 0.55 - (Math.sin(labTime * 2) * 10);
+            labCtx.fillStyle = '#ef4444';
+            labCtx.beginPath();
+            labCtx.arc(w * 0.68, magmaY, 14, 0, Math.PI * 2);
+            labCtx.fill();
+
+            // Wadati-Benioff Earthquake Hypocenters along Subducting Slab
+            const quakes = [
+                {x: w * 0.46, y: h * 0.52, depth: 'Shallow'},
+                {x: w * 0.53, y: h * 0.62, depth: 'Intermediate'},
+                {x: w * 0.62, y: h * 0.75, depth: 'Deep'}
+            ];
+
+            quakes.forEach(q => {
+                labCtx.fillStyle = q.depth === 'Shallow' ? '#f97316' : (q.depth === 'Intermediate' ? '#eab308' : '#a855f7');
+                labCtx.beginPath();
+                labCtx.arc(q.x, q.y, 6 + Math.sin(labTime * 3) * 2, 0, Math.PI * 2);
+                labCtx.fill();
+            });
+
+            // Annotations
+            labCtx.fillStyle = '#ef4444';
+            labCtx.font = 'bold 13px Inter';
+            labCtx.fillText('Subducting Ocean Slab →', w * 0.08, h * 0.4);
+            labCtx.fillText('← Overriding Continental Crust', w * 0.62, h * 0.2);
+            labCtx.fillStyle = '#eab308';
+            labCtx.fillText('Wadati-Benioff Quake Zone', w * 0.42, h * 0.92);
+        }
+
+        function drawDivergentLab(w, h) {
+            const shift = (Math.sin(labTime) * 8);
+
+            labCtx.fillStyle = '#1e293b';
+            labCtx.strokeStyle = '#06b6d4';
+            labCtx.lineWidth = 3;
+            labCtx.fillRect(0 - shift, h * 0.42, w * 0.46, h * 0.25);
+            labCtx.fillRect(w * 0.54 + shift, h * 0.42, w * 0.46, h * 0.25);
+
+            labCtx.fillStyle = 'rgba(14, 165, 233, 0.35)';
+            labCtx.fillRect(0, h * 0.25, w, h * 0.17);
+
+            labCtx.fillStyle = '#f97316';
+            labCtx.beginPath();
+            labCtx.moveTo(w * 0.46 - shift, h * 0.67);
+            labCtx.lineTo(w * 0.5, h * 0.38);
+            labCtx.lineTo(w * 0.54 + shift, h * 0.67);
+            labCtx.fill();
+
+            labCtx.fillStyle = '#06b6d4';
+            labCtx.font = 'bold 15px Inter';
+            labCtx.fillText('← Spreading', w * 0.1, h * 0.35);
+            labCtx.fillText('Spreading →', w * 0.68, h * 0.35);
+        }
+
+        function drawTransformLab(w, h) {
+            labCtx.fillStyle = '#334155';
+            labCtx.strokeStyle = '#f59e0b';
+            labCtx.lineWidth = 3;
+
+            labCtx.fillRect(0, h * 0.25, w, h * 0.22);
+            labCtx.fillRect(0, h * 0.5, w, h * 0.22);
+
+            labCtx.strokeStyle = 'rgba(245, 158, 11, 0.7)';
+            labCtx.beginPath();
+            labCtx.moveTo(0, h * 0.485);
+            labCtx.lineTo(w, h * 0.485);
+            labCtx.stroke();
+
+            labCtx.fillStyle = '#f59e0b';
+            labCtx.font = 'bold 15px Inter';
+            labCtx.fillText('Plate Sliding Left ◄◄◄', w * 0.2, h * 0.35);
+            labCtx.fillText('Plate Sliding Right ►►►', w * 0.5, h * 0.62);
+        }
+
+        function triggerEarthquakePulse() {
+            earthquakePulse = 1.0;
+            playTone(150, 'sawtooth', 0.4);
+        }
+
+        function toggleLabAnimation() {
+            labIsPlaying = !labIsPlaying;
+            document.getElementById('labPlayText').innerText = labIsPlaying ? 'Pause' : 'Play';
+            document.getElementById('labPlayIcon').className = labIsPlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play';
+        }
+
+        function openFaultLabForCurrent() {
+            if(activeSelectedObject) {
+                setLabType(activeSelectedObject.type === 'hotspot' ? 'convergent' : activeSelectedObject.type);
+            }
+            openLabModal();
+        }
+
+        function openLabModal() {
+            document.getElementById('labModal').classList.remove('hidden');
+            setTimeout(initLabCanvas, 50);
+        }
+
+        function closeLabModal() {
+            document.getElementById('labModal').classList.add('hidden');
+            if(labAnimationId) cancelAnimationFrame(labAnimationId);
+        }
+
+        const QUIZ_QUESTIONS = [
+            {
+                q: "Which boundary type occurs where two tectonic plates collide with each other?",
+                options: ["Convergent Boundary", "Divergent Boundary", "Transform Boundary", "Hotspot Ridge"],
+                correct: 0,
+                explain: "Convergent boundaries occur where plates collide, causing subduction zones or crustal mountain building."
+            },
+            {
+                q: "How do intraplate hotspots like Hawaii differ from typical plate boundary volcanoes?",
+                options: ["Hotspots form at transform faults", "Hotspots are fixed mantle plumes located in plate interiors", "Hotspots only erupt underwater", "Hotspots occur where plates collide"],
+                correct: 1,
+                explain: "Hotspots are created by stationary mantle plumes deep within Earth, forming volcanic island chains as lithospheric plates slide over them."
+            },
+            {
+                q: "The San Andreas Fault in California is a prime example of which tectonic boundary?",
+                options: ["Divergent Boundary", "Transform Boundary", "Subduction Zone", "Continental Rift"],
+                correct: 1,
+                explain: "The San Andreas Fault is a transform boundary where the Pacific and North American plates slide horizontally past each other."
+            },
+            {
+                q: "Why do old oceanic plates subduct underneath continental plates during collisions?",
+                options: ["Oceanic plates move faster", "Oceanic crust is denser basalt rock", "Continental crust is underwater", "Continental plates are colder"],
+                correct: 1,
+                explain: "Oceanic crust consists of dense basalt, making it heavier than buoyant continental granite crust."
+            },
+            {
+                q: "Where is brand-new oceanic crust constantly being created on Earth?",
+                options: ["At Subduction Trenches", "At Divergent Boundaries", "At Transform Faults", "Inside Mountain Peaks"],
+                correct: 1,
+                explain: "At divergent boundaries like the Mid-Atlantic Ridge, upwelling magma cools to form fresh oceanic crust."
+            }
+        ];
+
+        let currentQuizIndex = 0;
+        let quizScore = 0;
+
+        function openQuizModal() {
+            currentQuizIndex = 0;
+            quizScore = 0;
+            showQuizQuestion();
+            document.getElementById('quizModal').classList.remove('hidden');
+        }
+
+        function closeQuizModal() {
+            document.getElementById('quizModal').classList.add('hidden');
+        }
+
+        function showQuizQuestion() {
+            const q = QUIZ_QUESTIONS[currentQuizIndex];
+            document.getElementById('quizProgressText').innerText = `Question ${currentQuizIndex + 1} of ${QUIZ_QUESTIONS.length}`;
+            document.getElementById('quizScoreText').innerText = `Score: ${quizScore}`;
+            document.getElementById('quizQuestionText').innerText = q.q;
+
+            const container = document.getElementById('quizOptionsContainer');
+            container.innerHTML = '';
+
+            const feedback = document.getElementById('quizFeedback');
+            feedback.className = 'hidden';
+
+            const nextBtn = document.getElementById('quizNextBtn');
+            nextBtn.classList.add('hidden');
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left p-3 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-xs font-semibold text-slate-200 transition-all flex items-center justify-between group';
+                btn.onclick = () => checkQuizAnswer(idx, btn);
+                btn.innerHTML = `
+                    <span>${opt}</span>
+                    <i class="fa-solid fa-circle-chevron-right text-slate-600 group-hover:text-cyan-400"></i>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        function checkQuizAnswer(selectedIdx, btnEl) {
+            const q = QUIZ_QUESTIONS[currentQuizIndex];
+            const feedback = document.getElementById('quizFeedback');
+            const nextBtn = document.getElementById('quizNextBtn');
+
+            const buttons = document.querySelectorAll('#quizOptionsContainer button');
+            buttons.forEach(b => b.disabled = true);
+
+            if(selectedIdx === q.correct) {
+                quizScore += 20;
+                btnEl.className = 'w-full text-left p-3 rounded-xl bg-emerald-600/30 border border-emerald-500 text-xs font-semibold text-emerald-200';
+                feedback.className = 'p-3 rounded-xl text-xs font-semibold bg-emerald-950/60 border border-emerald-700 text-emerald-200 mt-3';
+                feedback.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 mr-1.5"></i> Correct! ${q.explain}`;
+                playTone(880, 'sine', 0.2);
+            } else {
+                btnEl.className = 'w-full text-left p-3 rounded-xl bg-red-600/30 border border-red-500 text-xs font-semibold text-red-200';
+                feedback.className = 'p-3 rounded-xl text-xs font-semibold bg-red-950/60 border border-red-700 text-red-200 mt-3';
+                feedback.innerHTML = `<i class="fa-solid fa-circle-xmark text-red-400 mr-1.5"></i> Incorrect. ${q.explain}`;
+                playTone(220, 'sawtooth', 0.2);
+            }
+
+            document.getElementById('quizScoreText').innerText = `Score: ${quizScore}`;
+            nextBtn.classList.remove('hidden');
+        }
+
+        function nextQuizQuestion() {
+            currentQuizIndex++;
+            if(currentQuizIndex < QUIZ_QUESTIONS.length) {
+                showQuizQuestion();
+            } else {
+                document.getElementById('quizQuestionText').innerText = `🎉 Quiz Completed! Final Score: ${quizScore} / 100`;
+                document.getElementById('quizOptionsContainer').innerHTML = `
+                    <div class="text-center py-6 space-y-3">
+                        <p class="text-xs text-slate-300">Excellent job testing your plate tectonics knowledge!</p>
+                        <button onclick="openQuizModal()" class="px-4 py-2 bg-cyan-600 text-white text-xs font-bold rounded-xl shadow-lg">Retake Quiz</button>
+                    </div>
+                `;
+                document.getElementById('quizFeedback').className = 'hidden';
+                document.getElementById('quizNextBtn').classList.add('hidden');
+            }
+        }
+
+        function updateBoundaryFilters() {
+            currentBoundaryFilter.convergent = document.getElementById('filterConvergent').checked;
+            currentBoundaryFilter.divergent = document.getElementById('filterDivergent').checked;
+            currentBoundaryFilter.transform = document.getElementById('filterTransform').checked;
+
+            renderBoundaryLines();
+        }
+
+        function toggleTerrainElevation() {
+            if (earthMesh && earthMesh.material) {
+                const enable = document.getElementById('toggleBumpMap').checked;
+                earthMesh.material.bumpScale = enable ? 1.2 : 0;
+            }
+        }
+
+        function toggleHotspotsVisibility() {
+            const show = document.getElementById('toggleHotspots').checked;
+            document.getElementById('hotspotContainer').style.display = show ? 'block' : 'none';
+        }
+
+        function toggleCloudsVisibility() {
+            if(cloudsMesh) {
+                cloudsMesh.visible = document.getElementById('toggleClouds').checked;
+            }
+        }
+
+        function toggleAutoRotation() {
+            autoRotateActive = document.getElementById('toggleAutoRotate').checked;
+            controls.autoRotate = autoRotateActive;
+        }
+
+        function resetCameraView() {
+            controls.autoRotate = true;
+            document.getElementById('toggleAutoRotate').checked = true;
+            animateCameraTo(new THREE.Vector3(0, 25, 340), new THREE.Vector3(0,0,0));
+            closeSidebar();
+        }
+
+        function zoomGlobe(factor) {
+            camera.position.multiplyScalar(factor);
+        }
+
+        function focusRandomHotspot() {
+            const randomIndex = Math.floor(Math.random() * HOTSPOTS.length);
+            selectHotspot(HOTSPOTS[randomIndex]);
+        }
+
+        function toggleFilterLegend() {
+            const body = document.getElementById('legendBody');
+            const icon = document.getElementById('legendToggleIcon');
+            body.classList.toggle('hidden');
+            icon.classList.toggle('fa-chevron-down');
+            icon.classList.toggle('fa-chevron-up');
+        }
+
+        function setAppMode(mode) {
+            if(mode === 'lab') {
+                openLabModal();
+            } else {
+                closeLabModal();
+            }
+        }
+
+        function toggleFullScreen() {
+            const icon = document.getElementById('fullscreenIcon');
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().then(() => {
+                    if (icon) icon.className = 'fa-solid fa-compress text-cyan-400';
+                }).catch(err => {
+                    console.log('Fullscreen request denied:', err);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen().then(() => {
+                        if (icon) icon.className = 'fa-solid fa-expand text-slate-300';
+                    });
+                }
+            }
+        }
+
+        function playTone(freq = 440, type = 'sine', duration = 0.1) {
+            if (!soundEnabled) return;
+            try {
+                if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e) {}
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const icon = document.getElementById('soundIcon');
+            if(soundEnabled) {
+                icon.className = 'fa-solid fa-volume-high text-cyan-400';
+                playTone(600, 'sine', 0.1);
+            } else {
+                icon.className = 'fa-solid fa-volume-xmark text-slate-400';
+            }
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            if(labCanvas) {
+                initLabCanvas();
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            controls.update();
+
+            if (cloudsMesh) {
+                cloudsMesh.rotation.y += 0.0004;
+            }
+
+            updateHotspotPositions();
+            renderer.render(scene, camera);
+        }
+
+        window.onload = function() {
+            init3DScene();
+        };
+    </script>
+</body>
+</html>

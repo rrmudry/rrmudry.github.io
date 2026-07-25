@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Analysis & CAST Graphing Studio</title>
+  <meta name="description" content="Interactive Science Data Graphing & CAST Analysis Practice Tool for Students. Design graphs, calculate trendlines, and analyze data relationships.">
+  <link rel="stylesheet" href="css/styles.css">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Firebase App & Auth SDKs for student login integration -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+</head>
+<body>
+
+  <header>
+    <div class="logo-group">
+      <span class="logo-icon">📊</span>
+      <div>
+        <h1>CAST Science Data Studio</h1>
+        <div class="subtitle">Interactive Data Graphing, Analysis & Trendline Studio</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button id="exportPngBtn" class="btn btn-secondary">📷 Export Graph PNG</button>
+      <a href="../index.html" class="btn btn-secondary">🏠 Back to Home</a>
+    </div>
+  </header>
+
+  <main class="main-container">
+    <!-- Left Control Panel & Data Input -->
+    <aside class="left-panel flex-column gap-1">
+      <div class="card">
+        <h2 class="card-title">📁 Practice Preset & Config</h2>
+        <div class="form-group">
+          <label for="presetSelect">Select Preset Dataset or Practice Scenario:</label>
+          <select id="presetSelect">
+            <option value="photosynthesis">🌿 Biology: Photosynthesis vs. Light</option>
+            <option value="tectonic">🌋 Earth Science: Crust Age vs. Distance from Ridge</option>
+            <option value="pendulum">⚛️ Physics: Pendulum Length vs. Period</option>
+            <option value="custom">✏️ Custom Data Entry (Blank Table)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="graphTitleInput">Graph Title:</label>
+          <input type="text" id="graphTitleInput" value="Photosynthesis Rate vs. Light Intensity">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+          <div class="form-group">
+            <label for="xAxisLabelInput">X-Axis Label:</label>
+            <input type="text" id="xAxisLabelInput" value="Light Intensity">
+          </div>
+          <div class="form-group">
+            <label for="xAxisUnitInput">X-Axis Unit:</label>
+            <input type="text" id="xAxisUnitInput" value="mW/cm²">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+          <div class="form-group">
+            <label for="yAxisLabelInput">Y-Axis Label:</label>
+            <input type="text" id="yAxisLabelInput" value="Oxygen Production Rate">
+          </div>
+          <div class="form-group">
+            <label for="yAxisUnitInput">Y-Axis Unit:</label>
+            <input type="text" id="yAxisUnitInput" value="mL/min">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+          <div class="form-group">
+            <label for="chartTypeSelect">Graph Style:</label>
+            <select id="chartTypeSelect">
+              <option value="scatter">Scatter Plot</option>
+              <option value="line">Line Graph</option>
+              <option value="bar">Bar Chart</option>
+            </select>
+          </div>
+          <div class="form-group" style="justify-content: flex-end;">
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding-bottom: 0.4rem;">
+              <input type="checkbox" id="bestFitToggle" checked> Linear Best-Fit
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data Table Card -->
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h2 class="card-title" style="border:none; padding:0;">🔢 Data Points</h2>
+          <div class="table-actions">
+            <button id="addRowBtn" class="btn btn-secondary" style="padding:0.25rem 0.5rem; font-size:0.8rem;">+ Add Row</button>
+            <button id="clearDataBtn" class="btn btn-danger" style="padding:0.25rem 0.5rem; font-size:0.8rem;">Clear</button>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>X Value</th>
+                <th>Y Value</th>
+                <th style="width:40px;"></th>
+              </tr>
+            </thead>
+            <tbody id="dataTableBody">
+              <!-- Dynamically rendered rows -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Live Analysis Stats -->
+      <div class="card">
+        <h2 class="card-title">📈 Statistical Summary</h2>
+        <div class="stats-bar flex-column" style="gap:0.4rem;">
+          <div class="stats-item">Total Points: <strong id="dataPointCount">0</strong></div>
+          <div class="stats-item">Best-Fit Slope (m): <strong id="slopeVal">--</strong></div>
+          <div class="stats-item">Y-Intercept (b): <strong id="interceptVal">--</strong></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Right Panel: Graph Canvas & CAST Questions -->
+    <section class="right-panel">
+      <!-- Dynamic Graph Container -->
+      <div class="card" style="padding:1rem;">
+        <div class="graph-canvas-container">
+          <canvas id="mainChart"></canvas>
+        </div>
+      </div>
+
+      <!-- CAST Science Practice & Analysis Section -->
+      <div class="card cast-questions-container">
+        <h2 class="card-title">🧪 CAST Practice: Analyzing & Interpreting Data</h2>
+        <div id="questionsContainer">
+          <!-- Dynamically loaded questions -->
+        </div>
+
+        <div class="form-group" style="margin-top: 1rem;">
+          <label for="studentNotes">📝 Student Claim, Evidence & Reasoning (CER) Notes:</label>
+          <textarea id="studentNotes" rows="3" placeholder="Write your conclusion or summary of what the data shows based on the graph..."></textarea>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
