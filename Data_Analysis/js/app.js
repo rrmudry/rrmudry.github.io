@@ -238,6 +238,7 @@ function initUI() {
 
   document.getElementById('chartTypeSelect').addEventListener('change', (e) => {
     currentDataset.chartType = e.target.value;
+    renderTable();
     renderChart();
   });
 
@@ -264,11 +265,13 @@ function initUI() {
 function renderTable() {
   const tbody = document.getElementById('dataTableBody');
   tbody.innerHTML = '';
+  const isBar = currentDataset.chartType === 'bar';
 
   currentDataset.data.forEach((pt, index) => {
     const tr = document.createElement('tr');
+    const xInputType = isBar ? 'text' : 'number';
     tr.innerHTML = `
-      <td><input type="number" step="any" value="${pt.x}" data-index="${index}" data-field="x" class="table-input"></td>
+      <td><input type="${xInputType}" step="any" value="${pt.x}" data-index="${index}" data-field="x" class="table-input"></td>
       <td><input type="number" step="any" value="${pt.y}" data-index="${index}" data-field="y" class="table-input"></td>
       <td><button class="btn btn-danger btn-sm" onclick="removeRow(${index})" style="padding:0.2rem 0.5rem; font-size:0.75rem;">✕</button></td>
     `;
@@ -279,7 +282,10 @@ function renderTable() {
     input.addEventListener('change', (e) => {
       const idx = parseInt(e.target.getAttribute('data-index'));
       const field = e.target.getAttribute('data-field');
-      const val = parseFloat(e.target.value) || 0;
+      let val = e.target.value;
+      if (field === 'y' || (field === 'x' && !isBar)) {
+        val = parseFloat(val) || 0;
+      }
       currentDataset.data[idx][field] = val;
       renderChart();
     });
@@ -340,39 +346,56 @@ function renderChart() {
   const xTitle = currentDataset.xAxisUnit ? `${currentDataset.xAxisLabel} (${currentDataset.xAxisUnit})` : currentDataset.xAxisLabel;
   const yTitle = currentDataset.yAxisUnit ? `${currentDataset.yAxisLabel} (${currentDataset.yAxisUnit})` : currentDataset.yAxisUnit;
 
-  const datasets = [{
-    label: currentDataset.title,
-    data: currentDataset.data,
-    backgroundColor: primaryFill,
-    borderColor: primaryAccent,
-    pointRadius: 6,
-    pointHoverRadius: 9,
-    showLine: currentDataset.chartType === 'line'
-  }];
-
-  const reg = calculateLinearRegression(currentDataset.data);
-  if (currentDataset.showBestFit && reg && !isNaN(reg.slope)) {
-    datasets.push({
-      label: `Linear Trendline (y = ${reg.slope.toFixed(2)}x + ${reg.intercept.toFixed(2)})`,
-      data: reg.trendlineData,
-      type: 'line',
-      borderColor: trendlineColor,
-      borderWidth: 2,
-      borderDash: [6, 6],
-      pointRadius: 0,
-      fill: false
-    });
-
-    document.getElementById('slopeVal').innerText = reg.slope.toFixed(3);
-    document.getElementById('interceptVal').innerText = reg.intercept.toFixed(3);
+  const isBar = currentDataset.chartType === 'bar';
+  
+  let chartDataConfig = {};
+  if (isBar) {
+    chartDataConfig = {
+      labels: currentDataset.data.map(p => p.x),
+      datasets: [{
+        label: currentDataset.title,
+        data: currentDataset.data.map(p => parseFloat(p.y) || 0),
+        backgroundColor: primaryFill,
+        borderColor: primaryAccent,
+        borderWidth: 1
+      }]
+    };
   } else {
-    document.getElementById('slopeVal').innerText = '--';
-    document.getElementById('interceptVal').innerText = '--';
+    const datasets = [{
+      label: currentDataset.title,
+      data: currentDataset.data.map(p => ({ x: parseFloat(p.x) || 0, y: parseFloat(p.y) || 0 })),
+      backgroundColor: primaryFill,
+      borderColor: primaryAccent,
+      pointRadius: 6,
+      pointHoverRadius: 9,
+      showLine: currentDataset.chartType === 'line'
+    }];
+
+    const reg = calculateLinearRegression(currentDataset.data.map(p => ({ x: parseFloat(p.x) || 0, y: parseFloat(p.y) || 0 })));
+    if (currentDataset.showBestFit && reg && !isNaN(reg.slope)) {
+      datasets.push({
+        label: `Linear Trendline (y = ${reg.slope.toFixed(2)}x + ${reg.intercept.toFixed(2)})`,
+        data: reg.trendlineData,
+        type: 'line',
+        borderColor: trendlineColor,
+        borderWidth: 2,
+        borderDash: [6, 6],
+        pointRadius: 0,
+        fill: false
+      });
+
+      document.getElementById('slopeVal').innerText = reg.slope.toFixed(3);
+      document.getElementById('interceptVal').innerText = reg.intercept.toFixed(3);
+    } else {
+      document.getElementById('slopeVal').innerText = '--';
+      document.getElementById('interceptVal').innerText = '--';
+    }
+    chartDataConfig = { datasets };
   }
 
   chartInstance = new Chart(ctx, {
-    type: currentDataset.chartType === 'bar' ? 'bar' : 'scatter',
-    data: { datasets },
+    type: isBar ? 'bar' : 'scatter',
+    data: chartDataConfig,
     options: {
       responsive: true,
       maintainAspectRatio: false,
