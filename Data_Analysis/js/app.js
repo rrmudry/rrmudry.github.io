@@ -712,74 +712,28 @@ function renderChart() {
     document.getElementById('r2Val').innerText = '--';
   }
 
-  // Calculate clean scale bounds with proper rounding to nice tick intervals:
-  let xMinVal = undefined, xMaxVal = undefined;
-  let yMinVal = undefined, yMaxVal = undefined;
+  // Global Scale Rules:
+  // 1. Use suggestedMin (not hard min) so Chart.js always generates ticks that encompass all data.
+  // 2. Never set max unless the user explicitly provides one — Chart.js auto-scales to include all data with clean ticks.
+  // 3. No clip:false or layout padding hacks — Chart.js natively includes all points within the chart area.
 
-  if (!isBar && currentDataset.xValues.length > 0) {
-    const numX = currentDataset.xValues.map(v => parseFloat(v) || 0);
-    const minX = Math.min(...numX);
-    const maxX = Math.max(...numX);
+  const xSuggestedMin = (!isBar && currentDataset.xMin !== "") ? parseFloat(currentDataset.xMin) :
+                         (!isBar && currentDataset.showZero) ? 0 : undefined;
+  const xMaxVal = (!isBar && currentDataset.xMax !== "") ? parseFloat(currentDataset.xMax) : undefined;
 
-    if (currentDataset.xMin !== "") {
-      xMinVal = parseFloat(currentDataset.xMin);
-    } else if (currentDataset.showZero) {
-      xMinVal = 0;
-    }
-
-    if (currentDataset.xMax !== "") {
-      xMaxVal = parseFloat(currentDataset.xMax);
-    } else {
-      // Round max up to next clean tick step if data hits exact bound
-      const span = maxX - (xMinVal || 0) || 1;
-      const step = Math.pow(10, Math.floor(Math.log10(span))) / 2 || 1;
-      xMaxVal = Math.ceil(maxX / step) * step;
-      if (xMaxVal === maxX) xMaxVal += step;
-    }
-  }
-
-  let allYValues = [];
-  currentDataset.series.forEach(s => {
-    s.values.forEach(v => allYValues.push(parseFloat(v) || 0));
-  });
-
-  if (allYValues.length > 0) {
-    const minY = Math.min(...allYValues);
-    const maxY = Math.max(...allYValues);
-
-    if (currentDataset.yMin !== "") {
-      yMinVal = parseFloat(currentDataset.yMin);
-    } else if (currentDataset.showZero) {
-      yMinVal = 0;
-    }
-
-    if (currentDataset.yMax !== "") {
-      yMaxVal = parseFloat(currentDataset.yMax);
-    } else {
-      const span = maxY - (yMinVal || 0) || 1;
-      const step = Math.pow(10, Math.floor(Math.log10(span))) / 2 || 1;
-      yMaxVal = Math.ceil(maxY / step) * step;
-      if (yMaxVal === maxY) yMaxVal += step;
-    }
-  }
+  const ySuggestedMin = (currentDataset.yMin !== "") ? parseFloat(currentDataset.yMin) :
+                         (currentDataset.showZero) ? 0 : undefined;
+  const yMaxVal = (currentDataset.yMax !== "") ? parseFloat(currentDataset.yMax) : undefined;
 
   chartInstance = new Chart(ctx, {
     type: isBar ? 'bar' : 'scatter',
     data: {
       labels: isBar ? currentDataset.xValues : undefined,
-      datasets: chartDatasets.map(ds => ({ ...ds, clip: false }))
+      datasets: chartDatasets
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      layout: {
-        padding: {
-          left: 15,
-          right: 35,
-          top: 20,
-          bottom: 15
-        }
-      },
       plugins: {
         title: {
           display: true,
@@ -796,24 +750,15 @@ function renderChart() {
           type: isBar ? 'category' : 'linear',
           title: { display: true, text: xTitle, color: textColor, font: { weight: 'bold' } },
           grid: { display: currentDataset.showGrid !== false, color: gridColor },
-          ticks: {
-            display: true,
-            color: mutedColor,
-            font: { size: 11 }
-          },
-          min: xMinVal,
+          ticks: { display: true, color: mutedColor, font: { size: 11 } },
+          suggestedMin: xSuggestedMin,
           max: xMaxVal
         },
         y: {
           title: { display: true, text: currentDataset.series[0]?.unit ? `Y Axis (${currentDataset.series[0].unit})` : 'Y Axis', color: textColor, font: { weight: 'bold' } },
           grid: { display: currentDataset.showGrid !== false, color: gridColor },
-          ticks: {
-            display: true,
-            padding: 6,
-            color: mutedColor,
-            font: { size: 11 }
-          },
-          min: yMinVal,
+          ticks: { display: true, padding: 6, color: mutedColor, font: { size: 11 } },
+          suggestedMin: ySuggestedMin,
           max: yMaxVal
         }
       }
