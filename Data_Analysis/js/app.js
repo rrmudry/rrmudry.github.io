@@ -712,20 +712,56 @@ function renderChart() {
     document.getElementById('r2Val').innerText = '--';
   }
 
-  // Global Scale Rules:
-  // 1. Min bound: Controlled globally by showZero toggle or lowest data value (never generates negative ticks for positive data).
-  // 2. Max bound: Controlled by user input if specified, otherwise left to Chart.js auto-scaling for standard mathematical grid ticks.
-  // 3. Layout padding: Ensures markers on boundary ticks render completely without clipping, using clip: false.
+  // Calculate clean scale bounds with proper rounding to nice tick intervals:
+  let xMinVal = undefined, xMaxVal = undefined;
+  let yMinVal = undefined, yMaxVal = undefined;
 
-  let xMinVal = undefined;
-  if (!isBar) {
-    if (currentDataset.xMin !== "") xMinVal = parseFloat(currentDataset.xMin);
-    else if (currentDataset.showZero) xMinVal = 0;
+  if (!isBar && currentDataset.xValues.length > 0) {
+    const numX = currentDataset.xValues.map(v => parseFloat(v) || 0);
+    const minX = Math.min(...numX);
+    const maxX = Math.max(...numX);
+
+    if (currentDataset.xMin !== "") {
+      xMinVal = parseFloat(currentDataset.xMin);
+    } else if (currentDataset.showZero) {
+      xMinVal = 0;
+    }
+
+    if (currentDataset.xMax !== "") {
+      xMaxVal = parseFloat(currentDataset.xMax);
+    } else {
+      // Round max up to next clean tick step if data hits exact bound
+      const span = maxX - (xMinVal || 0) || 1;
+      const step = Math.pow(10, Math.floor(Math.log10(span))) / 2 || 1;
+      xMaxVal = Math.ceil(maxX / step) * step;
+      if (xMaxVal === maxX) xMaxVal += step;
+    }
   }
 
-  let yMinVal = undefined;
-  if (currentDataset.yMin !== "") yMinVal = parseFloat(currentDataset.yMin);
-  else if (currentDataset.showZero) yMinVal = 0;
+  let allYValues = [];
+  currentDataset.series.forEach(s => {
+    s.values.forEach(v => allYValues.push(parseFloat(v) || 0));
+  });
+
+  if (allYValues.length > 0) {
+    const minY = Math.min(...allYValues);
+    const maxY = Math.max(...allYValues);
+
+    if (currentDataset.yMin !== "") {
+      yMinVal = parseFloat(currentDataset.yMin);
+    } else if (currentDataset.showZero) {
+      yMinVal = 0;
+    }
+
+    if (currentDataset.yMax !== "") {
+      yMaxVal = parseFloat(currentDataset.yMax);
+    } else {
+      const span = maxY - (yMinVal || 0) || 1;
+      const step = Math.pow(10, Math.floor(Math.log10(span))) / 2 || 1;
+      yMaxVal = Math.ceil(maxY / step) * step;
+      if (yMaxVal === maxY) yMaxVal += step;
+    }
+  }
 
   chartInstance = new Chart(ctx, {
     type: isBar ? 'bar' : 'scatter',
@@ -739,7 +775,7 @@ function renderChart() {
       layout: {
         padding: {
           left: 15,
-          right: 25,
+          right: 35,
           top: 20,
           bottom: 15
         }
@@ -766,7 +802,7 @@ function renderChart() {
             font: { size: 11 }
           },
           min: xMinVal,
-          max: currentDataset.xMax !== "" ? parseFloat(currentDataset.xMax) : undefined
+          max: xMaxVal
         },
         y: {
           title: { display: true, text: currentDataset.series[0]?.unit ? `Y Axis (${currentDataset.series[0].unit})` : 'Y Axis', color: textColor, font: { weight: 'bold' } },
@@ -778,7 +814,7 @@ function renderChart() {
             font: { size: 11 }
           },
           min: yMinVal,
-          max: currentDataset.yMax !== "" ? parseFloat(currentDataset.yMax) : undefined
+          max: yMaxVal
         }
       }
     }
