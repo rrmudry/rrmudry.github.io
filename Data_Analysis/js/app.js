@@ -4,64 +4,38 @@
 
 let chartInstance = null;
 
-let currentDataset = {
-  title: "Photosynthesis Rate vs. Light Intensity",
-  xAxisLabel: "Light Intensity",
-  xAxisUnit: "mW/cm²",
-  chartType: "scatter",
-  showBestFit: true,
-  showZero: true,
-  showGrid: true,
-  xMin: "",
-  xMax: "",
-  yMin: "",
-  yMax: "",
-  xValues: [10, 20, 30, 40, 50, 60, 70],
-  series: [
-    {
-      id: "y1",
-      label: "Oxygen Production Rate",
-      unit: "mL/min",
-      color: "#0284c7",
-      pointStyle: "circle",
-      pointRadius: 6,
-      values: [2.1, 4.5, 7.2, 9.8, 12.0, 12.3, 12.4]
-    }
-  ],
-  cer: {
-    claim: "",
-    evidence: "",
-    reasoning: ""
-  },
-  questions: [
-    {
-      id: "q1",
-      text: "What pattern does the graph display between light intensity and oxygen production?",
-      options: [
-        "Directly proportional across the entire range",
-        "Increases linearly at lower light levels, then plateaus at high intensity",
-        "Inversely proportional throughout the experiment",
-        "No correlation between light intensity and rate"
-      ],
-      correctIndex: 1,
-      explanation: "Oxygen production increases steadily until light is no longer the limiting factor (around 50 mW/cm²), at which point the rate levels off."
-    },
-    {
-      id: "q2",
-      text: "Predict the expected rate of oxygen production at a light intensity of 35 mW/cm².",
-      options: [
-        "~5.0 mL/min",
-        "~8.5 mL/min",
-        "~12.0 mL/min",
-        "~15.0 mL/min"
-      ],
-      correctIndex: 1,
-      explanation: "Interpolating between 30 mW/cm² (7.2 mL/min) and 40 mW/cm² (9.8 mL/min) gives approximately 8.5 mL/min."
-    }
-  ]
-};
-
 const presets = {
+  custom: {
+    title: "Custom Scientific Experiment",
+    xAxisLabel: "Independent Variable (X)",
+    xAxisUnit: "units",
+    chartType: "scatter",
+    showBestFit: true,
+    showZero: true,
+    showGrid: true,
+    xMin: "",
+    xMax: "",
+    yMin: "",
+    yMax: "",
+    xValues: [1, 2, 3, 4, 5],
+    series: [
+      {
+        id: "y1",
+        label: "Dependent Variable (Y)",
+        unit: "units",
+        color: "#0284c7",
+        pointStyle: "circle",
+        pointRadius: 6,
+        values: [10, 20, 30, 40, 50]
+      }
+    ],
+    cer: {
+      claim: "",
+      evidence: "",
+      reasoning: ""
+    },
+    questions: []
+  },
   photosynthesis: {
     title: "Photosynthesis Rate vs. Light Intensity",
     xAxisLabel: "Light Intensity",
@@ -224,10 +198,9 @@ const presets = {
         ],
         correctIndex: 1,
         explanation: "During phase transitions, added energy disrupts intermolecular forces rather than increasing particle kinetic energy (temperature)."
-      }
-    ]
-  }
-};
+  };
+
+let currentDataset = JSON.parse(JSON.stringify(presets.custom));
 
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
@@ -266,7 +239,6 @@ function initTheme() {
     document.documentElement.removeAttribute('data-theme');
     toggleBtn.innerText = '🌙 Dark Mode';
   }
-
   toggleBtn.addEventListener('click', () => {
     const current = document.documentElement.getAttribute('data-theme');
     if (current === 'dark') {
@@ -286,10 +258,7 @@ function initUI() {
   // Preset selector
   document.getElementById('presetSelect').addEventListener('change', (e) => {
     const key = e.target.value;
-    if (key === 'custom') {
-      currentDataset.questions = [];
-      currentDataset.cer = { claim: "", evidence: "", reasoning: "" };
-    } else if (presets[key]) {
+    if (presets[key]) {
       currentDataset = JSON.parse(JSON.stringify(presets[key]));
     }
     updateFormFields();
