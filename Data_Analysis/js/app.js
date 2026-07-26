@@ -712,56 +712,20 @@ function renderChart() {
     document.getElementById('r2Val').innerText = '--';
   }
 
-  // Calculate exact scale min and max so negative numbers (-100, -5) never display
-  let calcXMin = undefined, calcXMax = undefined;
-  let calcYMin = undefined, calcYMax = undefined;
+  // Global Scale Rules:
+  // 1. Min bound: Controlled globally by showZero toggle or lowest data value (never generates negative ticks for positive data).
+  // 2. Max bound: Controlled by user input if specified, otherwise left to Chart.js auto-scaling for standard mathematical grid ticks.
+  // 3. Layout padding: Ensures markers on boundary ticks render completely without clipping, using clip: false.
 
-  if (!isBar && currentDataset.xValues.length > 0) {
-    const numX = currentDataset.xValues.map(v => parseFloat(v) || 0);
-    const minX = Math.min(...numX);
-    const maxX = Math.max(...numX);
-    const spanX = maxX - minX || 1;
-
-    if (currentDataset.xMin !== "") {
-      calcXMin = parseFloat(currentDataset.xMin);
-    } else if (currentDataset.showZero || minX >= 0) {
-      calcXMin = 0;
-    } else {
-      calcXMin = minX;
-    }
-
-    if (currentDataset.xMax !== "") {
-      calcXMax = parseFloat(currentDataset.xMax);
-    } else {
-      calcXMax = maxX + spanX * 0.05;
-    }
+  let xMinVal = undefined;
+  if (!isBar) {
+    if (currentDataset.xMin !== "") xMinVal = parseFloat(currentDataset.xMin);
+    else if (currentDataset.showZero) xMinVal = 0;
   }
 
-  // Y axis min/max calculation
-  let allYValues = [];
-  currentDataset.series.forEach(s => {
-    s.values.forEach(v => allYValues.push(parseFloat(v) || 0));
-  });
-
-  if (allYValues.length > 0) {
-    const minY = Math.min(...allYValues);
-    const maxY = Math.max(...allYValues);
-    const spanY = maxY - minY || 1;
-
-    if (currentDataset.yMin !== "") {
-      calcYMin = parseFloat(currentDataset.yMin);
-    } else if (currentDataset.showZero || minY >= 0) {
-      calcYMin = 0;
-    } else {
-      calcYMin = minY;
-    }
-
-    if (currentDataset.yMax !== "") {
-      calcYMax = parseFloat(currentDataset.yMax);
-    } else {
-      calcYMax = maxY + spanY * 0.08;
-    }
-  }
+  let yMinVal = undefined;
+  if (currentDataset.yMin !== "") yMinVal = parseFloat(currentDataset.yMin);
+  else if (currentDataset.showZero) yMinVal = 0;
 
   chartInstance = new Chart(ctx, {
     type: isBar ? 'bar' : 'scatter',
@@ -775,9 +739,9 @@ function renderChart() {
       layout: {
         padding: {
           left: 15,
-          right: 35,
+          right: 25,
           top: 20,
-          bottom: 10
+          bottom: 15
         }
       },
       plugins: {
@@ -799,34 +763,22 @@ function renderChart() {
           ticks: {
             display: true,
             color: mutedColor,
-            font: { size: 11 },
-            callback: function(val, index, ticks) {
-              if (calcXMax && val > (calcXMax - (calcXMax * 0.04))) {
-                return '';
-              }
-              return this.getLabelForValue(val);
-            }
+            font: { size: 11 }
           },
-          min: calcXMin,
-          max: calcXMax
+          min: xMinVal,
+          max: currentDataset.xMax !== "" ? parseFloat(currentDataset.xMax) : undefined
         },
         y: {
           title: { display: true, text: currentDataset.series[0]?.unit ? `Y Axis (${currentDataset.series[0].unit})` : 'Y Axis', color: textColor, font: { weight: 'bold' } },
           grid: { display: currentDataset.showGrid !== false, color: gridColor },
           ticks: {
             display: true,
-            padding: 8,
+            padding: 6,
             color: mutedColor,
-            font: { size: 11 },
-            callback: function(val, index, ticks) {
-              if (calcYMax && val > (calcYMax - (calcYMax * 0.07))) {
-                return '';
-              }
-              return this.getLabelForValue(val);
-            }
+            font: { size: 11 }
           },
-          min: calcYMin,
-          max: calcYMax
+          min: yMinVal,
+          max: currentDataset.yMax !== "" ? parseFloat(currentDataset.yMax) : undefined
         }
       }
     }
