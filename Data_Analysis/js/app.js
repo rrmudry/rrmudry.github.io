@@ -677,13 +677,16 @@ function renderChart() {
   const userYMin = (currentDataset.yMin !== "") ? parseFloat(currentDataset.yMin) : undefined;
   const userYMax = (currentDataset.yMax !== "") ? parseFloat(currentDataset.yMax) : undefined;
 
-  const xSugMin = (userXMin !== undefined) ? userXMin : (!isBar && currentDataset.showZero) ? 0 : xDataMin;
-  const ySugMin = (userYMin !== undefined) ? userYMin : (currentDataset.showZero) ? 0 : yDataMin;
+  const xMinVal = (userXMin !== undefined) ? userXMin :
+                  (!isBar && currentDataset.showZero && (xDataMin === undefined || xDataMin >= 0)) ? 0 : undefined;
+
+  const yMinVal = (userYMin !== undefined) ? userYMin :
+                  (currentDataset.showZero && (yDataMin === undefined || yDataMin >= 0)) ? 0 : undefined;
 
   const xSugMax = (xDataMax !== undefined && xDataMax > 0) ? xDataMax * 1.1 : (xDataMax !== undefined && xDataMax < 0) ? xDataMax * 0.9 : undefined;
   const ySugMax = (yDataMax !== undefined && yDataMax > 0) ? yDataMax * 1.1 : (yDataMax !== undefined && yDataMax < 0) ? yDataMax * 0.9 : undefined;
 
-  const trendMinX = userXMin !== undefined ? userXMin : (xSugMin !== undefined ? xSugMin : xDataMin);
+  const trendMinX = userXMin !== undefined ? userXMin : (xMinVal !== undefined ? xMinVal : xDataMin);
   const trendMaxX = userXMax !== undefined ? userXMax : (xSugMax !== undefined ? xSugMax : xDataMax);
 
   const chartDatasets = [];
@@ -791,7 +794,7 @@ function renderChart() {
               return Number.isInteger(val) ? val : parseFloat(val.toFixed(2));
             }
           },
-          suggestedMin: xSugMin,
+          min: xMinVal,
           suggestedMax: xSugMax,
           max: userXMax
         },
@@ -804,7 +807,7 @@ function renderChart() {
               return Number.isInteger(val) ? val : parseFloat(val.toFixed(2));
             }
           },
-          suggestedMin: ySugMin,
+          min: yMinVal,
           suggestedMax: ySugMax,
           max: userYMax
         }
