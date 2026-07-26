@@ -9,6 +9,8 @@ const presets = {
     title: "Custom Scientific Experiment",
     xAxisLabel: "Independent Variable (X)",
     xAxisUnit: "units",
+    yAxisLabel: "Y-Axis Variable",
+    yAxisUnit: "units",
     chartType: "scatter",
     showBestFit: true,
     showZero: true,
@@ -40,6 +42,8 @@ const presets = {
     title: "Photosynthesis Rate vs. Light Intensity",
     xAxisLabel: "Light Intensity",
     xAxisUnit: "mW/cm²",
+    yAxisLabel: "Oxygen Production Rate",
+    yAxisUnit: "mL/min",
     chartType: "scatter",
     showBestFit: true,
     showZero: true,
@@ -80,6 +84,8 @@ const presets = {
     title: "Seafloor Age Comparison: Atlantic vs. Pacific Ocean",
     xAxisLabel: "Distance from Ridge",
     xAxisUnit: "km",
+    yAxisLabel: "Crust Age",
+    yAxisUnit: "Ma",
     chartType: "scatter",
     showBestFit: true,
     showZero: true,
@@ -129,6 +135,8 @@ const presets = {
     title: "Pendulum Length vs. Period",
     xAxisLabel: "Pendulum Length",
     xAxisUnit: "m",
+    yAxisLabel: "Pendulum Period",
+    yAxisUnit: "s",
     chartType: "scatter",
     showBestFit: true,
     showZero: true,
@@ -165,6 +173,8 @@ const presets = {
     title: "Water Temperature during Continuous Heating",
     xAxisLabel: "Heating Time",
     xAxisUnit: "minutes",
+    yAxisLabel: "Water Temperature",
+    yAxisUnit: "°C",
     chartType: "line",
     showBestFit: false,
     showZero: false,
@@ -292,10 +302,6 @@ function initUI() {
   if (yLabelInput) {
     yLabelInput.addEventListener('input', (e) => {
       currentDataset.yAxisLabel = e.target.value;
-      if (currentDataset.series[0]) {
-        currentDataset.series[0].label = e.target.value;
-      }
-      renderTable();
       renderChart();
     });
   }
@@ -304,10 +310,6 @@ function initUI() {
   if (yUnitInput) {
     yUnitInput.addEventListener('input', (e) => {
       currentDataset.yAxisUnit = e.target.value;
-      if (currentDataset.series[0]) {
-        currentDataset.series[0].unit = e.target.value;
-      }
-      renderTable();
       renderChart();
     });
   }
