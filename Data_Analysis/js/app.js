@@ -712,29 +712,37 @@ function renderChart() {
     document.getElementById('r2Val').innerText = '--';
   }
 
-  // Global Scale Rules (apply universally to any dataset):
-  // 1. suggestedMin: If showZero is on, suggest 0. Otherwise let Chart.js decide.
-  // 2. suggestedMax: Set to actual data max so Chart.js generates ticks that reach max values.
-  // 3. clip: false on datasets so points sitting on the last tick aren't masked by chart area boundary.
+  // Global Scale Rules (universal for any dataset):
+  // 1. Hard min/max set to actual data extremes guarantees Chart.js generates ticks covering ALL data.
+  // 2. clip: false so points on boundary ticks render fully without masking.
 
-  const xSugMin = (!isBar && currentDataset.xMin !== "") ? parseFloat(currentDataset.xMin) :
-                   (!isBar && currentDataset.showZero) ? 0 : undefined;
-  const xHardMax = (!isBar && currentDataset.xMax !== "") ? parseFloat(currentDataset.xMax) : undefined;
+  // Compute actual data extremes
+  let xDataMin = undefined, xDataMax = undefined;
+  let yDataMin = undefined, yDataMax = undefined;
 
-  const ySugMin = (currentDataset.yMin !== "") ? parseFloat(currentDataset.yMin) :
-                   (currentDataset.showZero) ? 0 : undefined;
-  const yHardMax = (currentDataset.yMax !== "") ? parseFloat(currentDataset.yMax) : undefined;
-
-  // Compute actual data extremes for suggestedMax
-  let xDataMax = undefined;
-  let yDataMax = undefined;
   if (!isBar && currentDataset.xValues.length > 0) {
-    xDataMax = Math.max(...currentDataset.xValues.map(v => parseFloat(v) || 0));
+    const numX = currentDataset.xValues.map(v => parseFloat(v) || 0);
+    xDataMin = Math.min(...numX);
+    xDataMax = Math.max(...numX);
   }
   if (currentDataset.series.length > 0) {
     const allY = currentDataset.series.flatMap(s => s.values.map(v => parseFloat(v) || 0));
-    if (allY.length > 0) yDataMax = Math.max(...allY);
+    if (allY.length > 0) {
+      yDataMin = Math.min(...allY);
+      yDataMax = Math.max(...allY);
+    }
   }
+
+  // Apply user overrides or showZero, falling back to data extremes
+  const xMin = (!isBar && currentDataset.xMin !== "") ? parseFloat(currentDataset.xMin) :
+               (!isBar && currentDataset.showZero && (xDataMin === undefined || xDataMin >= 0)) ? 0 :
+               xDataMin;
+  const xMax = (!isBar && currentDataset.xMax !== "") ? parseFloat(currentDataset.xMax) : xDataMax;
+
+  const yMin = (currentDataset.yMin !== "") ? parseFloat(currentDataset.yMin) :
+               (currentDataset.showZero && (yDataMin === undefined || yDataMin >= 0)) ? 0 :
+               yDataMin;
+  const yMax = (currentDataset.yMax !== "") ? parseFloat(currentDataset.yMax) : yDataMax;
 
   chartInstance = new Chart(ctx, {
     type: isBar ? 'bar' : 'scatter',
@@ -762,17 +770,15 @@ function renderChart() {
           title: { display: true, text: xTitle, color: textColor, font: { weight: 'bold' } },
           grid: { display: currentDataset.showGrid !== false, color: gridColor },
           ticks: { display: true, color: mutedColor, font: { size: 11 } },
-          suggestedMin: xSugMin,
-          suggestedMax: xDataMax,
-          max: xHardMax
+          min: xMin,
+          max: xMax
         },
         y: {
           title: { display: true, text: currentDataset.series[0]?.unit ? `Y Axis (${currentDataset.series[0].unit})` : 'Y Axis', color: textColor, font: { weight: 'bold' } },
           grid: { display: currentDataset.showGrid !== false, color: gridColor },
           ticks: { display: true, padding: 6, color: mutedColor, font: { size: 11 } },
-          suggestedMin: ySugMin,
-          suggestedMax: yDataMax,
-          max: yHardMax
+          min: yMin,
+          max: yMax
         }
       }
     }
