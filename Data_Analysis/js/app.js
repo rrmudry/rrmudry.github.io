@@ -772,7 +772,12 @@ function renderChart() {
           type: isBar ? 'category' : 'linear',
           title: { display: true, text: xTitle, color: textColor, font: { weight: 'bold' } },
           grid: { display: currentDataset.showGrid !== false, color: gridColor },
-          ticks: { display: true, color: mutedColor, font: { size: 11 }, includeBounds: true },
+          ticks: {
+            display: true, color: mutedColor, font: { size: 11 }, includeBounds: true,
+            callback: function(val) {
+              return Number.isInteger(val) ? val : parseFloat(val.toFixed(2));
+            }
+          },
           min: xMin,
           max: xMax,
           afterBuildTicks(scale) {
@@ -790,7 +795,12 @@ function renderChart() {
         y: {
           title: { display: true, text: currentDataset.series[0]?.unit ? `Y Axis (${currentDataset.series[0].unit})` : 'Y Axis', color: textColor, font: { weight: 'bold' } },
           grid: { display: currentDataset.showGrid !== false, color: gridColor },
-          ticks: { display: true, padding: 6, color: mutedColor, font: { size: 11 }, includeBounds: true },
+          ticks: {
+            display: true, padding: 6, color: mutedColor, font: { size: 11 }, includeBounds: true,
+            callback: function(val) {
+              return Number.isInteger(val) ? val : parseFloat(val.toFixed(2));
+            }
+          },
           min: yMin,
           max: yMax,
           afterBuildTicks(scale) {
