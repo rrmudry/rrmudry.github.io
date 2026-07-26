@@ -186,6 +186,46 @@ const presets = {
       reasoning: "Because T = 2π√(L/g), a smaller gravitational acceleration g in the denominator yields a larger period T."
     },
     questions: []
+  },
+  thermal: {
+    title: "Water Temperature during Continuous Heating",
+    xAxisLabel: "Heating Time",
+    xAxisUnit: "minutes",
+    chartType: "line",
+    showBestFit: false,
+    showZero: false,
+    showGrid: true,
+    xValues: [0, 2, 4, 6, 8, 10, 12],
+    series: [
+      {
+        id: "y1",
+        label: "Water Temperature",
+        unit: "°C",
+        color: "#059669",
+        pointStyle: "circle",
+        pointRadius: 6,
+        values: [-10, 0, 0, 35, 70, 100, 100]
+      }
+    ],
+    cer: {
+      claim: "Temperature remains constant during phase changes despite continuous heat input.",
+      evidence: "From 2 to 4 minutes (melting at 0°C) and from 10 to 12 minutes (boiling at 100°C), temperature stayed flat.",
+      reasoning: "During phase changes, absorbed thermal energy is converted into potential energy to break intermolecular hydrogen bonds rather than increasing kinetic energy (temperature)."
+    },
+    questions: [
+      {
+        id: "q1",
+        text: "Why does the temperature line remain horizontal between minutes 2-4 and 10-12?",
+        options: [
+          "The heat source was turned off",
+          "Thermal energy is breaking intermolecular bonds during phase changes",
+          "Water reflects heat at 0°C and 100°C",
+          "The thermometer reached maximum scale"
+        ],
+        correctIndex: 1,
+        explanation: "During phase transitions, added energy disrupts intermolecular forces rather than increasing particle kinetic energy (temperature)."
+      }
+    ]
   }
 };
 
