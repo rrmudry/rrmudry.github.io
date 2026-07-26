@@ -798,9 +798,14 @@ function renderChart() {
           grid: { display: currentDataset.showGrid !== false, color: gridColor },
           ticks: {
             display: true,
-            autoSkip: false,
             color: mutedColor,
-            font: { size: 11 }
+            font: { size: 11 },
+            callback: function(val, index, ticks) {
+              if (calcXMax && val > (calcXMax - (calcXMax * 0.04))) {
+                return '';
+              }
+              return this.getLabelForValue(val);
+            }
           },
           min: calcXMin,
           max: calcXMax
@@ -810,10 +815,15 @@ function renderChart() {
           grid: { display: currentDataset.showGrid !== false, color: gridColor },
           ticks: {
             display: true,
-            autoSkip: false,
             padding: 8,
             color: mutedColor,
-            font: { size: 11 }
+            font: { size: 11 },
+            callback: function(val, index, ticks) {
+              if (calcYMax && val > (calcYMax - (calcYMax * 0.07))) {
+                return '';
+              }
+              return this.getLabelForValue(val);
+            }
           },
           min: calcYMin,
           max: calcYMax
