@@ -675,6 +675,7 @@ function renderChart() {
   const userXMin = (!isBar && currentDataset.xMin !== "") ? parseFloat(currentDataset.xMin) : undefined;
   const userXMax = (!isBar && currentDataset.xMax !== "") ? parseFloat(currentDataset.xMax) : undefined;
   const userYMin = (currentDataset.yMin !== "") ? parseFloat(currentDataset.yMin) : undefined;
+  const userYMax = (currentDataset.yMax !== "") ? parseFloat(currentDataset.yMax) : undefined;
   const xBeginAtZero = !isBar && currentDataset.showZero && (userXMin === undefined);
   const yBeginAtZero = currentDataset.showZero && (userYMin === undefined);
 
