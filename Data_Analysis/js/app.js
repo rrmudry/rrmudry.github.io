@@ -794,16 +794,27 @@ function renderChart() {
       scales: {
         x: {
           type: isBar ? 'category' : 'linear',
-          title: { display: true, text: xTitle, color: textColor },
+          title: { display: true, text: xTitle, color: textColor, font: { weight: 'bold' } },
           grid: { display: currentDataset.showGrid !== false, color: gridColor },
-          ticks: { color: mutedColor },
+          ticks: {
+            display: true,
+            autoSkip: false,
+            color: mutedColor,
+            font: { size: 11 }
+          },
           min: calcXMin,
           max: calcXMax
         },
         y: {
-          title: { display: true, text: currentDataset.series[0]?.unit ? `Y Axis (${currentDataset.series[0].unit})` : 'Y Axis', color: textColor },
+          title: { display: true, text: currentDataset.series[0]?.unit ? `Y Axis (${currentDataset.series[0].unit})` : 'Y Axis', color: textColor, font: { weight: 'bold' } },
           grid: { display: currentDataset.showGrid !== false, color: gridColor },
-          ticks: { color: mutedColor },
+          ticks: {
+            display: true,
+            autoSkip: false,
+            padding: 8,
+            color: mutedColor,
+            font: { size: 11 }
+          },
           min: calcYMin,
           max: calcYMax
         }
