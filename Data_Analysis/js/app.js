@@ -288,6 +288,30 @@ function initUI() {
     renderChart();
   });
 
+  const yLabelInput = document.getElementById('yAxisLabelInput');
+  if (yLabelInput) {
+    yLabelInput.addEventListener('input', (e) => {
+      currentDataset.yAxisLabel = e.target.value;
+      if (currentDataset.series[0]) {
+        currentDataset.series[0].label = e.target.value;
+      }
+      renderTable();
+      renderChart();
+    });
+  }
+
+  const yUnitInput = document.getElementById('yAxisUnitInput');
+  if (yUnitInput) {
+    yUnitInput.addEventListener('input', (e) => {
+      currentDataset.yAxisUnit = e.target.value;
+      if (currentDataset.series[0]) {
+        currentDataset.series[0].unit = e.target.value;
+      }
+      renderTable();
+      renderChart();
+    });
+  }
+
   document.getElementById('chartTypeSelect').addEventListener('change', (e) => {
     currentDataset.chartType = e.target.value;
     renderTable();
@@ -433,6 +457,16 @@ function updateFormFields() {
   document.getElementById('graphTitleInput').value = currentDataset.title || '';
   document.getElementById('xAxisLabelInput').value = currentDataset.xAxisLabel || '';
   document.getElementById('xAxisUnitInput').value = currentDataset.xAxisUnit || '';
+
+  const yLabelInput = document.getElementById('yAxisLabelInput');
+  if (yLabelInput) {
+    yLabelInput.value = currentDataset.yAxisLabel !== undefined ? currentDataset.yAxisLabel : (currentDataset.series[0]?.label || '');
+  }
+  const yUnitInput = document.getElementById('yAxisUnitInput');
+  if (yUnitInput) {
+    yUnitInput.value = currentDataset.yAxisUnit !== undefined ? currentDataset.yAxisUnit : (currentDataset.series[0]?.unit || '');
+  }
+
   document.getElementById('chartTypeSelect').value = currentDataset.chartType || 'scatter';
   document.getElementById('bestFitToggle').checked = !!currentDataset.showBestFit;
   document.getElementById('showZeroToggle').checked = currentDataset.showZero !== false;
@@ -559,7 +593,7 @@ function removeRow(index) {
   renderChart();
 }
 
-function calculateLinearRegression(points) {
+function calculateLinearRegression(points, optMinX, optMaxX) {
   const n = points.length;
   if (n < 2) return null;
 
@@ -582,8 +616,8 @@ function calculateLinearRegression(points) {
   const denR = Math.sqrt((n * sumXX - sumX * sumX) * (n * sumYY - sumY * sumY));
   const r2 = denR === 0 ? 0 : Math.pow(numR / denR, 2);
 
-  const minX = Math.min(...points.map(p => p.x));
-  const maxX = Math.max(...points.map(p => p.x));
+  const minX = (optMinX !== undefined && !isNaN(optMinX)) ? optMinX : Math.min(...points.map(p => p.x));
+  const maxX = (optMaxX !== undefined && !isNaN(optMaxX)) ? optMaxX : Math.max(...points.map(p => p.x));
 
   return {
     slope,
@@ -606,20 +640,56 @@ function renderChart() {
 
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
   const textColor = isDark ? '#f8fafc' : '#0f172a';
-  const mutedColor = isDark ? '#94a3b8' : '#475569';
-  const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+  const gridColor = isDark ? '#334155' : '#e2e8f0';
+  const mutedColor = isDark ? '#94a3b8' : '#64748b';
 
-  const xTitle = currentDataset.xAxisUnit ? `${currentDataset.xAxisLabel} (${currentDataset.xAxisUnit})` : currentDataset.xAxisLabel;
   const isBar = currentDataset.chartType === 'bar';
+  const xTitle = currentDataset.xAxisUnit ? `${currentDataset.xAxisLabel} (${currentDataset.xAxisUnit})` : currentDataset.xAxisLabel;
+
+  const yLabelText = currentDataset.yAxisLabel !== undefined ? currentDataset.yAxisLabel : (currentDataset.series[0]?.label || 'Y Axis');
+  const yUnitText = currentDataset.yAxisUnit !== undefined ? currentDataset.yAxisUnit : (currentDataset.series[0]?.unit || '');
+  const yTitle = yUnitText ? `${yLabelText} (${yUnitText})` : yLabelText;
 
   document.getElementById('printReportTitle').innerText = `${currentDataset.title} - CAST Lab Report`;
 
+  // Compute actual data extremes for scale bounds
+  let xDataMin = undefined, xDataMax = undefined;
+  let yDataMin = undefined, yDataMax = undefined;
+
+  if (!isBar && currentDataset.xValues.length > 0) {
+    const numX = currentDataset.xValues.map(v => parseFloat(v) || 0);
+    xDataMin = Math.min(...numX);
+    xDataMax = Math.max(...numX);
+  }
+  if (currentDataset.series.length > 0) {
+    const allY = currentDataset.series.flatMap(s => s.values.map(v => parseFloat(v) || 0));
+    if (allY.length > 0) {
+      yDataMin = Math.min(...allY);
+      yDataMax = Math.max(...allY);
+    }
+  }
+
+  // User-specified overrides (from custom axis range inputs)
+  const userXMin = (!isBar && currentDataset.xMin !== "") ? parseFloat(currentDataset.xMin) : undefined;
+  const userXMax = (!isBar && currentDataset.xMax !== "") ? parseFloat(currentDataset.xMax) : undefined;
+  const userYMin = (currentDataset.yMin !== "") ? parseFloat(currentDataset.yMin) : undefined;
+  const userYMax = (currentDataset.yMax !== "") ? parseFloat(currentDataset.yMax) : undefined;
+
+  const xSugMin = (userXMin !== undefined) ? userXMin : (!isBar && currentDataset.showZero) ? 0 : xDataMin;
+  const ySugMin = (userYMin !== undefined) ? userYMin : (currentDataset.showZero) ? 0 : yDataMin;
+
+  const xSugMax = (xDataMax !== undefined && xDataMax > 0) ? xDataMax * 1.1 : (xDataMax !== undefined && xDataMax < 0) ? xDataMax * 0.9 : undefined;
+  const ySugMax = (yDataMax !== undefined && yDataMax > 0) ? yDataMax * 1.1 : (yDataMax !== undefined && yDataMax < 0) ? yDataMax * 0.9 : undefined;
+
+  const trendMinX = userXMin !== undefined ? userXMin : (xSugMin !== undefined ? xSugMin : xDataMin);
+  const trendMaxX = userXMax !== undefined ? userXMax : (xSugMax !== undefined ? xSugMax : xDataMax);
+
   const chartDatasets = [];
 
-  currentDataset.series.forEach(s => {
+  currentDataset.series.forEach((s, sIdx) => {
     const sColor = s.color || "#0284c7";
     const pStyle = s.pointStyle || "circle";
-    const pRadius = s.pointRadius || 6;
+    const pRadius = parseInt(s.pointRadius) || 6;
     const yLabel = s.unit ? `${s.label} (${s.unit})` : s.label;
 
     if (isBar) {
@@ -647,7 +717,7 @@ function renderChart() {
         showLine: currentDataset.chartType === 'line'
       });
 
-      const reg = calculateLinearRegression(pts);
+      const reg = calculateLinearRegression(pts, trendMinX, trendMaxX);
       if (currentDataset.showBestFit && reg && !isNaN(reg.slope)) {
         chartDatasets.push({
           label: `${s.label} Trend (y = ${reg.slope.toFixed(2)}x + ${reg.intercept.toFixed(2)})`,
@@ -658,7 +728,7 @@ function renderChart() {
           borderDash: [6, 6],
           pointRadius: 0,
           fill: false,
-          clip: true
+          clip: false
         });
       }
     }
@@ -668,7 +738,7 @@ function renderChart() {
     x: parseFloat(x) || 0,
     y: parseFloat(currentDataset.series[0]?.values[idx]) || 0
   }));
-  const regPrimary = calculateLinearRegression(firstSeriesPts);
+  const regPrimary = calculateLinearRegression(firstSeriesPts, trendMinX, trendMaxX);
   if (!isBar && regPrimary && !isNaN(regPrimary.slope)) {
     document.getElementById('equationBadge').innerText = `y = ${regPrimary.slope.toFixed(2)}x + ${regPrimary.intercept.toFixed(2)}`;
     document.getElementById('slopeVal').innerText = regPrimary.slope.toFixed(3);
@@ -685,45 +755,11 @@ function renderChart() {
     document.getElementById('r2Val').innerText = '--';
   }
 
-  // Global Scale Rules (universal for any dataset):
-  // 1. suggestedMin: 0 when showZero is on, so axes always include origin.
-  // 2. No hard min/max from data — let Chart.js pick clean tick steps.
-  // 3. afterBuildTicks: if the last clean tick doesn't reach data max, add ONE more tick at (lastTick + step).
-  // 4. clip: false so points on boundary ticks render fully.
-
-  // Compute actual data extremes (only for afterBuildTicks to reference)
-  let xDataMax = undefined;
-  let yDataMax = undefined;
-
-  if (!isBar && currentDataset.xValues.length > 0) {
-    xDataMax = Math.max(...currentDataset.xValues.map(v => parseFloat(v) || 0));
-  }
-  if (currentDataset.series.length > 0) {
-    const allY = currentDataset.series.flatMap(s => s.values.map(v => parseFloat(v) || 0));
-    if (allY.length > 0) yDataMax = Math.max(...allY);
-  }
-
-  // User-specified overrides (from custom axis range inputs)
-  const userXMin = (!isBar && currentDataset.xMin !== "") ? parseFloat(currentDataset.xMin) : undefined;
-  const userXMax = (!isBar && currentDataset.xMax !== "") ? parseFloat(currentDataset.xMax) : undefined;
-  const userYMin = (currentDataset.yMin !== "") ? parseFloat(currentDataset.yMin) : undefined;
-  const userYMax = (currentDataset.yMax !== "") ? parseFloat(currentDataset.yMax) : undefined;
-
-  // suggestedMin: 0 when showZero is checked (soft — Chart.js will extend below 0 if data requires it)
-  const xSugMin = (userXMin !== undefined) ? userXMin :
-                  (!isBar && currentDataset.showZero) ? 0 : undefined;
-  const ySugMin = (userYMin !== undefined) ? userYMin :
-                  (currentDataset.showZero) ? 0 : undefined;
-
-  // Upper Bounds (110% of maximum X and Y data values unless user overrides):
-  const xSugMax = (xDataMax !== undefined && xDataMax > 0) ? xDataMax * 1.1 : (xDataMax !== undefined && xDataMax < 0) ? xDataMax * 0.9 : undefined;
-  const ySugMax = (yDataMax !== undefined && yDataMax > 0) ? yDataMax * 1.1 : (yDataMax !== undefined && yDataMax < 0) ? yDataMax * 0.9 : undefined;
-
   chartInstance = new Chart(ctx, {
     type: isBar ? 'bar' : 'scatter',
     data: {
       labels: isBar ? currentDataset.xValues : undefined,
-      datasets: chartDatasets.map(ds => ({ ...ds, clip: false }))
+      datasets: chartDatasets.map(ds => ({ ...ds, clip: ds.clip !== undefined ? ds.clip : false }))
     },
     options: {
       responsive: true,
@@ -758,7 +794,7 @@ function renderChart() {
           max: userXMax
         },
         y: {
-          title: { display: true, text: currentDataset.series[0]?.unit ? `Y Axis (${currentDataset.series[0].unit})` : 'Y Axis', color: textColor, font: { weight: 'bold' } },
+          title: { display: true, text: yTitle, color: textColor, font: { weight: 'bold' } },
           grid: { display: currentDataset.showGrid !== false, color: gridColor },
           ticks: {
             display: true, padding: 6, color: mutedColor, font: { size: 11 },
