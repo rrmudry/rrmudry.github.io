@@ -753,6 +753,9 @@ function renderChart() {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      layout: {
+        padding: { left: 5, right: 20, top: 10, bottom: 5 }
+      },
       plugins: {
         title: {
           display: true,
@@ -769,16 +772,38 @@ function renderChart() {
           type: isBar ? 'category' : 'linear',
           title: { display: true, text: xTitle, color: textColor, font: { weight: 'bold' } },
           grid: { display: currentDataset.showGrid !== false, color: gridColor },
-          ticks: { display: true, color: mutedColor, font: { size: 11 } },
+          ticks: { display: true, color: mutedColor, font: { size: 11 }, includeBounds: true },
           min: xMin,
-          max: xMax
+          max: xMax,
+          afterBuildTicks(scale) {
+            if (!scale.ticks || scale.ticks.length === 0) return;
+            const minVal = scale.min;
+            const maxVal = scale.max;
+            if (scale.ticks[0].value !== minVal) {
+              scale.ticks.unshift({ value: minVal });
+            }
+            if (scale.ticks[scale.ticks.length - 1].value !== maxVal) {
+              scale.ticks.push({ value: maxVal });
+            }
+          }
         },
         y: {
           title: { display: true, text: currentDataset.series[0]?.unit ? `Y Axis (${currentDataset.series[0].unit})` : 'Y Axis', color: textColor, font: { weight: 'bold' } },
           grid: { display: currentDataset.showGrid !== false, color: gridColor },
-          ticks: { display: true, padding: 6, color: mutedColor, font: { size: 11 } },
+          ticks: { display: true, padding: 6, color: mutedColor, font: { size: 11 }, includeBounds: true },
           min: yMin,
-          max: yMax
+          max: yMax,
+          afterBuildTicks(scale) {
+            if (!scale.ticks || scale.ticks.length === 0) return;
+            const minVal = scale.min;
+            const maxVal = scale.max;
+            if (scale.ticks[0].value !== minVal) {
+              scale.ticks.unshift({ value: minVal });
+            }
+            if (scale.ticks[scale.ticks.length - 1].value !== maxVal) {
+              scale.ticks.push({ value: maxVal });
+            }
+          }
         }
       }
     }
