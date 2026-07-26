@@ -672,6 +672,59 @@ function renderChart() {
     document.getElementById('r2Val').innerText = '--';
   }
 
+  // Calculate axis bounds with 5% padding to prevent clipping boundary datapoints
+  let calcXMin = undefined, calcXMax = undefined;
+  let calcYMin = undefined, calcYMax = undefined;
+
+  if (!isBar && currentDataset.xValues.length > 0) {
+    const numX = currentDataset.xValues.map(v => parseFloat(v) || 0);
+    const minX = Math.min(...numX);
+    const maxX = Math.max(...numX);
+    const spanX = maxX - minX || 1;
+    const padX = spanX * 0.05;
+
+    if (currentDataset.xMin !== "") {
+      calcXMin = parseFloat(currentDataset.xMin);
+    } else if (!currentDataset.showZero) {
+      calcXMin = minX - padX;
+    } else {
+      calcXMin = 0;
+    }
+
+    if (currentDataset.xMax !== "") {
+      calcXMax = parseFloat(currentDataset.xMax);
+    } else {
+      calcXMax = maxX + padX;
+    }
+  }
+
+  // Calculate Y padding across all series
+  let allYValues = [];
+  currentDataset.series.forEach(s => {
+    s.values.forEach(v => allYValues.push(parseFloat(v) || 0));
+  });
+
+  if (allYValues.length > 0) {
+    const minY = Math.min(...allYValues);
+    const maxY = Math.max(...allYValues);
+    const spanY = maxY - minY || 1;
+    const padY = spanY * 0.08;
+
+    if (currentDataset.yMin !== "") {
+      calcYMin = parseFloat(currentDataset.yMin);
+    } else if (!currentDataset.showZero) {
+      calcYMin = minY - padY;
+    } else {
+      calcYMin = 0;
+    }
+
+    if (currentDataset.yMax !== "") {
+      calcYMax = parseFloat(currentDataset.yMax);
+    } else {
+      calcYMax = maxY + padY;
+    }
+  }
+
   chartInstance = new Chart(ctx, {
     type: isBar ? 'bar' : 'scatter',
     data: {
@@ -681,6 +734,14 @@ function renderChart() {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      layout: {
+        padding: {
+          left: 10,
+          right: 15,
+          top: 10,
+          bottom: 10
+        }
+      },
       plugins: {
         title: {
           display: true,
@@ -698,15 +759,15 @@ function renderChart() {
           title: { display: true, text: xTitle, color: textColor },
           grid: { display: currentDataset.showGrid !== false, color: gridColor },
           ticks: { color: mutedColor },
-          min: (!isBar && currentDataset.xMin !== "") ? parseFloat(currentDataset.xMin) : (!isBar && currentDataset.showZero ? 0 : undefined),
-          max: (!isBar && currentDataset.xMax !== "") ? parseFloat(currentDataset.xMax) : undefined
+          min: calcXMin,
+          max: calcXMax
         },
         y: {
           title: { display: true, text: currentDataset.series[0]?.unit ? `Y Axis (${currentDataset.series[0].unit})` : 'Y Axis', color: textColor },
           grid: { display: currentDataset.showGrid !== false, color: gridColor },
           ticks: { color: mutedColor },
-          min: (currentDataset.yMin !== "") ? parseFloat(currentDataset.yMin) : (currentDataset.showZero ? 0 : undefined),
-          max: (currentDataset.yMax !== "") ? parseFloat(currentDataset.yMax) : undefined
+          min: calcYMin,
+          max: calcYMax
         }
       }
     }
