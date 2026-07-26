@@ -21,7 +21,7 @@ const presets = {
     series: [
       {
         id: "y1",
-        label: "Dependent Variable (Y)",
+        label: "Data Series 1",
         unit: "units",
         color: "#0284c7",
         pointStyle: "circle",
