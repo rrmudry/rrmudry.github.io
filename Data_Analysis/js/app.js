@@ -743,17 +743,9 @@ function renderChart() {
   const ySugMin = (userYMin !== undefined) ? userYMin :
                   (currentDataset.showZero) ? 0 : undefined;
 
-  // Helper: extend ticks by one clean step if data max exceeds last tick
-  function ensureTicksCoverData(scale, dataMax) {
-    if (!scale.ticks || scale.ticks.length < 2 || dataMax === undefined) return;
-    const step = scale.ticks[1].value - scale.ticks[0].value;
-    const lastTick = scale.ticks[scale.ticks.length - 1].value;
-    if (lastTick < dataMax) {
-      const nextTick = lastTick + step;
-      scale.ticks.push({ value: nextTick });
-      scale.max = nextTick;
-    }
-  }
+  // Upper Bounds (110% of maximum X and Y data values unless user overrides):
+  const xSugMax = (xDataMax !== undefined && xDataMax > 0) ? xDataMax * 1.1 : (xDataMax !== undefined && xDataMax < 0) ? xDataMax * 0.9 : undefined;
+  const ySugMax = (yDataMax !== undefined && yDataMax > 0) ? yDataMax * 1.1 : (yDataMax !== undefined && yDataMax < 0) ? yDataMax * 0.9 : undefined;
 
   chartInstance = new Chart(ctx, {
     type: isBar ? 'bar' : 'scatter',
@@ -790,8 +782,8 @@ function renderChart() {
             }
           },
           suggestedMin: xSugMin,
-          max: userXMax,
-          afterBuildTicks(scale) { ensureTicksCoverData(scale, xDataMax); }
+          suggestedMax: xSugMax,
+          max: userXMax
         },
         y: {
           title: { display: true, text: currentDataset.series[0]?.unit ? `Y Axis (${currentDataset.series[0].unit})` : 'Y Axis', color: textColor, font: { weight: 'bold' } },
@@ -803,8 +795,8 @@ function renderChart() {
             }
           },
           suggestedMin: ySugMin,
-          max: userYMax,
-          afterBuildTicks(scale) { ensureTicksCoverData(scale, yDataMax); }
+          suggestedMax: ySugMax,
+          max: userYMax
         }
       }
     }
