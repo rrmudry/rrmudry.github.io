@@ -675,13 +675,16 @@ function renderChart() {
   const userXMin = (!isBar && currentDataset.xMin !== "") ? parseFloat(currentDataset.xMin) : undefined;
   const userXMax = (!isBar && currentDataset.xMax !== "") ? parseFloat(currentDataset.xMax) : undefined;
   const userYMin = (currentDataset.yMin !== "") ? parseFloat(currentDataset.yMin) : undefined;
-  const userYMax = (currentDataset.yMax !== "") ? parseFloat(currentDataset.yMax) : undefined;
+  const xBeginAtZero = !isBar && currentDataset.showZero && (userXMin === undefined);
+  const yBeginAtZero = currentDataset.showZero && (userYMin === undefined);
 
   const xMinVal = (userXMin !== undefined) ? userXMin :
-                  (!isBar && currentDataset.showZero && (xDataMin === undefined || xDataMin >= 0)) ? 0 : undefined;
+                  (xBeginAtZero && xDataMin !== undefined && xDataMin < 0) ? xDataMin :
+                  (xBeginAtZero) ? 0 : undefined;
 
   const yMinVal = (userYMin !== undefined) ? userYMin :
-                  (currentDataset.showZero && (yDataMin === undefined || yDataMin >= 0)) ? 0 : undefined;
+                  (yBeginAtZero && yDataMin !== undefined && yDataMin < 0) ? yDataMin :
+                  (yBeginAtZero) ? 0 : undefined;
 
   const xSugMax = (xDataMax !== undefined && xDataMax > 0) ? xDataMax * 1.1 : (xDataMax !== undefined && xDataMax < 0) ? xDataMax * 0.9 : undefined;
   const ySugMax = (yDataMax !== undefined && yDataMax > 0) ? yDataMax * 1.1 : (yDataMax !== undefined && yDataMax < 0) ? yDataMax * 0.9 : undefined;
@@ -788,28 +791,32 @@ function renderChart() {
           type: isBar ? 'category' : 'linear',
           title: { display: true, text: xTitle, color: textColor, font: { weight: 'bold' } },
           grid: { display: currentDataset.showGrid !== false, color: gridColor },
+          beginAtZero: xBeginAtZero,
+          min: xMinVal,
+          suggestedMin: xBeginAtZero ? 0 : undefined,
+          suggestedMax: xSugMax,
+          max: userXMax,
           ticks: {
             display: true, color: mutedColor, font: { size: 11 },
             callback: function(val) {
               return Number.isInteger(val) ? val : parseFloat(val.toFixed(2));
             }
-          },
-          min: xMinVal,
-          suggestedMax: xSugMax,
-          max: userXMax
+          }
         },
         y: {
           title: { display: true, text: yTitle, color: textColor, font: { weight: 'bold' } },
           grid: { display: currentDataset.showGrid !== false, color: gridColor },
+          beginAtZero: yBeginAtZero,
+          min: yMinVal,
+          suggestedMin: yBeginAtZero ? 0 : undefined,
+          suggestedMax: ySugMax,
+          max: userYMax,
           ticks: {
             display: true, padding: 6, color: mutedColor, font: { size: 11 },
             callback: function(val) {
               return Number.isInteger(val) ? val : parseFloat(val.toFixed(2));
             }
-          },
-          min: yMinVal,
-          suggestedMax: ySugMax,
-          max: userYMax
+          }
         }
       }
     }
