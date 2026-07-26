@@ -453,6 +453,85 @@ function initUI() {
   document.getElementById('saveJsonBtn').addEventListener('click', exportJSON);
   document.getElementById('loadJsonInput').addEventListener('change', importJSON);
   document.getElementById('printBtn').addEventListener('click', () => window.print());
+
+  const pt1 = document.getElementById('pt1Select');
+  const pt2 = document.getElementById('pt2Select');
+  if (pt1) pt1.addEventListener('change', calculateTwoPointSlope);
+  if (pt2) pt2.addEventListener('change', calculateTwoPointSlope);
+}
+
+function updatePointSelectors() {
+  const p1 = document.getElementById('pt1Select');
+  const p2 = document.getElementById('pt2Select');
+  if (!p1 || !p2) return;
+
+  const currentP1Val = p1.value;
+  const currentP2Val = p2.value;
+
+  p1.innerHTML = '';
+  p2.innerHTML = '';
+
+  if (!currentDataset || !currentDataset.xValues || currentDataset.xValues.length === 0) {
+    calculateTwoPointSlope();
+    return;
+  }
+
+  const firstSeries = currentDataset.series[0] || { values: [] };
+
+  currentDataset.xValues.forEach((xVal, idx) => {
+    const yVal = firstSeries.values[idx] !== undefined ? firstSeries.values[idx] : 0;
+    p1.innerHTML += `<option value="${idx}">Pt ${idx + 1} (${xVal}, ${yVal})</option>`;
+    p2.innerHTML += `<option value="${idx}">Pt ${idx + 1} (${xVal}, ${yVal})</option>`;
+  });
+
+  if (currentDataset.xValues.length >= 2) {
+    p1.value = (currentP1Val !== "" && parseInt(currentP1Val) < currentDataset.xValues.length) ? currentP1Val : 0;
+    p2.value = (currentP2Val !== "" && parseInt(currentP2Val) < currentDataset.xValues.length) ? currentP2Val : currentDataset.xValues.length - 1;
+  }
+
+  calculateTwoPointSlope();
+}
+
+function calculateTwoPointSlope() {
+  const p1El = document.getElementById('pt1Select');
+  const p2El = document.getElementById('pt2Select');
+  const resultBox = document.getElementById('twoPointResult');
+  if (!p1El || !p2El || !resultBox) return;
+
+  const idx1 = p1El.value;
+  const idx2 = p2El.value;
+
+  if (idx1 === "" || idx2 === "" || idx1 === idx2 || !currentDataset.xValues || currentDataset.xValues[idx1] === undefined || currentDataset.xValues[idx2] === undefined) {
+    if (idx1 === idx2 && idx1 !== "") {
+      resultBox.innerText = "Please select two distinct data points to compute rate.";
+    } else {
+      resultBox.innerText = "Select two points above to compute rate.";
+    }
+    return;
+  }
+
+  const x1 = parseFloat(currentDataset.xValues[idx1]) || 0;
+  const x2 = parseFloat(currentDataset.xValues[idx2]) || 0;
+  const s0 = currentDataset.series[0] || { values: [] };
+  const y1 = parseFloat(s0.values[idx1]) || 0;
+  const y2 = parseFloat(s0.values[idx2]) || 0;
+
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+
+  if (dx === 0) {
+    resultBox.innerHTML = `Slope is undefined (vertical line ΔX = 0).<br><span style="font-size:0.75rem; color:var(--text-muted);">ΔY = ${dy.toFixed(2)}, ΔX = 0</span>`;
+    return;
+  }
+
+  const slope = dy / dx;
+  const xUnit = currentDataset.xAxisUnit || 'X units';
+  const yUnit = currentDataset.yAxisUnit || (s0.unit || 'Y units');
+
+  resultBox.innerHTML = `
+    Rate of Change (ΔY / ΔX): <strong>${slope.toFixed(3)}</strong> ${yUnit} per ${xUnit}<br>
+    <span style="font-size:0.75rem; color:var(--text-muted);">ΔY = ${dy.toFixed(2)}, ΔX = ${dx.toFixed(2)}</span>
+  `;
 }
 
 function updateFormFields() {
@@ -485,6 +564,7 @@ function updateFormFields() {
   }
 
   updateSeriesStyleSelector();
+  updatePointSelectors();
 }
 
 function updateSeriesStyleSelector() {
@@ -512,6 +592,7 @@ function updateSeriesStyleForm() {
 function renderTable() {
   renderTableContainer('dataTableHead', 'dataTableBody');
   renderTableContainer('modalDataTableHead', 'modalDataTableBody');
+  updatePointSelectors();
 }
 
 function renderTableContainer(headId, bodyId) {
