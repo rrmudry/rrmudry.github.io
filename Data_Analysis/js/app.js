@@ -685,7 +685,8 @@ function renderChart() {
           borderWidth: 2,
           borderDash: [6, 6],
           pointRadius: 0,
-          fill: false
+          fill: false,
+          clip: true
         });
       }
     }
@@ -713,36 +714,46 @@ function renderChart() {
   }
 
   // Global Scale Rules (universal for any dataset):
-  // 1. Hard min/max set to actual data extremes guarantees Chart.js generates ticks covering ALL data.
-  // 2. clip: false so points on boundary ticks render fully without masking.
+  // 1. suggestedMin: 0 when showZero is on, so axes always include origin.
+  // 2. No hard min/max from data — let Chart.js pick clean tick steps.
+  // 3. afterBuildTicks: if the last clean tick doesn't reach data max, add ONE more tick at (lastTick + step).
+  // 4. clip: false so points on boundary ticks render fully.
 
-  // Compute actual data extremes
-  let xDataMin = undefined, xDataMax = undefined;
-  let yDataMin = undefined, yDataMax = undefined;
+  // Compute actual data extremes (only for afterBuildTicks to reference)
+  let xDataMax = undefined;
+  let yDataMax = undefined;
 
   if (!isBar && currentDataset.xValues.length > 0) {
-    const numX = currentDataset.xValues.map(v => parseFloat(v) || 0);
-    xDataMin = Math.min(...numX);
-    xDataMax = Math.max(...numX);
+    xDataMax = Math.max(...currentDataset.xValues.map(v => parseFloat(v) || 0));
   }
   if (currentDataset.series.length > 0) {
     const allY = currentDataset.series.flatMap(s => s.values.map(v => parseFloat(v) || 0));
-    if (allY.length > 0) {
-      yDataMin = Math.min(...allY);
-      yDataMax = Math.max(...allY);
-    }
+    if (allY.length > 0) yDataMax = Math.max(...allY);
   }
 
-  // Apply user overrides or showZero, falling back to data extremes
-  const xMin = (!isBar && currentDataset.xMin !== "") ? parseFloat(currentDataset.xMin) :
-               (!isBar && currentDataset.showZero && (xDataMin === undefined || xDataMin >= 0)) ? 0 :
-               xDataMin;
-  const xMax = (!isBar && currentDataset.xMax !== "") ? parseFloat(currentDataset.xMax) : xDataMax;
+  // User-specified overrides (from custom axis range inputs)
+  const userXMin = (!isBar && currentDataset.xMin !== "") ? parseFloat(currentDataset.xMin) : undefined;
+  const userXMax = (!isBar && currentDataset.xMax !== "") ? parseFloat(currentDataset.xMax) : undefined;
+  const userYMin = (currentDataset.yMin !== "") ? parseFloat(currentDataset.yMin) : undefined;
+  const userYMax = (currentDataset.yMax !== "") ? parseFloat(currentDataset.yMax) : undefined;
 
-  const yMin = (currentDataset.yMin !== "") ? parseFloat(currentDataset.yMin) :
-               (currentDataset.showZero && (yDataMin === undefined || yDataMin >= 0)) ? 0 :
-               yDataMin;
-  const yMax = (currentDataset.yMax !== "") ? parseFloat(currentDataset.yMax) : yDataMax;
+  // suggestedMin: 0 when showZero is checked (soft — Chart.js will extend below 0 if data requires it)
+  const xSugMin = (userXMin !== undefined) ? userXMin :
+                  (!isBar && currentDataset.showZero) ? 0 : undefined;
+  const ySugMin = (userYMin !== undefined) ? userYMin :
+                  (currentDataset.showZero) ? 0 : undefined;
+
+  // Helper: extend ticks by one clean step if data max exceeds last tick
+  function ensureTicksCoverData(scale, dataMax) {
+    if (!scale.ticks || scale.ticks.length < 2 || dataMax === undefined) return;
+    const step = scale.ticks[1].value - scale.ticks[0].value;
+    const lastTick = scale.ticks[scale.ticks.length - 1].value;
+    if (lastTick < dataMax) {
+      const nextTick = lastTick + step;
+      scale.ticks.push({ value: nextTick });
+      scale.max = nextTick;
+    }
+  }
 
   chartInstance = new Chart(ctx, {
     type: isBar ? 'bar' : 'scatter',
@@ -754,7 +765,7 @@ function renderChart() {
       responsive: true,
       maintainAspectRatio: false,
       layout: {
-        padding: { left: 5, right: 20, top: 10, bottom: 5 }
+        padding: { left: 5, right: 15, top: 10, bottom: 5 }
       },
       plugins: {
         title: {
@@ -773,47 +784,27 @@ function renderChart() {
           title: { display: true, text: xTitle, color: textColor, font: { weight: 'bold' } },
           grid: { display: currentDataset.showGrid !== false, color: gridColor },
           ticks: {
-            display: true, color: mutedColor, font: { size: 11 }, includeBounds: true,
+            display: true, color: mutedColor, font: { size: 11 },
             callback: function(val) {
               return Number.isInteger(val) ? val : parseFloat(val.toFixed(2));
             }
           },
-          min: xMin,
-          max: xMax,
-          afterBuildTicks(scale) {
-            if (!scale.ticks || scale.ticks.length === 0) return;
-            const minVal = scale.min;
-            const maxVal = scale.max;
-            if (scale.ticks[0].value !== minVal) {
-              scale.ticks.unshift({ value: minVal });
-            }
-            if (scale.ticks[scale.ticks.length - 1].value !== maxVal) {
-              scale.ticks.push({ value: maxVal });
-            }
-          }
+          suggestedMin: xSugMin,
+          max: userXMax,
+          afterBuildTicks(scale) { ensureTicksCoverData(scale, xDataMax); }
         },
         y: {
           title: { display: true, text: currentDataset.series[0]?.unit ? `Y Axis (${currentDataset.series[0].unit})` : 'Y Axis', color: textColor, font: { weight: 'bold' } },
           grid: { display: currentDataset.showGrid !== false, color: gridColor },
           ticks: {
-            display: true, padding: 6, color: mutedColor, font: { size: 11 }, includeBounds: true,
+            display: true, padding: 6, color: mutedColor, font: { size: 11 },
             callback: function(val) {
               return Number.isInteger(val) ? val : parseFloat(val.toFixed(2));
             }
           },
-          min: yMin,
-          max: yMax,
-          afterBuildTicks(scale) {
-            if (!scale.ticks || scale.ticks.length === 0) return;
-            const minVal = scale.min;
-            const maxVal = scale.max;
-            if (scale.ticks[0].value !== minVal) {
-              scale.ticks.unshift({ value: minVal });
-            }
-            if (scale.ticks[scale.ticks.length - 1].value !== maxVal) {
-              scale.ticks.push({ value: maxVal });
-            }
-          }
+          suggestedMin: ySugMin,
+          max: userYMax,
+          afterBuildTicks(scale) { ensureTicksCoverData(scale, yDataMax); }
         }
       }
     }
