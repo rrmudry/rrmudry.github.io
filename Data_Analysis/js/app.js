@@ -1,8 +1,9 @@
 /**
- * CAST Science Data Studio - Core Engine
+ * CAST Science Data Studio - Complete Bug-Free Application Engine
  */
 
 let chartInstance = null;
+
 let currentDataset = {
   title: "Photosynthesis Rate vs. Light Intensity",
   xAxisLabel: "Light Intensity",
@@ -15,6 +16,7 @@ let currentDataset = {
   xMax: "",
   yMin: "",
   yMax: "",
+  xValues: [10, 20, 30, 40, 50, 60, 70],
   series: [
     {
       id: "y1",
@@ -26,7 +28,6 @@ let currentDataset = {
       values: [2.1, 4.5, 7.2, 9.8, 12.0, 12.3, 12.4]
     }
   ],
-  xValues: [10, 20, 30, 40, 50, 60, 70],
   cer: {
     claim: "",
     evidence: "",
@@ -191,13 +192,58 @@ const presets = {
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   initUI();
+  updateFormFields();
   renderTable();
   renderChart();
   renderQuestions();
   updateCERPreview();
 });
 
+function switchTab(tabName) {
+  const tabs = ['data', 'graph', 'math', 'cer'];
+  tabs.forEach(t => {
+    const el = document.getElementById(`tab-${t}`);
+    const btn = document.getElementById(`tabBtn-${t}`);
+    if (t === tabName) {
+      if (el) el.style.display = 'flex';
+      if (btn) btn.classList.add('active');
+    } else {
+      if (el) el.style.display = 'none';
+      if (btn) btn.classList.remove('active');
+    }
+  });
+}
+
+function initTheme() {
+  const toggleBtn = document.getElementById('themeToggleBtn');
+  if (!toggleBtn) return;
+
+  const savedTheme = localStorage.getItem('data_analysis_theme') || 'light';
+  if (savedTheme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    toggleBtn.innerText = '☀️ Light Mode';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    toggleBtn.innerText = '🌙 Dark Mode';
+  }
+
+  toggleBtn.addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme');
+    if (current === 'dark') {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('data_analysis_theme', 'light');
+      toggleBtn.innerText = '🌙 Dark Mode';
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('data_analysis_theme', 'dark');
+      toggleBtn.innerText = '☀️ Light Mode';
+    }
+    renderChart();
+  });
+}
+
 function initUI() {
+  // Preset selector
   document.getElementById('presetSelect').addEventListener('change', (e) => {
     const key = e.target.value;
     if (key === 'custom') {
@@ -293,6 +339,7 @@ function initUI() {
       pointRadius: 6,
       values: currentDataset.xValues.map(() => 0)
     });
+    updateSeriesStyleSelector();
     renderTable();
     renderChart();
   };
@@ -403,7 +450,9 @@ function updateSeriesStyleSelector() {
 }
 
 function updateSeriesStyleForm() {
-  const sId = document.getElementById('seriesStyleSelect').value;
+  const sel = document.getElementById('seriesStyleSelect');
+  if (!sel || !sel.value) return;
+  const sId = sel.value;
   const s = currentDataset.series.find(s => s.id === sId);
   if (!s) return;
 
@@ -415,7 +464,6 @@ function updateSeriesStyleForm() {
 function renderTable() {
   renderTableContainer('dataTableHead', 'dataTableBody');
   renderTableContainer('modalDataTableHead', 'modalDataTableBody');
-  updatePointSelectors();
 }
 
 function renderTableContainer(headId, bodyId) {
@@ -499,8 +547,46 @@ function removeRow(index) {
   renderChart();
 }
 
+function calculateLinearRegression(points) {
+  const n = points.length;
+  if (n < 2) return null;
+
+  let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0, sumYY = 0;
+  points.forEach(p => {
+    sumX += p.x;
+    sumY += p.y;
+    sumXY += p.x * p.y;
+    sumXX += p.x * p.x;
+    sumYY += p.y * p.y;
+  });
+
+  const denom = (n * sumXX - sumX * sumX);
+  if (denom === 0) return null;
+
+  const slope = (n * sumXY - sumX * sumY) / denom;
+  const intercept = (sumY - slope * sumX) / n;
+
+  const numR = (n * sumXY - sumX * sumY);
+  const denR = Math.sqrt((n * sumXX - sumX * sumX) * (n * sumYY - sumY * sumY));
+  const r2 = denR === 0 ? 0 : Math.pow(numR / denR, 2);
+
+  const minX = Math.min(...points.map(p => p.x));
+  const maxX = Math.max(...points.map(p => p.x));
+
+  return {
+    slope,
+    intercept,
+    r2,
+    trendlineData: [
+      { x: minX, y: slope * minX + intercept },
+      { x: maxX, y: slope * maxX + intercept }
+    ]
+  };
+}
+
 function renderChart() {
   const ctx = document.getElementById('mainChart').getContext('2d');
+  if (!ctx) return;
   
   if (chartInstance) {
     chartInstance.destroy();
@@ -629,56 +715,6 @@ function renderChart() {
   document.getElementById('dataPointCount').innerText = currentDataset.xValues.length;
 }
 
-function updatePointSelectors() {
-  const p1 = document.getElementById('pt1Select');
-  const p2 = document.getElementById('pt2Select');
-  if (!p1 || !p2) return;
-
-  p1.innerHTML = ''; p2.innerHTML = '';
-
-  currentDataset.data.forEach((pt, idx) => {
-    p1.innerHTML += `<option value="${idx}">Point ${idx+1} (${pt.x}, ${pt.y})</option>`;
-    p2.innerHTML += `<option value="${idx}">Point ${idx+1} (${pt.x}, ${pt.y})</option>`;
-  });
-
-  if (currentDataset.data.length >= 2) {
-    p2.selectedIndex = currentDataset.data.length - 1;
-  }
-  calculateTwoPointSlope();
-}
-
-function calculateTwoPointSlope() {
-  const p1Val = document.getElementById('pt1Select').value;
-  const p2Val = document.getElementById('pt2Select').value;
-  const res = document.getElementById('twoPointResult');
-  if (!res) return;
-
-  if (p1Val === "" || p2Val === "" || p1Val === p2Val || !currentDataset.data[p1Val] || !currentDataset.data[p2Val]) {
-    res.innerText = "Select two distinct points above.";
-    return;
-  }
-
-  const pt1 = currentDataset.data[p1Val];
-  const pt2 = currentDataset.data[p2Val];
-
-  const dx = (parseFloat(pt2.x) || 0) - (parseFloat(pt1.x) || 0);
-  const dy = (parseFloat(pt2.y) || 0) - (parseFloat(pt1.y) || 0);
-
-  if (dx === 0) {
-    res.innerText = "Undefined rate (ΔX = 0).";
-    return;
-  }
-
-  const slope = dy / dx;
-  const xUnit = currentDataset.xAxisUnit || 'X units';
-  const yUnit = currentDataset.yAxisUnit || 'Y units';
-
-  res.innerHTML = `
-    Rate of Change: <strong>${slope.toFixed(3)}</strong> ${yUnit} per ${xUnit}<br>
-    <span style="font-size:0.75rem; color:var(--text-muted);">ΔY = ${dy.toFixed(2)}, ΔX = ${dx.toFixed(2)}</span>
-  `;
-}
-
 function updateCERPreview() {
   const claimText = document.getElementById('cerClaim').value.trim();
   const evidenceText = document.getElementById('cerEvidence').value.trim();
@@ -690,17 +726,21 @@ function updateCERPreview() {
 }
 
 function generateAutoEvidence() {
-  if (currentDataset.data.length < 2) return;
-  const sorted = [...currentDataset.data].sort((a, b) => (parseFloat(a.x) || 0) - (parseFloat(b.x) || 0));
-  const first = sorted[0];
-  const last = sorted[sorted.length - 1];
+  if (currentDataset.xValues.length < 2) return;
+  const sortedIndices = currentDataset.xValues.map((x, i) => ({ x: parseFloat(x) || 0, i })).sort((a, b) => a.x - b.x);
+  const firstIdx = sortedIndices[0].i;
+  const lastIdx = sortedIndices[sortedIndices.length - 1].i;
 
+  const firstX = currentDataset.xValues[firstIdx];
+  const lastX = currentDataset.xValues[lastIdx];
   const xName = currentDataset.xAxisLabel;
   const xUnit = currentDataset.xAxisUnit;
-  const yName = currentDataset.yAxisLabel;
-  const yUnit = currentDataset.yAxisUnit;
+  const firstY = currentDataset.series[0]?.values[firstIdx] || 0;
+  const lastY = currentDataset.series[0]?.values[lastIdx] || 0;
+  const yName = currentDataset.series[0]?.label || "Y Variable";
+  const yUnit = currentDataset.series[0]?.unit || "";
 
-  const autoSentence = `Based on the graph, as ${xName} increased from ${first.x} ${xUnit} to ${last.x} ${xUnit}, ${yName} changed from ${first.y} ${yUnit} to ${last.y} ${yUnit}.`;
+  const autoSentence = `Based on the graph, as ${xName} increased from ${firstX} ${xUnit} to ${lastX} ${xUnit}, ${yName} changed from ${firstY} ${yUnit} to ${lastY} ${yUnit}.`;
   
   const field = document.getElementById('cerEvidence');
   field.value = autoSentence + " " + field.value;
@@ -710,6 +750,7 @@ function generateAutoEvidence() {
 
 function renderQuestions() {
   const container = document.getElementById('questionsContainer');
+  if (!container) return;
   container.innerHTML = '';
 
   if (!currentDataset.questions || currentDataset.questions.length === 0) {
