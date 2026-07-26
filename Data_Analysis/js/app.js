@@ -217,10 +217,17 @@ function switchTab(tabKey) {
 
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
+  // Load default preset into currentDataset
+  if (presets['photosynthesis']) {
+    currentDataset = JSON.parse(JSON.stringify(presets['photosynthesis']));
+  }
   initUI();
+  syncInputsFromState();
   renderTable();
   renderChart();
   renderQuestions();
+  updateCERPreview();
+  updatePointSelectors();
 });
 
 function initTheme() {
