@@ -672,21 +672,56 @@ function renderChart() {
     document.getElementById('r2Val').innerText = '--';
   }
 
-  // Calculate clean minimum bounds so origin (0,0) or min bounds start cleanly without negative padding
+  // Calculate exact scale min and max so negative numbers (-100, -5) never display
   let calcXMin = undefined, calcXMax = undefined;
   let calcYMin = undefined, calcYMax = undefined;
 
-  if (!isBar) {
-    if (currentDataset.xMin !== "") calcXMin = parseFloat(currentDataset.xMin);
-    else if (currentDataset.showZero) calcXMin = 0;
+  if (!isBar && currentDataset.xValues.length > 0) {
+    const numX = currentDataset.xValues.map(v => parseFloat(v) || 0);
+    const minX = Math.min(...numX);
+    const maxX = Math.max(...numX);
+    const spanX = maxX - minX || 1;
 
-    if (currentDataset.xMax !== "") calcXMax = parseFloat(currentDataset.xMax);
+    if (currentDataset.xMin !== "") {
+      calcXMin = parseFloat(currentDataset.xMin);
+    } else if (currentDataset.showZero || minX >= 0) {
+      calcXMin = 0;
+    } else {
+      calcXMin = minX;
+    }
+
+    if (currentDataset.xMax !== "") {
+      calcXMax = parseFloat(currentDataset.xMax);
+    } else {
+      calcXMax = maxX + spanX * 0.05;
+    }
   }
 
-  if (currentDataset.yMin !== "") calcYMin = parseFloat(currentDataset.yMin);
-  else if (currentDataset.showZero) calcYMin = 0;
+  // Y axis min/max calculation
+  let allYValues = [];
+  currentDataset.series.forEach(s => {
+    s.values.forEach(v => allYValues.push(parseFloat(v) || 0));
+  });
 
-  if (currentDataset.yMax !== "") calcYMax = parseFloat(currentDataset.yMax);
+  if (allYValues.length > 0) {
+    const minY = Math.min(...allYValues);
+    const maxY = Math.max(...allYValues);
+    const spanY = maxY - minY || 1;
+
+    if (currentDataset.yMin !== "") {
+      calcYMin = parseFloat(currentDataset.yMin);
+    } else if (currentDataset.showZero || minY >= 0) {
+      calcYMin = 0;
+    } else {
+      calcYMin = minY;
+    }
+
+    if (currentDataset.yMax !== "") {
+      calcYMax = parseFloat(currentDataset.yMax);
+    } else {
+      calcYMax = maxY + spanY * 0.08;
+    }
+  }
 
   chartInstance = new Chart(ctx, {
     type: isBar ? 'bar' : 'scatter',
@@ -722,7 +757,6 @@ function renderChart() {
           title: { display: true, text: xTitle, color: textColor },
           grid: { display: currentDataset.showGrid !== false, color: gridColor },
           ticks: { color: mutedColor },
-          grace: isBar ? undefined : (calcXMax ? undefined : '5%'),
           min: calcXMin,
           max: calcXMax
         },
@@ -730,7 +764,6 @@ function renderChart() {
           title: { display: true, text: currentDataset.series[0]?.unit ? `Y Axis (${currentDataset.series[0].unit})` : 'Y Axis', color: textColor },
           grid: { display: currentDataset.showGrid !== false, color: gridColor },
           ticks: { color: mutedColor },
-          grace: calcYMax ? undefined : '5%',
           min: calcYMin,
           max: calcYMax
         }
