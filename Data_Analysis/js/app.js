@@ -672,11 +672,13 @@ function renderChart() {
     document.getElementById('r2Val').innerText = '--';
   }
 
-  // Calculate axis bounds cleanly: if custom limits are set use them, otherwise let Chart.js scale naturally with clip: false
+  // Calculate clean max tick bounds so max gridlines always show fully
   let calcXMin = undefined, calcXMax = undefined;
   let calcYMin = undefined, calcYMax = undefined;
 
-  if (!isBar) {
+  if (!isBar && currentDataset.xValues.length > 0) {
+    const numX = currentDataset.xValues.map(v => parseFloat(v) || 0);
+    const maxX = Math.max(...numX);
     if (currentDataset.xMin !== "") calcXMin = parseFloat(currentDataset.xMin);
     else if (currentDataset.showZero) calcXMin = 0;
 
@@ -700,8 +702,8 @@ function renderChart() {
       layout: {
         padding: {
           left: 10,
-          right: 25,
-          top: 15,
+          right: 35,
+          top: 20,
           bottom: 10
         }
       },
@@ -721,14 +723,16 @@ function renderChart() {
           type: isBar ? 'category' : 'linear',
           title: { display: true, text: xTitle, color: textColor },
           grid: { display: currentDataset.showGrid !== false, color: gridColor },
-          ticks: { color: mutedColor },
+          ticks: { color: mutedColor, includeBounds: true },
+          grace: isBar ? undefined : '5%',
           min: calcXMin,
           max: calcXMax
         },
         y: {
           title: { display: true, text: currentDataset.series[0]?.unit ? `Y Axis (${currentDataset.series[0].unit})` : 'Y Axis', color: textColor },
           grid: { display: currentDataset.showGrid !== false, color: gridColor },
-          ticks: { color: mutedColor },
+          ticks: { color: mutedColor, includeBounds: true },
+          grace: '5%',
           min: calcYMin,
           max: calcYMax
         }
