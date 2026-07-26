@@ -672,74 +672,37 @@ function renderChart() {
     document.getElementById('r2Val').innerText = '--';
   }
 
-  // Calculate axis bounds with 12% padding to prevent clipping boundary datapoints
+  // Calculate axis bounds cleanly: if custom limits are set use them, otherwise let Chart.js scale naturally with clip: false
   let calcXMin = undefined, calcXMax = undefined;
   let calcYMin = undefined, calcYMax = undefined;
 
-  if (!isBar && currentDataset.xValues.length > 0) {
-    const numX = currentDataset.xValues.map(v => parseFloat(v) || 0);
-    const minX = Math.min(...numX);
-    const maxX = Math.max(...numX);
-    const spanX = maxX - minX || 1;
-    const padX = spanX * 0.12;
+  if (!isBar) {
+    if (currentDataset.xMin !== "") calcXMin = parseFloat(currentDataset.xMin);
+    else if (currentDataset.showZero) calcXMin = 0;
 
-    if (currentDataset.xMin !== "") {
-      calcXMin = parseFloat(currentDataset.xMin);
-    } else if (!currentDataset.showZero) {
-      calcXMin = minX - padX;
-    } else {
-      calcXMin = 0;
-    }
-
-    if (currentDataset.xMax !== "") {
-      calcXMax = parseFloat(currentDataset.xMax);
-    } else {
-      calcXMax = maxX + padX;
-    }
+    if (currentDataset.xMax !== "") calcXMax = parseFloat(currentDataset.xMax);
   }
 
-  // Calculate Y padding across all series
-  let allYValues = [];
-  currentDataset.series.forEach(s => {
-    s.values.forEach(v => allYValues.push(parseFloat(v) || 0));
-  });
+  if (currentDataset.yMin !== "") calcYMin = parseFloat(currentDataset.yMin);
+  else if (currentDataset.showZero) calcYMin = 0;
 
-  if (allYValues.length > 0) {
-    const minY = Math.min(...allYValues);
-    const maxY = Math.max(...allYValues);
-    const spanY = maxY - minY || 1;
-    const padY = spanY * 0.12;
-
-    if (currentDataset.yMin !== "") {
-      calcYMin = parseFloat(currentDataset.yMin);
-    } else if (!currentDataset.showZero) {
-      calcYMin = minY - padY;
-    } else {
-      calcYMin = 0;
-    }
-
-    if (currentDataset.yMax !== "") {
-      calcYMax = parseFloat(currentDataset.yMax);
-    } else {
-      calcYMax = maxY + padY;
-    }
-  }
+  if (currentDataset.yMax !== "") calcYMax = parseFloat(currentDataset.yMax);
 
   chartInstance = new Chart(ctx, {
     type: isBar ? 'bar' : 'scatter',
     data: {
       labels: isBar ? currentDataset.xValues : undefined,
-      datasets: chartDatasets
+      datasets: chartDatasets.map(ds => ({ ...ds, clip: false }))
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       layout: {
         padding: {
-          left: 15,
-          right: 30,
+          left: 10,
+          right: 25,
           top: 15,
-          bottom: 15
+          bottom: 10
         }
       },
       plugins: {
