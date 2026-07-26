@@ -198,7 +198,10 @@ const presets = {
         ],
         correctIndex: 1,
         explanation: "During phase transitions, added energy disrupts intermolecular forces rather than increasing particle kinetic energy (temperature)."
-  };
+      }
+    ]
+  }
+};
 
 let currentDataset = JSON.parse(JSON.stringify(presets.custom));
 
