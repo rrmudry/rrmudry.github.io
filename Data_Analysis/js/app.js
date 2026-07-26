@@ -672,13 +672,11 @@ function renderChart() {
     document.getElementById('r2Val').innerText = '--';
   }
 
-  // Calculate clean max tick bounds so max gridlines always show fully
+  // Calculate clean minimum bounds so origin (0,0) or min bounds start cleanly without negative padding
   let calcXMin = undefined, calcXMax = undefined;
   let calcYMin = undefined, calcYMax = undefined;
 
-  if (!isBar && currentDataset.xValues.length > 0) {
-    const numX = currentDataset.xValues.map(v => parseFloat(v) || 0);
-    const maxX = Math.max(...numX);
+  if (!isBar) {
     if (currentDataset.xMin !== "") calcXMin = parseFloat(currentDataset.xMin);
     else if (currentDataset.showZero) calcXMin = 0;
 
@@ -701,7 +699,7 @@ function renderChart() {
       maintainAspectRatio: false,
       layout: {
         padding: {
-          left: 10,
+          left: 15,
           right: 35,
           top: 20,
           bottom: 10
@@ -723,16 +721,16 @@ function renderChart() {
           type: isBar ? 'category' : 'linear',
           title: { display: true, text: xTitle, color: textColor },
           grid: { display: currentDataset.showGrid !== false, color: gridColor },
-          ticks: { color: mutedColor, includeBounds: true },
-          grace: isBar ? undefined : '5%',
+          ticks: { color: mutedColor },
+          grace: isBar ? undefined : (calcXMax ? undefined : '5%'),
           min: calcXMin,
           max: calcXMax
         },
         y: {
           title: { display: true, text: currentDataset.series[0]?.unit ? `Y Axis (${currentDataset.series[0].unit})` : 'Y Axis', color: textColor },
           grid: { display: currentDataset.showGrid !== false, color: gridColor },
-          ticks: { color: mutedColor, includeBounds: true },
-          grace: '5%',
+          ticks: { color: mutedColor },
+          grace: calcYMax ? undefined : '5%',
           min: calcYMin,
           max: calcYMax
         }
