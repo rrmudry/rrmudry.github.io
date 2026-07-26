@@ -791,13 +791,14 @@ function renderChart() {
           type: isBar ? 'category' : 'linear',
           title: { display: true, text: xTitle, color: textColor, font: { weight: 'bold' } },
           grid: { display: currentDataset.showGrid !== false, color: gridColor },
-          beginAtZero: xBeginAtZero,
           min: xMinVal,
-          suggestedMin: xBeginAtZero ? 0 : undefined,
           suggestedMax: xSugMax,
           max: userXMax,
           ticks: {
-            display: true, color: mutedColor, font: { size: 11 },
+            display: true,
+            beginAtZero: xBeginAtZero,
+            color: mutedColor,
+            font: { size: 11 },
             callback: function(val) {
               return Number.isInteger(val) ? val : parseFloat(val.toFixed(2));
             }
@@ -806,13 +807,15 @@ function renderChart() {
         y: {
           title: { display: true, text: yTitle, color: textColor, font: { weight: 'bold' } },
           grid: { display: currentDataset.showGrid !== false, color: gridColor },
-          beginAtZero: yBeginAtZero,
           min: yMinVal,
-          suggestedMin: yBeginAtZero ? 0 : undefined,
           suggestedMax: ySugMax,
           max: userYMax,
           ticks: {
-            display: true, padding: 6, color: mutedColor, font: { size: 11 },
+            display: true,
+            beginAtZero: yBeginAtZero,
+            padding: 6,
+            color: mutedColor,
+            font: { size: 11 },
             callback: function(val) {
               return Number.isInteger(val) ? val : parseFloat(val.toFixed(2));
             }
