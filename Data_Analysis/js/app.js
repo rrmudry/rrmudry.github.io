@@ -672,7 +672,7 @@ function renderChart() {
     document.getElementById('r2Val').innerText = '--';
   }
 
-  // Calculate axis bounds with 5% padding to prevent clipping boundary datapoints
+  // Calculate axis bounds with 12% padding to prevent clipping boundary datapoints
   let calcXMin = undefined, calcXMax = undefined;
   let calcYMin = undefined, calcYMax = undefined;
 
@@ -681,7 +681,7 @@ function renderChart() {
     const minX = Math.min(...numX);
     const maxX = Math.max(...numX);
     const spanX = maxX - minX || 1;
-    const padX = spanX * 0.05;
+    const padX = spanX * 0.12;
 
     if (currentDataset.xMin !== "") {
       calcXMin = parseFloat(currentDataset.xMin);
@@ -708,7 +708,7 @@ function renderChart() {
     const minY = Math.min(...allYValues);
     const maxY = Math.max(...allYValues);
     const spanY = maxY - minY || 1;
-    const padY = spanY * 0.08;
+    const padY = spanY * 0.12;
 
     if (currentDataset.yMin !== "") {
       calcYMin = parseFloat(currentDataset.yMin);
@@ -736,10 +736,10 @@ function renderChart() {
       maintainAspectRatio: false,
       layout: {
         padding: {
-          left: 10,
-          right: 15,
-          top: 10,
-          bottom: 10
+          left: 15,
+          right: 30,
+          top: 15,
+          bottom: 15
         }
       },
       plugins: {
