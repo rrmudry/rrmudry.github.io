@@ -7,8 +7,6 @@ let currentDataset = {
   title: "Photosynthesis Rate vs. Light Intensity",
   xAxisLabel: "Light Intensity",
   xAxisUnit: "mW/cm²",
-  yAxisLabel: "Oxygen Production Rate",
-  yAxisUnit: "mL/min",
   chartType: "scatter",
   showBestFit: true,
   showZero: true,
@@ -17,15 +15,18 @@ let currentDataset = {
   xMax: "",
   yMin: "",
   yMax: "",
-  data: [
-    { x: 10, y: 2.1 },
-    { x: 20, y: 4.5 },
-    { x: 30, y: 7.2 },
-    { x: 40, y: 9.8 },
-    { x: 50, y: 12.0 },
-    { x: 60, y: 12.3 },
-    { x: 70, y: 12.4 }
+  series: [
+    {
+      id: "y1",
+      label: "Oxygen Production Rate",
+      unit: "mL/min",
+      color: "#0284c7",
+      pointStyle: "circle",
+      pointRadius: 6,
+      values: [2.1, 4.5, 7.2, 9.8, 12.0, 12.3, 12.4]
+    }
   ],
+  xValues: [10, 20, 30, 40, 50, 60, 70],
   cer: {
     claim: "",
     evidence: "",
@@ -57,6 +58,134 @@ let currentDataset = {
       explanation: "Interpolating between 30 mW/cm² (7.2 mL/min) and 40 mW/cm² (9.8 mL/min) gives approximately 8.5 mL/min."
     }
   ]
+};
+
+const presets = {
+  photosynthesis: {
+    title: "Photosynthesis Rate vs. Light Intensity",
+    xAxisLabel: "Light Intensity",
+    xAxisUnit: "mW/cm²",
+    chartType: "scatter",
+    showBestFit: true,
+    showZero: true,
+    showGrid: true,
+    xValues: [10, 20, 30, 40, 50, 60, 70],
+    series: [
+      {
+        id: "y1",
+        label: "Oxygen Production Rate",
+        unit: "mL/min",
+        color: "#0284c7",
+        pointStyle: "circle",
+        pointRadius: 6,
+        values: [2.1, 4.5, 7.2, 9.8, 12.0, 12.3, 12.4]
+      }
+    ],
+    cer: {
+      claim: "Increasing light intensity increases photosynthesis rate until a light saturation point is reached.",
+      evidence: "Between 10 and 50 mW/cm², oxygen production increased from 2.1 to 12.0 mL/min. Above 50 mW/cm², the rate plateaued at ~12.4 mL/min.",
+      reasoning: "Light provides energy for the light-dependent reactions of photosynthesis. Once light is abundant, another factor (such as CO₂ concentration or enzyme availability) becomes limiting."
+    },
+    questions: [
+      {
+        id: "q1",
+        text: "What pattern does the graph display between light intensity and oxygen production?",
+        options: [
+          "Directly proportional across the entire range",
+          "Increases linearly at lower light levels, then plateaus at high intensity",
+          "Inversely proportional throughout the experiment",
+          "No correlation between light intensity and rate"
+        ],
+        correctIndex: 1,
+        explanation: "Oxygen production increases steadily until light is no longer the limiting factor (around 50 mW/cm²), at which point the rate levels off."
+      }
+    ]
+  },
+  tectonic: {
+    title: "Seafloor Age Comparison: Atlantic vs. Pacific Ocean",
+    xAxisLabel: "Distance from Ridge",
+    xAxisUnit: "km",
+    chartType: "scatter",
+    showBestFit: true,
+    showZero: true,
+    showGrid: true,
+    xValues: [0, 100, 200, 300, 400, 500],
+    series: [
+      {
+        id: "y1",
+        label: "Mid-Atlantic Ridge Crust Age",
+        unit: "Ma",
+        color: "#0284c7",
+        pointStyle: "circle",
+        pointRadius: 6,
+        values: [0, 5, 10, 15, 20, 25]
+      },
+      {
+        id: "y2",
+        label: "East Pacific Rise Crust Age",
+        unit: "Ma",
+        color: "#ea580c",
+        pointStyle: "triangle",
+        pointRadius: 7,
+        values: [0, 1.5, 3.0, 4.5, 6.0, 7.5]
+      }
+    ],
+    cer: {
+      claim: "The East Pacific Rise has a significantly faster seafloor spreading rate than the Mid-Atlantic Ridge.",
+      evidence: "At 500 km from the ridge, Atlantic crust is 25 Million Years old (20 km/Ma), while Pacific crust is only 7.5 Million Years old (66.7 km/Ma).",
+      reasoning: "Divergent boundaries spread at different speeds based on mantle convection rates and subduction slab pull forces."
+    },
+    questions: [
+      {
+        id: "q1",
+        text: "Which oceanic ridge system exhibits faster seafloor spreading?",
+        options: [
+          "Mid-Atlantic Ridge",
+          "East Pacific Rise",
+          "Both spread at identical rates",
+          "Neither system produces new crust"
+        ],
+        correctIndex: 1,
+        explanation: "The East Pacific Rise creates 500 km of new crust in only 7.5 Ma, compared to 25 Ma for the Atlantic."
+      }
+    ]
+  },
+  pendulum: {
+    title: "Pendulum Length vs. Period",
+    xAxisLabel: "Pendulum Length",
+    xAxisUnit: "m",
+    chartType: "scatter",
+    showBestFit: true,
+    showZero: true,
+    showGrid: true,
+    xValues: [0.2, 0.4, 0.6, 0.8, 1.0],
+    series: [
+      {
+        id: "y1",
+        label: "Period (Earth g=9.8 m/s²)",
+        unit: "s",
+        color: "#0284c7",
+        pointStyle: "circle",
+        pointRadius: 6,
+        values: [0.90, 1.27, 1.55, 1.79, 2.01]
+      },
+      {
+        id: "y2",
+        label: "Period (Moon g=1.6 m/s²)",
+        unit: "s",
+        color: "#9333ea",
+        pointStyle: "rect",
+        pointRadius: 7,
+        values: [2.22, 3.14, 3.85, 4.44, 4.97]
+      }
+    ],
+    cer: {
+      claim: "Lower gravitational acceleration increases the oscillation period of a pendulum.",
+      evidence: "For a 1.0 m pendulum, the period on Earth is 2.01 seconds, compared to 4.97 seconds on the Moon.",
+      reasoning: "Because T = 2π√(L/g), a smaller gravitational acceleration g in the denominator yields a larger period T."
+    },
+    questions: []
+  }
 };
 
 const presets = {
@@ -236,50 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateCERPreview();
 });
 
-function switchTab(tabName) {
-  const tabs = ['data', 'graph', 'math', 'cer'];
-  tabs.forEach(t => {
-    const el = document.getElementById(`tab-${t}`);
-    const btn = document.getElementById(`tabBtn-${t}`);
-    if (t === tabName) {
-      if (el) el.style.display = 'flex';
-      if (btn) btn.classList.add('active');
-    } else {
-      if (el) el.style.display = 'none';
-      if (btn) btn.classList.remove('active');
-    }
-  });
-}
-
-function initTheme() {
-  const toggleBtn = document.getElementById('themeToggleBtn');
-  const savedTheme = localStorage.getItem('data_analysis_theme') || 'light';
-  
-  if (savedTheme === 'dark') {
-    document.documentElement.setAttribute('data-theme', 'dark');
-    toggleBtn.innerText = '☀️ Light Mode';
-  } else {
-    document.documentElement.removeAttribute('data-theme');
-    toggleBtn.innerText = '🌙 Dark Mode';
-  }
-
-  toggleBtn.addEventListener('click', () => {
-    const current = document.documentElement.getAttribute('data-theme');
-    if (current === 'dark') {
-      document.documentElement.removeAttribute('data-theme');
-      localStorage.setItem('data_analysis_theme', 'light');
-      toggleBtn.innerText = '🌙 Dark Mode';
-    } else {
-      document.documentElement.setAttribute('data-theme', 'dark');
-      localStorage.setItem('data_analysis_theme', 'dark');
-      toggleBtn.innerText = '☀️ Light Mode';
-    }
-    renderChart();
-  });
-}
-
 function initUI() {
-  // Preset selector
   document.getElementById('presetSelect').addEventListener('change', (e) => {
     const key = e.target.value;
     if (key === 'custom') {
@@ -295,7 +381,6 @@ function initUI() {
     updateCERPreview();
   });
 
-  // Inputs binding
   document.getElementById('graphTitleInput').addEventListener('input', (e) => {
     currentDataset.title = e.target.value;
     renderChart();
@@ -303,25 +388,13 @@ function initUI() {
 
   document.getElementById('xAxisLabelInput').addEventListener('input', (e) => {
     currentDataset.xAxisLabel = e.target.value;
-    document.getElementById('thX').innerText = `${e.target.value} (${currentDataset.xAxisUnit})`;
+    renderTable();
     renderChart();
   });
 
   document.getElementById('xAxisUnitInput').addEventListener('input', (e) => {
     currentDataset.xAxisUnit = e.target.value;
-    document.getElementById('thX').innerText = `${currentDataset.xAxisLabel} (${e.target.value})`;
-    renderChart();
-  });
-
-  document.getElementById('yAxisLabelInput').addEventListener('input', (e) => {
-    currentDataset.yAxisLabel = e.target.value;
-    document.getElementById('thY').innerText = `${e.target.value} (${currentDataset.yAxisUnit})`;
-    renderChart();
-  });
-
-  document.getElementById('yAxisUnitInput').addEventListener('input', (e) => {
-    currentDataset.yAxisUnit = e.target.value;
-    document.getElementById('thY').innerText = `${currentDataset.yAxisLabel} (${e.target.value})`;
+    renderTable();
     renderChart();
   });
 
@@ -353,27 +426,100 @@ function initUI() {
     });
   });
 
-  document.getElementById('addRowBtn').addEventListener('click', () => {
-    const lastX = currentDataset.data.length > 0 ? currentDataset.data[currentDataset.data.length - 1].x : 0;
-    const lastY = currentDataset.data.length > 0 ? currentDataset.data[currentDataset.data.length - 1].y : 0;
-    const nextX = currentDataset.chartType === 'bar' ? `Category ${currentDataset.data.length + 1}` : (parseFloat(lastX) || 0) + 10;
-    currentDataset.data.push({ x: nextX, y: (parseFloat(lastY) || 0) + 5 });
-    renderTable();
-    renderChart();
+  // Series Plot Styling Handlers
+  document.getElementById('seriesStyleSelect').addEventListener('change', updateSeriesStyleForm);
+
+  document.getElementById('seriesColorInput').addEventListener('change', (e) => {
+    const sId = document.getElementById('seriesStyleSelect').value;
+    const s = currentDataset.series.find(s => s.id === sId);
+    if (s) { s.color = e.target.value; renderChart(); }
   });
 
-  document.getElementById('sortDataBtn').addEventListener('click', () => {
+  document.getElementById('pointShapeSelect').addEventListener('change', (e) => {
+    const sId = document.getElementById('seriesStyleSelect').value;
+    const s = currentDataset.series.find(s => s.id === sId);
+    if (s) { s.pointStyle = e.target.value; renderChart(); }
+  });
+
+  document.getElementById('pointSizeInput').addEventListener('input', (e) => {
+    const sId = document.getElementById('seriesStyleSelect').value;
+    const s = currentDataset.series.find(s => s.id === sId);
+    if (s) { s.pointRadius = parseInt(e.target.value) || 6; renderChart(); }
+  });
+
+  // Series Addition
+  const addSeriesHandler = () => {
+    const newIdx = currentDataset.series.length + 1;
+    const colors = ["#0284c7", "#ea580c", "#9333ea", "#059669", "#dc2626"];
+    const shapes = ["circle", "triangle", "rect", "star", "crossRot"];
+    currentDataset.series.push({
+      id: `y${Date.now()}`,
+      label: `Series ${newIdx} Variable`,
+      unit: "units",
+      color: colors[(newIdx - 1) % colors.length],
+      pointStyle: shapes[(newIdx - 1) % shapes.length],
+      pointRadius: 6,
+      values: currentDataset.xValues.map(() => 0)
+    });
+    renderTable();
+    renderChart();
+  };
+
+  document.getElementById('addSeriesBtn').addEventListener('click', addSeriesHandler);
+  document.getElementById('modalAddSeriesBtn').addEventListener('click', addSeriesHandler);
+
+  // Row Addition
+  const addRowHandler = () => {
+    const lastX = currentDataset.xValues.length > 0 ? currentDataset.xValues[currentDataset.xValues.length - 1] : 0;
+    const nextX = currentDataset.chartType === 'bar' ? `Category ${currentDataset.xValues.length + 1}` : (parseFloat(lastX) || 0) + 10;
+    currentDataset.xValues.push(nextX);
+    currentDataset.series.forEach(s => s.values.push(0));
+    renderTable();
+    renderChart();
+  };
+
+  document.getElementById('addRowBtn').addEventListener('click', addRowHandler);
+  document.getElementById('modalAddRowBtn').addEventListener('click', addRowHandler);
+
+  // Sort
+  const sortHandler = () => {
     if (currentDataset.chartType !== 'bar') {
-      currentDataset.data.sort((a, b) => (parseFloat(a.x) || 0) - (parseFloat(b.x) || 0));
+      const combined = currentDataset.xValues.map((x, i) => {
+        const item = { x: parseFloat(x) || 0 };
+        currentDataset.series.forEach(s => item[s.id] = s.values[i]);
+        return item;
+      });
+      combined.sort((a, b) => a.x - b.x);
+      currentDataset.xValues = combined.map(c => c.x);
+      currentDataset.series.forEach(s => {
+        s.values = combined.map(c => c[s.id]);
+      });
       renderTable();
       renderChart();
     }
-  });
+  };
 
-  document.getElementById('clearDataBtn').addEventListener('click', () => {
-    currentDataset.data = [];
+  document.getElementById('sortDataBtn').addEventListener('click', sortHandler);
+  document.getElementById('modalSortBtn').addEventListener('click', sortHandler);
+
+  // Clear
+  const clearHandler = () => {
+    currentDataset.xValues = [];
+    currentDataset.series.forEach(s => s.values = []);
     renderTable();
     renderChart();
+  };
+
+  document.getElementById('clearDataBtn').addEventListener('click', clearHandler);
+  document.getElementById('modalClearBtn').addEventListener('click', clearHandler);
+
+  // Table Modal Open & Close
+  document.getElementById('openTableModalBtn').addEventListener('click', () => {
+    document.getElementById('tableModal').style.display = 'flex';
+  });
+
+  document.getElementById('closeTableModalBtn').addEventListener('click', () => {
+    document.getElementById('tableModal').style.display = 'none';
   });
 
   // CER Inputs
@@ -386,12 +532,6 @@ function initUI() {
   });
 
   document.getElementById('autoEvidenceBtn').addEventListener('click', generateAutoEvidence);
-
-  // Rate Tool Selectors
-  document.getElementById('pt1Select').addEventListener('change', calculateTwoPointSlope);
-  document.getElementById('pt2Select').addEventListener('change', calculateTwoPointSlope);
-
-  // Export / Import / Print
   document.getElementById('exportPngBtn').addEventListener('click', exportChartImage);
   document.getElementById('saveJsonBtn').addEventListener('click', exportJSON);
   document.getElementById('loadJsonInput').addEventListener('change', importJSON);
@@ -402,8 +542,6 @@ function updateFormFields() {
   document.getElementById('graphTitleInput').value = currentDataset.title || '';
   document.getElementById('xAxisLabelInput').value = currentDataset.xAxisLabel || '';
   document.getElementById('xAxisUnitInput').value = currentDataset.xAxisUnit || '';
-  document.getElementById('yAxisLabelInput').value = currentDataset.yAxisLabel || '';
-  document.getElementById('yAxisUnitInput').value = currentDataset.yAxisUnit || '';
   document.getElementById('chartTypeSelect').value = currentDataset.chartType || 'scatter';
   document.getElementById('bestFitToggle').checked = !!currentDataset.showBestFit;
   document.getElementById('showZeroToggle').checked = currentDataset.showZero !== false;
@@ -419,83 +557,114 @@ function updateFormFields() {
     document.getElementById('cerReasoning').value = currentDataset.cer.reasoning || '';
   }
 
-  document.getElementById('thX').innerText = `${currentDataset.xAxisLabel} (${currentDataset.xAxisUnit})`;
-  document.getElementById('thY').innerText = `${currentDataset.yAxisLabel} (${currentDataset.yAxisUnit})`;
+  updateSeriesStyleSelector();
+}
+
+function updateSeriesStyleSelector() {
+  const sel = document.getElementById('seriesStyleSelect');
+  if (!sel) return;
+  sel.innerHTML = '';
+  currentDataset.series.forEach(s => {
+    sel.innerHTML += `<option value="${s.id}">${s.label} (${s.unit})</option>`;
+  });
+  updateSeriesStyleForm();
+}
+
+function updateSeriesStyleForm() {
+  const sId = document.getElementById('seriesStyleSelect').value;
+  const s = currentDataset.series.find(s => s.id === sId);
+  if (!s) return;
+
+  document.getElementById('seriesColorInput').value = s.color || "#0284c7";
+  document.getElementById('pointShapeSelect').value = s.pointStyle || "circle";
+  document.getElementById('pointSizeInput').value = s.pointRadius || 6;
 }
 
 function renderTable() {
-  const tbody = document.getElementById('dataTableBody');
-  tbody.innerHTML = '';
-  const isBar = currentDataset.chartType === 'bar';
-
-  currentDataset.data.forEach((pt, index) => {
-    const tr = document.createElement('tr');
-    const xInputType = isBar ? 'text' : 'number';
-    tr.innerHTML = `
-      <td><input type="${xInputType}" step="any" value="${pt.x}" data-index="${index}" data-field="x" class="table-input"></td>
-      <td><input type="number" step="any" value="${pt.y}" data-index="${index}" data-field="y" class="table-input"></td>
-      <td><button class="btn btn-danger btn-sm" onclick="removeRow(${index})" style="padding:0.15rem 0.4rem; font-size:0.7rem;">✕</button></td>
-    `;
-    tbody.appendChild(tr);
-  });
-
-  tbody.querySelectorAll('.table-input').forEach(input => {
-    input.addEventListener('change', (e) => {
-      const idx = parseInt(e.target.getAttribute('data-index'));
-      const field = e.target.getAttribute('data-field');
-      let val = e.target.value;
-      if (field === 'y' || (field === 'x' && !isBar)) {
-        val = parseFloat(val) || 0;
-      }
-      currentDataset.data[idx][field] = val;
-      renderChart();
-    });
-  });
-
+  renderTableContainer('dataTableHead', 'dataTableBody');
+  renderTableContainer('modalDataTableHead', 'modalDataTableBody');
   updatePointSelectors();
 }
 
-function removeRow(index) {
-  currentDataset.data.splice(index, 1);
-  renderTable();
+function renderTableContainer(headId, bodyId) {
+  const thead = document.getElementById(headId);
+  const tbody = document.getElementById(bodyId);
+  if (!thead || !tbody) return;
+
+  const isBar = currentDataset.chartType === 'bar';
+  const xTitle = currentDataset.xAxisUnit ? `${currentDataset.xAxisLabel} (${currentDataset.xAxisUnit})` : currentDataset.xAxisLabel;
+
+  let headHtml = `<tr><th>${xTitle}</th>`;
+  currentDataset.series.forEach((s, sIdx) => {
+    headHtml += `
+      <th>
+        <div style="display:flex; flex-direction:column; gap:0.2rem;">
+          <input type="text" value="${s.label}" onchange="updateSeriesMeta(${sIdx}, 'label', this.value)" style="font-weight:bold; font-size:0.75rem; padding:0.15rem;">
+          <div style="display:flex; gap:0.2rem; align-items:center;">
+            <span style="font-size:0.7rem; color:var(--text-muted);">Unit:</span>
+            <input type="text" value="${s.unit}" onchange="updateSeriesMeta(${sIdx}, 'unit', this.value)" style="font-size:0.7rem; padding:0.15rem;">
+            ${currentDataset.series.length > 1 ? `<button onclick="removeSeries(${sIdx})" class="btn btn-danger btn-sm" style="padding:0.1rem 0.3rem; font-size:0.65rem;" title="Delete Series">✕</button>` : ''}
+          </div>
+        </div>
+      </th>
+    `;
+  });
+  headHtml += `<th style="width:36px;">Del</th></tr>`;
+  thead.innerHTML = headHtml;
+
+  tbody.innerHTML = '';
+  currentDataset.xValues.forEach((xVal, rIdx) => {
+    const tr = document.createElement('tr');
+    const xInputType = isBar ? 'text' : 'number';
+    let rowHtml = `<td><input type="${xInputType}" step="any" value="${xVal}" onchange="updateXVal(${rIdx}, this.value)"></td>`;
+
+    currentDataset.series.forEach((s, sIdx) => {
+      const yVal = s.values[rIdx] !== undefined ? s.values[rIdx] : 0;
+      rowHtml += `<td><input type="number" step="any" value="${yVal}" onchange="updateYVal(${sIdx}, ${rIdx}, this.value)"></td>`;
+    });
+
+    rowHtml += `<td><button class="btn btn-danger btn-sm" onclick="removeRow(${rIdx})" style="padding:0.15rem 0.4rem; font-size:0.7rem;">✕</button></td>`;
+    tr.innerHTML = rowHtml;
+    tbody.appendChild(tr);
+  });
+}
+
+function updateSeriesMeta(sIdx, field, val) {
+  if (currentDataset.series[sIdx]) {
+    currentDataset.series[sIdx][field] = val;
+    updateSeriesStyleSelector();
+    renderTable();
+    renderChart();
+  }
+}
+
+function updateXVal(rIdx, val) {
+  const isBar = currentDataset.chartType === 'bar';
+  currentDataset.xValues[rIdx] = isBar ? val : (parseFloat(val) || 0);
   renderChart();
 }
 
-function calculateLinearRegression(points) {
-  const n = points.length;
-  if (n < 2) return null;
+function updateYVal(sIdx, rIdx, val) {
+  if (currentDataset.series[sIdx]) {
+    currentDataset.series[sIdx].values[rIdx] = parseFloat(val) || 0;
+    renderChart();
+  }
+}
 
-  let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0, sumYY = 0;
-  points.forEach(p => {
-    sumX += p.x;
-    sumY += p.y;
-    sumXY += p.x * p.y;
-    sumXX += p.x * p.x;
-    sumYY += p.y * p.y;
-  });
+function removeSeries(sIdx) {
+  if (currentDataset.series.length > 1) {
+    currentDataset.series.splice(sIdx, 1);
+    updateSeriesStyleSelector();
+    renderTable();
+    renderChart();
+  }
+}
 
-  const denom = (n * sumXX - sumX * sumX);
-  if (denom === 0) return null;
-
-  const slope = (n * sumXY - sumX * sumY) / denom;
-  const intercept = (sumY - slope * sumX) / n;
-
-  const numR = (n * sumXY - sumX * sumY);
-  const denR = Math.sqrt((n * sumXX - sumX * sumX) * (n * sumYY - sumY * sumY));
-  const r2 = denR === 0 ? 0 : Math.pow(numR / denR, 2);
-
-  const minX = Math.min(...points.map(p => p.x));
-  const maxX = Math.max(...points.map(p => p.x));
-
-  return {
-    slope,
-    intercept,
-    r2,
-    trendlineData: [
-      { x: minX, y: slope * minX + intercept },
-      { x: maxX, y: slope * maxX + intercept }
-    ]
-  };
+function removeRow(index) {
+  currentDataset.xValues.splice(index, 1);
+  currentDataset.series.forEach(s => s.values.splice(index, 1));
+  renderTable();
+  renderChart();
 }
 
 function renderChart() {
@@ -509,79 +678,88 @@ function renderChart() {
   const textColor = isDark ? '#f8fafc' : '#0f172a';
   const mutedColor = isDark ? '#94a3b8' : '#475569';
   const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
-  const primaryAccent = isDark ? '#38bdf8' : '#0284c7';
-  const primaryFill = isDark ? 'rgba(56, 189, 248, 0.7)' : 'rgba(2, 132, 199, 0.8)';
-  const trendlineColor = isDark ? '#a855f7' : '#9333ea';
 
   const xTitle = currentDataset.xAxisUnit ? `${currentDataset.xAxisLabel} (${currentDataset.xAxisUnit})` : currentDataset.xAxisLabel;
-  const yTitle = currentDataset.yAxisUnit ? `${currentDataset.yAxisLabel} (${currentDataset.yAxisUnit})` : currentDataset.yAxisLabel;
+  const isBar = currentDataset.chartType === 'bar';
 
   document.getElementById('printReportTitle').innerText = `${currentDataset.title} - CAST Lab Report`;
 
-  const isBar = currentDataset.chartType === 'bar';
-  let chartDataConfig = {};
+  const chartDatasets = [];
 
-  if (isBar) {
-    chartDataConfig = {
-      labels: currentDataset.data.map(p => p.x),
-      datasets: [{
-        label: currentDataset.title,
-        data: currentDataset.data.map(p => parseFloat(p.y) || 0),
-        backgroundColor: primaryFill,
-        borderColor: primaryAccent,
+  currentDataset.series.forEach(s => {
+    const sColor = s.color || "#0284c7";
+    const pStyle = s.pointStyle || "circle";
+    const pRadius = s.pointRadius || 6;
+    const yLabel = s.unit ? `${s.label} (${s.unit})` : s.label;
+
+    if (isBar) {
+      chartDatasets.push({
+        label: yLabel,
+        data: s.values.map(v => parseFloat(v) || 0),
+        backgroundColor: sColor,
+        borderColor: sColor,
         borderWidth: 1
-      }]
-    };
-    document.getElementById('equationBadge').innerText = 'Categorical Bar Chart';
-    document.getElementById('relationshipBadge').innerText = 'Comparison Plot';
+      });
+    } else {
+      const pts = currentDataset.xValues.map((x, idx) => ({
+        x: parseFloat(x) || 0,
+        y: parseFloat(s.values[idx]) || 0
+      }));
+
+      chartDatasets.push({
+        label: yLabel,
+        data: pts,
+        backgroundColor: sColor,
+        borderColor: sColor,
+        pointStyle: pStyle,
+        pointRadius: pRadius,
+        pointHoverRadius: pRadius + 3,
+        showLine: currentDataset.chartType === 'line'
+      });
+
+      const reg = calculateLinearRegression(pts);
+      if (currentDataset.showBestFit && reg && !isNaN(reg.slope)) {
+        chartDatasets.push({
+          label: `${s.label} Trend (y = ${reg.slope.toFixed(2)}x + ${reg.intercept.toFixed(2)})`,
+          data: reg.trendlineData,
+          type: 'line',
+          borderColor: sColor,
+          borderWidth: 2,
+          borderDash: [6, 6],
+          pointRadius: 0,
+          fill: false
+        });
+      }
+    }
+  });
+
+  const firstSeriesPts = currentDataset.xValues.map((x, idx) => ({
+    x: parseFloat(x) || 0,
+    y: parseFloat(currentDataset.series[0]?.values[idx]) || 0
+  }));
+  const regPrimary = calculateLinearRegression(firstSeriesPts);
+  if (!isBar && regPrimary && !isNaN(regPrimary.slope)) {
+    document.getElementById('equationBadge').innerText = `y = ${regPrimary.slope.toFixed(2)}x + ${regPrimary.intercept.toFixed(2)}`;
+    document.getElementById('slopeVal').innerText = regPrimary.slope.toFixed(3);
+    document.getElementById('interceptVal').innerText = regPrimary.intercept.toFixed(3);
+    document.getElementById('r2Val').innerText = regPrimary.r2.toFixed(3);
+
+    const relText = regPrimary.slope > 0 ? "Direct Positive Trend" : (regPrimary.slope < 0 ? "Inverse / Negative Trend" : "No Linear Trend");
+    document.getElementById('relationshipBadge').innerText = relText;
+  } else {
+    document.getElementById('equationBadge').innerText = isBar ? "Bar Chart" : "Scatter Plot";
+    document.getElementById('relationshipBadge').innerText = isBar ? "Categorical" : "Custom Plot";
     document.getElementById('slopeVal').innerText = '--';
     document.getElementById('interceptVal').innerText = '--';
     document.getElementById('r2Val').innerText = '--';
-  } else {
-    const validPoints = currentDataset.data.map(p => ({ x: parseFloat(p.x) || 0, y: parseFloat(p.y) || 0 }));
-    const datasets = [{
-      label: currentDataset.title,
-      data: validPoints,
-      backgroundColor: primaryFill,
-      borderColor: primaryAccent,
-      pointRadius: 6,
-      pointHoverRadius: 9,
-      showLine: currentDataset.chartType === 'line'
-    }];
-
-    const reg = calculateLinearRegression(validPoints);
-    if (currentDataset.showBestFit && reg && !isNaN(reg.slope)) {
-      datasets.push({
-        label: `Linear Trendline (y = ${reg.slope.toFixed(2)}x + ${reg.intercept.toFixed(2)})`,
-        data: reg.trendlineData,
-        type: 'line',
-        borderColor: trendlineColor,
-        borderWidth: 2,
-        borderDash: [6, 6],
-        pointRadius: 0,
-        fill: false
-      });
-
-      document.getElementById('equationBadge').innerText = `y = ${reg.slope.toFixed(2)}x + ${reg.intercept.toFixed(2)}`;
-      document.getElementById('slopeVal').innerText = reg.slope.toFixed(3);
-      document.getElementById('interceptVal').innerText = reg.intercept.toFixed(3);
-      document.getElementById('r2Val').innerText = reg.r2.toFixed(3);
-
-      const relText = reg.slope > 0 ? "Direct Positive Trend" : (reg.slope < 0 ? "Inverse / Negative Trend" : "No Linear Trend");
-      document.getElementById('relationshipBadge').innerText = relText;
-    } else {
-      document.getElementById('equationBadge').innerText = "y = mx + b";
-      document.getElementById('relationshipBadge').innerText = "Scatter Plot";
-      document.getElementById('slopeVal').innerText = '--';
-      document.getElementById('interceptVal').innerText = '--';
-      document.getElementById('r2Val').innerText = '--';
-    }
-    chartDataConfig = { datasets };
   }
 
   chartInstance = new Chart(ctx, {
     type: isBar ? 'bar' : 'scatter',
-    data: chartDataConfig,
+    data: {
+      labels: isBar ? currentDataset.xValues : undefined,
+      datasets: chartDatasets
+    },
     options: {
       responsive: true,
       maintainAspectRatio: false,
@@ -593,20 +771,20 @@ function renderChart() {
           font: { size: 15, weight: 'bold' }
         },
         legend: {
-          labels: { color: mutedColor }
+          labels: { color: mutedColor, usePointStyle: true }
         }
       },
       scales: {
         x: {
           type: isBar ? 'category' : 'linear',
-          title: { display: true, text: xTitle, color: primaryAccent },
+          title: { display: true, text: xTitle, color: textColor },
           grid: { display: currentDataset.showGrid !== false, color: gridColor },
           ticks: { color: mutedColor },
           min: (!isBar && currentDataset.xMin !== "") ? parseFloat(currentDataset.xMin) : (!isBar && currentDataset.showZero ? 0 : undefined),
           max: (!isBar && currentDataset.xMax !== "") ? parseFloat(currentDataset.xMax) : undefined
         },
         y: {
-          title: { display: true, text: yTitle, color: primaryAccent },
+          title: { display: true, text: currentDataset.series[0]?.unit ? `Y Axis (${currentDataset.series[0].unit})` : 'Y Axis', color: textColor },
           grid: { display: currentDataset.showGrid !== false, color: gridColor },
           ticks: { color: mutedColor },
           min: (currentDataset.yMin !== "") ? parseFloat(currentDataset.yMin) : (currentDataset.showZero ? 0 : undefined),
@@ -616,7 +794,7 @@ function renderChart() {
     }
   });
 
-  document.getElementById('dataPointCount').innerText = currentDataset.data.length;
+  document.getElementById('dataPointCount').innerText = currentDataset.xValues.length;
 }
 
 function updatePointSelectors() {

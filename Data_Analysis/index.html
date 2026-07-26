@@ -72,7 +72,10 @@
 
       <!-- TAB 1: DATA TABLE ENTRY -->
       <div id="tab-data" class="tab-content card">
-        <h2 class="card-title">🔢 Data Table & Variables</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--bg-inner-border); padding-bottom: 0.5rem;">
+          <h2 class="card-title" style="border:none; padding:0;">🔢 Data Table & Variables</h2>
+          <button id="openTableModalBtn" class="btn btn-secondary" style="padding:0.2rem 0.5rem; font-size:0.75rem;">🔍 Expand Table</button>
+        </div>
         
         <div class="var-inputs-grid">
           <div class="form-group">
@@ -83,19 +86,12 @@
             <label for="xAxisUnitInput">X Unit:</label>
             <input type="text" id="xAxisUnitInput" value="mW/cm²">
           </div>
-          <div class="form-group">
-            <label for="yAxisLabelInput">Dependent Var (Y):</label>
-            <input type="text" id="yAxisLabelInput" value="Oxygen Production Rate">
-          </div>
-          <div class="form-group">
-            <label for="yAxisUnitInput">Y Unit:</label>
-            <input type="text" id="yAxisUnitInput" value="mL/min">
-          </div>
         </div>
 
         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
           <span style="font-size: 0.825rem; font-weight: 600; color: var(--text-muted);">Data Points (<span id="dataPointCount">0</span>)</span>
           <div class="table-actions">
+            <button id="addSeriesBtn" class="btn btn-secondary" style="padding:0.2rem 0.5rem; font-size:0.75rem;">+ Add Y Series</button>
             <button id="sortDataBtn" class="btn btn-secondary" style="padding:0.2rem 0.5rem; font-size:0.75rem;">Sort X</button>
             <button id="addRowBtn" class="btn btn-secondary" style="padding:0.2rem 0.5rem; font-size:0.75rem;">+ Add Row</button>
             <button id="clearDataBtn" class="btn btn-danger" style="padding:0.2rem 0.5rem; font-size:0.75rem;">Clear</button>
@@ -103,13 +99,9 @@
         </div>
 
         <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th id="thX">X Value</th>
-                <th id="thY">Y Value</th>
-                <th style="width:36px;">Del</th>
-              </tr>
+          <table id="mainDataTable">
+            <thead id="dataTableHead">
+              <!-- Rendered dynamically for multi-series -->
             </thead>
             <tbody id="dataTableBody">
               <!-- Dynamically rendered rows -->
@@ -120,7 +112,7 @@
 
       <!-- TAB 2: AXES & DISPLAY CONTROLS -->
       <div id="tab-graph" class="tab-content card" style="display: none;">
-        <h2 class="card-title">⚙️ Graph Display Settings</h2>
+        <h2 class="card-title">⚙️ Graph Display & Style Customization</h2>
 
         <div class="form-group">
           <label for="graphTitleInput">Graph Title:</label>
@@ -134,6 +126,35 @@
             <option value="line">Connected Line Graph</option>
             <option value="bar">Bar Chart (Categorical)</option>
           </select>
+        </div>
+
+        <!-- Series Style Controls (Color, Point Shape, Point Size) -->
+        <div class="form-group" style="border-top: 1px solid var(--bg-inner-border); padding-top: 0.5rem;">
+          <label style="font-weight: 600;">🎨 Datapoint & Series Plot Styling</label>
+          <div class="form-group">
+            <label for="seriesStyleSelect">Select Series to Customize:</label>
+            <select id="seriesStyleSelect"></select>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.4rem; margin-top: 0.25rem;">
+            <div class="form-group">
+              <label for="seriesColorInput">Color:</label>
+              <input type="color" id="seriesColorInput" value="#0284c7" style="height:36px; padding:2px; cursor:pointer;">
+            </div>
+            <div class="form-group">
+              <label for="pointShapeSelect">Point Shape:</label>
+              <select id="pointShapeSelect">
+                <option value="circle">Circle ●</option>
+                <option value="triangle">Triangle ▲</option>
+                <option value="rect">Square ■</option>
+                <option value="star">Star ★</option>
+                <option value="crossRot">Cross ✖</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="pointSizeInput">Size (px):</label>
+              <input type="number" id="pointSizeInput" min="2" max="20" value="6">
+            </div>
+          </div>
         </div>
 
         <div class="form-group" style="border-top: 1px solid var(--bg-inner-border); padding-top: 0.5rem;">
@@ -268,6 +289,35 @@
       </div>
     </section>
   </main>
+
+  <!-- Fullscreen / Expanded Data Table Modal -->
+  <div id="tableModal" class="modal-overlay" style="display:none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>🔍 Expanded Scientific Data Table Studio</h2>
+        <button id="closeTableModalBtn" class="btn btn-secondary">✕ Close</button>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+          <div>
+            <span style="font-weight:600;">Data Series & Columns Comparison</span>
+          </div>
+          <div class="table-actions">
+            <button id="modalAddSeriesBtn" class="btn btn-secondary">+ Add Y Series</button>
+            <button id="modalSortBtn" class="btn btn-secondary">Sort X</button>
+            <button id="modalAddRowBtn" class="btn btn-secondary">+ Add Row</button>
+            <button id="modalClearBtn" class="btn btn-danger">Clear All</button>
+          </div>
+        </div>
+        <div class="table-wrapper" style="max-height:60vh;">
+          <table id="modalDataTable">
+            <thead id="modalDataTableHead"></thead>
+            <tbody id="modalDataTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="js/app.js"></script>
 </body>
