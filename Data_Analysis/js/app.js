@@ -746,9 +746,23 @@ function checkAnswer(qId, selectedIdx, correctIdx, btnEl) {
 
 function exportChartImage() {
   if (!chartInstance) return;
+
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const bgColor = isDark ? '#0f172a' : '#ffffff';
+
+  const sourceCanvas = chartInstance.canvas;
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = sourceCanvas.width;
+  tempCanvas.height = sourceCanvas.height;
+
+  const tempCtx = tempCanvas.getContext('2d');
+  tempCtx.fillStyle = bgColor;
+  tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+  tempCtx.drawImage(sourceCanvas, 0, 0);
+
   const link = document.createElement('a');
   link.download = `${currentDataset.title.replace(/\s+/g, '_')}_graph.png`;
-  link.href = chartInstance.toBase64Image();
+  link.href = tempCanvas.toDataURL('image/png');
   link.click();
 }
 
