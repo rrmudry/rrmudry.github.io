@@ -19,6 +19,7 @@ const presets = {
     xMax: "",
     yMin: "",
     yMax: "",
+    pointLabels: ["Pt 1", "Pt 2", "Pt 3", "Pt 4", "Pt 5"],
     xValues: [1, 2, 3, 4, 5],
     series: [
       {
@@ -48,6 +49,7 @@ const presets = {
     showBestFit: false,
     showZero: true,
     showGrid: true,
+    pointLabels: ["Trial 1", "Trial 2", "Trial 3", "Trial 4", "Trial 5", "Trial 6", "Trial 7"],
     xValues: [10, 20, 30, 40, 50, 60, 70],
     series: [
       {
@@ -90,6 +92,7 @@ const presets = {
     showBestFit: false,
     showZero: true,
     showGrid: true,
+    pointLabels: ["Loc A", "Loc B", "Loc C", "Loc D", "Loc E", "Loc F"],
     xValues: [0, 100, 200, 300, 400, 500],
     series: [
       {
@@ -141,6 +144,7 @@ const presets = {
     showBestFit: false,
     showZero: true,
     showGrid: true,
+    pointLabels: ["Trial 1", "Trial 2", "Trial 3", "Trial 4", "Trial 5"],
     xValues: [0.2, 0.4, 0.6, 0.8, 1.0],
     series: [
       {
@@ -179,6 +183,7 @@ const presets = {
     showBestFit: false,
     showZero: false,
     showGrid: true,
+    pointLabels: ["0 min", "2 min", "4 min", "6 min", "8 min", "10 min", "12 min"],
     xValues: [0, 2, 4, 6, 8, 10, 12],
     series: [
       {
@@ -390,6 +395,8 @@ function initUI() {
     const lastX = currentDataset.xValues.length > 0 ? currentDataset.xValues[currentDataset.xValues.length - 1] : 0;
     const nextX = currentDataset.chartType === 'bar' ? `Category ${currentDataset.xValues.length + 1}` : (parseFloat(lastX) || 0) + 10;
     currentDataset.xValues.push(nextX);
+    if (!currentDataset.pointLabels) currentDataset.pointLabels = [];
+    currentDataset.pointLabels.push(`Pt ${currentDataset.xValues.length}`);
     currentDataset.series.forEach(s => s.values.push(0));
     renderTable();
     renderChart();
@@ -402,12 +409,16 @@ function initUI() {
   const sortHandler = () => {
     if (currentDataset.chartType !== 'bar') {
       const combined = currentDataset.xValues.map((x, i) => {
-        const item = { x: parseFloat(x) || 0 };
+        const item = {
+          x: parseFloat(x) || 0,
+          label: (currentDataset.pointLabels && currentDataset.pointLabels[i] !== undefined) ? currentDataset.pointLabels[i] : `Pt ${i + 1}`
+        };
         currentDataset.series.forEach(s => item[s.id] = s.values[i]);
         return item;
       });
       combined.sort((a, b) => a.x - b.x);
       currentDataset.xValues = combined.map(c => c.x);
+      currentDataset.pointLabels = combined.map(c => c.label);
       currentDataset.series.forEach(s => {
         s.values = combined.map(c => c[s.id]);
       });
@@ -422,6 +433,7 @@ function initUI() {
   // Clear
   const clearHandler = () => {
     currentDataset.xValues = [];
+    currentDataset.pointLabels = [];
     currentDataset.series.forEach(s => s.values = []);
     renderTable();
     renderChart();
@@ -480,8 +492,9 @@ function updatePointSelectors() {
 
   currentDataset.xValues.forEach((xVal, idx) => {
     const yVal = firstSeries.values[idx] !== undefined ? firstSeries.values[idx] : 0;
-    p1.innerHTML += `<option value="${idx}">Pt ${idx + 1} (${xVal}, ${yVal})</option>`;
-    p2.innerHTML += `<option value="${idx}">Pt ${idx + 1} (${xVal}, ${yVal})</option>`;
+    const ptLabel = (currentDataset.pointLabels && currentDataset.pointLabels[idx] !== undefined) ? currentDataset.pointLabels[idx] : `Pt ${idx + 1}`;
+    p1.innerHTML += `<option value="${idx}">${ptLabel} (${xVal}, ${yVal})</option>`;
+    p2.innerHTML += `<option value="${idx}">${ptLabel} (${xVal}, ${yVal})</option>`;
   });
 
   if (currentDataset.xValues.length >= 2) {
@@ -603,7 +616,7 @@ function renderTableContainer(headId, bodyId) {
   const isBar = currentDataset.chartType === 'bar';
   const xTitle = currentDataset.xAxisUnit ? `${currentDataset.xAxisLabel} (${currentDataset.xAxisUnit})` : currentDataset.xAxisLabel;
 
-  let headHtml = `<tr><th>${xTitle}</th>`;
+  let headHtml = `<tr><th style="min-width:100px;">Item / Label</th><th>${xTitle}</th>`;
   currentDataset.series.forEach((s, sIdx) => {
     headHtml += `
       <th>
@@ -625,7 +638,10 @@ function renderTableContainer(headId, bodyId) {
   currentDataset.xValues.forEach((xVal, rIdx) => {
     const tr = document.createElement('tr');
     const xInputType = isBar ? 'text' : 'number';
-    let rowHtml = `<td><input type="${xInputType}" step="any" value="${xVal}" onchange="updateXVal(${rIdx}, this.value)"></td>`;
+    const ptLabel = (currentDataset.pointLabels && currentDataset.pointLabels[rIdx] !== undefined) ? currentDataset.pointLabels[rIdx] : `Pt ${rIdx + 1}`;
+
+    let rowHtml = `<td><input type="text" value="${ptLabel}" placeholder="Pt ${rIdx + 1}" onchange="updatePointLabel(${rIdx}, this.value)" style="width:100%; font-size:0.8rem; padding:0.2rem;"></td>`;
+    rowHtml += `<td><input type="${xInputType}" step="any" value="${xVal}" onchange="updateXVal(${rIdx}, this.value)"></td>`;
 
     currentDataset.series.forEach((s, sIdx) => {
       const yVal = s.values[rIdx] !== undefined ? s.values[rIdx] : 0;
@@ -636,6 +652,13 @@ function renderTableContainer(headId, bodyId) {
     tr.innerHTML = rowHtml;
     tbody.appendChild(tr);
   });
+}
+
+function updatePointLabel(rIdx, val) {
+  if (!currentDataset.pointLabels) currentDataset.pointLabels = [];
+  currentDataset.pointLabels[rIdx] = val;
+  updatePointSelectors();
+  renderChart();
 }
 
 function updateSeriesMeta(sIdx, field, val) {
@@ -671,6 +694,7 @@ function removeSeries(sIdx) {
 
 function removeRow(index) {
   currentDataset.xValues.splice(index, 1);
+  if (currentDataset.pointLabels) currentDataset.pointLabels.splice(index, 1);
   currentDataset.series.forEach(s => s.values.splice(index, 1));
   renderTable();
   renderChart();
@@ -866,6 +890,16 @@ function renderChart() {
         },
         legend: {
           labels: { color: mutedColor, usePointStyle: true }
+        },
+        tooltip: {
+          callbacks: {
+            title: function(context) {
+              if (!context || !context.length) return '';
+              const dataIdx = context[0].dataIndex;
+              const ptLabel = (currentDataset.pointLabels && currentDataset.pointLabels[dataIdx] !== undefined) ? currentDataset.pointLabels[dataIdx] : '';
+              return ptLabel ? ptLabel : `Pt ${dataIdx + 1}`;
+            }
+          }
         }
       },
       scales: {
