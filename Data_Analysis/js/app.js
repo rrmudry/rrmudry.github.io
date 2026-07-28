@@ -444,6 +444,7 @@ function initUI() {
 
   // Table Modal Open & Close
   document.getElementById('openTableModalBtn').addEventListener('click', () => {
+    renderTable();
     document.getElementById('tableModal').style.display = 'flex';
   });
 
@@ -659,6 +660,7 @@ function updatePointLabel(rIdx, val) {
   if (!currentDataset.pointLabels) currentDataset.pointLabels = [];
   currentDataset.pointLabels[rIdx] = val;
   updatePointSelectors();
+  renderTable();
   renderChart();
 }
 
@@ -674,12 +676,14 @@ function updateSeriesMeta(sIdx, field, val) {
 function updateXVal(rIdx, val) {
   const isBar = currentDataset.chartType === 'bar';
   currentDataset.xValues[rIdx] = isBar ? val : (isNaN(parseFloat(val)) ? 0 : parseFloat(val));
+  renderTable();
   renderChart();
 }
 
 function updateYVal(sIdx, rIdx, val) {
   if (currentDataset.series[sIdx]) {
     currentDataset.series[sIdx].values[rIdx] = parseFloat(val) || 0;
+    renderTable();
     renderChart();
   }
 }
