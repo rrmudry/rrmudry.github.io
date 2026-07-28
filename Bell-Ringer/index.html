@@ -241,7 +241,7 @@
             <div class="w-16 h-16 rounded-full bg-slate-900 border border-white/5 flex items-center justify-center text-3xl animate-pulse">⏳</div>
             <div>
                 <h2 class="text-2xl font-bold text-white mb-2">Awaiting Teacher</h2>
-                <p class="text-slate-400 text-sm">You are successfully authenticated. Please wait for the teacher to launch today's countdown.</p>
+                <p id="waiting-subtext" class="text-slate-400 text-sm">You are successfully authenticated. Please wait for the teacher to launch today's countdown.</p>
             </div>
             <div class="text-xs text-slate-500 bg-white/5 border border-white/5 rounded-lg py-2 px-4 inline-block font-mono">
                 Student ID: <span id="waiting-student-id">...</span>
@@ -446,18 +446,19 @@
 
         let currentUser = null;
         let studentId = null;
+        let studentPeriod = null;
+        let isTeacherAdmin = false;
         let timerDocListener = null;
         let submissionListener = null;
         let timerInterval = null;
         let activePromptText = "";
 
         // Track Auth Changes
-        auth.onAuthStateChanged((user) => {
+        auth.onAuthStateChanged(async (user) => {
             if (user) {
                 const email = user.email.toLowerCase();
-                const isApproved = email.endsWith('@orangeusd.org') || 
-                                   email === 'ryan.mudry@gmail.com' || 
-                                   email === 'ryanmudry@gmail.com';
+                isTeacherAdmin = (email === 'ryan.mudry@gmail.com' || email === 'ryanmudry@gmail.com');
+                const isApproved = email.endsWith('@orangeusd.org') || isTeacherAdmin;
                 
                 if (!isApproved) {
                     alert("Unauthorized account. Please sign in with your school Google account.");
@@ -467,6 +468,17 @@
 
                 currentUser = user;
                 studentId = email.split('@')[0];
+
+                // Fetch student roster info to get assigned class_period
+                studentPeriod = null;
+                try {
+                    const rosterSnap = await db.collection('roster').doc(studentId).get();
+                    if (rosterSnap.exists) {
+                        studentPeriod = rosterSnap.data().class_period;
+                    }
+                } catch (e) {
+                    console.warn("Could not fetch student roster info:", e);
+                }
                 
                 // Update UI state
                 document.getElementById('auth-panel').style.display = 'none';
@@ -542,6 +554,16 @@
                         return;
                     }
 
+                    // Check Period restriction
+                    const targetPeriod = data.targetPeriod || "all";
+                    if (targetPeriod !== "all" && !isTeacherAdmin) {
+                        if (studentPeriod === null || studentPeriod === undefined || String(studentPeriod) !== String(targetPeriod)) {
+                            const pText = studentPeriod !== null && studentPeriod !== undefined ? `Period ${studentPeriod}` : "an unassigned period";
+                            showWaitingPanel(`Today's Bell-Ringer activity is currently live for Period ${targetPeriod}. You are enrolled in ${pText}.`);
+                            return;
+                        }
+                    }
+
                     // Display Question Prompt & Phenomenon Image
                     showBellringerPanel(data);
                 }, (error) => {
@@ -564,9 +586,13 @@
         let chatHasStarted = false;
         let isChatFinished = false;
 
-        function showWaitingPanel() {
+        function showWaitingPanel(customMsg) {
             document.getElementById('waiting-panel').style.display = 'flex';
             document.getElementById('waiting-student-id').innerText = studentId;
+            const subtext = document.getElementById('waiting-subtext');
+            if (subtext) {
+                subtext.innerText = customMsg || "You are successfully authenticated. Please wait for the teacher to launch today's countdown.";
+            }
             document.getElementById('bellringer-panel').style.display = 'none';
             if (timerInterval) clearInterval(timerInterval);
         }
