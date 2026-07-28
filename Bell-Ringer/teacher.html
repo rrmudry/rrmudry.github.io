@@ -64,8 +64,8 @@
 </head>
 <body class="p-6 md:p-8 flex flex-col justify-between">
 
-    <!-- Auth Panel -->
-    <div id="auth-panel" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <!-- Auth Panel Overlay (Solid background until Google Sign In completes) -->
+    <div id="auth-panel" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
         <div class="w-full max-w-md bg-slate-900 border border-white/10 rounded-3xl p-8 text-center flex flex-col items-center gap-6 shadow-2xl">
             <div class="w-16 h-16 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-3xl shadow-inner">🔑</div>
             <div>
@@ -156,13 +156,30 @@
                         <div id="loader-status-msg" class="text-[10px] text-slate-500 font-medium hidden"></div>
                     </div>
 
-                    <div class="flex flex-col gap-2">
-                        <label for="activity-type-select" class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Activity Type</label>
-                        <select id="activity-type-select" onchange="toggleActivityFields()" class="w-full rounded-xl bg-slate-950/60 border border-white/10 px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 text-sm">
-                            <option value="free_response">Free Response Explanation</option>
-                            <option value="connections">Connections Grid Game</option>
-                            <option value="concept_chat">Concept Chat (AI Messaging)</option>
-                        </select>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex flex-col gap-2">
+                            <label for="activity-type-select" class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Activity Type</label>
+                            <select id="activity-type-select" onchange="toggleActivityFields()" class="w-full rounded-xl bg-slate-950/60 border border-white/10 px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 text-sm">
+                                <option value="free_response">Free Response Explanation</option>
+                                <option value="connections">Connections Grid Game</option>
+                                <option value="concept_chat">Concept Chat (AI Messaging)</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label for="period-select" class="text-xs text-orange-400 font-bold tracking-wider uppercase flex items-center gap-1">
+                                🎯 Target Class Period
+                            </label>
+                            <select id="period-select" class="w-full rounded-xl bg-slate-950/60 border border-orange-500/30 px-3 py-2.5 text-white font-bold focus:outline-none focus:border-orange-500 text-sm shadow-sm">
+                                <option value="all">All Periods (Global)</option>
+                                <option value="0">Period 0</option>
+                                <option value="1">Period 1</option>
+                                <option value="2">Period 2</option>
+                                <option value="3">Period 3</option>
+                                <option value="4">Period 4</option>
+                                <option value="5">Period 5</option>
+                                <option value="6">Period 6</option>
+                            </select>
+                        </div>
                     </div>
 
                     <!-- Free Response Settings -->
@@ -277,14 +294,12 @@ CRITICAL RULES:
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="flex flex-col gap-2">
-                            <label for="duration-input" class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Timer Duration</label>
-                            <div class="flex items-center gap-2">
-                                <input type="number" id="duration-input" value="4" min="1" max="60" 
-                                       class="w-20 rounded-xl bg-slate-950/60 border border-white/10 px-3 py-2.5 text-center text-white focus:outline-none focus:border-orange-500 font-bold">
-                                <span class="text-sm text-slate-400 font-semibold">Minutes</span>
-                            </div>
+                    <div class="flex flex-col gap-2">
+                        <label for="duration-input" class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Timer Duration</label>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="duration-input" value="4" min="1" max="60" 
+                                   class="w-24 rounded-xl bg-slate-950/60 border border-white/10 px-3 py-2.5 text-center text-white focus:outline-none focus:border-orange-500 font-bold text-sm">
+                            <span class="text-sm text-slate-400 font-semibold">Minutes</span>
                         </div>
                     </div>
 
@@ -402,8 +417,10 @@ CRITICAL RULES:
             if (user) {
                 const email = user.email.toLowerCase();
                 const isAdmin = email === "rmudry@orangeusd.org" || 
+                                email === "ryan.mudry@orangeusd.org" ||
                                 email === "ryan.mudry@gmail.com" || 
-                                email === "ryanmudry@gmail.com";
+                                email === "ryanmudry@gmail.com" ||
+                                email.endsWith('@orangeusd.org');
                 
                 if (!isAdmin) {
                     alert("Access denied. Authorized teacher accounts only.");
@@ -413,7 +430,7 @@ CRITICAL RULES:
 
                 currentAdmin = user;
                 
-                // Show admin area
+                // Hide auth overlay and show main workspace
                 document.getElementById('auth-panel').style.display = 'none';
                 document.getElementById('admin-workspace').style.display = 'flex';
                 document.getElementById('admin-name').innerText = user.displayName || email;
@@ -422,8 +439,8 @@ CRITICAL RULES:
                 startAdminSync();
             } else {
                 currentAdmin = null;
-                document.getElementById('auth-panel').style.display = 'flex';
                 document.getElementById('admin-workspace').style.display = 'none';
+                document.getElementById('auth-panel').style.display = 'flex';
                 stopAdminSync();
             }
         });
@@ -647,6 +664,7 @@ CRITICAL RULES:
 
                     // Only fill form values if not active to avoid overwriting typing teacher
                     if (!data.isActive) {
+                        if (data.targetPeriod) document.getElementById('period-select').value = data.targetPeriod;
                         if (activeActivityType === "free_response") {
                             if (data.promptQuestion) document.getElementById('prompt-input').value = data.promptQuestion;
                             if (data.explanation) document.getElementById('explanation-input').value = data.explanation;
@@ -946,11 +964,13 @@ CRITICAL RULES:
         // Start countdown timer in Firestore
         async function startTimer() {
             const activityType = document.getElementById('activity-type-select').value;
+            const targetPeriod = document.getElementById('period-select').value;
             const durationMin = parseInt(document.getElementById('duration-input').value) || 4;
             const expiresAtDate = new Date(Date.now() + durationMin * 60 * 1000);
 
             let timerPayload = {
                 activityType: activityType,
+                targetPeriod: targetPeriod,
                 isActive: true,
                 timerExpiresAt: firebase.firestore.Timestamp.fromDate(expiresAtDate),
                 startedAt: firebase.firestore.FieldValue.serverTimestamp()
