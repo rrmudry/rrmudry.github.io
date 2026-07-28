@@ -159,13 +159,13 @@
                 <div class="flex items-center gap-2">
                     <label for="period-select" class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Period:</label>
                     <select id="period-select" onchange="changePeriod()" class="bg-slate-900 border border-white/10 rounded-lg text-sm px-3 py-1.5 text-white font-semibold focus:outline-none focus:border-orange-500">
+                        <option value="0">Period 0</option>
                         <option value="1">Period 1</option>
                         <option value="2">Period 2</option>
                         <option value="3">Period 3</option>
                         <option value="4">Period 4</option>
                         <option value="5">Period 5</option>
                         <option value="6">Period 6</option>
-                        <option value="7">Period 7</option>
                     </select>
                 </div>
             </div>
@@ -371,6 +371,15 @@
                     if (!data || !data.isActive) {
                         promptSection.classList.add('hidden');
                         return;
+                    }
+
+                    // Auto-sync class period filter if targetPeriod is set and not 'all'
+                    if (data.targetPeriod && data.targetPeriod !== 'all' && String(data.targetPeriod) !== String(currentPeriod)) {
+                        const periodSelect = document.getElementById('period-select');
+                        if (periodSelect) {
+                            periodSelect.value = data.targetPeriod;
+                            changePeriod();
+                        }
                     }
 
                     activeActivityType = data.activityType || "free_response";
