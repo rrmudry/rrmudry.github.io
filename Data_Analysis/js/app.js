@@ -638,10 +638,11 @@ function renderTableContainer(headId, bodyId) {
   currentDataset.xValues.forEach((xVal, rIdx) => {
     const tr = document.createElement('tr');
     const xInputType = isBar ? 'text' : 'number';
+    const stepAttr = isBar ? '' : 'step="any"';
     const ptLabel = (currentDataset.pointLabels && currentDataset.pointLabels[rIdx] !== undefined) ? currentDataset.pointLabels[rIdx] : `Pt ${rIdx + 1}`;
 
     let rowHtml = `<td><input type="text" value="${ptLabel}" placeholder="Pt ${rIdx + 1}" onchange="updatePointLabel(${rIdx}, this.value)" style="width:100%; font-size:0.8rem; padding:0.2rem;"></td>`;
-    rowHtml += `<td><input type="${xInputType}" step="any" value="${xVal}" onchange="updateXVal(${rIdx}, this.value)"></td>`;
+    rowHtml += `<td><input type="${xInputType}" ${stepAttr} value="${xVal}" onchange="updateXVal(${rIdx}, this.value)"></td>`;
 
     currentDataset.series.forEach((s, sIdx) => {
       const yVal = s.values[rIdx] !== undefined ? s.values[rIdx] : 0;
@@ -672,7 +673,7 @@ function updateSeriesMeta(sIdx, field, val) {
 
 function updateXVal(rIdx, val) {
   const isBar = currentDataset.chartType === 'bar';
-  currentDataset.xValues[rIdx] = isBar ? val : (parseFloat(val) || 0);
+  currentDataset.xValues[rIdx] = isBar ? val : (isNaN(parseFloat(val)) ? 0 : parseFloat(val));
   renderChart();
 }
 
@@ -869,10 +870,18 @@ function renderChart() {
     document.getElementById('r2Val').innerText = '--';
   }
 
+  const barLabels = currentDataset.xValues.map((x, idx) => {
+    const pLabel = (currentDataset.pointLabels && currentDataset.pointLabels[idx] !== undefined) ? currentDataset.pointLabels[idx] : undefined;
+    if (pLabel && pLabel.trim() !== "" && !pLabel.startsWith("Pt ")) {
+      return pLabel;
+    }
+    return x !== undefined ? String(x) : `Cat ${idx + 1}`;
+  });
+
   chartInstance = new Chart(ctx, {
     type: isBar ? 'bar' : 'scatter',
     data: {
-      labels: isBar ? currentDataset.xValues : undefined,
+      labels: isBar ? barLabels : undefined,
       datasets: chartDatasets.map(ds => ({ ...ds, clip: ds.clip !== undefined ? ds.clip : false }))
     },
     options: {
@@ -907,15 +916,18 @@ function renderChart() {
           type: isBar ? 'category' : 'linear',
           title: { display: true, text: xTitle, color: textColor, font: { weight: 'bold' } },
           grid: { display: currentDataset.showGrid !== false, color: gridColor },
-          min: xMinVal,
-          suggestedMax: xSugMax,
-          max: userXMax,
+          min: isBar ? undefined : xMinVal,
+          suggestedMax: isBar ? undefined : xSugMax,
+          max: isBar ? undefined : userXMax,
           ticks: {
             display: true,
-            beginAtZero: xBeginAtZero,
+            beginAtZero: isBar ? undefined : xBeginAtZero,
             color: mutedColor,
             font: { size: 11 },
-            callback: function(val) {
+            callback: function(val, index) {
+              if (isBar) {
+                return this.getLabelForValue(val);
+              }
               return Number.isInteger(val) ? val : parseFloat(val.toFixed(2));
             }
           }
