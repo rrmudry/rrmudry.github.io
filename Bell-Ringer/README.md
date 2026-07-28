@@ -4,21 +4,39 @@ A responsive, automated classroom bell-ringer system designed to eliminate the "
 
 ## How It Works
 
-1. **Teacher Setup**: The teacher launches a 4-minute countdown from the Teacher Panel, configuring a prompt linked to a Weekly Phenomenon Anchor (graph, diagram, or data table).
-2. **Student Submission**: Students log in via their school Google accounts and write free-response explanations. The system automatically locks input inputs when the countdown reaches `0:00`.
-3. **AI Gatekeeper**: As submissions arrive in Firestore, a backend Firebase Extension running Gemini Flash evaluates the responses for a "good-faith scientific effort" and saves the score (`1` or `0`) instantly.
-4. **Live Dashboard**: A projected classroom grid shows student tiles that dynamically update:
+1. **Teacher Setup**: The teacher selects a **Target Class Period** (`Period 0` through `Period 6` or `All Periods`) and configures an activity (Free Response Explanation, Connections Grid Game, or Concept Chat AI Mentor). Clicking **⚡ Launch Timer** starts the countdown across connected devices.
+2. **Period Access Gate & Student Submission**: Students log in via their school Google accounts. The portal verifies their enrolled `class_period` against the central Firestore `roster`. 
+   - **Matching Period**: The student gains instant access to the active prompt, countdown clock, and submission workspace. Inputs automatically lock when the timer reaches `0:00`.
+   - **Non-Matching Period**: The student sees a waiting screen informing them which period's activity is currently active.
+3. **AI Gatekeeper**: As submissions arrive in Firestore, a backend Firebase Extension running Gemini Flash evaluates responses for a "good-faith scientific effort" and saves the score (`1` or `0`) instantly.
+4. **Live Dashboard**: A projected classroom grid shows student tiles that dynamically update and automatically syncs to the active period launched by the teacher:
    - **Gray (Pending)**: Not submitted or awaiting AI verification.
    - **Green (Flashes)**: Verified good-faith attempt (student is approved to move to collaborative lab tables).
-   - **Red (Revision)**: Low effort, gibberish, or explicit opt-out detected (student can revise and resubmit before the lockout timer hits `0:00`).
+   - **Red (Revision)**: Low effort, gibberish, or explicit opt-out detected (student can revise and resubmit before lockout).
 
 ---
 
 ## Folder Structure
 
-* **`index.html` (Student Portal)**: The student workspace with Google Auth integration, live countdown clock, submission text area, and real-time grading feedback.
-* **`dashboard.html` (Classroom Dashboard)**: A high-contrast grid projected in the room. Shows live student submission states filtered by class period and a giant digital timer. Restricted to the teacher's email.
-* **`teacher.html` (Teacher Control Panel)**: Administrative control room for starting timers, configuring prompts/explanations, reviewing student submissions, and executing manual grade overrides. Restricted to the teacher's email.
+* **`index.html` (Student Portal)**: The student workspace with Google Auth integration, automatic `roster` period lookup, live countdown clock, activity panels (Free Response / Connections / AI Chat), and real-time grading feedback.
+* **`dashboard.html` (Classroom Dashboard)**: A high-contrast grid projected in the room. Shows live student submission states filtered by class period (`Period 0-6`) and a giant digital timer. Auto-syncs to the live period launched by the teacher.
+* **`teacher.html` (Teacher Control Panel)**: Administrative control room featuring a solid auth shield overlay, lesson calendar auto-loader, **Target Class Period** selector (`Period 0-6` / `All Periods`), activity configuration, live student submission feed, and manual grade overrides. Restricted to authorized teacher accounts.
+
+---
+
+## Data Model & Firestore Collections
+
+* **`system_config/bellringer_timer`**: Active session control document.
+  - `isActive`: boolean
+  - `targetPeriod`: string (`"all"`, `"0"`, `"1"`, `"2"`, `"3"`, `"4"`, `"5"`, `"6"`)
+  - `activityType`: string (`"free_response"`, `"connections"`, `"concept_chat"`)
+  - `promptQuestion`: string
+  - `timerExpiresAt`: timestamp
+* **`roster`**: Central student roster collection.
+  - Document ID: `student_id` (e.g., student email handle)
+  - `class_period`: integer/string (`0` through `6`)
+  - `first_name`, `last_name`: strings
+* **`bellringers`**: Live student submissions collection evaluated by Firebase Gemini extension.
 
 ---
 
@@ -43,6 +61,11 @@ Ensure your `firestore.rules` file contains the following rules to secure the su
 // System Config (Required for student timer sync)
 match /system_config/{configDoc} {
   allow read: if true;
+}
+
+// Roster Collection
+match /roster/{studentId} {
+  allow read: if request.auth != null;
 }
 
 // Bellringers Collection
