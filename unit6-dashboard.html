@@ -202,6 +202,7 @@
                         This unit transitions from the visible, mechanical behavior of energy through matter to the complex behavior of light. We begin with **Mechanical Waves**, exploring how energy propagates through slinkies and water. Then, we dive into the **Electromagnetic Spectrum**, uncovering how invisible radiation powers our world—from radio signals to life-saving medical imaging. Finally, we'll confront the strange reality of **Wave-Particle Duality** and see how these principles are encoded into modern digital technology.
                     </p>
                     <div id="project-idea-container" class="mt-6 hidden"></div>
+                    <div id="unit6-ngss-alignment" class="mt-6"></div>
                 </div>
 
                 <!-- Featured Mission: Spectrum City Hazard Map -->
@@ -474,6 +475,13 @@
                 progressText.innerText = `UNIT PROGRESS: ${completedLessons} / ${totalLessons} DAYS COMPLETE`;
             }
 
+            // Dynamically aggregate all unique NGSS standards across all unit lessons
+            const uniqueStandards = Array.from(new Set(unitData.flatMap(d => d.standards || [])));
+            const targetStandards = uniqueStandards.length > 0 ? uniqueStandards : ['HS-PS4-1', 'HS-PS4-2', 'HS-PS4-3', 'HS-PS4-4', 'HS-PS4-5', 'HS-ESS1-2'];
+            if (typeof NGSSHelper !== 'undefined') {
+                NGSSHelper.renderStandardsBanner(targetStandards, 'unit6-ngss-alignment');
+            }
+
             const navButtons = document.querySelectorAll('.nav-btn');
             const contentSections = document.querySelectorAll('.content-section');
             const pacingCards = document.getElementById('pacing-cards-container');
@@ -528,6 +536,7 @@
                         </div>
                     </div>
                     <p class="text-sm font-semibold text-white/90 leading-tight relative z-10">${day.topic}</p>
+                    ${day.standards ? `<div class="mt-2 flex flex-wrap gap-1 relative z-10">${day.standards.map(s => `<span class="text-[9px] bg-indigo-950/80 text-cyan-300 border border-cyan-500/40 px-1.5 py-0.5 rounded font-mono font-bold" data-ngss-code="${s}">${s}</span>`).join('')}</div>` : ''}
                 `;
                 card.onclick = () => openLessonModal(day);
                 pacingCards.appendChild(card);
@@ -625,7 +634,14 @@
                     setTimeout(initWaveSim, 100);
                 }
 
+                if (day.standards && day.standards.length > 0) {
+                    html += `<div data-ngss="${day.standards.join(',')}"></div>`;
+                }
+
                 content.innerHTML = html;
+                if (window.NGSSHelper) {
+                    window.NGSSHelper.autoInit();
+                }
                 document.body.classList.add('no-scroll');
                 modal.classList.remove('hidden');
             }
@@ -780,6 +796,8 @@
     <footer class="mt-20 py-20 border-t border-white/5 text-center">
         <p class="text-[10px] font-bold text-slate-600 uppercase tracking-[0.5em] mb-4">Unit_6 // Waves_&_Radiance // 2026</p>
         <a href="admin/data_export.html" class="text-[8px] font-black uppercase tracking-widest text-slate-800 hover:text-cyan-500/50 transition-colors">Digital_Archive_Access</a>
-    </footer>
+    <!-- NGSS Database Integration -->
+    <script src="ngss-explorer/standards-data.js"></script>
+    <script src="assets/ngss-helper.js"></script>
 </body>
 </html>
