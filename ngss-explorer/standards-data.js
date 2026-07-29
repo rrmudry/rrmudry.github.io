@@ -1,10 +1,136 @@
 /**
  * NGSS 9-12 Science Standards Comprehensive Database
- * High School Next Generation Science Standards (Physical Science, Earth & Space, Life Science, Engineering)
+ * EXHAUSTIVE LIST OF ALL HIGH SCHOOL NGSS PERFORMANCE EXPECTATIONS (HS-PS, HS-ESS, HS-LS, HS-ETS)
  */
 
 const NGSS_STANDARDS_DATA = [
-    // --- PHYSICAL SCIENCE: FORCES & MOTION (HS-PS2) ---
+    // =========================================================================
+    // 1. PHYSICAL SCIENCE (HS-PS)
+    // =========================================================================
+
+    // --- HS-PS1: Matter and Its Interactions ---
+    {
+        code: "HS-PS1-1",
+        domain: "Physical Science",
+        domainCode: "PS",
+        topic: "Matter and Its Interactions",
+        title: "Valence Electrons & Periodic Table Trends",
+        pe: "Use the periodic table as a model to predict the relative properties of elements based on the patterns of electrons in the outermost energy level of atoms.",
+        clarification: "Examples of properties that could be predicted from patterns could include reactivity of metals, types of bonds formed, numbers of bonds formed, and reactions with oxygen.",
+        boundary: "Assessment is limited to main group elements. Assessment does not include quantitative understanding of ionization energy or electronegativity.",
+        sep: "Developing and Using Models",
+        dci: "PS1.A: Structure and Properties of Matter",
+        ccc: "Patterns",
+        unitLink: "../Unit_1_Introduction/Unit_1_Outline.md",
+        keywords: ["periodic table", "valence electrons", "reactivity", "atomic structure", "elements", "electron configuration"]
+    },
+    {
+        code: "HS-PS1-2",
+        domain: "Physical Science",
+        domainCode: "PS",
+        topic: "Matter and Its Interactions",
+        title: "Chemical Reaction Outcome Predictions",
+        pe: "Construct and revise an explanation for the outcome of a simple chemical reaction based on the outermost electron states of atoms, trends in the periodic table, and knowledge of the patterns of chemical properties.",
+        clarification: "Examples of chemical reactions could include the reaction of sodium and chlorine, or carbon and oxygen.",
+        boundary: "Assessment is limited to chemical reactions involving main group elements.",
+        sep: "Constructing Explanations and Designing Solutions",
+        dci: "PS1.A: Structure and Properties of Matter",
+        ccc: "Patterns",
+        unitLink: "../Unit_1_Introduction/Unit_1_Outline.md",
+        keywords: ["chemical reaction", "bonding", "outermost electrons", "reactivity", "compounds", "valence"]
+    },
+    {
+        code: "HS-PS1-3",
+        domain: "Physical Science",
+        domainCode: "PS",
+        topic: "Matter and Its Interactions",
+        title: "Bulk Material Properties & Electrical Forces",
+        pe: "Plan and conduct an investigation to gather evidence to compare the structure of substances at the bulk scale to infer the strength of electrical forces between particles.",
+        clarification: "Emphasis is on understanding the strengths of forces between particles, not on naming specific intermolecular forces (such as dipole-dipole). Examples of particles could be ions, atoms, or molecules.",
+        boundary: "Assessment does not include van der Waals calculations or specific orbital hybridization models.",
+        sep: "Planning and Carrying Out Investigations",
+        dci: "PS1.A: Structure and Properties of Matter",
+        ccc: "Patterns",
+        unitLink: "../unit7-dashboard.html",
+        keywords: ["bulk properties", "melting point", "boiling point", "intermolecular forces", "electrostatic", "particles"]
+    },
+    {
+        code: "HS-PS1-4",
+        domain: "Physical Science",
+        domainCode: "PS",
+        topic: "Matter and Its Interactions",
+        title: "Chemical Reaction Energy & Bond Changes",
+        pe: "Develop a model to illustrate that the release or absorption of energy from a chemical reaction system depends upon the changes in total bond energy.",
+        clarification: "Emphasis is on the idea that a chemical reaction is a system that affects the energy change. Bond breaking absorbs energy, and bond formation releases energy.",
+        boundary: "Assessment does not include calculating enthalpy changes using Hess's Law.",
+        sep: "Developing and Using Models",
+        dci: "PS1.A: Structure and Properties of Matter",
+        ccc: "Energy and Matter",
+        unitLink: "../unit5-dashboard.html",
+        keywords: ["bond energy", "exothermic", "endothermic", "enthalpy", "chemical energy", "bond breaking"]
+    },
+    {
+        code: "HS-PS1-5",
+        domain: "Physical Science",
+        domainCode: "PS",
+        topic: "Matter and Its Interactions",
+        title: "Collision Theory & Chemical Reaction Rates",
+        pe: "Apply scientific principles and evidence to provide an explanation about the effects of changing the temperature or concentration of the reacting particles on the rate at which a reaction occurs.",
+        clarification: "Emphasis is on student reasoning that focuses on the number and energy of collisions between molecules.",
+        boundary: "Assessment is limited to simple reactions in single-step mechanisms.",
+        sep: "Constructing Explanations and Designing Solutions",
+        dci: "PS1.B: Chemical Reactions",
+        ccc: "Cause and Effect",
+        unitLink: "../Data_Analysis/index.html",
+        keywords: ["collision theory", "reaction rate", "temperature", "concentration", "catalyst", "kinetic energy"]
+    },
+    {
+        code: "HS-PS1-6",
+        domain: "Physical Science",
+        domainCode: "PS",
+        topic: "Matter and Its Interactions",
+        title: "Dynamic Equilibrium & Le Chatelier's Principle",
+        pe: "Refine the design of a chemical system by specifying a change in conditions that would produce increased amounts of products at equilibrium.",
+        clarification: "Emphasis is on the application of Le Chatelier's principle and on refining designs of chemical reaction systems.",
+        boundary: "Assessment is limited to specifying the change in only one variable at a time. Assessment does not include equilibrium constant (Keq) calculations.",
+        sep: "Constructing Explanations and Designing Solutions",
+        dci: "PS1.B: Chemical Reactions",
+        ccc: "Stability and Change",
+        unitLink: "../unit5-dashboard.html",
+        keywords: ["equilibrium", "le chatelier", "reaction shift", "yield", "reversible reaction", "system balance"]
+    },
+    {
+        code: "HS-PS1-7",
+        domain: "Physical Science",
+        domainCode: "PS",
+        topic: "Matter and Its Interactions",
+        title: "Conservation of Atoms & Mass Balance",
+        pe: "Use mathematical representations to support the claim that atoms, and therefore mass, are conserved during a chemical reaction.",
+        clarification: "Emphasis is on law of conservation of matter, balancing chemical equations, and quantitative stoichiometry ratios.",
+        boundary: "Assessment does not include complex organic reaction mechanisms.",
+        sep: "Using Mathematics and Computational Thinking",
+        dci: "PS1.B: Chemical Reactions",
+        ccc: "Energy and Matter",
+        unitLink: "../Unit_1_Introduction/Unit_1_Outline.md",
+        keywords: ["conservation of mass", "stoichiometry", "balanced equations", "moles", "atomic mass", "reactants"]
+    },
+    {
+        code: "HS-PS1-8",
+        domain: "Physical Science",
+        domainCode: "PS",
+        topic: "Matter and Its Interactions",
+        title: "Nuclear Fission, Fusion, and Radioactive Decay",
+        pe: "Develop models to illustrate the changes in the composition of the nucleus of the atom and the energy released during the processes of fission, fusion, and radioactive decay.",
+        clarification: "Emphasis is on alpha, beta, and gamma radiation, mass defect conversions ($E=mc^2$), and stellar/reactor nuclear reactions.",
+        boundary: "Assessment does not include quantitative calculations of decay rates or half-life differential equations.",
+        sep: "Developing and Using Models",
+        dci: "PS1.C: Nuclear Processes",
+        ccc: "Energy and Matter",
+        unitLink: "../Unit_6_Waves_Radiation/outline.md",
+        keywords: ["nuclear fission", "nuclear fusion", "radioactive decay", "alpha decay", "beta decay", "gamma rays", "e=mc2"]
+    },
+
+    // --- HS-PS2: Motion and Stability: Forces and Interactions ---
     {
         code: "HS-PS2-1",
         domain: "Physical Science",
@@ -80,8 +206,23 @@ const NGSS_STANDARDS_DATA = [
         unitLink: "../unit7-dashboard.html",
         keywords: ["electromagnetism", "magnetic field", "induction", "faraday", "current", "coil", "generator"]
     },
+    {
+        code: "HS-PS2-6",
+        domain: "Physical Science",
+        domainCode: "PS",
+        topic: "Forces and Motion",
+        title: "Molecular Structure & Intermolecular Strength",
+        pe: "Communicate scientific and technical information about why the molecular-level structure is important in the functioning of designed materials.",
+        clarification: "Emphasis is on the attractive and repulsive forces between molecules, polymers, surface tension, and structural materials.",
+        boundary: "Assessment does not include detailed quantum mechanical bonding theory.",
+        sep: "Obtaining, Evaluating, and Communicating Information",
+        dci: "PS2.B: Types of Interactions",
+        ccc: "Structure and Function",
+        unitLink: "../Unit_1_Introduction/Unit_1_Outline.md",
+        keywords: ["intermolecular forces", "polymers", "materials science", "structural strength", "molecular geometry"]
+    },
 
-    // --- PHYSICAL SCIENCE: ENERGY (HS-PS3) ---
+    // --- HS-PS3: Energy ---
     {
         code: "HS-PS3-1",
         domain: "Physical Science",
@@ -142,8 +283,23 @@ const NGSS_STANDARDS_DATA = [
         unitLink: "../unit5-dashboard.html",
         keywords: ["thermodynamics", "thermal equilibrium", "heat transfer", "conduction", "calorimetry", "entropy"]
     },
+    {
+        code: "HS-PS3-5",
+        domain: "Physical Science",
+        domainCode: "PS",
+        topic: "Energy",
+        title: "Electric & Magnetic Field Energy Interactions",
+        pe: "Develop and use a model of two objects interacting through electric or magnetic fields to illustrate the forces between objects and the changes in energy of the objects due to the interaction.",
+        clarification: "Examples of models could include drawings, diagrams, and computer simulations of field lines and potential energy changes.",
+        boundary: "Assessment is limited to qualitative descriptions of field energy.",
+        sep: "Developing and Using Models",
+        dci: "PS3.C: Relationship Between Energy and Forces",
+        ccc: "Cause and Effect",
+        unitLink: "../unit7-dashboard.html",
+        keywords: ["electric fields", "magnetic fields", "potential energy", "field lines", "charge attraction", "repulsion"]
+    },
 
-    // --- PHYSICAL SCIENCE: WAVES & EM RADIATION (HS-PS4) ---
+    // --- HS-PS4: Waves and Their Applications in Technology ---
     {
         code: "HS-PS4-1",
         domain: "Physical Science",
@@ -220,7 +376,11 @@ const NGSS_STANDARDS_DATA = [
         keywords: ["wave technology", "mri", "fiber optics", "ultrasound", "sonar", "telemetry", "instruments"]
     },
 
-    // --- EARTH & SPACE SCIENCE: EARTH'S PLACE IN UNIVERSE (HS-ESS1) ---
+    // =========================================================================
+    // 2. EARTH AND SPACE SCIENCES (HS-ESS)
+    // =========================================================================
+
+    // --- HS-ESS1: Earth's Place in the Universe ---
     {
         code: "HS-ESS1-1",
         domain: "Earth & Space Science",
@@ -273,7 +433,7 @@ const NGSS_STANDARDS_DATA = [
         topic: "Earth's Place in Universe",
         title: "Kepler's Laws of Planetary Motion",
         pe: "Use mathematical or computational representations to predict the motion of orbiting objects in the solar system.",
-        clarification: "Emphasis is on Kepler's 3 Laws of Planetary Motion (elliptical orbits, equal areas in equal times, $T^2 \\propto a^3$).",
+        clarification: "Emphasis is on Kepler's 3 Laws of Planetary Motion (elliptical orbits, equal areas in equal times, T^2 proportional to a^3).",
         boundary: "Assessment does not include multi-body perturbation calculations.",
         sep: "Using Mathematics and Computational Thinking",
         dci: "ESS1.B: Earth and the Solar System",
@@ -281,8 +441,38 @@ const NGSS_STANDARDS_DATA = [
         unitLink: "../comet-simulator/index.html",
         keywords: ["kepler laws", "orbits", "planets", "eccentricity", "orbital period", "gravity", "ellipse"]
     },
+    {
+        code: "HS-ESS1-5",
+        domain: "Earth & Space Science",
+        domainCode: "ESS",
+        topic: "Earth's Place in Universe",
+        title: "Plate Tectonic History & Geologic Time Evidence",
+        pe: "Evaluate evidence of the past and current movements of continental and oceanic crust and the theory of plate tectonics to explain the ages of crustal rocks.",
+        clarification: "Emphasis is on seafloor spreading age gradients, paleomagnetism stripe reversals, and continental jigsaw fit.",
+        boundary: "Assessment does not include memorizing specific epoch names.",
+        sep: "Engaging in Argument from Evidence",
+        dci: "ESS1.C: The History of Planet Earth",
+        ccc: "Patterns",
+        unitLink: "../2026-2027_Planning/Content_Review_For_CAST/Tectonic_Plate_Globe/index.html",
+        keywords: ["plate tectonics", "continental drift", "crust age", "paleomagnetism", "seafloor spreading", "geologic time"]
+    },
+    {
+        code: "HS-ESS1-6",
+        domain: "Earth & Space Science",
+        domainCode: "ESS",
+        topic: "Earth's Place in Universe",
+        title: "Earth's Formation & Radiometric Dating Evidence",
+        pe: "Apply scientific reasoning and evidence from ancient Earth materials, meteorites, and other planetary surfaces to construct an account of Earth's formation and early history.",
+        clarification: "Emphasis is on radiometric age dating of meteorites (4.54 billion years), lunar crater density, and heavy bombardment history.",
+        boundary: "Assessment does not include complex decay chain differential math.",
+        sep: "Constructing Explanations and Designing Solutions",
+        dci: "ESS1.C: The History of Planet Earth",
+        ccc: "Stability and Change",
+        unitLink: "../2026-2027_Planning/Integrated_CAST_Prep.md",
+        keywords: ["radiometric dating", "meteorites", "earth age", "early earth", "half life", "zircon crystals"]
+    },
 
-    // --- EARTH & SPACE SCIENCE: EARTH'S SYSTEMS (HS-ESS2) ---
+    // --- HS-ESS2: Earth's Systems ---
     {
         code: "HS-ESS2-1",
         domain: "Earth & Space Science",
@@ -299,6 +489,21 @@ const NGSS_STANDARDS_DATA = [
         keywords: ["plate tectonics", "mantle convection", "subduction", "seafloor spreading", "earthquakes", "crust"]
     },
     {
+        code: "HS-ESS2-2",
+        domain: "Earth & Space Science",
+        domainCode: "ESS",
+        topic: "Earth's Systems",
+        title: "Earth Sphere Feedback Loops & Surface Interactions",
+        pe: "Analyze geoscience data to make the claim that one change to Earth's surface can create feedbacks that cause changes to other Earth systems.",
+        clarification: "Examples of feedback mechanisms include climate albedo changes, ice melting, vegetation growth, and erosion patterns.",
+        boundary: "Assessment is limited to qualitative feedback loop analysis.",
+        sep: "Analyzing and Interpreting Data",
+        dci: "ESS2.A: Earth Materials and Systems",
+        ccc: "Stability and Change",
+        unitLink: "../2026-2027_Planning/Integrated_CAST_Prep.md",
+        keywords: ["feedback loops", "albedo", "climate feedback", "erosion", "earth spheres", "geosphere"]
+    },
+    {
         code: "HS-ESS2-3",
         domain: "Earth & Space Science",
         domainCode: "ESS",
@@ -313,8 +518,224 @@ const NGSS_STANDARDS_DATA = [
         unitLink: "../2026-2027_Planning/Integrated_CAST_Prep.md",
         keywords: ["seismic waves", "p-waves", "s-waves", "earth interior", "core", "mantle", "shadow zone"]
     },
+    {
+        code: "HS-ESS2-4",
+        domain: "Earth & Space Science",
+        domainCode: "ESS",
+        topic: "Earth's Systems",
+        title: "Global Climate Models & Energy Energy Balance",
+        pe: "Use a model to describe how variations in the flow of energy into and out of Earth's systems result in changes in climate.",
+        clarification: "Emphasis is on greenhouse effect, solar insolation variations, ocean circulation (thermohaline), and volcanic aerosol cooling.",
+        boundary: "Assessment does not include mathematical atmospheric circulation differential equations.",
+        sep: "Developing and Using Models",
+        dci: "ESS2.D: Weather and Climate",
+        ccc: "Cause and Effect",
+        unitLink: "../2026-2027_Planning/Integrated_CAST_Prep.md",
+        keywords: ["climate change", "greenhouse effect", "energy balance", "solar insolation", "ocean currents", "atmosphere"]
+    },
+    {
+        code: "HS-ESS2-5",
+        domain: "Earth & Space Science",
+        domainCode: "ESS",
+        topic: "Earth's Systems",
+        title: "Water Properties & Earth Surface Dynamics",
+        pe: "Plan and conduct an investigation of the properties of water and its effects on Earth materials and surface processes.",
+        clarification: "Emphasis is on mechanical weathering, chemical weathering, high heat capacity of water, and ice density anomalies.",
+        boundary: "Assessment is limited to qualitative laboratory investigations.",
+        sep: "Planning and Carrying Out Investigations",
+        dci: "ESS2.C: The Roles of Water in Earth's Surface Processes",
+        ccc: "Structure and Function",
+        unitLink: "../Unit_1_Introduction/Unit_1_Outline.md",
+        keywords: ["water properties", "weathering", "erosion", "heat capacity", "density anomaly", "hydrology"]
+    },
+    {
+        code: "HS-ESS2-6",
+        domain: "Earth & Space Science",
+        domainCode: "ESS",
+        topic: "Earth's Systems",
+        title: "Global Carbon Cycle & Earth Spheres",
+        pe: "Develop a quantitative model to describe the cycling of carbon among the hydrosphere, atmosphere, geosphere, and biosphere.",
+        clarification: "Emphasis is on carbon reservoirs (ocean, rocks, atmosphere, living biomass) and flux rates.",
+        boundary: "Assessment does not include detailed chemical stoichiometry equations for organic decay.",
+        sep: "Developing and Using Models",
+        dci: "ESS2.D: Weather and Climate",
+        ccc: "Energy and Matter",
+        unitLink: "../2026-2027_Planning/Integrated_CAST_Prep.md",
+        keywords: ["carbon cycle", "carbon sinks", "atmosphere", "biosphere", "hydrosphere", "fossil fuels"]
+    },
+    {
+        code: "HS-ESS2-7",
+        domain: "Earth & Space Science",
+        domainCode: "ESS",
+        topic: "Earth's Systems",
+        title: "Coevolution of Earth's Atmosphere and Life",
+        pe: "Construct an argument based on evidence about the simultaneous coevolution of Earth's systems and life on Earth.",
+        clarification: "Emphasis is on photosynthetic cyanobacteria generating oxygen (Great Oxidation Event), banded iron formations, and atmospheric ozone shield formation.",
+        boundary: "Assessment does not include specific paleontology species taxonomy.",
+        sep: "Engaging in Argument from Evidence",
+        dci: "ESS2.E: Biogeology",
+        ccc: "Stability and Change",
+        unitLink: "../2026-2027_Planning/Integrated_CAST_Prep.md",
+        keywords: ["coevolution", "great oxidation event", "cyanobacteria", "atmosphere", "ozone layer", "banded iron"]
+    },
 
-    // --- LIFE SCIENCE: ECOSYSTEMS & MOLECULES (HS-LS1 & HS-LS2) ---
+    // --- HS-ESS3: Earth and Human Activity ---
+    {
+        code: "HS-ESS3-1",
+        domain: "Earth & Space Science",
+        domainCode: "ESS",
+        topic: "Earth & Human Activity",
+        title: "Natural Hazards & Human Population Impacts",
+        pe: "Construct an explanation based on evidence for how the availability of natural resources, occurrence of natural hazards, and changes in climate have influenced human activity.",
+        clarification: "Examples of key natural hazards could include earthquakes, tsunamis, volcanic eruptions, floods, and droughts.",
+        boundary: "Assessment is limited to historical and geographical case study evaluations.",
+        sep: "Constructing Explanations and Designing Solutions",
+        dci: "ESS3.A: Natural Resources",
+        ccc: "Cause and Effect",
+        unitLink: "../2026-2027_Planning/Integrated_CAST_Prep.md",
+        keywords: ["natural hazards", "human activity", "resources", "earthquakes", "climate impact", "population"]
+    },
+    {
+        code: "HS-ESS3-2",
+        domain: "Earth & Space Science",
+        domainCode: "ESS",
+        topic: "Earth & Human Activity",
+        title: "Resource Management & Cost-Benefit Analysis",
+        pe: "Evaluate competing design solutions for developing, managing, and utilizing energy and mineral resources based on cost-benefit ratios.",
+        clarification: "Emphasis is on renewable vs. non-renewable energy sources, mining impacts, recycling, and economic trade-offs.",
+        boundary: "Assessment does not include complex economic market forecasting models.",
+        sep: "Engaging in Argument from Evidence",
+        dci: "ESS3.A: Natural Resources",
+        ccc: "Influence of Engineering, Technology, and Science on Society",
+        unitLink: "../unit5-dashboard.html",
+        keywords: ["resource management", "renewable energy", "cost benefit", "sustainability", "mining", "fossil fuels"]
+    },
+    {
+        code: "HS-ESS3-3",
+        domain: "Earth & Space Science",
+        domainCode: "ESS",
+        topic: "Earth & Human Activity",
+        title: "Simulation of Natural Resource Consumption",
+        pe: "Create a computational simulation to illustrate the relationships among management of natural resources, the sustainability of human populations, and biodiversity.",
+        clarification: "Emphasis is on computer models of resource depletion rates, agricultural footprints, and conservation strategies.",
+        boundary: "Assessment is limited to interpreting simulation outputs.",
+        sep: "Using Mathematics and Computational Thinking",
+        dci: "ESS3.C: Human Impacts on Earth Systems",
+        ccc: "Stability and Change",
+        unitLink: "../Data_Analysis/index.html",
+        keywords: ["simulation", "sustainability", "resource consumption", "carrying capacity", "ecological footprint"]
+    },
+    {
+        code: "HS-ESS3-4",
+        domain: "Earth & Space Science",
+        domainCode: "ESS",
+        topic: "Earth & Human Activity",
+        title: "Technological Solutions to Environmental Impacts",
+        pe: "Evaluate or refine a technological solution that reduces impacts of human activities on natural systems.",
+        clarification: "Examples of technological solutions could include carbon capture, wastewater treatment, scrubbers, or renewable grid storage.",
+        boundary: "Assessment is limited to evaluating existing technology parameters.",
+        sep: "Constructing Explanations and Designing Solutions",
+        dci: "ESS3.C: Human Impacts on Earth Systems",
+        ccc: "Stability and Change",
+        unitLink: "../2026-2027_Planning/Integrated_CAST_Prep.md",
+        keywords: ["clean tech", "pollution reduction", "carbon capture", "environmental engineering", "sustainability"]
+    },
+    {
+        code: "HS-ESS3-5",
+        domain: "Earth & Space Science",
+        domainCode: "ESS",
+        topic: "Earth & Human Activity",
+        title: "Global Climate Change Data & Prediction Models",
+        pe: "Analyze geoscience data and the results from global climate models to make an evidence-based forecast of the current rate of global or regional climate change and associated future impacts.",
+        clarification: "Emphasis is on temperature anomaly trends, sea-level rise data, carbon emissions graphs, and predictive climate modeling.",
+        boundary: "Assessment is limited to analyzing presented graph trends.",
+        sep: "Analyzing and Interpreting Data",
+        dci: "ESS3.D: Global Climate Change",
+        ccc: "Stability and Change",
+        unitLink: "../Data_Analysis/index.html",
+        keywords: ["climate models", "global warming", "sea level rise", "carbon emissions", "climate forecast"]
+    },
+    {
+        code: "HS-ESS3-6",
+        domain: "Earth & Space Science",
+        domainCode: "ESS",
+        topic: "Earth & Human Activity",
+        title: "Human Impact Feedback Loops in Earth Systems",
+        pe: "Use a computational representation to illustrate the relationships among Earth systems and how significant modifications in one system can influence other systems.",
+        clarification: "Emphasis is on ocean acidification, deforestation impacting rainfall, and desertification feedback loops.",
+        boundary: "Assessment is limited to multi-system feedback qualitative analysis.",
+        sep: "Using Mathematics and Computational Thinking",
+        dci: "ESS3.D: Global Climate Change",
+        ccc: "Systems and System Models",
+        unitLink: "../Data_Analysis/index.html",
+        keywords: ["ocean acidification", "deforestation", "earth systems", "human impact", "feedback"]
+    },
+
+    // =========================================================================
+    // 3. LIFE SCIENCE (HS-LS)
+    // =========================================================================
+
+    // --- HS-LS1: From Molecules to Organisms ---
+    {
+        code: "HS-LS1-1",
+        domain: "Life Science",
+        domainCode: "LS",
+        topic: "From Molecules to Organisms",
+        title: "DNA Structure, Genes, and Protein Synthesis",
+        pe: "Construct an explanation based on evidence for how the structure of DNA determines the structure of proteins, which carry out the essential functions of life through systems of specialized cells.",
+        clarification: "Emphasis is on transcription, translation, amino acid chains, and functional proteins.",
+        boundary: "Assessment does not include memorizing specific codon charts.",
+        sep: "Constructing Explanations and Designing Solutions",
+        dci: "LS1.A: Structure and Function",
+        ccc: "Structure and Function",
+        unitLink: "../Unit_1_Introduction/Unit_1_Outline.md",
+        keywords: ["dna", "rna", "protein synthesis", "transcription", "translation", "genes", "amino acids"]
+    },
+    {
+        code: "HS-LS1-2",
+        domain: "Life Science",
+        domainCode: "LS",
+        topic: "From Molecules to Organisms",
+        title: "Hierarchical Organization of Organ Systems",
+        pe: "Develop and use a model to illustrate the hierarchical organization of interacting systems that provide specific functions within multicellular organisms.",
+        clarification: "Emphasis is on cells, tissues, organs, and organ systems working together (e.g., circulatory, respiratory, nervous).",
+        boundary: "Assessment does not include memorization of sub-cellular organelle biochemistry.",
+        sep: "Developing and Using Models",
+        dci: "LS1.A: Structure and Function",
+        ccc: "Systems and System Models",
+        unitLink: "../Unit_1_Introduction/Unit_1_Outline.md",
+        keywords: ["organ systems", "hierarchy", "tissues", "cells", "organs", "multicellular"]
+    },
+    {
+        code: "HS-LS1-3",
+        domain: "Life Science",
+        domainCode: "LS",
+        topic: "From Molecules to Organisms",
+        title: "Feedback Mechanisms & Homeostasis",
+        pe: "Plan and conduct an investigation to provide evidence that feedback mechanisms maintain homeostasis.",
+        clarification: "Examples of feedback mechanisms include heart rate adjustment during exercise, thermoregulation, and blood glucose control.",
+        boundary: "Assessment is limited to positive and negative feedback loop principles.",
+        sep: "Planning and Carrying Out Investigations",
+        dci: "LS1.A: Structure and Function",
+        ccc: "Stability and Change",
+        unitLink: "../Unit_1_Introduction/Unit_1_Outline.md",
+        keywords: ["homeostasis", "feedback loop", "thermoregulation", "heart rate", "glucose", "balance"]
+    },
+    {
+        code: "HS-LS1-4",
+        domain: "Life Science",
+        domainCode: "LS",
+        topic: "From Molecules to Organisms",
+        title: "Cell Division & Mitotic Tissue Growth",
+        pe: "Use a model to illustrate the role of cellular division (mitosis) and differentiation in producing and maintaining complex organisms.",
+        clarification: "Emphasis is on mitosis producing identical daughter cells for growth and tissue repair.",
+        boundary: "Assessment does not include specific phase name memorization (prophase, metaphase, etc.).",
+        sep: "Developing and Using Models",
+        dci: "LS1.B: Growth and Development of Organisms",
+        ccc: "Systems and System Models",
+        unitLink: "../Unit_1_Introduction/Unit_1_Outline.md",
+        keywords: ["mitosis", "cell division", "differentiation", "tissue growth", "dna replication", "stem cells"]
+    },
     {
         code: "HS-LS1-5",
         domain: "Life Science",
@@ -322,13 +743,90 @@ const NGSS_STANDARDS_DATA = [
         topic: "From Molecules to Organisms",
         title: "Photosynthesis & Chemical Energy Storage",
         pe: "Use a model to illustrate how photosynthesis transforms light energy into stored chemical energy.",
-        clarification: "Emphasis is on the overall reaction ($6CO_2 + 6H_2O \\rightarrow C_6H_{12}O_6 + 6O_2$) and chloroplast energy conversion.",
+        clarification: "Emphasis is on the overall reaction (6CO2 + 6H2O -> C6H12O6 + 6O2) and chloroplast energy conversion.",
         boundary: "Assessment does not include biochemical details of ATP synthase or Krebs cycle pathways.",
         sep: "Developing and Using Models",
         dci: "LS1.C: Organization for Matter and Energy Flow in Organisms",
         ccc: "Energy and Matter",
         unitLink: "../Data_Analysis/index.html",
         keywords: ["photosynthesis", "glucose", "chloroplast", "light energy", "chemical energy", "carbon dioxide"]
+    },
+    {
+        code: "HS-LS1-6",
+        domain: "Life Science",
+        domainCode: "LS",
+        topic: "From Molecules to Organisms",
+        title: "Cellular Respiration & Organic Molecule Synthesis",
+        pe: "Construct and revise an explanation based on evidence for how carbon, hydrogen, and oxygen from sugar molecules may combine with other elements to form amino acids and other large carbon-based molecules.",
+        clarification: "Emphasis is on how cellular respiration breaks down sugars to produce precursor molecules for biosynthesis.",
+        boundary: "Assessment does not include specific chemical reaction pathways.",
+        sep: "Constructing Explanations and Designing Solutions",
+        dci: "LS1.C: Organization for Matter and Energy Flow in Organisms",
+        ccc: "Energy and Matter",
+        unitLink: "../unit5-dashboard.html",
+        keywords: ["cellular respiration", "biosynthesis", "carbon molecules", "amino acids", "macromolecules"]
+    },
+    {
+        code: "HS-LS1-7",
+        domain: "Life Science",
+        domainCode: "LS",
+        topic: "From Molecules to Organisms",
+        title: "Cellular Respiration & ATP Energy Release",
+        pe: "Use a model to illustrate that cellular respiration is a chemical process whereby the bonds of food molecules and oxygen molecules are broken and the bonds in new compounds are formed resulting in a net transfer of energy.",
+        clarification: "Emphasis is on ATP production from food molecules and oxygen consumption.",
+        boundary: "Assessment does not include electron transport chain enzyme details.",
+        sep: "Developing and Using Models",
+        dci: "LS1.C: Organization for Matter and Energy Flow in Organisms",
+        ccc: "Energy and Matter",
+        unitLink: "../unit5-dashboard.html",
+        keywords: ["atp", "cellular respiration", "mitochondria", "energy release", "oxygen", "glucose breakdown"]
+    },
+
+    // --- HS-LS2: Ecosystems: Interactions, Energy, and Dynamics ---
+    {
+        code: "HS-LS2-1",
+        domain: "Life Science",
+        domainCode: "LS",
+        topic: "Ecosystems",
+        title: "Carrying Capacity & Population Dynamics",
+        pe: "Use mathematical and/or computational representations to support explanations of factors that affect carrying capacity of ecosystems at different scales.",
+        clarification: "Emphasis is on limiting factors like food, water, space, predation, and disease.",
+        boundary: "Assessment is limited to evaluating population trend graphs.",
+        sep: "Using Mathematics and Computational Thinking",
+        dci: "LS2.A: Interdependent Relationships in Ecosystems",
+        ccc: "Scale, Proportion, and Quantity",
+        unitLink: "../Data_Analysis/index.html",
+        keywords: ["carrying capacity", "population dynamics", "limiting factors", "ecosystem", "predator prey"]
+    },
+    {
+        code: "HS-LS2-2",
+        domain: "Life Science",
+        domainCode: "LS",
+        topic: "Ecosystems",
+        title: "Biodiversity & Ecosystem Stability",
+        pe: "Use mathematical representations to support and revise explanations based on evidence about factors affecting biodiversity and populations in ecosystems of different scales.",
+        clarification: "Emphasis is on species richness, habitat size, invasive species, and climate impacts.",
+        boundary: "Assessment is limited to simple mathematical models.",
+        sep: "Using Mathematics and Computational Thinking",
+        dci: "LS2.A: Interdependent Relationships in Ecosystems",
+        ccc: "Scale, Proportion, and Quantity",
+        unitLink: "../Data_Analysis/index.html",
+        keywords: ["biodiversity", "ecosystem stability", "species richness", "invasive species", "habitat"]
+    },
+    {
+        code: "HS-LS2-3",
+        domain: "Life Science",
+        domainCode: "LS",
+        topic: "Ecosystems",
+        title: "Aerobic & Anaerobic Matter and Energy Cycling",
+        pe: "Construct and revise an explanation based on evidence for the cycling of matter and flow of energy in aerobic and anaerobic conditions.",
+        clarification: "Emphasis is on fermentation vs. oxygen respiration in aquatic and terrestrial ecosystems.",
+        boundary: "Assessment does not include metabolic pathway equations.",
+        sep: "Constructing Explanations and Designing Solutions",
+        dci: "LS2.B: Cycles of Matter and Energy Transfer in Ecosystems",
+        ccc: "Energy and Matter",
+        unitLink: "../unit5-dashboard.html",
+        keywords: ["aerobic", "anaerobic", "fermentation", "energy flow", "decomposition", "recycling"]
     },
     {
         code: "HS-LS2-4",
@@ -345,8 +843,209 @@ const NGSS_STANDARDS_DATA = [
         unitLink: "../Data_Analysis/index.html",
         keywords: ["trophic level", "biomass", "energy pyramid", "ecosystem", "food web", "producers", "consumers"]
     },
+    {
+        code: "HS-LS2-5",
+        domain: "Life Science",
+        domainCode: "LS",
+        topic: "Ecosystems",
+        title: "Ecosystem Carbon Cycling Model",
+        pe: "Develop a model to illustrate the role of photosynthesis and cellular respiration in the cycling of carbon among the biosphere, atmosphere, hydrosphere, and geosphere.",
+        clarification: "Emphasis is on how carbon moves through biological and physical reservoirs.",
+        boundary: "Assessment is limited to conceptual diagrams.",
+        sep: "Developing and Using Models",
+        dci: "LS2.B: Cycles of Matter and Energy Transfer in Ecosystems",
+        ccc: "Energy and Matter",
+        unitLink: "../2026-2027_Planning/Integrated_CAST_Prep.md",
+        keywords: ["carbon cycle", "photosynthesis", "respiration", "biosphere", "carbon sink"]
+    },
+    {
+        code: "HS-LS2-6",
+        domain: "Life Science",
+        domainCode: "LS",
+        topic: "Ecosystems",
+        title: "Ecosystem Resilience & Disturbances",
+        pe: "Evaluate the claims, evidence, and reasoning that the complex interactions in ecosystems maintain relatively consistent numbers and types of organisms in stable conditions, but changing conditions may result in a new ecosystem.",
+        clarification: "Emphasis is on ecological succession, wildfires, volcanic eruptions, and climate shifts.",
+        boundary: "Assessment is limited to qualitative evaluations of disturbance scenarios.",
+        sep: "Engaging in Argument from Evidence",
+        dci: "LS2.C: Ecosystem Dynamics, Functioning, and Resilience",
+        ccc: "Stability and Change",
+        unitLink: "../2026-2027_Planning/Integrated_CAST_Prep.md",
+        keywords: ["resilience", "succession", "ecological disturbance", "stability", "wildfires", "ecosystem change"]
+    },
+    {
+        code: "HS-LS2-7",
+        domain: "Life Science",
+        domainCode: "LS",
+        topic: "Ecosystems",
+        title: "Human Impact Engineering & Biodiversity Preservation",
+        pe: "Design, evaluate, and refine a solution for reducing the impacts of human activities on the environment and biodiversity.",
+        clarification: "Examples of solutions include wildlife corridors, sustainable agriculture, habitat restoration, and pollution control.",
+        boundary: "Assessment is limited to qualitative engineering evaluations.",
+        sep: "Constructing Explanations and Designing Solutions",
+        dci: "LS2.C: Ecosystem Dynamics, Functioning, and Resilience",
+        ccc: "Stability and Change",
+        unitLink: "../2026-2027_Planning/Integrated_CAST_Prep.md",
+        keywords: ["biodiversity preservation", "conservation", "wildlife corridors", "human impact", "habitat restoration"]
+    },
+    {
+        code: "HS-LS2-8",
+        domain: "Life Science",
+        domainCode: "LS",
+        topic: "Ecosystems",
+        title: "Social Behavior & Species Survival Advantage",
+        pe: "Evaluate the evidence for the role of group behavior on individual and species' chances to survive and reproduce.",
+        clarification: "Emphasis is on schooling, herding, flocking, cooperative hunting, and social hierarchies.",
+        boundary: "Assessment is limited to behavioral case studies.",
+        sep: "Engaging in Argument from Evidence",
+        dci: "LS2.D: Social Interactions and Group Behavior",
+        ccc: "Cause and Effect",
+        unitLink: "../Unit_1_Introduction/Unit_1_Outline.md",
+        keywords: ["group behavior", "survival advantage", "herding", "cooperative hunting", "social structure"]
+    },
 
-    // --- ENGINEERING DESIGN (HS-ETS1) ---
+    // --- HS-LS3: Heredity: Inheritance and Variation of Traits ---
+    {
+        code: "HS-LS3-1",
+        domain: "Life Science",
+        domainCode: "LS",
+        topic: "Heredity",
+        title: "DNA & Chromosomes in Trait Inheritance",
+        pe: "Ask questions to clarify relationships about the role of DNA and chromosomes in coding the instructions for characteristic traits passed from parents to offspring.",
+        clarification: "Emphasis is on genes coding for proteins that produce physical phenotypes.",
+        boundary: "Assessment does not include gene mapping or advanced linkage calculations.",
+        sep: "Asking Questions and Defining Problems",
+        dci: "LS3.A: Inheritance of Traits",
+        ccc: "Cause and Effect",
+        unitLink: "../Unit_1_Introduction/Unit_1_Outline.md",
+        keywords: ["dna", "chromosomes", "heredity", "inheritance", "traits", "phenotype", "genotype"]
+    },
+    {
+        code: "HS-LS3-2",
+        domain: "Life Science",
+        domainCode: "LS",
+        topic: "Heredity",
+        title: "Genetic Variation: Meiosis & Mutation",
+        pe: "Make and defend a claim based on evidence that inheritable genetic variations may result from: (1) new genetic combinations through meiosis, (2) viable errors occurring during replication, and/or (3) mutations caused by environmental factors.",
+        clarification: "Emphasis is on crossing over, independent assortment, and environmental mutagens.",
+        boundary: "Assessment does not include biochemical details of DNA repair enzymes.",
+        sep: "Engaging in Argument from Evidence",
+        dci: "LS3.B: Variation of Traits",
+        ccc: "Cause and Effect",
+        unitLink: "../Unit_1_Introduction/Unit_1_Outline.md",
+        keywords: ["meiosis", "genetic variation", "mutations", "crossing over", "replication errors", "chromosomes"]
+    },
+    {
+        code: "HS-LS3-3",
+        domain: "Life Science",
+        domainCode: "LS",
+        topic: "Heredity",
+        title: "Probability of Trait Distribution in Populations",
+        pe: "Apply concepts of statistics and probability to explain the variation and distribution of expressed traits in a population.",
+        clarification: "Emphasis is on Punnett squares, normal distributions, continuous traits, and allele frequencies.",
+        boundary: "Assessment is limited to simple probability calculations.",
+        sep: "Using Mathematics and Computational Thinking",
+        dci: "LS3.B: Variation of Traits",
+        ccc: "Scale, Proportion, and Quantity",
+        unitLink: "../Data_Analysis/index.html",
+        keywords: ["punnett square", "probability", "allele frequency", "trait distribution", "genetics"]
+    },
+
+    // --- HS-LS4: Biological Evolution: Unity and Diversity ---
+    {
+        code: "HS-LS4-1",
+        domain: "Life Science",
+        domainCode: "LS",
+        topic: "Biological Evolution",
+        title: "Common Ancestry & Evolutionary Evidence",
+        pe: "Communicate scientific information that common ancestry and biological evolution are supported by multiple lines of empirical evidence.",
+        clarification: "Emphasis is on fossil records, homologous anatomical structures, DNA sequence similarities, and embryology.",
+        boundary: "Assessment does not include memorizing specific geological period dates.",
+        sep: "Obtaining, Evaluating, and Communicating Information",
+        dci: "LS4.A: Evidence of Common Ancestry and Diversity",
+        ccc: "Patterns",
+        unitLink: "../2026-2027_Planning/Integrated_CAST_Prep.md",
+        keywords: ["common ancestry", "evolution", "fossils", "homologous structures", "dna evidence", "phylogeny"]
+    },
+    {
+        code: "HS-LS4-2",
+        domain: "Life Science",
+        domainCode: "LS",
+        topic: "Biological Evolution",
+        title: "Four Factors of Natural Selection",
+        pe: "Construct an explanation based on evidence that the process of evolution primarily results from four factors: (1) the potential for a species to increase in number, (2) the heritable genetic variation of individuals, (3) a finite supply of resources, and (4) the proliferation of organisms that are better able to survive and reproduce.",
+        clarification: "Emphasis is on integrating all 4 factors to explain natural selection.",
+        boundary: "Assessment is limited to qualitative conceptual synthesis.",
+        sep: "Constructing Explanations and Designing Solutions",
+        dci: "LS4.B: Natural Selection",
+        ccc: "Cause and Effect",
+        unitLink: "../2026-2027_Planning/Integrated_CAST_Prep.md",
+        keywords: ["natural selection", "fitness", "adaptation", "overproduction", "competition", "reproduction"]
+    },
+    {
+        code: "HS-LS4-3",
+        domain: "Life Science",
+        domainCode: "LS",
+        topic: "Biological Evolution",
+        title: "Statistics of Adaptation & Gene Frequency Shifts",
+        pe: "Apply concepts of statistics and probability to support explanations that organisms with an advantageous heritable trait tend to increase in proportion to organisms lacking this trait.",
+        clarification: "Emphasis is on analyzing shift graphs in allele frequencies over generations (e.g., antibiotic resistance, peppered moth).",
+        boundary: "Assessment is limited to evaluating allele frequency graphs.",
+        sep: "Using Mathematics and Computational Thinking",
+        dci: "LS4.B: Natural Selection",
+        ccc: "Patterns",
+        unitLink: "../Data_Analysis/index.html",
+        keywords: ["allele frequency", "adaptation", "natural selection", "antibiotic resistance", "gene pool"]
+    },
+    {
+        code: "HS-LS4-4",
+        domain: "Life Science",
+        domainCode: "LS",
+        topic: "Biological Evolution",
+        title: "Natural Selection & Environmental Adaptation",
+        pe: "Construct an explanation based on evidence for how natural selection leads to adaptation of populations.",
+        clarification: "Emphasis is on how environmental pressures select for specific traits over time leading to population adaptation.",
+        boundary: "Assessment does not include genetic drift calculations.",
+        sep: "Constructing Explanations and Designing Solutions",
+        dci: "LS4.C: Adaptation",
+        ccc: "Cause and Effect",
+        unitLink: "../2026-2027_Planning/Integrated_CAST_Prep.md",
+        keywords: ["adaptation", "natural selection", "environmental pressure", "survival", "evolution"]
+    },
+    {
+        code: "HS-LS4-5",
+        domain: "Life Science",
+        domainCode: "LS",
+        topic: "Biological Evolution",
+        title: "Environmental Changes & Speciation vs Extinction",
+        pe: "Evaluate the evidence supporting claims that changes in environmental conditions may result in: (1) increases in the number of individuals of some species, (2) the emergence of new species over time, and (3) the extinction of other species.",
+        clarification: "Emphasis is on environmental changes like climate shifts, habitat fragmentation, and meteorite impacts leading to speciation or mass extinction.",
+        boundary: "Assessment is limited to historical case studies.",
+        sep: "Engaging in Argument from Evidence",
+        dci: "LS4.C: Adaptation",
+        ccc: "Cause and Effect",
+        unitLink: "../2026-2027_Planning/Integrated_CAST_Prep.md",
+        keywords: ["speciation", "extinction", "mass extinction", "environmental change", "adaptive radiation"]
+    },
+    {
+        code: "HS-LS4-6",
+        domain: "Life Science",
+        domainCode: "LS",
+        topic: "Biological Evolution",
+        title: "Simulation of Human Impact on Species Biodiversity",
+        pe: "Create or revise a simulation to test a solution to mitigate adverse impacts of human activity on biodiversity.",
+        clarification: "Emphasis is on computer models of land use, overfishing, habitat preservation, and species recovery plans.",
+        boundary: "Assessment is limited to analyzing simulation variables.",
+        sep: "Using Mathematics and Computational Thinking",
+        dci: "LS4.D: Biodiversity and Humans",
+        ccc: "Cause and Effect",
+        unitLink: "../Data_Analysis/index.html",
+        keywords: ["simulation", "biodiversity", "human impact", "conservation", "habitat preservation"]
+    },
+
+    // =========================================================================
+    // 4. ENGINEERING DESIGN (HS-ETS1)
+    // =========================================================================
     {
         code: "HS-ETS1-1",
         domain: "Engineering Design",
@@ -376,6 +1075,21 @@ const NGSS_STANDARDS_DATA = [
         ccc: "Systems and System Models",
         unitLink: "../circuit-game.html",
         keywords: ["engineering design", "system decomposition", "prototyping", "solutions", "optimization"]
+    },
+    {
+        code: "HS-ETS1-3",
+        domain: "Engineering Design",
+        domainCode: "ETS",
+        topic: "Engineering Design",
+        title: "Evaluating Competing Design Solutions",
+        pe: "Evaluate a solution to a complex real-world problem based on prioritized criteria and trade-offs that account for a range of constraints, including cost, safety, reliability, and aesthetics, as well as possible social, cultural, and environmental impacts.",
+        clarification: "Emphasis is on systematic decision-matrix evaluation of competing technical prototypes.",
+        boundary: "Assessment is limited to evaluating given criteria matrices.",
+        sep: "Constructing Explanations and Designing Solutions",
+        dci: "ETS1.B: Developing Possible Solutions",
+        ccc: "Influence of Engineering, Technology, and Science on Society",
+        unitLink: "../unit4-dashboard.html",
+        keywords: ["decision matrix", "trade-offs", "evaluating solutions", "cost benefit", "reliability", "safety"]
     },
     {
         code: "HS-ETS1-4",
