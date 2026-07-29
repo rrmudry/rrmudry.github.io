@@ -433,6 +433,12 @@
                 progressText.innerText = `UNIT PROGRESS: ${completedLessons} / ${totalLessons} DAYS COMPLETE`;
             }
 
+            // Dynamically aggregate all unique NGSS standards across all unit lessons
+            const uniqueStandards = Array.from(new Set(unitData.flatMap(d => d.standards || [])));
+            if (typeof NGSSHelper !== 'undefined') {
+                NGSSHelper.renderStandardsBanner(uniqueStandards, 'unit7-ngss-alignment');
+            }
+
             const navButtons = document.querySelectorAll('.nav-btn');
             const contentSections = document.querySelectorAll('.content-section');
             const pacingCards = document.getElementById('pacing-cards-container');
@@ -771,12 +777,5 @@
     <!-- NGSS Database Integration -->
     <script src="ngss-explorer/standards-data.js"></script>
     <script src="assets/ngss-helper.js"></script>
-    <script>
-        window.addEventListener('load', () => {
-            if (typeof NGSSHelper !== 'undefined') {
-                NGSSHelper.renderStandardsBanner(['HS-PS2-4', 'HS-PS2-5', 'HS-PS3-5', 'HS-PS4-5'], 'unit7-ngss-alignment');
-            }
-        });
-    </script>
 </body>
 </html>
