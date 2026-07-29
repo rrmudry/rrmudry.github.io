@@ -487,6 +487,7 @@
                         </div>
                     </div>
                     <p class="text-sm font-semibold text-white/90 leading-tight relative z-10">${day.topic}</p>
+                    ${day.standards ? `<div class="mt-2 flex flex-wrap gap-1 relative z-10">${day.standards.map(s => `<span class="text-[9px] bg-cyan-950/80 text-cyan-400 border border-cyan-500/40 px-1.5 py-0.5 rounded font-mono font-bold" data-ngss-code="${s}">${s}</span>`).join('')}</div>` : ''}
                 `;
                 card.onclick = () => openLessonModal(day);
                 pacingCards.appendChild(card);
@@ -538,6 +539,10 @@
                     <h4 class="text-orange-400 font-bold mb-2 text-xs uppercase tracking-widest">Activity Detail</h4>
                     <p class="text-lg leading-relaxed text-slate-100">${day.activity}</p>
                 </div>`;
+
+                if (day.standards && day.standards.length > 0) {
+                    html += `<div data-ngss="${day.standards.join(',')}"></div>`;
+                }
 
                 const escapedTopic = day.topic.replace(/'/g, "\\'");
                 html += `<div class="flex flex-wrap gap-3 mb-4">
@@ -635,6 +640,9 @@
                 }
 
                 content.innerHTML = html;
+                if (window.NGSSHelper) {
+                    window.NGSSHelper.autoInit();
+                }
                 document.body.classList.add('no-scroll');
                 modal.classList.remove('hidden');
             }
