@@ -377,6 +377,13 @@
             contentSections.forEach(section => observer.observe(section));
 
             // Initialize App Data
+            // Dynamically aggregate all unique NGSS standards across all unit lessons
+            const uniqueStandards = Array.from(new Set(unitData.flatMap(d => d.standards || [])));
+            const targetStandards = uniqueStandards.length > 0 ? uniqueStandards : ['HS-PS2-1', 'HS-PS2-2', 'HS-PS2-3', 'HS-ETS1-1', 'HS-ETS1-2'];
+            if (typeof NGSSHelper !== 'undefined') {
+                NGSSHelper.renderStandardsBanner(targetStandards, 'unit4-ngss-alignment');
+            }
+
             unitData.forEach(day => {
                 const status = getLessonStatus(day.date);
 
@@ -406,6 +413,7 @@
                         </div>
                     </div>
                     <p class="text-sm font-semibold text-white/90 leading-tight">${day.topic}</p>
+                    ${day.standards ? `<div class="mt-2 flex flex-wrap gap-1 relative z-10">${day.standards.map(s => `<span class="text-[9px] bg-orange-950/80 text-orange-300 border border-orange-500/40 px-1.5 py-0.5 rounded font-mono font-bold" data-ngss-code="${s}">${s}</span>`).join('')}</div>` : ''}
                 `;
                 card.onclick = () => {
                     const modalTitle = document.getElementById('modal-title');
@@ -530,12 +538,16 @@
                                 <h4 class="text-orange-400 font-bold mb-2 text-xs uppercase tracking-widest">Activity Insight</h4>
                                 <p class="text-lg leading-relaxed text-blue-50/90">${day.activity}</p>
                             </div>
+                            ${day.standards && day.standards.length > 0 ? `<div data-ngss="${day.standards.join(',')}"></div>` : ''}
                             <div class="pt-6 border-t border-white/10 flex flex-wrap gap-3">
                                 <button onclick="generateAnalogy('${escapedTopic}')" class="text-xs bg-gradient-to-r from-orange-500/20 to-orange-600/20 text-orange-400 px-4 py-2 rounded-lg hover:from-orange-500/30 hover:to-orange-600/30 transition-colors border border-orange-500/30 shadow-lg shadow-orange-500/10">✨ Generate Analogy</button>
                                 ${linksHtml}
                             </div>
                         </div>
                     `;
+                    if (window.NGSSHelper) {
+                        window.NGSSHelper.autoInit();
+                    }
                     modal.classList.remove('hidden');
                 };
                 pacingCards.appendChild(card);
