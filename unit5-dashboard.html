@@ -559,6 +559,7 @@
                         </div>
                     </div>
                     <p class="text-sm font-semibold text-white/90 leading-tight">${day.topic}</p>
+                    ${day.standards && day.standards.length > 0 ? `<div class="mt-2 flex flex-wrap gap-1 relative z-10">${day.standards.map(s => `<span class="text-[9px] bg-red-950/80 text-orange-300 border border-orange-500/40 px-1.5 py-0.5 rounded font-mono font-bold" data-ngss-code="${s}">${s}</span>`).join('')}</div>` : ''}
                 `;
 
                 card.onclick = () => openLessonModal(day);
@@ -590,6 +591,10 @@
                 if (day.type === 'Assessment') assessmentsList.appendChild(li);
                 else labsList.appendChild(li);
             });
+
+            if (window.NGSSHelper) {
+                window.NGSSHelper.autoInit();
+            }
 
             closeModal.onclick = () => {
                 modal.classList.add('hidden');
@@ -773,10 +778,14 @@
                             <button onclick="generateAnalogy('${escapedTopic}')" class="text-xs bg-gradient-to-r from-orange-500/20 to-red-600/20 text-orange-400 px-4 py-2 rounded-lg hover:from-orange-500/30 hover:to-red-600/30 transition-colors border border-orange-500/30 shadow-lg shadow-orange-500/10">✨ Generate Analogy</button>
                             ${linksHtml}
                         </div>
+                        ${day.standards && day.standards.length > 0 ? `<div data-ngss="${day.standards.join(',')}"></div>` : ''}
                         ${embedHtml}
                     </div>
                 `;
 
+                if (window.NGSSHelper) {
+                    window.NGSSHelper.autoInit();
+                }
                 document.body.classList.add('no-scroll');
                 modal.classList.remove('hidden');
             }
@@ -1088,6 +1097,9 @@
             loop();
         }
     </script>
+    <!-- NGSS Database Integration -->
+    <script src="ngss-explorer/standards-data.js"></script>
+    <script src="assets/ngss-helper.js"></script>
 </body>
 
 </html>

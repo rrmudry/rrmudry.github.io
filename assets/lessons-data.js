@@ -1,1594 +1,2007 @@
-/**
- * Centralized data store for physics lessons.
- * Format:
- * {
- *   date: "YYYY-MM-DD",
- *   title: "Lesson Title",
- *   unit: 1,
- *   day: 1,
- *   summary: "Short description for cards.",
- *   details: "Full details/handouts/links.",
- *   semester: 2,
- *   isFeatured: true // Set to true to highlight this lesson
- * }
- */
 const lessonsData = [
-  // --- Unit 7: Electricity & Magnetism ---
   {
-    date: "2026-06-05",
-    day: 20,
-    unit: 7,
-    title: "Unit Wrap-Up & Final Reflection",
-    summary: "Reflection and cleanup.",
-    details: "Have students dismantle and organize the kits. Do a low-stakes reflection on their favorite build.",
-    type: "Activity",
-    dok: 1,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "What was the most impactful concept learned about energy transfer during this unit?"
+    "date": "2026-06-05",
+    "day": 20,
+    "unit": 7,
+    "title": "Unit Wrap-Up & Final Reflection",
+    "summary": "Reflection and cleanup.",
+    "details": "Have students dismantle and organize the kits. Do a low-stakes reflection on their favorite build.",
+    "type": "Activity",
+    "dok": 1,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "What was the most impactful concept learned about energy transfer during this unit?",
+    "standards": [
+      "HS-PS3-1"
+    ]
   },
   {
-    date: "2026-06-04",
-    day: 19,
-    unit: 7,
-    title: "Flex Day // Project Completion",
-    summary: "A flexible catches-up and final studio day to finish up projects.",
-    details: "A dedicated flexible studio day. Students utilize this time to finalize wiring, debug, and troubleshoot their Matching Game Boxes, DIY Speakers, or any outstanding labs before final submission.",
-    type: "Activity",
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How does engineering iteration and systematic troubleshooting lead to a polished final product?"
+    "date": "2026-06-04",
+    "day": 19,
+    "unit": 7,
+    "title": "Flex Day // Project Completion",
+    "summary": "A flexible catches-up and final studio day to finish up projects.",
+    "details": "A dedicated flexible studio day. Students utilize this time to finalize wiring, debug, and troubleshoot their Matching Game Boxes, DIY Speakers, or any outstanding labs before final submission.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How does engineering iteration and systematic troubleshooting lead to a polished final product?",
+    "standards": [
+      "HS-ETS1-3",
+      "HS-ETS1-4"
+    ]
   },
   {
-    date: "2026-06-03",
-    day: 18,
-    unit: 7,
-    title: "DIY Speaker Testing & Analysis",
-    summary: "Connect speakers to audio sources to test, measure, and analyze performance.",
-    details: "Students connect their DIY speakers to a function generator app or audio amplifier. They test the frequency response of their speakers, observe mechanical vibrations at different pitches, and analyze how voice coil windings and plate size affect amplitude and volume.",
-    type: "Lab",
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "What scientific variables determine the volume and frequency response of a homemade speaker?"
+    "date": "2026-06-03",
+    "day": 18,
+    "unit": 7,
+    "title": "DIY Speaker Testing & Analysis",
+    "summary": "Connect speakers to audio sources to test, measure, and analyze performance.",
+    "details": "Students connect their DIY speakers to a function generator app or audio amplifier. They test the frequency response of their speakers, observe mechanical vibrations at different pitches, and analyze how voice coil windings and plate size affect amplitude and volume.",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "What scientific variables determine the volume and frequency response of a homemade speaker?",
+    "standards": [
+      "HS-PS4-1",
+      "HS-PS4-5"
+    ]
   },
   {
-    date: "2026-06-02",
-    day: 17,
-    unit: 7,
-    title: "DIY Speaker Build",
-    summary: "Students construct an electromagnetic speaker from scratch using wire, plates, and magnets.",
-    details: "Students build their own functioning speaker using magnet wire, a paper plate, a strong neodymium magnet, and tape. They wind the voice coil, secure it to the plate, and position the permanent magnet to establish the magnetic field interface.",
-    type: "Lab",
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How do electrical signals and permanent magnets interact to create physical sound waves?"
+    "date": "2026-06-02",
+    "day": 17,
+    "unit": 7,
+    "title": "DIY Speaker Build",
+    "summary": "Students construct an electromagnetic speaker from scratch using wire, plates, and magnets.",
+    "details": "Students build their own functioning speaker using magnet wire, a paper plate, a strong neodymium magnet, and tape. They wind the voice coil, secure it to the plate, and position the permanent magnet to establish the magnetic field interface.",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do electrical signals and permanent magnets interact to create physical sound waves?",
+    "standards": [
+      "HS-PS2-5",
+      "HS-PS4-5"
+    ]
   },
   {
-    date: "2026-06-01",
-    day: 16,
-    unit: 7,
-    title: "Faraday & Lenz (Induction)",
-    summary: "Proving that a changing magnetic field creates a current.",
-    details: "If you have copper pipes and neodymium magnets, do the 'magnet falling slowly through a pipe' demo. Alternatively, pass a magnet back and forth through a coiled wire connected to a sensitive galvanometer. In the second half of class, students will begin prototyping their matching game boxes by mapping out logical electrical paths and wire layouts.",
-    type: "Activity",
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How can a changing magnetic environment induce an electrical current?",
-    links: {
+    "date": "2026-06-01",
+    "day": 16,
+    "unit": 7,
+    "title": "Faraday & Lenz (Induction)",
+    "summary": "Proving that a changing magnetic field creates a current.",
+    "details": "If you have copper pipes and neodymium magnets, do the 'magnet falling slowly through a pipe' demo. Alternatively, pass a magnet back and forth through a coiled wire connected to a sensitive galvanometer. In the second half of class, students will begin prototyping their matching game boxes by mapping out logical electrical paths and wire layouts.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How can a changing magnetic environment induce an electrical current?",
+    "links": {
       "Lecture Slides": "https://docs.google.com/presentation/d/1c1EjPrm7TfrSmSsvtHfzrf8WNQBMUz_fa2OsyMa1y-Y/edit?usp=sharing"
-    }
+    },
+    "standards": [
+      "HS-PS2-5"
+    ]
   },
   {
-    date: "2026-05-29",
-    day: 15,
-    unit: 7,
-    title: "Introduction to the \"Matching Game Box Project\"",
-    summary: "Introduction to the electromagnetism-based Matching Game Box Project.",
-    details: "Students are introduced to the Matching Game Box Project, where they will design and wire a custom game board. Review the project criteria and layout guidelines.",
-    type: "Activity",
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How can we apply circuit principles to design a multi-pathway electrical matching game?",
-    links: {
+    "date": "2026-05-29",
+    "day": 15,
+    "unit": 7,
+    "title": "Introduction to the \"Matching Game Box Project\"",
+    "summary": "Introduction to the electromagnetism-based Matching Game Box Project.",
+    "details": "Students are introduced to the Matching Game Box Project, where they will design and wire a custom game board. Review the project criteria and layout guidelines.",
+    "type": "Activity",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How can we apply circuit principles to design a multi-pathway electrical matching game?",
+    "links": {
       "Project Instructions": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQCsSySzcLnISaGhGr6Amqe-AYCUUUVxrg1-p0ZU8Iu2p8c?e=6JRJ1c",
       "Interactive: Simulator": "Unit_7_Electricity_and_Magnetism/Matching_Game_Box_Simulation.html"
     },
-    embed: "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQCsSySzcLnISaGhGr6Amqe-AYCUUUVxrg1-p0ZU8Iu2p8c?e=6JRJ1c&action=embedview"
+    "embed": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQCsSySzcLnISaGhGr6Amqe-AYCUUUVxrg1-p0ZU8Iu2p8c?e=6JRJ1c&action=embedview",
+    "standards": [
+      "HS-ETS1-1",
+      "HS-ETS1-2"
+    ]
   },
   {
-    date: "2026-05-28",
-    day: 14,
-    unit: 7,
-    title: "Tesla vs. Edison: War of the Currents",
-    summary: "A conceptual and historical comparison of Alternating Current (AC) and Direct Current (DC).",
-    details: "Watch the 'Tesla vs. Edison' video on EdPuzzle. Emphasize that this is a required EdPuzzle assignment with embedded check-for-understanding questions that will go directly into the gradebook.",
-    type: "Activity",
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "What were the key scientific and practical differences between Edison's DC system and Tesla's AC system?",
-    links: {
+    "date": "2026-05-28",
+    "day": 14,
+    "unit": 7,
+    "title": "Tesla vs. Edison: War of the Currents",
+    "summary": "A conceptual and historical comparison of Alternating Current (AC) and Direct Current (DC).",
+    "details": "Watch the 'Tesla vs. Edison' video on EdPuzzle. Emphasize that this is a required EdPuzzle assignment with embedded check-for-understanding questions that will go directly into the gradebook.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "What were the key scientific and practical differences between Edison's DC system and Tesla's AC system?",
+    "links": {
       "Tesla vs. Edison Video": "https://youtu.be/lFa8Wydalyw?si=Wj-EhHlgM7JpaPHE",
       "EdPuzzle Assignment": "https://edpuzzle.com"
-    }
+    },
+    "standards": [
+      "HS-PS4-5",
+      "HS-ESS3-2"
+    ]
   },
   {
-    date: "2026-05-27",
-    day: 13,
-    unit: 7,
-    title: "Lab: The Jumping Wire",
-    summary: "Observe how moving electric charges (current) create a magnetic field, and how that field interacts with other magnets to create a physical force.",
-    details: "Construct a circuit with a thin aluminum foil strip suspended over a permanent magnet. Briefly close the switch to observe the electromagnetic force ('jumping') acting on the wire. Test the effects of reversing current and flipping magnetic poles.",
-    type: "Lab",
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How do moving electric charges interact with magnetic fields to produce a physical force?",
-    links: {
+    "date": "2026-05-27",
+    "day": 13,
+    "unit": 7,
+    "title": "Lab: The Jumping Wire",
+    "summary": "Observe how moving electric charges (current) create a magnetic field, and how that field interacts with other magnets to create a physical force.",
+    "details": "Construct a circuit with a thin aluminum foil strip suspended over a permanent magnet. Briefly close the switch to observe the electromagnetic force ('jumping') acting on the wire. Test the effects of reversing current and flipping magnetic poles.",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do moving electric charges interact with magnetic fields to produce a physical force?",
+    "links": {
       "The Jumping Wire Lab Guide": "https://docs.google.com/document/d/1RqSFUnC39sCqbsYbOsCqsZj73Bzvo7FSJoWpjEDbueA/edit?usp=sharing"
     },
-    embed: "https://docs.google.com/document/d/1RqSFUnC39sCqbsYbOsCqsZj73Bzvo7FSJoWpjEDbueA/preview"
+    "embed": "https://docs.google.com/document/d/1RqSFUnC39sCqbsYbOsCqsZj73Bzvo7FSJoWpjEDbueA/preview",
+    "standards": [
+      "HS-PS2-5",
+      "HS-PS3-5"
+    ]
   },
   {
-    date: "2026-05-26",
-    day: 12,
-    unit: 7,
-    title: "Lab: Measuring Resistance",
-    summary: "Construct electrical circuits to measure voltage and current, and experimentally calculate resistance using Ohm's Law.",
-    details: "Using the EUDAX kits, wire resistors in series with ammeters and voltmeters. Measure voltage and current to calculate resistance, verifying Ohm's Law.",
-    type: "Lab",
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How can we experimentally determine the electrical resistance of a circuit component?",
-    links: {
+    "date": "2026-05-26",
+    "day": 12,
+    "unit": 7,
+    "title": "Lab: Measuring Resistance",
+    "summary": "Construct electrical circuits to measure voltage and current, and experimentally calculate resistance using Ohm's Law.",
+    "details": "Using the EUDAX kits, wire resistors in series with ammeters and voltmeters. Measure voltage and current to calculate resistance, verifying Ohm's Law.",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How can we experimentally determine the electrical resistance of a circuit component?",
+    "links": {
       "Lab Guide": "https://docs.google.com/document/d/1Z-SxsWJtH0KioUbKowQLXkdWQnZQqO-lhXS-XFW_dtg/edit?usp=sharing"
     },
-    embed: "https://docs.google.com/document/d/1Z-SxsWJtH0KioUbKowQLXkdWQnZQqO-lhXS-XFW_dtg/preview"
+    "embed": "https://docs.google.com/document/d/1Z-SxsWJtH0KioUbKowQLXkdWQnZQqO-lhXS-XFW_dtg/preview",
+    "standards": [
+      "HS-PS2-6"
+    ]
   },
   {
-    date: "2026-05-25",
-    day: 11,
-    unit: 7,
-    title: "No School - Memorial Day",
-    summary: "No School - Memorial Day Holiday.",
-    details: "No School - Memorial Day Holiday.",
-    type: "Activity",
-    dok: 1,
-    semester: 2,
-    isFeatured: false,
-    essentialQuestion: "No School - Memorial Day Holiday."
+    "date": "2026-05-25",
+    "day": 11,
+    "unit": 7,
+    "title": "No School - Memorial Day",
+    "summary": "No School - Memorial Day Holiday.",
+    "details": "No School - Memorial Day Holiday.",
+    "type": "Activity",
+    "dok": 1,
+    "semester": 2,
+    "isFeatured": false,
+    "essentialQuestion": "No School - Memorial Day Holiday."
   },
   {
-    date: "2026-05-22",
-    day: 10,
-    unit: 7,
-    title: "Parallel Circuit Construction & Analysis",
-    summary: "Understand multi-pathway circuits and why our homes are wired this way.",
-    details: "Wire the same bulbs in parallel. Compare brightness to Day 8. Observe that unscrewing one bulb does not affect the others.",
-    type: "Lab",
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "Why are parallel pathways more reliable for residential and industrial electrical grids?",
-    links: {
+    "date": "2026-05-22",
+    "day": 10,
+    "unit": 7,
+    "title": "Parallel Circuit Construction & Analysis",
+    "summary": "Understand multi-pathway circuits and why our homes are wired this way.",
+    "details": "Wire the same bulbs in parallel. Compare brightness to Day 8. Observe that unscrewing one bulb does not affect the others.",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "Why are parallel pathways more reliable for residential and industrial electrical grids?",
+    "links": {
       "Analysis Document": "https://docs.google.com/document/d/1h3akDW6z-lk6M_8thxP_pp1lSAwcWW9dsMuL149cEiQ/edit?usp=sharing"
-    }
+    },
+    "standards": [
+      "HS-PS3-1",
+      "HS-ETS1-2"
+    ]
   },
   {
-    date: "2026-05-21",
-    day: 9,
-    unit: 7,
-    title: "Series Circuits (The 'All or Nothing' Path)",
-    summary: "Understand single-pathway circuits and voltage drops.",
-    details: "Wire multiple bulbs and buzzers in series. Observe the dimming of bulbs (voltage drops) and what happens when one component is unscrewed. Measure cumulative voltage across components.",
-    type: "Lab",
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How does adding components in a single pathway affect the overall voltage and current in a system?",
-    links: {
+    "date": "2026-05-21",
+    "day": 9,
+    "unit": 7,
+    "title": "Series Circuits (The 'All or Nothing' Path)",
+    "summary": "Understand single-pathway circuits and voltage drops.",
+    "details": "Wire multiple bulbs and buzzers in series. Observe the dimming of bulbs (voltage drops) and what happens when one component is unscrewed. Measure cumulative voltage across components.",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How does adding components in a single pathway affect the overall voltage and current in a system?",
+    "links": {
       "Series Circuits Lab Guide": "https://docs.google.com/document/d/19saFSDiEkrrwfXqvs8RcJLT6ZN4E6EdARxewIaZ2v3A/edit?usp=sharing"
     },
-    embed: "https://docs.google.com/document/d/19saFSDiEkrrwfXqvs8RcJLT6ZN4E6EdARxewIaZ2v3A/preview"
+    "embed": "https://docs.google.com/document/d/19saFSDiEkrrwfXqvs8RcJLT6ZN4E6EdARxewIaZ2v3A/preview",
+    "standards": [
+      "HS-PS3-1"
+    ]
   },
   {
-    date: "2026-05-20",
-    day: 8,
-    unit: 7,
-    title: "Lab: Fruit Batteries (Continued)",
-    summary: "Completing our wet cell batteries using household items.",
-    details: "Finish generating a measurable voltage using lemons, potatoes, and apples with zinc/copper electrodes. Experiment with series vs. parallel combinations of fruit to increase output.",
-    type: "Lab",
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How can series and parallel combinations of chemical cells increase electrical output?",
-    links: {
+    "date": "2026-05-20",
+    "day": 8,
+    "unit": 7,
+    "title": "Lab: Fruit Batteries (Continued)",
+    "summary": "Completing our wet cell batteries using household items.",
+    "details": "Finish generating a measurable voltage using lemons, potatoes, and apples with zinc/copper electrodes. Experiment with series vs. parallel combinations of fruit to increase output.",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How can series and parallel combinations of chemical cells increase electrical output?",
+    "links": {
       "Lab Guide": "https://docs.google.com/document/d/1JqCjePXRHLkZDq3AIfAvVi-TEN4iSrhszef7YzSvbqg/edit?usp=sharing",
       "Fruit Battery Simulation": "Unit_7_Electricity_and_Magnetism/Fruit_Battery/Fruit_Battery_Simulation.html"
-    }
+    },
+    "standards": [
+      "HS-PS3-3"
+    ]
   },
   {
-    date: "2026-05-19",
-    day: 7,
-    unit: 7,
-    title: "Lab: Fruit Batteries",
-    summary: "Creating a functioning wet cell battery using household items.",
-    details: "Use lemons, potatoes, and apples with zinc/copper electrodes to generate a measurable voltage. Experiment with series vs. parallel combinations of fruit to increase output.",
-    type: "Lab",
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How can chemical reactions in everyday items be harnessed to create electrical energy?",
-    links: {
+    "date": "2026-05-19",
+    "day": 7,
+    "unit": 7,
+    "title": "Lab: Fruit Batteries",
+    "summary": "Creating a functioning wet cell battery using household items.",
+    "details": "Use lemons, potatoes, and apples with zinc/copper electrodes to generate a measurable voltage. Experiment with series vs. parallel combinations of fruit to increase output.",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How can chemical reactions in everyday items be harnessed to create electrical energy?",
+    "links": {
       "Lab Guide": "https://docs.google.com/document/d/1JqCjePXRHLkZDq3AIfAvVi-TEN4iSrhszef7YzSvbqg/edit?usp=sharing",
       "Fruit Battery Simulation": "Unit_7_Electricity_and_Magnetism/Fruit_Battery/Fruit_Battery_Simulation.html"
-    }
+    },
+    "standards": [
+      "HS-PS3-3",
+      "HS-PS1-4"
+    ]
   },
   {
-    date: "2026-05-18",
-    day: 6,
-    unit: 7,
-    title: "Voltage & Batteries (Conceptual Intro)",
-    summary: "Understand electric potential difference and how batteries store chemical energy.",
-    details: "Discuss how voltage acts as the 'push' for current. Test various batteries (AA, 9V, coin cell) using the EUDAX voltmeter to understand potential difference.",
-    type: "Activity",
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "What is voltage, and how do batteries provide the necessary 'push' for an electrical circuit?",
-    links: {
+    "date": "2026-05-18",
+    "day": 6,
+    "unit": 7,
+    "title": "Voltage & Batteries (Conceptual Intro)",
+    "summary": "Understand electric potential difference and how batteries store chemical energy.",
+    "details": "Discuss how voltage acts as the 'push' for current. Test various batteries (AA, 9V, coin cell) using the EUDAX voltmeter to understand potential difference.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "What is voltage, and how do batteries provide the necessary 'push' for an electrical circuit?",
+    "links": {
       "Reading Resource": "https://docs.google.com/document/d/1RngZHHhh-DNdu4tW6ifUW949sCGWyxFUEZ0UluMLgiE/edit?usp=sharing",
       "Fruit Battery Simulation": "Unit_7_Electricity_and_Magnetism/Fruit_Battery/Fruit_Battery_Simulation.html"
-    }
+    },
+    "standards": [
+      "HS-PS3-1"
+    ]
   },
   {
-    date: "2026-05-15",
-    day: 5,
-    unit: 7,
-    title: "Circuit Diagram Symbols & Virtual Lab",
-    summary: "Master the visual language of electronics using standard symbols and virtual simulations.",
-    details: "Learn to translate physical components into standard schematic symbols. Use the PhET DC Circuit Construction Kit to build virtual circuits and complete the guided analysis document.",
-    type: "Lab",
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "Why is a standardized visual language necessary for designing and troubleshooting electrical systems?",
-    links: {
-      'PhET Virtual Lab': 'https://phet.colorado.edu/en/simulations/circuit-construction-kit-dc-virtual-lab',
-      'Analysis Document': 'https://docs.google.com/document/d/1R2oaA7OXGS9rTVmTqJ1pqz9px860v6jGDGwirT3Z1Fs/edit?usp=sharing'
-    }
+    "date": "2026-05-15",
+    "day": 5,
+    "unit": 7,
+    "title": "Circuit Diagram Symbols & Virtual Lab",
+    "summary": "Master the visual language of electronics using standard symbols and virtual simulations.",
+    "details": "Learn to translate physical components into standard schematic symbols. Use the PhET DC Circuit Construction Kit to build virtual circuits and complete the guided analysis document.",
+    "type": "Lab",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "Why is a standardized visual language necessary for designing and troubleshooting electrical systems?",
+    "links": {
+      "PhET Virtual Lab": "https://phet.colorado.edu/en/simulations/circuit-construction-kit-dc-virtual-lab",
+      "Analysis Document": "https://docs.google.com/document/d/1R2oaA7OXGS9rTVmTqJ1pqz9px860v6jGDGwirT3Z1Fs/edit?usp=sharing"
+    },
+    "standards": [
+      "HS-PS2-6",
+      "HS-ETS1-2"
+    ]
   },
   {
-    date: "2026-05-14",
-    day: 4,
-    unit: 7,
-    title: "The Simple Circuit & Energy Flow",
-    summary: "Introduce EUDAX kits and the transition from static to dynamic electricity.",
-    details: "Build the simplest circuit: battery, switch, and lightbulb. Test materials for conductivity and discuss thermal energy dissipation (The Short).",
-    type: "Activity",
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "Why do some materials allow energy to flow freely while others block it?",
-    links: {
-      'Annotated Reading': 'https://docs.google.com/document/d/10cRWbSNLpgQLlJVKppLbAixq0uXjd6VhizD8L6oZ83w/edit?usp=sharing',
-      'Lighting a Bulb Lab': 'Unit_7_Electricity_and_Magnetism/Lighting_Light_Bulbs/Lighting_Light_Bulbs.html'
-    }
+    "date": "2026-05-14",
+    "day": 4,
+    "unit": 7,
+    "title": "The Simple Circuit & Energy Flow",
+    "summary": "Introduce EUDAX kits and the transition from static to dynamic electricity.",
+    "details": "Build the simplest circuit: battery, switch, and lightbulb. Test materials for conductivity and discuss thermal energy dissipation (The Short).",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "Why do some materials allow energy to flow freely while others block it?",
+    "links": {
+      "Annotated Reading": "https://docs.google.com/document/d/10cRWbSNLpgQLlJVKppLbAixq0uXjd6VhizD8L6oZ83w/edit?usp=sharing",
+      "Lighting a Bulb Lab": "Unit_7_Electricity_and_Magnetism/Lighting_Light_Bulbs/Lighting_Light_Bulbs.html"
+    },
+    "standards": [
+      "HS-PS2-6"
+    ]
   },
   {
-    date: "2026-05-13",
-    day: 3,
-    unit: 7,
-    title: "The Van de Graaff Spark & Annotated Reading",
-    summary: "Introduction to charge and fields through high-voltage experiments and literacy focus.",
-    details: "Run experiments with the Van de Graaff generator (hair standing, sparks, flying pie tins). Complete an annotated reading on Coulomb's Law and the concept of 'Action at a Distance'.",
-    type: "Lab",
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How do invisible electric fields interact with matter to create visible energy transfers?",
-    links: {
-      'Annotated Reading': 'https://docs.google.com/document/d/1sZa3-Rs5Z5VwNP0NrhcdVlkp_yHXZMGY0rN0QmRrf28/edit?usp=sharing',
-      'Interactive Module': 'Unit_7_Electricity_and_Magnetism/Unit7_Interactive_module.html'
-    }
+    "date": "2026-05-13",
+    "day": 3,
+    "unit": 7,
+    "title": "The Van de Graaff Spark & Annotated Reading",
+    "summary": "Introduction to charge and fields through high-voltage experiments and literacy focus.",
+    "details": "Run experiments with the Van de Graaff generator (hair standing, sparks, flying pie tins). Complete an annotated reading on Coulomb's Law and the concept of 'Action at a Distance'.",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do invisible electric fields interact with matter to create visible energy transfers?",
+    "links": {
+      "Annotated Reading": "https://docs.google.com/document/d/1sZa3-Rs5Z5VwNP0NrhcdVlkp_yHXZMGY0rN0QmRrf28/edit?usp=sharing",
+      "Interactive Module": "Unit_7_Electricity_and_Magnetism/Unit7_Interactive_module.html"
+    },
+    "standards": [
+      "HS-PS2-4"
+    ]
   },
   {
-    date: "2026-05-12",
-    day: 2,
-    unit: 7,
-    title: "Rocket Project Final Launch & Analysis",
-    summary: "Concluding the Rocketry unit with final stability testing and data collection.",
-    details: "Final launches and retrospective on design improvements made during the extension days.",
-    type: "Activity",
-    dok: 2,
-    semester: 2,
-    isFeatured: false,
-    essentialQuestion: "How do design iterations lead to more predictable engineering outcomes?"
+    "date": "2026-05-12",
+    "day": 2,
+    "unit": 7,
+    "title": "Rocket Project Final Launch & Analysis",
+    "summary": "Concluding the Rocketry unit with final stability testing and data collection.",
+    "details": "Final launches and retrospective on design improvements made during the extension days.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": false,
+    "essentialQuestion": "How do design iterations lead to more predictable engineering outcomes?",
+    "standards": [
+      "HS-ETS1-3"
+    ]
   },
   {
-    date: "2026-05-11",
-    day: 1,
-    unit: 7,
-    title: "Rocket Project Extension (Stability Improvements)",
-    summary: "Students iterate on their 2-liter bottle rocket designs to improve flight stability.",
-    details: "Focus on fin alignment, center of mass vs. center of pressure, and recovery systems. Final launch window extension.",
-    type: "Lab",
-    dok: 3,
-    semester: 2,
-    isFeatured: false,
-    essentialQuestion: "How does aerodynamic stability affect the flight path of a pressurized rocket?"
+    "date": "2026-05-11",
+    "day": 1,
+    "unit": 7,
+    "title": "Rocket Project Extension (Stability Improvements)",
+    "summary": "Students iterate on their 2-liter bottle rocket designs to improve flight stability.",
+    "details": "Focus on fin alignment, center of mass vs. center of pressure, and recovery systems. Final launch window extension.",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": false,
+    "essentialQuestion": "How does aerodynamic stability affect the flight path of a pressurized rocket?",
+    "standards": [
+      "HS-ETS1-2"
+    ]
   },
   {
-    date: "2026-05-05",
-    day: 26,
-    unit: 7,
-    title: "Virtual Rocket Design Lab (Sub Assignment)",
-    summary: "Independent simulation & mastery quiz. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
-    details: "Students will use the Virtual Rocket Lab to design, test, and stabilize a 2-liter bottle rocket. A 10-question debrief quiz follows the simulation. GRADING: This assignment is graded on accuracy (out of 20 points).",
-    type: "Lab",
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How do the Center of Mass and Center of Pressure determine the stability of a rocket?",
-    links: {
+    "date": "2026-05-05",
+    "day": 26,
+    "unit": 7,
+    "title": "Virtual Rocket Design Lab (Sub Assignment)",
+    "summary": "Independent simulation & mastery quiz. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
+    "details": "Students will use the Virtual Rocket Lab to design, test, and stabilize a 2-liter bottle rocket. A 10-question debrief quiz follows the simulation. GRADING: This assignment is graded on accuracy (out of 20 points).",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do the Center of Mass and Center of Pressure determine the stability of a rocket?",
+    "links": {
       "Interactive: Virtual Rocket Lab": "2-Liter_Bottle_Rockets/Virtual_Rocket_Lab/Virtual_Rocket_Design_Lab.html"
-    }
-  },
-
-  // --- Unit 6: Waves and Electromagnetic Radiation ---
-  {
-    date: "2026-05-01",
-    day: 25,
-    unit: 6,
-    title: "Unit 6 Summative Assessment",
-    summary: "Comprehensive assessment covering mechanical waves, EM radiation, and signal technology.",
-    details: "Final unit exam covering all major concepts from the past 5 weeks including the wave equation, interference, the EM spectrum, and digital/analog signals.",
-    type: "Assessment",
-    dok: 4,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How do we demonstrate mastery of wave properties, electromagnetic radiation, and information technology?"
+    },
+    "standards": [
+      "HS-ETS1-2"
+    ]
   },
   {
-    date: "2026-04-30",
-    day: 24,
-    unit: 6,
-    title: "Unit 6 Review Day",
-    summary: "Collaborative review session covering the full unit curriculum.",
-    details: "Students rotate through review stations focusing on math practice, vocabulary mastery, and conceptual modeling in preparation for the summative assessment.",
-    type: "Activity",
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How can we synthesize our understanding of waves and radiation to prepare for the final evaluation?"
+    "date": "2026-05-01",
+    "day": 25,
+    "unit": 6,
+    "title": "Unit 6 Summative Assessment",
+    "summary": "Comprehensive assessment covering mechanical waves, EM radiation, and signal technology.",
+    "details": "Final unit exam covering all major concepts from the past 5 weeks including the wave equation, interference, the EM spectrum, and digital/analog signals.",
+    "type": "Assessment",
+    "dok": 4,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do we demonstrate mastery of wave properties, electromagnetic radiation, and information technology?",
+    "standards": [
+      "HS-PS4-1",
+      "HS-PS4-2",
+      "HS-PS4-3",
+      "HS-PS4-4",
+      "HS-PS4-5"
+    ]
   },
   {
-    date: "2026-04-29",
-    day: 23,
-    unit: 6,
-    title: "Wave Signal Analysis Lab",
-    summary: "Interactive simulation: Signal creation, noise recovery, and sampling.",
-    details: "Students act as signal engineers to explore the physics of communication. Tasks include drawing analog/digital waves, recovering original signals from 'extreme' noise environments, and analyzing how sampling rates impact digital resolution.",
-    type: "Lab",
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "Why are digital signals more robust against interference (noise) than analog signals?",
-    links: {
+    "date": "2026-04-30",
+    "day": 24,
+    "unit": 6,
+    "title": "Unit 6 Review Day",
+    "summary": "Collaborative review session covering the full unit curriculum.",
+    "details": "Students rotate through review stations focusing on math practice, vocabulary mastery, and conceptual modeling in preparation for the summative assessment.",
+    "type": "Activity",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How can we synthesize our understanding of waves and radiation to prepare for the final evaluation?",
+    "standards": [
+      "HS-PS4-1",
+      "HS-PS4-2",
+      "HS-PS4-5"
+    ]
+  },
+  {
+    "date": "2026-04-29",
+    "day": 23,
+    "unit": 6,
+    "title": "Wave Signal Analysis Lab",
+    "summary": "Interactive simulation: Signal creation, noise recovery, and sampling.",
+    "details": "Students act as signal engineers to explore the physics of communication. Tasks include drawing analog/digital waves, recovering original signals from 'extreme' noise environments, and analyzing how sampling rates impact digital resolution.",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "Why are digital signals more robust against interference (noise) than analog signals?",
+    "links": {
       "Interactive: Wave Signals Lab": "Unit_6_Waves_Radiation/Wave_Signals/Wave_signals.html"
-    }
+    },
+    "standards": [
+      "HS-PS4-2",
+      "HS-PS4-5"
+    ]
   },
   {
-    date: "2026-04-28",
-    day: 22,
-    unit: 6,
-    title: "The Digital Revolution",
-    summary: "Independent WebQuest: Mapping the shift from analog to digital tech.",
-    details: "Silent independent work day. Students research how technology changed from TV antennas and cassette tapes to fiber optics and streaming.",
-    type: "Activity",
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How has the transition from analog to digital technology changed the way we share information?",
-    links: {
+    "date": "2026-04-28",
+    "day": 22,
+    "unit": 6,
+    "title": "The Digital Revolution",
+    "summary": "Independent WebQuest: Mapping the shift from analog to digital tech.",
+    "details": "Silent independent work day. Students research how technology changed from TV antennas and cassette tapes to fiber optics and streaming.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How has the transition from analog to digital technology changed the way we share information?",
+    "links": {
       "Interactive: Signals Reference": "Unit_6_Waves_Radiation/Signals_reference/Signals_Reference.html",
       "WebQuest: Digital Revolution": "https://docs.google.com/document/d/1Bl6WI0cS01nbkmJR3nSa5d2htQ_8-ugwACPnsnmacHQ/edit?usp=sharing"
-    }
-  },
-  {
-    date: "2026-04-27",
-    day: 21,
-    unit: 6,
-    title: "Introduction to Signals",
-    summary: "AVID Annotated Reading & Vocabulary: Analog vs. Digital.",
-    details: "Students evaluate the core differences between continuous wave energy (Analog) and pulse-based encoding (Digital) through a structured AVID annotation process.",
-    type: "Activity",
-    links: { 
-      "Reading: Intro to Signals": "https://docs.google.com/document/d/1tJt_5sCD5xCK7sU6Ngt42QMbGeT4arcFUetXcozQR8k/edit?usp=sharing",
-      "Interactive AVID Notebook": "Unit_6_Waves_Radiation/Interactive_AVID_Notebook_Signals/signals.html" 
     },
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How do we convert wave energy into information that can be sent over long distances?",
-    wicor: {
-      reading: "Critical Reading: Marking the text for signal patterns.",
-      writing: "3-word Gist summaries for each paragraph.",
-      organization: "Bilingual Venn Diagram comparison."
-    }
+    "standards": [
+      "HS-PS4-2",
+      "HS-PS4-5"
+    ]
   },
   {
-    date: "2026-04-24",
-    day: 20,
-    unit: 6,
-    title: "Spectrum City: Final Master Plan",
-    summary: "Project Completion: Finalizing hazard maps & EM Rapid Review.",
-    details: "Students complete their Spectrum City Hazard Maps, ensuring all district interactions are modeled. Following project submission, students perform the EM Spectrum Rapid Review assessment.",
-    type: "Assessment",
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How do the physical properties of the EM spectrum determine its real-world hazards and applications?",
-    links: {
+    "date": "2026-04-27",
+    "day": 21,
+    "unit": 6,
+    "title": "Introduction to Signals",
+    "summary": "AVID Annotated Reading & Vocabulary: Analog vs. Digital.",
+    "details": "Students evaluate the core differences between continuous wave energy (Analog) and pulse-based encoding (Digital) through a structured AVID annotation process.",
+    "type": "Activity",
+    "links": {
+      "Reading: Intro to Signals": "https://docs.google.com/document/d/1tJt_5sCD5xCK7sU6Ngt42QMbGeT4arcFUetXcozQR8k/edit?usp=sharing",
+      "Interactive AVID Notebook": "Unit_6_Waves_Radiation/Interactive_AVID_Notebook_Signals/signals.html"
+    },
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do we convert wave energy into information that can be sent over long distances?",
+    "wicor": {
+      "reading": "Critical Reading: Marking the text for signal patterns.",
+      "writing": "3-word Gist summaries for each paragraph.",
+      "organization": "Bilingual Venn Diagram comparison."
+    },
+    "standards": [
+      "HS-PS4-2",
+      "HS-PS4-5"
+    ]
+  },
+  {
+    "date": "2026-04-24",
+    "day": 20,
+    "unit": 6,
+    "title": "Spectrum City: Final Master Plan",
+    "summary": "Project Completion: Finalizing hazard maps & EM Rapid Review.",
+    "details": "Students complete their Spectrum City Hazard Maps, ensuring all district interactions are modeled. Following project submission, students perform the EM Spectrum Rapid Review assessment.",
+    "type": "Assessment",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do the physical properties of the EM spectrum determine its real-world hazards and applications?",
+    "links": {
       "Spectrum City Map": "Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html",
       "EM Rapid Review": "Unit_6_Waves_Radiation/EM_Spectrum_Rapid_Review/index.html"
-    }
+    },
+    "standards": [
+      "HS-PS4-4",
+      "HS-PS4-5"
+    ]
   },
   {
-    date: "2026-04-23",
-    day: 19,
-    unit: 6,
-    title: "Spectrum City: Final Review",
-    summary: "Finalizing hazard maps and preparing for Rapid Fire sequencing.",
-    details: "Synthesizing EM relationships (Energy vs Wavelength) to complete the Spectrum City master plan.",
-    type: "Activity",
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "What experimental evidence confirms that light behaves like a wave?",
-    links: { 
+    "date": "2026-04-23",
+    "day": 19,
+    "unit": 6,
+    "title": "Spectrum City: Final Review",
+    "summary": "Finalizing hazard maps and preparing for Rapid Fire sequencing.",
+    "details": "Synthesizing EM relationships (Energy vs Wavelength) to complete the Spectrum City master plan.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "What experimental evidence confirms that light behaves like a wave?",
+    "links": {
       "Project: Spectrum City Map": "Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html",
       "EM Spectrum Rapid Review": "Unit_6_Waves_Radiation/EM_Spectrum_Rapid_Review/index.html"
-    }
+    },
+    "standards": [
+      "HS-PS4-3"
+    ]
   },
   {
-    date: "2026-04-22",
-    day: 18,
-    unit: 6,
-    title: "Spectrum City: Hazard Quantification",
-    summary: "Modeling wave interactions and calculating biological hazard levels. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
-    details: "Quantifying how ionizing radiation (UV, X-ray, Gamma) interacts with cellular tissue in the city's high-energy districts.",
-    type: "Activity",
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "What makes certain frequencies of the EM spectrum hazardous to living tissue?",
-    links: { 
+    "date": "2026-04-22",
+    "day": 18,
+    "unit": 6,
+    "title": "Spectrum City: Hazard Quantification",
+    "summary": "Modeling wave interactions and calculating biological hazard levels. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
+    "details": "Quantifying how ionizing radiation (UV, X-ray, Gamma) interacts with cellular tissue in the city's high-energy districts.",
+    "type": "Activity",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "What makes certain frequencies of the EM spectrum hazardous to living tissue?",
+    "links": {
       "Spectrum City Project": "Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html",
       "EM Spectrum Rapid Review": "Unit_6_Waves_Radiation/EM_Spectrum_Rapid_Review/index.html"
-    }
+    },
+    "standards": [
+      "HS-PS4-4"
+    ]
   },
   {
-    date: "2026-04-21",
-    day: 17,
-    unit: 6,
-    title: "Spectrum City: District Zoning",
-    summary: "Mapping architectural zones across the 7 EM regions. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
-    details: "Zoning Spectrum City based on material absorption, reflection, and transmission properties.",
-    type: "Activity",
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "What determines whether a material will absorb or transmit a specific frequency of light?",
-    links: { 
+    "date": "2026-04-21",
+    "day": 17,
+    "unit": 6,
+    "title": "Spectrum City: District Zoning",
+    "summary": "Mapping architectural zones across the 7 EM regions. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
+    "details": "Zoning Spectrum City based on material absorption, reflection, and transmission properties.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "What determines whether a material will absorb or transmit a specific frequency of light?",
+    "links": {
       "Spectrum City Project": "Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html"
-    }
+    },
+    "standards": [
+      "HS-PS4-4",
+      "HS-PS4-5"
+    ]
   },
   {
-    date: "2026-04-20",
-    day: 16,
-    unit: 6,
-    title: "Hubble's Law Lab",
-    summary: "Analyzing the expanding universe through the Doppler shift of light. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
-    details: "Using galactic redshift data to calculate the expansion rate (Hubble's Constant) and exploring evidence for the Big Bang.",
-    type: "Lab",
-    links: { 
+    "date": "2026-04-20",
+    "day": 16,
+    "unit": 6,
+    "title": "Hubble's Law Lab",
+    "summary": "Analyzing the expanding universe through the Doppler shift of light. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
+    "details": "Using galactic redshift data to calculate the expansion rate (Hubble's Constant) and exploring evidence for the Big Bang.",
+    "type": "Lab",
+    "links": {
       "Hubble's Law Lab": "Unit_6_Waves_Radiation/The_Big_Bang/Hubbles_Law.html",
       "Spectrum City Map": "Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html"
     },
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How does the Doppler shift of light provide evidence for the expansion of the universe?"
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How does the Doppler shift of light provide evidence for the expansion of the universe?",
+    "standards": [
+      "HS-ESS1-2",
+      "HS-PS4-2"
+    ]
   },
   {
-    date: "2026-04-17",
-    day: 15,
-    unit: 6,
-    title: "Week 3 Quiz: Sound & EM Foundations",
-    summary: "Assessment on the Doppler Effect and basic EM spectrum properties.",
-    details: "Summative check for understanding covering acoustic shifts and the organization of the EM spectrum.",
-    type: "Assessment",
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How well can we apply Doppler principles and identify regions of the EM spectrum?"
+    "date": "2026-04-17",
+    "day": 15,
+    "unit": 6,
+    "title": "Week 3 Quiz: Sound & EM Foundations",
+    "summary": "Assessment on the Doppler Effect and basic EM spectrum properties.",
+    "details": "Summative check for understanding covering acoustic shifts and the organization of the EM spectrum.",
+    "type": "Assessment",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How well can we apply Doppler principles and identify regions of the EM spectrum?",
+    "standards": [
+      "HS-PS4-1",
+      "HS-PS4-4"
+    ]
   },
   {
-    date: "2026-04-16",
-    day: 14,
-    unit: 6,
-    title: "EM Spectrum Comic Poster",
-    summary: "Design a superhero/villain based on a specific EM region.",
-    details: "Mapping physical properties (wavelength, frequency, energy) to character abilities, hazards, and weaknesses.",
-    type: "Activity",
-    links: { "Comic Poster Instructions": "https://docs.google.com/document/d/1JMt2gsKlaqpJWbMAr52scifNDr8ydx_todBrnqLMhyQ/edit?usp=sharing" },
-    image: "Unit_6_Waves_Radiation/Comic_Book_EM/Examples.png",
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How are the regions of the EM spectrum organized by energy and wavelength?",
-    links: { 
-        "Spectrum City Project": "Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html",
-        "Comic Poster Instructions": "https://docs.google.com/document/d/1JMt2gsKlaqpJWbMAr52scifNDr8ydx_todBrnqLMhyQ/edit?usp=sharing",
-        "EM Spectrum Rapid Review": "Unit_6_Waves_Radiation/EM_Spectrum_Rapid_Review/index.html"
-    }
+    "date": "2026-04-16",
+    "day": 14,
+    "unit": 6,
+    "title": "EM Spectrum Comic Poster",
+    "summary": "Design a superhero/villain based on a specific EM region.",
+    "details": "Mapping physical properties (wavelength, frequency, energy) to character abilities, hazards, and weaknesses.",
+    "type": "Activity",
+    "links": {
+      "Spectrum City Project": "Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html",
+      "Comic Poster Instructions": "https://docs.google.com/document/d/1JMt2gsKlaqpJWbMAr52scifNDr8ydx_todBrnqLMhyQ/edit?usp=sharing",
+      "EM Spectrum Rapid Review": "Unit_6_Waves_Radiation/EM_Spectrum_Rapid_Review/index.html"
+    },
+    "image": "Unit_6_Waves_Radiation/Comic_Book_EM/Examples.png",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How are the regions of the EM spectrum organized by energy and wavelength?",
+    "standards": [
+      "HS-PS4-4"
+    ]
   },
   {
-    date: "2026-04-15",
-    day: 13,
-    unit: 6,
-    title: "The Nature of Light",
-    summary: "Introduction to EM waves (no medium required) and the constant speed c.",
-    details: "Understanding light as an oscillation of electric and magnetic fields and comparing its behavior to mechanical sound waves.",
-    type: "Activity",
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "Why does light not require a physical medium to travel through space?",
-    links: { "EM Spectrum Explorer": "Unit_6_Waves_Radiation/EM_Spectrum/EM_Spectrum.html" }
+    "date": "2026-04-15",
+    "day": 13,
+    "unit": 6,
+    "title": "The Nature of Light",
+    "summary": "Introduction to EM waves (no medium required) and the constant speed c.",
+    "details": "Understanding light as an oscillation of electric and magnetic fields and comparing its behavior to mechanical sound waves.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "Why does light not require a physical medium to travel through space?",
+    "links": {
+      "EM Spectrum Explorer": "Unit_6_Waves_Radiation/EM_Spectrum/EM_Spectrum.html"
+    },
+    "standards": [
+      "HS-PS4-3",
+      "HS-PS4-4"
+    ]
   },
   {
-    date: "2026-04-14",
-    day: 12,
-    unit: 6,
-    title: "The Doppler Effect & Sonic Booms",
-    summary: "Visualizing the Doppler Effect using the Doppler Detective Simulation.",
-    details: "Deep dive into stationary vs. moving observers, sonic booms (breaking the sound barrier), and everyday examples of acoustic frequency shifts.",
-    type: "Activity",
-    links: { "Doppler Detective Sim": "Unit_6_Waves_Radiation/Doppler_Detective/Doppler_Detective.html" },
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "What causes the 'sonic boom' when an object travels faster than the speed of sound?"
+    "date": "2026-04-14",
+    "day": 12,
+    "unit": 6,
+    "title": "The Doppler Effect & Sonic Booms",
+    "summary": "Visualizing the Doppler Effect using the Doppler Detective Simulation.",
+    "details": "Deep dive into stationary vs. moving observers, sonic booms (breaking the sound barrier), and everyday examples of acoustic frequency shifts.",
+    "type": "Activity",
+    "links": {
+      "Doppler Detective Sim": "Unit_6_Waves_Radiation/Doppler_Detective/Doppler_Detective.html"
+    },
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "What causes the 'sonic boom' when an object travels faster than the speed of sound?",
+    "standards": [
+      "HS-PS4-1",
+      "HS-PS4-2"
+    ]
   },
   {
-    date: "2026-04-13",
-    day: 11,
-    unit: 6,
-    title: "Physics of Sound & Moving Sources",
-    summary: "Exploring longitudinal waves with the Speed of Sound Lab.",
-    details: "Focusing on sound as a mechanical longitudinal wave and introducing how movement of the source or observer begins to compress or stretch wavefronts.",
-    type: "Activity",
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How does the relative motion of a sound source change the way we perceive its frequency?",
-    links: { "Speed of Sound Lab": "Unit_6_Waves_Radiation/Sound_waves/Speed_of_sound.html" }
+    "date": "2026-04-13",
+    "day": 11,
+    "unit": 6,
+    "title": "Physics of Sound & Moving Sources",
+    "summary": "Exploring longitudinal waves with the Speed of Sound Lab.",
+    "details": "Focusing on sound as a mechanical longitudinal wave and introducing how movement of the source or observer begins to compress or stretch wavefronts.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How does the relative motion of a sound source change the way we perceive its frequency?",
+    "links": {
+      "Speed of Sound Lab": "Unit_6_Waves_Radiation/Sound_waves/Speed_of_sound.html"
+    },
+    "standards": [
+      "HS-PS4-1",
+      "HS-PS4-2"
+    ]
   },
   {
-    date: "2026-04-10",
-    day: 10,
-    unit: 6,
-    title: "Interference Lab/Activity",
-    summary: "Hands-on station work with ripple tanks or sound interference apps.",
-    details: "Practical application and observation of interference patterns.",
-    type: "Lab",
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How can we experimentally verify the principle of superposition?",
-    links: { "Rapid Review Game": "Unit_6_Waves_Radiation/Review_Game/index.html" }
+    "date": "2026-04-10",
+    "day": 10,
+    "unit": 6,
+    "title": "Interference Lab/Activity",
+    "summary": "Hands-on station work with ripple tanks or sound interference apps.",
+    "details": "Practical application and observation of interference patterns.",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How can we experimentally verify the principle of superposition?",
+    "links": {
+      "Rapid Review Game": "Unit_6_Waves_Radiation/Review_Game/index.html"
+    },
+    "standards": [
+      "HS-PS4-1",
+      "HS-PS4-3"
+    ]
   },
   {
-    date: "2026-04-09",
-    day: 9,
-    unit: 6,
-    title: "Standing Waves & Ruben's Tube",
-    summary: "Modeling standing waves and nodes using fire and sound in the Ruben's Tube demonstration.",
-    details: "Physics of musical instruments, harmonics, and natural frequency. Demonstrating standing waves with the Ruben's Tube.",
-    type: "Activity",
-    links: { "Ruben's Tube Simulator": "Unit_6_Waves_Radiation/Rubens_Tube_Sim/Rubens_Tube_Sim.html" },
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How do standing waves and resonance explain the physics of music?",
-    wicor: {
-      inquiry: "Ruben's Tube Demo: Visualizing nodes and antinodes using flammable gas and acoustic pressure.",
-      writing: "CER Statement: How does changing frequency affect the number of fire peaks?",
-      collaboration: "Harmonics Mapping: Group identification of node locations."
-    }
+    "date": "2026-04-09",
+    "day": 9,
+    "unit": 6,
+    "title": "Standing Waves & Ruben's Tube",
+    "summary": "Modeling standing waves and nodes using fire and sound in the Ruben's Tube demonstration.",
+    "details": "Physics of musical instruments, harmonics, and natural frequency. Demonstrating standing waves with the Ruben's Tube.",
+    "type": "Activity",
+    "links": {
+      "Ruben's Tube Simulator": "Unit_6_Waves_Radiation/Rubens_Tube_Sim/Rubens_Tube_Sim.html"
+    },
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do standing waves and resonance explain the physics of music?",
+    "wicor": {
+      "inquiry": "Ruben's Tube Demo: Visualizing nodes and antinodes using flammable gas and acoustic pressure.",
+      "writing": "CER Statement: How does changing frequency affect the number of fire peaks?",
+      "collaboration": "Harmonics Mapping: Group identification of node locations."
+    },
+    "standards": [
+      "HS-PS4-1"
+    ]
   },
   {
-    date: "2026-04-08",
-    day: 8,
-    unit: 6,
-    title: "Constructive vs. Destructive Interference",
-    summary: "Mapping 'dead spots' and 'loud spots' in sound and light.",
-    details: "Detailed study of phase relationships and their effect on wave amplitude.",
-    type: "Activity",
-    links: { 
+    "date": "2026-04-08",
+    "day": 8,
+    "unit": 6,
+    "title": "Constructive vs. Destructive Interference",
+    "summary": "Mapping 'dead spots' and 'loud spots' in sound and light.",
+    "details": "Detailed study of phase relationships and their effect on wave amplitude.",
+    "type": "Activity",
+    "links": {
       "Wave Interference Tutorial": "Unit_6_Waves_Radiation/Wave_Interference_Tutorial/Wave_Interference_tutorial.html",
       "Wave Interference & Beats": "Unit_6_Waves_Radiation/Wave_Beat_Generator/Wave_Beat_Generator.html",
       "Lesson Slides: Phase & Interference": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQBTUZf19lWfSK5U3EdpOBeAAaDCdeqiOiYePW5FTtIJU8Q?e=y7gOye"
     },
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How do phase differences lead to constructive and destructive interference?"
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do phase differences lead to constructive and destructive interference?",
+    "standards": [
+      "HS-PS4-1",
+      "HS-PS4-3"
+    ]
   },
   {
-    date: "2026-04-07",
-    day: 7,
-    unit: 6,
-    title: "Diffraction & Interference",
-    summary: "Waves bending around obstacles and the Principle of Superposition.",
-    details: "Investigating how waves interact and combine when they occupy the same space.",
-    type: "Activity",
-    links: { 
+    "date": "2026-04-07",
+    "day": 7,
+    "unit": 6,
+    "title": "Diffraction & Interference",
+    "summary": "Waves bending around obstacles and the Principle of Superposition.",
+    "details": "Investigating how waves interact and combine when they occupy the same space.",
+    "type": "Activity",
+    "links": {
       "Wave Diffraction Lab": "Unit_6_Waves_Radiation/Diffraction_tutorial/Diffraction_tutorial.html",
       "Wavefront Simulations": "Unit_6_Waves_Radiation/Wavefront_simulations/Wavefront_Simulations.html"
     },
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "What happens when two or more waves overlap in the same medium?"
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "What happens when two or more waves overlap in the same medium?",
+    "standards": [
+      "HS-PS4-1",
+      "HS-PS4-3"
+    ]
   },
   {
-    date: "2026-04-06",
-    day: 6,
-    unit: 6,
-    title: "Boundary Behaviors",
-    summary: "Reading: Wave Interactions & WaveMaster Lab Exploration",
-    details: "Students analyze wave behavior via an AVID Close Reading assignment and explore reflection/refraction using the interactive WaveMaster Lab.",
-    type: "Activity",
-    links: { 
+    "date": "2026-04-06",
+    "day": 6,
+    "unit": 6,
+    "title": "Boundary Behaviors",
+    "summary": "Reading: Wave Interactions & WaveMaster Lab Exploration",
+    "details": "Students analyze wave behavior via an AVID Close Reading assignment and explore reflection/refraction using the interactive WaveMaster Lab.",
+    "type": "Activity",
+    "links": {
       "Reading: Wave Interactions": "https://docs.google.com/document/d/1e_JUg_6KbCQ4vhj7HWrtcr0wjPWAvbpgNW7U9wViWbE/edit?usp=sharing",
       "WaveMaster Lab": "Unit_6_Waves_Radiation/WaveMaster_Lab/wavemaster_lab.html"
     },
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How does the medium determine whether a wave reflects or refracts at a boundary?",
-    wicor: {
-      reading: "Close Reading: Marking the text for Reflection, Refraction, Diffraction, and Absorption.",
-      writing: "Summary: Distinguishing between boundary behaviors in different media.",
-      organization: "Comparison Matrix for wave behaviors."
-    }
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How does the medium determine whether a wave reflects or refracts at a boundary?",
+    "wicor": {
+      "reading": "Close Reading: Marking the text for Reflection, Refraction, Diffraction, and Absorption.",
+      "writing": "Summary: Distinguishing between boundary behaviors in different media.",
+      "organization": "Comparison Matrix for wave behaviors."
+    },
+    "standards": [
+      "HS-PS4-1",
+      "HS-PS4-3"
+    ]
   },
   {
-    date: "2026-03-27",
-    day: 5,
-    unit: 6,
-    title: "Week 1 Review & Quiz",
-    summary: "Assessment on wave anatomy and basic calculations.",
-    details: "Summative check on wave properties and the wave equation.",
-    type: "Assessment",
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How well can we model and calculate basic wave properties?",
-    wicor: {
-      writing: "Self-Reflection: Which wave concept is most challenging so far?",
-      organization: "Flashcard review for wave vocabulary.",
-      collaboration: "Peer-grading of the Week 1 Review Set."
-    }
+    "date": "2026-03-27",
+    "day": 5,
+    "unit": 6,
+    "title": "Week 1 Review & Quiz",
+    "summary": "Assessment on wave anatomy and basic calculations.",
+    "details": "Summative check on wave properties and the wave equation.",
+    "type": "Assessment",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How well can we model and calculate basic wave properties?",
+    "wicor": {
+      "writing": "Self-Reflection: Which wave concept is most challenging so far?",
+      "organization": "Flashcard review for wave vocabulary.",
+      "collaboration": "Peer-grading of the Week 1 Review Set."
+    },
+    "standards": [
+      "HS-PS4-1"
+    ]
   },
   {
-    date: "2026-03-26",
-    day: 4,
-    unit: 6,
-    title: "Period and Frequency",
-    summary: "Exploring the inverse relationship (T = 1/f); Simple harmonic motion basics.",
-    details: "Understanding the relationship between the time for one cycle and the number of cycles per second.",
-    type: "Activity",
-    dok: 1,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "What is the inverse relationship between the period and frequency of a wave?",
-    links: { "Pendulum Mastery Lab": "Unit_6_Waves_Radiation/pendulum_lab/index.html" },
-    wicor: {
-      inquiry: "Pendulum Swing: Measuring time for 10 swings vs. swings per second.",
-      writing: "Summary: Explaining why T = 1/f makes sense using physical units.",
-      organization: "Graphic Organizer: Period vs. Frequency."
-    }
+    "date": "2026-03-26",
+    "day": 4,
+    "unit": 6,
+    "title": "Period and Frequency",
+    "summary": "Exploring the inverse relationship (T = 1/f); Simple harmonic motion basics.",
+    "details": "Understanding the relationship between the time for one cycle and the number of cycles per second.",
+    "type": "Activity",
+    "dok": 1,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "What is the inverse relationship between the period and frequency of a wave?",
+    "links": {
+      "Pendulum Mastery Lab": "Unit_6_Waves_Radiation/pendulum_lab/index.html"
+    },
+    "wicor": {
+      "inquiry": "Pendulum Swing: Measuring time for 10 swings vs. swings per second.",
+      "writing": "Summary: Explaining why T = 1/f makes sense using physical units.",
+      "organization": "Graphic Organizer: Period vs. Frequency."
+    },
+    "standards": [
+      "HS-PS4-1"
+    ]
   },
   {
-    date: "2026-03-25",
-    day: 3,
-    unit: 6,
-    title: "The Wave Equation",
-    summary: "Practicing calculations for wave speed, frequency, and wavelength.",
-    details: "Applying the fundamental wave equation v = fλ to various scenarios.",
-    type: "Practice",
-    links: { "Frequency...Practice 'til it Hertz": "Unit_6_Waves_Radiation/frequency_calculator/index.html" },
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How can we mathematically relate wave speed, frequency, and wavelength?",
-    wicor: {
-      writing: "Variable Mapping: Defining v, f, and λ with units.",
-      organization: "The Formula Triangle for v = fλ.",
-      inquiry: "Predicting how doubling frequency affects wavelength if speed is constant."
-    }
+    "date": "2026-03-25",
+    "day": 3,
+    "unit": 6,
+    "title": "The Wave Equation",
+    "summary": "Practicing calculations for wave speed, frequency, and wavelength.",
+    "details": "Applying the fundamental wave equation v = fλ to various scenarios.",
+    "type": "Practice",
+    "links": {
+      "Frequency...Practice 'til it Hertz": "Unit_6_Waves_Radiation/frequency_calculator/index.html"
+    },
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How can we mathematically relate wave speed, frequency, and wavelength?",
+    "wicor": {
+      "writing": "Variable Mapping: Defining v, f, and λ with units.",
+      "organization": "The Formula Triangle for v = fλ.",
+      "inquiry": "Predicting how doubling frequency affects wavelength if speed is constant."
+    },
+    "standards": [
+      "HS-PS4-1"
+    ]
   },
   {
-    date: "2026-03-24",
-    day: 2,
-    unit: 6,
-    title: "Wave Types: Transverse vs. Longitudinal",
-    summary: "Modeling particle motion using slinkies or simulations.",
-    details: "Distinguishing between transverse waves (perpendicular motion) and longitudinal waves (parallel motion/compressions).",
-    type: "Activity",
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How does the direction of particle motion distinguish transverse from longitudinal waves?",
-    links: {
+    "date": "2026-03-24",
+    "day": 2,
+    "unit": 6,
+    "title": "Wave Types: Transverse vs. Longitudinal",
+    "summary": "Modeling particle motion using slinkies or simulations.",
+    "details": "Distinguishing between transverse waves (perpendicular motion) and longitudinal waves (parallel motion/compressions).",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How does the direction of particle motion distinguish transverse from longitudinal waves?",
+    "links": {
       "Simulation: Wave Measurement": "wave_measurement_simulation.html"
     },
-    wicor: {
-      inquiry: "Modeling particle motion with human 'stadium waves' vs. 'domino lines'.",
-      collaboration: "Think-Pair-Share: Which wave type better models sound in air?",
-      reading: "Venn Diagram comparing transverse and longitudinal properties."
-    }
+    "wicor": {
+      "inquiry": "Modeling particle motion with human 'stadium waves' vs. 'domino lines'.",
+      "collaboration": "Think-Pair-Share: Which wave type better models sound in air?",
+      "reading": "Venn Diagram comparing transverse and longitudinal properties."
+    },
+    "standards": [
+      "HS-PS4-1"
+    ]
   },
   {
-    date: "2026-03-23",
-    day: 1,
-    unit: 6,
-    title: "Intro to Waves: Energy in Motion",
-    summary: "AVID Critical Reading: Exploring the fundamental rule of waves—energy transports, matter stays.",
-    details: "Students analyze a 5-paragraph text on mechanical and electromagnetic waves. The lesson focuses on the 5-part AVID annotation process, including gist statements and DOK 3 inquiry questions.",
-    type: "Activity",
-    dok: 1,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How can energy travel across a distance without actually moving matter from one place to another?",
-    links: {
+    "date": "2026-03-23",
+    "day": 1,
+    "unit": 6,
+    "title": "Intro to Waves: Energy in Motion",
+    "summary": "AVID Critical Reading: Exploring the fundamental rule of waves—energy transports, matter stays.",
+    "details": "Students analyze a 5-paragraph text on mechanical and electromagnetic waves. The lesson focuses on the 5-part AVID annotation process, including gist statements and DOK 3 inquiry questions.",
+    "type": "Activity",
+    "dok": 1,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How can energy travel across a distance without actually moving matter from one place to another?",
+    "links": {
       "Reading: Intro to Waves": "https://docs.google.com/document/d/1UJdSuMXqWDw-NatiVyo9lG93a-24oYWkZH2dACjiFLQ/edit?usp=sharing",
       "Strategy: 3-Word Gist Statements": "https://youtu.be/YQKIc5apEUM",
       "Interactive: Waves & Energy Report": "Waves_Interactive_report.html"
     },
-    wicor: {
-      writing: "3-Word Gist Statements: Summarizing each of the 5 text paragraphs using exactly three words.",
-      inquiry: "Level 3 Question: Developing a complex inquiry about Mediums vs. Vacuums.",
-      organization: "Marking-the-Text: Numbering paragraphs, circling key terms, and underlining the 'Fundamental Rule' in Para 1.",
-      reading: "Comparative Analysis: Distinguishing between mechanical waves and EM radiation."
-    }
-  },
-
-  // --- Unit 5: Thermodynamics ---
-  {
-    date: "2026-03-20",
-    day: 30,
-    unit: 5,
-    title: "Unit 5 Assessment",
-    summary: "Summative assessment on Thermodynamics, Entropy, and Heat Engines.",
-    details: "Students will demonstrate their understanding of the laws of thermodynamics, heat engines, and entropy in this unit assessment.",
-    type: "Assessment",
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How do we demonstrate mastery of thermodynamic laws and entropy concepts?"
-  },
-  {
-    date: "2026-03-19",
-    day: 29,
-    unit: 5,
-    title: "Heat Pump Dynamics",
-    summary: "Exploring how heat pumps move energy against the gradient using the interactive model.",
-    details: "Students analyze the thermodynamic cycle of a heat pump. Using the interactive model, they investigate how work is used to extract heat from a cold environment and release it into a warm one.",
-    type: "Activity",
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    links: {
-      'Heat Pump Interactive Model': 'Heat_Pump_Model/index.html'
+    "wicor": {
+      "writing": "3-Word Gist Statements: Summarizing each of the 5 text paragraphs using exactly three words.",
+      "inquiry": "Level 3 Question: Developing a complex inquiry about Mediums vs. Vacuums.",
+      "organization": "Marking-the-Text: Numbering paragraphs, circling key terms, and underlining the 'Fundamental Rule' in Para 1.",
+      "reading": "Comparative Analysis: Distinguishing between mechanical waves and EM radiation."
     },
-    essentialQuestion: "How can we 'pump' heat against its natural flow from hot to cold?"
+    "standards": [
+      "HS-PS4-1"
+    ]
   },
   {
-    date: "2026-03-18",
-    day: 28,
-    unit: 5,
-    title: "AVID Focused Note Taking: Entropy & Heat Engines",
-    summary: "Using AVID strategies to synthesize information on entropy and the efficiency of heat engines.",
-    details: "Focused Reading and Note Taking: Students use marking-the-text strategies to analyze the 'Entropy and the Cost of Power' reading and connect it to heat engine efficiency.",
-    type: "Activity",
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    links: {
-      'Reading: Entropy and the Cost of Power': 'https://docs.google.com/document/d/18SCo219sB0k27d_VGOXa20wFp4iQk0fOInLbwq_5AHI/edit?usp=sharing',
-      'Interactive: Entropy & The Cost of Power': 'Entropy_Cost_of_power.html',
-      'Presentation: Heat Engines': 'https://docs.google.com/presentation/d/1H1-IDxkyQ0MPDQ3y6Y9ebC_dmjzDTJwj9SjFLwdkmqU/edit?usp=sharing',
-      'Printed Instructions': 'https://docs.google.com/document/d/1UXZ83sRCXzGNUq2MnIk-QF7sgIUhuqS9M9M57cFeDNE/edit?usp=sharing'
+    "date": "2026-03-20",
+    "day": 30,
+    "unit": 5,
+    "title": "Unit 5 Assessment",
+    "summary": "Summative assessment on Thermodynamics, Entropy, and Heat Engines.",
+    "details": "Students will demonstrate their understanding of the laws of thermodynamics, heat engines, and entropy in this unit assessment.",
+    "type": "Assessment",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do we demonstrate mastery of thermodynamic laws and entropy concepts?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
+  },
+  {
+    "date": "2026-03-19",
+    "day": 29,
+    "unit": 5,
+    "title": "Heat Pump Dynamics",
+    "summary": "Exploring how heat pumps move energy against the gradient using the interactive model.",
+    "details": "Students analyze the thermodynamic cycle of a heat pump. Using the interactive model, they investigate how work is used to extract heat from a cold environment and release it into a warm one.",
+    "type": "Activity",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "links": {
+      "Heat Pump Interactive Model": "Heat_Pump_Model/index.html"
     },
-    wicor: {
-      reading: "Marking the Text & Focused Annotation.",
-      writing: "Focused Note Taking: Identifying Main Ideas & Supporting Details."
+    "essentialQuestion": "How can we 'pump' heat against its natural flow from hot to cold?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
+  },
+  {
+    "date": "2026-03-18",
+    "day": 28,
+    "unit": 5,
+    "title": "AVID Focused Note Taking: Entropy & Heat Engines",
+    "summary": "Using AVID strategies to synthesize information on entropy and the efficiency of heat engines.",
+    "details": "Focused Reading and Note Taking: Students use marking-the-text strategies to analyze the 'Entropy and the Cost of Power' reading and connect it to heat engine efficiency.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "links": {
+      "Reading: Entropy and the Cost of Power": "https://docs.google.com/document/d/18SCo219sB0k27d_VGOXa20wFp4iQk0fOInLbwq_5AHI/edit?usp=sharing",
+      "Interactive: Entropy & The Cost of Power": "Entropy_Cost_of_power.html",
+      "Presentation: Heat Engines": "https://docs.google.com/presentation/d/1H1-IDxkyQ0MPDQ3y6Y9ebC_dmjzDTJwj9SjFLwdkmqU/edit?usp=sharing",
+      "Printed Instructions": "https://docs.google.com/document/d/1UXZ83sRCXzGNUq2MnIk-QF7sgIUhuqS9M9M57cFeDNE/edit?usp=sharing"
     },
-    essentialQuestion: "How can we use focused note-taking to analyze the relationship between entropy and engine efficiency?"
-  },
-  {
-    date: "2026-03-17",
-    day: 27,
-    unit: 5,
-    title: "Project: Entropy and Zombies",
-    summary: "Applying entropy concepts to a survival scenario in the 'Entropy and Zombies' project.",
-    details: "Students work in groups to solve thermodynamics-based survival challenges, applying the Second Law to predict the inevitable decay of systems and resource management.",
-    type: "Activity",
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    links: {
-      'Entropy and Zombies Project Doc': 'https://docs.google.com/document/d/1P6zTrHvILhcegkh_KdeMliKIxFxIRzz-Wh3mwSht6Yg/edit?usp=sharing',
-      'Entropy and Zombies Examples': 'https://drive.google.com/file/d/1zU6kPKk03noFmwDFEidzMLBkTBjnposw/view?usp=sharing',
-      'Thermodynamics: Entropy & Heat Engines': 'https://docs.google.com/document/d/18SCo219sB0k27d_VGOXa20wFp4iQk0fOInLbwq_5AHI/edit?usp=sharing'
+    "wicor": {
+      "reading": "Marking the Text & Focused Annotation.",
+      "writing": "Focused Note Taking: Identifying Main Ideas & Supporting Details."
     },
-    essentialQuestion: "How does the Second Law of Thermodynamics predict the inevitable decay of all systems?"
+    "essentialQuestion": "How can we use focused note-taking to analyze the relationship between entropy and engine efficiency?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
   },
   {
-    date: "2026-03-16",
-    day: 26,
-    unit: 5,
-    title: "Introduction to Entropy & Entropy Lab",
-    summary: "Introducing the Second Law of Thermodynamics and the concept of disorder using the Entropy Lab.",
-    details: "Defining entropy as a measure of disorder and microstates. Students use the Entropy Lab to observe particle diffusion (Microscopic) and structural decay (Macroscopic).",
-    type: "Lab",
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    links: {
-      'Entropy Lab: Micro & Macro': 'Entropy_Simulation/index.html',
-      'Entropy and Zombies Examples': 'https://drive.google.com/file/d/1zU6kPKk03noFmwDFEidzMLBkTBjnposw/view?usp=sharing'
+    "date": "2026-03-17",
+    "day": 27,
+    "unit": 5,
+    "title": "Project: Entropy and Zombies",
+    "summary": "Applying entropy concepts to a survival scenario in the 'Entropy and Zombies' project.",
+    "details": "Students work in groups to solve thermodynamics-based survival challenges, applying the Second Law to predict the inevitable decay of systems and resource management.",
+    "type": "Activity",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "links": {
+      "Entropy and Zombies Project Doc": "https://docs.google.com/document/d/1P6zTrHvILhcegkh_KdeMliKIxFxIRzz-Wh3mwSht6Yg/edit?usp=sharing",
+      "Entropy and Zombies Examples": "https://drive.google.com/file/d/1zU6kPKk03noFmwDFEidzMLBkTBjnposw/view?usp=sharing",
+      "Thermodynamics: Entropy & Heat Engines": "https://docs.google.com/document/d/18SCo219sB0k27d_VGOXa20wFp4iQk0fOInLbwq_5AHI/edit?usp=sharing"
     },
-    essentialQuestion: "What is the relationship between microscopic disorder and macroscopic decay?"
+    "essentialQuestion": "How does the Second Law of Thermodynamics predict the inevitable decay of all systems?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
   },
   {
-    date: "2026-03-13",
-    day: 25,
-    unit: 5,
-    title: "First Law Assessment",
-    summary: "Assessment covering the First Law of Thermodynamics.",
-    details: "Students will complete the interactive First Law Assessment to test their understanding of internal energy, heat, and work.",
-    type: "Assessment",
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How do we demonstrate mastery of the First Law of Thermodynamics?"
-  },
-  {
-    date: "2026-03-12",
-    day: 24,
-    unit: 5,
-    title: "Review: Thermodynamics U, Q, W",
-    summary: "Reviewing the Thermodynamics U Q W worksheet and preparing for the quiz.",
-    details: "In-class review of the Thermodynamics U Q W worksheet answers to clarify concepts on internal energy, heat, and work before the upcoming assessment.",
-    type: "Activity",
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How do we clarify the relationships between U, Q, and W before assessment?"
-  },
-  {
-    date: "2026-03-11",
-    day: 23,
-    unit: 5,
-    title: "Heat Engine Report",
-    summary: "Researching and reporting on 5 different heat engines.",
-    details: "Students will find information about the 5 listed heat engines and fill in the requested information for each.",
-    type: "Activity",
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    links: {
-      'Heat Engine Report Slides': 'https://docs.google.com/presentation/d/1n7nqFHerCyZs3wRiW2Aj633TNEDT_MCpJwWWih13XRs/edit?usp=sharing'
+    "date": "2026-03-16",
+    "day": 26,
+    "unit": 5,
+    "title": "Introduction to Entropy & Entropy Lab",
+    "summary": "Introducing the Second Law of Thermodynamics and the concept of disorder using the Entropy Lab.",
+    "details": "Defining entropy as a measure of disorder and microstates. Students use the Entropy Lab to observe particle diffusion (Microscopic) and structural decay (Macroscopic).",
+    "type": "Lab",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "links": {
+      "Entropy Lab: Micro & Macro": "Entropy_Simulation/index.html",
+      "Entropy and Zombies Examples": "https://drive.google.com/file/d/1zU6kPKk03noFmwDFEidzMLBkTBjnposw/view?usp=sharing"
     },
-    essentialQuestion: "How do heat engines convert thermal energy into useful mechanical work?"
+    "essentialQuestion": "What is the relationship between microscopic disorder and macroscopic decay?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
   },
   {
-    date: "2026-03-10",
-    day: 22,
-    unit: 5,
-    title: "The First Law of Thermodynamics",
-    summary: "Energy conservation in thermodynamic systems (ΔU = Q + W).",
-    details: "Defining Heat (Q) and Work (W) sign conventions. Understanding how adding heat or doing work changes a system's internal energy.",
-    type: "Activity",
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    links: {
-      'Presentation: First Law of Thermodynamics': 'https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDZATPiyvvPR4J3orI6Kv85AY7a8qbPR-NCTCusDW9_dXQ?e=blosae',
-      'Worksheet: The First Law': 'https://orangeusdorg-my.sharepoint.com/:b:/g/personal/rmudry_orangeusd_org/IQDDLo9r5BE4RYLXfENSHuFgATTddX3SJRYqYsTJsdXkIQI?e=LVtN99',
-      'Interactive Model: The Cylinder & Piston': 'First_Law_Sim/index.html'
+    "date": "2026-03-13",
+    "day": 25,
+    "unit": 5,
+    "title": "First Law Assessment",
+    "summary": "Assessment covering the First Law of Thermodynamics.",
+    "details": "Students will complete the interactive First Law Assessment to test their understanding of internal energy, heat, and work.",
+    "type": "Assessment",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do we demonstrate mastery of the First Law of Thermodynamics?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
+  },
+  {
+    "date": "2026-03-12",
+    "day": 24,
+    "unit": 5,
+    "title": "Review: Thermodynamics U, Q, W",
+    "summary": "Reviewing the Thermodynamics U Q W worksheet and preparing for the quiz.",
+    "details": "In-class review of the Thermodynamics U Q W worksheet answers to clarify concepts on internal energy, heat, and work before the upcoming assessment.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do we clarify the relationships between U, Q, and W before assessment?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
+  },
+  {
+    "date": "2026-03-11",
+    "day": 23,
+    "unit": 5,
+    "title": "Heat Engine Report",
+    "summary": "Researching and reporting on 5 different heat engines.",
+    "details": "Students will find information about the 5 listed heat engines and fill in the requested information for each.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "links": {
+      "Heat Engine Report Slides": "https://docs.google.com/presentation/d/1n7nqFHerCyZs3wRiW2Aj633TNEDT_MCpJwWWih13XRs/edit?usp=sharing"
     },
-    essentialQuestion: "How does the First Law of Thermodynamics relate changes in internal energy to heat and work?"
+    "essentialQuestion": "How do heat engines convert thermal energy into useful mechanical work?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
   },
   {
-    date: "2026-03-09",
-    day: 21,
-    unit: 5,
-    title: "Temperature vs. Internal Energy",
-    summary: "Understanding the difference between average kinetic energy and total system energy.",
-    details: "Comparing hot coffee to an iceberg, and analyzing the 'Oven vs. Sparkler' phenomenon. Introduction to how molecular mass affects speed at the same temperature.",
-    type: "Activity",
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    links: {
-      'Presentation: Temp vs. Internal Energy': 'https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDZATPiyvvPR4J3orI6Kv85AY7a8qbPR-NCTCusDW9_dXQ?e=MzCXqr',
-      'Heat Engine Research': 'https://docs.google.com/presentation/d/1n7nqFHerCyZs3wRiW2Aj633TNEDT_MCpJwWWih13XRs/edit?usp=sharing',
-      'Thermodynamics: First Law Reading (English)': 'https://docs.google.com/document/d/1fezNGOy_SmsX2H3Iaf4L75OUl0XI_pqBlIbHZXIKjYY/edit?usp=sharing',
-      'Thermodynamics: First Law Reading (Spanish)': 'https://docs.google.com/document/d/10VUp5VlLS08d7J85TxhYlACc3BvctmfZIrUWwqKoMlk/edit?usp=sharing'
+    "date": "2026-03-10",
+    "day": 22,
+    "unit": 5,
+    "title": "The First Law of Thermodynamics",
+    "summary": "Energy conservation in thermodynamic systems (ΔU = Q + W).",
+    "details": "Defining Heat (Q) and Work (W) sign conventions. Understanding how adding heat or doing work changes a system's internal energy.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "links": {
+      "Presentation: First Law of Thermodynamics": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDZATPiyvvPR4J3orI6Kv85AY7a8qbPR-NCTCusDW9_dXQ?e=blosae",
+      "Worksheet: The First Law": "https://orangeusdorg-my.sharepoint.com/:b:/g/personal/rmudry_orangeusd_org/IQDDLo9r5BE4RYLXfENSHuFgATTddX3SJRYqYsTJsdXkIQI?e=LVtN99",
+      "Interactive Model: The Cylinder & Piston": "First_Law_Sim/index.html"
     },
-    essentialQuestion: "What is the difference between average kinetic energy and the total energy of a system?"
+    "essentialQuestion": "How does the First Law of Thermodynamics relate changes in internal energy to heat and work?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
   },
   {
-    date: "2026-03-06",
-    day: 20,
-    unit: 5,
-    title: "Radiation Week Wrap-Up & Turn In",
-    summary: "Finalizing Radiation Lab analysis and turning in the week's work.",
-    details: "Organization: Finishing CER arguments and data matrices from Radiation Week. Students submitted their complete lab reports and worksheets for credit. This includes wrapping up the study of radiative heat transfer using the interactive Virtual Radiation Lab simulation.",
-    type: "Activity",
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    links: {
-      'Turn In: Radiation Week Work': 'https://docs.google.com/document/d/1EJcKSlydN5ovtlp496SewBpOR_eqeMN2bZCXyISU1gU/edit?usp=sharing',
-      'Virtual Radiation Lab': 'Radiation_Lab/index.html'
+    "date": "2026-03-09",
+    "day": 21,
+    "unit": 5,
+    "title": "Temperature vs. Internal Energy",
+    "summary": "Understanding the difference between average kinetic energy and total system energy.",
+    "details": "Comparing hot coffee to an iceberg, and analyzing the 'Oven vs. Sparkler' phenomenon. Introduction to how molecular mass affects speed at the same temperature.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "links": {
+      "Presentation: Temp vs. Internal Energy": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDZATPiyvvPR4J3orI6Kv85AY7a8qbPR-NCTCusDW9_dXQ?e=MzCXqr",
+      "Heat Engine Research": "https://docs.google.com/presentation/d/1n7nqFHerCyZs3wRiW2Aj633TNEDT_MCpJwWWih13XRs/edit?usp=sharing",
+      "Thermodynamics: First Law Reading (English)": "https://docs.google.com/document/d/1fezNGOy_SmsX2H3Iaf4L75OUl0XI_pqBlIbHZXIKjYY/edit?usp=sharing",
+      "Thermodynamics: First Law Reading (Spanish)": "https://docs.google.com/document/d/10VUp5VlLS08d7J85TxhYlACc3BvctmfZIrUWwqKoMlk/edit?usp=sharing"
     },
-    essentialQuestion: "How do we finalize our analysis of radiative heat transfer?"
+    "essentialQuestion": "What is the difference between average kinetic energy and the total energy of a system?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
   },
   {
-    date: "2026-03-05",
-    day: 19,
-    unit: 5,
-    title: "Synthesis: The Physics of Radiation",
-    summary: "Connecting Reading, Demo, and Lab data to build a CER argument. <span class='inline-flex items-center gap-1 bg-blue-950/40 text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded border border-blue-500/30 ml-2 animate-pulse'>★ VISITOR DAY</span>",
-    details: "Writing & Organization: Students synthesize their observations from the week into a cohesive scientific argument. Visitors will observe AVID strategies in action.",
-    type: "Activity",
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    links: {
-      'CER: The Physics of Radiation': 'https://docs.google.com/document/d/17auQmJ0RMZ8FiMe9m6arPO1T7Mh-AwGfP39jidER6NY/edit?usp=sharing',
-      'Radiation Lab Worksheet': 'https://docs.google.com/document/d/1GhgcEpqwD06hJCLF0XsDtxKn1F2LjeIhoBKjFEs2G1M/edit?usp=sharing',
-      'Synthesis Discussion Slides': 'https://docs.google.com/presentation/d/1b0NVmEJQjWIlre7w85iYGDkQF8Cx-0GJrplIvzE1FmI/edit?usp=sharing',
-      'AI Career Outlook': 'ai-impact/index.html'
+    "date": "2026-03-06",
+    "day": 20,
+    "unit": 5,
+    "title": "Radiation Week Wrap-Up & Turn In",
+    "summary": "Finalizing Radiation Lab analysis and turning in the week's work.",
+    "details": "Organization: Finishing CER arguments and data matrices from Radiation Week. Students submitted their complete lab reports and worksheets for credit. This includes wrapping up the study of radiative heat transfer using the interactive Virtual Radiation Lab simulation.",
+    "type": "Activity",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "links": {
+      "Turn In: Radiation Week Work": "https://docs.google.com/document/d/1EJcKSlydN5ovtlp496SewBpOR_eqeMN2bZCXyISU1gU/edit?usp=sharing",
+      "Virtual Radiation Lab": "Radiation_Lab/index.html"
     },
-    wicor: {
-      writing: "CER Statement: How does distance and albedo affect thermal energy transfer?",
-      organization: "Data Matrix connecting previous 3 days of evidence.",
-      collaboration: "Peer review of arguments."
+    "essentialQuestion": "How do we finalize our analysis of radiative heat transfer?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
+  },
+  {
+    "date": "2026-03-05",
+    "day": 19,
+    "unit": 5,
+    "title": "Synthesis: The Physics of Radiation",
+    "summary": "Connecting Reading, Demo, and Lab data to build a CER argument. <span class='inline-flex items-center gap-1 bg-blue-950/40 text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded border border-blue-500/30 ml-2 animate-pulse'>★ VISITOR DAY</span>",
+    "details": "Writing & Organization: Students synthesize their observations from the week into a cohesive scientific argument. Visitors will observe AVID strategies in action.",
+    "type": "Activity",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "links": {
+      "CER: The Physics of Radiation": "https://docs.google.com/document/d/17auQmJ0RMZ8FiMe9m6arPO1T7Mh-AwGfP39jidER6NY/edit?usp=sharing",
+      "Radiation Lab Worksheet": "https://docs.google.com/document/d/1GhgcEpqwD06hJCLF0XsDtxKn1F2LjeIhoBKjFEs2G1M/edit?usp=sharing",
+      "Synthesis Discussion Slides": "https://docs.google.com/presentation/d/1b0NVmEJQjWIlre7w85iYGDkQF8Cx-0GJrplIvzE1FmI/edit?usp=sharing",
+      "AI Career Outlook": "ai-impact/index.html"
     },
-    essentialQuestion: "How do we build a scientific argument for heat transfer using evidence and reasoning?"
-  },
-  {
-    date: "2026-03-04",
-    day: 18,
-    unit: 5,
-    title: "Virtual Lab: Radiation & Albedo",
-    summary: "Using a digital simulation to test variables that affect radiative heat transfer.",
-    details: "Inquiry & Collaboration: Groups use the Virtual Lab webapp to test how different materials and distances affect heat absorption.",
-    type: "Lab",
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    links: {
-      'Virtual Lab Worksheet': 'https://docs.google.com/document/d/1GhgcEpqwD06hJCLF0XsDtxKn1F2LjeIhoBKjFEs2G1M/edit?usp=sharing',
-      'Virtual Radiation Lab': 'Radiation_Lab/index.html',
-      'Albedo Simulation': 'Radiation_Lab/albedo_sim.html'
+    "wicor": {
+      "writing": "CER Statement: How does distance and albedo affect thermal energy transfer?",
+      "organization": "Data Matrix connecting previous 3 days of evidence.",
+      "collaboration": "Peer review of arguments."
     },
-    wicor: {
-      inquiry: "Testing variables (Distance vs. Absorption).",
-      collaboration: "Group data analysis."
+    "essentialQuestion": "How do we build a scientific argument for heat transfer using evidence and reasoning?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
+  },
+  {
+    "date": "2026-03-04",
+    "day": 18,
+    "unit": 5,
+    "title": "Virtual Lab: Radiation & Albedo",
+    "summary": "Using a digital simulation to test variables that affect radiative heat transfer.",
+    "details": "Inquiry & Collaboration: Groups use the Virtual Lab webapp to test how different materials and distances affect heat absorption.",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "links": {
+      "Virtual Lab Worksheet": "https://docs.google.com/document/d/1GhgcEpqwD06hJCLF0XsDtxKn1F2LjeIhoBKjFEs2G1M/edit?usp=sharing",
+      "Virtual Radiation Lab": "Radiation_Lab/index.html",
+      "Albedo Simulation": "Radiation_Lab/albedo_sim.html"
     },
-    essentialQuestion: "What variables most significantly impact the rate of heat absorption by radiation?"
-  },
-  {
-    date: "2026-03-03",
-    day: 17,
-    unit: 5,
-    title: "Demonstration: Albedo & Inverse Square Law",
-    summary: "Predicting and tracking temperature changes in black vs. white surfaces. Discussing Albedo and the Inverse Square Law.",
-    details: "Inquiry & Organization: Predict/Observe/Explain cycle. Live data collection comparing a black can and a white can under a heat source to observe differential absorption and how distance affects intensity via the Inverse Square Law.",
-    type: "Activity",
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    links: {
-      'Live Demo Tracker': 'Radiation_Lab/demo_tracker.html',
-      'Albedo Simulation': 'Radiation_Lab/albedo_sim.html',
-      'Interactive: Inverse Square Law': 'Inverse_Square_Law/index.html',
-      'Inverse Square Law Notes': 'https://docs.google.com/document/d/1HYCiVSm_oczVIswpvDMwy9FBXZT0Aw4KEypgDabVfs0/edit?usp=sharing',
-      'Video: Albedo explained': 'https://www.youtube.com/watch?v=8SG5hxx2RH4'
+    "wicor": {
+      "inquiry": "Testing variables (Distance vs. Absorption).",
+      "collaboration": "Group data analysis."
     },
-    wicor: {
-      inquiry: "Predicting heating rates based on surface color and distance.",
-      organization: "Data table & Graphing of live temperatures."
+    "essentialQuestion": "What variables most significantly impact the rate of heat absorption by radiation?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
+  },
+  {
+    "date": "2026-03-03",
+    "day": 17,
+    "unit": 5,
+    "title": "Demonstration: Albedo & Inverse Square Law",
+    "summary": "Predicting and tracking temperature changes in black vs. white surfaces. Discussing Albedo and the Inverse Square Law.",
+    "details": "Inquiry & Organization: Predict/Observe/Explain cycle. Live data collection comparing a black can and a white can under a heat source to observe differential absorption and how distance affects intensity via the Inverse Square Law.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "links": {
+      "Live Demo Tracker": "Radiation_Lab/demo_tracker.html",
+      "Albedo Simulation": "Radiation_Lab/albedo_sim.html",
+      "Interactive: Inverse Square Law": "Inverse_Square_Law/index.html",
+      "Inverse Square Law Notes": "https://docs.google.com/document/d/1HYCiVSm_oczVIswpvDMwy9FBXZT0Aw4KEypgDabVfs0/edit?usp=sharing",
+      "Video: Albedo explained": "https://www.youtube.com/watch?v=8SG5hxx2RH4"
     },
-    essentialQuestion: "How do surface color and distance affect the intensity of radiative heating?"
-  },
-  {
-    date: "2026-03-02",
-    day: 16,
-    unit: 5,
-    title: "Reading: Heat Transfer by Radiation",
-    summary: "Focused annotation of text on electromagnetic waves and thermal energy.",
-    details: "Reading & Writing: Students use marking-the-text strategies to identify key concepts in radiative heat transfer.",
-    type: "Activity",
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    links: {
-      'Radiation Reading (English)': 'https://docs.google.com/document/d/16y1kJZq4Rafpjyqr0EvsMSPGIB4eLmo9IiJBKGKgWXY/edit?usp=sharing',
-      'Radiation Reading (Spanish)': 'https://docs.google.com/document/d/1q-3hxNYXSkdU6HIvrrGyLSqfclUkX4alEuqBnIXoQFg/edit?usp=sharing',
-      'Web App Reading Version': 'Radiation_Lab/reading.html'
+    "wicor": {
+      "inquiry": "Predicting heating rates based on surface color and distance.",
+      "organization": "Data table & Graphing of live temperatures."
     },
-    wicor: {
-      reading: "Focused Annotation & Marking the Text.",
-      writing: "Quick-summary of the Stefan-Boltzmann relationship."
+    "essentialQuestion": "How do surface color and distance affect the intensity of radiative heating?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
+  },
+  {
+    "date": "2026-03-02",
+    "day": 16,
+    "unit": 5,
+    "title": "Reading: Heat Transfer by Radiation",
+    "summary": "Focused annotation of text on electromagnetic waves and thermal energy.",
+    "details": "Reading & Writing: Students use marking-the-text strategies to identify key concepts in radiative heat transfer.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "links": {
+      "Radiation Reading (English)": "https://docs.google.com/document/d/16y1kJZq4Rafpjyqr0EvsMSPGIB4eLmo9IiJBKGKgWXY/edit?usp=sharing",
+      "Radiation Reading (Spanish)": "https://docs.google.com/document/d/1q-3hxNYXSkdU6HIvrrGyLSqfclUkX4alEuqBnIXoQFg/edit?usp=sharing",
+      "Web App Reading Version": "Radiation_Lab/reading.html"
     },
-    essentialQuestion: "How is thermal energy transferred through electromagnetic waves?"
-  },
-  {
-    date: "2026-02-27",
-    day: 15,
-    unit: 5,
-    title: "Work Catchup & Turn In Day",
-    summary: "Time to finalize boat designs, finish lab reports, and submit all pending Unit 5 assignments.",
-    details: "Students will have the full period to complete their Penny Boat Lab analysis, finalize any missing work from the previous two weeks, and ensure all digital assignments are turned in.",
-    type: "Activity",
-    dok: 1,
-    semester: 2,
-    isFeatured: true,
-    wicor: {
-      writing: "Quick-Write (The Beach Analogy).",
-      organization: "Formula breakdown and variable mapping."
+    "wicor": {
+      "reading": "Focused Annotation & Marking the Text.",
+      "writing": "Quick-summary of the Stefan-Boltzmann relationship."
     },
-    essentialQuestion: "How do we summarize our understanding of buoyancy and heat transfer?"
+    "essentialQuestion": "How is thermal energy transferred through electromagnetic waves?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
   },
   {
-    date: "2026-02-26",
-    day: 14,
-    unit: 5,
-    title: "Lab: Penny Boat Activity",
-    summary: "Testing boat designs and maximizing carrying capacity.",
-    details: "Students iterate on their designs and compete to see which boat can hold the most pennies before sinking.",
-    type: "Lab",
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    links: {
-      'Penny Boat Lab Simulation': 'penny-boat-lab/index.html',
-      'Lab Worksheet': 'https://docs.google.com/document/d/1VQUuUUDHWyi3-RyGK4vMBHEynfavdPs9/edit?usp=sharing&ouid=111972921986195834260&rtpof=true&sd=true'
+    "date": "2026-02-27",
+    "day": 15,
+    "unit": 5,
+    "title": "Work Catchup & Turn In Day",
+    "summary": "Time to finalize boat designs, finish lab reports, and submit all pending Unit 5 assignments.",
+    "details": "Students will have the full period to complete their Penny Boat Lab analysis, finalize any missing work from the previous two weeks, and ensure all digital assignments are turned in.",
+    "type": "Activity",
+    "dok": 1,
+    "semester": 2,
+    "isFeatured": true,
+    "wicor": {
+      "writing": "Quick-Write (The Beach Analogy).",
+      "organization": "Formula breakdown and variable mapping."
     },
-    essentialQuestion: "How can we maximize buoyant force through boat design?"
+    "essentialQuestion": "How do we summarize our understanding of buoyancy and heat transfer?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
   },
   {
-    date: "2026-02-25",
-    day: 13,
-    unit: 5,
-    title: "Connections: Reading and Lab",
-    summary: "Making connections between the reading and the lab.",
-    details: "Students will collaborate with their group to make connections between the reading materials and the recent lab using a shared document.",
-    type: "Activity",
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    wicor: {
-      collaboration: "Students will collaborate with their group.",
-      reading: "Making connections to the reading materials.",
-      writing: "Documenting connections in the shared document."
+    "date": "2026-02-26",
+    "day": 14,
+    "unit": 5,
+    "title": "Lab: Penny Boat Activity",
+    "summary": "Testing boat designs and maximizing carrying capacity.",
+    "details": "Students iterate on their designs and compete to see which boat can hold the most pennies before sinking.",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "links": {
+      "Penny Boat Lab Simulation": "penny-boat-lab/index.html",
+      "Lab Worksheet": "https://docs.google.com/document/d/1VQUuUUDHWyi3-RyGK4vMBHEynfavdPs9/edit?usp=sharing&ouid=111972921986195834260&rtpof=true&sd=true"
     },
-    links: {
-      'Collaborative Document': 'https://docs.google.com/document/d/1dCXH40YVvT2zvgQBGSn-YRu4R8j7p8ardLDmhJd7KPU/edit?usp=sharing'
+    "essentialQuestion": "How can we maximize buoyant force through boat design?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
+  },
+  {
+    "date": "2026-02-25",
+    "day": 13,
+    "unit": 5,
+    "title": "Connections: Reading and Lab",
+    "summary": "Making connections between the reading and the lab.",
+    "details": "Students will collaborate with their group to make connections between the reading materials and the recent lab using a shared document.",
+    "type": "Activity",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "wicor": {
+      "collaboration": "Students will collaborate with their group.",
+      "reading": "Making connections to the reading materials.",
+      "writing": "Documenting connections in the shared document."
     },
-    essentialQuestion: "How do we synthesize lab observations with core thermodynamic principles?"
-  },
-  {
-    date: "2026-02-24",
-    day: 12,
-    unit: 5,
-    title: "Buoyancy and Buoyant Force",
-    summary: "Archimedes' Principle: Why things float (or sink).",
-    details: "Study of buoyant force and how it relates to displaced fluid volume. Introduction to Archimedes' Principle.",
-    type: "Activity",
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    links: {
-      'Reading': 'https://docs.google.com/document/d/1e1Cwzw_ZKKNy2roVR3oCfLnWNxiGaqZaq77qNkj7fpg/edit?usp=sharing',
-      'Worksheet': 'https://docs.google.com/document/d/1IdLCxbYPBPB3RsRsxvp4UjFD1nPYD-4RXy-5t6UIXCI/edit?usp=sharing',
-      'Buoyancy Basics Simulation': 'https://rrmudry.github.io/Buoyancy_Basics/buoyancy-basics_en.html'
+    "links": {
+      "Collaborative Document": "https://docs.google.com/document/d/1dCXH40YVvT2zvgQBGSn-YRu4R8j7p8ardLDmhJd7KPU/edit?usp=sharing"
     },
-    essentialQuestion: "How does Archimedes' Principle explain why objects float in a fluid?"
+    "essentialQuestion": "How do we synthesize lab observations with core thermodynamic principles?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
   },
   {
-    date: "2026-02-23",
-    day: 11,
-    unit: 5,
-    title: "Thermal Expansion & Convection",
-    summary: "Why bridges have gaps and how heat fluids move.",
-    details: "Investigating linear and volumetric expansion and the movement of energy through fluid currents (convection).",
-    type: "Activity",
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How does thermal energy affect the volume and density of fluids and solids?"
-  },
-  {
-    date: "2026-02-20",
-    day: 10,
-    unit: 5,
-    title: "Temperature Scales Practice",
-    summary: "Finishing the Food Coloring Lab Worksheet. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
-    details: "Students will complete the Lab Worksheet from Day 7.",
-    type: "Activity",
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    links: {
-      'Lab Worksheet': 'https://docs.google.com/document/d/1onqDNCSUDJi4u-oreNEpD4egYqTfwLuH8jObR6BUdwU/edit?usp=sharing'
+    "date": "2026-02-24",
+    "day": 12,
+    "unit": 5,
+    "title": "Buoyancy and Buoyant Force",
+    "summary": "Archimedes' Principle: Why things float (or sink).",
+    "details": "Study of buoyant force and how it relates to displaced fluid volume. Introduction to Archimedes' Principle.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "links": {
+      "Reading": "https://docs.google.com/document/d/1e1Cwzw_ZKKNy2roVR3oCfLnWNxiGaqZaq77qNkj7fpg/edit?usp=sharing",
+      "Worksheet": "https://docs.google.com/document/d/1IdLCxbYPBPB3RsRsxvp4UjFD1nPYD-4RXy-5t6UIXCI/edit?usp=sharing",
+      "Buoyancy Basics Simulation": "https://rrmudry.github.io/Buoyancy_Basics/buoyancy-basics_en.html"
     },
-    essentialQuestion: "How do we convert between Celsius, Fahrenheit, and Kelvin scales?"
+    "essentialQuestion": "How does Archimedes' Principle explain why objects float in a fluid?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
   },
   {
-    date: "2026-02-19",
-    day: 9,
-    unit: 5,
-    title: "Ice Cube / Heatsink Lab (WICOR Walk)",
-    summary: "Collaboration: Table group inquiry & data collection. Inquiry: Discrepant event (Predicting vs. Observing).",
-    details: "Extensive lab for visitor walk. Focus on inquiry hooks, assigned roles, and CER writing.",
-    type: "Lab",
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    wicor: {
-      writing: "CER Statement: Claim (Metal is better conductor), Evidence (Melt times), Reasoning (Momentum transfer).",
-      inquiry: "Discrepant Event: Predicting vs. Observing ice melt rates on different materials.",
-      collaboration: "Structured table groups with assigned roles (Lead Scientist, Data Recorder, Timekeeper).",
-      organization: "Double Bubble Thinking Map comparing heat sink and wood block.",
-      reading: "Lab instructions and background on thermal conductivity."
+    "date": "2026-02-23",
+    "day": 11,
+    "unit": 5,
+    "title": "Thermal Expansion & Convection",
+    "summary": "Why bridges have gaps and how heat fluids move.",
+    "details": "Investigating linear and volumetric expansion and the movement of energy through fluid currents (convection).",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How does thermal energy affect the volume and density of fluids and solids?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
+  },
+  {
+    "date": "2026-02-20",
+    "day": 10,
+    "unit": 5,
+    "title": "Temperature Scales Practice",
+    "summary": "Finishing the Food Coloring Lab Worksheet. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
+    "details": "Students will complete the Lab Worksheet from Day 7.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "links": {
+      "Lab Worksheet": "https://docs.google.com/document/d/1onqDNCSUDJi4u-oreNEpD4egYqTfwLuH8jObR6BUdwU/edit?usp=sharing"
     },
-    links: {
-      'Lab Worksheet': 'https://docs.google.com/document/d/10UjF46bf5btNcFKzQqmEh9uEDaFugH-_k53kA50hL6c/edit?usp=sharing',
-      'Class Presentation': 'https://docs.google.com/presentation/d/1P0ULnY6GGiIC9oxKiCnBeBTUQQMCPUCEZuYK_T3Tp-E/edit?usp=sharing'
+    "essentialQuestion": "How do we convert between Celsius, Fahrenheit, and Kelvin scales?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
+  },
+  {
+    "date": "2026-02-19",
+    "day": 9,
+    "unit": 5,
+    "title": "Ice Cube / Heatsink Lab (WICOR Walk)",
+    "summary": "Collaboration: Table group inquiry & data collection. Inquiry: Discrepant event (Predicting vs. Observing).",
+    "details": "Extensive lab for visitor walk. Focus on inquiry hooks, assigned roles, and CER writing.",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "wicor": {
+      "writing": "CER Statement: Claim (Metal is better conductor), Evidence (Melt times), Reasoning (Momentum transfer).",
+      "inquiry": "Discrepant Event: Predicting vs. Observing ice melt rates on different materials.",
+      "collaboration": "Structured table groups with assigned roles (Lead Scientist, Data Recorder, Timekeeper).",
+      "organization": "Double Bubble Thinking Map comparing heat sink and wood block.",
+      "reading": "Lab instructions and background on thermal conductivity."
     },
-    essentialQuestion: "Why do different materials feel 'colder' even when at the same temperature?"
-  },
-  {
-    date: "2026-02-18",
-    day: 8,
-    unit: 5,
-    title: "Annotated Reading: 3 Modes of Heat Transfer",
-    summary: "Reading: Focused Annotation & Marking the Text. Writing: Summarizing the 'Micro-View' of each mode.",
-    details: "Focused annotation of text on conduction, convection, and radiation. Writing summaries of microscopic energy transfer.",
-    type: "Activity",
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    wicor: {
-      reading: "Focused Annotation & Marking the Text.",
-      writing: "Summarizing the 'Micro-View' of each mode."
+    "links": {
+      "Lab Worksheet": "https://docs.google.com/document/d/10UjF46bf5btNcFKzQqmEh9uEDaFugH-_k53kA50hL6c/edit?usp=sharing",
+      "Class Presentation": "https://docs.google.com/presentation/d/1P0ULnY6GGiIC9oxKiCnBeBTUQQMCPUCEZuYK_T3Tp-E/edit?usp=sharing"
     },
-    links: {
-      '3 Modes of Heat Transfer Reading': 'https://docs.google.com/document/d/1l2lmOQW4ekqVNpc30GCE69UrxQnn1oShPBXC_snQ7rk/edit?usp=sharing',
-      'Class Presentation': 'https://docs.google.com/presentation/d/12PEKCsPVp568VA8rfx8KKHJlrR2sRCQR3ffCJ4YhWjA/edit?usp=sharing'
+    "essentialQuestion": "Why do different materials feel 'colder' even when at the same temperature?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
+  },
+  {
+    "date": "2026-02-18",
+    "day": 8,
+    "unit": 5,
+    "title": "Annotated Reading: 3 Modes of Heat Transfer",
+    "summary": "Reading: Focused Annotation & Marking the Text. Writing: Summarizing the 'Micro-View' of each mode.",
+    "details": "Focused annotation of text on conduction, convection, and radiation. Writing summaries of microscopic energy transfer.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "wicor": {
+      "reading": "Focused Annotation & Marking the Text.",
+      "writing": "Summarizing the 'Micro-View' of each mode."
     },
-    essentialQuestion: "What are the microscopic mechanisms for conduction, convection, and radiation?"
-  },
-  {
-    date: "2026-02-17",
-    day: 7,
-    unit: 5,
-    title: "Food Coloring Lab + Temp Scales",
-    summary: "Inquiry: Predicting motion based on previous reading. Organization: Conversion Practice Worksheet.",
-    details: "Predicting motion based on previous reading. Practicing temperature scale conversions.",
-    type: "Lab",
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    wicor: {
-      inquiry: "Predicting motion based on previous reading.",
-      organization: "Conversion Practice Worksheet."
+    "links": {
+      "3 Modes of Heat Transfer Reading": "https://docs.google.com/document/d/1l2lmOQW4ekqVNpc30GCE69UrxQnn1oShPBXC_snQ7rk/edit?usp=sharing",
+      "Class Presentation": "https://docs.google.com/presentation/d/12PEKCsPVp568VA8rfx8KKHJlrR2sRCQR3ffCJ4YhWjA/edit?usp=sharing"
     },
-    links: {
-      'Class Presentation': 'https://docs.google.com/presentation/d/1hIh64bCJDzl2VfIUFaMOoDsfsF9F7vvSPdYArvxsAFk/edit?usp=sharing'
+    "essentialQuestion": "What are the microscopic mechanisms for conduction, convection, and radiation?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
+  },
+  {
+    "date": "2026-02-17",
+    "day": 7,
+    "unit": 5,
+    "title": "Food Coloring Lab + Temp Scales",
+    "summary": "Inquiry: Predicting motion based on previous reading. Organization: Conversion Practice Worksheet.",
+    "details": "Predicting motion based on previous reading. Practicing temperature scale conversions.",
+    "type": "Lab",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "wicor": {
+      "inquiry": "Predicting motion based on previous reading.",
+      "organization": "Conversion Practice Worksheet."
     },
-    essentialQuestion: "How does temperature affect the rate of molecular motion?"
-  },
-  {
-    date: "2026-02-16",
-    day: 6,
-    unit: 5,
-    title: "Presidents' Day - No School",
-    summary: "Holiday observed. No school activities scheduled.",
-    details: "Martin Luther King Jr. Day observed.",
-    type: "Activity",
-    dok: 0,
-    semester: 2,
-    isFeatured: false
-  },
-  {
-    date: "2026-02-13",
-    day: 5,
-    unit: 5,
-    title: "Presidents' Day (Observed) - No School",
-    summary: "Holiday observed.",
-    details: "No school.",
-    type: "Activity",
-    dok: 0,
-    semester: 2,
-    isFeatured: false
-  },
-  {
-    date: "2026-02-12",
-    day: 4,
-    unit: 5,
-    title: "Systems vs. Surroundings",
-    summary: "Defining the boundary of our study.",
-    details: "Vocabulary drill: Open vs. Closed vs. Isolated systems. Identifying the system in various scenarios.",
-    type: "Activity",
-    dok: 1,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How do we define the boundaries of a thermodynamic system?"
-  },
-  {
-    date: "2026-02-11",
-    day: 3,
-    unit: 5,
-    title: "Thermal Equilibrium",
-    summary: "When hot meets cold: The inevitable balance.",
-    details: "Conceptual understanding of heat flow. Heat moves from high T to low T until T_final is reached.",
-    type: "Activity",
-    dok: 1,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "Why does heat always flow from higher temperature to lower temperature?"
-  },
-  {
-    date: "2026-02-10",
-    day: 2,
-    unit: 5,
-    title: "Properties of Matter",
-    summary: "Unit 5 Kickoff! Understanding matter and its thermal properties.",
-    details: "Students will use AVID annotation strategies to read and analyze the 'Thermodynamics & Matter' reading, exploring the distinction between temperature (microscopic average KE) and heat (macroscopic energy transfer).",
-    type: "Activity",
-    dok: 1,
-    semester: 2,
-    isFeatured: true,
-    links: {
-      reading: 'https://docs.google.com/document/d/1B2MmWi6uCSIEM9hKdQufnxnwlf1sqyod420oX_KwyBg/edit?usp=sharing'
+    "links": {
+      "Class Presentation": "https://docs.google.com/presentation/d/1hIh64bCJDzl2VfIUFaMOoDsfsF9F7vvSPdYArvxsAFk/edit?usp=sharing"
     },
-    essentialQuestion: "What is the distinction between temperature and heat?"
+    "essentialQuestion": "How does temperature affect the rate of molecular motion?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
   },
   {
-    date: "2026-02-09",
-    day: 1,
-    unit: 5,
-    title: "Wrap up of previous week",
-    summary: "Wrapping up Unit 4 concepts and finalizing outstanding work.",
-    details: "Review and wrap up of concepts from the previous week to ensure a smooth transition into Thermodynamics.",
-    type: "Activity",
-    dok: 1,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How do we bridge the gap between momentum concepts and thermodynamic energy?"
-  },
-
-  // --- Unit 4: Momentum & Impulse ---
-  {
-    date: "2026-02-06",
-    day: 20,
-    unit: 4,
-    title: "Egg Drop: Test Day",
-    summary: "Drop day! Testing egg containers and analyzing impulse reduction effectiveness.",
-    details: "Students drop their egg containers from designated height and analyze which designs were most effective at reducing impulse to protect the egg.",
-    type: "Activity",
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "Which design features are most effective at increasing impact time to protect a passenger?"
+    "date": "2026-02-16",
+    "day": 6,
+    "unit": 5,
+    "title": "Presidents' Day - No School",
+    "summary": "Holiday observed. No school activities scheduled.",
+    "details": "Martin Luther King Jr. Day observed.",
+    "type": "Activity",
+    "dok": 0,
+    "semester": 2,
+    "isFeatured": false,
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
   },
   {
-    date: "2026-02-05",
-    day: 19,
-    unit: 4,
-    title: "Egg Drop: Building Day",
-    summary: "Hands-on construction of egg drop protection containers.",
-    details: "Students build their egg drop protection containers using approved materials, applying impulse reduction principles to protect the egg during impact.",
-    type: "Activity",
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How do we apply engineering constraints to maximize safety in a collision?"
+    "date": "2026-02-13",
+    "day": 5,
+    "unit": 5,
+    "title": "Presidents' Day (Observed) - No School",
+    "summary": "Holiday observed.",
+    "details": "No school.",
+    "type": "Activity",
+    "dok": 0,
+    "semester": 2,
+    "isFeatured": false,
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
   },
   {
-    date: "2026-02-04",
-    day: 18,
-    unit: 4,
-    title: "Impulse, Momentum, and Collisions Review",
-    summary: "Students will work on an impulse, momentum, and collisions review.",
-    details: "Review session covering key concepts of Unit 4 including impulse, momentum, and collision types.",
-    type: "Practice",
-    dok: 2,
-    links: {
-      worksheet: 'https://docs.google.com/document/d/1NTlmnUfAbc-M5DIXjM16fddZQ4kT22gp/edit?usp=drive_link&ouid=111972921986195834260&rtpof=true&sd=true'
+    "date": "2026-02-12",
+    "day": 4,
+    "unit": 5,
+    "title": "Systems vs. Surroundings",
+    "summary": "Defining the boundary of our study.",
+    "details": "Vocabulary drill: Open vs. Closed vs. Isolated systems. Identifying the system in various scenarios.",
+    "type": "Activity",
+    "dok": 1,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do we define the boundaries of a thermodynamic system?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
+  },
+  {
+    "date": "2026-02-11",
+    "day": 3,
+    "unit": 5,
+    "title": "Thermal Equilibrium",
+    "summary": "When hot meets cold: The inevitable balance.",
+    "details": "Conceptual understanding of heat flow. Heat moves from high T to low T until T_final is reached.",
+    "type": "Activity",
+    "dok": 1,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "Why does heat always flow from higher temperature to lower temperature?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
+  },
+  {
+    "date": "2026-02-10",
+    "day": 2,
+    "unit": 5,
+    "title": "Properties of Matter",
+    "summary": "Unit 5 Kickoff! Understanding matter and its thermal properties.",
+    "details": "Students will use AVID annotation strategies to read and analyze the 'Thermodynamics & Matter' reading, exploring the distinction between temperature (microscopic average KE) and heat (macroscopic energy transfer).",
+    "type": "Activity",
+    "dok": 1,
+    "semester": 2,
+    "isFeatured": true,
+    "links": {
+      "reading": "https://docs.google.com/document/d/1B2MmWi6uCSIEM9hKdQufnxnwlf1sqyod420oX_KwyBg/edit?usp=sharing"
     },
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How do we demonstrate mastery of Unit 4 concepts through comprehensive review?"
+    "essentialQuestion": "What is the distinction between temperature and heat?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
   },
   {
-    date: "2026-02-03",
-    day: 17,
-    unit: 4,
-    title: "Practice: Elastic & Inelastic Collisions",
-    summary: "Guided review of collision calculations followed by independent practice.",
-    details: "We reviewed the PowerPoint slides on collision types and worked through example problems. Students then completed the practice worksheet.",
-    type: "Practice",
-    dok: 2,
-    links: {
-      worksheet: 'https://docs.google.com/document/d/1oPYECLlG-p7O3gOdFiw0aGqtdZxQLd9OvZ5jA0VVzSA/edit?usp=sharing'
+    "date": "2026-02-09",
+    "day": 1,
+    "unit": 5,
+    "title": "Wrap up of previous week",
+    "summary": "Wrapping up Unit 4 concepts and finalizing outstanding work.",
+    "details": "Review and wrap up of concepts from the previous week to ensure a smooth transition into Thermodynamics.",
+    "type": "Activity",
+    "dok": 1,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do we bridge the gap between momentum concepts and thermodynamic energy?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
+  },
+  {
+    "date": "2026-02-06",
+    "day": 20,
+    "unit": 4,
+    "title": "Egg Drop: Test Day",
+    "summary": "Drop day! Testing egg containers and analyzing impulse reduction effectiveness.",
+    "details": "Students drop their egg containers from designated height and analyze which designs were most effective at reducing impulse to protect the egg.",
+    "type": "Activity",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "Which design features are most effective at increasing impact time to protect a passenger?",
+    "standards": [
+      "HS-PS2-2",
+      "HS-PS2-3",
+      "HS-ETS1-2"
+    ]
+  },
+  {
+    "date": "2026-02-05",
+    "day": 19,
+    "unit": 4,
+    "title": "Egg Drop: Building Day",
+    "summary": "Hands-on construction of egg drop protection containers.",
+    "details": "Students build their egg drop protection containers using approved materials, applying impulse reduction principles to protect the egg during impact.",
+    "type": "Activity",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do we apply engineering constraints to maximize safety in a collision?",
+    "standards": [
+      "HS-PS2-2",
+      "HS-PS2-3",
+      "HS-ETS1-2"
+    ]
+  },
+  {
+    "date": "2026-02-04",
+    "day": 18,
+    "unit": 4,
+    "title": "Impulse, Momentum, and Collisions Review",
+    "summary": "Students will work on an impulse, momentum, and collisions review.",
+    "details": "Review session covering key concepts of Unit 4 including impulse, momentum, and collision types.",
+    "type": "Practice",
+    "dok": 2,
+    "links": {
+      "worksheet": "https://docs.google.com/document/d/1NTlmnUfAbc-M5DIXjM16fddZQ4kT22gp/edit?usp=drive_link&ouid=111972921986195834260&rtpof=true&sd=true"
     },
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How do we mathematically predict the outcomes of various types of collisions?"
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do we demonstrate mastery of Unit 4 concepts through comprehensive review?",
+    "standards": [
+      "HS-PS2-2",
+      "HS-PS2-3",
+      "HS-ETS1-2"
+    ]
   },
   {
-    date: "2026-02-02",
-    day: 16,
-    unit: 4,
-    title: "Reading: Elastic vs. Inelastic Collisions",
-    summary: "AVID annotations of reading material & Egg Drop project kickoff.",
-    details: "Students annotated the text on Elastic and Inelastic Collisions. We also reviewed the instructions for the upcoming Egg Drop challenge.",
-    type: "Activity",
-    dok: 2,
-    links: {
-      worksheet: 'https://docs.google.com/document/d/1SSEvaA1CjvFzp_syOhSzLdmLxeYmgo4XvjxS0VEK-6Q/edit?usp=sharing',
-      'Egg Drop Instructions': 'https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQCK_YeyS2K9R6Rpf-S4iTzOAe736fEhXKILK4262BaDQbY?e=FbF2YO'
+    "date": "2026-02-03",
+    "day": 17,
+    "unit": 4,
+    "title": "Practice: Elastic & Inelastic Collisions",
+    "summary": "Guided review of collision calculations followed by independent practice.",
+    "details": "We reviewed the PowerPoint slides on collision types and worked through example problems. Students then completed the practice worksheet.",
+    "type": "Practice",
+    "dok": 2,
+    "links": {
+      "worksheet": "https://docs.google.com/document/d/1oPYECLlG-p7O3gOdFiw0aGqtdZxQLd9OvZ5jA0VVzSA/edit?usp=sharing"
     },
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How does the conservation of kinetic energy distinguish elastic from inelastic collisions?"
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do we mathematically predict the outcomes of various types of collisions?",
+    "standards": [
+      "HS-PS2-2",
+      "HS-PS2-3",
+      "HS-ETS1-2"
+    ]
   },
   {
-    date: "2026-01-30",
-    day: 15,
-    unit: 4,
-    title: "Project Launch: Egg Drop Challenge",
-    summary: "Instructions & constraints for the classic Egg Drop project.",
-    details: "Introduction to the Egg Drop Challenge. Students will review the project guidelines, material constraints, and the physics of impulse reduction required to keep their egg safe.",
-    type: "Activity",
-    dok: 2,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How can we apply the impulse-momentum theorem to protect a fragile object from a fall?"
-  },
-  {
-    date: "2026-01-29",
-    day: 14,
-    unit: 4,
-    title: "Collisions in 1D Lab (PhET Simulation)",
-    summary: "Investigating elastic and inelastic collisions using PhET simulation. Partners allowed.",
-    details: "Students used the PhET Collision Lab to collect data and verify conservation of momentum in 1D. Links provided for the simulation and lab worksheet.",
-    type: "Lab",
-    dok: 2,
-    links: {
-      'PhET Simulation': 'https://phet.colorado.edu/sims/html/collision-lab/latest/collision-lab_all.html',
-      worksheet: 'https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBqZra85A4SSK1ZmAvZcPY-ASLOQK3ArJx-cqWamoCeOBc?e=tHrura'
+    "date": "2026-02-02",
+    "day": 16,
+    "unit": 4,
+    "title": "Reading: Elastic vs. Inelastic Collisions",
+    "summary": "AVID annotations of reading material & Egg Drop project kickoff.",
+    "details": "Students annotated the text on Elastic and Inelastic Collisions. We also reviewed the instructions for the upcoming Egg Drop challenge.",
+    "type": "Activity",
+    "dok": 2,
+    "links": {
+      "worksheet": "https://docs.google.com/document/d/1SSEvaA1CjvFzp_syOhSzLdmLxeYmgo4XvjxS0VEK-6Q/edit?usp=sharing",
+      "Egg Drop Instructions": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQCK_YeyS2K9R6Rpf-S4iTzOAe736fEhXKILK4262BaDQbY?e=FbF2YO"
     },
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "What are the differences between elastic and inelastic collisions in terms of momentum conservation?"
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How does the conservation of kinetic energy distinguish elastic from inelastic collisions?",
+    "standards": [
+      "HS-PS2-2",
+      "HS-PS2-3",
+      "HS-ETS1-2"
+    ]
   },
   {
-    date: "2026-01-28",
-    day: 13,
-    unit: 4,
-    title: "PHYSICS LAB: 2D MOMENTUM",
-    summary: "Analyzing conservation of momentum in two dimensions using vector addition. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
-    details: "Students conduct a 2D explosion lab, recording masses and (vx, vy) components to verify conservation rules. Links: <a href='https://rrmudry.github.io/physics-2d-momentum-lab/index.html'>Lab Report Webapp</a> | <a href='https://rrmudry.github.io/conservation-of-momentum/index.html'>Simulation</a>",
-    type: "Lab",
-    dok: 3,
-    links: { 'Lab Report Webapp': 'https://rrmudry.github.io/physics-2d-momentum-lab/index.html', 'Simulation': 'https://rrmudry.github.io/conservation-of-momentum/index.html' },
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How do we apply conservation of momentum using vector addition in two dimensions?"
+    "date": "2026-01-30",
+    "day": 15,
+    "unit": 4,
+    "title": "Project Launch: Egg Drop Challenge",
+    "summary": "Instructions & constraints for the classic Egg Drop project.",
+    "details": "Introduction to the Egg Drop Challenge. Students will review the project guidelines, material constraints, and the physics of impulse reduction required to keep their egg safe.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How can we apply the impulse-momentum theorem to protect a fragile object from a fall?",
+    "standards": [
+      "HS-PS2-2",
+      "HS-PS2-3",
+      "HS-ETS1-2"
+    ]
   },
   {
-    date: "2026-01-27",
-    day: 12,
-    unit: 4,
-    title: "Conservation of Momentum Day 1 Explosions in 1D",
-    summary: "Simulated explosions! Applying conservation laws to 1D system. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
-    details: "In-class investigation of 1D explosions using the simulator. Links: <a href='https://rrmudry.github.io/physics-momentum-lab-report/index.html'>Lab Report Webapp</a> | <a href='https://rrmudry.github.io/conservation-of-momentum/index.html'>Simulation</a>",
-    type: "Lab",
-    dok: 3,
-    links: { 'Lab Report Webapp': 'https://rrmudry.github.io/physics-momentum-lab-report/index.html', 'Simulation': 'https://rrmudry.github.io/conservation-of-momentum/index.html' },
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How is momentum conserved in a closed system during an explosion?"
+    "date": "2026-01-29",
+    "day": 14,
+    "unit": 4,
+    "title": "Collisions in 1D Lab (PhET Simulation)",
+    "summary": "Investigating elastic and inelastic collisions using PhET simulation. Partners allowed.",
+    "details": "Students used the PhET Collision Lab to collect data and verify conservation of momentum in 1D. Links provided for the simulation and lab worksheet.",
+    "type": "Lab",
+    "dok": 2,
+    "links": {
+      "PhET Simulation": "https://phet.colorado.edu/sims/html/collision-lab/latest/collision-lab_all.html",
+      "worksheet": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBqZra85A4SSK1ZmAvZcPY-ASLOQK3ArJx-cqWamoCeOBc?e=tHrura"
+    },
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "What are the differences between elastic and inelastic collisions in terms of momentum conservation?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-PS2-2"
+    ]
   },
   {
-    date: "2026-01-26",
-    day: 11,
-    unit: 4,
-    title: "FINAL ENGINEERING REPORT",
-    summary: "Internal forces driving objects apart. Video analysis.",
-    details: "Students analyze the physics of explosions and internal forces.",
-    type: "Lab",
-    dok: 3,
-    links: { worksheet: 'https://docs.google.com/document/d/15eeYq-2sPEcbqNAOQ0AN9TQ_3i-XIMWXb9Nx_q_w0ps/edit?usp=sharing' },
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How do internal forces drive objects apart in an explosion?"
+    "date": "2026-01-28",
+    "day": 13,
+    "unit": 4,
+    "title": "PHYSICS LAB: 2D MOMENTUM",
+    "summary": "Analyzing conservation of momentum in two dimensions using vector addition. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
+    "details": "Students conduct a 2D explosion lab, recording masses and (vx, vy) components to verify conservation rules. Links: <a href='https://rrmudry.github.io/physics-2d-momentum-lab/index.html'>Lab Report Webapp</a> | <a href='https://rrmudry.github.io/conservation-of-momentum/index.html'>Simulation</a>",
+    "type": "Lab",
+    "dok": 3,
+    "links": {
+      "Lab Report Webapp": "https://rrmudry.github.io/physics-2d-momentum-lab/index.html",
+      "Simulation": "https://rrmudry.github.io/conservation-of-momentum/index.html"
+    },
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do we apply conservation of momentum using vector addition in two dimensions?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-PS2-2"
+    ]
   },
   {
-    date: "2026-01-23",
-    day: 10,
-    unit: 4,
-    title: "Project Testing: Operation Safe Heeler (Crash Test Day)",
-    summary: "Crash test day! Testing barriers and analyzing impulse results.",
-    details: "Final testing day for the crash attenuation barriers. Results available on the project dashboard.",
-    type: "Activity",
-    dok: 3,
-    links: { 'project results': 'operation_safe_heeler_results.html' },
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "Which design features are most effective at increasing impact time to protect a passenger?"
+    "date": "2026-01-27",
+    "day": 12,
+    "unit": 4,
+    "title": "Conservation of Momentum Day 1 Explosions in 1D",
+    "summary": "Simulated explosions! Applying conservation laws to 1D system. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
+    "details": "In-class investigation of 1D explosions using the simulator. Links: <a href='https://rrmudry.github.io/physics-momentum-lab-report/index.html'>Lab Report Webapp</a> | <a href='https://rrmudry.github.io/conservation-of-momentum/index.html'>Simulation</a>",
+    "type": "Lab",
+    "dok": 3,
+    "links": {
+      "Lab Report Webapp": "https://rrmudry.github.io/physics-momentum-lab-report/index.html",
+      "Simulation": "https://rrmudry.github.io/conservation-of-momentum/index.html"
+    },
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How is momentum conserved in a closed system during an explosion?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-PS2-2"
+    ]
   },
   {
-    date: "2026-01-22",
-    day: 9,
-    unit: 4,
-    title: "Project Build: Operation Safe Heeler",
-    summary: "Hands-on construction day for building crash attenuation barriers.",
-    details: "Students apply their knowledge of impulse and momentum to engineer safety systems for the 'Operation Safe Heeler' project.",
-    type: "Activity",
-    dok: 3,
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How do material choices affect the time of impact and the resulting force?"
+    "date": "2026-01-26",
+    "day": 11,
+    "unit": 4,
+    "title": "FINAL ENGINEERING REPORT",
+    "summary": "Internal forces driving objects apart. Video analysis.",
+    "details": "Students analyze the physics of explosions and internal forces.",
+    "type": "Lab",
+    "dok": 3,
+    "links": {
+      "worksheet": "https://docs.google.com/document/d/15eeYq-2sPEcbqNAOQ0AN9TQ_3i-XIMWXb9Nx_q_w0ps/edit?usp=sharing"
+    },
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do internal forces drive objects apart in an explosion?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-PS2-2"
+    ]
   },
   {
-    date: "2026-01-21",
-    day: 8,
-    unit: 4,
-    title: "Rocket Cart Lab: Impulse & Momentum",
-    summary: "Interactive lab exploring impulse and momentum with rocket-powered carts.",
-    details: "Students use the Rocket Cart Lab webapp to investigate the relationship between impulse and momentum.",
-    type: "Lab",
-    dok: 3,
-    links: { webapp: 'https://rrmudry.github.io/rocket-cart-lab/index.html', worksheet: 'https://docs.google.com/document/d/1Wdb2nz8V71ER6nSFD-mLFTPlBpVAbEQP86q2BWbG1EQ/edit?usp=sharing' },
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "What is the relationship between impulse and the change in an object's momentum?"
+    "date": "2026-01-23",
+    "day": 10,
+    "unit": 4,
+    "title": "Project Testing: Operation Safe Heeler (Crash Test Day)",
+    "summary": "Crash test day! Testing barriers and analyzing impulse results.",
+    "details": "Final testing day for the crash attenuation barriers. Results available on the project dashboard.",
+    "type": "Activity",
+    "dok": 3,
+    "links": {
+      "project results": "operation_safe_heeler_results.html"
+    },
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "Which design features are most effective at increasing impact time to protect a passenger?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-PS2-2"
+    ]
   },
   {
-    date: "2026-01-20",
-    day: 7,
-    unit: 4,
-    title: "Project Launch: Operation Safe Heeler",
-    summary: "Today we launch our Unit 4 project: Operation Safe Heeler!",
-    details: "Introduction to crash attenuation barriers. Students will design and build a safety system for a cart. Project Worksheet and Day 7 Link available on dashboard.",
-    type: "Activity",
-    dok: 3,
-    links: { worksheet: 'https://docs.google.com/document/d/1hn4Wwx4MjXH5IWOp-Md69w7-nHm6eNq7SO1o1MgSFYA/edit?usp=sharing', 'project website': 'operation-safe-heeler.html', 'Day 7 Link': 'https://docs.google.com/forms/d/e/1FAIpQLSe43Z06ocBI9LJXwOOFsx4zbF6SfLm73l5uQvU-l76Lpu8bEw/viewform?usp=publish-editor', 'crash barriers video': 'https://www.youtube.com/watch?v=w6CKltZfToY&t=61s' },
-    semester: 2,
-    isFeatured: false,
-    essentialQuestion: "How can we engineer safety systems to reduce impulse during a crash?"
+    "date": "2026-01-22",
+    "day": 9,
+    "unit": 4,
+    "title": "Project Build: Operation Safe Heeler",
+    "summary": "Hands-on construction day for building crash attenuation barriers.",
+    "details": "Students apply their knowledge of impulse and momentum to engineer safety systems for the 'Operation Safe Heeler' project.",
+    "type": "Activity",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do material choices affect the time of impact and the resulting force?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-PS2-2"
+    ]
   },
   {
-    date: "2026-01-19",
-    day: 6,
-    unit: 4,
-    title: "MLK Day - No School",
-    summary: "Holiday observed. No school activities scheduled.",
-    details: "Martin Luther King Jr. Day observed.",
-    type: "Activity",
-    semester: 2,
-    isFeatured: false
+    "date": "2026-01-21",
+    "day": 8,
+    "unit": 4,
+    "title": "Rocket Cart Lab: Impulse & Momentum",
+    "summary": "Interactive lab exploring impulse and momentum with rocket-powered carts.",
+    "details": "Students use the Rocket Cart Lab webapp to investigate the relationship between impulse and momentum.",
+    "type": "Lab",
+    "dok": 3,
+    "links": {
+      "webapp": "https://rrmudry.github.io/rocket-cart-lab/index.html",
+      "worksheet": "https://docs.google.com/document/d/1Wdb2nz8V71ER6nSFD-mLFTPlBpVAbEQP86q2BWbG1EQ/edit?usp=sharing"
+    },
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "What is the relationship between impulse and the change in an object's momentum?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-PS2-2"
+    ]
   },
   {
-    date: "2026-01-16",
-    day: 5,
-    unit: 4,
-    title: "Momentum & Impulse Quiz",
-    summary: "Quiz covering momentum foundations and the impulse-momentum theorem.",
-    details: "Summative assessment on the first week's concepts.",
-    type: "Assessment",
-    dok: 3,
-    semester: 2,
-    isFeatured: false,
-    essentialQuestion: "How can we demonstrate mastery of momentum and the impulse-momentum theorem?"
+    "date": "2026-01-20",
+    "day": 7,
+    "unit": 4,
+    "title": "Project Launch: Operation Safe Heeler",
+    "summary": "Today we launch our Unit 4 project: Operation Safe Heeler!",
+    "details": "Introduction to crash attenuation barriers. Students will design and build a safety system for a cart. Project Worksheet and Day 7 Link available on dashboard.",
+    "type": "Activity",
+    "dok": 3,
+    "links": {
+      "worksheet": "https://docs.google.com/document/d/1hn4Wwx4MjXH5IWOp-Md69w7-nHm6eNq7SO1o1MgSFYA/edit?usp=sharing",
+      "project website": "operation-safe-heeler.html",
+      "Day 7 Link": "https://docs.google.com/forms/d/e/1FAIpQLSe43Z06ocBI9LJXwOOFsx4zbF6SfLm73l5uQvU-l76Lpu8bEw/viewform?usp=publish-editor",
+      "crash barriers video": "https://www.youtube.com/watch?v=w6CKltZfToY&t=61s"
+    },
+    "semester": 2,
+    "isFeatured": false,
+    "essentialQuestion": "How can we engineer safety systems to reduce impulse during a crash?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-PS2-2"
+    ]
   },
   {
-    date: "2026-01-15",
-    day: 4,
-    unit: 4,
-    title: "Hey! Stop that thing!! (Impulse)",
-    summary: "Scenario-based lab calculating the impulse needed to stop an object.",
-    details: "Students create scenarios where objects with momentum are brought to a stop, calculating force and time requirements. Lab worksheet available on dashboard.",
-    type: "Lab",
-    dok: 3,
-    links: { worksheet: 'https://docs.google.com/document/d/1S_9AbUsIyIVDCooBL63XZ5qcB95RGBQCnODqmRtfD3Y/edit?usp=sharing' },
-    semester: 2,
-    isFeatured: false,
-    essentialQuestion: "What determines how much force is needed to stop a moving object?"
+    "date": "2026-01-19",
+    "day": 6,
+    "unit": 4,
+    "title": "MLK Day - No School",
+    "summary": "Holiday observed. No school activities scheduled.",
+    "details": "Martin Luther King Jr. Day observed.",
+    "type": "Activity",
+    "semester": 2,
+    "isFeatured": false,
+    "standards": [
+      "HS-PS2-1",
+      "HS-PS2-2"
+    ]
   },
   {
-    date: "2026-01-14",
-    day: 3,
-    unit: 4,
-    title: "Momentum and Impulse Practice",
-    summary: "Numerical practice with p=mv and J=Ft equations.",
-    details: "Computational worksheet to solidify the mathematical relationship between force, time, and momentum change.",
-    type: "Practice",
-    dok: 2,
-    links: { worksheet: 'https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQCwJD7mmYGORJTobad0Q3FjAZ70FTiLHMdqRQNOBAPoVOk?e=P4qdky' },
-    semester: 2,
-    isFeatured: false,
-    essentialQuestion: "How do we calculate momentum and impulse using p=mv and J=Ft?"
+    "date": "2026-01-16",
+    "day": 5,
+    "unit": 4,
+    "title": "Momentum & Impulse Quiz",
+    "summary": "Quiz covering momentum foundations and the impulse-momentum theorem.",
+    "details": "Summative assessment on the first week's concepts.",
+    "type": "Assessment",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": false,
+    "essentialQuestion": "How can we demonstrate mastery of momentum and the impulse-momentum theorem?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-PS2-2"
+    ]
   },
   {
-    date: "2026-01-13",
-    day: 2,
-    unit: 4,
-    title: "Momentum (PowerPoint Intro)",
-    summary: "Formal introduction to the mathematical definition of momentum.",
-    details: "Lecture and demonstration covering p=mv. Students began notes using the class presentation.",
-    type: "Activity",
-    dok: 2,
-    links: { notes: 'https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDAf56uDWDvRrHKm_dqPjndAaZFIsdJv1aFlRtInx7he0M?e=tpeQBO' },
-    semester: 2,
-    isFeatured: false,
-    essentialQuestion: "What is momentum and how is it mathematically defined?"
+    "date": "2026-01-15",
+    "day": 4,
+    "unit": 4,
+    "title": "Hey! Stop that thing!! (Impulse)",
+    "summary": "Scenario-based lab calculating the impulse needed to stop an object.",
+    "details": "Students create scenarios where objects with momentum are brought to a stop, calculating force and time requirements. Lab worksheet available on dashboard.",
+    "type": "Lab",
+    "dok": 3,
+    "links": {
+      "worksheet": "https://docs.google.com/document/d/1S_9AbUsIyIVDCooBL63XZ5qcB95RGBQCnODqmRtfD3Y/edit?usp=sharing"
+    },
+    "semester": 2,
+    "isFeatured": false,
+    "essentialQuestion": "What determines how much force is needed to stop a moving object?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-PS2-2"
+    ]
   },
   {
-    date: "2026-01-12",
-    day: 1,
-    unit: 4,
-    title: "Understanding Car Crashes",
-    summary: "Welcome back! Today we transition from static forces to the physics of impact.",
-    details: "Watched the YouTube video (MythBusters: Crash Force) and completed the Google Doc.",
-    type: "Activity",
-    dok: 1,
-    links: { video: 'https://www.youtube.com/watch?v=2XKOzibVqJg', worksheet: 'https://docs.google.com/document/d/1-byPZiH6PZ6kOckrk3-35An7i1IDFM6GL_S3jvvXqNs/edit?usp=sharing' },
-    semester: 2,
-    isFeatured: true,
-    essentialQuestion: "How does the physics of impact differ from static forces?"
+    "date": "2026-01-14",
+    "day": 3,
+    "unit": 4,
+    "title": "Momentum and Impulse Practice",
+    "summary": "Numerical practice with p=mv and J=Ft equations.",
+    "details": "Computational worksheet to solidify the mathematical relationship between force, time, and momentum change.",
+    "type": "Practice",
+    "dok": 2,
+    "links": {
+      "worksheet": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQCwJD7mmYGORJTobad0Q3FjAZ70FTiLHMdqRQNOBAPoVOk?e=P4qdky"
+    },
+    "semester": 2,
+    "isFeatured": false,
+    "essentialQuestion": "How do we calculate momentum and impulse using p=mv and J=Ft?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-PS2-2"
+    ]
+  },
+  {
+    "date": "2026-01-13",
+    "day": 2,
+    "unit": 4,
+    "title": "Momentum (PowerPoint Intro)",
+    "summary": "Formal introduction to the mathematical definition of momentum.",
+    "details": "Lecture and demonstration covering p=mv. Students began notes using the class presentation.",
+    "type": "Activity",
+    "dok": 2,
+    "links": {
+      "notes": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDAf56uDWDvRrHKm_dqPjndAaZFIsdJv1aFlRtInx7he0M?e=tpeQBO"
+    },
+    "semester": 2,
+    "isFeatured": false,
+    "essentialQuestion": "What is momentum and how is it mathematically defined?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-PS2-2"
+    ]
+  },
+  {
+    "date": "2026-01-12",
+    "day": 1,
+    "unit": 4,
+    "title": "Understanding Car Crashes",
+    "summary": "Welcome back! Today we transition from static forces to the physics of impact.",
+    "details": "Watched the YouTube video (MythBusters: Crash Force) and completed the Google Doc.",
+    "type": "Activity",
+    "dok": 1,
+    "links": {
+      "video": "https://www.youtube.com/watch?v=2XKOzibVqJg",
+      "worksheet": "https://docs.google.com/document/d/1-byPZiH6PZ6kOckrk3-35An7i1IDFM6GL_S3jvvXqNs/edit?usp=sharing"
+    },
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How does the physics of impact differ from static forces?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-PS2-2"
+    ]
   }
 ];
 
-// Helper to get today's lesson or latest lesson
-function getLatestLesson() {
-  return lessonsData[0]; // Assuming sorted by date descending or just latest entry
-}
-
-// Export for use in browser
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { lessonsData, getLatestLesson };
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { lessonsData };
 }
