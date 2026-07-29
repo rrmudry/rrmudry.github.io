@@ -3,26 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mr. Mudry's Tic Tac Toe Challenge?</title>
+    <title>Dogs vs Cats Tic-Tac-Toe • Mr. Mudry's Physics</title>
+    <meta name="description" content="Play Dogs vs Cats Tic-Tac-Toe! Choose your team, play against an unbeatable AI or a friend, hear custom sound effects, and score big victories!">
     <link rel="icon" type="image/png" href="../head.png">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Mr. Mudry's Tic-Tac-Toe</h1>
-    <div id="game-board" class="board">
-        <div class="cell" data-cell></div>
-        <div class="cell" data-cell></div>
-        <div class="cell" data-cell></div>
-        <div class="cell" data-cell></div>
-        <div class="cell" data-cell></div>
-        <div class="cell" data-cell></div>
-        <div class="cell" data-cell></div>
-        <div class="cell" data-cell></div>
-        <div class="cell" data-cell></div>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="game-header">
+            <a href="../games.html" class="back-link" aria-label="Back to Games">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Games Library
+            </a>
+            <h1 class="game-title">
+                <span class="team-dog-title">DOGS</span>
+                <span class="vs-badge">VS</span>
+                <span class="team-cat-title">CATS</span>
+            </h1>
+            <p class="subtitle">The Ultimate Furry Battle for Grid Supremacy!</p>
+        </header>
+
+        <!-- Main Card Container -->
+        <main class="game-card">
+            <!-- Mode & Sound Control Bar -->
+            <div class="control-panel">
+                <div class="mode-selector" role="group" aria-label="Game Mode">
+                    <button id="modeAiBtn" class="mode-btn active" data-mode="ai">
+                        <span class="btn-icon">🤖</span> vs AI
+                    </button>
+                    <button id="mode2pBtn" class="mode-btn" data-mode="2p">
+                        <span class="btn-icon">👥</span> 2 Players
+                    </button>
+                </div>
+
+                <div id="aiDifficultyGroup" class="difficulty-selector">
+                    <label for="difficultySelect" class="diff-label">AI Level:</label>
+                    <select id="difficultySelect" class="styled-select" aria-label="AI Difficulty">
+                        <option value="easy">Puppy / Kitten (Easy)</option>
+                        <option value="medium" selected>Clever Hound (Medium)</option>
+                        <option value="hard">Alpha Pack (Unbeatable)</option>
+                    </select>
+                </div>
+
+                <div class="audio-control">
+                    <button id="muteBtn" class="icon-btn" aria-label="Toggle Sound Effects" title="Toggle Sound">
+                        <span id="soundIcon">🔊</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Team Avatars & Scoreboard -->
+            <div class="scoreboard">
+                <!-- Team Dog Stats -->
+                <div class="team-card team-dog active-turn" id="teamDogCard">
+                    <div class="avatar-wrapper">
+                        <img src="images/dog_avatar.png" alt="Team Dogs Avatar" class="avatar-img">
+                        <span class="team-badge dog-badge">🐶 WOOF</span>
+                    </div>
+                    <div class="team-info">
+                        <h2 class="team-name">Team Dog</h2>
+                        <div class="score-number" id="dogScore">0</div>
+                    </div>
+                </div>
+
+                <!-- Match Status Banner -->
+                <div class="status-center">
+                    <div class="turn-indicator" id="statusMessage">Team Dog's Turn!</div>
+                    <div class="streak-badge" id="streakDisplay">🔥 Streak: 0</div>
+                </div>
+
+                <!-- Team Cat Stats -->
+                <div class="team-card team-cat" id="teamCatCard">
+                    <div class="avatar-wrapper">
+                        <img src="images/cat_avatar.png" alt="Team Cats Avatar" class="avatar-img">
+                        <span class="team-badge cat-badge">🐱 MEOW</span>
+                    </div>
+                    <div class="team-info">
+                        <h2 class="team-name">Team Cat</h2>
+                        <div class="score-number" id="catScore">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Single Player Player Choice Selector -->
+            <div id="playerChoiceContainer" class="player-choice-bar">
+                <span class="choice-label">Play as:</span>
+                <button id="chooseDogBtn" class="choice-btn active" data-side="dog">
+                    🐶 Dogs (First)
+                </button>
+                <button id="chooseCatBtn" class="choice-btn" data-side="cat">
+                    🐱 Cats (Second)
+                </button>
+            </div>
+
+            <!-- Game Board Container -->
+            <div class="board-wrapper">
+                <div id="gameBoard" class="board" role="grid" aria-label="Tic Tac Toe Grid">
+                    <button class="cell" data-cell-index="0" aria-label="Square 1"></button>
+                    <button class="cell" data-cell-index="1" aria-label="Square 2"></button>
+                    <button class="cell" data-cell-index="2" aria-label="Square 3"></button>
+                    <button class="cell" data-cell-index="3" aria-label="Square 4"></button>
+                    <button class="cell" data-cell-index="4" aria-label="Square 5"></button>
+                    <button class="cell" data-cell-index="5" aria-label="Square 6"></button>
+                    <button class="cell" data-cell-index="6" aria-label="Square 7"></button>
+                    <button class="cell" data-cell-index="7" aria-label="Square 8"></button>
+                    <button class="cell" data-cell-index="8" aria-label="Square 9"></button>
+                </div>
+                <!-- Animated SVG Winning Line Layer -->
+                <svg id="winningLineSvg" class="winning-line-svg" viewBox="0 0 300 300">
+                    <line id="winningLine" x1="0" y1="0" x2="0" y2="0" stroke="currentColor" stroke-width="10" stroke-linecap="round"/>
+                </svg>
+            </div>
+
+            <!-- Bottom Action Controls -->
+            <div class="bottom-actions">
+                <button id="restartBtn" class="action-btn primary-action">
+                    🔄 Next Round
+                </button>
+                <button id="resetScoreBtn" class="action-btn secondary-action">
+                    🗑️ Reset Scores
+                </button>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="game-footer">
+            <p>Keyboard controls: Use <kbd>Arrow Keys</kbd> + <kbd>Enter</kbd> or Numpad <kbd>1-9</kbd> to place pieces.</p>
+        </footer>
     </div>
-    <div id="status" class="status"></div>
-    <button id="restartButton">Restart Game</button>
+
+    <!-- Victory Overlay Modal -->
+    <div id="victoryModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-content">
+            <div class="modal-header-icon" id="modalIcon">🏆</div>
+            <h2 id="modalTitle" class="modal-title">Team Dog Wins!</h2>
+            <p id="modalSubtitle" class="modal-subtitle">Bone-afide Victory!</p>
+            <div class="modal-buttons">
+                <button id="modalPlayAgainBtn" class="action-btn primary-action">Play Again</button>
+            </div>
+        </div>
+    </div>
+
     <canvas id="confetti-canvas"></canvas>
+
+    <!-- Dependencies -->
     <script src="../assets/scoreboard.js"></script>
     <script src="confetti.js"></script>
     <script src="script.js"></script>

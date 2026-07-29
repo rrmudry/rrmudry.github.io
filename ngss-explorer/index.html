@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NGSS 9-12 Science Standards Explorer • Mr. Mudry's Physics</title>
+    <meta name="description" content="Interactive High School (9-12) NGSS Science Standards Explorer. Search, filter, inspect 3D learning components (SEPs, DCIs, CCCs), and access unit blueprints!">
+    <link rel="icon" type="image/png" href="../head.png">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- App Header -->
+        <header class="app-header">
+            <a href="../games.html" class="back-link" aria-label="Back to Games">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Games & Tools Library
+            </a>
+            <h1 class="app-title">NGSS 9-12 Standards Explorer</h1>
+            <p class="subtitle">Interactive High School Science Performance Expectations & 3D Learning Guide</p>
+        </header>
+
+        <!-- Controls & Filters Card -->
+        <main class="controls-card">
+            <!-- Search Bar -->
+            <div class="search-box-wrapper">
+                <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                <input type="text" id="searchInput" class="search-input" placeholder="Search by code (e.g. HS-PS2-1), keyword (e.g. gravity, energy), or SEP..." aria-label="Search NGSS Standards">
+                <button id="clearSearchBtn" class="clear-search-btn" aria-label="Clear Search">&times;</button>
+            </div>
+
+            <!-- Domain Filters -->
+            <div class="filter-row">
+                <span class="filter-label">Domain:</span>
+                <button class="chip-btn active" data-domain="ALL">
+                    All Domains <span class="badge-count" id="countAll">0</span>
+                </button>
+                <button class="chip-btn" data-domain="PS">
+                    ⚡ Physical Science <span class="badge-count" id="countPS">0</span>
+                </button>
+                <button class="chip-btn" data-domain="ESS">
+                    🌍 Earth & Space <span class="badge-count" id="countESS">0</span>
+                </button>
+                <button class="chip-btn" data-domain="LS">
+                    🧬 Life Science <span class="badge-count" id="countLS">0</span>
+                </button>
+                <button class="chip-btn" data-domain="ETS">
+                    🛠️ Engineering <span class="badge-count" id="countETS">0</span>
+                </button>
+                <button class="chip-btn" data-domain="SAVED">
+                    ⭐ Bookmarks <span class="badge-count" id="countSaved">0</span>
+                </button>
+            </div>
+
+            <!-- 3D Learning Filter -->
+            <div class="filter-row">
+                <span class="filter-label">3D Focus:</span>
+                <button class="chip-btn active" data-dimension="ALL">All Dimensions</button>
+                <button class="chip-btn" data-dimension="SEP">🔵 Practices (SEP)</button>
+                <button class="chip-btn" data-dimension="DCI">🟠 Core Ideas (DCI)</button>
+                <button class="chip-btn" data-dimension="CCC">🟢 Concepts (CCC)</button>
+            </div>
+
+            <!-- Results Summary -->
+            <div class="results-summary">
+                <span id="resultsCount">Showing 0 standards</span>
+                <span id="activeFilterLabel">Domain: All</span>
+            </div>
+        </main>
+
+        <!-- Standards Grid Container -->
+        <section id="standardsGrid" class="standards-grid" aria-label="Standards List">
+            <!-- Dynamically populated standards cards -->
+        </section>
+    </div>
+
+    <!-- Detailed Standard View Modal -->
+    <div id="standardModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalCode">
+        <div class="modal-card">
+            <button id="closeModalBtn" class="close-modal-btn" aria-label="Close Modal">&times;</button>
+            
+            <div class="modal-header-badge">
+                <span id="modalCode" class="modal-code">HS-PS2-1</span>
+                <span id="modalDomainPill" class="domain-pill">Physical Science</span>
+            </div>
+
+            <h2 id="modalTitle" class="card-title" style="font-size: 1.4rem;">Newton's Second Law of Motion</h2>
+
+            <div>
+                <div class="modal-section-title">Performance Expectation (PE)</div>
+                <div id="modalPE" class="modal-box"></div>
+            </div>
+
+            <div id="modalClarificationWrapper">
+                <div class="modal-section-title">Clarification Statement</div>
+                <div id="modalClarification" class="modal-box" style="color: var(--text-secondary);"></div>
+            </div>
+
+            <div id="modalBoundaryWrapper">
+                <div class="modal-section-title">Assessment Boundary</div>
+                <div id="modalBoundary" class="modal-box" style="color: var(--text-secondary);"></div>
+            </div>
+
+            <!-- 3D Dimensions Detail -->
+            <div>
+                <div class="modal-section-title">Three-Dimensional Learning (3D)</div>
+                <div class="dimensions-container" style="gap: 0.6rem; margin-top: 0.4rem;">
+                    <div id="modalSEP" class="dim-pill dim-sep" style="padding: 6px 12px; font-size: 0.85rem;"></div>
+                    <div id="modalDCI" class="dim-pill dim-dci" style="padding: 6px 12px; font-size: 0.85rem;"></div>
+                    <div id="modalCCC" class="dim-pill dim-ccc" style="padding: 6px 12px; font-size: 0.85rem;"></div>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <a id="modalUnitBtn" href="#" class="modal-btn primary" target="_blank" rel="noopener">
+                    🚀 View Unit Blueprint
+                </a>
+                <button id="modalSaveBtn" class="modal-btn secondary">
+                    ⭐ Bookmark Standard
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="standards-data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
