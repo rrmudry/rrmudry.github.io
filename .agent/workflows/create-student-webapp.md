@@ -1,9 +1,9 @@
 ---
-description: Guidelines and checklist for creating new student-facing interactive webapps
+description: Guidelines and checklist for creating new student-facing interactive webapps and unit dashboards with automatic NGSS standards alignment
 ---
-# Student Webapp Creation Workflow
+# Student Webapp & Unit Creation Workflow
 
-Follow these requirements and code patterns whenever creating or modifying interactive student-facing web applications (e.g. physics labs, quizzes, simulations) that submit scores to your database.
+Follow these requirements and code patterns whenever creating or modifying interactive student-facing web applications (e.g. physics labs, quizzes, simulations, dashboards) that submit scores to your database and align with standards.
 
 ---
 
@@ -14,6 +14,29 @@ Follow these requirements and code patterns whenever creating or modifying inter
 - [ ] **Unique Assignment ID**: Hardcode a unique constant `ASSIGNMENT_ID` in the webapp code. This must match the document ID in the Firestore `assignments` and `student_results` collections exactly.
 - [ ] **Percentage-Based Scoring**: Design the scoring system to submit grades as a percentage (integer `0` to `100`).
 - [ ] **Highest Score Retention**: Check Firestore for existing submissions and only save the score if it exceeds the student's previous attempt.
+- [ ] **Automatic NGSS Standards Linking**: Include `data-ngss="STANDARD_CODES"` (e.g. `data-ngss="HS-PS2-1,HS-PS2-2"`) or `data-ngss-is="IS1"` in the HTML body to automatically pull and render interactive NGSS standard badges and popover details via `NGSSHelper`.
+
+---
+
+## 📚 Automatic NGSS Standards Integration
+
+Adding NGSS standard alignment to any new unit dashboard, activity, or student webapp requires **zero custom JavaScript**:
+
+### 1. HTML Declarative Auto-Integration
+Simply place a `div` or `span` with the `data-ngss` or `data-ngss-is` attribute anywhere in your HTML:
+
+```html
+<!-- Option A: Link specific standard codes -->
+<div data-ngss="HS-PS2-1, HS-PS2-2, HS-PS2-3"></div>
+
+<!-- Option B: Link an entire CA Physics Instructional Segment -->
+<div data-ngss-is="IS1"></div>
+
+<!-- Option C: Inline Clickable Trigger Button -->
+<button data-ngss-code="HS-PS2-1">View HS-PS2-1 Standard</button>
+```
+
+When the page loads, `assets/ngss-helper.js` automatically scans the DOM, loads `standards-data.js`, and renders styled interactive pill badges that open detailed modal popovers!
 
 ---
 
