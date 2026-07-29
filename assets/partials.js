@@ -3,7 +3,7 @@
   const includeSelector = `[data-${includeAttr}]`;
   
   // Calculate relative path to root
-  const depth = window.location.pathname.split('/').length - 2;
+  const depth = window.location.pathname.split('/').filter(Boolean).length - 1;
   const rootPath = depth > 0 ? '../'.repeat(depth) : '';
   const partialsDir = `${rootPath}partials/`;
 
@@ -47,7 +47,7 @@
         });
       }
 
-      el.innerHTML =html;
+      el.innerHTML = html;
       if (target === 'header') {
         markActiveNav(el);
       }
@@ -57,9 +57,17 @@
     }
   }
 
+  function ensureNGSSHelperLoaded() {
+    if (window.NGSSHelper) return;
+    const script = document.createElement('script');
+    script.src = `${rootPath}assets/ngss-helper.js`;
+    document.head.appendChild(script);
+  }
+
   async function processPartials() {
     const nodes = document.querySelectorAll(includeSelector);
     await Promise.all(Array.from(nodes, injectPartial));
+    ensureNGSSHelperLoaded();
   }
 
   if (document.readyState === 'loading') {
