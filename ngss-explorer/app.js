@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const standards = window.NGSS_STANDARDS_DATA || [];
     let searchQuery = '';
     let selectedDomain = 'ALL';
+    let selectedIS = 'ALL';
     let selectedDimension = 'ALL';
     let savedBookmarks = new Set();
 
@@ -15,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('searchInput');
     const clearSearchBtn = document.getElementById('clearSearchBtn');
     const domainBtns = document.querySelectorAll('.chip-btn[data-domain]');
+    const isBtns = document.querySelectorAll('.chip-btn[data-is]');
     const dimensionBtns = document.querySelectorAll('.chip-btn[data-dimension]');
     const standardsGrid = document.getElementById('standardsGrid');
     const resultsCountEl = document.getElementById('resultsCount');
@@ -33,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeModalBtn = document.getElementById('closeModalBtn');
     const modalCode = document.getElementById('modalCode');
     const modalDomainPill = document.getElementById('modalDomainPill');
+    const modalISPill = document.getElementById('modalISPill');
     const modalTitle = document.getElementById('modalTitle');
     const modalPE = document.getElementById('modalPE');
     const modalClarification = document.getElementById('modalClarification');
@@ -87,7 +90,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 return false;
             }
 
-            // 2. Search Query Filter
+            // 2. CA Instructional Segment (IS) Filter
+            if (selectedIS !== 'ALL') {
+                if (item.is !== selectedIS) return false;
+            }
+
+            // 3. Search Query Filter
             if (searchQuery.trim() !== '') {
                 const q = searchQuery.toLowerCase().trim();
                 const matchesCode = item.code.toLowerCase().includes(q);
@@ -103,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // 3. Dimension Focus Filter
+            // 4. Dimension Focus Filter
             if (selectedDimension === 'SEP' && !item.sep) return false;
             if (selectedDimension === 'DCI' && !item.dci) return false;
             if (selectedDimension === 'CCC' && !item.ccc) return false;
@@ -134,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const filtered = filterStandards();
 
         resultsCountEl.textContent = `Showing ${filtered.length} of ${standards.length} standards`;
-        activeFilterLabelEl.textContent = `Domain: ${getDomainLabel(selectedDomain)}`;
+        activeFilterLabelEl.textContent = `Domain: ${getDomainLabel(selectedDomain)}${selectedIS !== 'ALL' ? ' | ' + selectedIS : ''}`;
 
         standardsGrid.innerHTML = '';
 
@@ -143,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="no-results">
                     <div class="no-results-icon">🔍</div>
                     <h3>No Matching NGSS Standards Found</h3>
-                    <p style="margin-top: 0.4rem;">Try adjusting your search terms or selecting another domain filter.</p>
+                    <p style="margin-top: 0.4rem;">Try adjusting your search terms or selecting another domain/segment filter.</p>
                 </div>
             `;
             return;
@@ -167,7 +175,10 @@ document.addEventListener('DOMContentLoaded', () => {
             card.innerHTML = `
                 <div class="card-header">
                     <span class="code-badge">${item.code}</span>
-                    <span class="domain-pill">${item.domain}</span>
+                    <div style="display: flex; gap: 4px; align-items: center;">
+                        ${item.is ? `<span class="domain-pill" style="background: rgba(0,243,255,0.1); color: var(--ps-color); border-color: rgba(0,243,255,0.3);">${item.is}</span>` : ''}
+                        <span class="domain-pill">${item.domain}</span>
+                    </div>
                 </div>
                 <div>
                     <h3 class="card-title">${item.title}</h3>
@@ -213,6 +224,14 @@ document.addEventListener('DOMContentLoaded', () => {
         currentModalItem = item;
         modalCode.textContent = item.code;
         modalDomainPill.textContent = item.domain;
+        
+        if (item.is) {
+            modalISPill.style.display = 'inline-block';
+            modalISPill.textContent = `CA ${item.is}`;
+        } else {
+            modalISPill.style.display = 'none';
+        }
+
         modalTitle.textContent = item.title;
         modalPE.textContent = item.pe;
 
@@ -284,6 +303,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 domainBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 selectedDomain = btn.dataset.domain;
+                render();
+            });
+        });
+
+        // Instructional Segment (IS) Buttons
+        isBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                isBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedIS = btn.dataset.is;
                 render();
             });
         });
