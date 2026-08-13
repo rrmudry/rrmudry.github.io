@@ -256,7 +256,10 @@
             <!-- Left Side: Phenomenon Anchor & Question -->
             <div class="glass-card rounded-[24px] p-6 md:p-8 flex flex-col gap-6">
                 <!-- Anchor Image / Graph Container -->
-                <div id="phenomenon-container" class="w-full aspect-video rounded-xl bg-slate-950/80 border border-white/5 overflow-hidden relative flex items-center justify-center">
+                <div id="phenomenon-container" class="w-full min-h-[380px] h-[380px] md:h-[440px] rounded-xl bg-slate-950/80 border border-white/5 overflow-hidden relative flex items-center justify-center group">
+                    <button id="enlarge-graph-btn" onclick="openEnlargedGraphModal()" class="hidden absolute top-3 right-3 z-10 px-3 py-1.5 bg-slate-900/90 hover:bg-slate-800 text-cyan-400 border border-cyan-500/30 rounded-lg text-xs font-semibold shadow-lg transition backdrop-blur-md flex items-center gap-1.5">
+                        <span>🔍 Enlarge Graph</span>
+                    </button>
                     <img id="phenomenon-image" src="" alt="Phenomenon Graph/Data Table" class="w-full h-full object-contain hidden">
                     <div id="phenomenon-graph-wrapper" class="w-full h-full p-2 hidden relative"></div>
                     <div id="phenomenon-placeholder" class="text-center p-6 text-slate-500">
@@ -640,10 +643,13 @@
             const graphWrapperEl = document.getElementById('phenomenon-graph-wrapper');
             const placeholderEl = document.getElementById('phenomenon-placeholder');
 
+            window.activeSessionConfig = config;
+
             if ((activeActivityType === "graph_interpretation" || config.graphData) && config.graphData) {
                 imgEl.classList.add('hidden');
                 placeholderEl.classList.add('hidden');
                 graphWrapperEl.classList.remove('hidden');
+                document.getElementById('enlarge-graph-btn').classList.remove('hidden');
 
                 const gData = { ...config.graphData, theme: 'dark' };
                 if (!window.studentGraphEngine) {
@@ -653,12 +659,14 @@
                 }
             } else if (config.phenomenonImageUrl) {
                 if (window.studentGraphEngine) { window.studentGraphEngine.destroy(); window.studentGraphEngine = null; }
+                document.getElementById('enlarge-graph-btn').classList.add('hidden');
                 graphWrapperEl.classList.add('hidden');
                 imgEl.src = config.phenomenonImageUrl;
                 imgEl.classList.remove('hidden');
                 placeholderEl.classList.add('hidden');
             } else {
                 if (window.studentGraphEngine) { window.studentGraphEngine.destroy(); window.studentGraphEngine = null; }
+                document.getElementById('enlarge-graph-btn').classList.add('hidden');
                 graphWrapperEl.classList.add('hidden');
                 imgEl.classList.add('hidden');
                 placeholderEl.classList.remove('hidden');
@@ -1611,6 +1619,28 @@ Output ONLY a raw JSON object containing a single key "score" with the integer v
             }
         }
 
+        let enlargedGraphEngine = null;
+
+        function openEnlargedGraphModal() {
+            if (!window.activeSessionConfig || !window.activeSessionConfig.graphData) return;
+            const modal = document.getElementById('enlarged-graph-modal');
+            const container = document.getElementById('modal-graph-container');
+            modal.classList.remove('hidden');
+
+            const gData = { ...window.activeSessionConfig.graphData, theme: 'dark' };
+            document.getElementById('modal-graph-title').innerText = `${gData.title || "Phenomenon Graph"} (Fullscreen View)`;
+
+            if (!enlargedGraphEngine) {
+                enlargedGraphEngine = new CASTGraphEngine(container, gData);
+            } else {
+                enlargedGraphEngine.update(gData);
+            }
+        }
+
+        function closeEnlargedGraphModal() {
+            document.getElementById('enlarged-graph-modal').classList.add('hidden');
+        }
+
         // Helper: get current local date in YYYY-MM-DD
         function getTodayString() {
             const d = new Date();
@@ -1620,5 +1650,21 @@ Output ONLY a raw JSON object containing a single key "score" with the integer v
             return `${year}-${month}-${day}`;
         }
     </script>
+
+    <!-- Fullscreen Enlarged Graph Modal -->
+    <div id="enlarged-graph-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-4 md:p-8">
+        <div class="w-full max-w-5xl bg-slate-900 border border-slate-700/80 rounded-2xl p-6 shadow-2xl space-y-4 relative flex flex-col h-[85vh]">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 id="modal-graph-title" class="text-base font-bold text-white flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+                    Phenomenon Graph (Fullscreen View)
+                </h3>
+                <button onclick="closeEnlargedGraphModal()" class="text-slate-400 hover:text-white px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-semibold border border-slate-700">
+                    ✕ Close
+                </button>
+            </div>
+            <div id="modal-graph-container" class="w-full flex-grow relative bg-slate-950 border border-slate-800 rounded-xl p-2"></div>
+        </div>
+    </div>
 </body>
 </html>
