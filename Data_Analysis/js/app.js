@@ -3,6 +3,7 @@
  */
 
 let chartInstance = null;
+let graphEngine = null;
 
 const presets = {
   custom: {
@@ -706,166 +707,63 @@ function removeRow(index) {
 }
 
 function calculateLinearRegression(points, optMinX, optMaxX) {
-  const n = points.length;
-  if (n < 2) return null;
-
-  let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0, sumYY = 0;
-  points.forEach(p => {
-    sumX += p.x;
-    sumY += p.y;
-    sumXY += p.x * p.y;
-    sumXX += p.x * p.x;
-    sumYY += p.y * p.y;
-  });
-
-  const denom = (n * sumXX - sumX * sumX);
-  if (denom === 0) return null;
-
-  const slope = (n * sumXY - sumX * sumY) / denom;
-  const intercept = (sumY - slope * sumX) / n;
-
-  const numR = (n * sumXY - sumX * sumY);
-  const denR = Math.sqrt((n * sumXX - sumX * sumX) * (n * sumYY - sumY * sumY));
-  const r2 = denR === 0 ? 0 : Math.pow(numR / denR, 2);
-
-  const minX = (optMinX !== undefined && !isNaN(optMinX)) ? optMinX : Math.min(...points.map(p => p.x));
-  const maxX = (optMaxX !== undefined && !isNaN(optMaxX)) ? optMaxX : Math.max(...points.map(p => p.x));
-
-  return {
-    slope,
-    intercept,
-    r2,
-    trendlineData: [
-      { x: minX, y: slope * minX + intercept },
-      { x: maxX, y: slope * maxX + intercept }
-    ]
-  };
+  return CASTGraphEngine.calculateLinearRegression(points, optMinX, optMaxX);
 }
 
 function renderChart() {
-  const ctx = document.getElementById('mainChart').getContext('2d');
-  if (!ctx) return;
-  
-  if (chartInstance) {
-    chartInstance.destroy();
-  }
+  const canvasEl = document.getElementById('mainChart');
+  if (!canvasEl) return;
 
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  const textColor = isDark ? '#f8fafc' : '#0f172a';
-  const gridColor = isDark ? '#334155' : '#e2e8f0';
-  const mutedColor = isDark ? '#94a3b8' : '#64748b';
-
-  const isBar = currentDataset.chartType === 'bar';
-  const xTitle = currentDataset.xAxisUnit ? `${currentDataset.xAxisLabel} (${currentDataset.xAxisUnit})` : currentDataset.xAxisLabel;
-
   const yLabelText = currentDataset.yAxisLabel !== undefined ? currentDataset.yAxisLabel : (currentDataset.series[0]?.label || 'Y Axis');
   const yUnitText = currentDataset.yAxisUnit !== undefined ? currentDataset.yAxisUnit : (currentDataset.series[0]?.unit || '');
-  const yTitle = yUnitText ? `${yLabelText} (${yUnitText})` : yLabelText;
 
   document.getElementById('printReportTitle').innerText = `${currentDataset.title} - CAST Lab Report`;
 
-  // Compute actual data extremes for scale bounds
-  let xDataMin = undefined, xDataMax = undefined;
-  let yDataMin = undefined, yDataMax = undefined;
+  const engineOpts = {
+    title: currentDataset.title,
+    chartType: currentDataset.chartType,
+    showBestFit: currentDataset.showBestFit,
+    showGrid: currentDataset.showGrid,
+    theme: isDark ? 'dark' : 'light',
+    xAxis: {
+      label: currentDataset.xAxisLabel,
+      unit: currentDataset.xAxisUnit,
+      min: currentDataset.xMin,
+      max: currentDataset.xMax,
+      beginAtZero: currentDataset.showZero
+    },
+    yAxis: {
+      label: yLabelText,
+      unit: yUnitText,
+      min: currentDataset.yMin,
+      max: currentDataset.yMax,
+      beginAtZero: currentDataset.showZero
+    },
+    pointLabels: currentDataset.pointLabels,
+    xValues: currentDataset.xValues,
+    series: currentDataset.series
+  };
 
-  if (!isBar && currentDataset.xValues.length > 0) {
-    const numX = currentDataset.xValues.map(v => parseFloat(v) || 0);
-    xDataMin = Math.min(...numX);
-    xDataMax = Math.max(...numX);
+  if (!graphEngine) {
+    graphEngine = new CASTGraphEngine(canvasEl, engineOpts);
+  } else {
+    graphEngine.update(engineOpts);
   }
-  if (currentDataset.series.length > 0) {
-    const allY = currentDataset.series.flatMap(s => s.values.map(v => parseFloat(v) || 0));
-    if (allY.length > 0) {
-      yDataMin = Math.min(...allY);
-      yDataMax = Math.max(...allY);
-    }
-  }
 
-  // User-specified overrides (from custom axis range inputs)
-  const userXMin = (!isBar && currentDataset.xMin !== "") ? parseFloat(currentDataset.xMin) : undefined;
-  const userXMax = (!isBar && currentDataset.xMax !== "") ? parseFloat(currentDataset.xMax) : undefined;
-  const userYMin = (currentDataset.yMin !== "") ? parseFloat(currentDataset.yMin) : undefined;
-  const userYMax = (currentDataset.yMax !== "") ? parseFloat(currentDataset.yMax) : undefined;
-  const xBeginAtZero = !isBar && currentDataset.showZero && (userXMin === undefined);
-  const yBeginAtZero = currentDataset.showZero && (userYMin === undefined);
+  // Preserve global chartInstance reference for legacy callers
+  chartInstance = graphEngine.chartInstance;
 
-  const xMinVal = (userXMin !== undefined) ? userXMin :
-                  (xBeginAtZero && xDataMin !== undefined && xDataMin < 0) ? xDataMin :
-                  (xBeginAtZero) ? 0 : undefined;
+  // Update regression statistics UI
+  const isBar = currentDataset.chartType === 'bar';
+  const regPrimary = graphEngine.getRegression(0);
 
-  const yMinVal = (userYMin !== undefined) ? userYMin :
-                  (yBeginAtZero && yDataMin !== undefined && yDataMin < 0) ? yDataMin :
-                  (yBeginAtZero) ? 0 : undefined;
-
-  const xSugMax = (xDataMax !== undefined && xDataMax > 0) ? xDataMax * 1.1 : (xDataMax !== undefined && xDataMax < 0) ? xDataMax * 0.9 : undefined;
-  const ySugMax = (yDataMax !== undefined && yDataMax > 0) ? yDataMax * 1.1 : (yDataMax !== undefined && yDataMax < 0) ? yDataMax * 0.9 : undefined;
-
-  const trendMinX = userXMin !== undefined ? userXMin : (xMinVal !== undefined ? xMinVal : xDataMin);
-  const trendMaxX = userXMax !== undefined ? userXMax : (xSugMax !== undefined ? xSugMax : xDataMax);
-
-  const chartDatasets = [];
-
-  currentDataset.series.forEach((s, sIdx) => {
-    const sColor = s.color || "#0284c7";
-    const pStyle = s.pointStyle || "circle";
-    const pRadius = parseInt(s.pointRadius) || 6;
-    const yLabel = s.unit ? `${s.label} (${s.unit})` : s.label;
-
-    if (isBar) {
-      chartDatasets.push({
-        label: yLabel,
-        data: s.values.map(v => parseFloat(v) || 0),
-        backgroundColor: sColor,
-        borderColor: sColor,
-        borderWidth: 1
-      });
-    } else {
-      const pts = currentDataset.xValues.map((x, idx) => ({
-        x: parseFloat(x) || 0,
-        y: parseFloat(s.values[idx]) || 0
-      }));
-
-      chartDatasets.push({
-        label: yLabel,
-        data: pts,
-        backgroundColor: sColor,
-        borderColor: sColor,
-        pointStyle: pStyle,
-        pointRadius: pRadius,
-        pointHoverRadius: pRadius + 3,
-        showLine: currentDataset.chartType === 'line'
-      });
-
-      const reg = calculateLinearRegression(pts, trendMinX, trendMaxX);
-      if (currentDataset.showBestFit && reg && !isNaN(reg.slope)) {
-        chartDatasets.push({
-          label: `${s.label} Trend (y = ${reg.slope.toFixed(2)}x + ${reg.intercept.toFixed(2)})`,
-          data: reg.trendlineData,
-          type: 'line',
-          borderColor: sColor,
-          borderWidth: 2,
-          borderDash: [6, 6],
-          pointRadius: 0,
-          fill: false,
-          clip: false
-        });
-      }
-    }
-  });
-
-  const firstSeriesPts = currentDataset.xValues.map((x, idx) => ({
-    x: parseFloat(x) || 0,
-    y: parseFloat(currentDataset.series[0]?.values[idx]) || 0
-  }));
-  const regPrimary = calculateLinearRegression(firstSeriesPts, trendMinX, trendMaxX);
   if (!isBar && regPrimary && !isNaN(regPrimary.slope)) {
-    document.getElementById('equationBadge').innerText = `y = ${regPrimary.slope.toFixed(2)}x + ${regPrimary.intercept.toFixed(2)}`;
+    document.getElementById('equationBadge').innerText = regPrimary.formula;
     document.getElementById('slopeVal').innerText = regPrimary.slope.toFixed(3);
     document.getElementById('interceptVal').innerText = regPrimary.intercept.toFixed(3);
     document.getElementById('r2Val').innerText = regPrimary.r2.toFixed(3);
-
-    const relText = regPrimary.slope > 0 ? "Direct Positive Trend" : (regPrimary.slope < 0 ? "Inverse / Negative Trend" : "No Linear Trend");
-    document.getElementById('relationshipBadge').innerText = relText;
+    document.getElementById('relationshipBadge').innerText = regPrimary.relationship;
   } else {
     document.getElementById('equationBadge').innerText = isBar ? "Bar Chart" : "Scatter Plot";
     document.getElementById('relationshipBadge').innerText = isBar ? "Categorical" : "Custom Plot";
@@ -873,89 +771,6 @@ function renderChart() {
     document.getElementById('interceptVal').innerText = '--';
     document.getElementById('r2Val').innerText = '--';
   }
-
-  const barLabels = currentDataset.xValues.map((x, idx) => {
-    const pLabel = (currentDataset.pointLabels && currentDataset.pointLabels[idx] !== undefined) ? currentDataset.pointLabels[idx] : undefined;
-    if (pLabel && pLabel.trim() !== "" && !pLabel.startsWith("Pt ")) {
-      return pLabel;
-    }
-    return x !== undefined ? String(x) : `Cat ${idx + 1}`;
-  });
-
-  chartInstance = new Chart(ctx, {
-    type: isBar ? 'bar' : 'scatter',
-    data: {
-      labels: isBar ? barLabels : undefined,
-      datasets: chartDatasets.map(ds => ({ ...ds, clip: ds.clip !== undefined ? ds.clip : false }))
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      layout: {
-        padding: { left: 5, right: 15, top: 10, bottom: 5 }
-      },
-      plugins: {
-        title: {
-          display: true,
-          text: currentDataset.title,
-          color: textColor,
-          font: { size: 15, weight: 'bold' }
-        },
-        legend: {
-          labels: { color: mutedColor, usePointStyle: true }
-        },
-        tooltip: {
-          callbacks: {
-            title: function(context) {
-              if (!context || !context.length) return '';
-              const dataIdx = context[0].dataIndex;
-              const ptLabel = (currentDataset.pointLabels && currentDataset.pointLabels[dataIdx] !== undefined) ? currentDataset.pointLabels[dataIdx] : '';
-              return ptLabel ? ptLabel : `Pt ${dataIdx + 1}`;
-            }
-          }
-        }
-      },
-      scales: {
-        x: {
-          type: isBar ? 'category' : 'linear',
-          title: { display: true, text: xTitle, color: textColor, font: { weight: 'bold' } },
-          grid: { display: currentDataset.showGrid !== false, color: gridColor },
-          min: isBar ? undefined : xMinVal,
-          suggestedMax: isBar ? undefined : xSugMax,
-          max: isBar ? undefined : userXMax,
-          ticks: {
-            display: true,
-            beginAtZero: isBar ? undefined : xBeginAtZero,
-            color: mutedColor,
-            font: { size: 11 },
-            callback: function(val, index) {
-              if (isBar) {
-                return this.getLabelForValue(val);
-              }
-              return Number.isInteger(val) ? val : parseFloat(val.toFixed(2));
-            }
-          }
-        },
-        y: {
-          title: { display: true, text: yTitle, color: textColor, font: { weight: 'bold' } },
-          grid: { display: currentDataset.showGrid !== false, color: gridColor },
-          min: yMinVal,
-          suggestedMax: ySugMax,
-          max: userYMax,
-          ticks: {
-            display: true,
-            beginAtZero: yBeginAtZero,
-            padding: 6,
-            color: mutedColor,
-            font: { size: 11 },
-            callback: function(val) {
-              return Number.isInteger(val) ? val : parseFloat(val.toFixed(2));
-            }
-          }
-        }
-      }
-    }
-  });
 
   document.getElementById('dataPointCount').innerText = currentDataset.xValues.length;
 }
@@ -1041,25 +856,9 @@ function checkAnswer(qId, selectedIdx, correctIdx, btnEl) {
 }
 
 function exportChartImage() {
-  if (!chartInstance) return;
-
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  const bgColor = isDark ? '#0f172a' : '#ffffff';
-
-  const sourceCanvas = chartInstance.canvas;
-  const tempCanvas = document.createElement('canvas');
-  tempCanvas.width = sourceCanvas.width;
-  tempCanvas.height = sourceCanvas.height;
-
-  const tempCtx = tempCanvas.getContext('2d');
-  tempCtx.fillStyle = bgColor;
-  tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-  tempCtx.drawImage(sourceCanvas, 0, 0);
-
-  const link = document.createElement('a');
-  link.download = `${currentDataset.title.replace(/\s+/g, '_')}_graph.png`;
-  link.href = tempCanvas.toDataURL('image/png');
-  link.click();
+  if (graphEngine) {
+    graphEngine.exportPNG(`${currentDataset.title.replace(/\s+/g, '_')}_graph.png`);
+  }
 }
 
 function exportJSON() {
