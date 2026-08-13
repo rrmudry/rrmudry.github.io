@@ -9,6 +9,8 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../assets/js/cast-graph-engine.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -161,6 +163,7 @@
                             <label for="activity-type-select" class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Activity Type</label>
                             <select id="activity-type-select" onchange="toggleActivityFields()" class="w-full rounded-xl bg-slate-950/60 border border-white/10 px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 text-sm">
                                 <option value="free_response">Free Response Explanation</option>
+                                <option value="graph_interpretation">📊 Graph Interpretation (CASTGraphEngine)</option>
                                 <option value="connections">Connections Grid Game</option>
                                 <option value="concept_chat">Concept Chat (AI Messaging)</option>
                             </select>
@@ -207,6 +210,77 @@
                             <input type="text" id="phenomenon-desc" placeholder="Refer to the white board graph for the distance vs time line." 
                                    class="w-full rounded-xl bg-slate-950/60 border border-white/10 px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 text-sm">
                         </div>
+                    </div>
+
+                    <!-- Graph Interpretation Settings -->
+                    <div id="graph-interpretation-fields" class="hidden flex flex-col gap-6">
+                        <div class="flex flex-col gap-2">
+                            <label for="graph-prompt-input" class="text-xs text-cyan-400 font-bold tracking-wider uppercase">Graph Interpretation Prompt Question</label>
+                            <textarea id="graph-prompt-input" placeholder="e.g. Analyze the graph of Voltage vs Current. Based on the slope of the line, what is the resistance of the circuit?" 
+                                      class="w-full min-h-[90px] rounded-xl bg-slate-950/60 border border-cyan-500/30 p-3 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 text-sm resize-y"></textarea>
+                        </div>
+
+                        <div class="flex flex-col gap-2">
+                            <label for="graph-explanation-input" class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Correct Explanation (Revealed post-lockout)</label>
+                            <textarea id="graph-explanation-input" placeholder="e.g. According to Ohm's Law (V = IR), the slope represents Resistance (R = V/I). The slope is 20 V/A, meaning the resistance is 20 Ω." 
+                                      class="w-full min-h-[80px] rounded-xl bg-slate-950/60 border border-white/10 p-3 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 text-sm resize-y"></textarea>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="flex flex-col gap-2">
+                                <label for="graph-title" class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Graph Title</label>
+                                <input type="text" id="graph-title" placeholder="Ohm's Law: Voltage vs Current" 
+                                       class="w-full rounded-xl bg-slate-950/60 border border-white/10 px-3 py-2 text-white text-sm">
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <label for="graph-chart-type" class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Chart Type</label>
+                                <select id="graph-chart-type" class="w-full rounded-xl bg-slate-950/60 border border-white/10 px-3 py-2 text-white text-sm">
+                                    <option value="scatter">Scatter Plot (Continuous Data)</option>
+                                    <option value="line">Connected Line Graph</option>
+                                    <option value="bar">Categorical Bar Chart</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="flex flex-col gap-2">
+                                <label for="graph-x-label" class="text-xs text-slate-400 font-semibold tracking-wider uppercase">X-Axis Label & Unit</label>
+                                <div class="flex gap-2">
+                                    <input type="text" id="graph-x-label" placeholder="Current (I)" class="w-2/3 rounded-xl bg-slate-950/60 border border-white/10 px-3 py-2 text-white text-sm">
+                                    <input type="text" id="graph-x-unit" placeholder="A" class="w-1/3 rounded-xl bg-slate-950/60 border border-white/10 px-3 py-2 text-white text-sm">
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <label for="graph-y-label" class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Y-Axis Label & Unit</label>
+                                <div class="flex gap-2">
+                                    <input type="text" id="graph-y-label" placeholder="Voltage (V)" class="w-2/3 rounded-xl bg-slate-950/60 border border-white/10 px-3 py-2 text-white text-sm">
+                                    <input type="text" id="graph-y-unit" placeholder="V" class="w-1/3 rounded-xl bg-slate-950/60 border border-white/10 px-3 py-2 text-white text-sm">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="flex flex-col gap-2">
+                                <label for="graph-x-vals" class="text-xs text-slate-400 font-semibold tracking-wider uppercase">X Values (Comma Separated)</label>
+                                <input type="text" id="graph-x-vals" placeholder="0.1, 0.2, 0.3, 0.4, 0.5" class="w-full rounded-xl bg-slate-950/60 border border-white/10 px-3 py-2 text-white text-sm font-mono">
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <label for="graph-y-vals" class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Y Values (Comma Separated)</label>
+                                <input type="text" id="graph-y-vals" placeholder="2.0, 4.0, 6.0, 8.0, 10.0" class="w-full rounded-xl bg-slate-950/60 border border-white/10 px-3 py-2 text-white text-sm font-mono">
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-4">
+                            <label class="flex items-center gap-2 cursor-pointer text-xs text-slate-300">
+                                <input type="checkbox" id="graph-best-fit" checked class="w-4 h-4 text-cyan-500 rounded bg-slate-950 border-white/10">
+                                Show Best-Fit Trendline
+                            </label>
+                            <button type="button" onclick="previewTeacherGraph()" class="px-3 py-1.5 bg-cyan-600/30 hover:bg-cyan-600/50 text-cyan-300 border border-cyan-500/30 rounded-lg text-xs font-semibold">
+                                🔄 Refresh Graph Preview
+                            </button>
+                        </div>
+
+                        <div id="teacher-graph-preview-container" class="w-full h-[260px] bg-slate-950/80 border border-slate-800 rounded-xl p-2 relative"></div>
                     </div>
 
                     <!-- Concept Chat Settings -->
@@ -589,6 +663,21 @@ CRITICAL RULES:
                 document.getElementById('explanation-input').value = br.explanation || "";
                 document.getElementById('phenomenon-url').value = br.phenomenonImageUrl || "";
                 document.getElementById('phenomenon-desc').value = br.phenomenonDesc || "";
+            } else if (activityType === "graph_interpretation") {
+                document.getElementById('graph-prompt-input').value = br.promptQuestion || "";
+                document.getElementById('graph-explanation-input').value = br.explanation || "";
+                if (br.graphData) {
+                    document.getElementById('graph-title').value = br.graphData.title || "";
+                    document.getElementById('graph-chart-type').value = br.graphData.chartType || "scatter";
+                    document.getElementById('graph-x-label').value = br.graphData.xAxis?.label || "";
+                    document.getElementById('graph-x-unit').value = br.graphData.xAxis?.unit || "";
+                    document.getElementById('graph-y-label').value = br.graphData.yAxis?.label || "";
+                    document.getElementById('graph-y-unit').value = br.graphData.yAxis?.unit || "";
+                    document.getElementById('graph-x-vals').value = (br.graphData.xValues || []).join(", ");
+                    document.getElementById('graph-y-vals').value = (br.graphData.series?.[0]?.values || []).join(", ");
+                    document.getElementById('graph-best-fit').checked = br.graphData.showBestFit !== false;
+                }
+                setTimeout(previewTeacherGraph, 100);
             } else if (activityType === "connections" && br.connectionsData) {
                 const cats = br.connectionsData.categories;
                 for (let c = 0; c < 4; c++) {
@@ -608,19 +697,54 @@ CRITICAL RULES:
 
         function toggleActivityFields() {
             const type = document.getElementById('activity-type-select').value;
-            if (type === 'free_response') {
-                document.getElementById('free-response-fields').classList.remove('hidden');
-                document.getElementById('connections-fields').classList.add('hidden');
-                document.getElementById('concept-chat-fields').classList.add('hidden');
-            } else if (type === 'connections') {
-                document.getElementById('free-response-fields').classList.add('hidden');
-                document.getElementById('connections-fields').classList.remove('hidden');
-                document.getElementById('concept-chat-fields').classList.add('hidden');
-            } else if (type === 'concept_chat') {
-                document.getElementById('free-response-fields').classList.add('hidden');
-                document.getElementById('connections-fields').classList.add('hidden');
-                document.getElementById('concept-chat-fields').classList.remove('hidden');
+            document.getElementById('free-response-fields').classList.toggle('hidden', type !== 'free_response');
+            document.getElementById('graph-interpretation-fields').classList.toggle('hidden', type !== 'graph_interpretation');
+            document.getElementById('connections-fields').classList.toggle('hidden', type !== 'connections');
+            document.getElementById('concept-chat-fields').classList.toggle('hidden', type !== 'concept_chat');
+            if (type === 'graph_interpretation') {
+                setTimeout(previewTeacherGraph, 100);
             }
+        }
+
+        let teacherPreviewGraphEngine = null;
+
+        function previewTeacherGraph() {
+            const container = document.getElementById('teacher-graph-preview-container');
+            if (!container) return null;
+
+            const title = document.getElementById('graph-title').value || "Ohm's Law: Voltage vs Current";
+            const chartType = document.getElementById('graph-chart-type').value || "scatter";
+            const xLabel = document.getElementById('graph-x-label').value || "Current (I)";
+            const xUnit = document.getElementById('graph-x-unit').value || "A";
+            const yLabel = document.getElementById('graph-y-label').value || "Voltage (V)";
+            const yUnit = document.getElementById('graph-y-unit').value || "V";
+            const xValsRaw = document.getElementById('graph-x-vals').value || "0.1, 0.2, 0.3, 0.4, 0.5";
+            const yValsRaw = document.getElementById('graph-y-vals').value || "2.0, 4.0, 6.0, 8.0, 10.0";
+            const showBestFit = document.getElementById('graph-best-fit').checked;
+
+            const xValues = xValsRaw.split(',').map(v => v.trim()).filter(v => v !== "").map(v => isNaN(v) ? v : parseFloat(v));
+            const yValues = yValsRaw.split(',').map(v => parseFloat(v.trim())).filter(v => !isNaN(v));
+
+            const graphData = {
+                title: title,
+                chartType: chartType,
+                showBestFit: showBestFit,
+                theme: 'dark',
+                xAxis: { label: xLabel, unit: xUnit, beginAtZero: true },
+                yAxis: { label: yLabel, unit: yUnit, beginAtZero: true },
+                xValues: xValues,
+                series: [
+                    { label: yLabel, unit: yUnit, color: "#06b6d4", pointStyle: "circle", pointRadius: 6, values: yValues }
+                ]
+            };
+
+            if (!teacherPreviewGraphEngine) {
+                teacherPreviewGraphEngine = new CASTGraphEngine(container, graphData);
+            } else {
+                teacherPreviewGraphEngine.update(graphData);
+            }
+
+            return graphData;
         }
 
         function loadConnectionsTemplate() {
@@ -992,6 +1116,24 @@ CRITICAL RULES:
                 timerPayload.phenomenonImageUrl = url;
                 timerPayload.phenomenonDesc = desc;
                 timerPayload.connectionsData = null;
+                timerPayload.graphData = null;
+            } else if (activityType === 'graph_interpretation') {
+                const prompt = document.getElementById('graph-prompt-input').value.trim();
+                const explanation = document.getElementById('graph-explanation-input').value.trim();
+
+                if (!prompt) {
+                    alert("Please input a Graph Interpretation Prompt Question first.");
+                    return;
+                }
+
+                const graphPayload = previewTeacherGraph();
+
+                timerPayload.promptQuestion = prompt;
+                timerPayload.explanation = explanation;
+                timerPayload.graphData = graphPayload;
+                timerPayload.phenomenonImageUrl = "";
+                timerPayload.phenomenonDesc = "Interactive Phenomenon Graph";
+                timerPayload.connectionsData = null;
             } else if (activityType === 'concept_chat') {
                 const prompt = document.getElementById('chat-prompt-input').value.trim();
                 const systemInstruction = document.getElementById('chat-system-instruction').value.trim();
@@ -1008,6 +1150,7 @@ CRITICAL RULES:
                 timerPayload.phenomenonImageUrl = url;
                 timerPayload.phenomenonDesc = desc;
                 timerPayload.connectionsData = null;
+                timerPayload.graphData = null;
             } else {
                 // Connections grid
                 const categories = [];

@@ -9,6 +9,8 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../assets/js/cast-graph-engine.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
     <style>
         body {
@@ -205,8 +207,9 @@
                     <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Phenomenon Anchor</span>
                     <span class="text-[10px] bg-slate-800 text-slate-300 font-mono px-2 py-0.5 rounded">Active Asset</span>
                 </div>
-                <div class="flex-grow aspect-video bg-slate-950/80 rounded-2xl border border-white/5 overflow-hidden flex items-center justify-center">
+                <div class="flex-grow aspect-video bg-slate-950/80 rounded-2xl border border-white/5 overflow-hidden flex items-center justify-center relative">
                     <img id="dashboard-phenomenon-img" src="" alt="Active Phenomenon Anchor" class="w-full h-full object-contain hidden">
+                    <div id="dashboard-phenomenon-graph" class="w-full h-full p-2 hidden relative"></div>
                     <div id="dashboard-phenomenon-placeholder" class="text-slate-600 text-center p-4">
                         <span class="text-4xl block">📊</span>
                         <p class="text-xs font-semibold uppercase tracking-wider mt-2">Refer to Projection Screen</p>
@@ -388,14 +391,31 @@
                     promptSection.classList.remove('hidden');
                     document.getElementById('dashboard-prompt-question').innerText = data.promptQuestion || "No prompt set.";
                     
-                    // Phenomenon image
+                    // Phenomenon image or graph
                     const imgEl = document.getElementById('dashboard-phenomenon-img');
+                    const graphEl = document.getElementById('dashboard-phenomenon-graph');
                     const placeholderEl = document.getElementById('dashboard-phenomenon-placeholder');
-                    if (data.phenomenonImageUrl) {
+
+                    if ((data.activityType === 'graph_interpretation' || data.graphData) && data.graphData) {
+                        imgEl.classList.add('hidden');
+                        placeholderEl.classList.add('hidden');
+                        graphEl.classList.remove('hidden');
+
+                        const gData = { ...data.graphData, theme: 'dark' };
+                        if (!window.dashboardGraphEngine) {
+                            window.dashboardGraphEngine = new CASTGraphEngine(graphEl, gData);
+                        } else {
+                            window.dashboardGraphEngine.update(gData);
+                        }
+                    } else if (data.phenomenonImageUrl) {
+                        if (window.dashboardGraphEngine) { window.dashboardGraphEngine.destroy(); window.dashboardGraphEngine = null; }
+                        graphEl.classList.add('hidden');
                         imgEl.src = data.phenomenonImageUrl;
                         imgEl.classList.remove('hidden');
                         placeholderEl.classList.add('hidden');
                     } else {
+                        if (window.dashboardGraphEngine) { window.dashboardGraphEngine.destroy(); window.dashboardGraphEngine = null; }
+                        graphEl.classList.add('hidden');
                         imgEl.classList.add('hidden');
                         placeholderEl.classList.remove('hidden');
                         if (activeActivityType === 'connections') {
