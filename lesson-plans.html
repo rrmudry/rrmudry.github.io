@@ -9,6 +9,8 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.svg" />
   <link rel="stylesheet" href="assets/theme.css" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <style>
     :root {
       --accent-cyan: #00f3ff;
@@ -52,14 +54,14 @@
       transition: all 0.4s ease;
     }
 
-    .dash-card:hover {
+    .dash-card:hover:not(.locked-card) {
       transform: translateY(-8px) scale(1.02);
       border-color: var(--card-accent, var(--accent-cyan));
       box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7),
         0 0 20px rgba(var(--card-accent-rgb, var(--accent-cyan-rgb)), 0.2);
     }
 
-    .dash-card:hover::before {
+    .dash-card:hover:not(.locked-card)::before {
       height: 8px;
       opacity: 1;
       box-shadow: 0 0 25px var(--card-accent, var(--accent-cyan));
@@ -98,12 +100,17 @@
       width: 100%;
     }
 
-    .dash-btn:hover {
+    .dash-btn:hover:not(.disabled-btn) {
       background: var(--card-accent, var(--accent-cyan));
       color: #020617;
       box-shadow: 0 0 30px var(--card-accent, var(--accent-cyan));
       transform: translateY(-2px);
       border-color: transparent;
+    }
+
+    .dash-btn.disabled-btn {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
 
     .scanlines {
@@ -131,76 +138,40 @@
       text-shadow: 0 0 8px rgba(248, 113, 113, 0.4);
     }
 
-    .dash-card.incomplete {
-      opacity: 0.9;
-      filter: grayscale(0.5) brightness(0.8);
+    .dash-card.locked-card {
+      opacity: 0.85;
+      filter: grayscale(0.6) brightness(0.75);
     }
 
     .card-lock-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(2, 6, 23, 0.4);
-      backdrop-filter: blur(8px);
+      background: rgba(2, 6, 23, 0.65);
+      backdrop-filter: blur(6px);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       z-index: 20;
       transition: all 0.4s ease;
-      opacity: 1;
-      pointer-events: none;
-    }
-
-    .dash-card.incomplete:hover .card-lock-overlay {
-      background: rgba(2, 6, 23, 0.2);
-      backdrop-filter: blur(2px);
-      opacity: 0.3;
+      padding: 1.5rem;
+      text-align: center;
     }
 
     .lock-stamp {
       font-family: 'Orbitron', sans-serif;
       color: #f87171;
       font-weight: 900;
-      font-size: 1.4rem;
+      font-size: 1.2rem;
       text-transform: uppercase;
       letter-spacing: 0.2em;
-      border: 3px solid #f87171;
-      padding: 12px 24px;
-      transform: rotate(-12deg);
+      border: 2px solid #f87171;
+      padding: 10px 20px;
+      transform: rotate(-8deg);
       box-shadow: 0 0 20px rgba(248, 113, 113, 0.4);
-      background: rgba(248, 113, 113, 0.05);
-      animation: stamp-glitch 4s infinite;
+      background: rgba(248, 113, 113, 0.08);
       user-select: none;
-    }
-
-    @keyframes stamp-glitch {
-
-      0%,
-      90%,
-      100% {
-        transform: rotate(-12deg) scale(1);
-        opacity: 1;
-      }
-
-      92% {
-        transform: rotate(-15deg) scale(1.1);
-        opacity: 0.8;
-      }
-
-      94% {
-        transform: rotate(-10deg) scale(0.95);
-        opacity: 0.9;
-      }
-
-      96% {
-        transform: rotate(-13deg) scale(1.05);
-        opacity: 0.7;
-      }
-    }
-
-    .dash-card.incomplete:hover {
-      opacity: 1;
-      filter: grayscale(0) brightness(1.1);
+      margin-bottom: 12px;
     }
 
     .unit-title {
@@ -235,6 +206,21 @@
         <p class="subtitle text-slate-400 max-w-2xl mx-auto italic">NGSS-Engineered Inquiry Modules: Strategic physics
           simulations with high-level algebra modeling, real-world analytical connections, and integrated SEL
           checkpoints.</p>
+        
+        <!-- Auth Bar -->
+        <div id="auth-status-container" class="max-w-2xl mx-auto mb-6 p-4 rounded-2xl bg-slate-900/90 border border-slate-800 backdrop-blur-md flex flex-wrap items-center justify-between gap-4 shadow-xl">
+          <div class="flex items-center gap-3 text-left">
+            <span id="auth-icon" class="text-2xl">🔒</span>
+            <div>
+              <div id="auth-status-title" class="font-orbitron font-bold text-xs text-orange-400 tracking-wider uppercase">New School Year Setup</div>
+              <div id="auth-status-desc" class="text-xs text-slate-400">Unit 1 is open. Sign in with Google to unlock Units 2–7.</div>
+            </div>
+          </div>
+          <button id="auth-action-btn" onclick="loginWithGoogle()" class="dash-btn !w-auto py-2.5 px-6 border-cyan-500/40 text-cyan-400 hover:bg-cyan-500/10">
+            🔑 Google Sign In
+          </button>
+        </div>
+
         <div class="cta-row">
           <a class="dash-btn !w-auto py-3 px-8" href="#semester1">Semester 1</a>
           <a class="dash-btn !w-auto py-3 px-8" href="#semester2">Semester 2</a>
@@ -244,68 +230,14 @@
     </section>
 
     <section class="container section angle-bottom !overflow-visible" aria-labelledby="units">
-      <h2 id="semester2"
-        class="font-orbitron font-black text-slate-500 uppercase tracking-widest text-sm mb-6 flex items-center gap-4">
-        Semester 02 // Interactions
-        <div class="h-px bg-slate-800 flex-grow"></div>
-      </h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <article class="dash-card p-8 flex flex-col"
-          style="--card-accent: var(--accent-indigo); --card-accent-rgb: var(--accent-indigo-rgb);">
-          <span class="status-badge">Mission: Impact</span>
-          <h3 class="unit-title">💥 Unit 4: Momentum</h3>
-          <p class="mission-brief">Impulse delivery and collision dynamics. Engineering mission: Design and stress-test
-            high-impact safety systems.</p>
-          <div class="mt-auto">
-            <a class="dash-btn" href="unit4-dashboard.html">Launch Dashboard</a>
-          </div>
-        </article>
-
-        <article class="dash-card p-8 flex flex-col"
-          style="--card-accent: var(--accent-orange); --card-accent-rgb: var(--accent-orange-rgb);">
-          <span class="status-badge">Mission: Heat</span>
-          <h3 class="unit-title">🔥 Unit 5: Thermo</h3>
-          <p class="mission-brief">Entropy surveillance and thermal equilibrium. Analysis of heat engines and
-            thermodynamic law enforcement.</p>
-          <div class="mt-auto">
-            <a class="dash-btn" href="unit5-dashboard.html">Launch Dashboard</a>
-          </div>
-        </article>
-
-        <article class="dash-card p-8 flex flex-col"
-          style="--card-accent: var(--accent-cyan); --card-accent-rgb: var(--accent-cyan-rgb);">
-          <span class="status-badge">Mission: Waves</span>
-          <h3 class="unit-title">🌊 Unit 6: Waves</h3>
-          <p class="mission-brief">Oscillatory systems and EM signal analysis. Advanced surveillance of the Spectrum and
-            Hubble deep-space expansion.</p>
-          <div class="mt-auto">
-            <a class="dash-btn" href="unit6-dashboard.html">Launch Dashboard</a>
-          </div>
-        </article>
-
-        <article class="dash-card p-8 flex flex-col"
-          style="--card-accent: var(--accent-amber); --card-accent-rgb: var(--accent-amber-rgb);">
-          <div class="flex justify-between items-start">
-            <span class="status-badge">Mission: Power</span>
-            <span class="status-badge warning">Evolving Outline</span>
-          </div>
-          <h3 class="unit-title">⚡ Unit 7: E&M</h3>
-          <p class="mission-brief">Circuit logic and electromagnetism. Analysis of power generation, induction, and grid
-            distribution.</p>
-          <div class="mt-auto">
-            <a class="dash-btn" href="unit7-dashboard.html">Launch Dashboard</a>
-          </div>
-        </article>
-      </div>
-
-      <div class="w-full h-px bg-white/10 my-12"></div>
-
+      <!-- Semester 01 (At Top) -->
       <h2 id="semester1"
         class="font-orbitron font-black text-slate-500 uppercase tracking-widest text-sm mb-6 flex items-center gap-4">
         Semester 01 // Mechanisms
         <div class="h-px bg-slate-800 flex-grow"></div>
       </h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+        <!-- Unit 1 (Unlocked by default) -->
         <article class="dash-card p-8 flex flex-col"
           style="--card-accent: var(--accent-emerald); --card-accent-rgb: var(--accent-emerald-rgb);">
           <div class="flex justify-between items-start">
@@ -319,37 +251,121 @@
           </div>
         </article>
 
-        <article class="dash-card incomplete p-8 flex flex-col"
+        <!-- Unit 2 (Locked until login) -->
+        <article id="card-unit2" class="dash-card locked-card p-8 flex flex-col"
           style="--card-accent: var(--accent-emerald); --card-accent-rgb: var(--accent-emerald-rgb);">
-          <div class="card-lock-overlay">
-            <div class="lock-stamp">Offline</div>
+          <div id="overlay-unit2" class="card-lock-overlay">
+            <div class="lock-stamp">🔒 Locked</div>
+            <p class="text-xs text-slate-300 mb-3 max-w-[200px]">Sign in with Google credentials to access Unit 2</p>
+            <button onclick="loginWithGoogle()" class="dash-btn !w-auto py-2 px-4 text-xs border-orange-500/40 text-orange-400">Unlock Module</button>
           </div>
           <div class="flex justify-between items-start">
             <span class="status-badge">Mission: Kinematics</span>
-            <span class="status-badge warning">Incomplete</span>
           </div>
           <h3 class="unit-title">🏎️ Unit 2: Motion</h3>
           <p class="mission-brief">Vector analysis: Constant velocity, acceleration vectors, and Newtonian mechanics.
             Deployment of motion frameworks.</p>
           <div class="mt-auto">
-            <a class="dash-btn" href="lessons.html#u2">Access Draft</a>
+            <a id="btn-unit2" class="dash-btn disabled-btn" href="unit2-dashboard.html">Launch Dashboard</a>
           </div>
         </article>
 
-        <article class="dash-card incomplete p-8 flex flex-col"
+        <!-- Unit 3 (Locked until login) -->
+        <article id="card-unit3" class="dash-card locked-card p-8 flex flex-col"
           style="--card-accent: var(--accent-amber); --card-accent-rgb: var(--accent-amber-rgb);">
-          <div class="card-lock-overlay">
-            <div class="lock-stamp">Offline</div>
+          <div id="overlay-unit3" class="card-lock-overlay">
+            <div class="lock-stamp">🔒 Locked</div>
+            <p class="text-xs text-slate-300 mb-3 max-w-[200px]">Sign in with Google credentials to access Unit 3</p>
+            <button onclick="loginWithGoogle()" class="dash-btn !w-auto py-2 px-4 text-xs border-orange-500/40 text-orange-400">Unlock Module</button>
           </div>
           <div class="flex justify-between items-start">
             <span class="status-badge">Mission: Conservation</span>
-            <span class="status-badge warning">Incomplete</span>
           </div>
           <h3 class="unit-title">⚡ Unit 3: Energy</h3>
           <p class="mission-brief">Thermal dynamics and energy conservation. Exploration of work, power gradients, and
             real-world efficiency loops.</p>
           <div class="mt-auto">
-            <a class="dash-btn" href="lessons.html#u3">Access Draft</a>
+            <a id="btn-unit3" class="dash-btn disabled-btn" href="unit3-dashboard.html">Launch Dashboard</a>
+          </div>
+        </article>
+      </div>
+
+      <div class="w-full h-px bg-white/10 my-12"></div>
+
+      <!-- Semester 02 (Below Semester 1) -->
+      <h2 id="semester2"
+        class="font-orbitron font-black text-slate-500 uppercase tracking-widest text-sm mb-6 flex items-center gap-4">
+        Semester 02 // Interactions
+        <div class="h-px bg-slate-800 flex-grow"></div>
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Unit 4 -->
+        <article id="card-unit4" class="dash-card locked-card p-8 flex flex-col"
+          style="--card-accent: var(--accent-indigo); --card-accent-rgb: var(--accent-indigo-rgb);">
+          <div id="overlay-unit4" class="card-lock-overlay">
+            <div class="lock-stamp">🔒 Locked</div>
+            <p class="text-xs text-slate-300 mb-3 max-w-[200px]">Sign in with Google credentials to access Unit 4</p>
+            <button onclick="loginWithGoogle()" class="dash-btn !w-auto py-2 px-4 text-xs border-orange-500/40 text-orange-400">Unlock Module</button>
+          </div>
+          <span class="status-badge">Mission: Impact</span>
+          <h3 class="unit-title">💥 Unit 4: Momentum</h3>
+          <p class="mission-brief">Impulse delivery and collision dynamics. Engineering mission: Design and stress-test
+            high-impact safety systems.</p>
+          <div class="mt-auto">
+            <a id="btn-unit4" class="dash-btn disabled-btn" href="unit4-dashboard.html">Launch Dashboard</a>
+          </div>
+        </article>
+
+        <!-- Unit 5 -->
+        <article id="card-unit5" class="dash-card locked-card p-8 flex flex-col"
+          style="--card-accent: var(--accent-orange); --card-accent-rgb: var(--accent-orange-rgb);">
+          <div id="overlay-unit5" class="card-lock-overlay">
+            <div class="lock-stamp">🔒 Locked</div>
+            <p class="text-xs text-slate-300 mb-3 max-w-[200px]">Sign in with Google credentials to access Unit 5</p>
+            <button onclick="loginWithGoogle()" class="dash-btn !w-auto py-2 px-4 text-xs border-orange-500/40 text-orange-400">Unlock Module</button>
+          </div>
+          <span class="status-badge">Mission: Heat</span>
+          <h3 class="unit-title">🔥 Unit 5: Thermo</h3>
+          <p class="mission-brief">Entropy surveillance and thermal equilibrium. Analysis of heat engines and
+            thermodynamic law enforcement.</p>
+          <div class="mt-auto">
+            <a id="btn-unit5" class="dash-btn disabled-btn" href="unit5-dashboard.html">Launch Dashboard</a>
+          </div>
+        </article>
+
+        <!-- Unit 6 -->
+        <article id="card-unit6" class="dash-card locked-card p-8 flex flex-col"
+          style="--card-accent: var(--accent-cyan); --card-accent-rgb: var(--accent-cyan-rgb);">
+          <div id="overlay-unit6" class="card-lock-overlay">
+            <div class="lock-stamp">🔒 Locked</div>
+            <p class="text-xs text-slate-300 mb-3 max-w-[200px]">Sign in with Google credentials to access Unit 6</p>
+            <button onclick="loginWithGoogle()" class="dash-btn !w-auto py-2 px-4 text-xs border-orange-500/40 text-orange-400">Unlock Module</button>
+          </div>
+          <span class="status-badge">Mission: Waves</span>
+          <h3 class="unit-title">🌊 Unit 6: Waves</h3>
+          <p class="mission-brief">Oscillatory systems and EM signal analysis. Advanced surveillance of the Spectrum and
+            Hubble deep-space expansion.</p>
+          <div class="mt-auto">
+            <a id="btn-unit6" class="dash-btn disabled-btn" href="unit6-dashboard.html">Launch Dashboard</a>
+          </div>
+        </article>
+
+        <!-- Unit 7 -->
+        <article id="card-unit7" class="dash-card locked-card p-8 flex flex-col"
+          style="--card-accent: var(--accent-amber); --card-accent-rgb: var(--accent-amber-rgb);">
+          <div id="overlay-unit7" class="card-lock-overlay">
+            <div class="lock-stamp">🔒 Locked</div>
+            <p class="text-xs text-slate-300 mb-3 max-w-[200px]">Sign in with Google credentials to access Unit 7</p>
+            <button onclick="loginWithGoogle()" class="dash-btn !w-auto py-2 px-4 text-xs border-orange-500/40 text-orange-400">Unlock Module</button>
+          </div>
+          <div class="flex justify-between items-start">
+            <span class="status-badge">Mission: Power</span>
+          </div>
+          <h3 class="unit-title">⚡ Unit 7: E&M</h3>
+          <p class="mission-brief">Circuit logic and electromagnetism. Analysis of power generation, induction, and grid
+            distribution.</p>
+          <div class="mt-auto">
+            <a id="btn-unit7" class="dash-btn disabled-btn" href="unit7-dashboard.html">Launch Dashboard</a>
           </div>
         </article>
       </div>
@@ -358,6 +374,83 @@
 
   <div data-include="footer"></div>
   <script src="assets/partials.js"></script>
+
+  <!-- Firebase Auth & Locking Script -->
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const auth = firebase.auth();
+
+    async function loginWithGoogle() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      try {
+        await auth.signInWithPopup(provider);
+      } catch (err) {
+        console.error("Auth error:", err);
+        alert("Google Sign-In failed: " + err.message);
+      }
+    }
+
+    function logout() {
+      auth.signOut();
+    }
+
+    auth.onAuthStateChanged((user) => {
+      const authIcon = document.getElementById('auth-icon');
+      const title = document.getElementById('auth-status-title');
+      const desc = document.getElementById('auth-status-desc');
+      const actionBtn = document.getElementById('auth-action-btn');
+
+      const lockedUnits = ['unit2', 'unit3', 'unit4', 'unit5', 'unit6', 'unit7'];
+
+      if (user) {
+        authIcon.innerText = '🔓';
+        title.innerText = 'Authorized Access Granted';
+        title.className = 'font-orbitron font-bold text-xs text-emerald-400 tracking-wider uppercase';
+        desc.innerText = `Signed in as ${user.email}. All curriculum units unlocked.`;
+        actionBtn.innerText = 'Sign Out';
+        actionBtn.onclick = logout;
+        actionBtn.className = 'dash-btn !w-auto py-2.5 px-6 border-slate-700 text-slate-400 hover:bg-slate-800';
+
+        lockedUnits.forEach(u => {
+          const card = document.getElementById(`card-${u}`);
+          const overlay = document.getElementById(`overlay-${u}`);
+          const btn = document.getElementById(`btn-${u}`);
+          if (card) card.classList.remove('locked-card');
+          if (overlay) overlay.style.display = 'none';
+          if (btn) btn.classList.remove('disabled-btn');
+        });
+      } else {
+        authIcon.innerText = '🔒';
+        title.innerText = 'New School Year Setup';
+        title.className = 'font-orbitron font-bold text-xs text-orange-400 tracking-wider uppercase';
+        desc.innerText = 'Unit 1 is open. Sign in with Google credentials to unlock Units 2–7.';
+        actionBtn.innerText = '🔑 Google Sign In';
+        actionBtn.onclick = loginWithGoogle;
+        actionBtn.className = 'dash-btn !w-auto py-2.5 px-6 border-cyan-500/40 text-cyan-400 hover:bg-cyan-500/10';
+
+        lockedUnits.forEach(u => {
+          const card = document.getElementById(`card-${u}`);
+          const overlay = document.getElementById(`overlay-${u}`);
+          const btn = document.getElementById(`btn-${u}`);
+          if (card) card.classList.add('locked-card');
+          if (overlay) overlay.style.display = 'flex';
+          if (btn) btn.classList.add('disabled-btn');
+        });
+      }
+    });
+  </script>
 </body>
 
 </html>
