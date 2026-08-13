@@ -67,7 +67,7 @@
     ];
 
     const relationship = slope > 0 ? "Direct Positive Trend" : (slope < 0 ? "Inverse / Negative Trend" : "No Linear Trend");
-    const formula = `y = ${slope.toFixed(2)}x + ${intercept >= 0 ? '+' : '-'} ${Math.abs(intercept).toFixed(2)}`;
+    const formula = `y = ${slope.toFixed(2)}x ${intercept >= 0 ? '+' : '-'} ${Math.abs(intercept).toFixed(2)}`;
 
     return {
       slope: slope,
