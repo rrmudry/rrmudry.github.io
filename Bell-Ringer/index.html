@@ -9,6 +9,8 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../assets/js/cast-graph-engine.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -256,6 +258,7 @@
                 <!-- Anchor Image / Graph Container -->
                 <div id="phenomenon-container" class="w-full aspect-video rounded-xl bg-slate-950/80 border border-white/5 overflow-hidden relative flex items-center justify-center">
                     <img id="phenomenon-image" src="" alt="Phenomenon Graph/Data Table" class="w-full h-full object-contain hidden">
+                    <div id="phenomenon-graph-wrapper" class="w-full h-full p-2 hidden relative"></div>
                     <div id="phenomenon-placeholder" class="text-center p-6 text-slate-500">
                         <span class="text-4xl block mb-2">📊</span>
                         <p class="text-xs font-semibold tracking-wider uppercase">Weekly Phenomenon Anchor</p>
@@ -607,13 +610,14 @@
             document.getElementById('explanation-text').innerText = config.explanation || "No explanation provided yet.";
             
             activeActivityType = config.activityType || "free_response";
-            connectionsData = config.connectionsData || null;
+            let studentGraphEngine = null;
 
+            // Activity workspace display
             if (activeActivityType === "connections") {
                 document.getElementById('free-response-container').style.display = 'none';
-                document.getElementById('connections-container').style.display = 'flex';
+                document.getElementById('connections-container').style.display = 'block';
                 document.getElementById('concept-chat-container').style.display = 'none';
-                
+                connectionsData = config.connectionsData;
                 const connectionsDataJson = JSON.stringify(connectionsData);
                 if (window.lastConnectionsDataJson !== connectionsDataJson) {
                     window.lastConnectionsDataJson = connectionsDataJson;
@@ -625,6 +629,7 @@
                 document.getElementById('concept-chat-container').style.display = 'flex';
                 initConceptChat(config);
             } else {
+                // free_response or graph_interpretation
                 document.getElementById('free-response-container').style.display = 'flex';
                 document.getElementById('connections-container').style.display = 'none';
                 document.getElementById('concept-chat-container').style.display = 'none';
@@ -632,12 +637,29 @@
 
             // Phenomenon setup
             const imgEl = document.getElementById('phenomenon-image');
+            const graphWrapperEl = document.getElementById('phenomenon-graph-wrapper');
             const placeholderEl = document.getElementById('phenomenon-placeholder');
-            if (config.phenomenonImageUrl) {
+
+            if ((activeActivityType === "graph_interpretation" || config.graphData) && config.graphData) {
+                imgEl.classList.add('hidden');
+                placeholderEl.classList.add('hidden');
+                graphWrapperEl.classList.remove('hidden');
+
+                const gData = { ...config.graphData, theme: 'dark' };
+                if (!window.studentGraphEngine) {
+                    window.studentGraphEngine = new CASTGraphEngine(graphWrapperEl, gData);
+                } else {
+                    window.studentGraphEngine.update(gData);
+                }
+            } else if (config.phenomenonImageUrl) {
+                if (window.studentGraphEngine) { window.studentGraphEngine.destroy(); window.studentGraphEngine = null; }
+                graphWrapperEl.classList.add('hidden');
                 imgEl.src = config.phenomenonImageUrl;
                 imgEl.classList.remove('hidden');
                 placeholderEl.classList.add('hidden');
             } else {
+                if (window.studentGraphEngine) { window.studentGraphEngine.destroy(); window.studentGraphEngine = null; }
+                graphWrapperEl.classList.add('hidden');
                 imgEl.classList.add('hidden');
                 placeholderEl.classList.remove('hidden');
                 document.getElementById('phenomenon-desc').innerText = config.phenomenonDesc || "Refer to the projection board.";
