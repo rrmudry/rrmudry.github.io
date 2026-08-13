@@ -426,7 +426,47 @@
             }, { rootMargin: '-150px 0px -50% 0px' });
             contentSections.forEach(section => observer.observe(section));
 
-            // Populate pacing guide and resources
+            // Populate pacing guide with 5-day school week calendar placeholders
+            if (unitData.length > 0 && unitData[0].date) {
+                const firstDateObj = new Date(unitData[0].date + 'T00:00:00');
+                const dayOfWeek = firstDateObj.getDay(); // 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat
+
+                let offsetDays = 0;
+                if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+                    offsetDays = dayOfWeek - 1; // Mon=0, Tue=1, Wed=2, Thu=3, Fri=4
+                }
+
+                const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+                const placeholderTitles = ["Summer Recess", "Teacher Prep Day", "Orientation Prep", "Staff Development"];
+
+                for (let i = 0; i < offsetDays; i++) {
+                    const pDate = new Date(firstDateObj);
+                    pDate.setDate(firstDateObj.getDate() - (offsetDays - i));
+                    const dateStr = pDate.toISOString().split('T')[0];
+                    const dayName = dayNames[i] || "Weekday";
+                    const title = placeholderTitles[i] || "No Class / Prep";
+
+                    const placeholderCard = document.createElement('div');
+                    placeholderCard.className = 'glass-card p-5 opacity-40 border-dashed border-emerald-500/20 bg-slate-950/40 pointer-events-none select-none flex flex-col justify-between min-h-[150px]';
+                    placeholderCard.innerHTML = `
+                        <div class="flex justify-between items-start mb-2 relative z-10">
+                            <div>
+                                <span class="text-slate-500 font-mono text-[10px] uppercase font-bold tracking-wider block">${dayName}</span>
+                                <span class="text-[10px] text-slate-600 font-mono tracking-wider">${dateStr}</span>
+                            </div>
+                            <span class="text-[9px] bg-slate-800/80 text-slate-500 px-2 py-0.5 rounded border border-slate-700 font-mono">PRE-SEASON</span>
+                        </div>
+                        <div class="my-auto py-2">
+                            <p class="text-xs font-mono text-slate-500 italic leading-snug">${title}</p>
+                        </div>
+                        <div class="text-[9px] text-slate-600 font-mono uppercase tracking-widest pt-2 border-t border-slate-800/50">
+                            No Scheduled Session
+                        </div>
+                    `;
+                    pacingCards.appendChild(placeholderCard);
+                }
+            }
+
             unitData.forEach(day => {
                 const status = getLessonStatus(day.date);
                 const statusStyles = {
