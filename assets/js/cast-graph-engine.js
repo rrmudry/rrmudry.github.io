@@ -402,7 +402,20 @@
 
     toBase64Image(type = 'image/png', quality = 1.0) {
       if (!this.chartInstance) return null;
-      return this.chartInstance.toBase64Image(type, quality);
+      const isDark = this.options.theme === 'dark';
+      const bgColor = isDark ? '#0f172a' : '#ffffff';
+
+      const sourceCanvas = this.chartInstance.canvas;
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = sourceCanvas.width;
+      tempCanvas.height = sourceCanvas.height;
+
+      const tempCtx = tempCanvas.getContext('2d');
+      tempCtx.fillStyle = bgColor;
+      tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+      tempCtx.drawImage(sourceCanvas, 0, 0);
+
+      return tempCanvas.toDataURL(type, quality);
     }
 
     exportPNG(filename) {
