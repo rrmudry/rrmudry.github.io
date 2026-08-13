@@ -158,14 +158,23 @@
                         <div id="loader-status-msg" class="text-[10px] text-slate-500 font-medium hidden"></div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="flex flex-col gap-2">
-                            <label for="activity-type-select" class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Activity Type</label>
+                            <label for="activity-type-select" class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Workspace Mode</label>
                             <select id="activity-type-select" onchange="toggleActivityFields()" class="w-full rounded-xl bg-slate-950/60 border border-white/10 px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 text-sm">
                                 <option value="free_response">Free Response Explanation</option>
-                                <option value="graph_interpretation">📊 Graph Interpretation (CASTGraphEngine)</option>
-                                <option value="connections">Connections Grid Game</option>
                                 <option value="concept_chat">Concept Chat (AI Messaging)</option>
+                                <option value="connections">Connections Grid Game</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label for="phenomenon-type-select" class="text-xs text-cyan-400 font-bold tracking-wider uppercase flex items-center gap-1">
+                                📊 Phenomenon Asset
+                            </label>
+                            <select id="phenomenon-type-select" onchange="togglePhenomenonAssetFields()" class="w-full rounded-xl bg-slate-950/60 border border-cyan-500/30 px-3 py-2.5 text-white font-bold focus:outline-none focus:border-cyan-500 text-sm shadow-sm">
+                                <option value="none">None / Board Text Only</option>
+                                <option value="graph">CAST Graph Engine (Interactive Graph)</option>
+                                <option value="image">Image URL</option>
                             </select>
                         </div>
                         <div class="flex flex-col gap-2">
@@ -185,6 +194,21 @@
                         </div>
                     </div>
 
+                    <!-- Phenomenon Image Fields -->
+                    <div id="phenomenon-image-fields" class="hidden flex flex-col gap-4 p-4 rounded-2xl bg-slate-950/40 border border-white/5">
+                        <div class="flex flex-col gap-2">
+                            <label for="phenomenon-url" class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Phenomenon Image URL</label>
+                            <input type="text" id="phenomenon-url" placeholder="https://example.com/graph.png" 
+                                   class="w-full rounded-xl bg-slate-950/60 border border-white/10 px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 text-sm">
+                        </div>
+
+                        <div class="flex flex-col gap-2">
+                            <label for="phenomenon-desc" class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Description Placeholder (If no image)</label>
+                            <input type="text" id="phenomenon-desc" placeholder="Refer to the white board graph for the distance vs time line." 
+                                   class="w-full rounded-xl bg-slate-950/60 border border-white/10 px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 text-sm">
+                        </div>
+                    </div>
+
                     <!-- Free Response Settings -->
                     <div id="free-response-fields" class="flex flex-col gap-6">
                         <div class="flex flex-col gap-2">
@@ -197,18 +221,6 @@
                             <label for="explanation-input" class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Correct Explanation (Revealed post-lockout)</label>
                             <textarea id="explanation-input" placeholder="e.g. A flat horizontal line indicates a constant position, which means the object is stationary, resulting in a velocity of 0 m/s." 
                                       class="w-full min-h-[90px] rounded-xl bg-slate-950/60 border border-white/10 p-3 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 text-sm resize-y"></textarea>
-                        </div>
-
-                        <div class="flex flex-col gap-2">
-                            <label for="phenomenon-url" class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Phenomenon Image URL (Optional)</label>
-                            <input type="text" id="phenomenon-url" placeholder="https://example.com/graph.png" 
-                                   class="w-full rounded-xl bg-slate-950/60 border border-white/10 px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 text-sm">
-                        </div>
-
-                        <div class="flex flex-col gap-2">
-                            <label for="phenomenon-desc" class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Description Placeholder (If no image)</label>
-                            <input type="text" id="phenomenon-desc" placeholder="Refer to the white board graph for the distance vs time line." 
-                                   class="w-full rounded-xl bg-slate-950/60 border border-white/10 px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 text-sm">
                         </div>
                     </div>
 
@@ -654,30 +666,26 @@ CRITICAL RULES:
             statusMsg.className = "text-[10px] text-green-400 font-bold";
             statusMsg.classList.remove('hidden');
 
-            const activityType = br.type || "free_response";
+            let activityType = br.type || br.activityType || "free_response";
+            if (activityType === "graph_interpretation") activityType = "free_response";
+
             document.getElementById('activity-type-select').value = activityType;
             toggleActivityFields();
+
+            let phenomenonType = "none";
+            if (br.graphData || br.type === "graph_interpretation") {
+                phenomenonType = "graph";
+            } else if (br.phenomenonImageUrl) {
+                phenomenonType = "image";
+            }
+            document.getElementById('phenomenon-type-select').value = phenomenonType;
 
             if (activityType === "free_response") {
                 document.getElementById('prompt-input').value = br.promptQuestion || "";
                 document.getElementById('explanation-input').value = br.explanation || "";
-                document.getElementById('phenomenon-url').value = br.phenomenonImageUrl || "";
-                document.getElementById('phenomenon-desc').value = br.phenomenonDesc || "";
-            } else if (activityType === "graph_interpretation") {
-                document.getElementById('graph-prompt-input').value = br.promptQuestion || "";
-                document.getElementById('graph-explanation-input').value = br.explanation || "";
-                if (br.graphData) {
-                    document.getElementById('graph-title').value = br.graphData.title || "";
-                    document.getElementById('graph-chart-type').value = br.graphData.chartType || "scatter";
-                    document.getElementById('graph-x-label').value = br.graphData.xAxis?.label || "";
-                    document.getElementById('graph-x-unit').value = br.graphData.xAxis?.unit || "";
-                    document.getElementById('graph-y-label').value = br.graphData.yAxis?.label || "";
-                    document.getElementById('graph-y-unit').value = br.graphData.yAxis?.unit || "";
-                    document.getElementById('graph-x-vals').value = (br.graphData.xValues || []).join(", ");
-                    document.getElementById('graph-y-vals').value = (br.graphData.series?.[0]?.values || []).join(", ");
-                    document.getElementById('graph-best-fit').checked = br.graphData.showBestFit !== false;
-                }
-                setTimeout(previewTeacherGraph, 100);
+            } else if (activityType === "concept_chat") {
+                document.getElementById('chat-prompt-input').value = br.promptQuestion || "";
+                document.getElementById('chat-system-instruction').value = br.chatSystemInstruction || "";
             } else if (activityType === "connections" && br.connectionsData) {
                 const cats = br.connectionsData.categories;
                 for (let c = 0; c < 4; c++) {
@@ -690,20 +698,42 @@ CRITICAL RULES:
                 }
             }
 
+            document.getElementById('phenomenon-url').value = br.phenomenonImageUrl || "";
+            document.getElementById('phenomenon-desc').value = br.phenomenonDesc || "";
+
+            if (br.graphData) {
+                document.getElementById('graph-title').value = br.graphData.title || "";
+                document.getElementById('graph-chart-type').value = br.graphData.chartType || "scatter";
+                document.getElementById('graph-x-label').value = br.graphData.xAxis?.label || "";
+                document.getElementById('graph-x-unit').value = br.graphData.xAxis?.unit || "";
+                document.getElementById('graph-y-label').value = br.graphData.yAxis?.label || "";
+                document.getElementById('graph-y-unit').value = br.graphData.yAxis?.unit || "";
+                document.getElementById('graph-x-vals').value = (br.graphData.xValues || []).join(", ");
+                document.getElementById('graph-y-vals').value = (br.graphData.series?.[0]?.values || []).join(", ");
+                document.getElementById('graph-best-fit').checked = br.graphData.showBestFit !== false;
+            }
+
+            togglePhenomenonAssetFields();
+
             if (br.defaultDuration) {
                 document.getElementById('duration-input').value = br.defaultDuration;
+            }
+        }
+
+        function togglePhenomenonAssetFields() {
+            const pType = document.getElementById('phenomenon-type-select').value;
+            document.getElementById('phenomenon-image-fields').classList.toggle('hidden', pType !== 'image');
+            document.getElementById('graph-interpretation-fields').classList.toggle('hidden', pType !== 'graph');
+            if (pType === 'graph') {
+                setTimeout(previewTeacherGraph, 100);
             }
         }
 
         function toggleActivityFields() {
             const type = document.getElementById('activity-type-select').value;
             document.getElementById('free-response-fields').classList.toggle('hidden', type !== 'free_response');
-            document.getElementById('graph-interpretation-fields').classList.toggle('hidden', type !== 'graph_interpretation');
             document.getElementById('connections-fields').classList.toggle('hidden', type !== 'connections');
             document.getElementById('concept-chat-fields').classList.toggle('hidden', type !== 'concept_chat');
-            if (type === 'graph_interpretation') {
-                setTimeout(previewTeacherGraph, 100);
-            }
         }
 
         let teacherPreviewGraphEngine = null;
@@ -1088,23 +1118,40 @@ CRITICAL RULES:
         // Start countdown timer in Firestore
         async function startTimer() {
             const activityType = document.getElementById('activity-type-select').value;
+            const phenomenonType = document.getElementById('phenomenon-type-select').value;
             const targetPeriod = document.getElementById('period-select').value;
             const durationMin = parseInt(document.getElementById('duration-input').value) || 4;
             const expiresAtDate = new Date(Date.now() + durationMin * 60 * 1000);
 
             let timerPayload = {
                 activityType: activityType,
+                phenomenonType: phenomenonType,
                 targetPeriod: targetPeriod,
                 isActive: true,
                 timerExpiresAt: firebase.firestore.Timestamp.fromDate(expiresAtDate),
                 startedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
 
+            // Phenomenon Asset packaging
+            let graphPayload = null;
+            let imgUrl = "";
+            let imgDesc = "";
+
+            if (phenomenonType === 'graph') {
+                graphPayload = previewTeacherGraph();
+                imgDesc = "Interactive Phenomenon Graph";
+            } else if (phenomenonType === 'image') {
+                imgUrl = document.getElementById('phenomenon-url').value.trim();
+                imgDesc = document.getElementById('phenomenon-desc').value.trim();
+            }
+
+            timerPayload.graphData = graphPayload;
+            timerPayload.phenomenonImageUrl = imgUrl;
+            timerPayload.phenomenonDesc = imgDesc;
+
             if (activityType === 'free_response') {
                 const prompt = document.getElementById('prompt-input').value.trim();
                 const explanation = document.getElementById('explanation-input').value.trim();
-                const url = document.getElementById('phenomenon-url').value.trim();
-                const desc = document.getElementById('phenomenon-desc').value.trim();
 
                 if (!prompt) {
                     alert("Please input a Prompt Question first.");
@@ -1113,44 +1160,31 @@ CRITICAL RULES:
 
                 timerPayload.promptQuestion = prompt;
                 timerPayload.explanation = explanation;
-                timerPayload.phenomenonImageUrl = url;
-                timerPayload.phenomenonDesc = desc;
-                timerPayload.connectionsData = null;
-                timerPayload.graphData = null;
-            } else if (activityType === 'graph_interpretation') {
-                const prompt = document.getElementById('graph-prompt-input').value.trim();
-                const explanation = document.getElementById('graph-explanation-input').value.trim();
-
-                if (!prompt) {
-                    alert("Please input a Graph Interpretation Prompt Question first.");
-                    return;
-                }
-
-                const graphPayload = previewTeacherGraph();
-
-                timerPayload.promptQuestion = prompt;
-                timerPayload.explanation = explanation;
-                timerPayload.graphData = graphPayload;
-                timerPayload.phenomenonImageUrl = "";
-                timerPayload.phenomenonDesc = "Interactive Phenomenon Graph";
                 timerPayload.connectionsData = null;
             } else if (activityType === 'concept_chat') {
                 const prompt = document.getElementById('chat-prompt-input').value.trim();
-                const systemInstruction = document.getElementById('chat-system-instruction').value.trim();
-                const url = document.getElementById('phenomenon-url').value.trim();
-                const desc = document.getElementById('phenomenon-desc').value.trim();
+                let systemInstruction = document.getElementById('chat-system-instruction').value.trim();
 
                 if (!prompt) {
                     alert("Please input a Starting Question first.");
                     return;
                 }
 
+                if (graphPayload && graphPayload.title) {
+                    let regStr = '';
+                    if (graphPayload.xValues && graphPayload.series?.[0]?.values) {
+                        const pts = graphPayload.xValues.map((x, i) => ({ x: parseFloat(x) || 0, y: parseFloat(graphPayload.series[0].values[i]) || 0 }));
+                        const reg = CASTGraphEngine.calculateLinearRegression(pts);
+                        if (reg && !isNaN(reg.slope)) {
+                            regStr = `(Equation: ${reg.formula}, Slope: ${reg.slope.toFixed(2)} ${graphPayload.series[0].unit || ''} per ${graphPayload.xAxis.unit || ''})`;
+                        }
+                    }
+                    systemInstruction = (systemInstruction ? systemInstruction + '\n\n' : '') + `[SYSTEM CONTEXT]: The student is viewing a live interactive phenomenon graph titled "${graphPayload.title}" with X-axis "${graphPayload.xAxis.label} (${graphPayload.xAxis.unit})" and Y-axis "${graphPayload.yAxis.label} (${graphPayload.yAxis.unit})". ${regStr}. Use this graph context to guide and ask targeted physics questions!`;
+                }
+
                 timerPayload.promptQuestion = prompt;
                 timerPayload.chatSystemInstruction = systemInstruction;
-                timerPayload.phenomenonImageUrl = url;
-                timerPayload.phenomenonDesc = desc;
                 timerPayload.connectionsData = null;
-                timerPayload.graphData = null;
             } else {
                 // Connections grid
                 const categories = [];
