@@ -215,16 +215,30 @@
                         <div class="w-full md:w-[46%] bg-slate-950/70 p-6 border-t md:border-t-0 md:border-l border-lime-500/20 flex flex-col justify-center">
                             <div class="mb-3 flex justify-between items-center">
                                 <span class="text-[10px] font-mono text-lime-400/80 tracking-widest uppercase">Motion_Graph_Scope</span>
-                                <span class="text-[10px] font-mono text-[#ccff00] animate-pulse">● LIVE_TELEMETRY</span>
+                                <span id="scope-pulse" class="text-[10px] font-mono text-slate-400">PAUSED</span>
                             </div>
                             
-                            <!-- Interactive Multi-Stage Graph Canvas -->
-                            <div class="relative group rounded-xl border border-lime-500/30 bg-slate-900/90 p-3.5 shadow-2xl overflow-hidden">
+                            <!-- Interactive Multi-Stage Graph Canvas with Play/Pause Overlay -->
+                            <div id="scope-card" class="relative group rounded-xl border border-lime-500/30 bg-slate-900/90 p-3.5 shadow-2xl overflow-hidden cursor-pointer select-none">
                                 <div class="flex justify-between items-center text-[10px] font-mono text-slate-400 mb-2">
                                     <span>x(t) [Position vs Time]</span>
-                                    <span id="scope-status" class="text-[#ccff00] font-bold">SEGMENT 1: FORWARD (+10 m/s)</span>
+                                    <div class="flex items-center gap-2">
+                                        <span id="scope-status" class="text-yellow-300 font-bold">READY TO PLAY</span>
+                                        <button id="scope-toggle-btn" class="px-2 py-0.5 rounded bg-lime-950 hover:bg-lime-900 border border-lime-500/50 text-[#ccff00] transition-colors text-[10px] flex items-center gap-1 font-bold">
+                                            ▶ Play
+                                        </button>
+                                    </div>
                                 </div>
-                                <canvas id="scopeCanvas" width="380" height="140" class="w-full rounded bg-[#030603] border border-slate-800"></canvas>
+                                <div class="relative">
+                                    <canvas id="scopeCanvas" width="380" height="140" class="w-full rounded bg-[#030603] border border-slate-800"></canvas>
+                                    
+                                    <!-- Floating Play/Pause Center Badge -->
+                                    <div id="scope-overlay" class="absolute inset-0 bg-black/40 backdrop-blur-[2px] rounded flex items-center justify-center transition-all duration-300">
+                                        <div class="px-4 py-2 rounded-full bg-slate-950/90 border border-lime-400/60 text-[#ccff00] text-xs font-mono font-bold shadow-[0_0_20px_rgba(204,255,0,0.4)] flex items-center gap-2">
+                                            <span class="text-sm">▶</span> Click Graph to Play
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="grid grid-cols-3 gap-1.5 mt-3 pt-2 border-t border-slate-800 text-center font-mono text-[9px]">
                                     <div class="p-1 rounded bg-lime-950/60 border border-lime-500/30 text-lime-300">
                                         <span class="block text-slate-400">0–3s</span>
@@ -241,7 +255,7 @@
                                 </div>
                             </div>
                             <p class="mt-3 text-[10px] text-lime-300/60 font-mono text-center leading-tight">
-                                // REAL-TIME GRAPH SCOPE: Positive slope = forward motion; flat = rest; negative slope = return to start.
+                                // CLICK GRAPH TO PLAY/PAUSE: Positive slope = forward; flat = rest; negative slope = return.
                             </p>
                         </div>
                     </div>
@@ -922,14 +936,20 @@
             draw(0);
         }
 
-        // Live Multi-Stage Motion Graph Scope Animator
+        // Live Multi-Stage Motion Graph Scope Animator with Play/Pause
         function initScopeMotionGraph() {
             const canvas = document.getElementById('scopeCanvas');
             const statusEl = document.getElementById('scope-status');
+            const pulseEl = document.getElementById('scope-pulse');
+            const toggleBtn = document.getElementById('scope-toggle-btn');
+            const overlay = document.getElementById('scope-overlay');
+            const card = document.getElementById('scope-card');
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
             
             let t = 0;
+            let isPlaying = false;
+            let reqId = null;
             const pad = 24;
 
             function renderScope() {
@@ -1001,15 +1021,15 @@
 
                 if (t <= 3) {
                     curPos = 0 + 10 * t;
-                    statusText = 'SEGMENT 1: FORWARD (v = +10 m/s)';
+                    statusText = 'SEGMENT 1: FORWARD (+10 m/s)';
                     statusColor = '#ccff00';
                 } else if (t <= 6) {
                     curPos = 30;
-                    statusText = 'SEGMENT 2: REST / STOPPED (v = 0 m/s)';
+                    statusText = 'SEGMENT 2: REST / STOPPED (0 m/s)';
                     statusColor = '#facc15';
                 } else {
                     curPos = 30 - 6 * (t - 6);
-                    statusText = 'SEGMENT 3: RETURNING (v = -6 m/s)';
+                    statusText = 'SEGMENT 3: RETURNING (-6 m/s)';
                     statusColor = '#f97316';
                 }
 
@@ -1029,11 +1049,43 @@
                 ctx.fill();
                 ctx.shadowBlur = 0;
 
-                t += 0.04;
-                if (t > 9) t = 0;
-
-                requestAnimationFrame(renderScope);
+                if (isPlaying) {
+                    t += 0.04;
+                    if (t > 9) t = 0;
+                    reqId = requestAnimationFrame(renderScope);
+                }
             }
+
+            function togglePlay(e) {
+                if (e) e.stopPropagation();
+                isPlaying = !isPlaying;
+                if (isPlaying) {
+                    if (overlay) overlay.classList.add('opacity-0', 'pointer-events-none');
+                    if (toggleBtn) toggleBtn.innerHTML = '⏸ Pause';
+                    if (pulseEl) {
+                        pulseEl.innerText = '● LIVE_TELEMETRY';
+                        pulseEl.className = 'text-[10px] font-mono text-[#ccff00] animate-pulse';
+                    }
+                    renderScope();
+                } else {
+                    if (overlay) {
+                        overlay.classList.remove('opacity-0', 'pointer-events-none');
+                        overlay.innerHTML = '<div class="px-4 py-2 rounded-full bg-slate-950/90 border border-lime-400/60 text-[#ccff00] text-xs font-mono font-bold shadow-[0_0_20px_rgba(204,255,0,0.4)] flex items-center gap-2"><span class="text-sm">▶</span> Click to Resume</div>';
+                    }
+                    if (toggleBtn) toggleBtn.innerHTML = '▶ Play';
+                    if (pulseEl) {
+                        pulseEl.innerText = 'PAUSED';
+                        pulseEl.className = 'text-[10px] font-mono text-slate-400';
+                    }
+                    cancelAnimationFrame(reqId);
+                    renderScope();
+                }
+            }
+
+            if (card) card.addEventListener('click', togglePlay);
+            if (toggleBtn) toggleBtn.addEventListener('click', togglePlay);
+
+            // Initial static render
             renderScope();
         }
     </script>
