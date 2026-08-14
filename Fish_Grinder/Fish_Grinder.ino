@@ -4,8 +4,8 @@
 #include <BLE2902.h>
 
 #define RELAY 18
-#define RELAY_ON LOW   // Changed to LOW for Active-LOW relay
-#define RELAY_OFF HIGH // Changed to HIGH for Active-LOW relay
+#define RELAY_ON HIGH  // Set to HIGH for 1-H (Active-HIGH) relay
+#define RELAY_OFF LOW  // Set to LOW for 1-H (Active-HIGH) relay
 
 // Nordic UART Service UUIDs
 #define SERVICE_UUID           "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"
@@ -225,7 +225,7 @@ void setup() {
   Serial.begin(115200);
 
   // Initialize BLE
-  BLEDevice::init("Fish_Feeder_2");
+  BLEDevice::init("Fish_Grinder_4");
   BLEDevice::setMTU(517); // Set local MTU preference to support larger notification packets
   pServer = BLEDevice::createServer();
   pServer->setCallbacks(new MyServerCallbacks());
@@ -257,7 +257,7 @@ void setup() {
   pAdvertising->setMinPreferred(0x06);  // helps with iOS connection issues
   pAdvertising->setMinPreferred(0x12);
   BLEDevice::startAdvertising();
-  Serial.println("BLE Advertising Started (Name: Fish_Feeder_2)");
+  Serial.println("BLE Advertising Started (Name: Fish_Grinder_4)");
 
   // Pre-populate schedules
   schedules[0] = {8, 0, 3000, true, -1};
