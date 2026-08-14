@@ -1,5 +1,180 @@
 const lessonsData = [
   {
+    "date": "2026-09-18",
+    "day": 10,
+    "unit": 2,
+    "title": "Unit 2 Summative Assessment",
+    "summary": "Comprehensive evaluation of 1D kinematics, velocity vectors, and motion graphing.",
+    "details": "Summative unit exam assessing DOK 1-3 mastery: algebraic calculation of velocity, graph construction & slope justification, and multi-step scenario problem-solving.",
+    "type": "Assessment",
+    "dok": 3,
+    "semester": 1,
+    "isFeatured": true,
+    "essentialQuestion": "How effectively can we model, calculate, and justify the motion of objects across diverse scenarios?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-ETS1-2"
+    ]
+  },
+  {
+    "date": "2026-09-17",
+    "day": 9,
+    "unit": 2,
+    "title": "Kinematics Unit Review & Gallery Walk",
+    "summary": "Peer critique of DOK 3 solution posters and gamified review challenge.",
+    "details": "Gallery walk of student problem-solving posters with peer feedback rubrics. Whole-class interactive review game synthesizing speed formulas, vector mechanics, and graphical analysis.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 1,
+    "isFeatured": false,
+    "essentialQuestion": "How do conceptual formulas, vector models, and graphs unify into a single predictive framework for motion?",
+    "standards": [
+      "HS-PS2-1"
+    ]
+  },
+  {
+    "date": "2026-09-16",
+    "day": 8,
+    "unit": 2,
+    "title": "Strategic Kinematics Problem Solving",
+    "summary": "Multi-stage velocity scenario analysis and collaborative vector modeling.",
+    "details": "Modeling complex multi-agent collision and intercept problems. Students work in teams to construct visual solution posters breaking down multi-variable motion steps (DOK 3).",
+    "type": "Activity",
+    "dok": 3,
+    "semester": 1,
+    "isFeatured": true,
+    "essentialQuestion": "How do we deconstruct complex, multi-stage kinematic word problems into solvable mathematical systems?",
+    "standards": [
+      "HS-PS2-1"
+    ]
+  },
+  {
+    "date": "2026-09-15",
+    "day": 7,
+    "unit": 2,
+    "title": "Decoding Complex Motion & Acceleration",
+    "summary": "Analyzing non-linear slopes, changing velocity gradients, and motion stories.",
+    "details": "Direct instruction on positive, negative, and zero slope meanings, curve transitions (acceleration), and 'Graph Story' partner challenge translating journeys into motion graphs.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 1,
+    "isFeatured": true,
+    "essentialQuestion": "What physical behaviors produce curved lines on position-time graphs, and how do we decode them?",
+    "standards": [
+      "HS-PS2-1"
+    ],
+    "links": {
+      "Acceleration Grapher": "Interactive_Acceleration_Grapher.html",
+      "Distance-Time Drawer": "Distance_vs_Time_Drawer.html"
+    }
+  },
+  {
+    "date": "2026-09-14",
+    "day": 6,
+    "unit": 2,
+    "title": "Speed vs. Velocity: The Power of Vectors",
+    "summary": "Differentiating scalar quantities from 1D/2D directional velocity vectors.",
+    "details": "Introduction of vector notation, sign conventions (+/- directions), and coordinate displacement. Interactive number-line and vector addition activities demonstrating why velocity can be zero during a closed loop.",
+    "type": "Practice",
+    "dok": 2,
+    "semester": 1,
+    "isFeatured": false,
+    "essentialQuestion": "Why is directional vector orientation essential for predicting collisions and trajectory paths?",
+    "standards": [
+      "HS-PS2-1"
+    ],
+    "links": {
+      "PhET Moving Man": "https://phet.colorado.edu/sims/html/the-moving-man/latest/the-moving-man_en.html"
+    }
+  },
+  {
+    "date": "2026-09-11",
+    "day": 5,
+    "unit": 2,
+    "title": "Mid-Unit Kinematics Assessment",
+    "summary": "Formative evaluation on speed calculations, slope analysis, and motion plots.",
+    "details": "Targeted Q&A review followed by a 35-minute mid-unit assessment testing DOK 1 & 2 skills: metric speed calculations, graph creation, and physical interpretation of position-time slopes.",
+    "type": "Assessment",
+    "dok": 2,
+    "semester": 1,
+    "isFeatured": true,
+    "essentialQuestion": "How can data representation effectively communicate both speed and direction in 1D mechanics?",
+    "standards": [
+      "HS-PS2-1"
+    ]
+  },
+  {
+    "date": "2026-09-10",
+    "day": 4,
+    "unit": 2,
+    "title": "\"Marble Race\" Ramp Incline Lab",
+    "summary": "Inquiry lab investigating how track elevation and ramp slope alter velocity.",
+    "details": "Students formulate hypotheses on ramp angles vs speed, set up timing traps, collect empirical kinematic data, and graph the relationship between incline steepness and velocity.",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 1,
+    "isFeatured": true,
+    "essentialQuestion": "How do gravitational potential gradients govern the rate of acceleration down an incline?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-ETS1-2"
+    ]
+  },
+  {
+    "date": "2026-09-09",
+    "day": 3,
+    "unit": 2,
+    "title": "Graphing Motion: Distance vs. Time",
+    "summary": "Constructing and interpreting position-time graphs and coordinate slopes.",
+    "details": "Direct instruction on graph conventions (independent time on x-axis, dependent position on y-axis). Interactive practice plotting position-time data to visualize constant motion, stopped intervals, and variable speed.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 1,
+    "isFeatured": true,
+    "essentialQuestion": "How does the slope of a position-time graph directly reveal the velocity of a physical system?",
+    "standards": [
+      "HS-PS2-1"
+    ],
+    "links": {
+      "Distance vs Time App": "distance_vs_time_graphing.html"
+    }
+  },
+  {
+    "date": "2026-09-08",
+    "day": 2,
+    "unit": 2,
+    "title": "\"The Monster's Journey\" Average Speed Lab",
+    "summary": "Multi-stage velocity tracking lab to calculate average vs instantaneous speed.",
+    "details": "Students collect displacement and timing data across multi-interval trials. Calculate average speed across different segments, identify variations, and discuss why instantaneous speed differs from trip averages.",
+    "type": "Lab",
+    "dok": 2,
+    "semester": 1,
+    "isFeatured": true,
+    "essentialQuestion": "Why does an object's average speed often mask significant fluctuations in its instantaneous velocity?",
+    "standards": [
+      "HS-PS2-1"
+    ]
+  },
+  {
+    "date": "2026-09-07",
+    "day": 1,
+    "unit": 2,
+    "title": "Intro to Motion: Speed & Displacement",
+    "summary": "Define motion, distance, time, and use formula v = x/t to calculate average speed.",
+    "details": "Engage with real-world velocity hooks and discussion. Direct instruction on scalar speed vs displacement, metric velocity units (m/s), and foundational algebra for motion. Guided practice calculating walking and vehicle speeds.",
+    "type": "Direct Instruction",
+    "dok": 1,
+    "semester": 1,
+    "isFeatured": true,
+    "essentialQuestion": "How do we mathematically quantify and measure the rate of change in an object's position?",
+    "standards": [
+      "HS-PS2-1"
+    ],
+    "links": {
+      "Day 1 Hook Video": "https://www.youtube.com/watch?v=WxCKtb2LjlU"
+    }
+  },
+  {
     "date": "2026-09-04",
     "day": 13,
     "unit": 1,

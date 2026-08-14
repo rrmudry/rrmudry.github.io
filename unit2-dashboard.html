@@ -1,419 +1,921 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark-theme">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unit 2 Dashboard: Speed & Velocity</title>
+    <title>Unit 2 Dashboard: Kinematics & Velocity Vectors</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="assets/unit2-favicon.svg">
+    <link rel="stylesheet" href="assets/theme.css" />
     <style>
+        html { scroll-behavior: smooth; }
+
+        :root {
+            /* Kinematics Theme: Emerald, Cyan, Lime, Neon Mint */
+            --accent-kinetic: #10b981;
+            --accent-light: #06b6d4;
+            --accent-soft: #34d399;
+            --accent-lime: #a3e635;
+            --font-tech: 'Inter', sans-serif;
+            --font-mono: 'Fira Code', monospace;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
+            background: #020617;
+            color: #f1f5f9;
+            min-height: 100vh;
         }
-        .nav-link {
-            transition: all 0.2s ease-in-out;
+
+        .glass-card {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
         }
-        .nav-link.active {
-            background-color: #4f46e5; /* indigo-600 */
-            color: white;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-soft);
+            box-shadow: 0 15px 40px rgba(6, 182, 212, 0.2), inset 0 0 20px rgba(16, 185, 129, 0.15);
         }
-        .content-section {
-            display: none;
+
+        .nav-btn { position: relative; padding: 1rem 1.5rem; color: #e2e8f0; transition: color 0.3s ease; }
+        .nav-btn.active { color: var(--accent-soft); font-weight: 700; }
+        .nav-btn.active::after {
+            content: ""; position: absolute; bottom: 0; left: 0; width: 100%; height: 2px;
+            background: var(--accent-soft); box-shadow: 0 0 10px var(--accent-soft);
         }
-        .content-section.active {
-            display: block;
+
+        .font-mono { font-family: var(--font-mono); }
+        .blink-cursor::after { content: '_'; animation: blink 1s step-end infinite; color: var(--accent-soft); margin-left: 2px; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        .chart-bg { background: rgba(0, 0, 0, 0.4); border-radius: 12px; padding: 1rem; }
+        
+        .gemini-loader {
+            display: inline-block; border: 2px solid rgba(255, 255, 255, 0.1); border-top: 2px solid var(--accent-soft);
+            border-radius: 50%; width: 14px; height: 14px; animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(16, 185, 129, 0.2); border-radius: 10px; }
+        .content-section { scroll-margin-top: 100px; padding-bottom: 4rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .content-section:last-child { border-bottom: none; }
+
+        /* Kinetic Speed Grid Background */
+        @keyframes grid-drift {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(40px); }
+        }
+        .kinetic-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            opacity: 0.5;
+            background-image: 
+                linear-gradient(to right, rgba(16, 185, 129, 0.04) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(6, 182, 212, 0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .kinetic-glow-1 {
+            position: fixed;
+            top: -15%;
+            left: -10%;
+            width: 55vw;
+            height: 55vw;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, rgba(6, 182, 212, 0.02) 60%, transparent 80%);
+            filter: blur(120px);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .kinetic-glow-2 {
+            position: fixed;
+            bottom: -10%;
+            right: -10%;
+            width: 50vw;
+            height: 50vw;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.07) 0%, rgba(59, 130, 246, 0.02) 60%, transparent 80%);
+            filter: blur(120px);
+            z-index: -1;
+            pointer-events: none;
         }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
 
-    <div class="container mx-auto p-4 sm:p-6 md:p-8">
-        <!-- Header -->
-        <header class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-gray-900">Interactive Unit Plan</h1>
-            <p class="text-xl text-indigo-600 font-semibold mt-1">Speed & Velocity</p>
+<body class="bg-slate-950">
+    <div class="kinetic-bg"></div>
+    <div class="kinetic-glow-1"></div>
+    <div class="kinetic-glow-2"></div>
+
+    <div data-include="header"></div>
+
+    <div id="app-container" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400">
+                Interactive Unit Plan</h1>
+            <p class="text-xl text-emerald-200 mt-2 font-medium">Unit 2: Kinematics, Speed & Velocity Vectors</p>
+            <div class="w-32 h-1 bg-emerald-500 mx-auto mt-4 rounded-full shadow-[0_0_20px_rgba(16,185,129,0.6)] mb-8"></div>
+            
+            <!-- Unit Progress Bar -->
+            <div class="max-w-md mx-auto bg-slate-900/50 rounded-full h-4 border border-emerald-500/20 overflow-hidden relative mb-4">
+                <div id="unit-progress-bar" class="h-full bg-gradient-to-r from-emerald-500 to-cyan-400 shadow-[0_0_15px_rgba(16,185,129,0.5)] transition-all duration-1000" style="width: 0%"></div>
+                <div class="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white uppercase tracking-tighter mix-blend-difference">
+                    <span id="progress-text">Calculating...</span>
+                </div>
+            </div>
         </header>
 
-        <!-- Navigation -->
-        <nav class="bg-white rounded-lg shadow-md p-2 mb-8 flex flex-wrap justify-center gap-2">
-            <a href="#overview" class="nav-link active text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-indigo-500 hover:text-white" data-target="overview">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg>
-                Overview
-            </a>
-            <a href="#calendar" class="nav-link text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-indigo-500 hover:text-white" data-target="calendar">
-                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" /></svg>
-                Pacing Calendar
-            </a>
-            <a href="#lessons" class="nav-link text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-indigo-500 hover:text-white" data-target="lessons">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M10.394 2.08a1 1 0 00-.788 0l-7 3.5a1 1 0 00.002 1.84L9.61 9.92a1 1 0 00.78 0l7-3.5a1 1 0 00-.002-1.84l-7-3.5zM3 9.38l7 3.5 7-3.5v3.837l-7 3.5-7-3.5V9.38z" /></svg>
-                Daily Lessons
-            </a>
-            <a href="#assessments" class="nav-link text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-indigo-500 hover:text-white" data-target="assessments">
-                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm3.707 5.707a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4a1 1 0 00-1.414-1.414L9 9.586 7.707 8.293z" clip-rule="evenodd" /></svg>
-                Assessments
-            </a>
-            <a href="#resources" class="nav-link text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-indigo-500 hover:text-white" data-target="resources">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" /><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3z" clip-rule="evenodd" /></svg>
-                Resource Library
-            </a>
+        <nav class="flex justify-center border-b border-emerald-900/30 mb-10 sticky top-[73px] bg-slate-950/80 backdrop-blur-md z-40">
+            <button data-target="at-a-glance" class="nav-btn active">At a Glance</button>
+            <button data-target="pacing-guide" class="nav-btn">Pacing Guide</button>
+            <button data-target="interactive-lab" class="nav-btn">Vector Simulator</button>
+            <button data-target="resources" class="nav-btn">Resources</button>
         </nav>
 
-        <!-- Main Content Area -->
-        <main>
-            <!-- Unit Overview Section -->
-            <section id="overview" class="content-section active">
-                <div class="bg-white rounded-lg shadow-lg p-6">
-                    <h2 class="text-3xl font-bold mb-4 text-gray-900 border-b-2 border-indigo-200 pb-2">Unit Overview</h2>
-                    <p class="mb-6 text-gray-600">This unit is designed for a high school physics course to support students working below grade level. The goal is to build a strong conceptual and practical understanding of speed, velocity, and motion graphs, culminating in the ability to solve DOK 1-4 level problems.</p>
-                    
-                    <div class="grid md:grid-cols-2 gap-6">
-                        <div class="bg-indigo-50 rounded-lg p-4">
-                            <h3 class="text-xl font-semibold text-indigo-800 mb-2">🎯 Learning Goals</h3>
-                            <ul class="list-disc list-inside space-y-2 text-gray-700">
-                                <li>Define, differentiate, and calculate speed and velocity using the formula 𝑣 = 𝑥/𝑡.</li>
-                                <li>Create and interpret distance-vs-time graphs to describe an object's motion.</li>
-                                <li>Design and execute simple experiments to measure speed.</li>
-                                <li>Apply knowledge to solve multi-step, strategic-thinking problems.</li>
-                            </ul>
-                        </div>
-                        <div class="bg-indigo-50 rounded-lg p-4">
-                            <h3 class="text-xl font-semibold text-indigo-800 mb-2">❓ Essential Questions</h3>
-                            <ul class="list-disc list-inside space-y-2 text-gray-700">
-                                <li>How can we describe and measure motion?</li>
-                                <li>How can graphs help us understand an object's journey?</li>
-                                <li>What is the difference between "how fast" and "in what direction"?</li>
-                            </ul>
-                        </div>
+        <main id="main-content">
+            <!-- At a Glance Section -->
+            <section id="at-a-glance" class="content-section space-y-8">
+                <div class="glass-card p-8">
+                    <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
+                        <h2 class="text-2xl font-bold text-emerald-100">Unit Overview</h2>
+                        <button id="suggest-insight-btn"
+                            class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold px-5 py-2.5 rounded-full hover:shadow-[0_0_20px_rgba(16,185,129,0.5)] transition-all flex items-center gap-2">
+                            🏎️ Velocity Insight
+                        </button>
                     </div>
-                     <div class="mt-6 bg-indigo-50 rounded-lg p-4">
-                        <h3 class="text-xl font-semibold text-indigo-800 mb-2">🔑 Key Vocabulary</h3>
-                        <div class="flex flex-wrap gap-2">
-                           <span class="bg-indigo-200 text-indigo-800 text-sm font-medium px-3 py-1 rounded-full">Motion</span>
-                           <span class="bg-indigo-200 text-indigo-800 text-sm font-medium px-3 py-1 rounded-full">Distance (x)</span>
-                           <span class="bg-indigo-200 text-indigo-800 text-sm font-medium px-3 py-1 rounded-full">Time (t)</span>
-                           <span class="bg-indigo-200 text-indigo-800 text-sm font-medium px-3 py-1 rounded-full">Speed (v)</span>
-                           <span class="bg-indigo-200 text-indigo-800 text-sm font-medium px-3 py-1 rounded-full">Velocity (v)</span>
-                           <span class="bg-indigo-200 text-indigo-800 text-sm font-medium px-3 py-1 rounded-full">Slope</span>
-                           <span class="bg-indigo-200 text-indigo-800 text-sm font-medium px-3 py-1 rounded-full">Average Speed</span>
-                        </div>
-                    </div>
+                    <p class="text-emerald-100/80 leading-relaxed text-lg">
+                        This unit establishes the mathematical and physical foundation of motion in classical physics. Students explore 
+                        <strong>1D Kinematics</strong> by investigating the fundamental relationship between position, displacement, time, speed, 
+                        and velocity. Through hands-on experiments—including <em>"The Monster's Journey"</em> and ramp incline marble timing—students 
+                        learn to differentiate between <strong>scalar speed</strong> ($v = \Delta x / \Delta t$) and <strong>vector velocity</strong> ($\vec{v} = \Delta \vec{x} / \Delta t$), 
+                        decode position-time and velocity-time slopes, and construct predictive mathematical models for complex journeys.
+                    </p>
+                    <div id="insight-container" class="mt-6 hidden"></div>
+                    <div id="unit2-ngss-alignment" class="mt-6"></div>
                 </div>
-            </section>
 
-            <!-- Pacing Calendar Section -->
-            <section id="calendar" class="content-section">
-                 <div class="bg-white rounded-lg shadow-lg p-6">
-                    <h2 class="text-3xl font-bold mb-4 text-gray-900 border-b-2 border-indigo-200 pb-2">Pacing Calendar</h2>
-                    <div class="grid md:grid-cols-2 gap-8">
-                        <div>
-                            <h3 class="text-2xl font-semibold text-indigo-700 mb-3">Week 1: Foundations of Speed & Graphing</h3>
-                            <ol class="relative border-l border-gray-200">                  
-                                <li class="mb-6 ml-4">
-                                    <div class="absolute w-3 h-3 bg-gray-300 rounded-full mt-1.5 -left-1.5 border border-white"></div>
-                                    <time class="mb-1 text-sm font-normal leading-none text-gray-500">Monday (Day 1)</time>
-                                    <h4 class="text-lg font-semibold text-gray-900">Intro to Motion</h4>
-                                </li>
-                                <li class="mb-6 ml-4">
-                                    <div class="absolute w-3 h-3 bg-gray-300 rounded-full mt-1.5 -left-1.5 border border-white"></div>
-                                    <time class="mb-1 text-sm font-normal leading-none text-gray-500">Tuesday (Day 2)</time>
-                                    <h4 class="text-lg font-semibold text-gray-900">"The Monster's Journey" Lab</h4>
-                                </li>
-                                <li class="mb-6 ml-4">
-                                    <div class="absolute w-3 h-3 bg-gray-300 rounded-full mt-1.5 -left-1.5 border border-white"></div>
-                                    <time class="mb-1 text-sm font-normal leading-none text-gray-500">Wednesday (Day 3)</time>
-                                    <h4 class="text-lg font-semibold text-gray-900">Graphing Motion</h4>
-                                </li>
-                                <li class="mb-6 ml-4">
-                                    <div class="absolute w-3 h-3 bg-gray-300 rounded-full mt-1.5 -left-1.5 border border-white"></div>
-                                    <time class="mb-1 text-sm font-normal leading-none text-gray-500">Thursday (Day 4)</time>
-                                    <h4 class="text-lg font-semibold text-gray-900">"Marble Race" Lab</h4>
-                                </li>
-                                <li class="ml-4">
-                                    <div class="absolute w-3 h-3 bg-indigo-500 rounded-full mt-1.5 -left-1.5 border border-white"></div>
-                                    <time class="mb-1 text-sm font-normal leading-none text-gray-500">Friday (Day 5)</time>
-                                    <h4 class="text-lg font-semibold text-gray-900">Mid-Unit Assessment</h4>
-                                </li>
-                            </ol>
-                        </div>
-                        <div>
-                            <h3 class="text-2xl font-semibold text-indigo-700 mb-3">Week 2: Deeper Concepts & Application</h3>
-                            <ol class="relative border-l border-gray-200">                  
-                                <li class="mb-6 ml-4">
-                                    <div class="absolute w-3 h-3 bg-gray-300 rounded-full mt-1.5 -left-1.5 border border-white"></div>
-                                    <time class="mb-1 text-sm font-normal leading-none text-gray-500">Monday (Day 6)</time>
-                                    <h4 class="text-lg font-semibold text-gray-900">Speed vs. Velocity</h4>
-                                </li>
-                                <li class="mb-6 ml-4">
-                                    <div class="absolute w-3 h-3 bg-gray-300 rounded-full mt-1.5 -left-1.5 border border-white"></div>
-                                    <time class="mb-1 text-sm font-normal leading-none text-gray-500">Tuesday (Day 7)</time>
-                                    <h4 class="text-lg font-semibold text-gray-900">Interpreting Graphs</h4>
-                                </li>
-                                <li class="mb-6 ml-4">
-                                    <div class="absolute w-3 h-3 bg-gray-300 rounded-full mt-1.5 -left-1.5 border border-white"></div>
-                                    <time class="mb-1 text-sm font-normal leading-none text-gray-500">Wednesday (Day 8)</time>
-                                    <h4 class="text-lg font-semibold text-gray-900">Solving DOK 3 Problems</h4>
-                                </li>
-                                <li class="mb-6 ml-4">
-                                    <div class="absolute w-3 h-3 bg-gray-300 rounded-full mt-1.5 -left-1.5 border border-white"></div>
-                                    <time class="mb-1 text-sm font-normal leading-none text-gray-500">Thursday (Day 9)</time>
-                                    <h4 class="text-lg font-semibold text-gray-900">Unit Review</h4>
-                                </li>
-                                <li class="ml-4">
-                                    <div class="absolute w-3 h-3 bg-indigo-500 rounded-full mt-1.5 -left-1.5 border border-white"></div>
-                                    <time class="mb-1 text-sm font-normal leading-none text-gray-500">Friday (Day 10)</time>
-                                    <h4 class="text-lg font-semibold text-gray-900">Final Assessment</h4>
-                                </li>
-                            </ol>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Daily Lessons Section -->
-            <section id="lessons" class="content-section">
-                <div class="bg-white rounded-lg shadow-lg p-6">
-                    <h2 class="text-3xl font-bold mb-4 text-gray-900 border-b-2 border-indigo-200 pb-2">Daily Lesson Outlines</h2>
-                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- Day 1 (UPDATED) -->
-                        <div class="border-2 border-indigo-400 rounded-lg p-4 bg-indigo-50">
-                            <p class="text-sm text-indigo-500 font-semibold">Day 1</p>
-                            <h3 class="text-xl font-bold mb-2">Intro to Motion</h3>
-                            <p class="text-sm text-gray-600 mb-3"><span class="font-semibold">Objective:</span> Define motion, distance, time, and use 𝑣 = 𝑥/𝑡 to calculate speed.</p>
-                            <ul class="list-disc list-inside text-sm space-y-1">
-                                <li>Engage: Watch Day 1 video & discuss</li>
-                                <li>Direct Instruction on vocab & formula</li>
-                                <li>Guided Practice: Calculate walking speed</li>
-                                <li>Exit Ticket on DOK 1 questions</li>
-                            </ul>
-                        </div>
-                        <!-- Day 2 -->
-                        <div class="border border-gray-200 rounded-lg p-4">
-                            <p class="text-sm text-indigo-500 font-semibold">Day 2</p>
-                            <h3 class="text-xl font-bold mb-2">"Monster's Journey" Lab</h3>
-                            <p class="text-sm text-gray-600 mb-3"><span class="font-semibold">Objective:</span> Collect data in trials and calculate average speed.</p>
-                             <ul class="list-disc list-inside text-sm space-y-1">
-                                <li>Warm-up calculation</li>
-                                <li>Lab Intro & assign group roles</li>
-                                <li>Lab Activity: 3 trials</li>
-                                <li>Closing discussion on averages</li>
-                            </ul>
-                        </div>
-                         <!-- Day 3 -->
-                        <div class="border border-gray-200 rounded-lg p-4">
-                            <p class="text-sm text-indigo-500 font-semibold">Day 3</p>
-                            <h3 class="text-xl font-bold mb-2">Graphing Motion</h3>
-                            <p class="text-sm text-gray-600 mb-3"><span class="font-semibold">Objective:</span> Create and interpret a simple distance vs. time graph.</p>
-                             <ul class="list-disc list-inside text-sm space-y-1">
-                                <li>Direct instruction on graph conventions</li>
-                                <li>Interactive practice with web activity</li>
-                                <li>Exit Ticket: Sketch a graph</li>
-                            </ul>
-                        </div>
-                         <!-- Day 4 -->
-                        <div class="border border-gray-200 rounded-lg p-4">
-                            <p class="text-sm text-indigo-500 font-semibold">Day 4</p>
-                            <h3 class="text-xl font-bold mb-2">"Marble Race" Lab</h3>
-                            <p class="text-sm text-gray-600 mb-3"><span class="font-semibold">Objective:</span> Investigate how ramp slope affects speed.</p>
-                             <ul class="list-disc list-inside text-sm space-y-1">
-                                <li>Warm-up: "Steeper slope = faster speed"</li>
-                                <li>Lab Intro & student hypothesis</li>
-                                <li>Lab Activity: Data collection</li>
-                            </ul>
-                        </div>
-                         <!-- Day 5 -->
-                        <div class="border-2 border-indigo-400 rounded-lg p-4 bg-indigo-50">
-                            <p class="text-sm text-indigo-500 font-semibold">Day 5</p>
-                            <h3 class="text-xl font-bold mb-2 text-indigo-800">Mid-Unit Assessment</h3>
-                            <p class="text-sm text-gray-600 mb-3"><span class="font-semibold">Objective:</span> Assess DOK 1 & 2 skills on speed calculation and graphing.</p>
-                             <ul class="list-disc list-inside text-sm space-y-1">
-                                <li>Brief Q&A Review</li>
-                                <li>35-minute independent quiz</li>
-                            </ul>
-                        </div>
-                         <!-- Day 6 -->
-                        <div class="border border-gray-200 rounded-lg p-4">
-                            <p class="text-sm text-indigo-500 font-semibold">Day 6</p>
-                            <h3 class="text-xl font-bold mb-2">Speed vs. Velocity</h3>
-                            <p class="text-sm text-gray-600 mb-3"><span class="font-semibold">Objective:</span> Differentiate between speed (scalar) and velocity (vector).</p>
-                             <ul class="list-disc list-inside text-sm space-y-1">
-                                <li>Engage: Importance of direction</li>
-                                <li>Direct Instruction with number line</li>
-                                <li>Guided Practice: Card sort activity</li>
-                            </ul>
-                        </div>
-                        <!-- Day 7 -->
-                        <div class="border border-gray-200 rounded-lg p-4">
-                            <p class="text-sm text-indigo-500 font-semibold">Day 7</p>
-                            <h3 class="text-xl font-bold mb-2">Interpreting Graphs</h3>
-                            <p class="text-sm text-gray-600 mb-3"><span class="font-semibold">Objective:</span> Describe motion by analyzing graph slope.</p>
-                             <ul class="list-disc list-inside text-sm space-y-1">
-                                <li>Direct Instruction: Positive, negative, zero slope</li>
-                                <li>"Graph Story" partner activity</li>
-                            </ul>
-                        </div>
-                         <!-- Day 8 -->
-                        <div class="border border-gray-200 rounded-lg p-4">
-                            <p class="text-sm text-indigo-500 font-semibold">Day 8</p>
-                            <h3 class="text-xl font-bold mb-2">Solving DOK 3 Problems</h3>
-                            <p class="text-sm text-gray-600 mb-3"><span class="font-semibold">Objective:</span> Apply knowledge to plan and solve multi-step problems.</p>
-                             <ul class="list-disc list-inside text-sm space-y-1">
-                                <li>Model problem breakdown (e.g., Ben & Maria)</li>
-                                <li>Group work on posters for DOK 3 problems</li>
-                            </ul>
-                        </div>
-                         <!-- Day 9 -->
-                        <div class="border border-gray-200 rounded-lg p-4">
-                            <p class="text-sm text-indigo-500 font-semibold">Day 9</p>
-                            <h3 class="text-xl font-bold mb-2">Unit Review</h3>
-                            <p class="text-sm text-gray-600 mb-3"><span class="font-semibold">Objective:</span> Solidify all unit concepts for final assessment.</p>
-                             <ul class="list-disc list-inside text-sm space-y-1">
-                                <li>Gallery Walk of DOK 3 posters</li>
-                                <li>Whole-class review game (Kahoot!, etc.)</li>
-                            </ul>
-                        </div>
-                         <!-- Day 10 -->
-                        <div class="border-2 border-indigo-400 rounded-lg p-4 bg-indigo-50">
-                            <p class="text-sm text-indigo-500 font-semibold">Day 10</p>
-                            <h3 class="text-xl font-bold mb-2 text-indigo-800">Final Assessment</h3>
-                            <p class="text-sm text-gray-600 mb-3"><span class="font-semibold">Objective:</span> Assess mastery of all unit objectives (DOK 1-3).</p>
-                             <ul class="list-disc list-inside text-sm space-y-1">
-                                <li>Brief Q&A Review</li>
-                                <li>40-minute independent test</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Assessments Section -->
-            <section id="assessments" class="content-section">
-                <div class="bg-white rounded-lg shadow-lg p-6">
-                    <h2 class="text-3xl font-bold mb-4 text-gray-900 border-b-2 border-indigo-200 pb-2">Assessments</h2>
-                    <div class="grid md:grid-cols-2 gap-6">
-                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                            <h3 class="text-xl font-semibold text-gray-800 mb-2">Mid-Unit Quiz (Day 5)</h3>
-                             <p class="mb-3 text-gray-600">A 35-minute quiz covering DOK 1 and DOK 2 concepts to check foundational understanding.</p>
-                            <h4 class="font-semibold mb-1">Content:</h4>
-                            <ul class="list-disc list-inside text-gray-700 space-y-1">
-                                <li>Simple calculations for speed (𝑣 = 𝑥/𝑡)</li>
-                                <li>Creating a distance-time graph from a data table</li>
-                                <li>Interpreting a simple pre-made graph</li>
-                            </ul>
-                            <div class="mt-4 p-3 bg-indigo-100 text-indigo-800 rounded-lg">
-                                <p class="font-semibold text-sm">Sample Question:</p>
-                                <p class="text-sm italic">"A toy car travels at a constant velocity of 0.5 m/s. How far will it travel in 10 seconds? Show your work."</p>
+                <!-- Featured Mission Card -->
+                <div class="glass-card p-0 overflow-hidden border-l-4 border-l-cyan-500 shadow-[0_0_30px_rgba(6,182,212,0.15)]">
+                    <div class="flex flex-col md:flex-row">
+                        <!-- Left Content: Briefing -->
+                        <div class="flex-1 p-8 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center gap-4 mb-6">
+                                    <div class="w-12 h-12 rounded-lg bg-cyan-600/20 flex items-center justify-center text-2xl border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+                                        ⚡
+                                    </div>
+                                    <div>
+                                        <h2 class="text-2xl font-bold text-cyan-400 tracking-tight">MISSION: KINEMATIC VECTOR TRACKING</h2>
+                                        <p class="text-xs text-cyan-300/60 font-mono uppercase tracking-[0.2em]">Operational Focus: Rate of Change & Graph Decoding</p>
+                                    </div>
+                                </div>
+                                <div class="space-y-4 mb-8">
+                                    <div class="flex gap-2">
+                                        <span class="text-cyan-500 font-mono">[01]</span>
+                                        <p class="text-emerald-100/80 leading-relaxed italic text-lg">
+                                            "Collect multi-stage coordinate displacements. Calculate instantaneous vs average velocity vectors and model motion curves."
+                                        </p>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <span class="text-cyan-500 font-mono">[02]</span>
+                                        <p class="text-emerald-100/60 text-sm">
+                                            Students apply algebra and coordinate slope formulas ($m = \Delta y / \Delta x$) to bridge empirical lab data with real-time interactive motion graphs.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex flex-wrap gap-4">
+                                <a href="distance_vs_time_graphing.html" 
+                                   class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] transform hover:-translate-y-1 active:scale-95">
+                                    Distance vs Time App ↗
+                                </a>
+                                <a href="Distance_vs_Time_Drawer.html" 
+                                   class="inline-flex items-center justify-center gap-2 bg-slate-900/80 hover:bg-slate-800 text-cyan-300 border border-cyan-500/30 font-bold px-6 py-3 rounded-xl transition-all hover:border-cyan-400">
+                                    Motion Curve Drawer ↗
+                                </a>
                             </div>
                         </div>
-                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                            <h3 class="text-xl font-semibold text-gray-800 mb-2">Final Unit Test (Day 10)</h3>
-                             <p class="mb-3 text-gray-600">A 40-minute cumulative test covering DOK 1-3 concepts, assessing both skills and strategic thinking.</p>
-                             <h4 class="font-semibold mb-1">Content:</h4>
-                             <ul class="list-disc list-inside text-gray-700 space-y-1">
-                                <li>Mix of multiple-choice and short-answer</li>
-                                <li>Calculations, graph creation, and interpretation</li>
-                                <li>One strategic-thinking problem (like DOK 3 list)</li>
-                             </ul>
-                             <div class="mt-4 p-3 bg-indigo-100 text-indigo-800 rounded-lg">
-                                <p class="font-semibold text-sm">Sample Question:</p>
-                                <p class="text-sm italic">"The distance vs. time graphs for two different cars are plotted on the same axes. Justify which car was moving faster, using specific evidence from the slope of the lines in your explanation."</p>
+
+                        <!-- Right Content: Interactive Graphic / Preview -->
+                        <div class="w-full md:w-[42%] bg-slate-950/60 p-6 border-t md:border-t-0 md:border-l border-cyan-500/10 flex flex-col justify-center">
+                            <div class="mb-3 flex justify-between items-center">
+                                <span class="text-[10px] font-mono text-cyan-400/70 tracking-widest uppercase">Kinematics_Telemetry</span>
+                                <span class="text-[10px] font-mono text-emerald-400 animate-pulse">LIVE_SIM // 1D_VECTOR</span>
+                            </div>
+                            <div class="relative group overflow-hidden rounded-lg border border-cyan-500/20 bg-slate-900/80 p-4">
+                                <div class="flex items-center justify-between text-xs font-mono text-emerald-300 mb-2">
+                                    <span>v = Δx / Δt</span>
+                                    <span>slope = velocity</span>
+                                </div>
+                                <div class="h-28 bg-slate-950/90 rounded border border-emerald-500/20 flex flex-col justify-center p-3 relative overflow-hidden">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/10 via-cyan-500/10 to-transparent"></div>
+                                    <div class="flex items-center gap-3 relative z-10">
+                                        <span class="text-2xl animate-bounce">🏎️</span>
+                                        <div class="flex-1">
+                                            <div class="flex justify-between text-[11px] font-mono text-cyan-300 mb-1">
+                                                <span>Position: x(t)</span>
+                                                <span class="text-emerald-400">+25.4 m/s</span>
+                                            </div>
+                                            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                                                <div class="bg-gradient-to-r from-emerald-400 to-cyan-400 h-full w-3/4 rounded-full animate-pulse"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 flex justify-between text-[9px] font-mono text-slate-400">
+                                        <span>t = 0.0s [ORIGIN]</span>
+                                        <span>t = 5.0s [TERMINAL]</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="mt-3 text-[10px] text-cyan-400/60 font-mono text-center leading-tight">
+                                // REAL-TIME KINEMATIC MODEL: Constant velocity yields linear position slope; acceleration produces parabolic curvature.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="glass-card p-8">
+                        <h2 class="text-2xl font-bold mb-4 text-emerald-400 blink-cursor">Essential_Qs</h2>
+                        <ul class="space-y-4 text-emerald-100/70">
+                            <li class="flex items-start gap-3"><span class="text-emerald-400 font-mono font-bold">>_</span> How can we describe and mathematically quantify the motion of any object?</li>
+                            <li class="flex items-start gap-3"><span class="text-emerald-400 font-mono font-bold">>_</span> How does the slope of a position-time graph reveal speed, direction, and stationary states?</li>
+                            <li class="flex items-start gap-3"><span class="text-emerald-400 font-mono font-bold">>_</span> What is the fundamental difference between scalar speed ("how fast") and vector velocity ("in what direction")?</li>
+                            <li class="flex items-start gap-3"><span class="text-emerald-400 font-mono font-bold">>_</span> Why does average speed fail to reflect rapid changes in instantaneous velocity?</li>
+                        </ul>
+                    </div>
+                    <div class="glass-card p-8">
+                        <h2 class="text-2xl font-bold mb-4 text-cyan-400 blink-cursor">Kinematics_Matrix</h2>
+                        <div class="grid grid-cols-2 gap-3">
+                            <a href="distance_vs_time_graphing.html" class="flex items-center gap-3 p-3 bg-emerald-950/30 border border-emerald-500/20 rounded-lg shadow-inner hover:border-emerald-400/50 transition-colors group">
+                                <div class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981] animate-pulse"></div>
+                                <span class="text-xs font-mono text-cyan-100/90 tracking-wide">Distance_Time_Grapher</span>
+                            </a>
+                            <a href="Distance_vs_Time_Drawer.html" class="flex items-center gap-3 p-3 bg-emerald-950/30 border border-emerald-500/20 rounded-lg shadow-inner hover:border-cyan-400/50 transition-colors group">
+                                <div class="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_#06b6d4]"></div>
+                                <span class="text-xs font-mono text-cyan-100/90 tracking-wide">Motion_Curve_Drawer</span>
+                            </a>
+                            <a href="Interactive_Acceleration_Grapher.html" class="flex items-center gap-3 p-3 bg-emerald-950/30 border border-emerald-500/20 rounded-lg shadow-inner hover:border-teal-400/50 transition-colors group">
+                                <div class="w-2 h-2 rounded-full bg-teal-400 shadow-[0_0_8px_#14b8a6]"></div>
+                                <span class="text-xs font-mono text-cyan-100/90 tracking-wide">Acceleration_Grapher</span>
+                            </a>
+                            <a href="velocity_vectors_interactive/index.html" class="flex items-center gap-3 p-3 bg-emerald-950/30 border border-emerald-500/20 rounded-lg shadow-inner hover:border-lime-400/50 transition-colors group">
+                                <div class="w-2 h-2 rounded-full bg-lime-400 shadow-[0_0_8px_#a3e635]"></div>
+                                <span class="text-xs font-mono text-cyan-100/90 tracking-wide">Velocity_Vectors</span>
+                            </a>
+                            <a href="coaster-physics/index.html" class="flex items-center gap-3 p-3 bg-emerald-950/30 border border-emerald-500/20 rounded-lg shadow-inner hover:border-emerald-400/50 transition-colors group">
+                                <div class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981]"></div>
+                                <span class="text-xs font-mono text-cyan-100/90 tracking-wide">Coaster_Physics_Sim</span>
+                            </a>
+                            <a href="https://phet.colorado.edu/sims/html/the-moving-man/latest/the-moving-man_en.html" target="_blank" class="flex items-center gap-3 p-3 bg-emerald-950/30 border border-emerald-500/20 rounded-lg shadow-inner hover:border-cyan-400/50 transition-colors group">
+                                <div class="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_#06b6d4]"></div>
+                                <span class="text-xs font-mono text-cyan-100/90 tracking-wide">PhET_Moving_Man ↗</span>
+                            </a>
+                            <div class="flex items-center gap-3 p-3 bg-emerald-950/30 border border-emerald-500/20 rounded-lg shadow-inner col-span-2 hover:border-emerald-400/50 transition-colors group">
+                                <div class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981] animate-pulse"></div>
+                                <a href="https://www.youtube.com/watch?v=WxCKtb2LjlU" target="_blank" class="text-xs font-mono text-cyan-100/90 tracking-wide group-hover:text-emerald-300">DAY_01_HOOK_VIDEO ↗</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-8">
+                    <h2 class="text-2xl font-bold mb-6 text-emerald-100">Cognitive Learning Objectives</h2>
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="bg-emerald-950/30 p-4 rounded-xl border border-emerald-500/20 hover:border-cyan-500/40 transition-colors">
+                            <div class="text-emerald-400 font-bold mb-1">DOK 1: Recall & Formula</div>
+                            <p class="text-sm text-emerald-100/60">Define distance, displacement, time, and calculate speed using algebraic substitution ($v = x/t$).</p>
+                        </div>
+                        <div class="bg-emerald-950/30 p-4 rounded-xl border border-emerald-500/20 hover:border-cyan-500/40 transition-colors">
+                            <div class="text-teal-400 font-bold mb-1">DOK 2: Skills & Concepts</div>
+                            <p class="text-sm text-emerald-100/60">Construct distance-time graphs, calculate coordinate slopes, and differentiate scalar speed from directional velocity vectors.</p>
+                        </div>
+                        <div class="bg-emerald-950/30 p-4 rounded-xl border border-emerald-500/20 hover:border-cyan-500/40 transition-colors">
+                            <div class="text-cyan-400 font-bold mb-1">DOK 3: Strategic Thinking</div>
+                            <p class="text-sm text-emerald-100/60">Design and execute ramp incline experiments, decode non-linear motion graphs, and solve multi-stage intercept problems.</p>
+                        </div>
+                        <div class="bg-emerald-950/30 p-4 rounded-xl border border-emerald-500/20 hover:border-cyan-500/40 transition-colors">
+                            <div class="text-lime-400 font-bold mb-1">DOK 4: Extended Modeling</div>
+                            <p class="text-sm text-emerald-100/60">Synthesize kinematic models, evaluate error propagation in stopwatch timing, and defend claims on vehicle motion systems.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pacing Guide Section -->
+            <section id="pacing-guide" class="content-section">
+                <div class="text-center mb-10">
+                    <h2 class="text-3xl font-bold text-emerald-100">Cognitive Progression Chart</h2>
+                    <p class="text-emerald-300/70 mt-2">DOK levels by lesson day. Tracking the acceleration of conceptual rigor!</p>
+                </div>
+                <div class="chart-bg h-80 mb-12 border border-emerald-900/30">
+                    <canvas id="dokChart"></canvas>
+                </div>
+                <div id="pacing-cards-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                    <!-- Filled dynamically by JS -->
+                </div>
+            </section>
+
+            <!-- Interactive Vector Simulator Section -->
+            <section id="interactive-lab" class="content-section space-y-8">
+                <div class="glass-card p-8">
+                    <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-emerald-300">Kinematic Vector & Slope Visualizer</h2>
+                            <p class="text-sm text-emerald-100/70">Adjust velocity ($v$) and acceleration ($a$) to observe the real-time position curve $x(t) = x_0 + vt + \frac{1}{2}at^2$.</p>
+                        </div>
+                        <span class="text-xs font-mono px-3 py-1 bg-emerald-950 border border-emerald-500/30 rounded-full text-emerald-400">INTERACTIVE LAB ENGINE</span>
+                    </div>
+
+                    <div class="grid lg:grid-cols-3 gap-8 items-start">
+                        <!-- Controls -->
+                        <div class="space-y-6 bg-slate-900/70 p-6 rounded-xl border border-emerald-500/20">
+                            <div>
+                                <div class="flex justify-between text-sm font-mono mb-2">
+                                    <label class="text-emerald-300">Initial Position ($x_0$):</label>
+                                    <span id="val-x0" class="text-cyan-400 font-bold">0 m</span>
+                                </div>
+                                <input id="slider-x0" type="range" min="0" max="50" value="0" step="5" class="w-full accent-emerald-500 cursor-pointer">
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between text-sm font-mono mb-2">
+                                    <label class="text-emerald-300">Constant Velocity ($v$):</label>
+                                    <span id="val-v" class="text-cyan-400 font-bold">+10 m/s</span>
+                                </div>
+                                <input id="slider-v" type="range" min="-20" max="30" value="10" step="2" class="w-full accent-cyan-400 cursor-pointer">
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between text-sm font-mono mb-2">
+                                    <label class="text-emerald-300">Acceleration ($a$):</label>
+                                    <span id="val-a" class="text-cyan-400 font-bold">0.0 m/s²</span>
+                                </div>
+                                <input id="slider-a" type="range" min="-4" max="4" value="0" step="0.5" class="w-full accent-lime-400 cursor-pointer">
+                            </div>
+
+                            <div class="pt-4 border-t border-slate-800 flex gap-3">
+                                <button id="btn-play-sim" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-lg transition-colors text-sm shadow-[0_0_15px_rgba(16,185,129,0.4)]">
+                                    ▶ Play Motion
+                                </button>
+                                <button id="btn-reset-sim" class="px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2.5 rounded-lg transition-colors text-sm border border-slate-700">
+                                    Reset
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Real-time Canvas Visualization -->
+                        <div class="lg:col-span-2 space-y-4">
+                            <div class="bg-slate-950 p-4 rounded-xl border border-emerald-500/30">
+                                <div class="flex justify-between items-center text-xs font-mono text-emerald-400 mb-2">
+                                    <span>POSITION VS TIME GRAPH [x-t]</span>
+                                    <span id="sim-time-readout" class="text-cyan-300">t = 0.00s | x = 0.0m</span>
+                                </div>
+                                <canvas id="simCanvas" width="600" height="240" class="w-full rounded bg-slate-900 border border-slate-800"></canvas>
+                            </div>
+                            <div class="flex items-center justify-between text-xs font-mono text-slate-400 bg-slate-900/50 p-3 rounded-lg border border-slate-800">
+                                <span>Slope = $\Delta x / \Delta t$ = <strong id="readout-slope" class="text-emerald-400">+10.0 m/s</strong></span>
+                                <span>Kinematic State: <strong id="readout-state" class="text-cyan-300">Constant Positive Velocity</strong></span>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Resource Library Section -->
+            <!-- Resources Section -->
             <section id="resources" class="content-section">
-                <div class="bg-white rounded-lg shadow-lg p-6">
-                    <h2 class="text-3xl font-bold mb-4 text-gray-900 border-b-2 border-indigo-200 pb-2">Resource Library</h2>
-                    <p class="mb-6 text-gray-600">All the necessary documents and links for the unit's activities and labs.</p>
-                    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- Resource Card -->
-                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow">
-                            <h3 class="font-semibold text-lg text-gray-800">📄 DOK Questions: Speed and Velocity</h3>
-                            <p class="text-sm text-gray-600 mt-1">The core document guiding unit objectives and assessments.</p>
-                        </div>
-                        <!-- Resource Card -->
-                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow">
-                            <h3 class="font-semibold text-lg text-gray-800">📄 "The Monster's Journey" Lab Handout</h3>
-                            <p class="text-sm text-gray-600 mt-1">Lab for Day 2 focused on collecting data and calculating average speed.</p>
-                        </div>
-                        <!-- Resource Card -->
-                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow">
-                            <h3 class="font-semibold text-lg text-gray-800">📄 "Calculating Speed: Marble Race" Lab</h3>
-                            <p class="text-sm text-gray-600 mt-1">Lab for Day 4 focused on investigating how changing a variable affects speed.</p>
-                        </div>
-                        <!-- Resource Card -->
-                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow">
-                             <h3 class="font-semibold text-lg text-gray-800">💻 Distance vs. Time Web Activity</h3>
-                            <p class="text-sm text-gray-600 mt-1">Interactive website for Day 3 to practice creating and interpreting graphs.</p>
-                             <a href="https://rrmudry.github.io/distance_vs_time_graphing.html" target="_blank" class="text-sm text-indigo-600 hover:underline mt-2 inline-block">Go to activity &rarr;</a>
-                        </div>
-                        <!-- Resource Card -->
-                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow">
-                             <h3 class="font-semibold text-lg text-gray-800">💻 PhET "The Moving Man" Simulation</h3>
-                            <p class="text-sm text-gray-600 mt-1">Interactive simulation to supplement direct instruction or for practice.</p>
-                            <a href="https://phet.colorado.edu/sims/html/the-moving-man/latest/the-moving-man_en.html" target="_blank" class="text-sm text-indigo-600 hover:underline mt-2 inline-block">Go to simulation &rarr;</a>
-                        </div>
-                        <!-- Resource Card -->
-                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow">
-                             <h3 class="font-semibold text-lg text-gray-800">📄 Additional PDF Resource</h3>
-                            <p class="text-sm text-gray-600 mt-1">A supplementary PDF document for the unit.</p>
-                            <a href="https://orangeusdorg-my.sharepoint.com/:b:/g/personal/rmudry_orangeusd_org/EeTh2WXGPahBjX2U1GOxMzgBzoVs86yciRY2BgO9yhEhZA?e=uhFBbi" target="_blank" class="text-sm text-indigo-600 hover:underline mt-2 inline-block">Go to resource &rarr;</a>
-                        </div>
-                        <!-- Resource Card -->
-                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow">
-                             <h3 class="font-semibold text-lg text-gray-800">📄 Additional Word Document</h3>
-                            <p class="text-sm text-gray-600 mt-1">A supplementary Word document for the unit.</p>
-                            <a href="https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/EfT_-T5eNchCqWD5uW8StG4BvPVdCHURTefiSNZ9M2PxJg?e=1ocUO3" target="_blank" class="text-sm text-indigo-600 hover:underline mt-2 inline-block">Go to resource &rarr;</a>
-                        </div>
-                         <!-- NEW Resource Card 3 -->
-                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow">
-                             <h3 class="font-semibold text-lg text-gray-800">💻 Day 1 Engagement Video</h3>
-                            <p class="text-sm text-gray-600 mt-1">Video to be shown on the first day to spark discussion.</p>
-                            <a href="https://www.youtube.com/watch?v=WxCKtb2LjlU" target="_blank" class="text-sm text-indigo-600 hover:underline mt-2 inline-block">Watch video &rarr;</a>
-                        </div>
+                <div class="grid md:grid-cols-2 gap-10">
+                    <div>
+                        <h2 class="text-2xl font-bold mb-6 flex items-center gap-3 text-emerald-100">
+                            <span class="w-8 h-8 bg-emerald-500/20 text-emerald-400 rounded-lg flex items-center justify-center text-sm">🧪</span>
+                            Labs & Activities
+                        </h2>
+                        <ul id="labs-list" class="space-y-4"></ul>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold mb-6 flex items-center gap-3 text-emerald-100">
+                            <span class="w-8 h-8 bg-cyan-500/20 text-cyan-400 rounded-lg flex items-center justify-center text-sm">🎯</span>
+                            Assessments
+                        </h2>
+                        <ul id="assessments-list" class="space-y-4"></ul>
                     </div>
                 </div>
             </section>
         </main>
     </div>
 
+    <!-- Footer Partial -->
+    <div data-include="footer"></div>
+
+    <!-- Modal Drawer -->
+    <div id="modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 hidden z-50">
+        <div class="glass-card w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-300 border-emerald-500/30">
+            <div class="p-8">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <h3 id="modal-title" class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-200">
+                        </h3>
+                        <p id="modal-subtitle" class="text-emerald-300 font-medium mt-1"></p>
+                    </div>
+                    <button id="close-modal" class="text-white/40 hover:text-white transition-colors text-3xl">&times;</button>
+                </div>
+                <div id="modal-content" class="text-emerald-100/80 space-y-4 custom-scroll overflow-y-auto max-h-[60vh]">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/partials.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const navLinks = document.querySelectorAll('.nav-link');
+        const lessonScript = document.createElement('script');
+        lessonScript.src = 'assets/lessons-data.js?v=' + Date.now();
+        document.head.appendChild(lessonScript);
+
+        window.addEventListener('load', () => {
+            if (typeof lessonsData === 'undefined') {
+                const checkInterval = setInterval(() => {
+                    if (typeof lessonsData !== 'undefined') {
+                        clearInterval(checkInterval);
+                        initDashboard();
+                    }
+                }, 50);
+            } else {
+                initDashboard();
+            }
+            initSimVisualizer();
+        });
+
+        function initDashboard() {
+            const unitData = (typeof lessonsData !== 'undefined' ? lessonsData : [])
+                .filter(lesson => lesson.unit === 2)
+                .sort((a, b) => new Date(a.date) - new Date(b.date))
+                .map(lesson => ({
+                    ...lesson,
+                    topic: lesson.title,
+                    activity: lesson.summary,
+                    wicor: lesson.wicor,
+                    image: lesson.image
+                }));
+
+            function getLessonStatus(dateStr) {
+                if (!dateStr) return 'planned';
+                const now = new Date();
+                const lessonDate = new Date(dateStr + 'T00:00:00');
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+                if (lessonDate < today) return 'completed';
+                if (lessonDate.getTime() === today.getTime()) {
+                    const currentHour = now.getHours();
+                    if (currentHour > 15) return 'completed';
+                    return 'in-progress';
+                }
+                return 'planned';
+            }
+
+            // Update Progress Bar
+            const completedLessons = unitData.filter(d => getLessonStatus(d.date) === 'completed').length;
+            const inProgressLessons = unitData.filter(d => getLessonStatus(d.date) === 'in-progress').length;
+            const totalLessons = unitData.length;
+            const progressPercent = totalLessons > 0 ? ((completedLessons + inProgressLessons * 0.5) / totalLessons) * 100 : 0;
+            
+            const progressBar = document.getElementById('unit-progress-bar');
+            const progressText = document.getElementById('progress-text');
+            if (progressBar && progressText) {
+                progressBar.style.width = `${progressPercent}%`;
+                progressText.innerText = `UNIT PROGRESS: ${completedLessons} / ${totalLessons} DAYS COMPLETE`;
+            }
+
+            // Dynamically aggregate NGSS standards across unit lessons
+            const uniqueStandards = Array.from(new Set(unitData.flatMap(d => d.standards || [])));
+            const targetStandards = uniqueStandards.length > 0 ? uniqueStandards : ['HS-PS2-1', 'HS-ETS1-2'];
+            if (typeof NGSSHelper !== 'undefined') {
+                NGSSHelper.renderStandardsBanner(targetStandards, 'unit2-ngss-alignment');
+            }
+
+            const navButtons = document.querySelectorAll('.nav-btn');
             const contentSections = document.querySelectorAll('.content-section');
+            const pacingCards = document.getElementById('pacing-cards-container');
+            const modal = document.getElementById('modal');
+            const closeModal = document.getElementById('close-modal');
+            const labsList = document.getElementById('labs-list');
+            const assessmentsList = document.getElementById('assessments-list');
 
-            navLinks.forEach(link => {
-                link.addEventListener('click', function(event) {
-                    event.preventDefault();
-
-                    // Get target section id
-                    const targetId = this.dataset.target;
-
-                    // Update nav link active state
-                    navLinks.forEach(navLink => {
-                        navLink.classList.remove('active');
-                    });
-                    this.classList.add('active');
-
-                    // Show/hide content sections
-                    contentSections.forEach(section => {
-                        if (section.id === targetId) {
-                            section.classList.add('active');
-                        } else {
-                            section.classList.remove('active');
-                        }
-                    });
+            navButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.getElementById(btn.dataset.target).scrollIntoView({ behavior: 'smooth' });
                 });
             });
-        });
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.target === entry.target.id));
+                    }
+                });
+            }, { rootMargin: '-150px 0px -50% 0px' });
+            contentSections.forEach(section => observer.observe(section));
+
+            if (unitData.length === 0) {
+                pacingCards.innerHTML = '<div class="col-span-full text-center text-emerald-500 italic py-10">Unit 2 lessons loading...</div>';
+            } else {
+                pacingCards.innerHTML = '';
+            }
+
+            unitData.forEach(day => {
+                const status = getLessonStatus(day.date);
+                const statusStyles = {
+                    'completed': 'border-emerald-500/50 hover:border-emerald-400',
+                    'in-progress': 'border-cyan-500/50 hover:border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.2)]',
+                    'planned': 'hover:border-emerald-500/50'
+                };
+                const statusLabel = {
+                    'completed': '<span class="text-emerald-400 text-[10px] font-bold">✓ DONE</span>',
+                    'in-progress': '<span class="text-cyan-400 text-[10px] font-bold animate-pulse">● IN PROGRESS</span>',
+                    'planned': '<span class="text-emerald-300/40 text-[10px] font-bold">SCHEDULED</span>'
+                };
+
+                const card = document.createElement('div');
+                card.className = `glass-card p-5 cursor-pointer transition-all ${statusStyles[status]}`;
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-3 relative z-10">
+                        <div>
+                            <span class="text-cyan-400 font-mono font-bold block tracking-wider">DAY_${String(day.day).padStart(2, '0')}</span>
+                            <span class="text-[10px] text-emerald-300/60 font-mono tracking-wider">${day.date || ''}</span>
+                        </div>
+                        <div class="flex flex-col items-end gap-1">
+                            <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30 font-mono">DOK_${day.dok || 1}</span>
+                            ${statusLabel[status]}
+                        </div>
+                    </div>
+                    <p class="text-sm font-semibold text-white/90 leading-tight relative z-10">${day.topic}</p>
+                    ${day.standards ? `<div class="mt-2 flex flex-wrap gap-1 relative z-10">${day.standards.map(s => `<span class="text-[9px] bg-emerald-950/80 text-cyan-300 border border-cyan-500/40 px-1.5 py-0.5 rounded font-mono font-bold" data-ngss-code="${s}">${s}</span>`).join('')}</div>` : ''}
+                `;
+                card.onclick = () => openLessonModal(day);
+                pacingCards.appendChild(card);
+
+                const li = document.createElement('li');
+                li.className = 'glass-card p-4 hover:bg-white/5 transition-colors border-l-4 border-l-transparent hover:border-l-cyan-500 flex flex-col gap-2';
+                
+                let links = '';
+                if(day.links) {
+                    links = Object.entries(day.links).map(([lbl, u]) => `<a href="${u}" target="_blank" class="text-[10px] bg-emerald-950/40 hover:bg-emerald-500/20 px-2 py-1 rounded border border-emerald-500/20 text-emerald-200 transition-colors inline-flex items-center gap-1">${lbl} ↗</a>`).join('');
+                }
+
+                li.innerHTML = `
+                    <div class="flex justify-between items-center relative z-10">
+                        <span class="text-xs font-bold text-cyan-400 font-mono tracking-wider">DAY_${String(day.day).padStart(2, '0')}</span>
+                        <span class="text-[9px] text-emerald-100/40 uppercase font-mono">${day.type}</span>
+                    </div>
+                    <p class="text-sm font-semibold text-white/90 leading-tight relative z-10">${day.topic}</p>
+                    <div class="flex flex-wrap gap-2 mt-1 relative z-10">${links}</div>
+                `;
+                if (day.type === 'Assessment') assessmentsList.appendChild(li);
+                else labsList.appendChild(li);
+            });
+
+            // Initialize DOK Chart
+            initDokChart(unitData);
+
+            if (window.NGSSHelper) {
+                window.NGSSHelper.autoInit();
+            }
+
+            closeModal.onclick = () => modal.classList.add('hidden');
+            window.onclick = (e) => { if (e.target === modal) modal.classList.add('hidden'); };
+
+            // Insight button trigger
+            const insightBtn = document.getElementById('suggest-insight-btn');
+            const insightContainer = document.getElementById('insight-container');
+            if (insightBtn && insightContainer) {
+                insightBtn.onclick = () => {
+                    insightContainer.classList.toggle('hidden');
+                    if (!insightContainer.classList.contains('hidden')) {
+                        insightContainer.innerHTML = `
+                            <div class="p-4 rounded-xl bg-emerald-950/50 border border-emerald-500/30 text-emerald-100 text-sm animate-in fade-in duration-300">
+                                <h4 class="font-bold text-emerald-300 mb-2 flex items-center gap-2">💡 Core Kinematics Principle: Slope as Physical Rate</h4>
+                                <p class="mb-2">In any coordinate motion system, the derivative $\\frac{dx}{dt}$ represents instantaneous velocity. A flat horizontal line indicates $\\vec{v} = 0$, a positive upward slope indicates forward motion, and a downward slope indicates negative displacement.</p>
+                                <p class="text-xs font-mono text-cyan-300">Target Standard: HS-PS2-1 // Mathematical Modeling of Newton's Laws & Kinematics</p>
+                            </div>
+                        `;
+                    }
+                };
+            }
+        }
+
+        function openLessonModal(day) {
+            const modal = document.getElementById('modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalSubtitle = document.getElementById('modal-subtitle');
+            const modalContent = document.getElementById('modal-content');
+
+            modalTitle.innerText = `DAY ${String(day.day).padStart(2, '0')}: ${day.topic}`;
+            modalSubtitle.innerText = `${day.date || ''} • Type: ${day.type} • DOK Level: ${day.dok || 1}`;
+
+            let linksHtml = '';
+            if (day.links) {
+                linksHtml = `
+                    <div class="mt-4 pt-4 border-t border-emerald-500/20">
+                        <h4 class="text-xs font-mono text-cyan-300 uppercase tracking-wider mb-2">Connected Resources & Simulations</h4>
+                        <div class="flex flex-wrap gap-2">
+                            ${Object.entries(day.links).map(([k, v]) => `
+                                <a href="${v}" target="_blank" class="text-xs px-3 py-1.5 rounded bg-emerald-900/40 hover:bg-emerald-600/30 text-emerald-200 border border-emerald-500/30 transition-colors inline-flex items-center gap-1.5">
+                                    ${k} ↗
+                                </a>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            modalContent.innerHTML = `
+                <div>
+                    <h4 class="text-xs font-mono text-cyan-300 uppercase tracking-wider mb-1">Lesson Summary</h4>
+                    <p class="text-sm text-emerald-100/90 leading-relaxed">${day.summary || day.details || 'No summary available.'}</p>
+                </div>
+                ${day.essentialQuestion ? `
+                    <div class="bg-emerald-950/40 p-3 rounded-lg border border-emerald-500/20">
+                        <h4 class="text-xs font-mono text-emerald-300 uppercase tracking-wider mb-1">Essential Question</h4>
+                        <p class="text-sm italic text-emerald-200/90">"${day.essentialQuestion}"</p>
+                    </div>
+                ` : ''}
+                ${day.standards ? `
+                    <div>
+                        <h4 class="text-xs font-mono text-cyan-300 uppercase tracking-wider mb-2">NGSS Standards Alignment</h4>
+                        <div class="flex flex-wrap gap-2">
+                            ${day.standards.map(s => `<span class="text-xs bg-emerald-900/60 text-cyan-300 border border-cyan-500/40 px-2.5 py-1 rounded font-mono font-bold" data-ngss-code="${s}">${s}</span>`).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+                ${linksHtml}
+            `;
+
+            modal.classList.remove('hidden');
+            if (window.NGSSHelper) {
+                window.NGSSHelper.autoInit();
+            }
+        }
+
+        function initDokChart(unitData) {
+            const ctx = document.getElementById('dokChart');
+            if (!ctx) return;
+
+            const labels = unitData.map(d => `Day ${d.day}`);
+            const dokValues = unitData.map(d => d.dok || 1);
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Depth of Knowledge (DOK)',
+                        data: dokValues,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#06b6d4',
+                        pointBorderColor: '#fff',
+                        pointRadius: 6,
+                        pointHoverRadius: 9,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            min: 1,
+                            max: 4,
+                            ticks: {
+                                stepSize: 1,
+                                color: '#94a3b8',
+                                font: { family: 'Fira Code' },
+                                callback: function(val) {
+                                    const labels = {1: 'DOK 1: Recall', 2: 'DOK 2: Skill', 3: 'DOK 3: Strategy', 4: 'DOK 4: Extended'};
+                                    return labels[val] || val;
+                                }
+                            },
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                        },
+                        x: {
+                            ticks: { color: '#94a3b8', font: { family: 'Fira Code' } },
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(2, 6, 23, 0.9)',
+                            titleColor: '#10b981',
+                            bodyColor: '#f1f5f9',
+                            borderColor: 'rgba(16, 185, 129, 0.3)',
+                            borderWidth: 1,
+                            callbacks: {
+                                label: (context) => `Cognitive Rigor: DOK ${context.raw} (${unitData[context.dataIndex]?.topic || ''})`
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Live Interactive Kinematic Motion Canvas Sim
+        function initSimVisualizer() {
+            const canvas = document.getElementById('simCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            const sX0 = document.getElementById('slider-x0');
+            const sV = document.getElementById('slider-v');
+            const sA = document.getElementById('slider-a');
+
+            const valX0 = document.getElementById('val-x0');
+            const valV = document.getElementById('val-v');
+            const valA = document.getElementById('val-a');
+
+            const readoutSlope = document.getElementById('readout-slope');
+            const readoutState = document.getElementById('readout-state');
+            const timeReadout = document.getElementById('sim-time-readout');
+
+            const btnPlay = document.getElementById('btn-play-sim');
+            const btnReset = document.getElementById('btn-reset-sim');
+
+            let simTime = 0;
+            let isRunning = false;
+            let animationId = null;
+
+            function updateReadouts() {
+                const x0 = parseFloat(sX0.value);
+                const v = parseFloat(sV.value);
+                const a = parseFloat(sA.value);
+
+                valX0.innerText = `${x0} m`;
+                valV.innerText = `${v >= 0 ? '+' : ''}${v} m/s`;
+                valA.innerText = `${a >= 0 ? '+' : ''}${a.toFixed(1)} m/s²`;
+
+                readoutSlope.innerText = `${v >= 0 ? '+' : ''}${v.toFixed(1)} m/s`;
+
+                if (a === 0) {
+                    if (v > 0) readoutState.innerText = 'Constant Positive Velocity (Forward)';
+                    else if (v < 0) readoutState.innerText = 'Constant Negative Velocity (Backward)';
+                    else readoutState.innerText = 'Stationary State (At Rest, v = 0)';
+                } else if (a > 0) {
+                    readoutState.innerText = 'Uniform Forward Acceleration (+a)';
+                } else {
+                    readoutState.innerText = 'Uniform Deceleration / Reverse Acceleration (-a)';
+                }
+            }
+
+            function draw(currentTime) {
+                const w = canvas.width;
+                const h = canvas.height;
+                ctx.clearRect(0, 0, w, h);
+
+                const x0 = parseFloat(sX0.value);
+                const v = parseFloat(sV.value);
+                const a = parseFloat(sA.value);
+
+                // Grid & Axes
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+                ctx.lineWidth = 1;
+                for (let x = 40; x < w; x += 40) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, h - 25);
+                    ctx.stroke();
+                }
+                for (let y = 15; y < h - 25; y += 30) {
+                    ctx.beginPath();
+                    ctx.moveTo(40, y);
+                    ctx.lineTo(w, y);
+                    ctx.stroke();
+                }
+
+                // Origin Axes
+                ctx.strokeStyle = '#64748b';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(40, 10);
+                ctx.lineTo(40, h - 25);
+                ctx.lineTo(w - 10, h - 25);
+                ctx.stroke();
+
+                // Axis Labels
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = '10px Fira Code, monospace';
+                ctx.fillText('x (m)', 10, 20);
+                ctx.fillText('t (s)', w - 30, h - 10);
+                ctx.fillText('0', 30, h - 12);
+                ctx.fillText('5s', w / 2, h - 12);
+                ctx.fillText('10s', w - 40, h - 12);
+
+                // Draw Position-Time Curve for t: 0 to 10s
+                ctx.beginPath();
+                ctx.strokeStyle = '#06b6d4';
+                ctx.lineWidth = 3;
+
+                const maxTime = 10;
+                const maxPos = 200; // scaling range
+
+                for (let t = 0; t <= maxTime; t += 0.1) {
+                    const pos = x0 + v * t + 0.5 * a * t * t;
+                    const canvasX = 40 + (t / maxTime) * (w - 60);
+                    const canvasY = (h - 25) - (pos / maxPos) * (h - 45);
+
+                    if (t === 0) ctx.moveTo(canvasX, Math.max(10, Math.min(h - 25, canvasY)));
+                    else ctx.lineTo(canvasX, Math.max(10, Math.min(h - 25, canvasY)));
+                }
+                ctx.stroke();
+
+                // Draw current animated runner position point
+                const currentPos = x0 + v * currentTime + 0.5 * a * currentTime * currentTime;
+                const curX = 40 + (currentTime / maxTime) * (w - 60);
+                const curY = (h - 25) - (currentPos / maxPos) * (h - 45);
+                const clampedY = Math.max(10, Math.min(h - 25, curY));
+
+                // Pulsing glow cursor
+                ctx.beginPath();
+                ctx.arc(curX, clampedY, 7, 0, Math.PI * 2);
+                ctx.fillStyle = '#10b981';
+                ctx.shadowColor = '#10b981';
+                ctx.shadowBlur = 15;
+                ctx.fill();
+                ctx.shadowBlur = 0; // reset
+
+                // Update text readout
+                timeReadout.innerText = `t = ${currentTime.toFixed(2)}s | x = ${currentPos.toFixed(1)}m | v_inst = ${(v + a * currentTime).toFixed(1)}m/s`;
+            }
+
+            function animate() {
+                if (!isRunning) return;
+                simTime += 0.05;
+                if (simTime > 10) {
+                    simTime = 10;
+                    isRunning = false;
+                    btnPlay.innerText = '▶ Replay Motion';
+                }
+                draw(simTime);
+                if (isRunning) {
+                    animationId = requestAnimationFrame(animate);
+                }
+            }
+
+            [sX0, sV, sA].forEach(s => {
+                s.addEventListener('input', () => {
+                    updateReadouts();
+                    draw(simTime);
+                });
+            });
+
+            btnPlay.addEventListener('click', () => {
+                if (simTime >= 10) simTime = 0;
+                isRunning = !isRunning;
+                if (isRunning) {
+                    btnPlay.innerText = '⏸ Pause';
+                    animate();
+                } else {
+                    btnPlay.innerText = '▶ Resume';
+                    cancelAnimationFrame(animationId);
+                }
+            });
+
+            btnReset.addEventListener('click', () => {
+                isRunning = false;
+                cancelAnimationFrame(animationId);
+                simTime = 0;
+                btnPlay.innerText = '▶ Play Motion';
+                draw(0);
+            });
+
+            updateReadouts();
+            draw(0);
+        }
     </script>
-
+    <!-- NGSS Database Integration -->
+    <script src="ngss-explorer/standards-data.js"></script>
+    <script src="assets/ngss-helper.js"></script>
 </body>
+
 </html>
-
-
