@@ -9,143 +9,134 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="assets/unit2-favicon.svg">
     <link rel="stylesheet" href="assets/theme.css" />
     <style>
         html { scroll-behavior: smooth; }
 
         :root {
-            /* Kinematics Theme: Emerald, Cyan, Lime, Neon Mint */
-            --accent-kinetic: #10b981;
-            --accent-light: #06b6d4;
-            --accent-soft: #34d399;
+            /* Unit 2 Hyper-Velocity Theme: Neon Volt Lime, Tachometer Yellow, Racing Orange, Carbon Slate */
+            --accent-volt: #ccff00;
             --accent-lime: #a3e635;
+            --accent-speed-yellow: #facc15;
+            --accent-apex-orange: #f97316;
+            --accent-glow: rgba(204, 255, 0, 0.4);
             --font-tech: 'Inter', sans-serif;
             --font-mono: 'Fira Code', monospace;
+            --font-display: 'Plus Jakarta Sans', sans-serif;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: #020617;
-            color: #f1f5f9;
+            font-family: var(--font-tech);
+            background-color: #040804;
+            background-image: 
+                radial-gradient(circle at 15% 20%, rgba(204, 255, 0, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 85% 80%, rgba(250, 204, 21, 0.04) 0%, transparent 40%),
+                linear-gradient(rgba(163, 230, 53, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(163, 230, 53, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+            color: #f8fafc;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
+        /* Animated Horizontal Velocity Streaks */
+        @keyframes speed-streak {
+            0% { transform: translateX(-100vw); opacity: 0; }
+            20% { opacity: 0.6; }
+            80% { opacity: 0.6; }
+            100% { transform: translateX(100vw); opacity: 0; }
+        }
+        .speed-line {
+            position: fixed;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-volt), var(--accent-speed-yellow), transparent);
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.3;
+        }
+        .speed-line-1 { top: 18%; width: 45vw; animation: speed-streak 8s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+        .speed-line-2 { top: 48%; width: 60vw; animation: speed-streak 12s cubic-bezier(0.4, 0, 0.2, 1) infinite 3s; }
+        .speed-line-3 { top: 78%; width: 35vw; animation: speed-streak 7s cubic-bezier(0.4, 0, 0.2, 1) infinite 6s; }
+
         .glass-card {
-            background: rgba(15, 23, 42, 0.65);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(135deg, rgba(12, 20, 12, 0.75) 0%, rgba(6, 12, 6, 0.85) 100%);
+            backdrop-filter: blur(18px);
+            border: 1px solid rgba(163, 230, 53, 0.22);
+            border-radius: 18px;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(204, 255, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             position: relative;
             overflow: hidden;
         }
 
         .glass-card:hover {
             transform: translateY(-5px);
-            border-color: var(--accent-soft);
-            box-shadow: 0 15px 40px rgba(6, 182, 212, 0.2), inset 0 0 20px rgba(16, 185, 129, 0.15);
+            border-color: var(--accent-volt);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.8), 0 0 25px rgba(204, 255, 0, 0.18), inset 0 0 15px rgba(163, 230, 53, 0.1);
         }
 
-        .nav-btn { position: relative; padding: 1rem 1.5rem; color: #e2e8f0; transition: color 0.3s ease; }
-        .nav-btn.active { color: var(--accent-soft); font-weight: 700; }
+        .nav-btn { position: relative; padding: 1rem 1.5rem; color: #cbd5e1; font-family: var(--font-tech); transition: color 0.3s ease; }
+        .nav-btn.active { color: var(--accent-volt); font-weight: 700; text-shadow: 0 0 12px rgba(204, 255, 0, 0.4); }
         .nav-btn.active::after {
-            content: ""; position: absolute; bottom: 0; left: 0; width: 100%; height: 2px;
-            background: var(--accent-soft); box-shadow: 0 0 10px var(--accent-soft);
+            content: ""; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px;
+            background: linear-gradient(90deg, var(--accent-volt), var(--accent-speed-yellow));
+            box-shadow: 0 0 12px var(--accent-volt);
+            border-radius: 999px;
         }
 
         .font-mono { font-family: var(--font-mono); }
-        .blink-cursor::after { content: '_'; animation: blink 1s step-end infinite; color: var(--accent-soft); margin-left: 2px; }
+        .blink-cursor::after { content: '_'; animation: blink 1s step-end infinite; color: var(--accent-volt); margin-left: 2px; }
         @keyframes blink { 50% { opacity: 0; } }
 
-        .chart-bg { background: rgba(0, 0, 0, 0.4); border-radius: 12px; padding: 1rem; }
+        .chart-bg { background: rgba(3, 7, 3, 0.6); border-radius: 14px; padding: 1rem; border: 1px solid rgba(163, 230, 53, 0.15); }
         
-        .gemini-loader {
-            display: inline-block; border: 2px solid rgba(255, 255, 255, 0.1); border-top: 2px solid var(--accent-soft);
-            border-radius: 50%; width: 14px; height: 14px; animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
         .custom-scroll::-webkit-scrollbar { width: 6px; }
         .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(16, 185, 129, 0.2); border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(163, 230, 53, 0.3); border-radius: 10px; }
         .content-section { scroll-margin-top: 100px; padding-bottom: 4rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
         .content-section:last-child { border-bottom: none; }
 
-        /* Kinetic Speed Grid Background */
-        @keyframes grid-drift {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(40px); }
-        }
-        .kinetic-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            overflow: hidden;
-            opacity: 0.5;
-            background-image: 
-                linear-gradient(to right, rgba(16, 185, 129, 0.04) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(6, 182, 212, 0.04) 1px, transparent 1px);
-            background-size: 40px 40px;
-        }
-
-        .kinetic-glow-1 {
-            position: fixed;
-            top: -15%;
-            left: -10%;
-            width: 55vw;
-            height: 55vw;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, rgba(6, 182, 212, 0.02) 60%, transparent 80%);
-            filter: blur(120px);
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        .kinetic-glow-2 {
-            position: fixed;
-            bottom: -10%;
-            right: -10%;
-            width: 50vw;
-            height: 50vw;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(6, 182, 212, 0.07) 0%, rgba(59, 130, 246, 0.02) 60%, transparent 80%);
-            filter: blur(120px);
-            z-index: -1;
-            pointer-events: none;
+        /* Speedometer Gauge Arc */
+        .gauge-dial {
+            stroke-dasharray: 251;
+            stroke-dashoffset: 251;
+            transition: stroke-dashoffset 0.5s ease-out;
         }
     </style>
 </head>
 
-<body class="bg-slate-950">
-    <div class="kinetic-bg"></div>
-    <div class="kinetic-glow-1"></div>
-    <div class="kinetic-glow-2"></div>
+<body class="bg-[#040804]">
+    <!-- Velocity Streaks -->
+    <div class="speed-line speed-line-1"></div>
+    <div class="speed-line speed-line-2"></div>
+    <div class="speed-line speed-line-3"></div>
 
     <div data-include="header"></div>
 
     <div id="app-container" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <header class="text-center mb-12">
-            <h1 class="text-4xl md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400">
-                Interactive Unit Plan</h1>
-            <p class="text-xl text-emerald-200 mt-2 font-medium">Unit 2: Kinematics, Speed & Velocity Vectors</p>
-            <div class="w-32 h-1 bg-emerald-500 mx-auto mt-4 rounded-full shadow-[0_0_20px_rgba(16,185,129,0.6)] mb-8"></div>
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-lime-950/60 border border-lime-500/30 text-lime-300 text-xs font-mono mb-4 tracking-widest uppercase">
+                <span class="w-2 h-2 rounded-full bg-[#ccff00] animate-pulse shadow-[0_0_8px_#ccff00]"></span>
+                KINEMATICS & VECTOR TELEMETRY
+            </div>
+            <h1 class="text-4xl md:text-6xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-[#ccff00] via-[#a3e635] to-[#facc15] tracking-tight">
+                Interactive Unit Plan
+            </h1>
+            <p class="text-xl text-lime-200/90 mt-2 font-medium">Unit 2: Kinematics, Speed & Velocity Vectors</p>
+            <div class="w-36 h-1.5 bg-gradient-to-r from-[#ccff00] via-[#a3e635] to-[#facc15] mx-auto mt-4 rounded-full shadow-[0_0_25px_rgba(204,255,0,0.7)] mb-8"></div>
             
             <!-- Unit Progress Bar -->
-            <div class="max-w-md mx-auto bg-slate-900/50 rounded-full h-4 border border-emerald-500/20 overflow-hidden relative mb-4">
-                <div id="unit-progress-bar" class="h-full bg-gradient-to-r from-emerald-500 to-cyan-400 shadow-[0_0_15px_rgba(16,185,129,0.5)] transition-all duration-1000" style="width: 0%"></div>
-                <div class="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white uppercase tracking-tighter mix-blend-difference">
-                    <span id="progress-text">Calculating...</span>
+            <div class="max-w-md mx-auto bg-slate-950/80 rounded-full h-5 border border-lime-500/30 overflow-hidden relative mb-4 p-0.5 shadow-inner">
+                <div id="unit-progress-bar" class="h-full bg-gradient-to-r from-[#ccff00] via-[#a3e635] to-[#facc15] rounded-full shadow-[0_0_20px_rgba(204,255,0,0.6)] transition-all duration-1000" style="width: 0%"></div>
+                <div class="absolute inset-0 flex items-center justify-center text-[10px] font-mono font-bold text-white uppercase tracking-wider mix-blend-difference">
+                    <span id="progress-text">CALCULATING VECTOR PROGRESS...</span>
                 </div>
             </div>
         </header>
 
-        <nav class="flex justify-center border-b border-emerald-900/30 mb-10 sticky top-[73px] bg-slate-950/80 backdrop-blur-md z-40">
+        <nav class="flex justify-center border-b border-lime-900/40 mb-10 sticky top-[73px] bg-[#040804]/90 backdrop-blur-md z-40">
             <button data-target="at-a-glance" class="nav-btn active">At a Glance</button>
             <button data-target="pacing-guide" class="nav-btn">Pacing Guide</button>
             <button data-target="interactive-lab" class="nav-btn">Vector Simulator</button>
@@ -157,49 +148,52 @@
             <section id="at-a-glance" class="content-section space-y-8">
                 <div class="glass-card p-8">
                     <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
-                        <h2 class="text-2xl font-bold text-emerald-100">Unit Overview</h2>
+                        <div class="flex items-center gap-3">
+                            <span class="text-3xl">🏎️</span>
+                            <h2 class="text-2xl font-bold text-lime-100 font-display">Unit Overview</h2>
+                        </div>
                         <button id="suggest-insight-btn"
-                            class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold px-5 py-2.5 rounded-full hover:shadow-[0_0_20px_rgba(16,185,129,0.5)] transition-all flex items-center gap-2">
-                            🏎️ Velocity Insight
+                            class="bg-gradient-to-r from-[#84cc16] to-[#eab308] text-slate-950 font-bold px-5 py-2.5 rounded-full hover:shadow-[0_0_20px_rgba(204,255,0,0.6)] transition-all flex items-center gap-2 hover:scale-105 active:scale-95">
+                            ⚡ Tachometer Insight
                         </button>
                     </div>
-                    <p class="text-emerald-100/80 leading-relaxed text-lg">
-                        This unit establishes the mathematical and physical foundation of motion in classical physics. Students explore 
-                        <strong>1D Kinematics</strong> by investigating the fundamental relationship between position, displacement, time, speed, 
-                        and velocity. Through hands-on experiments—including <em>"The Monster's Journey"</em> and ramp incline marble timing—students 
-                        learn to differentiate between <strong>scalar speed</strong> ($v = \Delta x / \Delta t$) and <strong>vector velocity</strong> ($\vec{v} = \Delta \vec{x} / \Delta t$), 
-                        decode position-time and velocity-time slopes, and construct predictive mathematical models for complex journeys.
+                    <p class="text-slate-200/90 leading-relaxed text-lg">
+                        This unit establishes the mathematical and physical foundations of motion. Students analyze 
+                        <strong>1D Kinematics</strong> by investigating how displacement, time, velocity, and acceleration interlock. 
+                        Through hands-on experiments—including <em>"The Monster's Journey"</em> lab and incline ramp timing—students learn to 
+                        rigorously differentiate between <strong>scalar speed</strong> ($v = \Delta x / \Delta t$) and <strong>directional vector velocity</strong> ($\vec{v} = \Delta \vec{x} / \Delta t$), 
+                        decode position-time ($x-t$) and velocity-time ($v-t$) coordinate slopes, and model multi-stage velocity systems.
                     </p>
                     <div id="insight-container" class="mt-6 hidden"></div>
                     <div id="unit2-ngss-alignment" class="mt-6"></div>
                 </div>
 
-                <!-- Featured Mission Card -->
-                <div class="glass-card p-0 overflow-hidden border-l-4 border-l-cyan-500 shadow-[0_0_30px_rgba(6,182,212,0.15)]">
+                <!-- Featured Mission & Tachometer Telemetry Card -->
+                <div class="glass-card p-0 overflow-hidden border-l-4 border-l-[#ccff00] shadow-[0_0_35px_rgba(204,255,0,0.15)]">
                     <div class="flex flex-col md:flex-row">
                         <!-- Left Content: Briefing -->
                         <div class="flex-1 p-8 flex flex-col justify-between">
                             <div>
                                 <div class="flex items-center gap-4 mb-6">
-                                    <div class="w-12 h-12 rounded-lg bg-cyan-600/20 flex items-center justify-center text-2xl border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
-                                        ⚡
+                                    <div class="w-12 h-12 rounded-xl bg-lime-500/20 flex items-center justify-center text-2xl border border-lime-400/40 shadow-[0_0_15px_rgba(204,255,0,0.3)]">
+                                        ⏱️
                                     </div>
                                     <div>
-                                        <h2 class="text-2xl font-bold text-cyan-400 tracking-tight">MISSION: KINEMATIC VECTOR TRACKING</h2>
-                                        <p class="text-xs text-cyan-300/60 font-mono uppercase tracking-[0.2em]">Operational Focus: Rate of Change & Graph Decoding</p>
+                                        <h2 class="text-2xl font-bold text-[#ccff00] tracking-tight font-display">MISSION: VECTOR VELOCITY TRACKING</h2>
+                                        <p class="text-xs text-lime-300/70 font-mono uppercase tracking-[0.2em]">Operational Focus: Instantaneous vs. Average Rates</p>
                                     </div>
                                 </div>
                                 <div class="space-y-4 mb-8">
-                                    <div class="flex gap-2">
-                                        <span class="text-cyan-500 font-mono">[01]</span>
-                                        <p class="text-emerald-100/80 leading-relaxed italic text-lg">
-                                            "Collect multi-stage coordinate displacements. Calculate instantaneous vs average velocity vectors and model motion curves."
+                                    <div class="flex gap-3">
+                                        <span class="text-[#ccff00] font-mono font-bold">[01]</span>
+                                        <p class="text-slate-200/90 leading-relaxed italic text-lg">
+                                            "Capture displacement intervals across multi-stage trials. Construct coordinate curves and decode why instantaneous speed fluctuates around trip averages."
                                         </p>
                                     </div>
-                                    <div class="flex gap-2">
-                                        <span class="text-cyan-500 font-mono">[02]</span>
-                                        <p class="text-emerald-100/60 text-sm">
-                                            Students apply algebra and coordinate slope formulas ($m = \Delta y / \Delta x$) to bridge empirical lab data with real-time interactive motion graphs.
+                                    <div class="flex gap-3">
+                                        <span class="text-[#ccff00] font-mono font-bold">[02]</span>
+                                        <p class="text-slate-300/70 text-sm">
+                                            Students apply algebraic formulas and coordinate slopes ($m = \Delta y / \Delta x$) to translate raw stopwatch measurements into interactive motion graphs.
                                         </p>
                                     </div>
                                 </div>
@@ -207,49 +201,49 @@
                             
                             <div class="flex flex-wrap gap-4">
                                 <a href="distance_vs_time_graphing.html" 
-                                   class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] transform hover:-translate-y-1 active:scale-95">
+                                   class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#84cc16] to-[#eab308] text-slate-950 font-bold px-6 py-3 rounded-xl transition-all shadow-[0_0_20px_rgba(204,255,0,0.4)] hover:shadow-[0_0_30px_rgba(204,255,0,0.6)] transform hover:-translate-y-1 active:scale-95">
                                     Distance vs Time App ↗
                                 </a>
                                 <a href="Distance_vs_Time_Drawer.html" 
-                                   class="inline-flex items-center justify-center gap-2 bg-slate-900/80 hover:bg-slate-800 text-cyan-300 border border-cyan-500/30 font-bold px-6 py-3 rounded-xl transition-all hover:border-cyan-400">
+                                   class="inline-flex items-center justify-center gap-2 bg-slate-900/90 hover:bg-slate-800 text-lime-300 border border-lime-500/40 font-bold px-6 py-3 rounded-xl transition-all hover:border-[#ccff00]">
                                     Motion Curve Drawer ↗
                                 </a>
                             </div>
                         </div>
 
-                        <!-- Right Content: Interactive Graphic / Preview -->
-                        <div class="w-full md:w-[42%] bg-slate-950/60 p-6 border-t md:border-t-0 md:border-l border-cyan-500/10 flex flex-col justify-center">
+                        <!-- Right Content: Live Tachometer HUD -->
+                        <div class="w-full md:w-[42%] bg-slate-950/70 p-6 border-t md:border-t-0 md:border-l border-lime-500/20 flex flex-col justify-center">
                             <div class="mb-3 flex justify-between items-center">
-                                <span class="text-[10px] font-mono text-cyan-400/70 tracking-widest uppercase">Kinematics_Telemetry</span>
-                                <span class="text-[10px] font-mono text-emerald-400 animate-pulse">LIVE_SIM // 1D_VECTOR</span>
+                                <span class="text-[10px] font-mono text-lime-400/80 tracking-widest uppercase">Telemetry_HUD</span>
+                                <span class="text-[10px] font-mono text-[#ccff00] animate-pulse">● TACHOMETER_ACTIVE</span>
                             </div>
-                            <div class="relative group overflow-hidden rounded-lg border border-cyan-500/20 bg-slate-900/80 p-4">
-                                <div class="flex items-center justify-between text-xs font-mono text-emerald-300 mb-2">
-                                    <span>v = Δx / Δt</span>
-                                    <span>slope = velocity</span>
-                                </div>
-                                <div class="h-28 bg-slate-950/90 rounded border border-emerald-500/20 flex flex-col justify-center p-3 relative overflow-hidden">
-                                    <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/10 via-cyan-500/10 to-transparent"></div>
-                                    <div class="flex items-center gap-3 relative z-10">
-                                        <span class="text-2xl animate-bounce">🏎️</span>
-                                        <div class="flex-1">
-                                            <div class="flex justify-between text-[11px] font-mono text-cyan-300 mb-1">
-                                                <span>Position: x(t)</span>
-                                                <span class="text-emerald-400">+25.4 m/s</span>
-                                            </div>
-                                            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                                                <div class="bg-gradient-to-r from-emerald-400 to-cyan-400 h-full w-3/4 rounded-full animate-pulse"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="mt-3 flex justify-between text-[9px] font-mono text-slate-400">
-                                        <span>t = 0.0s [ORIGIN]</span>
-                                        <span>t = 5.0s [TERMINAL]</span>
+                            
+                            <!-- Interactive Speedometer Dial -->
+                            <div class="relative group rounded-xl border border-lime-500/30 bg-slate-900/90 p-5 shadow-2xl flex flex-col items-center">
+                                <div class="relative w-40 h-24 overflow-hidden flex items-end justify-center">
+                                    <svg class="w-40 h-40 transform -rotate-90" viewBox="0 0 100 100">
+                                        <circle cx="50" cy="50" r="40" fill="none" stroke="#1e293b" stroke-width="8" stroke-dasharray="125 125" />
+                                        <circle id="tach-arc" class="gauge-dial" cx="50" cy="50" r="40" fill="none" stroke="url(#tachGrad)" stroke-width="8" stroke-dasharray="125 125" stroke-dashoffset="40" />
+                                        <defs>
+                                            <linearGradient id="tachGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                <stop offset="0%" stop-color="#a3e635" />
+                                                <stop offset="60%" stop-color="#facc15" />
+                                                <stop offset="100%" stop-color="#f97316" />
+                                            </linearGradient>
+                                        </defs>
+                                    </svg>
+                                    <div class="absolute bottom-1 text-center">
+                                        <span id="tach-speed-display" class="text-2xl font-mono font-extrabold text-[#ccff00] block leading-none">25.0</span>
+                                        <span class="text-[9px] font-mono text-slate-400 uppercase tracking-widest">m/s [90 km/h]</span>
                                     </div>
                                 </div>
+                                <div class="w-full mt-4 flex justify-between text-[10px] font-mono text-slate-400 border-t border-slate-800 pt-2">
+                                    <span>SLOPE: <strong class="text-lime-300">+25.0 m/s</strong></span>
+                                    <span class="text-yellow-400 font-bold">VECTOR: [FORWARD]</span>
+                                </div>
                             </div>
-                            <p class="mt-3 text-[10px] text-cyan-400/60 font-mono text-center leading-tight">
-                                // REAL-TIME KINEMATIC MODEL: Constant velocity yields linear position slope; acceleration produces parabolic curvature.
+                            <p class="mt-3 text-[10px] text-lime-300/60 font-mono text-center leading-tight">
+                                // REAL-TIME TELEMETRY: Coordinate derivative $\frac{dx}{dt}$ dictates tachometer velocity vector in 1D space.
                             </p>
                         </div>
                     </div>
@@ -257,67 +251,67 @@
 
                 <div class="grid md:grid-cols-2 gap-8">
                     <div class="glass-card p-8">
-                        <h2 class="text-2xl font-bold mb-4 text-emerald-400 blink-cursor">Essential_Qs</h2>
-                        <ul class="space-y-4 text-emerald-100/70">
-                            <li class="flex items-start gap-3"><span class="text-emerald-400 font-mono font-bold">>_</span> How can we describe and mathematically quantify the motion of any object?</li>
-                            <li class="flex items-start gap-3"><span class="text-emerald-400 font-mono font-bold">>_</span> How does the slope of a position-time graph reveal speed, direction, and stationary states?</li>
-                            <li class="flex items-start gap-3"><span class="text-emerald-400 font-mono font-bold">>_</span> What is the fundamental difference between scalar speed ("how fast") and vector velocity ("in what direction")?</li>
-                            <li class="flex items-start gap-3"><span class="text-emerald-400 font-mono font-bold">>_</span> Why does average speed fail to reflect rapid changes in instantaneous velocity?</li>
+                        <h2 class="text-2xl font-bold mb-4 text-[#ccff00] blink-cursor">Essential_Qs</h2>
+                        <ul class="space-y-4 text-slate-200/80">
+                            <li class="flex items-start gap-3"><span class="text-[#ccff00] font-mono font-bold">>_</span> How can we describe and mathematically quantify the motion of any object?</li>
+                            <li class="flex items-start gap-3"><span class="text-[#ccff00] font-mono font-bold">>_</span> How does the slope of a position-time graph reveal speed, direction, and stationary states?</li>
+                            <li class="flex items-start gap-3"><span class="text-[#ccff00] font-mono font-bold">>_</span> What is the fundamental physical difference between scalar speed ("how fast") and vector velocity ("in what direction")?</li>
+                            <li class="flex items-start gap-3"><span class="text-[#ccff00] font-mono font-bold">>_</span> Why does an object's overall average speed often hide rapid changes in its instantaneous velocity?</li>
                         </ul>
                     </div>
                     <div class="glass-card p-8">
-                        <h2 class="text-2xl font-bold mb-4 text-cyan-400 blink-cursor">Kinematics_Matrix</h2>
+                        <h2 class="text-2xl font-bold mb-4 text-yellow-400 blink-cursor">Kinematics_Matrix</h2>
                         <div class="grid grid-cols-2 gap-3">
-                            <a href="distance_vs_time_graphing.html" class="flex items-center gap-3 p-3 bg-emerald-950/30 border border-emerald-500/20 rounded-lg shadow-inner hover:border-emerald-400/50 transition-colors group">
-                                <div class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981] animate-pulse"></div>
-                                <span class="text-xs font-mono text-cyan-100/90 tracking-wide">Distance_Time_Grapher</span>
+                            <a href="distance_vs_time_graphing.html" class="flex items-center gap-3 p-3 bg-lime-950/30 border border-lime-500/30 rounded-lg shadow-inner hover:border-[#ccff00] transition-colors group">
+                                <div class="w-2 h-2 rounded-full bg-[#ccff00] shadow-[0_0_8px_#ccff00] animate-pulse"></div>
+                                <span class="text-xs font-mono text-lime-100/90 tracking-wide">Distance_Time_Grapher</span>
                             </a>
-                            <a href="Distance_vs_Time_Drawer.html" class="flex items-center gap-3 p-3 bg-emerald-950/30 border border-emerald-500/20 rounded-lg shadow-inner hover:border-cyan-400/50 transition-colors group">
-                                <div class="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_#06b6d4]"></div>
-                                <span class="text-xs font-mono text-cyan-100/90 tracking-wide">Motion_Curve_Drawer</span>
+                            <a href="Distance_vs_Time_Drawer.html" class="flex items-center gap-3 p-3 bg-lime-950/30 border border-lime-500/30 rounded-lg shadow-inner hover:border-yellow-400 transition-colors group">
+                                <div class="w-2 h-2 rounded-full bg-yellow-400 shadow-[0_0_8px_#facc15]"></div>
+                                <span class="text-xs font-mono text-lime-100/90 tracking-wide">Motion_Curve_Drawer</span>
                             </a>
-                            <a href="Interactive_Acceleration_Grapher.html" class="flex items-center gap-3 p-3 bg-emerald-950/30 border border-emerald-500/20 rounded-lg shadow-inner hover:border-teal-400/50 transition-colors group">
-                                <div class="w-2 h-2 rounded-full bg-teal-400 shadow-[0_0_8px_#14b8a6]"></div>
-                                <span class="text-xs font-mono text-cyan-100/90 tracking-wide">Acceleration_Grapher</span>
-                            </a>
-                            <a href="velocity_vectors_interactive/index.html" class="flex items-center gap-3 p-3 bg-emerald-950/30 border border-emerald-500/20 rounded-lg shadow-inner hover:border-lime-400/50 transition-colors group">
+                            <a href="Interactive_Acceleration_Grapher.html" class="flex items-center gap-3 p-3 bg-lime-950/30 border border-lime-500/30 rounded-lg shadow-inner hover:border-lime-400 transition-colors group">
                                 <div class="w-2 h-2 rounded-full bg-lime-400 shadow-[0_0_8px_#a3e635]"></div>
-                                <span class="text-xs font-mono text-cyan-100/90 tracking-wide">Velocity_Vectors</span>
+                                <span class="text-xs font-mono text-lime-100/90 tracking-wide">Acceleration_Grapher</span>
                             </a>
-                            <a href="coaster-physics/index.html" class="flex items-center gap-3 p-3 bg-emerald-950/30 border border-emerald-500/20 rounded-lg shadow-inner hover:border-emerald-400/50 transition-colors group">
-                                <div class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981]"></div>
-                                <span class="text-xs font-mono text-cyan-100/90 tracking-wide">Coaster_Physics_Sim</span>
+                            <a href="velocity_vectors_interactive/index.html" class="flex items-center gap-3 p-3 bg-lime-950/30 border border-lime-500/30 rounded-lg shadow-inner hover:border-orange-400 transition-colors group">
+                                <div class="w-2 h-2 rounded-full bg-orange-400 shadow-[0_0_8px_#f97316]"></div>
+                                <span class="text-xs font-mono text-lime-100/90 tracking-wide">Velocity_Vectors</span>
                             </a>
-                            <a href="https://phet.colorado.edu/sims/html/the-moving-man/latest/the-moving-man_en.html" target="_blank" class="flex items-center gap-3 p-3 bg-emerald-950/30 border border-emerald-500/20 rounded-lg shadow-inner hover:border-cyan-400/50 transition-colors group">
-                                <div class="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_#06b6d4]"></div>
-                                <span class="text-xs font-mono text-cyan-100/90 tracking-wide">PhET_Moving_Man ↗</span>
+                            <a href="coaster-physics/index.html" class="flex items-center gap-3 p-3 bg-lime-950/30 border border-lime-500/30 rounded-lg shadow-inner hover:border-[#ccff00] transition-colors group">
+                                <div class="w-2 h-2 rounded-full bg-[#ccff00] shadow-[0_0_8px_#ccff00]"></div>
+                                <span class="text-xs font-mono text-lime-100/90 tracking-wide">Coaster_Physics_Sim</span>
                             </a>
-                            <div class="flex items-center gap-3 p-3 bg-emerald-950/30 border border-emerald-500/20 rounded-lg shadow-inner col-span-2 hover:border-emerald-400/50 transition-colors group">
-                                <div class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981] animate-pulse"></div>
-                                <a href="https://www.youtube.com/watch?v=WxCKtb2LjlU" target="_blank" class="text-xs font-mono text-cyan-100/90 tracking-wide group-hover:text-emerald-300">DAY_01_HOOK_VIDEO ↗</a>
+                            <a href="https://phet.colorado.edu/sims/html/the-moving-man/latest/the-moving-man_en.html" target="_blank" class="flex items-center gap-3 p-3 bg-lime-950/30 border border-lime-500/30 rounded-lg shadow-inner hover:border-yellow-400 transition-colors group">
+                                <div class="w-2 h-2 rounded-full bg-yellow-400 shadow-[0_0_8px_#facc15]"></div>
+                                <span class="text-xs font-mono text-lime-100/90 tracking-wide">PhET_Moving_Man ↗</span>
+                            </a>
+                            <div class="flex items-center gap-3 p-3 bg-lime-950/30 border border-lime-500/30 rounded-lg shadow-inner col-span-2 hover:border-[#ccff00] transition-colors group">
+                                <div class="w-2 h-2 rounded-full bg-[#ccff00] shadow-[0_0_8px_#ccff00] animate-pulse"></div>
+                                <a href="https://www.youtube.com/watch?v=WxCKtb2LjlU" target="_blank" class="text-xs font-mono text-lime-100/90 tracking-wide group-hover:text-[#ccff00]">DAY_01_HOOK_VIDEO ↗</a>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="glass-card p-8">
-                    <h2 class="text-2xl font-bold mb-6 text-emerald-100">Cognitive Learning Objectives</h2>
+                    <h2 class="text-2xl font-bold mb-6 text-lime-100 font-display">Cognitive Learning Objectives</h2>
                     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <div class="bg-emerald-950/30 p-4 rounded-xl border border-emerald-500/20 hover:border-cyan-500/40 transition-colors">
-                            <div class="text-emerald-400 font-bold mb-1">DOK 1: Recall & Formula</div>
-                            <p class="text-sm text-emerald-100/60">Define distance, displacement, time, and calculate speed using algebraic substitution ($v = x/t$).</p>
+                        <div class="bg-lime-950/20 p-4 rounded-xl border border-lime-500/20 hover:border-[#ccff00]/40 transition-colors">
+                            <div class="text-[#ccff00] font-bold mb-1">DOK 1: Recall & Formula</div>
+                            <p class="text-sm text-slate-300">Define distance, displacement, time, and calculate speed using algebraic substitution ($v = x/t$).</p>
                         </div>
-                        <div class="bg-emerald-950/30 p-4 rounded-xl border border-emerald-500/20 hover:border-cyan-500/40 transition-colors">
-                            <div class="text-teal-400 font-bold mb-1">DOK 2: Skills & Concepts</div>
-                            <p class="text-sm text-emerald-100/60">Construct distance-time graphs, calculate coordinate slopes, and differentiate scalar speed from directional velocity vectors.</p>
+                        <div class="bg-lime-950/20 p-4 rounded-xl border border-lime-500/20 hover:border-yellow-400/40 transition-colors">
+                            <div class="text-yellow-400 font-bold mb-1">DOK 2: Skills & Concepts</div>
+                            <p class="text-sm text-slate-300">Construct distance-time graphs, calculate coordinate slopes, and differentiate scalar speed from directional velocity vectors.</p>
                         </div>
-                        <div class="bg-emerald-950/30 p-4 rounded-xl border border-emerald-500/20 hover:border-cyan-500/40 transition-colors">
-                            <div class="text-cyan-400 font-bold mb-1">DOK 3: Strategic Thinking</div>
-                            <p class="text-sm text-emerald-100/60">Design and execute ramp incline experiments, decode non-linear motion graphs, and solve multi-stage intercept problems.</p>
+                        <div class="bg-lime-950/20 p-4 rounded-xl border border-lime-500/20 hover:border-lime-400/40 transition-colors">
+                            <div class="text-lime-400 font-bold mb-1">DOK 3: Strategic Thinking</div>
+                            <p class="text-sm text-slate-300">Design and execute ramp incline experiments, decode non-linear motion graphs, and solve multi-stage intercept problems.</p>
                         </div>
-                        <div class="bg-emerald-950/30 p-4 rounded-xl border border-emerald-500/20 hover:border-cyan-500/40 transition-colors">
-                            <div class="text-lime-400 font-bold mb-1">DOK 4: Extended Modeling</div>
-                            <p class="text-sm text-emerald-100/60">Synthesize kinematic models, evaluate error propagation in stopwatch timing, and defend claims on vehicle motion systems.</p>
+                        <div class="bg-lime-950/20 p-4 rounded-xl border border-lime-500/20 hover:border-orange-400/40 transition-colors">
+                            <div class="text-orange-400 font-bold mb-1">DOK 4: Extended Modeling</div>
+                            <p class="text-sm text-slate-300">Synthesize kinematic models, evaluate error propagation in stopwatch timing, and defend claims on vehicle motion systems.</p>
                         </div>
                     </div>
                 </div>
@@ -326,10 +320,10 @@
             <!-- Pacing Guide Section -->
             <section id="pacing-guide" class="content-section">
                 <div class="text-center mb-10">
-                    <h2 class="text-3xl font-bold text-emerald-100">Cognitive Progression Chart</h2>
-                    <p class="text-emerald-300/70 mt-2">DOK levels by lesson day. Tracking the acceleration of conceptual rigor!</p>
+                    <h2 class="text-3xl font-bold text-lime-100 font-display">Cognitive Progression Chart</h2>
+                    <p class="text-lime-300/70 mt-2">DOK levels by lesson day. Tracking the acceleration of conceptual rigor!</p>
                 </div>
-                <div class="chart-bg h-80 mb-12 border border-emerald-900/30">
+                <div class="chart-bg h-80 mb-12">
                     <canvas id="dokChart"></canvas>
                 </div>
                 <div id="pacing-cards-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -339,47 +333,47 @@
 
             <!-- Interactive Vector Simulator Section -->
             <section id="interactive-lab" class="content-section space-y-8">
-                <div class="glass-card p-8">
+                <div class="glass-card p-8 border-t-4 border-t-[#ccff00]">
                     <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
                         <div>
-                            <h2 class="text-2xl font-bold text-emerald-300">Kinematic Vector & Slope Visualizer</h2>
-                            <p class="text-sm text-emerald-100/70">Adjust velocity ($v$) and acceleration ($a$) to observe the real-time position curve $x(t) = x_0 + vt + \frac{1}{2}at^2$.</p>
+                            <h2 class="text-2xl font-bold text-[#ccff00] font-display">Kinematic Vector & Slope Visualizer</h2>
+                            <p class="text-sm text-slate-300">Adjust velocity ($v$) and acceleration ($a$) to observe the real-time position curve $x(t) = x_0 + vt + \frac{1}{2}at^2$.</p>
                         </div>
-                        <span class="text-xs font-mono px-3 py-1 bg-emerald-950 border border-emerald-500/30 rounded-full text-emerald-400">INTERACTIVE LAB ENGINE</span>
+                        <span class="text-xs font-mono px-3 py-1 bg-lime-950 border border-lime-500/40 rounded-full text-[#ccff00] shadow-[0_0_10px_rgba(204,255,0,0.3)]">LIVE VECTOR ENGINE</span>
                     </div>
 
                     <div class="grid lg:grid-cols-3 gap-8 items-start">
                         <!-- Controls -->
-                        <div class="space-y-6 bg-slate-900/70 p-6 rounded-xl border border-emerald-500/20">
+                        <div class="space-y-6 bg-slate-950/80 p-6 rounded-xl border border-lime-500/30 shadow-xl">
                             <div>
                                 <div class="flex justify-between text-sm font-mono mb-2">
-                                    <label class="text-emerald-300">Initial Position ($x_0$):</label>
-                                    <span id="val-x0" class="text-cyan-400 font-bold">0 m</span>
+                                    <label class="text-lime-300">Initial Position ($x_0$):</label>
+                                    <span id="val-x0" class="text-[#ccff00] font-bold">0 m</span>
                                 </div>
-                                <input id="slider-x0" type="range" min="0" max="50" value="0" step="5" class="w-full accent-emerald-500 cursor-pointer">
+                                <input id="slider-x0" type="range" min="0" max="50" value="0" step="5" class="w-full accent-[#ccff00] cursor-pointer">
                             </div>
 
                             <div>
                                 <div class="flex justify-between text-sm font-mono mb-2">
-                                    <label class="text-emerald-300">Constant Velocity ($v$):</label>
-                                    <span id="val-v" class="text-cyan-400 font-bold">+10 m/s</span>
+                                    <label class="text-lime-300">Constant Velocity ($v$):</label>
+                                    <span id="val-v" class="text-yellow-400 font-bold">+10 m/s</span>
                                 </div>
-                                <input id="slider-v" type="range" min="-20" max="30" value="10" step="2" class="w-full accent-cyan-400 cursor-pointer">
+                                <input id="slider-v" type="range" min="-20" max="30" value="10" step="2" class="w-full accent-yellow-400 cursor-pointer">
                             </div>
 
                             <div>
                                 <div class="flex justify-between text-sm font-mono mb-2">
-                                    <label class="text-emerald-300">Acceleration ($a$):</label>
-                                    <span id="val-a" class="text-cyan-400 font-bold">0.0 m/s²</span>
+                                    <label class="text-lime-300">Acceleration ($a$):</label>
+                                    <span id="val-a" class="text-orange-400 font-bold">0.0 m/s²</span>
                                 </div>
-                                <input id="slider-a" type="range" min="-4" max="4" value="0" step="0.5" class="w-full accent-lime-400 cursor-pointer">
+                                <input id="slider-a" type="range" min="-4" max="4" value="0" step="0.5" class="w-full accent-orange-400 cursor-pointer">
                             </div>
 
                             <div class="pt-4 border-t border-slate-800 flex gap-3">
-                                <button id="btn-play-sim" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-lg transition-colors text-sm shadow-[0_0_15px_rgba(16,185,129,0.4)]">
+                                <button id="btn-play-sim" class="flex-1 bg-gradient-to-r from-[#84cc16] to-[#eab308] hover:from-[#a3e635] hover:to-[#facc15] text-slate-950 font-bold py-2.5 rounded-lg transition-all text-sm shadow-[0_0_15px_rgba(204,255,0,0.5)]">
                                     ▶ Play Motion
                                 </button>
-                                <button id="btn-reset-sim" class="px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2.5 rounded-lg transition-colors text-sm border border-slate-700">
+                                <button id="btn-reset-sim" class="px-4 bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold py-2.5 rounded-lg transition-colors text-sm border border-slate-700">
                                     Reset
                                 </button>
                             </div>
@@ -387,16 +381,16 @@
 
                         <!-- Real-time Canvas Visualization -->
                         <div class="lg:col-span-2 space-y-4">
-                            <div class="bg-slate-950 p-4 rounded-xl border border-emerald-500/30">
-                                <div class="flex justify-between items-center text-xs font-mono text-emerald-400 mb-2">
+                            <div class="bg-slate-950 p-4 rounded-xl border border-lime-500/40 shadow-2xl">
+                                <div class="flex justify-between items-center text-xs font-mono text-[#ccff00] mb-2">
                                     <span>POSITION VS TIME GRAPH [x-t]</span>
-                                    <span id="sim-time-readout" class="text-cyan-300">t = 0.00s | x = 0.0m</span>
+                                    <span id="sim-time-readout" class="text-yellow-300">t = 0.00s | x = 0.0m</span>
                                 </div>
-                                <canvas id="simCanvas" width="600" height="240" class="w-full rounded bg-slate-900 border border-slate-800"></canvas>
+                                <canvas id="simCanvas" width="600" height="240" class="w-full rounded bg-[#030603] border border-slate-800"></canvas>
                             </div>
-                            <div class="flex items-center justify-between text-xs font-mono text-slate-400 bg-slate-900/50 p-3 rounded-lg border border-slate-800">
-                                <span>Slope = $\Delta x / \Delta t$ = <strong id="readout-slope" class="text-emerald-400">+10.0 m/s</strong></span>
-                                <span>Kinematic State: <strong id="readout-state" class="text-cyan-300">Constant Positive Velocity</strong></span>
+                            <div class="flex items-center justify-between text-xs font-mono text-slate-400 bg-slate-950/70 p-3 rounded-lg border border-lime-500/20">
+                                <span>Slope = $\Delta x / \Delta t$ = <strong id="readout-slope" class="text-[#ccff00]">+10.0 m/s</strong></span>
+                                <span>Kinematic State: <strong id="readout-state" class="text-yellow-300">Constant Positive Velocity</strong></span>
                             </div>
                         </div>
                     </div>
@@ -407,15 +401,15 @@
             <section id="resources" class="content-section">
                 <div class="grid md:grid-cols-2 gap-10">
                     <div>
-                        <h2 class="text-2xl font-bold mb-6 flex items-center gap-3 text-emerald-100">
-                            <span class="w-8 h-8 bg-emerald-500/20 text-emerald-400 rounded-lg flex items-center justify-center text-sm">🧪</span>
+                        <h2 class="text-2xl font-bold mb-6 flex items-center gap-3 text-lime-100 font-display">
+                            <span class="w-8 h-8 bg-lime-500/20 text-[#ccff00] rounded-lg flex items-center justify-center text-sm border border-lime-400/30">🏎️</span>
                             Labs & Activities
                         </h2>
                         <ul id="labs-list" class="space-y-4"></ul>
                     </div>
                     <div>
-                        <h2 class="text-2xl font-bold mb-6 flex items-center gap-3 text-emerald-100">
-                            <span class="w-8 h-8 bg-cyan-500/20 text-cyan-400 rounded-lg flex items-center justify-center text-sm">🎯</span>
+                        <h2 class="text-2xl font-bold mb-6 flex items-center gap-3 text-lime-100 font-display">
+                            <span class="w-8 h-8 bg-yellow-500/20 text-yellow-400 rounded-lg flex items-center justify-center text-sm border border-yellow-400/30">🎯</span>
                             Assessments
                         </h2>
                         <ul id="assessments-list" class="space-y-4"></ul>
@@ -430,17 +424,17 @@
 
     <!-- Modal Drawer -->
     <div id="modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 hidden z-50">
-        <div class="glass-card w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-300 border-emerald-500/30">
+        <div class="glass-card w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-300 border-lime-500/40">
             <div class="p-8">
                 <div class="flex justify-between items-start mb-6">
                     <div>
-                        <h3 id="modal-title" class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-200">
+                        <h3 id="modal-title" class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#ccff00] via-[#a3e635] to-[#facc15] font-display">
                         </h3>
-                        <p id="modal-subtitle" class="text-emerald-300 font-medium mt-1"></p>
+                        <p id="modal-subtitle" class="text-lime-300 font-mono text-sm mt-1"></p>
                     </div>
                     <button id="close-modal" class="text-white/40 hover:text-white transition-colors text-3xl">&times;</button>
                 </div>
-                <div id="modal-content" class="text-emerald-100/80 space-y-4 custom-scroll overflow-y-auto max-h-[60vh]">
+                <div id="modal-content" class="text-slate-200 space-y-4 custom-scroll overflow-y-auto max-h-[60vh]">
                 </div>
             </div>
         </div>
@@ -537,7 +531,7 @@
             contentSections.forEach(section => observer.observe(section));
 
             if (unitData.length === 0) {
-                pacingCards.innerHTML = '<div class="col-span-full text-center text-emerald-500 italic py-10">Unit 2 lessons loading...</div>';
+                pacingCards.innerHTML = '<div class="col-span-full text-center text-lime-500 italic py-10">Unit 2 lessons loading...</div>';
             } else {
                 pacingCards.innerHTML = '';
             }
@@ -545,14 +539,14 @@
             unitData.forEach(day => {
                 const status = getLessonStatus(day.date);
                 const statusStyles = {
-                    'completed': 'border-emerald-500/50 hover:border-emerald-400',
-                    'in-progress': 'border-cyan-500/50 hover:border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.2)]',
-                    'planned': 'hover:border-emerald-500/50'
+                    'completed': 'border-lime-500/60 hover:border-[#ccff00]',
+                    'in-progress': 'border-yellow-400/70 hover:border-yellow-300 shadow-[0_0_20px_rgba(250,204,21,0.3)]',
+                    'planned': 'hover:border-lime-500/50'
                 };
                 const statusLabel = {
-                    'completed': '<span class="text-emerald-400 text-[10px] font-bold">✓ DONE</span>',
-                    'in-progress': '<span class="text-cyan-400 text-[10px] font-bold animate-pulse">● IN PROGRESS</span>',
-                    'planned': '<span class="text-emerald-300/40 text-[10px] font-bold">SCHEDULED</span>'
+                    'completed': '<span class="text-[#ccff00] text-[10px] font-bold">✓ DONE</span>',
+                    'in-progress': '<span class="text-yellow-400 text-[10px] font-bold animate-pulse">● IN PROGRESS</span>',
+                    'planned': '<span class="text-slate-500 text-[10px] font-bold">SCHEDULED</span>'
                 };
 
                 const card = document.createElement('div');
@@ -560,34 +554,34 @@
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-3 relative z-10">
                         <div>
-                            <span class="text-cyan-400 font-mono font-bold block tracking-wider">DAY_${String(day.day).padStart(2, '0')}</span>
-                            <span class="text-[10px] text-emerald-300/60 font-mono tracking-wider">${day.date || ''}</span>
+                            <span class="text-[#ccff00] font-mono font-bold block tracking-wider">DAY_${String(day.day).padStart(2, '0')}</span>
+                            <span class="text-[10px] text-lime-300/70 font-mono tracking-wider">${day.date || ''}</span>
                         </div>
                         <div class="flex flex-col items-end gap-1">
-                            <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30 font-mono">DOK_${day.dok || 1}</span>
+                            <span class="text-[10px] bg-lime-950/80 text-[#ccff00] px-2 py-0.5 rounded-full border border-lime-500/40 font-mono font-bold">DOK_${day.dok || 1}</span>
                             ${statusLabel[status]}
                         </div>
                     </div>
-                    <p class="text-sm font-semibold text-white/90 leading-tight relative z-10">${day.topic}</p>
-                    ${day.standards ? `<div class="mt-2 flex flex-wrap gap-1 relative z-10">${day.standards.map(s => `<span class="text-[9px] bg-emerald-950/80 text-cyan-300 border border-cyan-500/40 px-1.5 py-0.5 rounded font-mono font-bold" data-ngss-code="${s}">${s}</span>`).join('')}</div>` : ''}
+                    <p class="text-sm font-semibold text-white/95 leading-tight relative z-10">${day.topic}</p>
+                    ${day.standards ? `<div class="mt-2 flex flex-wrap gap-1 relative z-10">${day.standards.map(s => `<span class="text-[9px] bg-lime-950/90 text-[#ccff00] border border-lime-400/40 px-1.5 py-0.5 rounded font-mono font-bold" data-ngss-code="${s}">${s}</span>`).join('')}</div>` : ''}
                 `;
                 card.onclick = () => openLessonModal(day);
                 pacingCards.appendChild(card);
 
                 const li = document.createElement('li');
-                li.className = 'glass-card p-4 hover:bg-white/5 transition-colors border-l-4 border-l-transparent hover:border-l-cyan-500 flex flex-col gap-2';
+                li.className = 'glass-card p-4 hover:bg-white/5 transition-colors border-l-4 border-l-transparent hover:border-l-[#ccff00] flex flex-col gap-2';
                 
                 let links = '';
                 if(day.links) {
-                    links = Object.entries(day.links).map(([lbl, u]) => `<a href="${u}" target="_blank" class="text-[10px] bg-emerald-950/40 hover:bg-emerald-500/20 px-2 py-1 rounded border border-emerald-500/20 text-emerald-200 transition-colors inline-flex items-center gap-1">${lbl} ↗</a>`).join('');
+                    links = Object.entries(day.links).map(([lbl, u]) => `<a href="${u}" target="_blank" class="text-[10px] bg-lime-950/50 hover:bg-lime-600/30 px-2 py-1 rounded border border-lime-500/30 text-lime-200 transition-colors inline-flex items-center gap-1">${lbl} ↗</a>`).join('');
                 }
 
                 li.innerHTML = `
                     <div class="flex justify-between items-center relative z-10">
-                        <span class="text-xs font-bold text-cyan-400 font-mono tracking-wider">DAY_${String(day.day).padStart(2, '0')}</span>
-                        <span class="text-[9px] text-emerald-100/40 uppercase font-mono">${day.type}</span>
+                        <span class="text-xs font-bold text-[#ccff00] font-mono tracking-wider">DAY_${String(day.day).padStart(2, '0')}</span>
+                        <span class="text-[9px] text-lime-300/60 uppercase font-mono">${day.type}</span>
                     </div>
-                    <p class="text-sm font-semibold text-white/90 leading-tight relative z-10">${day.topic}</p>
+                    <p class="text-sm font-semibold text-white/95 leading-tight relative z-10">${day.topic}</p>
                     <div class="flex flex-wrap gap-2 mt-1 relative z-10">${links}</div>
                 `;
                 if (day.type === 'Assessment') assessmentsList.appendChild(li);
@@ -612,10 +606,10 @@
                     insightContainer.classList.toggle('hidden');
                     if (!insightContainer.classList.contains('hidden')) {
                         insightContainer.innerHTML = `
-                            <div class="p-4 rounded-xl bg-emerald-950/50 border border-emerald-500/30 text-emerald-100 text-sm animate-in fade-in duration-300">
-                                <h4 class="font-bold text-emerald-300 mb-2 flex items-center gap-2">💡 Core Kinematics Principle: Slope as Physical Rate</h4>
-                                <p class="mb-2">In any coordinate motion system, the derivative $\\frac{dx}{dt}$ represents instantaneous velocity. A flat horizontal line indicates $\\vec{v} = 0$, a positive upward slope indicates forward motion, and a downward slope indicates negative displacement.</p>
-                                <p class="text-xs font-mono text-cyan-300">Target Standard: HS-PS2-1 // Mathematical Modeling of Newton's Laws & Kinematics</p>
+                            <div class="p-5 rounded-xl bg-lime-950/60 border border-lime-400/40 text-slate-200 text-sm animate-in fade-in duration-300 shadow-2xl">
+                                <h4 class="font-bold text-[#ccff00] mb-2 flex items-center gap-2 text-base font-display">⚡ Core Kinematics Principle: Slope as Physical Rate</h4>
+                                <p class="mb-3 leading-relaxed">In coordinate kinematics, the first derivative $\\vec{v} = \\frac{d\\vec{x}}{dt}$ represents instantaneous velocity vector. A flat horizontal line indicates $\\vec{v} = 0$, a positive upward slope indicates forward motion, and a downward slope indicates negative coordinate displacement.</p>
+                                <p class="text-xs font-mono text-yellow-300 bg-black/40 p-2 rounded border border-yellow-500/20">Target Standard: HS-PS2-1 // Mathematical Modeling of 1D Kinematics & Velocity Vectors</p>
                             </div>
                         `;
                     }
@@ -635,11 +629,11 @@
             let linksHtml = '';
             if (day.links) {
                 linksHtml = `
-                    <div class="mt-4 pt-4 border-t border-emerald-500/20">
-                        <h4 class="text-xs font-mono text-cyan-300 uppercase tracking-wider mb-2">Connected Resources & Simulations</h4>
+                    <div class="mt-4 pt-4 border-t border-lime-500/20">
+                        <h4 class="text-xs font-mono text-lime-300 uppercase tracking-wider mb-2">Connected Resources & Simulations</h4>
                         <div class="flex flex-wrap gap-2">
                             ${Object.entries(day.links).map(([k, v]) => `
-                                <a href="${v}" target="_blank" class="text-xs px-3 py-1.5 rounded bg-emerald-900/40 hover:bg-emerald-600/30 text-emerald-200 border border-emerald-500/30 transition-colors inline-flex items-center gap-1.5">
+                                <a href="${v}" target="_blank" class="text-xs px-3 py-1.5 rounded bg-lime-950/70 hover:bg-lime-600/30 text-[#ccff00] border border-lime-500/40 transition-colors inline-flex items-center gap-1.5">
                                     ${k} ↗
                                 </a>
                             `).join('')}
@@ -650,20 +644,20 @@
 
             modalContent.innerHTML = `
                 <div>
-                    <h4 class="text-xs font-mono text-cyan-300 uppercase tracking-wider mb-1">Lesson Summary</h4>
-                    <p class="text-sm text-emerald-100/90 leading-relaxed">${day.summary || day.details || 'No summary available.'}</p>
+                    <h4 class="text-xs font-mono text-lime-300 uppercase tracking-wider mb-1">Lesson Summary</h4>
+                    <p class="text-sm text-slate-200 leading-relaxed">${day.summary || day.details || 'No summary available.'}</p>
                 </div>
                 ${day.essentialQuestion ? `
-                    <div class="bg-emerald-950/40 p-3 rounded-lg border border-emerald-500/20">
-                        <h4 class="text-xs font-mono text-emerald-300 uppercase tracking-wider mb-1">Essential Question</h4>
-                        <p class="text-sm italic text-emerald-200/90">"${day.essentialQuestion}"</p>
+                    <div class="bg-lime-950/50 p-3.5 rounded-lg border border-lime-500/30">
+                        <h4 class="text-xs font-mono text-[#ccff00] uppercase tracking-wider mb-1">Essential Question</h4>
+                        <p class="text-sm italic text-lime-100/90">"${day.essentialQuestion}"</p>
                     </div>
                 ` : ''}
                 ${day.standards ? `
                     <div>
-                        <h4 class="text-xs font-mono text-cyan-300 uppercase tracking-wider mb-2">NGSS Standards Alignment</h4>
+                        <h4 class="text-xs font-mono text-lime-300 uppercase tracking-wider mb-2">NGSS Standards Alignment</h4>
                         <div class="flex flex-wrap gap-2">
-                            ${day.standards.map(s => `<span class="text-xs bg-emerald-900/60 text-cyan-300 border border-cyan-500/40 px-2.5 py-1 rounded font-mono font-bold" data-ngss-code="${s}">${s}</span>`).join('')}
+                            ${day.standards.map(s => `<span class="text-xs bg-lime-950/80 text-[#ccff00] border border-lime-400/40 px-2.5 py-1 rounded font-mono font-bold" data-ngss-code="${s}">${s}</span>`).join('')}
                         </div>
                     </div>
                 ` : ''}
@@ -690,15 +684,15 @@
                     datasets: [{
                         label: 'Depth of Knowledge (DOK)',
                         data: dokValues,
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                        borderColor: '#ccff00',
+                        backgroundColor: 'rgba(204, 255, 0, 0.12)',
                         borderWidth: 3,
-                        pointBackgroundColor: '#06b6d4',
-                        pointBorderColor: '#fff',
+                        pointBackgroundColor: '#facc15',
+                        pointBorderColor: '#040804',
                         pointRadius: 6,
                         pointHoverRadius: 9,
                         fill: true,
-                        tension: 0.3
+                        tension: 0.35
                     }]
                 },
                 options: {
@@ -717,20 +711,20 @@
                                     return labels[val] || val;
                                 }
                             },
-                            grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                            grid: { color: 'rgba(163, 230, 53, 0.08)' }
                         },
                         x: {
                             ticks: { color: '#94a3b8', font: { family: 'Fira Code' } },
-                            grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                            grid: { color: 'rgba(163, 230, 53, 0.08)' }
                         }
                     },
                     plugins: {
                         legend: { display: false },
                         tooltip: {
-                            backgroundColor: 'rgba(2, 6, 23, 0.9)',
-                            titleColor: '#10b981',
+                            backgroundColor: 'rgba(4, 8, 4, 0.95)',
+                            titleColor: '#ccff00',
                             bodyColor: '#f1f5f9',
-                            borderColor: 'rgba(16, 185, 129, 0.3)',
+                            borderColor: 'rgba(204, 255, 0, 0.4)',
                             borderWidth: 1,
                             callbacks: {
                                 label: (context) => `Cognitive Rigor: DOK ${context.raw} (${unitData[context.dataIndex]?.topic || ''})`
@@ -741,7 +735,7 @@
             });
         }
 
-        // Live Interactive Kinematic Motion Canvas Sim
+        // Live Interactive Kinematic Motion Canvas Sim & Tachometer
         function initSimVisualizer() {
             const canvas = document.getElementById('simCanvas');
             if (!canvas) return;
@@ -758,6 +752,9 @@
             const readoutSlope = document.getElementById('readout-slope');
             const readoutState = document.getElementById('readout-state');
             const timeReadout = document.getElementById('sim-time-readout');
+
+            const tachSpeedDisplay = document.getElementById('tach-speed-display');
+            const tachArc = document.getElementById('tach-arc');
 
             const btnPlay = document.getElementById('btn-play-sim');
             const btnReset = document.getElementById('btn-reset-sim');
@@ -777,9 +774,18 @@
 
                 readoutSlope.innerText = `${v >= 0 ? '+' : ''}${v.toFixed(1)} m/s`;
 
+                // Update Tachometer
+                const absV = Math.abs(v);
+                if (tachSpeedDisplay) tachSpeedDisplay.innerText = absV.toFixed(1);
+                if (tachArc) {
+                    // Gauge arc length is ~125
+                    const ratio = Math.min(1, absV / 30);
+                    tachArc.style.strokeDashoffset = (125 * (1 - ratio)).toString();
+                }
+
                 if (a === 0) {
                     if (v > 0) readoutState.innerText = 'Constant Positive Velocity (Forward)';
-                    else if (v < 0) readoutState.innerText = 'Constant Negative Velocity (Backward)';
+                    else if (v < 0) readoutState.innerText = 'Constant Negative Velocity (Reverse)';
                     else readoutState.innerText = 'Stationary State (At Rest, v = 0)';
                 } else if (a > 0) {
                     readoutState.innerText = 'Uniform Forward Acceleration (+a)';
@@ -798,7 +804,7 @@
                 const a = parseFloat(sA.value);
 
                 // Grid & Axes
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+                ctx.strokeStyle = 'rgba(163, 230, 53, 0.08)';
                 ctx.lineWidth = 1;
                 for (let x = 40; x < w; x += 40) {
                     ctx.beginPath();
@@ -833,8 +839,10 @@
 
                 // Draw Position-Time Curve for t: 0 to 10s
                 ctx.beginPath();
-                ctx.strokeStyle = '#06b6d4';
-                ctx.lineWidth = 3;
+                ctx.strokeStyle = '#ccff00';
+                ctx.lineWidth = 3.5;
+                ctx.shadowColor = 'rgba(204, 255, 0, 0.5)';
+                ctx.shadowBlur = 8;
 
                 const maxTime = 10;
                 const maxPos = 200; // scaling range
@@ -848,6 +856,7 @@
                     else ctx.lineTo(canvasX, Math.max(10, Math.min(h - 25, canvasY)));
                 }
                 ctx.stroke();
+                ctx.shadowBlur = 0; // reset
 
                 // Draw current animated runner position point
                 const currentPos = x0 + v * currentTime + 0.5 * a * currentTime * currentTime;
@@ -858,14 +867,15 @@
                 // Pulsing glow cursor
                 ctx.beginPath();
                 ctx.arc(curX, clampedY, 7, 0, Math.PI * 2);
-                ctx.fillStyle = '#10b981';
-                ctx.shadowColor = '#10b981';
+                ctx.fillStyle = '#facc15';
+                ctx.shadowColor = '#facc15';
                 ctx.shadowBlur = 15;
                 ctx.fill();
                 ctx.shadowBlur = 0; // reset
 
                 // Update text readout
-                timeReadout.innerText = `t = ${currentTime.toFixed(2)}s | x = ${currentPos.toFixed(1)}m | v_inst = ${(v + a * currentTime).toFixed(1)}m/s`;
+                const currentV = v + a * currentTime;
+                timeReadout.innerText = `t = ${currentTime.toFixed(2)}s | x = ${currentPos.toFixed(1)}m | v_inst = ${currentV.toFixed(1)}m/s`;
             }
 
             function animate() {
