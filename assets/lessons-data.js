@@ -1,5 +1,224 @@
 const lessonsData = [
   {
+    "date": "2026-09-04",
+    "day": 13,
+    "unit": 1,
+    "title": "Unit Review & Assessment",
+    "summary": "Summative evaluation of metric foundations, precision, and design.",
+    "details": "Review game followed by a summative test that includes a mix of DOK 1-3 problems and one DOK 4-level question (e.g., the experimental design or argumentation prompt).",
+    "type": "Assessment",
+    "dok": 3,
+    "semester": 1,
+    "isFeatured": true,
+    "essentialQuestion": "How do our measurement tools shape the accuracy of our scientific theories?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-ETS1-2"
+    ]
+  },
+  {
+    "date": "2026-09-03",
+    "day": 12,
+    "unit": 1,
+    "title": "The \"Why\" of the SI System",
+    "summary": "Structured jigsaw debate on global scientific standardisation.",
+    "details": "Group research or jigsaw activity on the history of the SI system. Conclude with a structured debate or a written argument on why a standard system is crucial for global science.",
+    "type": "Activity",
+    "dok": 4,
+    "semester": 1,
+    "isFeatured": true,
+    "essentialQuestion": "What are the cultural, economic, and scientific costs of a fragmented measurement framework?",
+    "standards": [
+      "HS-ETS1-1",
+      "HS-ETS1-3"
+    ]
+  },
+  {
+    "date": "2026-09-02",
+    "day": 11,
+    "unit": 1,
+    "title": "Experimental Design",
+    "summary": "Engineering challenge to outline a model for determining acceleration (g).",
+    "details": "Challenge: Design an experiment to determine g using only a meter stick and a stopwatch. Groups outline procedure, variables, measurements, and formula.",
+    "type": "Activity",
+    "dok": 4,
+    "semester": 1,
+    "isFeatured": true,
+    "essentialQuestion": "How can simple measurement constraints isolate grand gravitational constants?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-ETS1-2"
+    ]
+  },
+  {
+    "date": "2026-09-01",
+    "day": 10,
+    "unit": 1,
+    "title": "Complex Measurement Lab",
+    "summary": "Procedural design lab utilizing fluid displacement techniques.",
+    "details": "Lab: \"Find the Density of a Rock.\" Students design a procedure using water displacement, choose the correct tools, and justify their unit choices to find the density in SI units.",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 1,
+    "isFeatured": true,
+    "essentialQuestion": "How can we design indirect physical indicators to quantify highly irregular geometric objects?",
+    "standards": [
+      "HS-ESS2-5"
+    ]
+  },
+  {
+    "date": "2026-08-31",
+    "day": 9,
+    "unit": 1,
+    "title": "Derived Units",
+    "summary": "Density modeling using volume derivation and mass metrics.",
+    "details": "Lab: Students are given blocks of known materials. They measure mass and dimensions, calculate density, and compare to the known value. They must justify their choice of units.",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 1,
+    "isFeatured": true,
+    "essentialQuestion": "How do mass and dimensional constraints synthesize to describe derived physical qualities like density?",
+    "standards": [
+      "HS-ESS2-5"
+    ]
+  },
+  {
+    "date": "2026-08-28",
+    "day": 8,
+    "unit": 1,
+    "title": "Practice & Check-In",
+    "summary": "Station rotation review and mid-unit formative check-in.",
+    "details": "Station rotation with practice problems on conversions and significant figures. A short formative quiz to check understanding.",
+    "type": "Assessment",
+    "dok": 2,
+    "semester": 1,
+    "isFeatured": false,
+    "essentialQuestion": "How do scientific figures communicate the intrinsic resolution of our measurement instruments?",
+    "standards": [
+      "HS-PS2-1"
+    ]
+  },
+  {
+    "date": "2026-08-27",
+    "day": 7,
+    "unit": 1,
+    "title": "Quality of Measurement",
+    "summary": "Precision vs. accuracy lab exploring uncertainty and sig-figs.",
+    "details": "Use the \"dartboard\" analogy for accuracy vs. precision. Lab: Students perform a simple measurement (e.g., length of a block) and analyze their data for accuracy and precision.",
+    "type": "Lab",
+    "dok": 2,
+    "semester": 1,
+    "isFeatured": true,
+    "essentialQuestion": "What is the critical scientific boundary separating a precise measurement from an accurate one?",
+    "standards": [
+      "HS-PS2-1"
+    ]
+  },
+  {
+    "date": "2026-08-26",
+    "day": 6,
+    "unit": 1,
+    "title": "Unit Conversions",
+    "summary": "Mastering single and multi-step factor-label dimensional analysis.",
+    "details": "\"I do, We do, You do\" guided practice. Students work through converting single-step and multi-step problems (e.g., km/h to m/s) using the factor-label method.",
+    "type": "Practice",
+    "dok": 2,
+    "semester": 1,
+    "isFeatured": false,
+    "essentialQuestion": "How does dimensional analysis safeguard mathematical models across different dimensional levels?",
+    "standards": [
+      "HS-PS1-7",
+      "HS-ETS1-2"
+    ],
+    "links": {
+      "Practice Worksheet": "https://docs.google.com/document/d/19L0sKqt97x8hOCWEDIpL3pkUmgLGjwcYPnmkPXi8wnM/edit?usp=sharing"
+    }
+  },
+  {
+    "date": "2026-08-25",
+    "day": 5,
+    "unit": 1,
+    "title": "Making the Standard & The Language of SI",
+    "summary": "Constructing manual meter sticks to map prefixes and base quantities.",
+    "details": "1. The Meter Stick Challenge: As a bridge from Day 4, groups get a 1-meter paper strip to turn into a useful measuring tool by subdividing it. 2. Introducing Prefixes: The teacher uses the student-made meter sticks to introduce formal metric prefixes (centi-, milli-). 3. Guided Notes & Practice: Formal instruction on the 7 SI base units and common prefixes, reinforced with recall games.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 1,
+    "isFeatured": true,
+    "essentialQuestion": "How do prefix systems expand our capability to mathematically model micro and macro realities?",
+    "standards": [
+      "HS-ETS1-1"
+    ]
+  },
+  {
+    "date": "2026-08-24",
+    "day": 4,
+    "unit": 1,
+    "title": "Why Standardize? Non-Standard Unit Challenge",
+    "summary": "Hands-on calibration challenge introducing standardized units.",
+    "details": "Students discover why standardized units are necessary through a hands-on challenge. Each group uses a unique, non-standard object (like a marker) to create their own measuring tool and measure a common classroom item. After comparing their varied and confusing initial results, they convert their measurements to a standard unit (cm), revealing a new consistency and leading to a class discussion on the importance of the SI system for scientific collaboration.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 1,
+    "isFeatured": true,
+    "essentialQuestion": "Why is a universal standard for measurement essential for science and global collaboration?",
+    "standards": [
+      "HS-ETS1-1"
+    ],
+    "links": {
+      "Student Instructions": "https://docs.google.com/document/d/188xprYNY0eogCYww45he7McWXoHCAKxVZZWibX7KaPU/edit?usp=sharing",
+      "Lesson Plan": "https://docs.google.com/document/d/1JMY5nWw3dZ_hrxVKjLZisXVsBmV_fQf317EwaEZiS_U/edit?usp=sharing"
+    }
+  },
+  {
+    "date": "2026-08-21",
+    "day": 3,
+    "unit": 1,
+    "title": "Lab Safety Walkthrough & Team Dynamics",
+    "summary": "Lab safety walkthrough, team-building activity, and preparing for measurement inquiry.",
+    "details": "Casual foundations activity: lab room tour & safety equipment walkthrough (eyewash station, fire extinguisher, emergency exits), lab partner team dynamics, and introduction to the Physics Mission Control workspace.",
+    "type": "Activity",
+    "dok": 1,
+    "semester": 1,
+    "isFeatured": true,
+    "essentialQuestion": "How do scientists work together to design controlled experiments and analyze physical systems?",
+    "standards": [
+      "HS-ETS1-1"
+    ]
+  },
+  {
+    "date": "2026-08-20",
+    "day": 2,
+    "unit": 1,
+    "title": "Classroom Procedures & Digital Mindset",
+    "summary": "Introduction to daily routines, Bell-Ringer entry, and lab safety foundations.",
+    "details": "Casual introduction to daily procedures: entering the room, Bell-Ringer check-ins, digital lab dashboard access, materials routines, and team-building SEL activity.",
+    "type": "Orientation",
+    "dok": 1,
+    "semester": 1,
+    "isFeatured": true,
+    "essentialQuestion": "How do structured procedures and team routines empower us to conduct safe, high-level scientific inquiries?",
+    "standards": [
+      "HS-ETS1-1"
+    ]
+  },
+  {
+    "date": "2026-08-19",
+    "day": 1,
+    "unit": 1,
+    "title": "Welcome to Physics: Introduction & Seating",
+    "summary": "Welcome to Physics! Teacher introduction, assigned seating, and classroom culture.",
+    "details": "Introduction to Mr. Mudry and the Physics course. Assigned seating chart. Discussion of classroom community norms, safety foundations, and what to expect in high school physics.",
+    "type": "Orientation",
+    "dok": 1,
+    "semester": 1,
+    "isFeatured": true,
+    "essentialQuestion": "How will our physics classroom community collaborate to explore natural phenomena safely and curiously?",
+    "standards": [
+      "HS-ETS1-1"
+    ]
+  },
+  {
     "date": "2026-06-05",
     "day": 20,
     "unit": 7,
