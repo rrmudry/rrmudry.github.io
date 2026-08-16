@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Terminal Velocity: Skydive Academy • Mr. Mudry’s Physics</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="alternate icon" type="image/png" href="../head.png">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="game-header">
+    <div class="logo-group">
+      <div class="logo-badge">🪂 TV-88</div>
+      <div>
+        <h1 class="game-title">Terminal Velocity: Skydive Academy</h1>
+      </div>
+    </div>
+
+    <div class="header-controls">
+      <button id="btn-units" class="icon-btn" title="Toggle Units (Imperial / Metric)">📐 <span id="units-label">FT / MPH</span></button>
+      <button id="btn-crt" class="icon-btn" title="Toggle CRT Scanline Effect">📺 CRT</button>
+      <button id="btn-audio" class="icon-btn" title="Mute / Unmute Audio">🔊 Sound</button>
+      <a href="../games.html" class="icon-btn" title="Back to Games Library">🏠 Hub</a>
+    </div>
+  </header>
+
+  <!-- Main Game Stage -->
+  <main class="main-layout">
+    
+    <!-- Canvas Viewport Shell -->
+    <div class="game-viewport-shell">
+      <canvas id="gameCanvas"></canvas>
+      <div id="crt-layer" class="crt-overlay"></div>
+
+      <!-- Mobile Touch Controls -->
+      <div class="mobile-controls">
+        <div class="touch-dpad">
+          <div class="touch-row">
+            <button id="btn-dive" class="touch-btn" title="Dive (Streamline)">▲<br><small style="font-size:9px">DIVE</small></button>
+          </div>
+          <div class="touch-row">
+            <button id="btn-left" class="touch-btn" title="Steer Left">◀</button>
+            <button id="btn-arch" class="touch-btn" title="Arch / Flare">▼<br><small style="font-size:9px">ARCH</small></button>
+            <button id="btn-right" class="touch-btn" title="Steer Right">▶</button>
+          </div>
+        </div>
+
+        <div class="touch-actions">
+          <button id="btn-deploy" class="touch-btn deploy-btn">PULL<br>CHUTE<br><small style="font-size:9px">(SPACE)</small></button>
+        </div>
+      </div>
+
+      <!-- Result / Pause Modal Overlay -->
+      <div id="game-modal" class="game-modal-backdrop">
+        <div class="modal-content">
+          <h2 id="modal-title">🪂 READY FOR JUMP</h2>
+          <div id="modal-body">
+            <p>Prepare for high-altitude aerodynamic flight!</p>
+            <p style="margin-top: 8px; color: var(--text-muted); font-size: 13px;">
+              Maintain belly-to-earth arch for stable fall, pencil dive for max speed, and pull your rip cord before the 1,000 ft danger deck!
+            </p>
+          </div>
+          <div style="margin-top: 20px;">
+            <button id="modal-action-btn" class="primary-btn">Start Mission 🚀</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Mission Selector & Controls Dashboard -->
+    <div class="dashboard-grid">
+      
+      <!-- Left Panel: Missions & Game Modes -->
+      <div class="panel-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <h3>📋 Flight Operations</h3>
+          <div style="display: flex; gap: 8px;">
+            <button id="tab-campaign" class="icon-btn active-tab" style="border-color: var(--accent-cyan);">Campaign</button>
+            <button id="tab-arcade" class="icon-btn">Arcade</button>
+            <button id="tab-sandbox" class="icon-btn">Physics Lab</button>
+          </div>
+        </div>
+
+        <!-- Campaign Mission Cards -->
+        <div id="campaign-view" class="mission-list">
+          <div class="mission-card" onclick="window.game.startMission(0)">
+            <div class="mission-info">
+              <h4>Mission 1: First Drop (Sunny Valley)</h4>
+              <p>5,000 ft drop • 2.0 m/s wind • 14 Target Rings</p>
+            </div>
+            <div class="mission-badge">Best: <span id="score-m1">0</span></div>
+          </div>
+
+          <div class="mission-card" onclick="window.game.startMission(1)">
+            <div class="mission-info">
+              <h4>Mission 2: Coastal Crosswind (Pacific Bluffs)</h4>
+              <p>8,000 ft drop • 8.5 m/s wind • 22 Target Rings</p>
+            </div>
+            <div class="mission-badge">Best: <span id="score-m2">0</span></div>
+          </div>
+
+          <div class="mission-card" onclick="window.game.startMission(2)">
+            <div class="mission-info">
+              <h4>Mission 3: Neon Night Skyline (Metro Skyscraper)</h4>
+              <p>10,000 ft drop • 4.0 m/s wind • 28 Laser Rings</p>
+            </div>
+            <div class="mission-badge">Best: <span id="score-m3">0</span></div>
+          </div>
+
+          <div class="mission-card" onclick="window.game.startMission(3)">
+            <div class="mission-info">
+              <h4>Mission 4: Alpine Storm Chaser (Thunder Mountain)</h4>
+              <p>13,000 ft drop • 14.0 m/s wind • 35 Storm Rings</p>
+            </div>
+            <div class="mission-badge">Best: <span id="score-m4">0</span></div>
+          </div>
+
+          <div class="mission-card" onclick="window.game.startMission(4)">
+            <div class="mission-info">
+              <h4>Mission 5: HALO Space Edge (Stratosphere Island)</h4>
+              <p>25,000 ft drop • 6.0 m/s wind • 45 Supersonic Rings</p>
+            </div>
+            <div class="mission-badge">Best: <span id="score-m5">0</span></div>
+          </div>
+        </div>
+
+        <!-- Sandbox Physics Lab Controls -->
+        <div id="sandbox-view" class="slider-group" style="display: none;">
+          <p style="color: var(--text-muted); margin-bottom: 8px;">
+            Adjust real atmospheric physics parameters and watch live drag vectors & terminal velocity change!
+          </p>
+
+          <div class="slider-row">
+            <div class="slider-labels">
+              <span>Gravity (g):</span>
+              <strong id="val-gravity">9.81 m/s² (Earth)</strong>
+            </div>
+            <input id="slider-gravity" type="range" min="1.6" max="25.0" step="0.1" value="9.8">
+          </div>
+
+          <div class="slider-row">
+            <div class="slider-labels">
+              <span>Skydiver Mass (m):</span>
+              <strong id="val-mass">75 kg</strong>
+            </div>
+            <input id="slider-mass" type="range" min="40" max="150" step="1" value="75">
+          </div>
+
+          <div class="slider-row">
+            <div class="slider-labels">
+              <span>Sea-Level Air Density (ρ₀):</span>
+              <strong id="val-density">1.225 kg/m³</strong>
+            </div>
+            <input id="slider-density" type="range" min="0.1" max="2.5" step="0.05" value="1.225">
+          </div>
+
+          <div class="slider-row">
+            <div class="slider-labels">
+              <span>Crosswind Velocity (wₓ):</span>
+              <strong id="val-wind">0.0 m/s</strong>
+            </div>
+            <input id="slider-wind" type="range" min="-20" max="20" step="0.5" value="0">
+          </div>
+
+          <div style="margin-top: 10px;">
+            <button class="primary-btn" onclick="window.game.startSandbox()">Launch Sandbox Flight 🚀</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Panel: Flight Instructions & NGSS Standards -->
+      <div class="panel-card">
+        <h3>🕹️ Flight Controls</h3>
+        <div class="instructions-box">
+          <ul style="padding-left: 18px; display: flex; flex-direction: column; gap: 6px;">
+            <li><kbd>W</kbd> or <kbd>▲</kbd> : <strong>Pencil Dive</strong> (Low Drag, 190+ mph)</li>
+            <li><kbd>S</kbd> or <kbd>▼</kbd> : <strong>Flared Arch / Flare</strong> (High Drag / Lift)</li>
+            <li><kbd>A</kbd> / <kbd>D</kbd> or <kbd>◀</kbd> / <kbd>▶</kbd> : <strong>Steer & Bank</strong></li>
+            <li><kbd>Space</kbd> : <strong>Deploy Parachute</strong> (Hard Deck 1,000 ft)</li>
+            <li><kbd>P</kbd> : <strong>Pause Game</strong></li>
+          </ul>
+
+          <!-- NGSS Standards Integration -->
+          <div class="standards-box">
+            <div style="font-weight: 700; color: #fff; margin-bottom: 6px;">📚 NGSS Standards Alignment:</div>
+            <div data-ngss="HS-PS2-1,HS-PS2-2"></div>
+            <p style="font-size: 11px; margin-top: 6px; color: var(--text-muted);">
+              Explore Newton’s 2nd Law (Fnet = m · a), terminal velocity equilibrium (Fd = Fg), and impulse during canopy opening & touchdown.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Load Scripts -->
+  <script src="../assets/scoreboard.js"></script>
+  <script src="audio.js"></script>
+  <script src="physics.js"></script>
+  <script src="particles.js"></script>
+  <script src="game.js"></script>
+  <script src="../assets/partials.js"></script>
+
+  <script>
+    // Initialize Game Instance
+    window.addEventListener('DOMContentLoaded', () => {
+      window.game = new SkydiveGame();
+
+      // UI Element Bindings
+      const modalEl = document.getElementById('game-modal');
+      const actionBtn = document.getElementById('modal-action-btn');
+      const btnUnits = document.getElementById('btn-units');
+      const unitsLabel = document.getElementById('units-label');
+      const btnCrt = document.getElementById('btn-crt');
+      const crtLayer = document.getElementById('crt-layer');
+      const btnAudio = document.getElementById('btn-audio');
+
+      // Start default mission 1
+      actionBtn.onclick = () => {
+        modalEl.classList.add('hidden');
+        window.game.startMission(0);
+      };
+
+      // Unit toggle
+      btnUnits.onclick = () => {
+        window.game.unitSystem = window.game.unitSystem === 'imperial' ? 'metric' : 'imperial';
+        unitsLabel.innerText = window.game.unitSystem === 'imperial' ? 'FT / MPH' : 'M / KM/H';
+      };
+
+      // CRT toggle
+      btnCrt.onclick = () => {
+        crtLayer.style.display = crtLayer.style.display === 'none' ? 'block' : 'none';
+      };
+
+      // Audio toggle
+      btnAudio.onclick = () => {
+        const isMuted = window.soundEngine.toggleMute();
+        btnAudio.innerText = isMuted ? '🔇 Muted' : '🔊 Sound';
+      };
+
+      // Tab switcher
+      const tabCampaign = document.getElementById('tab-campaign');
+      const tabArcade = document.getElementById('tab-arcade');
+      const tabSandbox = document.getElementById('tab-sandbox');
+      const campaignView = document.getElementById('campaign-view');
+      const sandboxView = document.getElementById('sandbox-view');
+
+      function setActiveTab(tab) {
+        [tabCampaign, tabArcade, tabSandbox].forEach(t => t.style.borderColor = 'rgba(148, 163, 184, 0.2)');
+        tab.style.borderColor = 'var(--accent-cyan)';
+      }
+
+      tabCampaign.onclick = () => {
+        setActiveTab(tabCampaign);
+        campaignView.style.display = 'flex';
+        sandboxView.style.display = 'none';
+      };
+
+      tabArcade.onclick = () => {
+        setActiveTab(tabArcade);
+        campaignView.style.display = 'flex';
+        sandboxView.style.display = 'none';
+        modalEl.classList.add('hidden');
+        window.game.startArcade();
+      };
+
+      tabSandbox.onclick = () => {
+        setActiveTab(tabSandbox);
+        campaignView.style.display = 'none';
+        sandboxView.style.display = 'flex';
+      };
+
+      // Sandbox Sliders
+      const sliderG = document.getElementById('slider-gravity');
+      const sliderM = document.getElementById('slider-mass');
+      const sliderRho = document.getElementById('slider-density');
+      const sliderWind = document.getElementById('slider-wind');
+
+      sliderG.oninput = () => {
+        const g = parseFloat(sliderG.value);
+        window.game.physics.gravity = g;
+        document.getElementById('val-gravity').innerText = `${g.toFixed(2)} m/s²`;
+      };
+
+      sliderM.oninput = () => {
+        const m = parseFloat(sliderM.value);
+        window.game.physics.mass = m;
+        document.getElementById('val-mass').innerText = `${m} kg`;
+      };
+
+      sliderRho.oninput = () => {
+        const rho = parseFloat(sliderRho.value);
+        window.game.physics.rho0 = rho;
+        document.getElementById('val-density').innerText = `${rho.toFixed(3)} kg/m³`;
+      };
+
+      sliderWind.oninput = () => {
+        const w = parseFloat(sliderWind.value);
+        window.game.physics.windX = w;
+        document.getElementById('val-wind').innerText = `${w.toFixed(1)} m/s`;
+      };
+
+      // Update High Scores in UI
+      const scores = window.game.highScores;
+      for (let i = 1; i <= 5; i++) {
+        const el = document.getElementById(`score-m${i}`);
+        if (el) el.innerText = (scores[`mission${i}`] || 0).toLocaleString();
+      }
+    });
+  </script>
+</body>
+</html>
