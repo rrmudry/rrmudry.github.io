@@ -99,6 +99,17 @@ const server = http.createServer(async (req, res) => {
         console.warn('WARNING: No Refresh Token was returned. This usually happens if you already authorized this app.');
         console.warn('To get a new Refresh Token, visit your Google Account security settings, revoke access to "Mudry Gradebook Sync", and run this script again.\n');
       } else {
+        const envPath = path.join(__dirname, '.env');
+        if (fs.existsSync(envPath)) {
+          let envContent = fs.readFileSync(envPath, 'utf8');
+          if (envContent.includes('GOOGLE_REFRESH_TOKEN=')) {
+            envContent = envContent.replace(/GOOGLE_REFRESH_TOKEN=.*/, `GOOGLE_REFRESH_TOKEN=${tokens.refresh_token}`);
+          } else {
+            envContent += `\nGOOGLE_REFRESH_TOKEN=${tokens.refresh_token}\n`;
+          }
+          fs.writeFileSync(envPath, envContent, 'utf8');
+          console.log('✅ Automatically updated sync-classroom/.env with new Refresh Token!');
+        }
         console.log('Save the Refresh Token securely in your backend config / environment variables.');
       }
       

@@ -188,6 +188,79 @@ app.get('/api/courses', checkAuth, async (req, res) => {
   }
 });
 
+// Generate auth URL for Classroom permissions (including rosters)
+app.get('/api/classroom/auth-url', (req, res) => {
+  try {
+    const { clientId, clientSecret } = getCredentials();
+    const oauth2Client = new google.auth.OAuth2(
+      clientId,
+      clientSecret,
+      'http://localhost:3000/oauth2callback'
+    );
+    const scopes = [
+      'https://www.googleapis.com/auth/classroom.courses.readonly',
+      'https://www.googleapis.com/auth/classroom.coursework.students',
+      'https://www.googleapis.com/auth/classroom.rosters.readonly',
+      'https://www.googleapis.com/auth/classroom.profile.emails'
+    ];
+    const url = oauth2Client.generateAuthUrl({
+      access_type: 'offline',
+      prompt: 'consent',
+      scope: scopes
+    });
+    res.json({ authUrl: url });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// OAuth2 Callback handler for seamless browser authentication
+app.get('/oauth2callback', async (req, res) => {
+  const code = req.query.code;
+  if (!code) {
+    return res.status(400).send('Authorization failed: No code received.');
+  }
+
+  try {
+    const { clientId, clientSecret } = getCredentials();
+    const oauth2Client = new google.auth.OAuth2(
+      clientId,
+      clientSecret,
+      'http://localhost:3000/oauth2callback'
+    );
+    const { tokens } = await oauth2Client.getToken(code);
+    if (tokens.refresh_token) {
+      const envPath = path.join(__dirname, '.env');
+      if (fs.existsSync(envPath)) {
+        let envContent = fs.readFileSync(envPath, 'utf8');
+        if (envContent.includes('GOOGLE_REFRESH_TOKEN=')) {
+          envContent = envContent.replace(/GOOGLE_REFRESH_TOKEN=.*/, `GOOGLE_REFRESH_TOKEN=${tokens.refresh_token}`);
+        } else {
+          envContent += `\nGOOGLE_REFRESH_TOKEN=${tokens.refresh_token}\n`;
+        }
+        fs.writeFileSync(envPath, envContent, 'utf8');
+        process.env.GOOGLE_REFRESH_TOKEN = tokens.refresh_token;
+      }
+    }
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+      <head><title>Authorization Successful</title><style>body{background:#020617;color:#f8fafc;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;text-align:center;}.card{background:rgba(15,23,42,0.8);border:1px solid rgba(16,185,129,0.3);padding:40px;border-radius:24px;box-shadow:0 10px 40px rgba(0,0,0,0.5);}h1{color:#10b981;margin-bottom:12px;}p{color:#94a3b8;font-size:14px;}button{margin-top:20px;padding:12px 24px;background:#10b981;color:#020617;font-weight:bold;border:none;border-radius:12px;cursor:pointer;}</style></head>
+      <body>
+        <div class="card">
+          <h1>✅ Google Classroom Authorized!</h1>
+          <p>Student roster reading permissions have been granted.</p>
+          <button onclick="window.close()">Close this Window &amp; Return to Roster Manager</button>
+        </div>
+      </body>
+      </html>
+    `);
+  } catch (err) {
+    console.error('Error exchanging token:', err);
+    res.status(500).send('Error exchanging token: ' + err.message);
+  }
+});
+
 // Helper to extract period number from course name or section
 function extractPeriod(course) {
   const combined = `${course.name || ''} ${course.section || ''} ${course.room || ''}`;
@@ -255,6 +328,8 @@ app.get('/api/classroom/roster-preview', async (req, res) => {
 
     const allStudents = [];
 
+    let permissionError = false;
+
     for (const course of courses) {
       const period = extractPeriod(course);
       try {
@@ -289,7 +364,17 @@ app.get('/api/classroom/roster-preview', async (req, res) => {
         } while (pageToken);
       } catch (err) {
         console.warn(`Could not list students for course ${course.name} (${course.id}):`, err.message);
+        if (err.message.includes('Insufficient Permission') || (err.response && err.response.data && err.response.data.error && err.response.data.error.status === 'PERMISSION_DENIED')) {
+          permissionError = true;
+        }
       }
+    }
+
+    if (permissionError && allStudents.length === 0) {
+      return res.status(403).json({
+        requiresAuth: true,
+        error: 'Google Classroom requires student roster permission. Click "Authorize Roster Access" to grant permission.'
+      });
     }
 
     res.json({
