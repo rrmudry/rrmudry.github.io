@@ -32,7 +32,7 @@ const INITIAL_OBJ2: DropObjectConfig = {
 
 const INITIAL_ENV: EnvironmentConfig = {
   height: 100, // 100 meters
-  gravity: 9.8, // Earth
+  gravity: 10.0, // Earth (standard high school convention)
   planet: 'earth',
   airDensity: 0.0, // Start in Vacuum mode as classic misconception buster!
   atmosphereMode: 'vacuum',
@@ -43,7 +43,7 @@ const INITIAL_PHYSICS_STATE: PhysicsState = {
   time: 0,
   position: 0,
   velocity: 0,
-  acceleration: 9.8,
+  acceleration: 10.0,
   forceGravity: 0,
   forceDrag: 0,
   forceNet: 0,
