@@ -84,8 +84,8 @@ export const ObjectControlCard: React.FC<ObjectControlCardProps> = ({
           <input
             type="range"
             min={0.001}
-            max={20.0}
-            step={objectConfig.mass < 0.1 ? 0.001 : 0.05}
+            max={100.0}
+            step={objectConfig.mass < 0.1 ? 0.001 : objectConfig.mass < 1.0 ? 0.01 : 0.25}
             value={objectConfig.mass}
             disabled={disabled}
             onChange={(e) => onChange({ ...objectConfig, id: 'custom', mass: parseFloat(e.target.value) })}
@@ -93,8 +93,8 @@ export const ObjectControlCard: React.FC<ObjectControlCardProps> = ({
           />
           <div className="flex justify-between text-[9px] text-slate-500 font-mono mt-0.5">
             <span>1 g</span>
-            <span>5 kg</span>
-            <span>20 kg</span>
+            <span>10 kg</span>
+            <span>100 kg</span>
           </div>
         </div>
 
@@ -105,14 +105,14 @@ export const ObjectControlCard: React.FC<ObjectControlCardProps> = ({
               <span>Radius (r):</span>
             </label>
             <span className={`font-mono font-black px-2 py-0.5 rounded border border-white/10 ${badgeColor}`}>
-              {(objectConfig.radius * 100).toFixed(1)} cm
+              {objectConfig.radius < 1.0 ? `${(objectConfig.radius * 100).toFixed(1)} cm` : `${objectConfig.radius.toFixed(2)} m`}
             </span>
           </div>
           <input
             type="range"
             min={0.01}
-            max={0.5}
-            step={0.005}
+            max={3.0}
+            step={objectConfig.radius < 0.2 ? 0.005 : 0.05}
             value={objectConfig.radius}
             disabled={disabled}
             onChange={(e) => onChange({ ...objectConfig, id: 'custom', radius: parseFloat(e.target.value) })}
@@ -120,8 +120,8 @@ export const ObjectControlCard: React.FC<ObjectControlCardProps> = ({
           />
           <div className="flex justify-between text-[9px] text-slate-500 font-mono mt-0.5">
             <span>1 cm (Tiny)</span>
-            <span>10 cm (Bowling)</span>
-            <span>50 cm (Giant)</span>
+            <span>45 cm (Skydiver)</span>
+            <span>3.0 m (Parachute)</span>
           </div>
         </div>
 
