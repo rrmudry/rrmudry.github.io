@@ -37,7 +37,7 @@ export const MisconceptionGuide: React.FC = () => {
               It is common to assume that because a 5 kg bowling ball experiences 1,000 times more gravitational force than a 5 g feather, it must fall faster. But Newton's Second Law reveals the truth:
             </p>
             <div className="p-2.5 rounded-lg bg-slate-900 font-mono text-center font-bold text-amber-300 border border-white/10 my-2">
-              a = F<sub>net</sub> / m = (m · g) / m = g = 9.8 m/s²
+              a = F<sub>net</sub> / m = (m · g) / m = g = 10 m/s²
             </div>
             <p>
               A heavier object has more <strong>gravitational force</strong> pulling it downward, but it also has proportionally more <strong>inertia (mass)</strong> resisting any change in motion. The extra downward pull is canceled out by the extra inertia, resulting in the <strong>exact same downward acceleration (g)</strong> for every object on Earth!

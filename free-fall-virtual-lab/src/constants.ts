@@ -98,7 +98,7 @@ export const OBJECT_PRESETS: DropObjectConfig[] = [
 export const PLANET_PRESETS: Record<PlanetLocation, { name: string; gravity: number; icon: string; defaultAirDensity: number }> = {
   earth: {
     name: 'Earth',
-    gravity: 9.8,
+    gravity: 10.0,
     icon: '🌍',
     defaultAirDensity: 1.225
   },
@@ -122,7 +122,7 @@ export const PLANET_PRESETS: Record<PlanetLocation, { name: string; gravity: num
   },
   custom: {
     name: 'Custom World',
-    gravity: 9.8,
+    gravity: 10.0,
     icon: '🛸',
     defaultAirDensity: 1.225
   }
