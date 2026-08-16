@@ -73,14 +73,24 @@ export const OBJECT_PRESETS: DropObjectConfig[] = [
     accentBg: 'rgba(16, 185, 129, 0.15)'
   },
   {
-    id: 'skydiver',
-    name: 'Human Skydiver',
-    icon: '🪂',
-    mass: 75.0,           // 75 kg
-    radius: 0.45,         // ~0.64 m^2 belly-to-earth
-    dragCoefficient: 1.0, // spread-eagle human
+    id: 'skydiver-freefall',
+    name: 'Skydiver (Freefall / No Chute)',
+    icon: '🧍',
+    mass: 75.0,           // 75 kg human
+    radius: 0.45,         // ~0.64 m^2 belly-to-earth cross-section
+    dragCoefficient: 1.0, // spread-eagle human (terminal vel ~44 m/s / 100 mph)
     color: '#ec4899',
     accentBg: 'rgba(236, 72, 153, 0.15)'
+  },
+  {
+    id: 'skydiver-chute',
+    name: 'Skydiver (Open Parachute)',
+    icon: '🪂',
+    mass: 85.0,           // 75 kg human + 10 kg parachute rig
+    radius: 2.2,          // ~15 m^2 open parachute canopy
+    dragCoefficient: 1.5, // open parachute (terminal vel ~6 m/s / 13 mph)
+    color: '#06b6d4',
+    accentBg: 'rgba(6, 182, 212, 0.15)'
   },
   {
     id: 'custom',
