@@ -12,6 +12,17 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 app.use(cookieParser());
 
+// Permissive CORS for local bridge access from Roster Manager & dashboards
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
 // ---------------------------------------------------------
 // 1. Initialize Firestore Admin SDK
 // ---------------------------------------------------------
@@ -174,6 +185,166 @@ app.get('/api/courses', checkAuth, async (req, res) => {
   } catch (error) {
     console.error('Error fetching Classroom courses:', error);
     res.status(500).json({ error: 'Failed to retrieve Google Classroom courses.' });
+  }
+});
+
+// Helper to extract period number from course name or section
+function extractPeriod(course) {
+  const combined = `${course.name || ''} ${course.section || ''} ${course.room || ''}`;
+  const match = combined.match(/(?:period|per|p)\s*([0-9]+)/i);
+  if (match) return parseInt(match[1], 10);
+  const numMatch = (course.section || '').match(/^([0-9]+)$/);
+  if (numMatch) return parseInt(numMatch[1], 10);
+  return 0;
+}
+
+// Helper to extract numeric student ID from email or profile
+function extractStudentId(student) {
+  const email = student.profile?.emailAddress || '';
+  const emailMatch = email.match(/^([0-9]+)@/);
+  if (emailMatch) return emailMatch[1];
+  const digitsMatch = email.match(/([0-9]{5,8})/);
+  if (digitsMatch) return digitsMatch[1];
+  return student.userId || student.profile?.id || '';
+}
+
+// Get Course list with inferred periods for Roster Manager
+app.get('/api/classroom/courses-with-roster', async (req, res) => {
+  try {
+    const classroom = getClasroomClient();
+    const response = await classroom.courses.list({
+      courseStates: ['ACTIVE'],
+      pageSize: 50
+    });
+    const courses = (response.data.courses || []).map(c => ({
+      id: c.id,
+      name: c.name,
+      section: c.section || '',
+      inferredPeriod: extractPeriod(c)
+    }));
+    res.json({ courses });
+  } catch (error) {
+    console.error('Error fetching courses with roster:', error);
+    res.status(500).json({ error: error.message || 'Failed to retrieve courses.' });
+  }
+});
+
+// Fetch all students across specified courses (or all active courses) with preview data
+app.get('/api/classroom/roster-preview', async (req, res) => {
+  const { courseIds } = req.query;
+  try {
+    const classroom = getClasroomClient();
+    let courses = [];
+    if (courseIds) {
+      const ids = courseIds.split(',').map(s => s.trim()).filter(Boolean);
+      for (const id of ids) {
+        try {
+          const cRes = await classroom.courses.get({ id });
+          courses.push(cRes.data);
+        } catch (e) {
+          console.warn(`Could not fetch course ${id}:`, e.message);
+        }
+      }
+    } else {
+      const cRes = await classroom.courses.list({
+        courseStates: ['ACTIVE'],
+        pageSize: 50
+      });
+      courses = cRes.data.courses || [];
+    }
+
+    const allStudents = [];
+
+    for (const course of courses) {
+      const period = extractPeriod(course);
+      try {
+        let pageToken = null;
+        do {
+          const sRes = await classroom.courses.students.list({
+            courseId: course.id,
+            pageSize: 100,
+            pageToken: pageToken
+          });
+          const students = sRes.data.students || [];
+          for (const s of students) {
+            const sid = extractStudentId(s);
+            const givenName = s.profile?.name?.givenName || '';
+            const familyName = s.profile?.name?.familyName || '';
+            const fullName = s.profile?.name?.fullName || `${givenName} ${familyName}`.trim() || 'Unknown Student';
+            const email = s.profile?.emailAddress || '';
+
+            allStudents.push({
+              student_id: sid,
+              first_name: givenName || fullName.split(' ')[0] || '',
+              last_name: familyName || fullName.split(' ').slice(1).join(' ') || '',
+              full_name: fullName,
+              class_period: period,
+              email: email,
+              course_id: course.id,
+              course_name: course.name,
+              course_section: course.section || ''
+            });
+          }
+          pageToken = sRes.data.nextPageToken;
+        } while (pageToken);
+      } catch (err) {
+        console.warn(`Could not list students for course ${course.name} (${course.id}):`, err.message);
+      }
+    }
+
+    res.json({
+      courses: courses.map(c => ({ id: c.id, name: c.name, section: c.section || '', inferredPeriod: extractPeriod(c) })),
+      students: allStudents,
+      total: allStudents.length
+    });
+  } catch (error) {
+    console.error('Error generating roster preview:', error);
+    res.status(500).json({ error: error.message || 'Failed to generate roster preview.' });
+  }
+});
+
+// Commit Google Classroom students directly to Firestore db.collection('roster')
+app.post('/api/classroom/import-roster', async (req, res) => {
+  const { students } = req.body;
+  if (!Array.isArray(students) || students.length === 0) {
+    return res.status(400).json({ error: 'No student records provided.' });
+  }
+
+  if (!db) {
+    return res.status(500).json({ error: 'Firestore Admin SDK is not initialized.' });
+  }
+
+  try {
+    const BATCH_SIZE = 400;
+    let committedCount = 0;
+
+    for (let i = 0; i < students.length; i += BATCH_SIZE) {
+      const chunk = students.slice(i, i + BATCH_SIZE);
+      const batch = db.batch();
+
+      for (const s of chunk) {
+        if (!s.student_id) continue;
+        const docRef = db.collection('roster').doc(String(s.student_id));
+        const payload = {
+          student_id: String(s.student_id),
+          first_name: s.first_name || '',
+          last_name: s.last_name || '',
+          full_name: s.full_name || `${s.first_name || ''} ${s.last_name || ''}`.trim(),
+          class_period: parseInt(s.class_period, 10) || 0,
+          updated_at: admin.firestore.FieldValue.serverTimestamp()
+        };
+        if (s.email) payload.email = s.email;
+        batch.set(docRef, payload, { merge: true });
+        committedCount++;
+      }
+
+      await batch.commit();
+    }
+
+    res.json({ success: true, count: committedCount });
+  } catch (error) {
+    console.error('Error importing roster to Firestore:', error);
+    res.status(500).json({ error: error.message || 'Failed to save roster to Firestore.' });
   }
 });
 

@@ -55,7 +55,9 @@ const oauth2Client = new google.auth.OAuth2(
 // Define Classroom API scopes requested by the user
 const scopes = [
   'https://www.googleapis.com/auth/classroom.courses.readonly',
-  'https://www.googleapis.com/auth/classroom.coursework.students'
+  'https://www.googleapis.com/auth/classroom.coursework.students',
+  'https://www.googleapis.com/auth/classroom.rosters.readonly',
+  'https://www.googleapis.com/auth/classroom.profile.emails'
 ];
 
 // Generate the authorization URL
