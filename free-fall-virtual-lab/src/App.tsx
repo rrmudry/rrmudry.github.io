@@ -1,292 +1,390 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { SimulationParams, SimulationState, SimulationStatus, Location } from './types';
-import Simulation from './components/Simulation';
-import Controls from './components/Controls';
-import DataDisplay from './components/DataDisplay';
-import ResultsSummary from './components/ResultsSummary';
+import {
+  DropObjectConfig,
+  EnvironmentConfig,
+  PhysicsState,
+  SimulationStatus,
+  StrobePoint,
+  ExperimentTrial,
+  AtmosphereMode
+} from './types';
+import { OBJECT_PRESETS, PLANET_PRESETS, ATMOSPHERE_PRESETS, GUIDED_CHALLENGES } from './constants';
+import { stepObjectPhysics } from './services/physicsEngine';
+import { Header } from './components/Header';
+import { SimulationCanvas } from './components/SimulationCanvas';
+import { ObjectControlCard } from './components/ObjectControlCard';
+import { EnvironmentControls } from './components/EnvironmentControls';
+import { GraphStudio, GraphDataPoint } from './components/GraphStudio';
+import { ResultsComparison } from './components/ResultsComparison';
+import { MisconceptionGuide } from './components/MisconceptionGuide';
 
-const INITIAL_PARAMS: SimulationParams = {
-  height: 100, // meters
-  mass: 1,     // kg
-  radius: 0.1,  // meters
-  airDensity: 0, // kg/m^3 - Start with no air resistance
-  gravity: 10, // m/s^2
+const INITIAL_OBJ1: DropObjectConfig = {
+  ...OBJECT_PRESETS.find(p => p.id === 'bowling-ball')!,
+  color: '#f97316',
+  accentBg: 'rgba(249, 115, 22, 0.15)'
 };
 
-const INITIAL_STATE: SimulationState = {
+const INITIAL_OBJ2: DropObjectConfig = {
+  ...OBJECT_PRESETS.find(p => p.id === 'feather')!,
+  color: '#38bdf8',
+  accentBg: 'rgba(56, 189, 248, 0.15)'
+};
+
+const INITIAL_ENV: EnvironmentConfig = {
+  height: 100, // 100 meters
+  gravity: 9.8, // Earth
+  planet: 'earth',
+  airDensity: 0.0, // Start in Vacuum mode as classic misconception buster!
+  atmosphereMode: 'vacuum',
+  playbackSpeed: 1.0
+};
+
+const INITIAL_PHYSICS_STATE: PhysicsState = {
   time: 0,
   position: 0,
   velocity: 0,
+  acceleration: 9.8,
+  forceGravity: 0,
+  forceDrag: 0,
+  forceNet: 0,
+  isFinished: false
 };
 
-const App: React.FC = () => {
-  const [params, setParams] = useState<SimulationParams>(INITIAL_PARAMS);
-  // State for the simulation without air resistance
-  const [simStateNoAir, setSimStateNoAir] = useState<SimulationState>(INITIAL_STATE);
-  const [trailPositionsNoAir, setTrailPositionsNoAir] = useState<SimulationState[]>([]);
-  
-  // State for the simulation with air resistance (in comparison mode)
-  const [simStateWithAir, setSimStateWithAir] = useState<SimulationState>(INITIAL_STATE);
-  const [trailPositionsWithAir, setTrailPositionsWithAir] = useState<SimulationState[]>([]);
+export const App: React.FC = () => {
+  const [obj1, setObj1] = useState<DropObjectConfig>(INITIAL_OBJ1);
+  const [obj2, setObj2] = useState<DropObjectConfig>(INITIAL_OBJ2);
+  const [env, setEnv] = useState<EnvironmentConfig>(INITIAL_ENV);
+
+  const [state1, setState1] = useState<PhysicsState>(INITIAL_PHYSICS_STATE);
+  const [state2, setState2] = useState<PhysicsState>(INITIAL_PHYSICS_STATE);
+
+  const [strobePoints1, setStrobePoints1] = useState<StrobePoint[]>([]);
+  const [strobePoints2, setStrobePoints2] = useState<StrobePoint[]>([]);
+  const [graphHistory, setGraphHistory] = useState<GraphDataPoint[]>([]);
 
   const [status, setStatus] = useState<SimulationStatus>('idle');
-  const [location, setLocation] = useState<Location>('earth');
-  const [isComparisonMode, setIsComparisonMode] = useState<boolean>(false);
+  const [selectedChallengeId, setSelectedChallengeId] = useState<string>('galileo-vacuum');
 
-  const animationFrameId = useRef<number | null>(null);
-  const lastTimeRef = useRef<number | null>(null);
-  const lastTrailTimeRef = useRef<number>(0);
-  const finishedStates = useRef<Record<string, boolean>>({ noAir: false, withAir: false });
+  const [showVectors, setShowVectors] = useState<boolean>(true);
+  const [showStrobe, setShowStrobe] = useState<boolean>(true);
+  const [trials, setTrials] = useState<ExperimentTrial[]>([]);
 
+  const animationFrameRef = useRef<number | null>(null);
+  const lastTimestampRef = useRef<number | null>(null);
+  const lastStrobeTimeRef = useRef<number>(0);
 
-  const resetSimulation = useCallback(() => {
-    if (animationFrameId.current) {
-      cancelAnimationFrame(animationFrameId.current);
+  // Reset simulation states to initial drop position
+  const handleReset = useCallback(() => {
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
     }
-    setSimStateNoAir(INITIAL_STATE);
-    setTrailPositionsNoAir([]);
-    setSimStateWithAir(INITIAL_STATE);
-    setTrailPositionsWithAir([]);
+    lastTimestampRef.current = null;
+    lastStrobeTimeRef.current = 0;
+
+    setState1({
+      ...INITIAL_PHYSICS_STATE,
+      acceleration: env.gravity,
+      forceGravity: obj1.mass * env.gravity,
+      forceNet: obj1.mass * env.gravity
+    });
+
+    setState2({
+      ...INITIAL_PHYSICS_STATE,
+      acceleration: env.gravity,
+      forceGravity: obj2.mass * env.gravity,
+      forceNet: obj2.mass * env.gravity
+    });
+
+    setStrobePoints1([]);
+    setStrobePoints2([]);
+    setGraphHistory([
+      {
+        time: 0,
+        pos1: 0,
+        vel1: 0,
+        acc1: env.gravity,
+        pos2: 0,
+        vel2: 0,
+        acc2: env.gravity
+      }
+    ]);
     setStatus('idle');
-    lastTimeRef.current = null;
-    lastTrailTimeRef.current = 0;
-    finishedStates.current = { noAir: false, withAir: false };
-  }, []);
+  }, [env.gravity, obj1.mass, obj2.mass]);
 
-  const handleLocationChange = (newLocation: Location) => {
-    if (status !== 'idle') return;
-    setLocation(newLocation);
-    setIsComparisonMode(false); 
-    if (newLocation === 'earth') {
-      setParams(prev => ({ ...prev, gravity: 10, airDensity: 0 }));
-    } else { // moon
-      setParams(prev => ({ ...prev, gravity: 1.5, airDensity: 0 }));
-    }
-    resetSimulation();
-  };
-  
-  const handleToggleComparisonMode = () => {
-    if (status !== 'idle' || location === 'moon') return;
-    const newMode = !isComparisonMode;
-    setIsComparisonMode(newMode);
-    setParams(prev => ({
+  // Handle environment or object param change reset
+  useEffect(() => {
+    handleReset();
+  }, [handleReset, env.height, env.gravity, env.airDensity, obj1.mass, obj1.radius, obj2.mass, obj2.radius]);
+
+  // Toggle quick vacuum mode
+  const handleToggleVacuum = () => {
+    const nextMode: AtmosphereMode = env.atmosphereMode === 'vacuum' ? 'earth-sea-level' : 'vacuum';
+    const nextDensity = ATMOSPHERE_PRESETS[nextMode].density;
+    setEnv(prev => ({
       ...prev,
-      airDensity: newMode ? 1.225 : 0,
+      atmosphereMode: nextMode,
+      airDensity: nextDensity
     }));
-    resetSimulation();
   };
 
-  const runSimulation = useCallback((timestamp: number) => {
-    if (lastTimeRef.current === null) {
-      lastTimeRef.current = timestamp;
-      animationFrameId.current = requestAnimationFrame(runSimulation);
+  // Load Guided Challenge
+  const handleSelectChallenge = (challengeId: string) => {
+    setSelectedChallengeId(challengeId);
+    if (challengeId === 'custom') return;
+
+    const challenge = GUIDED_CHALLENGES.find(c => c.id === challengeId);
+    if (challenge) {
+      const p1 = OBJECT_PRESETS.find(p => p.id === challenge.obj1PresetId);
+      const p2 = OBJECT_PRESETS.find(p => p.id === challenge.obj2PresetId);
+      if (p1) setObj1({ ...p1, color: '#f97316', accentBg: 'rgba(249, 115, 22, 0.15)' });
+      if (p2) setObj2({ ...p2, color: '#38bdf8', accentBg: 'rgba(56, 189, 248, 0.15)' });
+
+      setEnv(prev => ({
+        ...prev,
+        height: challenge.height,
+        atmosphereMode: challenge.atmosphereMode,
+        airDensity: ATMOSPHERE_PRESETS[challenge.atmosphereMode].density,
+        planet: challenge.planet,
+        gravity: PLANET_PRESETS[challenge.planet].gravity
+      }));
+    }
+  };
+
+  // Main Physics loop
+  const stepSimulation = useCallback((timestamp: number) => {
+    if (lastTimestampRef.current === null) {
+      lastTimestampRef.current = timestamp;
+      animationFrameRef.current = requestAnimationFrame(stepSimulation);
       return;
     }
 
-    const deltaTime = (timestamp - lastTimeRef.current) / 1000; // in seconds
-    lastTimeRef.current = timestamp;
+    const rawDelta = (timestamp - lastTimestampRef.current) / 1000;
+    lastTimestampRef.current = timestamp;
 
-    const calculateNextState = (prevState: SimulationState, useAirResistance: boolean): SimulationState => {
-      // Physics Constants
-      const DRAG_COEFFICIENT = 0.47; // for a sphere
-      const area = Math.PI * params.radius * params.radius;
-      const effectiveAirDensity = useAirResistance ? params.airDensity : 0;
+    // Apply playback speed and clamp max delta to prevent tunneling during lag
+    const deltaTime = Math.min(0.05, rawDelta) * env.playbackSpeed;
 
-      // Forces
-      const forceGravity = params.mass * params.gravity;
-      const forceDrag = 0.5 * effectiveAirDensity * prevState.velocity * prevState.velocity * DRAG_COEFFICIENT * area;
-      
-      const netForce = forceGravity - forceDrag;
-      const acceleration = netForce / params.mass;
-      
-      const newVelocity = prevState.velocity + acceleration * deltaTime;
-      const newPosition = prevState.position + prevState.velocity * deltaTime + 0.5 * acceleration * deltaTime * deltaTime;
-      const newTime = prevState.time + deltaTime;
+    let s1 = state1;
+    let s2 = state2;
 
-      return { time: newTime, position: newPosition, velocity: newVelocity };
-    };
+    setState1(prev1 => {
+      s1 = stepObjectPhysics(prev1, obj1, env, deltaTime);
+      return s1;
+    });
 
-    // Use the time from the object that is still running to drive trail generation.
-    // This ensures time keeps advancing even if one object has finished.
-    const currentTimeForTrailCheck = isComparisonMode && finishedStates.current.noAir 
-      ? simStateWithAir.time 
-      : simStateNoAir.time;
-    const newTimeForTrailCheck = currentTimeForTrailCheck + deltaTime;
-    
-    // Create trails if needed
-    const TRAIL_INTERVAL = 0.5;
-    while (newTimeForTrailCheck >= lastTrailTimeRef.current + TRAIL_INTERVAL) {
-      const trailTime = lastTrailTimeRef.current + TRAIL_INTERVAL;
-      lastTrailTimeRef.current = trailTime;
+    setState2(prev2 => {
+      s2 = stepObjectPhysics(prev2, obj2, env, deltaTime);
+      return s2;
+    });
 
-      const interpolateState = (startState: SimulationState, useAirResistance: boolean) => {
-          const effectiveAirDensity = useAirResistance ? params.airDensity : 0;
-          const DRAG_COEFFICIENT = 0.47;
-          const area = Math.PI * params.radius * params.radius;
-          const forceGravity = params.mass * params.gravity;
-          const forceDrag = 0.5 * effectiveAirDensity * startState.velocity * startState.velocity * DRAG_COEFFICIENT * area;
-          const acceleration = (forceGravity - forceDrag) / params.mass;
-          const timeSinceLastState = trailTime - startState.time;
-          const interpolatedVelocity = startState.velocity + acceleration * timeSinceLastState;
-          const interpolatedPosition = startState.position + (startState.velocity * timeSinceLastState) + (0.5 * acceleration * timeSinceLastState * timeSinceLastState);
-          return { time: trailTime, position: interpolatedPosition, velocity: interpolatedVelocity };
-      };
+    const currentTime = Math.max(s1.time, s2.time);
 
-      if (!finishedStates.current.noAir) {
-          const interpolated = interpolateState(simStateNoAir, false);
-          if (interpolated.position <= params.height) {
-              setTrailPositionsNoAir(prev => [...prev, interpolated]);
-          }
+    // Record graph data point at 30Hz
+    setGraphHistory(prev => [
+      ...prev,
+      {
+        time: currentTime,
+        pos1: s1.position,
+        vel1: s1.velocity,
+        acc1: s1.acceleration,
+        pos2: s2.position,
+        vel2: s2.velocity,
+        acc2: s2.acceleration
       }
-      if (isComparisonMode && !finishedStates.current.withAir) {
-          const interpolated = interpolateState(simStateWithAir, true);
-          if (interpolated.position <= params.height) {
-              setTrailPositionsWithAir(prev => [...prev, interpolated]);
-          }
+    ]);
+
+    // Record strobe marker points every 0.3 seconds
+    if (currentTime - lastStrobeTimeRef.current >= 0.3) {
+      lastStrobeTimeRef.current = currentTime;
+      if (!s1.isFinished) {
+        setStrobePoints1(prev => [...prev, { time: s1.time, position: s1.position, velocity: s1.velocity, acceleration: s1.acceleration }]);
+      }
+      if (!s2.isFinished) {
+        setStrobePoints2(prev => [...prev, { time: s2.time, position: s2.position, velocity: s2.velocity, acceleration: s2.acceleration }]);
       }
     }
 
-    // Update main states
-    if (!finishedStates.current.noAir) {
-      setSimStateNoAir(prevState => {
-        const nextState = calculateNextState(prevState, false);
-        if (nextState.position >= params.height) {
-          finishedStates.current.noAir = true;
-          return { ...prevState, position: params.height, time: nextState.time };
-        }
-        return nextState;
-      });
-    }
-
-    if (isComparisonMode && !finishedStates.current.withAir) {
-      setSimStateWithAir(prevState => {
-        const nextState = calculateNextState(prevState, true);
-        if (nextState.position >= params.height) {
-          finishedStates.current.withAir = true;
-          return { ...prevState, position: params.height, time: nextState.time };
-        }
-        return nextState;
-      });
-    }
-    
-    // Check if simulation should end
-    const bothFinished = finishedStates.current.noAir && (isComparisonMode ? finishedStates.current.withAir : true);
-    if (bothFinished) {
+    // Check if both objects reached ground
+    if (s1.isFinished && s2.isFinished) {
       setStatus('finished');
-    } else {
-      animationFrameId.current = requestAnimationFrame(runSimulation);
+      animationFrameRef.current = null;
+      return;
     }
 
-  }, [params, isComparisonMode, simStateNoAir, simStateWithAir]);
+    animationFrameRef.current = requestAnimationFrame(stepSimulation);
+  }, [env, obj1, obj2, state1, state2]);
 
+  // Start Playback
+  const handleStart = () => {
+    if (status === 'finished') {
+      handleReset();
+    }
+    setStatus('running');
+    lastTimestampRef.current = null;
+  };
+
+  // Pause Playback
+  const handlePause = () => {
+    setStatus('paused');
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+  };
+
+  // Effect to manage animation frame
   useEffect(() => {
     if (status === 'running') {
-      lastTimeRef.current = null;
-      animationFrameId.current = requestAnimationFrame(runSimulation);
-    } else if (status === 'paused' || status === 'finished' || status === 'idle') {
-      if (animationFrameId.current) {
-        cancelAnimationFrame(animationFrameId.current);
-      }
+      animationFrameRef.current = requestAnimationFrame(stepSimulation);
     }
-    
     return () => {
-      if (animationFrameId.current) {
-        cancelAnimationFrame(animationFrameId.current);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [status, runSimulation]);
+  }, [status, stepSimulation]);
 
-  const handleStart = () => {
-    if (status === 'idle') {
-      setTrailPositionsNoAir([INITIAL_STATE]);
-      if (isComparisonMode) {
-        setTrailPositionsWithAir([INITIAL_STATE]);
-      }
-      lastTrailTimeRef.current = 0;
-      finishedStates.current = { noAir: false, withAir: false };
-    }
-    if (status === 'idle' || status === 'paused') {
-      setStatus('running');
-    }
+  // Save Trial
+  const handleSaveTrial = () => {
+    if (!state1.isFinished || !state2.isFinished) return;
+    const newTrial: ExperimentTrial = {
+      id: `trial-${Date.now().toString().slice(-4)}`,
+      timestamp: new Date().toLocaleTimeString(),
+      height: env.height,
+      gravity: env.gravity,
+      airDensity: env.airDensity,
+      obj1Name: obj1.name,
+      obj1Mass: obj1.mass,
+      obj1Radius: obj1.radius,
+      obj1ImpactTime: state1.impactTime || state1.time,
+      obj1ImpactVel: state1.impactVelocity || state1.velocity,
+      obj1TerminalVel: 0,
+      obj2Name: obj2.name,
+      obj2Mass: obj2.mass,
+      obj2Radius: obj2.radius,
+      obj2ImpactTime: state2.impactTime || state2.time,
+      obj2ImpactVel: state2.impactVelocity || state2.velocity,
+      obj2TerminalVel: 0,
+      timeDelta: Math.abs((state1.impactTime || state1.time) - (state2.impactTime || state2.time))
+    };
+    setTrials(prev => [newTrial, ...prev]);
   };
 
-  const handlePause = () => {
-    if (status === 'running') {
-      setStatus('paused');
-    }
-  };
+  const handleClearTrials = () => setTrials([]);
+
+  const isControlsDisabled = status === 'running';
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-200 font-sans p-4 sm:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto">
-        <header className="text-center mb-6">
-          <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl md:text-5xl">
-            Free Fall <span className="text-cyan-400">Virtual Lab</span>
-          </h1>
-          <p className="mt-2 max-w-md mx-auto text-base text-slate-400 sm:text-lg md:mt-4 md:text-xl md:max-w-3xl">
-            Experiment with the physics of falling objects. Adjust the parameters and see what happens!
-          </p>
-        </header>
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-cyan-500 selection:text-slate-950">
+      
+      {/* Header with NGSS standards, challenge selector, and controls */}
+      <Header
+        atmosphereMode={env.atmosphereMode}
+        onToggleVacuum={handleToggleVacuum}
+        status={status}
+        onStart={handleStart}
+        onPause={handlePause}
+        onReset={handleReset}
+        selectedChallengeId={selectedChallengeId}
+        onSelectChallenge={handleSelectChallenge}
+        showVectors={showVectors}
+        onToggleVectors={() => setShowVectors(!showVectors)}
+        showStrobe={showStrobe}
+        onToggleStrobe={() => setShowStrobe(!showStrobe)}
+      />
 
-        <main className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 flex flex-col lg:flex-row gap-8">
-            <div className="flex-grow aspect-w-1 aspect-h-2 md:aspect-h-1 lg:aspect-h-2 xl:h-[65vh] lg:order-2">
-              <Simulation 
-                position={simStateNoAir.position} 
-                trailPositions={trailPositionsNoAir}
-                params={params} 
-                location={location} 
-                status={status}
-                isComparisonMode={isComparisonMode}
-                position2={simStateWithAir.position}
-                trailPositions2={trailPositionsWithAir}
-              />
-            </div>
-            <div className="lg:order-1 lg:w-48 flex flex-col gap-4 justify-start">
-                {isComparisonMode ? (
-                  <>
-                    <div>
-                      <h3 className="text-center text-sm font-semibold text-slate-400 mb-2">No Air Resistance</h3>
-                      <DataDisplay state={simStateNoAir} />
-                    </div>
-                     <div>
-                      <h3 className="text-center text-sm font-semibold text-slate-400 mb-2">With Air Resistance</h3>
-                      <DataDisplay state={simStateWithAir} />
-                    </div>
-                  </>
-                ) : (
-                  <div>
-                    <h3 className="text-center text-sm font-semibold text-slate-400 mb-2">
-                      {location === 'earth' ? 'No Air Resistance' : 'In Vacuum'}
-                    </h3>
-                    <DataDisplay state={simStateNoAir} />
-                  </div>
-                )}
+      {/* Main Lab Workspace */}
+      <main className="max-w-7xl mx-auto w-full p-4 sm:p-6 space-y-6 flex-1">
+        
+        {/* Top Split Layout: Canvas (Center-Left) + Object Cards (Right) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          {/* Drop Simulation Canvas (7 Cols) */}
+          <div className="lg:col-span-7 space-y-3">
+            <SimulationCanvas
+              obj1={obj1}
+              obj2={obj2}
+              env={env}
+              state1={state1}
+              state2={state2}
+              strobePoints1={strobePoints1}
+              strobePoints2={strobePoints2}
+              showVectors={showVectors}
+              showStrobe={showStrobe}
+            />
+
+            {/* Quick Helper / Vector Legend */}
+            <div className="flex items-center justify-between text-[11px] text-slate-400 px-2 font-mono bg-slate-900/50 p-2 rounded-xl border border-white/5">
+              <div className="flex items-center gap-3">
+                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-orange-400 rounded-full" /> Gravity F<sub>g</sub> (Down)</span>
+                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-rose-400 rounded-full" /> Drag F<sub>drag</sub> (Up)</span>
+              </div>
+              <span className="text-slate-500 italic">Net Force: F<sub>net</sub> = F<sub>g</sub> - F<sub>drag</sub></span>
             </div>
           </div>
-          <div className="lg:col-span-1 flex flex-col gap-4">
-              <Controls 
-                params={params} 
-                setParams={setParams}
-                status={status}
-                onStart={handleStart}
-                onPause={handlePause}
-                onReset={resetSimulation}
-                location={location}
-                onLocationChange={handleLocationChange}
-                isComparisonMode={isComparisonMode}
-                onToggleComparisonMode={handleToggleComparisonMode}
-              />
-              <ResultsSummary 
-                params={params} 
-                state={simStateNoAir}
-                stateWithAir={isComparisonMode ? simStateWithAir : null}
-                status={status} 
-                location={location} 
-              />
+
+          {/* Object 1 & Object 2 Independent Configuration Cards (5 Cols) */}
+          <div className="lg:col-span-5 flex flex-col gap-4">
+            <ObjectControlCard
+              label="Object 1"
+              objectConfig={obj1}
+              onChange={setObj1}
+              envConfig={env}
+              disabled={isControlsDisabled}
+              themeColor="orange"
+            />
+
+            <ObjectControlCard
+              label="Object 2"
+              objectConfig={obj2}
+              onChange={setObj2}
+              envConfig={env}
+              disabled={isControlsDisabled}
+              themeColor="cyan"
+            />
           </div>
-        </main>
-      </div>
+
+        </div>
+
+        {/* Environment, Gravity, and Medium Controls Bar */}
+        <EnvironmentControls
+          envConfig={env}
+          onChange={setEnv}
+          disabled={isControlsDisabled}
+        />
+
+        {/* Real-time Multi-Graph Studio */}
+        <GraphStudio
+          history={graphHistory}
+          obj1={obj1}
+          obj2={obj2}
+          env={env}
+          maxTime={Math.max(state1.time, state2.time, 2)}
+        />
+
+        {/* Impact Results Comparison & Trial Logger */}
+        <ResultsComparison
+          obj1={obj1}
+          obj2={obj2}
+          env={env}
+          state1={state1}
+          state2={state2}
+          trials={trials}
+          onSaveTrial={handleSaveTrial}
+          onClearTrials={handleClearTrials}
+        />
+
+        {/* Interactive Misconception Deep-Dive Guide */}
+        <MisconceptionGuide />
+
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t border-white/10 p-4 text-center text-xs text-slate-500 bg-slate-950/80">
+        <p>Mr. Mudry’s Physics Virtual Lab Suite • Dual-Object Free Fall &amp; Terminal Velocity Simulator • NGSS HS-PS2-1 &amp; HS-PS2-2</p>
+      </footer>
+
     </div>
   );
 };
