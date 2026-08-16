@@ -1,0 +1,436 @@
+/**
+ * Terminal Velocity: Skydive Academy
+ * Modern Aviation & Retro-Arcade CSS Styles
+ */
+
+:root {
+  --bg-dark: #070b14;
+  --panel-bg: rgba(15, 23, 42, 0.85);
+  --panel-border: rgba(56, 189, 248, 0.35);
+  --accent-cyan: #38bdf8;
+  --accent-gold: #fbbf24;
+  --accent-purple: #a855f7;
+  --accent-emerald: #10b981;
+  --accent-rose: #f43f5e;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --glow-cyan: 0 0 15px rgba(56, 189, 248, 0.4);
+  --glow-gold: 0 0 15px rgba(251, 191, 36, 0.4);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* Header & Nav */
+.game-header {
+  background: rgba(10, 15, 29, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--panel-border);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 10;
+}
+
+.logo-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-badge {
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-weight: 900;
+  font-size: 16px;
+  box-shadow: var(--glow-cyan);
+}
+
+.game-title {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  background: linear-gradient(90deg, #38bdf8, #818cf8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.icon-btn {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  color: var(--text-main);
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.icon-btn:hover {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: var(--accent-cyan);
+  box-shadow: var(--glow-cyan);
+}
+
+/* Main Container */
+.main-layout {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  max-width: 1280px;
+  margin: 0 auto;
+  width: 100%;
+  gap: 16px;
+}
+
+/* Screen Shell */
+.game-viewport-shell {
+  position: relative;
+  width: 100%;
+  max-width: 1000px;
+  aspect-ratio: 16 / 10;
+  background: #000;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 2px solid var(--panel-border);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8), var(--glow-cyan);
+}
+
+#gameCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* CRT Scanline Filter Toggle */
+.crt-overlay {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+  background-size: 100% 3px, 3px 100%;
+  opacity: 0.65;
+}
+
+/* On-Screen Mobile Controls */
+.mobile-controls {
+  display: none;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  padding: 16px;
+  justify-content: space-between;
+  align-items: flex-end;
+  z-index: 5;
+}
+
+@media (max-width: 900px) {
+  .mobile-controls {
+    display: flex;
+  }
+}
+
+.touch-dpad, .touch-actions {
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.touch-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.touch-btn {
+  background: rgba(15, 23, 42, 0.85);
+  border: 2px solid var(--accent-cyan);
+  color: #fff;
+  font-weight: 800;
+  font-size: 16px;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  backdrop-filter: blur(8px);
+  touch-action: manipulation;
+}
+
+.touch-btn:active {
+  background: var(--accent-cyan);
+  color: #000;
+  transform: scale(0.92);
+}
+
+.touch-btn.deploy-btn {
+  width: 76px;
+  height: 76px;
+  border-color: var(--accent-gold);
+  background: rgba(251, 191, 36, 0.2);
+  font-size: 13px;
+  text-align: center;
+}
+
+.touch-btn.deploy-btn:active {
+  background: var(--accent-gold);
+  color: #000;
+}
+
+/* In-Game Modal Overlay */
+.game-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(7, 11, 20, 0.88);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  transition: opacity 0.2s ease;
+}
+
+.game-modal-backdrop.hidden {
+  display: none;
+}
+
+.modal-content {
+  background: rgba(15, 23, 42, 0.95);
+  border: 2px solid var(--accent-cyan);
+  border-radius: 16px;
+  padding: 28px;
+  max-width: 480px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), var(--glow-cyan);
+}
+
+.modal-content h2 {
+  font-size: 24px;
+  margin-bottom: 16px;
+}
+
+.title-success {
+  color: var(--accent-emerald);
+  text-shadow: 0 0 12px rgba(16, 185, 129, 0.6);
+}
+
+.title-danger {
+  color: var(--accent-rose);
+  text-shadow: 0 0 12px rgba(244, 63, 94, 0.6);
+}
+
+.result-card {
+  background: rgba(2, 6, 23, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.rating-badge {
+  font-weight: 800;
+  font-size: 16px;
+  color: var(--accent-gold);
+  margin-bottom: 12px;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  font-size: 13px;
+  text-align: left;
+}
+
+.stat-grid span {
+  color: var(--text-muted);
+}
+
+.stat-grid strong {
+  color: var(--text-main);
+  float: right;
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+  border: 1px solid var(--accent-cyan);
+  color: #fff;
+  font-weight: 800;
+  font-size: 16px;
+  padding: 12px 28px;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: var(--glow-cyan);
+  transition: all 0.2s ease;
+}
+
+.primary-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.6);
+}
+
+/* Mission Selector & Dashboard Panels */
+.dashboard-grid {
+  width: 100%;
+  max-width: 1000px;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 800px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.panel-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.panel-card h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent-cyan);
+}
+
+.mission-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mission-card {
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 10px;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mission-card:hover, .mission-card.active {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: var(--accent-cyan);
+  box-shadow: var(--glow-cyan);
+}
+
+.mission-info h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.mission-info p {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.mission-badge {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(2, 132, 199, 0.3);
+  color: var(--accent-cyan);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+/* Physics Controls / Sandbox Sliders */
+.slider-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.slider-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-muted);
+}
+
+.slider-labels strong {
+  color: var(--accent-cyan);
+}
+
+input[type=range] {
+  width: 100%;
+  accent-color: var(--accent-cyan);
+  cursor: pointer;
+}
+
+/* Instructions & Standards */
+.instructions-box {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.instructions-box kbd {
+  background: #1e293b;
+  border: 1px solid #475569;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-family: monospace;
+  color: #f8fafc;
+  font-size: 12px;
+}
+
+.standards-box {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(148, 163, 184, 0.15);
+}
