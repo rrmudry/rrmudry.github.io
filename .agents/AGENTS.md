@@ -12,3 +12,12 @@ Whenever creating, modifying, or updating unit dashboards, lesson plans, daily a
 
 3. **Automatic Script Execution**:
    - Because `assets/partials.js` automatically loads `assets/ngss-helper.js` on every page, calling `NGSSHelper.autoInit()` scans the DOM and converts standard tags into interactive, click-to-open popover modals containing full 3D components (SEPs, DCIs, CCCs) and clarification boundaries.
+
+## 🚫 No LaTeX Math Notation (Strict Policy)
+Never use LaTeX syntax (e.g. `$v = x/t$`, `\Delta`, `\vec{v}`, `\frac{}{}`) in HTML, lesson descriptions, dashboard overviews, or UI labels.
+- **Why**: The site does not use MathJax/KaTeX, and combining diacritics (`⃗`) render as broken missing-glyph boxes.
+- **Required**: Use standard plain text, Unicode symbols, and HTML tags:
+  - Delta: `Δ` (e.g. `Δx / Δt`, `Δy / Δx`)
+  - Subscripts/Superscripts: `x₀`, `v₀`, `m/s²`, `½`, or HTML `<sub>`/`<sup>`
+  - Fractions/Formulas: `v = x / t`, `x(t) = x₀ + vt + ½at²`
+  - Vectors: Bold variables (e.g. `<strong>v</strong> = Δ<strong>x</strong> / Δt`) instead of combining arrow characters (`⃗`)

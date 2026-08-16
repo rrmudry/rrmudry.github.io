@@ -12,6 +12,7 @@ This file contains the core technical and design rules for maintaining and devel
 
 ## 🛠️ Technical Constraints
 - **Stack**: Vanilla HTML, Vanilla JavaScript, Vanilla CSS. Use TailwindCSS only if explicitly requested.
+- **Math & Physics Formatting**: NEVER use LaTeX notation (e.g. `$v = x/t$`, `\Delta`, `\vec{v}`). Always use clean Unicode and HTML (`Δ`, `x₀`, `m/s²`, bold vectors `<strong>v</strong>`).
 - **Time Handling**: Always use the **local system time** for date comparisons (lessons, countdowns). Never use UTC or hardcoded time zones unless requested.
 - **Responsive Design**: All pages MUST be mobile-friendly.
 
