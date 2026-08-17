@@ -21,3 +21,9 @@ Never use LaTeX syntax (e.g. `$v = x/t$`, `\Delta`, `\vec{v}`, `\frac{}{}`) in H
   - Subscripts/Superscripts: `x₀`, `v₀`, `m/s²`, `½`, or HTML `<sub>`/`<sup>`
   - Fractions/Formulas: `v = x / t`, `x(t) = x₀ + vt + ½at²`
   - Vectors: Bold variables (e.g. `<strong>v</strong> = Δ<strong>x</strong> / Δt`) instead of combining arrow characters (`⃗`)
+
+## 🎮 2D Character & Sprite Generation
+Whenever building or modifying games, physics character simulations, or interactive student webapps requiring animated 2D character sprites (e.g., standing/idle, walking, running, jumping, crawling, crouching):
+- Use the **Sprite Gen Studio** tool available at `https://rrmudry.github.io/Sprite_Gen/`.
+- It supports custom poses, multi-action animation loops (Idle, Walk, Run, Jump, Crawl, Crouch), modular outfits/weapons/palettes, and generates exportable PNG spritesheets, master atlases, GIFs, and Phaser/Godot/Unity/CSS coordinate data.
+

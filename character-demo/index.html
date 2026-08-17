@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Pixel Hero - Interactive Character Controller</title>
+  <meta name="description" content="Smooth responsive 2D pixel-art character controller with physics tuning, animation studio, and multi-modal controls.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Header Navigation -->
+  <header class="app-header">
+    <div class="brand-section">
+      <div class="brand-icon">⚔️</div>
+      <div>
+        <h1 class="brand-title" style="font-size: 1.15rem; margin: 0;">Pixel Hero</h1>
+        <span class="brand-badge">Controller Studio</span>
+      </div>
+    </div>
+
+    <!-- Mode Switcher -->
+    <div class="mode-switch-group">
+      <button id="modePlaygroundBtn" class="mode-btn active" onclick="switchMode('playground')">
+        🎮 Playground
+      </button>
+      <button id="modeStudioBtn" class="mode-btn" onclick="switchMode('studio')">
+        🔬 Animation Studio
+      </button>
+    </div>
+
+    <!-- Header Actions -->
+    <div class="header-actions">
+      <select id="themeSelect" class="theme-select" onchange="changeTheme(this.value)">
+        <option value="forest">🌲 Emerald Forest</option>
+        <option value="sunset">🌅 Sunset Ridge</option>
+        <option value="synthwave">🌆 Synthwave Cyber</option>
+        <option value="studio">📐 Minimal Studio</option>
+      </select>
+
+      <button id="soundToggleBtn" class="icon-btn" title="Toggle Sound" onclick="toggleSound()">
+        🔊
+      </button>
+      <button id="resetPlayerBtn" class="icon-btn" title="Reset Position (R)" onclick="resetPlayer()">
+        🔄
+      </button>
+      <button id="sidebarToggleBtn" class="icon-btn active" title="Toggle Tuning Panel" onclick="toggleSidebar()">
+        ⚙️
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Viewport -->
+  <main class="main-viewport">
+    
+    <!-- Canvas Interactive Container -->
+    <div class="canvas-wrapper">
+      <canvas id="gameCanvas"></canvas>
+
+      <!-- Floating HUD: Gems Collected -->
+      <div class="floating-hud">
+        <div class="hud-pill">
+          <span>💎 Gems:</span>
+          <span id="scoreVal" class="pill-val">0</span>
+        </div>
+      </div>
+
+      <!-- In-Game Key Hints Bar -->
+      <div id="controlsHintBar" class="controls-hint-bar">
+        <div class="key-hint">
+          <span id="keyA" class="kbd">A</span>
+          <span id="keyD" class="kbd">D</span>
+          <span>Move</span>
+        </div>
+        <div class="key-hint">
+          <span id="keySpace" class="kbd">Space</span>
+          <span>Jump</span>
+        </div>
+        <div class="key-hint">
+          <span id="keyShift" class="kbd">Shift</span>
+          <span>Sprint</span>
+        </div>
+        <div class="key-hint">
+          <span id="keyS" class="kbd">S</span>
+          <span>Crouch / Drop</span>
+        </div>
+        <div class="key-hint">
+          <span id="keyR" class="kbd">R</span>
+          <span>Reset</span>
+        </div>
+      </div>
+
+      <!-- On-Screen Touch / Mobile D-Pad Controls -->
+      <div id="touchControls" class="touch-controls">
+        <div class="touch-dpad">
+          <button id="touchLeft" class="touch-btn" aria-label="Left">◀</button>
+          <button id="touchRight" class="touch-btn" aria-label="Right">▶</button>
+        </div>
+        <div class="touch-actions">
+          <button id="touchDown" class="touch-btn" aria-label="Crouch / Drop">▼</button>
+          <button id="touchSprint" class="touch-btn sprint-btn" aria-label="Sprint">⚡</button>
+          <button id="touchJump" class="touch-btn jump-btn" aria-label="Jump">▲</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar Tuning & Studio Panel -->
+    <aside id="sidebarPanel" class="sidebar-panel">
+      <div class="sidebar-header">
+        <h3><span id="sidebarTitleIcon">⚙️</span> <span id="sidebarTitleText">Physics & Controls</span></h3>
+        <button class="icon-btn" onclick="toggleSidebar()" style="width: 28px; height: 28px; font-size: 12px;">✕</button>
+      </div>
+
+      <!-- Tabs Navigation -->
+      <nav class="tab-nav">
+        <button id="tabPhysicsBtn" class="tab-btn active" onclick="switchTab('physics')">Physics</button>
+        <button id="tabAnimBtn" class="tab-btn" onclick="switchTab('anim')">Animations</button>
+        <button id="tabDebugBtn" class="tab-btn" onclick="switchTab('debug')">Visuals</button>
+      </nav>
+
+      <!-- Tab 1: Physics Tuning -->
+      <div id="tabPhysics" class="sidebar-content">
+        <div class="control-group">
+          <div class="group-title">Movement Dynamics</div>
+          
+          <div class="slider-row">
+            <div class="slider-header">
+              <span>Walk Speed</span>
+              <span id="valWalkSpeed" class="slider-val">210 px/s</span>
+            </div>
+            <input type="range" id="paramWalkSpeed" min="100" max="400" step="10" value="210">
+          </div>
+
+          <div class="slider-row">
+            <div class="slider-header">
+              <span>Sprint Multiplier</span>
+              <span id="valRunMultiplier" class="slider-val">1.85x</span>
+            </div>
+            <input type="range" id="paramRunMultiplier" min="1.2" max="3.0" step="0.05" value="1.85">
+          </div>
+
+          <div class="slider-row">
+            <div class="slider-header">
+              <span>Acceleration</span>
+              <span id="valAcceleration" class="slider-val">1400</span>
+            </div>
+            <input type="range" id="paramAcceleration" min="400" max="3000" step="100" value="1400">
+          </div>
+        </div>
+
+        <div class="control-group">
+          <div class="group-title">Vertical / Jump Physics</div>
+          
+          <div class="slider-row">
+            <div class="slider-header">
+              <span>Jump Strength</span>
+              <span id="valJumpSpeed" class="slider-val">520</span>
+            </div>
+            <input type="range" id="paramJumpSpeed" min="300" max="800" step="20" value="520">
+          </div>
+
+          <div class="slider-row">
+            <div class="slider-header">
+              <span>Gravity</span>
+              <span id="valGravity" class="slider-val">1250</span>
+            </div>
+            <input type="range" id="paramGravity" min="400" max="2500" step="50" value="1250">
+          </div>
+
+          <div class="toggle-row">
+            <span>Double Jump</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="paramDoubleJump" checked>
+              <span class="slider-round"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <div class="group-title">Audio Volume</div>
+          <div class="slider-row">
+            <div class="slider-header">
+              <span>Master Volume</span>
+              <span id="valVolume" class="slider-val">25%</span>
+            </div>
+            <input type="range" id="paramVolume" min="0" max="1" step="0.05" value="0.25">
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Animation Studio & Filmstrip -->
+      <div id="tabAnim" class="sidebar-content" style="display: none;">
+        <div class="control-group">
+          <div class="group-title">Select Animation Track</div>
+          <select id="studioAnimSelect" class="theme-select" style="width: 100%;" onchange="onStudioAnimChange(this.value)">
+            <option value="idle">Idle Breath Cycle (6 frames)</option>
+            <option value="walk_a">Walk Cycle A (6 frames)</option>
+            <option value="walk_b">Walk Cycle B (6 frames)</option>
+            <option value="walk_12" selected>Fluid 12-Frame Walk (Row 0 + 1)</option>
+            <option value="run">Sprint / Run Cycle (6 frames)</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <div class="group-title">Frame Filmstrip</div>
+          <div id="filmstripContainer" class="filmstrip-container">
+            <!-- Populated via JavaScript -->
+          </div>
+        </div>
+
+        <div class="control-group">
+          <div class="group-title">Playback Controls</div>
+          <div class="slider-row">
+            <div class="slider-header">
+              <span>Animation FPS</span>
+              <span id="valStudioFPS" class="slider-val">8 FPS</span>
+            </div>
+            <input type="range" id="studioFPS" min="1" max="30" step="1" value="8" oninput="onStudioFPSChange(this.value)">
+          </div>
+
+          <div class="studio-playback-bar">
+            <button class="action-btn" onclick="stepStudioFrame(-1)" title="Previous Frame">⏮ Prev</button>
+            <button id="studioPlayPauseBtn" class="action-btn primary" onclick="toggleStudioPlay()">⏸ Pause</button>
+            <button class="action-btn" onclick="stepStudioFrame(1)" title="Next Frame">Next ⏭</button>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <div class="group-title">Studio Zoom</div>
+          <div class="slider-row">
+            <div class="slider-header">
+              <span>Magnification</span>
+              <span id="valStudioZoom" class="slider-val">2.0x</span>
+            </div>
+            <input type="range" id="studioZoom" min="1.0" max="4.0" step="0.5" value="2.0" oninput="onStudioZoomChange(this.value)">
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Visual Overlays & Display -->
+      <div id="tabDebug" class="sidebar-content" style="display: none;">
+        <div class="control-group">
+          <div class="group-title">Debug Overlays</div>
+          
+          <div class="toggle-row">
+            <span>Show Collision Hitbox</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggleHitbox" onchange="controller.params.showHitbox = this.checked">
+              <span class="slider-round"></span>
+            </label>
+          </div>
+
+          <div class="toggle-row">
+            <span>Show Origin / Feet Anchor</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggleOrigin" onchange="controller.params.showOrigin = this.checked">
+              <span class="slider-round"></span>
+            </label>
+          </div>
+
+          <div class="toggle-row">
+            <span>Show Velocity Vector</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggleVelocity" onchange="controller.params.showVelocity = this.checked">
+              <span class="slider-round"></span>
+            </label>
+          </div>
+
+          <div class="toggle-row">
+            <span>Particles & Dust FX</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggleParticles" checked onchange="controller.params.particlesEnabled = this.checked">
+              <span class="slider-round"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <div class="group-title">World Camera Scale</div>
+          <div class="slider-row">
+            <div class="slider-header">
+              <span>Playground Zoom</span>
+              <span id="valWorldScale" class="slider-val">1.0x</span>
+            </div>
+            <input type="range" id="paramWorldScale" min="0.75" max="2.0" step="0.25" value="1.0" oninput="onWorldScaleChange(this.value)">
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Scripts -->
+  <script src="audio.js"></script>
+  <script src="particles.js"></script>
+  <script src="controller.js"></script>
+
+  <script>
+    // Initialize Controller
+    const canvas = document.getElementById('gameCanvas');
+    const controller = new CharacterController(canvas);
+    controller.start();
+
+    // Global UI update callbacks
+    window.updateScoreUI = (score) => {
+      document.getElementById('scoreVal').innerText = score;
+    };
+
+    window.updateStudioFrameUI = (frameIdx) => {
+      const thumbs = document.querySelectorAll('.frame-thumb');
+      thumbs.forEach((t, i) => {
+        if (i === frameIdx) t.classList.add('active');
+        else t.classList.remove('active');
+      });
+    };
+
+    // Mode Switching
+    function switchMode(mode) {
+      controller.mode = mode;
+      document.getElementById('modePlaygroundBtn').classList.toggle('active', mode === 'playground');
+      document.getElementById('modeStudioBtn').classList.toggle('active', mode === 'studio');
+      document.getElementById('controlsHintBar').style.display = (mode === 'playground') ? 'flex' : 'none';
+      
+      if (mode === 'studio') {
+        switchTab('anim');
+      } else {
+        switchTab('physics');
+      }
+    }
+
+    // Tab Switching
+    function switchTab(tabId) {
+      document.getElementById('tabPhysicsBtn').classList.toggle('active', tabId === 'physics');
+      document.getElementById('tabAnimBtn').classList.toggle('active', tabId === 'anim');
+      document.getElementById('tabDebugBtn').classList.toggle('active', tabId === 'debug');
+
+      document.getElementById('tabPhysics').style.display = (tabId === 'physics') ? 'flex' : 'none';
+      document.getElementById('tabAnim').style.display = (tabId === 'anim') ? 'flex' : 'none';
+      document.getElementById('tabDebug').style.display = (tabId === 'debug') ? 'flex' : 'none';
+
+      if (tabId === 'anim') {
+        renderFilmstrip(controller.studio.selectedAnim);
+      }
+    }
+
+    // Sidebar Toggle
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebarPanel');
+      sidebar.classList.toggle('collapsed');
+      document.getElementById('sidebarToggleBtn').classList.toggle('active', !sidebar.classList.contains('collapsed'));
+      setTimeout(() => controller.resizeCanvas(), 320);
+    }
+
+    // Theme Change
+    function changeTheme(theme) {
+      controller.setTheme(theme);
+    }
+
+    // Sound Toggle
+    function toggleSound() {
+      const btn = document.getElementById('soundToggleBtn');
+      controller.sound.enabled = !controller.sound.enabled;
+      btn.innerText = controller.sound.enabled ? '🔊' : '🔇';
+      btn.classList.toggle('active', controller.sound.enabled);
+    }
+
+    // Reset Player
+    function resetPlayer() {
+      controller.resetPlayer();
+    }
+
+    // Studio Filmstrip
+    function renderFilmstrip(animKey) {
+      const container = document.getElementById('filmstripContainer');
+      container.innerHTML = '';
+      const animCfg = controller.animations[animKey] || controller.animations.idle;
+      const count = animCfg.count;
+
+      for (let i = 0; i < count; i++) {
+        const thumb = document.createElement('div');
+        thumb.className = `frame-thumb ${i === controller.studio.currentFrame ? 'active' : ''}`;
+        thumb.onclick = () => {
+          controller.studio.isPlaying = false;
+          controller.studio.currentFrame = i;
+          document.getElementById('studioPlayPauseBtn').innerText = '▶ Play';
+          updateStudioFrameUI(i);
+        };
+
+        // Get image from frames
+        let imgName = '';
+        if (animKey === 'walk_12') {
+          imgName = i < 6 ? `walk_a_${i}` : `walk_b_${i - 6}`;
+        } else {
+          imgName = `${animKey}_${i}`;
+        }
+
+        thumb.innerHTML = `
+          <img src="assets/normalized/${imgName}.png" alt="Frame ${i}">
+          <span>${i + 1}</span>
+        `;
+        container.appendChild(thumb);
+      }
+    }
+
+    function onStudioAnimChange(animKey) {
+      controller.studio.selectedAnim = animKey;
+      controller.studio.currentFrame = 0;
+      renderFilmstrip(animKey);
+    }
+
+    function onStudioFPSChange(val) {
+      controller.studio.fps = parseInt(val, 10);
+      document.getElementById('valStudioFPS').innerText = `${val} FPS`;
+    }
+
+    function toggleStudioPlay() {
+      controller.studio.isPlaying = !controller.studio.isPlaying;
+      document.getElementById('studioPlayPauseBtn').innerText = controller.studio.isPlaying ? '⏸ Pause' : '▶ Play';
+    }
+
+    function stepStudioFrame(dir) {
+      controller.studio.isPlaying = false;
+      document.getElementById('studioPlayPauseBtn').innerText = '▶ Play';
+      const animCfg = controller.animations[controller.studio.selectedAnim] || controller.animations.idle;
+      controller.studio.currentFrame = (controller.studio.currentFrame + dir + animCfg.count) % animCfg.count;
+      updateStudioFrameUI(controller.studio.currentFrame);
+    }
+
+    function onStudioZoomChange(val) {
+      controller.studio.zoom = parseFloat(val);
+      document.getElementById('valStudioZoom').innerText = `${parseFloat(val).toFixed(1)}x`;
+    }
+
+    function onWorldScaleChange(val) {
+      controller.params.scale = parseFloat(val);
+      document.getElementById('valWorldScale').innerText = `${parseFloat(val).toFixed(2)}x`;
+    }
+
+    // Connect Sliders to Physics Params
+    document.getElementById('paramWalkSpeed').addEventListener('input', (e) => {
+      controller.params.walkSpeed = parseInt(e.target.value, 10);
+      document.getElementById('valWalkSpeed').innerText = `${e.target.value} px/s`;
+    });
+
+    document.getElementById('paramRunMultiplier').addEventListener('input', (e) => {
+      controller.params.runMultiplier = parseFloat(e.target.value);
+      document.getElementById('valRunMultiplier').innerText = `${parseFloat(e.target.value).toFixed(2)}x`;
+    });
+
+    document.getElementById('paramAcceleration').addEventListener('input', (e) => {
+      controller.params.acceleration = parseInt(e.target.value, 10);
+      document.getElementById('valAcceleration').innerText = `${e.target.value}`;
+    });
+
+    document.getElementById('paramJumpSpeed').addEventListener('input', (e) => {
+      controller.params.jumpSpeed = parseInt(e.target.value, 10);
+      document.getElementById('valJumpSpeed').innerText = `${e.target.value}`;
+    });
+
+    document.getElementById('paramGravity').addEventListener('input', (e) => {
+      controller.params.gravity = parseInt(e.target.value, 10);
+      document.getElementById('valGravity').innerText = `${e.target.value}`;
+    });
+
+    document.getElementById('paramDoubleJump').addEventListener('change', (e) => {
+      controller.params.doubleJumpEnabled = e.target.checked;
+    });
+
+    document.getElementById('paramVolume').addEventListener('input', (e) => {
+      const vol = parseFloat(e.target.value);
+      controller.sound.setVolume(vol);
+      document.getElementById('valVolume').innerText = `${Math.round(vol * 100)}%`;
+    });
+
+    // Keyboard Keycaps Realtime Visual Feedback
+    const keyMap = {
+      'KeyA': 'keyA', 'ArrowLeft': 'keyA',
+      'KeyD': 'keyD', 'ArrowRight': 'keyD',
+      'Space': 'keySpace', 'KeyW': 'keySpace', 'ArrowUp': 'keySpace',
+      'ShiftLeft': 'keyShift', 'ShiftRight': 'keyShift',
+      'KeyS': 'keyS', 'ArrowDown': 'keyS',
+      'KeyR': 'keyR'
+    };
+
+    window.addEventListener('keydown', (e) => {
+      const elId = keyMap[e.code];
+      if (elId) {
+        const el = document.getElementById(elId);
+        if (el) el.classList.add('pressed');
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      const elId = keyMap[e.code];
+      if (elId) {
+        const el = document.getElementById(elId);
+        if (el) el.classList.remove('pressed');
+      }
+    });
+
+    // Touch D-Pad Binding
+    function bindTouchBtn(btnId, onDown, onUp) {
+      const btn = document.getElementById(btnId);
+      if (!btn) return;
+      const start = (e) => { e.preventDefault(); btn.classList.add('pressed'); onDown(); };
+      const end = (e) => { e.preventDefault(); btn.classList.remove('pressed'); onUp(); };
+      btn.addEventListener('touchstart', start, { passive: false });
+      btn.addEventListener('touchend', end, { passive: false });
+      btn.addEventListener('mousedown', start);
+      btn.addEventListener('mouseup', end);
+      btn.addEventListener('mouseleave', end);
+    }
+
+    bindTouchBtn('touchLeft', () => { controller.touchInput.x = -1; }, () => { controller.touchInput.x = 0; });
+    bindTouchBtn('touchRight', () => { controller.touchInput.x = 1; }, () => { controller.touchInput.x = 0; });
+    bindTouchBtn('touchDown', () => { controller.touchInput.crouch = true; }, () => { controller.touchInput.crouch = false; });
+    bindTouchBtn('touchSprint', () => { controller.touchInput.sprint = true; }, () => { controller.touchInput.sprint = false; });
+    bindTouchBtn('touchJump', () => { 
+      controller.touchInput.jump = true; 
+      controller.player.jumpBufferTimer = controller.params.jumpBufferTime; 
+    }, () => { 
+      controller.touchInput.jump = false; 
+    });
+
+    // Initial render
+    renderFilmstrip('walk_12');
+  </script>
+</body>
+</html>
