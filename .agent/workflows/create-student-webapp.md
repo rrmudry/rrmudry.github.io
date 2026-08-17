@@ -107,3 +107,11 @@ To connect the new webapp grades to your Google Classroom gradebook:
 
 1. **Deploy to Classroom**: Open your [Sync Dashboard](http://localhost:3000) and fill out the *Deploy Classroom Coursework* form using the exact `ASSIGNMENT_ID` as the title. This registers the assignment in the Firestore `assignments` collection and creates the coursework across your active Google Classroom courses.
 2. **Grade Sync**: When the assignment window closes, select the assignment in the *Firestore Grade Synchronization* dropdown, enter the target Google Classroom Coursework ID, and click **Sync All Scores**. The tool automatically scales the Firestore percentage grades to match the Classroom assignment's `maxPoints`.
+
+---
+
+## 🎨 2D Character & Sprite Asset Generation
+When creating games, kinematics simulations, or interactive webapps requiring 2D characters with standing, walking, running, jumping, crawling, or crouching animations:
+- Use [Sprite Gen Studio](https://rrmudry.github.io/Sprite_Gen/) to generate customized pixel-art/vector sprite sheets, master animation atlases, and CSS/engine coordinates.
+
+
