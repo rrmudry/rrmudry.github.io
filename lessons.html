@@ -65,8 +65,7 @@
       <div class="container">
         <h1>Classroom Sync</h1>
         <div class="energy-bar" aria-hidden="true"></div>
-        <p class="subtitle">Semester 2: Momentum, Thermodynamics, E&M, and Waves. Stay synced with daily updates and
-          archives.</p>
+        <p class="subtitle">Physics Course Agenda & Daily Updates. Stay synced with daily activities, materials, and archives.</p>
       </div>
     </section>
 
@@ -88,29 +87,34 @@
       <h2 id="unit-index">Unit Resources</h2>
       <div class="grid">
         <article class="card">
+          <h3>Unit 1 • Physics Foundations</h3>
+          <p>Measurement, SI units, lab safety, and scientific inquiry.</p>
+          <a class="btn primary" href="unit1-dashboard.html">Explore Unit Dashboard</a>
+        </article>
+        <article class="card">
+          <h3>Unit 2 • Kinematics & 1D Motion</h3>
+          <p>Velocity, position-time graphs, vectors, and acceleration.</p>
+          <a class="btn primary" href="unit2-dashboard.html">Explore Unit Dashboard</a>
+        </article>
+        <article class="card">
           <h3>Unit 4 • Momentum & Impulse</h3>
-          <p>Current focus. Collisions, explosions, and impact forces.</p>
+          <p>Collisions, explosions, impulse, and conservation of momentum.</p>
           <a class="btn primary" href="unit4-dashboard.html">Explore Unit Dashboard</a>
         </article>
         <article class="card">
           <h3>Unit 5 • Thermodynamics</h3>
-          <p>Heat, temperature, and energy transfer.</p>
+          <p>Heat, temperature, engine efficiency, and entropy.</p>
           <a class="btn primary" href="unit5-dashboard.html">Explore Unit Dashboard</a>
         </article>
         <article class="card">
-          <h3>Unit 6 • Electricity & Magnetism</h3>
-          <p>Fields, circuits, and electromagnetic waves.</p>
-          <a class="btn" href="#">Upcoming</a>
+          <h3>Unit 6 • Waves & Radiation</h3>
+          <p>Wave mechanics, binaural beats, sound, and light spectra.</p>
+          <a class="btn primary" href="unit6-dashboard.html">Explore Unit Dashboard</a>
         </article>
         <article class="card">
-          <h3>Unit 7 • Waves & Sound</h3>
-          <p>Vibrations, wave properties, and optics.</p>
-          <a class="btn" href="#">Upcoming</a>
-        </article>
-        <article class="card">
-          <h3>Archive • Physics Foundations</h3>
-          <p>Units 1-3: Kinematics, Dynamics, and Energy.</p>
-          <a class="btn" href="unit1.html">Semester 1 Materials</a>
+          <h3>Unit 7 • Electricity & Magnetism</h3>
+          <p>Circuits, charge flow, fields, and electromagnetic induction.</p>
+          <a class="btn primary" href="unit7-dashboard.html">Explore Unit Dashboard</a>
         </article>
       </div>
     </section>
@@ -218,10 +222,10 @@
 
       // 2. Render Archive (grouped or filtered)
       archiveGrid.innerHTML = '';
-      const archiveLessons = sortedLessons.filter(l => l !== latest && l.date <= todayStr);
+      const archiveLessons = sortedLessons.filter(l => l !== latest && l.date <= todayStr && (firstDayOfSchool ? l.date >= firstDayOfSchool.date : true));
 
       if (archiveLessons.length === 0) {
-        archiveGrid.innerHTML = '<p style="grid-column: 1/-1; opacity: 0.5;">Older lessons will be listed here.</p>';
+        archiveGrid.innerHTML = '<p style="grid-column: 1/-1; opacity: 0.5;">Older lessons will be listed here as the semester progresses.</p>';
       } else {
         archiveLessons.forEach(lesson => {
           let archiveLinksHTML = '';
