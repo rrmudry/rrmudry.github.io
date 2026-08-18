@@ -713,18 +713,24 @@
       const d = String(now.getDate()).padStart(2, '0');
       const todayStr = `${y}-${m}-${d}`;
 
-      // Find today's lesson or the most recent past lesson
+      // Find today's lesson, or default to Day 1 of Semester 1 if before the school year starts
       const sortedLessons = [...lessonsData].sort((a, b) => new Date(b.date) - new Date(a.date));
+      const firstDayOfSchool = [...lessonsData].filter(l => l.semester === 1).sort((a, b) => new Date(a.date) - new Date(b.date))[0];
 
       let todayLesson = sortedLessons.find(l => l.date <= todayStr);
+      if (firstDayOfSchool && todayStr < firstDayOfSchool.date) {
+        todayLesson = firstDayOfSchool;
+      }
+
       let upcomingLessons = sortedLessons.filter(l => l.date > todayStr).reverse();
       let pastLessons = sortedLessons.filter(l => l.date < (todayLesson ? todayLesson.date : todayStr));
 
       // 1. Render Today's Lesson
       if (todayLesson) {
+        const tagText = todayLesson.date === todayStr ? "Today's Lesson" : (todayStr < todayLesson.date ? "Upcoming Lesson" : "Latest Lesson");
         todayContainer.innerHTML = `
           <article class="card today-card animate-in fade-in duration-500">
-            <span class="today-tag">${todayLesson.date === todayStr ? "Today's Lesson" : "Latest Lesson"}</span>
+            <span class="today-tag">${tagText}</span>
             <span style="display:block; font-size: 0.8rem; opacity: 0.7; margin-bottom: 0.25rem;">Day ${todayLesson.day} • ${todayLesson.date}</span>
             <h3>${todayLesson.title}</h3>
             <p>${todayLesson.summary}</p>
