@@ -391,7 +391,10 @@ const lessonsData = [
     "essentialQuestion": "How will our physics classroom community collaborate to explore natural phenomena safely and curiously?",
     "standards": [
       "HS-ETS1-1"
-    ]
+    ],
+    "links": {
+      "2026-2027 Syllabi": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQAFyZQypLraSYElJBkJwmb2AYRLayGEZm9EwNs6cb8BSqo?e=QHMSjh"
+    }
   },
   {
     "date": "2026-06-05",
