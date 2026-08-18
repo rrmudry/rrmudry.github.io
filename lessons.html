@@ -146,7 +146,12 @@
       const todayStr = `${y}-${m}-${d}`;
 
       const sortedLessons = [...lessonsData].sort((a, b) => new Date(b.date) - new Date(a.date));
-      const latest = sortedLessons.find(l => l.date <= todayStr);
+      const firstDayOfSchool = [...lessonsData].filter(l => l.semester === 1).sort((a, b) => new Date(a.date) - new Date(b.date))[0];
+
+      let latest = sortedLessons.find(l => l.date <= todayStr);
+      if (firstDayOfSchool && todayStr < firstDayOfSchool.date) {
+        latest = firstDayOfSchool;
+      }
 
       // 1. Render Latest Lesson
       if (latest) {
