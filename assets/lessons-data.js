@@ -375,7 +375,10 @@ const lessonsData = [
     "essentialQuestion": "How do structured procedures and team routines empower us to conduct safe, high-level scientific inquiries?",
     "standards": [
       "HS-ETS1-1"
-    ]
+    ],
+    "links": {
+      "Student Survey": "https://docs.google.com/forms/d/e/1FAIpQLSfNPLkAVYrqKlyg8ks5321_JgwFNf7cNBpaCSu6zzUHNzflWA/viewform?usp=dialog"
+    }
   },
   {
     "date": "2026-08-19",
