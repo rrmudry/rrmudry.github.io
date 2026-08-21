@@ -21,11 +21,11 @@
 *   **Essential Question:** How do prefix systems expand our capability to mathematically model micro and macro realities?
 *   **Links:** [Student Survey](https://docs.google.com/forms/d/e/1FAIpQLSfNPLkAVYrqKlyg8ks5321_JgwFNf7cNBpaCSu6zzUHNzflWA/viewform?usp=dialog)
 
-### Day 3: Unit Conversions
-*   **Focus:** Dimensional analysis factor-label cancellation rules.
-*   **Activity:** Matrix setup check-ins. Guided "I do, We do, You do" practice solving single and multi-step unit conversions (e.g., converting km/h to m/s).
-*   **Essential Question:** How does dimensional analysis safeguard mathematical models across different dimensional levels?
-*   **Links:** [Practice Worksheet](https://docs.google.com/document/d/19L0sKqt97x8hOCWEDIpL3pkUmgLGjwcYPnmkPXi8wnM/edit?usp=sharing)
+### Day 3: Student Survey Data Analysis & Graphing
+*   **Focus:** Translating categorical & quantitative survey data into clear visual graphs.
+*   **Activity:** Teams analyze class survey results using the Data Analysis Studio. Students build at least 2 distinct data visualizations (e.g. Physics Class Period distribution & Favorite Animal categories) and construct a single presentation slide with data-supported claim statements.
+*   **Essential Question:** How do scientists transform raw survey data into clear visual graphs to justify evidence-based claims?
+*   **Links:** [Data Analysis Studio](https://rrmudry.github.io/Data_Analysis/), [Student Survey](https://docs.google.com/forms/d/e/1FAIpQLSfNPLkAVYrqKlyg8ks5321_JgwFNf7cNBpaCSu6zzUHNzflWA/viewform?usp=dialog)
 
 ### Day 4: Quality of Measurement
 *   **Focus:** Accuracy, precision, and tool resolution boundaries.

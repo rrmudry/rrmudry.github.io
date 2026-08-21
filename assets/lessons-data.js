@@ -349,17 +349,21 @@ const lessonsData = [
     "date": "2026-08-21",
     "day": 3,
     "unit": 1,
-    "title": "Lab Safety Walkthrough & Team Dynamics",
-    "summary": "Lab safety walkthrough, team-building activity, and preparing for measurement inquiry.",
-    "details": "Casual foundations activity: lab room tour & safety equipment walkthrough (eyewash station, fire extinguisher, emergency exits), lab partner team dynamics, and introduction to the Physics Mission Control workspace.",
+    "title": "Student Survey Data Analysis & Graphing",
+    "summary": "Graphing student survey data using the Data Analysis Studio to make data-driven claims on a single slide.",
+    "details": "Students analyze class survey results using the Data Analysis Studio. Teams generate at least two distinct data visualizations (e.g. Physics Period distribution and Favorite Animal preferences) and assemble them on a single presentation slide alongside clear claim statements supported by data.",
     "type": "Activity",
-    "dok": 1,
+    "dok": 2,
     "semester": 1,
     "isFeatured": true,
-    "essentialQuestion": "How do scientists work together to design controlled experiments and analyze physical systems?",
+    "essentialQuestion": "How do scientists transform raw survey data into clear visual graphs to justify evidence-based claims?",
     "standards": [
       "HS-ETS1-1"
-    ]
+    ],
+    "links": {
+      "Data Analysis Studio": "Data_Analysis/index.html",
+      "Student Survey": "https://docs.google.com/forms/d/e/1FAIpQLSfNPLkAVYrqKlyg8ks5321_JgwFNf7cNBpaCSu6zzUHNzflWA/viewform?usp=dialog"
+    }
   },
   {
     "date": "2026-08-20",
