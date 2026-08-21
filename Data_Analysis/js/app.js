@@ -216,66 +216,6 @@ const presets = {
         explanation: "During phase transitions, added energy disrupts intermolecular forces rather than increasing particle kinetic energy (temperature)."
       }
     ]
-  },
-  survey_periods: {
-    title: "What Period Do You Have Physics?",
-    xAxisLabel: "Period",
-    xAxisUnit: "",
-    yAxisLabel: "# of Students",
-    yAxisUnit: "students",
-    chartType: "bar",
-    showBestFit: false,
-    showZero: true,
-    showGrid: true,
-    pointLabels: ["P.0", "P.1", "P.2", "P.3", "P.4", "P.5", "P.6"],
-    xValues: ["P.0", "P.1", "P.2", "P.3", "P.4", "P.5", "P.6"],
-    series: [
-      {
-        id: "y1",
-        label: "Period Distribution",
-        unit: "students",
-        color: "#0284c7",
-        pointStyle: "circle",
-        pointRadius: 6,
-        values: [10, 14, 14, 12, 23, 30, 23]
-      }
-    ],
-    cer: {
-      claim: "Mr. Mudry's biggest class is Period 5.",
-      evidence: "According to the graph, Period 5 has 30 students, which is higher than Period 0 (10), Period 1 (14), Period 2 (14), Period 3 (12), Period 4 (23), and Period 6 (23).",
-      reasoning: "Period 5 represents the peak enrollment count among all high school physics sections scheduled during the school day."
-    },
-    questions: []
-  },
-  survey_animals: {
-    title: "Favorite Type Of Animals",
-    xAxisLabel: "Animal Types",
-    xAxisUnit: "",
-    yAxisLabel: "# of Students",
-    yAxisUnit: "students",
-    chartType: "bar",
-    showBestFit: false,
-    showZero: true,
-    showGrid: true,
-    pointLabels: ["Arthropod", "Bird", "Canine", "Feline", "Fish", "Marine Mammal", "Reptile", "Sloth"],
-    xValues: ["Arthropod", "Bird", "Canine", "Feline", "Fish", "Marine Mammal", "Reptile", "Sloth"],
-    series: [
-      {
-        id: "y1",
-        label: "Animal Preference",
-        unit: "students",
-        color: "#16a34a",
-        pointStyle: "circle",
-        pointRadius: 6,
-        values: [1, 12, 32, 20, 11, 6, 18, 7]
-      }
-    ],
-    cer: {
-      claim: "The most popular type of animal is \"Canine\".",
-      evidence: "The data shows that 32 students chose Canine, outperforming Feline (20), Reptile (18), Bird (12), Fish (11), Sloth (7), Marine Mammal (6), and Arthropod (1).",
-      reasoning: "Dogs are common domesticated companion animals, leading to a strong statistical preference among high school survey respondents."
-    },
-    questions: []
   }
 };
 
