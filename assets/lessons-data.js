@@ -351,7 +351,7 @@ const lessonsData = [
     "unit": 1,
     "title": "Student Survey Data Analysis & Graphing",
     "summary": "Graphing student survey data using the Data Analysis Studio to make data-driven claims on a single slide.",
-    "details": "Students analyze class survey results using the Data Analysis Studio. Teams generate at least two distinct data visualizations (e.g. Physics Period distribution and Favorite Animal preferences) and assemble them on a single presentation slide alongside clear claim statements supported by data.",
+    "details": "Students analyze class survey results using the Data Analysis Studio. Teams generate at least two distinct data visualizations (e.g. Physics Period distribution and Favorite Animal preferences) and assemble them on a single presentation slide alongside clear claim statements supported by data.<br><br><strong>Slide Layout Example:</strong><br><img src=\"assets/images/day3_slide_example.png\" alt=\"Student Survey Slide Layout Example\" style=\"max-width:100%; border-radius:12px; margin-top:0.5rem; border:1px solid rgba(255,255,255,0.15);\">",
     "type": "Activity",
     "dok": 2,
     "semester": 1,
