@@ -13,6 +13,8 @@
         :root {
             --accent-cyan: #22d3ee;
             --accent-violet: #a855f7;
+            --accent-amber: #f59e0b;
+            --accent-emerald: #10b981;
             --bg-dark: #020617;
         }
         body {
@@ -23,10 +25,10 @@
         }
         .font-orbitron { font-family: 'Orbitron', sans-serif; }
         .glass {
-            background: rgba(15, 23, 42, 0.7);
+            background: rgba(15, 23, 42, 0.75);
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
         }
         .gradient-text {
             background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
@@ -34,13 +36,19 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+        .gradient-text-amber {
+            background: linear-gradient(135deg, #fbbf24, #f97316);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
         /* Custom Scrollbar */
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(34, 211, 238, 0.2); border-radius: 10px; }
     </style>
 </head>
-<body class="p-8 flex items-center justify-center min-h-screen">
+<body class="p-4 md:p-8 flex items-center justify-center min-h-screen">
     <!-- Auth Guard Layer -->
     <div id="auth-overlay" class="fixed inset-0 z-[100] bg-slate-950 flex flex-col items-center justify-center hidden">
         <div class="glass max-w-md w-full p-10 rounded-[2.5rem] border border-cyan-500/20 text-center space-y-8">
@@ -65,11 +73,13 @@
         </div>
     </div>
 
-    <div id="main-content" class="glass max-w-4xl w-full p-10 rounded-[2.5rem] space-y-10 opacity-0 transition-opacity duration-500">
-        <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-6">
+    <!-- Main Workspace -->
+    <div id="main-content" class="glass max-w-5xl w-full p-6 md:p-10 rounded-[2.5rem] space-y-8 opacity-0 transition-opacity duration-500">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-6 border-b border-white/5 pb-6">
             <div class="space-y-2 text-center md:text-left">
-                <h1 class="text-5xl font-orbitron font-black gradient-text tracking-tighter uppercase">Data_Export</h1>
-                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.5em]">Central Intelligence Archive // Firebase</p>
+                <h1 class="text-4xl md:text-5xl font-orbitron font-black gradient-text tracking-tighter uppercase">Data_Export</h1>
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.5em]">Central Intelligence Archive // Firebase Gradebook Hub</p>
             </div>
             <div id="user-profile" class="hidden flex items-center justify-center md:justify-end gap-4 bg-white/5 border border-white/5 px-5 py-3 rounded-2xl">
                 <div class="flex flex-col items-end text-right">
@@ -84,77 +94,221 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-            <!-- Assignment Selector -->
-            <div class="space-y-4">
-                <div class="flex justify-between items-center">
-                    <p class="text-[10px] font-black text-cyan-500 uppercase tracking-widest">01 // Select Assignments</p>
-                    <div class="flex gap-2">
-                        <button onclick="toggleAll(true)" class="text-[8px] font-bold text-slate-500 hover:text-cyan-400 uppercase tracking-widest transition-colors">Select All</button>
-                        <span class="text-[8px] text-slate-700">|</span>
-                        <button onclick="toggleAll(false)" class="text-[8px] font-bold text-slate-500 hover:text-rose-400 uppercase tracking-widest transition-colors">Clear</button>
+        <!-- Mode Tabs -->
+        <div class="flex flex-wrap gap-2 border-b border-white/5 pb-4">
+            <button id="tab-bellringers" onclick="switchTab('bellringers')" class="px-5 py-3 rounded-2xl font-orbitron text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2.5 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 text-amber-300 shadow-lg shadow-amber-500/5">
+                <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                ⚡ Daily Bell-Ringer Aggregator
+            </button>
+            <button id="tab-assessments" onclick="switchTab('assessments')" class="px-5 py-3 rounded-2xl font-orbitron text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2.5 bg-white/5 border border-white/5 text-slate-400 hover:text-slate-200 hover:bg-white/10">
+                📊 Assessments & Labs
+            </button>
+        </div>
+
+        <!-- SECTION 1: BELL-RINGER AGGREGATOR -->
+        <div id="section-bellringers" class="space-y-6">
+            <!-- Controls Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Date Range & Presets -->
+                <div class="space-y-3 bg-white/5 border border-white/5 p-4 rounded-2xl">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[10px] font-black text-amber-400 uppercase tracking-widest">01 // Date Window</span>
+                        <span id="br-days-count-badge" class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">0 Sessions</span>
+                    </div>
+
+                    <!-- Date Presets -->
+                    <div class="flex flex-wrap gap-1.5">
+                        <button onclick="setBrPreset('today')" class="px-2.5 py-1 bg-slate-900 border border-white/10 rounded-lg text-[9px] font-bold text-slate-300 hover:border-amber-500 hover:text-amber-400">Today</button>
+                        <button onclick="setBrPreset('this_week')" class="px-2.5 py-1 bg-slate-900 border border-white/10 rounded-lg text-[9px] font-bold text-slate-300 hover:border-amber-500 hover:text-amber-400">This Week</button>
+                        <button onclick="setBrPreset('last_week')" class="px-2.5 py-1 bg-slate-900 border border-white/10 rounded-lg text-[9px] font-bold text-slate-300 hover:border-amber-500 hover:text-amber-400">Last Week</button>
+                        <button onclick="setBrPreset('unit1')" class="px-2.5 py-1 bg-slate-900 border border-white/10 rounded-lg text-[9px] font-bold text-slate-300 hover:border-amber-500 hover:text-amber-400">Unit 1</button>
+                        <button onclick="setBrPreset('all')" class="px-2.5 py-1 bg-slate-900 border border-white/10 rounded-lg text-[9px] font-bold text-slate-300 hover:border-amber-500 hover:text-amber-400">All</button>
+                    </div>
+
+                    <!-- Custom Inputs -->
+                    <div class="grid grid-cols-2 gap-2 pt-1">
+                        <div>
+                            <label class="text-[8px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Start Date</label>
+                            <input type="date" id="br-start-date" onchange="loadBrAggregation()" class="w-full bg-slate-950 border border-white/10 px-2.5 py-1.5 rounded-xl text-xs font-mono text-slate-200 outline-none focus:border-amber-500">
+                        </div>
+                        <div>
+                            <label class="text-[8px] font-bold text-slate-500 uppercase tracking-wider block mb-1">End Date</label>
+                            <input type="date" id="br-end-date" onchange="loadBrAggregation()" class="w-full bg-slate-950 border border-white/10 px-2.5 py-1.5 rounded-xl text-xs font-mono text-slate-200 outline-none focus:border-amber-500">
+                        </div>
                     </div>
                 </div>
-                
-                <div class="flex flex-wrap items-center gap-2 p-3 bg-white/5 rounded-xl border border-white/5">
-                    <span class="text-[8px] font-black text-slate-500 uppercase tracking-widest">Smart_Presets:</span>
-                    <button onclick="applyPreset('unit6')" class="px-3 py-1 bg-slate-950 border border-white/10 rounded-lg text-[9px] font-black hover:border-cyan-500 hover:text-cyan-400 transition-all uppercase tracking-tighter">Unit 6 Assessments</button>
+
+                <!-- Class Period & Scoring Method -->
+                <div class="space-y-3 bg-white/5 border border-white/5 p-4 rounded-2xl">
+                    <span class="text-[10px] font-black text-orange-400 uppercase tracking-widest block">02 // Filter & Weight</span>
+
+                    <div>
+                        <label class="text-[8px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Target Class Period</label>
+                        <select id="br-period-filter" onchange="loadBrAggregation()" class="w-full bg-slate-950 border border-white/10 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-200 outline-none focus:border-orange-500">
+                            <option value="all">All Class Periods</option>
+                            <option value="0">Period 0</option>
+                            <option value="1">Period 1</option>
+                            <option value="2">Period 2</option>
+                            <option value="3">Period 3</option>
+                            <option value="4">Period 4</option>
+                            <option value="5">Period 5</option>
+                            <option value="6">Period 6</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[8px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Pts / Bell-Ringer</label>
+                            <input type="number" id="br-points-per-day" value="5" min="1" max="100" onchange="loadBrAggregation()" class="w-full bg-slate-950 border border-white/10 px-3 py-1.5 rounded-xl text-xs font-bold text-amber-300 outline-none focus:border-amber-500">
+                        </div>
+                        <div>
+                            <label class="text-[8px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Scoring Mode</label>
+                            <select id="br-scoring-mode" onchange="loadBrAggregation()" class="w-full bg-slate-950 border border-white/10 px-2 py-1.5 rounded-xl text-[11px] font-bold text-slate-200 outline-none focus:border-amber-500">
+                                <option value="proportional">Proportional (%)</option>
+                                <option value="completion">Completion (Effort)</option>
+                                <option value="raw_percent">Raw % Average</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <label class="flex items-center gap-2 cursor-pointer pt-1">
+                        <input type="checkbox" id="br-include-roster" checked onchange="loadBrAggregation()" class="accent-amber-500 w-3.5 h-3.5 rounded bg-slate-950 border-white/10">
+                        <span class="text-[10px] font-bold text-slate-400">Include unsubmitted students from Roster</span>
+                    </label>
                 </div>
 
-                <div id="assignment-list" class="w-full bg-slate-900 border border-white/10 p-4 rounded-2xl max-h-[160px] overflow-y-auto custom-scrollbar space-y-2">
-                    <p class="text-xs text-slate-600 animate-pulse">Scanning Archive...</p>
+                <!-- Export Operations -->
+                <div class="space-y-3 bg-white/5 border border-white/5 p-4 rounded-2xl flex flex-col justify-between">
+                    <div>
+                        <span class="text-[10px] font-black text-amber-500 uppercase tracking-widest block mb-2">03 // Export Actions</span>
+                        <div class="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-slate-300 text-[10px] space-y-1 font-mono">
+                            <div class="flex justify-between"><span>Max Points:</span><span id="br-kpi-max-pts" class="font-bold text-amber-300">0.0 pts</span></div>
+                            <div class="flex justify-between"><span>Class Average:</span><span id="br-kpi-class-avg" class="font-bold text-emerald-400">---</span></div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <button onclick="exportBrCSV('aeries')" class="w-full bg-gradient-to-r from-amber-500 to-orange-600 p-3 rounded-xl font-black uppercase tracking-widest text-xs shadow-lg shadow-amber-500/10 active:scale-95 transition-all flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                            Download Aeries Summary CSV
+                        </button>
+                        <button onclick="exportBrCSV('matrix')" class="w-full bg-slate-900 hover:bg-slate-800 border border-white/10 p-2.5 rounded-xl font-bold uppercase tracking-wider text-[10px] text-slate-300 active:scale-95 transition-all flex items-center justify-center gap-2">
+                            📋 Download Date Matrix CSV
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Export Actions -->
-            <div class="space-y-4">
-                <p class="text-[10px] font-black text-violet-500 uppercase tracking-widest">02 // Export Operations</p>
-                <div class="space-y-3">
-                    <button id="export-btn" onclick="exportCSV()" class="w-full bg-gradient-to-r from-cyan-600 to-violet-600 p-5 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl active:scale-95 transition-all flex items-center justify-center gap-3">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                        Download Aeries CSV
-                    </button>
-                    <div class="bg-white/5 p-4 rounded-xl border border-white/5 flex items-center justify-between cursor-pointer group hover:bg-white/10 transition-all" onclick="toggleMode()">
-                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest group-hover:text-slate-200">Aggregate Mode</span>
-                        <span id="mode-display" class="text-[9px] font-black text-cyan-500 uppercase">SUM_TOTAL</span>
+            <!-- Bell Ringer Table Preview -->
+            <div class="space-y-3 pt-2">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                        <span>Students: <span id="br-count-display" class="text-white font-bold">0</span></span>
+                        <span>•</span>
+                        <span>Sessions In Window: <span id="br-sessions-list-count" class="text-amber-400 font-bold">0</span></span>
                     </div>
+
+                    <div class="relative flex-1 max-w-sm">
+                        <input type="text" id="br-student-search" oninput="renderBrTable()" placeholder="Search Bell-Ringers // ID or Name" class="w-full bg-slate-900 border border-white/10 pl-8 pr-4 py-2 rounded-xl text-xs font-bold text-slate-300 focus:border-amber-500/50 outline-none transition-all placeholder:text-slate-700">
+                        <svg class="w-3.5 h-3.5 text-slate-600 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto rounded-2xl border border-white/5 bg-slate-950/60 custom-scrollbar">
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="bg-white/5 text-slate-400 font-black uppercase tracking-wider text-[10px]">
+                                <th class="p-3.5 border-b border-white/5">Student ID</th>
+                                <th class="p-3.5 border-b border-white/5">Student Name</th>
+                                <th class="p-3.5 border-b border-white/5 text-center">Period</th>
+                                <th class="p-3.5 border-b border-white/5 text-center">Completed</th>
+                                <th class="p-3.5 border-b border-white/5 text-center">Earned / Possible</th>
+                                <th class="p-3.5 border-b border-white/5 text-center">Grade (%)</th>
+                                <th class="p-3.5 border-b border-white/5 text-right">Daily Sessions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="br-preview-body" class="divide-y divide-white/5 text-slate-400">
+                            <tr>
+                                <td colspan="7" class="p-8 text-center text-slate-600 font-bold uppercase tracking-widest text-[9px]">Scanning Bell-Ringer Records...</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
 
-        <div id="status-display" class="pt-8 border-t border-white/5 space-y-4">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div class="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-slate-600">
-                    <span>Database_Status: <span id="db-status" class="text-cyan-500">Connecting...</span></span>
-                    <span>Students_Aggregated: <span id="record-count" class="text-white">0</span></span>
-                    <span>Total_Records: <span id="total-archive-count" class="text-violet-400">---</span></span>
-                </div>
-                
-                <!-- Search Component -->
-                <div class="relative flex-1 max-w-sm">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+        <!-- SECTION 2: ASSESSMENTS & LABS -->
+        <div id="section-assessments" class="space-y-6 hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                <!-- Assignment Selector -->
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <p class="text-[10px] font-black text-cyan-500 uppercase tracking-widest">01 // Select Assessments & Labs</p>
+                        <div class="flex gap-2">
+                            <button onclick="toggleAll(true)" class="text-[8px] font-bold text-slate-500 hover:text-cyan-400 uppercase tracking-widest transition-colors">Select All</button>
+                            <span class="text-[8px] text-slate-700">|</span>
+                            <button onclick="toggleAll(false)" class="text-[8px] font-bold text-slate-500 hover:text-rose-400 uppercase tracking-widest transition-colors">Clear</button>
+                        </div>
                     </div>
-                    <input type="text" id="student-search" oninput="loadPreview()" placeholder="Search_Archive // ID or Name" class="w-full bg-slate-900 border border-white/10 pl-10 pr-4 py-2 rounded-xl text-xs font-bold text-slate-300 focus:border-cyan-500/50 outline-none transition-all placeholder:text-slate-700">
+                    
+                    <div class="flex flex-wrap items-center gap-2 p-3 bg-white/5 rounded-xl border border-white/5">
+                        <span class="text-[8px] font-black text-slate-500 uppercase tracking-widest">Smart_Presets:</span>
+                        <button onclick="applyPreset('unit6')" class="px-3 py-1 bg-slate-950 border border-white/10 rounded-lg text-[9px] font-black hover:border-cyan-500 hover:text-cyan-400 transition-all uppercase tracking-tighter">Unit 6 Assessments</button>
+                    </div>
+
+                    <div id="assignment-list" class="w-full bg-slate-900 border border-white/10 p-4 rounded-2xl max-h-[160px] overflow-y-auto custom-scrollbar space-y-2">
+                        <p class="text-xs text-slate-600 animate-pulse">Scanning Archive...</p>
+                    </div>
+                </div>
+
+                <!-- Export Actions -->
+                <div class="space-y-4">
+                    <p class="text-[10px] font-black text-violet-500 uppercase tracking-widest">02 // Export Operations</p>
+                    <div class="space-y-3">
+                        <button id="export-btn" onclick="exportCSV()" class="w-full bg-gradient-to-r from-cyan-600 to-violet-600 p-5 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl active:scale-95 transition-all flex items-center justify-center gap-3">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                            Download Aeries CSV
+                        </button>
+                        <div class="bg-white/5 p-4 rounded-xl border border-white/5 flex items-center justify-between cursor-pointer group hover:bg-white/10 transition-all" onclick="toggleMode()">
+                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest group-hover:text-slate-200">Aggregate Mode</span>
+                            <span id="mode-display" class="text-[9px] font-black text-cyan-500 uppercase">SUM_TOTAL</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Live Preview Table -->
-            <div class="overflow-hidden rounded-xl border border-white/5 bg-slate-950/50">
-                <table class="w-full text-left text-xs">
-                    <thead>
-                        <tr id="table-header-row" class="bg-white/5 text-slate-400 font-black uppercase tracking-tighter">
-                            <th class="p-4 border-b border-white/5">Student_ID</th>
-                            <th class="p-4 border-b border-white/5">Student_Name</th>
-                            <th class="p-4 border-b border-white/5">Period</th>
-                            <th class="p-4 border-b border-white/5">Total_Score</th>
-                            <th class="p-4 border-b border-white/5 text-right">Count</th>
-                        </tr>
-                    </thead>
-                    <tbody id="preview-body" class="text-slate-500">
-                        <!-- Rows injected here -->
-                    </tbody>
-                </table>
+            <div id="status-display" class="pt-6 border-t border-white/5 space-y-4">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-slate-600">
+                        <span>Database_Status: <span id="db-status" class="text-cyan-500">Connecting...</span></span>
+                        <span>Students: <span id="record-count" class="text-white">0</span></span>
+                        <span>Archive Records: <span id="total-archive-count" class="text-violet-400">---</span></span>
+                    </div>
+                    
+                    <div class="relative flex-1 max-w-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                        </div>
+                        <input type="text" id="student-search" oninput="loadPreview()" placeholder="Search_Archive // ID or Name" class="w-full bg-slate-900 border border-white/10 pl-10 pr-4 py-2 rounded-xl text-xs font-bold text-slate-300 focus:border-cyan-500/50 outline-none transition-all placeholder:text-slate-700">
+                    </div>
+                </div>
+
+                <div class="overflow-hidden rounded-xl border border-white/5 bg-slate-950/50">
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr id="table-header-row" class="bg-white/5 text-slate-400 font-black uppercase tracking-tighter">
+                                <th class="p-4 border-b border-white/5">Student_ID</th>
+                                <th class="p-4 border-b border-white/5">Student_Name</th>
+                                <th class="p-4 border-b border-white/5">Period</th>
+                                <th class="p-4 border-b border-white/5">Total_Score</th>
+                                <th class="p-4 border-b border-white/5 text-right">Count</th>
+                            </tr>
+                        </thead>
+                        <tbody id="preview-body" class="text-slate-500">
+                            <!-- Injected here -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -173,18 +327,43 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
         
-        // Enable local caching to prevent massive reads on refresh
         db.enablePersistence({ synchronizeTabs: true }).catch(err => {
             console.warn("Firebase persistence error:", err.code);
         });
 
         const ALLOWED_EMAILS = [
             "rmudry@orangeusd.org",
+            "ryan.mudry@orangeusd.org",
             "ryan.mudry@gmail.com",
             "ryanmudry@gmail.com"
         ];
 
-        // Prevent race condition on login button
+        // Tab Switching
+        let activeMainTab = 'bellringers'; // 'bellringers' or 'assessments'
+
+        function switchTab(tab) {
+            activeMainTab = tab;
+            const btnBr = document.getElementById('tab-bellringers');
+            const btnAs = document.getElementById('tab-assessments');
+            const secBr = document.getElementById('section-bellringers');
+            const secAs = document.getElementById('section-assessments');
+
+            if (tab === 'bellringers') {
+                btnBr.className = "px-5 py-3 rounded-2xl font-orbitron text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2.5 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 text-amber-300 shadow-lg shadow-amber-500/5";
+                btnAs.className = "px-5 py-3 rounded-2xl font-orbitron text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2.5 bg-white/5 border border-white/5 text-slate-400 hover:text-slate-200 hover:bg-white/10";
+                secBr.classList.remove('hidden');
+                secAs.classList.add('hidden');
+                loadBrAggregation();
+            } else {
+                btnAs.className = "px-5 py-3 rounded-2xl font-orbitron text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2.5 bg-gradient-to-r from-cyan-500/20 to-violet-500/20 border border-cyan-500/40 text-cyan-300 shadow-lg shadow-cyan-500/5";
+                btnBr.className = "px-5 py-3 rounded-2xl font-orbitron text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2.5 bg-white/5 border border-white/5 text-slate-400 hover:text-slate-200 hover:bg-white/10";
+                secAs.classList.remove('hidden');
+                secBr.classList.add('hidden');
+                loadPreview();
+            }
+        }
+
+        // Login Button Setup
         const loginBtn = document.getElementById('btn-login');
         if (loginBtn) {
             loginBtn.disabled = true;
@@ -200,7 +379,7 @@
             loginBtn.classList.add('opacity-50', 'cursor-not-allowed');
         }
 
-        // --- AUTH GUARD LOGIC ---
+        // Auth Observer
         auth.onAuthStateChanged((user) => {
             const overlay = document.getElementById('auth-overlay');
             const main = document.getElementById('main-content');
@@ -208,8 +387,10 @@
             const profile = document.getElementById('user-profile');
 
             if (user) {
-                const userEmailLower = user.email ? user.email.toLowerCase() : "";
-                if (ALLOWED_EMAILS.some(email => email.toLowerCase() === userEmailLower)) {
+                const emailLower = (user.email || "").toLowerCase();
+                const isAuthorized = ALLOWED_EMAILS.some(e => e.toLowerCase() === emailLower) || emailLower.endsWith('@orangeusd.org');
+                
+                if (isAuthorized) {
                     overlay.classList.add('hidden');
                     main.classList.remove('opacity-0');
                     profile.classList.remove('hidden');
@@ -222,7 +403,7 @@
                         loginBtn.innerHTML = loginBtn.dataset.originalHtml;
                         loginBtn.className = loginBtn.dataset.originalClass;
                     }
-                    error.textContent = "Access Denied: Admin Privileges Required";
+                    error.textContent = "Access Denied: District Admin Privileges Required";
                     error.classList.remove('hidden');
                     auth.signOut();
                 }
@@ -245,13 +426,378 @@
 
         document.getElementById('btn-logout').onclick = () => auth.signOut();
 
-        let aggregationMode = 'SUM'; // 'SUM' or 'AVERAGE' or 'DETAILED'
-
-        // Cache: all flat archive records loaded once at init
-        let archiveCache = [];
-        // Cache: known assignment names that exist as nested subcollection parents
+        // Global State & Caches
+        let rosterCache = [];        // Central student roster docs
+        let bellringersCache = [];    // All bellringer submissions
+        let archiveCache = [];        // Flat student_results records
         let nestedAssignments = new Set();
+        let aggregationMode = 'SUM'; // For Assessments tab: 'SUM', 'AVERAGE', 'DETAILED'
 
+        // =========================================================================
+        // INITIALIZATION
+        // =========================================================================
+        async function init() {
+            setBrPreset('this_week');
+            await Promise.all([
+                loadRosterData(),
+                loadBellringersData(),
+                loadAssessmentsData()
+            ]);
+            loadBrAggregation();
+        }
+
+        // =========================================================================
+        // ROSTER & BELL-RINGER MODULE
+        // =========================================================================
+        async function loadRosterData() {
+            try {
+                const snap = await db.collection('roster').get();
+                rosterCache = [];
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    rosterCache.push({
+                        student_id: String(d.student_id || doc.id).trim(),
+                        first_name: d.first_name || '',
+                        last_name: d.last_name || '',
+                        name: (d.student_name || `${d.first_name || ''} ${d.last_name || ''}`).trim() || 'Unknown Student',
+                        class_period: String(d.class_period !== undefined ? d.class_period : (d.period !== undefined ? d.period : '')).trim(),
+                        email: d.email || ''
+                    });
+                });
+                console.log(`[DATA_EXPORT] Loaded ${rosterCache.length} students from roster.`);
+            } catch (err) {
+                console.warn("[DATA_EXPORT] Could not load roster collection:", err.message);
+            }
+        }
+
+        async function loadBellringersData() {
+            try {
+                const snap = await db.collection('bellringers').get();
+                bellringersCache = [];
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    let dateStr = d.date || '';
+                    if (!dateStr && doc.id.includes('_')) {
+                        const parts = doc.id.split('_');
+                        dateStr = parts[parts.length - 1];
+                    }
+                    if (!dateStr && d.timestamp && d.timestamp.seconds) {
+                        dateStr = new Date(d.timestamp.seconds * 1000).toISOString().split('T')[0];
+                    }
+
+                    let studentId = String(d.studentId || d.student_id || '').trim();
+                    if (!studentId && doc.id.includes('_')) {
+                        studentId = doc.id.split('_')[0].trim();
+                    }
+
+                    let numericEffort = 0;
+                    if (d.effortScore !== undefined && d.effortScore !== null) {
+                        numericEffort = parseFloat(d.effortScore) || 0;
+                    } else if (d.aiResponse && d.aiResponse.effortScore !== undefined) {
+                        numericEffort = parseFloat(d.aiResponse.effortScore) || 0;
+                    }
+
+                    bellringersCache.push({
+                        id: doc.id,
+                        student_id: studentId,
+                        student_name: d.studentName || d.student_name || '',
+                        class_period: String(d.classPeriod !== undefined ? d.classPeriod : (d.class_period !== undefined ? d.class_period : '')).trim(),
+                        date: dateStr,
+                        activityType: d.activityType || 'free_response',
+                        effortScore: numericEffort,
+                        timestamp: d.timestamp
+                    });
+                });
+                console.log(`[DATA_EXPORT] Loaded ${bellringersCache.length} bellringer records.`);
+            } catch (err) {
+                console.error("[DATA_EXPORT] Error loading bellringers:", err);
+            }
+        }
+
+        // Helper: Format Date string YYYY-MM-DD
+        function formatDateYMD(d) {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        }
+
+        // Bell Ringer Presets
+        function setBrPreset(preset) {
+            const today = new Date();
+            const startInput = document.getElementById('br-start-date');
+            const endInput = document.getElementById('br-end-date');
+
+            if (preset === 'today') {
+                startInput.value = formatDateYMD(today);
+                endInput.value = formatDateYMD(today);
+            } else if (preset === 'this_week') {
+                const curr = new Date(today);
+                const day = curr.getDay(); // 0 is Sun, 1 is Mon
+                const diffToMon = curr.getDate() - day + (day === 0 ? -6 : 1);
+                const mon = new Date(curr.setDate(diffToMon));
+                const fri = new Date(mon);
+                fri.setDate(mon.getDate() + 4);
+                startInput.value = formatDateYMD(mon);
+                endInput.value = formatDateYMD(fri);
+            } else if (preset === 'last_week') {
+                const curr = new Date(today);
+                const day = curr.getDay();
+                const diffToMon = curr.getDate() - day + (day === 0 ? -6 : 1) - 7;
+                const mon = new Date(curr.setDate(diffToMon));
+                const fri = new Date(mon);
+                fri.setDate(mon.getDate() + 4);
+                startInput.value = formatDateYMD(mon);
+                endInput.value = formatDateYMD(fri);
+            } else if (preset === 'unit1') {
+                startInput.value = "2026-08-19";
+                endInput.value = "2026-09-04";
+            } else if (preset === 'all') {
+                startInput.value = "2026-08-01";
+                endInput.value = "2027-06-30";
+            }
+            loadBrAggregation();
+        }
+
+        // Process Bell-Ringer Aggregation
+        let aggregatedBrData = [];
+        let brDetectedSessions = [];
+
+        function loadBrAggregation() {
+            const startDate = document.getElementById('br-start-date').value;
+            const endDate = document.getElementById('br-end-date').value;
+            const periodFilter = document.getElementById('br-period-filter').value;
+            const pointsPerDay = parseFloat(document.getElementById('br-points-per-day').value) || 5.0;
+            const scoringMode = document.getElementById('br-scoring-mode').value;
+            const includeRoster = document.getElementById('br-include-roster').checked;
+
+            // 1. Filter Bell-Ringer submissions in Date Range
+            const inRangeSubs = bellringersCache.filter(sub => {
+                if (!sub.date) return false;
+                if (startDate && sub.date < startDate) return false;
+                if (endDate && sub.date > endDate) return false;
+                return true;
+            });
+
+            // 2. Determine unique session dates held
+            brDetectedSessions = [...new Set(inRangeSubs.map(s => s.date))].filter(Boolean).sort();
+            const totalSessions = brDetectedSessions.length;
+            const maxPointsPossible = totalSessions * pointsPerDay;
+
+            document.getElementById('br-days-count-badge').textContent = `${totalSessions} Sessions Detected`;
+            document.getElementById('br-sessions-list-count').textContent = totalSessions;
+            document.getElementById('br-kpi-max-pts').textContent = `${maxPointsPossible.toFixed(1)} pts (${totalSessions} × ${pointsPerDay}p)`;
+
+            // 3. Build student map
+            const studentMap = {};
+
+            // If include roster, prepopulate with all enrolled students
+            if (includeRoster && rosterCache.length > 0) {
+                rosterCache.forEach(stu => {
+                    if (periodFilter !== 'all' && stu.class_period !== periodFilter) return;
+                    studentMap[stu.student_id] = {
+                        id: stu.student_id,
+                        name: stu.name,
+                        period: stu.class_period || '---',
+                        sessions: {}, // date -> rawEffort
+                        earnedPoints: 0,
+                        pointsPossible: maxPointsPossible,
+                        completedCount: 0
+                    };
+                });
+            }
+
+            // Ingest submissions
+            inRangeSubs.forEach(sub => {
+                const stuId = sub.student_id;
+                if (!stuId) return;
+
+                let rosterEntry = rosterCache.find(r => r.student_id === stuId);
+                const period = sub.class_period || (rosterEntry ? rosterEntry.class_period : '---');
+
+                if (periodFilter !== 'all' && period !== periodFilter) return;
+
+                if (!studentMap[stuId]) {
+                    studentMap[stuId] = {
+                        id: stuId,
+                        name: sub.student_name || (rosterEntry ? rosterEntry.name : stuId),
+                        period: period,
+                        sessions: {},
+                        earnedPoints: 0,
+                        pointsPossible: maxPointsPossible,
+                        completedCount: 0
+                    };
+                }
+
+                studentMap[stuId].sessions[sub.date] = sub.effortScore;
+                if (sub.student_name && (!studentMap[stuId].name || studentMap[stuId].name === stuId)) {
+                    studentMap[stuId].name = sub.student_name;
+                }
+            });
+
+            // 4. Calculate earned points per student
+            Object.values(studentMap).forEach(stu => {
+                let totalEarned = 0;
+                let completed = 0;
+                let rawSumPercent = 0;
+
+                brDetectedSessions.forEach(date => {
+                    if (stu.sessions[date] !== undefined) {
+                        completed++;
+                        const raw = stu.sessions[date];
+
+                        if (scoringMode === 'proportional') {
+                            // If score is 0-1 (binary free response), 1 -> full points
+                            // If score is 0-100 (concept chat), proportional to pts/day
+                            if (raw <= 1 && raw > 0) {
+                                totalEarned += pointsPerDay;
+                            } else {
+                                totalEarned += (Math.min(100, Math.max(0, raw)) / 100) * pointsPerDay;
+                            }
+                        } else if (scoringMode === 'completion') {
+                            // Any attempt > 0 earns full points for the day
+                            if (raw > 0) totalEarned += pointsPerDay;
+                        } else if (scoringMode === 'raw_percent') {
+                            const pct = raw <= 1 && raw > 0 ? 100 : raw;
+                            rawSumPercent += pct;
+                        }
+                    }
+                });
+
+                stu.completedCount = completed;
+                if (scoringMode === 'raw_percent') {
+                    stu.earnedPoints = totalSessions > 0 ? Math.round(rawSumPercent / totalSessions) : 0;
+                    stu.pointsPossible = 100;
+                    stu.percentage = stu.earnedPoints;
+                } else {
+                    stu.earnedPoints = Math.round(totalEarned * 100) / 100;
+                    stu.pointsPossible = maxPointsPossible;
+                    stu.percentage = maxPointsPossible > 0 ? Math.round((stu.earnedPoints / maxPointsPossible) * 100) : 0;
+                }
+            });
+
+            aggregatedBrData = Object.values(studentMap).sort((a, b) => a.name.localeCompare(b.name));
+
+            // Update Class Average KPI
+            if (aggregatedBrData.length > 0) {
+                const avgPct = Math.round(aggregatedBrData.reduce((sum, s) => sum + s.percentage, 0) / aggregatedBrData.length);
+                const avgEarned = (aggregatedBrData.reduce((sum, s) => sum + s.earnedPoints, 0) / aggregatedBrData.length).toFixed(1);
+                document.getElementById('br-kpi-class-avg').textContent = `${avgPct}% (${avgEarned} / ${maxPointsPossible.toFixed(1)} pts)`;
+            } else {
+                document.getElementById('br-kpi-class-avg').textContent = "---";
+            }
+
+            renderBrTable();
+        }
+
+        function renderBrTable() {
+            const query = document.getElementById('br-student-search').value.trim();
+            const filtered = aggregatedBrData.filter(s => {
+                if (!query) return true;
+                return s.id.includes(query) || fuzzyMatch(s.name, query);
+            });
+
+            document.getElementById('br-count-display').textContent = filtered.length;
+            const tbody = document.getElementById('br-preview-body');
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="p-8 text-center text-slate-600 font-bold uppercase tracking-widest text-[9px]">No Matching Student Records</td></tr>';
+                return;
+            }
+
+            const totalSessions = brDetectedSessions.length;
+
+            tbody.innerHTML = filtered.map(s => {
+                const gradeColor = s.percentage >= 80 ? 'text-emerald-400' : (s.percentage >= 60 ? 'text-amber-400' : 'text-rose-400');
+                const compBadgeColor = s.completedCount === totalSessions && totalSessions > 0 
+                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
+                    : (s.completedCount > 0 ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 'bg-slate-800 text-slate-500 border-white/5');
+
+                const sessionPills = brDetectedSessions.map(d => {
+                    const hasSub = s.sessions[d] !== undefined;
+                    const score = hasSub ? s.sessions[d] : null;
+                    const shortDate = d.slice(5); // MM-DD
+                    return hasSub 
+                        ? `<span title="${d}: Score ${score}" class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[8px] font-mono font-bold">${shortDate}</span>`
+                        : `<span title="${d}: Missing" class="px-1.5 py-0.5 rounded bg-slate-900 text-slate-600 border border-white/5 text-[8px] font-mono">${shortDate}</span>`;
+                }).join(' ');
+
+                return `
+                    <tr class="hover:bg-white/[0.02] transition-colors">
+                        <td class="p-3.5 font-mono font-bold text-amber-300">${s.id}</td>
+                        <td class="p-3.5 font-medium text-slate-200 capitalize">${s.name}</td>
+                        <td class="p-3.5 text-center font-bold text-slate-400">P${s.period || '?'}</td>
+                        <td class="p-3.5 text-center">
+                            <span class="px-2.5 py-1 rounded-full text-[9px] font-black border ${compBadgeColor}">
+                                ${s.completedCount} / ${totalSessions}
+                            </span>
+                        </td>
+                        <td class="p-3.5 text-center font-mono font-bold text-slate-200">
+                            ${s.earnedPoints} <span class="text-slate-600">/</span> ${s.pointsPossible}
+                        </td>
+                        <td class="p-3.5 text-center font-black ${gradeColor}">
+                            ${s.percentage}%
+                        </td>
+                        <td class="p-3.5 text-right flex flex-wrap justify-end gap-1">
+                            ${sessionPills || '<span class="text-slate-600 text-[9px] font-mono">No dates</span>'}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Export Bell-Ringers CSV
+        function exportBrCSV(format = 'aeries') {
+            if (aggregatedBrData.length === 0) {
+                alert("No bell-ringer student data to export.");
+                return;
+            }
+
+            const startDate = document.getElementById('br-start-date').value || 'start';
+            const endDate = document.getElementById('br-end-date').value || 'end';
+
+            let headers = [];
+            let rows = [];
+
+            if (format === 'aeries') {
+                headers = ["Student_ID", "Student_Name", "Class_Period", "Earned_Score", "Points_Possible", "Percentage", "Days_Completed", "Total_Sessions"];
+                rows = aggregatedBrData.map(s => [
+                    s.id,
+                    s.name,
+                    s.period || '',
+                    s.earnedPoints,
+                    s.pointsPossible,
+                    `${s.percentage}%`,
+                    s.completedCount,
+                    brDetectedSessions.length
+                ]);
+            } else if (format === 'matrix') {
+                headers = ["Student_ID", "Student_Name", "Class_Period", "Total_Earned", "Points_Possible", ...brDetectedSessions];
+                rows = aggregatedBrData.map(s => {
+                    const sessionScores = brDetectedSessions.map(d => s.sessions[d] !== undefined ? s.sessions[d] : "MISSING");
+                    return [
+                        s.id,
+                        s.name,
+                        s.period || '',
+                        s.earnedPoints,
+                        s.pointsPossible,
+                        ...sessionScores
+                    ];
+                });
+            }
+
+            const csvContent = [headers.join(","), ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))].join("\n");
+            const filename = `BELLRINGERS_${format.toUpperCase()}_${startDate}_to_${endDate}.csv`;
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.setAttribute("href", URL.createObjectURL(blob));
+            link.setAttribute("download", filename);
+            link.click();
+        }
+
+        // =========================================================================
+        // ASSESSMENTS & LABS MODULE (ORIGINAL ARCHIVE SYSTEM)
+        // =========================================================================
         const PRESETS = {
             'unit6': [
                 'WaveMaster Lab',
@@ -262,53 +808,12 @@
             ]
         };
 
-        function toggleMode() {
-            if (aggregationMode === 'SUM') aggregationMode = 'AVERAGE';
-            else if (aggregationMode === 'AVERAGE') aggregationMode = 'DETAILED';
-            else aggregationMode = 'SUM';
-
-            const display = {
-                'SUM': 'SUM_TOTAL',
-                'AVERAGE': 'MEAN_AVERAGE',
-                'DETAILED': 'DETAILED_AUDIT'
-            };
-            document.getElementById('mode-display').textContent = display[aggregationMode];
-            loadPreview();
-        }
-
-        function applyPreset(id) {
-            const list = PRESETS[id];
-            if (!list) return;
-            
-            document.querySelectorAll('.assignment-cb').forEach(cb => {
-                cb.checked = list.includes(cb.value);
-            });
-            loadPreview();
-        }
-
-        function fuzzyMatch(target, query) {
-            if (!query) return true;
-            target = target.toLowerCase();
-            query = query.toLowerCase();
-            if (target.includes(query)) return true;
-            let i = 0, j = 0;
-            while (i < target.length && j < query.length) {
-                if (target[i] === query[j]) j++;
-                i++;
-            }
-            return j === query.length;
-        }
-
-        async function init() {
+        async function loadAssessmentsData() {
             const statusEl = document.getElementById('db-status');
             const archiveCountEl = document.getElementById('total-archive-count');
 
             try {
                 statusEl.textContent = "Scanning...";
-
-                // ── STEP 1: Load ALL flat archive records from student_results ──
-                // These are the migrated Supabase records stored as top-level docs
-                // with fields: assignment_name, student_id, student_name, score, etc.
                 const archiveSnap = await db.collection('student_results').get();
                 
                 const assignmentNamesFromArchive = new Set();
@@ -316,11 +821,7 @@
 
                 archiveSnap.docs.forEach(doc => {
                     const data = doc.data();
-                    // Skip config documents (assignment parent docs with subcollections)
-                    // These have fields like is_global_locked, locked_periods, etc.
                     if (data.is_global_locked !== undefined || (!data.student_id && !data.student_name && !data.score && data.score !== 0)) {
-                        // This is an assignment config doc (parent for nested subcollections)
-                        // Track it as a nested assignment
                         nestedAssignments.add(doc.id);
                         return;
                     }
@@ -340,22 +841,18 @@
 
                 archiveCountEl.textContent = archiveCache.length;
 
-                // ── STEP 2: Also check the assessments collection for registered tests ──
                 const assessmentsSnap = await db.collection('assessments').get();
                 const assessmentNames = assessmentsSnap.docs.map(doc => doc.data().assignment_name || doc.id);
 
-                // ── STEP 3: Merge all known assignment names ──
                 const allAssignments = [...new Set([
                     ...assignmentNamesFromArchive,
                     ...assessmentNames,
                     ...nestedAssignments
                 ])].filter(Boolean).sort();
 
-                // ── STEP 4: Render assignment checkboxes ──
                 const container = document.getElementById('assignment-list');
                 
-                container.innerHTML = allAssignments.map(a => {
-                    // Count records per assignment from cache for the badge
+                container.innerHTML = allAssignments.length > 0 ? allAssignments.map(a => {
                     const count = archiveCache.filter(r => r.assignment_name === a).length;
                     const isNested = nestedAssignments.has(a);
                     const badge = count > 0 
@@ -369,13 +866,12 @@
                             ${badge}
                         </label>
                     `;
-                }).join('');
+                }).join('') : '<p class="text-xs text-slate-500">No assessment records found.</p>';
                 
                 statusEl.textContent = "Connection_Ready";
                 statusEl.className = "text-emerald-400";
-                console.log(`[DATA_EXPORT] Init complete. ${archiveCache.length} archive records loaded. ${allAssignments.length} assignments discovered. ${nestedAssignments.size} nested (live) assignments.`);
             } catch (err) {
-                console.error("[DATA_EXPORT] Init error:", err);
+                console.error("[DATA_EXPORT] Assessments init error:", err);
                 statusEl.textContent = "Access_Denied";
                 statusEl.className = "text-rose-500";
                 archiveCountEl.textContent = "ERR";
@@ -387,11 +883,46 @@
             loadPreview();
         }
 
+        function toggleMode() {
+            if (aggregationMode === 'SUM') aggregationMode = 'AVERAGE';
+            else if (aggregationMode === 'AVERAGE') aggregationMode = 'DETAILED';
+            else aggregationMode = 'SUM';
+
+            const display = {
+                'SUM': 'SUM_TOTAL',
+                'AVERAGE': 'MEAN_AVERAGE',
+                'DETAILED': 'DETAILED_AUDIT'
+            };
+            document.getElementById('mode-display').textContent = display[aggregationMode];
+            loadPreview();
+        }
+
+        function applyPreset(id) {
+            const list = PRESETS[id];
+            if (!list) return;
+            document.querySelectorAll('.assignment-cb').forEach(cb => {
+                cb.checked = list.includes(cb.value);
+            });
+            loadPreview();
+        }
+
+        function fuzzyMatch(target, query) {
+            if (!query) return true;
+            target = (target || '').toLowerCase();
+            query = query.toLowerCase();
+            if (target.includes(query)) return true;
+            let i = 0, j = 0;
+            while (i < target.length && j < query.length) {
+                if (target[i] === query[j]) j++;
+                i++;
+            }
+            return j === query.length;
+        }
+
         async function fetchFilteredResults(selectedAssignments) {
             let allResults = [];
-            const seenKeys = new Set(); // Deduplicate across sources
+            const seenKeys = new Set();
 
-            // ── SOURCE 1: Pull from flat archive cache ──
             for (const assignment of selectedAssignments) {
                 const matching = archiveCache.filter(r => r.assignment_name === assignment);
                 matching.forEach(r => {
@@ -403,7 +934,6 @@
                 });
             }
 
-            // ── SOURCE 2: Pull from nested subcollections (live proctored data) ──
             for (const assignment of selectedAssignments) {
                 if (!nestedAssignments.has(assignment)) continue;
                 
@@ -428,11 +958,29 @@
                         }
                     });
                 } catch (err) {
-                    console.warn(`[DATA_EXPORT] Could not read nested subcollection for "${assignment}":`, err.message);
+                    console.warn(`[DATA_EXPORT] Subcollection read error for "${assignment}":`, err.message);
                 }
             }
 
             return allResults;
+        }
+
+        function reduceToGradebook(rows, mode = 'SUM') {
+            const grouped = rows.reduce((acc, row) => {
+                const id = row.student_id || 'UNKNOWN';
+                if (!acc[id]) acc[id] = { id: id, name: row.student_name, period: row.class_period, totalScore: 0, assignmentCount: 0, raw: [] };
+                acc[id].totalScore += (row.score || 0);
+                acc[id].assignmentCount += 1;
+                acc[id].raw.push(row);
+                if (row.student_name) acc[id].name = row.student_name;
+                if (row.class_period) acc[id].period = row.class_period;
+                return acc;
+            }, {});
+
+            if (mode === 'AVERAGE') {
+                Object.values(grouped).forEach(s => s.totalScore = Math.round(s.totalScore / s.assignmentCount));
+            }
+            return grouped;
         }
 
         async function loadPreview() {
@@ -500,24 +1048,6 @@
                 console.error("Preview failed:", err);
                 tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-rose-500 font-bold uppercase">Sync_Error</td></tr>';
             }
-        }
-
-        function reduceToGradebook(rows, mode = 'SUM') {
-            const grouped = rows.reduce((acc, row) => {
-                const id = row.student_id || 'UNKNOWN';
-                if (!acc[id]) acc[id] = { id: id, name: row.student_name, period: row.class_period, totalScore: 0, assignmentCount: 0, raw: [] };
-                acc[id].totalScore += (row.score || 0);
-                acc[id].assignmentCount += 1;
-                acc[id].raw.push(row);
-                if (row.student_name) acc[id].name = row.student_name;
-                if (row.class_period) acc[id].period = row.class_period;
-                return acc;
-            }, {});
-
-            if (mode === 'AVERAGE') {
-                Object.values(grouped).forEach(s => s.totalScore = Math.round(s.totalScore / s.assignmentCount));
-            }
-            return grouped;
         }
 
         async function exportCSV() {
