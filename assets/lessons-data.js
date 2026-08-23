@@ -342,7 +342,17 @@ const lessonsData = [
     ],
     "links": {
       "Student Instructions": "https://docs.google.com/document/d/188xprYNY0eogCYww45he7McWXoHCAKxVZZWibX7KaPU/edit?usp=sharing",
-      "Lesson Plan": "https://docs.google.com/document/d/1JMY5nWw3dZ_hrxVKjLZisXVsBmV_fQf317EwaEZiS_U/edit?usp=sharing"
+      "Lesson Plan": "https://docs.google.com/document/d/1JMY5nWw3dZ_hrxVKjLZisXVsBmV_fQf317EwaEZiS_U/edit?usp=sharing",
+      "Measuring Tools Reference": "assets/images/measuring_tools_name.png"
+    },
+    "bellRinger": {
+      "type": "concept_chat",
+      "promptQuestion": "There are many types of measurements. Each type of measurement uses a different type of tool and a different type of measurement Unit. For example, we measure our weight with a bathroom scale, in pounds. What other measurement tools and units do you use?",
+      "chatSystemInstruction": "You are an encouraging high school physics AI mentor. Guide students to explore the measurement tools shown in the phenomenon image, the physical quantities they measure (distance/length, mass, time, volume, electric potential, temperature), and the units associated with them. Encourage students to think about how everyday units relate to standardized scientific SI units and why standard units are essential.",
+      "phenomenonType": "image",
+      "phenomenonImageUrl": "https://rrmudry.github.io/assets/images/measuring_tools_name.png",
+      "phenomenonDesc": "Chart of Common Measuring Tools (Ruler, Caliper, Micrometer, Odometer, Beaker, Pipette, Scale, Clock, Voltmeter, Stopwatch, Thermometer, Protractor, Level)",
+      "defaultDuration": 4
     }
   },
   {
