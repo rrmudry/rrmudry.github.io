@@ -443,7 +443,7 @@ CRITICAL RULES:
                         <h3 class="text-lg font-bold text-white">Live Student Submissions</h3>
                         <p class="text-xs text-slate-400 mt-0.5">Real-time submissions and good-faith AI grades.</p>
                     </div>
-                    <button onclick="clearAllTodaySubmissions()" class="px-3 py-1.5 rounded-lg border border-red-500/20 bg-red-500/5 text-red-400 hover:bg-red-500/10 text-xs font-semibold transition-all">
+                    <button id="clear-submissions-btn" onclick="clearAllTodaySubmissions()" class="px-3 py-1.5 rounded-lg border border-red-500/20 bg-red-500/5 text-red-400 hover:bg-red-500/10 text-xs font-semibold transition-all">
                         Clear Today's Submissions
                     </button>
                 </div>
@@ -828,6 +828,7 @@ CRITICAL RULES:
                     // Only fill form values if not active to avoid overwriting typing teacher
                     if (!data.isActive) {
                         if (data.targetPeriod) document.getElementById('period-select').value = data.targetPeriod;
+                        updateClearButtonLabel();
                         if (activeActivityType === "free_response") {
                             if (data.promptQuestion) document.getElementById('prompt-input').value = data.promptQuestion;
                             if (data.explanation) document.getElementById('explanation-input').value = data.explanation;
@@ -1314,30 +1315,85 @@ CRITICAL RULES:
             await overrideScore(docId, numeric);
         }
 
-        // Clear all submissions for today
+        function updateClearButtonLabel() {
+            const periodSelect = document.getElementById('period-select');
+            const clearBtn = document.getElementById('clear-submissions-btn');
+            if (!periodSelect || !clearBtn) return;
+            const val = periodSelect.value;
+            const periodText = val === 'all' ? 'All Periods' : `Period ${val}`;
+            clearBtn.innerText = `Clear Today's Submissions (${periodText})`;
+        }
+
+        document.getElementById('period-select')?.addEventListener('change', updateClearButtonLabel);
+        updateClearButtonLabel();
+
+        // Clear submissions for today with period filtering and soft archiving
         async function clearAllTodaySubmissions() {
-            if (!confirm("Are you sure you want to clear ALL students' submissions for today? This cannot be undone.")) return;
+            const periodSelect = document.getElementById('period-select');
+            const targetPeriod = periodSelect ? periodSelect.value : 'all';
+            const periodLabel = targetPeriod === 'all' ? "ALL periods" : `Period ${targetPeriod}`;
+
+            if (!confirm(`Are you sure you want to clear student submissions for ${periodLabel} today?\n\nSubmissions will be archived safely in Firestore so historical responses, chat logs, and scores are retained.`)) return;
             
             const todayStr = getTodayString();
             try {
+                // Fetch roster to match student periods if a specific period is selected
+                let periodStudentIds = new Set();
+                if (targetPeriod !== 'all') {
+                    const rosterSnap = await db.collection('roster').get();
+                    rosterSnap.forEach(doc => {
+                        const data = doc.data();
+                        const periodVal = String(data.class_period);
+                        if (periodVal === String(targetPeriod)) {
+                            periodStudentIds.add(doc.id);
+                            if (data.studentId) periodStudentIds.add(data.studentId);
+                        }
+                    });
+                }
+
                 const snapshot = await db.collection('bellringers').get();
                 const batch = db.batch();
                 let count = 0;
                 
-                snapshot.forEach(doc => {
+                for (const doc of snapshot.docs) {
                     if (doc.id.endsWith(`_${todayStr}`)) {
-                        batch.delete(doc.ref);
-                        count++;
+                        const data = doc.data();
+                        const stuId = data.studentId || doc.id.split('_')[0];
+                        const docPeriod = data.class_period !== undefined && data.class_period !== null ? String(data.class_period) : null;
+
+                        let matchesPeriod = false;
+                        if (targetPeriod === 'all') {
+                            matchesPeriod = true;
+                        } else if (docPeriod !== null) {
+                            matchesPeriod = (docPeriod === String(targetPeriod));
+                        } else if (periodStudentIds.has(stuId)) {
+                            matchesPeriod = true;
+                        }
+
+                        if (matchesPeriod) {
+                            // Soft Archive: Copy submission record to 'archived_bellringers' collection
+                            const archiveRef = db.collection('archived_bellringers').doc(`${doc.id}_${Date.now()}`);
+                            batch.set(archiveRef, {
+                                ...data,
+                                archivedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                                originalDocId: doc.id
+                            });
+
+                            // Remove active submission from 'bellringers' so student UI resets
+                            batch.delete(doc.ref);
+                            count++;
+                        }
                     }
-                });
+                }
 
                 if (count > 0) {
                     await batch.commit();
-                    alert(`Cleared ${count} submissions.`);
+                    alert(`Successfully cleared and archived ${count} submission(s) for ${periodLabel}. Students in ${periodLabel} can now resubmit.`);
                 } else {
-                    alert("No submissions found to clear.");
+                    alert(`No active submissions found to clear for ${periodLabel}.`);
                 }
             } catch (err) {
+                console.error("Clear failed:", err);
                 alert("Clear failed: " + err.message);
             }
         }
