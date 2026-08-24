@@ -1100,7 +1100,26 @@
                 : "text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-white/10";
 
             document.getElementById('feedback-alert-msg').textContent = "";
-            document.getElementById('btn-next-question').disabled = !isQuestionAnsweredCorrectly;
+            
+            const checkBtn = document.getElementById('btn-check-answer');
+            if (checkBtn) {
+                checkBtn.disabled = isQuestionAnsweredCorrectly;
+                if (isQuestionAnsweredCorrectly) {
+                    checkBtn.classList.add('opacity-40', 'cursor-not-allowed');
+                } else {
+                    checkBtn.classList.remove('opacity-40', 'cursor-not-allowed');
+                }
+            }
+
+            const nextBtn = document.getElementById('btn-next-question');
+            if (nextBtn) {
+                nextBtn.disabled = !isQuestionAnsweredCorrectly;
+                if (isQuestionAnsweredCorrectly) {
+                    nextBtn.classList.add('animate-pulse', 'ring-2', 'ring-emerald-400');
+                } else {
+                    nextBtn.classList.remove('animate-pulse', 'ring-2', 'ring-emerald-400');
+                }
+            }
 
             const body = document.getElementById('dynamic-question-body');
 
@@ -1117,7 +1136,7 @@
                                     : (isSelected ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-200 ring-1 ring-cyan-400' : 'bg-slate-900/90 border-white/10 text-slate-300 hover:border-cyan-500/30');
 
                                 return `
-                                    <button onclick="clickHubOption('${opt.id}')" class="p-3 rounded-xl border text-left text-xs font-mono font-bold transition-all ${style}">
+                                    <button onclick="clickHubOption('${opt.id}')" ${isQuestionAnsweredCorrectly ? 'disabled' : ''} class="p-3 rounded-xl border text-left text-xs font-mono font-bold transition-all ${style}">
                                         ${opt.text}
                                     </button>
                                 `;
@@ -1153,7 +1172,7 @@
                                 </span>
                                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                                     ${q.fractionOptions.map(opt => `
-                                        <button onclick="selectGuidedFraction('${opt.id}')" class="p-3 rounded-xl border border-white/10 bg-slate-900/90 hover:border-cyan-400/60 hover:bg-slate-800 text-center font-mono transition-all active:scale-95 flex flex-col items-center justify-center gap-1">
+                                        <button onclick="selectGuidedFraction('${opt.id}')" ${isQuestionAnsweredCorrectly ? 'disabled' : ''} class="p-3 rounded-xl border border-white/10 bg-slate-900/90 hover:border-cyan-400/60 hover:bg-slate-800 text-center font-mono transition-all active:scale-95 flex flex-col items-center justify-center gap-1">
                                             <div class="inline-flex flex-col items-center leading-tight">
                                                 <span class="border-b border-cyan-400/50 pb-0.5 text-cyan-300 font-bold text-xs">${opt.num}</span>
                                                 <span class="pt-0.5 text-slate-300 text-[11px] font-medium">${opt.den}</span>
@@ -1184,16 +1203,16 @@
                                 <span class="text-slate-500 shrink-0 font-bold">=</span>
 
                                 <div class="flex items-center gap-2 shrink-0">
-                                    <input type="text" id="calc-target-input" disabled placeholder="🔒 Compute in Desmos..." 
+                                    <input type="text" id="calc-target-input" ${isQuestionAnsweredCorrectly ? 'disabled' : ''} placeholder="🔒 Compute in Desmos..." 
                                            onkeydown="if(event.key==='Enter') evaluateAnswer()"
-                                           class="w-28 bg-slate-900 border border-amber-500/30 text-white px-3 py-1.5 rounded-xl text-center font-mono font-bold outline-none opacity-40 cursor-not-allowed transition-all">
+                                           class="w-28 bg-slate-900 border ${isQuestionAnsweredCorrectly ? 'border-emerald-500/50 text-emerald-300' : 'border-amber-500/30 text-white'} px-3 py-1.5 rounded-xl text-center font-mono font-bold outline-none ${isQuestionAnsweredCorrectly ? '' : 'opacity-40 cursor-not-allowed'} transition-all">
                                     <span class="text-slate-300 font-bold">${q.targetUnit}</span>
                                 </div>
                             </div>
 
                             <div class="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[11px] font-mono flex items-center justify-between">
                                 <span>✓ Units cancelled! <strong>Step 2:</strong> Compute this calculation in Desmos on the right.</span>
-                                <button onclick="resetGuidedFraction()" class="text-[10px] text-slate-400 hover:text-white underline">Change Fraction</button>
+                                ${!isQuestionAnsweredCorrectly ? `<button onclick="resetGuidedFraction()" class="text-[10px] text-slate-400 hover:text-white underline">Change Fraction</button>` : ''}
                             </div>
                         </div>
                     `;
@@ -1209,9 +1228,9 @@
                             </div>
                             
                             <div class="flex items-center gap-2">
-                                <input type="text" id="calc-target-input" disabled placeholder="🔒 Compute in Desmos..." 
+                                <input type="text" id="calc-target-input" ${isQuestionAnsweredCorrectly ? 'disabled' : ''} placeholder="🔒 Compute in Desmos..." 
                                        onkeydown="if(event.key==='Enter') evaluateAnswer()"
-                                       class="w-32 bg-slate-900 border border-amber-500/30 text-white px-3 py-2 rounded-xl text-center text-xs font-mono font-bold outline-none opacity-40 cursor-not-allowed transition-all">
+                                       class="w-32 bg-slate-900 border ${isQuestionAnsweredCorrectly ? 'border-emerald-500/50 text-emerald-300' : 'border-amber-500/30 text-white'} px-3 py-2 rounded-xl text-center text-xs font-mono font-bold outline-none ${isQuestionAnsweredCorrectly ? '' : 'opacity-40 cursor-not-allowed'} transition-all">
                                 <span class="text-xs font-mono font-bold text-cyan-400 bg-cyan-500/10 px-2.5 py-2 rounded-xl border border-cyan-500/20">${q.targetUnit}</span>
                             </div>
                         </div>
@@ -1221,11 +1240,13 @@
         }
 
         function clickHubOption(optId) {
+            if (isQuestionAnsweredCorrectly) return;
             selectedHubOption = optId;
             renderCurrentQuestion();
         }
 
         function selectGuidedFraction(optId) {
+            if (isQuestionAnsweredCorrectly || isGuidedFractionSelected) return;
             const q = currentQuestion;
             if (!q || q.type !== "guided") return;
 
@@ -1256,6 +1277,7 @@
         }
 
         function resetGuidedFraction() {
+            if (isQuestionAnsweredCorrectly) return;
             isGuidedFractionSelected = false;
             selectedGuidedFractionId = null;
             renderCurrentQuestion();
@@ -1267,6 +1289,9 @@
         // =========================================================================
 
         function evaluateAnswer() {
+            // CRITICAL: Prevent re-evaluating or re-incrementing streak on already answered question
+            if (isQuestionAnsweredCorrectly) return;
+
             const q = currentQuestion;
             const feedbackEl = document.getElementById('feedback-alert-msg');
             const cardEl = document.getElementById('main-question-card');
@@ -1323,13 +1348,30 @@
             }
 
             if (isCorrect) {
-                // Correct: increment streak
+                // Correct: increment streak exactly once
                 isQuestionAnsweredCorrectly = true;
                 currentStreak++;
                 updateStreakUI();
                 feedbackEl.textContent = `✓ Correct! Streak: ${currentStreak}/${STREAK_TARGET}`;
                 feedbackEl.className = "text-xs font-bold font-mono text-emerald-400";
-                document.getElementById('btn-next-question').disabled = false;
+                
+                // Immediately disable Check Answer and enable Next Question
+                const checkBtn = document.getElementById('btn-check-answer');
+                if (checkBtn) {
+                    checkBtn.disabled = true;
+                    checkBtn.classList.add('opacity-40', 'cursor-not-allowed');
+                }
+                const inputEl = document.getElementById('calc-target-input');
+                if (inputEl) {
+                    inputEl.disabled = true;
+                }
+                const nextBtn = document.getElementById('btn-next-question');
+                if (nextBtn) {
+                    nextBtn.disabled = false;
+                    nextBtn.classList.add('animate-pulse', 'ring-2', 'ring-emerald-400');
+                    nextBtn.focus();
+                }
+
                 document.getElementById('card-status-pill').textContent = "✓ Completed";
                 document.getElementById('card-status-pill').className = "text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
 
