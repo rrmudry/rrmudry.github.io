@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unit Conversion Practice // Scaffolded Mastery</title>
+    <title>Unit Conversion Mastery // 4-in-a-Row Streak</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Firebase SDK Compat -->
@@ -29,13 +29,13 @@
         .font-orbitron { font-family: 'Orbitron', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         .glass {
-            background: rgba(15, 23, 42, 0.8);
+            background: rgba(15, 23, 42, 0.85);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
         .glass-card {
-            background: rgba(17, 24, 39, 0.7);
+            background: rgba(17, 24, 39, 0.75);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.07);
         }
@@ -63,13 +63,22 @@
         .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(56, 189, 248, 0.25); border-radius: 10px; }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+        .shake-anim {
+            animation: shake 0.4s ease-in-out;
+        }
     </style>
 </head>
-<body class="p-2 sm:p-4 md:p-6 flex flex-col items-center justify-start min-h-screen text-slate-100 relative overflow-x-hidden">
+<body class="p-2 sm:p-3 md:p-4 flex flex-col items-center justify-start min-h-screen text-slate-100 relative overflow-x-hidden">
 
     <!-- Auth Guard Layer -->
-    <div id="auth-overlay" class="fixed inset-0 z-[100] bg-slate-950/95 flex flex-col items-center justify-center p-4">
-        <div class="glass max-w-md w-full p-8 md:p-10 rounded-[2.5rem] border border-cyan-500/20 text-center space-y-6 shadow-2xl">
+    <div id="auth-overlay" class="fixed inset-0 z-[150] bg-slate-950/95 flex flex-col items-center justify-center p-4">
+        <div class="glass max-w-md w-full p-8 rounded-[2.5rem] border border-cyan-500/20 text-center space-y-6 shadow-2xl">
             <div class="flex justify-center">
                 <div class="bg-cyan-500/10 border border-cyan-500/30 p-5 rounded-3xl shadow-xl shadow-cyan-500/10 animate-pulse">
                     <svg class="text-cyan-400 w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -78,12 +87,12 @@
                 </div>
             </div>
             <div class="space-y-2">
-                <h1 class="text-2xl md:text-3xl font-orbitron font-black gradient-text tracking-tighter uppercase">Unit Conversions</h1>
-                <p class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Factor-Label Interactive Practice</p>
+                <h1 class="text-2xl font-orbitron font-black gradient-text tracking-tighter uppercase">Unit Conversion Mastery</h1>
+                <p class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">4-in-a-Row Streak Challenge</p>
             </div>
             
             <p class="text-xs text-slate-300 leading-relaxed">
-                Sign in with your school Google account (<span class="text-cyan-400 font-mono">@orangeusd.org</span>) to begin practice and automatically record your highest score.
+                Sign in with your school Google account (<span class="text-cyan-400 font-mono">@orangeusd.org</span>) to begin practice and sync your mastery grade.
             </p>
 
             <button id="btn-login" class="w-full bg-white text-slate-950 py-3.5 px-6 rounded-2xl font-black uppercase tracking-wider text-xs flex items-center justify-center gap-3 hover:bg-cyan-50 transition-all active:scale-95 shadow-xl">
@@ -95,163 +104,242 @@
         </div>
     </div>
 
-    <!-- Main Workspace (Optimized for 1280x720 Chromebooks) -->
-    <div id="app-container" class="w-full max-w-7xl space-y-4 opacity-0 transition-opacity duration-500 pb-10">
+    <!-- Upfront Instructions & Rules Modal -->
+    <div id="rules-modal" class="fixed inset-0 z-[140] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="glass max-w-lg w-full p-6 md:p-8 rounded-3xl border border-amber-500/30 text-left space-y-5 shadow-2xl">
+            <div class="flex items-center gap-3 border-b border-white/10 pb-3">
+                <div class="p-2 bg-amber-500/20 text-amber-300 rounded-xl">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </div>
+                <div>
+                    <h2 class="text-base font-orbitron font-black text-amber-300 uppercase">Mastery Challenge Rules</h2>
+                    <p class="text-[10px] font-mono text-slate-400">Please read carefully before starting</p>
+                </div>
+            </div>
+
+            <div class="space-y-3.5 text-xs text-slate-200">
+                <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-900/80 border border-white/5">
+                    <span class="text-lg">🎯</span>
+                    <div>
+                        <strong class="text-amber-400 block text-xs">4-in-a-Row Streak Required</strong>
+                        <p class="text-[11px] text-slate-300 mt-0.5">You must answer <strong>4 consecutive questions correctly</strong> to complete and advance past each section. If you make an error, your streak resets to 0/4!</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-900/80 border border-white/5">
+                    <span class="text-lg">🧮</span>
+                    <div>
+                        <strong class="text-cyan-400 block text-xs">Calculator Usage is Mandatory</strong>
+                        <p class="text-[11px] text-slate-300 mt-0.5">You must compute your answers using the <strong>embedded calculator</strong> on the right panel. Submissions are only accepted after calculating!</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-900/80 border border-white/5">
+                    <span class="text-lg">🚫</span>
+                    <div>
+                        <strong class="text-rose-400 block text-xs">No Answers are Given</strong>
+                        <p class="text-[11px] text-slate-300 mt-0.5">The system will never reveal the answer. You may not advance to the next problem until your current calculation is checked and verified.</p>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="dismissRulesModal()" class="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-black rounded-xl uppercase tracking-wider text-xs shadow-lg shadow-amber-500/10 active:scale-95 transition-all">
+                I Understand — Start Mastery Challenge →
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Container (Tailored for 1280x720 Chromebooks) -->
+    <div id="app-container" class="w-full max-w-7xl space-y-3 opacity-0 transition-opacity duration-500 pb-8">
         
         <!-- Header Bar -->
-        <header class="glass rounded-2xl px-5 py-3.5 flex flex-wrap items-center justify-between gap-4 border border-white/10 shadow-lg">
+        <header class="glass rounded-2xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 border border-white/10 shadow-lg">
             <div class="flex items-center gap-3">
                 <div class="p-2 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
-                        <h1 class="text-base sm:text-lg font-orbitron font-black gradient-text tracking-tight uppercase">Unit Conversion Practice</h1>
-                        <span id="header-part-badge" class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 font-bold">Part 1: Metric</span>
+                        <h1 class="text-sm sm:text-base font-orbitron font-black gradient-text tracking-tight uppercase">Unit Conversion Mastery</h1>
+                        <span id="header-section-pill" class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 font-bold">Section 1/6</span>
                     </div>
-                    <!-- NGSS Standard Badge Container -->
                     <div data-ngss="HS-PS1-7,HS-ETS1-2,HS-ETS1-1" class="flex gap-1.5 mt-0.5"></div>
                 </div>
             </div>
 
-            <!-- Score & Profile -->
-            <div class="flex items-center gap-4 sm:gap-6">
+            <!-- Score & Streak HUD -->
+            <div class="flex items-center gap-3 sm:gap-5">
                 <div class="text-right">
-                    <span class="text-[9px] uppercase tracking-widest text-slate-400 font-bold block">Score</span>
-                    <span id="score-display" class="text-base sm:text-lg font-orbitron font-black text-emerald-400">0% <span class="text-[10px] text-slate-500 font-mono">(0/24)</span></span>
+                    <span class="text-[8px] uppercase tracking-widest text-slate-400 font-bold block">Mastery Grade</span>
+                    <span id="mastery-grade-display" class="text-sm sm:text-base font-orbitron font-black text-emerald-400">0% <span class="text-[9px] text-slate-500 font-mono">(0/6 Sections)</span></span>
                 </div>
-                <div class="text-right border-l border-white/10 pl-3 sm:pl-6">
-                    <span class="text-[9px] uppercase tracking-widest text-slate-400 font-bold block">High Score</span>
-                    <span id="high-score-display" class="text-base sm:text-lg font-orbitron font-black text-cyan-400">--%</span>
+                <div class="text-right border-l border-white/10 pl-3">
+                    <span class="text-[8px] uppercase tracking-widest text-slate-400 font-bold block">Best Saved</span>
+                    <span id="high-score-display" class="text-sm sm:text-base font-orbitron font-black text-cyan-400">--%</span>
                 </div>
 
-                <!-- Finish / Save Grade -->
-                <button onclick="finalizeSubmission()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black uppercase tracking-wider text-xs shadow-lg shadow-emerald-600/20 active:scale-95 transition-all flex items-center gap-1.5">
+                <!-- Submit / Save Grade -->
+                <button onclick="finalizeSubmission()" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black uppercase tracking-wider text-[11px] shadow-lg shadow-emerald-600/20 active:scale-95 transition-all flex items-center gap-1.5">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                     <span>Submit</span>
                 </button>
 
-                <!-- Student Profile Chip -->
-                <div class="flex items-center gap-2 bg-white/5 border border-white/10 pl-3 pr-2 py-1 rounded-xl text-xs">
-                    <span id="student-name-chip" class="font-bold text-slate-300 max-w-[90px] truncate">Student</span>
-                    <button onclick="logout()" title="Sign Out" class="text-slate-500 hover:text-rose-400 p-1">
+                <!-- Student Profile -->
+                <div class="flex items-center gap-1.5 bg-white/5 border border-white/10 pl-2.5 pr-1.5 py-1 rounded-xl text-xs">
+                    <span id="student-name-chip" class="font-bold text-slate-300 max-w-[80px] truncate text-[11px]">Student</span>
+                    <button onclick="logout()" title="Sign Out" class="text-slate-500 hover:text-rose-400 p-0.5">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                     </button>
                 </div>
             </div>
         </header>
 
-        <!-- Progress Tracker Bar -->
-        <div class="glass rounded-xl px-4 py-2.5 flex flex-col sm:flex-row items-center justify-between gap-3 border border-white/5">
-            <div class="flex items-center gap-3 w-full sm:w-auto">
-                <span id="step-title-pill" class="px-2.5 py-1 rounded-lg bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-[10px] font-bold font-mono uppercase tracking-wider">
-                    Step 1: Identify Factor
-                </span>
-                <span id="question-index-label" class="text-xs font-mono text-slate-300 font-bold">
-                    Question 1 of 24
-                </span>
+        <!-- Stage Progress Bar & Live 4-Streak Meter -->
+        <div class="glass rounded-xl px-4 py-2 flex flex-wrap items-center justify-between gap-3 border border-white/5">
+            <div class="flex items-center gap-2">
+                <span class="text-[9px] font-black uppercase tracking-wider font-orbitron text-slate-400">Section Roadmap:</span>
+                <div id="section-pills-container" class="flex gap-1">
+                    <!-- Injected by JS (6 Section Badges) -->
+                </div>
             </div>
 
-            <!-- Mini Step Progress Dots -->
-            <div id="progress-dots-bar" class="flex items-center gap-1 overflow-x-auto custom-scrollbar max-w-full py-1">
-                <!-- Injected by JS -->
+            <!-- 4-in-a-Row Streak Meter -->
+            <div class="flex items-center gap-2.5">
+                <span class="text-[10px] font-black uppercase tracking-widest text-amber-300 font-orbitron">Streak Requirement:</span>
+                <div id="streak-boxes-container" class="flex gap-1.5">
+                    <!-- 4 Boxes (e.g. [✓][✓][ ][ ]) -->
+                </div>
+                <span id="streak-count-text" class="text-xs font-mono font-bold text-amber-400">0/4</span>
             </div>
         </div>
 
-        <!-- 2-COLUMN SPLIT WORKSPACE (Question Left 60%, Calculator Right 40%) -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        <!-- 2-COLUMN SPLIT WORKSPACE (Question Left 58%, Calculator Right 42%) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
             
-            <!-- LEFT COLUMN: Single Question Workspace (7 of 12 cols) -->
-            <main class="lg:col-span-7 space-y-4">
+            <!-- LEFT COLUMN: Single Question Workspace -->
+            <main class="lg:col-span-7 space-y-3">
                 
                 <!-- Main Question Card -->
-                <div class="glass rounded-2xl p-5 md:p-6 border border-white/10 shadow-xl space-y-5 min-h-[380px] flex flex-col justify-between">
+                <div id="main-question-card" class="glass rounded-2xl p-4 sm:p-5 border border-white/10 shadow-xl space-y-4 min-h-[360px] flex flex-col justify-between transition-all">
                     
-                    <div class="space-y-4">
-                        <!-- Step Level Badge & Question Prompt -->
-                        <div class="space-y-2">
+                    <div class="space-y-3">
+                        <!-- Step Header & Question Prompt -->
+                        <div class="space-y-1.5">
                             <div class="flex items-center justify-between">
-                                <span id="card-level-label" class="text-[10px] font-black uppercase tracking-wider font-orbitron text-amber-400">Level 1 // Factor Identification</span>
-                                <span id="card-status-badge" class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-white/10">In Progress</span>
+                                <span id="card-stage-title" class="text-[10px] font-black uppercase tracking-wider font-orbitron text-cyan-400">Section 1 // Identify Factor</span>
+                                <span id="card-status-pill" class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-white/10">In Progress</span>
                             </div>
-                            <h2 id="card-question-prompt" class="text-sm md:text-base font-semibold text-slate-100 leading-snug">
-                                Loading question...
+                            <h2 id="card-question-prompt" class="text-xs sm:text-sm font-semibold text-slate-100 leading-snug">
+                                Loading prompt...
                             </h2>
                         </div>
 
-                        <!-- DYNAMIC WORKSPACE BODY: Form changes based on question type -->
-                        <div id="question-dynamic-body" class="space-y-4 pt-2">
-                            <!-- Injected dynamically:
-                                 - Level 1: Interactive Conversion Hub Grid (Click to select)
-                                 - Level 2: Glowing Math Factor-Label Scaffold (given * frac = ? unit)
-                                 - Level 3: Independent Solve workspace
+                        <!-- Dynamic Question Body -->
+                        <div id="dynamic-question-body" class="space-y-3 pt-1">
+                            <!-- Injected:
+                                 - Factor Match (Interactive Conversion Hub Clicker)
+                                 - Guided Math (Screenshot fraction visual + calculator prompt)
+                                 - Independent Solve (Single/Multi-step solve + calculator prompt)
                             -->
                         </div>
                     </div>
 
-                    <!-- Action Toolbar -->
-                    <div class="pt-4 border-t border-white/5 flex flex-wrap items-center justify-between gap-3">
+                    <!-- Bottom Action Controls -->
+                    <div class="pt-3 border-t border-white/5 flex flex-wrap items-center justify-between gap-2">
                         <div class="flex items-center gap-2">
-                            <button id="btn-prev-q" onclick="navigateQuestion(-1)" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-white/10 text-slate-300 text-xs font-bold transition-all disabled:opacity-30 disabled:pointer-events-none flex items-center gap-1">
-                                ← Prev
-                            </button>
-                            <button id="btn-next-q" onclick="navigateQuestion(1)" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-white/10 text-slate-300 text-xs font-bold transition-all disabled:opacity-30 disabled:pointer-events-none flex items-center gap-1">
-                                Next →
-                            </button>
+                            <span id="calc-status-indicator" class="text-[10px] font-mono font-bold px-2 py-1 rounded-lg bg-slate-900 border border-white/10 text-slate-500 flex items-center gap-1">
+                                <span>🧮</span> <span id="calc-status-text">Calculator Not Used Yet</span>
+                            </span>
                         </div>
 
-                        <div class="flex items-center gap-3">
-                            <span id="question-feedback-msg" class="text-xs font-bold font-mono"></span>
-                            <button id="btn-check-answer" onclick="checkCurrentAnswer()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-black uppercase tracking-wider shadow-lg shadow-cyan-500/20 active:scale-95 transition-all">
+                        <div class="flex items-center gap-2.5">
+                            <span id="feedback-alert-msg" class="text-xs font-bold font-mono"></span>
+                            
+                            <button id="btn-check-answer" onclick="evaluateAnswer()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-black uppercase tracking-wider shadow-lg shadow-cyan-500/20 active:scale-95 transition-all">
                                 Check Answer
+                            </button>
+                            
+                            <button id="btn-next-question" onclick="advanceNextQuestion()" disabled class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-20 disabled:pointer-events-none text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1">
+                                <span>Next Question</span> →
                             </button>
                         </div>
                     </div>
 
                 </div>
 
-                <!-- Reference Drawer Toggle (For Quick Glance) -->
-                <div class="glass-card rounded-xl p-3 border border-white/5 flex items-center justify-between text-xs">
-                    <div class="flex items-center gap-2 text-slate-400">
-                        <span class="text-amber-400 font-bold">💡 Need Reference?</span>
-                        <span class="hidden sm:inline text-slate-500">View all metric and cross-system factors</span>
-                    </div>
+                <!-- Reference Drawer Quick Link -->
+                <div class="glass-card rounded-xl px-3.5 py-2 border border-white/5 flex items-center justify-between text-xs">
+                    <span class="text-slate-400 text-[11px] font-mono">💡 Look up conversion relationships</span>
                     <button onclick="toggleReferenceModal()" class="text-cyan-400 hover:text-cyan-300 font-bold uppercase text-[10px] tracking-wider transition-colors">
-                        Open Conversion Reference ↗
+                        Conversion Reference ↗
                     </button>
                 </div>
 
             </main>
 
-            <!-- RIGHT COLUMN: Embedded Desmos Calculator (5 of 12 cols) -->
-            <aside class="lg:col-span-5 glass rounded-2xl p-3.5 border border-white/10 shadow-xl flex flex-col h-[460px] lg:h-[500px]">
-                <div class="flex items-center justify-between border-b border-white/10 pb-2.5 mb-2.5 px-1">
+            <!-- RIGHT COLUMN: Embedded Scientific Calculator -->
+            <aside class="lg:col-span-5 glass rounded-2xl p-3.5 border border-white/10 shadow-xl flex flex-col h-[420px] lg:h-[460px]">
+                <div class="flex items-center justify-between border-b border-white/10 pb-2 mb-2 px-1">
                     <div class="flex items-center gap-2">
                         <div class="p-1 bg-cyan-500/20 text-cyan-400 rounded-md">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
                         </div>
-                        <span class="text-[11px] font-black uppercase tracking-wider font-orbitron text-cyan-300">Desmos Scientific Calculator</span>
+                        <span class="text-[11px] font-black uppercase tracking-wider font-orbitron text-cyan-300">Scientific Calculator</span>
                     </div>
-                    <span class="text-[9px] font-mono text-slate-400 font-bold bg-white/5 px-2 py-0.5 rounded border border-white/5">EMBEDDED</span>
+                    <span class="text-[8px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 font-bold">MANDATORY TOOL</span>
                 </div>
                 
-                <div class="flex-1 bg-white rounded-xl overflow-hidden shadow-inner border border-slate-700 relative">
-                    <iframe id="desmos-calc-iframe" src="https://www.desmos.com/scientific?embed" class="w-full h-full border-0" allow="clipboard-write"></iframe>
+                <!-- Calculator LCD Screen -->
+                <div class="bg-slate-950 p-2.5 rounded-xl border border-white/10 mb-2.5 text-right font-mono shadow-inner">
+                    <div id="calc-history" class="text-[10px] text-slate-500 h-4 truncate">0</div>
+                    <div id="calc-display" class="text-lg font-bold text-cyan-300 truncate">0</div>
                 </div>
-                <p class="text-center text-[9px] text-slate-500 font-mono mt-2 uppercase tracking-widest">Perform factor-label calculations side-by-side</p>
+
+                <!-- Calculator Keypad Grid -->
+                <div class="grid grid-cols-4 gap-1.5 flex-1 text-xs font-mono font-bold">
+                    <button onclick="calcClear()" class="p-2 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30">C</button>
+                    <button onclick="calcInput('(')" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-white/5">(</button>
+                    <button onclick="calcInput(')')" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-white/5">)</button>
+                    <button onclick="calcInput('/')" class="p-2 rounded-lg bg-cyan-600/30 hover:bg-cyan-600/50 text-cyan-300 border border-cyan-500/30">÷</button>
+
+                    <button onclick="calcInput('7')" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-white/5">7</button>
+                    <button onclick="calcInput('8')" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-white/5">8</button>
+                    <button onclick="calcInput('9')" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-white/5">9</button>
+                    <button onclick="calcInput('*')" class="p-2 rounded-lg bg-cyan-600/30 hover:bg-cyan-600/50 text-cyan-300 border border-cyan-500/30">×</button>
+
+                    <button onclick="calcInput('4')" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-white/5">4</button>
+                    <button onclick="calcInput('5')" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-white/5">5</button>
+                    <button onclick="calcInput('6')" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-white/5">6</button>
+                    <button onclick="calcInput('-')" class="p-2 rounded-lg bg-cyan-600/30 hover:bg-cyan-600/50 text-cyan-300 border border-cyan-500/30">−</button>
+
+                    <button onclick="calcInput('1')" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-white/5">1</button>
+                    <button onclick="calcInput('2')" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-white/5">2</button>
+                    <button onclick="calcInput('3')" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-white/5">3</button>
+                    <button onclick="calcInput('+')" class="p-2 rounded-lg bg-cyan-600/30 hover:bg-cyan-600/50 text-cyan-300 border border-cyan-500/30">+</button>
+
+                    <button onclick="calcInput('0')" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-white/5 col-span-1">0</button>
+                    <button onclick="calcInput('.')" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-white/5">.</button>
+                    <button onclick="calcBackspace()" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-amber-300 border border-white/5">⌫</button>
+                    <button onclick="calcEquals()" class="p-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-black border border-emerald-500/40">=</button>
+                </div>
+
+                <!-- Insert Result into Answer Box Button -->
+                <button onclick="transferResultToAnswer()" class="mt-2 w-full py-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-[10px] font-bold rounded-lg uppercase tracking-wider transition-all flex items-center justify-center gap-1">
+                    <span>📋 Paste Result into Answer Box</span>
+                </button>
             </aside>
 
         </div>
 
     </div>
 
-    <!-- Conversion Reference Modal -->
-    <div id="reference-modal" class="fixed inset-0 z-[120] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <!-- Reference Modal -->
+    <div id="reference-modal" class="fixed inset-0 z-[160] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
         <div class="glass max-w-2xl w-full p-6 rounded-3xl border border-cyan-500/30 text-left space-y-5 shadow-2xl">
             <div class="flex items-center justify-between border-b border-white/10 pb-3">
-                <h3 class="text-base font-orbitron font-black text-cyan-300 uppercase">Conversion Hub & Factors Reference</h3>
+                <h3 class="text-sm font-orbitron font-black text-cyan-300 uppercase">Conversion Hub & Factors Reference</h3>
                 <button onclick="toggleReferenceModal()" class="text-slate-400 hover:text-white p-1">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
@@ -293,28 +381,28 @@
     </div>
 
     <!-- Final Submission Confirmation Modal -->
-    <div id="completion-modal" class="fixed inset-0 z-[130] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div id="completion-modal" class="fixed inset-0 z-[170] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
         <div class="glass max-w-lg w-full p-8 rounded-3xl border border-emerald-500/30 text-center space-y-6 shadow-2xl">
             <div class="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 mx-auto flex items-center justify-center text-emerald-400 text-3xl font-bold">
                 ✓
             </div>
             <div class="space-y-2">
-                <h2 class="text-2xl font-orbitron font-black text-white uppercase">Grade Submitted!</h2>
-                <p id="modal-score-summary" class="text-emerald-400 font-mono text-xl font-bold">Score: 100% (24/24)</p>
-                <p class="text-xs text-slate-400">Your score has been permanently recorded to the classroom gradebook archive.</p>
+                <h2 class="text-xl font-orbitron font-black text-white uppercase">Mastery Grade Submitted!</h2>
+                <p id="modal-score-summary" class="text-emerald-400 font-mono text-lg font-bold">Mastery: 100% (6/6 Sections)</p>
+                <p class="text-xs text-slate-400">All 6 conversion mastery stages have been permanently recorded to the classroom gradebook.</p>
             </div>
             <div class="p-4 rounded-2xl bg-slate-900/80 border border-white/5 text-left text-xs font-mono space-y-1.5 text-slate-300">
-                <div class="flex justify-between"><span>Assignment:</span><span class="text-cyan-400 font-bold">Unit Conversion Practice</span></div>
+                <div class="flex justify-between"><span>Assignment:</span><span class="text-cyan-400 font-bold">Unit Conversion Mastery</span></div>
                 <div class="flex justify-between"><span>Student:</span><span id="modal-student-name" class="text-white">---</span></div>
-                <div class="flex justify-between"><span>Recorded Time:</span><span id="modal-timestamp" class="text-slate-400">---</span></div>
+                <div class="flex justify-between"><span>Submission Time:</span><span id="modal-timestamp" class="text-slate-400">---</span></div>
             </div>
             <button onclick="closeCompletionModal()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl uppercase tracking-wider text-xs transition-all">
-                Continue Practice / Review
+                Continue Practice
             </button>
         </div>
     </div>
 
-    <!-- Core App Logic -->
+    <!-- Dynamic 4-in-a-Row Mastery Engine -->
     <script>
         const ASSIGNMENT_ID = "Unit_Conversion_Practice";
 
@@ -331,354 +419,25 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        // 24 Structured Scaffolded Questions
-        const QUESTIONS = [
-            // ==========================================
-            // PART 1: METRIC PREFIX CONVERSIONS (12 Qs)
-            // ==========================================
-
-            // LEVEL 1: IDENTIFY FACTOR (Hub Clicking)
-            {
-                id: 1,
-                part: 1,
-                level: 1,
-                levelName: "Level 1: Identify Factor",
-                prompt: "You need to convert 4,500 grams (g) to kilograms (kg). Click on the correct conversion factor from the Conversion Hub below:",
-                hubOptions: [
-                    { id: "1kg_1000g", text: "1 kilogram (kg) = 1,000 grams (g)" },
-                    { id: "1km_1000m", text: "1 kilometer (km) = 1,000 meters (m)" },
-                    { id: "1m_100cm", text: "1 meter (m) = 100 centimeters (cm)" },
-                    { id: "1L_1000mL", text: "1 Liter (L) = 1,000 milliliters (mL)" }
-                ],
-                correctHubId: "1kg_1000g"
-            },
-            {
-                id: 2,
-                part: 1,
-                level: 1,
-                levelName: "Level 1: Identify Factor",
-                prompt: "You need to convert a 2.1-meter doorway to centimeters (cm). Click on the correct conversion factor from the Conversion Hub below:",
-                hubOptions: [
-                    { id: "1m_100cm", text: "1 meter (m) = 100 centimeters (cm)" },
-                    { id: "1km_1000m", text: "1 kilometer (km) = 1,000 meters (m)" },
-                    { id: "1m_1000mm", text: "1 meter (m) = 1,000 millimeters (mm)" },
-                    { id: "1kg_1000g", text: "1 kilogram (kg) = 1,000 grams (g)" }
-                ],
-                correctHubId: "1m_100cm"
-            },
-            {
-                id: 3,
-                part: 1,
-                level: 1,
-                levelName: "Level 1: Identify Factor",
-                prompt: "You need to convert 355 milliliters (mL) to Liters (L). Click on the correct conversion factor from the Conversion Hub below:",
-                hubOptions: [
-                    { id: "1L_1000mL", text: "1 Liter (L) = 1,000 milliliters (mL)" },
-                    { id: "1kg_1000g", text: "1 kilogram (kg) = 1,000 grams (g)" },
-                    { id: "1m_100cm", text: "1 meter (m) = 100 centimeters (cm)" },
-                    { id: "1km_1000m", text: "1 kilometer (km) = 1,000 meters (m)" }
-                ],
-                correctHubId: "1L_1000mL"
-            },
-
-            // LEVEL 2: GUIDED SETUP & CALCULATOR USE
-            {
-                id: 4,
-                part: 1,
-                level: 2,
-                levelName: "Level 2: Guided Calculation",
-                prompt: "Convert 4,500 grams (g) to kilograms (kg). Use the embedded calculator to solve the factor-label calculation shown below:",
-                givenNum: "4,500",
-                givenUnit: "g",
-                numerator: "1 kg",
-                denominator: "1000 g",
-                targetUnit: "kg",
-                correctAnswer: 4.5,
-                tolerance: 0.05,
-                unit: "kg",
-                hint: "In your calculator, enter: 4500 * (1 / 1000) or 4500 / 1000."
-            },
-            {
-                id: 5,
-                part: 1,
-                level: 2,
-                levelName: "Level 2: Guided Calculation",
-                prompt: "A standard doorway is 2.1 meters (m) tall. How tall is it in centimeters (cm)? Use the embedded calculator to solve:",
-                givenNum: "2.1",
-                givenUnit: "m",
-                numerator: "100 cm",
-                denominator: "1 m",
-                targetUnit: "cm",
-                correctAnswer: 210,
-                tolerance: 1,
-                unit: "cm",
-                hint: "In your calculator, enter: 2.1 * 100."
-            },
-            {
-                id: 6,
-                part: 1,
-                level: 2,
-                levelName: "Level 2: Guided Calculation",
-                prompt: "A can of soda contains 355 milliliters (mL). How many Liters (L) is this? Use the embedded calculator to solve:",
-                givenNum: "355",
-                givenUnit: "mL",
-                numerator: "1 L",
-                denominator: "1000 mL",
-                targetUnit: "L",
-                correctAnswer: 0.355,
-                tolerance: 0.005,
-                unit: "L",
-                hint: "In your calculator, enter: 355 / 1000."
-            },
-            {
-                id: 7,
-                part: 1,
-                level: 2,
-                levelName: "Level 2: Guided Calculation",
-                prompt: "A student runs a 5k race, which is 5 kilometers (km). How many meters (m) did they run? Use the embedded calculator to solve:",
-                givenNum: "5",
-                givenUnit: "km",
-                numerator: "1000 m",
-                denominator: "1 km",
-                targetUnit: "m",
-                correctAnswer: 5000,
-                tolerance: 5,
-                unit: "m",
-                hint: "In your calculator, enter: 5 * 1000."
-            },
-
-            // LEVEL 3: INDEPENDENT CONVERSIONS
-            {
-                id: 8,
-                part: 1,
-                level: 3,
-                levelName: "Level 3: Independent Solve",
-                prompt: "Convert 25 centimeters (cm) to millimeters (mm). Complete the conversion using the embedded calculator:",
-                correctAnswer: 250,
-                tolerance: 1,
-                unit: "mm",
-                hint: "1 cm = 10 mm. Multiply 25 by 10."
-            },
-            {
-                id: 9,
-                part: 1,
-                level: 3,
-                levelName: "Level 3: Independent Solve",
-                prompt: "A large bag of flour has a mass of 2.2 kilograms (kg). How many grams (g) is that? Complete the conversion using the calculator:",
-                correctAnswer: 2200,
-                tolerance: 5,
-                unit: "g",
-                hint: "1 kg = 1000 g. Multiply 2.2 by 1000."
-            },
-            {
-                id: 10,
-                part: 1,
-                level: 3,
-                levelName: "Level 3: Independent Solve",
-                prompt: "Convert 0.75 Liters (L) to milliliters (mL). Complete the conversion using the calculator:",
-                correctAnswer: 750,
-                tolerance: 5,
-                unit: "mL",
-                hint: "1 L = 1000 mL. Multiply 0.75 by 1000."
-            },
-            {
-                id: 11,
-                part: 1,
-                level: 3,
-                levelName: "Level 3: Independent Solve",
-                prompt: "A piece of paper is 28 centimeters (cm) long. How long is it in meters (m)? Complete the conversion using the calculator:",
-                correctAnswer: 0.28,
-                tolerance: 0.005,
-                unit: "m",
-                hint: "1 m = 100 cm. Divide 28 by 100."
-            },
-            {
-                id: 12,
-                part: 1,
-                level: 3,
-                levelName: "Level 3: Independent Solve",
-                prompt: "Convert 12,500 meters (m) to kilometers (km). Complete the conversion using the calculator:",
-                correctAnswer: 12.5,
-                tolerance: 0.1,
-                unit: "km",
-                hint: "1 km = 1000 m. Divide 12,500 by 1000."
-            },
-
-            // ==========================================
-            // PART 2: CROSS-SYSTEM CONVERSIONS (12 Qs)
-            // ==========================================
-
-            // LEVEL 1: IDENTIFY FACTOR (Hub Clicking)
-            {
-                id: 13,
-                part: 2,
-                level: 1,
-                levelName: "Level 1: Identify Cross-System Factor",
-                prompt: "To convert a phone screen's length from inches (in) to centimeters (cm), click on the correct conversion factor below:",
-                hubOptions: [
-                    { id: "1in_2.54cm", text: "1 inch = 2.54 cm" },
-                    { id: "1ft_12in", text: "1 foot = 12 inches" },
-                    { id: "1mi_1.61km", text: "1 mile = 1.61 km" },
-                    { id: "1kg_2.2lbs", text: "1 kg = 2.2 lbs" }
-                ],
-                correctHubId: "1in_2.54cm"
-            },
-            {
-                id: 14,
-                part: 2,
-                level: 1,
-                levelName: "Level 1: Identify Cross-System Factor",
-                prompt: "To convert a weight of 5 pounds (lbs) to kilograms (kg), click on the correct conversion factor below:",
-                hubOptions: [
-                    { id: "1kg_2.2lbs", text: "1 kg = 2.2 lbs" },
-                    { id: "1gal_3.79L", text: "1 gallon = 3.79 L" },
-                    { id: "1in_2.54cm", text: "1 inch = 2.54 cm" },
-                    { id: "1hr_60min", text: "1 hour = 60 minutes" }
-                ],
-                correctHubId: "1kg_2.2lbs"
-            },
-            {
-                id: 15,
-                part: 2,
-                level: 1,
-                levelName: "Level 1: Identify Cross-System Factor",
-                prompt: "To convert a car's speed from miles per hour to kilometers per hour (km/hr), click on the correct conversion factor below:",
-                hubOptions: [
-                    { id: "1mi_1.61km", text: "1 mile = 1.61 km" },
-                    { id: "1ft_12in", text: "1 foot = 12 inches" },
-                    { id: "1gal_3.79L", text: "1 gallon = 3.79 L" },
-                    { id: "1kg_2.2lbs", text: "1 kg = 2.2 lbs" }
-                ],
-                correctHubId: "1mi_1.61km"
-            },
-
-            // LEVEL 2: GUIDED SETUP & CALCULATOR USE
-            {
-                id: 16,
-                part: 2,
-                level: 2,
-                levelName: "Level 2: Guided Calculation",
-                prompt: "The screen on a new phone is 6.7 inches long. What is its length in centimeters (cm)? Use the embedded calculator to solve:",
-                givenNum: "6.7",
-                givenUnit: "in",
-                numerator: "2.54 cm",
-                denominator: "1 in",
-                targetUnit: "cm",
-                correctAnswer: 17.02,
-                tolerance: 0.05,
-                unit: "cm",
-                hint: "In your calculator, enter: 6.7 * 2.54."
-            },
-            {
-                id: 17,
-                part: 2,
-                level: 2,
-                levelName: "Level 2: Guided Calculation",
-                prompt: "A basketball player is 6 feet, 5 inches tall. What is their total height in inches? Use the embedded calculator to solve:",
-                givenNum: "6 ft (+ 5 in)",
-                givenUnit: "",
-                numerator: "12 in",
-                denominator: "1 ft",
-                targetUnit: "in",
-                correctAnswer: 77,
-                tolerance: 0.5,
-                unit: "inches",
-                hint: "Convert 6 ft to inches: 6 * 12 = 72 in. Then add the 5 extra inches: 72 + 5 = 77 in."
-            },
-            {
-                id: 18,
-                part: 2,
-                level: 2,
-                levelName: "Level 2: Guided Calculation",
-                prompt: "A car is traveling at 65 miles per hour. How fast is that in kilometers per hour (km/hr)? Use the embedded calculator to solve:",
-                givenNum: "65",
-                givenUnit: "mi/hr",
-                numerator: "1.61 km",
-                denominator: "1 mi",
-                targetUnit: "km/hr",
-                correctAnswer: 104.65,
-                tolerance: 0.5,
-                unit: "km/hr",
-                hint: "In your calculator, enter: 65 * 1.61."
-            },
-            {
-                id: 19,
-                part: 2,
-                level: 2,
-                levelName: "Level 2: Guided Calculation",
-                prompt: "A family buys a 3-gallon jug of water. How many Liters (L) of water did they buy? Use the embedded calculator to solve:",
-                givenNum: "3",
-                givenUnit: "gal",
-                numerator: "3.79 L",
-                denominator: "1 gal",
-                targetUnit: "L",
-                correctAnswer: 11.37,
-                tolerance: 0.1,
-                unit: "L",
-                hint: "In your calculator, enter: 3 * 3.79."
-            },
-
-            // LEVEL 3: INDEPENDENT CONVERSIONS
-            {
-                id: 20,
-                part: 2,
-                level: 3,
-                levelName: "Level 3: Independent Solve",
-                prompt: "A bag of potatoes weighs 5 pounds (lbs). What is its mass in kilograms (kg)? Complete the conversion using the calculator:",
-                correctAnswer: 2.27,
-                tolerance: 0.05,
-                unit: "kg",
-                hint: "1 kg = 2.2 lbs. Divide 5 by 2.2 (5 / 2.2 = 2.27 kg)."
-            },
-            {
-                id: 21,
-                part: 2,
-                level: 3,
-                levelName: "Level 3: Independent Solve",
-                prompt: "A movie is 135 minutes long. How many hours is that? Complete the conversion using the calculator:",
-                correctAnswer: 2.25,
-                tolerance: 0.05,
-                unit: "hours",
-                hint: "1 hour = 60 minutes. Divide 135 by 60."
-            },
-            {
-                id: 22,
-                part: 2,
-                level: 3,
-                levelName: "Level 3: Multi-Step Independent Solve",
-                prompt: "A sprinter runs the 100-meter dash in 10 seconds. How many feet did they run? (Hint: 100 m × (100 cm / 1 m) × (1 in / 2.54 cm) × (1 ft / 12 in))",
-                correctAnswer: 328.1,
-                tolerance: 0.5,
-                unit: "feet",
-                hint: "Enter into calculator: 100 * 100 / 2.54 / 12 = 328.1 feet."
-            },
-            {
-                id: 23,
-                part: 2,
-                level: 3,
-                levelName: "Level 3: Independent Solve",
-                prompt: "Convert a weight of 150 pounds (lbs) to its mass in kilograms (kg). Complete the conversion using the calculator:",
-                correctAnswer: 68.18,
-                tolerance: 0.2,
-                unit: "kg",
-                hint: "1 kg = 2.2 lbs. Divide 150 by 2.2 (150 / 2.2 = 68.18 kg)."
-            },
-            {
-                id: 24,
-                part: 2,
-                level: 3,
-                levelName: "Level 3: Multi-Step Independent Solve",
-                prompt: "A flight from New York to Los Angeles takes 5.5 hours. How many seconds is the flight? Complete the conversion using the calculator:",
-                correctAnswer: 19800,
-                tolerance: 5,
-                unit: "seconds",
-                hint: "5.5 hours × 60 minutes/hour × 60 seconds/minute = 19,800 seconds."
-            }
+        // 6 Sequential Sections
+        const SECTIONS = [
+            { id: 1, name: "Metric Factor Match", part: 1, type: "hub_match", desc: "Identify Metric Factors" },
+            { id: 2, name: "Metric Guided Math", part: 1, type: "guided", desc: "Guided Metric Calculations" },
+            { id: 3, name: "Metric Independent", part: 1, type: "independent", desc: "Independent Metric Solve" },
+            { id: 4, name: "Cross-System Match", part: 2, type: "hub_match", desc: "Identify Cross-System Factors" },
+            { id: 5, name: "Cross Guided Math", part: 2, type: "guided", desc: "Guided Cross-System Math" },
+            { id: 6, name: "Cross Independent", part: 2, type: "independent", desc: "Independent Cross-System Solve" }
         ];
 
-        // App State
-        let currentIndex = 0;
-        let studentAnswers = {}; // id -> { answer: any, isCorrect: boolean }
+        // State Machine
+        let currentSectionIdx = 0;
+        let currentStreak = 0;
+        const STREAK_TARGET = 4;
+        let completedSections = new Set();
+        let currentQuestion = null;
+        let selectedHubOption = null;
+        let hasCalculatedForCurrentQuestion = false;
+        let isQuestionAnsweredCorrectly = false;
         let currentStudent = null;
         let previousHighScore = 0;
 
@@ -701,8 +460,16 @@
                     document.getElementById('student-name-chip').textContent = user.displayName || email.split('@')[0];
 
                     await loadStudentHistory(user);
-                    renderQuestion();
-                    updateScoreUI();
+                    
+                    // Show rules modal on fresh session
+                    if (!sessionStorage.getItem('rules_dismissed')) {
+                        document.getElementById('rules-modal').classList.remove('hidden');
+                    }
+
+                    renderSectionRoadmap();
+                    loadNewQuestionForCurrentSection();
+                    updateStreakUI();
+                    updateMasteryScoreUI();
                 } else {
                     err.classList.remove('hidden');
                     auth.signOut();
@@ -723,6 +490,11 @@
             auth.signOut();
         }
 
+        function dismissRulesModal() {
+            sessionStorage.setItem('rules_dismissed', 'true');
+            document.getElementById('rules-modal').classList.add('hidden');
+        }
+
         // --- FIRESTORE LOAD HISTORY ---
         async function loadStudentHistory(user) {
             const studentId = user.email.split('@')[0];
@@ -737,72 +509,378 @@
                     const data = doc.data();
                     previousHighScore = data.score || 0;
                     document.getElementById('high-score-display').textContent = `${previousHighScore}%`;
-                    if (data.answers) {
-                        studentAnswers = data.answers;
+                    if (data.completedSections && Array.isArray(data.completedSections)) {
+                        completedSections = new Set(data.completedSections);
+                        // Jump to first uncompleted section
+                        for (let i = 0; i < SECTIONS.length; i++) {
+                            if (!completedSections.has(SECTIONS[i].id)) {
+                                currentSectionIdx = i;
+                                break;
+                            }
+                        }
                     }
                 }
             } catch (e) {
-                console.warn("Could not load previous history:", e);
+                console.warn("History load error:", e);
             }
         }
 
-        // --- RENDER CURRENT QUESTION ---
-        function renderQuestion() {
-            const q = QUESTIONS[currentIndex];
-            if (!q) return;
+        // =========================================================================
+        // ALGORITHMIC DYNAMIC QUESTION GENERATORS
+        // =========================================================================
 
-            // Update Header & Tracker
-            document.getElementById('header-part-badge').textContent = q.part === 1 ? "Part 1: Metric Prefixes" : "Part 2: Cross-System";
-            document.getElementById('header-part-badge').className = q.part === 1 
-                ? "text-[9px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 font-bold"
-                : "text-[9px] font-mono px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-300 border border-violet-500/20 font-bold";
+        function generateQuestionForSection(sectionIdx) {
+            const sec = SECTIONS[sectionIdx];
+            hasCalculatedForCurrentQuestion = false;
+            isQuestionAnsweredCorrectly = false;
+            selectedHubOption = null;
+            updateCalcStatusUI();
 
-            document.getElementById('step-title-pill').textContent = q.levelName;
-            document.getElementById('step-title-pill').className = q.level === 1 
-                ? "px-2.5 py-1 rounded-lg bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[10px] font-bold font-mono uppercase tracking-wider"
-                : (q.level === 2 ? "px-2.5 py-1 rounded-lg bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-[10px] font-bold font-mono uppercase tracking-wider"
-                                 : "px-2.5 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[10px] font-bold font-mono uppercase tracking-wider");
+            if (sec.id === 1) {
+                // Section 1: Metric Factor Matching
+                const templates = [
+                    { from: "grams (g)", to: "kilograms (kg)", correct: "1kg_1000g", correctText: "1 kilogram (kg) = 1,000 grams (g)" },
+                    { from: "meters (m)", to: "centimeters (cm)", correct: "1m_100cm", correctText: "1 meter (m) = 100 centimeters (cm)" },
+                    { from: "milliliters (mL)", to: "Liters (L)", correct: "1L_1000mL", correctText: "1 Liter (L) = 1,000 milliliters (mL)" },
+                    { from: "kilometers (km)", to: "meters (m)", correct: "1km_1000m", correctText: "1 kilometer (km) = 1,000 meters (m)" },
+                    { from: "centimeters (cm)", to: "millimeters (mm)", correct: "1cm_10mm", correctText: "1 centimeter (cm) = 10 millimeters (mm)" },
+                    { from: "meters (m)", to: "millimeters (mm)", correct: "1m_1000mm", correctText: "1 meter (m) = 1,000 millimeters (mm)" }
+                ];
+                const pick = templates[Math.floor(Math.random() * templates.length)];
+                
+                const allOpts = [
+                    { id: "1kg_1000g", text: "1 kilogram (kg) = 1,000 grams (g)" },
+                    { id: "1m_100cm", text: "1 meter (m) = 100 centimeters (cm)" },
+                    { id: "1L_1000mL", text: "1 Liter (L) = 1,000 milliliters (mL)" },
+                    { id: "1km_1000m", text: "1 kilometer (km) = 1,000 meters (m)" },
+                    { id: "1cm_10mm", text: "1 centimeter (cm) = 10 millimeters (mm)" },
+                    { id: "1m_1000mm", text: "1 meter (m) = 1,000 millimeters (mm)" }
+                ];
+                // Shuffle options with correct one included
+                const distractors = allOpts.filter(o => o.id !== pick.correct).sort(() => 0.5 - Math.random()).slice(0, 3);
+                const options = [allOpts.find(o => o.id === pick.correct), ...distractors].sort(() => 0.5 - Math.random());
 
-            document.getElementById('question-index-label').textContent = `Question ${currentIndex + 1} of ${QUESTIONS.length}`;
-            document.getElementById('card-level-label').textContent = `${q.levelName} // Question ${q.id}`;
-            document.getElementById('card-question-prompt').textContent = q.prompt;
-
-            // Saved state
-            const saved = studentAnswers[q.id] || { isCorrect: false, answer: null };
-            const statusBadge = document.getElementById('card-status-badge');
-            if (saved.isCorrect) {
-                statusBadge.textContent = "✓ Completed";
-                statusBadge.className = "text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
-            } else if (saved.answer !== null && saved.answer !== undefined) {
-                statusBadge.textContent = "Revise";
-                statusBadge.className = "text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30";
-            } else {
-                statusBadge.textContent = "In Progress";
-                statusBadge.className = "text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-white/10";
+                const randVal = (Math.floor(Math.random() * 80) + 10) * 10;
+                return {
+                    sectionId: sec.id,
+                    type: "hub_match",
+                    prompt: `You need to convert ${randVal} ${pick.from} to ${pick.to}. Click on the exact conversion factor from the Conversion Hub below:`,
+                    options: options,
+                    correctId: pick.correct
+                };
             }
 
-            // Feedback Message
-            document.getElementById('question-feedback-msg').textContent = saved.isCorrect ? "✓ Correct!" : "";
-            document.getElementById('question-feedback-msg').className = saved.isCorrect ? "text-xs font-bold font-mono text-emerald-400" : "text-xs font-bold font-mono text-rose-400";
+            if (sec.id === 2) {
+                // Section 2: Metric Guided Math (Screenshot Factor-Label Visual)
+                const templates = [
+                    {
+                        promptVal: (Math.floor(Math.random() * 85) + 12) * 100, // e.g. 4500 g
+                        fromUnit: "g",
+                        targetUnit: "kg",
+                        num: "1 kg",
+                        den: "1000 g",
+                        calc: (v) => v / 1000,
+                        context: "Convert {val} grams (g) to kilograms (kg)."
+                    },
+                    {
+                        promptVal: ((Math.floor(Math.random() * 70) + 15) / 10).toFixed(1), // e.g. 2.1 m
+                        fromUnit: "m",
+                        targetUnit: "cm",
+                        num: "100 cm",
+                        den: "1 m",
+                        calc: (v) => v * 100,
+                        context: "A measurement is {val} meters (m) tall. What is it in centimeters (cm)?"
+                    },
+                    {
+                        promptVal: Math.floor(Math.random() * 650) + 150, // e.g. 355 mL
+                        fromUnit: "mL",
+                        targetUnit: "L",
+                        num: "1 L",
+                        den: "1000 mL",
+                        calc: (v) => v / 1000,
+                        context: "A container holds {val} milliliters (mL). How many Liters (L) is this?"
+                    },
+                    {
+                        promptVal: Math.floor(Math.random() * 15) + 3, // e.g. 5 km
+                        fromUnit: "km",
+                        targetUnit: "m",
+                        num: "1000 m",
+                        den: "1 km",
+                        calc: (v) => v * 1000,
+                        context: "A student runs a {val} kilometer (km) race. How many meters (m) is that?"
+                    }
+                ];
+                const t = templates[Math.floor(Math.random() * templates.length)];
+                const val = parseFloat(t.promptVal);
+                const answer = t.calc(val);
 
-            // Render Dynamic Body
-            const body = document.getElementById('question-dynamic-body');
+                return {
+                    sectionId: sec.id,
+                    type: "guided",
+                    prompt: t.context.replace('{val}', t.promptVal) + " Use the embedded calculator on the right to solve the factor-label setup:",
+                    givenNum: t.promptVal,
+                    givenUnit: t.fromUnit,
+                    numerator: t.num,
+                    denominator: t.den,
+                    targetUnit: t.targetUnit,
+                    correctAnswer: answer,
+                    tolerance: Math.max(0.01, Math.abs(answer * 0.01))
+                };
+            }
+
+            if (sec.id === 3) {
+                // Section 3: Metric Independent Solve
+                const templates = [
+                    {
+                        val: (Math.floor(Math.random() * 60) + 10) * 5, // e.g. 25 cm
+                        fromUnit: "cm",
+                        targetUnit: "mm",
+                        calc: (v) => v * 10,
+                        text: "Convert {val} centimeters (cm) to millimeters (mm)."
+                    },
+                    {
+                        val: ((Math.floor(Math.random() * 80) + 15) / 10).toFixed(1), // e.g. 2.2 kg
+                        fromUnit: "kg",
+                        targetUnit: "g",
+                        calc: (v) => v * 1000,
+                        text: "A package has a mass of {val} kilograms (kg). How many grams (g) is that?"
+                    },
+                    {
+                        val: ((Math.floor(Math.random() * 85) + 15) / 100).toFixed(2), // e.g. 0.75 L
+                        fromUnit: "L",
+                        targetUnit: "mL",
+                        calc: (v) => v * 1000,
+                        text: "Convert {val} Liters (L) to milliliters (mL)."
+                    },
+                    {
+                        val: (Math.floor(Math.random() * 80) + 15), // e.g. 28 cm
+                        fromUnit: "cm",
+                        targetUnit: "m",
+                        calc: (v) => v / 100,
+                        text: "A sheet of metal is {val} centimeters (cm) long. How long is it in meters (m)?"
+                    },
+                    {
+                        val: (Math.floor(Math.random() * 85) + 15) * 500, // e.g. 12500 m
+                        fromUnit: "m",
+                        targetUnit: "km",
+                        calc: (v) => v / 1000,
+                        text: "Convert {val} meters (m) to kilometers (km)."
+                    }
+                ];
+                const t = templates[Math.floor(Math.random() * templates.length)];
+                const val = parseFloat(t.val);
+                const answer = t.calc(val);
+
+                return {
+                    sectionId: sec.id,
+                    type: "independent",
+                    prompt: t.text.replace('{val}', t.val) + " Solve independently using the calculator:",
+                    targetUnit: t.targetUnit,
+                    correctAnswer: answer,
+                    tolerance: Math.max(0.005, Math.abs(answer * 0.01))
+                };
+            }
+
+            if (sec.id === 4) {
+                // Section 4: Cross-System Factor Match
+                const templates = [
+                    { from: "inches (in)", to: "centimeters (cm)", correct: "1in_2.54cm", text: "1 inch = 2.54 cm" },
+                    { from: "pounds (lbs)", to: "kilograms (kg)", correct: "1kg_2.2lbs", text: "1 kg = 2.2 lbs" },
+                    { from: "miles (mi)", to: "kilometers (km)", correct: "1mi_1.61km", text: "1 mile = 1.61 km" },
+                    { from: "gallons (gal)", to: "Liters (L)", correct: "1gal_3.79L", text: "1 gallon = 3.79 L" },
+                    { from: "hours (hr)", to: "minutes (min)", correct: "1hr_60min", text: "1 hour = 60 minutes" }
+                ];
+                const pick = templates[Math.floor(Math.random() * templates.length)];
+                const allOpts = [
+                    { id: "1in_2.54cm", text: "1 inch = 2.54 cm" },
+                    { id: "1kg_2.2lbs", text: "1 kg = 2.2 lbs" },
+                    { id: "1mi_1.61km", text: "1 mile = 1.61 km" },
+                    { id: "1gal_3.79L", text: "1 gallon = 3.79 L" },
+                    { id: "1hr_60min", text: "1 hour = 60 minutes" },
+                    { id: "1ft_12in", text: "1 foot = 12 inches" }
+                ];
+                const distractors = allOpts.filter(o => o.id !== pick.correct).sort(() => 0.5 - Math.random()).slice(0, 3);
+                const options = [allOpts.find(o => o.id === pick.correct), ...distractors].sort(() => 0.5 - Math.random());
+
+                const randVal = (Math.floor(Math.random() * 40) + 5);
+                return {
+                    sectionId: sec.id,
+                    type: "hub_match",
+                    prompt: `To convert ${randVal} ${pick.from} to ${pick.to}, click on the correct cross-system conversion factor below:`,
+                    options: options,
+                    correctId: pick.correct
+                };
+            }
+
+            if (sec.id === 5) {
+                // Section 5: Guided Cross-System Math
+                const templates = [
+                    {
+                        promptVal: ((Math.floor(Math.random() * 60) + 30) / 10).toFixed(1), // e.g. 6.7 in
+                        fromUnit: "in",
+                        targetUnit: "cm",
+                        num: "2.54 cm",
+                        den: "1 in",
+                        calc: (v) => v * 2.54,
+                        context: "The screen on a device is {val} inches long. What is its length in centimeters (cm)?"
+                    },
+                    {
+                        promptVal: Math.floor(Math.random() * 45) + 35, // e.g. 65 mi/hr
+                        fromUnit: "mi/hr",
+                        targetUnit: "km/hr",
+                        num: "1.61 km",
+                        den: "1 mi",
+                        calc: (v) => v * 1.61,
+                        context: "A vehicle is moving at {val} miles per hour. How fast is that in kilometers per hour (km/hr)?"
+                    },
+                    {
+                        promptVal: Math.floor(Math.random() * 8) + 2, // e.g. 3 gal
+                        fromUnit: "gal",
+                        targetUnit: "L",
+                        num: "3.79 L",
+                        den: "1 gal",
+                        calc: (v) => v * 3.79,
+                        context: "A container holds {val} gallons of water. How many Liters (L) is that?"
+                    }
+                ];
+                const t = templates[Math.floor(Math.random() * templates.length)];
+                const val = parseFloat(t.promptVal);
+                const answer = t.calc(val);
+
+                return {
+                    sectionId: sec.id,
+                    type: "guided",
+                    prompt: t.context.replace('{val}', t.promptVal) + " Compute the result on your calculator:",
+                    givenNum: t.promptVal,
+                    givenUnit: t.fromUnit,
+                    numerator: t.num,
+                    denominator: t.den,
+                    targetUnit: t.targetUnit,
+                    correctAnswer: answer,
+                    tolerance: 0.1
+                };
+            }
+
+            if (sec.id === 6) {
+                // Section 6: Independent Cross-System & Multi-Step
+                const templates = [
+                    {
+                        val: (Math.floor(Math.random() * 20) + 3) * 5, // e.g. 150 lbs
+                        targetUnit: "kg",
+                        calc: (v) => v / 2.2,
+                        text: "Convert a weight of {val} pounds (lbs) to its mass in kilograms (kg). (1 kg = 2.2 lbs)"
+                    },
+                    {
+                        val: (Math.floor(Math.random() * 12) + 6) * 15, // e.g. 135 min
+                        targetUnit: "hours",
+                        calc: (v) => v / 60,
+                        text: "A recording is {val} minutes long. How many hours is that?"
+                    },
+                    {
+                        val: (Math.floor(Math.random() * 4) + 1) * 100, // e.g. 100 m
+                        targetUnit: "feet",
+                        calc: (v) => (v * 100) / 2.54 / 12,
+                        text: "A runner completes {val} meters (m). How many feet did they run? (Hint: m → cm → in → ft)"
+                    },
+                    {
+                        val: ((Math.floor(Math.random() * 50) + 20) / 10).toFixed(1), // e.g. 5.5 hours
+                        targetUnit: "seconds",
+                        calc: (v) => v * 3600,
+                        text: "A trip takes {val} hours. How many seconds is the trip? (1 hr = 3600 s)"
+                    }
+                ];
+                const t = templates[Math.floor(Math.random() * templates.length)];
+                const val = parseFloat(t.val);
+                const answer = t.calc(val);
+
+                return {
+                    sectionId: sec.id,
+                    type: "independent",
+                    prompt: t.text.replace('{val}', t.val) + " Solve using the embedded calculator:",
+                    targetUnit: t.targetUnit,
+                    correctAnswer: answer,
+                    tolerance: Math.max(0.1, Math.abs(answer * 0.015))
+                };
+            }
+        }
+
+        function loadNewQuestionForCurrentSection() {
+            currentQuestion = generateQuestionForSection(currentSectionIdx);
+            renderCurrentQuestion();
+        }
+
+        // =========================================================================
+        // UI RENDERING
+        // =========================================================================
+
+        function renderSectionRoadmap() {
+            const container = document.getElementById('section-pills-container');
+            container.innerHTML = SECTIONS.map((s, idx) => {
+                const isCurrent = idx === currentSectionIdx;
+                const isCompleted = completedSections.has(s.id);
+                
+                let badgeStyle = "bg-slate-900 text-slate-500 border-white/5";
+                if (isCompleted) {
+                    badgeStyle = "bg-emerald-500/20 text-emerald-300 border-emerald-500/40 font-bold";
+                } else if (isCurrent) {
+                    badgeStyle = "bg-cyan-500/20 text-cyan-300 border-cyan-500/50 font-bold ring-1 ring-cyan-400";
+                }
+
+                return `
+                    <div class="px-2 py-0.5 rounded-md text-[9px] font-mono border flex items-center gap-1 ${badgeStyle}">
+                        <span>${isCompleted ? '✓' : idx + 1}</span>
+                        <span class="hidden md:inline">${s.name}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateStreakUI() {
+            const container = document.getElementById('streak-boxes-container');
+            let boxesHtml = '';
+            for (let i = 0; i < STREAK_TARGET; i++) {
+                if (i < currentStreak) {
+                    boxesHtml += `<div class="w-5 h-5 rounded-md bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center shadow-md shadow-amber-400/30">✓</div>`;
+                } else {
+                    boxesHtml += `<div class="w-5 h-5 rounded-md bg-slate-900 border border-white/10 text-slate-600 text-xs flex items-center justify-center font-mono">${i + 1}</div>`;
+                }
+            }
+            container.innerHTML = boxesHtml;
+            document.getElementById('streak-count-text').textContent = `${currentStreak}/${STREAK_TARGET}`;
+        }
+
+        function renderCurrentQuestion() {
+            const q = currentQuestion;
+            const sec = SECTIONS[currentSectionIdx];
+
+            document.getElementById('header-section-pill').textContent = `Section ${sec.id}/6: ${sec.name}`;
+            document.getElementById('card-stage-title').textContent = `${sec.desc} // Streak: ${currentStreak}/${STREAK_TARGET}`;
+            document.getElementById('card-question-prompt').textContent = q.prompt;
             
-            if (q.level === 1) {
-                // LEVEL 1: Conversion Hub Clicking
+            document.getElementById('card-status-pill').textContent = isQuestionAnsweredCorrectly ? "✓ Correct" : "Pending";
+            document.getElementById('card-status-pill').className = isQuestionAnsweredCorrectly 
+                ? "text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                : "text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-white/10";
+
+            document.getElementById('feedback-alert-msg').textContent = "";
+            document.getElementById('btn-next-question').disabled = !isQuestionAnsweredCorrectly;
+
+            const body = document.getElementById('dynamic-question-body');
+
+            if (q.type === "hub_match") {
                 body.innerHTML = `
                     <div class="space-y-2">
-                        <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 block">Select the matching conversion relationship:</span>
+                        <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 block">Click the correct conversion factor:</span>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                            ${q.hubOptions.map(opt => {
-                                const isSelected = saved.answer === opt.id;
-                                const isOptCorrect = saved.isCorrect && isSelected;
-                                const optClass = isOptCorrect 
-                                    ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-200' 
-                                    : (isSelected ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-200' : 'bg-slate-900/90 border-white/10 text-slate-300 hover:border-cyan-500/30');
+                            ${q.options.map(opt => {
+                                const isSelected = selectedHubOption === opt.id;
+                                const isCorrect = isQuestionAnsweredCorrectly && isSelected;
+                                const style = isCorrect 
+                                    ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-200'
+                                    : (isSelected ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-200 ring-1 ring-cyan-400' : 'bg-slate-900/90 border-white/10 text-slate-300 hover:border-cyan-500/30');
 
                                 return `
-                                    <button onclick="selectHubOption('${opt.id}')" class="p-3 rounded-xl border text-left text-xs font-mono font-bold transition-all ${optClass}">
+                                    <button onclick="clickHubOption('${opt.id}')" class="p-3 rounded-xl border text-left text-xs font-mono font-bold transition-all ${style}">
                                         ${opt.text}
                                     </button>
                                 `;
@@ -810,14 +888,12 @@
                         </div>
                     </div>
                 `;
-            } else if (q.level === 2) {
-                // LEVEL 2: Guided Setup Factor-Label Visual
+            } else if (q.type === "guided") {
                 body.innerHTML = `
-                    <div class="space-y-4">
-                        <!-- Mathematical Fraction Setup (Screenshot Design) -->
-                        <div class="bg-slate-950/90 p-5 rounded-2xl border border-white/10 flex items-center justify-center gap-4 text-sm md:text-base font-mono overflow-x-auto custom-scrollbar shadow-inner">
-                            <div class="flex items-center gap-2 shrink-0">
-                                <span class="text-amber-400 font-extrabold text-base md:text-lg">${q.givenNum}</span>
+                    <div class="space-y-3">
+                        <div class="bg-slate-950/90 p-4 md:p-5 rounded-2xl border border-white/10 flex items-center justify-center gap-3 text-xs md:text-sm font-mono overflow-x-auto custom-scrollbar shadow-inner">
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <span class="text-amber-400 font-extrabold text-sm md:text-base">${q.givenNum}</span>
                                 <span class="text-amber-300 font-bold">${q.givenUnit}</span>
                                 <span class="text-slate-500 text-xs font-bold">×</span>
                             </div>
@@ -830,164 +906,220 @@
                             <span class="text-slate-500 shrink-0 font-bold">=</span>
 
                             <div class="flex items-center gap-2 shrink-0">
-                                <input type="text" id="answer-input" value="${saved.answer !== null ? saved.answer : ''}" placeholder="?" 
-                                       onkeydown="if(event.key==='Enter') checkCurrentAnswer()"
-                                       class="w-24 bg-slate-900 border ${saved.isCorrect ? 'border-emerald-500/60 text-emerald-300' : 'border-white/20 text-white'} px-3 py-1.5 rounded-xl text-center font-mono font-bold outline-none focus:border-cyan-400">
+                                <input type="text" id="calc-target-input" placeholder="?" 
+                                       onkeydown="if(event.key==='Enter') evaluateAnswer()"
+                                       class="w-24 bg-slate-900 border border-white/20 text-white px-3 py-1.5 rounded-xl text-center font-mono font-bold outline-none focus:border-cyan-400">
                                 <span class="text-slate-300 font-bold">${q.targetUnit}</span>
                             </div>
                         </div>
 
-                        <p class="text-center text-[11px] text-slate-400 font-mono">Use the calculator on the right to multiply & divide the values.</p>
+                        <p class="text-center text-[10px] text-slate-400 font-mono">⚠️ Mandatory: Type and compute the math on the calculator to verify your answer.</p>
                     </div>
                 `;
             } else {
-                // LEVEL 3: Independent Solve
+                // Independent
                 body.innerHTML = `
-                    <div class="space-y-4">
-                        <div class="bg-slate-950/80 p-5 rounded-2xl border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-                            <div class="space-y-1 text-center sm:text-left">
-                                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold block">Enter Final Value:</span>
-                                <span class="text-xs text-slate-300 font-mono">Solve using factor-label on your calculator</span>
+                    <div class="space-y-3">
+                        <div class="bg-slate-950/80 p-4 md:p-5 rounded-2xl border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3">
+                            <div class="space-y-0.5 text-center sm:text-left">
+                                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold block">Enter Calculated Value:</span>
+                                <span class="text-xs text-slate-300 font-mono">Solve on the calculator before submitting</span>
                             </div>
                             
                             <div class="flex items-center gap-2">
-                                <input type="text" id="answer-input" value="${saved.answer !== null ? saved.answer : ''}" placeholder="0.0" 
-                                       onkeydown="if(event.key==='Enter') checkCurrentAnswer()"
-                                       class="w-32 bg-slate-900 border ${saved.isCorrect ? 'border-emerald-500/60 text-emerald-300' : 'border-white/20 text-white'} px-3 py-2 rounded-xl text-center text-sm font-mono font-bold outline-none focus:border-cyan-400">
-                                <span class="text-xs font-mono font-bold text-cyan-400 bg-cyan-500/10 px-2.5 py-2 rounded-xl border border-cyan-500/20">${q.unit}</span>
+                                <input type="text" id="calc-target-input" placeholder="0.0" 
+                                       onkeydown="if(event.key==='Enter') evaluateAnswer()"
+                                       class="w-28 bg-slate-900 border border-white/20 text-white px-3 py-2 rounded-xl text-center text-xs font-mono font-bold outline-none focus:border-cyan-400">
+                                <span class="text-xs font-mono font-bold text-cyan-400 bg-cyan-500/10 px-2.5 py-2 rounded-xl border border-cyan-500/20">${q.targetUnit}</span>
                             </div>
                         </div>
-
-                        ${q.hint ? `<div class="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-200 font-mono"><strong>Hint:</strong> ${q.hint}</div>` : ''}
                     </div>
                 `;
             }
-
-            // Update Progress Dots Bar
-            renderProgressDots();
-
-            // Button states
-            document.getElementById('btn-prev-q').disabled = currentIndex === 0;
-            document.getElementById('btn-next-q').disabled = currentIndex === QUESTIONS.length - 1;
         }
 
-        // Render Top Dots Bar
-        function renderProgressDots() {
-            const container = document.getElementById('progress-dots-bar');
-            container.innerHTML = QUESTIONS.map((q, idx) => {
-                const saved = studentAnswers[q.id];
-                const isCurrent = idx === currentIndex;
-                const isCorrect = saved && saved.isCorrect;
-
-                let color = "bg-slate-800 text-slate-500 border-white/5";
-                if (isCorrect) color = "bg-emerald-500/30 text-emerald-300 border-emerald-500/50 font-bold";
-                else if (saved && !saved.isCorrect) color = "bg-rose-500/20 text-rose-300 border-rose-500/40";
-                
-                const ring = isCurrent ? "ring-2 ring-cyan-400 ring-offset-1 ring-offset-slate-950 scale-110" : "";
-
-                return `
-                    <button onclick="goToQuestion(${idx})" class="w-6 h-6 rounded-lg text-[10px] font-mono border flex items-center justify-center transition-all ${color} ${ring}">
-                        ${q.id}
-                    </button>
-                `;
-            }).join('');
+        function clickHubOption(optId) {
+            selectedHubOption = optId;
+            // Level 1 matching does not strictly require calculator math
+            hasCalculatedForCurrentQuestion = true;
+            updateCalcStatusUI();
+            renderCurrentQuestion();
         }
 
-        function goToQuestion(idx) {
-            currentIndex = idx;
-            renderQuestion();
-        }
+        // =========================================================================
+        // ANSWER EVALUATION & STREAK STATE
+        // =========================================================================
 
-        function navigateQuestion(delta) {
-            const next = currentIndex + delta;
-            if (next >= 0 && next < QUESTIONS.length) {
-                currentIndex = next;
-                renderQuestion();
+        function evaluateAnswer() {
+            const q = currentQuestion;
+            const feedbackEl = document.getElementById('feedback-alert-msg');
+            const cardEl = document.getElementById('main-question-card');
+
+            // Enforce Calculator Usage (for Guided and Independent)
+            if (q.type !== "hub_match" && !hasCalculatedForCurrentQuestion) {
+                feedbackEl.textContent = "⚠️ Please use the calculator first!";
+                feedbackEl.className = "text-xs font-bold font-mono text-amber-400";
+                cardEl.classList.add('shake-anim');
+                setTimeout(() => cardEl.classList.remove('shake-anim'), 400);
+                return;
             }
-        }
 
-        // --- ANSWER CHECKING ---
-        function selectHubOption(optId) {
-            const q = QUESTIONS[currentIndex];
-            if (q.level !== 1) return;
+            let isCorrect = false;
 
-            studentAnswers[q.id] = {
-                answer: optId,
-                isCorrect: optId === q.correctHubId
-            };
-            renderQuestion();
-            checkCurrentAnswer();
-        }
-
-        function checkCurrentAnswer() {
-            const q = QUESTIONS[currentIndex];
-            if (!q) return;
-
-            const feedbackEl = document.getElementById('question-feedback-msg');
-
-            if (q.level === 1) {
-                const saved = studentAnswers[q.id];
-                if (!saved || !saved.answer) {
-                    feedbackEl.textContent = "Please select a conversion factor";
+            if (q.type === "hub_match") {
+                if (!selectedHubOption) {
+                    feedbackEl.textContent = "Click a conversion factor first";
                     feedbackEl.className = "text-xs font-bold font-mono text-amber-400";
                     return;
                 }
+                isCorrect = selectedHubOption === q.correctId;
+            } else {
+                const inputEl = document.getElementById('calc-target-input');
+                if (!inputEl || !inputEl.value.trim()) {
+                    feedbackEl.textContent = "Please enter an answer";
+                    feedbackEl.className = "text-xs font-bold font-mono text-amber-400";
+                    return;
+                }
+                const parsed = parseFloat(inputEl.value.trim().replace(/,/g, ''));
+                if (isNaN(parsed)) {
+                    feedbackEl.textContent = "Invalid number format";
+                    feedbackEl.className = "text-xs font-bold font-mono text-amber-400";
+                    return;
+                }
+                isCorrect = Math.abs(parsed - q.correctAnswer) <= q.tolerance;
+            }
 
-                if (saved.isCorrect) {
-                    feedbackEl.textContent = "✓ Perfect Match!";
-                    feedbackEl.className = "text-xs font-bold font-mono text-emerald-400";
-                } else {
-                    feedbackEl.textContent = "Try again—look at the units in the prompt";
-                    feedbackEl.className = "text-xs font-bold font-mono text-rose-400";
+            if (isCorrect) {
+                // Correct: increment streak
+                isQuestionAnsweredCorrectly = true;
+                currentStreak++;
+                updateStreakUI();
+                feedbackEl.textContent = `✓ Correct! Streak: ${currentStreak}/${STREAK_TARGET}`;
+                feedbackEl.className = "text-xs font-bold font-mono text-emerald-400";
+                document.getElementById('btn-next-question').disabled = false;
+                document.getElementById('card-status-pill').textContent = "✓ Completed";
+                document.getElementById('card-status-pill').className = "text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+
+                if (currentStreak >= STREAK_TARGET) {
+                    handleSectionMastered();
                 }
             } else {
-                // Numeric Input evaluation (Level 2 & 3)
-                const inputEl = document.getElementById('answer-input');
-                if (!inputEl) return;
-
-                const rawVal = inputEl.value.trim().replace(/,/g, '');
-                const parsed = parseFloat(rawVal);
-
-                if (isNaN(parsed)) {
-                    feedbackEl.textContent = "Please enter a valid number";
-                    feedbackEl.className = "text-xs font-bold font-mono text-amber-400";
-                    return;
-                }
-
-                const diff = Math.abs(parsed - q.correctAnswer);
-                const isCorrect = diff <= (q.tolerance || 0.01);
-
-                studentAnswers[q.id] = {
-                    answer: parsed,
-                    isCorrect: isCorrect
-                };
-
-                if (isCorrect) {
-                    feedbackEl.textContent = "✓ Correct calculation!";
-                    feedbackEl.className = "text-xs font-bold font-mono text-emerald-400";
-                } else {
-                    feedbackEl.textContent = "Check your math on the calculator";
-                    feedbackEl.className = "text-xs font-bold font-mono text-rose-400";
-                }
+                // Incorrect: RESET STREAK to 0, NEVER REVEAL ANSWER
+                isQuestionAnsweredCorrectly = false;
+                currentStreak = 0;
+                updateStreakUI();
+                cardEl.classList.add('shake-anim');
+                setTimeout(() => cardEl.classList.remove('shake-anim'), 400);
+                
+                feedbackEl.textContent = "❌ Incorrect! Streak reset to 0/4. Try this new problem:";
+                feedbackEl.className = "text-xs font-bold font-mono text-rose-400";
+                
+                // Load a fresh randomized problem for this section
+                setTimeout(() => {
+                    loadNewQuestionForCurrentSection();
+                }, 1200);
             }
+        }
 
-            renderQuestion();
-            updateScoreUI();
+        function advanceNextQuestion() {
+            if (!isQuestionAnsweredCorrectly) return;
+            loadNewQuestionForCurrentSection();
+        }
+
+        function handleSectionMastered() {
+            const sec = SECTIONS[currentSectionIdx];
+            completedSections.add(sec.id);
+            currentStreak = 0;
+            updateStreakUI();
+            renderSectionRoadmap();
+            updateMasteryScoreUI();
             autoSaveProgress();
+
+            if (currentSectionIdx < SECTIONS.length - 1) {
+                currentSectionIdx++;
+                alert(`🎉 Congratulations! You answered 4 in a row correctly and mastered ${sec.name}!\n\nMoving to Section ${currentSectionIdx + 1}: ${SECTIONS[currentSectionIdx].name}!`);
+                renderSectionRoadmap();
+                loadNewQuestionForCurrentSection();
+            } else {
+                alert("🏆 SPECTACULAR! You have mastered all 6 Unit Conversion sections with 4-in-a-row streaks!");
+                finalizeSubmission();
+            }
         }
 
-        function updateScoreUI() {
-            let correct = 0;
-            QUESTIONS.forEach(q => {
-                if (studentAnswers[q.id] && studentAnswers[q.id].isCorrect) correct++;
-            });
-
-            const pct = Math.round((correct / QUESTIONS.length) * 100);
-            document.getElementById('score-display').innerHTML = `${pct}% <span class="text-[10px] text-slate-500 font-mono">(${correct}/${QUESTIONS.length})</span>`;
-            return { correct, total: QUESTIONS.length, percentage: pct };
+        function updateMasteryScoreUI() {
+            const scorePct = Math.round((completedSections.size / SECTIONS.length) * 100);
+            document.getElementById('mastery-grade-display').innerHTML = `${scorePct}% <span class="text-[9px] text-slate-500 font-mono">(${completedSections.size}/6 Sections)</span>`;
+            return scorePct;
         }
 
-        // --- FIRESTORE AUTO-SAVE & SUBMIT ---
+        // =========================================================================
+        // EMBEDDED CALCULATOR ENGINE & USAGE TRACKER
+        // =========================================================================
+        let calcExpr = "";
+
+        function calcInput(val) {
+            calcExpr += val;
+            document.getElementById('calc-display').textContent = calcExpr || "0";
+            hasCalculatedForCurrentQuestion = true;
+            updateCalcStatusUI();
+        }
+
+        function calcClear() {
+            calcExpr = "";
+            document.getElementById('calc-display').textContent = "0";
+            document.getElementById('calc-history').textContent = "";
+        }
+
+        function calcBackspace() {
+            calcExpr = calcExpr.slice(0, -1);
+            document.getElementById('calc-display').textContent = calcExpr || "0";
+        }
+
+        function calcEquals() {
+            if (!calcExpr) return;
+            try {
+                // Safe evaluator for basic math arithmetic
+                const sanitized = calcExpr.replace(/[^0-9+\-*/().]/g, '');
+                const result = Function(`'use strict'; return (${sanitized})`)();
+                
+                document.getElementById('calc-history').textContent = `${calcExpr} =`;
+                calcExpr = String(Math.round(result * 10000) / 10000);
+                document.getElementById('calc-display').textContent = calcExpr;
+                
+                hasCalculatedForCurrentQuestion = true;
+                updateCalcStatusUI();
+            } catch (e) {
+                document.getElementById('calc-display').textContent = "Error";
+                calcExpr = "";
+            }
+        }
+
+        function transferResultToAnswer() {
+            const val = document.getElementById('calc-display').textContent;
+            if (!val || val === "0" || val === "Error") return;
+            
+            const target = document.getElementById('calc-target-input');
+            if (target) {
+                target.value = val;
+                target.focus();
+            }
+        }
+
+        function updateCalcStatusUI() {
+            const el = document.getElementById('calc-status-indicator');
+            const txt = document.getElementById('calc-status-text');
+            if (hasCalculatedForCurrentQuestion) {
+                el.className = "text-[10px] font-mono font-bold px-2 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center gap-1";
+                txt.textContent = "Calculator Verified ✓";
+            } else {
+                el.className = "text-[10px] font-mono font-bold px-2 py-1 rounded-lg bg-slate-900 border border-white/10 text-slate-500 flex items-center gap-1";
+                txt.textContent = "Calculator Required";
+            }
+        }
+
+        // =========================================================================
+        // FIRESTORE SUBMISSION
+        // =========================================================================
         let autoSaveTimer = null;
         function autoSaveProgress() {
             if (!currentStudent) return;
@@ -999,7 +1131,7 @@
 
         async function saveToFirestore(isFinal = false) {
             if (!currentStudent) return;
-            const stats = updateScoreUI();
+            const scorePct = updateMasteryScoreUI();
             const studentId = currentStudent.email.split('@')[0];
 
             const scoreRef = db.collection('student_results')
@@ -1010,25 +1142,25 @@
             try {
                 const doc = await scoreRef.get();
                 const prev = doc.exists ? (doc.data().score || 0) : 0;
-                const newScore = Math.max(prev, stats.percentage);
+                const newScore = Math.max(prev, scorePct);
 
                 await scoreRef.set({
                     student_id: studentId,
                     student_name: currentStudent.displayName || studentId,
                     student_email: currentStudent.email,
                     score: newScore,
-                    raw_correct: stats.correct,
-                    total_points: stats.total,
-                    answers: studentAnswers,
+                    completedSections: Array.from(completedSections),
+                    sections_mastered: completedSections.size,
+                    total_sections: SECTIONS.length,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 }, { merge: true });
 
                 previousHighScore = newScore;
                 document.getElementById('high-score-display').textContent = `${newScore}%`;
-                console.log(`[FIRESTORE] Saved score: ${newScore}%`);
+                console.log(`[FIRESTORE] Mastery Score Saved: ${newScore}%`);
 
                 if (isFinal) {
-                    document.getElementById('modal-score-summary').textContent = `Score: ${stats.percentage}% (${stats.correct}/${stats.total})`;
+                    document.getElementById('modal-score-summary').textContent = `Mastery Grade: ${newScore}% (${completedSections.size}/6 Sections Mastered)`;
                     document.getElementById('modal-student-name').textContent = `${currentStudent.displayName || studentId} (${studentId})`;
                     document.getElementById('modal-timestamp').textContent = new Date().toLocaleTimeString();
                     document.getElementById('completion-modal').classList.remove('hidden');
@@ -1047,10 +1179,8 @@
             document.getElementById('completion-modal').classList.add('hidden');
         }
 
-        // --- REFERENCE MODAL ---
         function toggleReferenceModal() {
-            const modal = document.getElementById('reference-modal');
-            modal.classList.toggle('hidden');
+            document.getElementById('reference-modal').classList.toggle('hidden');
         }
     </script>
     <script src="../assets/partials.js"></script>
