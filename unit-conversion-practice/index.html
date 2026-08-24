@@ -10,6 +10,8 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <!-- Official Desmos Scientific Calculator API -->
+    <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
     <style>
@@ -29,13 +31,13 @@
         .font-orbitron { font-family: 'Orbitron', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         .glass {
-            background: rgba(15, 23, 42, 0.85);
+            background: rgba(15, 23, 42, 0.88);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
         .glass-card {
-            background: rgba(17, 24, 39, 0.75);
+            background: rgba(17, 24, 39, 0.78);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.07);
         }
@@ -71,6 +73,11 @@
         }
         .shake-anim {
             animation: shake 0.4s ease-in-out;
+        }
+
+        /* Override Desmos container styling for seamless dark UI frame */
+        .dcg-scientific-calculator {
+            font-family: 'Inter', sans-serif !important;
         }
     </style>
 </head>
@@ -129,8 +136,8 @@
                 <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-900/80 border border-white/5">
                     <span class="text-lg">🧮</span>
                     <div>
-                        <strong class="text-cyan-400 block text-xs">Calculator Usage is Mandatory</strong>
-                        <p class="text-[11px] text-slate-300 mt-0.5">You must compute your answers using the <strong>embedded calculator</strong> on the right panel. Submissions are only accepted after calculating!</p>
+                        <strong class="text-cyan-400 block text-xs">Desmos Calculator Work is Mandatory</strong>
+                        <p class="text-[11px] text-slate-300 mt-0.5">You must enter and compute your calculation in the <strong>Desmos Scientific Calculator</strong> on the right. Submissions are only accepted when active work is detected!</p>
                     </div>
                 </div>
 
@@ -215,14 +222,14 @@
             </div>
         </div>
 
-        <!-- 2-COLUMN SPLIT WORKSPACE (Question Left 58%, Calculator Right 42%) -->
+        <!-- 2-COLUMN SPLIT WORKSPACE (Question Left 55%, Desmos Right 45%) -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
             
             <!-- LEFT COLUMN: Single Question Workspace -->
             <main class="lg:col-span-7 space-y-3">
                 
                 <!-- Main Question Card -->
-                <div id="main-question-card" class="glass rounded-2xl p-4 sm:p-5 border border-white/10 shadow-xl space-y-4 min-h-[360px] flex flex-col justify-between transition-all">
+                <div id="main-question-card" class="glass rounded-2xl p-4 sm:p-5 border border-white/10 shadow-xl space-y-4 min-h-[380px] flex flex-col justify-between transition-all">
                     
                     <div class="space-y-3">
                         <!-- Step Header & Question Prompt -->
@@ -249,8 +256,8 @@
                     <!-- Bottom Action Controls -->
                     <div class="pt-3 border-t border-white/5 flex flex-wrap items-center justify-between gap-2">
                         <div class="flex items-center gap-2">
-                            <span id="calc-status-indicator" class="text-[10px] font-mono font-bold px-2 py-1 rounded-lg bg-slate-900 border border-white/10 text-slate-500 flex items-center gap-1">
-                                <span>🧮</span> <span id="calc-status-text">Calculator Not Used Yet</span>
+                            <span id="calc-status-indicator" class="text-[10px] font-mono font-bold px-2.5 py-1 rounded-lg bg-slate-900 border border-white/10 text-slate-500 flex items-center gap-1.5 transition-colors">
+                                <span>🧮</span> <span id="calc-status-text">Enter Calculation in Desmos</span>
                             </span>
                         </div>
 
@@ -279,56 +286,22 @@
 
             </main>
 
-            <!-- RIGHT COLUMN: Embedded Scientific Calculator -->
-            <aside class="lg:col-span-5 glass rounded-2xl p-3.5 border border-white/10 shadow-xl flex flex-col h-[420px] lg:h-[460px]">
+            <!-- RIGHT COLUMN: Official Embedded Desmos Scientific Calculator -->
+            <aside class="lg:col-span-5 glass rounded-2xl p-3 border border-white/10 shadow-xl flex flex-col h-[460px] lg:h-[510px]">
                 <div class="flex items-center justify-between border-b border-white/10 pb-2 mb-2 px-1">
                     <div class="flex items-center gap-2">
                         <div class="p-1 bg-cyan-500/20 text-cyan-400 rounded-md">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
                         </div>
-                        <span class="text-[11px] font-black uppercase tracking-wider font-orbitron text-cyan-300">Scientific Calculator</span>
+                        <span class="text-[11px] font-black uppercase tracking-wider font-orbitron text-cyan-300">Desmos Scientific Calculator</span>
                     </div>
-                    <span class="text-[8px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 font-bold">MANDATORY TOOL</span>
+                    <span id="desmos-live-badge" class="text-[8px] font-mono text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 font-bold">WORK REQUIRED</span>
                 </div>
                 
-                <!-- Calculator LCD Screen -->
-                <div class="bg-slate-950 p-2.5 rounded-xl border border-white/10 mb-2.5 text-right font-mono shadow-inner">
-                    <div id="calc-history" class="text-[10px] text-slate-500 h-4 truncate">0</div>
-                    <div id="calc-display" class="text-lg font-bold text-cyan-300 truncate">0</div>
-                </div>
-
-                <!-- Calculator Keypad Grid -->
-                <div class="grid grid-cols-4 gap-1.5 flex-1 text-xs font-mono font-bold">
-                    <button onclick="calcClear()" class="p-2 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30">C</button>
-                    <button onclick="calcInput('(')" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-white/5">(</button>
-                    <button onclick="calcInput(')')" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-white/5">)</button>
-                    <button onclick="calcInput('/')" class="p-2 rounded-lg bg-cyan-600/30 hover:bg-cyan-600/50 text-cyan-300 border border-cyan-500/30">÷</button>
-
-                    <button onclick="calcInput('7')" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-white/5">7</button>
-                    <button onclick="calcInput('8')" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-white/5">8</button>
-                    <button onclick="calcInput('9')" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-white/5">9</button>
-                    <button onclick="calcInput('*')" class="p-2 rounded-lg bg-cyan-600/30 hover:bg-cyan-600/50 text-cyan-300 border border-cyan-500/30">×</button>
-
-                    <button onclick="calcInput('4')" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-white/5">4</button>
-                    <button onclick="calcInput('5')" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-white/5">5</button>
-                    <button onclick="calcInput('6')" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-white/5">6</button>
-                    <button onclick="calcInput('-')" class="p-2 rounded-lg bg-cyan-600/30 hover:bg-cyan-600/50 text-cyan-300 border border-cyan-500/30">−</button>
-
-                    <button onclick="calcInput('1')" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-white/5">1</button>
-                    <button onclick="calcInput('2')" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-white/5">2</button>
-                    <button onclick="calcInput('3')" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-white/5">3</button>
-                    <button onclick="calcInput('+')" class="p-2 rounded-lg bg-cyan-600/30 hover:bg-cyan-600/50 text-cyan-300 border border-cyan-500/30">+</button>
-
-                    <button onclick="calcInput('0')" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-white/5 col-span-1">0</button>
-                    <button onclick="calcInput('.')" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-white/5">.</button>
-                    <button onclick="calcBackspace()" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-amber-300 border border-white/5">⌫</button>
-                    <button onclick="calcEquals()" class="p-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-black border border-emerald-500/40">=</button>
-                </div>
-
-                <!-- Insert Result into Answer Box Button -->
-                <button onclick="transferResultToAnswer()" class="mt-2 w-full py-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-[10px] font-bold rounded-lg uppercase tracking-wider transition-all flex items-center justify-center gap-1">
-                    <span>📋 Paste Result into Answer Box</span>
-                </button>
+                <!-- Desmos Target Element -->
+                <div id="desmos-calculator-container" class="flex-1 w-full bg-white rounded-xl overflow-hidden shadow-inner border border-slate-700"></div>
+                
+                <p class="text-center text-[9px] text-slate-500 font-mono mt-1.5 uppercase tracking-widest">Official Desmos Engine // Real-time Work Verification</p>
             </aside>
 
         </div>
@@ -402,7 +375,7 @@
         </div>
     </div>
 
-    <!-- Dynamic 4-in-a-Row Mastery Engine -->
+    <!-- Dynamic 4-in-a-Row Mastery Engine with Desmos Verification -->
     <script>
         const ASSIGNMENT_ID = "Unit_Conversion_Practice";
 
@@ -436,10 +409,10 @@
         let completedSections = new Set();
         let currentQuestion = null;
         let selectedHubOption = null;
-        let hasCalculatedForCurrentQuestion = false;
         let isQuestionAnsweredCorrectly = false;
         let currentStudent = null;
         let previousHighScore = 0;
+        let desmosCalculator = null;
 
         // --- AUTH OBSERVER ---
         auth.onAuthStateChanged(async (user) => {
@@ -459,9 +432,9 @@
                     app.classList.remove('opacity-0');
                     document.getElementById('student-name-chip').textContent = user.displayName || email.split('@')[0];
 
+                    initDesmos();
                     await loadStudentHistory(user);
                     
-                    // Show rules modal on fresh session
                     if (!sessionStorage.getItem('rules_dismissed')) {
                         document.getElementById('rules-modal').classList.remove('hidden');
                     }
@@ -495,7 +468,119 @@
             document.getElementById('rules-modal').classList.add('hidden');
         }
 
-        // --- FIRESTORE LOAD HISTORY ---
+        // =========================================================================
+        // DESMOS CALCULATOR INITIALIZATION & WORK VERIFIER
+        // =========================================================================
+
+        function initDesmos() {
+            const calcContainer = document.getElementById('desmos-calculator-container');
+            if (window.Desmos && calcContainer && !desmosCalculator) {
+                try {
+                    desmosCalculator = Desmos.ScientificCalculator(calcContainer, {
+                        fontSize: Desmos.FontSizes.SMALL,
+                        keypad: true,
+                        settingsMenu: false
+                    });
+
+                    // Live monitor on changes
+                    desmosCalculator.observeEvent('change', () => {
+                        checkDesmosWorkLive();
+                    });
+                } catch (e) {
+                    console.error("Desmos init error:", e);
+                }
+            }
+        }
+
+        function getDesmosExpressions() {
+            if (!desmosCalculator) return [];
+            try {
+                const state = desmosCalculator.getState();
+                return state?.expressions?.list || [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function verifyDesmosWork(q) {
+            if (!q || q.type === "hub_match") return true; // Level 1 is concept identification
+            const expressions = getDesmosExpressions();
+            if (!expressions || expressions.length === 0) return false;
+
+            const givenClean = String(q.givenNum || q.val || '').replace(/,/g, '').trim();
+            const targetAns = q.correctAnswer;
+            const tolerance = q.tolerance || 0.05;
+
+            for (let item of expressions) {
+                if (!item.latex) continue;
+                const latex = item.latex.toLowerCase();
+
+                // Check 1: Does LaTeX include the problem's given number and an arithmetic operator?
+                const hasGiven = givenClean && (latex.includes(givenClean) || (parseFloat(givenClean) && latex.includes(parseFloat(givenClean).toString())));
+                const hasOp = latex.includes('/') || latex.includes('\\frac') || latex.includes('\\cdot') || latex.includes('\\times') || latex.includes('*') || latex.includes('+') || latex.includes('-') || latex.includes('\\div');
+
+                // Check 2: Does LaTeX include any of the relevant conversion factors?
+                const conversionNums = q.conversionNumbers || [1000, 100, 10, 2.54, 12, 1.61, 3.79, 2.2, 60, 3600];
+                const hasFactor = conversionNums.some(num => latex.includes(String(num)));
+
+                if (hasGiven && (hasOp || hasFactor)) {
+                    return true;
+                }
+
+                // Check 3: If student entered multi-step numbers and operators
+                if (hasFactor && hasOp) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function checkDesmosWorkLive() {
+            const q = currentQuestion;
+            if (!q) return;
+
+            const isVerified = verifyDesmosWork(q);
+            const badge = document.getElementById('desmos-live-badge');
+            const indicator = document.getElementById('calc-status-indicator');
+            const txt = document.getElementById('calc-status-text');
+
+            if (q.type === "hub_match") {
+                if (badge) {
+                    badge.textContent = "OPTIONAL FOR HUB";
+                    badge.className = "text-[8px] font-mono text-slate-400 bg-white/5 px-2 py-0.5 rounded border border-white/10 font-bold";
+                }
+                if (indicator) {
+                    indicator.className = "text-[10px] font-mono font-bold px-2 py-1 rounded-lg bg-slate-900 border border-white/10 text-slate-400 flex items-center gap-1";
+                    txt.textContent = "Concept Match Mode";
+                }
+                return;
+            }
+
+            if (isVerified) {
+                if (badge) {
+                    badge.textContent = "WORK DETECTED ✓";
+                    badge.className = "text-[8px] font-mono text-emerald-300 bg-emerald-500/20 px-2 py-0.5 rounded border border-emerald-500/40 font-bold";
+                }
+                if (indicator) {
+                    indicator.className = "text-[10px] font-mono font-bold px-2 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center gap-1";
+                    txt.textContent = "Desmos Work Detected ✓";
+                }
+            } else {
+                if (badge) {
+                    badge.textContent = "WORK REQUIRED";
+                    badge.className = "text-[8px] font-mono text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 font-bold";
+                }
+                if (indicator) {
+                    indicator.className = "text-[10px] font-mono font-bold px-2 py-1 rounded-lg bg-slate-900 border border-white/10 text-slate-500 flex items-center gap-1";
+                    txt.textContent = "Enter Calculation in Desmos";
+                }
+            }
+        }
+
+        // =========================================================================
+        // FIRESTORE LOAD HISTORY
+        // =========================================================================
+
         async function loadStudentHistory(user) {
             const studentId = user.email.split('@')[0];
             const scoreRef = db.collection('student_results')
@@ -511,7 +596,6 @@
                     document.getElementById('high-score-display').textContent = `${previousHighScore}%`;
                     if (data.completedSections && Array.isArray(data.completedSections)) {
                         completedSections = new Set(data.completedSections);
-                        // Jump to first uncompleted section
                         for (let i = 0; i < SECTIONS.length; i++) {
                             if (!completedSections.has(SECTIONS[i].id)) {
                                 currentSectionIdx = i;
@@ -531,10 +615,8 @@
 
         function generateQuestionForSection(sectionIdx) {
             const sec = SECTIONS[sectionIdx];
-            hasCalculatedForCurrentQuestion = false;
             isQuestionAnsweredCorrectly = false;
             selectedHubOption = null;
-            updateCalcStatusUI();
 
             if (sec.id === 1) {
                 // Section 1: Metric Factor Matching
@@ -556,7 +638,6 @@
                     { id: "1cm_10mm", text: "1 centimeter (cm) = 10 millimeters (mm)" },
                     { id: "1m_1000mm", text: "1 meter (m) = 1,000 millimeters (mm)" }
                 ];
-                // Shuffle options with correct one included
                 const distractors = allOpts.filter(o => o.id !== pick.correct).sort(() => 0.5 - Math.random()).slice(0, 3);
                 const options = [allOpts.find(o => o.id === pick.correct), ...distractors].sort(() => 0.5 - Math.random());
 
@@ -571,7 +652,7 @@
             }
 
             if (sec.id === 2) {
-                // Section 2: Metric Guided Math (Screenshot Factor-Label Visual)
+                // Section 2: Metric Guided Math
                 const templates = [
                     {
                         promptVal: (Math.floor(Math.random() * 85) + 12) * 100, // e.g. 4500 g
@@ -579,6 +660,7 @@
                         targetUnit: "kg",
                         num: "1 kg",
                         den: "1000 g",
+                        factors: [1000],
                         calc: (v) => v / 1000,
                         context: "Convert {val} grams (g) to kilograms (kg)."
                     },
@@ -588,6 +670,7 @@
                         targetUnit: "cm",
                         num: "100 cm",
                         den: "1 m",
+                        factors: [100],
                         calc: (v) => v * 100,
                         context: "A measurement is {val} meters (m) tall. What is it in centimeters (cm)?"
                     },
@@ -597,6 +680,7 @@
                         targetUnit: "L",
                         num: "1 L",
                         den: "1000 mL",
+                        factors: [1000],
                         calc: (v) => v / 1000,
                         context: "A container holds {val} milliliters (mL). How many Liters (L) is this?"
                     },
@@ -606,6 +690,7 @@
                         targetUnit: "m",
                         num: "1000 m",
                         den: "1 km",
+                        factors: [1000],
                         calc: (v) => v * 1000,
                         context: "A student runs a {val} kilometer (km) race. How many meters (m) is that?"
                     }
@@ -617,12 +702,13 @@
                 return {
                     sectionId: sec.id,
                     type: "guided",
-                    prompt: t.context.replace('{val}', t.promptVal) + " Use the embedded calculator on the right to solve the factor-label setup:",
+                    prompt: t.context.replace('{val}', t.promptVal) + " Enter the calculation in the Desmos calculator to find the result:",
                     givenNum: t.promptVal,
                     givenUnit: t.fromUnit,
                     numerator: t.num,
                     denominator: t.den,
                     targetUnit: t.targetUnit,
+                    conversionNumbers: t.factors,
                     correctAnswer: answer,
                     tolerance: Math.max(0.01, Math.abs(answer * 0.01))
                 };
@@ -635,6 +721,7 @@
                         val: (Math.floor(Math.random() * 60) + 10) * 5, // e.g. 25 cm
                         fromUnit: "cm",
                         targetUnit: "mm",
+                        factors: [10],
                         calc: (v) => v * 10,
                         text: "Convert {val} centimeters (cm) to millimeters (mm)."
                     },
@@ -642,6 +729,7 @@
                         val: ((Math.floor(Math.random() * 80) + 15) / 10).toFixed(1), // e.g. 2.2 kg
                         fromUnit: "kg",
                         targetUnit: "g",
+                        factors: [1000],
                         calc: (v) => v * 1000,
                         text: "A package has a mass of {val} kilograms (kg). How many grams (g) is that?"
                     },
@@ -649,6 +737,7 @@
                         val: ((Math.floor(Math.random() * 85) + 15) / 100).toFixed(2), // e.g. 0.75 L
                         fromUnit: "L",
                         targetUnit: "mL",
+                        factors: [1000],
                         calc: (v) => v * 1000,
                         text: "Convert {val} Liters (L) to milliliters (mL)."
                     },
@@ -656,6 +745,7 @@
                         val: (Math.floor(Math.random() * 80) + 15), // e.g. 28 cm
                         fromUnit: "cm",
                         targetUnit: "m",
+                        factors: [100],
                         calc: (v) => v / 100,
                         text: "A sheet of metal is {val} centimeters (cm) long. How long is it in meters (m)?"
                     },
@@ -663,6 +753,7 @@
                         val: (Math.floor(Math.random() * 85) + 15) * 500, // e.g. 12500 m
                         fromUnit: "m",
                         targetUnit: "km",
+                        factors: [1000],
                         calc: (v) => v / 1000,
                         text: "Convert {val} meters (m) to kilometers (km)."
                     }
@@ -674,8 +765,10 @@
                 return {
                     sectionId: sec.id,
                     type: "independent",
-                    prompt: t.text.replace('{val}', t.val) + " Solve independently using the calculator:",
+                    prompt: t.text.replace('{val}', t.val) + " Enter your calculation in Desmos to solve:",
+                    givenNum: t.val,
                     targetUnit: t.targetUnit,
+                    conversionNumbers: t.factors,
                     correctAnswer: answer,
                     tolerance: Math.max(0.005, Math.abs(answer * 0.01))
                 };
@@ -721,6 +814,7 @@
                         targetUnit: "cm",
                         num: "2.54 cm",
                         den: "1 in",
+                        factors: [2.54],
                         calc: (v) => v * 2.54,
                         context: "The screen on a device is {val} inches long. What is its length in centimeters (cm)?"
                     },
@@ -730,6 +824,7 @@
                         targetUnit: "km/hr",
                         num: "1.61 km",
                         den: "1 mi",
+                        factors: [1.61],
                         calc: (v) => v * 1.61,
                         context: "A vehicle is moving at {val} miles per hour. How fast is that in kilometers per hour (km/hr)?"
                     },
@@ -739,6 +834,7 @@
                         targetUnit: "L",
                         num: "3.79 L",
                         den: "1 gal",
+                        factors: [3.79],
                         calc: (v) => v * 3.79,
                         context: "A container holds {val} gallons of water. How many Liters (L) is that?"
                     }
@@ -750,12 +846,13 @@
                 return {
                     sectionId: sec.id,
                     type: "guided",
-                    prompt: t.context.replace('{val}', t.promptVal) + " Compute the result on your calculator:",
+                    prompt: t.context.replace('{val}', t.promptVal) + " Calculate the answer in Desmos:",
                     givenNum: t.promptVal,
                     givenUnit: t.fromUnit,
                     numerator: t.num,
                     denominator: t.den,
                     targetUnit: t.targetUnit,
+                    conversionNumbers: t.factors,
                     correctAnswer: answer,
                     tolerance: 0.1
                 };
@@ -767,24 +864,28 @@
                     {
                         val: (Math.floor(Math.random() * 20) + 3) * 5, // e.g. 150 lbs
                         targetUnit: "kg",
+                        factors: [2.2],
                         calc: (v) => v / 2.2,
                         text: "Convert a weight of {val} pounds (lbs) to its mass in kilograms (kg). (1 kg = 2.2 lbs)"
                     },
                     {
                         val: (Math.floor(Math.random() * 12) + 6) * 15, // e.g. 135 min
                         targetUnit: "hours",
+                        factors: [60],
                         calc: (v) => v / 60,
                         text: "A recording is {val} minutes long. How many hours is that?"
                     },
                     {
                         val: (Math.floor(Math.random() * 4) + 1) * 100, // e.g. 100 m
                         targetUnit: "feet",
+                        factors: [100, 2.54, 12],
                         calc: (v) => (v * 100) / 2.54 / 12,
                         text: "A runner completes {val} meters (m). How many feet did they run? (Hint: m → cm → in → ft)"
                     },
                     {
                         val: ((Math.floor(Math.random() * 50) + 20) / 10).toFixed(1), // e.g. 5.5 hours
                         targetUnit: "seconds",
+                        factors: [60, 3600],
                         calc: (v) => v * 3600,
                         text: "A trip takes {val} hours. How many seconds is the trip? (1 hr = 3600 s)"
                     }
@@ -796,8 +897,10 @@
                 return {
                     sectionId: sec.id,
                     type: "independent",
-                    prompt: t.text.replace('{val}', t.val) + " Solve using the embedded calculator:",
+                    prompt: t.text.replace('{val}', t.val) + " Solve using the Desmos calculator:",
+                    givenNum: t.val,
                     targetUnit: t.targetUnit,
+                    conversionNumbers: t.factors,
                     correctAnswer: answer,
                     tolerance: Math.max(0.1, Math.abs(answer * 0.015))
                 };
@@ -807,6 +910,7 @@
         function loadNewQuestionForCurrentSection() {
             currentQuestion = generateQuestionForSection(currentSectionIdx);
             renderCurrentQuestion();
+            checkDesmosWorkLive();
         }
 
         // =========================================================================
@@ -876,7 +980,7 @@
                                 const isSelected = selectedHubOption === opt.id;
                                 const isCorrect = isQuestionAnsweredCorrectly && isSelected;
                                 const style = isCorrect 
-                                    ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-200'
+                                    ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-200' 
                                     : (isSelected ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-200 ring-1 ring-cyan-400' : 'bg-slate-900/90 border-white/10 text-slate-300 hover:border-cyan-500/30');
 
                                 return `
@@ -913,7 +1017,7 @@
                             </div>
                         </div>
 
-                        <p class="text-center text-[10px] text-slate-400 font-mono">⚠️ Mandatory: Type and compute the math on the calculator to verify your answer.</p>
+                        <p class="text-center text-[10px] text-slate-400 font-mono">⚠️ Mandatory: Enter the mathematical calculation into Desmos to verify your work.</p>
                     </div>
                 `;
             } else {
@@ -923,7 +1027,7 @@
                         <div class="bg-slate-950/80 p-4 md:p-5 rounded-2xl border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3">
                             <div class="space-y-0.5 text-center sm:text-left">
                                 <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold block">Enter Calculated Value:</span>
-                                <span class="text-xs text-slate-300 font-mono">Solve on the calculator before submitting</span>
+                                <span class="text-xs text-slate-300 font-mono">Perform calculation in Desmos before submitting</span>
                             </div>
                             
                             <div class="flex items-center gap-2">
@@ -940,9 +1044,6 @@
 
         function clickHubOption(optId) {
             selectedHubOption = optId;
-            // Level 1 matching does not strictly require calculator math
-            hasCalculatedForCurrentQuestion = true;
-            updateCalcStatusUI();
             renderCurrentQuestion();
         }
 
@@ -955,13 +1056,16 @@
             const feedbackEl = document.getElementById('feedback-alert-msg');
             const cardEl = document.getElementById('main-question-card');
 
-            // Enforce Calculator Usage (for Guided and Independent)
-            if (q.type !== "hub_match" && !hasCalculatedForCurrentQuestion) {
-                feedbackEl.textContent = "⚠️ Please use the calculator first!";
-                feedbackEl.className = "text-xs font-bold font-mono text-amber-400";
-                cardEl.classList.add('shake-anim');
-                setTimeout(() => cardEl.classList.remove('shake-anim'), 400);
-                return;
+            // Strictly Enforce Desmos Calculator Usage for Guided and Independent
+            if (q.type !== "hub_match") {
+                const hasDesmosWork = verifyDesmosWork(q);
+                if (!hasDesmosWork) {
+                    feedbackEl.textContent = "⚠️ Desmos work not found! Calculate this problem in Desmos on the right.";
+                    feedbackEl.className = "text-xs font-bold font-mono text-amber-400";
+                    cardEl.classList.add('shake-anim');
+                    setTimeout(() => cardEl.classList.remove('shake-anim'), 400);
+                    return;
+                }
             }
 
             let isCorrect = false;
@@ -976,7 +1080,7 @@
             } else {
                 const inputEl = document.getElementById('calc-target-input');
                 if (!inputEl || !inputEl.value.trim()) {
-                    feedbackEl.textContent = "Please enter an answer";
+                    feedbackEl.textContent = "Please enter an answer in the box";
                     feedbackEl.className = "text-xs font-bold font-mono text-amber-400";
                     return;
                 }
@@ -1050,71 +1154,6 @@
             const scorePct = Math.round((completedSections.size / SECTIONS.length) * 100);
             document.getElementById('mastery-grade-display').innerHTML = `${scorePct}% <span class="text-[9px] text-slate-500 font-mono">(${completedSections.size}/6 Sections)</span>`;
             return scorePct;
-        }
-
-        // =========================================================================
-        // EMBEDDED CALCULATOR ENGINE & USAGE TRACKER
-        // =========================================================================
-        let calcExpr = "";
-
-        function calcInput(val) {
-            calcExpr += val;
-            document.getElementById('calc-display').textContent = calcExpr || "0";
-            hasCalculatedForCurrentQuestion = true;
-            updateCalcStatusUI();
-        }
-
-        function calcClear() {
-            calcExpr = "";
-            document.getElementById('calc-display').textContent = "0";
-            document.getElementById('calc-history').textContent = "";
-        }
-
-        function calcBackspace() {
-            calcExpr = calcExpr.slice(0, -1);
-            document.getElementById('calc-display').textContent = calcExpr || "0";
-        }
-
-        function calcEquals() {
-            if (!calcExpr) return;
-            try {
-                // Safe evaluator for basic math arithmetic
-                const sanitized = calcExpr.replace(/[^0-9+\-*/().]/g, '');
-                const result = Function(`'use strict'; return (${sanitized})`)();
-                
-                document.getElementById('calc-history').textContent = `${calcExpr} =`;
-                calcExpr = String(Math.round(result * 10000) / 10000);
-                document.getElementById('calc-display').textContent = calcExpr;
-                
-                hasCalculatedForCurrentQuestion = true;
-                updateCalcStatusUI();
-            } catch (e) {
-                document.getElementById('calc-display').textContent = "Error";
-                calcExpr = "";
-            }
-        }
-
-        function transferResultToAnswer() {
-            const val = document.getElementById('calc-display').textContent;
-            if (!val || val === "0" || val === "Error") return;
-            
-            const target = document.getElementById('calc-target-input');
-            if (target) {
-                target.value = val;
-                target.focus();
-            }
-        }
-
-        function updateCalcStatusUI() {
-            const el = document.getElementById('calc-status-indicator');
-            const txt = document.getElementById('calc-status-text');
-            if (hasCalculatedForCurrentQuestion) {
-                el.className = "text-[10px] font-mono font-bold px-2 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center gap-1";
-                txt.textContent = "Calculator Verified ✓";
-            } else {
-                el.className = "text-[10px] font-mono font-bold px-2 py-1 rounded-lg bg-slate-900 border border-white/10 text-slate-500 flex items-center gap-1";
-                txt.textContent = "Calculator Required";
-            }
         }
 
         // =========================================================================
