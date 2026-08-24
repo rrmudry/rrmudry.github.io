@@ -306,6 +306,7 @@ const lessonsData = [
       "HS-ETS1-2"
     ],
     "links": {
+      "Interactive Unit Conversion Practice": "unit-conversion-practice/index.html",
       "Practice Worksheet": "https://docs.google.com/document/d/19L0sKqt97x8hOCWEDIpL3pkUmgLGjwcYPnmkPXi8wnM/edit?usp=sharing"
     }
   },
