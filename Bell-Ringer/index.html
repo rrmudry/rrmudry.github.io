@@ -476,7 +476,7 @@
                 }
 
                 currentUser = user;
-                studentId = email.split('@')[0];
+                studentId = email.toLowerCase().split('@')[0];
 
                 // Fetch student roster info to get assigned class_period
                 studentPeriod = null;
@@ -510,14 +510,16 @@
             }
         });
 
+        let chatConfigListener = null;
+
         function loadChatConfig() {
-            db.collection('system_config').doc('chat_config').get()
-                .then((doc) => {
-                    if (doc.exists) {
-                        chatProxyUrl = doc.data().chatProxyUrl || null;
+            if (chatConfigListener) chatConfigListener();
+            chatConfigListener = db.collection('system_config').doc('chat_config')
+                .onSnapshot((doc) => {
+                    if (doc.exists && doc.data().chatProxyUrl) {
+                        chatProxyUrl = doc.data().chatProxyUrl;
                     }
-                })
-                .catch((err) => {
+                }, (err) => {
                     console.error("Error loading chat proxy config:", err);
                 });
         }
@@ -546,6 +548,7 @@
         function stopListeners() {
             if (timerDocListener) timerDocListener();
             if (submissionListener) submissionListener();
+            if (chatConfigListener) chatConfigListener();
             if (timerInterval) clearInterval(timerInterval);
         }
 
@@ -912,9 +915,9 @@
                 
                 // If it's undefined, also make sure we delete the effortScore so it stays pending
                 if (score === undefined) {
-                    await db.collection('bellringers').doc(docId).update({
+                    await db.collection('bellringers').doc(docId).set({
                         effortScore: firebase.firestore.FieldValue.delete()
-                    }).catch(() => {});
+                    }, { merge: true }).catch(() => {});
                 }
             } catch (error) {
                 console.error("Firebase connections submission failed:", error);
@@ -1278,16 +1281,49 @@
             submitBtn.innerText = "Submitting...";
 
             try {
-                await db.collection('bellringers').doc(docId).update({
+                await db.collection('bellringers').doc(docId).set({
                     studentFollowUpResponse: responseText,
                     followUpTimestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                }, { merge: true });
             } catch (error) {
                 console.error("Follow-up submission failed:", error);
                 alert("Submission failed: " + error.message);
                 submitBtn.disabled = false;
                 submitBtn.innerText = "Submit Follow-Up Response";
             }
+        }
+
+        // Helper functions for Concept Chat payload cleaning
+        function cleanMessagesForAI(messages) {
+            return messages
+                .filter(m => {
+                    const text = m.parts && m.parts[0] ? m.parts[0].text : '';
+                    return text && !text.startsWith('⚠️ Connection error');
+                })
+                .map(m => ({
+                    role: m.role,
+                    parts: [{ text: m.parts[0].text }]
+                }));
+        }
+
+        function cleanMessagesForFirestore(messages) {
+            return messages.map(m => ({
+                role: m.role,
+                parts: [{ text: m.parts && m.parts[0] ? m.parts[0].text : '' }]
+            }));
+        }
+
+        async function ensureChatProxyUrl() {
+            if (chatProxyUrl) return chatProxyUrl;
+            try {
+                const configDoc = await db.collection('system_config').doc('chat_config').get();
+                if (configDoc.exists && configDoc.data().chatProxyUrl) {
+                    chatProxyUrl = configDoc.data().chatProxyUrl;
+                }
+            } catch (e) {
+                console.warn("Could not fetch chat proxy config on demand:", e);
+            }
+            return chatProxyUrl;
         }
 
         // Concept Chat Functions
@@ -1323,7 +1359,7 @@
                         studentName: currentUser.displayName || studentId,
                         promptQuestion: config.promptQuestion || "Concept Chat",
                         activityType: "concept_chat",
-                        chatMessages: chatMessages,
+                        chatMessages: cleanMessagesForFirestore(chatMessages),
                         timestamp: firebase.firestore.FieldValue.serverTimestamp()
                     }, { merge: true });
                 }
@@ -1408,20 +1444,24 @@
             const docId = `${studentId}_${todayStr}`;
             
             try {
-                await db.collection('bellringers').doc(docId).update({
-                    chatMessages: chatMessages
-                });
+                // Ensure document is created/updated in Firestore right away using .set({ ... }, { merge: true })
+                await db.collection('bellringers').doc(docId).set({
+                    studentId: studentId,
+                    studentName: currentUser.displayName || studentId,
+                    promptQuestion: activePromptText || "Concept Chat",
+                    activityType: "concept_chat",
+                    chatMessages: cleanMessagesForFirestore(chatMessages),
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
                 
-                if (!chatProxyUrl) {
+                const proxyUrl = await ensureChatProxyUrl();
+                if (!proxyUrl) {
                     throw new Error("No chat proxy URL configured by the teacher yet.");
                 }
                 
-                const contentsPayload = chatMessages.map(m => ({
-                    role: m.role,
-                    parts: m.parts
-                }));
+                const contentsPayload = cleanMessagesForAI(chatMessages);
                 
-                const response = await fetch(chatProxyUrl, {
+                const response = await fetch(proxyUrl, {
                     method: 'POST',
                     mode: 'cors',
                     headers: { 'Content-Type': 'text/plain' },
@@ -1449,9 +1489,9 @@
                 };
                 chatMessages.push(modelMsg);
                 
-                await db.collection('bellringers').doc(docId).update({
-                    chatMessages: chatMessages
-                });
+                await db.collection('bellringers').doc(docId).set({
+                    chatMessages: cleanMessagesForFirestore(chatMessages)
+                }, { merge: true });
                 
                 renderChatFeed();
             } catch (err) {
@@ -1487,16 +1527,21 @@
             const docId = `${studentId}_${todayStr}`;
             
             try {
-                await db.collection('bellringers').doc(docId).update({
-                    chatMessages: chatMessages
-                });
+                await db.collection('bellringers').doc(docId).set({
+                    studentId: studentId,
+                    studentName: currentUser.displayName || studentId,
+                    promptQuestion: activePromptText || "Concept Chat",
+                    activityType: "concept_chat",
+                    chatMessages: cleanMessagesForFirestore(chatMessages),
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
                 
-                const contentsPayload = chatMessages.map(m => ({
-                    role: m.role,
-                    parts: m.parts
-                }));
+                const proxyUrl = await ensureChatProxyUrl();
+                if (!proxyUrl) return;
+
+                const contentsPayload = cleanMessagesForAI(chatMessages);
                 
-                const response = await fetch(chatProxyUrl, {
+                const response = await fetch(proxyUrl, {
                     method: 'POST',
                     mode: 'cors',
                     headers: { 'Content-Type': 'text/plain' },
@@ -1517,9 +1562,9 @@
                     };
                     chatMessages.push(modelMsg);
                     
-                    await db.collection('bellringers').doc(docId).update({
-                        chatMessages: chatMessages
-                    });
+                    await db.collection('bellringers').doc(docId).set({
+                        chatMessages: cleanMessagesForFirestore(chatMessages)
+                    }, { merge: true });
                     
                     renderChatFeed();
                 }
@@ -1587,9 +1632,10 @@ Output ONLY a raw JSON object containing a single key "score" with the integer v
 `;
 
             try {
-                if (!chatProxyUrl) throw new Error("No proxy URL configured.");
+                const proxyUrl = await ensureChatProxyUrl();
+                if (!proxyUrl) throw new Error("No proxy URL configured.");
 
-                const response = await fetch(chatProxyUrl, {
+                const response = await fetch(proxyUrl, {
                     method: 'POST',
                     mode: 'cors',
                     headers: { 'Content-Type': 'text/plain' },
@@ -1618,13 +1664,13 @@ Output ONLY a raw JSON object containing a single key "score" with the integer v
                     console.error("Failed to parse grading score:", resultText, e);
                 }
 
-                // Write final grade to Firestore
+                // Write final grade to Firestore safely using .set(..., { merge: true })
                 const todayStr = getTodayString();
                 const docId = `${studentId}_${todayStr}`;
                 
-                await db.collection('bellringers').doc(docId).update({
+                await db.collection('bellringers').doc(docId).set({
                     effortScore: scoreVal
-                });
+                }, { merge: true });
 
             } catch (err) {
                 console.error("Auto grading failed:", err);
@@ -1633,9 +1679,9 @@ Output ONLY a raw JSON object containing a single key "score" with the integer v
                 
                 const todayStr = getTodayString();
                 const docId = `${studentId}_${todayStr}`;
-                await db.collection('bellringers').doc(docId).update({
+                await db.collection('bellringers').doc(docId).set({
                     effortScore: 70
-                }).catch(() => {});
+                }, { merge: true }).catch(() => {});
             }
         }
 
