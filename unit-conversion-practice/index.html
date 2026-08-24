@@ -50,16 +50,9 @@
         .unit-cancelled {
             position: relative;
             color: #94a3b8;
-        }
-        .unit-cancelled::after {
-            content: '';
-            position: absolute;
-            left: -2px;
-            right: -2px;
-            top: 50%;
-            height: 2px;
-            background: #f43f5e;
-            transform: rotate(-18deg);
+            text-decoration: line-through;
+            text-decoration-color: #f43f5e;
+            text-decoration-thickness: 2.5px;
         }
         /* Custom Scrollbar */
         .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
@@ -133,18 +126,18 @@
                 </div>
 
                 <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-900/80 border border-white/5">
-                    <span class="text-lg">🧮</span>
+                    <span class="text-lg">🧩</span>
                     <div>
-                        <strong class="text-cyan-400 block text-xs">Desmos Calculator Work is Strictly Required</strong>
-                        <p class="text-[11px] text-slate-300 mt-0.5">For all calculation questions, the answer box remains <strong>locked</strong> until you enter and compute the exact mathematical conversion in the <strong>Desmos Scientific Calculator</strong>.</p>
+                        <strong class="text-cyan-400 block text-xs">Select Fraction Factor First</strong>
+                        <p class="text-[11px] text-slate-300 mt-0.5">In guided rounds, you must first <strong>select the correct conversion factor fraction</strong> (e.g. 2.54 cm / 1 in) to cancel out the units before calculating.</p>
                     </div>
                 </div>
 
                 <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-900/80 border border-white/5">
-                    <span class="text-lg">🚫</span>
+                    <span class="text-lg">🧮</span>
                     <div>
-                        <strong class="text-rose-400 block text-xs">No Answers are Given</strong>
-                        <p class="text-[11px] text-slate-300 mt-0.5">The system will never reveal the answer. You may not advance to the next problem until your current calculation is checked and verified.</p>
+                        <strong class="text-emerald-400 block text-xs">Desmos Calculator Work is Strictly Required</strong>
+                        <p class="text-[11px] text-slate-300 mt-0.5">For all calculation questions, the answer box remains <strong>locked</strong> until you enter and compute the exact mathematical conversion in the <strong>Desmos Scientific Calculator</strong>.</p>
                     </div>
                 </div>
             </div>
@@ -244,9 +237,9 @@
                         <!-- Dynamic Question Body -->
                         <div id="dynamic-question-body" class="space-y-3 pt-1">
                             <!-- Injected:
-                                 - Factor Match (Interactive Conversion Hub Clicker)
-                                 - Guided Math (Screenshot fraction visual + calculator prompt)
-                                 - Independent Solve (Single/Multi-step solve + calculator prompt)
+                                 - Hub Match (Interactive Conversion Hub Clicker)
+                                 - Guided Math (Step 1: Click Factor Fraction -> Step 2: Desmos Calculation)
+                                 - Independent Solve (Single/Multi-step solve + Desmos verification)
                             -->
                         </div>
                     </div>
@@ -412,6 +405,8 @@
         let completedSections = new Set();
         let currentQuestion = null;
         let selectedHubOption = null;
+        let isGuidedFractionSelected = false;
+        let selectedGuidedFractionId = null;
         let isQuestionAnsweredCorrectly = false;
         let currentStudent = null;
         let previousHighScore = 0;
@@ -506,7 +501,10 @@
         }
 
         function verifyDesmosWork(q) {
-            if (!q || q.type === "hub_match") return true; // Section 1 & 4 are multiple choice identification
+            if (!q || q.type === "hub_match") return true;
+            // If guided math and student hasn't selected the fraction yet, work cannot be completed yet
+            if (q.type === "guided" && !isGuidedFractionSelected) return false;
+
             const expressions = getDesmosExpressions();
             if (!expressions || expressions.length === 0) return false;
 
@@ -579,6 +577,23 @@
                     indicator.className = "text-[10px] font-mono font-bold px-2 py-1 rounded-lg bg-slate-900 border border-white/10 text-slate-400 flex items-center gap-1";
                     txt.textContent = "Concept Match Mode";
                 }
+                return;
+            }
+
+            if (q.type === "guided" && !isGuidedFractionSelected) {
+                if (badge) {
+                    badge.textContent = "SELECT FRACTION FIRST";
+                    badge.className = "text-[8px] font-mono text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20 font-bold";
+                }
+                if (indicator) {
+                    indicator.className = "text-[10px] font-mono font-bold px-2 py-1 rounded-lg bg-slate-900 border border-white/10 text-slate-400 flex items-center gap-1.5";
+                    txt.textContent = "Step 1: Choose Fraction Factor";
+                }
+                if (inputEl) {
+                    inputEl.disabled = true;
+                    inputEl.placeholder = "🔒 Choose fraction first...";
+                }
+                if (pasteBtn) pasteBtn.classList.add('hidden');
                 return;
             }
 
@@ -686,6 +701,8 @@
             const sec = SECTIONS[sectionIdx];
             isQuestionAnsweredCorrectly = false;
             selectedHubOption = null;
+            isGuidedFractionSelected = false;
+            selectedGuidedFractionId = null;
 
             if (sec.id === 1) {
                 // Section 1: Metric Factor Matching
@@ -721,7 +738,7 @@
             }
 
             if (sec.id === 2) {
-                // Section 2: Metric Guided Math
+                // Section 2: Metric Guided Math with Interactive Fraction Selection
                 const templates = [
                     {
                         promptVal: (Math.floor(Math.random() * 85) + 12) * 100, // e.g. 4500 g
@@ -731,6 +748,12 @@
                         den: "1000 g",
                         factors: [1000],
                         calc: (v) => v / 1000,
+                        fractionOptions: [
+                            { id: "1kg_1000g", num: "1 kg", den: "1000 g", isCorrect: true },
+                            { id: "1000g_1kg", num: "1000 g", den: "1 kg", isCorrect: false, reason: "Inverted fraction! 'g' must be on the bottom to cancel with given 'g'." },
+                            { id: "100cm_1m", num: "100 cm", den: "1 m", isCorrect: false, reason: "Wrong unit! Problem is converting grams to kilograms." },
+                            { id: "1000mL_1L", num: "1000 mL", den: "1 L", isCorrect: false, reason: "Wrong unit! Problem is converting grams to kilograms." }
+                        ],
                         context: "Convert {val} grams (g) to kilograms (kg)."
                     },
                     {
@@ -741,6 +764,12 @@
                         den: "1 m",
                         factors: [100],
                         calc: (v) => v * 100,
+                        fractionOptions: [
+                            { id: "100cm_1m", num: "100 cm", den: "1 m", isCorrect: true },
+                            { id: "1m_100cm", num: "1 m", den: "100 cm", isCorrect: false, reason: "Inverted fraction! 'm' must be on the bottom to cancel with given 'm'." },
+                            { id: "1000mm_1m", num: "1000 mm", den: "1 m", isCorrect: false, reason: "Wrong unit! Target is centimeters (cm)." },
+                            { id: "1kg_1000g", num: "1 kg", den: "1000 g", isCorrect: false, reason: "Wrong unit! Problem is converting meters to centimeters." }
+                        ],
                         context: "A measurement is {val} meters (m) tall. What is it in centimeters (cm)?"
                     },
                     {
@@ -751,6 +780,12 @@
                         den: "1000 mL",
                         factors: [1000],
                         calc: (v) => v / 1000,
+                        fractionOptions: [
+                            { id: "1L_1000mL", num: "1 L", den: "1000 mL", isCorrect: true },
+                            { id: "1000mL_1L", num: "1000 mL", den: "1 L", isCorrect: false, reason: "Inverted fraction! 'mL' must be on the bottom to cancel with given 'mL'." },
+                            { id: "1kg_1000g", num: "1 kg", den: "1000 g", isCorrect: false, reason: "Wrong unit! Problem is converting milliliters to Liters." },
+                            { id: "100cm_1m", num: "100 cm", den: "1 m", isCorrect: false, reason: "Wrong unit! Problem is converting milliliters to Liters." }
+                        ],
                         context: "A container holds {val} milliliters (mL). How many Liters (L) is this?"
                     },
                     {
@@ -761,6 +796,12 @@
                         den: "1 km",
                         factors: [1000],
                         calc: (v) => v * 1000,
+                        fractionOptions: [
+                            { id: "1000m_1km", num: "1000 m", den: "1 km", isCorrect: true },
+                            { id: "1km_1000m", num: "1 km", den: "1000 m", isCorrect: false, reason: "Inverted fraction! 'km' must be on the bottom to cancel with given 'km'." },
+                            { id: "100cm_1m", num: "100 cm", den: "1 m", isCorrect: false, reason: "Wrong unit! Problem is converting kilometers to meters." },
+                            { id: "1000g_1kg", num: "1000 g", den: "1 kg", isCorrect: false, reason: "Wrong unit! Problem is converting kilometers to meters." }
+                        ],
                         context: "A student runs a {val} kilometer (km) race. How many meters (m) is that?"
                     }
                 ];
@@ -771,13 +812,14 @@
                 return {
                     sectionId: sec.id,
                     type: "guided",
-                    prompt: t.context.replace('{val}', t.promptVal) + " Enter the calculation in the Desmos calculator to find the result:",
+                    prompt: t.context.replace('{val}', t.promptVal),
                     givenNum: t.promptVal,
                     givenUnit: t.fromUnit,
                     numerator: t.num,
                     denominator: t.den,
                     targetUnit: t.targetUnit,
                     conversionNumbers: t.factors,
+                    fractionOptions: t.fractionOptions.sort(() => 0.5 - Math.random()),
                     correctAnswer: answer,
                     tolerance: Math.max(0.01, Math.abs(answer * 0.01))
                 };
@@ -875,16 +917,22 @@
             }
 
             if (sec.id === 5) {
-                // Section 5: Guided Cross-System Math
+                // Section 5: Guided Cross-System Math with Interactive Fraction Selection
                 const templates = [
                     {
-                        promptVal: ((Math.floor(Math.random() * 60) + 30) / 10).toFixed(1), // e.g. 6.7 in
+                        promptVal: ((Math.floor(Math.random() * 60) + 30) / 10).toFixed(1), // e.g. 6.6 in
                         fromUnit: "in",
                         targetUnit: "cm",
                         num: "2.54 cm",
                         den: "1 in",
                         factors: [2.54],
                         calc: (v) => v * 2.54,
+                        fractionOptions: [
+                            { id: "2.54cm_1in", num: "2.54 cm", den: "1 in", isCorrect: true },
+                            { id: "1in_2.54cm", num: "1 in", den: "2.54 cm", isCorrect: false, reason: "Inverted fraction! 'in' must be in the denominator to cancel with given 'in'." },
+                            { id: "12in_1ft", num: "12 in", den: "1 ft", isCorrect: false, reason: "Wrong unit! Target is centimeters (cm)." },
+                            { id: "1.61km_1mi", num: "1.61 km", den: "1 mi", isCorrect: false, reason: "Wrong unit! Target is centimeters (cm)." }
+                        ],
                         context: "The screen on a device is {val} inches long. What is its length in centimeters (cm)?"
                     },
                     {
@@ -895,6 +943,12 @@
                         den: "1 mi",
                         factors: [1.61],
                         calc: (v) => v * 1.61,
+                        fractionOptions: [
+                            { id: "1.61km_1mi", num: "1.61 km", den: "1 mi", isCorrect: true },
+                            { id: "1mi_1.61km", num: "1 mi", den: "1.61 km", isCorrect: false, reason: "Inverted fraction! 'mi' must be in the denominator to cancel with given 'mi'." },
+                            { id: "1hr_60min", num: "1 hr", den: "60 min", isCorrect: false, reason: "Wrong unit! Target is kilometers per hour." },
+                            { id: "2.54cm_1in", num: "2.54 cm", den: "1 in", isCorrect: false, reason: "Wrong unit! Target is kilometers per hour." }
+                        ],
                         context: "A vehicle is moving at {val} miles per hour. How fast is that in kilometers per hour (km/hr)?"
                     },
                     {
@@ -905,6 +959,12 @@
                         den: "1 gal",
                         factors: [3.79],
                         calc: (v) => v * 3.79,
+                        fractionOptions: [
+                            { id: "3.79L_1gal", num: "3.79 L", den: "1 gal", isCorrect: true },
+                            { id: "1gal_3.79L", num: "1 gal", den: "3.79 L", isCorrect: false, reason: "Inverted fraction! 'gal' must be in the denominator to cancel with given 'gal'." },
+                            { id: "1kg_2.2lbs", num: "1 kg", den: "2.2 lbs", isCorrect: false, reason: "Wrong unit! Problem is converting gallons to Liters." },
+                            { id: "1L_1000mL", num: "1 L", den: "1000 mL", isCorrect: false, reason: "Wrong factor! 1 gallon = 3.79 L." }
+                        ],
                         context: "A container holds {val} gallons of water. How many Liters (L) is that?"
                     }
                 ];
@@ -915,13 +975,14 @@
                 return {
                     sectionId: sec.id,
                     type: "guided",
-                    prompt: t.context.replace('{val}', t.promptVal) + " Calculate the answer in Desmos:",
+                    prompt: t.context.replace('{val}', t.promptVal),
                     givenNum: t.promptVal,
                     givenUnit: t.fromUnit,
                     numerator: t.num,
                     denominator: t.den,
                     targetUnit: t.targetUnit,
                     conversionNumbers: t.factors,
+                    fractionOptions: t.fractionOptions.sort(() => 0.5 - Math.random()),
                     correctAnswer: answer,
                     tolerance: 0.1
                 };
@@ -1065,33 +1126,78 @@
                     </div>
                 `;
             } else if (q.type === "guided") {
-                body.innerHTML = `
-                    <div class="space-y-3">
-                        <div class="bg-slate-950/90 p-4 md:p-5 rounded-2xl border border-white/10 flex items-center justify-center gap-3 text-xs md:text-sm font-mono overflow-x-auto custom-scrollbar shadow-inner">
-                            <div class="flex items-center gap-1.5 shrink-0">
-                                <span class="text-amber-400 font-extrabold text-sm md:text-base">${q.givenNum}</span>
-                                <span class="text-amber-300 font-bold">${q.givenUnit}</span>
-                                <span class="text-slate-500 text-xs font-bold">×</span>
+                if (!isGuidedFractionSelected) {
+                    // STEP 1: Select the conversion factor fraction
+                    body.innerHTML = `
+                        <div class="space-y-3.5">
+                            <!-- Incomplete Mathematical Fraction Setup -->
+                            <div class="bg-slate-950/90 p-4 md:p-5 rounded-2xl border border-white/10 flex items-center justify-center gap-3 text-xs md:text-sm font-mono shadow-inner">
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    <span class="text-amber-400 font-extrabold text-sm md:text-base">${q.givenNum}</span>
+                                    <span class="text-amber-300 font-bold">${q.givenUnit}</span>
+                                    <span class="text-slate-500 text-xs font-bold">×</span>
+                                </div>
+
+                                <div class="px-3 py-2 rounded-xl bg-cyan-500/10 border-2 border-dashed border-cyan-400/50 text-cyan-300 text-xs font-bold animate-pulse">
+                                    [ Select Conversion Factor Below ]
+                                </div>
+
+                                <span class="text-slate-500 shrink-0 font-bold">=</span>
+                                <span class="text-slate-400 font-bold">? ${q.targetUnit}</span>
                             </div>
 
-                            <div class="inline-flex flex-col items-center leading-tight shrink-0 px-2">
-                                <span class="border-b border-cyan-500/40 pb-1 text-cyan-400 font-bold">${q.numerator}</span>
-                                <span class="pt-1 text-slate-400 text-xs">${q.denominator}</span>
-                            </div>
-
-                            <span class="text-slate-500 shrink-0 font-bold">=</span>
-
-                            <div class="flex items-center gap-2 shrink-0">
-                                <input type="text" id="calc-target-input" disabled placeholder="🔒 Compute in Desmos..." 
-                                       onkeydown="if(event.key==='Enter') evaluateAnswer()"
-                                       class="w-28 bg-slate-900 border border-amber-500/30 text-white px-3 py-1.5 rounded-xl text-center font-mono font-bold outline-none opacity-40 cursor-not-allowed transition-all">
-                                <span class="text-slate-300 font-bold">${q.targetUnit}</span>
+                            <!-- Interactive Fraction Options -->
+                            <div class="space-y-2">
+                                <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-300 block">
+                                    Step 1: Choose the correct conversion factor fraction to cancel units:
+                                </span>
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                                    ${q.fractionOptions.map(opt => `
+                                        <button onclick="selectGuidedFraction('${opt.id}')" class="p-3 rounded-xl border border-white/10 bg-slate-900/90 hover:border-cyan-400/60 hover:bg-slate-800 text-center font-mono transition-all active:scale-95 flex flex-col items-center justify-center gap-1">
+                                            <div class="inline-flex flex-col items-center leading-tight">
+                                                <span class="border-b border-cyan-400/50 pb-0.5 text-cyan-300 font-bold text-xs">${opt.num}</span>
+                                                <span class="pt-0.5 text-slate-300 text-[11px] font-medium">${opt.den}</span>
+                                            </div>
+                                        </button>
+                                    `).join('')}
+                                </div>
                             </div>
                         </div>
+                    `;
+                } else {
+                    // STEP 2: Fraction selected -> Unit cancellation visual -> Desmos Calculation
+                    body.innerHTML = `
+                        <div class="space-y-3">
+                            <!-- Fraction Selected with Unit Cancellation -->
+                            <div class="bg-slate-950/90 p-4 md:p-5 rounded-2xl border border-emerald-500/40 flex items-center justify-center gap-3 text-xs md:text-sm font-mono overflow-x-auto custom-scrollbar shadow-inner">
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    <span class="text-amber-400 font-extrabold text-sm md:text-base">${q.givenNum}</span>
+                                    <span class="unit-cancelled font-bold">${q.givenUnit}</span>
+                                    <span class="text-slate-500 text-xs font-bold">×</span>
+                                </div>
 
-                        <p class="text-center text-[10px] text-slate-400 font-mono">⚠️ Mandatory: Enter the calculation into Desmos on the right to unlock the answer box.</p>
-                    </div>
-                `;
+                                <div class="inline-flex flex-col items-center leading-tight shrink-0 px-2.5 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
+                                    <span class="border-b border-emerald-400/50 pb-1 text-emerald-300 font-bold">${q.numerator}</span>
+                                    <span class="pt-1 unit-cancelled text-xs">${q.denominator}</span>
+                                </div>
+
+                                <span class="text-slate-500 shrink-0 font-bold">=</span>
+
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <input type="text" id="calc-target-input" disabled placeholder="🔒 Compute in Desmos..." 
+                                           onkeydown="if(event.key==='Enter') evaluateAnswer()"
+                                           class="w-28 bg-slate-900 border border-amber-500/30 text-white px-3 py-1.5 rounded-xl text-center font-mono font-bold outline-none opacity-40 cursor-not-allowed transition-all">
+                                    <span class="text-slate-300 font-bold">${q.targetUnit}</span>
+                                </div>
+                            </div>
+
+                            <div class="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[11px] font-mono flex items-center justify-between">
+                                <span>✓ Units cancelled! <strong>Step 2:</strong> Compute this calculation in Desmos on the right.</span>
+                                <button onclick="resetGuidedFraction()" class="text-[10px] text-slate-400 hover:text-white underline">Change Fraction</button>
+                            </div>
+                        </div>
+                    `;
+                }
             } else {
                 // Independent
                 body.innerHTML = `
@@ -1119,6 +1225,43 @@
             renderCurrentQuestion();
         }
 
+        function selectGuidedFraction(optId) {
+            const q = currentQuestion;
+            if (!q || q.type !== "guided") return;
+
+            const opt = q.fractionOptions.find(o => o.id === optId);
+            const feedbackEl = document.getElementById('feedback-alert-msg');
+            const cardEl = document.getElementById('main-question-card');
+
+            if (opt && opt.isCorrect) {
+                isGuidedFractionSelected = true;
+                selectedGuidedFractionId = optId;
+                renderCurrentQuestion();
+                checkDesmosWorkLive();
+            } else {
+                // Wrong fraction orientation or unit -> RESET STREAK
+                currentStreak = 0;
+                updateStreakUI();
+                cardEl.classList.add('shake-anim');
+                setTimeout(() => cardEl.classList.remove('shake-anim'), 400);
+
+                const reason = opt?.reason || `The unit '${q.givenUnit}' must be in the denominator to cancel out!`;
+                feedbackEl.textContent = `❌ ${reason} Streak reset to 0/4.`;
+                feedbackEl.className = "text-xs font-bold font-mono text-rose-400";
+
+                setTimeout(() => {
+                    loadNewQuestionForCurrentSection();
+                }, 1800);
+            }
+        }
+
+        function resetGuidedFraction() {
+            isGuidedFractionSelected = false;
+            selectedGuidedFractionId = null;
+            renderCurrentQuestion();
+            checkDesmosWorkLive();
+        }
+
         // =========================================================================
         // ANSWER EVALUATION & STREAK STATE
         // =========================================================================
@@ -1127,6 +1270,15 @@
             const q = currentQuestion;
             const feedbackEl = document.getElementById('feedback-alert-msg');
             const cardEl = document.getElementById('main-question-card');
+
+            // Strictly Enforce Fraction Selection for Guided
+            if (q.type === "guided" && !isGuidedFractionSelected) {
+                feedbackEl.textContent = "⚠️ Please select the conversion factor fraction first!";
+                feedbackEl.className = "text-xs font-bold font-mono text-amber-400";
+                cardEl.classList.add('shake-anim');
+                setTimeout(() => cardEl.classList.remove('shake-anim'), 400);
+                return;
+            }
 
             // Strictly Enforce Desmos Calculator Usage for all calculation questions
             if (q.type !== "hub_match") {
