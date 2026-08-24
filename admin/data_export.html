@@ -472,14 +472,19 @@
 
         async function loadBellringersData() {
             try {
-                const snap = await db.collection('bellringers').get();
+                const [activeSnap, archiveSnap] = await Promise.all([
+                    db.collection('bellringers').get().catch(err => { console.warn("Active fetch error:", err); return { forEach: () => {} }; }),
+                    db.collection('archived_bellringers').get().catch(err => { console.warn("Archive fetch error:", err); return { forEach: () => {} }; })
+                ]);
+
                 bellringersCache = [];
-                snap.forEach(doc => {
+
+                const processDoc = (doc, isArchived) => {
                     const d = doc.data();
                     let dateStr = d.date || '';
                     if (!dateStr && doc.id.includes('_')) {
-                        const parts = doc.id.split('_');
-                        dateStr = parts[parts.length - 1];
+                        const match = doc.id.match(/\d{4}-\d{2}-\d{2}/);
+                        if (match) dateStr = match[0];
                     }
                     if (!dateStr && d.timestamp && d.timestamp.seconds) {
                         dateStr = new Date(d.timestamp.seconds * 1000).toISOString().split('T')[0];
@@ -492,9 +497,29 @@
 
                     let numericEffort = 0;
                     if (d.effortScore !== undefined && d.effortScore !== null) {
-                        numericEffort = parseFloat(d.effortScore) || 0;
-                    } else if (d.aiResponse && d.aiResponse.effortScore !== undefined) {
-                        numericEffort = parseFloat(d.aiResponse.effortScore) || 0;
+                        if (typeof d.effortScore === 'object' && d.effortScore.effortScore !== undefined) {
+                            numericEffort = parseFloat(d.effortScore.effortScore) || 0;
+                        } else if (typeof d.effortScore === 'string' && d.effortScore.startsWith('{')) {
+                            try {
+                                const parsed = JSON.parse(d.effortScore);
+                                numericEffort = parseFloat(parsed.effortScore) || 0;
+                            } catch(e) {
+                                numericEffort = parseFloat(d.effortScore) || 0;
+                            }
+                        } else {
+                            numericEffort = parseFloat(d.effortScore) || 0;
+                        }
+                    } else if (d.aiResponse) {
+                        if (typeof d.aiResponse === 'object' && d.aiResponse.effortScore !== undefined) {
+                            numericEffort = parseFloat(d.aiResponse.effortScore) || 0;
+                        } else if (typeof d.aiResponse === 'string') {
+                            try {
+                                let cleaned = d.aiResponse.trim();
+                                if (cleaned.startsWith('```')) cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+                                const parsed = JSON.parse(cleaned.trim());
+                                numericEffort = parseFloat(parsed.effortScore) || 0;
+                            } catch(e) {}
+                        }
                     }
 
                     bellringersCache.push({
@@ -505,10 +530,15 @@
                         date: dateStr,
                         activityType: d.activityType || 'free_response',
                         effortScore: numericEffort,
-                        timestamp: d.timestamp
+                        timestamp: d.timestamp,
+                        isArchived: isArchived
                     });
-                });
-                console.log(`[DATA_EXPORT] Loaded ${bellringersCache.length} bellringer records.`);
+                };
+
+                if (activeSnap.forEach) activeSnap.forEach(doc => processDoc(doc, false));
+                if (archiveSnap.forEach) archiveSnap.forEach(doc => processDoc(doc, true));
+
+                console.log(`[DATA_EXPORT] Loaded ${bellringersCache.length} total bellringer records (active + archived).`);
             } catch (err) {
                 console.error("[DATA_EXPORT] Error loading bellringers:", err);
             }
@@ -629,7 +659,10 @@
                     };
                 }
 
-                studentMap[stuId].sessions[sub.date] = sub.effortScore;
+                const prevScore = studentMap[stuId].sessions[sub.date];
+                if (prevScore === undefined || sub.effortScore > prevScore || (!sub.isArchived && sub.effortScore >= prevScore)) {
+                    studentMap[stuId].sessions[sub.date] = sub.effortScore;
+                }
                 if (sub.student_name && (!studentMap[stuId].name || studentMap[stuId].name === stuId)) {
                     studentMap[stuId].name = sub.student_name;
                 }
