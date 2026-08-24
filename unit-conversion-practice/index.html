@@ -1086,6 +1086,30 @@
             document.getElementById('streak-count-text').textContent = `${currentStreak}/${STREAK_TARGET}`;
         }
 
+        function formatCancelledDenominator(denStr, cancelUnit) {
+            if (!denStr) return '';
+            const parts = denStr.trim().split(/\s+/);
+            if (parts.length >= 2) {
+                const numPart = parts.slice(0, -1).join(' ');
+                const unitPart = parts[parts.length - 1];
+                return `<span class="text-white font-black">${numPart}</span> <span class="unit-cancelled font-bold text-slate-400">${unitPart}</span>`;
+            }
+            return `<span class="unit-cancelled font-bold">${denStr}</span>`;
+        }
+
+        function getMathHint(q) {
+            if (!q) return '';
+            const numVal = parseFloat(String(q.numerator || '').replace(/[^0-9.]/g, '')) || 1;
+            const denVal = parseFloat(String(q.denominator || '').replace(/[^0-9.]/g, '')) || 1;
+            if (denVal > 1 && numVal === 1) {
+                return `${q.givenNum} ÷ ${denVal}`;
+            } else if (numVal > 1 && denVal === 1) {
+                return `${q.givenNum} × ${numVal}`;
+            } else {
+                return `${q.givenNum} × ${numVal} ÷ ${denVal}`;
+            }
+        }
+
         function renderCurrentQuestion() {
             const q = currentQuestion;
             const sec = SECTIONS[currentSectionIdx];
@@ -1185,19 +1209,22 @@
                     `;
                 } else {
                     // STEP 2: Fraction selected -> Unit cancellation visual -> Desmos Calculation
+                    const mathHint = getMathHint(q);
+                    const formattedDen = formatCancelledDenominator(q.denominator, q.givenUnit);
+
                     body.innerHTML = `
                         <div class="space-y-3">
                             <!-- Fraction Selected with Unit Cancellation -->
                             <div class="bg-slate-950/90 p-4 md:p-5 rounded-2xl border border-emerald-500/40 flex items-center justify-center gap-3 text-xs md:text-sm font-mono overflow-x-auto custom-scrollbar shadow-inner">
                                 <div class="flex items-center gap-1.5 shrink-0">
                                     <span class="text-amber-400 font-extrabold text-sm md:text-base">${q.givenNum}</span>
-                                    <span class="unit-cancelled font-bold">${q.givenUnit}</span>
+                                    <span class="unit-cancelled font-bold text-slate-400">${q.givenUnit}</span>
                                     <span class="text-slate-500 text-xs font-bold">×</span>
                                 </div>
 
-                                <div class="inline-flex flex-col items-center leading-tight shrink-0 px-2.5 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
-                                    <span class="border-b border-emerald-400/50 pb-1 text-emerald-300 font-bold">${q.numerator}</span>
-                                    <span class="pt-1 unit-cancelled text-xs">${q.denominator}</span>
+                                <div class="inline-flex flex-col items-center leading-tight shrink-0 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
+                                    <span class="border-b border-emerald-400/50 pb-1 text-emerald-300 font-extrabold">${q.numerator}</span>
+                                    <span class="pt-1 text-xs">${formattedDen}</span>
                                 </div>
 
                                 <span class="text-slate-500 shrink-0 font-bold">=</span>
@@ -1210,8 +1237,12 @@
                                 </div>
                             </div>
 
-                            <div class="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[11px] font-mono flex items-center justify-between">
-                                <span>✓ Units cancelled! <strong>Step 2:</strong> Compute this calculation in Desmos on the right.</span>
+                            <div class="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[11px] font-mono flex flex-wrap items-center justify-between gap-2">
+                                <div class="flex items-center gap-1.5">
+                                    <span>✓ Units cancelled! <strong>Step 2:</strong> Compute </span>
+                                    <span class="bg-slate-900/90 px-2 py-0.5 rounded border border-emerald-500/40 text-amber-300 font-bold tracking-wide">${mathHint}</span>
+                                    <span> in Desmos on the right.</span>
+                                </div>
                                 ${!isQuestionAnsweredCorrectly ? `<button onclick="resetGuidedFraction()" class="text-[10px] text-slate-400 hover:text-white underline">Change Fraction</button>` : ''}
                             </div>
                         </div>
