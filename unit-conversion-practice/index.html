@@ -75,7 +75,6 @@
             animation: shake 0.4s ease-in-out;
         }
 
-        /* Override Desmos container styling for seamless dark UI frame */
         .dcg-scientific-calculator {
             font-family: 'Inter', sans-serif !important;
         }
@@ -136,8 +135,8 @@
                 <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-900/80 border border-white/5">
                     <span class="text-lg">🧮</span>
                     <div>
-                        <strong class="text-cyan-400 block text-xs">Desmos Calculator Work is Mandatory</strong>
-                        <p class="text-[11px] text-slate-300 mt-0.5">You must enter and compute your calculation in the <strong>Desmos Scientific Calculator</strong> on the right. Submissions are only accepted when active work is detected!</p>
+                        <strong class="text-cyan-400 block text-xs">Desmos Calculator Work is Strictly Required</strong>
+                        <p class="text-[11px] text-slate-300 mt-0.5">For all calculation questions, the answer box remains <strong>locked</strong> until you enter and compute the exact mathematical conversion in the <strong>Desmos Scientific Calculator</strong>.</p>
                     </div>
                 </div>
 
@@ -291,7 +290,7 @@
                 <div class="flex items-center justify-between border-b border-white/10 pb-2 mb-2 px-1">
                     <div class="flex items-center gap-2">
                         <div class="p-1 bg-cyan-500/20 text-cyan-400 rounded-md">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
                         </div>
                         <span class="text-[11px] font-black uppercase tracking-wider font-orbitron text-cyan-300">Desmos Scientific Calculator</span>
                     </div>
@@ -299,9 +298,14 @@
                 </div>
                 
                 <!-- Desmos Target Element -->
-                <div id="desmos-calculator-container" class="flex-1 w-full bg-white rounded-xl overflow-hidden shadow-inner border border-slate-700"></div>
+                <div id="desmos-calculator-container" class="flex-1 w-full bg-white rounded-xl overflow-hidden shadow-inner border border-slate-700 transition-all"></div>
                 
-                <p class="text-center text-[9px] text-slate-500 font-mono mt-1.5 uppercase tracking-widest">Official Desmos Engine // Real-time Work Verification</p>
+                <div class="flex items-center justify-between mt-2 pt-1 border-t border-white/5 text-[9px] font-mono text-slate-400">
+                    <span>Enter calculation above to unlock</span>
+                    <button id="btn-paste-desmos" onclick="pasteDesmosResult()" class="text-cyan-400 hover:text-cyan-300 font-bold uppercase transition-colors hidden flex items-center gap-1">
+                        <span>📋 Paste Result to Box</span>
+                    </button>
+                </div>
             </aside>
 
         </div>
@@ -469,7 +473,7 @@
         }
 
         // =========================================================================
-        // DESMOS CALCULATOR INITIALIZATION & WORK VERIFIER
+        // DESMOS CALCULATOR INITIALIZATION & STRICT WORK VERIFIER
         // =========================================================================
 
         function initDesmos() {
@@ -482,7 +486,7 @@
                         settingsMenu: false
                     });
 
-                    // Live monitor on changes
+                    // Live monitor on every keypad press / change
                     desmosCalculator.observeEvent('change', () => {
                         checkDesmosWorkLive();
                     });
@@ -503,33 +507,54 @@
         }
 
         function verifyDesmosWork(q) {
-            if (!q || q.type === "hub_match") return true; // Level 1 is concept identification
+            if (!q || q.type === "hub_match") return true; // Section 1 & 4 are multiple choice identification
             const expressions = getDesmosExpressions();
             if (!expressions || expressions.length === 0) return false;
 
-            const givenClean = String(q.givenNum || q.val || '').replace(/,/g, '').trim();
+            const givenClean = String(q.givenNum || '').replace(/,/g, '').trim();
+            const givenFloat = parseFloat(givenClean);
             const targetAns = q.correctAnswer;
             const tolerance = q.tolerance || 0.05;
+            const factors = q.conversionNumbers || [1000, 100, 10, 2.54, 12, 1.61, 3.79, 2.2, 60, 3600];
 
             for (let item of expressions) {
                 if (!item.latex) continue;
                 const latex = item.latex.toLowerCase();
 
-                // Check 1: Does LaTeX include the problem's given number and an arithmetic operator?
-                const hasGiven = givenClean && (latex.includes(givenClean) || (parseFloat(givenClean) && latex.includes(parseFloat(givenClean).toString())));
-                const hasOp = latex.includes('/') || latex.includes('\\frac') || latex.includes('\\cdot') || latex.includes('\\times') || latex.includes('*') || latex.includes('+') || latex.includes('-') || latex.includes('\\div');
+                // 1. Check if the expression contains the specific given number
+                const containsGiven = givenClean && (
+                    latex.includes(givenClean) || 
+                    (!isNaN(givenFloat) && latex.includes(givenFloat.toString()))
+                );
 
-                // Check 2: Does LaTeX include any of the relevant conversion factors?
-                const conversionNums = q.conversionNumbers || [1000, 100, 10, 2.54, 12, 1.61, 3.79, 2.2, 60, 3600];
-                const hasFactor = conversionNums.some(num => latex.includes(String(num)));
+                // 2. Check if the expression contains an arithmetic operator or fraction
+                const containsOp = latex.includes('/') || latex.includes('\\frac') || 
+                                   latex.includes('\\cdot') || latex.includes('\\times') || 
+                                   latex.includes('*') || latex.includes('+') || 
+                                   latex.includes('-') || latex.includes('\\div');
 
-                if (hasGiven && (hasOp || hasFactor)) {
+                // 3. Check if the expression contains the problem's conversion factor
+                const containsFactor = factors.some(f => latex.includes(String(f)));
+
+                if (containsGiven && (containsOp || containsFactor)) {
                     return true;
                 }
 
-                // Check 3: If student entered multi-step numbers and operators
-                if (hasFactor && hasOp) {
-                    return true;
+                // 4. Also check if the expression contains factor + operator and evaluates to target answer
+                if (containsFactor && containsOp) {
+                    try {
+                        const sanitized = latex
+                            .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '($1)/($2)')
+                            .replace(/\\cdot|\\times/g, '*')
+                            .replace(/\\div/g, '/')
+                            .replace(/[^0-9+\-*/().]/g, '');
+                        if (sanitized) {
+                            const evaluated = Function(`'use strict'; return (${sanitized})`)();
+                            if (!isNaN(evaluated) && Math.abs(evaluated - targetAns) <= tolerance) {
+                                return true;
+                            }
+                        }
+                    } catch (e) {}
                 }
             }
             return false;
@@ -543,6 +568,8 @@
             const badge = document.getElementById('desmos-live-badge');
             const indicator = document.getElementById('calc-status-indicator');
             const txt = document.getElementById('calc-status-text');
+            const inputEl = document.getElementById('calc-target-input');
+            const pasteBtn = document.getElementById('btn-paste-desmos');
 
             if (q.type === "hub_match") {
                 if (badge) {
@@ -562,18 +589,61 @@
                     badge.className = "text-[8px] font-mono text-emerald-300 bg-emerald-500/20 px-2 py-0.5 rounded border border-emerald-500/40 font-bold";
                 }
                 if (indicator) {
-                    indicator.className = "text-[10px] font-mono font-bold px-2 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center gap-1";
-                    txt.textContent = "Desmos Work Detected ✓";
+                    indicator.className = "text-[10px] font-mono font-bold px-2 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center gap-1.5";
+                    txt.textContent = "Desmos Calculation Verified ✓";
+                }
+                if (inputEl) {
+                    inputEl.disabled = false;
+                    inputEl.placeholder = "Enter calculated value...";
+                    inputEl.classList.remove('opacity-40', 'cursor-not-allowed', 'border-amber-500/30');
+                    inputEl.classList.add('border-emerald-500/40', 'focus:border-cyan-400');
+                }
+                if (pasteBtn) {
+                    pasteBtn.classList.remove('hidden');
                 }
             } else {
                 if (badge) {
-                    badge.textContent = "WORK REQUIRED";
+                    badge.textContent = "CALCULATION REQUIRED ⚠️";
                     badge.className = "text-[8px] font-mono text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 font-bold";
                 }
                 if (indicator) {
-                    indicator.className = "text-[10px] font-mono font-bold px-2 py-1 rounded-lg bg-slate-900 border border-white/10 text-slate-500 flex items-center gap-1";
-                    txt.textContent = "Enter Calculation in Desmos";
+                    indicator.className = "text-[10px] font-mono font-bold px-2 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 flex items-center gap-1.5";
+                    txt.textContent = "🔒 Compute in Desmos to Unlock Answer Box";
                 }
+                if (inputEl) {
+                    inputEl.disabled = true;
+                    inputEl.placeholder = "🔒 Compute in Desmos first...";
+                    inputEl.classList.add('opacity-40', 'cursor-not-allowed', 'border-amber-500/30');
+                    inputEl.classList.remove('border-emerald-500/40', 'focus:border-cyan-400');
+                }
+                if (pasteBtn) {
+                    pasteBtn.classList.add('hidden');
+                }
+            }
+        }
+
+        function pasteDesmosResult() {
+            const list = getDesmosExpressions();
+            for (let item of list) {
+                if (!item.latex) continue;
+                try {
+                    const sanitized = item.latex
+                        .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '($1)/($2)')
+                        .replace(/\\cdot|\\times/g, '*')
+                        .replace(/\\div/g, '/')
+                        .replace(/[^0-9+\-*/().]/g, '');
+                    if (sanitized) {
+                        const val = Function(`'use strict'; return (${sanitized})`)();
+                        if (!isNaN(val)) {
+                            const inputEl = document.getElementById('calc-target-input');
+                            if (inputEl) {
+                                inputEl.value = String(Math.round(val * 10000) / 10000);
+                                inputEl.focus();
+                                return;
+                            }
+                        }
+                    }
+                } catch (e) {}
             }
         }
 
@@ -909,6 +979,9 @@
 
         function loadNewQuestionForCurrentSection() {
             currentQuestion = generateQuestionForSection(currentSectionIdx);
+            if (desmosCalculator) {
+                desmosCalculator.setBlank(); // Reset Desmos so a fresh calculation is strictly required for this problem!
+            }
             renderCurrentQuestion();
             checkDesmosWorkLive();
         }
@@ -1010,14 +1083,14 @@
                             <span class="text-slate-500 shrink-0 font-bold">=</span>
 
                             <div class="flex items-center gap-2 shrink-0">
-                                <input type="text" id="calc-target-input" placeholder="?" 
+                                <input type="text" id="calc-target-input" disabled placeholder="🔒 Compute in Desmos..." 
                                        onkeydown="if(event.key==='Enter') evaluateAnswer()"
-                                       class="w-24 bg-slate-900 border border-white/20 text-white px-3 py-1.5 rounded-xl text-center font-mono font-bold outline-none focus:border-cyan-400">
+                                       class="w-28 bg-slate-900 border border-amber-500/30 text-white px-3 py-1.5 rounded-xl text-center font-mono font-bold outline-none opacity-40 cursor-not-allowed transition-all">
                                 <span class="text-slate-300 font-bold">${q.targetUnit}</span>
                             </div>
                         </div>
 
-                        <p class="text-center text-[10px] text-slate-400 font-mono">⚠️ Mandatory: Enter the mathematical calculation into Desmos to verify your work.</p>
+                        <p class="text-center text-[10px] text-slate-400 font-mono">⚠️ Mandatory: Enter the calculation into Desmos on the right to unlock the answer box.</p>
                     </div>
                 `;
             } else {
@@ -1027,13 +1100,13 @@
                         <div class="bg-slate-950/80 p-4 md:p-5 rounded-2xl border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3">
                             <div class="space-y-0.5 text-center sm:text-left">
                                 <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold block">Enter Calculated Value:</span>
-                                <span class="text-xs text-slate-300 font-mono">Perform calculation in Desmos before submitting</span>
+                                <span class="text-xs text-slate-300 font-mono">Perform calculation in Desmos to unlock</span>
                             </div>
                             
                             <div class="flex items-center gap-2">
-                                <input type="text" id="calc-target-input" placeholder="0.0" 
+                                <input type="text" id="calc-target-input" disabled placeholder="🔒 Compute in Desmos..." 
                                        onkeydown="if(event.key==='Enter') evaluateAnswer()"
-                                       class="w-28 bg-slate-900 border border-white/20 text-white px-3 py-2 rounded-xl text-center text-xs font-mono font-bold outline-none focus:border-cyan-400">
+                                       class="w-32 bg-slate-900 border border-amber-500/30 text-white px-3 py-2 rounded-xl text-center text-xs font-mono font-bold outline-none opacity-40 cursor-not-allowed transition-all">
                                 <span class="text-xs font-mono font-bold text-cyan-400 bg-cyan-500/10 px-2.5 py-2 rounded-xl border border-cyan-500/20">${q.targetUnit}</span>
                             </div>
                         </div>
@@ -1056,13 +1129,18 @@
             const feedbackEl = document.getElementById('feedback-alert-msg');
             const cardEl = document.getElementById('main-question-card');
 
-            // Strictly Enforce Desmos Calculator Usage for Guided and Independent
+            // Strictly Enforce Desmos Calculator Usage for all calculation questions
             if (q.type !== "hub_match") {
                 const hasDesmosWork = verifyDesmosWork(q);
                 if (!hasDesmosWork) {
-                    feedbackEl.textContent = "⚠️ Desmos work not found! Calculate this problem in Desmos on the right.";
+                    feedbackEl.textContent = `⚠️ Desmos calculation required: compute ${q.givenNum} with its conversion factor!`;
                     feedbackEl.className = "text-xs font-bold font-mono text-amber-400";
                     cardEl.classList.add('shake-anim');
+                    const desmosContainer = document.getElementById('desmos-calculator-container');
+                    if (desmosContainer) {
+                        desmosContainer.classList.add('ring-2', 'ring-amber-400');
+                        setTimeout(() => desmosContainer.classList.remove('ring-2', 'ring-amber-400'), 1200);
+                    }
                     setTimeout(() => cardEl.classList.remove('shake-anim'), 400);
                     return;
                 }
