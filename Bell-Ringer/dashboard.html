@@ -620,52 +620,7 @@
                 if (submission) {
                     numSubmitted++;
                     
-                    let aiResponseObj = null;
-                    
-                    function tryParseJSON(val) {
-                        if (typeof val === 'string') {
-                            let cleaned = val.trim();
-                            if (cleaned.startsWith('{') || cleaned.startsWith('```')) {
-                                try {
-                                    if (cleaned.startsWith('```')) {
-                                        cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
-                                    }
-                                    return JSON.parse(cleaned.trim());
-                                } catch (e) {
-                                    console.error("Failed to parse JSON string:", e, val);
-                                }
-                            }
-                        }
-                        return null;
-                    }
-
-                    if (submission.aiResponse) {
-                        if (typeof submission.aiResponse === 'object') {
-                            aiResponseObj = submission.aiResponse;
-                        } else {
-                            aiResponseObj = tryParseJSON(submission.aiResponse);
-                        }
-                    }
-                    
-                    if (!aiResponseObj && submission.effortScore) {
-                        aiResponseObj = tryParseJSON(submission.effortScore);
-                    }
-
-                    let score = undefined;
-                    if (activeActivityType === "concept_chat") {
-                        if (submission.effortScore !== undefined && typeof submission.effortScore !== 'object') {
-                            const val = parseInt(submission.effortScore);
-                            if (!isNaN(val) && !submission.effortScore.toString().includes('{')) {
-                                score = val;
-                            }
-                        }
-                    } else {
-                        if (aiResponseObj && aiResponseObj.effortScore !== undefined) {
-                            score = aiResponseObj.effortScore;
-                        } else if (submission.effortScore !== undefined) {
-                            score = submission.effortScore;
-                        }
-                    }
+                    const score = resolveBellRingerScore(submission, activeActivityType);
 
                     if (activeActivityType === 'concept_chat') {
                         if (score === undefined) {
@@ -769,6 +724,65 @@
             return `${year}-${month}-${day}`;
         }
 
+        // Universal score resolver
+        function resolveBellRingerScore(sub, activityType) {
+            if (!sub) return undefined;
+
+            function extractVal(val) {
+                if (val === undefined || val === null) return undefined;
+                if (typeof val === 'number') return val;
+
+                if (typeof val === 'string') {
+                    let cleaned = val.trim();
+                    if (cleaned.startsWith('```')) {
+                        cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+                    }
+                    if (!isNaN(cleaned) && cleaned !== '') {
+                        return parseInt(cleaned, 10);
+                    }
+                    if (/^(pass|approved|verified|good|true)/i.test(cleaned)) return 1;
+                    if (/^(fail|revision|rejected|bad|false)/i.test(cleaned)) return 0;
+
+                    if (cleaned.startsWith('{')) {
+                        try {
+                            const parsed = JSON.parse(cleaned);
+                            return extractFromObj(parsed);
+                        } catch (e) {}
+                    }
+                } else if (typeof val === 'object') {
+                    return extractFromObj(val);
+                }
+                return undefined;
+            }
+
+            function extractFromObj(obj) {
+                if (!obj || typeof obj !== 'object') return undefined;
+                const keys = ['effortScore', 'effort_score', 'score', 'grade', 'rating', 'value'];
+                for (let k of keys) {
+                    if (obj[k] !== undefined && obj[k] !== null) {
+                        const res = extractVal(obj[k]);
+                        if (res !== undefined) return res;
+                    }
+                }
+                const textKeys = ['output', 'text', 'response', 'result'];
+                for (let tk of textKeys) {
+                    if (obj[tk] !== undefined && obj[tk] !== null) {
+                        const res = extractVal(obj[tk]);
+                        if (res !== undefined) return res;
+                    }
+                }
+                return undefined;
+            }
+
+            let direct = extractVal(sub.effortScore);
+            if (direct !== undefined) return direct;
+
+            let ai = extractVal(sub.aiResponse);
+            if (ai !== undefined) return ai;
+
+            return undefined;
+        }
+
         // Student Detail & Grading Modal Logic
         let currentModalStudent = null;
         let currentModalSubmission = null;
@@ -787,38 +801,7 @@
             const quickBtnContainer = document.getElementById('quick-score-buttons');
             const customInput = document.getElementById('modal-custom-score-input');
 
-            let scoreVal = undefined;
-            if (submission) {
-                let aiResponseObj = null;
-                if (submission.aiResponse) {
-                    if (typeof submission.aiResponse === 'object') aiResponseObj = submission.aiResponse;
-                    else {
-                        try {
-                            let cleaned = submission.aiResponse.trim();
-                            if (cleaned.startsWith('```')) cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
-                            aiResponseObj = JSON.parse(cleaned.trim());
-                        } catch(e) {}
-                    }
-                }
-                if (!aiResponseObj && submission.effortScore) {
-                    try {
-                        let cleaned = submission.effortScore.toString().trim();
-                        if (cleaned.startsWith('{')) aiResponseObj = JSON.parse(cleaned);
-                    } catch(e) {}
-                }
-
-                if (activeActivityType === "concept_chat") {
-                    if (submission.effortScore !== undefined && typeof submission.effortScore !== 'object') {
-                        const val = parseInt(submission.effortScore);
-                        if (!isNaN(val) && !submission.effortScore.toString().includes('{')) {
-                            scoreVal = val;
-                        }
-                    }
-                } else {
-                    if (aiResponseObj && aiResponseObj.effortScore !== undefined) scoreVal = aiResponseObj.effortScore;
-                    else if (submission.effortScore !== undefined) scoreVal = submission.effortScore;
-                }
-            }
+            const scoreVal = resolveBellRingerScore(submission, activeActivityType);
 
             // Score badge rendering
             if (scoreVal === undefined) {
