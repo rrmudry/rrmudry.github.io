@@ -108,10 +108,15 @@ service cloud.firestore {
     match /bellringers/{docId} {
       allow read: if request.auth != null && 
                      isAuthorizedEmail(request.auth.token.email) &&
-                     (resource.data.studentId == request.auth.token.email.lower().split('@')[0] || isAdmin());
+                     (docId.lower().matches('^' + request.auth.token.email.lower().split('@')[0] + '_.*') ||
+                      (resource != null && resource.data.studentId == request.auth.token.email.lower().split('@')[0]) ||
+                      isAdmin());
       allow create, update: if request.auth != null &&
                                isAuthorizedEmail(request.auth.token.email) &&
                                request.resource.data.studentId == request.auth.token.email.lower().split('@')[0];
+      allow delete: if request.auth != null &&
+                       isAuthorizedEmail(request.auth.token.email) &&
+                       (docId.lower().matches('^' + request.auth.token.email.lower().split('@')[0] + '_.*') || isAdmin());
     }
   }
 }
