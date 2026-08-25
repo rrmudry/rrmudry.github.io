@@ -314,9 +314,9 @@ const lessonsData = [
     "date": "2026-08-25",
     "day": 5,
     "unit": 1,
-    "title": "Making the Standard & The Language of SI",
-    "summary": "Constructing manual meter sticks to map prefixes and base quantities.",
-    "details": "1. The Meter Stick Challenge: As a bridge from Day 4, groups get a 1-meter paper strip to turn into a useful measuring tool by subdividing it. 2. Introducing Prefixes: The teacher uses the student-made meter sticks to introduce formal metric prefixes (centi-, milli-). 3. Guided Notes & Practice: Formal instruction on the 7 SI base units and common prefixes, reinforced with recall games.",
+    "title": "Making the Standard & The 1-Meter Challenge",
+    "summary": "Measuring classroom objects using a blank 1-meter paper strip and subdividing standard metric prefixes.",
+    "details": "Working in partner groups of 2 (max 3), students are given an unmarked strip of paper exactly 1 meter long. Using only this 1-meter blank strip, groups measure 10 different classroom objects and record their values. Afterwards, the class analyzes how they measured items shorter and longer than 1 meter, leading into formal metric prefixes (centi-, milli-) and standard SI units.",
     "type": "Activity",
     "dok": 2,
     "semester": 1,
@@ -324,7 +324,13 @@ const lessonsData = [
     "essentialQuestion": "How do prefix systems expand our capability to mathematically model micro and macro realities?",
     "standards": [
       "HS-ETS1-1"
-    ]
+    ],
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "You are given a blank 1-meter strip of paper with no markings. Which will be harder to measure: an object that is 3 meters long, or an object that is 15 centimeters long? Explain your reasoning and how you plan to measure both.",
+      "explanation": "Measuring an object longer than 1 meter requires repeating/iterating the tool end-to-end, while measuring an object shorter than 1 meter requires folding or subdividing the meter into fractional parts (like halves, tenths, or centimeters).",
+      "defaultDuration": 3
+    }
   },
   {
     "date": "2026-08-24",
