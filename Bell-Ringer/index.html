@@ -254,29 +254,32 @@
         </div>
 
         <!-- Active Bellringer Interface -->
-        <div id="bellringer-panel" class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 items-start" style="display: none;">
+        <div id="bellringer-panel" class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-start" style="display: none;">
             
-            <!-- Left Side: Phenomenon Anchor & Question -->
-            <div class="glass-card rounded-[24px] p-6 md:p-8 flex flex-col gap-6">
-                <!-- Anchor Image / Graph Container -->
-                <div id="phenomenon-container" class="w-full min-h-[380px] h-[380px] md:h-[440px] rounded-xl bg-slate-950/80 border border-white/5 overflow-hidden relative flex items-center justify-center group">
-                    <button id="enlarge-graph-btn" onclick="openEnlargedGraphModal()" class="hidden absolute top-3 right-3 z-10 px-3 py-1.5 bg-slate-900/90 hover:bg-slate-800 text-cyan-400 border border-cyan-500/30 rounded-lg text-xs font-semibold shadow-lg transition backdrop-blur-md flex items-center gap-1.5">
-                        <span>🔍 Enlarge Graph</span>
-                    </button>
-                    <img id="phenomenon-image" src="" alt="Phenomenon Graph/Data Table" class="w-full h-full object-contain hidden">
-                    <div id="phenomenon-graph-wrapper" class="w-full h-full p-2 hidden relative"></div>
-                    <div id="phenomenon-placeholder" class="text-center p-6 text-slate-500">
-                        <span class="text-4xl block mb-2">📊</span>
-                        <p class="text-xs font-semibold tracking-wider uppercase">Weekly Phenomenon Anchor</p>
-                        <p class="text-[11px] text-slate-600 mt-1" id="phenomenon-desc">No image provided. Refer to the projector board.</p>
-                    </div>
-                </div>
-
+            <!-- Left Side: Prompt (Top) & Phenomenon Anchor (Bottom) -->
+            <div class="glass-card rounded-[24px] p-5 sm:p-6 md:p-7 flex flex-col gap-4">
+                <!-- Prompt ALWAYS on top so it is immediately visible -->
                 <div>
-                    <span class="text-[10px] text-orange-500 font-bold tracking-wider uppercase bg-orange-500/10 border border-orange-500/20 px-3 py-1 rounded-full">Today's Prompt</span>
-                    <h3 id="prompt-question" class="text-xl md:text-2xl font-semibold text-white mt-3 leading-snug">
+                    <span class="text-[10px] text-orange-500 font-bold tracking-wider uppercase bg-orange-500/10 border border-orange-500/20 px-3 py-1 rounded-full inline-block">Today's Prompt</span>
+                    <h3 id="prompt-question" class="text-base sm:text-lg md:text-xl font-semibold text-white mt-2 leading-snug">
                         Loading today's prompt...
                     </h3>
+                </div>
+
+                <!-- Anchor Image / Graph Container (Underneath Prompt) -->
+                <div id="phenomenon-container" class="w-full rounded-xl bg-slate-950/80 border border-white/5 overflow-hidden relative flex items-center justify-center group transition-all">
+                    <button id="enlarge-graph-btn" onclick="openEnlargedGraphModal()" class="hidden absolute top-2.5 right-2.5 z-10 px-2.5 py-1 bg-slate-900/90 hover:bg-slate-800 text-cyan-400 border border-cyan-500/30 rounded-lg text-xs font-semibold shadow-lg transition backdrop-blur-md flex items-center gap-1">
+                        <span>🔍 Enlarge</span>
+                    </button>
+                    <img id="phenomenon-image" src="" alt="Phenomenon Graph/Data Table" onclick="openEnlargedImageModal(this.src)" title="Click to enlarge" class="w-full max-h-[220px] md:max-h-[260px] object-contain hidden p-2 cursor-pointer hover:opacity-90 transition">
+                    <div id="phenomenon-graph-wrapper" class="w-full h-[220px] md:h-[260px] p-2 hidden relative"></div>
+                    <div id="phenomenon-placeholder" class="text-center p-3.5 text-slate-500 flex items-center justify-center gap-2.5">
+                        <span class="text-xl">📊</span>
+                        <div class="text-left">
+                            <p class="text-[10px] font-bold tracking-wider uppercase text-slate-400">Weekly Phenomenon Anchor</p>
+                            <p class="text-[11px] text-slate-500" id="phenomenon-desc">No image provided. Refer to the projector board.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1858,6 +1861,21 @@ Output ONLY a raw JSON object containing a single key "score" with the integer v
             document.getElementById('enlarged-graph-modal').classList.add('hidden');
         }
 
+        function openEnlargedImageModal(src) {
+            if (!src) return;
+            const modal = document.getElementById('enlarged-image-modal');
+            const img = document.getElementById('modal-enlarged-img');
+            if (modal && img) {
+                img.src = src;
+                modal.classList.remove('hidden');
+            }
+        }
+
+        function closeEnlargedImageModal() {
+            const modal = document.getElementById('enlarged-image-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
         // Helper: get current local date in YYYY-MM-DD
         function getTodayString() {
             const d = new Date();
@@ -1867,6 +1885,24 @@ Output ONLY a raw JSON object containing a single key "score" with the integer v
             return `${year}-${month}-${day}`;
         }
     </script>
+
+    <!-- Fullscreen Enlarged Image Modal -->
+    <div id="enlarged-image-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-4 md:p-8" onclick="closeEnlargedImageModal()">
+        <div class="w-full max-w-4xl bg-slate-900 border border-slate-700/80 rounded-2xl p-4 shadow-2xl space-y-3 relative flex flex-col max-h-[90vh]" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+                    Phenomenon Image (Fullscreen View)
+                </h3>
+                <button onclick="closeEnlargedImageModal()" class="text-slate-400 hover:text-white px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-semibold border border-slate-700">
+                    ✕ Close
+                </button>
+            </div>
+            <div class="w-full flex-grow relative bg-slate-950 rounded-xl overflow-hidden flex items-center justify-center p-2">
+                <img id="modal-enlarged-img" src="" alt="Enlarged Phenomenon" class="max-h-[75vh] w-auto object-contain rounded-lg">
+            </div>
+        </div>
+    </div>
 
     <!-- Fullscreen Enlarged Graph Modal -->
     <div id="enlarged-graph-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-4 md:p-8">
