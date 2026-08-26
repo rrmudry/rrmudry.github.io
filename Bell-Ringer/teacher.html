@@ -455,13 +455,13 @@ CRITICAL RULES:
 
                 <!-- Submissions Table Container -->
                 <div class="overflow-x-auto w-full">
-                    <table class="w-full text-left text-sm">
+                    <table class="w-full text-left text-sm table-fixed">
                         <thead>
                             <tr class="text-[10px] text-slate-500 uppercase tracking-widest border-b border-white/5">
-                                <th class="pb-3">Student</th>
-                                <th class="pb-3">Response Text</th>
-                                <th class="pb-3 text-center">Score</th>
-                                <th class="pb-3 text-right">Actions</th>
+                                <th class="pb-3 w-[150px]">Student</th>
+                                <th class="pb-3 w-auto">Response Text</th>
+                                <th class="pb-3 w-[80px] text-center">Score</th>
+                                <th class="pb-3 w-[140px] text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="submissions-table-body" class="divide-y divide-white/5">
@@ -977,27 +977,30 @@ CRITICAL RULES:
                         const row = document.createElement('tr');
                         row.className = 'border-b border-white/5 py-3 hover:bg-white/5 transition-colors';
                         
-                        const score = resolveBellRingerScore(sub, activeActivityType);
-                        const followUpQ = extractFollowUpQuestion(sub);
+                        const effectiveType = sub.activityType || activeActivityType;
+                        const score = resolveBellRingerScore(sub, effectiveType);
 
                         let scoreBadge = '';
                         if (score === undefined) {
-                            scoreBadge = `<span class="bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 px-2 py-0.5 rounded text-xs font-mono">PENDING</span>`;
-                        } else if (activeActivityType === "concept_chat") {
+                            scoreBadge = `<span class="bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 px-2 py-0.5 rounded text-xs font-mono whitespace-nowrap">PENDING</span>`;
+                        } else if (effectiveType === "concept_chat") {
                             const numericScore = parseInt(score);
                             const badgeColor = numericScore >= 70 ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20';
-                            scoreBadge = `<span class="${badgeColor} px-2 py-0.5 rounded text-xs font-mono font-bold">${numericScore}%</span>`;
+                            scoreBadge = `<span class="${badgeColor} px-2 py-0.5 rounded text-xs font-mono font-bold whitespace-nowrap">${numericScore}%</span>`;
                         } else if (score === "1" || score === 1) {
-                            scoreBadge = `<span class="bg-green-500/10 text-green-400 border border-green-500/20 px-2 py-0.5 rounded text-xs font-mono">1</span>`;
+                            scoreBadge = `<span class="bg-green-500/10 text-green-400 border border-green-500/20 px-2 py-0.5 rounded text-xs font-mono whitespace-nowrap">1</span>`;
                         } else if (score === "0" || score === 0) {
-                            scoreBadge = `<span class="bg-red-500/10 text-red-400 border border-red-500/20 px-2 py-0.5 rounded text-xs font-mono">0</span>`;
+                            scoreBadge = `<span class="bg-red-500/10 text-red-400 border border-red-500/20 px-2 py-0.5 rounded text-xs font-mono whitespace-nowrap">0</span>`;
                         }
 
                         let responseDisplay = '';
-                        if (activeActivityType === "connections") {
-                            // Render emoji grid nicely
-                            responseDisplay = `<div class="whitespace-pre font-mono text-base leading-tight tracking-widest text-slate-300 py-1">${escapeHtml(sub.studentResponse || '')}</div>`;
-                        } else if (activeActivityType === "concept_chat") {
+                        // Detect whether the response is actually an emoji grid
+                        const isEmojiGrid = /[\u{1F7E0}-\u{1F7EB}\u{2B1B}\u{2B1C}🟩🟨🟦🟪]/u.test(sub.studentResponse || '');
+
+                        if (effectiveType === "connections" && isEmojiGrid) {
+                            // Render emoji grid cleanly with max width constraint
+                            responseDisplay = `<div class="whitespace-pre font-mono text-base leading-tight tracking-widest text-slate-300 py-1 inline-block max-w-full">${escapeHtml(sub.studentResponse || '')}</div>`;
+                        } else if (effectiveType === "concept_chat") {
                             const chatMessages = sub.chatMessages || [];
                             if (chatMessages.length === 0) {
                                 responseDisplay = `<span class="text-slate-500 italic">No chat messages yet</span>`;
@@ -1018,19 +1021,20 @@ CRITICAL RULES:
                                     `;
                                 });
                                 responseDisplay = `
-                                    <div class="max-h-[200px] overflow-y-auto pr-1 flex flex-col gap-1 max-w-[400px] border border-white/5 bg-slate-950/40 rounded-xl p-2.5">
+                                    <div class="max-h-[200px] overflow-y-auto pr-1 flex flex-col gap-1 max-w-full border border-white/5 bg-slate-950/40 rounded-xl p-2.5">
                                         ${bubbles}
                                     </div>
-                                    <button id="copy-btn-${sub.docId}" onclick="copyChatTranscript('${sub.docId}')" class="mt-2 w-full py-1.5 rounded-xl border border-cyan-500/20 bg-cyan-500/5 hover:bg-cyan-500/10 text-cyan-400 text-xs font-bold transition-all flex items-center justify-center gap-1.5 max-w-[400px]">
+                                    <button id="copy-btn-${sub.docId}" onclick="copyChatTranscript('${sub.docId}')" class="mt-2 w-full py-1.5 rounded-xl border border-cyan-500/20 bg-cyan-500/5 hover:bg-cyan-500/10 text-cyan-400 text-xs font-bold transition-all flex items-center justify-center gap-1.5">
                                         📋 Copy Chat Transcript
                                     </button>
                                 `;
                             }
                         } else {
-                            responseDisplay = `<div>${escapeHtml(sub.studentResponse)}</div>`;
+                            responseDisplay = `<div class="whitespace-normal break-words leading-relaxed text-xs text-slate-300">${escapeHtml(sub.studentResponse || '')}</div>`;
                             
                             // Render follow-up Q&A if follow-up question is present
-                            const followUpQ = aiResponseObj ? aiResponseObj.followUpQuestion : null;
+                            const aiResponseObj = sub.aiEvaluation;
+                            const followUpQ = extractFollowUpQuestion(sub) || (aiResponseObj ? aiResponseObj.followUpQuestion : null);
                             if (followUpQ) {
                                 const followUpA = sub.studentFollowUpResponse || '';
                                 const answerText = followUpA 
@@ -1038,7 +1042,7 @@ CRITICAL RULES:
                                     : `<span class="text-slate-500 italic font-normal">No response yet</span>`;
                                 
                                 responseDisplay += `
-                                    <div class="mt-2 p-2.5 bg-orange-500/5 border border-orange-500/10 rounded-lg text-[11px] leading-normal max-w-[400px]">
+                                    <div class="mt-2 p-2.5 bg-orange-500/5 border border-orange-500/10 rounded-lg text-[11px] leading-normal max-w-full whitespace-normal break-words">
                                         <div class="font-bold text-orange-400/90 mb-0.5 flex items-center gap-1">
                                             <span>💬</span> Follow-Up Question:
                                         </div>
@@ -1052,28 +1056,28 @@ CRITICAL RULES:
 
                         // Override buttons block
                         let actionButtons = '';
-                        if (activeActivityType === "concept_chat") {
-                            actionButtons = `<button onclick="overrideScoreCustom('${sub.docId}')" class="px-2 py-1 rounded bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 text-[10px] font-bold text-blue-400 transition-colors">Set Grade</button>`;
+                        if (effectiveType === "concept_chat") {
+                            actionButtons = `<button onclick="overrideScoreCustom('${sub.docId}')" class="px-2 py-1 rounded bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 text-[10px] font-bold text-blue-400 transition-colors whitespace-nowrap">Set Grade</button>`;
                         } else {
                             actionButtons = `
-                                <button onclick="overrideScore('${sub.docId}', 1)" class="px-2 py-1 rounded bg-green-500/10 border border-green-500/20 hover:bg-green-500/20 text-[10px] font-bold text-green-400 transition-colors">Grade 1</button>
-                                <button onclick="overrideScore('${sub.docId}', 0)" class="px-2 py-1 rounded bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 text-[10px] font-bold text-red-400 transition-colors">Grade 0</button>
+                                <button onclick="overrideScore('${sub.docId}', 1)" class="px-2 py-1 rounded bg-green-500/10 border border-green-500/20 hover:bg-green-500/20 text-[10px] font-bold text-green-400 transition-colors whitespace-nowrap">Grade 1</button>
+                                <button onclick="overrideScore('${sub.docId}', 0)" class="px-2 py-1 rounded bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 text-[10px] font-bold text-red-400 transition-colors whitespace-nowrap">Grade 0</button>
                             `;
                         }
 
                         row.innerHTML = `
-                            <td class="py-4 pr-3">
+                            <td class="py-4 pr-3 align-top w-[150px]">
                                 <p class="font-bold text-slate-200 truncate max-w-[140px]">${sub.studentName || sub.studentId}</p>
                                 <p class="text-[10px] text-slate-500 font-mono uppercase truncate max-w-[140px]">${sub.studentId}</p>
                             </td>
-                            <td class="py-4 pr-3 text-xs text-slate-300 max-w-[280px] break-words">
+                            <td class="py-4 pr-4 align-top text-xs text-slate-300 whitespace-normal break-words overflow-hidden">
                                 ${responseDisplay}
                             </td>
-                            <td class="py-4 text-center">
+                            <td class="py-4 px-2 text-center align-top whitespace-nowrap w-[80px]">
                                 ${scoreBadge}
                             </td>
-                            <td class="py-4 text-right">
-                                <div class="flex items-center justify-end gap-1.5">
+                            <td class="py-4 pl-2 text-right align-top whitespace-nowrap w-[140px]">
+                                <div class="flex items-center justify-end gap-1.5 whitespace-nowrap">
                                     ${actionButtons}
                                 </div>
                             </td>
