@@ -1601,10 +1601,16 @@
             const scorePct = updateMasteryScoreUI();
             const studentId = currentStudent.email.split('@')[0];
 
-            const scoreRef = db.collection('student_results')
-                               .doc(ASSIGNMENT_ID)
-                               .collection('students')
-                               .doc(studentId);
+            const parentRef = db.collection('student_results').doc(ASSIGNMENT_ID);
+            
+            // Ensure top-level parent doc exists so admin tools (data_export, report_generator, etc.) discover this assignment
+            parentRef.set({
+                assignment_name: "Unit Conversion Practice",
+                is_global_locked: false,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true }).catch(e => console.warn("Parent doc set error:", e));
+
+            const scoreRef = parentRef.collection('students').doc(studentId);
 
             try {
                 const doc = await scoreRef.get();
