@@ -503,9 +503,59 @@ CRITICAL RULES:
         let submissionsListener = null;
         let localCountdownInterval = null;
 
+        // =========================================================================
+        // ATOMIC SERVER TIME SYNC (Eliminates Clock Drift)
+        // =========================================================================
+        let serverTimeOffsetMs = 0;
+        let isSyncingClock = false;
+
+        async function syncServerClock() {
+            if (isSyncingClock) return;
+            isSyncingClock = true;
+            try {
+                const start = Date.now();
+                const res = await fetch(`${window.location.origin}/head.png?_ts=${Date.now()}`, { method: 'HEAD', cache: 'no-store' });
+                const serverDateStr = res.headers.get('Date');
+                if (serverDateStr) {
+                    const serverTime = new Date(serverDateStr).getTime();
+                    const roundTrip = Date.now() - start;
+                    serverTimeOffsetMs = (serverTime + (roundTrip / 2)) - Date.now();
+                    console.log(`[TIME SYNC] Teacher server clock offset: ${Math.round(serverTimeOffsetMs)}ms`);
+                }
+            } catch (e) {
+                console.warn("[TIME SYNC] Clock sync fallback to local:", e);
+            } finally {
+                isSyncingClock = false;
+            }
+        }
+
+        function getSyncedNow() {
+            return new Date(Date.now() + serverTimeOffsetMs);
+        }
+
+        function getTrueExpiresAt(config) {
+            if (!config) return new Date();
+            if (config.startedAt && (config.durationSeconds || config.durationMinutes)) {
+                const startedMs = config.startedAt.toDate ? config.startedAt.toDate().getTime() : new Date(config.startedAt).getTime();
+                const durSecs = config.durationSeconds || (config.durationMinutes * 60);
+                return new Date(startedMs + (durSecs * 1000));
+            }
+            if (config.timerExpiresAt) {
+                return config.timerExpiresAt.toDate ? config.timerExpiresAt.toDate() : new Date(config.timerExpiresAt);
+            }
+            return new Date();
+        }
+
+        syncServerClock();
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') syncServerClock();
+        });
+        window.addEventListener('focus', () => syncServerClock());
+
         // Auth Observer
-        auth.onAuthStateChanged((user) => {
+        auth.onAuthStateChanged(async (user) => {
             if (user) {
+                syncServerClock();
                 const email = user.email.toLowerCase();
                 const isAdmin = email === "rmudry@orangeusd.org" || 
                                 email === "ryan.mudry@orangeusd.org" ||
@@ -876,10 +926,10 @@ CRITICAL RULES:
                             headerTimerDot.className = "w-2 h-2 rounded-full bg-green-500 animate-pulse";
                         }
                         
-                        const expiresAt = data.timerExpiresAt ? data.timerExpiresAt.toDate() : new Date();
+                        const expiresAt = getTrueExpiresAt(data);
                         
                         function runLocalClock() {
-                            const now = new Date();
+                            const now = getSyncedNow();
                             const diff = expiresAt - now;
                             if (diff <= 0) {
                                 timerVal.innerText = "00:00";
@@ -1102,6 +1152,8 @@ CRITICAL RULES:
                 phenomenonType: phenomenonType,
                 targetPeriod: targetPeriod,
                 isActive: true,
+                durationMinutes: durationMin,
+                durationSeconds: durationMin * 60,
                 timerExpiresAt: firebase.firestore.Timestamp.fromDate(expiresAtDate),
                 startedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
