@@ -278,8 +278,8 @@ const lessonsData = [
     "day": 7,
     "unit": 1,
     "title": "Quality of Measurement: Accuracy & Precision",
-    "summary": "Mini-lesson on Accuracy vs. Precision and 4-quadrant Emoji Finger Painting art project.",
-    "details": "Direct mini-lesson introducing the scientific boundary between Accuracy (closeness to accepted target value) and Precision (repeatability and cluster tightness) using the dartboard analogy. Students then complete the hands-on Emoji Finger Painting Art Project, painting 4 distinct scientific variations of a chosen emoji: (1) Accurate & Precise, (2) Accurate, NOT Precise, (3) Precise, NOT Accurate, and (4) Neither Accurate nor Precise.",
+    "summary": "Quality of Measurement slide presentation followed by the 4-quadrant Emoji Finger Painting art project.",
+    "details": "1. Lesson Presentation: Walk through 'The Quality of Measurement' slide deck covering operational definitions of Accuracy (proximity to true value) vs. Precision (consistency & clustering). 2. Emoji Finger Painting Art Project: Paint 4 scientific variations of a chosen emoji in the interactive studio (Accurate & Precise, Accurate NOT Precise, Precise NOT Accurate, and Neither). 3. Quality Inspector & CER: Calculate centroids and spread radii, write scientific justifications, and export the finished gallery poster.",
     "type": "Lab",
     "dok": 2,
     "semester": 1,
@@ -290,6 +290,7 @@ const lessonsData = [
       "HS-ETS1-2"
     ],
     "links": {
+      "The Quality of Measurement (Slides)": "https://docs.google.com/presentation/d/1WCuBzY6-idwpRUGULY5W2CtXGlzRFMFhXHPsC8UygRQ/edit?usp=sharing",
       "Emoji Finger Painting Studio": "accuracy-precision-art/index.html"
     }
   },
