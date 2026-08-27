@@ -84,7 +84,7 @@ const StudioState = {
   selectedTool: "finger", // "finger", "splatter", "stamp", "eraser"
   brushSize: 22,
   brushOpacity: 0.9,
-  showTargetGuides: false, // Hidden by default so painter has a clean white canvas!
+  showTargetGuides: true, // Visible by default so students see the template guide!
   rainbowHue: 0,
   activeFocusQuad: null, // null = 2x2 grid, 1..4 = focused single canvas
   studentName: "",
