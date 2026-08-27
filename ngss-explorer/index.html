@@ -26,8 +26,31 @@
             <p class="subtitle">Interactive High School Science Performance Expectations & CA Physics of the Universe Framework</p>
         </header>
 
+        <!-- View Mode Navigation Tabs -->
+        <nav class="view-mode-tabs" role="tablist" aria-label="Explorer View Mode">
+            <button id="viewBtnPE" class="view-tab-btn active" role="tab" aria-selected="true">
+                <span class="tab-icon">📚</span>
+                <span>Performance Expectations (PEs)</span>
+            </button>
+            <button id="viewBtnSEP" class="view-tab-btn" role="tab" aria-selected="false">
+                <span class="tab-icon">🔬</span>
+                <span>8 Science &amp; Engineering Practices (SEPs)</span>
+            </button>
+        </nav>
+
         <!-- Controls & Filters Card -->
         <main class="controls-card">
+            <!-- Science & Engineering Practices Overview Header (Shown in SEP view) -->
+            <div id="sepViewHeader" class="sep-view-header hidden">
+                <div class="sep-view-intro">
+                    <span class="sep-badge-tag">🔬 NGSS DIMENSION 1</span>
+                    <h2 class="sep-view-title">The 8 Science &amp; Engineering Practices (Grades 9–12)</h2>
+                    <p class="sep-view-description">
+                        Practices are what working scientists and engineers actually do—they are the behaviors, analytical methods, and problem-solving skills necessary to investigate natural phenomena and build technological solutions. Click any practice below to inspect its official NGSS 9–12 expectations, error-analysis competencies, physics classroom connections, and aligned standards.
+                    </p>
+                </div>
+            </div>
+
             <!-- Search Bar -->
             <div class="search-box-wrapper">
                 <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
@@ -35,48 +58,51 @@
                 <button id="clearSearchBtn" class="clear-search-btn" aria-label="Clear Search">&times;</button>
             </div>
 
-            <!-- Domain Filters -->
-            <div class="filter-row">
-                <span class="filter-label">Domain:</span>
-                <button class="chip-btn active" data-domain="ALL">
-                    All Domains <span class="badge-count" id="countAll">0</span>
-                </button>
-                <button class="chip-btn" data-domain="PS">
-                    ⚡ Physical Science <span class="badge-count" id="countPS">0</span>
-                </button>
-                <button class="chip-btn" data-domain="ESS">
-                    🌍 Earth & Space <span class="badge-count" id="countESS">0</span>
-                </button>
-                <button class="chip-btn" data-domain="LS">
-                    🧬 Life Science <span class="badge-count" id="countLS">0</span>
-                </button>
-                <button class="chip-btn" data-domain="ETS">
-                    🛠️ Engineering <span class="badge-count" id="countETS">0</span>
-                </button>
-                <button class="chip-btn" data-domain="SAVED">
-                    ⭐ Bookmarks <span class="badge-count" id="countSaved">0</span>
-                </button>
-            </div>
+            <!-- Standard Filters Container (PE View) -->
+            <div id="peFiltersContainer">
+                <!-- Domain Filters -->
+                <div class="filter-row">
+                    <span class="filter-label">Domain:</span>
+                    <button class="chip-btn active" data-domain="ALL">
+                        All Domains <span class="badge-count" id="countAll">0</span>
+                    </button>
+                    <button class="chip-btn" data-domain="PS">
+                        ⚡ Physical Science <span class="badge-count" id="countPS">0</span>
+                    </button>
+                    <button class="chip-btn" data-domain="ESS">
+                        🌍 Earth &amp; Space <span class="badge-count" id="countESS">0</span>
+                    </button>
+                    <button class="chip-btn" data-domain="LS">
+                        🧬 Life Science <span class="badge-count" id="countLS">0</span>
+                    </button>
+                    <button class="chip-btn" data-domain="ETS">
+                        🛠️ Engineering <span class="badge-count" id="countETS">0</span>
+                    </button>
+                    <button class="chip-btn" data-domain="SAVED">
+                        ⭐ Bookmarks <span class="badge-count" id="countSaved">0</span>
+                    </button>
+                </div>
 
-            <!-- CA Physics of the Universe Instructional Segment Filters (IS1 - IS6) -->
-            <div class="filter-row">
-                <span class="filter-label">CA Segment:</span>
-                <button class="chip-btn active" data-is="ALL">All Segments</button>
-                <button class="chip-btn" data-is="IS1" title="Forces & Motion">IS1: Forces & Motion</button>
-                <button class="chip-btn" data-is="IS2" title="Forces at a Distance">IS2: Forces at Distance</button>
-                <button class="chip-btn" data-is="IS3" title="Energy Conversion & Renewable Energy">IS3: Energy Conversion</button>
-                <button class="chip-btn" data-is="IS4" title="Nuclear Processes">IS4: Nuclear Processes</button>
-                <button class="chip-btn" data-is="IS5" title="Waves & EM Radiation">IS5: Waves & Radiation</button>
-                <button class="chip-btn" data-is="IS6" title="Stars & Universe Origin">IS6: Stars & Universe</button>
-            </div>
+                <!-- CA Physics of the Universe Instructional Segment Filters (IS1 - IS6) -->
+                <div class="filter-row">
+                    <span class="filter-label">CA Segment:</span>
+                    <button class="chip-btn active" data-is="ALL">All Segments</button>
+                    <button class="chip-btn" data-is="IS1" title="Forces &amp; Motion">IS1: Forces &amp; Motion</button>
+                    <button class="chip-btn" data-is="IS2" title="Forces at a Distance">IS2: Forces at Distance</button>
+                    <button class="chip-btn" data-is="IS3" title="Energy Conversion &amp; Renewable Energy">IS3: Energy Conversion</button>
+                    <button class="chip-btn" data-is="IS4" title="Nuclear Processes">IS4: Nuclear Processes</button>
+                    <button class="chip-btn" data-is="IS5" title="Waves &amp; EM Radiation">IS5: Waves &amp; Radiation</button>
+                    <button class="chip-btn" data-is="IS6" title="Stars &amp; Universe Origin">IS6: Stars &amp; Universe</button>
+                </div>
 
-            <!-- 3D Learning Filter -->
-            <div class="filter-row">
-                <span class="filter-label">3D Focus:</span>
-                <button class="chip-btn active" data-dimension="ALL">All Dimensions</button>
-                <button class="chip-btn" data-dimension="SEP">🔵 Practices (SEP)</button>
-                <button class="chip-btn" data-dimension="DCI">🟠 Core Ideas (DCI)</button>
-                <button class="chip-btn" data-dimension="CCC">🟢 Concepts (CCC)</button>
+                <!-- 3D Learning Filter -->
+                <div class="filter-row">
+                    <span class="filter-label">3D Focus:</span>
+                    <button class="chip-btn active" data-dimension="ALL">All Dimensions</button>
+                    <button class="chip-btn" data-dimension="SEP">🔵 Practices (SEP)</button>
+                    <button class="chip-btn" data-dimension="DCI">🟠 Core Ideas (DCI)</button>
+                    <button class="chip-btn" data-dimension="CCC">🟢 Concepts (CCC)</button>
+                </div>
             </div>
 
             <!-- Results Summary -->
@@ -86,13 +112,18 @@
             </div>
         </main>
 
-        <!-- Standards Grid Container -->
+        <!-- Standards Grid Container (PE View) -->
         <section id="standardsGrid" class="standards-grid" aria-label="Standards List">
             <!-- Dynamically populated standards cards -->
         </section>
+
+        <!-- Science Practices Grid Container (SEP View) -->
+        <section id="sepGrid" class="standards-grid hidden" aria-label="Science Practices List">
+            <!-- Dynamically populated 8 SEP cards -->
+        </section>
     </div>
 
-    <!-- Detailed Standard View Modal -->
+    <!-- Detailed Standard View Modal (PE) -->
     <div id="standardModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalCode">
         <div class="modal-card">
             <button id="closeModalBtn" class="close-modal-btn" aria-label="Close Modal">&times;</button>
@@ -100,7 +131,7 @@
             <div class="modal-header-badge">
                 <span id="modalCode" class="modal-code">HS-PS2-1</span>
                 <span id="modalDomainPill" class="domain-pill">Physical Science</span>
-                <span id="modalISPill" class="domain-pill" style="background: rgba(0, 243, 255, 0.15); color: var(--ps-color); border-color: var(--ps-color);">IS1: Forces & Motion</span>
+                <span id="modalISPill" class="domain-pill" style="background: rgba(0, 243, 255, 0.15); color: var(--ps-color); border-color: var(--ps-color);">IS1: Forces &amp; Motion</span>
             </div>
 
             <h2 id="modalTitle" class="card-title" style="font-size: 1.4rem;">Newton's Second Law of Motion</h2>
@@ -124,7 +155,7 @@
             <div>
                 <div class="modal-section-title">Three-Dimensional Learning (3D)</div>
                 <div class="dimensions-container" style="gap: 0.6rem; margin-top: 0.4rem;">
-                    <div id="modalSEP" class="dim-pill dim-sep" style="padding: 6px 12px; font-size: 0.85rem;"></div>
+                    <div id="modalSEP" class="dim-pill dim-sep cursor-pointer" title="Click to inspect this Science &amp; Engineering Practice" style="padding: 6px 12px; font-size: 0.85rem;"></div>
                     <div id="modalDCI" class="dim-pill dim-dci" style="padding: 6px 12px; font-size: 0.85rem;"></div>
                     <div id="modalCCC" class="dim-pill dim-ccc" style="padding: 6px 12px; font-size: 0.85rem;"></div>
                 </div>
@@ -141,8 +172,69 @@
         </div>
     </div>
 
+    <!-- Detailed SEP Practice Inspection Modal -->
+    <div id="sepModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="sepModalTitle">
+        <div class="modal-card sep-modal-card">
+            <button id="closeSepModalBtn" class="close-modal-btn" aria-label="Close Practice Modal">&times;</button>
+            
+            <div class="modal-header-badge">
+                <span id="sepModalBadge" class="modal-code" style="color: var(--sep-color);">SEP 4 OF 8</span>
+                <span class="domain-pill" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; border-color: rgba(59, 130, 246, 0.3);">Science &amp; Engineering Practice</span>
+                <span class="domain-pill">Grades 9–12 Progression</span>
+            </div>
+
+            <div class="sep-modal-title-row">
+                <span id="sepModalIcon" class="sep-modal-icon">📊</span>
+                <div>
+                    <h2 id="sepModalTitle" class="card-title" style="font-size: 1.5rem; color: #fff;">SEP 4: Analyzing and Interpreting Data</h2>
+                    <p id="sepModalTagline" class="sep-modal-tagline">Evaluating data quality, analyzing spread, and identifying error sources.</p>
+                </div>
+            </div>
+
+            <div class="sep-modal-callout">
+                <div class="modal-section-title" style="color: #60a5fa; margin-bottom: 0.25rem;">Essential Practice Question</div>
+                <p id="sepModalQuestion" style="font-style: italic; color: #e2e8f0; margin: 0; font-size: 0.95rem; line-height: 1.5;"></p>
+            </div>
+
+            <div>
+                <div class="modal-section-title">Overview &amp; Working Scientist Role</div>
+                <div id="sepModalSummary" class="modal-box" style="line-height: 1.6;"></div>
+            </div>
+
+            <div>
+                <div class="modal-section-title">High School (9–12) Expectations (NGSS Appendix F)</div>
+                <div id="sepModalExpectations" class="modal-box" style="line-height: 1.6;"></div>
+            </div>
+
+            <div>
+                <div class="modal-section-title">Key Student Competencies</div>
+                <div id="sepModalSkills" class="modal-box" style="line-height: 1.6;"></div>
+            </div>
+
+            <div>
+                <div class="modal-section-title">Classroom Physics Applications</div>
+                <div id="sepModalApplications" class="modal-box" style="line-height: 1.6; background: rgba(30, 41, 59, 0.6); border-left: 3px solid var(--sep-color);"></div>
+            </div>
+
+            <div>
+                <div class="modal-section-title">Related High School Physics Standards in Our Course</div>
+                <div id="sepModalStandards" class="dimensions-container" style="gap: 0.5rem; margin-top: 0.5rem;"></div>
+            </div>
+
+            <div class="modal-actions">
+                <button id="sepModalFilterStandardsBtn" class="modal-btn primary">
+                    🔍 View Matching Standards in Explorer
+                </button>
+                <button id="closeSepModalBtnBottom" class="modal-btn secondary">
+                    Close Guide
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="standards-data.js"></script>
+    <script src="sep-data.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
