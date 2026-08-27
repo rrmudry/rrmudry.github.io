@@ -11,49 +11,49 @@ const QUADRANTS = [
     id: "quad-1",
     num: 1,
     title: "Accurate & Precise",
-    subtitle: "High Accuracy, High Precision",
+    subtitle: "High Accuracy • High Precision",
     targetAccuracy: "High",
     targetPrecision: "High",
     color: "#10b981",
     bgClass: "quad-card-1",
     badgeClass: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
-    defaultCER: "All parts/stamps of my emoji are clustered tightly together (High Precision), and their average position is centered right in the bullseye target (High Accuracy)."
+    defaultCER: "My emoji has the correct facial features, proportions, and colors matching the target emoji (High Accuracy), and the finger-painting has neat, clean strokes, sharp outlines, and controlled details (High Precision)."
   },
   {
     id: "quad-2",
     num: 2,
     title: "Accurate, NOT Precise",
-    subtitle: "High Accuracy, Low Precision",
+    subtitle: "High Accuracy • Low Precision",
     targetAccuracy: "High",
     targetPrecision: "Low",
     color: "#f59e0b",
     bgClass: "quad-card-2",
     badgeClass: "bg-amber-500/20 text-amber-300 border-amber-500/40",
-    defaultCER: "The marks are spread far apart all around the board (Low Precision), but if you calculate their average center, it balances out directly over the target (High Accuracy)."
+    defaultCER: "You can clearly recognize which emoji this is with the correct colors and main features in place (High Accuracy), but the finger-painted lines and shapes are messy, wobbly, uneven, and sloppy (Low Precision)."
   },
   {
     id: "quad-3",
     num: 3,
     title: "Precise, NOT Accurate",
-    subtitle: "Low Accuracy, High Precision",
+    subtitle: "Low Accuracy • High Precision",
     targetAccuracy: "Low",
     targetPrecision: "High",
     color: "#06b6d4",
     bgClass: "quad-card-3",
     badgeClass: "bg-cyan-500/20 text-cyan-300 border-cyan-500/40",
-    defaultCER: "All my paint strokes and emoji parts are clumped tightly in one tiny spot (High Precision), but they are far away in the corner and completely missed the target center (Low Accuracy)."
+    defaultCER: "The lines, curves, and edges are painted very neatly and cleanly with smooth, precise craftsmanship (High Precision), but the colors are completely wrong or key features are missing/displaced, failing to match the target emoji (Low Accuracy)."
   },
   {
     id: "quad-4",
     num: 4,
     title: "Neither Accurate nor Precise",
-    subtitle: "Low Accuracy, Low Precision",
+    subtitle: "Low Accuracy • Low Precision",
     targetAccuracy: "Low",
     targetPrecision: "Low",
     color: "#ef4444",
     bgClass: "quad-card-4",
     badgeClass: "bg-rose-500/20 text-rose-300 border-rose-500/40",
-    defaultCER: "The marks are completely scattered at random across the paper (Low Precision), and the cluster as a whole is drifted far away from the true target center (Low Accuracy)."
+    defaultCER: "The painting is messy, sloppy, and smudged (Low Precision), and the shapes and colors do not look like the target emoji at all (Low Accuracy)."
   }
 ];
 
@@ -107,8 +107,6 @@ class QuadrantCanvas {
     this.history = [];
     this.historyStep = -1;
     this.maxHistory = 15;
-    this.samplePoints = []; // Track touch/point centers for statistical analysis
-    this.inspectMode = false;
 
     this.initCanvasSize();
     this.bindEvents();
@@ -144,9 +142,6 @@ class QuadrantCanvas {
     if (this.historyStep > 0) {
       this.historyStep--;
       this.ctx.putImageData(this.history[this.historyStep], 0, 0);
-      if (this.samplePoints.length > 0) {
-        this.samplePoints.pop();
-      }
       this.updateUndoRedoUI();
     }
   }
@@ -162,9 +157,7 @@ class QuadrantCanvas {
   clear() {
     this.ctx.fillStyle = "#ffffff";
     this.ctx.fillRect(0, 0, 600, 600);
-    this.samplePoints = [];
     this.saveState();
-    this.clearInspectionUI();
   }
 
   updateUndoRedoUI() {
@@ -217,9 +210,6 @@ class QuadrantCanvas {
     this.lastX = coords.x;
     this.lastY = coords.y;
 
-    // Record sample point for accuracy & precision statistical calculations
-    this.samplePoints.push({ x: coords.x, y: coords.y, time: Date.now() });
-
     if (StudioState.selectedTool === "stamp") {
       this.drawEmojiStamp(coords.x, coords.y);
       this.saveState();
@@ -245,7 +235,6 @@ class QuadrantCanvas {
       // Light splatter trail
       if (Math.hypot(coords.x - this.lastX, coords.y - this.lastY) > 25) {
         this.drawSplatter(coords.x, coords.y, 0.4);
-        this.samplePoints.push({ x: coords.x, y: coords.y, time: Date.now() });
         this.lastX = coords.x;
         this.lastY = coords.y;
       }
@@ -254,7 +243,6 @@ class QuadrantCanvas {
 
     // Finger painting or Eraser
     this.drawFingerDaub(this.lastX, this.lastY, coords.x, coords.y);
-    this.samplePoints.push({ x: coords.x, y: coords.y, time: Date.now() });
     this.lastX = coords.x;
     this.lastY = coords.y;
   }
@@ -343,133 +331,6 @@ class QuadrantCanvas {
     this.ctx.globalAlpha = StudioState.brushOpacity;
     this.ctx.fillText(StudioState.activeEmoji, x, y);
     this.ctx.restore();
-  }
-
-  // Statistical Physics Inspector: Centroid and Dispersion
-  analyzeMeasurements() {
-    if (this.samplePoints.length < 3) {
-      return {
-        sampleCount: this.samplePoints.length,
-        accuracy: "Unknown",
-        precision: "Unknown",
-        centroidDist: null,
-        spreadRadius: null,
-        message: "Finger-paint or stamp at least a few marks on this canvas to analyze its accuracy and precision!"
-      };
-    }
-
-    const targetCenter = { x: 300, y: 300 }; // 600x600 center
-    const n = this.samplePoints.length;
-
-    // 1. Calculate Centroid (Mean X, Mean Y)
-    let sumX = 0;
-    let sumY = 0;
-    for (const pt of this.samplePoints) {
-      sumX += pt.x;
-      sumY += pt.y;
-    }
-    const centroid = { x: sumX / n, y: sumY / n };
-
-    // 2. Accuracy: Distance from Centroid to True Target Center
-    const centroidDist = Math.hypot(centroid.x - targetCenter.x, centroid.y - targetCenter.y);
-    // Standard normalized threshold: < 90px (~15% radius) is High Accuracy
-    const isAccurate = centroidDist <= 110;
-    const accuracyGrade = centroidDist <= 75 ? "High" : (centroidDist <= 130 ? "Medium" : "Low");
-
-    // 3. Precision: Mean Dispersion Radius from Centroid (Standard deviation / cluster tightness)
-    let sumDistFromCentroid = 0;
-    for (const pt of this.samplePoints) {
-      sumDistFromCentroid += Math.hypot(pt.x - centroid.x, pt.y - centroid.y);
-    }
-    const spreadRadius = sumDistFromCentroid / n;
-    // Standard normalized threshold: < 100px is High Precision
-    const isPrecise = spreadRadius <= 95;
-    const precisionGrade = spreadRadius <= 70 ? "High" : (spreadRadius <= 120 ? "Medium" : "Low");
-
-    // Generate scientific diagnosis
-    let diagnosis = "";
-    if (accuracyGrade === "High" && precisionGrade === "High") {
-      diagnosis = "🎯 Bullseye! High Accuracy (centered closely on target) and High Precision (tightly grouped marks).";
-    } else if (accuracyGrade === "High" && precisionGrade !== "High") {
-      diagnosis = "⚖️ Balanced! High Accuracy (average position is near center), but Low Precision (marks are scattered widely).";
-    } else if (accuracyGrade !== "High" && precisionGrade === "High") {
-      diagnosis = "🔒 Clustered Bias! High Precision (tightly grouped together), but Low Accuracy (missed the target center).";
-    } else {
-      diagnosis = "💥 Wild Drift! Low Accuracy (far from center) and Low Precision (widely scattered).";
-    }
-
-    return {
-      sampleCount: n,
-      centroid,
-      centroidDist: Math.round(centroidDist),
-      spreadRadius: Math.round(spreadRadius),
-      accuracyGrade,
-      precisionGrade,
-      isAccurate,
-      isPrecise,
-      diagnosis
-    };
-  }
-
-  renderInspectionHUD() {
-    const analysis = this.analyzeMeasurements();
-    const hudContainer = document.getElementById(`analysis-${this.id}`);
-    if (!hudContainer) return;
-
-    if (analysis.sampleCount < 3) {
-      hudContainer.innerHTML = `
-        <div class="p-3 bg-slate-900/90 rounded-xl border border-slate-700/60 text-xs text-slate-300">
-          ${analysis.message}
-        </div>
-      `;
-      return;
-    }
-
-    const accColor = analysis.accuracyGrade === "High" ? "text-emerald-400" : (analysis.accuracyGrade === "Medium" ? "text-amber-400" : "text-rose-400");
-    const precColor = analysis.precisionGrade === "High" ? "text-emerald-400" : (analysis.precisionGrade === "Medium" ? "text-amber-400" : "text-rose-400");
-
-    hudContainer.innerHTML = `
-      <div class="p-3 bg-slate-900/95 backdrop-blur-md rounded-xl border border-cyan-500/30 text-xs space-y-2 shadow-xl animate-fade-in">
-        <div class="flex items-center justify-between font-bold border-b border-slate-800 pb-1.5">
-          <span class="text-cyan-300 flex items-center gap-1.5">
-            <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-            Live Physics Quality Analysis
-          </span>
-          <span class="text-slate-400 text-[10px]">${analysis.sampleCount} mark samples</span>
-        </div>
-
-        <div class="grid grid-cols-2 gap-2 text-center pt-1">
-          <div class="p-2 rounded-lg bg-slate-800/80 border border-slate-700/50">
-            <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Accuracy</div>
-            <div class="text-base font-black ${accColor}">${analysis.accuracyGrade}</div>
-            <div class="text-[10px] text-slate-400">${analysis.centroidDist}px from target</div>
-          </div>
-          <div class="p-2 rounded-lg bg-slate-800/80 border border-slate-700/50">
-            <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Precision</div>
-            <div class="text-base font-black ${precColor}">${analysis.precisionGrade}</div>
-            <div class="text-[10px] text-slate-400">${analysis.spreadRadius}px spread radius</div>
-          </div>
-        </div>
-
-        <div class="text-[11px] text-slate-200 bg-slate-950/60 p-2 rounded-lg leading-snug">
-          ${analysis.diagnosis}
-        </div>
-
-        <div class="flex items-center justify-between text-[10px] text-slate-400 pt-0.5">
-          <span>Target Goal: <strong class="text-slate-200">${this.config.targetAccuracy} Acc, ${this.config.targetPrecision} Prec</strong></span>
-          <span class="${analysis.accuracyGrade === this.config.targetAccuracy && (analysis.precisionGrade === this.config.targetPrecision || (this.config.targetPrecision === 'Low' && analysis.precisionGrade !== 'High')) ? 'text-emerald-400 font-bold' : 'text-amber-400'}">
-            ${analysis.accuracyGrade === this.config.targetAccuracy && (analysis.precisionGrade === this.config.targetPrecision || (this.config.targetPrecision === 'Low' && analysis.precisionGrade !== 'High')) ? '✅ Matches Quadrant Goal!' : 'Adjust marks to match goal'}
-          </span>
-        </div>
-      </div>
-    `;
-  }
-
-  clearInspectionUI() {
-    const hudContainer = document.getElementById(`analysis-${this.id}`);
-    if (hudContainer) hudContainer.innerHTML = "";
   }
 }
 
@@ -613,14 +474,6 @@ class EmojiArtStudio {
         }
       });
 
-      // Analyze button
-      const analyzeBtn = document.getElementById(`analyze-${quad.id}`);
-      if (analyzeBtn) {
-        analyzeBtn.addEventListener("click", () => {
-          qCanvas.renderInspectionHUD();
-        });
-      }
-
       // Focus button
       const focusBtn = document.getElementById(`focus-${quad.id}`);
       if (focusBtn) {
@@ -655,10 +508,6 @@ class EmojiArtStudio {
       const ghost = document.getElementById(`ghost-${quad.id}`);
       if (ghost) {
         ghost.innerHTML = `
-          <div class="bullseye-rings w-[75%] h-[75%]"></div>
-          <div class="bullseye-rings w-[50%] h-[50%]"></div>
-          <div class="bullseye-rings w-[25%] h-[25%]"></div>
-          <div class="absolute w-3 h-3 rounded-full bg-rose-500"></div>
           <div class="ghost-emoji">${StudioState.activeEmoji}</div>
         `;
       }
