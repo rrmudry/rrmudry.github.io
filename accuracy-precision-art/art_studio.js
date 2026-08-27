@@ -776,7 +776,7 @@ class EmojiArtStudio {
     ctx.fillStyle = "#64748b";
     ctx.font = "500 22px 'Inter', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("NGSS Standards: HS-PS2-1 (Forces and Motion / Quantitative Measurement) & HS-ETS1-2  •  Physics with Mr. Mudry", 1000, 2350);
+    ctx.fillText("NGSS Science Practice: SEP 4 (Analyzing & Interpreting Data)  •  Physics with Mr. Mudry", 1000, 2350);
 
     // 5. Download PNG
     const cleanFileName = `Accuracy_Precision_Emoji_Art_${studentName.replace(/[^a-zA-Z0-9]/g, "_")}.png`;
