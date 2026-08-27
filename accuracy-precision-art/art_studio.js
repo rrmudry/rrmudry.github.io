@@ -59,7 +59,7 @@ const QUADRANTS = [
 
 // Curated emoji library
 const POPULAR_EMOJIS = [
-  "🎯", "😀", "🐱", "🚀", "🍕", "🌟", "👾", "🎨", "🦄", "🍩",
+  "😀", "😎", "🐱", "🚀", "🍕", "🌟", "👾", "🎨", "🦄", "🍩",
   "🔥", "⚽", "🐢", "🌺", "💎", "🥑", "🍔", "🎈", "⚡", "🤖"
 ];
 
@@ -79,7 +79,7 @@ const COLOR_PALETTE = [
 
 // State Management
 const StudioState = {
-  activeEmoji: "🎯",
+  activeEmoji: "😀",
   selectedColor: "#e11d48",
   selectedTool: "finger", // "finger", "splatter", "stamp", "eraser"
   brushSize: 22,
@@ -695,7 +695,7 @@ class EmojiArtStudio {
     // Student Info Subtitle Banner
     ctx.fillStyle = "#94a3b8";
     ctx.font = "600 32px 'Inter', sans-serif";
-    ctx.fillText(`Scientist: ${studentName}  |  ${period}  |  ${todayStr}  |  Target Emoji: ${StudioState.activeEmoji}`, 1000, 235);
+    ctx.fillText(`Scientist: ${studentName}  |  ${period}  |  ${todayStr}  |  Reference Emoji: ${StudioState.activeEmoji}`, 1000, 235);
 
     // Top gold accent rule
     ctx.strokeStyle = "#0ea5e9";
