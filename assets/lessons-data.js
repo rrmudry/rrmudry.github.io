@@ -286,8 +286,7 @@ const lessonsData = [
     "isFeatured": true,
     "essentialQuestion": "What is the critical scientific boundary separating a precise measurement from an accurate one?",
     "standards": [
-      "HS-PS2-1",
-      "HS-ETS1-2"
+      "SEP-4"
     ],
     "links": {
       "The Quality of Measurement (Slides)": "https://docs.google.com/presentation/d/1WCuBzY6-idwpRUGULY5W2CtXGlzRFMFhXHPsC8UygRQ/edit?usp=sharing",
