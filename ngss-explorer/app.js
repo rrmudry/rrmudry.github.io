@@ -80,6 +80,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // --- SEP Number Index Mapping ---
+    const SEP_NUMBER_MAP = {
+        'asking questions and defining problems': 1,
+        'developing and using models': 2,
+        'planning and carrying out investigations': 3,
+        'analyzing and interpreting data': 4,
+        'using mathematics and computational thinking': 5,
+        'constructing explanations and designing solutions': 6,
+        'engaging in argument from evidence': 7,
+        'obtaining, evaluating, and communicating information': 8
+    };
+
+    function getSEPNumber(sepName) {
+        if (!sepName) return null;
+        return SEP_NUMBER_MAP[sepName.toLowerCase().trim()] || null;
+    }
+
+    function formatSEPDisplay(sepName) {
+        if (!sepName) return '';
+        const num = getSEPNumber(sepName);
+        return num ? `SEP ${num}: ${sepName}` : sepName;
+    }
+
     // --- Filtering Logic ---
     function filterStandards() {
         return standards.filter(item => {
@@ -101,7 +124,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const matchesCode = item.code.toLowerCase().includes(q);
                 const matchesTitle = item.title.toLowerCase().includes(q);
                 const matchesPE = item.pe.toLowerCase().includes(q);
-                const matchesSEP = item.sep ? item.sep.toLowerCase().includes(q) : false;
+
+                // Check SEP including its number (e.g. "sep 4", "sep4", "analyzing")
+                const sepNum = getSEPNumber(item.sep);
+                const sepSearchString = sepNum 
+                    ? `sep ${sepNum} sep${sepNum} ${item.sep.toLowerCase()}` 
+                    : (item.sep ? item.sep.toLowerCase() : '');
+                const matchesSEP = sepSearchString.includes(q);
+
                 const matchesDCI = item.dci ? item.dci.toLowerCase().includes(q) : false;
                 const matchesCCC = item.ccc ? item.ccc.toLowerCase().includes(q) : false;
                 const matchesKeywords = item.keywords ? item.keywords.some(k => k.toLowerCase().includes(q)) : false;
@@ -185,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p class="card-pe-preview">${item.pe}</p>
                 </div>
                 <div class="dimensions-container">
-                    ${item.sep ? `<span class="dim-pill dim-sep">🔵 ${item.sep}</span>` : ''}
+                    ${item.sep ? `<span class="dim-pill dim-sep">🔵 ${formatSEPDisplay(item.sep)}</span>` : ''}
                     ${item.dci ? `<span class="dim-pill dim-dci">🟠 ${item.dci}</span>` : ''}
                     ${item.ccc ? `<span class="dim-pill dim-ccc">🟢 ${item.ccc}</span>` : ''}
                 </div>
@@ -255,7 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
             modalBoundaryWrapper.style.display = 'none';
         }
 
-        modalSEP.innerHTML = item.sep ? `🔵 <strong>SEP:</strong> ${item.sep}` : '';
+        modalSEP.innerHTML = item.sep ? `🔵 <strong>Practice:</strong> ${formatSEPDisplay(item.sep)}` : '';
         modalDCI.innerHTML = item.dci ? `🟠 <strong>DCI:</strong> ${item.dci}` : '';
         modalCCC.innerHTML = item.ccc ? `🟢 <strong>CCC:</strong> ${item.ccc}` : '';
 
