@@ -114,6 +114,25 @@
         },
 
         /**
+         * Format SEP with number prefix
+         */
+        formatSEP: function (sepName) {
+            if (!sepName) return '';
+            const map = {
+                'asking questions and defining problems': 1,
+                'developing and using models': 2,
+                'planning and carrying out investigations': 3,
+                'analyzing and interpreting data': 4,
+                'using mathematics and computational thinking': 5,
+                'constructing explanations and designing solutions': 6,
+                'engaging in argument from evidence': 7,
+                'obtaining, evaluating, and communicating information': 8
+            };
+            const num = map[sepName.toLowerCase().trim()];
+            return num ? `SEP ${num}: ${sepName}` : sepName;
+        },
+
+        /**
          * Show standard detail modal popover on any page
          */
         showStandardModal: function (code) {
@@ -135,8 +154,9 @@
                 }
 
                 modalEl.innerHTML = `
-                    <div style="background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(0, 243, 255, 0.4); border-radius: 20px; padding: 2rem; max-width: 650px; width: 100%; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.8); position: relative; color: #f8fafc;">
-                        <button id="closeNgssHelperModal" style="position: absolute; top: 1rem; right: 1rem; background: rgba(255,255,255,0.1); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; font-size: 1.2rem; cursor: pointer;">&times;</button>
+                    <div style="background: #0f172a; border: 1px solid rgba(0, 243, 255, 0.3); border-radius: 20px; padding: 1.75rem; width: 92%; max-width: 650px; max-height: 85vh; overflow-y: auto; color: #f8fafc; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.8);">
+                        <button id="closeNgssHelperModal" style="position: absolute; top: 1rem; right: 1rem; background: rgba(255,255,255,0.1); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center;">&times;</button>
+                        
                         <div style="display: flex; gap: 0.6rem; align-items: center; margin-bottom: 0.5rem;">
                             <span style="font-size: 1.4rem; font-weight: 800; color: #00f3ff;">${std.code}</span>
                             <span style="font-size: 0.75rem; background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 6px; color: #94a3b8;">${std.domain}</span>
@@ -157,7 +177,7 @@
                         ` : ''}
 
                         <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 1rem;">
-                            ${std.sep ? `<span style="font-size: 0.75rem; background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); padding: 4px 8px; border-radius: 6px;">🔵 ${std.sep}</span>` : ''}
+                            ${std.sep ? `<a href="${rootPath}ngss-explorer/index.html" target="_blank" title="Inspect this Science & Engineering Practice in NGSS Explorer" style="text-decoration: none; font-size: 0.75rem; background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); padding: 4px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;">🔵 ${this.formatSEP(std.sep)} <span style="opacity: 0.7;">↗</span></a>` : ''}
                             ${std.dci ? `<span style="font-size: 0.75rem; background: rgba(249, 115, 22, 0.2); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.4); padding: 4px 8px; border-radius: 6px;">🟠 ${std.dci}</span>` : ''}
                             ${std.ccc ? `<span style="font-size: 0.75rem; background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); padding: 4px 8px; border-radius: 6px;">🟢 ${std.ccc}</span>` : ''}
                         </div>
