@@ -82,9 +82,9 @@ const StudioState = {
   activeEmoji: "🎯",
   selectedColor: "#e11d48",
   selectedTool: "finger", // "finger", "splatter", "stamp", "eraser"
-  brushSize: 18,
+  brushSize: 22,
   brushOpacity: 0.9,
-  showTargetGuides: true,
+  showTargetGuides: false, // Hidden by default so painter has a clean white canvas!
   rainbowHue: 0,
   activeFocusQuad: null, // null = 2x2 grid, 1..4 = focused single canvas
   studentName: "",
@@ -412,16 +412,10 @@ class EmojiArtStudio {
       });
     }
 
-    // Target Guide Ghost Overlay Toggle
+    // Template Ghost Overlay Toggle (Global)
     const ghostToggle = document.getElementById("toggle-target-guides");
     if (ghostToggle) {
-      ghostToggle.addEventListener("click", () => {
-        StudioState.showTargetGuides = !StudioState.showTargetGuides;
-        ghostToggle.classList.toggle("tool-btn-active", StudioState.showTargetGuides);
-        document.querySelectorAll(".target-ghost-overlay").forEach(overlay => {
-          overlay.classList.toggle("ghost-hidden", !StudioState.showTargetGuides);
-        });
-      });
+      ghostToggle.addEventListener("click", () => this.toggleTargetGuides());
     }
 
     // Export Masterpiece Modal Trigger
@@ -474,6 +468,19 @@ class EmojiArtStudio {
         }
       });
 
+      // Per-canvas Template Ghost Toggle
+      const cardGhostBtn = document.getElementById(`ghost-toggle-${quad.id}`);
+      if (cardGhostBtn) {
+        cardGhostBtn.addEventListener("click", () => {
+          const ghostEl = document.getElementById(`ghost-${quad.id}`);
+          if (ghostEl) {
+            const isCurrentlyHidden = ghostEl.classList.contains("ghost-hidden");
+            ghostEl.classList.toggle("ghost-hidden", !isCurrentlyHidden);
+            cardGhostBtn.classList.toggle("tool-btn-active", isCurrentlyHidden);
+          }
+        });
+      }
+
       // Focus button
       const focusBtn = document.getElementById(`focus-${quad.id}`);
       if (focusBtn) {
@@ -484,6 +491,32 @@ class EmojiArtStudio {
     });
 
     this.updateGhostOverlays();
+  }
+
+  toggleTargetGuides(forceState) {
+    if (typeof forceState === "boolean") {
+      StudioState.showTargetGuides = forceState;
+    } else {
+      StudioState.showTargetGuides = !StudioState.showTargetGuides;
+    }
+    const isVisible = StudioState.showTargetGuides;
+
+    const ghostToggle = document.getElementById("toggle-target-guides");
+    const ghostIcon = document.getElementById("ghost-toggle-icon");
+    const ghostText = document.getElementById("ghost-toggle-text");
+    if (ghostToggle) {
+      ghostToggle.classList.toggle("tool-btn-active", isVisible);
+    }
+    if (ghostIcon) ghostIcon.textContent = isVisible ? "🙈" : "👁️";
+    if (ghostText) ghostText.textContent = isVisible ? "Hide Template" : "Show Template";
+
+    document.querySelectorAll(".target-ghost-overlay").forEach(overlay => {
+      overlay.classList.toggle("ghost-hidden", !isVisible);
+    });
+
+    document.querySelectorAll(".btn-card-ghost-toggle").forEach(btn => {
+      btn.classList.toggle("tool-btn-active", isVisible);
+    });
   }
 
   setEmoji(emoji) {
@@ -510,6 +543,7 @@ class EmojiArtStudio {
         ghost.innerHTML = `
           <div class="ghost-emoji">${StudioState.activeEmoji}</div>
         `;
+        ghost.classList.toggle("ghost-hidden", !StudioState.showTargetGuides);
       }
     });
   }
