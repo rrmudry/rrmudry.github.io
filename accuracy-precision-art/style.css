@@ -1,0 +1,255 @@
+/* Accuracy & Precision Emoji Finger Painting Studio Styles */
+:root {
+  --bg-main: #0a0f1d;
+  --panel-bg: rgba(15, 23, 42, 0.82);
+  --panel-border: rgba(255, 255, 255, 0.1);
+  --accent-cyan: #06b6d4;
+  --accent-pink: #ec4899;
+  --accent-amber: #f59e0b;
+  --accent-purple: #a855f7;
+  --accent-emerald: #10b981;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-main);
+  background-image: 
+    radial-gradient(circle at 15% 15%, rgba(14, 165, 233, 0.12) 0%, transparent 40%),
+    radial-gradient(circle at 85% 25%, rgba(236, 72, 153, 0.1) 0%, transparent 40%),
+    radial-gradient(circle at 50% 85%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
+    radial-gradient(#1e293b 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 24px 24px;
+  color: #f8fafc;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+.font-display {
+  font-family: 'Fredoka', 'Outfit', sans-serif;
+}
+
+.font-tech {
+  font-family: 'Orbitron', 'JetBrains Mono', monospace;
+}
+
+/* Glassmorphic Surfaces */
+.glass-panel {
+  background: var(--panel-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.4), 0 0 1px 1px rgba(255, 255, 255, 0.05);
+}
+
+.glass-card {
+  background: rgba(23, 33, 56, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Critical Touch Handling for Chromebook Finger Painting */
+.paint-canvas {
+  touch-action: none;
+  cursor: crosshair;
+  background: #ffffff;
+  border-radius: 1rem;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1), 0 8px 24px rgba(0, 0, 0, 0.35);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.paint-canvas:focus {
+  outline: none;
+}
+
+/* Canvas Wrapper with Target Ghost Overlay */
+.canvas-wrapper {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  background: #f8fafc;
+}
+
+.target-ghost-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.28;
+  transition: opacity 0.25s ease;
+  user-select: none;
+}
+
+.target-ghost-overlay.ghost-hidden {
+  opacity: 0 !important;
+}
+
+.target-ghost-overlay .bullseye-rings {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px dashed rgba(225, 29, 72, 0.5);
+}
+
+.target-ghost-overlay .ghost-emoji {
+  font-size: 4rem;
+  line-height: 1;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
+}
+
+/* Paint Pots */
+.paint-pot {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.35), inset 0 -3px 6px rgba(0,0,0,0.3), inset 0 3px 6px rgba(255,255,255,0.4);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 3px solid transparent;
+}
+
+.paint-pot:hover {
+  transform: translateY(-3px) scale(1.1);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.45);
+}
+
+.paint-pot.active {
+  transform: translateY(-4px) scale(1.18);
+  border-color: #ffffff;
+  box-shadow: 0 0 0 3px var(--accent-cyan), 0 8px 20px rgba(6, 182, 212, 0.4);
+}
+
+.rainbow-pot {
+  background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red) !important;
+}
+
+/* Tool Buttons */
+.tool-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  border-radius: 0.85rem;
+  font-weight: 700;
+  font-size: 0.825rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  user-select: none;
+}
+
+.tool-btn-primary {
+  background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+  color: #0f172a;
+  box-shadow: 0 4px 14px rgba(14, 165, 233, 0.35);
+}
+
+.tool-btn-primary:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.tool-btn-active {
+  background: rgba(6, 182, 212, 0.22) !important;
+  color: #38bdf8 !important;
+  border: 1px solid rgba(56, 189, 248, 0.6) !important;
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.3) !important;
+}
+
+/* Quadrant Card Accents */
+.quad-card-1 { border-top: 4px solid #10b981; } /* Accurate & Precise */
+.quad-card-2 { border-top: 4px solid #f59e0b; } /* Accurate, Not Precise */
+.quad-card-3 { border-top: 4px solid #06b6d4; } /* Precise, Not Accurate */
+.quad-card-4 { border-top: 4px solid #ef4444; } /* Neither */
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.6);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.5);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.7);
+}
+
+/* Mini Lesson Interactive Darts Demo */
+.target-board {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.target-ring-outer {
+  position: absolute;
+  inset: 10px;
+  border-radius: 50%;
+  border: 8px solid #fecdd3;
+  background: #fff1f2;
+}
+
+.target-ring-mid {
+  position: absolute;
+  inset: 32px;
+  border-radius: 50%;
+  border: 8px solid #fda4af;
+  background: #ffe4e6;
+}
+
+.target-bullseye {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #e11d48;
+}
+
+.sample-hit-dot {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #0284c7;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+  transform: translate(-50%, -50%);
+  animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes popIn {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+/* Pulse Glow */
+.glow-accent {
+  box-shadow: 0 0 25px rgba(6, 182, 212, 0.25);
+}
+
+/* Print/Poster Output Styling */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
