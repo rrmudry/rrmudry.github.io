@@ -277,17 +277,21 @@ const lessonsData = [
     "date": "2026-08-27",
     "day": 7,
     "unit": 1,
-    "title": "Quality of Measurement",
-    "summary": "Precision vs. accuracy lab exploring uncertainty and sig-figs.",
-    "details": "Use the \"dartboard\" analogy for accuracy vs. precision. Lab: Students perform a simple measurement (e.g., length of a block) and analyze their data for accuracy and precision.",
+    "title": "Quality of Measurement: Accuracy & Precision",
+    "summary": "Mini-lesson on Accuracy vs. Precision and 4-quadrant Emoji Finger Painting art project.",
+    "details": "Direct mini-lesson introducing the scientific boundary between Accuracy (closeness to accepted target value) and Precision (repeatability and cluster tightness) using the dartboard analogy. Students then complete the hands-on Emoji Finger Painting Art Project, painting 4 distinct scientific variations of a chosen emoji: (1) Accurate & Precise, (2) Accurate, NOT Precise, (3) Precise, NOT Accurate, and (4) Neither Accurate nor Precise.",
     "type": "Lab",
     "dok": 2,
     "semester": 1,
     "isFeatured": true,
     "essentialQuestion": "What is the critical scientific boundary separating a precise measurement from an accurate one?",
     "standards": [
-      "HS-PS2-1"
-    ]
+      "HS-PS2-1",
+      "HS-ETS1-2"
+    ],
+    "links": {
+      "Emoji Finger Painting Studio": "accuracy-precision-art/index.html"
+    }
   },
   {
     "date": "2026-08-26",
