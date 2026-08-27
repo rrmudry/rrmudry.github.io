@@ -1136,6 +1136,25 @@ const NGSS_STANDARDS_DATA = [
         ccc: "Systems and System Models",
         unitLink: "../Data_Analysis/index.html",
         keywords: ["simulation", "modeling", "computer model", "trade-off", "optimization", "params"]
+    },
+    // =========================================================================
+    // 5. SCIENCE & ENGINEERING PRACTICES (SEPs)
+    // =========================================================================
+    {
+        code: "SEP-4",
+        domain: "Science Practice",
+        domainCode: "SEP",
+        is: "IS1",
+        topic: "Data Analysis & Measurement Quality",
+        title: "Analyzing and Interpreting Data",
+        pe: "Analyze and interpret data to evaluate the quality of measurements, distinguish between systematic error (accuracy) and random error (precision), and determine uncertainty in scientific models.",
+        clarification: "Emphasis is on evaluating experimental data distributions, calibration offsets, and repeatability before drawing evidence-based conclusions.",
+        boundary: "High school expectations include identifying sources of measurement error and explaining the difference between accurate and precise data clusters.",
+        sep: "Analyzing and Interpreting Data",
+        dci: "Cross-Disciplinary Scientific Practice",
+        ccc: "Patterns • Cause and Effect",
+        unitLink: "../accuracy-precision-art/index.html",
+        keywords: ["accuracy", "precision", "data", "error", "uncertainty", "measurement", "spread", "sep 4", "sep4", "analysis"]
     }
 ];
 
