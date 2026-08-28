@@ -1155,6 +1155,22 @@ const NGSS_STANDARDS_DATA = [
         ccc: "Patterns • Cause and Effect",
         unitLink: "../accuracy-precision-art/index.html",
         keywords: ["accuracy", "precision", "data", "error", "uncertainty", "measurement", "spread", "sep 4", "sep4", "analysis"]
+    },
+    {
+        code: "SEP-5",
+        domain: "Science Practice",
+        domainCode: "SEP",
+        is: "IS1",
+        topic: "Mathematical Thinking & Unit Analysis",
+        title: "Using Mathematics and Computational Thinking",
+        pe: "Apply techniques of algebra, dimensional analysis, and significant figures to express quantitative relationships and evaluate physical measurement precision.",
+        clarification: "Emphasis is on using unit conversion factors, scientific notation, and significant digits to reflect tool resolution.",
+        boundary: "High school expectations include factor-label conversion methods, significant figure arithmetic, and isolating algebraic variables.",
+        sep: "Using Mathematics and Computational Thinking",
+        dci: "Cross-Disciplinary Scientific Practice",
+        ccc: "Scale, Proportion, and Quantity",
+        unitLink: "../unit-conversion-practice/index.html",
+        keywords: ["math", "units", "conversion", "dimensional analysis", "significant figures", "sig figs", "resolution", "sep 5", "sep5"]
     }
 ];
 
