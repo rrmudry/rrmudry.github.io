@@ -657,8 +657,10 @@
         let activeChatSystemInstruction = "";
         let chatHasStarted = false;
         let isChatFinished = false;
+        let hasUserFinishedManually = false;
 
         function showWaitingPanel(customMsg) {
+            hasUserFinishedManually = false;
             document.getElementById('waiting-panel').style.display = 'flex';
             document.getElementById('waiting-student-id').innerText = studentId;
             const subtext = document.getElementById('waiting-subtext');
@@ -1092,6 +1094,14 @@
                 document.getElementById('followup-lockout-shield').classList.add('hidden');
                 isTimerExpired = false;
                 updateSubmitButtonState();
+
+                // If teacher extended the countdown, seamlessly unlock auto-locked chat students
+                if (activeActivityType === "concept_chat" && isChatFinished && !hasUserFinishedManually) {
+                    isChatFinished = false;
+                    renderChatFeed();
+                    const statusCard = document.getElementById('grading-status-card');
+                    if (statusCard) statusCard.classList.add('hidden');
+                }
 
                 const totalSeconds = Math.floor(diffMs / 1000);
                 const minutes = Math.floor(totalSeconds / 60);
@@ -1787,6 +1797,7 @@ Respond ONLY with a raw JSON object:
             }
             if (!confirm("Are you sure you want to finish your Concept Chat session and submit for grading?")) return;
             
+            hasUserFinishedManually = true;
             await performAutoGrading();
         }
 
