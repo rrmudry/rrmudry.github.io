@@ -116,6 +116,7 @@
                         <span id="header-status-lbl" class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Inactive</span>
                     </div>
                     <span id="header-timer-val" class="text-base font-bold font-mono text-slate-400">00:00</span>
+                    <button type="button" onclick="extendTimer(1)" class="px-2 py-0.5 rounded-full bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-[10px] font-bold text-cyan-300 transition-all cursor-pointer shadow-sm active:scale-95" title="Quickly add 1 minute to timer">+1m</button>
                 </div>
 
                 <!-- Auth user details -->
@@ -423,14 +424,29 @@ CRITICAL RULES:
                     </div>
                 </details>
 
-                <!-- Active Session State Debug Card -->
-                <div class="glass-panel rounded-3xl p-6 flex justify-between items-center">
-                    <div>
-                        <p class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Active Timer Status</p>
-                        <p id="local-status-lbl" class="text-sm font-bold text-red-500 mt-1">Inactive</p>
+                <!-- Active Session State Debug Card with Quick Extension -->
+                <div class="glass-panel rounded-3xl p-6 flex flex-col gap-4">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Active Timer Status</p>
+                            <p id="local-status-lbl" class="text-sm font-bold text-red-500 mt-1">Inactive</p>
+                        </div>
+                        <div id="local-timer-val" class="text-3xl font-bold font-mono text-slate-500">
+                            00:00
+                        </div>
                     </div>
-                    <div id="local-timer-val" class="text-3xl font-bold font-mono text-slate-500">
-                        00:00
+                    <!-- Quick Extend Controls -->
+                    <div class="flex items-center gap-2 pt-3 border-t border-white/5">
+                        <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap">Add Time:</span>
+                        <button type="button" onclick="extendTimer(1)" class="flex-1 py-2 px-2.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-bold transition-all active:scale-95 flex items-center justify-center gap-1 shadow-sm cursor-pointer" title="Add 1 minute">
+                            <span>⏱️ +1 Min</span>
+                        </button>
+                        <button type="button" onclick="extendTimer(2)" class="flex-1 py-2 px-2.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-bold transition-all active:scale-95 flex items-center justify-center gap-1 shadow-sm cursor-pointer" title="Add 2 minutes">
+                            <span>⏱️ +2 Min</span>
+                        </button>
+                        <button type="button" onclick="extendTimer(5)" class="flex-1 py-2 px-2.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-bold transition-all active:scale-95 flex items-center justify-center gap-1 shadow-sm cursor-pointer" title="Add 5 minutes">
+                            <span>⏱️ +5 Min</span>
+                        </button>
                     </div>
                 </div>
 
@@ -1256,6 +1272,52 @@ CRITICAL RULES:
             } catch (err) {
                 alert("Failed to stop timer: " + err.message);
             }
+        }
+
+        // Extend active countdown timer
+        async function extendTimer(minutes) {
+            try {
+                const timerRef = db.collection('system_config').doc('bellringer_timer');
+                const doc = await timerRef.get();
+                if (!doc.exists) {
+                    alert("No active timer found to extend. Please launch a timer first.");
+                    return;
+                }
+                const data = doc.data();
+                let currentExpiresAtMs = Date.now();
+                if (data.timerExpiresAt && data.timerExpiresAt.toDate) {
+                    const dt = data.timerExpiresAt.toDate().getTime();
+                    // If current expiration is in future, extend from that; otherwise extend from right now
+                    currentExpiresAtMs = Math.max(dt, Date.now());
+                }
+                const newExpiresAtDate = new Date(currentExpiresAtMs + minutes * 60 * 1000);
+                
+                await timerRef.set({
+                    isActive: true,
+                    timerExpiresAt: firebase.firestore.Timestamp.fromDate(newExpiresAtDate),
+                    durationSeconds: ((data.durationSeconds || (data.durationMinutes || 4) * 60) + (minutes * 60))
+                }, { merge: true });
+
+                showTeacherToast(`⏱️ Added +${minutes} minute${minutes > 1 ? 's' : ''} to active timer!`);
+            } catch (err) {
+                console.error("Failed to extend timer:", err);
+                alert("Failed to extend timer: " + err.message);
+            }
+        }
+
+        function showTeacherToast(msg) {
+            let toast = document.getElementById('teacher-toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'teacher-toast';
+                toast.className = 'fixed bottom-6 right-6 z-50 px-4 py-3 rounded-2xl bg-slate-900/95 border border-cyan-500/40 text-cyan-300 text-xs font-bold shadow-2xl backdrop-blur-md transition-all duration-300 transform translate-y-12 opacity-0 flex items-center gap-2';
+                document.body.appendChild(toast);
+            }
+            toast.innerText = msg;
+            toast.classList.remove('translate-y-12', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-12', 'opacity-0');
+            }, 3000);
         }
 
         // Teacher override score
