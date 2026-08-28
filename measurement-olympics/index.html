@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Measurement Olympics - Live Leaderboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #09090b 75%, #030712 100%);
+      min-height: 100vh;
+      color: #f8fafc;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .glass-card {
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+    .gold-glow {
+      box-shadow: 0 0 25px rgba(234, 179, 8, 0.35);
+      border-color: rgba(234, 179, 8, 0.5);
+    }
+    .silver-glow {
+      box-shadow: 0 0 25px rgba(148, 163, 184, 0.35);
+      border-color: rgba(148, 163, 184, 0.5);
+    }
+    .bronze-glow {
+      box-shadow: 0 0 25px rgba(217, 119, 6, 0.35);
+      border-color: rgba(217, 119, 6, 0.5);
+    }
+    .podium-step-1 {
+      height: 150px;
+      background: linear-gradient(180deg, rgba(234, 179, 8, 0.25) 0%, rgba(234, 179, 8, 0.05) 100%);
+      border: 2px solid rgba(234, 179, 8, 0.6);
+    }
+    .podium-step-2 {
+      height: 115px;
+      background: linear-gradient(180deg, rgba(148, 163, 184, 0.25) 0%, rgba(148, 163, 184, 0.05) 100%);
+      border: 2px solid rgba(148, 163, 184, 0.6);
+    }
+    .podium-step-3 {
+      height: 85px;
+      background: linear-gradient(180deg, rgba(217, 119, 6, 0.25) 0%, rgba(217, 119, 6, 0.05) 100%);
+      border: 2px solid rgba(217, 119, 6, 0.6);
+    }
+  </style>
+</head>
+<body class="p-4 md:p-6 lg:p-8 flex flex-col items-center">
+
+  <!-- Header Navigation -->
+  <header class="w-full max-w-7xl flex flex-col md:flex-row items-center justify-between gap-4 mb-8 glass-card rounded-2xl p-4 border border-white/10">
+    <div class="flex items-center gap-3">
+      <a href="../index.html" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-semibold text-slate-300 transition-colors">
+        ← Unit Dashboard
+      </a>
+      <div class="h-5 w-[1px] bg-white/10"></div>
+      <div class="flex items-center gap-2">
+        <span class="text-2xl">🏅</span>
+        <div>
+          <h1 class="text-lg md:text-xl font-black tracking-tight text-white flex items-center gap-2">
+            The Measurement Olympics
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 uppercase font-bold tracking-wider">Unit 1 Capstone</span>
+          </h1>
+          <p class="text-xs text-slate-400">Classroom Tournament & Live Event Podium</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="flex flex-wrap items-center gap-3">
+      <!-- Period Selector -->
+      <div class="flex items-center gap-1.5 bg-black/40 border border-white/10 rounded-xl px-3 py-1.5">
+        <label for="period-select" class="text-xs font-bold text-slate-400 uppercase">Period:</label>
+        <select id="period-select" onchange="switchPeriod(this.value)" class="bg-transparent text-sm font-black text-amber-400 focus:outline-none cursor-pointer">
+          <option value="1" class="bg-slate-900 text-white">Period 1</option>
+          <option value="2" class="bg-slate-900 text-white">Period 2</option>
+          <option value="3" class="bg-slate-900 text-white">Period 3</option>
+          <option value="4" class="bg-slate-900 text-white">Period 4</option>
+          <option value="5" class="bg-slate-900 text-white">Period 5</option>
+          <option value="6" class="bg-slate-900 text-white">Period 6</option>
+        </select>
+      </div>
+
+      <!-- Printable Scorecard Button -->
+      <a href="scorecard.html" target="_blank" class="px-3.5 py-2 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm">
+        <span>🖨️ Printable Scorecard</span>
+      </a>
+
+      <!-- Celebrate Confetti -->
+      <button onclick="triggerOlympicCelebration()" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black font-extrabold text-xs transition-all shadow-[0_0_15px_rgba(245,158,11,0.4)] active:scale-95 flex items-center gap-1.5">
+        <span>🎉 Celebrate Winner</span>
+      </button>
+
+      <!-- Projector Mode Toggle -->
+      <button onclick="toggleProjectorMode()" id="projector-btn" class="px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 text-xs font-semibold transition-all">
+        📺 Projector Mode
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="w-full max-w-7xl flex flex-col gap-8">
+
+    <!-- Top Section: Championship Podium Display -->
+    <section id="podium-section" class="glass-card rounded-3xl p-6 md:p-8 relative overflow-hidden border border-white/10">
+      <div class="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="text-center mb-8">
+        <span class="text-xs font-bold uppercase tracking-widest text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">Overall Championship Standings</span>
+        <h2 class="text-3xl md:text-4xl font-black text-white mt-2">Olympic Podium</h2>
+        <p class="text-xs md:text-sm text-slate-400 mt-1">Scoring: 🥇 1st Place = 5 Pts &bull; 🥈 2nd Place = 3 Pts &bull; 🥉 3rd Place = 1 Pt</p>
+      </div>
+
+      <!-- 3D Podium Display -->
+      <div class="flex items-end justify-center gap-2 md:gap-6 max-w-2xl mx-auto pt-8">
+        
+        <!-- 2nd Place (Silver) -->
+        <div class="flex-1 flex flex-col items-center">
+          <div class="text-center mb-2">
+            <span class="text-3xl">🥈</span>
+            <p id="podium-team-2" class="text-sm md:text-base font-black text-slate-200 mt-1 truncate max-w-[120px] md:max-w-[160px]">Silver Team</p>
+            <p id="podium-pts-2" class="text-xs font-mono font-bold text-slate-400">0 Pts</p>
+          </div>
+          <div class="w-full podium-step-2 rounded-t-2xl flex flex-col items-center justify-center p-2 silver-glow">
+            <span class="text-2xl md:text-3xl font-black text-slate-300 font-mono">2</span>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Silver</span>
+          </div>
+        </div>
+
+        <!-- 1st Place (Gold) -->
+        <div class="flex-1 flex flex-col items-center">
+          <div class="text-center mb-2">
+            <span class="text-4xl animate-bounce">👑</span>
+            <p id="podium-team-1" class="text-base md:text-lg font-black text-amber-300 mt-1 truncate max-w-[140px] md:max-w-[180px]">Gold Champion</p>
+            <p id="podium-pts-1" class="text-sm font-mono font-black text-amber-400">0 Pts</p>
+          </div>
+          <div class="w-full podium-step-1 rounded-t-2xl flex flex-col items-center justify-center p-2 gold-glow">
+            <span class="text-3xl md:text-4xl font-black text-amber-300 font-mono">1</span>
+            <span class="text-[10px] font-bold text-amber-300 uppercase tracking-widest">Gold</span>
+          </div>
+        </div>
+
+        <!-- 3rd Place (Bronze) -->
+        <div class="flex-1 flex flex-col items-center">
+          <div class="text-center mb-2">
+            <span class="text-3xl">🥉</span>
+            <p id="podium-team-3" class="text-sm md:text-base font-black text-amber-600 mt-1 truncate max-w-[120px] md:max-w-[160px]">Bronze Team</p>
+            <p id="podium-pts-3" class="text-xs font-mono font-bold text-amber-500">0 Pts</p>
+          </div>
+          <div class="w-full podium-step-3 rounded-t-2xl flex flex-col items-center justify-center p-2 bronze-glow">
+            <span class="text-2xl md:text-3xl font-black text-amber-500 font-mono">3</span>
+            <span class="text-[10px] font-bold text-amber-500 uppercase tracking-widest">Bronze</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Teacher Controls & Event Entry Grid (Collapsible in Projector Mode) -->
+    <div id="controls-section" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <!-- Left Column: Team Roster Management -->
+      <div class="lg:col-span-4 glass-card rounded-3xl p-6 flex flex-col gap-4 border border-white/10">
+        <div class="flex justify-between items-center border-b border-white/10 pb-3">
+          <div>
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+              <span>👥</span> Teams Roster
+            </h3>
+            <p class="text-[11px] text-slate-400">Class period teams participating today.</p>
+          </div>
+          <span id="teams-count" class="text-xs font-mono font-bold bg-white/10 px-2 py-0.5 rounded-full text-slate-300">0 Teams</span>
+        </div>
+
+        <!-- Add Team Form -->
+        <form onsubmit="addTeam(event)" class="flex gap-2">
+          <input type="text" id="new-team-input" placeholder="Team or Table Name..." required
+                 class="flex-1 rounded-xl bg-slate-900/80 border border-white/10 px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400">
+          <button type="submit" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs transition-colors shadow-sm">
+            + Add
+          </button>
+        </form>
+
+        <!-- Quick Pre-fill / Reset buttons -->
+        <div class="flex gap-2">
+          <button type="button" onclick="loadDefaultTeams(6)" class="flex-1 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-[11px] font-semibold text-slate-400 transition-colors">
+            Reset: 6 Tables
+          </button>
+          <button type="button" onclick="loadDefaultTeams(8)" class="flex-1 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-[11px] font-semibold text-slate-400 transition-colors">
+            Reset: 8 Tables
+          </button>
+          <button type="button" onclick="clearAllTeams()" class="px-2 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-[11px] font-semibold transition-colors">
+            Clear
+          </button>
+        </div>
+
+        <!-- Teams List -->
+        <div id="teams-list" class="flex flex-col gap-1.5 max-h-[360px] overflow-y-auto pr-1">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- Right Column: 4 Events Top-3 Entry Cards -->
+      <div class="lg:col-span-8 flex flex-col gap-4">
+        <div class="flex justify-between items-center">
+          <div>
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+              <span>🎯</span> Olympic Events Podium Entry
+            </h3>
+            <p class="text-xs text-slate-400">Select 1st, 2nd, and 3rd place champions for each event.</p>
+          </div>
+          <button type="button" onclick="resetAllEventScores()" class="text-xs font-semibold text-slate-400 hover:text-red-400 transition-colors">
+            Clear All Event Scores
+          </button>
+        </div>
+
+        <!-- Event Cards Grid (2x2) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          
+          <!-- Event 1: The Mass Grab -->
+          <div class="glass-card rounded-2xl p-5 border border-white/10 flex flex-col gap-3">
+            <div class="flex justify-between items-start border-b border-white/10 pb-2">
+              <div>
+                <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-400">Event 1</span>
+                <h4 class="text-sm font-bold text-white flex items-center gap-1.5">
+                  <span>⚖️</span> The Mass Grab
+                </h4>
+                <p class="text-[11px] text-slate-400">Handful of crayons to match target mass.</p>
+              </div>
+              <button onclick="clearEventScore(1)" class="text-[10px] text-slate-500 hover:text-red-400">Reset</button>
+            </div>
+
+            <div class="space-y-2">
+              <!-- 1st Place Gold -->
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-amber-400 w-12 flex items-center gap-1">🥇 1st:</span>
+                <select id="event-1-gold" onchange="recordEventPodium(1)" class="flex-1 rounded-lg bg-slate-900 border border-amber-500/40 text-xs text-white p-1.5 focus:outline-none team-select">
+                  <option value="">Select Team...</option>
+                </select>
+                <input type="text" id="event-1-gold-stat" onchange="saveEventStat(1, 'gold')" placeholder="Stat (e.g. 0.4g off)" class="w-24 rounded-lg bg-slate-950/60 border border-white/10 px-2 py-1.5 text-[11px] text-slate-300">
+              </div>
+              <!-- 2nd Place Silver -->
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-slate-300 w-12 flex items-center gap-1">🥈 2nd:</span>
+                <select id="event-1-silver" onchange="recordEventPodium(1)" class="flex-1 rounded-lg bg-slate-900 border border-slate-400/40 text-xs text-white p-1.5 focus:outline-none team-select">
+                  <option value="">Select Team...</option>
+                </select>
+                <input type="text" id="event-1-silver-stat" onchange="saveEventStat(1, 'silver')" placeholder="Stat" class="w-24 rounded-lg bg-slate-950/60 border border-white/10 px-2 py-1.5 text-[11px] text-slate-300">
+              </div>
+              <!-- 3rd Place Bronze -->
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-amber-600 w-12 flex items-center gap-1">🥉 3rd:</span>
+                <select id="event-1-bronze" onchange="recordEventPodium(1)" class="flex-1 rounded-lg bg-slate-900 border border-amber-700/40 text-xs text-white p-1.5 focus:outline-none team-select">
+                  <option value="">Select Team...</option>
+                </select>
+                <input type="text" id="event-1-bronze-stat" onchange="saveEventStat(1, 'bronze')" placeholder="Stat" class="w-24 rounded-lg bg-slate-950/60 border border-white/10 px-2 py-1.5 text-[11px] text-slate-300">
+              </div>
+            </div>
+          </div>
+
+          <!-- Event 2: Mystery Tape Distance -->
+          <div class="glass-card rounded-2xl p-5 border border-white/10 flex flex-col gap-3">
+            <div class="flex justify-between items-start border-b border-white/10 pb-2">
+              <div>
+                <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-blue-400">Event 2</span>
+                <h4 class="text-sm font-bold text-white flex items-center gap-1.5">
+                  <span>🚶</span> Mystery Hallway Tape
+                </h4>
+                <p class="text-[11px] text-slate-400">Hallway pacing vs 5.0m benchmark.</p>
+              </div>
+              <button onclick="clearEventScore(2)" class="text-[10px] text-slate-500 hover:text-red-400">Reset</button>
+            </div>
+
+            <div class="space-y-2">
+              <!-- 1st Place Gold -->
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-amber-400 w-12 flex items-center gap-1">🥇 1st:</span>
+                <select id="event-2-gold" onchange="recordEventPodium(2)" class="flex-1 rounded-lg bg-slate-900 border border-amber-500/40 text-xs text-white p-1.5 focus:outline-none team-select">
+                  <option value="">Select Team...</option>
+                </select>
+                <input type="text" id="event-2-gold-stat" onchange="saveEventStat(2, 'gold')" placeholder="Stat (e.g. 0.12m off)" class="w-24 rounded-lg bg-slate-950/60 border border-white/10 px-2 py-1.5 text-[11px] text-slate-300">
+              </div>
+              <!-- 2nd Place Silver -->
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-slate-300 w-12 flex items-center gap-1">🥈 2nd:</span>
+                <select id="event-2-silver" onchange="recordEventPodium(2)" class="flex-1 rounded-lg bg-slate-900 border border-slate-400/40 text-xs text-white p-1.5 focus:outline-none team-select">
+                  <option value="">Select Team...</option>
+                </select>
+                <input type="text" id="event-2-silver-stat" onchange="saveEventStat(2, 'silver')" placeholder="Stat" class="w-24 rounded-lg bg-slate-950/60 border border-white/10 px-2 py-1.5 text-[11px] text-slate-300">
+              </div>
+              <!-- 3rd Place Bronze -->
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-amber-600 w-12 flex items-center gap-1">🥉 3rd:</span>
+                <select id="event-2-bronze" onchange="recordEventPodium(2)" class="flex-1 rounded-lg bg-slate-900 border border-amber-700/40 text-xs text-white p-1.5 focus:outline-none team-select">
+                  <option value="">Select Team...</option>
+                </select>
+                <input type="text" id="event-2-bronze-stat" onchange="saveEventStat(2, 'bronze')" placeholder="Stat" class="w-24 rounded-lg bg-slate-950/60 border border-white/10 px-2 py-1.5 text-[11px] text-slate-300">
+              </div>
+            </div>
+          </div>
+
+          <!-- Event 3: The Internal Clock -->
+          <div class="glass-card rounded-2xl p-5 border border-white/10 flex flex-col gap-3">
+            <div class="flex justify-between items-start border-b border-white/10 pb-2">
+              <div>
+                <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-green-400">Event 3</span>
+                <h4 class="text-sm font-bold text-white flex items-center gap-1.5">
+                  <span>⏱️</span> The Internal Clock
+                </h4>
+                <p class="text-[11px] text-slate-400">Blind spacebar stopwatch target challenge.</p>
+              </div>
+              <button onclick="clearEventScore(3)" class="text-[10px] text-slate-500 hover:text-red-400">Reset</button>
+            </div>
+
+            <div class="space-y-2">
+              <!-- 1st Place Gold -->
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-amber-400 w-12 flex items-center gap-1">🥇 1st:</span>
+                <select id="event-3-gold" onchange="recordEventPodium(3)" class="flex-1 rounded-lg bg-slate-900 border border-amber-500/40 text-xs text-white p-1.5 focus:outline-none team-select">
+                  <option value="">Select Team...</option>
+                </select>
+                <input type="text" id="event-3-gold-stat" onchange="saveEventStat(3, 'gold')" placeholder="Stat (e.g. +0.06s)" class="w-24 rounded-lg bg-slate-950/60 border border-white/10 px-2 py-1.5 text-[11px] text-slate-300">
+              </div>
+              <!-- 2nd Place Silver -->
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-slate-300 w-12 flex items-center gap-1">🥈 2nd:</span>
+                <select id="event-3-silver" onchange="recordEventPodium(3)" class="flex-1 rounded-lg bg-slate-900 border border-slate-400/40 text-xs text-white p-1.5 focus:outline-none team-select">
+                  <option value="">Select Team...</option>
+                </select>
+                <input type="text" id="event-3-silver-stat" onchange="saveEventStat(3, 'silver')" placeholder="Stat" class="w-24 rounded-lg bg-slate-950/60 border border-white/10 px-2 py-1.5 text-[11px] text-slate-300">
+              </div>
+              <!-- 3rd Place Bronze -->
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-amber-600 w-12 flex items-center gap-1">🥉 3rd:</span>
+                <select id="event-3-bronze" onchange="recordEventPodium(3)" class="flex-1 rounded-lg bg-slate-900 border border-amber-700/40 text-xs text-white p-1.5 focus:outline-none team-select">
+                  <option value="">Select Team...</option>
+                </select>
+                <input type="text" id="event-3-bronze-stat" onchange="saveEventStat(3, 'bronze')" placeholder="Stat" class="w-24 rounded-lg bg-slate-950/60 border border-white/10 px-2 py-1.5 text-[11px] text-slate-300">
+              </div>
+            </div>
+          </div>
+
+          <!-- Event 4: The Reaction-Time Drop -->
+          <div class="glass-card rounded-2xl p-5 border border-white/10 flex flex-col gap-3">
+            <div class="flex justify-between items-start border-b border-white/10 pb-2">
+              <div>
+                <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-purple-400">Event 4</span>
+                <h4 class="text-sm font-bold text-white flex items-center gap-1.5">
+                  <span>⚡</span> Reaction Ruler Drop
+                </h4>
+                <p class="text-[11px] text-slate-400">Ruler catch distance & reaction time.</p>
+              </div>
+              <button onclick="clearEventScore(4)" class="text-[10px] text-slate-500 hover:text-red-400">Reset</button>
+            </div>
+
+            <div class="space-y-2">
+              <!-- 1st Place Gold -->
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-amber-400 w-12 flex items-center gap-1">🥇 1st:</span>
+                <select id="event-4-gold" onchange="recordEventPodium(4)" class="flex-1 rounded-lg bg-slate-900 border border-amber-500/40 text-xs text-white p-1.5 focus:outline-none team-select">
+                  <option value="">Select Team...</option>
+                </select>
+                <input type="text" id="event-4-gold-stat" onchange="saveEventStat(4, 'gold')" placeholder="Stat (e.g. 6.2cm / 0.11s)" class="w-24 rounded-lg bg-slate-950/60 border border-white/10 px-2 py-1.5 text-[11px] text-slate-300">
+              </div>
+              <!-- 2nd Place Silver -->
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-slate-300 w-12 flex items-center gap-1">🥈 2nd:</span>
+                <select id="event-4-silver" onchange="recordEventPodium(4)" class="flex-1 rounded-lg bg-slate-900 border border-slate-400/40 text-xs text-white p-1.5 focus:outline-none team-select">
+                  <option value="">Select Team...</option>
+                </select>
+                <input type="text" id="event-4-silver-stat" onchange="saveEventStat(4, 'silver')" placeholder="Stat" class="w-24 rounded-lg bg-slate-950/60 border border-white/10 px-2 py-1.5 text-[11px] text-slate-300">
+              </div>
+              <!-- 3rd Place Bronze -->
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-amber-600 w-12 flex items-center gap-1">🥉 3rd:</span>
+                <select id="event-4-bronze" onchange="recordEventPodium(4)" class="flex-1 rounded-lg bg-slate-900 border border-amber-700/40 text-xs text-white p-1.5 focus:outline-none team-select">
+                  <option value="">Select Team...</option>
+                </select>
+                <input type="text" id="event-4-bronze-stat" onchange="saveEventStat(4, 'bronze')" placeholder="Stat" class="w-24 rounded-lg bg-slate-950/60 border border-white/10 px-2 py-1.5 text-[11px] text-slate-300">
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Live Standings Table -->
+    <section class="glass-card rounded-3xl p-6 md:p-8 border border-white/10">
+      <div class="flex flex-col md:flex-row justify-between md:items-center gap-2 mb-6 border-b border-white/10 pb-4">
+        <div>
+          <h3 class="text-xl font-black text-white flex items-center gap-2">
+            <span>📊</span> Full Tournament Standings
+          </h3>
+          <p class="text-xs text-slate-400">Complete points tally across all four events.</p>
+        </div>
+        <div class="flex items-center gap-3 text-xs font-bold">
+          <span class="flex items-center gap-1 text-amber-400"><span class="w-2 h-2 rounded-full bg-amber-400"></span> 1st: 5 Pts</span>
+          <span class="flex items-center gap-1 text-slate-300"><span class="w-2 h-2 rounded-full bg-slate-300"></span> 2nd: 3 Pts</span>
+          <span class="flex items-center gap-1 text-amber-600"><span class="w-2 h-2 rounded-full bg-amber-600"></span> 3rd: 1 Pt</span>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead class="text-xs uppercase tracking-wider text-slate-400 border-b border-white/10 font-bold">
+            <tr>
+              <th class="py-3 px-4 w-16">Rank</th>
+              <th class="py-3 px-4">Team Name</th>
+              <th class="py-3 px-3 text-center">E1: Mass</th>
+              <th class="py-3 px-3 text-center">E2: Tape</th>
+              <th class="py-3 px-3 text-center">E3: Clock</th>
+              <th class="py-3 px-3 text-center">E4: Ruler</th>
+              <th class="py-3 px-4 text-center">Medals</th>
+              <th class="py-3 px-4 text-right">Total Points</th>
+            </tr>
+          </thead>
+          <tbody id="standings-tbody" class="divide-y divide-white/5 font-medium">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-2xl bg-slate-900/95 border border-amber-500/40 text-amber-300 text-xs font-bold shadow-2xl backdrop-blur-md transition-all duration-300 transform translate-y-12 opacity-0 flex items-center gap-2">
+    <span>🏆</span>
+    <span id="toast-text">Updated</span>
+  </div>
+
+  <script>
+    // State
+    let currentPeriod = "1";
+    let state = {
+      teams: [],
+      events: {
+        1: { gold: "", silver: "", bronze: "", goldStat: "", silverStat: "", bronzeStat: "" },
+        2: { gold: "", silver: "", bronze: "", goldStat: "", silverStat: "", bronzeStat: "" },
+        3: { gold: "", silver: "", bronze: "", goldStat: "", silverStat: "", bronzeStat: "" },
+        4: { gold: "", silver: "", bronze: "", goldStat: "", silverStat: "", bronzeStat: "" }
+      }
+    };
+
+    // Load data on start
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedP = localStorage.getItem('measurement_olympics_last_period') || "1";
+      currentPeriod = savedP;
+      document.getElementById('period-select').value = savedP;
+      loadPeriodData(currentPeriod);
+    });
+
+    function getStorageKey(period) {
+      return `measurement_olympics_p${period}`;
+    }
+
+    function loadPeriodData(period) {
+      const raw = localStorage.getItem(getStorageKey(period));
+      if (raw) {
+        try {
+          state = JSON.parse(raw);
+        } catch (e) {
+          console.error("Failed to parse period state", e);
+          initEmptyState();
+        }
+      } else {
+        initEmptyState();
+      }
+      renderAll();
+    }
+
+    function initEmptyState() {
+      state = {
+        teams: ["Table 1", "Table 2", "Table 3", "Table 4", "Table 5", "Table 6"],
+        events: {
+          1: { gold: "", silver: "", bronze: "", goldStat: "", silverStat: "", bronzeStat: "" },
+          2: { gold: "", silver: "", bronze: "", goldStat: "", silverStat: "", bronzeStat: "" },
+          3: { gold: "", silver: "", bronze: "", goldStat: "", silverStat: "", bronzeStat: "" },
+          4: { gold: "", silver: "", bronze: "", goldStat: "", silverStat: "", bronzeStat: "" }
+        }
+      };
+      saveState();
+    }
+
+    function saveState() {
+      localStorage.setItem(getStorageKey(currentPeriod), JSON.stringify(state));
+      localStorage.setItem('measurement_olympics_last_period', currentPeriod);
+    }
+
+    function switchPeriod(p) {
+      saveState();
+      currentPeriod = p;
+      loadPeriodData(p);
+      showToast(`Switched to Period ${p}`);
+    }
+
+    // Team management
+    function addTeam(e) {
+      e.preventDefault();
+      const input = document.getElementById('new-team-input');
+      const name = input.value.trim();
+      if (!name) return;
+      if (state.teams.includes(name)) {
+        alert("A team with this name already exists!");
+        return;
+      }
+      state.teams.push(name);
+      input.value = "";
+      saveState();
+      renderAll();
+      showToast(`Added team "${name}"`);
+    }
+
+    function removeTeam(idx) {
+      const name = state.teams[idx];
+      if (!confirm(`Delete team "${name}"?`)) return;
+      
+      // Clear from any event podiums
+      for (let ev = 1; ev <= 4; ev++) {
+        if (state.events[ev].gold === name) state.events[ev].gold = "";
+        if (state.events[ev].silver === name) state.events[ev].silver = "";
+        if (state.events[ev].bronze === name) state.events[ev].bronze = "";
+      }
+      state.teams.splice(idx, 1);
+      saveState();
+      renderAll();
+    }
+
+    function loadDefaultTeams(count) {
+      if (!confirm(`Reset roster to Table 1 through Table ${count}?`)) return;
+      state.teams = [];
+      for (let i = 1; i <= count; i++) {
+        state.teams.push(`Table ${i}`);
+      }
+      // Reset podium selections
+      state.events = {
+        1: { gold: "", silver: "", bronze: "", goldStat: "", silverStat: "", bronzeStat: "" },
+        2: { gold: "", silver: "", bronze: "", goldStat: "", silverStat: "", bronzeStat: "" },
+        3: { gold: "", silver: "", bronze: "", goldStat: "", silverStat: "", bronzeStat: "" },
+        4: { gold: "", silver: "", bronze: "", goldStat: "", silverStat: "", bronzeStat: "" }
+      };
+      saveState();
+      renderAll();
+      showToast(`Loaded ${count} default table teams`);
+    }
+
+    function clearAllTeams() {
+      if (!confirm("Are you sure you want to clear all teams?")) return;
+      state.teams = [];
+      for (let ev = 1; ev <= 4; ev++) {
+        state.events[ev] = { gold: "", silver: "", bronze: "", goldStat: "", silverStat: "", bronzeStat: "" };
+      }
+      saveState();
+      renderAll();
+    }
+
+    // Event Podium Recording
+    function recordEventPodium(eventNum) {
+      const gold = document.getElementById(`event-${eventNum}-gold`).value;
+      const silver = document.getElementById(`event-${eventNum}-silver`).value;
+      const bronze = document.getElementById(`event-${eventNum}-bronze`).value;
+
+      state.events[eventNum].gold = gold;
+      state.events[eventNum].silver = silver;
+      state.events[eventNum].bronze = bronze;
+
+      saveState();
+      renderStandings();
+      renderPodium();
+      showToast(`Event ${eventNum} podium saved!`);
+    }
+
+    function saveEventStat(eventNum, place) {
+      const el = document.getElementById(`event-${eventNum}-${place}-stat`);
+      if (el) {
+        state.events[eventNum][place + 'Stat'] = el.value.trim();
+        saveState();
+      }
+    }
+
+    function clearEventScore(eventNum) {
+      state.events[eventNum] = { gold: "", silver: "", bronze: "", goldStat: "", silverStat: "", bronzeStat: "" };
+      saveState();
+      renderAll();
+      showToast(`Event ${eventNum} cleared`);
+    }
+
+    function resetAllEventScores() {
+      if (!confirm("Reset all event scores for Period " + currentPeriod + "?")) return;
+      for (let ev = 1; ev <= 4; ev++) {
+        state.events[ev] = { gold: "", silver: "", bronze: "", goldStat: "", silverStat: "", bronzeStat: "" };
+      }
+      saveState();
+      renderAll();
+      showToast("All events reset");
+    }
+
+    // Render logic
+    function renderAll() {
+      renderTeamList();
+      renderDropdowns();
+      renderEventInputs();
+      renderStandings();
+      renderPodium();
+    }
+
+    function renderTeamList() {
+      const container = document.getElementById('teams-list');
+      const countEl = document.getElementById('teams-count');
+      countEl.innerText = `${state.teams.length} Team${state.teams.length === 1 ? '' : 's'}`;
+
+      if (state.teams.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-500 py-3 text-center">No teams added yet. Add a team above or click a reset button.</p>`;
+        return;
+      }
+
+      container.innerHTML = state.teams.map((t, idx) => `
+        <div class="flex items-center justify-between px-3 py-2 rounded-xl bg-slate-900/50 border border-white/5 text-xs text-white hover:border-white/20 transition-all">
+          <div class="flex items-center gap-2 truncate">
+            <span class="w-2 h-2 rounded-full bg-amber-400/60"></span>
+            <span class="font-bold truncate">${escapeHtml(t)}</span>
+          </div>
+          <button onclick="removeTeam(${idx})" class="text-slate-500 hover:text-red-400 font-mono text-xs px-1.5 transition-colors" title="Delete Team">✕</button>
+        </div>
+      `).join('');
+    }
+
+    function renderDropdowns() {
+      const selects = document.querySelectorAll('.team-select');
+      selects.forEach(sel => {
+        const currentVal = sel.value;
+        sel.innerHTML = `<option value="">Select Team...</option>` + 
+          state.teams.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join('');
+        sel.value = currentVal;
+      });
+    }
+
+    function renderEventInputs() {
+      for (let ev = 1; ev <= 4; ev++) {
+        const evData = state.events[ev] || {};
+        const goldEl = document.getElementById(`event-${ev}-gold`);
+        const silverEl = document.getElementById(`event-${ev}-silver`);
+        const bronzeEl = document.getElementById(`event-${ev}-bronze`);
+
+        const goldStatEl = document.getElementById(`event-${ev}-gold-stat`);
+        const silverStatEl = document.getElementById(`event-${ev}-silver-stat`);
+        const bronzeStatEl = document.getElementById(`event-${ev}-bronze-stat`);
+
+        if (goldEl) goldEl.value = evData.gold || "";
+        if (silverEl) silverEl.value = evData.silver || "";
+        if (bronzeEl) bronzeEl.value = evData.bronze || "";
+
+        if (goldStatEl) goldStatEl.value = evData.goldStat || "";
+        if (silverStatEl) silverStatEl.value = evData.silverStat || "";
+        if (bronzeStatEl) bronzeStatEl.value = evData.bronzeStat || "";
+      }
+    }
+
+    // Compute Standings
+    function computeScores() {
+      const map = {};
+      state.teams.forEach(t => {
+        map[t] = {
+          name: t,
+          total: 0,
+          e1: 0,
+          e2: 0,
+          e3: 0,
+          e4: 0,
+          golds: 0,
+          silvers: 0,
+          bronzes: 0
+        };
+      });
+
+      for (let ev = 1; ev <= 4; ev++) {
+        const d = state.events[ev] || {};
+        if (d.gold && map[d.gold]) {
+          map[d.gold]['e' + ev] += 5;
+          map[d.gold].total += 5;
+          map[d.gold].golds += 1;
+        }
+        if (d.silver && map[d.silver]) {
+          map[d.silver]['e' + ev] += 3;
+          map[d.silver].total += 3;
+          map[d.silver].silvers += 1;
+        }
+        if (d.bronze && map[d.bronze]) {
+          map[d.bronze]['e' + ev] += 1;
+          map[d.bronze].total += 1;
+          map[d.bronze].bronzes += 1;
+        }
+      }
+
+      const list = Object.values(map);
+      // Sort by total points desc, then golds desc, then silvers desc
+      list.sort((a, b) => {
+        if (b.total !== a.total) return b.total - a.total;
+        if (b.golds !== a.golds) return b.golds - a.golds;
+        return b.silvers - a.silvers;
+      });
+
+      return list;
+    }
+
+    function renderStandings() {
+      const tbody = document.getElementById('standings-tbody');
+      const list = computeScores();
+
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-500">No teams registered.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = list.map((item, idx) => {
+        const rank = idx + 1;
+        let rankBadge = `<span class="font-mono text-slate-400 font-bold">${rank}</span>`;
+        let rowClass = "hover:bg-white/5 transition-colors";
+
+        if (rank === 1 && item.total > 0) {
+          rankBadge = `<span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold">🥇 1st</span>`;
+          rowClass = "bg-amber-500/5 hover:bg-amber-500/10 font-bold";
+        } else if (rank === 2 && item.total > 0) {
+          rankBadge = `<span class="px-2 py-0.5 rounded-full bg-slate-400/20 text-slate-200 border border-slate-400/30 font-bold">🥈 2nd</span>`;
+        } else if (rank === 3 && item.total > 0) {
+          rankBadge = `<span class="px-2 py-0.5 rounded-full bg-amber-700/20 text-amber-500 border border-amber-700/30 font-bold">🥉 3rd</span>`;
+        }
+
+        // Medals display
+        let medals = [];
+        for (let g = 0; g < item.golds; g++) medals.push('🥇');
+        for (let s = 0; s < item.silvers; s++) medals.push('🥈');
+        for (let b = 0; b < item.bronzes; b++) medals.push('🥉');
+        const medalsDisplay = medals.length > 0 ? medals.join('') : '<span class="text-slate-600">—</span>';
+
+        return `
+          <tr class="${rowClass}">
+            <td class="py-3 px-4">${rankBadge}</td>
+            <td class="py-3 px-4 font-bold text-white">${escapeHtml(item.name)}</td>
+            <td class="py-3 px-3 text-center font-mono ${item.e1 ? 'text-amber-400 font-bold' : 'text-slate-600'}">${item.e1 ? '+' + item.e1 : '0'}</td>
+            <td class="py-3 px-3 text-center font-mono ${item.e2 ? 'text-amber-400 font-bold' : 'text-slate-600'}">${item.e2 ? '+' + item.e2 : '0'}</td>
+            <td class="py-3 px-3 text-center font-mono ${item.e3 ? 'text-amber-400 font-bold' : 'text-slate-600'}">${item.e3 ? '+' + item.e3 : '0'}</td>
+            <td class="py-3 px-3 text-center font-mono ${item.e4 ? 'text-amber-400 font-bold' : 'text-slate-600'}">${item.e4 ? '+' + item.e4 : '0'}</td>
+            <td class="py-3 px-4 text-center">${medalsDisplay}</td>
+            <td class="py-3 px-4 text-right font-mono text-base font-black ${item.total > 0 ? 'text-amber-300' : 'text-slate-500'}">${item.total} pts</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderPodium() {
+      const list = computeScores();
+      const top1 = list[0];
+      const top2 = list[1];
+      const top3 = list[2];
+
+      const p1Team = document.getElementById('podium-team-1');
+      const p1Pts = document.getElementById('podium-pts-1');
+      const p2Team = document.getElementById('podium-team-2');
+      const p2Pts = document.getElementById('podium-pts-2');
+      const p3Team = document.getElementById('podium-team-3');
+      const p3Pts = document.getElementById('podium-pts-3');
+
+      if (top1 && top1.total > 0) {
+        p1Team.innerText = top1.name;
+        p1Pts.innerText = `${top1.total} Points`;
+      } else {
+        p1Team.innerText = "—";
+        p1Pts.innerText = "0 Pts";
+      }
+
+      if (top2 && top2.total > 0) {
+        p2Team.innerText = top2.name;
+        p2Pts.innerText = `${top2.total} Points`;
+      } else {
+        p2Team.innerText = "—";
+        p2Pts.innerText = "0 Pts";
+      }
+
+      if (top3 && top3.total > 0) {
+        p3Team.innerText = top3.name;
+        p3Pts.innerText = `${top3.total} Points`;
+      } else {
+        p3Team.innerText = "—";
+        p3Pts.innerText = "0 Pts";
+      }
+    }
+
+    // Confetti
+    function triggerOlympicCelebration() {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+      setTimeout(() => {
+        confetti({
+          particleCount: 80,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 }
+        });
+        confetti({
+          particleCount: 80,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 }
+        });
+      }, 250);
+    }
+
+    // Projector Mode
+    let isProjector = false;
+    function toggleProjectorMode() {
+      isProjector = !isProjector;
+      const controls = document.getElementById('controls-section');
+      const btn = document.getElementById('projector-btn');
+      if (isProjector) {
+        controls.classList.add('hidden');
+        btn.innerText = "✕ Exit Projector";
+        btn.className = "px-3 py-2 rounded-xl bg-amber-500 text-black font-bold text-xs transition-all";
+      } else {
+        controls.classList.remove('hidden');
+        btn.innerText = "📺 Projector Mode";
+        btn.className = "px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 text-xs font-semibold transition-all";
+      }
+    }
+
+    // Toast helper
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const text = document.getElementById('toast-text');
+      text.innerText = msg;
+      toast.classList.remove('translate-y-12', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-12', 'opacity-0');
+      }, 2500);
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, function (m) {
+        return {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#039;'
+        }[m];
+      });
+    }
+  </script>
+</body>
+</html>

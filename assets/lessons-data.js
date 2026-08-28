@@ -261,19 +261,21 @@ const lessonsData = [
     "date": "2026-08-28",
     "day": 8,
     "unit": 1,
-    "title": "Practice & Check-In",
-    "summary": "Station rotation review and mid-unit formative check-in.",
-    "details": "Station rotation with practice problems on conversions and significant figures. A short formative quiz to check understanding.",
-    "type": "Assessment",
+    "title": "The Measurement Olympics (Unit 1 Finale)",
+    "summary": "Collaborative classroom Measurement Olympics culminating Unit 1 with team calibration, estimation, and reaction events.",
+    "details": "1. Team Strategy & Calibration: Groups review the 4 Olympic events, run internal qualifying trials, calibrate reference metrics, and nominate champions. 2. The 4 Olympic Events: The Mass Grab (proportional scaling of crayons to secret mass), Mystery Tape Distance (5.0m calibration vs hallway unknown), The Internal Clock (blind spacebar stopwatch challenge), and Reaction Ruler Drop (live ruler drop showdown). 3. Podium & Awards: Live tournament leaderboard, medal ceremony, and Unit 1 celebration!",
+    "type": "Lab",
     "dok": 2,
     "semester": 1,
     "isFeatured": true,
-    "essentialQuestion": "How do scientific figures communicate the intrinsic resolution of our measurement instruments?",
+    "essentialQuestion": "How do scientists calibrate human senses, reference standards, and physical tools to achieve precision and accuracy?",
     "standards": [
       "SEP-4",
       "SEP-5"
     ],
     "links": {
+      "Measurement Olympics Leaderboard": "measurement-olympics/index.html",
+      "Printable Team Scorecard": "measurement-olympics/scorecard.html",
       "Interactive Unit Conversion Practice": "unit-conversion-practice/index.html"
     },
     "bellRinger": {
