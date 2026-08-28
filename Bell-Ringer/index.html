@@ -1799,6 +1799,27 @@ Respond ONLY with a raw JSON object:
             const indicator = document.getElementById('status-indicator');
             const statusCard = document.getElementById('grading-status-card');
 
+            const todayStr = getTodayString();
+            const docId = `${studentId}_${todayStr}`;
+
+            // Check if student actually participated (filter out system messages)
+            const studentMessages = chatMessages.filter(m => m.role === 'user' && !m.parts?.[0]?.text?.startsWith('[System:'));
+            
+            // If ZERO student responses were entered, assign 0 immediately without calling AI proxy
+            if (studentMessages.length === 0) {
+                statusTitle.innerText = "No Participation";
+                statusMsg.innerText = "No responses were entered during this chat session (Score: 0%).";
+                indicator.innerText = "❌";
+                indicator.className = "w-10 h-10 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center text-lg";
+                statusCard.classList.remove('status-glow-pending');
+                statusCard.classList.add('status-glow-fail');
+
+                await db.collection('bellringers').doc(docId).set({
+                    effortScore: 0
+                }, { merge: true }).catch(() => {});
+                return;
+            }
+
             statusTitle.innerText = "Grading Session...";
             statusMsg.innerText = "Analyzing your physics participation quality...";
             indicator.innerText = "⏳";
@@ -1869,22 +1890,24 @@ Output ONLY a raw JSON object containing a single key "score" with the integer v
                 }
 
                 // Write final grade to Firestore safely using .set(..., { merge: true })
-                const todayStr = getTodayString();
-                const docId = `${studentId}_${todayStr}`;
-                
                 await db.collection('bellringers').doc(docId).set({
                     effortScore: scoreVal
                 }, { merge: true });
 
+                statusTitle.innerText = "Grading Complete";
+                statusMsg.innerText = `Score recorded: ${scoreVal}%`;
+                indicator.innerText = scoreVal >= 70 ? "✅" : "⚠️";
+                indicator.className = `w-10 h-10 rounded-full ${scoreVal >= 70 ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400'} flex items-center justify-center text-lg`;
+                statusCard.classList.remove('status-glow-pending');
+
             } catch (err) {
                 console.error("Auto grading failed:", err);
                 statusTitle.innerText = "Grading Connection Error";
-                statusMsg.innerText = "Could not reach grading agent. Default participation grade of 70% was saved.";
+                statusMsg.innerText = "Could not reach grading agent. Temporary participation score was saved.";
                 
-                const todayStr = getTodayString();
-                const docId = `${studentId}_${todayStr}`;
+                const fallbackScore = studentMessages.length > 0 ? 70 : 0;
                 await db.collection('bellringers').doc(docId).set({
-                    effortScore: 70
+                    effortScore: fallbackScore
                 }, { merge: true }).catch(() => {});
             }
         }
