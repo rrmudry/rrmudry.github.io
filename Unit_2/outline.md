@@ -24,6 +24,7 @@ This unit follows the classical and cognitive progression:
 **Goal:** Establish reference frames, distinguish scalar distance from vector displacement through a multi-day creative mapping project, calculate uniform speed (`v = d / t`), and interpret position-time (`x-t`) graph slopes.
 
 *   **Day 1 (2026-08-31): Fantasy Map Quest — Part 1: Grid Coordinates & Realm Cartography**
+    *   *Bell-Ringer:* The Treasure Map Riddle: Why is "Walk 50 paces to find the buried treasure" useless without an agreed-upon origin and compass direction?
     *   *Focus:* Coordinate origin points `(0, 0)`, compass rose alignment, custom map scale factors (e.g., 1 cm = 10 leagues), and fantasy geography.
     *   *Activity:* Partners launch the 3-day project by establishing an origin point (home village), choosing a map scale, and drawing a realm map featuring 4 distinct terrain landmarks (Village → Forest/Swamp → Mountain Pass → Final Citadel).
     *   *Essential Question:* How does our choice of reference point determine whether an object is considered in motion or at rest?
