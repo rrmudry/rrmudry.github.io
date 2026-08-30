@@ -62,35 +62,36 @@ This unit follows the classical and cognitive progression:
 ### Week 2: Acceleration, Velocity-Time Graphs & Incline Inquiry
 **Goal:** Define acceleration as the rate of change of velocity (`a = Δv / Δt`), construct velocity-time (`v-t`) graphs, investigate incline acceleration, and explore Earth's freefall constant (`g = 9.8 m/s²`).
 
-*   **Day 6 (2026-09-07): Decoding Acceleration: When Velocity Changes**
+*   **Day 6 (2026-09-07): Labor Day — No School**
+    *   *Focus:* Holiday observed.
+    *   *Activity:* No school in observance of the Labor Day holiday.
+    *   *Standards:* `HS-PS2-1` | *DOK:* 0 | *Type:* Holiday
+
+*   **Day 7 (2026-09-08): Decoding Acceleration: When Velocity Changes**
     *   *Focus:* Defining acceleration (`a = Δv / Δt`), units of `m/s²`, three ways to accelerate (speed up, slow down, change direction).
     *   *Activity:* Car telemetry and video analysis: Students calculate acceleration from speedometer changes and explore why taking a highway curve at constant 45 mph is still physical acceleration.
     *   *Essential Question:* Why is a vehicle turning a corner at constant speed still considered accelerating in physics?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction
+    *   *Links:* [Acceleration Grapher](Interactive_Acceleration_Grapher.html)
 
-*   **Day 7 (2026-09-08): Velocity vs. Time (v-t) Graphs: Slope & Area**
+*   **Day 8 (2026-09-09): Velocity vs. Time (v-t) Graphs: Slope & Area**
     *   *Focus:* Slope of v-t graph equals acceleration (`m = Δv / Δt = a`); geometric area under v-t graph equals displacement (`Area = Δx`).
     *   *Activity:* "Graph Matching Duel": Pairs match position-time curves with corresponding velocity-time graphs. Calculating displacement from rectangular and triangular areas under v-t curves.
     *   *Essential Question:* How can the geometric area under a velocity-time graph reveal the total distance an object moved?
     *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Activity
 
-*   **Day 8 (2026-09-09): "Marble Race" Ramp Incline Lab**
+*   **Day 9 (2026-09-10): "Marble Race" Ramp Incline Lab**
     *   *Focus:* Quantitative acceleration inquiry, gravity component along an incline.
     *   *Activity:* Students set up grooved tracks at 5°, 10°, and 15° angles with photogate or stopwatch checkpoints. Teams calculate instantaneous velocities at two points, determine acceleration down the ramp, and graph `a` vs. angle.
     *   *Essential Question:* How does ramp inclination quantitatively govern the rate of acceleration down an incline?
     *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Lab
 
-*   **Day 9 (2026-09-10): Free Fall & Gravitational Acceleration (`g = 9.8 m/s²`)**
+*   **Day 10 (2026-09-11): Free Fall & Gravitational Acceleration (`g = 9.8 m/s²`)**
     *   *Focus:* Earth's surface gravity constant (`g = 9.8 m/s²`), vacuum conditions, Galileo's equivalence principle vs. air drag.
     *   *Activity:* Sensor drop lab: Dropping heavy steel spheres vs light hollow spheres from measured heights (1m, 2m). Analyzing high-speed video of Apollo 15 feather and hammer drop on the Moon.
     *   *Essential Question:* Why do heavy and light objects fall at identical rates in the absence of air resistance?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Activity
-
-*   **Day 10 (2026-09-11): Kinematics Synthesis & Mid-Unit Assessment**
-    *   *Focus:* Summative diagnostic on 1D kinematics foundations (x, v, a, x-t, v-t).
-    *   *Activity:* Mid-unit assessment testing calculation of speed, velocity, and acceleration, coordinate slope extraction, and graph storytelling (DOK 1-3). Self-audit reflection.
-    *   *Essential Question:* How effectively can we model, calculate, and justify the motion of objects across diverse 1D scenarios?
-    *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Assessment
+    *   *Links:* [Skydiving Simulation](skydiving-game/index.html)
 
 ---
 
