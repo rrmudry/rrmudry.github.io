@@ -1,5 +1,14 @@
 # Workspace Rules & Guidelines
 
+## 📖 Wiki-First Development (Persistent Knowledge)
+Before creating or modifying any page, dashboard, webapp, game, or simulation:
+1. **Read** `.agents/wiki/index.md` to identify relevant pattern pages for your task.
+2. **Read** the relevant pattern pages (in `.agents/wiki/patterns/`) for known pitfalls, working approaches, and established code patterns.
+3. **After completing** the task, update or create wiki pattern pages with any new insights discovered during development (new pitfalls, successful patterns, architecture decisions).
+4. **Append** a brief dated entry to `.agents/wiki/logs.md` documenting what patterns were added or changed.
+
+This ensures knowledge compounds across sessions rather than being lost when a conversation ends.
+
 ## 📚 Standard Practice: Automatic & Daily NGSS Standards Alignment
 Whenever creating, modifying, or updating unit dashboards, lesson plans, daily activities, assignments, or student webapps across `rrmudry.github.io`:
 

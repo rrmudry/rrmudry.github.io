@@ -204,8 +204,12 @@
                                    class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#84cc16] to-[#eab308] text-slate-950 font-bold px-6 py-3 rounded-xl transition-all shadow-[0_0_20px_rgba(204,255,0,0.4)] hover:shadow-[0_0_30px_rgba(204,255,0,0.6)] transform hover:-translate-y-1 active:scale-95">
                                     Distance vs Time App ↗
                                 </a>
-                                <a href="Distance_vs_Time_Drawer.html" 
+                                <a href="https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDTeHashMmgSoeLVDHY5TwQAbynyLTufaGMoMjm5APx0Hw?e=nwclwC" target="_blank"
                                    class="inline-flex items-center justify-center gap-2 bg-slate-900/90 hover:bg-slate-800 text-lime-300 border border-lime-500/40 font-bold px-6 py-3 rounded-xl transition-all hover:border-[#ccff00]">
+                                    🗺️ Fantasy Map Slides ↗
+                                </a>
+                                <a href="Distance_vs_Time_Drawer.html" 
+                                   class="inline-flex items-center justify-center gap-2 bg-slate-900/90 hover:bg-slate-800 text-slate-300 border border-slate-700 font-bold px-6 py-3 rounded-xl transition-all hover:border-lime-400">
                                     Motion Curve Drawer ↗
                                 </a>
                             </div>
@@ -455,13 +459,13 @@
     <script src="assets/partials.js"></script>
     <script>
         const lessonScript = document.createElement('script');
-        lessonScript.src = 'assets/lessons-data.js?v=' + Date.now();
+        lessonScript.src = 'Unit_2/unit2_lessons.json?v=' + Date.now();
         document.head.appendChild(lessonScript);
 
         window.addEventListener('load', () => {
-            if (typeof lessonsData === 'undefined') {
+            if (typeof unit2Lessons === 'undefined' && typeof lessonsData === 'undefined') {
                 const checkInterval = setInterval(() => {
-                    if (typeof lessonsData !== 'undefined') {
+                    if (typeof unit2Lessons !== 'undefined' || typeof lessonsData !== 'undefined') {
                         clearInterval(checkInterval);
                         initDashboard();
                     }
@@ -474,13 +478,18 @@
         });
 
         function initDashboard() {
-            const unitData = (typeof lessonsData !== 'undefined' ? lessonsData : [])
-                .filter(lesson => lesson.unit === 2)
-                .sort((a, b) => new Date(a.date) - new Date(b.date))
+            let rawData = [];
+            if (typeof unit2Lessons !== 'undefined' && Array.isArray(unit2Lessons)) {
+                rawData = unit2Lessons;
+            } else if (typeof lessonsData !== 'undefined' && Array.isArray(lessonsData)) {
+                rawData = lessonsData.filter(lesson => lesson.unit === 2);
+            }
+            const unitData = rawData
+                .sort((a, b) => a.day - b.day)
                 .map(lesson => ({
                     ...lesson,
-                    topic: lesson.title,
-                    activity: lesson.summary,
+                    topic: lesson.topic || lesson.title,
+                    activity: lesson.activity || lesson.summary,
                     wicor: lesson.wicor,
                     image: lesson.image
                 }));
