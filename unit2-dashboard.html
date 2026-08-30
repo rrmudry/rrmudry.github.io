@@ -571,16 +571,21 @@
                     'planned': '<span class="text-slate-500 text-[10px] font-bold">SCHEDULED</span>'
                 };
 
+                const isHoliday = day.type === 'Holiday' || day.dok === 0;
+                const dokBadge = isHoliday 
+                    ? '<span class="text-[10px] bg-amber-950/80 text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/40 font-mono font-bold">NO_SCHOOL</span>'
+                    : `<span class="text-[10px] bg-lime-950/80 text-[#ccff00] px-2 py-0.5 rounded-full border border-lime-500/40 font-mono font-bold">DOK_${day.dok || 1}</span>`;
+
                 const card = document.createElement('div');
-                card.className = `glass-card p-5 cursor-pointer transition-all ${statusStyles[status]}`;
+                card.className = `glass-card p-5 cursor-pointer transition-all ${isHoliday ? 'border-amber-500/30 opacity-90' : statusStyles[status]}`;
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-3 relative z-10">
                         <div>
-                            <span class="text-[#ccff00] font-mono font-bold block tracking-wider">DAY_${String(day.day).padStart(2, '0')}</span>
+                            <span class="${isHoliday ? 'text-amber-300' : 'text-[#ccff00]'} font-mono font-bold block tracking-wider">DAY_${String(day.day).padStart(2, '0')}</span>
                             <span class="text-[10px] text-lime-300/70 font-mono tracking-wider">${day.date || ''}</span>
                         </div>
                         <div class="flex flex-col items-end gap-1">
-                            <span class="text-[10px] bg-lime-950/80 text-[#ccff00] px-2 py-0.5 rounded-full border border-lime-500/40 font-mono font-bold">DOK_${day.dok || 1}</span>
+                            ${dokBadge}
                             ${statusLabel[status]}
                         </div>
                     </div>
@@ -590,24 +595,26 @@
                 card.onclick = () => openLessonModal(day);
                 pacingCards.appendChild(card);
 
-                const li = document.createElement('li');
-                li.className = 'glass-card p-4 hover:bg-white/5 transition-colors border-l-4 border-l-transparent hover:border-l-[#ccff00] flex flex-col gap-2';
-                
-                let links = '';
-                if(day.links) {
-                    links = Object.entries(day.links).map(([lbl, u]) => `<a href="${u}" target="_blank" class="text-[10px] bg-lime-950/50 hover:bg-lime-600/30 px-2 py-1 rounded border border-lime-500/30 text-lime-200 transition-colors inline-flex items-center gap-1">${lbl} ↗</a>`).join('');
-                }
+                if (!isHoliday) {
+                    const li = document.createElement('li');
+                    li.className = 'glass-card p-4 hover:bg-white/5 transition-colors border-l-4 border-l-transparent hover:border-l-[#ccff00] flex flex-col gap-2';
+                    
+                    let links = '';
+                    if(day.links) {
+                        links = Object.entries(day.links).map(([lbl, u]) => `<a href="${u}" target="_blank" class="text-[10px] bg-lime-950/50 hover:bg-lime-600/30 px-2 py-1 rounded border border-lime-500/30 text-lime-200 transition-colors inline-flex items-center gap-1">${lbl} ↗</a>`).join('');
+                    }
 
-                li.innerHTML = `
-                    <div class="flex justify-between items-center relative z-10">
-                        <span class="text-xs font-bold text-[#ccff00] font-mono tracking-wider">DAY_${String(day.day).padStart(2, '0')}</span>
-                        <span class="text-[9px] text-lime-300/60 uppercase font-mono">${day.type}</span>
-                    </div>
-                    <p class="text-sm font-semibold text-white/95 leading-tight relative z-10">${day.topic}</p>
-                    <div class="flex flex-wrap gap-2 mt-1 relative z-10">${links}</div>
-                `;
-                if (day.type === 'Assessment') assessmentsList.appendChild(li);
-                else labsList.appendChild(li);
+                    li.innerHTML = `
+                        <div class="flex justify-between items-center relative z-10">
+                            <span class="text-xs font-bold text-[#ccff00] font-mono tracking-wider">DAY_${String(day.day).padStart(2, '0')}</span>
+                            <span class="text-[9px] text-lime-300/60 uppercase font-mono">${day.type}</span>
+                        </div>
+                        <p class="text-sm font-semibold text-white/95 leading-tight relative z-10">${day.topic}</p>
+                        <div class="flex flex-wrap gap-2 mt-1 relative z-10">${links}</div>
+                    `;
+                    if (day.type === 'Assessment') assessmentsList.appendChild(li);
+                    else labsList.appendChild(li);
+                }
             });
 
             // Initialize DOK Chart
