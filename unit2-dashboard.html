@@ -403,18 +403,46 @@
                             </div>
                         </div>
 
-                        <!-- Real-time Canvas Visualization -->
+                        <!-- Real-time Dual Visualizer: Physical 1D Runway + x-t Graph -->
                         <div class="lg:col-span-2 space-y-4">
+                            <!-- 1D Physical Runway Track with Animated Sprite -->
                             <div class="bg-slate-950 p-4 rounded-xl border border-lime-500/40 shadow-2xl">
-                                <div class="flex justify-between items-center text-xs font-mono text-[#ccff00] mb-2">
-                                    <span>POSITION VS TIME GRAPH [x-t]</span>
-                                    <span id="sim-time-readout" class="text-yellow-300">t = 0.00s | x = 0.0m</span>
+                                <div class="flex flex-wrap justify-between items-center text-xs font-mono text-[#ccff00] mb-2 gap-2">
+                                    <span class="flex items-center gap-1.5 font-bold">
+                                        <span>🏎️</span>
+                                        <span>PHYSICAL 1D MOTION RUNWAY [Position Axis x]</span>
+                                    </span>
+                                    <div class="flex items-center gap-2 text-xs">
+                                        <span id="runway-pos-badge" class="px-2.5 py-0.5 rounded bg-lime-950/80 border border-lime-500/40 text-lime-300 font-bold">x = 0.0 m</span>
+                                        <span id="runway-vel-badge" class="px-2.5 py-0.5 rounded bg-yellow-950/80 border border-yellow-500/40 text-yellow-300 font-bold">v = +10.0 m/s</span>
+                                    </div>
                                 </div>
-                                <canvas id="simCanvas" width="600" height="240" class="w-full rounded bg-[#030603] border border-slate-800"></canvas>
+                                <canvas id="trackCanvas" width="600" height="115" class="w-full rounded bg-[#030603] border border-slate-800"></canvas>
                             </div>
-                            <div class="flex items-center justify-between text-xs font-mono text-slate-400 bg-slate-950/70 p-3 rounded-lg border border-lime-500/20">
-                                <span>Slope = Δx / Δt = <strong id="readout-slope" class="text-[#ccff00]">+10.0 m/s</strong></span>
-                                <span>Kinematic State: <strong id="readout-state" class="text-yellow-300">Constant Positive Velocity</strong></span>
+
+                            <!-- Position vs. Time Graph [x-t] with Uniform Sweeping Time Cursor -->
+                            <div class="bg-slate-950 p-4 rounded-xl border border-lime-500/40 shadow-2xl">
+                                <div class="flex flex-wrap justify-between items-center text-xs font-mono text-[#ccff00] mb-2 gap-2">
+                                    <span class="flex items-center gap-1.5 font-bold">
+                                        <span>📈</span>
+                                        <span>POSITION VS TIME GRAPH [x-t]</span>
+                                    </span>
+                                    <span id="sim-time-readout" class="text-yellow-300">Time Cursor: t = 0.00s | x(t) = 0.0m</span>
+                                </div>
+                                <canvas id="simCanvas" width="600" height="210" class="w-full rounded bg-[#030603] border border-slate-800"></canvas>
+                            </div>
+
+                            <!-- Kinematic Link & Physics Insight Readout -->
+                            <div class="space-y-2">
+                                <div class="flex flex-wrap items-center justify-between text-xs font-mono text-slate-400 bg-slate-950/70 p-3 rounded-lg border border-lime-500/20 gap-2">
+                                    <span>Graph Slope (Δx / Δt): <strong id="readout-slope" class="text-[#ccff00]">+10.0 m/s</strong></span>
+                                    <span>Rover Velocity: <strong id="readout-sprite-speed" class="text-yellow-300">+10.0 m/s</strong></span>
+                                    <span>Kinematic State: <strong id="readout-state" class="text-lime-300">Constant Positive Velocity</strong></span>
+                                </div>
+                                <div class="text-[11px] font-mono text-slate-300/90 bg-lime-950/30 px-3 py-2 rounded-lg border border-lime-500/30 flex items-start gap-2">
+                                    <span class="text-base leading-none">💡</span>
+                                    <span><strong>Core Concept:</strong> The vertical cursor on the graph sweeps right at a constant rate representing the <em>uniform passage of time</em> (Δt). The rover sprite on the runway moves horizontally according to <em>physical position x(t)</em>. The <strong>slope of the position-time curve (Δx / Δt) exactly equals the real-time velocity (v)</strong> of the rover!</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -772,11 +800,14 @@
             });
         }
 
-        // Live Interactive Kinematic Motion Canvas Sim & Tachometer
+        // Live Interactive Kinematic Motion Canvas Sim (Dual Panel: Physical Runway + x-t Graph)
         function initSimVisualizer() {
-            const canvas = document.getElementById('simCanvas');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
+            const simCanvas = document.getElementById('simCanvas');
+            const trackCanvas = document.getElementById('trackCanvas');
+            if (!simCanvas || !trackCanvas) return;
+
+            const simCtx = simCanvas.getContext('2d');
+            const trackCtx = trackCanvas.getContext('2d');
 
             const sX0 = document.getElementById('slider-x0');
             const sV = document.getElementById('slider-v');
@@ -787,8 +818,12 @@
             const valA = document.getElementById('val-a');
 
             const readoutSlope = document.getElementById('readout-slope');
+            const readoutSpriteSpeed = document.getElementById('readout-sprite-speed');
             const readoutState = document.getElementById('readout-state');
             const timeReadout = document.getElementById('sim-time-readout');
+
+            const runwayPosBadge = document.getElementById('runway-pos-badge');
+            const runwayVelBadge = document.getElementById('runway-vel-badge');
 
             const tachSpeedDisplay = document.getElementById('tach-speed-display');
             const tachArc = document.getElementById('tach-arc');
@@ -799,131 +834,606 @@
             let simTime = 0;
             let isRunning = false;
             let animationId = null;
+            let lastTimestamp = null;
+            let wheelAngle = 0;
+            let particles = [];
+
+            // Physical Coordinate Range: -30m to +220m (total span = 250m)
+            const minM = -30;
+            const maxM = 220;
+            const spanM = maxM - minM;
+            const maxTime = 10; // seconds
+
+            function getKinematics(t) {
+                const x0 = parseFloat(sX0.value);
+                const v0 = parseFloat(sV.value);
+                const a = parseFloat(sA.value);
+                const pos = x0 + v0 * t + 0.5 * a * t * t;
+                const v = v0 + a * t;
+                return { x0, v0, a, pos, v };
+            }
 
             function updateReadouts() {
-                const x0 = parseFloat(sX0.value);
-                const v = parseFloat(sV.value);
-                const a = parseFloat(sA.value);
+                const { x0, v0, a, pos, v } = getKinematics(simTime);
 
                 valX0.innerText = `${x0} m`;
-                valV.innerText = `${v >= 0 ? '+' : ''}${v} m/s`;
+                valV.innerText = `${v0 >= 0 ? '+' : ''}${v0} m/s`;
                 valA.innerText = `${a >= 0 ? '+' : ''}${a.toFixed(1)} m/s²`;
 
                 readoutSlope.innerText = `${v >= 0 ? '+' : ''}${v.toFixed(1)} m/s`;
+                if (readoutSpriteSpeed) readoutSpriteSpeed.innerText = `${v >= 0 ? '+' : ''}${v.toFixed(1)} m/s`;
 
-                // Update Tachometer
+                if (runwayPosBadge) runwayPosBadge.innerText = `x = ${pos.toFixed(1)} m`;
+                if (runwayVelBadge) runwayVelBadge.innerText = `v = ${v >= 0 ? '+' : ''}${v.toFixed(1)} m/s`;
+
+                // Update Tachometer if present
                 const absV = Math.abs(v);
                 if (tachSpeedDisplay) tachSpeedDisplay.innerText = absV.toFixed(1);
                 if (tachArc) {
-                    // Gauge arc length is ~125
                     const ratio = Math.min(1, absV / 30);
                     tachArc.style.strokeDashoffset = (125 * (1 - ratio)).toString();
                 }
 
-                if (a === 0) {
-                    if (v > 0) readoutState.innerText = 'Constant Positive Velocity (Forward)';
-                    else if (v < 0) readoutState.innerText = 'Constant Negative Velocity (Reverse)';
-                    else readoutState.innerText = 'Stationary State (At Rest, v = 0)';
+                if (Math.abs(v) < 0.05 && Math.abs(a) < 0.05) {
+                    readoutState.innerText = 'At Rest (Stationary, v = 0)';
+                    readoutState.className = 'text-slate-400 font-bold';
+                } else if (Math.abs(a) < 0.05) {
+                    if (v > 0) {
+                        readoutState.innerText = 'Constant Positive Velocity (Forward)';
+                        readoutState.className = 'text-[#ccff00] font-bold';
+                    } else {
+                        readoutState.innerText = 'Constant Negative Velocity (Reverse)';
+                        readoutState.className = 'text-orange-400 font-bold';
+                    }
                 } else if (a > 0) {
-                    readoutState.innerText = 'Uniform Forward Acceleration (+a)';
+                    if (v >= 0) {
+                        readoutState.innerText = 'Speeding Up Forward (+a, +v)';
+                        readoutState.className = 'text-lime-300 font-bold';
+                    } else {
+                        readoutState.innerText = 'Slowing Down in Reverse (+a, -v)';
+                        readoutState.className = 'text-yellow-400 font-bold';
+                    }
                 } else {
-                    readoutState.innerText = 'Uniform Deceleration / Reverse Acceleration (-a)';
+                    if (v > 0) {
+                        readoutState.innerText = 'Slowing Down Forward (-a, +v)';
+                        readoutState.className = 'text-yellow-400 font-bold';
+                    } else {
+                        readoutState.innerText = 'Speeding Up in Reverse (-a, -v)';
+                        readoutState.className = 'text-orange-400 font-bold';
+                    }
                 }
             }
 
-            function draw(currentTime) {
-                const w = canvas.width;
-                const h = canvas.height;
+            // 1. Draw Physical 1D Runway Track with Animated Sprite
+            function drawTrack(currentTime, dt) {
+                const w = trackCanvas.width;
+                const h = trackCanvas.height;
+                const ctx = trackCtx;
                 ctx.clearRect(0, 0, w, h);
 
-                const x0 = parseFloat(sX0.value);
-                const v = parseFloat(sV.value);
-                const a = parseFloat(sA.value);
+                const { x0, pos, v } = getKinematics(currentTime);
 
-                // Grid & Axes
+                // Horizontal coordinate mapping: padLeft = 55, padRight = 25
+                const padLeft = 55;
+                const padRight = 25;
+                const trackWidth = w - padLeft - padRight;
+                const mapPosToX = (m) => padLeft + ((m - minM) / spanM) * trackWidth;
+
+                // Background asphalt & roadbed
+                const roadTop = 50;
+                const roadBottom = 92;
+                const groundY = 80;
+
+                // Top safety shoulder
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(0, 0, w, h);
+
+                // Asphalt road strip
+                const roadGrad = ctx.createLinearGradient(0, roadTop, 0, roadBottom);
+                roadGrad.addColorStop(0, '#1e293b');
+                roadGrad.addColorStop(0.5, '#0f172a');
+                roadGrad.addColorStop(1, '#020617');
+                ctx.fillStyle = roadGrad;
+                ctx.fillRect(padLeft - 10, roadTop, trackWidth + 20, roadBottom - roadTop);
+
+                // Road borders (metallic guardrails)
+                ctx.strokeStyle = '#475569';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(padLeft - 10, roadTop);
+                ctx.lineTo(padLeft + trackWidth + 10, roadTop);
+                ctx.moveTo(padLeft - 10, roadBottom);
+                ctx.lineTo(padLeft + trackWidth + 10, roadBottom);
+                ctx.stroke();
+
+                // Yellow dashed lane centerline
+                ctx.strokeStyle = 'rgba(234, 179, 8, 0.4)';
+                ctx.lineWidth = 1.5;
+                ctx.setLineDash([8, 8]);
+                ctx.beginPath();
+                ctx.moveTo(padLeft - 10, groundY + 1);
+                ctx.lineTo(padLeft + trackWidth + 10, groundY + 1);
+                ctx.stroke();
+                ctx.setLineDash([]); // reset
+
+                // Calibrated Metric Distance Markings (-25m to 200m)
+                for (let m = -25; m <= 200; m += 25) {
+                    const tx = mapPosToX(m);
+                    const isZero = m === 0;
+
+                    // Tick mark
+                    ctx.strokeStyle = isZero ? '#ccff00' : '#64748b';
+                    ctx.lineWidth = isZero ? 2.5 : 1;
+                    ctx.beginPath();
+                    ctx.moveTo(tx, roadTop);
+                    ctx.lineTo(tx, roadBottom);
+                    ctx.stroke();
+
+                    // Meter label below road
+                    ctx.fillStyle = isZero ? '#ccff00' : '#94a3b8';
+                    ctx.font = isZero ? 'bold 10px Fira Code, monospace' : '9px Fira Code, monospace';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(isZero ? '0m (Origin)' : `${m}m`, tx, roadBottom + 14);
+                }
+
+                // Intermediate 10m ticks
+                ctx.strokeStyle = 'rgba(148, 163, 184, 0.25)';
+                ctx.lineWidth = 1;
+                for (let m = -20; m <= 210; m += 10) {
+                    if (m % 25 === 0) continue;
+                    const tx = mapPosToX(m);
+                    ctx.beginPath();
+                    ctx.moveTo(tx, roadTop + 4);
+                    ctx.lineTo(tx, roadTop + 12);
+                    ctx.moveTo(tx, roadBottom - 12);
+                    ctx.lineTo(tx, roadBottom - 4);
+                    ctx.stroke();
+                }
+
+                // Reference Origin Flag (x = 0m)
+                const originX = mapPosToX(0);
+                ctx.save();
+                ctx.strokeStyle = '#ccff00';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(originX, roadTop - 18);
+                ctx.lineTo(originX, roadTop);
+                ctx.stroke();
+                // Checkered / neon flag
+                ctx.fillStyle = '#ccff00';
+                ctx.beginPath();
+                ctx.moveTo(originX, roadTop - 18);
+                ctx.lineTo(originX + 12, roadTop - 12);
+                ctx.lineTo(originX, roadTop - 6);
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
+
+                // Initial Start Position Marker (x₀)
+                const startX = mapPosToX(x0);
+                ctx.fillStyle = '#38bdf8';
+                ctx.font = 'bold 9px Fira Code, monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText(`x₀=${x0}m`, startX, roadTop - 6);
+                ctx.beginPath();
+                ctx.arc(startX, roadTop + 2, 3, 0, Math.PI * 2);
+                ctx.fillStyle = '#38bdf8';
+                ctx.fill();
+
+                // Update wheel spin angle based on physics velocity
+                if (dt) {
+                    wheelAngle += (v * dt) * 0.4;
+                }
+
+                // Exhaust particles behind the rover
+                if (Math.abs(v) > 1 && dt) {
+                    const facingDir = v >= 0 ? 1 : -1;
+                    if (Math.random() < 0.5) {
+                        particles.push({
+                            x: mapPosToX(pos) - facingDir * 20,
+                            y: groundY - 4 + (Math.random() - 0.5) * 4,
+                            vx: -facingDir * (0.5 + Math.random() * 1.5),
+                            vy: (Math.random() - 0.5) * 0.8,
+                            life: 1.0,
+                            size: 2 + Math.random() * 3,
+                            color: v > 0 ? '#84cc16' : '#f97316'
+                        });
+                    }
+                }
+
+                // Render & update particles
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    const p = particles[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.life -= 0.04;
+                    if (p.life <= 0) {
+                        particles.splice(i, 1);
+                        continue;
+                    }
+                    ctx.save();
+                    ctx.globalAlpha = p.life * 0.7;
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+
+                // Rover Car Sprite
+                const carX = mapPosToX(pos);
+                drawRoverSprite(ctx, carX, groundY - 2, v, wheelAngle);
+
+                // Update Badges
+                if (runwayPosBadge) runwayPosBadge.innerText = `x = ${pos.toFixed(1)} m`;
+                if (runwayVelBadge) runwayVelBadge.innerText = `v = ${v >= 0 ? '+' : ''}${v.toFixed(1)} m/s`;
+            }
+
+            // Draw Rover Sprite with Wheels, Directional Headlights & Overhead Vector Arrow
+            function drawRoverSprite(ctx, cx, cy, v, angle) {
+                ctx.save();
+                ctx.translate(cx, cy);
+
+                // Orientation: rover faces right if v >= 0, faces left if v < 0
+                const facingRight = v >= -0.05;
+                if (!facingRight) {
+                    ctx.scale(-1, 1);
+                }
+
+                // Ground shadow
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+                ctx.beginPath();
+                ctx.ellipse(0, 4, 26, 4, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Headlight Beam illumination on road
+                if (Math.abs(v) > 0.2) {
+                    const beam = ctx.createRadialGradient(24, -8, 2, 60, -4, 45);
+                    beam.addColorStop(0, 'rgba(254, 240, 138, 0.4)');
+                    beam.addColorStop(1, 'rgba(254, 240, 138, 0)');
+                    ctx.fillStyle = beam;
+                    ctx.beginPath();
+                    ctx.moveTo(22, -10);
+                    ctx.lineTo(70, -20);
+                    ctx.lineTo(70, 4);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+
+                // Chassis Body
+                const bodyGrad = ctx.createLinearGradient(-22, -18, 22, -2);
+                if (Math.abs(v) < 0.1) {
+                    bodyGrad.addColorStop(0, '#64748b');
+                    bodyGrad.addColorStop(1, '#334155');
+                } else if (v > 0) {
+                    bodyGrad.addColorStop(0, '#a3e635');
+                    bodyGrad.addColorStop(1, '#3f6212');
+                } else {
+                    bodyGrad.addColorStop(0, '#fb923c');
+                    bodyGrad.addColorStop(1, '#9a3412');
+                }
+
+                // Aerodynamic Cockpit & Body
+                ctx.fillStyle = bodyGrad;
+                ctx.strokeStyle = '#f8fafc';
+                ctx.lineWidth = 1.2;
+                ctx.beginPath();
+                ctx.roundRect(-20, -16, 40, 13, [4, 8, 4, 4]);
+                ctx.fill();
+                ctx.stroke();
+
+                // Windshield / Canopy
+                ctx.fillStyle = 'rgba(56, 189, 248, 0.9)';
+                ctx.beginPath();
+                ctx.moveTo(-5, -16);
+                ctx.lineTo(7, -16);
+                ctx.lineTo(15, -10);
+                ctx.lineTo(-8, -10);
+                ctx.closePath();
+                ctx.fill();
+
+                // Front LED Headlight
+                ctx.fillStyle = '#fef08a';
+                ctx.shadowColor = '#fef08a';
+                ctx.shadowBlur = Math.abs(v) > 0.5 ? 10 : 3;
+                ctx.fillRect(18, -12, 3, 5);
+
+                // Rear LED Taillight
+                ctx.fillStyle = '#ef4444';
+                ctx.shadowColor = '#ef4444';
+                ctx.shadowBlur = 5;
+                ctx.fillRect(-21, -12, 2, 5);
+                ctx.shadowBlur = 0; // reset
+
+                // Rotating Wheels
+                const wheelY = 0;
+                const wheelR = 6.5;
+                [-12, 12].forEach(wx => {
+                    // Tire
+                    ctx.fillStyle = '#020617';
+                    ctx.strokeStyle = '#94a3b8';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.arc(wx, wheelY, wheelR, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+
+                    // Rims with rotation spokes
+                    ctx.strokeStyle = '#e2e8f0';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(wx + Math.cos(angle) * wheelR, wheelY + Math.sin(angle) * wheelR);
+                    ctx.lineTo(wx - Math.cos(angle) * wheelR, wheelY - Math.sin(angle) * wheelR);
+                    ctx.moveTo(wx + Math.cos(angle + Math.PI / 2) * wheelR, wheelY + Math.sin(angle + Math.PI / 2) * wheelR);
+                    ctx.lineTo(wx - Math.cos(angle + Math.PI / 2) * wheelR, wheelY - Math.sin(angle + Math.PI / 2) * wheelR);
+                    ctx.stroke();
+
+                    // Hubcap
+                    ctx.fillStyle = '#ccff00';
+                    ctx.beginPath();
+                    ctx.arc(wx, wheelY, 2, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+
+                ctx.restore();
+
+                // Velocity Vector Arrow (Always rendered in global un-flipped coordinate system)
+                drawVelocityVector(ctx, cx, cy - 25, v);
+            }
+
+            // Draw Dynamic Velocity Vector Arrow with Label
+            function drawVelocityVector(ctx, x, y, v) {
+                const absV = Math.abs(v);
+                if (absV < 0.2) {
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.font = 'bold 9px Fira Code, monospace';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('v = 0 (AT REST)', x, y - 2);
+                    ctx.beginPath();
+                    ctx.arc(x, y + 4, 3, 0, Math.PI * 2);
+                    ctx.fillStyle = '#64748b';
+                    ctx.fill();
+                    return;
+                }
+
+                const dir = v > 0 ? 1 : -1;
+                const arrowColor = v > 0 ? '#ccff00' : '#f97316';
+                const arrowLen = Math.min(85, Math.max(20, absV * 2.5));
+                const targetX = x + dir * arrowLen;
+
+                ctx.save();
+                ctx.strokeStyle = arrowColor;
+                ctx.fillStyle = arrowColor;
+                ctx.lineWidth = 2.5;
+                ctx.shadowColor = arrowColor;
+                ctx.shadowBlur = 8;
+
+                // Shaft
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(targetX, y);
+                ctx.stroke();
+
+                // Arrow Head
+                const head = 6;
+                ctx.beginPath();
+                ctx.moveTo(targetX, y);
+                ctx.lineTo(targetX - dir * head, y - 4);
+                ctx.lineTo(targetX - dir * head, y + 4);
+                ctx.closePath();
+                ctx.fill();
+
+                // Label
+                ctx.shadowBlur = 0;
+                ctx.font = 'bold 10px Fira Code, monospace';
+                ctx.textAlign = 'center';
+                const labelX = x + (dir * arrowLen) / 2;
+                ctx.fillText(`v = ${v > 0 ? '+' : ''}${v.toFixed(1)} m/s`, labelX, y - 6);
+                ctx.restore();
+            }
+
+            // 2. Draw Position vs. Time Graph [x-t] with Sweeping Time Cursor & Tangent Slope
+            function drawGraph(currentTime) {
+                const w = simCanvas.width;
+                const h = simCanvas.height;
+                const ctx = simCtx;
+                ctx.clearRect(0, 0, w, h);
+
+                const { x0, v0, a, pos, v } = getKinematics(currentTime);
+
+                const padLeft = 55;
+                const padRight = 25;
+                const padTop = 15;
+                const padBottom = 30;
+
+                const graphW = w - padLeft - padRight;
+                const graphH = h - padTop - padBottom;
+
+                const mapTimeToX = (t) => padLeft + (t / maxTime) * graphW;
+                const mapPosToY = (p) => (h - padBottom) - ((p - minM) / spanM) * graphH;
+
+                // Subtle Grid
                 ctx.strokeStyle = 'rgba(163, 230, 53, 0.08)';
                 ctx.lineWidth = 1;
-                for (let x = 40; x < w; x += 40) {
+                for (let t = 2; t <= maxTime; t += 2) {
+                    const gx = mapTimeToX(t);
                     ctx.beginPath();
-                    ctx.moveTo(x, 0);
-                    ctx.lineTo(x, h - 25);
+                    ctx.moveTo(gx, padTop);
+                    ctx.lineTo(gx, h - padBottom);
                     ctx.stroke();
                 }
-                for (let y = 15; y < h - 25; y += 30) {
+                for (let p = 0; p <= 200; p += 50) {
+                    const gy = mapPosToY(p);
                     ctx.beginPath();
-                    ctx.moveTo(40, y);
-                    ctx.lineTo(w, y);
+                    ctx.moveTo(padLeft, gy);
+                    ctx.lineTo(w - padRight, gy);
                     ctx.stroke();
                 }
+
+                // Reference Origin Baseline (x = 0m)
+                const zeroY = mapPosToY(0);
+                ctx.strokeStyle = 'rgba(204, 255, 0, 0.25)';
+                ctx.lineWidth = 1.2;
+                ctx.beginPath();
+                ctx.moveTo(padLeft, zeroY);
+                ctx.lineTo(w - padRight, zeroY);
+                ctx.stroke();
 
                 // Origin Axes
                 ctx.strokeStyle = '#64748b';
                 ctx.lineWidth = 2;
                 ctx.beginPath();
-                ctx.moveTo(40, 10);
-                ctx.lineTo(40, h - 25);
-                ctx.lineTo(w - 10, h - 25);
+                // Vertical position axis (t = 0)
+                ctx.moveTo(padLeft, padTop);
+                ctx.lineTo(padLeft, h - padBottom);
+                // Horizontal time axis (at bottom of chart)
+                ctx.lineTo(w - padRight, h - padBottom);
                 ctx.stroke();
 
-                // Axis Labels
+                // Axis Coordinate Markings
                 ctx.fillStyle = '#94a3b8';
-                ctx.font = '10px Fira Code, monospace';
-                ctx.fillText('x (m)', 10, 20);
-                ctx.fillText('t (s)', w - 30, h - 10);
-                ctx.fillText('0', 30, h - 12);
-                ctx.fillText('5s', w / 2, h - 12);
-                ctx.fillText('10s', w - 40, h - 12);
+                ctx.font = '9px Fira Code, monospace';
 
-                // Draw Position-Time Curve for t: 0 to 10s
+                // Time axis tick labels
+                for (let t = 0; t <= maxTime; t += 2) {
+                    const tx = mapTimeToX(t);
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`${t}s`, tx, h - padBottom + 14);
+                }
+                ctx.fillText('Elapsed Time t (s) →', padLeft + graphW / 2, h - 4);
+
+                // Position axis tick labels
+                ctx.textAlign = 'right';
+                for (let p = 0; p <= 200; p += 50) {
+                    const py = mapPosToY(p);
+                    ctx.fillText(`${p}m`, padLeft - 6, py + 3);
+                }
+                ctx.fillText('-25m', padLeft - 6, mapPosToY(-25) + 3);
+
+                ctx.save();
+                ctx.translate(14, padTop + graphH / 2);
+                ctx.rotate(-Math.PI / 2);
+                ctx.textAlign = 'center';
+                ctx.fillText('Position x (m) →', 0, 0);
+                ctx.restore();
+
+                // Draw Full Position-Time Theoretical Curve: x(t) = x₀ + v₀·t + ½a·t²
                 ctx.beginPath();
                 ctx.strokeStyle = '#ccff00';
-                ctx.lineWidth = 3.5;
+                ctx.lineWidth = 3;
                 ctx.shadowColor = 'rgba(204, 255, 0, 0.5)';
                 ctx.shadowBlur = 8;
 
-                const maxTime = 10;
-                const maxPos = 200; // scaling range
-
                 for (let t = 0; t <= maxTime; t += 0.1) {
-                    const pos = x0 + v * t + 0.5 * a * t * t;
-                    const canvasX = 40 + (t / maxTime) * (w - 60);
-                    const canvasY = (h - 25) - (pos / maxPos) * (h - 45);
-
-                    if (t === 0) ctx.moveTo(canvasX, Math.max(10, Math.min(h - 25, canvasY)));
-                    else ctx.lineTo(canvasX, Math.max(10, Math.min(h - 25, canvasY)));
+                    const p = x0 + v0 * t + 0.5 * a * t * t;
+                    const cx = mapTimeToX(t);
+                    const cy = Math.max(padTop, Math.min(h - padBottom, mapPosToY(p)));
+                    if (t === 0) ctx.moveTo(cx, cy);
+                    else ctx.lineTo(cx, cy);
                 }
                 ctx.stroke();
                 ctx.shadowBlur = 0; // reset
 
-                // Draw current animated runner position point
-                const currentPos = x0 + v * currentTime + 0.5 * a * currentTime * currentTime;
-                const curX = 40 + (currentTime / maxTime) * (w - 60);
-                const curY = (h - 25) - (currentPos / maxPos) * (h - 45);
-                const clampedY = Math.max(10, Math.min(h - 25, curY));
+                // Current Time Coordinates
+                const curX = mapTimeToX(currentTime);
+                const curY = Math.max(padTop, Math.min(h - padBottom, mapPosToY(pos)));
 
-                // Pulsing glow cursor
+                // 1. Sweeping Vertical Time Cursor (Hairline)
+                // This visually reinforces: Time sweeps steadily across the horizontal axis!
+                ctx.strokeStyle = 'rgba(56, 189, 248, 0.7)';
+                ctx.lineWidth = 1.5;
+                ctx.setLineDash([4, 3]);
                 ctx.beginPath();
-                ctx.arc(curX, clampedY, 7, 0, Math.PI * 2);
+                ctx.moveTo(curX, padTop);
+                ctx.lineTo(curX, h - padBottom);
+                ctx.stroke();
+                ctx.setLineDash([]); // reset
+
+                // Time cursor bottom pill
+                ctx.fillStyle = '#0284c7';
+                ctx.beginPath();
+                ctx.roundRect(curX - 22, h - padBottom + 2, 44, 14, 3);
+                ctx.fill();
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 9px Fira Code, monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText(`t=${currentTime.toFixed(1)}s`, curX, h - padBottom + 12);
+
+                // 2. Horizontal projection line from point to position axis
+                ctx.strokeStyle = 'rgba(250, 204, 21, 0.5)';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([3, 3]);
+                ctx.beginPath();
+                ctx.moveTo(padLeft, curY);
+                ctx.lineTo(curX, curY);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // 3. Tangent Line & Slope Triangle at Current Point
+                // Instantaneous slope equals current velocity v!
+                const dtTangent = 1.0; // +/- 1 second window
+                const t1 = Math.max(0, currentTime - dtTangent);
+                const t2 = Math.min(maxTime, currentTime + dtTangent);
+                const p1 = pos - v * (currentTime - t1);
+                const p2 = pos + v * (t2 - currentTime);
+
+                const tx1 = mapTimeToX(t1);
+                const ty1 = Math.max(padTop, Math.min(h - padBottom, mapPosToY(p1)));
+                const tx2 = mapTimeToX(t2);
+                const ty2 = Math.max(padTop, Math.min(h - padBottom, mapPosToY(p2)));
+
+                // Tangent line segment
+                ctx.strokeStyle = '#38bdf8';
+                ctx.lineWidth = 2;
+                ctx.shadowColor = '#38bdf8';
+                ctx.shadowBlur = 6;
+                ctx.beginPath();
+                ctx.moveTo(tx1, ty1);
+                ctx.lineTo(tx2, ty2);
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+
+                // Tangent Slope Tag
+                ctx.fillStyle = '#38bdf8';
+                ctx.font = 'bold 9px Fira Code, monospace';
+                ctx.textAlign = curX > w - 140 ? 'right' : 'left';
+                const tagX = curX > w - 140 ? curX - 12 : curX + 12;
+                ctx.fillText(`Slope = Δx/Δt = ${v >= 0 ? '+' : ''}${v.toFixed(1)} m/s`, tagX, Math.max(padTop + 14, curY - 8));
+
+                // Pulsing Coordinate Bead on the Curve
+                ctx.beginPath();
+                ctx.arc(curX, curY, 6, 0, Math.PI * 2);
                 ctx.fillStyle = '#facc15';
                 ctx.shadowColor = '#facc15';
-                ctx.shadowBlur = 15;
+                ctx.shadowBlur = 12;
                 ctx.fill();
-                ctx.shadowBlur = 0; // reset
+                ctx.shadowBlur = 0;
 
                 // Update text readout
-                const currentV = v + a * currentTime;
-                timeReadout.innerText = `t = ${currentTime.toFixed(2)}s | x = ${currentPos.toFixed(1)}m | v_inst = ${currentV.toFixed(1)}m/s`;
+                timeReadout.innerText = `Time: t = ${currentTime.toFixed(2)}s | x(t) = ${pos.toFixed(1)}m | v(t) = ${v >= 0 ? '+' : ''}${v.toFixed(1)}m/s`;
             }
 
-            function animate() {
+            function drawAll(currentTime, dt) {
+                drawTrack(currentTime, dt);
+                drawGraph(currentTime);
+                updateReadouts();
+            }
+
+            function animate(timestamp) {
                 if (!isRunning) return;
-                simTime += 0.05;
-                if (simTime > 10) {
-                    simTime = 10;
+                if (!lastTimestamp) lastTimestamp = timestamp;
+                const dt = Math.min(0.08, (timestamp - lastTimestamp) / 1000);
+                lastTimestamp = timestamp;
+
+                simTime += dt;
+                if (simTime >= maxTime) {
+                    simTime = maxTime;
                     isRunning = false;
                     btnPlay.innerText = '▶ Replay Motion';
                 }
-                draw(simTime);
+
+                drawAll(simTime, dt);
+
                 if (isRunning) {
                     animationId = requestAnimationFrame(animate);
                 }
@@ -932,16 +1442,17 @@
             [sX0, sV, sA].forEach(s => {
                 s.addEventListener('input', () => {
                     updateReadouts();
-                    draw(simTime);
+                    drawAll(simTime, 0);
                 });
             });
 
             btnPlay.addEventListener('click', () => {
-                if (simTime >= 10) simTime = 0;
+                if (simTime >= maxTime) simTime = 0;
                 isRunning = !isRunning;
                 if (isRunning) {
                     btnPlay.innerText = '⏸ Pause';
-                    animate();
+                    lastTimestamp = null;
+                    animationId = requestAnimationFrame(animate);
                 } else {
                     btnPlay.innerText = '▶ Resume';
                     cancelAnimationFrame(animationId);
@@ -952,12 +1463,20 @@
                 isRunning = false;
                 cancelAnimationFrame(animationId);
                 simTime = 0;
+                lastTimestamp = null;
                 btnPlay.innerText = '▶ Play Motion';
-                draw(0);
+                drawAll(0, 0);
             });
 
-            updateReadouts();
-            draw(0);
+            // URL Parameter support for classroom demos (e.g. ?x0=10&v=15&a=-2&t=4)
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('x0')) sX0.value = urlParams.get('x0');
+            if (urlParams.has('v')) sV.value = urlParams.get('v');
+            if (urlParams.has('a')) sA.value = urlParams.get('a');
+            if (urlParams.has('t')) simTime = parseFloat(urlParams.get('t'));
+
+            // Initial render
+            drawAll(simTime, 0);
         }
 
         // Live Multi-Stage Motion Graph Scope Animator with Play/Pause
