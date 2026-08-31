@@ -6,7 +6,7 @@
 **Time Frame:** 3 Class Periods (~30 minutes of active work time per day)  
 **Materials Needed:** Graph paper (or blank drawing paper), metric ruler, colored pencils, 30 cm piece of string/yarn, calculator.  
 **Digital Classroom Resources:**  
-* 🖥️ **Slides:** [Distance and Displacement with Fantasy Maps.pptx](https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDTeHashMmgSoeLVDHY5TwQAbynyLTufaGMoMjm5APx0Hw?e=nwclwC)  
+* 🖥️ **Slides:** [Fantasy Map Ideas and Tips (Google Slides)](https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing)  
 * 📄 **Student Worksheet:** [Fantasy Map Measurements.docx](https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs)
 
 ---
