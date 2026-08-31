@@ -1261,7 +1261,10 @@ const lessonsData = [
     "dok": 1,
     "semester": 2,
     "isFeatured": false,
-    "essentialQuestion": "No School - Memorial Day Holiday."
+    "essentialQuestion": "No School - Memorial Day Holiday.",
+    "standards": [
+      "HS-PS2-6"
+    ]
   },
   {
     "date": "2026-05-22",
