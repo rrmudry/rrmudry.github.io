@@ -29,21 +29,21 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Partners launch the 3-day project by establishing an origin point (home village), choosing a map scale, and drawing a realm map featuring 4 distinct terrain landmarks (Village → Forest/Swamp → Mountain Pass → Final Citadel).
     *   *Essential Question:* How does our choice of reference point determine whether an object is considered in motion or at rest?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Inquiry / Project
-    *   *Links:* [Fantasy Map Slides (PPTX)](https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDTeHashMmgSoeLVDHY5TwQAbynyLTufaGMoMjm5APx0Hw?e=nwclwC), [Fantasy Map Worksheet (DOCX)](https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs), [Project Guide](Fantasy_Map_Quest_Project.md)
+    *   *Links:* [Fantasy Map Ideas & Tips Slides (Google Slides)](https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing), [Fantasy Map Worksheet (DOCX)](https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs)
 
 *   **Day 2 (2026-09-01): Fantasy Map Quest — Part 2: Winding Trails & Distance vs. Displacement**
     *   *Focus:* Measuring curved paths (string technique), scalar path distance vs. straight-line vector displacement (`Δx` / `Δr`), map scale conversions.
     *   *Activity:* Partners draw the adventurer's meandering path across the terrain. Using string laid along the curves, teams measure paper centimeters and convert to realm units (total distance). They then draw and measure the direct straight-line vector arrow from the origin (net displacement).
     *   *Essential Question:* Why is the total distance traveled by an adventurer almost always greater than their net displacement?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Inquiry / Project
-    *   *Links:* [Fantasy Map Slides (PPTX)](https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDTeHashMmgSoeLVDHY5TwQAbynyLTufaGMoMjm5APx0Hw?e=nwclwC), [Fantasy Map Worksheet (DOCX)](https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs)
+    *   *Links:* [Fantasy Map Ideas & Tips Slides (Google Slides)](https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing), [Fantasy Map Worksheet (DOCX)](https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs)
 
 *   **Day 3 (2026-09-02): Fantasy Map Quest — Part 3: Travel Time, Speed & The Homecoming Paradox**
     *   *Focus:* Adding temporal duration to each leg, average speed formula (`v = d / t`), and resolving the round-trip return paradox (`Δx = 0`).
     *   *Activity:* Students assign travel days across different terrain types (swamps take longer than plains!) and calculate average speed in leagues/day. They calculate the round-trip return journey (distance doubles, displacement becomes zero), complete the post-lab analysis questions, and conduct a peer audit of another team's map.
     *   *Essential Question:* How can a traveler embark on a long, arduous journey covering immense distance, yet end up with an average velocity of zero?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Inquiry / Project
-    *   *Links:* [Fantasy Map Slides (PPTX)](https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDTeHashMmgSoeLVDHY5TwQAbynyLTufaGMoMjm5APx0Hw?e=nwclwC), [Fantasy Map Worksheet (DOCX)](https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs)
+    *   *Links:* [Fantasy Map Ideas & Tips Slides (Google Slides)](https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing), [Fantasy Map Worksheet (DOCX)](https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs)
 
 *   **Day 4 (2026-09-03): "The Monster's Journey" Constant Velocity Tumble Buggy Lab**
     *   *Focus:* Multi-interval empirical tracking, verifying constant velocity in the physical world.

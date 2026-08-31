@@ -697,8 +697,9 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
-      "Fantasy Map Slides": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDTeHashMmgSoeLVDHY5TwQAbynyLTufaGMoMjm5APx0Hw?e=nwclwC",
-      "Fantasy Map Worksheet": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs"
+      "Fantasy Map Slides": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
+      "Fantasy Map Worksheet": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs",
+      "Fantasy Map Web App": "Unit_2/Displacement_and_distance_map_app/index.html"
     }
   },
   {
@@ -731,8 +732,9 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
-      "Fantasy Map Slides": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDTeHashMmgSoeLVDHY5TwQAbynyLTufaGMoMjm5APx0Hw?e=nwclwC",
-      "Fantasy Map Worksheet": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs"
+      "Fantasy Map Slides": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
+      "Fantasy Map Worksheet": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs",
+      "Fantasy Map Web App": "Unit_2/Displacement_and_distance_map_app/index.html"
     }
   },
   {
@@ -765,9 +767,9 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
-      "Fantasy Map Slides": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDTeHashMmgSoeLVDHY5TwQAbynyLTufaGMoMjm5APx0Hw?e=nwclwC",
+      "Fantasy Map Slides": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
       "Fantasy Map Worksheet": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs",
-      "Project Guide": "Unit_2/Fantasy_Map_Quest_Project.md"
+      "Fantasy Map Web App": "Unit_2/Displacement_and_distance_map_app/index.html"
     }
   },
   {
