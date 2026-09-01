@@ -337,7 +337,10 @@
               <p class="text-xs text-slate-400">Real-time attendance roll for current PRIDE session</p>
             </div>
             
-            <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2">
+              <button onclick="window.PRIDE.openBarcodeSlideshow()" class="touch-btn touch-btn-primary text-xs py-2 px-3.5 flex items-center gap-2 shadow-lg shadow-indigo-500/25 font-black">
+                <i data-lucide="play-circle" class="w-4 h-4 text-white"></i> Playback Barcodes (Official App)
+              </button>
               <button onclick="window.PRIDE.exportAttendanceCsv()" class="touch-btn touch-btn-ghost text-xs py-2 px-3 flex items-center gap-1.5">
                 <i data-lucide="download" class="w-3.5 h-3.5"></i> Export CSV
               </button>
@@ -850,6 +853,128 @@
           Add Student
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- 6. BARCODE SLIDESHOW & OFFICIAL APP SCANNER BRIDGE MODAL -->
+  <div id="modal-barcode-slideshow" class="modal-backdrop">
+    <div class="glass-panel w-full max-w-2xl p-5 sm:p-7 border border-indigo-500/50 shadow-2xl space-y-5 bg-slate-950/95 max-h-[95vh] flex flex-col">
+      
+      <!-- Header with Filter & Status -->
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3.5">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
+            <i data-lucide="play" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm sm:text-base font-black text-white uppercase tracking-tight">Barcode Playback Bridge</h3>
+            <p class="text-[10px] text-slate-400">Aim your official school app camera at this screen to scan barcodes sequentially</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <!-- Filter Select -->
+          <select id="slideshow-filter-select" onchange="window.PRIDE.BarcodeSlideshow.setFilter(this.value)" class="px-2.5 py-1.5 glass-input text-xs font-bold">
+            <option value="present">Checked-In Students Today</option>
+            <option value="all">All Enrolled Students</option>
+            <option value="1">Period 1</option>
+            <option value="2">Period 2</option>
+            <option value="3">Period 3</option>
+            <option value="4">Period 4</option>
+            <option value="5">Period 5</option>
+            <option value="6">Period 6</option>
+          </select>
+
+          <!-- Close Modal -->
+          <button onclick="window.PRIDE.BarcodeSlideshow.close()" class="p-1.5 rounded-lg bg-white/5 hover:bg-rose-500/20 text-slate-400 hover:text-rose-300 transition-colors" title="Close Slideshow (Esc)">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Slideshow Card (Pure White Card Optimized for Optical Camera Scanning) -->
+      <div class="flex-1 flex flex-col justify-center items-center py-2">
+        <div id="slideshow-card" class="slideshow-card-box w-full max-w-lg p-6 sm:p-8 flex flex-col items-center justify-between text-center border border-slate-200">
+          
+          <!-- Top Badge Row -->
+          <div class="w-full flex items-center justify-between border-b border-slate-100 pb-2 mb-3">
+            <span class="text-[11px] font-black uppercase tracking-widest text-indigo-600 flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span id="slideshow-student-period">Period 1</span>
+            </span>
+            <span id="slideshow-counter-badge" class="text-xs font-mono font-bold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full">
+              1 / 28
+            </span>
+          </div>
+
+          <!-- Student Name & Info -->
+          <div class="my-1 text-center">
+            <h2 id="slideshow-student-name" class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              Student Name
+            </h2>
+            <p id="slideshow-student-id-display" class="text-xs sm:text-sm font-mono font-extrabold text-indigo-600 mt-0.5">
+              ID: 73001
+            </p>
+          </div>
+
+          <!-- Large High-Contrast Barcode -->
+          <div class="w-full bg-white p-4 rounded-xl flex items-center justify-center my-3 border border-slate-100 shadow-sm">
+            <svg id="slideshow-barcode-svg" class="w-full max-h-24 sm:max-h-28"></svg>
+          </div>
+
+          <div class="text-[9px] uppercase tracking-widest text-slate-400">
+            Orange High School • PRIDE Time Room 930
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls & Progression Bar -->
+      <div class="space-y-3 pt-2">
+        <!-- Progress Bar -->
+        <div class="slideshow-progress-bar">
+          <div id="slideshow-progress-fill" class="slideshow-progress-fill" style="width: 0%;"></div>
+        </div>
+
+        <!-- Controls Row -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <!-- Left: Speed Selector -->
+          <div class="flex items-center gap-2 text-xs">
+            <span class="text-[11px] font-bold text-slate-400">Interval:</span>
+            <select id="slideshow-speed-select" onchange="window.PRIDE.BarcodeSlideshow.setSpeed(parseInt(this.value, 10))" class="px-2 py-1 glass-input text-xs font-bold">
+              <option value="1200">1.2s (Fast)</option>
+              <option value="1800" selected>1.8s (Balanced)</option>
+              <option value="2500">2.5s</option>
+              <option value="3500">3.5s (Relaxed)</option>
+              <option value="0">Manual Flip</option>
+            </select>
+          </div>
+
+          <!-- Center: Playback Buttons -->
+          <div class="flex items-center gap-2">
+            <button onclick="window.PRIDE.BarcodeSlideshow.prev()" class="touch-btn touch-btn-ghost text-xs py-2 px-3 flex items-center gap-1" title="Previous (Left Arrow)">
+              <i data-lucide="chevron-left" class="w-4 h-4"></i> Prev
+            </button>
+            <button id="slideshow-btn-play" onclick="window.PRIDE.BarcodeSlideshow.togglePlay()" class="touch-btn touch-btn-primary text-xs py-2 px-4 flex items-center gap-1.5 shadow-lg shadow-indigo-500/30 font-black">
+              <i data-lucide="play" class="w-4 h-4"></i> Auto Play
+            </button>
+            <button onclick="window.PRIDE.BarcodeSlideshow.next()" class="touch-btn touch-btn-ghost text-xs py-2 px-3 flex items-center gap-1" title="Next (Right Arrow / Space)">
+              Next <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <!-- Right: Keyboard Hints -->
+          <div class="hidden sm:flex items-center gap-1.5 text-[10px] text-slate-400 font-mono">
+            <span class="px-1.5 py-0.5 bg-white/10 rounded">Space</span> Play/Pause
+            <span class="px-1.5 py-0.5 bg-white/10 rounded ml-1">←</span> <span class="px-1.5 py-0.5 bg-white/10 rounded">→</span> Flip
+          </div>
+        </div>
+
+        <!-- Thumbnails Strip / Jump Drawer -->
+        <div id="slideshow-thumbnails-strip" class="recent-scans-strip pt-1 max-h-16">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+
     </div>
   </div>
 
