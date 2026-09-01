@@ -165,6 +165,31 @@
       }
     },
 
+    playSlideTick() {
+      if (!State.settings.soundEnabled) return;
+      try {
+        this.init();
+        this.ensureContext();
+        if (!State.audioCtx) return;
+
+        const now = State.audioCtx.currentTime;
+        const osc = State.audioCtx.createOscillator();
+        const gain = State.audioCtx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1046.50, now); // C6 short ping
+
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+
+        osc.connect(gain);
+        gain.connect(State.audioCtx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.05);
+      } catch (err) {}
+    },
+
     playDangerAlert() {
       if (!State.settings.soundEnabled) return;
       try {
@@ -1224,6 +1249,9 @@
             <td class="p-3 text-slate-400 italic">${rec.note || '-'}</td>
             <td class="p-3 text-right">
               <div class="flex items-center justify-end gap-2">
+                <button onclick="window.PRIDE.openBarcodeSlideshow('${rec.studentId}')" class="px-2.5 py-1 rounded-lg bg-violet-600/20 hover:bg-violet-600/40 text-violet-300 font-bold flex items-center gap-1" title="Show scannable barcode slide">
+                  <i data-lucide="qr-code" class="w-3 h-3"></i> Barcode
+                </button>
                 <button onclick="window.PRIDE.openBehaviorModal('${rec.studentId}')" class="px-2.5 py-1 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 font-bold flex items-center gap-1">
                   <i data-lucide="tag" class="w-3 h-3"></i> Note
                 </button>
@@ -1911,7 +1939,276 @@
   };
 
   // ==========================================================================
-  // 13. HELPER UTILITIES
+  // 13. BARCODE SLIDESHOW & OFFICIAL APP SCANNER BRIDGE
+  // ==========================================================================
+
+  const BarcodeSlideshow = {
+    isOpen: false,
+    currentIndex: 0,
+    isPlaying: false,
+    timerId: null,
+    speedMs: 1800,
+    filterMode: 'present',
+    filteredList: [],
+    scannedIds: new Set(),
+    keyHandler: null,
+
+    open(initialStudentId = null, filter = 'present') {
+      this.filterMode = filter;
+      const select = document.getElementById('slideshow-filter-select');
+      if (select) select.value = filter;
+
+      this.updateList();
+      if (this.filteredList.length === 0) {
+        UI.showToast('No students found for this filter to playback', 'warning');
+        return;
+      }
+
+      if (initialStudentId) {
+        const idx = this.filteredList.findIndex(s => String(s.id) === String(initialStudentId));
+        this.currentIndex = idx !== -1 ? idx : 0;
+      } else {
+        this.currentIndex = 0;
+      }
+
+      this.isOpen = true;
+      const modal = document.getElementById('modal-barcode-slideshow');
+      if (modal) modal.classList.add('active');
+
+      this.bindKeyboard();
+      this.renderSlide();
+      this.renderThumbnails();
+      this.updatePlayButton();
+    },
+
+    close() {
+      this.pause();
+      this.isOpen = false;
+      const modal = document.getElementById('modal-barcode-slideshow');
+      if (modal) modal.classList.remove('active');
+      this.unbindKeyboard();
+    },
+
+    updateList() {
+      if (this.filterMode === 'present') {
+        const sessionDate = State.currentSessionDate;
+        const records = State.attendanceRecords[sessionDate] || [];
+        const presentRecords = records.filter(r => !r.leftEarly);
+        this.filteredList = presentRecords.map(r => {
+          const student = State.students.find(s => String(s.id) === String(r.studentId));
+          return student || { id: r.studentId, name: r.studentName, period: r.period, grade: r.grade };
+        });
+      } else if (this.filterMode === 'all') {
+        this.filteredList = [...State.students];
+      } else {
+        // Filter by specific period number
+        this.filteredList = State.students.filter(s => String(s.period) === String(this.filterMode));
+      }
+    },
+
+    setFilter(mode) {
+      this.filterMode = mode;
+      this.updateList();
+      this.currentIndex = 0;
+      if (this.filteredList.length === 0) {
+        UI.showToast('No students match this filter', 'warning');
+      }
+      this.renderSlide();
+      this.renderThumbnails();
+    },
+
+    setSpeed(ms) {
+      this.speedMs = ms;
+      if (this.isPlaying) {
+        this.pause();
+        if (this.speedMs > 0) this.play();
+      }
+    },
+
+    togglePlay() {
+      if (this.isPlaying) {
+        this.pause();
+      } else {
+        this.play();
+      }
+    },
+
+    play() {
+      if (this.filteredList.length === 0) return;
+      if (this.speedMs <= 0) {
+        UI.showToast('Select an interval timer to use Auto Play', 'info');
+        return;
+      }
+
+      this.isPlaying = true;
+      this.updatePlayButton();
+
+      if (this.timerId) clearInterval(this.timerId);
+      this.timerId = setInterval(() => {
+        this.next();
+      }, this.speedMs);
+    },
+
+    pause() {
+      this.isPlaying = false;
+      if (this.timerId) {
+        clearInterval(this.timerId);
+        this.timerId = null;
+      }
+      this.updatePlayButton();
+    },
+
+    updatePlayButton() {
+      const btn = document.getElementById('slideshow-btn-play');
+      if (btn) {
+        if (this.isPlaying) {
+          btn.innerHTML = `<i data-lucide="pause" class="w-4 h-4"></i> Pause`;
+          btn.classList.remove('touch-btn-primary');
+          btn.classList.add('bg-amber-600', 'text-white');
+        } else {
+          btn.innerHTML = `<i data-lucide="play" class="w-4 h-4"></i> Auto Play`;
+          btn.classList.add('touch-btn-primary');
+          btn.classList.remove('bg-amber-600', 'text-white');
+        }
+        if (window.lucide) window.lucide.createIcons();
+      }
+    },
+
+    next() {
+      if (this.filteredList.length === 0) return;
+      if (this.currentIndex < this.filteredList.length - 1) {
+        this.currentIndex++;
+      } else {
+        this.currentIndex = 0;
+      }
+      AudioEngine.playSlideTick();
+      this.renderSlide();
+    },
+
+    prev() {
+      if (this.filteredList.length === 0) return;
+      if (this.currentIndex > 0) {
+        this.currentIndex--;
+      } else {
+        this.currentIndex = this.filteredList.length - 1;
+      }
+      AudioEngine.playSlideTick();
+      this.renderSlide();
+    },
+
+    jumpTo(index) {
+      if (index >= 0 && index < this.filteredList.length) {
+        this.currentIndex = index;
+        AudioEngine.playSlideTick();
+        this.renderSlide();
+      }
+    },
+
+    renderSlide() {
+      if (this.filteredList.length === 0) {
+        const nameElem = document.getElementById('slideshow-student-name');
+        const idElem = document.getElementById('slideshow-student-id-display');
+        const counterBadge = document.getElementById('slideshow-counter-badge');
+        if (nameElem) nameElem.textContent = 'No Students Present';
+        if (idElem) idElem.textContent = 'Check in students first';
+        if (counterBadge) counterBadge.textContent = '0 / 0';
+        return;
+      }
+
+      const student = this.filteredList[this.currentIndex];
+      this.scannedIds.add(String(student.id));
+
+      const nameElem = document.getElementById('slideshow-student-name');
+      const idElem = document.getElementById('slideshow-student-id-display');
+      const periodElem = document.getElementById('slideshow-student-period');
+      const counterBadge = document.getElementById('slideshow-counter-badge');
+      const progressFill = document.getElementById('slideshow-progress-fill');
+
+      if (nameElem) nameElem.textContent = student.name;
+      if (idElem) idElem.textContent = `ID: ${student.id}`;
+      if (periodElem) periodElem.textContent = `Period ${student.period ?? '-'}`;
+      if (counterBadge) counterBadge.textContent = `${this.currentIndex + 1} / ${this.filteredList.length}`;
+
+      const pct = Math.round(((this.currentIndex + 1) / this.filteredList.length) * 100);
+      if (progressFill) progressFill.style.width = `${pct}%`;
+
+      if (window.JsBarcode) {
+        try {
+          window.JsBarcode('#slideshow-barcode-svg', String(student.id), {
+            format: "CODE128",
+            width: 2.8,
+            height: 75,
+            displayValue: true,
+            fontSize: 18,
+            fontOptions: "bold",
+            margin: 10,
+            lineColor: "#000000"
+          });
+        } catch (err) {
+          console.warn('JsBarcode slideshow error:', err);
+        }
+      }
+
+      this.highlightThumbnail();
+    },
+
+    renderThumbnails() {
+      const container = document.getElementById('slideshow-thumbnails-strip');
+      if (!container) return;
+
+      container.innerHTML = this.filteredList.map((s, idx) => {
+        const isCurrent = idx === this.currentIndex;
+        return `
+          <div onclick="window.PRIDE.BarcodeSlideshow.jumpTo(${idx})" class="slideshow-thumb-card ${isCurrent ? 'active' : ''}" id="slide-thumb-${idx}">
+            <div class="text-[10px] font-bold text-slate-200 truncate">${s.name.split(' ')[0]}</div>
+            <div class="text-[9px] mono text-indigo-300">#${s.id}</div>
+          </div>
+        `;
+      }).join('');
+    },
+
+    highlightThumbnail() {
+      this.filteredList.forEach((_, idx) => {
+        const thumb = document.getElementById(`slide-thumb-${idx}`);
+        if (thumb) {
+          thumb.classList.toggle('active', idx === this.currentIndex);
+          if (idx === this.currentIndex) {
+            thumb.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+          }
+        }
+      });
+    },
+
+    bindKeyboard() {
+      this.keyHandler = (e) => {
+        if (!this.isOpen) return;
+        if (e.key === ' ' || e.code === 'Space') {
+          e.preventDefault();
+          this.togglePlay();
+        } else if (e.key === 'ArrowRight' || e.key === 'Enter') {
+          e.preventDefault();
+          this.next();
+        } else if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          this.prev();
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          this.close();
+        }
+      };
+      window.addEventListener('keydown', this.keyHandler);
+    },
+
+    unbindKeyboard() {
+      if (this.keyHandler) {
+        window.removeEventListener('keydown', this.keyHandler);
+        this.keyHandler = null;
+      }
+    }
+  };
+
+  // ==========================================================================
+  // 14. HELPER UTILITIES
   // ==========================================================================
 
   function getTodayDateString() {
@@ -1944,7 +2241,7 @@
   }
 
   // ==========================================================================
-  // 14. PUBLIC API
+  // 15. PUBLIC API
   // ==========================================================================
 
   window.PRIDE = {
@@ -1958,7 +2255,10 @@
     HapticEngine,
     Storage,
     FirestoreBridge,
+    BarcodeSlideshow,
 
+    openBarcodeSlideshow: (id) => BarcodeSlideshow.open(id),
+    closeBarcodeSlideshow: () => BarcodeSlideshow.close(),
     checkoutStudent: (id) => AttendanceEngine.checkoutStudent(id),
     undoCheckin: (id) => AttendanceEngine.undoCheckin(id),
     openBehaviorModal: (id) => UI.openBehaviorModal(id),
@@ -1987,10 +2287,10 @@
     Storage.load();
     SyncEngine.init();
     UI.init();
-    // Try auto-initializing Firestore if Firebase is already loaded
     setTimeout(() => {
       FirestoreBridge.init();
     }, 200);
   });
 
 })();
+
