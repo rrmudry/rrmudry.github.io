@@ -578,52 +578,10 @@
   }
 
   // ==========================================================================
-  // 9. BARCODE & QR CONTINUOUS CAMERA SCANNER ENGINE (1D OPTIMIZED)
+  // 9. BARCODE & QR CONTINUOUS CAMERA SCANNER ENGINE
   // ==========================================================================
 
   const ScannerEngine = {
-    currentZoomIndex: 0,
-    zoomLevels: [1.0, 1.5, 2.0],
-
-    initScannerInstance(forceNew = false) {
-      if (forceNew && State.html5QrCode) {
-        try { State.html5QrCode.clear(); } catch (e) {}
-        State.html5QrCode = null;
-      }
-      if (!State.html5QrCode) {
-        State.html5QrCode = new Html5Qrcode('reader', {
-          verbose: false,
-          formatsToSupport: [
-            Html5QrcodeSupportedFormats.CODE_128,
-            Html5QrcodeSupportedFormats.CODE_39,
-            Html5QrcodeSupportedFormats.CODE_93,
-            Html5QrcodeSupportedFormats.ITF,
-            Html5QrcodeSupportedFormats.CODABAR,
-            Html5QrcodeSupportedFormats.UPC_A,
-            Html5QrcodeSupportedFormats.UPC_E,
-            Html5QrcodeSupportedFormats.EAN_13,
-            Html5QrcodeSupportedFormats.EAN_8,
-            Html5QrcodeSupportedFormats.QR_CODE,
-            Html5QrcodeSupportedFormats.DATA_MATRIX
-          ]
-        });
-      }
-    },
-
-    async startFromUserClick() {
-      try {
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-          const testStream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: "environment" }
-          });
-          testStream.getTracks().forEach(t => t.stop());
-        }
-      } catch (permErr) {
-        console.warn('[ScannerEngine] User gesture permission check:', permErr);
-      }
-      await this.start();
-    },
-
     async start() {
       const readerElement = document.getElementById('reader');
       if (!readerElement) return;
@@ -632,115 +590,72 @@
         return;
       }
 
-      this.initScannerInstance(true);
-
-      const config = {
-        fps: 15,
-        qrbox: (viewfinderWidth, viewfinderHeight) => {
-          const boxWidth = Math.floor(Math.min(viewfinderWidth * 0.88, 380));
-          const boxHeight = Math.floor(Math.min(viewfinderHeight * 0.40, 140));
-          return { width: Math.max(boxWidth, 200), height: Math.max(boxHeight, 80) };
+      try {
+        if (!State.html5QrCode) {
+          State.html5QrCode = new Html5Qrcode('reader', {
+            verbose: false,
+            formatsToSupport: [
+              Html5QrcodeSupportedFormats.CODE_128,
+              Html5QrcodeSupportedFormats.CODE_39,
+              Html5QrcodeSupportedFormats.CODE_93,
+              Html5QrcodeSupportedFormats.ITF,
+              Html5QrcodeSupportedFormats.CODABAR,
+              Html5QrcodeSupportedFormats.UPC_A,
+              Html5QrcodeSupportedFormats.UPC_E,
+              Html5QrcodeSupportedFormats.EAN_13,
+              Html5QrcodeSupportedFormats.EAN_8,
+              Html5QrcodeSupportedFormats.QR_CODE,
+              Html5QrcodeSupportedFormats.DATA_MATRIX
+            ]
+          });
         }
-      };
 
-      const qrSuccessCallback = (decodedText, decodedResult) => {
-        this.handleScanResult(decodedText, decodedResult);
-      };
-      const qrErrorCallback = () => {};
+        const config = {
+          fps: 15,
+          qrbox: (viewfinderWidth, viewfinderHeight) => {
+            const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+            const boxWidth = Math.floor(minEdge * 0.85);
+            const boxHeight = Math.floor(boxWidth * 0.65);
+            return { width: Math.max(boxWidth, 220), height: Math.max(boxHeight, 140) };
+          },
+          aspectRatio: 1.333333
+        };
 
-      // Tier 1: Try default environment (rear) camera
-      try {
-        await State.html5QrCode.start({ facingMode: "environment" }, config, qrSuccessCallback, qrErrorCallback);
-        this.onCameraStarted();
-        return;
-      } catch (err1) {
-        console.warn('[ScannerEngine] Primary environment camera failed:', err1);
+        const cameraIdOrConfig = State.settings.selectedCameraId
+          ? { deviceId: { exact: State.settings.selectedCameraId } }
+          : { facingMode: State.settings.cameraFacingMode || 'environment' };
+
+        await State.html5QrCode.start(
+          cameraIdOrConfig,
+          config,
+          (decodedText, decodedResult) => {
+            this.handleScanResult(decodedText, decodedResult);
+          },
+          (errorMessage) => {}
+        );
+
+        State.scannerActive = true;
+        this.updateTorchState();
+        this.populateCameraList();
+        UI.updateScannerHUDState(true);
+      } catch (err) {
+        console.error('Camera startup error:', err);
+        State.scannerActive = false;
+        UI.updateScannerHUDState(false, err.message || 'Camera access error');
       }
-
-      // Tier 2: Query camera devices and pick rear camera deviceId
-      try {
-        const devices = await Html5Qrcode.getCameras();
-        if (devices && devices.length > 0) {
-          const isRear = (d) => {
-            const label = (d.label || '').toLowerCase();
-            return label.includes('back') || label.includes('rear') || label.includes('environment');
-          };
-          const chosen = devices.find(isRear) || devices[0];
-          State.settings.selectedCameraId = chosen.id;
-          Storage.saveSettings();
-
-          this.initScannerInstance(true);
-          await State.html5QrCode.start(chosen.id, config, qrSuccessCallback, qrErrorCallback);
-          this.onCameraStarted();
-          return;
-        }
-      } catch (err2) {
-        console.warn('[ScannerEngine] Device list query failed:', err2);
-      }
-
-      // Tier 3: Fallback to user facing camera
-      try {
-        this.initScannerInstance(true);
-        await State.html5QrCode.start({ facingMode: "user" }, config, qrSuccessCallback, qrErrorCallback);
-        State.settings.cameraFacingMode = "user";
-        Storage.saveSettings();
-        this.onCameraStarted();
-        return;
-      } catch (err3) {
-        console.error('[ScannerEngine] All camera initialization attempts failed:', err3);
-        this.onCameraFailed(err3);
-      }
-    },
-
-    onCameraStarted() {
-      State.scannerActive = true;
-      this.updateTorchState();
-      this.populateCameraList();
-      UI.updateScannerHUDState(true);
-      const overlay = document.getElementById('camera-start-overlay');
-      if (overlay) overlay.classList.add('hidden');
-    },
-
-    onCameraFailed(err) {
-      State.scannerActive = false;
-      const isNotAllowed = err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError' || String(err).toLowerCase().includes('permission'));
-      const isOverconstrained = err && err.name === 'OverconstrainedError';
-
-      let userMsg = 'Tap "Allow & Start Camera" below to grant permission.';
-      let subMsg = err ? `${err.name || 'Error'}: ${err.message || String(err)}` : '';
-
-      if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-        subMsg = '⚠️ Note: Mobile browsers require HTTPS. Open via https://rrmudry.github.io/admin/pride_time.html';
-      } else if (isNotAllowed) {
-        userMsg = 'Camera permission was blocked. Please tap the lock/camera icon in your address bar or enable camera in Safari/Chrome settings.';
-      }
-
-      UI.updateScannerHUDState(false, err?.message || 'Camera access error');
-      
-      const overlay = document.getElementById('camera-start-overlay');
-      const titleElem = document.getElementById('cam-overlay-title');
-      const msgElem = document.getElementById('cam-overlay-msg');
-      const subMsgElem = document.getElementById('cam-overlay-submsg');
-
-      if (titleElem) titleElem.textContent = isNotAllowed ? 'Camera Permission Denied' : 'Camera Access Error';
-      if (msgElem) msgElem.textContent = userMsg;
-      if (subMsgElem) subMsgElem.textContent = subMsg;
-      if (overlay) overlay.classList.remove('hidden');
     },
 
     async stop() {
       if (State.html5QrCode && State.scannerActive) {
         try {
           await State.html5QrCode.stop();
+          State.scannerActive = false;
+          State.torchActive = false;
+          UI.updateScannerHUDState(false);
         } catch (err) {
           console.warn('Error stopping scanner:', err);
         }
       }
-      State.scannerActive = false;
-      State.torchActive = false;
-      UI.updateScannerHUDState(false);
-      const overlay = document.getElementById('camera-start-overlay');
-      if (overlay) overlay.classList.remove('hidden');
     },
 
     async flipCamera() {
@@ -751,35 +666,7 @@
 
       if (State.scannerActive) {
         await this.stop();
-      }
-      await this.start();
-    },
-
-    async cycleZoom() {
-      if (!State.scannerActive || !State.html5QrCode) {
-        UI.showToast('Start camera first to adjust zoom', 'info');
-        return;
-      }
-      try {
-        this.currentZoomIndex = (this.currentZoomIndex + 1) % this.zoomLevels.length;
-        const targetZoom = this.zoomLevels[this.currentZoomIndex];
-        const label = document.getElementById('hud-zoom-label');
-        if (label) label.textContent = `${targetZoom}x`;
-
-        const capabilities = State.html5QrCode.getRunningTrackCapabilities();
-        if (capabilities && capabilities.zoom) {
-          const minZ = capabilities.zoom.min || 1;
-          const maxZ = capabilities.zoom.max || 3;
-          const clamped = Math.max(minZ, Math.min(maxZ, targetZoom));
-          await State.html5QrCode.applyVideoConstraints({
-            advanced: [{ zoom: clamped }]
-          });
-          UI.showToast(`🔍 Optical Zoom: ${targetZoom}x`, 'info');
-        } else {
-          UI.showToast(`Zoom set to ${targetZoom}x (Hold phone 4-8 inches away)`, 'info');
-        }
-      } catch (e) {
-        console.warn('Zoom apply error:', e);
+        await this.start();
       }
     },
 
@@ -794,7 +681,7 @@
           });
           UI.updateTorchButton(State.torchActive);
         } else {
-          UI.showToast('Flashlight not available on this camera', 'warning');
+          UI.showToast('Torch not supported on this camera', 'warning');
         }
       } catch (err) {
         console.warn('Torch toggle failed:', err);
@@ -830,20 +717,18 @@
 
     handleScanResult(rawText, decodedResult) {
       if (!rawText) return;
-      const rawClean = String(rawText).trim();
-      const extractedId = extractSixDigitId(rawClean);
-      const query = extractedId || rawClean;
+      const cleanText = String(rawText).trim();
       const now = Date.now();
 
       // Debounce: same student within cooldownMs
-      if (query === State.lastScannedId && (now - State.lastScannedTime) < State.cooldownMs) {
+      if (cleanText === State.lastScannedId && (now - State.lastScannedTime) < State.cooldownMs) {
         return;
       }
 
-      State.lastScannedId = query;
+      State.lastScannedId = cleanText;
       State.lastScannedTime = now;
 
-      AttendanceEngine.processCheckIn(query, false, rawClean);
+      AttendanceEngine.processCheckIn(cleanText);
     }
   };
 
