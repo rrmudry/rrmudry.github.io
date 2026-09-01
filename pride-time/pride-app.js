@@ -724,10 +724,6 @@
       const student = StudentDirectory.findStudent(query);
 
       if (student) {
-        // Immediately clear any transient unregistered candidate
-        this.unknownCandidate = null;
-        this.unknownCount = 0;
-
         // Debounce: prevent duplicate check-in of same student within cooldownMs
         if (student.id === State.lastScannedId && (now - State.lastScannedTime) < State.cooldownMs) {
           return;
@@ -741,26 +737,14 @@
       }
 
       // If student is NOT in the roster:
-      // Protect against single-frame barcode glitch/glare reads (e.g. 444475 instead of 444759)
-      // Require 2 consecutive matching reads within 650ms before opening Unregistered Modal
-      if (this.unknownCandidate === query && (now - this.lastUnknownTime) < 650) {
-        this.unknownCount++;
-        if (this.unknownCount >= 2) {
-          if (query === State.lastScannedId && (now - State.lastScannedTime) < State.cooldownMs) {
-            return;
-          }
-          State.lastScannedId = query;
-          State.lastScannedTime = now;
-          this.unknownCandidate = null;
-          this.unknownCount = 0;
-
-          AttendanceEngine.processCheckIn(query, false, rawClean);
-        }
-      } else {
-        this.unknownCandidate = query;
-        this.unknownCount = 1;
-        this.lastUnknownTime = now;
+      // Debounce warning toast so it does not spam on camera frames
+      if (query === State.lastScannedId && (now - State.lastScannedTime) < State.cooldownMs) {
+        return;
       }
+      State.lastScannedId = query;
+      State.lastScannedTime = now;
+
+      AttendanceEngine.processCheckIn(query, false, rawClean);
     }
   };
 
@@ -774,13 +758,13 @@
       const sessionDate = State.currentSessionDate;
       const sessionRecords = State.attendanceRecords[sessionDate] || [];
 
-      // Case A: Student Not Found in Roster
+      // Case A: Student Not Found in Roster (Clean Toast - No intrusive popup)
       if (!student) {
         AudioEngine.playWarning();
         HapticEngine.vibrateWarning();
         UI.flashScanner('warning');
         const displayQuery = extractSixDigitId(scannedQuery) || scannedQuery;
-        UI.openUnregisteredStudentModal(displayQuery);
+        UI.showToast(`⚠️ Student ID #${displayQuery} not in roster`, 'warning');
         return;
       }
 
@@ -1913,41 +1897,6 @@
       this.closeRestrictModal();
     },
 
-    openUnregisteredStudentModal(scannedId) {
-      const modal = document.getElementById('modal-unregistered-student');
-      if (!modal) return;
-
-      document.getElementById('unreg-student-id').value = scannedId;
-      document.getElementById('unreg-student-name').value = '';
-      document.getElementById('unreg-student-period').value = '1';
-      document.getElementById('unreg-student-grade').value = '11';
-
-      modal.classList.add('active');
-    },
-
-    closeUnregisteredStudentModal() {
-      const modal = document.getElementById('modal-unregistered-student');
-      if (modal) modal.classList.remove('active');
-    },
-
-    submitUnregisteredStudent() {
-      const id = document.getElementById('unreg-student-id')?.value.trim();
-      const name = document.getElementById('unreg-student-name')?.value.trim();
-      const period = document.getElementById('unreg-student-period')?.value;
-      const grade = document.getElementById('unreg-student-grade')?.value;
-
-      if (!id || !name) {
-        this.showToast('Please enter both student ID and name', 'warning');
-        return;
-      }
-
-      const newStudent = StudentDirectory.addStudent({ id, name, period, grade, status: 'active' });
-      if (newStudent) {
-        this.closeUnregisteredStudentModal();
-        AttendanceEngine.processCheckIn(newStudent.id);
-      }
-    },
-
     openAddStudentModal() {
       const modal = document.getElementById('modal-add-student');
       if (!modal) return;
@@ -2393,9 +2342,6 @@
     denyRestrictedEntry: () => UI.denyRestrictedEntry(),
     overrideRestrictedEntry: () => UI.overrideRestrictedEntry(),
     closeRestrictionAlertModal: () => UI.closeRestrictionAlertModal(),
-    openUnregisteredStudentModal: (id) => UI.openUnregisteredStudentModal(id),
-    closeUnregisteredStudentModal: () => UI.closeUnregisteredStudentModal(),
-    submitUnregisteredStudent: () => UI.submitUnregisteredStudent(),
     openAddStudentModal: () => UI.openAddStudentModal(),
     closeAddStudentModal: () => UI.closeAddStudentModal(),
     submitAddStudent: () => UI.submitAddStudent(),
