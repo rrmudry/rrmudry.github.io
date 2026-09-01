@@ -614,12 +614,12 @@
       try {
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
           const testStream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: State.settings.cameraFacingMode || "environment" }
+            video: { facingMode: "environment" }
           });
           testStream.getTracks().forEach(t => t.stop());
         }
       } catch (permErr) {
-        console.warn('[ScannerEngine] Native permission probe:', permErr);
+        console.warn('[ScannerEngine] User gesture permission check:', permErr);
       }
       await this.start();
     },
@@ -632,16 +632,15 @@
         return;
       }
 
-      this.initScannerInstance();
+      this.initScannerInstance(true);
 
       const config = {
-        fps: 20,
+        fps: 15,
         qrbox: (viewfinderWidth, viewfinderHeight) => {
-          const boxWidth = Math.floor(Math.min(viewfinderWidth * 0.92, 440));
-          const boxHeight = Math.floor(Math.min(viewfinderHeight * 0.44, 160));
-          return { width: Math.max(boxWidth, 220), height: Math.max(boxHeight, 90) };
-        },
-        aspectRatio: 1.333333
+          const boxWidth = Math.floor(Math.min(viewfinderWidth * 0.88, 380));
+          const boxHeight = Math.floor(Math.min(viewfinderHeight * 0.40, 140));
+          return { width: Math.max(boxWidth, 200), height: Math.max(boxHeight, 80) };
+        }
       };
 
       const qrSuccessCallback = (decodedText, decodedResult) => {
@@ -649,20 +648,16 @@
       };
       const qrErrorCallback = () => {};
 
-      // Tier 1: Try device ID or clean facing mode without strict bounds
+      // Tier 1: Try default environment (rear) camera
       try {
-        const cameraConfig = State.settings.selectedCameraId
-          ? State.settings.selectedCameraId
-          : { facingMode: State.settings.cameraFacingMode || "environment" };
-
-        await State.html5QrCode.start(cameraConfig, config, qrSuccessCallback, qrErrorCallback);
+        await State.html5QrCode.start({ facingMode: "environment" }, config, qrSuccessCallback, qrErrorCallback);
         this.onCameraStarted();
         return;
       } catch (err1) {
-        console.warn('[ScannerEngine] Primary camera start failed, trying fallback...', err1);
+        console.warn('[ScannerEngine] Primary environment camera failed:', err1);
       }
 
-      // Tier 2: Try discovering available cameras and choosing rear camera
+      // Tier 2: Query camera devices and pick rear camera deviceId
       try {
         const devices = await Html5Qrcode.getCameras();
         if (devices && devices.length > 0) {
@@ -680,10 +675,10 @@
           return;
         }
       } catch (err2) {
-        console.warn('[ScannerEngine] Fallback getCameras failed:', err2);
+        console.warn('[ScannerEngine] Device list query failed:', err2);
       }
 
-      // Tier 3: Try user facing camera
+      // Tier 3: Fallback to user facing camera
       try {
         this.initScannerInstance(true);
         await State.html5QrCode.start({ facingMode: "user" }, config, qrSuccessCallback, qrErrorCallback);
@@ -708,21 +703,19 @@
 
     onCameraFailed(err) {
       State.scannerActive = false;
-      const isNotAllowed = err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError' || (err.message && err.message.toLowerCase().includes('permission'));
-      const isOverconstrained = err.name === 'OverconstrainedError';
+      const isNotAllowed = err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError' || String(err).toLowerCase().includes('permission'));
+      const isOverconstrained = err && err.name === 'OverconstrainedError';
 
-      let userMsg = 'Please tap Allow when prompted for camera access.';
-      let subMsg = '';
+      let userMsg = 'Tap "Allow & Start Camera" below to grant permission.';
+      let subMsg = err ? `${err.name || 'Error'}: ${err.message || String(err)}` : '';
 
       if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-        subMsg = '⚠️ Note: Mobile browsers require HTTPS for camera access. Open via https://rrmudry.github.io/admin/pride_time.html';
+        subMsg = '⚠️ Note: Mobile browsers require HTTPS. Open via https://rrmudry.github.io/admin/pride_time.html';
       } else if (isNotAllowed) {
-        userMsg = 'Camera permission was denied. Please allow camera access in browser site settings.';
-      } else if (isOverconstrained) {
-        userMsg = 'Camera resolution constraint issue. Tap below to switch camera.';
+        userMsg = 'Camera permission was blocked. Please tap the lock/camera icon in your address bar or enable camera in Safari/Chrome settings.';
       }
 
-      UI.updateScannerHUDState(false, err.message || 'Camera access error');
+      UI.updateScannerHUDState(false, err?.message || 'Camera access error');
       
       const overlay = document.getElementById('camera-start-overlay');
       const titleElem = document.getElementById('cam-overlay-title');
