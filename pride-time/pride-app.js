@@ -30,30 +30,30 @@
   };
 
   const SAMPLE_STUDENTS = [
-    { id: "73001", name: "Sheldon Cooper", grade: 11, period: 1, status: "active", avatarColor: "#6366f1", restrictions: [], behaviorLogs: [], totalPrides: 4, totalInfractions: 0 },
-    { id: "73002", name: "Leonard Hofstadter", grade: 11, period: 1, status: "active", avatarColor: "#8b5cf6", restrictions: [], behaviorLogs: [], totalPrides: 2, totalInfractions: 0 },
-    { id: "73003", name: "Penny Hofstadter", grade: 11, period: 2, status: "active", avatarColor: "#ec4899", restrictions: [], behaviorLogs: [], totalPrides: 1, totalInfractions: 0 },
-    { id: "73004", name: "Howard Wolowitz", grade: 12, period: 3, status: "restricted", avatarColor: "#ef4444", restrictions: [
+    { id: "730001", name: "Sheldon Cooper", grade: 11, period: 1, status: "active", avatarColor: "#6366f1", restrictions: [], behaviorLogs: [], totalPrides: 4, totalInfractions: 0 },
+    { id: "730002", name: "Leonard Hofstadter", grade: 11, period: 1, status: "active", avatarColor: "#8b5cf6", restrictions: [], behaviorLogs: [], totalPrides: 2, totalInfractions: 0 },
+    { id: "730003", name: "Penny Hofstadter", grade: 11, period: 2, status: "active", avatarColor: "#ec4899", restrictions: [], behaviorLogs: [], totalPrides: 1, totalInfractions: 0 },
+    { id: "730004", name: "Howard Wolowitz", grade: 12, period: 3, status: "restricted", avatarColor: "#ef4444", restrictions: [
       { id: "res-101", reason: "Disruptive behavior & gaming on laptop during physics tutorial", dateLogged: "2026-08-27", expiresDate: "2026-09-08", active: true, severity: "High", notes: "Must complete missing kinematics assignment in tutorial before PRIDE access is restored." }
     ], behaviorLogs: [
       { id: "beh-1", timestamp: "2026-08-27T10:15:00Z", type: "infraction", tag: "Disruptive / Gaming", note: "Refused to work on rocket lab, loud distraction to peers", severity: "High" }
     ], totalPrides: 0, totalInfractions: 2 },
-    { id: "73005", name: "Raj Koothrappali", grade: 12, period: 3, status: "probation", avatarColor: "#f59e0b", restrictions: [], behaviorLogs: [
+    { id: "730005", name: "Raj Koothrappali", grade: 12, period: 3, status: "probation", avatarColor: "#f59e0b", restrictions: [], behaviorLogs: [
       { id: "beh-2", timestamp: "2026-08-25T10:10:00Z", type: "infraction", tag: "Phone Misuse", note: "Warning given for social media browsing during study time", severity: "Warning" }
     ], totalPrides: 1, totalInfractions: 1 },
-    { id: "73006", name: "Bernadette Rostenkowski", grade: 11, period: 4, status: "active", avatarColor: "#10b981", restrictions: [], behaviorLogs: [
+    { id: "730006", name: "Bernadette Rostenkowski", grade: 11, period: 4, status: "active", avatarColor: "#10b981", restrictions: [], behaviorLogs: [
       { id: "beh-3", timestamp: "2026-08-25T10:30:00Z", type: "positive", tag: "Peer Tutoring", note: "Helped 3 students master projectile vector formulas", severity: "Commendation" }
     ], totalPrides: 5, totalInfractions: 0 },
-    { id: "73007", name: "Amy Farrah Fowler", grade: 11, period: 4, status: "active", avatarColor: "#06b6d4", restrictions: [], behaviorLogs: [
+    { id: "730007", name: "Amy Farrah Fowler", grade: 11, period: 4, status: "active", avatarColor: "#06b6d4", restrictions: [], behaviorLogs: [
       { id: "beh-4", timestamp: "2026-08-27T10:20:00Z", type: "positive", tag: "Lab Master", note: "Finished entropy analysis early and assisted table mates", severity: "Commendation" }
     ], totalPrides: 3, totalInfractions: 0 },
-    { id: "73008", name: "Stuart Bloom", grade: 12, period: 5, status: "active", avatarColor: "#a855f7", restrictions: [], behaviorLogs: [], totalPrides: 0, totalInfractions: 0 },
-    { id: "73009", name: "Barry Kripke", grade: 12, period: 6, status: "restricted", avatarColor: "#ef4444", restrictions: [
+    { id: "730008", name: "Stuart Bloom", grade: 12, period: 5, status: "active", avatarColor: "#a855f7", restrictions: [], behaviorLogs: [], totalPrides: 0, totalInfractions: 0 },
+    { id: "730009", name: "Barry Kripke", grade: 12, period: 6, status: "restricted", avatarColor: "#ef4444", restrictions: [
       { id: "res-102", reason: "Left PRIDE Time room without hall pass and wandered hallway", dateLogged: "2026-08-26", expiresDate: "2026-09-05", active: true, severity: "High", notes: "Referred to assistant principal office." }
     ], behaviorLogs: [
       { id: "beh-5", timestamp: "2026-08-26T10:45:00Z", type: "infraction", tag: "Left Without Pass", note: "Found wandering near quad during tutorial", severity: "High" }
     ], totalPrides: 0, totalInfractions: 3 },
-    { id: "73010", name: "Leslie Winkle", grade: 11, period: 6, status: "active", avatarColor: "#3b82f6", restrictions: [], behaviorLogs: [], totalPrides: 2, totalInfractions: 0 }
+    { id: "730010", name: "Leslie Winkle", grade: 11, period: 6, status: "active", avatarColor: "#3b82f6", restrictions: [], behaviorLogs: [], totalPrides: 2, totalInfractions: 0 }
   ];
 
   // ==========================================================================
@@ -544,10 +544,47 @@
   };
 
   // ==========================================================================
-  // 8. BARCODE & QR CONTINUOUS CAMERA SCANNER ENGINE
+  // 8. 6-DIGIT STUDENT ID PARSER & NORMALIZER
+  // ==========================================================================
+
+  function extractSixDigitId(rawText) {
+    if (!rawText) return '';
+    const str = String(rawText).trim();
+
+    // 1. Direct word-boundary 6 digits (e.g., "730001", "123456")
+    const match6 = str.match(/\b\d{6}\b/);
+    if (match6) return match6[0];
+
+    // 2. Any consecutive 6 digits in string (e.g., "*730001*", "ID:730001", "S730001A")
+    const matchAny6 = str.match(/\d{6}/);
+    if (matchAny6) return matchAny6[0];
+
+    // 3. Strip all non-digits
+    const digitsOnly = str.replace(/\D/g, '');
+    if (digitsOnly.length === 6) {
+      return digitsOnly;
+    } else if (digitsOnly.length > 6) {
+      // Return 6-digit substring if present or first 6 digits
+      const sub6 = digitsOnly.match(/\d{6}/);
+      if (sub6) return sub6[0];
+      return digitsOnly.slice(0, 6);
+    } else if (digitsOnly.length === 5) {
+      // Handle potential dropped leading zero
+      return digitsOnly.padStart(6, '0');
+    }
+
+    // 4. Fallback: clean out Code 39 asterisks and spaces
+    return str.replace(/[\*\s]/g, '');
+  }
+
+  // ==========================================================================
+  // 9. BARCODE & QR CONTINUOUS CAMERA SCANNER ENGINE (1D OPTIMIZED)
   // ==========================================================================
 
   const ScannerEngine = {
+    currentZoomIndex: 0,
+    zoomLevels: [1.0, 1.5, 2.0],
+
     async start() {
       const readerElement = document.getElementById('reader');
       if (!readerElement) return;
@@ -560,34 +597,47 @@
         if (!State.html5QrCode) {
           State.html5QrCode = new Html5Qrcode('reader', {
             verbose: false,
+            experimentalFeatures: {
+              useBarCodeDetectorIfSupported: true
+            },
             formatsToSupport: [
               Html5QrcodeSupportedFormats.CODE_128,
               Html5QrcodeSupportedFormats.CODE_39,
-              Html5QrcodeSupportedFormats.QR_CODE,
+              Html5QrcodeSupportedFormats.CODE_93,
+              Html5QrcodeSupportedFormats.ITF,
+              Html5QrcodeSupportedFormats.CODABAR,
               Html5QrcodeSupportedFormats.UPC_A,
               Html5QrcodeSupportedFormats.UPC_E,
               Html5QrcodeSupportedFormats.EAN_13,
               Html5QrcodeSupportedFormats.EAN_8,
-              Html5QrcodeSupportedFormats.ITF,
+              Html5QrcodeSupportedFormats.QR_CODE,
               Html5QrcodeSupportedFormats.DATA_MATRIX
             ]
           });
         }
 
+        // Horizontal wide scanning rectangle tailored specifically for 1D ID barcodes
         const config = {
-          fps: 15,
+          fps: 22,
           qrbox: (viewfinderWidth, viewfinderHeight) => {
-            const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-            const boxWidth = Math.floor(minEdge * 0.85);
-            const boxHeight = Math.floor(boxWidth * 0.65);
-            return { width: Math.max(boxWidth, 220), height: Math.max(boxHeight, 140) };
+            const boxWidth = Math.floor(Math.min(viewfinderWidth * 0.92, 460));
+            const boxHeight = Math.floor(Math.min(viewfinderHeight * 0.44, 170));
+            return { width: Math.max(boxWidth, 240), height: Math.max(boxHeight, 100) };
           },
           aspectRatio: 1.333333
         };
 
         const cameraIdOrConfig = State.settings.selectedCameraId
-          ? { deviceId: { exact: State.settings.selectedCameraId } }
-          : { facingMode: State.settings.cameraFacingMode || 'environment' };
+          ? {
+              deviceId: { exact: State.settings.selectedCameraId },
+              width: { min: 640, ideal: 1920 },
+              height: { min: 480, ideal: 1080 }
+            }
+          : {
+              facingMode: State.settings.cameraFacingMode || 'environment',
+              width: { min: 640, ideal: 1920 },
+              height: { min: 480, ideal: 1080 }
+            };
 
         await State.html5QrCode.start(
           cameraIdOrConfig,
@@ -634,6 +684,34 @@
       }
     },
 
+    async cycleZoom() {
+      if (!State.scannerActive || !State.html5QrCode) {
+        UI.showToast('Start camera first to adjust zoom', 'info');
+        return;
+      }
+      try {
+        this.currentZoomIndex = (this.currentZoomIndex + 1) % this.zoomLevels.length;
+        const targetZoom = this.zoomLevels[this.currentZoomIndex];
+        const label = document.getElementById('hud-zoom-label');
+        if (label) label.textContent = `${targetZoom}x`;
+
+        const capabilities = State.html5QrCode.getRunningTrackCapabilities();
+        if (capabilities && capabilities.zoom) {
+          const minZ = capabilities.zoom.min || 1;
+          const maxZ = capabilities.zoom.max || 3;
+          const clamped = Math.max(minZ, Math.min(maxZ, targetZoom));
+          await State.html5QrCode.applyVideoConstraints({
+            advanced: [{ zoom: clamped }]
+          });
+          UI.showToast(`🔍 Optical Zoom: ${targetZoom}x`, 'info');
+        } else {
+          UI.showToast(`Zoom set to ${targetZoom}x (Hold camera 4-8 inches from barcode)`, 'info');
+        }
+      } catch (e) {
+        console.warn('Zoom apply error:', e);
+      }
+    },
+
     async toggleTorch() {
       if (!State.scannerActive || !State.html5QrCode) return;
       try {
@@ -667,27 +745,29 @@
 
     handleScanResult(rawText, decodedResult) {
       if (!rawText) return;
-      const cleanText = String(rawText).trim();
+      const rawClean = String(rawText).trim();
+      const extractedId = extractSixDigitId(rawClean);
+      const query = extractedId || rawClean;
       const now = Date.now();
 
       // Debounce: same student within cooldownMs
-      if (cleanText === State.lastScannedId && (now - State.lastScannedTime) < State.cooldownMs) {
+      if (query === State.lastScannedId && (now - State.lastScannedTime) < State.cooldownMs) {
         return;
       }
 
-      State.lastScannedId = cleanText;
+      State.lastScannedId = query;
       State.lastScannedTime = now;
 
-      AttendanceEngine.processCheckIn(cleanText);
+      AttendanceEngine.processCheckIn(query, false, rawClean);
     }
   };
 
   // ==========================================================================
-  // 9. ATTENDANCE ENGINE
+  // 10. ATTENDANCE ENGINE
   // ==========================================================================
 
   const AttendanceEngine = {
-    processCheckIn(scannedQuery, isManual = false) {
+    processCheckIn(scannedQuery, isManual = false, rawScanText = '') {
       const student = StudentDirectory.findStudent(scannedQuery);
       const sessionDate = State.currentSessionDate;
       const sessionRecords = State.attendanceRecords[sessionDate] || [];
@@ -697,7 +777,8 @@
         AudioEngine.playWarning();
         HapticEngine.vibrateWarning();
         UI.flashScanner('warning');
-        UI.openUnregisteredStudentModal(scannedQuery);
+        const displayQuery = extractSixDigitId(scannedQuery) || scannedQuery;
+        UI.openUnregisteredStudentModal(displayQuery);
         return;
       }
 
@@ -735,7 +816,7 @@
       HapticEngine.vibrateSuccess();
       UI.flashScanner('success');
       this.recordAttendanceEntry(student, false, '');
-      UI.showToast(`✅ Checked In: ${student.name} (#${student.id})`, 'success');
+      UI.showToast(`✅ Checked In: ${student.name} (ID: ${student.id})`, 'success');
     },
 
     recordAttendanceEntry(student, overrideUsed = false, note = '') {
@@ -812,18 +893,57 @@
   };
 
   // ==========================================================================
-  // 10. STUDENT DIRECTORY & RESTRICTION CONTROLLER
+  // 11. STUDENT DIRECTORY & RESTRICTION CONTROLLER (6-DIGIT MATCHING)
   // ==========================================================================
 
   const StudentDirectory = {
     findStudent(query) {
       if (!query) return null;
-      const q = String(query).trim().toLowerCase();
-      return State.students.find(s => 
-        String(s.id).toLowerCase() === q || 
-        String(s.name).toLowerCase() === q ||
-        String(s.name).toLowerCase().includes(q)
+      const qRaw = String(query).trim();
+      const clean = qRaw.replace(/[\*\s]/g, '').toLowerCase();
+      const digits = qRaw.replace(/\D/g, '');
+      const match6 = qRaw.match(/\d{6}/)?.[0] || null;
+
+      // 1. Direct ID match
+      let student = State.students.find(s => 
+        String(s.id).toLowerCase() === clean || 
+        String(s.id).toLowerCase() === qRaw.toLowerCase()
       );
+      if (student) return student;
+
+      // 2. 6-digit extracted match (handles Code 39 *123456*, raw prefixes, etc.)
+      if (match6) {
+        student = State.students.find(s => {
+          const sId = String(s.id).trim();
+          const sDigits = sId.replace(/\D/g, '');
+          return sId === match6 || 
+                 sDigits === match6 || 
+                 sDigits.padStart(6, '0') === match6 || 
+                 match6.padStart(6, '0') === sDigits;
+        });
+        if (student) return student;
+      }
+
+      // 3. Digit normalization (handles leading zeros e.g. "073001" vs "73001")
+      if (digits.length >= 4) {
+        student = State.students.find(s => {
+          const sDigits = String(s.id).replace(/\D/g, '');
+          if (!sDigits) return false;
+          if (sDigits === digits) return true;
+          if (sDigits.padStart(6, '0') === digits.padStart(6, '0')) return true;
+          if (digits.length > 6 && (digits.includes(sDigits) || digits.startsWith(sDigits) || digits.endsWith(sDigits))) return true;
+          return false;
+        });
+        if (student) return student;
+      }
+
+      // 4. Match by student name
+      student = State.students.find(s => 
+        String(s.name).toLowerCase() === clean || 
+        String(s.name).toLowerCase() === qRaw.toLowerCase() ||
+        String(s.name).toLowerCase().includes(clean)
+      );
+      return student || null;
     },
 
     addStudent(studentData) {
