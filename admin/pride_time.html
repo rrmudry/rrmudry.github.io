@@ -103,11 +103,12 @@
             <i data-lucide="arrow-left" class="text-white w-5 h-5"></i>
           </a>
           <div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
               <h1 class="text-lg sm:text-xl font-black italic tracking-tight uppercase">
                 PRIDE <span class="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-indigo-300 to-cyan-400">Time</span>
               </h1>
               <span id="pride-day-banner" class="hidden sm:inline-flex"></span>
+              <span id="firestore-sync-badge" class="hidden lg:inline-flex"></span>
             </div>
             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
               <span>Orange High School</span> • <span>Room 204</span>
@@ -897,6 +898,11 @@
           appShell.classList.add('opacity-100');
           if (userDisplayEmail) userDisplayEmail.textContent = user.email;
           if (authError) authError.classList.add('hidden');
+
+          // Initialize Live Firestore Roster & Attendance Sync
+          if (window.PRIDE && window.PRIDE.FirestoreBridge) {
+            window.PRIDE.FirestoreBridge.init();
+          }
         } else {
           // Unauthorized or Signed Out
           authOverlay.classList.remove('hidden');
