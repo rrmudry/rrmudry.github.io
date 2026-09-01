@@ -53,8 +53,7 @@
     ], behaviorLogs: [
       { id: "beh-5", timestamp: "2026-08-26T10:45:00Z", type: "infraction", tag: "Left Without Pass", note: "Found wandering near quad during tutorial", severity: "High" }
     ], totalPrides: 0, totalInfractions: 3 },
-    { id: "730010", name: "Leslie Winkle", grade: 11, period: 6, status: "active", avatarColor: "#3b82f6", restrictions: [], behaviorLogs: [], totalPrides: 2, totalInfractions: 0 },
-    { id: "444759", name: "Edward Miller", grade: 11, period: 1, status: "active", avatarColor: "#0ea5e9", restrictions: [], behaviorLogs: [], totalPrides: 3, totalInfractions: 0 }
+    { id: "730010", name: "Leslie Winkle", grade: 11, period: 6, status: "active", avatarColor: "#3b82f6", restrictions: [], behaviorLogs: [], totalPrides: 2, totalInfractions: 0 }
   ];
 
   // ==========================================================================
