@@ -24,8 +24,8 @@
     selectedCameraId: null,
     schoolName: 'Orange High School',
     teacherName: 'Mr. Mudry',
-    roomNumber: 'Room 204',
-    syncRoomCode: 'PRIDE-204',
+    roomNumber: 'Room 930',
+    syncRoomCode: 'PRIDE-930',
     prideDays: ['Tuesday', 'Wednesday', 'Thursday']
   };
 
