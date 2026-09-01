@@ -1,6 +1,6 @@
 /**
  * PRIDE Time Attendance & Behavior Tracker - Core Application Logic
- * Continuous Barcode/QR Scanning, Live Counter, Behavior System & Dual-Device Sync
+ * Continuous Barcode/QR Scanning, Live Counter, Firestore Roster Sync & Realtime Bus
  */
 
 (function () {
@@ -20,7 +20,7 @@
     soundEnabled: true,
     hapticsEnabled: true,
     autoStartCamera: true,
-    cameraFacingMode: 'environment', // 'environment' (back) or 'user' (front)
+    cameraFacingMode: 'environment',
     selectedCameraId: null,
     schoolName: 'Orange High School',
     teacherName: 'Mr. Mudry',
@@ -53,14 +53,7 @@
     ], behaviorLogs: [
       { id: "beh-5", timestamp: "2026-08-26T10:45:00Z", type: "infraction", tag: "Left Without Pass", note: "Found wandering near quad during tutorial", severity: "High" }
     ], totalPrides: 0, totalInfractions: 3 },
-    { id: "73010", name: "Leslie Winkle", grade: 11, period: 6, status: "active", avatarColor: "#3b82f6", restrictions: [], behaviorLogs: [], totalPrides: 2, totalInfractions: 0 },
-    { id: "73011", name: "Alex Jensen", grade: 10, period: 2, status: "active", avatarColor: "#14b8a6", restrictions: [], behaviorLogs: [], totalPrides: 1, totalInfractions: 0 },
-    { id: "73012", name: "Arthur Jeffries", grade: 12, period: 5, status: "active", avatarColor: "#f97316", restrictions: [], behaviorLogs: [], totalPrides: 3, totalInfractions: 0 },
-    { id: "73013", name: "Beverly Hofstadter", grade: 10, period: 1, status: "active", avatarColor: "#84cc16", restrictions: [], behaviorLogs: [], totalPrides: 2, totalInfractions: 0 },
-    { id: "73014", name: "Wil Wheaton", grade: 12, period: 3, status: "probation", avatarColor: "#eab308", restrictions: [], behaviorLogs: [
-      { id: "beh-6", timestamp: "2026-08-20T10:15:00Z", type: "infraction", tag: "Off-Task", note: "Playing card games instead of studying", severity: "Warning" }
-    ], totalPrides: 1, totalInfractions: 1 },
-    { id: "73015", name: "Zack Johnson", grade: 11, period: 4, status: "active", avatarColor: "#64748b", restrictions: [], behaviorLogs: [], totalPrides: 1, totalInfractions: 0 }
+    { id: "73010", name: "Leslie Winkle", grade: 11, period: 6, status: "active", avatarColor: "#3b82f6", restrictions: [], behaviorLogs: [], totalPrides: 2, totalInfractions: 0 }
   ];
 
   // ==========================================================================
@@ -70,7 +63,7 @@
   const State = {
     settings: { ...DEFAULT_SETTINGS },
     students: [],
-    attendanceRecords: {}, // Keyed by Date string: { "2026-09-01": [ { studentId, name, timestamp, overrideUsed, leftEarly } ] }
+    attendanceRecords: {}, // Keyed by Date string: { "2026-09-01": [ ... ] }
     behaviorLogs: [],
     currentSessionDate: getTodayDateString(),
     scannerActive: false,
@@ -79,11 +72,12 @@
     torchActive: false,
     lastScannedId: null,
     lastScannedTime: 0,
-    cooldownMs: 3500, // 3.5s duplicate protection
+    cooldownMs: 3500,
     selectedStudentForAction: null,
     activeTab: 'scanner',
     audioCtx: null,
-    broadcastChannel: null
+    broadcastChannel: null,
+    firestoreConnected: false
   };
 
   // ==========================================================================
@@ -179,8 +173,6 @@
         if (!State.audioCtx) return;
 
         const now = State.audioCtx.currentTime;
-
-        // 3 urgent low-pitch pulses
         [0, 0.12, 0.24].forEach(offset => {
           const osc = State.audioCtx.createOscillator();
           const gain = State.audioCtx.createGain();
@@ -227,7 +219,173 @@
   };
 
   // ==========================================================================
-  // 5. STORAGE & REPOSITORY ENGINE
+  // 5. FIRESTORE BRIDGE (DIRECT INTEGRATION WITH db.collection('roster'))
+  // ==========================================================================
+
+  const FirestoreBridge = {
+    db: null,
+    unsubscribeRoster: null,
+    unsubscribeAttendance: null,
+    isInitialized: false,
+
+    init() {
+      if (this.isInitialized) return;
+      if (window.firebase && window.firebase.firestore) {
+        try {
+          this.db = window.firebase.firestore();
+          this.isInitialized = true;
+          this.bindRosterStream();
+          this.bindAttendanceStream(State.currentSessionDate);
+          console.log('[FirestoreBridge] Realtime listeners active on db.collection("roster")');
+        } catch (err) {
+          console.warn('[FirestoreBridge] Firestore init warning:', err);
+        }
+      }
+    },
+
+    bindRosterStream() {
+      if (!this.db) return;
+      if (this.unsubscribeRoster) this.unsubscribeRoster();
+
+      const colors = ['#6366f1', '#8b5cf6', '#ec4899', '#10b981', '#06b6d4', '#f59e0b', '#3b82f6', '#14b8a6'];
+
+      this.unsubscribeRoster = this.db.collection('roster').onSnapshot((snapshot) => {
+        if (snapshot && !snapshot.empty) {
+          const firestoreStudents = snapshot.docs.map((doc, idx) => {
+            const data = doc.data() || {};
+            const studentId = String(data.student_id || doc.id).trim();
+            const fullName = data.full_name || (data.first_name ? `${data.first_name} ${data.last_name || ''}`.trim() : `Student #${studentId}`);
+            const period = data.class_period !== undefined ? data.class_period : (data.period !== undefined ? data.period : 1);
+            const grade = data.grade || 11;
+            const status = data.pride_status || data.status || 'active';
+            const restrictions = data.pride_restrictions || data.restrictions || [];
+            const behaviorLogs = data.pride_behavior_logs || data.behaviorLogs || [];
+            const totalPrides = data.pride_points || (data.totalPrides || 0);
+            const totalInfractions = data.pride_infractions || (data.totalInfractions || 0);
+
+            return {
+              id: studentId,
+              name: fullName,
+              grade: grade,
+              period: period,
+              status: status,
+              avatarColor: colors[idx % colors.length],
+              restrictions: restrictions,
+              behaviorLogs: behaviorLogs,
+              totalPrides: totalPrides,
+              totalInfractions: totalInfractions
+            };
+          });
+
+          // Sort by period, then by student name
+          firestoreStudents.sort((a, b) => {
+            if (a.period !== b.period) return (a.period || 0) - (b.period || 0);
+            return (a.name || '').localeCompare(b.name || '');
+          });
+
+          State.students = firestoreStudents;
+          State.firestoreConnected = true;
+          Storage.saveStudentsLocalOnly();
+          UI.renderAll();
+          UI.updateCloudSyncBadge(true, firestoreStudents.length);
+        } else {
+          console.log('[FirestoreBridge] Firestore roster is currently empty.');
+          State.firestoreConnected = true;
+          UI.updateCloudSyncBadge(true, State.students.length);
+        }
+      }, (error) => {
+        console.warn('[FirestoreBridge] Roster stream error (offline fallback active):', error);
+        State.firestoreConnected = false;
+        UI.updateCloudSyncBadge(false, State.students.length);
+      });
+    },
+
+    bindAttendanceStream(date) {
+      if (!this.db || !date) return;
+      if (this.unsubscribeAttendance) this.unsubscribeAttendance();
+
+      this.unsubscribeAttendance = this.db.collection('pride_attendance').doc(date).collection('checkins')
+        .onSnapshot((snapshot) => {
+          if (snapshot) {
+            const checkins = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            checkins.sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0));
+            State.attendanceRecords[date] = checkins;
+            Storage.saveAttendanceLocalOnly();
+            UI.renderCounterHUD();
+            UI.renderLiveAttendanceTable();
+            UI.renderRecentScansRoll();
+            UI.renderSessionStats();
+          }
+        }, (err) => {
+          console.warn('[FirestoreBridge] Attendance stream error:', err);
+        });
+    },
+
+    async pushCheckIn(record) {
+      if (!this.db) return;
+      try {
+        const date = State.currentSessionDate;
+        await this.db.collection('pride_attendance').doc(date).collection('checkins').doc(record.studentId).set(record, { merge: true });
+      } catch (err) {
+        console.warn('[FirestoreBridge] Error pushing checkin to Firestore:', err);
+      }
+    },
+
+    async removeCheckIn(studentId) {
+      if (!this.db) return;
+      try {
+        const date = State.currentSessionDate;
+        await this.db.collection('pride_attendance').doc(date).collection('checkins').doc(studentId).delete();
+      } catch (err) {
+        console.warn('[FirestoreBridge] Error deleting checkin from Firestore:', err);
+      }
+    },
+
+    async pushStudentRestriction(studentId, status, restrictions) {
+      if (!this.db) return;
+      try {
+        await this.db.collection('roster').doc(studentId).set({
+          pride_status: status,
+          pride_restrictions: restrictions,
+          updated_at: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+      } catch (err) {
+        console.warn('[FirestoreBridge] Error updating student restriction in Firestore:', err);
+      }
+    },
+
+    async pushStudent(studentData) {
+      if (!this.db) return;
+      try {
+        await this.db.collection('roster').doc(studentData.id).set({
+          student_id: studentData.id,
+          full_name: studentData.name,
+          class_period: studentData.period,
+          grade: studentData.grade,
+          pride_status: studentData.status || 'active',
+          pride_restrictions: studentData.restrictions || [],
+          updated_at: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+      } catch (err) {
+        console.warn('[FirestoreBridge] Error saving student to Firestore:', err);
+      }
+    },
+
+    async logBehavior(entry) {
+      if (!this.db) return;
+      try {
+        await this.db.collection('pride_behavior').add({
+          ...entry,
+          timestamp_server: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      } catch (err) {
+        console.warn('[FirestoreBridge] Error logging behavior to Firestore:', err);
+      }
+    }
+  };
+
+  // ==========================================================================
+  // 6. STORAGE & REPOSITORY ENGINE
   // ==========================================================================
 
   const Storage = {
@@ -255,11 +413,10 @@
         if (savedBehavior) {
           State.behaviorLogs = JSON.parse(savedBehavior);
         } else {
-          // Preload with existing behavior logs from sample students
           State.behaviorLogs = State.students.flatMap(s => (s.behaviorLogs || []).map(b => ({ ...b, studentId: s.id, studentName: s.name })));
         }
       } catch (err) {
-        console.error('Storage load error, falling back to defaults:', err);
+        console.error('Storage load error:', err);
         State.students = [...SAMPLE_STUDENTS];
         State.attendanceRecords = {};
       }
@@ -279,6 +436,12 @@
       } catch (e) { console.error('Failed to save students:', e); }
     },
 
+    saveStudentsLocalOnly() {
+      try {
+        localStorage.setItem(STORAGE_KEY_STUDENTS, JSON.stringify(State.students));
+      } catch (e) {}
+    },
+
     saveAttendance() {
       try {
         localStorage.setItem(STORAGE_KEY_ATTENDANCE, JSON.stringify(State.attendanceRecords));
@@ -287,6 +450,12 @@
           records: State.attendanceRecords[State.currentSessionDate] || []
         });
       } catch (e) { console.error('Failed to save attendance:', e); }
+    },
+
+    saveAttendanceLocalOnly() {
+      try {
+        localStorage.setItem(STORAGE_KEY_ATTENDANCE, JSON.stringify(State.attendanceRecords));
+      } catch (e) {}
     },
 
     saveBehavior() {
@@ -304,12 +473,12 @@
       this.saveAttendance();
       this.saveBehavior();
       UI.renderAll();
-      UI.showToast('Reset to demo roster and records successfully!', 'success');
+      UI.showToast('Loaded sample roster for demonstration', 'success');
     }
   };
 
   // ==========================================================================
-  // 6. SYNC ENGINE (BROADCASTCHANNEL & MULTI-WINDOW / DUAL-DEVICE BUS)
+  // 7. SYNC ENGINE (BROADCASTCHANNEL DUAL-TAB SYNC)
   // ==========================================================================
 
   const SyncEngine = {
@@ -336,7 +505,7 @@
           };
         }
       } catch (e) {
-        console.warn('BroadcastChannel not supported or error:', e);
+        console.warn('BroadcastChannel not supported:', e);
       }
     },
 
@@ -350,7 +519,7 @@
   };
 
   // ==========================================================================
-  // 7. BARCODE & QR CONTINUOUS CAMERA SCANNER ENGINE
+  // 8. BARCODE & QR CONTINUOUS CAMERA SCANNER ENGINE
   // ==========================================================================
 
   const ScannerEngine = {
@@ -359,7 +528,7 @@
       if (!readerElement) return;
 
       if (State.scannerActive && State.html5QrCode) {
-        return; // already active
+        return;
       }
 
       try {
@@ -383,7 +552,6 @@
         const config = {
           fps: 15,
           qrbox: (viewfinderWidth, viewfinderHeight) => {
-            // Adaptive rectangular aspect ratio optimized for both 1D horizontal barcodes and 2D QR codes
             const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
             const boxWidth = Math.floor(minEdge * 0.85);
             const boxHeight = Math.floor(boxWidth * 0.65);
@@ -402,9 +570,7 @@
           (decodedText, decodedResult) => {
             this.handleScanResult(decodedText, decodedResult);
           },
-          (errorMessage) => {
-            // Frame scan failure is normal during stream
-          }
+          (errorMessage) => {}
         );
 
         State.scannerActive = true;
@@ -454,7 +620,7 @@
           });
           UI.updateTorchButton(State.torchActive);
         } else {
-          UI.showToast('Torch/Flashlight not supported on this camera', 'warning');
+          UI.showToast('Torch not supported on this camera', 'warning');
         }
       } catch (err) {
         console.warn('Torch toggle failed:', err);
@@ -479,22 +645,20 @@
       const cleanText = String(rawText).trim();
       const now = Date.now();
 
-      // 1. Debounce Check: If the same student is scanned within cooldownMs, do not duplicate
+      // Debounce: same student within cooldownMs
       if (cleanText === State.lastScannedId && (now - State.lastScannedTime) < State.cooldownMs) {
-        // Quiet cooldown indication (do not alert loudly)
         return;
       }
 
       State.lastScannedId = cleanText;
       State.lastScannedTime = now;
 
-      // 2. Process check-in through Business Logic
       AttendanceEngine.processCheckIn(cleanText);
     }
   };
 
   // ==========================================================================
-  // 8. ATTENDANCE & VERIFICATION BUSINESS LOGIC
+  // 9. ATTENDANCE ENGINE
   // ==========================================================================
 
   const AttendanceEngine = {
@@ -536,12 +700,12 @@
         AudioEngine.playWarning();
         HapticEngine.vibrateWarning();
         UI.flashScanner('warning');
-        this.recordAttendanceEntry(student, false, 'Admitted on probation (Monitor behavior)');
+        this.recordAttendanceEntry(student, false, 'Admitted on probation (Monitor)');
         UI.showToast(`⚠️ Checked In (PROBATION): ${student.name}`, 'warning');
         return;
       }
 
-      // Case E: Normal ALLOWED Check-In
+      // Case E: Normal Check-In
       AudioEngine.playSuccess();
       HapticEngine.vibrateSuccess();
       UI.flashScanner('success');
@@ -574,6 +738,9 @@
       State.attendanceRecords[sessionDate].unshift(newRecord);
       Storage.saveAttendance();
 
+      // Push to Firestore Cloud
+      FirestoreBridge.pushCheckIn(newRecord);
+
       // Update UI components
       UI.renderCounterHUD();
       UI.renderLiveAttendanceTable();
@@ -590,6 +757,7 @@
         record.leftTimestamp = new Date().toISOString();
         record.leftTimeFormatted = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         Storage.saveAttendance();
+        FirestoreBridge.pushCheckIn(record);
         UI.renderCounterHUD();
         UI.renderLiveAttendanceTable();
         UI.renderRecentScansRoll();
@@ -599,14 +767,17 @@
 
     undoCheckin(recordId) {
       const sessionDate = State.currentSessionDate;
-      if (State.attendanceRecords[sessionDate]) {
-        State.attendanceRecords[sessionDate] = State.attendanceRecords[sessionDate].filter(r => r.id !== recordId);
-        Storage.saveAttendance();
-        UI.renderCounterHUD();
-        UI.renderLiveAttendanceTable();
-        UI.renderRecentScansRoll();
-        UI.showToast('Check-in removed', 'info');
+      const records = State.attendanceRecords[sessionDate] || [];
+      const rec = records.find(r => r.id === recordId);
+      if (rec) {
+        FirestoreBridge.removeCheckIn(rec.studentId);
       }
+      State.attendanceRecords[sessionDate] = records.filter(r => r.id !== recordId);
+      Storage.saveAttendance();
+      UI.renderCounterHUD();
+      UI.renderLiveAttendanceTable();
+      UI.renderRecentScansRoll();
+      UI.showToast('Check-in removed', 'info');
     },
 
     getPresentCount(sessionDate = State.currentSessionDate) {
@@ -616,7 +787,7 @@
   };
 
   // ==========================================================================
-  // 9. STUDENT DIRECTORY & RESTRICTION CONTROLLER
+  // 10. STUDENT DIRECTORY & RESTRICTION CONTROLLER
   // ==========================================================================
 
   const StudentDirectory = {
@@ -624,14 +795,14 @@
       if (!query) return null;
       const q = String(query).trim().toLowerCase();
       return State.students.find(s => 
-        s.id.toLowerCase() === q || 
-        s.name.toLowerCase() === q ||
-        s.name.toLowerCase().includes(q)
+        String(s.id).toLowerCase() === q || 
+        String(s.name).toLowerCase() === q ||
+        String(s.name).toLowerCase().includes(q)
       );
     },
 
     addStudent(studentData) {
-      const exists = State.students.some(s => s.id === studentData.id);
+      const exists = State.students.some(s => String(s.id) === String(studentData.id));
       if (exists) {
         UI.showToast(`Student ID #${studentData.id} already exists!`, 'warning');
         return false;
@@ -653,24 +824,17 @@
 
       State.students.push(newStudent);
       Storage.saveStudents();
+
+      // Push to Firestore roster
+      FirestoreBridge.pushStudent(newStudent);
+
       UI.renderRosterTable();
       UI.renderPrintableBadges();
       return newStudent;
     },
 
-    updateStudent(studentId, updateFields) {
-      const index = State.students.findIndex(s => s.id === studentId);
-      if (index !== -1) {
-        State.students[index] = { ...State.students[index], ...updateFields };
-        Storage.saveStudents();
-        UI.renderAll();
-        return State.students[index];
-      }
-      return null;
-    },
-
     setStudentRestriction(studentId, restrictionData) {
-      const student = State.students.find(s => s.id === studentId);
+      const student = State.students.find(s => String(s.id) === String(studentId));
       if (!student) return;
 
       const newRes = {
@@ -688,6 +852,9 @@
       student.status = 'restricted';
       student.totalInfractions = (student.totalInfractions || 0) + 1;
 
+      // Sync to Firestore
+      FirestoreBridge.pushStudentRestriction(student.id, 'restricted', student.restrictions);
+
       // Also log to behavior log
       BehaviorTracker.logBehavior({
         studentId: student.id,
@@ -704,7 +871,7 @@
     },
 
     liftRestriction(studentId, restrictionId) {
-      const student = State.students.find(s => s.id === studentId);
+      const student = State.students.find(s => String(s.id) === String(studentId));
       if (!student) return;
 
       if (student.restrictions) {
@@ -713,11 +880,11 @@
         );
       }
 
-      // If no more active restrictions, restore status
       const hasActive = student.restrictions.some(r => r.active);
-      if (!hasActive) {
-        student.status = 'active';
-      }
+      student.status = hasActive ? 'restricted' : 'active';
+
+      // Sync to Firestore
+      FirestoreBridge.pushStudentRestriction(student.id, student.status, student.restrictions);
 
       Storage.saveStudents();
       UI.renderAll();
@@ -726,7 +893,7 @@
   };
 
   // ==========================================================================
-  // 10. BEHAVIOR TRACKING ENGINE
+  // 11. BEHAVIOR TRACKING ENGINE
   // ==========================================================================
 
   const BehaviorTracker = {
@@ -739,7 +906,7 @@
         timestamp: now.toISOString(),
         timeFormatted: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         date: getTodayDateString(),
-        type: entry.type || 'infraction', // 'positive' | 'infraction'
+        type: entry.type || 'infraction',
         tag: entry.tag || 'General',
         note: entry.note || '',
         severity: entry.severity || 'Standard',
@@ -748,9 +915,9 @@
 
       State.behaviorLogs.unshift(newLog);
       Storage.saveBehavior();
+      FirestoreBridge.logBehavior(newLog);
 
-      // Update student metrics
-      const student = State.students.find(s => s.id === entry.studentId);
+      const student = State.students.find(s => String(s.id) === String(entry.studentId));
       if (student) {
         student.behaviorLogs = student.behaviorLogs || [];
         student.behaviorLogs.unshift(newLog);
@@ -769,7 +936,7 @@
   };
 
   // ==========================================================================
-  // 11. USER INTERFACE & RENDERING CONTROLLER
+  // 12. USER INTERFACE & RENDERING CONTROLLER
   // ==========================================================================
 
   const UI = {
@@ -777,7 +944,6 @@
       this.bindEvents();
       this.renderAll();
 
-      // Check URL parameters for direct tab navigation
       const urlParams = new URLSearchParams(window.location.search);
       const tabParam = urlParams.get('tab');
       if (tabParam && ['scanner', 'dashboard', 'roster', 'behavior', 'badges', 'settings'].includes(tabParam)) {
@@ -786,7 +952,6 @@
         this.switchTab('scanner');
       }
 
-      // Check if PRIDE day warning or notification is needed
       this.updatePrideDayBanner();
     },
 
@@ -799,7 +964,7 @@
         });
       });
 
-      // Quick Lookup / Manual Barcode Input
+      // Quick Lookup Input
       const manualInput = document.getElementById('manual-search-input');
       const manualBtn = document.getElementById('manual-search-btn');
       if (manualInput && manualBtn) {
@@ -865,6 +1030,7 @@
         sessionDateInput.value = State.currentSessionDate;
         sessionDateInput.addEventListener('change', (e) => {
           State.currentSessionDate = e.target.value;
+          FirestoreBridge.bindAttendanceStream(State.currentSessionDate);
           this.updatePrideDayBanner();
           this.renderCounterHUD();
           this.renderLiveAttendanceTable();
@@ -903,8 +1069,6 @@
 
       if (tabId === 'scanner') {
         if (!State.scannerActive) ScannerEngine.start();
-      } else {
-        // Pause or let camera run in background
       }
 
       if (tabId === 'badges') {
@@ -958,7 +1122,6 @@
         }
       }
 
-      // Warning badge if room full
       const hudAlert = document.getElementById('hud-capacity-alert');
       if (hudAlert) {
         if (presentCount >= capacity) {
@@ -987,7 +1150,7 @@
       }
 
       container.innerHTML = activeRecords.map(rec => {
-        const student = State.students.find(s => s.id === rec.studentId) || { avatarColor: '#6366f1' };
+        const student = State.students.find(s => String(s.id) === String(rec.studentId)) || { avatarColor: '#6366f1' };
         return `
           <div class="scan-card-mini flex flex-col justify-between">
             <div class="flex items-center justify-between gap-2 mb-2">
@@ -997,7 +1160,7 @@
                 </div>
                 <div class="truncate">
                   <div class="font-bold text-xs text-slate-100 truncate">${rec.studentName}</div>
-                  <div class="text-[10px] mono text-slate-400">#${rec.studentId} • P${rec.period}</div>
+                  <div class="text-[10px] mono text-slate-400">#${rec.studentId} • P${rec.period || '-'}</div>
                 </div>
               </div>
               <span class="text-[9px] mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold shrink-0">${rec.timeFormatted}</span>
@@ -1035,7 +1198,7 @@
       }
 
       container.innerHTML = records.map(rec => {
-        const student = State.students.find(s => s.id === rec.studentId);
+        const student = State.students.find(s => String(s.id) === String(rec.studentId));
         const statusBadge = rec.leftEarly
           ? `<span class="status-badge bg-slate-800 text-slate-400 border border-slate-700">Left Early</span>`
           : rec.overrideUsed
@@ -1055,7 +1218,7 @@
                 </div>
               </div>
             </td>
-            <td class="p-3 mono text-slate-300">Period ${rec.period || '-'}</td>
+            <td class="p-3 mono text-slate-300">Period ${rec.period ?? '-'}</td>
             <td class="p-3 mono font-semibold text-emerald-400">${rec.timeFormatted}</td>
             <td class="p-3">${statusBadge}</td>
             <td class="p-3 text-slate-400 italic">${rec.note || '-'}</td>
@@ -1093,7 +1256,7 @@
       let list = [...State.students];
 
       if (searchQuery) {
-        list = list.filter(s => s.name.toLowerCase().includes(searchQuery) || s.id.includes(searchQuery));
+        list = list.filter(s => s.name.toLowerCase().includes(searchQuery) || String(s.id).includes(searchQuery));
       }
       if (periodFilter !== 'all') {
         list = list.filter(s => String(s.period) === String(periodFilter));
@@ -1108,7 +1271,7 @@
       if (list.length === 0) {
         container.innerHTML = `
           <tr>
-            <td colspan="7" class="p-8 text-center text-slate-500 text-sm italic">
+            <td colspan="6" class="p-8 text-center text-slate-500 text-sm italic">
               No students match the selected search and filter criteria.
             </td>
           </tr>
@@ -1138,7 +1301,7 @@
               </div>
             </td>
             <td class="p-3 mono font-bold text-indigo-300">#${student.id}</td>
-            <td class="p-3 mono">Period ${student.period || '-'}</td>
+            <td class="p-3 mono">Period ${student.period ?? '-'}</td>
             <td class="p-3">${statusBadge}</td>
             <td class="p-3">
               <div class="flex items-center gap-2">
@@ -1173,7 +1336,6 @@
       const activeResContainer = document.getElementById('active-restrictions-list');
       const historyContainer = document.getElementById('behavior-history-tbody');
 
-      // 1. Active Restrictions
       const restrictedStudents = State.students.filter(s => s.status === 'restricted');
       if (activeResContainer) {
         if (restrictedStudents.length === 0) {
@@ -1216,7 +1378,6 @@
         }
       }
 
-      // 2. Incident & Commendation History
       if (historyContainer) {
         if (State.behaviorLogs.length === 0) {
           historyContainer.innerHTML = `
@@ -1258,7 +1419,7 @@
           <div class="id-card-print p-4 rounded-2xl bg-slate-900 border border-white/10 flex flex-col justify-between items-center text-center shadow-lg relative overflow-hidden">
             <div class="w-full flex items-center justify-between border-b border-white/10 pb-2 mb-3">
               <span class="text-[10px] font-black uppercase tracking-wider text-indigo-400">PRIDE Pass</span>
-              <span class="text-[10px] mono text-slate-400">Period ${s.period}</span>
+              <span class="text-[10px] mono text-slate-400">Period ${s.period ?? '-'}</span>
             </div>
 
             <div class="w-12 h-12 rounded-full flex items-center justify-center font-black text-base text-white mb-2 shadow-inner" style="background-color: ${s.avatarColor || '#6366f1'}">
@@ -1268,7 +1429,6 @@
             <div class="font-extrabold text-sm text-slate-100 mb-0.5">${s.name}</div>
             <div class="text-[11px] mono text-indigo-300 font-bold mb-3">ID: ${s.id}</div>
 
-            <!-- Canvas for Barcode -->
             <div class="bg-white p-2 rounded-xl w-full flex items-center justify-center">
               <svg id="barcode-${s.id}" class="w-full max-h-16"></svg>
             </div>
@@ -1280,12 +1440,11 @@
         `;
       }).join('');
 
-      // Generate JsBarcode for each card
       if (window.JsBarcode) {
         setTimeout(() => {
           State.students.forEach(s => {
             try {
-              window.JsBarcode(`#barcode-${s.id}`, s.id, {
+              window.JsBarcode(`#barcode-${s.id}`, String(s.id), {
                 format: "CODE128",
                 width: 1.8,
                 height: 42,
@@ -1321,15 +1480,30 @@
       if (statRestrictionsCount) statRestrictionsCount.textContent = State.students.filter(s => s.status === 'restricted').length;
     },
 
-    // ------------------------------------------------------------------------
-    // Visual & Audio Alerts
-    // ------------------------------------------------------------------------
+    updateCloudSyncBadge(isConnected, studentCount) {
+      const badge = document.getElementById('firestore-sync-badge');
+      if (badge) {
+        if (isConnected) {
+          badge.innerHTML = `
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="text-emerald-300 font-bold">Firestore Roster: ${studentCount} Students Active</span>
+          `;
+          badge.className = 'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-950/70 text-emerald-300 border border-emerald-500/40 inline-flex items-center gap-2';
+        } else {
+          badge.innerHTML = `
+            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+            <span class="text-amber-300 font-bold">Local Roster Cache (${studentCount})</span>
+          `;
+          badge.className = 'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-950/70 text-amber-300 border border-amber-500/40 inline-flex items-center gap-2';
+        }
+      }
+    },
 
     flashScanner(type) {
       const container = document.getElementById('scanner-viewport-box');
       if (!container) return;
       container.classList.remove('flash-success', 'flash-warning', 'flash-danger');
-      void container.offsetWidth; // Trigger reflow
+      void container.offsetWidth;
       container.classList.add(`flash-${type}`);
     },
 
@@ -1437,10 +1611,6 @@
       }
     },
 
-    // ------------------------------------------------------------------------
-    // Modals Handling
-    // ------------------------------------------------------------------------
-
     openRestrictionAlertModal(student) {
       const modal = document.getElementById('modal-restriction-alert');
       if (!modal) return;
@@ -1449,7 +1619,7 @@
       const activeRes = student.restrictions?.find(r => r.active) || student.restrictions?.[0] || { reason: 'Active PRIDE Access Ban' };
 
       document.getElementById('res-alert-student-name').textContent = student.name;
-      document.getElementById('res-alert-student-id').textContent = `#${student.id} • Period ${student.period}`;
+      document.getElementById('res-alert-student-id').textContent = `#${student.id} • Period ${student.period || '-'}`;
       document.getElementById('res-alert-reason').textContent = activeRes.reason;
       document.getElementById('res-alert-notes').textContent = activeRes.notes || 'No extra notes recorded.';
       document.getElementById('res-alert-date').textContent = activeRes.dateLogged || 'Recent';
@@ -1489,7 +1659,7 @@
     },
 
     openBehaviorModal(studentId) {
-      const student = State.students.find(s => s.id === studentId);
+      const student = State.students.find(s => String(s.id) === String(studentId));
       if (!student) return;
 
       State.selectedStudentForAction = student;
@@ -1552,7 +1722,7 @@
     },
 
     openRestrictModal(studentId) {
-      const student = State.students.find(s => s.id === studentId);
+      const student = State.students.find(s => String(s.id) === String(studentId));
       if (!student) return;
 
       State.selectedStudentForAction = student;
@@ -1659,10 +1829,6 @@
       }
     },
 
-    // ------------------------------------------------------------------------
-    // CSV Import / Export
-    // ------------------------------------------------------------------------
-
     handleCsvImport(event) {
       const file = event.target.files?.[0];
       if (!file) return;
@@ -1677,7 +1843,6 @@
             return;
           }
 
-          // Header row inspection
           const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
           const idIdx = headers.findIndex(h => h.includes('id'));
           const nameIdx = headers.findIndex(h => h.includes('name'));
@@ -1701,11 +1866,11 @@
           }
 
           UI.renderAll();
-          UI.showToast(`Successfully imported ${importedCount} students from CSV!`, 'success');
+          UI.showToast(`Imported ${importedCount} students and synced to Firestore!`, 'success');
           event.target.value = '';
         } catch (err) {
           console.error('CSV parse error:', err);
-          UI.showToast('Error reading CSV file. Check format.', 'danger');
+          UI.showToast('Error reading CSV file', 'danger');
         }
       };
       reader.readAsText(file);
@@ -1746,7 +1911,7 @@
   };
 
   // ==========================================================================
-  // 12. HELPER UTILITIES
+  // 13. HELPER UTILITIES
   // ==========================================================================
 
   function getTodayDateString() {
@@ -1779,7 +1944,7 @@
   }
 
   // ==========================================================================
-  // 13. PUBLIC GLOBAL API
+  // 14. PUBLIC API
   // ==========================================================================
 
   window.PRIDE = {
@@ -1792,8 +1957,8 @@
     AudioEngine,
     HapticEngine,
     Storage,
+    FirestoreBridge,
 
-    // Public Shortcuts for HTML buttons
     checkoutStudent: (id) => AttendanceEngine.checkoutStudent(id),
     undoCheckin: (id) => AttendanceEngine.undoCheckin(id),
     openBehaviorModal: (id) => UI.openBehaviorModal(id),
@@ -1818,11 +1983,14 @@
     printBadges: () => window.print()
   };
 
-  // Initialize once DOM is ready
   document.addEventListener('DOMContentLoaded', () => {
     Storage.load();
     SyncEngine.init();
     UI.init();
+    // Try auto-initializing Firestore if Firebase is already loaded
+    setTimeout(() => {
+      FirestoreBridge.init();
+    }, 200);
   });
 
 })();
