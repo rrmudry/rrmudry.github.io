@@ -53,7 +53,8 @@
     ], behaviorLogs: [
       { id: "beh-5", timestamp: "2026-08-26T10:45:00Z", type: "infraction", tag: "Left Without Pass", note: "Found wandering near quad during tutorial", severity: "High" }
     ], totalPrides: 0, totalInfractions: 3 },
-    { id: "730010", name: "Leslie Winkle", grade: 11, period: 6, status: "active", avatarColor: "#3b82f6", restrictions: [], behaviorLogs: [], totalPrides: 2, totalInfractions: 0 }
+    { id: "730010", name: "Leslie Winkle", grade: 11, period: 6, status: "active", avatarColor: "#3b82f6", restrictions: [], behaviorLogs: [], totalPrides: 2, totalInfractions: 0 },
+    { id: "444759", name: "Edward Miller", grade: 11, period: 1, status: "active", avatarColor: "#0ea5e9", restrictions: [], behaviorLogs: [], totalPrides: 3, totalInfractions: 0 }
   ];
 
   // ==========================================================================
@@ -598,12 +599,6 @@
               Html5QrcodeSupportedFormats.CODE_128,
               Html5QrcodeSupportedFormats.CODE_39,
               Html5QrcodeSupportedFormats.CODE_93,
-              Html5QrcodeSupportedFormats.ITF,
-              Html5QrcodeSupportedFormats.CODABAR,
-              Html5QrcodeSupportedFormats.UPC_A,
-              Html5QrcodeSupportedFormats.UPC_E,
-              Html5QrcodeSupportedFormats.EAN_13,
-              Html5QrcodeSupportedFormats.EAN_8,
               Html5QrcodeSupportedFormats.QR_CODE,
               Html5QrcodeSupportedFormats.DATA_MATRIX
             ]
@@ -715,20 +710,58 @@
       }
     },
 
+    unknownCandidate: null,
+    unknownCount: 0,
+    lastUnknownTime: 0,
+
     handleScanResult(rawText, decodedResult) {
       if (!rawText) return;
-      const cleanText = String(rawText).trim();
+      const rawClean = String(rawText).trim();
+      const extractedId = extractSixDigitId(rawClean);
+      const query = extractedId || rawClean;
       const now = Date.now();
 
-      // Debounce: same student within cooldownMs
-      if (cleanText === State.lastScannedId && (now - State.lastScannedTime) < State.cooldownMs) {
+      // Check if student exists in directory (exact or 6-digit matched)
+      const student = StudentDirectory.findStudent(query);
+
+      if (student) {
+        // Immediately clear any transient unregistered candidate
+        this.unknownCandidate = null;
+        this.unknownCount = 0;
+
+        // Debounce: prevent duplicate check-in of same student within cooldownMs
+        if (student.id === State.lastScannedId && (now - State.lastScannedTime) < State.cooldownMs) {
+          return;
+        }
+
+        State.lastScannedId = student.id;
+        State.lastScannedTime = now;
+
+        AttendanceEngine.processCheckIn(student.id, false, rawClean);
         return;
       }
 
-      State.lastScannedId = cleanText;
-      State.lastScannedTime = now;
+      // If student is NOT in the roster:
+      // Protect against single-frame barcode glitch/glare reads (e.g. 444475 instead of 444759)
+      // Require 2 consecutive matching reads within 650ms before opening Unregistered Modal
+      if (this.unknownCandidate === query && (now - this.lastUnknownTime) < 650) {
+        this.unknownCount++;
+        if (this.unknownCount >= 2) {
+          if (query === State.lastScannedId && (now - State.lastScannedTime) < State.cooldownMs) {
+            return;
+          }
+          State.lastScannedId = query;
+          State.lastScannedTime = now;
+          this.unknownCandidate = null;
+          this.unknownCount = 0;
 
-      AttendanceEngine.processCheckIn(cleanText);
+          AttendanceEngine.processCheckIn(query, false, rawClean);
+        }
+      } else {
+        this.unknownCandidate = query;
+        this.unknownCount = 1;
+        this.lastUnknownTime = now;
+      }
     }
   };
 
