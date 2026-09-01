@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>PRIDE Time // Attendance & Behavior Console (Admin)</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="../pride-time/favicon.svg">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Firebase SDKs (Compat Mode) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- HTML5-QRCode Scanner Library (Continuous 1D/2D Barcode & QR Code Engine) -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+  <!-- JsBarcode for ID Pass & Barcode Generation -->
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="../pride-time/pride-style.css">
+</head>
+
+<body class="min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- Ambient Animated Lighting Grid -->
+  <div class="ambient-bg" aria-hidden="true">
+    <div class="ambient-orb-1"></div>
+    <div class="ambient-orb-2"></div>
+    <div class="ambient-grid"></div>
+  </div>
+
+  <!-- ====================================================================
+       GOOGLE OAUTH SECURITY GUARD OVERLAY (RESTRICTED TO rmudry@orangeusd.org)
+       ==================================================================== -->
+  <div id="auth-overlay" class="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-xl flex items-center justify-center p-4 sm:p-6 transition-all duration-500">
+    <div class="glass-panel max-w-md w-full p-8 sm:p-10 border border-indigo-500/40 shadow-2xl text-center space-y-6 bg-slate-900/90 relative z-10">
+      
+      <!-- Pulsing Security Badge -->
+      <div class="w-20 h-20 rounded-3xl bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center mx-auto shadow-2xl shadow-indigo-500/40 border border-indigo-400/50">
+        <i data-lucide="shield-check" class="w-10 h-10 text-white animate-pulse"></i>
+      </div>
+
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-[10px] font-black uppercase tracking-widest mb-3">
+          <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span> Restricted Admin Access
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-black italic uppercase tracking-tight text-white">
+          PRIDE <span class="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">Time</span> Console
+        </h1>
+        <p class="text-xs text-slate-400 mt-2 font-medium leading-relaxed">
+          Attendance tracking, continuous barcode scanning, and behavior management.
+        </p>
+      </div>
+
+      <!-- Authorization Requirement Callout -->
+      <div class="p-3.5 rounded-2xl bg-slate-950/80 border border-white/10 text-left text-xs space-y-1">
+        <div class="text-[10px] font-black uppercase tracking-wider text-slate-400">Required Account:</div>
+        <div class="font-bold text-indigo-300 mono flex items-center gap-1.5">
+          <i data-lucide="lock" class="w-3.5 h-3.5 text-indigo-400"></i> rmudry@orangeusd.org
+        </div>
+      </div>
+
+      <!-- Google Sign In Action Button -->
+      <button id="btn-login" class="w-full bg-white hover:bg-slate-100 text-slate-950 font-black py-3.5 px-6 rounded-2xl uppercase tracking-wider text-xs transition-all flex items-center justify-center gap-3 shadow-xl hover:scale-[1.02] active:scale-[0.98]">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5" alt="Google logo">
+        Sign in with Google
+      </button>
+
+      <!-- Auth Error / Denied Notice -->
+      <div id="auth-error" class="hidden p-3 rounded-xl bg-rose-950/60 border border-rose-500/50 text-rose-300 text-xs font-bold">
+        ⚠️ Unauthorized account. Access is strictly limited to <strong>rmudry@orangeusd.org</strong>.
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       AUTHENTICATED APPLICATION SHELL
+       ==================================================================== -->
+  <div id="app-shell" class="flex-1 flex flex-col opacity-0 pointer-events-none transition-opacity duration-500">
+    
+    <!-- Main Navigation Header -->
+    <header class="relative z-30 border-b border-white/10 bg-slate-950/80 backdrop-blur-xl sticky top-0 no-print">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-4">
+        
+        <!-- Brand & Title -->
+        <div class="flex items-center gap-3">
+          <a href="index.html" class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-violet-600 via-indigo-600 to-blue-500 flex items-center justify-center p-2 shadow-lg shadow-indigo-500/30 border border-indigo-400/40 hover:scale-105 transition-transform" title="Back to Admin Command Center">
+            <i data-lucide="arrow-left" class="text-white w-5 h-5"></i>
+          </a>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-lg sm:text-xl font-black italic tracking-tight uppercase">
+                PRIDE <span class="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-indigo-300 to-cyan-400">Time</span>
+              </h1>
+              <span id="pride-day-banner" class="hidden sm:inline-flex"></span>
+            </div>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+              <span>Orange High School</span> • <span>Room 204</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Authenticated User Profile & Actions -->
+        <div class="flex items-center gap-2 sm:gap-3">
+          <!-- Session Date Picker -->
+          <div class="flex items-center gap-1.5 bg-slate-900/80 border border-white/10 px-2.5 py-1 rounded-xl text-xs">
+            <i data-lucide="calendar" class="w-3.5 h-3.5 text-indigo-400"></i>
+            <input type="date" id="session-date-picker" class="bg-transparent text-slate-200 text-xs font-semibold focus:outline-none cursor-pointer">
+          </div>
+
+          <!-- Add Student Button -->
+          <button onclick="window.PRIDE.openAddStudentModal()" class="touch-btn touch-btn-primary text-xs py-1.5 px-3 hidden sm:inline-flex items-center gap-1">
+            <i data-lucide="user-plus" class="w-3.5 h-3.5"></i> Add Student
+          </button>
+
+          <!-- User Badge & Sign Out -->
+          <div class="flex items-center gap-2 pl-2 border-l border-white/10">
+            <span id="user-display-email" class="text-[11px] font-bold text-indigo-300 mono hidden md:inline">rmudry@orangeusd.org</span>
+            <button id="btn-logout" class="p-1.5 rounded-xl bg-white/5 hover:bg-rose-500/20 text-slate-400 hover:text-rose-300 border border-white/10 transition-colors" title="Sign Out">
+              <i data-lucide="log-out" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs Bar -->
+      <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex gap-1 sm:gap-2 overflow-x-auto pb-2 scrollbar-none">
+        <button class="nav-tab-btn active flex items-center gap-1.5" data-tab="scanner">
+          <i data-lucide="camera" class="w-4 h-4 text-violet-400"></i>
+          <span>Live Scanner</span>
+        </button>
+        <button class="nav-tab-btn flex items-center gap-1.5" data-tab="dashboard">
+          <i data-lucide="layout-dashboard" class="w-4 h-4 text-indigo-400"></i>
+          <span>Session Monitor</span>
+        </button>
+        <button class="nav-tab-btn flex items-center gap-1.5" data-tab="roster">
+          <i data-lucide="users" class="w-4 h-4 text-cyan-400"></i>
+          <span>Student Roster</span>
+        </button>
+        <button class="nav-tab-btn flex items-center gap-1.5" data-tab="behavior">
+          <i data-lucide="shield-alert" class="w-4 h-4 text-rose-400"></i>
+          <span>Discipline & Access</span>
+        </button>
+        <button class="nav-tab-btn flex items-center gap-1.5" data-tab="badges">
+          <i data-lucide="qr-code" class="w-4 h-4 text-emerald-400"></i>
+          <span>ID Passes & Barcodes</span>
+        </button>
+        <button class="nav-tab-btn flex items-center gap-1.5" data-tab="settings">
+          <i data-lucide="settings" class="w-4 h-4 text-slate-400"></i>
+          <span>Settings</span>
+        </button>
+      </nav>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 relative z-10">
+
+      <!-- ====================================================================
+           TAB 1: LIVE SCANNER HUD (MOBILE FIRST VIEW)
+           ==================================================================== -->
+      <section id="tab-scanner" class="tab-content-panel space-y-4">
+        
+        <!-- Prominent On-Screen Live Counter & Capacity Bar -->
+        <div class="glass-panel p-4 sm:p-5 relative overflow-hidden counter-badge-glow">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-2xl bg-indigo-600/30 border border-indigo-400/50 flex items-center justify-center font-black text-indigo-300">
+                <i data-lucide="user-check" class="w-6 h-6"></i>
+              </div>
+              <div>
+                <div class="flex items-baseline gap-1.5">
+                  <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Students Present:</span>
+                  <span id="hud-counter-text" class="text-2xl sm:text-3xl font-black text-white mono">0</span>
+                  <span id="hud-capacity-text" class="text-sm font-bold text-slate-400 mono">/35</span>
+                </div>
+                <p class="text-[11px] text-slate-400">Continuous ID Barcode & QR Scanner</p>
+              </div>
+            </div>
+
+            <div id="hud-capacity-alert" class="hidden text-xs font-black text-rose-300 bg-rose-950/80 px-3 py-1.5 rounded-xl border border-rose-500/50 animate-pulse">
+              ROOM AT CAPACITY
+            </div>
+          </div>
+
+          <!-- Real-Time Capacity Gauge Progress Bar -->
+          <div class="mt-3.5">
+            <div class="capacity-progress-bar">
+              <div id="hud-capacity-fill" class="capacity-progress-fill bg-emerald-500" style="width: 0%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Manual Lookup / Barcode Keypad Bar -->
+        <div class="glass-panel p-2.5 flex items-center gap-2">
+          <div class="relative flex-1">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+            <input type="text" id="manual-search-input" placeholder="Type Student ID or Name for instant check-in..." class="w-full pl-9 pr-3 py-2 text-xs font-medium glass-input">
+          </div>
+          <button id="manual-search-btn" class="touch-btn touch-btn-primary text-xs py-2 px-4 shrink-0">
+            Check In
+          </button>
+        </div>
+
+        <!-- Main Camera Viewfinder Viewport -->
+        <div class="scanner-viewport-container relative" id="scanner-viewport-box">
+          
+          <!-- Video Stream Box handled by HTML5-QRCode -->
+          <div id="reader" style="min-height: 280px;"></div>
+
+          <!-- Custom HUD Overlay -->
+          <div class="scanner-overlay">
+            <!-- Top Row Controls Bar -->
+            <div class="flex items-center justify-between w-full">
+              <div class="flex items-center gap-2">
+                <button id="btn-toggle-camera" class="hud-icon-btn" title="Pause / Resume Scanner">
+                  <i data-lucide="video" class="w-4 h-4"></i>
+                </button>
+                <button id="btn-flip-camera" class="hud-icon-btn" title="Flip Camera (Front/Rear)">
+                  <i data-lucide="switch-camera" class="w-4 h-4"></i>
+                </button>
+                <button id="btn-torch" class="hud-icon-btn" title="Toggle Flashlight / Torch">
+                  <i data-lucide="flashlight" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <button id="btn-sound-toggle" class="hud-icon-btn active" title="Audio Chimes Toggle">
+                  <i data-lucide="volume-2" class="w-4 h-4"></i>
+                </button>
+                <button id="btn-haptics-toggle" class="hud-icon-btn active" title="Vibration / Haptics Toggle">
+                  <i data-lucide="smartphone" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Central Aiming Reticle Frame -->
+            <div class="scan-reticle-box">
+              <div class="corner-bracket bracket-tl"></div>
+              <div class="corner-bracket bracket-tr"></div>
+              <div class="corner-bracket bracket-bl"></div>
+              <div class="corner-bracket bracket-br"></div>
+              <div id="scan-laser-beam" class="scan-laser-line"></div>
+            </div>
+
+            <!-- Bottom Status Line -->
+            <div class="w-full text-center">
+              <div id="scanner-status-text" class="text-[11px] font-bold text-slate-300 bg-slate-950/80 backdrop-blur-md px-3 py-1.5 rounded-full inline-flex items-center justify-center mx-auto border border-white/10">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping mr-2"></span> Continuous Scan Active
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Recent Scans Roll (Horizontal Scrolling Strip) -->
+        <div class="glass-panel p-3.5 space-y-2">
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+              <i data-lucide="history" class="w-3.5 h-3.5 text-indigo-400"></i> Recent Scans in Room
+            </span>
+            <span class="text-[10px] text-slate-500 font-bold">Auto-Debounce: 3.5s cooldown</span>
+          </div>
+          <div id="recent-scans-roll" class="recent-scans-strip pt-1">
+            <!-- Populated by JavaScript -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           TAB 2: SESSION LIVE MONITOR & PC DASHBOARD
+           ==================================================================== -->
+      <section id="tab-dashboard" class="tab-content-panel space-y-6 hidden">
+        
+        <!-- Top Metrics Dashboard Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          
+          <div class="glass-panel p-4 flex flex-col justify-between">
+            <div class="flex items-center justify-between text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">
+              <span>Students In Room</span>
+              <i data-lucide="users" class="w-4 h-4 text-indigo-400"></i>
+            </div>
+            <div class="flex items-baseline gap-1">
+              <span id="dash-counter-big" class="text-3xl font-black text-white mono">0</span>
+              <span class="text-sm font-bold text-slate-400 mono">/ <span id="dash-capacity-max">35</span></span>
+            </div>
+            <div class="text-[10px] text-emerald-400 mt-1 font-semibold">Active PRIDE Tutorial Session</div>
+          </div>
+
+          <div class="glass-panel p-4 flex flex-col justify-between">
+            <div class="flex items-center justify-between text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">
+              <span>Capacity Utilized</span>
+              <i data-lucide="pie-chart" class="w-4 h-4 text-cyan-400"></i>
+            </div>
+            <div id="stat-capacity-pct" class="text-3xl font-black text-cyan-300 mono">0%</div>
+            <div class="text-[10px] text-slate-400 mt-1 font-semibold">Max 35 seats configured</div>
+          </div>
+
+          <div class="glass-panel p-4 flex flex-col justify-between">
+            <div class="flex items-center justify-between text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">
+              <span>Total Check-ins</span>
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+            </div>
+            <div id="stat-total-scans" class="text-3xl font-black text-emerald-300 mono">0</div>
+            <div class="text-[10px] text-slate-400 mt-1 font-semibold">Cumulative scans today</div>
+          </div>
+
+          <div class="glass-panel p-4 flex flex-col justify-between">
+            <div class="flex items-center justify-between text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">
+              <span>Active Restrictions</span>
+              <i data-lucide="shield-alert" class="w-4 h-4 text-rose-400"></i>
+            </div>
+            <div id="stat-restrictions-count" class="text-3xl font-black text-rose-300 mono">2</div>
+            <div class="text-[10px] text-rose-400 mt-1 font-semibold">Flagged / Denied access</div>
+          </div>
+        </div>
+
+        <!-- Live Present Student Table -->
+        <div class="glass-panel p-4 sm:p-6 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
+            <div>
+              <h2 class="text-base font-black text-slate-100 uppercase tracking-tight">Active Attendance Session</h2>
+              <p class="text-xs text-slate-400">Real-time attendance roll for current PRIDE session</p>
+            </div>
+            
+            <div class="flex items-center gap-2">
+              <button onclick="window.PRIDE.exportAttendanceCsv()" class="touch-btn touch-btn-ghost text-xs py-2 px-3 flex items-center gap-1.5">
+                <i data-lucide="download" class="w-3.5 h-3.5"></i> Export CSV
+              </button>
+            </div>
+          </div>
+
+          <!-- Attendance Roster Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-white/10 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                  <th class="p-3">Student</th>
+                  <th class="p-3">Period</th>
+                  <th class="p-3">Check-in Time</th>
+                  <th class="p-3">Status</th>
+                  <th class="p-3">Session Notes</th>
+                  <th class="p-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="live-attendance-tbody">
+                <!-- Populated by JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           TAB 3: STUDENT ROSTER & DIRECTORY
+           ==================================================================== -->
+      <section id="tab-roster" class="tab-content-panel space-y-6 hidden">
+        <div class="glass-panel p-4 sm:p-6 space-y-5">
+          
+          <!-- Action Bar: Search, Filters, CSV Upload, Add -->
+          <div class="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-5">
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 class="text-base font-black text-slate-100 uppercase tracking-tight">Student Directory</h2>
+                <span id="roster-total-count" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">0 Students</span>
+              </div>
+              <p class="text-xs text-slate-400">Manage enrolled students, periods, and access status</p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+              <!-- Hidden File Input for CSV -->
+              <input type="file" id="roster-csv-file" accept=".csv" class="hidden">
+              <button onclick="document.getElementById('roster-csv-file').click()" class="touch-btn touch-btn-ghost text-xs py-2 px-3 flex items-center gap-1.5" title="Upload student CSV list">
+                <i data-lucide="file-up" class="w-3.5 h-3.5 text-cyan-400"></i> Import CSV
+              </button>
+              <button onclick="window.PRIDE.openAddStudentModal()" class="touch-btn touch-btn-primary text-xs py-2 px-3 flex items-center gap-1.5">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Student
+              </button>
+              <button onclick="window.PRIDE.resetToDemoData()" class="touch-btn touch-btn-ghost text-xs py-2 px-3 text-slate-400 hover:text-white" title="Reload realistic sample roster">
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Load Sample Roster
+              </button>
+            </div>
+          </div>
+
+          <!-- Filter & Search Controls -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="relative sm:col-span-1">
+              <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+              <input type="text" id="roster-search-input" oninput="window.PRIDE.UI.renderRosterTable()" placeholder="Search by name or ID..." class="w-full pl-9 pr-3 py-2 text-xs font-medium glass-input">
+            </div>
+
+            <div>
+              <select id="roster-period-filter" onchange="window.PRIDE.UI.renderRosterTable()" class="w-full px-3 py-2 text-xs font-medium glass-input">
+                <option value="all">All Periods</option>
+                <option value="1">Period 1</option>
+                <option value="2">Period 2</option>
+                <option value="3">Period 3</option>
+                <option value="4">Period 4</option>
+                <option value="5">Period 5</option>
+                <option value="6">Period 6</option>
+              </select>
+            </div>
+
+            <div>
+              <select id="roster-status-filter" onchange="window.PRIDE.UI.renderRosterTable()" class="w-full px-3 py-2 text-xs font-medium glass-input">
+                <option value="all">All Access Statuses</option>
+                <option value="active">Allowed / Active</option>
+                <option value="restricted">Restricted / Banned</option>
+                <option value="probation">Probation / Warning</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Student Roster Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-white/10 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                  <th class="p-3">Student Name</th>
+                  <th class="p-3">Student ID</th>
+                  <th class="p-3">Period</th>
+                  <th class="p-3">Access Status</th>
+                  <th class="p-3">PRIDE vs Infractions</th>
+                  <th class="p-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="roster-tbody">
+                <!-- Populated by JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           TAB 4: BEHAVIOR TRACKING & DISCIPLINE HUB
+           ==================================================================== -->
+      <section id="tab-behavior" class="tab-content-panel space-y-6 hidden">
+        
+        <!-- Active Restrictions & Access Bans Section -->
+        <div class="glass-panel p-4 sm:p-6 space-y-4">
+          <div class="flex items-center justify-between border-b border-white/10 pb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-xl bg-rose-600/20 border border-rose-500/40 flex items-center justify-center text-rose-400">
+                <i data-lucide="shield-alert" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h2 class="text-base font-black text-slate-100 uppercase tracking-tight">Active Access Restrictions</h2>
+                <p class="text-xs text-slate-400">Students barred from PRIDE Time due to disruptive or off-task behavior</p>
+              </div>
+            </div>
+          </div>
+
+          <div id="active-restrictions-list" class="space-y-3">
+            <!-- Populated by JavaScript -->
+          </div>
+        </div>
+
+        <!-- Comprehensive Behavior & Commendation Log -->
+        <div class="glass-panel p-4 sm:p-6 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
+            <div>
+              <h2 class="text-base font-black text-slate-100 uppercase tracking-tight">Incident & Commendation History</h2>
+              <p class="text-xs text-slate-400">Chronological history of PRIDE rewards, warnings, and disciplinary actions</p>
+            </div>
+
+            <button onclick="window.PRIDE.exportDisciplineReportCsv()" class="touch-btn touch-btn-ghost text-xs py-2 px-3 flex items-center gap-1.5">
+              <i data-lucide="file-text" class="w-3.5 h-3.5 text-rose-400"></i> Export Discipline Report CSV
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-white/10 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                  <th class="p-3">Timestamp</th>
+                  <th class="p-3">Student</th>
+                  <th class="p-3">Tag / Event</th>
+                  <th class="p-3">Teacher Notes</th>
+                  <th class="p-3">Severity</th>
+                </tr>
+              </thead>
+              <tbody id="behavior-history-tbody">
+                <!-- Populated by JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           TAB 5: PRINTABLE ID CARDS & TEST BARCODES
+           ==================================================================== -->
+      <section id="tab-badges" class="tab-content-panel space-y-6 hidden">
+        <div class="glass-panel p-4 sm:p-6 space-y-4 no-print">
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
+            <div>
+              <h2 class="text-base font-black text-slate-100 uppercase tracking-tight">Printable PRIDE ID Passes & Barcodes</h2>
+              <p class="text-xs text-slate-400">Generate scannable Code 128 student ID passes for printing or testing</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="window.PRIDE.printBadges()" class="touch-btn touch-btn-primary text-xs py-2 px-4 flex items-center gap-1.5">
+                <i data-lucide="printer" class="w-4 h-4"></i> Print Passes
+              </button>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-xl bg-indigo-950/30 border border-indigo-500/30 text-xs text-indigo-200 flex items-center gap-2.5">
+            <i data-lucide="info" class="w-4 h-4 shrink-0 text-indigo-400"></i>
+            <span><strong>Testing Tip:</strong> You can point your mobile camera scanner directly at these barcodes on your screen to test instant continuous scanning!</span>
+          </div>
+        </div>
+
+        <!-- Badges Grid Container -->
+        <div id="badges-grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <!-- Populated by JavaScript -->
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           TAB 6: SETTINGS & SYNC
+           ==================================================================== -->
+      <section id="tab-settings" class="tab-content-panel space-y-6 hidden">
+        <div class="glass-panel p-4 sm:p-6 space-y-6 max-w-2xl mx-auto">
+          <div class="border-b border-white/10 pb-4">
+            <h2 class="text-base font-black text-slate-100 uppercase tracking-tight">PRIDE Time Configuration</h2>
+            <p class="text-xs text-slate-400">Room capacity, session rules, and audio feedback controls</p>
+          </div>
+
+          <div class="space-y-4 text-xs">
+            <!-- Room Capacity -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3.5 rounded-xl bg-slate-900/60 border border-white/5">
+              <div>
+                <div class="font-bold text-slate-200">Max Room Capacity</div>
+                <div class="text-[11px] text-slate-400">Limit on the maximum number of students allowed in the room</div>
+              </div>
+              <input type="number" id="setting-room-capacity" min="5" max="100" class="w-24 px-3 py-2 text-xs font-bold glass-input text-center">
+            </div>
+
+            <!-- PRIDE Tutorial Days -->
+            <div class="p-3.5 rounded-xl bg-slate-900/60 border border-white/5 space-y-2">
+              <div class="font-bold text-slate-200">Scheduled PRIDE Days</div>
+              <div class="text-[11px] text-slate-400">PRIDE Time occurs on Tuesdays, Wednesdays, and Thursdays</div>
+              <div class="flex flex-wrap gap-2 pt-1">
+                <span class="px-3 py-1 rounded-lg bg-indigo-500/20 text-indigo-300 font-bold border border-indigo-500/30">Tuesday</span>
+                <span class="px-3 py-1 rounded-lg bg-indigo-500/20 text-indigo-300 font-bold border border-indigo-500/30">Wednesday</span>
+                <span class="px-3 py-1 rounded-lg bg-indigo-500/20 text-indigo-300 font-bold border border-indigo-500/30">Thursday</span>
+              </div>
+            </div>
+
+            <!-- Multi-Device Sync Channel -->
+            <div class="p-3.5 rounded-xl bg-slate-900/60 border border-white/5 space-y-2">
+              <div class="font-bold text-slate-200 flex items-center gap-1.5">
+                <i data-lucide="radio" class="w-4 h-4 text-emerald-400"></i> Multi-Device Sync Channel
+              </div>
+              <div class="text-[11px] text-slate-400">
+                Scans made on your phone camera automatically sync in real-time across browser windows and connected devices on this station.
+              </div>
+            </div>
+
+            <!-- Data Reset -->
+            <div class="p-3.5 rounded-xl bg-slate-900/60 border border-rose-500/20 space-y-3">
+              <div class="font-bold text-rose-300">Data Management</div>
+              <div class="flex flex-wrap gap-2">
+                <button onclick="window.PRIDE.resetToDemoData()" class="touch-btn touch-btn-ghost text-xs py-2 px-3 text-rose-400 hover:text-white border-rose-500/30">
+                  <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 mr-1"></i> Reset Demo Data
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ====================================================================
+       MODALS & HIGH-ALERT OVERLAYS
+       ==================================================================== -->
+
+  <!-- 1. HIGH-ALERT RESTRICTION MODAL -->
+  <div id="modal-restriction-alert" class="modal-backdrop">
+    <div class="glass-panel w-full max-w-md p-6 border-2 border-rose-500/80 alert-pulse-danger shadow-2xl space-y-5 bg-slate-950/95">
+      
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-rose-600/30 border border-rose-500 flex items-center justify-center text-rose-400 text-xl font-black shrink-0">
+          <i data-lucide="shield-alert" class="w-7 h-7"></i>
+        </div>
+        <div>
+          <span class="text-[10px] font-black uppercase tracking-widest text-rose-400">Access Restricted</span>
+          <h3 id="res-alert-student-name" class="text-xl font-black text-white">Student Name</h3>
+          <p id="res-alert-student-id" class="text-xs mono text-rose-300/80">#73004 • Period 3</p>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-xl bg-rose-950/40 border border-rose-500/30 space-y-2">
+        <div class="text-[10px] font-black uppercase tracking-wider text-rose-300">Reason for Restriction:</div>
+        <div id="res-alert-reason" class="text-xs font-bold text-rose-100">Disruptive behavior in tutorial session</div>
+        <div class="text-[10px] text-slate-400 pt-1 border-t border-rose-500/20 flex justify-between">
+          <span>Date Logged: <span id="res-alert-date" class="text-slate-300">2026-08-27</span></span>
+        </div>
+        <div id="res-alert-notes" class="text-[11px] text-slate-300 italic pt-1">Notes: Must complete missing work.</div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 pt-2">
+        <button onclick="window.PRIDE.denyRestrictedEntry()" class="touch-btn touch-btn-danger text-xs py-3 w-full flex items-center justify-center gap-1.5">
+          <i data-lucide="x-circle" class="w-4 h-4"></i> Turn Away
+        </button>
+        <button onclick="window.PRIDE.overrideRestrictedEntry()" class="touch-btn touch-btn-ghost text-xs py-3 w-full border-amber-500/40 text-amber-300 hover:bg-amber-500/20 flex items-center justify-center gap-1.5">
+          <i data-lucide="check-circle" class="w-4 h-4"></i> Allow Override
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 2. QUICK BEHAVIOR LOGGING MODAL -->
+  <div id="modal-behavior-log" class="modal-backdrop">
+    <div class="glass-panel w-full max-w-md p-6 border border-indigo-500/40 shadow-2xl space-y-4 bg-slate-950/95">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <div>
+          <h3 class="text-base font-black text-white uppercase tracking-tight">Log Student Behavior</h3>
+          <div class="text-xs text-indigo-300 font-bold"><span id="beh-modal-student-name">Student</span> <span id="beh-modal-student-id" class="mono text-slate-400">#00000</span></div>
+        </div>
+        <button onclick="window.PRIDE.closeBehaviorModal()" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Behavior Category / Tag</label>
+          <select id="beh-modal-tag" class="w-full px-3 py-2 glass-input font-medium">
+            <optgroup label="Positive Commendations (+)">
+              <option value="Focus & Diligence">⭐ Focus & Diligence (On Task)</option>
+              <option value="Peer Tutoring">🤝 Peer Tutoring / Helper</option>
+              <option value="Lab Master">🎯 Lab / Assignment Mastery</option>
+              <option value="Helpful Progress">💡 Helpful Progress</option>
+            </optgroup>
+            <optgroup label="Infractions & Off-Task Flags (-)">
+              <option value="Disruptive / Noise">📢 Disruptive / Excessive Noise</option>
+              <option value="Off-Task / Gaming">🎮 Off-Task / Playing Games</option>
+              <option value="Phone Misuse">📵 Unauthorized Phone Use</option>
+              <option value="Left Without Pass">🚪 Left Room Without Pass</option>
+              <option value="Defiance / Disrespect">⚡ Defiance / Disrespectful</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Teacher Notes</label>
+          <textarea id="beh-modal-note" rows="2" placeholder="Brief note on incident or achievement..." class="w-full p-2.5 glass-input text-xs"></textarea>
+        </div>
+
+        <div class="p-3 rounded-xl bg-rose-950/20 border border-rose-500/20 space-y-2">
+          <label class="flex items-center gap-2 cursor-pointer font-bold text-rose-300">
+            <input type="checkbox" id="beh-modal-restrict-toggle" class="w-4 h-4 rounded text-rose-600 focus:ring-rose-500">
+            <span>Restrict Student from PRIDE Time</span>
+          </label>
+          
+          <div class="text-[11px] text-slate-400 pl-6">
+            <label class="block mb-1">Restriction Duration:</label>
+            <select id="beh-modal-duration" class="w-full px-2 py-1 glass-input text-[11px]">
+              <option value="7">Next 1 Week (3 Sessions)</option>
+              <option value="14">Next 2 Weeks</option>
+              <option value="3">Next Single Session</option>
+              <option value="30">1 Month</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="window.PRIDE.closeBehaviorModal()" class="touch-btn touch-btn-ghost text-xs py-2 px-3">
+          Cancel
+        </button>
+        <button onclick="window.PRIDE.submitBehaviorLog()" class="touch-btn touch-btn-primary text-xs py-2 px-4">
+          Save Log
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. RESTRICT ACCESS MODAL -->
+  <div id="modal-restrict-student" class="modal-backdrop">
+    <div class="glass-panel w-full max-w-md p-6 border border-rose-500/40 shadow-2xl space-y-4 bg-slate-950/95">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <div>
+          <h3 class="text-base font-black text-rose-300 uppercase tracking-tight">Apply Access Restriction</h3>
+          <p id="restrict-modal-name" class="text-xs text-slate-300 font-bold">Student Name</p>
+        </div>
+        <button onclick="window.PRIDE.closeRestrictModal()" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Reason for Ban</label>
+          <input type="text" id="restrict-modal-reason" placeholder="e.g. Disruptive behavior, gaming on laptop" class="w-full px-3 py-2 glass-input">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Duration</label>
+          <select id="restrict-modal-duration" class="w-full px-3 py-2 glass-input">
+            <option value="7">1 Week</option>
+            <option value="14">2 Weeks</option>
+            <option value="30">1 Month</option>
+            <option value="90">Full Quarter</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Conditions for Return</label>
+          <textarea id="restrict-modal-notes" rows="2" placeholder="e.g. Complete Unit 2 missing quiz first" class="w-full p-2.5 glass-input"></textarea>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="window.PRIDE.closeRestrictModal()" class="touch-btn touch-btn-ghost text-xs py-2 px-3">
+          Cancel
+        </button>
+        <button onclick="window.PRIDE.submitRestriction()" class="touch-btn touch-btn-danger text-xs py-2 px-4">
+          Apply Ban
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. UNREGISTERED STUDENT MODAL -->
+  <div id="modal-unregistered-student" class="modal-backdrop">
+    <div class="glass-panel w-full max-w-md p-6 border border-amber-500/40 shadow-2xl space-y-4 bg-slate-950/95">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <div class="flex items-center gap-2">
+          <i data-lucide="help-circle" class="w-5 h-5 text-amber-400"></i>
+          <h3 class="text-base font-black text-white uppercase tracking-tight">Unregistered Student Barcode</h3>
+        </div>
+        <button onclick="window.PRIDE.closeUnregisteredStudentModal()" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Scanned Barcode / ID</label>
+          <input type="text" id="unreg-student-id" readonly class="w-full px-3 py-2 glass-input mono font-bold text-amber-300">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Student Full Name</label>
+          <input type="text" id="unreg-student-name" placeholder="First Last" class="w-full px-3 py-2 glass-input">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">Period</label>
+            <select id="unreg-student-period" class="w-full px-3 py-2 glass-input">
+              <option value="1">Period 1</option>
+              <option value="2">Period 2</option>
+              <option value="3">Period 3</option>
+              <option value="4">Period 4</option>
+              <option value="5">Period 5</option>
+              <option value="6">Period 6</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">Grade</label>
+            <select id="unreg-student-grade" class="w-full px-3 py-2 glass-input">
+              <option value="9">Grade 9</option>
+              <option value="10">Grade 10</option>
+              <option value="11" selected>Grade 11</option>
+              <option value="12">Grade 12</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="window.PRIDE.closeUnregisteredStudentModal()" class="touch-btn touch-btn-ghost text-xs py-2 px-3">
+          Cancel
+        </button>
+        <button onclick="window.PRIDE.submitUnregisteredStudent()" class="touch-btn touch-btn-primary text-xs py-2 px-4">
+          Add & Check In
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. MANUAL ADD STUDENT MODAL -->
+  <div id="modal-add-student" class="modal-backdrop">
+    <div class="glass-panel w-full max-w-md p-6 border border-indigo-500/40 shadow-2xl space-y-4 bg-slate-950/95">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <div class="flex items-center gap-2">
+          <i data-lucide="user-plus" class="w-5 h-5 text-indigo-400"></i>
+          <h3 class="text-base font-black text-white uppercase tracking-tight">Add New Student</h3>
+        </div>
+        <button onclick="window.PRIDE.closeAddStudentModal()" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Student ID (Barcode Number)</label>
+          <input type="text" id="add-student-id" placeholder="e.g. 73016" class="w-full px-3 py-2 glass-input mono">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Student Full Name</label>
+          <input type="text" id="add-student-name" placeholder="e.g. Alex Morgan" class="w-full px-3 py-2 glass-input">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">Period</label>
+            <select id="add-student-period" class="w-full px-3 py-2 glass-input">
+              <option value="1">Period 1</option>
+              <option value="2">Period 2</option>
+              <option value="3">Period 3</option>
+              <option value="4">Period 4</option>
+              <option value="5">Period 5</option>
+              <option value="6">Period 6</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">Grade</label>
+            <select id="add-student-grade" class="w-full px-3 py-2 glass-input">
+              <option value="9">Grade 9</option>
+              <option value="10">Grade 10</option>
+              <option value="11" selected>Grade 11</option>
+              <option value="12">Grade 12</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="window.PRIDE.closeAddStudentModal()" class="touch-btn touch-btn-ghost text-xs py-2 px-3">
+          Cancel
+        </button>
+        <button onclick="window.PRIDE.submitAddStudent()" class="touch-btn touch-btn-primary text-xs py-2 px-4">
+          Add Student
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Floating Container -->
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4"></div>
+
+  <!-- Application Logic -->
+  <script src="../pride-time/pride-app.js"></script>
+
+  <!-- Firebase Auth Guard & Security Initialization Script -->
+  <script>
+    (function () {
+      const firebaseConfig = {
+        projectId: "site-6e500",
+        appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+        storageBucket: "site-6e500.firebasestorage.app",
+        apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+        authDomain: "site-6e500.firebaseapp.com",
+        messagingSenderId: "591530758858"
+      };
+
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+
+      const auth = firebase.auth();
+      const AUTHORIZED_EMAILS = [
+        "rmudry@orangeusd.org",
+        "ryan.mudry@gmail.com",
+        "ryanmudry@gmail.com"
+      ];
+
+      const authOverlay = document.getElementById('auth-overlay');
+      const appShell = document.getElementById('app-shell');
+      const btnLogin = document.getElementById('btn-login');
+      const authError = document.getElementById('auth-error');
+      const userDisplayEmail = document.getElementById('user-display-email');
+      const btnLogout = document.getElementById('btn-logout');
+
+      // Check Auth State
+      auth.onAuthStateChanged((user) => {
+        if (user && AUTHORIZED_EMAILS.includes(user.email.toLowerCase())) {
+          // Authorized
+          authOverlay.classList.add('hidden');
+          appShell.classList.remove('opacity-0', 'pointer-events-none');
+          appShell.classList.add('opacity-100');
+          if (userDisplayEmail) userDisplayEmail.textContent = user.email;
+          if (authError) authError.classList.add('hidden');
+        } else {
+          // Unauthorized or Signed Out
+          authOverlay.classList.remove('hidden');
+          appShell.classList.add('opacity-0', 'pointer-events-none');
+          appShell.classList.remove('opacity-100');
+
+          if (user) {
+            // Signed in with an unauthorized account
+            if (authError) {
+              authError.classList.remove('hidden');
+              authError.innerHTML = `⚠️ Access Denied: <strong>${user.email}</strong> is not authorized. Please switch to <strong>rmudry@orangeusd.org</strong>.`;
+            }
+            auth.signOut();
+          }
+        }
+      });
+
+      // Login Button Action
+      if (btnLogin) {
+        btnLogin.addEventListener('click', () => {
+          const provider = new firebase.auth.GoogleAuthProvider();
+          provider.setCustomParameters({ prompt: 'select_account' });
+          auth.signInWithPopup(provider).catch((err) => {
+            console.error("Auth popup error:", err);
+            if (authError) {
+              authError.classList.remove('hidden');
+              authError.textContent = `Sign in error: ${err.message}`;
+            }
+          });
+        });
+      }
+
+      // Logout Button Action
+      if (btnLogout) {
+        btnLogout.addEventListener('click', () => {
+          if (confirm('Sign out of PRIDE Time Admin?')) {
+            auth.signOut();
+          }
+        });
+      }
+    })();
+  </script>
+
+  <!-- Lucide Initializer -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    });
+  </script>
+</body>
+
+</html>
