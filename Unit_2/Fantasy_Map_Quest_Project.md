@@ -19,16 +19,16 @@
 Because careful cartography and accurate measurement take time, this project is paced across 3 focused work sessions:
 
 * **Day 1: Realm Cartography & Scale Setup (~30 min work time)**
-  * Establish origin point `(0, 0)`, draw the compass rose, choose your map scale, and sketch terrain geography.
-  * Place and label the 4 required landmarks with coordinate points `(x, y)`.
-* **Day 2: The Journey Trail & Distance vs. Displacement (~30 min work time)**
-  * Draw the adventurer's winding trail connecting the landmarks.
-  * Use the string technique to measure the curved path distance for Legs 1, 2, and 3.
-  * Draw and measure the direct straight-line vector arrow for net displacement.
-* **Day 3: Travel Time, Speed Calculations & Quest Analysis (~30 min work time)**
-  * Assign travel times across terrain types and calculate average speeds (`v = d / t`).
-  * Complete the Homecoming Paradox and post-lab analysis questions.
-  * Swap maps with another team for peer verification.
+  * Establish origin point `(0, 0)`, draw the compass rose, choose your map scale factor, and start sketching terrain geography.
+  * Begin placing and labeling the 4 required landmarks with coordinate points `(x, y)`.
+* **Day 2: Realm Cartography & Geographic Detailing (~30 min work time)**
+  * Continue drafting and detailing the realm map, color terrain hazards (forests, swamps, mountain passes), and finalize landmark coordinates.
+  * Calibrate map grid scale keys and verify reference origins before plotting travel trails.
+* **Day 3: The Journey Trail, String Technique (Distance vs. Displacement) & Analysis (~30 min work time)**
+  * Finalize map drawings and plot the adventurer's winding quest trail connecting all 4 landmarks.
+  * Use the string measurement technique along curves to measure paper centimeters and calculate total realm distance.
+  * Draw the straight-line vector arrow from origin to destination to measure net displacement magnitude and direction.
+  * Complete the project worksheet analysis questions.
 
 ---
 

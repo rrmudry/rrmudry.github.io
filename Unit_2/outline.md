@@ -31,17 +31,19 @@ This unit follows the classical and cognitive progression:
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Inquiry / Project
     *   *Links:* [Google Slides](https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing), [PowerPoint Slides (OneDrive)](https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDTeHashMmgSoeLVDHY5TwQAbynyLTufaGMoMjm5APx0Hw?e=nwclwC), [Quest Story Doc (Tale of Caelum)](https://docs.google.com/document/d/10pNCBkmnpn4LmwO6Fd8af0JH5ehHpj1akiyfmTqkDNA/edit?usp=sharing), [Fantasy Map Worksheet (DOCX)](https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs)
 
-*   **Day 2 (2026-09-01): Fantasy Map Quest — Part 2: Winding Trails & Distance vs. Displacement**
-    *   *Focus:* Measuring curved paths (string technique), scalar path distance vs. straight-line vector displacement (`Δx` / `Δr`), map scale conversions.
-    *   *Activity:* Partners draw the adventurer's meandering path across the terrain. Using string laid along the curves, teams measure paper centimeters and convert to realm units (total distance). They then draw and measure the direct straight-line vector arrow from the origin (net displacement).
-    *   *Essential Question:* Why is the total distance traveled by an adventurer almost always greater than their net displacement?
+*   **Day 2 (2026-09-01): Fantasy Map Quest — Part 2: Realm Cartography & Hazard Design**
+    *   *Bell-Ringer:* Map Scale Calculation: If your map scale is 1.0 cm = 15 leagues, and two castles are 6.0 cm apart on paper, what is the realm distance? (90 leagues).
+    *   *Focus:* Grid coordinate calibration `(x, y)`, reference origin `(0, 0)`, compass rose, map scale factors, and landmark/terrain hazard detailing.
+    *   *Activity:* Partners continue drafting and detailing their fantasy realm maps. Teams establish reference origins, calibrate grid coordinates for all 4 required landmarks (Origin Village → Terrain Obstacles → Mountain Pass → Final Citadel), and prepare map scale keys before plotting travel trails.
+    *   *Essential Question:* How do coordinate grids, scale factors, and reference origins allow cartographers and navigators to accurately describe locations in space?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Inquiry / Project
     *   *Links:* [Google Slides](https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing), [PowerPoint Slides (OneDrive)](https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDTeHashMmgSoeLVDHY5TwQAbynyLTufaGMoMjm5APx0Hw?e=nwclwC), [Quest Story Doc (Tale of Caelum)](https://docs.google.com/document/d/10pNCBkmnpn4LmwO6Fd8af0JH5ehHpj1akiyfmTqkDNA/edit?usp=sharing), [Fantasy Map Worksheet (DOCX)](https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs)
 
-*   **Day 3 (2026-09-02): Fantasy Map Quest — Part 3: Travel Time, Speed & The Homecoming Paradox**
-    *   *Focus:* Adding temporal duration to each leg, average speed formula (`v = d / t`), and resolving the round-trip return paradox (`Δx = 0`).
-    *   *Activity:* Students assign travel days across different terrain types (swamps take longer than plains!) and calculate average speed in leagues/day. They calculate the round-trip return journey (distance doubles, displacement becomes zero), complete the post-lab analysis questions, and conduct a peer audit of another team's map.
-    *   *Essential Question:* How can a traveler embark on a long, arduous journey covering immense distance, yet end up with an average velocity of zero?
+*   **Day 3 (2026-09-02): Fantasy Map Quest — Part 3: Curved Trails, Distance vs. Displacement & Quest Analysis**
+    *   *Bell-Ringer:* Distance vs. Net Displacement: If an adventurer travels 15 miles north to a temple and 15 miles south back home, what is their total distance traveled and net displacement? (Distance = 30 mi, Displacement = 0 mi).
+    *   *Focus:* Measuring curved trails (string technique), scalar path distance vs. straight-line vector displacement (`Δx` / `Δr`), and completing the quest analysis worksheet.
+    *   *Activity:* Partners complete their realm map illustrations, draw the adventurer's winding trail connecting all 4 landmarks, and use the string measurement technique to measure paper centimeters and calculate total realm distance. Teams draw direct straight-line vector arrows from the origin to destination (measuring net displacement magnitude and direction) and complete the project analysis worksheet.
+    *   *Essential Question:* Why is the total distance traveled by an adventurer along a winding trail almost always greater than their net displacement?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Inquiry / Project
     *   *Links:* [Google Slides](https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing), [PowerPoint Slides (OneDrive)](https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDTeHashMmgSoeLVDHY5TwQAbynyLTufaGMoMjm5APx0Hw?e=nwclwC), [Quest Story Doc (Tale of Caelum)](https://docs.google.com/document/d/10pNCBkmnpn4LmwO6Fd8af0JH5ehHpj1akiyfmTqkDNA/edit?usp=sharing), [Fantasy Map Worksheet (DOCX)](https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs)
 
