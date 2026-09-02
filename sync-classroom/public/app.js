@@ -15,6 +15,8 @@ const coursesList = document.getElementById('courses-list');
 const classroomCourseworkSelect = document.getElementById('classroom-coursework-select');
 const assignmentSelect = document.getElementById('assignment-select');
 const syncAssignmentTitle = document.getElementById('sync-assignment-title');
+const periodFilterSelect = document.getElementById('period-filter-select');
+const filterStats = document.getElementById('filter-stats');
 const btnSyncAll = document.getElementById('btn-sync-all');
 const studentsTbody = document.getElementById('students-tbody');
 
@@ -31,6 +33,7 @@ let activeCourses = [];
 let activeCoursework = [];
 let activeAssignments = [];
 let activeStudents = [];
+let displayedStudents = [];
 let selectedAssignmentId = '';
 
 // ---------------------------------------------------------
@@ -135,10 +138,11 @@ async function fetchCourses() {
     activeCourses.forEach(course => {
       const div = document.createElement('div');
       div.className = 'course-checkbox-item';
+      const periodLabel = course.inferredPeriod ? ` (Period ${course.inferredPeriod})` : '';
       div.innerHTML = `
-        <input type="checkbox" id="course-${course.id}" value="${course.id}" class="course-selector-cb" onchange="onCourseSelectionChanged()">
+        <input type="checkbox" id="course-${course.id}" value="${course.id}" data-period="${course.inferredPeriod || ''}" class="course-selector-cb" onchange="onCourseSelectionChanged()">
         <label for="course-${course.id}">
-          <div class="course-name">${course.name}</div>
+          <div class="course-name">${course.name}${periodLabel}</div>
           <div class="section-desc">${course.section || 'No Section'}</div>
         </label>
       `;
@@ -161,7 +165,17 @@ async function onCourseSelectionChanged() {
     return;
   }
 
-  const courseId = checkedBoxes[0].value;
+  const selectedCb = checkedBoxes[0];
+  const courseId = selectedCb.value;
+  const inferredPeriod = selectedCb.dataset.period;
+
+  // Auto-set the period filter if course has an inferred period
+  if (inferredPeriod && periodFilterSelect) {
+    periodFilterSelect.value = String(inferredPeriod);
+    renderStudentsTable();
+    log(`⚡ Auto-filtered score list to Period ${inferredPeriod} to match selected course.`, 'info');
+  }
+
   await fetchClassroomCoursework(courseId);
 }
 
@@ -277,8 +291,14 @@ if (classroomCourseworkSelect) {
   });
 }
 
+if (periodFilterSelect) {
+  periodFilterSelect.addEventListener('change', () => {
+    renderStudentsTable();
+  });
+}
+
 // ---------------------------------------------------------
-// 4. Student Scores Loader
+// 4. Student Scores Loader & Filter
 // ---------------------------------------------------------
 assignmentSelect.addEventListener('change', async (e) => {
   selectedAssignmentId = e.target.value;
@@ -286,6 +306,7 @@ assignmentSelect.addEventListener('change', async (e) => {
     syncAssignmentTitle.innerText = 'No assignment selected.';
     btnSyncAll.disabled = true;
     studentsTbody.innerHTML = '<tr><td colspan="5" class="empty-state">Select a Firestore assignment to view student scores.</td></tr>';
+    if (filterStats) filterStats.innerText = 'No assignment selected';
     return;
   }
   
@@ -302,8 +323,7 @@ assignmentSelect.addEventListener('change', async (e) => {
     activeStudents = await res.json();
     
     renderStudentsTable();
-    btnSyncAll.disabled = activeStudents.length === 0;
-    log(`Fetched ${activeStudents.length} student scores for "${displayTitle}".`, 'success');
+    log(`Fetched ${activeStudents.length} total student scores for "${displayTitle}".`, 'success');
   } catch (err) {
     studentsTbody.innerHTML = '<tr><td colspan="5" class="error-msg">Failed to retrieve scores.</td></tr>';
     log(`Failed to fetch scores for assignment "${selectedAssignmentId}".`, 'error');
@@ -312,12 +332,37 @@ assignmentSelect.addEventListener('change', async (e) => {
 
 function renderStudentsTable() {
   studentsTbody.innerHTML = '';
-  if (activeStudents.length === 0) {
-    studentsTbody.innerHTML = '<tr><td colspan="5" class="empty-state">No students found with scores for this assignment.</td></tr>';
+  
+  const selectedFilter = periodFilterSelect ? periodFilterSelect.value : 'ALL';
+  if (selectedFilter === 'ALL') {
+    displayedStudents = [...activeStudents];
+  } else {
+    displayedStudents = activeStudents.filter(s => String(s.class_period) === String(selectedFilter));
+  }
+
+  if (filterStats) {
+    if (selectedFilter === 'ALL') {
+      filterStats.innerText = `Showing all ${activeStudents.length} students`;
+    } else {
+      filterStats.innerText = `Showing ${displayedStudents.length} students in Period ${selectedFilter} (${activeStudents.length} total)`;
+    }
+  }
+
+  if (btnSyncAll) {
+    btnSyncAll.disabled = displayedStudents.length === 0;
+    if (selectedFilter === 'ALL') {
+      btnSyncAll.innerText = `🚀 Sync All ${displayedStudents.length} Scores`;
+    } else {
+      btnSyncAll.innerText = `🚀 Sync Period ${selectedFilter} (${displayedStudents.length} Scores)`;
+    }
+  }
+
+  if (displayedStudents.length === 0) {
+    studentsTbody.innerHTML = `<tr><td colspan="5" class="empty-state">No students found with scores for ${selectedFilter === 'ALL' ? 'this assignment' : 'Period ' + selectedFilter}.</td></tr>`;
     return;
   }
   
-  activeStudents.forEach(student => {
+  displayedStudents.forEach(student => {
     const tr = document.createElement('tr');
     tr.id = `student-row-${student.student_id}`;
     tr.innerHTML = `
@@ -372,7 +417,7 @@ createAssignmentForm.addEventListener('submit', async (e) => {
       });
       alert('Assignment deployment complete. View logs below for coursework IDs.');
       createAssignmentForm.reset();
-      assignmentMaxPoints.value = 10;
+      assignmentMaxPoints.value = 100;
       if (courseIds.length > 0) {
         fetchClassroomCoursework(courseIds[0]);
       }
@@ -444,6 +489,33 @@ async function resolveCourseworkId(courseId, targetAssignmentName) {
   }
 }
 
+// Helper: Format error messages with actionable advice
+function formatSyncError(errorMsg) {
+  if (typeof errorMsg === 'string' && errorMsg.includes('@ProjectPermissionDenied')) {
+    return 'Permission Denied: This assignment was created manually on classroom.google.com. Google Classroom API requires assignments to be created via the "Deploy Classroom Coursework" tool above so your Google Cloud project is authorized to sync & return grades.';
+  }
+  return errorMsg;
+}
+
+const btnAutofillDeploy = document.getElementById('btn-autofill-deploy');
+if (btnAutofillDeploy) {
+  btnAutofillDeploy.addEventListener('click', () => {
+    if (!selectedAssignmentId) {
+      alert('Please select a Source Firestore Activity from the dropdown above first.');
+      return;
+    }
+    const selectedItem = activeAssignments.find(a => a.id === selectedAssignmentId);
+    const title = selectedItem ? (selectedItem.rawName || selectedItem.id) : selectedAssignmentId;
+    if (assignmentTitle) assignmentTitle.value = title;
+    if (assignmentMaxPoints) assignmentMaxPoints.value = 100;
+    if (assignmentDescription) {
+      assignmentDescription.value = `Please complete the ${title} interactive web activity at: https://rrmudry.github.io/unit-conversion-practice/`;
+    }
+    log(`📋 Copied "${title}" to the Deploy Classroom Coursework form. Check your courses and click "Deploy to Selected Courses"!`, 'info');
+    if (assignmentTitle) assignmentTitle.focus();
+  });
+}
+
 async function syncSingleGrade(studentId, score) {
   const checkedBoxes = document.querySelectorAll('.course-selector-cb:checked');
   if (checkedBoxes.length === 0) {
@@ -481,13 +553,14 @@ async function syncSingleGrade(studentId, score) {
       }
     } else {
       const data = await res.json();
-      log(`Failed sync for Student [${studentId}]: ${data.error}`, 'error');
+      log(`Failed sync for Student [${studentId}]: ${formatSyncError(data.error)}`, 'error');
     }
   } catch (err) {
     log(`Network error syncing Student [${studentId}].`, 'error');
   }
 }
 
+// Fast concurrent batch processor
 btnSyncAll.addEventListener('click', async () => {
   const checkedBoxes = document.querySelectorAll('.course-selector-cb:checked');
   if (checkedBoxes.length === 0) {
@@ -502,45 +575,64 @@ btnSyncAll.addEventListener('click', async () => {
     alert('Could not resolve Google Classroom Coursework ID.');
     return;
   }
-  
-  if (!confirm(`Are you sure you want to sync all ${activeStudents.length} grades to Coursework [${courseworkId}]?`)) return;
+
+  const targetsToSync = displayedStudents.length > 0 ? displayedStudents : activeStudents;
+  const selectedFilter = periodFilterSelect ? periodFilterSelect.value : 'ALL';
+  const periodDesc = selectedFilter === 'ALL' ? 'all periods' : `Period ${selectedFilter}`;
+
+  if (!confirm(`Are you sure you want to sync ${targetsToSync.length} grades (${periodDesc}) to Coursework [${courseworkId}]?`)) return;
   
   btnSyncAll.disabled = true;
-  log(`Starting batch grade sync for ${activeStudents.length} students...`, 'info');
+  log(`⚡ Starting high-speed batch grade sync for ${targetsToSync.length} students (${periodDesc})...`, 'info');
   
   let successCount = 0;
   let failCount = 0;
+  let permissionDeniedEncountered = false;
 
-  for (const student of activeStudents) {
-    try {
-      const res = await fetch('/api/sync-grade', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ courseId, courseworkId, studentId: student.student_id, score: student.score })
-      });
-      
-      if (res.ok) {
-        successCount++;
-        log(`Success: Synced ${student.name} (${student.student_id}) -> Grade: ${student.score}`, 'success');
-        const row = document.getElementById(`student-row-${student.student_id}`);
-        if (row) {
-          row.style.opacity = '0.5';
-          const button = row.querySelector('.btn-sync-single');
-          button.innerText = 'Synced';
-          button.disabled = true;
+  // Process in concurrent pools of 4 parallel requests for maximum speed
+  const CONCURRENCY = 4;
+  for (let i = 0; i < targetsToSync.length; i += CONCURRENCY) {
+    const chunk = targetsToSync.slice(i, i + CONCURRENCY);
+    await Promise.all(chunk.map(async (student) => {
+      try {
+        const res = await fetch('/api/sync-grade', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ courseId, courseworkId, studentId: student.student_id, score: student.score })
+        });
+        
+        if (res.ok) {
+          successCount++;
+          log(`✅ Synced: ${student.name} (${student.student_id}) -> Grade: ${student.score}`, 'success');
+          const row = document.getElementById(`student-row-${student.student_id}`);
+          if (row) {
+            row.style.opacity = '0.5';
+            const button = row.querySelector('.btn-sync-single');
+            if (button) {
+              button.innerText = 'Synced';
+              button.disabled = true;
+            }
+          }
+        } else {
+          failCount++;
+          const data = await res.json();
+          const formattedErr = formatSyncError(data.error);
+          log(`❌ Failed: ${student.name} (${student.student_id}) -> ${formattedErr}`, 'error');
+          if (typeof data.error === 'string' && data.error.includes('@ProjectPermissionDenied')) {
+            permissionDeniedEncountered = true;
+          }
         }
-      } else {
+      } catch (err) {
         failCount++;
-        const data = await res.json();
-        log(`Failed: ${student.name} (${student.student_id}) -> ${data.error}`, 'error');
+        log(`Network error syncing ${student.name}`, 'error');
       }
-    } catch (err) {
-      failCount++;
-      log(`Network error syncing ${student.name}`, 'error');
-    }
+    }));
   }
   
-  log(`Batch synchronization complete. Synced: ${successCount}, Failed: ${failCount}`, 'system');
+  log(`🏁 Batch synchronization complete. Synced: ${successCount}, Failed: ${failCount}`, 'system');
+  if (permissionDeniedEncountered) {
+    log(`💡 SOLUTION: Deploy this assignment using the "Deploy Classroom Coursework" form above, then sync grades to that deployed assignment!`, 'info');
+  }
   btnSyncAll.disabled = false;
 });
 
