@@ -449,28 +449,69 @@ app.get('/api/courses/:courseId/coursework', checkAuth, async (req, res) => {
   }
 });
 
-// Retrieve Assignments list from ALL Firestore collections (gradest_assignments, assessments, assignments)
+// Retrieve Assignments list from ALL Firestore collections (student_results, gradest_assignments, assessments, assignments)
 app.get('/api/assignments', checkAuth, async (req, res) => {
   try {
     if (db) {
       const assignments = [];
       const seenIds = new Set();
 
-      // 1. Fetch from 'gradest_assignments' (The Gradest OMR Bubble Sheets)
-      const gradestSnap = await db.collection('gradest_assignments').get();
-      gradestSnap.forEach(doc => {
-        const data = doc.data();
-        const id = doc.id;
-        seenIds.add(id);
-        assignments.push({ 
-          id: id, 
-          name: data.assignmentName || data.title || id,
-          isProctorAssessment: !!data.isProctorAssessment,
-          sourceType: data.sourceType || 'the_gradest'
-        });
-      });
+      // 1. Fetch from 'student_results' (Interactive Practice Apps, Labs, Simulations)
+      try {
+        const docRefs = await db.collection('student_results').listDocuments();
+        for (const ref of docRefs) {
+          const id = ref.id;
+          if (!seenIds.has(id)) {
+            seenIds.add(id);
+            // Count students in subcollection
+            let studentCount = 0;
+            try {
+              const countSnap = await ref.collection('students').count().get();
+              studentCount = countSnap.data().count;
+            } catch (cErr) {
+              const sSnap = await ref.collection('students').get();
+              studentCount = sSnap.size;
+            }
+            const cleanName = id.replace(/_/g, ' ');
+            assignments.push({
+              id: id,
+              name: studentCount > 0 ? `${cleanName} (${studentCount} student${studentCount === 1 ? '' : 's'})` : cleanName,
+              rawName: cleanName,
+              studentCount: studentCount,
+              isProctorAssessment: false,
+              sourceType: 'student_results'
+            });
+          }
+        }
+      } catch (srErr) {
+        console.warn("Could not listDocuments for student_results:", srErr.message);
+      }
 
-      // 2. Fetch from 'assessments' (THE_PROCTOR's Assessment Editor)
+      // 2. Fetch from 'gradest_assignments' (The Gradest OMR Bubble Sheets)
+      try {
+        const gradestSnap = await db.collection('gradest_assignments').get();
+        gradestSnap.forEach(doc => {
+          const data = doc.data();
+          const id = doc.id;
+          if (!seenIds.has(id)) {
+            seenIds.add(id);
+            const count = Array.isArray(data.grades) ? data.grades.length : 0;
+            const title = data.assignmentName || data.title || id;
+            assignments.push({ 
+              id: id, 
+              name: count > 0 ? `${title} (${count} student${count === 1 ? '' : 's'})` : title,
+              rawName: title,
+              studentCount: count,
+              isProctorAssessment: !!data.isProctorAssessment,
+              sourceType: data.sourceType || 'the_gradest'
+            });
+          }
+        });
+      } catch (gErr) {
+        console.warn("Could not query gradest_assignments:", gErr.message);
+      }
+
+      // 3. Fetch from 'assessments' (THE_PROCTOR's Assessment Editor)
       try {
         const assessmentsSnap = await db.collection('assessments').get();
         assessmentsSnap.forEach(doc => {
@@ -478,9 +519,12 @@ app.get('/api/assignments', checkAuth, async (req, res) => {
           if (!seenIds.has(id)) {
             seenIds.add(id);
             const data = doc.data();
+            const title = data.assignment_name || data.title || id;
             assignments.push({
               id: id,
-              name: data.assignment_name || data.title || id,
+              name: title,
+              rawName: title,
+              studentCount: 0,
               isProctorAssessment: true,
               sourceType: 'the_proctor'
             });
@@ -490,7 +534,7 @@ app.get('/api/assignments', checkAuth, async (req, res) => {
         console.warn("Could not query assessments collection:", e.message);
       }
 
-      // 3. Fetch from legacy 'assignments' collection (Labs / Proctor Dashboard)
+      // 4. Fetch from legacy 'assignments' collection (Labs / Proctor Dashboard)
       try {
         const legacySnap = await db.collection('assignments').get();
         legacySnap.forEach(doc => {
@@ -498,9 +542,12 @@ app.get('/api/assignments', checkAuth, async (req, res) => {
           if (!seenIds.has(id)) {
             seenIds.add(id);
             const data = doc.data();
+            const title = data.title || data.assignment_name || id;
             assignments.push({
               id: id,
-              name: data.title || data.assignment_name || id,
+              name: title,
+              rawName: title,
+              studentCount: 0,
               isProctorAssessment: false,
               sourceType: 'interactive_lab'
             });
@@ -510,13 +557,21 @@ app.get('/api/assignments', checkAuth, async (req, res) => {
         console.warn("Could not query legacy assignments collection:", e.message);
       }
 
+      // Sort assignments with students first, then alphabetically
+      assignments.sort((a, b) => {
+        if ((b.studentCount || 0) !== (a.studentCount || 0)) {
+          return (b.studentCount || 0) - (a.studentCount || 0);
+        }
+        return a.name.localeCompare(b.name);
+      });
+
       res.json(assignments);
     } else {
       // Mock data if Firestore is not available
       res.json([
+        { id: 'Unit_Conversion_Practice', name: 'Unit Conversion Practice (134 students)', isProctorAssessment: false, sourceType: 'student_results' },
         { id: 'Quiz 1', name: 'Quiz 1', isProctorAssessment: false, sourceType: 'the_gradest' },
-        { id: 'Kinematics Quiz', name: 'Kinematics Quiz', isProctorAssessment: true, sourceType: 'the_proctor' },
-        { id: 'Unit 7 - Electricity & Magnetism', name: 'Unit 7 - Electricity & Magnetism', isProctorAssessment: false, sourceType: 'the_gradest' }
+        { id: 'Kinematics Quiz', name: 'Kinematics Quiz', isProctorAssessment: true, sourceType: 'the_proctor' }
       ]);
     }
   } catch (error) {
@@ -525,45 +580,99 @@ app.get('/api/assignments', checkAuth, async (req, res) => {
   }
 });
 
-// Retrieve Student scores for a specific assignment across gradest_assignments and student_results
+// Retrieve Student scores for a specific assignment across student_results and gradest_assignments
 app.get('/api/assignments/:assignmentId/scores', checkAuth, async (req, res) => {
   const { assignmentId } = req.params;
   try {
     if (db) {
       const students = [];
+      const seenStudentIds = new Set();
 
-      // 1. Check gradest_assignments first (The Gradest OMR sheets)
-      const gradestDoc = await db.collection('gradest_assignments').doc(assignmentId).get();
-      if (gradestDoc.exists) {
-        const data = gradestDoc.data();
-        if (Array.isArray(data.grades)) {
-          data.grades.forEach(g => {
-            students.push({
-              student_id: g.id || g.studentId || 'N/A',
-              name: g.name || 'Student ' + (g.id || g.studentId),
-              class_period: g.period || '1',
-              score: g.score !== undefined ? g.score : 0,
-              percentage: g.percentage || 0,
-              completed_at: g.timestamp || new Date().toISOString()
-            });
+      // Pre-fetch roster for enrichment
+      const rosterMap = new Map();
+      try {
+        const rosterSnap = await db.collection('roster').get();
+        rosterSnap.forEach(rDoc => {
+          const rData = rDoc.data();
+          const sid = String(rData.student_id || rDoc.id);
+          rosterMap.set(sid, {
+            name: rData.student_name || rData.name || null,
+            period: rData.class_period || rData.period || null,
+            email: rData.student_email || rData.email || null
           });
+        });
+      } catch (rErr) {
+        console.warn("Roster prefetch error:", rErr.message);
+      }
+
+      // Check student_results subcollection (e.g. Unit_Conversion_Practice)
+      const possibleIds = [
+        assignmentId,
+        assignmentId.replace(/ /g, '_'),
+        assignmentId.replace(/_/g, ' ')
+      ];
+
+      for (const pid of possibleIds) {
+        try {
+          const snap = await db.collection('student_results').doc(pid).collection('students').get();
+          if (!snap.empty) {
+            snap.forEach(doc => {
+              const data = doc.data();
+              const sId = String(data.student_id || doc.id);
+              if (!seenStudentIds.has(sId)) {
+                seenStudentIds.add(sId);
+                const rosterInfo = rosterMap.get(sId) || {};
+                students.push({
+                  student_id: sId,
+                  name: data.student_name || rosterInfo.name || `Student ${sId}`,
+                  class_period: (data.class_period && data.class_period !== 'N/A') ? data.class_period : (rosterInfo.period || '---'),
+                  score: data.score !== undefined ? data.score : 0,
+                  completed_at: data.timestamp ? (data.timestamp.toDate ? data.timestamp.toDate().toISOString() : data.timestamp) : new Date().toISOString()
+                });
+              }
+            });
+            break; // found scores in student_results
+          }
+        } catch (e) {}
+      }
+
+      // If still empty, check gradest_assignments (The Gradest OMR sheets)
+      if (students.length === 0) {
+        for (const pid of possibleIds) {
+          try {
+            const gradestDoc = await db.collection('gradest_assignments').doc(pid).get();
+            if (gradestDoc.exists) {
+              const data = gradestDoc.data();
+              if (Array.isArray(data.grades)) {
+                data.grades.forEach(g => {
+                  const sId = String(g.id || g.studentId || 'N/A');
+                  if (!seenStudentIds.has(sId)) {
+                    seenStudentIds.add(sId);
+                    const rosterInfo = rosterMap.get(sId) || {};
+                    students.push({
+                      student_id: sId,
+                      name: g.name || rosterInfo.name || `Student ${sId}`,
+                      class_period: g.period || rosterInfo.period || '---',
+                      score: g.score !== undefined ? g.score : 0,
+                      percentage: g.percentage || 0,
+                      completed_at: g.timestamp || new Date().toISOString()
+                    });
+                  }
+                });
+                break;
+              }
+            }
+          } catch (e) {}
         }
       }
 
-      // 2. Check student_results subcollection if gradest_assignments returned no scores
-      if (students.length === 0) {
-        const snap = await db.collection('student_results').doc(assignmentId).collection('students').get();
-        snap.forEach(doc => {
-          const data = doc.data();
-          students.push({
-            student_id: data.student_id || doc.id,
-            name: data.student_name || 'Unknown Student',
-            class_period: data.class_period || 'N/A',
-            score: data.score || 0,
-            completed_at: data.timestamp ? (data.timestamp.toDate ? data.timestamp.toDate().toISOString() : data.timestamp) : new Date().toISOString()
-          });
-        });
-      }
+      // Sort by class period, then student name
+      students.sort((a, b) => {
+        const pA = String(a.class_period || '');
+        const pB = String(b.class_period || '');
+        if (pA !== pB) return pA.localeCompare(pB, undefined, { numeric: true });
+        return (a.name || '').localeCompare(b.name || '');
+      });
 
       res.json(students);
     } else {
