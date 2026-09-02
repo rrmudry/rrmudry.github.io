@@ -17,6 +17,7 @@
 
   const DEFAULT_SETTINGS = {
     roomCapacity: 35,
+    maxConsecutiveSessions: 3,
     soundEnabled: true,
     hapticsEnabled: true,
     autoStartCamera: true,
@@ -55,6 +56,52 @@
     ], totalPrides: 0, totalInfractions: 3 },
     { id: "730010", name: "Leslie Winkle", grade: 11, period: 6, status: "active", avatarColor: "#3b82f6", restrictions: [], behaviorLogs: [], totalPrides: 2, totalInfractions: 0 }
   ];
+
+  function getPastPrideDates(count = 3, beforeDateStr = getTodayDateString()) {
+    const dates = [];
+    const prideDayNames = ['Tuesday', 'Wednesday', 'Thursday'];
+    const cur = new Date(beforeDateStr + 'T00:00:00');
+    for (let i = 1; i <= 30 && dates.length < count; i++) {
+      const prev = new Date(cur);
+      prev.setDate(prev.getDate() - i);
+      const dayName = prev.toLocaleDateString('en-US', { weekday: 'long' });
+      if (prideDayNames.includes(dayName)) {
+        const y = prev.getFullYear();
+        const m = String(prev.getMonth() + 1).padStart(2, '0');
+        const d = String(prev.getDate()).padStart(2, '0');
+        dates.unshift(`${y}-${m}-${d}`);
+      }
+    }
+    return dates;
+  }
+
+  function generateSampleAttendance() {
+    const pastDates = getPastPrideDates(3);
+    const d1 = pastDates[0] || '2026-08-25';
+    const d2 = pastDates[1] || '2026-08-26';
+    const d3 = pastDates[2] || '2026-08-27';
+
+    const records = {};
+    records[d1] = [
+      { id: `att-demo-${d1}-1`, studentId: "730001", studentName: "Sheldon Cooper", grade: 11, period: 1, timestamp: `${d1}T10:05:00Z`, timeFormatted: "10:05:00 AM", overrideUsed: false, leftEarly: false, note: "" },
+      { id: `att-demo-${d1}-2`, studentId: "730007", studentName: "Amy Farrah Fowler", grade: 11, period: 4, timestamp: `${d1}T10:08:00Z`, timeFormatted: "10:08:00 AM", overrideUsed: false, leftEarly: false, note: "" },
+      { id: `att-demo-${d1}-3`, studentId: "730008", studentName: "Stuart Bloom", grade: 12, period: 5, timestamp: `${d1}T10:12:00Z`, timeFormatted: "10:12:00 AM", overrideUsed: false, leftEarly: false, note: "" }
+    ];
+    records[d2] = [
+      { id: `att-demo-${d2}-1`, studentId: "730001", studentName: "Sheldon Cooper", grade: 11, period: 1, timestamp: `${d2}T10:04:00Z`, timeFormatted: "10:04:00 AM", overrideUsed: false, leftEarly: false, note: "" },
+      { id: `att-demo-${d2}-2`, studentId: "730007", studentName: "Amy Farrah Fowler", grade: 11, period: 4, timestamp: `${d2}T10:06:00Z`, timeFormatted: "10:06:00 AM", overrideUsed: false, leftEarly: false, note: "" },
+      { id: `att-demo-${d2}-3`, studentId: "730002", studentName: "Leonard Hofstadter", grade: 11, period: 1, timestamp: `${d2}T10:10:00Z`, timeFormatted: "10:10:00 AM", overrideUsed: false, leftEarly: false, note: "" },
+      { id: `att-demo-${d2}-4`, studentId: "730006", studentName: "Bernadette Rostenkowski", grade: 11, period: 4, timestamp: `${d2}T10:15:00Z`, timeFormatted: "10:15:00 AM", overrideUsed: false, leftEarly: false, note: "" }
+    ];
+    records[d3] = [
+      { id: `att-demo-${d3}-1`, studentId: "730001", studentName: "Sheldon Cooper", grade: 11, period: 1, timestamp: `${d3}T10:02:00Z`, timeFormatted: "10:02:00 AM", overrideUsed: false, leftEarly: false, note: "" },
+      { id: `att-demo-${d3}-2`, studentId: "730007", studentName: "Amy Farrah Fowler", grade: 11, period: 4, timestamp: `${d3}T10:05:00Z`, timeFormatted: "10:05:00 AM", overrideUsed: false, leftEarly: false, note: "" },
+      { id: `att-demo-${d3}-3`, studentId: "730002", studentName: "Leonard Hofstadter", grade: 11, period: 1, timestamp: `${d3}T10:09:00Z`, timeFormatted: "10:09:00 AM", overrideUsed: false, leftEarly: false, note: "" },
+      { id: `att-demo-${d3}-4`, studentId: "730006", studentName: "Bernadette Rostenkowski", grade: 11, period: 4, timestamp: `${d3}T10:14:00Z`, timeFormatted: "10:14:00 AM", overrideUsed: false, leftEarly: false, note: "" },
+      { id: `att-demo-${d3}-5`, studentId: "730003", studentName: "Penny Hofstadter", grade: 11, period: 2, timestamp: `${d3}T10:20:00Z`, timeFormatted: "10:20:00 AM", overrideUsed: false, leftEarly: false, note: "" }
+    ];
+    return records;
+  }
 
   // ==========================================================================
   // 2. GLOBAL STATE & SINGLETONS
@@ -261,10 +308,34 @@
           this.isInitialized = true;
           this.bindRosterStream();
           this.bindAttendanceStream(State.currentSessionDate);
+          this.preloadRecentAttendance();
           console.log('[FirestoreBridge] Realtime listeners active on db.collection("roster")');
         } catch (err) {
           console.warn('[FirestoreBridge] Firestore init warning:', err);
         }
+      }
+    },
+
+    async preloadRecentAttendance() {
+      if (!this.db) return;
+      try {
+        const datesSnap = await this.db.collection('pride_attendance').get();
+        if (datesSnap && !datesSnap.empty) {
+          const promises = datesSnap.docs.map(async (doc) => {
+            const dateStr = doc.id;
+            const checkinsSnap = await this.db.collection('pride_attendance').doc(dateStr).collection('checkins').get();
+            if (checkinsSnap && !checkinsSnap.empty) {
+              const checkins = checkinsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+              State.attendanceRecords[dateStr] = checkins;
+            }
+          });
+          await Promise.all(promises);
+          Storage.saveAttendanceLocalOnly();
+          UI.renderRosterTable();
+          UI.renderLiveAttendanceTable();
+        }
+      } catch (err) {
+        console.warn('[FirestoreBridge] Preload attendance warning:', err);
       }
     },
 
@@ -431,7 +502,8 @@
         if (savedAttendance) {
           State.attendanceRecords = JSON.parse(savedAttendance);
         } else {
-          State.attendanceRecords = {};
+          State.attendanceRecords = generateSampleAttendance();
+          this.saveAttendance();
         }
 
         const savedBehavior = localStorage.getItem(STORAGE_KEY_BEHAVIOR);
@@ -443,7 +515,7 @@
       } catch (err) {
         console.error('Storage load error:', err);
         State.students = [...SAMPLE_STUDENTS];
-        State.attendanceRecords = {};
+        State.attendanceRecords = generateSampleAttendance();
       }
     },
 
@@ -492,13 +564,13 @@
 
     resetToDemoData() {
       State.students = JSON.parse(JSON.stringify(SAMPLE_STUDENTS));
-      State.attendanceRecords = {};
+      State.attendanceRecords = generateSampleAttendance();
       State.behaviorLogs = State.students.flatMap(s => (s.behaviorLogs || []).map(b => ({ ...b, studentId: s.id, studentName: s.name })));
       this.saveStudents();
       this.saveAttendance();
       this.saveBehavior();
       UI.renderAll();
-      UI.showToast('Loaded sample roster for demonstration', 'success');
+      UI.showToast('Loaded sample roster & past attendance for demonstration', 'success');
     }
   };
 
@@ -753,6 +825,44 @@
   // ==========================================================================
 
   const AttendanceEngine = {
+    getConsecutiveStreak(studentId, referenceDate = State.currentSessionDate) {
+      const todayRecords = State.attendanceRecords[referenceDate] || [];
+      const isCheckedInToday = todayRecords.some(r => String(r.studentId) === String(studentId) && !r.leftEarly);
+
+      // Collect all past session dates strictly before referenceDate that have at least 1 attendance record
+      const pastDates = Object.keys(State.attendanceRecords)
+        .filter(d => d < referenceDate && Array.isArray(State.attendanceRecords[d]) && State.attendanceRecords[d].length > 0)
+        .sort((a, b) => b.localeCompare(a)); // Descending: most recent past date first
+
+      let priorStreak = 0;
+      const pastSessionDates = [];
+
+      for (const pastDate of pastDates) {
+        const records = State.attendanceRecords[pastDate] || [];
+        const attended = records.some(r => String(r.studentId) === String(studentId) && !r.leftEarly);
+        if (attended) {
+          priorStreak++;
+          pastSessionDates.push(pastDate);
+        } else {
+          // Streak broken by missed PRIDE Time session
+          break;
+        }
+      }
+
+      const consecutiveCount = isCheckedInToday ? priorStreak + 1 : priorStreak;
+      const maxAllowed = State.settings.maxConsecutiveSessions || 3;
+      const isBlocked = !isCheckedInToday && priorStreak >= maxAllowed;
+
+      return {
+        consecutiveCount,
+        priorStreak,
+        isCheckedInToday,
+        pastSessionDates,
+        isBlocked,
+        maxAllowed
+      };
+    },
+
     processCheckIn(scannedQuery, isManual = false, rawScanText = '') {
       const student = StudentDirectory.findStudent(scannedQuery);
       const sessionDate = State.currentSessionDate;
@@ -787,6 +897,17 @@
         return;
       }
 
+      // Case C2: Student Exceeded Max Consecutive PRIDE Sessions (e.g. 3 in a row)
+      const streak = this.getConsecutiveStreak(student.id, sessionDate);
+      if (streak.isBlocked) {
+        AudioEngine.playDangerAlert();
+        HapticEngine.vibrateDanger();
+        UI.flashScanner('danger');
+        UI.openConsecutiveLimitAlertModal(student, streak);
+        UI.showToast(`🛑 Limit reached: ${student.name} attended 3 PRIDE times in a row`, 'danger');
+        return;
+      }
+
       // Case D: Student is on PROBATION
       if (student.status === 'probation') {
         AudioEngine.playWarning();
@@ -802,7 +923,14 @@
       HapticEngine.vibrateSuccess();
       UI.flashScanner('success');
       this.recordAttendanceEntry(student, false, '');
-      UI.showToast(`✅ Checked In: ${student.name} (ID: ${student.id})`, 'success');
+      const maxLimit = State.settings.maxConsecutiveSessions || 3;
+      if (streak.priorStreak === maxLimit - 1) {
+        UI.showToast(`✅ Checked In: ${student.name} (${maxLimit} in a row - Max limit reached for next session)`, 'warning');
+      } else if (streak.priorStreak === 1) {
+        UI.showToast(`✅ Checked In: ${student.name} (2 in a row)`, 'success');
+      } else {
+        UI.showToast(`✅ Checked In: ${student.name} (ID: ${student.id})`, 'success');
+      }
     },
 
     recordAttendanceEntry(student, overrideUsed = false, note = '') {
@@ -1186,6 +1314,17 @@
           this.renderCounterHUD();
         });
       }
+
+      const maxConsecutiveInput = document.getElementById('setting-max-consecutive');
+      if (maxConsecutiveInput) {
+        maxConsecutiveInput.value = State.settings.maxConsecutiveSessions || 3;
+        maxConsecutiveInput.addEventListener('change', (e) => {
+          State.settings.maxConsecutiveSessions = Math.max(1, parseInt(e.target.value, 10) || 3);
+          Storage.saveSettings();
+          this.renderRosterTable();
+          this.renderLiveAttendanceTable();
+        });
+      }
     },
 
     switchTab(tabId) {
@@ -1282,6 +1421,8 @@
 
       container.innerHTML = activeRecords.map(rec => {
         const student = State.students.find(s => String(s.id) === String(rec.studentId)) || { avatarColor: '#6366f1' };
+        const streak = AttendanceEngine.getConsecutiveStreak(rec.studentId, State.currentSessionDate);
+        const streakBadge = this.renderStreakBadge(streak.consecutiveCount);
         return `
           <div class="scan-card-mini flex flex-col justify-between">
             <div class="flex items-center justify-between gap-2 mb-2">
@@ -1290,7 +1431,10 @@
                   ${getInitials(rec.studentName)}
                 </div>
                 <div class="truncate">
-                  <div class="font-bold text-xs text-slate-100 truncate">${rec.studentName}</div>
+                  <div class="font-bold text-xs text-slate-100 truncate flex items-center gap-1.5">
+                    <span>${rec.studentName}</span>
+                    ${streakBadge}
+                  </div>
                   <div class="text-[10px] mono text-slate-400">#${rec.studentId} • P${rec.period || '-'}</div>
                 </div>
               </div>
@@ -1330,6 +1474,8 @@
 
       container.innerHTML = records.map(rec => {
         const student = State.students.find(s => String(s.id) === String(rec.studentId));
+        const streak = AttendanceEngine.getConsecutiveStreak(rec.studentId, State.currentSessionDate);
+        const streakBadge = this.renderStreakBadge(streak.consecutiveCount);
         const statusBadge = rec.leftEarly
           ? `<span class="status-badge bg-slate-800 text-slate-400 border border-slate-700">Left Early</span>`
           : rec.overrideUsed
@@ -1351,7 +1497,12 @@
             </td>
             <td class="p-3 mono text-slate-300">Period ${rec.period ?? '-'}</td>
             <td class="p-3 mono font-semibold text-emerald-400">${rec.timeFormatted}</td>
-            <td class="p-3">${statusBadge}</td>
+            <td class="p-3">
+              <div class="flex flex-wrap items-center gap-1.5">
+                ${statusBadge}
+                ${streakBadge}
+              </div>
+            </td>
             <td class="p-3 text-slate-400 italic">${rec.note || '-'}</td>
             <td class="p-3 text-right">
               <div class="flex items-center justify-end gap-2">
@@ -1395,7 +1546,17 @@
       if (periodFilter !== 'all') {
         list = list.filter(s => String(s.period) === String(periodFilter));
       }
-      if (statusFilter !== 'all') {
+      if (statusFilter === 'streak-2') {
+        list = list.filter(s => {
+          const streak = AttendanceEngine.getConsecutiveStreak(s.id, State.currentSessionDate);
+          return streak.consecutiveCount === 2;
+        });
+      } else if (statusFilter === 'streak-3') {
+        list = list.filter(s => {
+          const streak = AttendanceEngine.getConsecutiveStreak(s.id, State.currentSessionDate);
+          return streak.consecutiveCount >= 3;
+        });
+      } else if (statusFilter !== 'all') {
         list = list.filter(s => s.status === statusFilter);
       }
 
@@ -1414,6 +1575,9 @@
       }
 
       container.innerHTML = list.map(student => {
+        const streak = AttendanceEngine.getConsecutiveStreak(student.id, State.currentSessionDate);
+        const streakBadge = this.renderStreakBadge(streak.consecutiveCount);
+
         let statusBadge = `<span class="status-badge badge-allowed">Allowed</span>`;
         if (student.status === 'restricted') {
           statusBadge = `<span class="status-badge badge-danger badge-restricted">Restricted</span>`;
@@ -1436,7 +1600,12 @@
             </td>
             <td class="p-3 mono font-bold text-indigo-300">#${student.id}</td>
             <td class="p-3 mono">Period ${student.period ?? '-'}</td>
-            <td class="p-3">${statusBadge}</td>
+            <td class="p-3">
+              <div class="flex flex-wrap items-center gap-1.5">
+                ${statusBadge}
+                ${streakBadge}
+              </div>
+            </td>
             <td class="p-3">
               <div class="flex items-center gap-2">
                 <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold text-[10px]">⭐ ${student.totalPrides || 0}</span>
@@ -1745,6 +1914,82 @@
       }
     },
 
+    renderStreakBadge(consecutiveCount) {
+      if (consecutiveCount === 2) {
+        return `
+          <span class="status-badge badge-streak-2" title="Attended 2 consecutive PRIDE Time sessions (1 session remaining before limit)">
+            <i data-lucide="flame" class="w-3 h-3"></i> 2 in a row
+          </span>
+        `;
+      }
+      if (consecutiveCount >= 3) {
+        return `
+          <span class="status-badge badge-streak-3" title="Attended ${consecutiveCount} consecutive PRIDE Time sessions (Limit reached - next session blocked)">
+            <i data-lucide="ban" class="w-3 h-3"></i> ${consecutiveCount} in a row
+          </span>
+        `;
+      }
+      return '';
+    },
+
+    openConsecutiveLimitAlertModal(student, streakInfo) {
+      const modal = document.getElementById('modal-consecutive-limit-alert');
+      if (!modal) return;
+
+      State.selectedStudentForAction = student;
+
+      const nameElem = document.getElementById('streak-alert-student-name');
+      if (nameElem) nameElem.textContent = student.name;
+
+      const idElem = document.getElementById('streak-alert-student-id');
+      if (idElem) idElem.textContent = `#${student.id} • Period ${student.period || '-'}`;
+
+      const countElem = document.getElementById('streak-alert-count-text');
+      if (countElem) {
+        countElem.textContent = `${streakInfo.priorStreak} PRIDE Time sessions in a row`;
+      }
+
+      const listElem = document.getElementById('streak-alert-dates-list');
+      if (listElem) {
+        if (streakInfo.pastSessionDates && streakInfo.pastSessionDates.length > 0) {
+          listElem.innerHTML = streakInfo.pastSessionDates.map((d, i) => `
+            <li class="flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
+              <span>Session ${streakInfo.priorStreak - i}: <strong>${d}</strong></span>
+            </li>
+          `).join('');
+        } else {
+          listElem.innerHTML = `<li>No past session dates found.</li>`;
+        }
+      }
+
+      modal.classList.add('active');
+      if (window.lucide) window.lucide.createIcons();
+    },
+
+    closeConsecutiveLimitAlertModal() {
+      const modal = document.getElementById('modal-consecutive-limit-alert');
+      if (modal) modal.classList.remove('active');
+      State.selectedStudentForAction = null;
+    },
+
+    denyConsecutiveEntry() {
+      if (State.selectedStudentForAction) {
+        const student = State.selectedStudentForAction;
+        this.showToast(`⛔ Turned away: ${student.name} (Consecutive session limit)`, 'warning');
+      }
+      this.closeConsecutiveLimitAlertModal();
+    },
+
+    overrideConsecutiveEntry() {
+      if (State.selectedStudentForAction) {
+        const student = State.selectedStudentForAction;
+        AttendanceEngine.recordAttendanceEntry(student, true, 'Limit override: Attended 3+ consecutive sessions');
+        this.showToast(`⚠️ Consecutive Limit Override Granted for ${student.name}`, 'warning');
+      }
+      this.closeConsecutiveLimitAlertModal();
+    },
+
     openRestrictionAlertModal(student) {
       const modal = document.getElementById('modal-restriction-alert');
       if (!modal) return;
@@ -1983,10 +2228,11 @@
         return;
       }
 
-      let csv = "Student ID,Student Name,Period,Grade,Check In Time,Status,Left Early,Notes\n";
+      let csv = "Student ID,Student Name,Period,Grade,Check In Time,Status,Consecutive Sessions,Left Early,Notes\n";
       records.forEach(r => {
+        const streak = AttendanceEngine.getConsecutiveStreak(r.studentId, sessionDate);
         const status = r.leftEarly ? "Left Early" : r.overrideUsed ? "Override Entry" : "Present";
-        csv += `"${r.studentId}","${r.studentName}","${r.period || ''}","${r.grade || ''}","${r.timeFormatted}","${status}","${r.leftEarly ? 'Yes' : 'No'}","${r.note || ''}"\n`;
+        csv += `"${r.studentId}","${r.studentName}","${r.period || ''}","${r.grade || ''}","${r.timeFormatted}","${status}","${streak.consecutiveCount}","${r.leftEarly ? 'Yes' : 'No'}","${r.note || ''}"\n`;
       });
 
       downloadFile(csv, `PRIDE_Time_Attendance_${sessionDate}.csv`, 'text/csv');
@@ -2342,6 +2588,11 @@
     denyRestrictedEntry: () => UI.denyRestrictedEntry(),
     overrideRestrictedEntry: () => UI.overrideRestrictedEntry(),
     closeRestrictionAlertModal: () => UI.closeRestrictionAlertModal(),
+    openConsecutiveLimitAlertModal: (student, streak) => UI.openConsecutiveLimitAlertModal(student, streak),
+    closeConsecutiveLimitAlertModal: () => UI.closeConsecutiveLimitAlertModal(),
+    denyConsecutiveEntry: () => UI.denyConsecutiveEntry(),
+    overrideConsecutiveEntry: () => UI.overrideConsecutiveEntry(),
+    getConsecutiveStreak: (id, date) => AttendanceEngine.getConsecutiveStreak(id, date),
     openAddStudentModal: () => UI.openAddStudentModal(),
     closeAddStudentModal: () => UI.closeAddStudentModal(),
     submitAddStudent: () => UI.submitAddStudent(),
