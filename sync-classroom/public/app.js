@@ -138,9 +138,11 @@ async function fetchCourses() {
     activeCourses.forEach(course => {
       const div = document.createElement('div');
       div.className = 'course-checkbox-item';
-      const periodLabel = course.inferredPeriod ? ` (Period ${course.inferredPeriod})` : '';
+      const hasPeriod = course.inferredPeriod !== null && course.inferredPeriod !== undefined && course.inferredPeriod !== '';
+      const periodLabel = hasPeriod ? ` (Period ${course.inferredPeriod})` : '';
+      const dataPeriodVal = hasPeriod ? String(course.inferredPeriod) : '';
       div.innerHTML = `
-        <input type="checkbox" id="course-${course.id}" value="${course.id}" data-period="${course.inferredPeriod || ''}" class="course-selector-cb" onchange="onCourseSelectionChanged()">
+        <input type="checkbox" id="course-${course.id}" value="${course.id}" data-period="${dataPeriodVal}" class="course-selector-cb" onchange="onCourseSelectionChanged()">
         <label for="course-${course.id}">
           <div class="course-name">${course.name}${periodLabel}</div>
           <div class="section-desc">${course.section || 'No Section'}</div>
@@ -169,8 +171,8 @@ async function onCourseSelectionChanged() {
   const courseId = selectedCb.value;
   const inferredPeriod = selectedCb.dataset.period;
 
-  // Auto-set the period filter if course has an inferred period
-  if (inferredPeriod && periodFilterSelect) {
+  // Auto-set the period filter if course has an inferred period (including Period 0)
+  if (inferredPeriod !== undefined && inferredPeriod !== null && inferredPeriod !== '' && periodFilterSelect) {
     periodFilterSelect.value = String(inferredPeriod);
     renderStudentsTable();
     log(`⚡ Auto-filtered score list to Period ${inferredPeriod} to match selected course.`, 'info');
