@@ -272,7 +272,7 @@ function extractPeriod(course) {
   if (match) return parseInt(match[1], 10);
   const numMatch = (course.section || '').match(/^([0-9]+)$/);
   if (numMatch) return parseInt(numMatch[1], 10);
-  return 0;
+  return null;
 }
 
 // Helper to extract numeric student ID from email or profile
@@ -626,9 +626,9 @@ app.get('/api/assignments/:assignmentId/scores', checkAuth, async (req, res) => 
               if (!seenStudentIds.has(sId)) {
                 seenStudentIds.add(sId);
                 const rosterInfo = rosterMap.get(sId) || {};
-                const rawPeriod = (data.class_period !== undefined && data.class_period !== null && data.class_period !== 'N/A' && data.class_period !== 0 && data.class_period !== '0')
+                const rawPeriod = (data.class_period !== undefined && data.class_period !== null && data.class_period !== 'N/A' && data.class_period !== '')
                   ? data.class_period
-                  : (rosterInfo.period !== undefined && rosterInfo.period !== null ? rosterInfo.period : '---');
+                  : (rosterInfo.period !== undefined && rosterInfo.period !== null && rosterInfo.period !== 'N/A' && rosterInfo.period !== '' ? rosterInfo.period : '---');
                 const cleanPeriod = (rawPeriod !== undefined && rawPeriod !== null && rawPeriod !== '') ? String(rawPeriod) : '---';
 
                 students.push({
@@ -658,9 +658,9 @@ app.get('/api/assignments/:assignmentId/scores', checkAuth, async (req, res) => 
                   if (!seenStudentIds.has(sId)) {
                     seenStudentIds.add(sId);
                     const rosterInfo = rosterMap.get(sId) || {};
-                    const rawPeriod = (g.period !== undefined && g.period !== null && g.period !== 'N/A' && g.period !== 0 && g.period !== '0')
+                    const rawPeriod = (g.period !== undefined && g.period !== null && g.period !== 'N/A' && g.period !== '')
                       ? g.period
-                      : (rosterInfo.period !== undefined && rosterInfo.period !== null ? rosterInfo.period : '---');
+                      : (rosterInfo.period !== undefined && rosterInfo.period !== null && rosterInfo.period !== 'N/A' && rosterInfo.period !== '' ? rosterInfo.period : '---');
                     const cleanPeriod = (rawPeriod !== undefined && rawPeriod !== null && rawPeriod !== '') ? String(rawPeriod) : '---';
 
                     students.push({
