@@ -130,3 +130,24 @@ Append-only log tracking pattern changes across sessions.
 - Created `pride-time/favicon.svg`: Custom gradient vector favicon.
 - Integrated PRIDE Time into `admin/index.html` navigation hub grid.
 
+---
+
+## 2026-09-01 — Google Classroom Sync Portal & Security Hardening
+
+**Motivation**: Enabled automated Gradebook syncing between Firestore student webapp results (e.g. Unit Conversion Practice) and Google Classroom, resolved Google Classroom API ownership constraints, implemented high-speed parallel batch grading with Period 0–6 isolation, and hardened repository security.
+
+**Changes**:
+- Created `patterns/classroom-gradebook-sync.md`: Documented Google Classroom `@ProjectPermissionDenied` API security model, virtual parent collection enumeration (`listDocuments()`), and concurrent batch syncing architecture.
+- Upgraded `sync-classroom/server.js`:
+  - Added `db.collection('student_results').listDocuments()` auto-discovery for all practice webapps.
+  - Added period inference mapping (`inferredPeriod`) supporting Period 0 through 6.
+  - Normalized student period attributes with automatic `roster` collection fallback.
+- Upgraded `sync-classroom/public/index.html` and `public/app.js`:
+  - Added Dual Dropdown Coursework / Activity selector with fuzzy auto-matching.
+  - Added One-Click "Copy to Deploy Form" helper for rapid assignment distribution.
+  - Added Class Period Filter bar with automatic period isolation upon selecting a course.
+  - Accelerated batch sync using a 4x concurrent promise pool (reduced sync time from 4 mins to ~5s).
+- Hardened Repository Security:
+  - Untracked `scratch/`, `student_submissions/`, and `roster_test.csv` from Git.
+  - Enhanced `.gitignore` with strict exclusion rules for all environment files, private keys, service accounts, and student test artifacts.
+
