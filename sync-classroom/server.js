@@ -173,7 +173,7 @@ app.get('/api/auth/verify', (req, res) => {
 // 4. API Endpoints
 // ---------------------------------------------------------
 
-// Retrieve Google Classroom Courses
+// Retrieve Google Classroom Courses with inferred periods
 app.get('/api/courses', checkAuth, async (req, res) => {
   try {
     const classroom = getClasroomClient();
@@ -181,7 +181,11 @@ app.get('/api/courses', checkAuth, async (req, res) => {
       courseStates: ['ACTIVE'],
       pageSize: 50
     });
-    res.json(response.data.courses || []);
+    const courses = (response.data.courses || []).map(c => ({
+      ...c,
+      inferredPeriod: extractPeriod(c)
+    }));
+    res.json(courses);
   } catch (error) {
     console.error('Error fetching Classroom courses:', error);
     res.status(500).json({ error: 'Failed to retrieve Google Classroom courses.' });
@@ -622,10 +626,15 @@ app.get('/api/assignments/:assignmentId/scores', checkAuth, async (req, res) => 
               if (!seenStudentIds.has(sId)) {
                 seenStudentIds.add(sId);
                 const rosterInfo = rosterMap.get(sId) || {};
+                const rawPeriod = (data.class_period !== undefined && data.class_period !== null && data.class_period !== 'N/A' && data.class_period !== 0 && data.class_period !== '0')
+                  ? data.class_period
+                  : (rosterInfo.period !== undefined && rosterInfo.period !== null ? rosterInfo.period : '---');
+                const cleanPeriod = (rawPeriod !== undefined && rawPeriod !== null && rawPeriod !== '') ? String(rawPeriod) : '---';
+
                 students.push({
                   student_id: sId,
                   name: data.student_name || rosterInfo.name || `Student ${sId}`,
-                  class_period: (data.class_period && data.class_period !== 'N/A') ? data.class_period : (rosterInfo.period || '---'),
+                  class_period: cleanPeriod,
                   score: data.score !== undefined ? data.score : 0,
                   completed_at: data.timestamp ? (data.timestamp.toDate ? data.timestamp.toDate().toISOString() : data.timestamp) : new Date().toISOString()
                 });
@@ -649,10 +658,15 @@ app.get('/api/assignments/:assignmentId/scores', checkAuth, async (req, res) => 
                   if (!seenStudentIds.has(sId)) {
                     seenStudentIds.add(sId);
                     const rosterInfo = rosterMap.get(sId) || {};
+                    const rawPeriod = (g.period !== undefined && g.period !== null && g.period !== 'N/A' && g.period !== 0 && g.period !== '0')
+                      ? g.period
+                      : (rosterInfo.period !== undefined && rosterInfo.period !== null ? rosterInfo.period : '---');
+                    const cleanPeriod = (rawPeriod !== undefined && rawPeriod !== null && rawPeriod !== '') ? String(rawPeriod) : '---';
+
                     students.push({
                       student_id: sId,
                       name: g.name || rosterInfo.name || `Student ${sId}`,
-                      class_period: g.period || rosterInfo.period || '---',
+                      class_period: cleanPeriod,
                       score: g.score !== undefined ? g.score : 0,
                       percentage: g.percentage || 0,
                       completed_at: g.timestamp || new Date().toISOString()

@@ -82,6 +82,9 @@
             <option value="">Choose activity...</option>
           </select>
         </div>
+        <button type="button" id="btn-autofill-deploy" class="btn-secondary" style="margin-top: 8px; width: 100%; font-size: 0.75rem; padding: 6px 10px;" title="Copy selected Firestore activity title to the Deploy form">
+          📋 Copy to Deploy Form
+        </button>
       </div>
     </aside>
 
@@ -91,26 +94,29 @@
       
       <!-- Section A: Assignment Deployment -->
       <section class="workspace-section">
-        <h3>Deploy Classroom Coursework</h3>
-        <p class="section-desc">Programmatically distribute a new quiz/assignment to all selected courses.</p>
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+          <h3>Deploy Classroom Coursework</h3>
+          <span style="font-size: 0.75rem; color: #a5b4fc;">✨ Enables Automated Grade Syncing</span>
+        </div>
+        <p class="section-desc">Distribute an assignment to all selected courses. <em>(Google Classroom only permits API grade syncing on assignments created via this deployer).</em></p>
         
         <form id="create-assignment-form" class="assignment-form">
           <div class="form-row">
             <div class="input-group">
               <label for="assignment-title">Assignment Title</label>
-              <input type="text" id="assignment-title" placeholder="Kinematics Bell-Ringer Quiz" required>
+              <input type="text" id="assignment-title" placeholder="Unit Conversion Practice" required>
             </div>
             <div class="input-group short">
               <label for="assignment-max-points">Max Points</label>
-              <input type="number" id="assignment-max-points" value="10" min="1" required>
+              <input type="number" id="assignment-max-points" value="100" min="1" required>
             </div>
           </div>
           <div class="input-group">
-            <label for="assignment-description">Instructions</label>
-            <textarea id="assignment-description" rows="3" placeholder="Please complete the dashboard assignment..."></textarea>
+            <label for="assignment-description">Instructions / Student Webapp Link</label>
+            <textarea id="assignment-description" rows="3" placeholder="Please complete the practice activity at: https://rrmudry.github.io/unit-conversion-practice/"></textarea>
           </div>
           <button type="submit" id="btn-deploy" class="btn-primary">
-            <span>Deploy to Courses</span>
+            <span>🚀 Deploy to Selected Courses</span>
           </button>
         </form>
       </section>
@@ -122,7 +128,26 @@
             <h3>Firestore Grade Synchronization</h3>
             <p id="sync-assignment-title" class="section-desc">No assignment selected.</p>
           </div>
-          <button id="btn-sync-all" class="btn-action" disabled>Sync All Scores</button>
+          <button id="btn-sync-all" class="btn-action" disabled>Sync Scores</button>
+        </div>
+
+        <!-- Period Filter Bar & Sync Stats -->
+        <div class="filter-bar" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; padding: 12px 16px; background: rgba(15, 23, 42, 0.6); border-radius: 12px; border: 1px solid var(--border-color);">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Class Period:</span>
+            <select id="period-filter-select" class="custom-select" style="width: auto; padding: 6px 14px; font-size: 0.85rem; background: #0f172a; border-color: #6366f1;">
+              <option value="ALL">All Periods (All Students)</option>
+              <option value="1">Period 1</option>
+              <option value="2">Period 2</option>
+              <option value="3">Period 3</option>
+              <option value="4">Period 4</option>
+              <option value="5">Period 5</option>
+              <option value="6">Period 6</option>
+            </select>
+          </div>
+          <div id="filter-stats" style="font-size: 0.85rem; color: #38bdf8; font-weight: 600;">
+            Showing all students
+          </div>
         </div>
 
         <div class="table-container">
