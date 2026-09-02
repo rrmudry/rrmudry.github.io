@@ -151,3 +151,25 @@ Append-only log tracking pattern changes across sessions.
   - Untracked `scratch/`, `student_submissions/`, and `roster_test.csv` from Git.
   - Enhanced `.gitignore` with strict exclusion rules for all environment files, private keys, service accounts, and student test artifacts.
 
+---
+
+## 2026-09-02 — PRIDE Time: Consecutive Check-In Limit & Streak Badges
+
+**Motivation**: Prevent students from attending more than 3 PRIDE Time sessions in a row to ensure equitable tutorial room rotation, while surfacing visual status badges for students at 2 or 3 consecutive sessions and empowering teachers with an override mechanism.
+
+**Changes**:
+- Updated `admin/pride_time.html`:
+  - Added `#modal-consecutive-limit-alert` displaying reason for restriction, exact dates of consecutive sessions attended, "Turn Away" decline button, and "Teacher Override" button.
+  - Added `⚡ 2 in a row (Warning)` and `🛑 3+ in a row (At Limit)` filter options to `#roster-status-filter`.
+  - Added configurable `Max Consecutive Sessions Limit` setting input in Tab 6.
+- Updated `pride-time/pride-style.css`:
+  - Added `.badge-streak-2` (amber glow pill badge with flame icon).
+  - Added `.badge-streak-3` (rose glow alert pill badge with ban icon).
+- Updated `pride-time/pride-app.js`:
+  - Added `AttendanceEngine.getConsecutiveStreak(studentId, referenceDate)`: traverses backward through actual contiguous PRIDE session dates to determine prior streak, current session status, and limit breach.
+  - Intercepted check-ins in `AttendanceEngine.processCheckIn`: students who have attended >= 3 consecutive sessions are blocked with a danger alert, scanner flash, toast notice, and `#modal-consecutive-limit-alert`.
+  - Implemented teacher override action logging an override entry (`Limit override: Attended 3+ consecutive sessions`).
+  - Added `UI.renderStreakBadge(consecutiveCount)`: surfaces badges in Student Roster table, Live Attendance table, and Scanner Recent Scans roll.
+  - Added `exportAttendanceCsv` consecutive session column for administrative records.
+  - Added `generateSampleAttendance()` and preloading in `FirestoreBridge` so past sessions persist across reloads and demo data showcases 1, 2, and 3-session streaks.
+
