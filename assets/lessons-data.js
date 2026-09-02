@@ -671,29 +671,29 @@ const lessonsData = [
     "day": 3,
     "date": "2026-09-02",
     "unit": 2,
-    "title": "Fantasy Map Quest — Part 3: Travel Time, Speed & The Homecoming Paradox",
-    "topic": "Calculating Average Speed (v = d / t), Round-Trip Vectors & Peer Audit",
+    "title": "Fantasy Map Quest — Part 3: Curved Trails, Distance vs. Displacement & Quest Analysis",
+    "topic": "Curved Path Length (String Technique) vs. Straight-Line Vector Displacement & Worksheet Completion",
     "dok": 2,
     "type": "Inquiry / Project",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Conclude the 3-day project: students add travel time across terrain hazards, calculate speed per leg (v = d/t), resolve the round-trip return paradox, and complete peer audits.",
-    "activity": "Fantasy Map Quest (Day 3 of 3): Teams assign travel durations (days/hours) to each leg based on terrain difficulty (swamps take longer than plains!) and calculate average speeds (v = d / t). Teams solve the 'Homecoming Paradox' (traveler returns home: distance doubles, displacement = 0), complete the analysis questions, and swap maps with another team for peer verification.",
-    "essentialQuestion": "How can a traveler embark on a long, arduous journey covering immense distance, yet end up with an average velocity of zero?",
+    "summary": "Conclude the 3-day project: students finish map drawing, plot meandering adventurer routes, measure curved path lengths with string (total distance), draw straight-line vector arrows (displacement), and complete the analysis worksheet.",
+    "activity": "Fantasy Map Quest (Day 3 of 3): Partners complete map illustrations and draw the traveler's winding trail connecting all 4 landmarks. Using string pressed along the curves, students measure paper centimeters for Legs 1, 2, and 3, convert to realm units, and calculate total distance. They then draw a direct straight-line vector arrow from the Origin to Destination, measuring net displacement magnitude and compass direction, and complete the project analysis questions.",
+    "essentialQuestion": "Why is the total distance traveled by an adventurer along a winding trail almost always greater than their net displacement?",
     "standards": [
       "HS-PS2-1"
     ],
     "wicor": {
-      "Writing": "Writing narrative quest summaries and scientific justifications for the Homecoming Paradox.",
-      "Inquiry": "Testing how terrain difficulty alters travel time and average speed across identical distances.",
-      "Collaboration": "Swapping completed maps with a partner team to audit calculations and verify vector measurements.",
-      "Organization": "Synthesizing all calculations, graphs, and written conclusions into the final project submission.",
-      "Reading": "Reading and auditing peer map legends, quest logs, and scale calculations."
+      "Writing": "Writing clear scientific definitions and justifications contrasting scalar distance with vector displacement.",
+      "Inquiry": "Discovering why winding around obstacles inflates distance while leaving net displacement unchanged.",
+      "Collaboration": "One partner lays and pinches the measurement string while the other records ruler readings and computes scale conversions.",
+      "Organization": "Synthesizing multi-leg measurements, vector arrows, and scale calculations into the completed project worksheet.",
+      "Reading": "Reading and auditing quest worksheet prompts, scale tables, and directional bearings."
     },
     "bellRinger": {
       "type": "free_response",
-      "promptQuestion": "If a traveler walks 40 leagues through an enchanted forest over 8 days, what is the traveler's average speed in leagues per day?",
-      "explanation": "Average speed is v = d / t = 40 leagues / 8 days = 5 leagues per day.",
+      "promptQuestion": "An adventurer leaves their home village, travels 15 miles north to an ancient temple, and then travels 15 miles south back to their village. What is their total distance traveled, and what is their net displacement?",
+      "explanation": "Total distance traveled is 30 miles (15 + 15), but net displacement is 0 miles because their final position is identical to their starting position (Δx = x_final - x_initial = 0).",
       "defaultDuration": 3
     },
     "links": {
@@ -708,29 +708,29 @@ const lessonsData = [
     "day": 2,
     "date": "2026-09-01",
     "unit": 2,
-    "title": "Fantasy Map Quest — Part 2: Winding Trails & Distance vs. Displacement",
-    "topic": "Curved Path Length (String Technique) vs. Straight-Line Vector Displacement",
+    "title": "Fantasy Map Quest — Part 2: Realm Cartography & Hazard Design",
+    "topic": "Grid Coordinate Systems, Scale Factor Calibration & Geographic Detailing",
     "dok": 2,
     "type": "Inquiry / Project",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Day 2 of the quest project: students plot a meandering adventurer route, measure curved path lengths with string (total distance), and draw direct vector arrows from origin (displacement).",
-    "activity": "Fantasy Map Quest (Day 2 of 3): Partners draw the traveler's winding trail connecting all 4 landmarks. Using string pressed along the curves, students measure paper centimeters for Legs 1, 2, and 3, convert to realm units, and calculate total distance traveled. They then draw a direct straight-line vector arrow from the Origin to Destination, measuring net displacement magnitude and compass direction.",
-    "essentialQuestion": "Why is the total distance traveled by an adventurer almost always greater than their net displacement?",
+    "summary": "Day 2 of the quest project: student cartographers continue drafting and detailing their fantasy realm maps, establishing reference origins (0,0), compass roses, grid scales, and terrain obstacles.",
+    "activity": "Fantasy Map Quest (Day 2 of 3): In 45-minute periods (~30 min work time), student pairs collaborate to finish designing and illustrating their fantasy realm maps. Teams establish reference points, calibrate grid coordinates for all 4 required landmarks (Origin Village -> Terrain Obstacles -> Mountain Pass -> Final Citadel), and prepare map scale keys before plotting travel trails.",
+    "essentialQuestion": "How do coordinate grids, scale factors, and reference origins allow cartographers and navigators to accurately describe locations in space?",
     "standards": [
       "HS-PS2-1"
     ],
     "wicor": {
-      "Writing": "Writing clear definitions of scalar distance and vector displacement based on empirical trail measurements.",
-      "Inquiry": "Discovering why winding around obstacles inflates distance while leaving displacement unchanged.",
-      "Collaboration": "One partner lays and pinches the measurement string while the other records ruler readings and computes scale conversions.",
-      "Organization": "Recording multi-leg measurement data in a four-column table (Leg, Paper cm, Scale Factor, Realm Units).",
-      "Reading": "Tracing complex path geometries and measuring directional angles."
+      "Writing": "Documenting landmark coordinate points (x, y) and recording the map scale conversion rule in the map legend.",
+      "Inquiry": "Investigating how changing the map origin shifts all landmark coordinates without altering land geography.",
+      "Collaboration": "Partner cartography teams dividing duties: grid calibration, terrain hazard sketching, and landmark naming.",
+      "Organization": "Setting up the project quest log, data tables, and scale keys.",
+      "Reading": "Interpreting compass rose bearings and coordinate grid legends."
     },
     "bellRinger": {
       "type": "free_response",
-      "promptQuestion": "An adventurer leaves their home village, travels 15 miles north to an ancient temple, and then travels 15 miles south back to their village. What is their total distance traveled, and what is their net displacement?",
-      "explanation": "Total distance traveled is 30 miles (15 + 15), but net displacement is 0 miles because their final position is identical to their starting position (Δx = x_final - x_initial = 0).",
+      "promptQuestion": "If your map scale is 1.0 cm = 15 leagues, and two enchanted castles are separated by 6.0 cm on your drawing, what is the actual distance between them in leagues?",
+      "explanation": "Multiply the map measurement by the scale factor: 6.0 cm · (15 leagues / 1 cm) = 90 leagues.",
       "defaultDuration": 3
     },
     "links": {
