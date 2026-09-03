@@ -14,6 +14,8 @@ Follow these requirements and code patterns whenever creating or modifying inter
 - [ ] **Unique Assignment ID**: Hardcode a unique constant `ASSIGNMENT_ID` in the webapp code. This must match the document ID in the Firestore `assignments` and `student_results` collections exactly.
 - [ ] **Percentage-Based Scoring**: Design the scoring system to submit grades as a percentage (integer `0` to `100`).
 - [ ] **Highest Score Retention**: Check Firestore for existing submissions and only save the score if it exceeds the student's previous attempt.
+- [ ] **Top-Level Parent Doc Set**: When submitting scores, ensure the parent document (`db.collection('student_results').doc(ASSIGNMENT_ID).set({ assignment_name, updatedAt }, { merge: true })`) is created so admin tools and gradebook export discover it.
+- [ ] **CAST Alignment & Productive Friction**: Preserve authentic student measurement (reading virtual rulers, stopwatches, protractors) and scale conversions rather than auto-calculating. Eliminate interface clutter, provide 2x–3x optical loupes/crosshairs, and offer targeted diagnostic hints for tolerance checks (see `.agents/wiki/patterns/cast-aligned-webapp-design.md`).
 - [ ] **Automatic NGSS Standards Linking**: Include `data-ngss="STANDARD_CODES"` (e.g. `data-ngss="HS-PS2-1,HS-PS2-2"`) or `data-ngss-is="IS1"` in the HTML body to automatically pull and render interactive NGSS standard badges and popover details via `NGSSHelper`.
 
 ---
