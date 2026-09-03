@@ -195,3 +195,31 @@ Append-only log tracking pattern changes across sessions.
   - Linked in `assets/lessons-data.js` (Day 4).
   - Linked in `Unit_2/Fantasy_Map_Quest_Project.md`.
 
+---
+
+## 2026-09-02 — Interactive Presentation: Describing Motion (Vectors, Scalars, Distance, & Displacement)
+
+**Motivation**: Built an interactive 10-slide educational presentation and learning web application in `Unit_2/describing-motion-presentation/` based on the kinematics curriculum outline, strictly adhering to the repository's No-LaTeX policy and NGSS HS-PS2-1 standard.
+
+**Changes**:
+- Created `Unit_2/describing-motion-presentation/index.html`:
+  - Slide 1: Title & Learning Objectives with interactive Hero vector drawing canvas and telemetry (distance, displacement, angle).
+  - Slide 2: Scalars vs. Vectors definitions with interactive classification sorting lab (8 physical quantities).
+  - Slide 3: Distance (The Scalar) with properties and interactive Winding Road Detour Simulator.
+  - Slide 4: Displacement (The Vector) with straight-line vector overlay and origin-return slider.
+  - Slide 5: Coordinate Reference Systems with worked example (+5m East then -3m West = +2m East) on an animated 1D number line.
+  - Slide 6: Special Motion Cases comparing Round-Trip (400m oval track) and Unidirectional (400m straight dragstrip).
+  - Slide 7: 2D Displacement Vectors with draggable Cartesian coordinate plane, component vectors (&Delta;x, &Delta;y), and Quadrant I–IV identifier.
+  - Slide 8: Magnitude & Direction Calculations featuring Pythagorean & trig formulas, the 3m West & 4m South worked example (5m, 217°), and a custom vector calculator.
+  - Slide 9: Master Comparison Matrix table and animated Delivery Van (Odometer) vs. GPS Drone (Displacement) simulation.
+  - Slide 10: Interactive 4-lap audience check challenge with confetti celebration, detailed proof, and FAQ misconceptions drawer.
+- Created `Unit_2/describing-motion-presentation/style.css`: Cosmic dark glassmorphism, responsive styling, print-friendly rules, and custom slider thumb glow.
+- Created `Unit_2/describing-motion-presentation/presentation.js`:
+  - Keyboard navigation controller (`ArrowRight`, `ArrowLeft`, `Space`, `Home`, `End`, `f`, `m`, `n`, `s`).
+  - Web Audio API synthesizer for UI clicks, slide whooshes, and victory chords.
+  - Dual Mode Switcher (Slideshow Mode vs. All-in-One Study Mode).
+  - Collapsible Presenter Notes drawer with timing cues, key talking points, and check-for-understanding questions.
+- Integrated into `unit2-dashboard.html` hero action row (`📽️ Vectors & Scalars Presentation ↗`).
+- Updated `Unit_2/unit2_lessons.json` and `Unit_2/lesson.json` for Days 1 and 3.
+- Created `patterns/interactive-presentation-deck.md` documenting architecture, features, and strict No-LaTeX conventions.
+

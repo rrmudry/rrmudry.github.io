@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Describing Motion: Vectors, Scalars, Distance, &amp; Displacement</title>
+  <meta name="description" content="Master vectors, scalars, distance, displacement, 1D reference frames, and 2D kinematic vector components in an interactive physics lesson and presentation.">
+
+  <!-- Google Fonts & Tailwind CSS CDN -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <!-- Custom Presentation Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-950 text-slate-100 flex flex-col min-h-screen selection:bg-sky-500 selection:text-white">
+
+  <!-- TOP PRESENTATION HEADER -->
+  <header class="glass-header sticky top-0 z-50 px-4 py-2.5">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- Brand & Navigation -->
+      <div class="flex items-center gap-3">
+        <a href="../../unit2-dashboard.html" class="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors border border-white/10 text-xs font-semibold flex items-center gap-1.5" title="Return to Unit 2 Dashboard">
+          <span>&larr;</span> <span class="hidden sm:inline">Unit 2 Dashboard</span>
+        </a>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🧭</span>
+            <h1 class="text-sm sm:text-base font-bold tracking-tight text-white flex items-center gap-2">
+              <span>Describing Motion</span>
+              <span class="text-xs text-sky-400 font-mono hidden md:inline">&bull; Vectors &amp; Scalars</span>
+            </h1>
+          </div>
+          <div class="flex items-center gap-2 text-[11px] text-slate-400">
+            <span>High School Physics Kinematics</span>
+            <span class="text-slate-600">&bull;</span>
+            <a href="../../ngss-explorer/" target="_blank" class="text-sky-300 hover:underline font-mono font-semibold" title="Click to view standard in NGSS Explorer">
+              HS-PS2-1
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Presentation View & Audio Controls -->
+      <div class="flex items-center gap-2">
+        <!-- Dual Mode Toggle -->
+        <button id="btn-toggle-mode" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 text-xs font-semibold text-slate-200 transition-all active:scale-95 flex items-center gap-1.5" title="Switch between Slideshow and All-in-One Study Mode">
+          📽️ <span>Slideshow Mode</span>
+        </button>
+
+        <!-- Presenter Notes Toggle (slideshow only) -->
+        <button id="btn-toggle-notes" class="presentation-controls-only px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-slate-300 hover:text-white transition-colors flex items-center gap-1.5" title="Toggle Presenter Notes Drawer (Hotkey: N)">
+          📝 <span class="hidden sm:inline">Notes</span>
+        </button>
+
+        <!-- Sound Toggle -->
+        <button id="btn-toggle-sound" class="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs transition-colors" title="Toggle Audio FX (Hotkey: M)">
+          🔊
+        </button>
+
+        <!-- Fullscreen Toggle -->
+        <button id="btn-toggle-fullscreen" class="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs transition-colors" title="Toggle Fullscreen (Hotkey: F)">
+          ⛶
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Presentation Progress Bar (Slideshow mode) -->
+    <div class="presentation-controls-only max-w-7xl mx-auto mt-2 w-full bg-white/10 h-1 rounded-full overflow-hidden">
+      <div id="presentation-progress-bar" class="bg-gradient-to-r from-sky-400 to-indigo-500 h-full w-1/10 transition-all duration-300"></div>
+    </div>
+  </header>
+
+  <!-- MAIN SLIDE STAGE -->
+  <main id="slide-viewport" class="flex-1 w-full max-w-6xl mx-auto p-4 sm:p-6 md:p-8 flex flex-col justify-center">
+
+    <!-- ========================================================= -->
+    <!-- SLIDE 1: Title Slide & Objectives -->
+    <!-- ========================================================= -->
+    <section class="slide-container active" id="slide-1" aria-label="Slide 1: Title &amp; Learning Objectives">
+      <div class="glass-panel rounded-3xl p-6 sm:p-10 border border-sky-500/20 shadow-2xl relative overflow-hidden">
+        
+        <!-- Top Metadata Row -->
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+          <div class="flex items-center gap-2">
+            <span class="badge-pill bg-sky-500/10 text-sky-300 border border-sky-500/30">
+              Part 1: Foundations of Physical Quantities
+            </span>
+            <span class="badge-pill bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 font-mono">
+              Slide 1 of 10
+            </span>
+          </div>
+          <div class="text-xs text-slate-400 font-mono flex items-center gap-1.5">
+            <span>Standard:</span>
+            <span class="text-sky-300 font-bold">HS-PS2-1</span>
+          </div>
+        </div>
+
+        <!-- Hero Title -->
+        <div class="max-w-3xl space-y-3 mb-8">
+          <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight">
+            Describing Motion: <br>
+            <span class="gradient-text-cyan">Vectors, Scalars, Distance,</span> <br class="sm:hidden">
+            <span class="text-slate-300">&amp; Displacement</span>
+          </h2>
+          <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+            Master the vital distinction between scalar quantities and vector quantities in 1D and 2D kinematics, from reference frames to Cartesian Pythagorean vectors.
+          </p>
+        </div>
+
+        <!-- Split Grid: Objectives & Interactive Hero Preview Canvas -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+          
+          <!-- Left: Key Learning Objectives -->
+          <div class="lg:col-span-5 space-y-4">
+            <div class="glass-card p-5 rounded-2xl border border-white/10 space-y-3">
+              <div class="flex items-center gap-2 text-sky-400 font-bold text-sm">
+                <span>🎯</span>
+                <span class="uppercase tracking-wider">Learning Objectives</span>
+              </div>
+              <ul class="space-y-2.5 text-xs sm:text-sm text-slate-300">
+                <li class="flex items-start gap-2.5">
+                  <span class="text-emerald-400 font-bold">✓</span>
+                  <span>Distinguish physical quantities that require spatial direction (<strong>vectors</strong>) from those defined solely by magnitude (<strong>scalars</strong>).</span>
+                </li>
+                <li class="flex items-start gap-2.5">
+                  <span class="text-emerald-400 font-bold">✓</span>
+                  <span>Contrast the path-dependent scalar <strong>distance</strong> with the path-independent vector <strong>displacement</strong>.</span>
+                </li>
+                <li class="flex items-start gap-2.5">
+                  <span class="text-emerald-400 font-bold">✓</span>
+                  <span>Establish 1D reference frames with sign conventions (+ / -) and resolve round-trip vs. unidirectional motion.</span>
+                </li>
+                <li class="flex items-start gap-2.5">
+                  <span class="text-emerald-400 font-bold">✓</span>
+                  <span>Resolve 2D displacement vectors into Cartesian components (&Delta;x, &Delta;y) and compute magnitude and direction.</span>
+                </li>
+              </ul>
+            </div>
+            
+            <div class="text-[11px] text-slate-400 flex items-center gap-2 bg-slate-900/60 p-3 rounded-xl border border-white/5">
+              <span>💡</span>
+              <span><strong>Interactive Demo:</strong> Click or drag on the grid to the right to see the live difference between path distance and straight-line displacement!</span>
+            </div>
+          </div>
+
+          <!-- Right: Interactive Canvas Sandbox -->
+          <div class="lg:col-span-7">
+            <div class="glass-card p-4 rounded-2xl border border-white/10 space-y-3">
+              <div class="flex items-center justify-between text-xs">
+                <div class="flex items-center gap-3">
+                  <span class="flex items-center gap-1.5 text-amber-400 font-semibold font-mono">
+                    <span class="w-2 h-2 rounded-full bg-amber-400"></span> Distance: <span id="hero-val-distance">0.0 m</span>
+                  </span>
+                  <span class="flex items-center gap-1.5 text-sky-400 font-semibold font-mono">
+                    <span class="w-2 h-2 rounded-full bg-sky-400"></span> Displacement: <span id="hero-val-displacement">0.0 m</span>
+                  </span>
+                  <span class="hidden sm:flex items-center gap-1 text-slate-400 font-mono">
+                    Angle: <span id="hero-val-angle" class="text-slate-200">0°</span>
+                  </span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <button id="btn-hero-loop" class="px-2 py-1 rounded bg-white/10 hover:bg-white/15 text-[11px] text-slate-300 transition-colors">
+                    Loop
+                  </button>
+                  <button id="btn-hero-clear" class="px-2 py-1 rounded bg-white/10 hover:bg-white/15 text-[11px] text-slate-300 transition-colors">
+                    Reset
+                  </button>
+                </div>
+              </div>
+
+              <!-- Canvas element -->
+              <canvas id="canvas-hero" width="560" height="280" class="sim-canvas w-full h-[220px] sm:h-[260px]"></canvas>
+
+              <div class="flex items-center justify-between text-[11px] text-slate-400">
+                <span class="flex items-center gap-1"><span class="w-3 h-0.5 border-t border-dashed border-amber-400"></span> Amber dashed: Actual path walked</span>
+                <span class="flex items-center gap-1"><span class="w-3 h-0.5 bg-sky-400"></span> Cyan solid: Net displacement arrow</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ========================================================= -->
+    <!-- SLIDE 2: Scalars vs. Vectors -->
+    <!-- ========================================================= -->
+    <section class="slide-container" id="slide-2" aria-label="Slide 2: Scalars vs. Vectors">
+      <div class="glass-panel rounded-3xl p-6 sm:p-10 border border-sky-500/20 shadow-2xl relative">
+        
+        <!-- Header -->
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+          <div class="flex items-center gap-2">
+            <span class="badge-pill bg-sky-500/10 text-sky-300 border border-sky-500/30">
+              Part 1: Foundations of Physical Quantities
+            </span>
+            <span class="badge-pill bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 font-mono">
+              Slide 2 of 10
+            </span>
+          </div>
+          <span id="quantities-score-badge" class="badge-pill bg-sky-500/20 text-sky-300 border border-sky-500/30 font-mono text-xs">
+            0 / 8 Classified Correctly
+          </span>
+        </div>
+
+        <div class="max-w-3xl space-y-2 mb-6">
+          <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight">
+            Scalars vs. <span class="gradient-text-cyan">Vectors</span>
+          </h2>
+          <p class="text-slate-300 text-xs sm:text-sm">
+            In physics, every measurable quantity belongs to one of two fundamental classes depending on whether spatial orientation matters.
+          </p>
+        </div>
+
+        <!-- Concept Definitions Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          
+          <!-- Scalar Definition -->
+          <div class="glass-card p-5 rounded-2xl border-l-4 border-l-amber-400 space-y-2">
+            <div class="flex items-center justify-between">
+              <h3 class="text-base sm:text-lg font-bold text-amber-300 flex items-center gap-2">
+                <span>⚖️</span> Scalar Quantity
+              </h3>
+              <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-amber-400/20 text-amber-300">
+                Magnitude Only
+              </span>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              A physical quantity fully described by <strong>magnitude</strong> (numerical value or size) and physical unit alone. Direction is meaningless or absent.
+            </p>
+            <div class="pt-2 border-t border-white/10 flex flex-wrap gap-2 text-xs font-mono text-amber-200">
+              <span class="bg-black/30 px-2 py-1 rounded">Temperature: 20°C</span>
+              <span class="bg-black/30 px-2 py-1 rounded">Time: 10 s</span>
+              <span class="bg-black/30 px-2 py-1 rounded">Mass: 5 kg</span>
+            </div>
+          </div>
+
+          <!-- Vector Definition -->
+          <div class="glass-card p-5 rounded-2xl border-l-4 border-l-sky-400 space-y-2">
+            <div class="flex items-center justify-between">
+              <h3 class="text-base sm:text-lg font-bold text-sky-300 flex items-center gap-2">
+                <span>🧭</span> Vector Quantity
+              </h3>
+              <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-sky-400/20 text-sky-300">
+                Magnitude + Direction
+              </span>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              A physical quantity requiring both <strong>magnitude</strong> and <strong>spatial direction</strong>. Changing direction changes the vector, even if size stays identical.
+            </p>
+            <div class="pt-2 border-t border-white/10 flex flex-wrap gap-2 text-xs font-mono text-sky-200">
+              <span class="bg-black/30 px-2 py-1 rounded">Velocity: 60 mph North</span>
+              <span class="bg-black/30 px-2 py-1 rounded">Force: 10 N down</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Interactive Classification Sandbox -->
+        <div class="glass-card p-5 rounded-2xl border border-white/10 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h4 class="text-sm font-bold text-white flex items-center gap-1.5">
+                <span>🧪</span> Interactive Sorting Challenge: Classify the Quantities
+              </h4>
+              <p class="text-xs text-slate-400">Click (+Scalar) or (+Vector) on each card to sort it into the proper physical category.</p>
+            </div>
+            <button id="btn-quantities-reset" class="px-3 py-1 text-xs rounded-lg bg-white/10 hover:bg-white/15 text-slate-300 transition-colors">
+              Reset All
+            </button>
+          </div>
+
+          <!-- Cards Pool -->
+          <div id="quantities-pool" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5 min-h-[50px] p-2 rounded-xl bg-black/20 border border-white/5">
+            <!-- Dynamically populated via presentation.js -->
+          </div>
+
+          <!-- Drop Zones Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+            <!-- Scalar Zone -->
+            <div id="zone-scalar" class="drop-zone p-4 rounded-xl border-2 border-dashed border-amber-500/30 bg-amber-950/10 min-h-[140px] space-y-2">
+              <div class="text-xs text-amber-400/60 font-mono mb-2 uppercase tracking-wider">Scalar (Magnitude Only)</div>
+            </div>
+
+            <!-- Vector Zone -->
+            <div id="zone-vector" class="drop-zone p-4 rounded-xl border-2 border-dashed border-sky-500/30 bg-sky-950/10 min-h-[140px] space-y-2">
+              <div class="text-xs text-sky-400/60 font-mono mb-2 uppercase tracking-wider">Vector (Magnitude + Direction)</div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ========================================================= -->
+    <!-- SLIDE 3: Distance (The Scalar) -->
+    <!-- ========================================================= -->
+    <section class="slide-container" id="slide-3" aria-label="Slide 3: Distance (The Scalar)">
+      <div class="glass-panel rounded-3xl p-6 sm:p-10 border border-amber-500/20 shadow-2xl relative">
+        
+        <!-- Header -->
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+          <div class="flex items-center gap-2">
+            <span class="badge-pill bg-amber-500/10 text-amber-300 border border-amber-500/30">
+              Part 2: Quantifying Position and Path
+            </span>
+            <span class="badge-pill bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 font-mono">
+              Slide 3 of 10
+            </span>
+          </div>
+          <span class="text-xs font-mono text-amber-300 bg-amber-500/20 px-2.5 py-1 rounded-full border border-amber-500/30">
+            Scalar Quantity: d
+          </span>
+        </div>
+
+        <div class="max-w-3xl space-y-2 mb-6">
+          <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight">
+            Distance: <span class="gradient-text-amber">The Path-Dependent Scalar</span>
+          </h2>
+          <p class="text-slate-300 text-xs sm:text-sm">
+            Distance quantifies the cumulative ground covered during motion. Think of it as a vehicle's odometer reading: every single turn, detour, and step forward or backward strictly adds up.
+          </p>
+        </div>
+
+        <!-- 3 Core Properties Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          
+          <div class="glass-card p-4 rounded-2xl border border-white/10 space-y-2">
+            <div class="text-amber-400 text-xl">〰️</div>
+            <h3 class="text-sm font-bold text-white">Path-Dependent</h3>
+            <p class="text-xs text-slate-300">
+              Distance depends on the exact route taken. Wandering around obstacles or taking a winding trail directly inflates total distance.
+            </p>
+          </div>
+
+          <div class="glass-card p-4 rounded-2xl border border-white/10 space-y-2">
+            <div class="text-amber-400 text-xl">📈</div>
+            <h3 class="text-sm font-bold text-white">Always Non-Negative</h3>
+            <p class="text-xs text-slate-300 font-mono">
+              d &ge; 0
+            </p>
+            <p class="text-xs text-slate-300">
+              Distance can never be negative. Backtracking does not subtract from distance; it continually accumulates.
+            </p>
+          </div>
+
+          <div class="glass-card p-4 rounded-2xl border border-white/10 space-y-2">
+            <div class="text-amber-400 text-xl">📏</div>
+            <h3 class="text-sm font-bold text-white">Standard SI Unit</h3>
+            <p class="text-xs text-slate-300 font-mono">
+              meters (m)
+            </p>
+            <p class="text-xs text-slate-300">
+              Measured in meters in the International System of Units (SI). Derived units include kilometers (km) and centimeters (cm).
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Interactive Winding Road Simulator -->
+        <div class="glass-card p-5 rounded-2xl border border-white/10 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                <span>🚗</span> The Winding Road Detour Simulator
+              </h4>
+              <p class="text-xs text-slate-400">Increase trail detours and observe how the scalar odometer reading continues to climb.</p>
+            </div>
+            <div class="flex items-center gap-2 bg-amber-500/10 px-3 py-1.5 rounded-xl border border-amber-500/30">
+              <span class="text-xs text-slate-300">Total Distance:</span>
+              <span id="dist-sim-output" class="font-mono font-bold text-amber-300 text-sm">18.5 m</span>
+            </div>
+          </div>
+
+          <!-- Slider control -->
+          <div class="space-y-1">
+            <div class="flex justify-between text-xs font-mono text-slate-400">
+              <span>Straight Path (Min)</span>
+              <span>Winding Detours (Max)</span>
+            </div>
+            <input type="range" id="slider-dist-detours" min="1" max="8" value="3" class="w-full">
+          </div>
+
+          <canvas id="canvas-dist-sim" width="800" height="150" class="sim-canvas w-full h-[120px] sm:h-[150px]"></canvas>
+          
+          <div class="text-[11px] text-slate-400 flex items-center justify-between">
+            <span>🟢 Start Origin</span>
+            <span class="text-amber-300 font-mono">Odometer tracks every curve along the trail</span>
+            <span>🔴 Final Destination</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ========================================================= -->
+    <!-- SLIDE 4: Displacement (The Vector) -->
+    <!-- ========================================================= -->
+    <section class="slide-container" id="slide-4" aria-label="Slide 4: Displacement (The Vector)">
+      <div class="glass-panel rounded-3xl p-6 sm:p-10 border border-sky-500/20 shadow-2xl relative">
+        
+        <!-- Header -->
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+          <div class="flex items-center gap-2">
+            <span class="badge-pill bg-sky-500/10 text-sky-300 border border-sky-500/30">
+              Part 2: Quantifying Position and Path
+            </span>
+            <span class="badge-pill bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 font-mono">
+              Slide 4 of 10
+            </span>
+          </div>
+          <span class="text-xs font-mono text-sky-300 bg-sky-500/20 px-2.5 py-1 rounded-full border border-sky-500/30">
+            Vector Quantity: &Delta;x or &Delta;r
+          </span>
+        </div>
+
+        <div class="max-w-3xl space-y-2 mb-6">
+          <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight">
+            Displacement: <span class="gradient-text-cyan">The Straight-Line Vector</span>
+          </h2>
+          <p class="text-slate-300 text-xs sm:text-sm">
+            Displacement is the straight-line directed arrow connecting an object's initial position directly to its final position. It answers the fundamental question: <em>"How far out of place is the object, and in what direction?"</em>
+          </p>
+        </div>
+
+        <!-- 3 Core Properties Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          
+          <div class="glass-card p-4 rounded-2xl border border-white/10 space-y-2">
+            <div class="text-sky-400 text-xl">🎯</div>
+            <h3 class="text-sm font-bold text-white">Path-Independent</h3>
+            <p class="text-xs text-slate-300">
+              Displacement completely ignores what happened between start and end. Only the origin (x<sub>i</sub>) and terminus (x<sub>f</sub>) dictate the vector.
+            </p>
+          </div>
+
+          <div class="glass-card p-4 rounded-2xl border border-white/10 space-y-2">
+            <div class="text-sky-400 text-xl">➕➖0️⃣</div>
+            <h3 class="text-sm font-bold text-white">Can Be Positive, Negative, or Zero</h3>
+            <p class="text-xs text-slate-300 font-mono">
+              &Delta;x = x<sub>f</sub> &minus; x<sub>i</sub>
+            </p>
+            <p class="text-xs text-slate-300">
+              A negative sign indicates motion in the negative coordinate direction. A return to the start produces exactly 0 displacement.
+            </p>
+          </div>
+
+          <div class="glass-card p-4 rounded-2xl border border-white/10 space-y-2">
+            <div class="text-sky-400 text-xl">📐</div>
+            <h3 class="text-sm font-bold text-white">Standard Symbols</h3>
+            <p class="text-xs text-slate-300 font-mono">
+              1D: &Delta;x = x<sub>f</sub> &minus; x<sub>i</sub><br>
+              2D/3D: &Delta;r = r<sub>f</sub> &minus; r<sub>i</sub>
+            </p>
+            <p class="text-xs text-slate-300">
+              The Greek delta (&Delta;) denotes "change in", while bold letters represent vector spatial quantities.
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Interactive Vector vs Winding Trail Overlay -->
+        <div class="glass-card p-5 rounded-2xl border border-white/10 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                <span>🏹</span> Direct Straight-Line Arrow vs. Winding Trail
+              </h4>
+              <p class="text-xs text-slate-400">Drag the destination endpoint closer to the start and watch displacement shrink, even while distance remains long!</p>
+            </div>
+            <div class="flex items-center gap-2 bg-sky-500/10 px-3 py-1.5 rounded-xl border border-sky-500/30">
+              <span class="text-xs text-slate-300">Net Displacement &Delta;x:</span>
+              <span id="disp-sim-output" class="font-mono font-bold text-sky-300 text-sm">+18.0 m</span>
+            </div>
+          </div>
+
+          <!-- Slider control for destination position -->
+          <div class="space-y-1">
+            <div class="flex justify-between text-xs font-mono text-slate-400">
+              <span>Return Near Origin (&Delta;x &rarr; 0)</span>
+              <span>Far Destination (Max &Delta;x)</span>
+            </div>
+            <input type="range" id="slider-disp-position" min="0.05" max="0.95" step="0.02" value="0.85" class="w-full">
+          </div>
+
+          <canvas id="canvas-disp-sim" width="800" height="150" class="sim-canvas w-full h-[120px] sm:h-[150px]"></canvas>
+          
+          <div class="text-[11px] text-slate-400 flex items-center justify-between">
+            <span class="text-amber-400/80 font-mono">Faint dashed: Winding route taken (distance)</span>
+            <span class="text-sky-300 font-mono font-bold">&Delta;x: Straight blue arrow from start to finish</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ========================================================= -->
+    <!-- SLIDE 5: 1D Motion and Sign Conventions -->
+    <!-- ========================================================= -->
+    <section class="slide-container" id="slide-5" aria-label="Slide 5: Coordinate Reference Systems">
+      <div class="glass-panel rounded-3xl p-6 sm:p-10 border border-sky-500/20 shadow-2xl relative">
+        
+        <!-- Header -->
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+          <div class="flex items-center gap-2">
+            <span class="badge-pill bg-sky-500/10 text-sky-300 border border-sky-500/30">
+              Part 3: 1D Motion and Sign Conventions
+            </span>
+            <span class="badge-pill bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 font-mono">
+              Slide 5 of 10
+            </span>
+          </div>
+          <span class="text-xs font-mono text-slate-300 bg-white/10 px-2.5 py-1 rounded-full border border-white/15">
+            1D Number Line Kinematics
+          </span>
+        </div>
+
+        <div class="max-w-3xl space-y-2 mb-6">
+          <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight">
+            Coordinate Reference Systems &amp; <span class="gradient-text-cyan">1D Motion</span>
+          </h2>
+          <p class="text-slate-300 text-xs sm:text-sm">
+            Before measuring motion, we must establish an origin (reference point) and directional sign conventions. In one dimension, signs replace compass bearings: <strong>(+)</strong> indicates Right, Up, or East; <strong>(&minus;)</strong> indicates Left, Down, or West.
+          </p>
+        </div>
+
+        <!-- Worked Example Breakdown Card -->
+        <div class="glass-card p-5 rounded-2xl border border-sky-500/30 mb-6 bg-sky-950/20">
+          <div class="flex items-center gap-2 text-sky-300 font-bold text-sm mb-3">
+            <span>📖</span> Worked Example: Walking 5 m East, Then Turning Around and Walking 3 m West
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            <!-- Step Calculation Left -->
+            <div class="space-y-2 text-xs sm:text-sm text-slate-200">
+              <div class="p-3 rounded-xl bg-black/30 border border-white/10 space-y-1">
+                <span class="text-amber-300 font-bold block text-xs uppercase tracking-wider">Total Distance Calculation (Scalar):</span>
+                <p class="font-mono text-sm text-amber-200">
+                  Total Distance = |Leg 1| + |Leg 2| = 5 m + 3 m = <strong>8 m</strong>
+                </p>
+                <p class="text-[11px] text-slate-400">
+                  Every step walked counts on the odometer, regardless of heading East or West.
+                </p>
+              </div>
+
+              <div class="p-3 rounded-xl bg-black/30 border border-white/10 space-y-1">
+                <span class="text-sky-300 font-bold block text-xs uppercase tracking-wider">Net Displacement Calculation (Vector):</span>
+                <p class="font-mono text-sm text-sky-200">
+                  Net Displacement &Delta;x = (+5 m) + (&minus;3 m) = <strong>+2 m (2 m East)</strong>
+                </p>
+                <p class="text-[11px] text-slate-400">
+                  Walking West opposes the positive East axis, partially canceling the initial forward motion.
+                </p>
+              </div>
+            </div>
+
+            <!-- Summary Table Right -->
+            <div class="glass-card p-4 rounded-xl border border-white/10 text-xs space-y-2">
+              <div class="font-bold text-white text-xs uppercase tracking-wider border-b border-white/10 pb-1.5">
+                Coordinate Telemetry
+              </div>
+              <div class="flex justify-between py-1 border-b border-white/5 font-mono">
+                <span class="text-slate-400">Initial Position (x<sub>i</sub>):</span>
+                <span class="text-slate-200">0 m</span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-white/5 font-mono">
+                <span class="text-slate-400">Position After Leg 1:</span>
+                <span class="text-sky-300">+5 m</span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-white/5 font-mono">
+                <span class="text-slate-400">Final Position (x<sub>f</sub>):</span>
+                <span class="text-emerald-300 font-bold">+2 m</span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-white/5 font-mono">
+                <span class="text-slate-400">Total Distance:</span>
+                <span class="text-amber-300 font-bold">8 m</span>
+              </div>
+              <div class="flex justify-between py-1 font-mono">
+                <span class="text-slate-400">Net Displacement &Delta;x:</span>
+                <span class="text-sky-300 font-bold">+2 m (East)</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Interactive 1D Number Line Animation -->
+        <div class="glass-card p-5 rounded-2xl border border-white/10 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                <span>🚶</span> Interactive 1D Motion Number Line Visualizer
+              </h4>
+              <p class="text-xs text-slate-400">Step through the motion stages or test your own custom 1D walking segments.</p>
+            </div>
+            
+            <div class="flex items-center gap-2">
+              <button id="btn-1d-step" class="px-3 py-1.5 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/30 text-xs font-semibold transition-all">
+                Advance Stage &rarr;
+              </button>
+              <button id="btn-1d-reset" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-slate-300 text-xs transition-colors">
+                Reset
+              </button>
+            </div>
+          </div>
+
+          <canvas id="canvas-1d-walk" width="800" height="200" class="sim-canvas w-full h-[160px] sm:h-[200px]"></canvas>
+
+          <!-- Custom Segment Inputs -->
+          <div class="pt-3 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+            <div>
+              <label class="block text-slate-400 mb-1">Leg 1 Distance (m):</label>
+              <input type="number" id="input-1d-leg1" value="5" class="w-full bg-slate-900 border border-white/15 rounded-lg px-2.5 py-1 text-white font-mono">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Leg 2 Delta (m, +/-):</label>
+              <input type="number" id="input-1d-leg2" value="-3" class="w-full bg-slate-900 border border-white/15 rounded-lg px-2.5 py-1 text-white font-mono">
+            </div>
+            <div class="flex flex-col justify-end">
+              <span class="text-slate-400 text-[11px]">Computed Distance:</span>
+              <span id="val-1d-distance" class="font-mono font-bold text-amber-300 text-sm">8 m</span>
+            </div>
+            <div class="flex flex-col justify-end">
+              <span class="text-slate-400 text-[11px]">Computed &Delta;x:</span>
+              <span id="val-1d-displacement" class="font-mono font-bold text-sky-300 text-sm">+2 m (East)</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ========================================================= -->
+    <!-- SLIDE 6: Special Motion Cases -->
+    <!-- ========================================================= -->
+    <section class="slide-container" id="slide-6" aria-label="Slide 6: Special Motion Cases">
+      <div class="glass-panel rounded-3xl p-6 sm:p-10 border border-sky-500/20 shadow-2xl relative">
+        
+        <!-- Header -->
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+          <div class="flex items-center gap-2">
+            <span class="badge-pill bg-sky-500/10 text-sky-300 border border-sky-500/30">
+              Part 3: 1D Motion and Sign Conventions
+            </span>
+            <span class="badge-pill bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 font-mono">
+              Slide 6 of 10
+            </span>
+          </div>
+          <span class="text-xs font-mono text-emerald-300 bg-emerald-500/20 px-2.5 py-1 rounded-full border border-emerald-500/30">
+            Kinematic Extremes
+          </span>
+        </div>
+
+        <div class="max-w-3xl space-y-2 mb-6">
+          <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight">
+            Special Motion Cases: <span class="gradient-text-emerald">Round-Trip vs. Straight Line</span>
+          </h2>
+          <p class="text-slate-300 text-xs sm:text-sm">
+            Comparing distance and displacement under two critical motion conditions reveals when they diverge entirely and when they converge.
+          </p>
+        </div>
+
+        <!-- Two Case Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          
+          <!-- Case A: Round-Trip Motion -->
+          <div class="glass-card p-5 rounded-2xl border-l-4 border-l-rose-500 space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="text-base font-bold text-white flex items-center gap-2">
+                <span>🔄</span> Case 1: Round-Trip Motion
+              </h3>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-500/20 text-rose-300">
+                &Delta;x = 0
+              </span>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              When an object completes a closed loop (e.g., a 400 m lap around an athletics track or orbiting the Earth), its starting position equals its finishing position:
+            </p>
+            <div class="p-3 rounded-xl bg-black/30 font-mono text-xs text-rose-200 space-y-1">
+              <div>Distance &gt; 0 (e.g., 400 m)</div>
+              <div>Displacement = 0 m (x<sub>f</sub> &minus; x<sub>i</sub> = 0)</div>
+            </div>
+          </div>
+
+          <!-- Case B: Unidirectional Straight-Line Motion -->
+          <div class="glass-card p-5 rounded-2xl border-l-4 border-l-sky-400 space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="text-base font-bold text-white flex items-center gap-2">
+                <span>🚀</span> Case 2: Unidirectional Straight Line
+              </h3>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-500/20 text-sky-300">
+                d = |&Delta;x|
+              </span>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              When an object moves along a perfectly straight line without turning around or reversing direction, the scalar distance equals the magnitude of the displacement:
+            </p>
+            <div class="p-3 rounded-xl bg-black/30 font-mono text-xs text-sky-200 space-y-1">
+              <div>Distance = Magnitude of Displacement</div>
+              <div>d = |&Delta;x| (e.g., 400 m dragstrip)</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Interactive Comparison Stage -->
+        <div class="glass-card p-5 rounded-2xl border border-white/10 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-2">
+              <button id="btn-case-roundtrip" class="px-3 py-1.5 rounded-xl bg-sky-500/20 text-sky-300 border border-sky-500/40 text-xs font-semibold transition-all">
+                🏃 Case 1: 400m Oval Track Loop
+              </button>
+              <button id="btn-case-straight" class="px-3 py-1.5 rounded-xl bg-white/10 text-slate-300 hover:text-white text-xs font-semibold transition-all">
+                🏎️ Case 2: 400m Straight Dragstrip
+              </button>
+            </div>
+            
+            <div class="flex items-center gap-4 text-xs font-mono">
+              <span class="text-amber-300">Distance: <strong id="case-val-dist">0 m</strong></span>
+              <span class="text-sky-300">Displacement: <strong id="case-val-disp">0 m</strong></span>
+            </div>
+          </div>
+
+          <canvas id="canvas-special-cases" width="800" height="220" class="sim-canvas w-full h-[180px] sm:h-[220px]"></canvas>
+
+          <div class="text-[11px] text-slate-400 flex items-center justify-between">
+            <span>Watch the runner complete a full lap: distance continuously ticks up to 400m, but net displacement returns to 0!</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ========================================================= -->
+    <!-- SLIDE 7: 2D Displacement Vectors & Quadrants -->
+    <!-- ========================================================= -->
+    <section class="slide-container" id="slide-7" aria-label="Slide 7: 2D Displacement Vectors">
+      <div class="glass-panel rounded-3xl p-6 sm:p-10 border border-sky-500/20 shadow-2xl relative">
+        
+        <!-- Header -->
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+          <div class="flex items-center gap-2">
+            <span class="badge-pill bg-sky-500/10 text-sky-300 border border-sky-500/30">
+              Part 4: Motion in Two Dimensions
+            </span>
+            <span class="badge-pill bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 font-mono">
+              Slide 7 of 10
+            </span>
+          </div>
+          <span id="quad-active-badge" class="badge-pill bg-sky-500/20 text-sky-300 border border-sky-500/30 font-mono text-xs">
+            Quadrant I (&Delta;x &gt; 0, &Delta;y &gt; 0)
+          </span>
+        </div>
+
+        <div class="max-w-3xl space-y-2 mb-6">
+          <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight">
+            2D Displacement: <span class="gradient-text-cyan">Cartesian Vector Components</span>
+          </h2>
+          <p class="text-slate-300 text-xs sm:text-sm">
+            In two dimensions, a displacement vector is expressed as a pair of perpendicular components: 
+            <strong class="font-mono text-sky-300">&Delta;r = (&Delta;x, &Delta;y)</strong>. The signs of the components pinpoint the exact quadrant of motion on the Cartesian plane.
+          </p>
+        </div>
+
+        <!-- Quadrant Matrix Callouts -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6 font-mono text-xs">
+          <div class="glass-card p-3 rounded-xl border border-white/10 space-y-1">
+            <span class="text-sky-300 font-bold block">Quadrant I</span>
+            <span class="text-slate-400 block">&Delta;x &gt; 0 (East)</span>
+            <span class="text-slate-400 block">&Delta;y &gt; 0 (North)</span>
+          </div>
+          <div class="glass-card p-3 rounded-xl border border-white/10 space-y-1">
+            <span class="text-indigo-300 font-bold block">Quadrant II</span>
+            <span class="text-slate-400 block">&Delta;x &lt; 0 (West)</span>
+            <span class="text-slate-400 block">&Delta;y &gt; 0 (North)</span>
+          </div>
+          <div class="glass-card p-3 rounded-xl border border-white/10 space-y-1">
+            <span class="text-rose-300 font-bold block">Quadrant III</span>
+            <span class="text-slate-400 block">&Delta;x &lt; 0 (West)</span>
+            <span class="text-slate-400 block">&Delta;y &lt; 0 (South)</span>
+          </div>
+          <div class="glass-card p-3 rounded-xl border border-white/10 space-y-1">
+            <span class="text-amber-300 font-bold block">Quadrant IV</span>
+            <span class="text-slate-400 block">&Delta;x &gt; 0 (East)</span>
+            <span class="text-slate-400 block">&Delta;y &lt; 0 (South)</span>
+          </div>
+        </div>
+
+        <!-- Interactive 2D Coordinate Plane -->
+        <div class="glass-card p-5 rounded-2xl border border-white/10 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                <span>📐</span> Interactive 2D Cartesian Vector Plane
+              </h4>
+              <p class="text-xs text-slate-400">Click or drag the cyan target anywhere on the grid to change the displacement vector components.</p>
+            </div>
+            
+            <div class="flex items-center gap-3 text-xs font-mono">
+              <span class="text-amber-400 font-bold">&Delta;x: <span id="quad-dx-val">+3 m</span></span>
+              <span class="text-emerald-400 font-bold">&Delta;y: <span id="quad-dy-val">+4 m</span></span>
+            </div>
+          </div>
+
+          <canvas id="canvas-2d-quadrant" width="700" height="300" class="sim-canvas w-full h-[220px] sm:h-[300px]"></canvas>
+
+          <div class="text-[11px] text-slate-400 flex flex-wrap items-center justify-between gap-2">
+            <span class="flex items-center gap-1.5"><span class="w-3 h-0.5 bg-amber-400"></span> Amber leg: Horizontal component &Delta;x</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-0.5 bg-emerald-400"></span> Emerald leg: Vertical component &Delta;y</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-0.5 bg-sky-400"></span> Cyan hypotenuse: Net vector &Delta;r</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ========================================================= -->
+    <!-- SLIDE 8: Magnitude and Direction Calculations -->
+    <!-- ========================================================= -->
+    <section class="slide-container" id="slide-8" aria-label="Slide 8: Magnitude and Direction Calculations">
+      <div class="glass-panel rounded-3xl p-6 sm:p-10 border border-sky-500/20 shadow-2xl relative">
+        
+        <!-- Header -->
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+          <div class="flex items-center gap-2">
+            <span class="badge-pill bg-sky-500/10 text-sky-300 border border-sky-500/30">
+              Part 4: Motion in Two Dimensions
+            </span>
+            <span class="badge-pill bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 font-mono">
+              Slide 8 of 10
+            </span>
+          </div>
+          <span class="text-xs font-mono text-sky-300 bg-sky-500/20 px-2.5 py-1 rounded-full border border-sky-500/30">
+            Pythagorean &amp; Trigonometric Resolution
+          </span>
+        </div>
+
+        <div class="max-w-3xl space-y-2 mb-6">
+          <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight">
+            Vector Magnitude &amp; <span class="gradient-text-cyan">Direction Calculations</span>
+          </h2>
+          <p class="text-slate-300 text-xs sm:text-sm">
+            Because horizontal (&Delta;x) and vertical (&Delta;y) components form perpendicular legs of a right triangle, we compute overall vector magnitude using the <strong>Pythagorean Theorem</strong> and spatial direction using the <strong>inverse tangent function (arctan)</strong>.
+          </p>
+        </div>
+
+        <!-- Two Formula Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          
+          <div class="glass-card p-4 rounded-2xl border-l-4 border-l-sky-400 space-y-2">
+            <h3 class="text-sm font-bold text-sky-300 uppercase tracking-wider font-mono">
+              1. Magnitude Formula (Norm)
+            </h3>
+            <div class="p-3 rounded-xl bg-black/40 font-mono text-sm sm:text-base text-white font-bold">
+              |&Delta;r| = &radic;(&Delta;x&sup2; + &Delta;y&sup2;)
+            </div>
+            <p class="text-xs text-slate-300">
+              Because squaring any real number produces a positive value and the principal square root is non-negative, vector magnitude is <strong>always positive</strong> (|&Delta;r| &ge; 0).
+            </p>
+          </div>
+
+          <div class="glass-card p-4 rounded-2xl border-l-4 border-l-emerald-400 space-y-2">
+            <h3 class="text-sm font-bold text-emerald-300 uppercase tracking-wider font-mono">
+              2. Direction Formula (Angle)
+            </h3>
+            <div class="p-3 rounded-xl bg-black/40 font-mono text-sm sm:text-base text-white font-bold">
+              &theta; = tan&minus;1(|&Delta;y| / |&Delta;x|)
+            </div>
+            <p class="text-xs text-slate-300">
+              Computes the reference angle &theta; relative to the horizontal axis. Spatial quadrant context dictates whether the vector points North/South of East/West.
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Worked Example & Interactive Vector Calculator -->
+        <div class="glass-card p-5 rounded-2xl border border-sky-500/30 space-y-4 bg-slate-900/40">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                <span>📖</span> Worked Example: Walking 3 m West (&Delta;x = &minus;3 m) and 4 m South (&Delta;y = &minus;4 m)
+              </h4>
+              <p class="text-xs text-slate-400">Step-by-step resolution of a 3-4-5 right triangle in Quadrant III.</p>
+            </div>
+            <button id="btn-calc-preset-example" class="px-3 py-1.5 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/30 text-xs font-semibold transition-all">
+              Load Worked Example
+            </button>
+          </div>
+
+          <!-- Step-by-step breakdown container -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
+            <div class="p-4 rounded-xl bg-black/40 border border-white/10 space-y-2">
+              <span class="text-sky-300 font-bold block uppercase">Step 1: Compute Magnitude</span>
+              <p class="text-slate-300">|&Delta;r| = &radic;[(&minus;3)&sup2; + (&minus;4)&sup2;]</p>
+              <p class="text-slate-300">|&Delta;r| = &radic;[9 + 16] = &radic;25</p>
+              <p class="text-emerald-300 font-bold text-sm">|&Delta;r| = 5.00 meters</p>
+            </div>
+
+            <div class="p-4 rounded-xl bg-black/40 border border-white/10 space-y-2">
+              <span class="text-emerald-300 font-bold block uppercase">Step 2: Compute Direction &amp; Bearing</span>
+              <p class="text-slate-300">&theta;<sub>ref</sub> = tan&minus;1(4 / 3) = tan&minus;1(1.333) &asymp; 53.1&deg;</p>
+              <p class="text-slate-300">Since &Delta;x &lt; 0 and &Delta;y &lt; 0 &rarr; Quadrant III (South of West)</p>
+              <p class="text-sky-300 font-bold text-sm">Bearing = 37&deg; South of West (217&deg; standard angle)</p>
+            </div>
+          </div>
+
+          <!-- Sandbox inputs for students to test custom numbers -->
+          <div class="pt-3 border-t border-white/10">
+            <div class="text-xs font-bold text-slate-300 mb-2">Try Your Own Custom Vector Components:</div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+              <div>
+                <label class="block text-slate-400 mb-1 font-mono">&Delta;x (m):</label>
+                <input type="number" id="input-calc-dx" value="-3" class="w-full bg-slate-900 border border-white/15 rounded-lg px-2.5 py-1 text-white font-mono">
+              </div>
+              <div>
+                <label class="block text-slate-400 mb-1 font-mono">&Delta;y (m):</label>
+                <input type="number" id="input-calc-dy" value="-4" class="w-full bg-slate-900 border border-white/15 rounded-lg px-2.5 py-1 text-white font-mono">
+              </div>
+              <div>
+                <span class="block text-slate-400 mb-1">Calculated Magnitude:</span>
+                <span id="calc-output-mag" class="font-mono font-bold text-emerald-300 text-sm block">5.00 m</span>
+              </div>
+              <div>
+                <span class="block text-slate-400 mb-1">Calculated Heading:</span>
+                <span id="calc-output-dir" class="font-mono font-bold text-sky-300 text-xs block">53.1° South of West (217° standard)</span>
+              </div>
+            </div>
+            
+            <div class="mt-3 p-3 rounded-lg bg-black/20 text-[11px] font-mono text-slate-400 space-y-1">
+              <div><strong>Derivation:</strong> <span id="calc-step-sumsq" class="text-slate-200">&radic;((-3)&sup2; + (-4)&sup2;) = &radic;(9 + 16) = &radic;25 = 5.00 m</span></div>
+              <div><strong>Angle:</strong> <span id="calc-step-ref" class="text-slate-200">tan&minus;1(|-4| / |-3|) = 53.1&deg;</span></div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ========================================================= -->
+    <!-- SLIDE 9: Core Comparison Matrix -->
+    <!-- ========================================================= -->
+    <section class="slide-container" id="slide-9" aria-label="Slide 9: Core Comparison Matrix">
+      <div class="glass-panel rounded-3xl p-6 sm:p-10 border border-sky-500/20 shadow-2xl relative">
+        
+        <!-- Header -->
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+          <div class="flex items-center gap-2">
+            <span class="badge-pill bg-sky-500/10 text-sky-300 border border-sky-500/30">
+              Part 5: Summary &amp; Practical Application
+            </span>
+            <span class="badge-pill bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 font-mono">
+              Slide 9 of 10
+            </span>
+          </div>
+          <span class="text-xs font-mono text-amber-300 bg-amber-500/20 px-2.5 py-1 rounded-full border border-amber-500/30">
+            Synthesis &amp; Mastery Matrix
+          </span>
+        </div>
+
+        <div class="max-w-3xl space-y-2 mb-6">
+          <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight">
+            Core Comparison: <span class="gradient-text-cyan">Distance vs. Displacement</span>
+          </h2>
+          <p class="text-slate-300 text-xs sm:text-sm">
+            Review the essential contrast between the scalar path metric and the vector displacement metric across every physical dimension.
+          </p>
+        </div>
+
+        <!-- Master Matrix Table -->
+        <div class="overflow-x-auto rounded-2xl border border-white/10 bg-slate-900/50 mb-6">
+          <table class="w-full text-left text-xs sm:text-sm border-collapse">
+            <thead>
+              <tr class="border-b border-white/10 bg-white/5">
+                <th class="p-3 sm:p-4 font-bold text-slate-300">Property</th>
+                <th class="p-3 sm:p-4 font-bold text-amber-300">Distance (d)</th>
+                <th class="p-3 sm:p-4 font-bold text-sky-300">Displacement (&Delta;x / &Delta;r)</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5">
+              <tr class="hover:bg-white/5 transition-colors">
+                <td class="p-3 sm:p-4 font-semibold text-slate-300">Quantity Type</td>
+                <td class="p-3 sm:p-4 font-mono text-amber-200">Scalar</td>
+                <td class="p-3 sm:p-4 font-mono text-sky-200">Vector</td>
+              </tr>
+              <tr class="hover:bg-white/5 transition-colors">
+                <td class="p-3 sm:p-4 font-semibold text-slate-300">Information Required</td>
+                <td class="p-3 sm:p-4 text-slate-300">Magnitude only (size + unit)</td>
+                <td class="p-3 sm:p-4 text-slate-300">Magnitude AND Spatial Direction</td>
+              </tr>
+              <tr class="hover:bg-white/5 transition-colors">
+                <td class="p-3 sm:p-4 font-semibold text-slate-300">Path Dependence</td>
+                <td class="p-3 sm:p-4 text-amber-200">Path-dependent (accumulates with every step)</td>
+                <td class="p-3 sm:p-4 text-sky-200">Path-independent (depends only on start &amp; end)</td>
+              </tr>
+              <tr class="hover:bg-white/5 transition-colors">
+                <td class="p-3 sm:p-4 font-semibold text-slate-300">Sign Constraint</td>
+                <td class="p-3 sm:p-4 font-mono text-amber-200">Always &ge; 0 (strictly non-negative)</td>
+                <td class="p-3 sm:p-4 font-mono text-sky-200">Positive (+), Negative (&minus;), or Zero (0)</td>
+              </tr>
+              <tr class="hover:bg-white/5 transition-colors">
+                <td class="p-3 sm:p-4 font-semibold text-slate-300">Real-World Metric</td>
+                <td class="p-3 sm:p-4 text-slate-300">Automobile odometer reading</td>
+                <td class="p-3 sm:p-4 text-slate-300">Direct GPS straight-line vector ("as the crow flies")</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Real-World Simulation: Delivery Van vs Drone -->
+        <div class="glass-card p-5 rounded-2xl border border-white/10 space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                <span>🏙️</span> Real-World Example: Delivery Van (Odometer) vs. Drone (GPS Displacement)
+              </h4>
+              <p class="text-xs text-slate-400">The delivery van must navigate city street blocks (distance), while the delivery drone flies a direct straight-line vector (displacement).</p>
+            </div>
+          </div>
+
+          <canvas id="canvas-odometer-drone" width="700" height="180" class="sim-canvas w-full h-[150px] sm:h-[180px]"></canvas>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ========================================================= -->
+    <!-- SLIDE 10: Interactive Problem & Audience Q&A -->
+    <!-- ========================================================= -->
+    <section class="slide-container" id="slide-10" aria-label="Slide 10: Interactive Problem &amp; Q&amp;A">
+      <div class="glass-panel rounded-3xl p-6 sm:p-10 border border-sky-500/20 shadow-2xl relative">
+        
+        <!-- Header -->
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+          <div class="flex items-center gap-2">
+            <span class="badge-pill bg-sky-500/10 text-sky-300 border border-sky-500/30">
+              Part 5: Summary &amp; Practical Application
+            </span>
+            <span class="badge-pill bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 font-mono">
+              Slide 10 of 10
+            </span>
+          </div>
+          <span class="text-xs font-mono text-emerald-300 bg-emerald-500/20 px-2.5 py-1 rounded-full border border-emerald-500/30">
+            Interactive Check &amp; Q&amp;A
+          </span>
+        </div>
+
+        <div class="max-w-3xl space-y-2 mb-6">
+          <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight">
+            Audience Check: <span class="gradient-text-emerald">Track Challenge &amp; Q&amp;A</span>
+          </h2>
+          <p class="text-slate-300 text-xs sm:text-sm">
+            Put your kinematics understanding to the test with this standard physics problem and explore common conceptual misconceptions.
+          </p>
+        </div>
+
+        <!-- Audience Check Problem Card -->
+        <div class="glass-card p-6 rounded-2xl border border-sky-500/30 mb-6 bg-slate-900/60">
+          <div class="flex items-center gap-2 text-sky-300 font-bold text-sm sm:text-base mb-3">
+            <span>❓</span> Audience Challenge Question:
+          </div>
+
+          <p class="text-sm sm:text-base text-slate-100 font-semibold mb-4 leading-relaxed">
+            A runner completes exactly <strong>4 laps</strong> around a standard <strong>400 m</strong> athletics track. What are the runner's total distance traveled and final net displacement?
+          </p>
+
+          <!-- Interactive Form with Radio Options -->
+          <form id="audience-check-form" class="space-y-2.5">
+            <label class="flex items-center gap-3 p-3 rounded-xl bg-black/30 hover:bg-black/50 border border-white/10 cursor-pointer transition-all">
+              <input type="radio" name="lap-answer" value="wrong1" class="text-sky-500">
+              <span class="text-xs sm:text-sm font-mono text-slate-300">A) Distance = 400 m, Displacement = 400 m</span>
+            </label>
+            <label class="flex items-center gap-3 p-3 rounded-xl bg-black/30 hover:bg-black/50 border border-white/10 cursor-pointer transition-all">
+              <input type="radio" name="lap-answer" value="correct" class="text-sky-500">
+              <span class="text-xs sm:text-sm font-mono text-slate-300 font-bold text-sky-300">B) Distance = 1600 m, Displacement = 0 m</span>
+            </label>
+            <label class="flex items-center gap-3 p-3 rounded-xl bg-black/30 hover:bg-black/50 border border-white/10 cursor-pointer transition-all">
+              <input type="radio" name="lap-answer" value="wrong2" class="text-sky-500">
+              <span class="text-xs sm:text-sm font-mono text-slate-300">C) Distance = 1600 m, Displacement = 1600 m</span>
+            </label>
+            <label class="flex items-center gap-3 p-3 rounded-xl bg-black/30 hover:bg-black/50 border border-white/10 cursor-pointer transition-all">
+              <input type="radio" name="lap-answer" value="wrong3" class="text-sky-500">
+              <span class="text-xs sm:text-sm font-mono text-slate-300">D) Distance = 0 m, Displacement = 1600 m</span>
+            </label>
+          </form>
+
+          <!-- Dynamic Result Box -->
+          <div id="audience-check-result" class="hidden"></div>
+        </div>
+
+        <!-- Frequently Asked Misconceptions Accordion -->
+        <div class="glass-card p-5 rounded-2xl border border-white/10 space-y-3">
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <span>💡</span> Common Physics Misconceptions &amp; Open Floor Q&amp;A
+          </h3>
+
+          <div class="space-y-2 text-xs">
+            
+            <!-- Question 1 -->
+            <div class="rounded-xl border border-white/10 bg-black/20 overflow-hidden">
+              <button class="faq-accordion-toggle w-full p-3 text-left font-bold text-slate-200 flex items-center justify-between hover:bg-white/5 transition-colors">
+                <span>Can distance ever be smaller than displacement?</span>
+                <span class="faq-icon text-sky-400 font-mono text-sm">+</span>
+              </button>
+              <div class="hidden p-3 pt-0 text-slate-300 leading-relaxed border-t border-white/5 bg-black/10">
+                <strong>No, never!</strong> Because a straight line is mathematically the shortest distance between two points in Euclidean space, distance is always greater than or equal to the magnitude of displacement (<strong>d &ge; |&Delta;r|</strong>). Distance equals displacement only when moving in a single direction along a straight line without reversing.
+              </div>
+            </div>
+
+            <!-- Question 2 -->
+            <div class="rounded-xl border border-white/10 bg-black/20 overflow-hidden">
+              <button class="faq-accordion-toggle w-full p-3 text-left font-bold text-slate-200 flex items-center justify-between hover:bg-white/5 transition-colors">
+                <span>Why is temperature a scalar if it can be negative (&minus;10&deg;C)?</span>
+                <span class="faq-icon text-sky-400 font-mono text-sm">+</span>
+              </button>
+              <div class="hidden p-3 pt-0 text-slate-300 leading-relaxed border-t border-white/5 bg-black/10">
+                A negative temperature simply represents a value below an arbitrary zero point on the Celsius scale (or energy level). It does <em>not</em> represent a spatial direction (e.g., North, South, Up, or Down). Because it has no direction in physical space, temperature is purely a scalar.
+              </div>
+            </div>
+
+            <!-- Question 3 -->
+            <div class="rounded-xl border border-white/10 bg-black/20 overflow-hidden">
+              <button class="faq-accordion-toggle w-full p-3 text-left font-bold text-slate-200 flex items-center justify-between hover:bg-white/5 transition-colors">
+                <span>How does this extend into three dimensions (3D)?</span>
+                <span class="faq-icon text-sky-400 font-mono text-sm">+</span>
+              </button>
+              <div class="hidden p-3 pt-0 text-slate-300 leading-relaxed border-t border-white/5 bg-black/10">
+                The 3D displacement vector includes an altitude/depth component: <strong>&Delta;r = (&Delta;x, &Delta;y, &Delta;z)</strong>. The 3D Pythagorean magnitude is computed as: <strong>|&Delta;r| = &radic;(&Delta;x&sup2; + &Delta;y&sup2; + &Delta;z&sup2;)</strong>.
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+
+  <!-- PRESENTER NOTES DRAWER (Collapsible at bottom) -->
+  <aside id="presenter-notes-drawer" class="presentation-controls-only collapsed glass-header border-t border-white/10 px-4 py-3 sticky bottom-14 z-40" aria-label="Presenter Notes">
+    <div class="max-w-6xl mx-auto space-y-2">
+      <div class="flex items-center justify-between border-b border-white/10 pb-2">
+        <div class="flex items-center gap-2">
+          <span class="text-amber-400 font-bold text-xs uppercase tracking-wider">Teacher / Presenter Notes</span>
+          <span id="notes-slide-title" class="font-bold text-sm text-white">Slide 1: Title &amp; Welcome</span>
+        </div>
+        <span id="notes-slide-cue" class="text-xs font-mono text-sky-300 bg-sky-500/10 px-2 py-0.5 rounded border border-sky-500/20">
+          Estimated Time: 2-3 mins
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-4 text-xs">
+        <div class="md:col-span-8">
+          <span class="text-slate-400 block font-semibold mb-1">Key Talking Points:</span>
+          <ul id="notes-talking-points" class="space-y-1 text-slate-300">
+            <!-- Dynamically populated -->
+          </ul>
+        </div>
+        <div class="md:col-span-4 p-3 rounded-xl bg-black/40 border border-white/10">
+          <span class="text-amber-300 font-semibold block mb-1">Check-for-Understanding Question:</span>
+          <p id="notes-check-question" class="text-slate-300 italic">
+            <!-- Dynamically populated -->
+          </p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+
+  <!-- BOTTOM PRESENTATION CONTROLLER BAR -->
+  <nav class="presentation-controls-only glass-nav sticky bottom-0 z-50 px-4 py-2.5" aria-label="Presentation Navigation">
+    <div class="max-w-6xl mx-auto flex items-center justify-between gap-3">
+      
+      <!-- Previous Button -->
+      <button id="btn-prev-slide" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 disabled:opacity-30 disabled:pointer-events-none text-xs font-semibold text-white transition-all active:scale-95 flex items-center gap-1.5" title="Previous Slide (Hotkey: Left Arrow or PageUp)">
+        <span>&larr;</span> <span>Previous</span>
+      </button>
+
+      <!-- Slide Indicator Dots -->
+      <div class="flex items-center gap-1.5 overflow-x-auto py-1 px-2" id="slide-dots-container">
+        <!-- Dynamically generated via presentation.js -->
+      </div>
+
+      <!-- Slide Counter & Next Button -->
+      <div class="flex items-center gap-3">
+        <span id="slide-counter-badge" class="hidden sm:inline font-mono text-xs text-slate-400">
+          Slide 1 of 10
+        </span>
+        <button id="btn-next-slide" class="px-5 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-bold transition-all active:scale-95 shadow-lg shadow-sky-500/25 flex items-center gap-1.5" title="Next Slide (Hotkey: Right Arrow or Spacebar)">
+          <span>Next</span> <span>&rarr;</span>
+        </button>
+      </div>
+
+    </div>
+  </nav>
+
+  <!-- Interactive Presentation Engine Script -->
+  <script src="presentation.js"></script>
+
+</body>
+</html>
