@@ -14,9 +14,9 @@
 
 ---
 
-## ⏱️ The 3-Day Quest Pacing (45-Minute Class Periods)
+## ⏱️ The 4-Day Quest Pacing (45-Minute Class Periods)
 
-Because careful cartography and accurate measurement take time, this project is paced across 3 focused work sessions:
+Because careful cartography, authentic string measurement, and digital simulation take time, this project is paced across 4 focused work sessions:
 
 * **Day 1: Realm Cartography & Scale Setup (~30 min work time)**
   * Establish origin point `(0, 0)`, draw the compass rose, choose your map scale factor, and start sketching terrain geography.
@@ -29,6 +29,11 @@ Because careful cartography and accurate measurement take time, this project is 
   * Use the string measurement technique along curves to measure paper centimeters and calculate total realm distance.
   * Draw the straight-line vector arrow from origin to destination to measure net displacement magnitude and direction.
   * Complete the project worksheet analysis questions.
+* **Day 4: Digital Simulation & Quest Mastery (Chromebook Web App Session)**
+  * Launch the [Fantasy Map Quest Web App](Displacement_and_distance_map_app/index.html) on student devices.
+  * Test virtual string unrolling along procedural winding trails with the calibrated 20 cm metric ruler and 2.5x magnifying loupe.
+  * Explore different fantasy biomes (Dragon's Pass, Sunken Bayou, Coast of Eldoria), calculate displacement vectors, and complete the 5-step guided inquiry challenge.
+  * Submit mastery scores to the Google Classroom gradebook and earn quest certificates.
 
 ---
 
