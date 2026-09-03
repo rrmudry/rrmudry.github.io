@@ -141,12 +141,21 @@ class AuthManager {
       const doc = await scoreRef.get();
       const prevScore = doc.exists ? (doc.data().score || 0) : 0;
 
+      // Ensure top-level parent doc exists so all admin tools discover this assignment
+      const parentRef = db.collection('student_results').doc(ASSIGNMENT_ID);
+      parentRef.set({
+        assignment_name: "Fantasy Map: Vector Calculations",
+        is_global_locked: false,
+        updated_at: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true }).catch(e => console.warn("Parent doc set error:", e));
+
       if (!doc.exists || rawScore > prevScore) {
         await scoreRef.set({
           student_id: this.studentId,
           student_name: this.studentName,
           score: rawScore,
           assignment_id: ASSIGNMENT_ID,
+          assignment_name: "Fantasy Map: Vector Calculations",
           quest_data: questReport,
           timestamp: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });

@@ -253,6 +253,7 @@
                     
                     <div class="flex flex-wrap items-center gap-2 p-3 bg-white/5 rounded-xl border border-white/5">
                         <span class="text-[8px] font-black text-slate-500 uppercase tracking-widest">Smart_Presets:</span>
+                        <button onclick="applyPreset('unit2')" class="px-3 py-1 bg-slate-950 border border-white/10 rounded-lg text-[9px] font-black hover:border-cyan-500 hover:text-cyan-400 transition-all uppercase tracking-tighter">Unit 2 Fantasy Maps</button>
                         <button onclick="applyPreset('unit6')" class="px-3 py-1 bg-slate-950 border border-white/10 rounded-lg text-[9px] font-black hover:border-cyan-500 hover:text-cyan-400 transition-all uppercase tracking-tighter">Unit 6 Assessments</button>
                     </div>
 
@@ -832,6 +833,10 @@
         // ASSESSMENTS & LABS MODULE (ORIGINAL ARCHIVE SYSTEM)
         // =========================================================================
         const PRESETS = {
+            'unit2': [
+                'Fantasy_Map_Distance_Displacement',
+                'Fantasy_Map_Vector_Calculations'
+            ],
             'unit6': [
                 'WaveMaster Lab',
                 'Wave Diffraction Lab',
@@ -851,8 +856,10 @@
                 
                 const assignmentNamesFromArchive = new Set();
                 archiveCache = [];
-                // Ensure known practice apps are registered as nested assignments
+                // Ensure known practice apps and webapps are registered as nested assignments
                 nestedAssignments.add("Unit_Conversion_Practice");
+                nestedAssignments.add("Fantasy_Map_Distance_Displacement");
+                nestedAssignments.add("Fantasy_Map_Vector_Calculations");
 
                 archiveSnap.docs.forEach(doc => {
                     const data = doc.data();
@@ -976,10 +983,23 @@
                     const snap = await db.collection('student_results').doc(assignment).collection('students').get();
                     snap.forEach(doc => {
                         const data = doc.data();
+                        const sId = String(data.student_id || doc.id).trim();
+                        
+                        // Enrich student name and class period from central roster cache if missing
+                        let sName = data.student_name || "Unknown";
+                        let sPeriod = data.class_period || "---";
+                        if (rosterCache && rosterCache.length > 0) {
+                            const matchedStudent = rosterCache.find(s => s.student_id === sId);
+                            if (matchedStudent) {
+                                if (!sName || sName === "Unknown") sName = matchedStudent.name;
+                                if (!sPeriod || sPeriod === "---") sPeriod = matchedStudent.class_period || "---";
+                            }
+                        }
+
                         const record = {
-                            student_id: data.student_id || doc.id,
-                            student_name: data.student_name || "Unknown",
-                            class_period: data.class_period || "---",
+                            student_id: sId,
+                            student_name: sName,
+                            class_period: sPeriod,
                             assignment_name: data.assignment_name || assignment,
                             score: data.score || 0,
                             created_at: data.timestamp 
