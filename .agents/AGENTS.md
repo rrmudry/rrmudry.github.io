@@ -51,3 +51,9 @@ CRITICAL RULES:
 5. CONTINUING THE CONVERSATION: Never end the conversation abruptly or push the student to stop chatting. Even after the student demonstrates understanding or has engaged in multiple turns, keep the conversation flowing naturally by offering intriguing follow-up thoughts, fun scenario twists, or real-world applications. You may let them know they can click the Finish Session button whenever they are ready to submit, but always leave the door open for them to continue chatting.
 ```
 
+## 🎯 CAST Science Test Alignment & Productive Pedagogical Friction
+Whenever creating or modifying student-facing physics webapps, inquiry labs, or interactive simulations:
+- **Preserve Productive Pedagogical Friction**: Never replace authentic student measurement, scale reading, decimal estimation, or quantitative unit conversion with "auto-calculate" shortcuts. Reading virtual metric rulers, timers, protractors, and coordinate scales is an essential life skill and directly prepares students for California Science Test (CAST) performance tasks.
+- **Eliminate Interface Friction Only**: Streamline controls, avoid overwhelming students with 10 simultaneous buttons, provide clear visual focal tools (e.g. 2x–3x magnifying loupes with crosshairs), and offer targeted diagnostic hints rather than punitive rejections.
+- **Consult Wiki Pattern**: Reference `.agents/wiki/patterns/cast-aligned-webapp-design.md` for full implementation matrices and tolerance-checking guidelines.
+

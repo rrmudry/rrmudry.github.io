@@ -13,3 +13,4 @@
 | [bell-ringer-config](patterns/bell-ringer-config.md) | bell-ringer, AI, Firestore, Gemini, persona | 2026-08-29 | Activity types, Firestore schema, AI persona, period gating |
 | [classroom-gradebook-sync](patterns/classroom-gradebook-sync.md) | google-classroom, oauth, firestore, sync, gradebook | 2026-09-01 | Classroom API permission model, virtual parent doc discovery, period filtering, concurrency |
 | [interactive-presentation-deck](patterns/interactive-presentation-deck.md) | presentation, slides, kinematics, canvas, sound-fx, no-latex | 2026-09-02 | Dual-mode presentation slide deck with canvas simulations, sound synthesis, presenter notes, and strict No-LaTeX compliance |
+| [cast-aligned-webapp-design](patterns/cast-aligned-webapp-design.md) | CAST, webapp, pedagogy, measurement, NGSS, SEP3, SEP5 | 2026-09-03 | Productive pedagogical friction vs interface friction, CAST test readiness, instrument reading, and cognitive scaffolding |
