@@ -442,7 +442,12 @@
           </div>
 
           <!-- Bottom Action Container: Certificate / Field Report -->
-          <div class="pt-3 mt-3 border-t border-white/10 flex-shrink-0">
+          <div class="pt-3 mt-3 border-t border-white/10 flex-shrink-0 space-y-2">
+            <button id="btn-view-completion-announcement" onclick="window.questEngine.showCompletionAnnouncement()" class="hidden w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-lg shadow-emerald-900/30 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95">
+              <span>🎉</span>
+              <span>View Quest Completion Announcement</span>
+            </button>
+
             <button id="btn-print-certificate" class="w-full py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-amber-500/30 text-amber-300 text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer">
               <span>📜</span>
               <span>Generate Cartographer Certificate &amp; Field Report</span>
@@ -459,8 +464,104 @@
     <section class="glass-panel rounded-2xl p-4 border border-lime-500/20">
       <div data-ngss="HS-PS2-1"></div>
     </section>
-
   </main>
+
+  <!-- CELEBRATORY QUEST COMPLETION ANNOUNCEMENT MODAL -->
+  <div id="quest-completion-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/85 backdrop-blur-md transition-opacity duration-300">
+    <div class="w-full max-w-xl bg-gradient-to-b from-[#22160d] via-[#170e08] to-[#0d0704] border-2 border-amber-400 rounded-3xl p-5 sm:p-7 shadow-[0_0_50px_rgba(245,158,11,0.35)] text-center relative overflow-hidden">
+      
+      <!-- Golden Accent Header Line -->
+      <div class="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-amber-600 via-yellow-300 to-amber-600"></div>
+
+      <!-- Close / Dismiss '✕' button -->
+      <button onclick="window.questEngine.closeCompletionModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center text-sm font-bold transition-all cursor-pointer" title="Dismiss Announcement">
+        ✕
+      </button>
+
+      <!-- Badge & Hero Icon -->
+      <div class="mb-3">
+        <div class="inline-flex items-center gap-1.5 px-4 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/50 text-emerald-300 text-xs font-mono font-black uppercase tracking-widest shadow-sm">
+          <span>✨</span>
+          <span>ACTIVITY COMPLETE • OFFICIALLY FINISHED</span>
+          <span>✨</span>
+        </div>
+
+        <div class="text-4xl sm:text-5xl mt-3 animate-bounce">
+          🏆
+        </div>
+
+        <h2 class="font-medieval text-2xl sm:text-3xl font-black text-amber-200 mt-1 tracking-wide">
+          Quest Mastered!
+        </h2>
+        <p class="text-xs sm:text-sm text-amber-100/80 mt-1 max-w-md mx-auto">
+          You have successfully completed all 5 stages of the <strong>Fantasy Map Distance vs. Displacement</strong> investigation!
+        </p>
+      </div>
+
+      <!-- Score & Gradebook Submission Confirmation Box -->
+      <div class="my-4 p-4 rounded-2xl bg-black/60 border border-amber-500/40 shadow-inner space-y-3 text-left">
+        
+        <div class="flex items-center justify-between pb-2 border-b border-white/10">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">⭐</span>
+            <div>
+              <span class="text-[11px] font-mono uppercase text-slate-400 font-bold block">Final Mastered Score</span>
+              <span id="announcement-score" class="text-2xl font-black font-mono text-amber-300">100%</span>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[11px] font-bold">
+              <span>✅</span> <span>Grade Recorded</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Student Account Info & Status -->
+        <div class="text-xs text-slate-300 flex items-center justify-between">
+          <span class="text-slate-400 font-medium">Cartographer:</span>
+          <span id="announcement-student" class="font-mono font-bold text-white">Signed-in Student</span>
+        </div>
+
+        <div id="announcement-auth-hint" class="text-[11px] text-amber-300/90 bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/20 flex items-start gap-2">
+          <span class="text-sm">💡</span>
+          <span id="announcement-auth-msg">Your score is saved and synced to the teacher's gradebook. If you haven't signed in with your <strong>@orangeusd.org</strong> Google account, sign in at the top so your name is attached!</span>
+        </div>
+
+        <!-- Quest Telemetry Summary -->
+        <div class="grid grid-cols-2 gap-2 pt-2 border-t border-white/10 text-[11px]">
+          <div class="p-2 rounded-lg bg-amber-950/40 border border-amber-500/20">
+            <span class="text-amber-400/80 uppercase font-mono text-[9px] block">Scalar Distance</span>
+            <span id="announcement-dist" class="font-mono font-bold text-white text-xs">-- leagues</span>
+          </div>
+          <div class="p-2 rounded-lg bg-rose-950/40 border border-rose-500/20">
+            <span class="text-rose-400/80 uppercase font-mono text-[9px] block">Net Displacement</span>
+            <span id="announcement-disp" class="font-mono font-bold text-white text-xs">-- leagues</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="space-y-2">
+        <div class="flex flex-col sm:flex-row gap-2.5">
+          <button onclick="window.questEngine.openCertificateModalFromAnnouncement()" class="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-medieval font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-amber-500/20 active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
+            <span>📜</span>
+            <span>View &amp; Print Official Certificate</span>
+          </button>
+          
+          <a href="../../unit2-dashboard.html" class="py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/20 font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+            <span>←</span>
+            <span>Return to Dashboard</span>
+          </a>
+        </div>
+
+        <button onclick="window.questEngine.closeCompletionModal()" class="w-full py-2 text-xs text-slate-400 hover:text-amber-300 transition-colors cursor-pointer">
+          Dismiss Announcement • Review Map &amp; Answers
+        </button>
+      </div>
+
+    </div>
+  </div>
 
   <!-- CERTIFICATE & FIELD REPORT MODAL -->
   <div id="certificate-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">

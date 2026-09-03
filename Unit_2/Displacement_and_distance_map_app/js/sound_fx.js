@@ -222,6 +222,44 @@ class SoundFX {
       osc.stop(now + 0.85);
     });
   }
+
+  // Triumphant Royal Quest Fanfare (celebrating full activity completion)
+  playFanfare() {
+    if (this.muted) return;
+    this.init();
+    this.resume();
+    if (!this.ctx) return;
+
+    // Harmonious royal brass fanfare: C5, G4, C5, E5, G5, C6 (extended chord)
+    const melody = [
+      { f: 523.25, t: 0.00, d: 0.16 }, // C5
+      { f: 392.00, t: 0.16, d: 0.14 }, // G4
+      { f: 523.25, t: 0.30, d: 0.16 }, // C5
+      { f: 659.25, t: 0.46, d: 0.20 }, // E5
+      { f: 783.99, t: 0.66, d: 0.28 }, // G5
+      { f: 1046.50, t: 0.94, d: 0.70 } // High C6 (long sustained)
+    ];
+
+    melody.forEach((note) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      const startTime = this.ctx.currentTime + note.t;
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(note.f, startTime);
+
+      // Warm attack and sustained decay
+      gain.gain.setValueAtTime(0.001, startTime);
+      gain.gain.linearRampToValueAtTime(0.22, startTime + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + note.d);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(startTime);
+      osc.stop(startTime + note.d + 0.05);
+    });
+  }
 }
 
 window.soundFX = new SoundFX();
