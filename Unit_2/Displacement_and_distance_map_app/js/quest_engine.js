@@ -464,7 +464,15 @@ class QuestEngine {
         const q3 = document.getElementById('q5-speed-velocity')?.value;
         if (q1 === 'correct' && homeDisp === 0 && q3 === 'correct') {
           isCorrect = true;
-          message = `🏆 Quest Mastered! You solved the Homecoming Paradox: returning home makes displacement exactly 0 while distance doubles!`;
+          message = `🏆 <strong>Quest Mastered!</strong> You solved the Homecoming Paradox: returning home makes displacement exactly 0 while distance doubles!<br>
+          <div class="mt-3 flex flex-wrap gap-2">
+            <button onclick="window.questEngine.showCompletionAnnouncement()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-yellow-300 hover:from-amber-300 hover:to-yellow-200 text-slate-950 font-bold text-xs shadow-md transition-all cursor-pointer active:scale-95">
+              <span>🎉</span> <span>View Completion Announcement</span>
+            </button>
+            <button onclick="window.questEngine.openCertificateModal()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white font-semibold text-xs border border-white/20 transition-all cursor-pointer">
+              <span>📜</span> <span>Print Certificate</span>
+            </button>
+          </div>`;
         } else {
           message = `⚠️ Remember: Displacement = x_final - x_initial. When you return home, where did you end compared to where you started?`;
         }
@@ -477,7 +485,26 @@ class QuestEngine {
       this.stepScores[this.currentStep] = stepScore;
       feedbackEl.className = "mt-3 p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-xs font-semibold";
       feedbackEl.innerHTML = message;
-      if (window.soundFX) window.soundFX.playSuccess();
+
+      if (this.currentStep === 5) {
+        // Triumphant Royal Fanfare
+        if (window.soundFX && typeof window.soundFX.playFanfare === 'function') {
+          window.soundFX.playFanfare();
+        } else if (window.soundFX) {
+          window.soundFX.playSuccess();
+        }
+
+        // Show persistent announcement button in the notebook bottom bar
+        const btnViewAnnounce = document.getElementById('btn-view-completion-announcement');
+        if (btnViewAnnounce) btnViewAnnounce.classList.remove('hidden');
+
+        // Automatically trigger the celebratory announcement modal with confetti
+        setTimeout(() => {
+          this.showCompletionAnnouncement();
+        }, 550);
+      } else {
+        if (window.soundFX) window.soundFX.playSuccess();
+      }
     } else {
       this.stepScores[this.currentStep] = Math.max(0, this.stepScores[this.currentStep] - 5);
       feedbackEl.className = "mt-3 p-3 rounded-xl bg-rose-950/60 border border-rose-500/40 text-rose-300 text-xs font-semibold";
@@ -494,8 +521,8 @@ class QuestEngine {
       scoreBadge.innerText = `${total}%`;
     }
 
-    // If student achieved a score on step 5 or all steps completed, submit to Firestore
-    if (this.currentStep === 5 && total >= 80) {
+    // Submit to Firestore if student has worked through steps and reached step 5
+    if (this.currentStep === 5 && total >= 60) {
       if (window.authManager) {
         window.authManager.submitScore(total, {
           realm: this.map.currentRealmKey,
@@ -504,6 +531,85 @@ class QuestEngine {
         });
       }
     }
+  }
+
+  // Celebratory Quest Completion Announcement Modal
+  showCompletionAnnouncement() {
+    const modal = document.getElementById('quest-completion-modal');
+    if (!modal) return;
+
+    const total = Object.values(this.stepScores).reduce((a, b) => a + b, 0);
+    const dist = this.map.calculatePathLengthCm(-1) * this.map.scaleFactor;
+    const disp = this.map.calculateDisplacementVector('D').magnitudeRealm;
+
+    const scoreEl = document.getElementById('announcement-score');
+    const studentEl = document.getElementById('announcement-student');
+    const distEl = document.getElementById('announcement-dist');
+    const dispEl = document.getElementById('announcement-disp');
+    const authMsgEl = document.getElementById('announcement-auth-msg');
+
+    if (scoreEl) scoreEl.innerText = `${total}%`;
+    if (distEl) distEl.innerText = `${dist.toFixed(1)} ${this.map.scaleUnit}`;
+    if (dispEl) dispEl.innerText = `${disp.toFixed(1)} ${this.map.scaleUnit}`;
+
+    const studentName = window.authManager?.studentName;
+    const studentEmail = window.authManager?.currentUser?.email;
+
+    if (studentName || studentEmail) {
+      if (studentEl) studentEl.innerText = `${studentName || studentEmail}`;
+      if (authMsgEl) {
+        authMsgEl.innerHTML = `Signed in as <strong>${studentEmail || studentName}</strong>. Your score of <strong>${total}%</strong> has been saved to Firestore and is ready for Google Classroom grade sync!`;
+      }
+    } else {
+      if (studentEl) studentEl.innerText = "Guest Cartographer (Not Signed In)";
+      if (authMsgEl) {
+        authMsgEl.innerHTML = `Your score of <strong>${total}%</strong> is saved in this browser. <strong>Tip:</strong> Click <strong>Sign In</strong> at the top with your school Google account (<code>@orangeusd.org</code>) so your name and grade sync to Classroom!`;
+      }
+    }
+
+    modal.classList.remove('hidden');
+
+    // Make sure the bottom button is visible too
+    const btnViewAnnounce = document.getElementById('btn-view-completion-announcement');
+    if (btnViewAnnounce) btnViewAnnounce.classList.remove('hidden');
+
+    // Confetti Fireworks Celebration
+    if (typeof confetti === 'function') {
+      try {
+        confetti({
+          particleCount: 120,
+          spread: 80,
+          origin: { y: 0.6 }
+        });
+        setTimeout(() => {
+          confetti({
+            particleCount: 70,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0.1, y: 0.7 }
+          });
+          confetti({
+            particleCount: 70,
+            angle: 120,
+            spread: 55,
+            origin: { x: 0.9, y: 0.7 }
+          });
+        }, 350);
+      } catch (e) {
+        console.log("Confetti trigger:", e);
+      }
+    }
+  }
+
+  closeCompletionModal() {
+    const modal = document.getElementById('quest-completion-modal');
+    if (modal) modal.classList.add('hidden');
+    if (window.soundFX) window.soundFX.playClick();
+  }
+
+  openCertificateModalFromAnnouncement() {
+    this.closeCompletionModal();
+    this.openCertificateModal();
   }
 
   onTravelerReachedDestination() {
