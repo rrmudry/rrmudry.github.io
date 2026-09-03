@@ -662,8 +662,8 @@ const lessonsData = [
     },
     "bellRinger": {
       "type": "free_response",
-      "promptQuestion": "In the Fantasy Map simulation, an adventurer travels along a winding, curved trail for a total distance of 18 km, but their final position is only 10 km northeast of where they started. Which value represents the scalar distance, and which represents the magnitude of the vector displacement?",
-      "explanation": "The 18 km along the winding trail is the scalar distance (total ground covered regardless of direction). The 10 km northeast is the magnitude of the vector displacement (the straight-line distance from starting origin to destination, including compass direction).",
+      "promptQuestion": "If a runner travels at a steady speed of 2 meters every second, how far will they travel in 5 seconds? Explain your reasoning.",
+      "explanation": "Using d = v · t: distance = 2 m/s · 5 s = 10 meters (each second adds 2 meters of distance: 2 + 2 + 2 + 2 + 2 = 10 m).",
       "defaultDuration": 3
     },
     "links": {
