@@ -668,6 +668,7 @@ const lessonsData = [
     },
     "links": {
       "Fantasy Map Web App": "Unit_2/Displacement_and_distance_map_app/index.html",
+      "Vector Displacement Calculator": "Unit_2/Vector_displacement_calculator_app/index.html",
       "Google Slides": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
       "PowerPoint Slides": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDTeHashMmgSoeLVDHY5TwQAbynyLTufaGMoMjm5APx0Hw?e=nwclwC",
       "Quest Story Doc": "https://docs.google.com/document/d/10pNCBkmnpn4LmwO6Fd8af0JH5ehHpj1akiyfmTqkDNA/edit?usp=sharing",

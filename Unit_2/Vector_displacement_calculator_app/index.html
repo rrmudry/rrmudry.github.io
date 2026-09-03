@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vector Displacement &amp; Coordinate Calculator • Fantasy Map Quest</title>
+  <meta name="description" content="Calculate displacement vector lengths and components using Cartesian coordinates (x, y) and the Pythagorean theorem on a calibrated fantasy map.">
+
+  <!-- Tailwind CSS & Google Fonts -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=JetBrains+Mono:wght@400;600;800&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <!-- Firebase Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+  <!-- Custom App CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-950 text-slate-100 flex flex-col min-h-screen">
+
+  <!-- TOP APP HEADER -->
+  <header class="border-b border-white/10 bg-slate-950/80 backdrop-blur-md sticky top-0 z-40 px-4 py-2.5">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- App Brand & Return Link -->
+      <div class="flex items-center gap-3">
+        <a href="../../unit2-dashboard.html" class="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors border border-white/10" title="Return to Unit 2 Dashboard">
+          &larr; <span class="hidden sm:inline text-xs font-semibold">Unit 2 Dashboard</span>
+        </a>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🧭</span>
+            <h1 class="font-medieval text-base sm:text-lg font-black tracking-wide text-amber-200">
+              Fantasy Map: Vector Displacement Calculator
+            </h1>
+          </div>
+          <p class="text-[11px] text-slate-400">
+            Kinematics &bull; Coordinate Deltas (&Delta;x, &Delta;y) &bull; Pythagorean Vectors &bull; Aligned with <strong>HS-PS2-1</strong>
+          </p>
+        </div>
+      </div>
+
+      <!-- Controls & Auth Section -->
+      <div class="flex items-center gap-2">
+        <!-- Sound Toggle -->
+        <button id="btn-sound-toggle" class="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs transition-colors" title="Toggle Sound FX">
+          🔊
+        </button>
+
+        <!-- High Score Badge -->
+        <div class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs">
+          <span class="text-amber-400">🏆</span>
+          <span class="text-slate-400">High Score:</span>
+          <span id="badge-high-score" class="font-mono font-bold text-amber-300">0%</span>
+        </div>
+
+        <!-- Google Sign-In Status Container -->
+        <div id="auth-user-status">
+          <button id="btn-google-login" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-xs font-semibold text-slate-200 transition-all active:scale-95">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-4 h-4" alt="Google">
+            <span>Sign In</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN WORKSPACE -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 space-y-5">
+
+    <!-- THEORY PRIMER ACCORDION / TOGGLE -->
+    <section class="glass-panel rounded-2xl p-4 border border-amber-500/30">
+      <div class="flex items-center justify-between cursor-pointer" id="btn-toggle-primer">
+        <div class="flex items-center gap-2.5">
+          <span class="text-xl">📐</span>
+          <div>
+            <h2 class="font-medieval text-sm sm:text-base font-bold text-amber-300">
+              Theory Primer: Vector Mathematics &amp; Cartesian Deltas
+            </h2>
+            <p class="text-[11px] text-slate-400">
+              How to compute displacement vectors from (x, y) coordinates using the Pythagorean Theorem.
+            </p>
+          </div>
+        </div>
+        <button class="px-3 py-1 text-xs rounded-lg bg-white/10 hover:bg-white/15 text-amber-200 transition-colors">
+          <span id="primer-btn-text">View Theory Primer</span>
+        </button>
+      </div>
+
+      <div id="theory-primer-box" class="hidden mt-4 pt-4 border-t border-white/10 text-xs text-slate-300 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="p-3 rounded-xl bg-black/40 border border-amber-500/20 space-y-1">
+          <span class="text-amber-300 font-bold block text-sm">1. Coordinate Differences (&Delta;x, &Delta;y)</span>
+          <p>
+            For any vector from P₁(x₁, y₁) to P₂(x₂, y₂):
+          </p>
+          <div class="font-mono text-amber-200 bg-black/50 p-2 rounded border border-white/10 mt-1">
+            &Delta;x = x₂ &minus; x₁ (East / West)<br>
+            &Delta;y = y₂ &minus; y₁ (North / South)
+          </div>
+          <p class="text-[11px] text-slate-400">
+            Moving West or South produces negative (&minus;) component values!
+          </p>
+        </div>
+
+        <div class="p-3 rounded-xl bg-black/40 border border-emerald-500/20 space-y-1">
+          <span class="text-emerald-300 font-bold block text-sm">2. The Pythagorean Theorem</span>
+          <p>
+            Because &Delta;x and &Delta;y are perpendicular (meet at 90&deg;), the displacement vector &Delta;r forms the hypotenuse:
+          </p>
+          <div class="font-mono text-emerald-200 bg-black/50 p-2 rounded border border-white/10 mt-1">
+            |&Delta;r| = &radic;(&Delta;x&sup2; + &Delta;y&sup2;)
+          </div>
+          <p class="text-[11px] text-slate-400">
+            Real Distance = |&Delta;r| (cm) &times; Realm Scale Factor (leagues/cm).
+          </p>
+        </div>
+
+        <div class="p-3 rounded-xl bg-black/40 border border-rose-500/20 space-y-1">
+          <span class="text-rose-300 font-bold block text-sm">3. Component Addition (Net Resultant)</span>
+          <p>
+            To find the overall displacement from start to finish across multiple turns:
+          </p>
+          <div class="font-mono text-rose-200 bg-black/50 p-2 rounded border border-white/10 mt-1">
+            &Delta;x_net = &Delta;x₁ + &Delta;x₂ + &Delta;x₃<br>
+            &Delta;y_net = &Delta;y₁ + &Delta;y₂ + &Delta;y₃<br>
+            |&Delta;r_net| = &radic;(&Delta;x_net&sup2; + &Delta;y_net&sup2;)
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TWO-COLUMN WORKSPACE: MAP CANVAS + GUIDED QUEST NOTEBOOK -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+      
+      <!-- LEFT COLUMN: MAP VIEWPORT & VECTOR TOOLS -->
+      <div id="map-column" class="lg:col-span-7 space-y-3">
+        
+        <!-- Toolbar & Realm Controls -->
+        <div class="glass-panel rounded-2xl p-3 flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div class="flex items-center gap-2">
+            <span class="text-slate-400 font-bold">Realm:</span>
+            <select id="realm-select" class="bg-slate-900 border border-amber-500/30 rounded-xl px-2.5 py-1.5 text-xs text-amber-200 font-medium focus:outline-none focus:ring-1 focus:ring-amber-400">
+              <option value="dragon_pass">⛰️ The Dragon's Fang Pass (1 cm = 10 leagues)</option>
+              <option value="swamp_citadel">🌲 The Sunken Bayou (1 cm = 12.5 leagues)</option>
+              <option value="eldoria_isles">⛵ The Coast of Eldoria (1 cm = 8 leagues)</option>
+            </select>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button id="btn-random-path" class="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 font-semibold transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer">
+              <span>🎲</span>
+              <span>New Coordinate Seed</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Parchment Map Canvas Viewport -->
+        <div class="parchment-frame w-full flex items-center justify-center p-1 sm:p-2 bg-[#ecd599]">
+          <canvas id="vector-map-canvas" class="max-w-full block"></canvas>
+        </div>
+
+        <!-- Vector Leg Selector & Inspector Toolbox -->
+        <div class="glass-panel-amber rounded-2xl p-3.5 space-y-3">
+          
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-2">
+            <div class="flex items-center gap-2">
+              <span class="text-base">📐</span>
+              <span class="font-medieval text-xs sm:text-sm font-bold text-amber-300">
+                Interactive Vector Inspector
+              </span>
+            </div>
+            
+            <!-- Quick Vector Leg Buttons -->
+            <div class="flex flex-wrap gap-1 text-[11px]">
+              <button id="btn-inspect-leg1" class="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold transition-all ring-2 ring-amber-400 cursor-pointer">
+                Leg 1 (A&rarr;B)
+              </button>
+              <button id="btn-inspect-leg2" class="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold transition-all cursor-pointer">
+                Leg 2 (B&rarr;C)
+              </button>
+              <button id="btn-inspect-leg3" class="px-2.5 py-1 rounded-lg bg-purple-500/20 text-purple-300 border border-purple-500/40 font-bold transition-all cursor-pointer">
+                Leg 3 (C&rarr;D)
+              </button>
+              <button id="btn-inspect-net" class="px-2.5 py-1 rounded-lg bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold transition-all cursor-pointer">
+                Net (A&rarr;D)
+              </button>
+              <button id="btn-inspect-all" class="px-2.5 py-1 rounded-lg bg-white/10 text-slate-300 border border-white/20 font-bold transition-all cursor-pointer">
+                All Vectors
+              </button>
+            </div>
+          </div>
+
+          <!-- Mathematical Readout Container (Dynamically updated by vector_tool.js) -->
+          <div id="vector-inspector-content">
+            <!-- Injected by vector_tool.js -->
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN: GUIDED VECTOR QUEST NOTEBOOK (Chromebook optimized) -->
+      <div id="quest-column" class="lg:col-span-5 lg:sticky lg:top-16 lg:max-h-[calc(100vh-5.5rem)] flex flex-col">
+        <div class="glass-panel-amber rounded-2xl p-4 sm:p-5 flex flex-col flex-1 overflow-hidden border-2 border-amber-500/30">
+          
+          <!-- Quest Header -->
+          <div class="flex items-center justify-between pb-3 border-b border-white/10 flex-shrink-0">
+            <div>
+              <span id="quest-step-badge" class="px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[10px] font-mono font-bold uppercase">
+                Step 1 of 5
+              </span>
+              <h3 id="quest-step-title" class="font-medieval text-sm sm:text-base font-bold text-white mt-1">
+                Step 1: Reading Coordinates &amp; Deltas
+              </h3>
+            </div>
+            
+            <!-- Current Score Pill -->
+            <div class="text-right">
+              <span class="text-[10px] text-slate-400 font-mono block">Score</span>
+              <span id="quest-current-score" class="font-mono font-black text-amber-300 text-sm">
+                0%
+              </span>
+            </div>
+          </div>
+
+          <!-- Navigation & Check Action Controls -->
+          <div class="py-2.5 border-b border-white/10 flex items-center justify-between gap-2 flex-shrink-0">
+            <div class="flex gap-1.5">
+              <button id="btn-quest-prev" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-xs text-slate-300 font-bold transition-all cursor-pointer">
+                &larr; Prev
+              </button>
+              <button id="btn-quest-next" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-xs text-slate-300 font-bold transition-all cursor-pointer">
+                Next &rarr;
+              </button>
+            </div>
+
+            <button id="btn-quest-check" class="px-4 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-bold text-xs shadow-md transition-all cursor-pointer active:scale-95">
+              Check Answers &check;
+            </button>
+          </div>
+
+          <!-- Guided Feedback Card -->
+          <div id="quest-feedback" class="hidden my-2.5 flex-shrink-0"></div>
+
+          <!-- Scrollable Question Form Container -->
+          <div id="quest-step-content" class="space-y-3 overflow-y-auto flex-1 max-h-[calc(100vh-19rem)] pr-1.5 custom-scrollbar mt-2">
+            <!-- Dynamically populated by vector_quest_engine.js -->
+          </div>
+
+          <!-- Bottom Action Container -->
+          <div class="pt-3 mt-3 border-t border-white/10 flex-shrink-0 space-y-2">
+            <button id="btn-view-completion-announcement" onclick="window.vectorQuestEngine.showCompletionAnnouncement()" class="hidden w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95">
+              <span>🎉</span>
+              <span>View Quest Completion Announcement</span>
+            </button>
+
+            <button id="btn-print-certificate" class="w-full py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-amber-500/30 text-amber-300 text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer">
+              <span>📜</span>
+              <span>Generate Cartographer Certificate &amp; Field Report</span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- DECLARATIVE NGSS STANDARDS BANNER -->
+    <section class="glass-panel rounded-2xl p-4 border border-lime-500/20">
+      <div data-ngss="HS-PS2-1"></div>
+    </section>
+  </main>
+
+  <!-- CELEBRATORY QUEST COMPLETION ANNOUNCEMENT MODAL -->
+  <div id="quest-completion-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/85 backdrop-blur-md transition-opacity duration-300">
+    <div class="w-full max-w-xl bg-gradient-to-b from-[#22160d] via-[#170e08] to-[#0d0704] border-2 border-amber-400 rounded-3xl p-5 sm:p-7 shadow-[0_0_50px_rgba(245,158,11,0.35)] text-center relative overflow-hidden">
+      
+      <div class="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-amber-600 via-yellow-300 to-amber-600"></div>
+
+      <button onclick="window.vectorQuestEngine.closeCompletionModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center text-sm font-bold transition-all cursor-pointer" title="Dismiss Announcement">
+        ✕
+      </button>
+
+      <div class="mb-3">
+        <div class="inline-flex items-center gap-1.5 px-4 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/50 text-emerald-300 text-xs font-mono font-black uppercase tracking-widest shadow-sm">
+          <span>✨</span>
+          <span>ACTIVITY COMPLETE &bull; OFFICIALLY FINISHED</span>
+          <span>✨</span>
+        </div>
+
+        <div class="text-4xl sm:text-5xl mt-3 animate-bounce">
+          🏆
+        </div>
+
+        <h2 class="font-medieval text-2xl sm:text-3xl font-black text-amber-200 mt-1 tracking-wide">
+          Vector Quest Mastered!
+        </h2>
+        <p class="text-xs sm:text-sm text-amber-100/80 mt-1 max-w-md mx-auto">
+          You have successfully completed all 5 stages of the <strong>Vector Displacement &amp; Coordinate Calculator</strong> investigation!
+        </p>
+      </div>
+
+      <div class="my-4 p-4 rounded-2xl bg-black/60 border border-amber-500/40 shadow-inner space-y-3 text-left">
+        
+        <div class="flex items-center justify-between pb-2 border-b border-white/10">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">⭐</span>
+            <div>
+              <span class="text-[11px] font-mono uppercase text-slate-400 font-bold block">Final Mastered Score</span>
+              <span id="announcement-score" class="text-2xl font-black font-mono text-amber-300">100%</span>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[11px] font-bold">
+              <span>✅</span> <span>Grade Recorded</span>
+            </span>
+          </div>
+        </div>
+
+        <div class="text-xs text-slate-300 flex items-center justify-between">
+          <span class="text-slate-400 font-medium">Cartographer:</span>
+          <span id="announcement-student" class="font-mono font-bold text-white">Signed-in Student</span>
+        </div>
+
+        <div id="announcement-auth-hint" class="text-[11px] text-amber-300/90 bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/20 flex items-start gap-2">
+          <span class="text-sm">💡</span>
+          <span id="announcement-auth-msg">Your score is saved and synced to the teacher's gradebook.</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 pt-2 border-t border-white/10 text-[11px]">
+          <div class="p-2 rounded-lg bg-amber-950/40 border border-amber-500/20">
+            <span class="text-amber-400/80 uppercase font-mono text-[9px] block">Sum of Legs (|&Delta;r| Sum)</span>
+            <span id="announcement-dist" class="font-mono font-bold text-white text-xs">-- leagues</span>
+          </div>
+          <div class="p-2 rounded-lg bg-rose-950/40 border border-rose-500/20">
+            <span class="text-rose-400/80 uppercase font-mono text-[9px] block">Net Displacement (|&Delta;r_net|)</span>
+            <span id="announcement-disp" class="font-mono font-bold text-white text-xs">-- leagues</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="space-y-2">
+        <div class="flex flex-col sm:flex-row gap-2.5">
+          <button onclick="window.vectorQuestEngine.openCertificateModalFromAnnouncement()" class="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-medieval font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-amber-500/20 active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
+            <span>📜</span>
+            <span>View &amp; Print Official Certificate</span>
+          </button>
+          
+          <a href="../../unit2-dashboard.html" class="py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/20 font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+            <span>&larr;</span>
+            <span>Return to Dashboard</span>
+          </a>
+        </div>
+
+        <button onclick="window.vectorQuestEngine.closeCompletionModal()" class="w-full py-2 text-xs text-slate-400 hover:text-amber-300 transition-colors cursor-pointer">
+          Dismiss Announcement &bull; Review Map &amp; Vectors
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CERTIFICATE & FIELD REPORT MODAL -->
+  <div id="certificate-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+    <div class="glass-panel-amber max-w-2xl w-full rounded-2xl p-6 border-2 border-amber-500 shadow-2xl relative">
+      
+      <button onclick="window.vectorQuestEngine.closeCertificateModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold">
+        ✕
+      </button>
+
+      <div class="text-center mb-6">
+        <span class="text-3xl">📜</span>
+        <h3 class="text-xl font-medieval font-black text-amber-300 tracking-wider">
+          Royal Cartographer Guild Certificate
+        </h3>
+        <p class="text-xs text-slate-300">2D Vector Kinematics &amp; Pythagorean Displacement Analysis</p>
+      </div>
+
+      <div class="bg-black/50 p-4 rounded-xl border border-amber-500/30 space-y-3 text-xs mb-5">
+        <div class="flex justify-between border-b border-white/10 pb-2">
+          <span class="text-slate-400 font-bold">Cartographer Name:</span>
+          <span id="cert-student-name" class="font-bold text-white font-mono">Adventurer</span>
+        </div>
+        <div class="flex justify-between border-b border-white/10 pb-2">
+          <span class="text-slate-400 font-bold">Vector Mastery Score:</span>
+          <span id="cert-score" class="font-black text-amber-300 font-mono text-sm">100%</span>
+        </div>
+        <div class="flex justify-between border-b border-white/10 pb-2">
+          <span class="text-slate-400 font-bold">Sum of Leg Magnitudes (&Sigma;|Δr|):</span>
+          <span id="cert-total-dist" class="font-mono text-amber-200 font-bold">-- leagues</span>
+        </div>
+        <div class="flex justify-between border-b border-white/10 pb-2">
+          <span class="text-slate-400 font-bold">Direct Net Displacement (|Δr_net|):</span>
+          <span id="cert-net-disp" class="font-mono text-rose-300 font-bold">-- leagues</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400 font-bold">The Triangle Inequality Status:</span>
+          <span class="font-mono text-emerald-300 font-bold">Verified (|Δr_net| &le; &Sigma;|Δr|)</span>
+        </div>
+      </div>
+
+      <div class="flex gap-3">
+        <button onclick="window.print()" class="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition-all shadow-md">
+          🖨️ Print / Save PDF
+        </button>
+        <button onclick="window.vectorQuestEngine.closeCertificateModal()" class="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-slate-300 font-semibold text-xs transition-all">
+          Done
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="mt-8 py-4 border-t border-white/10 text-center text-xs text-slate-500">
+    Mr. Mudry's Physics &bull; Unit 2 Kinematics &amp; Motion &bull; Aligned with NGSS <strong>HS-PS2-1</strong>
+  </footer>
+
+  <!-- FIREBASE CONFIG -->
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  </script>
+
+  <!-- Partials & NGSS Helper Loaders -->
+  <script src="../../assets/partials.js"></script>
+
+  <!-- Modular Scripts -->
+  <script src="js/sound_fx.js"></script>
+  <script src="js/vector_map.js"></script>
+  <script src="js/vector_tool.js"></script>
+  <script src="js/auth_manager.js"></script>
+  <script src="js/vector_quest_engine.js"></script>
+
+  <!-- App Bootstrapper -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Initialize Map
+      const map = new VectorMap('vector-map-canvas');
+      window.vectorMap = map;
+
+      // 2. Initialize Tool Controller
+      const tool = new VectorTool(map);
+      window.vectorTool = tool;
+
+      // 3. Initialize Quest Engine
+      const quest = new VectorQuestEngine(map, tool);
+      window.vectorQuestEngine = quest;
+
+      // Realm change selector
+      const realmSelect = document.getElementById('realm-select');
+      if (realmSelect) {
+        realmSelect.addEventListener('change', (e) => {
+          map.setRealm(e.target.value);
+          tool.updateReadout(tool.activeMode);
+          quest.renderStep(quest.currentStep);
+          if (window.soundFX) window.soundFX.playParchment();
+        });
+      }
+
+      // Random Path Generator
+      const btnRandom = document.getElementById('btn-random-path');
+      if (btnRandom) {
+        btnRandom.addEventListener('click', () => {
+          map.generateNewRandomPath();
+          tool.updateReadout(tool.activeMode);
+          quest.renderStep(quest.currentStep);
+          if (window.soundFX) window.soundFX.playParchment();
+        });
+      }
+
+      // Theory Primer Toggle
+      const primerBtn = document.getElementById('btn-toggle-primer');
+      const primerBox = document.getElementById('theory-primer-box');
+      const primerText = document.getElementById('primer-btn-text');
+      if (primerBtn && primerBox) {
+        primerBtn.addEventListener('click', () => {
+          const isHidden = primerBox.classList.contains('hidden');
+          primerBox.classList.toggle('hidden', !isHidden);
+          primerText.innerText = isHidden ? 'Hide Theory Primer' : 'View Theory Primer';
+        });
+      }
+
+      // Sound Toggle
+      const soundBtn = document.getElementById('btn-sound-toggle');
+      if (soundBtn) {
+        soundBtn.addEventListener('click', () => {
+          const isMuted = window.soundFX.toggleMute();
+          soundBtn.innerText = isMuted ? '🔇' : '🔊';
+        });
+      }
+
+      // Trigger initial render
+      map.render();
+
+      // Trigger NGSS autoInit if ready
+      if (window.NGSSHelper) {
+        window.NGSSHelper.autoInit();
+      }
+    });
+  </script>
+
+</body>
+</html>

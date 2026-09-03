@@ -10,7 +10,8 @@
 * 🖥️ **Slides (PowerPoint):** [Distance and Displacement with Fantasy Maps.pptx](https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDTeHashMmgSoeLVDHY5TwQAbynyLTufaGMoMjm5APx0Hw?e=nwclwC)  
 * 📜 **Quest Lore & Story (Doc):** [The Epic Tale of Caelum and the Starlight Gem in Rikterell](https://docs.google.com/document/d/10pNCBkmnpn4LmwO6Fd8af0JH5ehHpj1akiyfmTqkDNA/edit?usp=sharing)  
 * 📄 **Student Worksheet:** [Fantasy Map Measurements.docx](https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs)  
-* 🗺️ **Interactive Simulation:** [Fantasy Map Quest Web App](Displacement_and_distance_map_app/index.html)
+* 🗺️ **Interactive Simulation:** [Fantasy Map Quest Web App](Displacement_and_distance_map_app/index.html)  
+* 📐 **Vector Extension App:** [Vector Displacement & Coordinate Calculator](Vector_displacement_calculator_app/index.html)
 
 ---
 

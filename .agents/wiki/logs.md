@@ -173,3 +173,25 @@ Append-only log tracking pattern changes across sessions.
   - Added `exportAttendanceCsv` consecutive session column for administrative records.
   - Added `generateSampleAttendance()` and preloading in `FirestoreBridge` so past sessions persist across reloads and demo data showcases 1, 2, and 3-session streaks.
 
+---
+
+## 2026-09-02 — Secondary Web App: Fantasy Map Vector Displacement & Coordinate Calculator
+
+**Motivation**: Created a dedicated secondary companion web app based on the Fantasy Map Quest template, specifically focused on calculating displacement vector lengths and components using Cartesian coordinates `(x, y)` and the Pythagorean theorem (`Δr = √(Δx² + Δy²)`).
+
+**Changes**:
+- Created `Unit_2/Vector_displacement_calculator_app/`:
+  - `index.html`: Responsive workspace featuring parchment canvas, interactive right-triangle component visualizer, vector inspector tool, 5-step guided inquiry challenge, celebratory completion announcement modal, and printable Royal Cartographer Certificate.
+  - `style.css`: Vintage cartography theme, right-triangle projection lines, animated dashed vector legs, and print styles.
+  - `js/vector_map.js`: Canvas coordinate engine with 1 cm metric grid, procedural integer/half-cm landmark coordinates (Dragon's Fang Pass, Sunken Bayou, Coast of Eldoria), right-angle indicator `⦜`, and hypotenuse vector arrows.
+  - `js/vector_tool.js`: Vector inspector toolbar with live math derivations for horizontal change `Δx = x₂ - x₁`, vertical change `Δy = y₂ - y₁`, Pythagorean magnitude `|Δr| = √(Δx² + Δy²)`, and real realm scaling.
+  - `js/vector_quest_engine.js`: 5-step pedagogical challenge (Coordinate Deltas, Pythagorean Leg 1, Multi-leg with Directional Signs, Component Addition for Net Resultant, and Triangle Inequality proof `|Δr_net| ≤ Σ|Δr_i|`).
+  - `js/auth_manager.js`: Domain-enforced Google Sign-In (`@orangeusd.org`) saving scores to `student_results/Fantasy_Map_Vector_Calculations`.
+  - `js/sound_fx.js`: Web Audio API synthesizer for clicks, whooshes, chimes, and royal victory fanfare.
+- Created root folder alias `vector_displacement_calculator_app/` with symlinks to `Unit_2/Vector_displacement_calculator_app/`.
+- Integrated across Unit 2 curriculum:
+  - Linked in `unit2-dashboard.html` interactive webapps matrix.
+  - Linked in `Unit_2/lesson.json` and `Unit_2/unit2_lessons.json` (Day 4).
+  - Linked in `assets/lessons-data.js` (Day 4).
+  - Linked in `Unit_2/Fantasy_Map_Quest_Project.md`.
+
