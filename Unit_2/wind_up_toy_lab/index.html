@@ -6,8 +6,13 @@
   <title>Wind-Up Toy Speed Lab | Unit 2 Kinematics</title>
   <meta name="description" content="Authentic student laboratory activity: Measure the speed of wind-up toys over a 20 cm track with a precision stopwatch, outlier detection, data averaging, and CAST bar chart graphing.">
 
-  <!-- Tailwind CSS CDN -->
+  <!-- Tailwind CSS CDN & Dark Mode Config -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class'
+    };
+  </script>
 
   <!-- Google Fonts: Space Grotesk, Outfit, JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,28 +29,28 @@
   <!-- App Stylesheet -->
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-slate-50 text-slate-900 flex flex-col min-h-screen">
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col min-h-screen">
 
   <!-- TOP LAB APP HEADER -->
-  <header class="border-b border-slate-200 bg-white/95 backdrop-blur-md sticky top-0 z-40 px-4 py-2.5 shadow-sm">
+  <header class="border-b border-slate-200 dark:border-white/10 bg-white/95 dark:bg-slate-950/85 backdrop-blur-md sticky top-0 z-40 px-4 py-2.5 shadow-sm">
     <div class="max-w-4xl mx-auto flex flex-wrap items-center justify-between gap-3">
       
       <!-- App Brand & Return Link -->
       <div class="flex items-center gap-3">
-        <a href="../../unit2-dashboard.html" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 transition-colors border border-slate-300" title="Return to Unit 2 Dashboard">
+        <a href="../../unit2-dashboard.html" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors border border-slate-300 dark:border-white/10" title="Return to Unit 2 Dashboard">
           &larr; <span class="hidden sm:inline text-xs font-semibold">Unit 2</span>
         </a>
         <div>
           <div class="flex items-center gap-2">
             <span class="text-xl">🏎️</span>
-            <h1 class="font-display text-base sm:text-lg font-bold tracking-wide text-slate-900">
+            <h1 class="font-display text-base sm:text-lg font-bold tracking-wide text-slate-900 dark:text-sky-200">
               Wind-Up Toy Speed Lab
             </h1>
-            <span data-ngss-code="HS-PS2-1" class="hidden sm:inline-block px-2 py-0.5 rounded text-[11px] font-mono bg-sky-100 text-sky-800 border border-sky-300 font-semibold">
+            <span data-ngss-code="HS-PS2-1" class="hidden sm:inline-block px-2 py-0.5 rounded text-[11px] font-mono bg-sky-100 text-sky-800 border border-sky-300 dark:bg-sky-500/20 dark:text-sky-300 dark:border-sky-500/30 font-semibold">
               HS-PS2-1
             </span>
           </div>
-          <p class="text-[11px] text-slate-600 hidden sm:block">
+          <p class="text-[11px] text-slate-600 dark:text-slate-400 hidden sm:block">
             Track 20.0 cm &bull; 1 Toy at a Desk &bull; 3 Replications &bull; Outlier Detection &bull; Speed Bar Chart
           </p>
         </div>
@@ -54,23 +59,23 @@
       <!-- Utilities & Auth -->
       <div class="flex items-center gap-2">
         <!-- Desmos Calculator Drawer Toggle -->
-        <button id="btn-toggle-calculator" class="px-3 py-1.5 rounded-xl bg-purple-100 hover:bg-purple-200 text-purple-800 text-xs font-bold border border-purple-300 transition-all flex items-center gap-1.5 shadow-sm" title="Toggle Desmos Scientific Calculator">
+        <button id="btn-toggle-calculator" class="px-3 py-1.5 rounded-xl bg-purple-100 hover:bg-purple-200 text-purple-800 dark:bg-purple-500/20 dark:hover:bg-purple-500/30 dark:text-purple-200 text-xs font-bold border border-purple-300 dark:border-purple-500/40 transition-all flex items-center gap-1.5 shadow-sm" title="Toggle Desmos Scientific Calculator">
           <span>🧮</span> <span class="hidden sm:inline">Calculator</span>
         </button>
 
         <!-- Sound FX Toggle -->
-        <button id="btn-sound-toggle" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 text-xs transition-colors" title="Toggle Sound FX">
+        <button id="btn-sound-toggle" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 border border-slate-300 dark:border-white/10 text-slate-700 dark:text-slate-300 text-xs transition-colors" title="Toggle Sound FX">
           🔊
         </button>
 
         <!-- Theme Toggle (Default Light) -->
-        <button id="btn-theme-toggle" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 text-xs transition-colors" title="Toggle Light / Dark Theme">
+        <button id="btn-theme-toggle" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 border border-slate-300 dark:border-white/10 text-slate-700 dark:text-slate-300 text-xs transition-colors" title="Toggle Light / Dark Theme">
           ☀️
         </button>
 
         <!-- Google Sign-in / User Profile -->
         <div id="auth-user-status">
-          <button id="btn-google-login" class="px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold transition-all shadow-sm active:scale-95 flex items-center gap-1.5">
+          <button id="btn-google-login" class="px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 dark:bg-sky-500 dark:hover:bg-sky-400 text-white dark:text-slate-950 text-xs font-bold transition-all shadow-sm active:scale-95 flex items-center gap-1.5">
             <span>Sign In</span>
           </button>
         </div>
@@ -83,25 +88,25 @@
   <main id="main-container" class="flex-1 max-w-4xl mx-auto w-full p-4 sm:p-6 space-y-6">
 
     <!-- STEP PROGRESS STEPPER (5 Clean Steps) -->
-    <div class="glass-card p-3 rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <div class="glass-card p-3 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
       <div class="flex items-center justify-between step-bar-scroll gap-2 py-1">
-        <button class="step-indicator-dot px-3 py-1 rounded-full text-xs font-bold bg-sky-600 text-white shadow-sm ring-2 ring-sky-300 flex items-center gap-1.5 transition-all">
+        <button class="step-indicator-dot px-3 py-1 rounded-full text-xs font-bold bg-sky-600 dark:bg-sky-500 text-white dark:text-slate-950 shadow-sm ring-2 ring-sky-300 dark:ring-sky-400/50 flex items-center gap-1.5 transition-all">
           <span>1</span> <span class="hidden md:inline">Time 3 Toys</span>
         </button>
-        <span class="text-slate-400 text-xs">&rarr;</span>
-        <button class="step-indicator-dot px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1.5 transition-all">
+        <span class="text-slate-400 dark:text-slate-600 text-xs">&rarr;</span>
+        <button class="step-indicator-dot px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/10 flex items-center gap-1.5 transition-all">
           <span>2</span> <span class="hidden md:inline">Average Time</span>
         </button>
-        <span class="text-slate-400 text-xs">&rarr;</span>
-        <button class="step-indicator-dot px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1.5 transition-all">
+        <span class="text-slate-400 dark:text-slate-600 text-xs">&rarr;</span>
+        <button class="step-indicator-dot px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/10 flex items-center gap-1.5 transition-all">
           <span>3</span> <span class="hidden md:inline">Speed</span>
         </button>
-        <span class="text-slate-400 text-xs">&rarr;</span>
-        <button class="step-indicator-dot px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1.5 transition-all">
+        <span class="text-slate-400 dark:text-slate-600 text-xs">&rarr;</span>
+        <button class="step-indicator-dot px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/10 flex items-center gap-1.5 transition-all">
           <span>4</span> <span class="hidden md:inline">Bar Chart</span>
         </button>
-        <span class="text-slate-400 text-xs">&rarr;</span>
-        <button class="step-indicator-dot px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1.5 transition-all">
+        <span class="text-slate-400 dark:text-slate-600 text-xs">&rarr;</span>
+        <button class="step-indicator-dot px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/10 flex items-center gap-1.5 transition-all">
           <span>5</span> <span class="hidden md:inline">CER Studio</span>
         </button>
       </div>
@@ -111,35 +116,35 @@
     <!-- STEP 1: Data Collection & Timing (One Toy at a Time) -->
     <!-- ============================================================= -->
     <section id="step-section-1" class="space-y-4 fade-in">
-      <div class="glass-card p-4 sm:p-5 rounded-2xl border border-slate-200 bg-white space-y-2 shadow-sm">
+      <div class="glass-card p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-white/10 space-y-2 shadow-sm">
         <div class="flex items-center justify-between">
-          <h2 class="text-lg font-bold text-slate-900 font-display flex items-center gap-2">
+          <h2 class="text-lg font-bold text-slate-900 dark:text-white font-display flex items-center gap-2">
             <span>⏱️</span> Step 1: Test 3 Wind-Up Toys (One Toy at a Time)
           </h2>
-          <span class="text-xs font-mono font-bold text-sky-800 bg-sky-100 px-2.5 py-1 rounded-lg border border-sky-300">
+          <span class="text-xs font-mono font-bold text-sky-800 dark:text-sky-400 bg-sky-100 dark:bg-sky-500/10 px-2.5 py-1 rounded-lg border border-sky-300 dark:border-sky-500/20">
             Track: 20.0 cm
           </span>
         </div>
-        <p class="text-xs text-slate-700 leading-relaxed">
-          <strong class="text-amber-800 font-bold">Classroom Protocol:</strong> Keep only <em>one toy at your table at a time</em>. Grab a toy from the supply station, type what it is below, time 3 replications over 20.0 cm, then return it to the bin before getting your next toy!
+        <p class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+          <strong class="text-amber-800 dark:text-amber-300 font-bold">Classroom Protocol:</strong> Keep only <em>one toy at your table at a time</em>. Grab a toy from the supply station, type what it is below, time 3 replications over 20.0 cm, then return it to the bin before getting your next toy!
         </p>
       </div>
 
       <!-- PRECISION DIGITAL STOPWATCH BANNER -->
-      <div id="stopwatch-container" class="glass-card p-4 sm:p-5 rounded-2xl border border-sky-200 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/80 shadow-sm">
+      <div id="stopwatch-container" class="glass-card p-4 sm:p-5 rounded-2xl border border-sky-200 dark:border-sky-500/30 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/80 dark:from-slate-900/95 dark:via-sky-950/30 dark:to-slate-900/95 shadow-sm dark:shadow-xl">
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
           
           <!-- LED Time Readout -->
           <div class="flex items-center gap-4">
-            <div class="stopwatch-box px-5 py-2.5 rounded-xl border border-slate-900 bg-slate-950">
+            <div class="stopwatch-box px-5 py-2.5 rounded-xl border border-slate-900 dark:border-sky-400/40 bg-slate-950">
               <span id="stopwatch-display" class="digital-timer-font text-3xl sm:text-4xl font-bold text-sky-300">00:00.00</span>
             </div>
             <div>
-              <div class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+              <div class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
                 <span>Digital Stopwatch</span>
-                <span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-sky-100 text-sky-800 border border-sky-300 font-bold">Spacebar</span>
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-sky-100 dark:bg-sky-500/20 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-transparent font-bold">Spacebar</span>
               </div>
-              <p class="text-[11px] text-slate-600">
+              <p class="text-[11px] text-slate-600 dark:text-slate-400">
                 Press Spacebar to start and stop.
               </p>
             </div>
@@ -150,10 +155,10 @@
             <button id="btn-stopwatch-toggle" class="flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md active:scale-95 flex items-center justify-center gap-1.5">
               <span>▶️</span> <span>Start (Space)</span>
             </button>
-            <button id="btn-stopwatch-reset" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-300 transition-colors">
+            <button id="btn-stopwatch-reset" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 text-xs font-semibold border border-slate-300 dark:border-white/10 transition-colors">
               Reset
             </button>
-            <button id="btn-stopwatch-record" class="flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold transition-all shadow-md active:scale-95 flex items-center justify-center gap-1.5">
+            <button id="btn-stopwatch-record" class="flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 dark:bg-sky-500 dark:hover:bg-sky-400 text-white dark:text-slate-950 text-xs font-bold transition-all shadow-md active:scale-95 flex items-center justify-center gap-1.5">
               <span>📥</span> <span>Capture Time</span>
             </button>
           </div>
@@ -167,7 +172,7 @@
       </div>
 
       <!-- Active Toy Replication Container -->
-      <div id="step1-data-table-container" class="glass-card p-5 rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div id="step1-data-table-container" class="glass-card p-5 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
         <!-- Dynamically populated by lab_engine.js -->
       </div>
     </section>
@@ -176,16 +181,16 @@
     <!-- STEP 2: Plain-Language Average Time Calculation -->
     <!-- ============================================================= -->
     <section id="step-section-2" class="space-y-4 hidden fade-in">
-      <div class="glass-card p-5 rounded-2xl border border-slate-200 bg-white space-y-3 shadow-sm">
+      <div class="glass-card p-5 rounded-2xl border border-slate-200 dark:border-white/10 space-y-3 shadow-sm">
         <div class="flex flex-wrap items-center justify-between gap-2">
-          <h2 class="text-lg font-bold text-slate-900 font-display flex items-center gap-2">
+          <h2 class="text-lg font-bold text-slate-900 dark:text-white font-display flex items-center gap-2">
             <span>🧮</span> Step 2: Find the Average Time for Each Toy
           </h2>
-          <button onclick="window.toggleCalculator()" class="btn-open-calc-step px-3 py-1.5 rounded-xl bg-purple-100 hover:bg-purple-200 text-purple-800 text-xs font-bold border border-purple-300 transition-colors flex items-center gap-1.5 shadow-sm">
+          <button onclick="window.toggleCalculator()" class="btn-open-calc-step px-3 py-1.5 rounded-xl bg-purple-100 hover:bg-purple-200 text-purple-800 dark:bg-purple-500/20 dark:hover:bg-purple-500/30 dark:text-purple-200 text-xs font-bold border border-purple-300 dark:border-purple-500/40 transition-colors flex items-center gap-1.5 shadow-sm">
             <span>🧮</span> <span>Open Calculator</span>
           </button>
         </div>
-        <p class="text-xs text-slate-700 leading-relaxed">
+        <p class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
           Because of small release differences, calculate the average time for each toy: <strong>Add your 3 times together, then divide by 3</strong>.
         </p>
       </div>
@@ -199,16 +204,16 @@
     <!-- STEP 3: Plain-Language Speed Calculation -->
     <!-- ============================================================= -->
     <section id="step-section-3" class="space-y-4 hidden fade-in">
-      <div class="glass-card p-5 rounded-2xl border border-slate-200 bg-white space-y-3 shadow-sm">
+      <div class="glass-card p-5 rounded-2xl border border-slate-200 dark:border-white/10 space-y-3 shadow-sm">
         <div class="flex flex-wrap items-center justify-between gap-2">
-          <h2 class="text-lg font-bold text-slate-900 font-display flex items-center gap-2">
+          <h2 class="text-lg font-bold text-slate-900 dark:text-white font-display flex items-center gap-2">
             <span>🏎️</span> Step 3: Calculate the Speed of Each Toy
           </h2>
-          <button onclick="window.toggleCalculator()" class="btn-open-calc-step px-3 py-1.5 rounded-xl bg-purple-100 hover:bg-purple-200 text-purple-800 text-xs font-bold border border-purple-300 transition-colors flex items-center gap-1.5 shadow-sm">
+          <button onclick="window.toggleCalculator()" class="btn-open-calc-step px-3 py-1.5 rounded-xl bg-purple-100 hover:bg-purple-200 text-purple-800 dark:bg-purple-500/20 dark:hover:bg-purple-500/30 dark:text-purple-200 text-xs font-bold border border-purple-300 dark:border-purple-500/40 transition-colors flex items-center gap-1.5 shadow-sm">
             <span>🧮</span> <span>Open Calculator</span>
           </button>
         </div>
-        <p class="text-xs text-slate-700 leading-relaxed">
+        <p class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
           Speed tells you how many centimeters the toy traveled each second. <strong>Divide the 20.0 cm track distance by your average time</strong>.
         </p>
       </div>
@@ -222,22 +227,22 @@
     <!-- STEP 4: CAST Comparative Bar Chart -->
     <!-- ============================================================= -->
     <section id="step-section-4" class="space-y-4 hidden fade-in">
-      <div class="glass-card p-5 rounded-2xl border border-slate-200 bg-white space-y-2 shadow-sm">
+      <div class="glass-card p-5 rounded-2xl border border-slate-200 dark:border-white/10 space-y-2 shadow-sm">
         <div class="flex items-center justify-between">
-          <h2 class="text-lg font-bold text-slate-900 font-display flex items-center gap-2">
+          <h2 class="text-lg font-bold text-slate-900 dark:text-white font-display flex items-center gap-2">
             <span>📊</span> Step 4: Comparative Speed Bar Chart
           </h2>
-          <button onclick="window.labEngine.exportChartPng()" class="px-3 py-1.5 rounded-xl bg-sky-100 hover:bg-sky-200 text-sky-800 text-xs font-bold border border-sky-300 transition-colors flex items-center gap-1.5 shadow-sm">
+          <button onclick="window.labEngine.exportChartPng()" class="px-3 py-1.5 rounded-xl bg-sky-100 hover:bg-sky-200 text-sky-800 dark:bg-sky-500/20 dark:hover:bg-sky-500/30 dark:text-sky-300 text-xs font-bold border border-sky-300 dark:border-sky-500/30 transition-colors flex items-center gap-1.5 shadow-sm">
             <span>💾</span> <span>Save Chart PNG</span>
           </button>
         </div>
-        <p class="text-xs text-slate-700 leading-relaxed">
+        <p class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
           Your speeds are plotted below using the CAST scientific graphing engine. Compare the relative speeds of your three toys:
         </p>
       </div>
 
       <!-- CAST Graph Engine Mount Container -->
-      <div class="glass-card p-4 sm:p-6 rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div class="glass-card p-4 sm:p-6 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
         <div id="cast-graph-container" style="height: 380px; width: 100%; position: relative;">
           <!-- Canvas managed by CASTGraphEngine -->
         </div>
@@ -248,59 +253,59 @@
     <!-- STEP 5: Scientific CER Studio -->
     <!-- ============================================================= -->
     <section id="step-section-5" class="space-y-4 hidden fade-in">
-      <div class="glass-card p-5 rounded-2xl border border-slate-200 bg-white space-y-2 shadow-sm">
+      <div class="glass-card p-5 rounded-2xl border border-slate-200 dark:border-white/10 space-y-2 shadow-sm">
         <div class="flex items-center justify-between">
-          <h2 class="text-lg font-bold text-slate-900 font-display flex items-center gap-2">
+          <h2 class="text-lg font-bold text-slate-900 dark:text-white font-display flex items-center gap-2">
             <span>📝</span> Step 5: Scientific Explanation (CER)
           </h2>
-          <span class="text-xs font-mono font-bold text-sky-800 bg-sky-100 px-2.5 py-1 rounded-lg border border-sky-300">
+          <span class="text-xs font-mono font-bold text-sky-800 dark:text-sky-300 bg-sky-100 dark:bg-sky-500/20 px-2.5 py-1 rounded-lg border border-sky-300 dark:border-sky-500/30">
             Cite Numerical Data
           </span>
         </div>
-        <p class="text-xs text-slate-700 leading-relaxed">
+        <p class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
           Write a concise Claim-Evidence-Reasoning response comparing the speeds of your toys:
         </p>
       </div>
 
       <div class="space-y-4">
         <!-- Claim Card -->
-        <div class="glass-card p-5 rounded-2xl border border-slate-200 bg-white space-y-2 shadow-sm">
-          <label for="cer-claim-input" class="text-xs font-mono font-bold uppercase tracking-wider text-sky-800 block">
+        <div class="glass-card p-5 rounded-2xl border border-slate-200 dark:border-white/10 space-y-2 shadow-sm">
+          <label for="cer-claim-input" class="text-xs font-mono font-bold uppercase tracking-wider text-sky-800 dark:text-sky-300 block">
             1. Scientific Claim (Which toy traveled fastest and which was slowest?):
           </label>
-          <textarea id="cer-claim-input" rows="2" placeholder="e.g., Toy 1 traveled with the greatest speed across the 20.0 cm track, while Toy 3 was the slowest." class="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm text-slate-900 focus:border-sky-600 focus:ring-2 focus:ring-sky-100 outline-none transition-all"></textarea>
+          <textarea id="cer-claim-input" rows="2" placeholder="e.g., Toy 1 traveled with the greatest speed across the 20.0 cm track, while Toy 3 was the slowest." class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-white/15 rounded-xl p-3 text-sm text-slate-900 dark:text-white focus:border-sky-600 dark:focus:border-sky-400 focus:ring-2 focus:ring-sky-100 dark:focus:ring-sky-950 outline-none transition-all"></textarea>
         </div>
 
         <!-- Evidence Card -->
-        <div class="glass-card p-5 rounded-2xl border border-slate-200 bg-white space-y-2 shadow-sm">
+        <div class="glass-card p-5 rounded-2xl border border-slate-200 dark:border-white/10 space-y-2 shadow-sm">
           <div class="flex flex-wrap items-center justify-between gap-2">
-            <label for="cer-evidence-input" class="text-xs font-mono font-bold uppercase tracking-wider text-emerald-800">
+            <label for="cer-evidence-input" class="text-xs font-mono font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">
               2. Data Evidence (Cite exact times and speeds from your chart):
             </label>
-            <button onclick="window.labEngine.insertDataSnippet()" class="text-[11px] text-emerald-800 hover:text-emerald-900 bg-emerald-100 hover:bg-emerald-200 px-2.5 py-1 rounded-lg border border-emerald-300 transition-colors flex items-center gap-1 font-semibold">
+            <button onclick="window.labEngine.insertDataSnippet()" class="text-[11px] text-emerald-800 dark:text-emerald-300 hover:text-emerald-900 dark:hover:text-emerald-200 bg-emerald-100 dark:bg-emerald-500/20 hover:bg-emerald-200 dark:hover:bg-emerald-500/30 px-2.5 py-1 rounded-lg border border-emerald-300 dark:border-emerald-500/30 transition-colors flex items-center gap-1 font-semibold">
               <span>📋</span> <span>Insert My Lab Data Summary</span>
             </button>
           </div>
-          <textarea id="cer-evidence-input" rows="3" placeholder="e.g., Toy 1 recorded an average time of 2.38 s resulting in a speed of 8.40 cm/s, whereas Toy 2 recorded an average time of 4.18 s (speed 4.78 cm/s)..." class="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm text-slate-900 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 outline-none transition-all"></textarea>
+          <textarea id="cer-evidence-input" rows="3" placeholder="e.g., Toy 1 recorded an average time of 2.38 s resulting in a speed of 8.40 cm/s, whereas Toy 2 recorded an average time of 4.18 s (speed 4.78 cm/s)..." class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-white/15 rounded-xl p-3 text-sm text-slate-900 dark:text-white focus:border-emerald-600 dark:focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-950 outline-none transition-all"></textarea>
         </div>
 
         <!-- Reasoning Card -->
-        <div class="glass-card p-5 rounded-2xl border border-slate-200 bg-white space-y-2 shadow-sm">
-          <label for="cer-reasoning-input" class="text-xs font-mono font-bold uppercase tracking-wider text-purple-800 block">
+        <div class="glass-card p-5 rounded-2xl border border-slate-200 dark:border-white/10 space-y-2 shadow-sm">
+          <label for="cer-reasoning-input" class="text-xs font-mono font-bold uppercase tracking-wider text-purple-800 dark:text-purple-300 block">
             3. Physics Reasoning (Explain why a faster toy takes less time to travel the same 20.0 cm):
           </label>
-          <textarea id="cer-reasoning-input" rows="3" placeholder="e.g., Because all toys had to travel the exact same 20.0 cm track distance, the toy that completed it in the fewest seconds was moving at the fastest speed (it covered more centimeters every second)..." class="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm text-slate-900 focus:border-purple-600 focus:ring-2 focus:ring-purple-100 outline-none transition-all"></textarea>
+          <textarea id="cer-reasoning-input" rows="3" placeholder="e.g., Because all toys had to travel the exact same 20.0 cm track distance, the toy that completed it in the fewest seconds was moving at the fastest speed (it covered more centimeters every second)..." class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-white/15 rounded-xl p-3 text-sm text-slate-900 dark:text-white focus:border-purple-600 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-100 dark:focus:ring-purple-950 outline-none transition-all"></textarea>
         </div>
       </div>
     </section>
 
     <!-- BOTTOM WIZARD NAVIGATION BAR -->
-    <div class="glass-card p-4 rounded-2xl border border-slate-200 bg-white flex items-center justify-between gap-4 shadow-sm">
-      <button id="btn-lab-prev" class="hidden px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-300 transition-colors">
+    <div class="glass-card p-4 rounded-2xl border border-slate-200 dark:border-white/10 flex items-center justify-between gap-4 shadow-sm">
+      <button id="btn-lab-prev" class="hidden px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 text-xs font-bold border border-slate-300 dark:border-white/10 transition-colors">
         &larr; Previous Step
       </button>
       <div class="flex-1"></div>
-      <button id="btn-lab-next" class="px-6 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold transition-all shadow-md active:scale-95 flex items-center gap-1.5">
+      <button id="btn-lab-next" class="px-6 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 dark:bg-sky-500 dark:hover:bg-sky-400 text-white dark:text-slate-950 text-xs font-bold transition-all shadow-md active:scale-95 flex items-center gap-1.5">
         <span>Next Step &rarr;</span>
       </button>
     </div>
@@ -308,33 +313,33 @@
   </main>
 
   <!-- SLIDE-OVER DESMOS SCIENTIFIC CALCULATOR DRAWER (No blurring backdrop) -->
-  <aside id="calculator-drawer" class="fixed inset-y-0 right-0 z-50 w-full sm:w-[380px] bg-white border-l border-slate-200 shadow-2xl p-4 sm:p-5 flex flex-col space-y-3 transition-transform duration-300 translate-x-full">
-    <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+  <aside id="calculator-drawer" class="fixed inset-y-0 right-0 z-50 w-full sm:w-[380px] bg-white dark:bg-slate-950 border-l border-slate-200 dark:border-purple-500/30 shadow-2xl p-4 sm:p-5 flex flex-col space-y-3 transition-transform duration-300 translate-x-full">
+    <div class="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-3">
       <div class="flex items-center gap-2">
         <span class="text-lg">🧮</span>
-        <h3 class="text-sm font-bold text-purple-900 uppercase tracking-wider">Desmos Calculator</h3>
+        <h3 class="text-sm font-bold text-purple-900 dark:text-purple-300 uppercase tracking-wider">Desmos Calculator</h3>
       </div>
-      <button onclick="window.toggleCalculator(false)" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 transition-colors text-xs font-bold border border-slate-300">
+      <button onclick="window.toggleCalculator(false)" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors text-xs font-bold border border-slate-300 dark:border-white/10">
         ✕ Close
       </button>
     </div>
 
     <!-- Live Active Numbers Reference inside Calculator -->
-    <div id="calculator-toy-pills" class="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5 text-xs font-mono">
-      <div class="text-purple-800 font-bold text-[10px] uppercase tracking-wider">Your Recorded Times:</div>
-      <div id="calc-numbers-display" class="space-y-1.5 text-slate-800">
+    <div id="calculator-toy-pills" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 space-y-1.5 text-xs font-mono">
+      <div class="text-purple-800 dark:text-purple-400 font-bold text-[10px] uppercase tracking-wider">Your Recorded Times:</div>
+      <div id="calc-numbers-display" class="space-y-1.5 text-slate-800 dark:text-slate-200">
         <!-- Live numbers updated by labEngine -->
       </div>
     </div>
 
     <!-- Desmos Frame Mount -->
-    <div id="desmos-calculator-container" class="flex-1 min-h-[320px] w-full rounded-xl overflow-hidden border border-slate-200 bg-white">
+    <div id="desmos-calculator-container" class="flex-1 min-h-[320px] w-full rounded-xl overflow-hidden border border-slate-200 dark:border-white/15 bg-white dark:bg-black">
       <!-- Desmos.ScientificCalculator mounts here -->
     </div>
 
     <!-- Plain Language Reference Helper -->
-    <div class="p-2.5 rounded-xl bg-purple-50 border border-purple-200 space-y-1 text-[11px] font-mono text-purple-950">
-      <div class="text-purple-800 font-bold uppercase tracking-wider text-[10px]">Plain Language Guide:</div>
+    <div class="p-2.5 rounded-xl bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-500/30 space-y-1 text-[11px] font-mono text-purple-950 dark:text-purple-200">
+      <div class="text-purple-800 dark:text-purple-400 font-bold uppercase tracking-wider text-[10px]">Plain Language Guide:</div>
       <div>&bull; <strong>Average Time:</strong> Add your 3 times together, then divide by 3.</div>
       <div>&bull; <strong>Speed:</strong> Divide 20.0 cm by your average time.</div>
     </div>
@@ -342,30 +347,30 @@
 
   <!-- COMPLETION CELEBRATION MODAL -->
   <div id="modal-completion" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm hidden fade-in">
-    <div class="glass-card p-6 sm:p-8 rounded-3xl border border-sky-300 max-w-lg w-full bg-white shadow-2xl space-y-5 text-center">
+    <div class="glass-card p-6 sm:p-8 rounded-3xl border border-sky-300 dark:border-sky-500/40 max-w-lg w-full bg-white dark:bg-slate-900 shadow-2xl space-y-5 text-center">
       <div class="text-5xl">🏆</div>
       <div class="space-y-2">
-        <h3 class="text-2xl font-bold font-display text-slate-900">Lab Investigation Complete!</h3>
-        <p class="text-xs text-slate-600">
+        <h3 class="text-2xl font-bold font-display text-slate-900 dark:text-white">Lab Investigation Complete!</h3>
+        <p class="text-xs text-slate-600 dark:text-slate-400">
           Your wind-up toy replications, calculated averages, speed results, and CER scientific statement have been recorded and synced to Firestore!
         </p>
       </div>
 
-      <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-left space-y-2 text-xs font-mono">
-        <div class="text-sky-800 font-bold border-b border-slate-200 pb-1 flex justify-between">
+      <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-white/10 text-left space-y-2 text-xs font-mono">
+        <div class="text-sky-800 dark:text-sky-300 font-bold border-b border-slate-200 dark:border-white/10 pb-1 flex justify-between">
           <span>Submission Status</span>
-          <span class="text-emerald-700 font-bold">✓ Saved in Database</span>
+          <span class="text-emerald-700 dark:text-emerald-400 font-bold">✓ Saved in Database</span>
         </div>
-        <div class="text-slate-800">Assignment: <strong>Wind_Up_Toy_Speed_Lab</strong></div>
-        <div class="text-slate-800">Track Distance: <strong>20.0 cm</strong></div>
-        <div class="text-slate-500 text-[11px]">Your teacher can view your complete dataset and bar chart in the teacher portal.</div>
+        <div class="text-slate-800 dark:text-slate-300">Assignment: <strong>Wind_Up_Toy_Speed_Lab</strong></div>
+        <div class="text-slate-800 dark:text-slate-300">Track Distance: <strong>20.0 cm</strong></div>
+        <div class="text-slate-500 dark:text-slate-400 text-[11px]">Your teacher can view your complete dataset and bar chart in the teacher portal.</div>
       </div>
 
       <div class="flex flex-col sm:flex-row gap-3 pt-2">
-        <a href="../../unit2-dashboard.html" class="flex-1 py-3 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold transition-all text-center shadow-lg shadow-sky-600/25">
+        <a href="../../unit2-dashboard.html" class="flex-1 py-3 rounded-xl bg-sky-600 hover:bg-sky-500 dark:bg-sky-500 dark:hover:bg-sky-400 text-white dark:text-slate-950 text-xs font-bold transition-all text-center shadow-lg shadow-sky-600/25">
           Return to Unit 2 Dashboard &rarr;
         </a>
-        <button onclick="document.getElementById('modal-completion').classList.add('hidden')" class="px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-300 transition-colors">
+        <button onclick="document.getElementById('modal-completion').classList.add('hidden')" class="px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 text-xs font-semibold border border-slate-300 dark:border-white/10 transition-colors">
           Close Window
         </button>
       </div>
@@ -380,7 +385,7 @@
   <script src="js/lab_engine.js"></script>
 
   <script>
-    // Theme Manager (Light by default)
+    // Theme Manager (Light by default, html.dark for dark mode)
     window.initTheme = function() {
       const savedTheme = localStorage.getItem('wind_up_lab_theme') || 'light';
       window.setTheme(savedTheme, false);
@@ -388,6 +393,7 @@
 
     window.setTheme = function(theme, reRenderChart = true) {
       const isDark = theme === 'dark';
+      document.documentElement.classList.toggle('dark', isDark);
       document.body.classList.toggle('theme-dark', isDark);
       localStorage.setItem('wind_up_lab_theme', isDark ? 'dark' : 'light');
       
@@ -397,13 +403,21 @@
         themeBtn.title = isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme';
       }
 
-      if (reRenderChart && window.labEngine && window.labEngine.currentStep === 4) {
-        window.labEngine.renderStep4BarChart();
+      if (window.labEngine) {
+        if (window.labEngine.currentStep === 1) {
+          window.labEngine.renderStep1DataCollection();
+        } else if (window.labEngine.currentStep === 2) {
+          window.labEngine.renderStep2Averages();
+        } else if (window.labEngine.currentStep === 3) {
+          window.labEngine.renderStep3Speeds();
+        } else if (reRenderChart && window.labEngine.currentStep === 4) {
+          window.labEngine.renderStep4BarChart();
+        }
       }
     };
 
     window.toggleTheme = function() {
-      const isCurrentlyDark = document.body.classList.contains('theme-dark');
+      const isCurrentlyDark = document.documentElement.classList.contains('dark');
       window.setTheme(isCurrentlyDark ? 'light' : 'dark', true);
     };
 

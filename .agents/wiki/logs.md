@@ -287,4 +287,18 @@ Append-only log tracking pattern changes across sessions.
 - Added header theme toggle button (`☀️` / `🌙`) with local storage persistence (`wind_up_lab_theme`), allowing optional switching to dark mode while always defaulting new visitors to light mode.
 - Integrated dynamic `CASTGraphEngine` theme synchronization (`theme: isDark ? "dark" : "light"`).
 
+---
+
+## 2026-09-04 — Dual-Theme Parity: Full Restoration of Original Cosmic Dark Colorway
+
+**Motivation**: After introducing the light theme default, dark mode was left broken due to hardcoded light utility classes (`bg-white`, `text-slate-900`, `border-slate-200`) overriding CSS variable cascades. Dark mode now 100% mirrors the original cosmic aesthetic when toggled, while light theme remains the crisp, high-contrast default.
+
+**Changes**:
+- Configured Tailwind CSS via `tailwind.config = { darkMode: 'class' };` in `Unit_2/wind_up_toy_lab/index.html`.
+- Updated `window.setTheme` in `index.html` to toggle `'dark'` on `document.documentElement`, ensuring all `dark:` utility variants activate cleanly.
+- Updated all UI cards, headers, buttons, inputs, stepper pills, slide-over drawer, and modal elements with paired light/dark classes (`dark:bg-slate-950/85`, `dark:text-white`, `dark:border-white/10`, `dark:bg-slate-900`, `dark:text-sky-200`, `dark:text-emerald-300`, `dark:text-purple-300`, etc.), perfectly restoring the exact `a578e6bc` cosmic colorway.
+- Updated `js/lab_engine.js` template generators (`renderStep1DataCollection`, `renderStep2Averages`, `renderStep3Speeds`, `updateCalculatorNumbers`) to render paired dark classes and dynamically re-render on theme toggle.
+- Ensured `CASTGraphEngine` checks `document.documentElement.classList.contains('dark')` to re-plot the comparative speed bar chart with glowing cyan bars (`#38bdf8`) on deep slate axes when dark mode is enabled.
+
+
 
