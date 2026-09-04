@@ -1,19 +1,20 @@
 /**
  * LabEngine - Interactive Guided Lab Wizard for Wind-Up Toy Speed Lab
  * Aligned with CAST Science Standards and HS-PS2-1.
+ * Sequential workflow: One toy at a table at a time.
  */
 
 class WindUpLabEngine {
   constructor() {
     this.currentStep = 1;
-    this.totalSteps = 6;
+    this.totalSteps = 5;
     this.distanceCm = 20.0; // 20.0 cm track
 
-    // Default 3 toys
+    // 3 toys tested sequentially
     this.toys = [
       {
         id: 0,
-        name: "Toy 1: Flipping Frog",
+        name: "Toy 1",
         color: "#10b981", // Emerald
         trials: [null, null, null],
         checks: [
@@ -31,7 +32,7 @@ class WindUpLabEngine {
       },
       {
         id: 1,
-        name: "Toy 2: Racing Beetle",
+        name: "Toy 2",
         color: "#38bdf8", // Sky
         trials: [null, null, null],
         checks: [
@@ -49,7 +50,7 @@ class WindUpLabEngine {
       },
       {
         id: 2,
-        name: "Toy 3: Wind-Up Robot",
+        name: "Toy 3",
         color: "#f59e0b", // Amber
         trials: [null, null, null],
         checks: [
@@ -81,7 +82,6 @@ class WindUpLabEngine {
 
   init() {
     this.setupNavigation();
-    this.setupStep1Toys();
     this.renderActiveStep();
   }
 
@@ -156,93 +156,83 @@ class WindUpLabEngine {
     }
 
     // Dynamic Step Inits
-    if (this.currentStep === 2) {
-      this.renderStep2DataCollection();
+    if (this.currentStep === 1) {
+      this.renderStep1DataCollection();
+    } else if (this.currentStep === 2) {
+      this.renderStep2Averages();
     } else if (this.currentStep === 3) {
-      this.renderStep3Averages();
+      this.renderStep3Speeds();
     } else if (this.currentStep === 4) {
-      this.renderStep4Speeds();
+      this.renderStep4BarChart();
     } else if (this.currentStep === 5) {
-      this.renderStep5BarChart();
-    } else if (this.currentStep === 6) {
-      this.renderStep6CER();
+      this.renderStep5CER();
     }
   }
 
   // -----------------------------------------------------------------
-  // STEP 1: Toy Setup & Experimental Setup
+  // STEP 1: Data Collection & Timing (One Toy at a Time)
   // -----------------------------------------------------------------
-  setupStep1Toys() {
-    const container = document.getElementById('toys-setup-container');
-    if (!container) return;
-
-    container.innerHTML = this.toys.map((toy, idx) => `
-      <div class="glass-card p-4 rounded-2xl border border-white/10 space-y-2">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-mono px-2.5 py-0.5 rounded uppercase font-bold" style="background: ${toy.color}22; color: ${toy.color}; border: 1px solid ${toy.color}44;">
-            Toy ${idx + 1}
-          </span>
-          <span class="text-[11px] text-slate-400 font-mono">Distance: 20.0 cm</span>
-        </div>
-        <div>
-          <label class="block text-[11px] text-slate-400 mb-1">Toy Name / Description:</label>
-          <input type="text" id="toy-name-input-${idx}" value="${toy.name}" placeholder="e.g., Green Frog" class="w-full bg-slate-900 border border-white/15 rounded-xl px-3 py-2 text-sm text-white font-medium focus:border-sky-400 outline-none transition-colors">
-        </div>
-      </div>
-    `).join('');
-
-    // Input change listeners
-    this.toys.forEach((toy, idx) => {
-      const inp = document.getElementById(`toy-name-input-${idx}`);
-      if (inp) {
-        inp.addEventListener('input', (e) => {
-          toy.name = e.target.value.trim() || `Toy ${idx + 1}`;
-        });
-      }
-    });
-  }
-
-  // -----------------------------------------------------------------
-  // STEP 2: Data Collection, Stopwatch & Quality Checkpoints
-  // -----------------------------------------------------------------
-  renderStep2DataCollection() {
-    const tabsContainer = document.getElementById('step2-toy-tabs');
-    const tableContainer = document.getElementById('step2-data-table-container');
+  renderStep1DataCollection() {
+    const tabsContainer = document.getElementById('step1-toy-tabs');
+    const tableContainer = document.getElementById('step1-data-table-container');
     if (!tabsContainer || !tableContainer) return;
 
     // Render Toy Selection Tabs
-    tabsContainer.innerHTML = this.toys.map((toy, idx) => `
-      <button class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-        idx === this.activeToyIndex
-          ? 'bg-sky-500 text-slate-950 shadow-md shadow-sky-500/20 ring-2 ring-sky-400'
-          : 'bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10'
-      }" onclick="window.labEngine.switchActiveToy(${idx})">
-        <span class="w-2.5 h-2.5 rounded-full" style="background: ${toy.color}"></span>
-        <span>${toy.name}</span>
-      </button>
-    `).join('');
+    tabsContainer.innerHTML = this.toys.map((toy, idx) => {
+      const isComplete = toy.trials.every(t => t !== null && !isNaN(t));
+      return `
+        <button class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+          idx === this.activeToyIndex
+            ? 'bg-sky-500 text-slate-950 shadow-md shadow-sky-500/20 ring-2 ring-sky-400'
+            : 'bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10'
+        }" onclick="window.labEngine.switchActiveToy(${idx})">
+          <span class="w-2.5 h-2.5 rounded-full" style="background: ${toy.color}"></span>
+          <span id="tab-label-${idx}">${toy.name}</span>
+          ${isComplete ? '<span class="text-emerald-300 text-[10px] ml-1">✓</span>' : ''}
+        </button>
+      `;
+    }).join('');
 
     const currentToy = this.toys[this.activeToyIndex];
 
     // Check for outliers across the 3 replications
     this.detectOutliers(currentToy);
 
-    // Render 3 Replications Table
+    const hasAllTrials = currentToy.trials.every(t => t !== null && !isNaN(t));
+
+    // Render Active Toy Details & 3 Replications
     tableContainer.innerHTML = `
       <div class="space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
-          <div>
-            <h4 class="text-sm font-bold text-white flex items-center gap-2">
-              <span class="w-3 h-3 rounded-full" style="background: ${currentToy.color}"></span>
-              <span>Replication Data for: ${currentToy.name}</span>
-            </h4>
-            <p class="text-xs text-slate-400">Track Distance: <strong>20.0 cm</strong> &bull; Complete 3 precision trials.</p>
+        
+        <!-- Active Toy Name Input Banner -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-slate-900/80 border border-white/10">
+          <div class="flex-1">
+            <label class="block text-[11px] font-mono text-slate-400 uppercase tracking-wider mb-1">
+              Active Toy at Table (Toy ${this.activeToyIndex + 1} of 3):
+            </label>
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full flex-shrink-0" style="background: ${currentToy.color}"></span>
+              <input type="text" id="active-toy-name-input" value="${currentToy.name}" placeholder="e.g., Green Flipping Frog, Racing Beetle..." 
+                     class="w-full bg-slate-950 border border-white/20 rounded-xl px-3 py-1.5 text-sm text-white font-semibold focus:border-sky-400 outline-none transition-colors"
+                     oninput="window.labEngine.updateActiveToyName(this.value)">
+            </div>
           </div>
+          <div class="text-right sm:border-l sm:border-white/10 sm:pl-4">
+            <span class="text-[11px] text-slate-400 font-mono block">Track Distance</span>
+            <span class="text-sm font-bold text-sky-300 font-mono">20.0 cm</span>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-slate-300">
+            Record 3 trials for <strong>${currentToy.name}</strong> before returning it:
+          </span>
           <button onclick="window.labEngine.prefillSampleData(${this.activeToyIndex})" class="text-[11px] text-sky-300 hover:text-sky-200 bg-sky-500/10 hover:bg-sky-500/20 px-2.5 py-1 rounded-lg border border-sky-500/20 transition-colors">
             Demo Autofill
           </button>
         </div>
 
+        <!-- 3 Replications Grid -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           ${[0, 1, 2].map(trialIdx => {
             const val = currentToy.trials[trialIdx];
@@ -279,36 +269,28 @@ class WindUpLabEngine {
                   </div>
 
                   <!-- Quality Control Checkpoints -->
-                  <div class="pt-2 border-t border-white/5 space-y-2 text-[11px]">
-                    <div class="font-bold text-slate-300 uppercase tracking-wider text-[10px]">Quality Checkpoints:</div>
-                    
+                  <div class="pt-2 border-t border-white/5 space-y-1.5 text-[11px]">
                     <label class="flex items-start gap-2 cursor-pointer text-slate-300">
                       <input type="checkbox" id="check-full-${trialIdx}" ${check.fullDist ? 'checked' : ''} 
                              onchange="window.labEngine.updateQualityCheck(${this.activeToyIndex}, ${trialIdx}, 'fullDist', this.checked)"
                              class="mt-0.5 rounded border-white/20 bg-slate-800 text-sky-500 focus:ring-0">
-                      <span>Traveled full 20.0 cm without stopping or veering</span>
+                      <span>Traveled full 20.0 cm</span>
                     </label>
 
                     <label class="flex items-start gap-2 cursor-pointer text-slate-300">
                       <input type="checkbox" id="check-precise-${trialIdx}" ${check.precise ? 'checked' : ''} 
                              onchange="window.labEngine.updateQualityCheck(${this.activeToyIndex}, ${trialIdx}, 'precise', this.checked)"
                              class="mt-0.5 rounded border-white/20 bg-slate-800 text-sky-500 focus:ring-0">
-                      <span>Stopwatch start &amp; stop synchronized precisely</span>
+                      <span>Stopwatch synchronized</span>
                     </label>
                   </div>
 
                   ${isOutlier ? `
                     <div class="p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-[11px] text-amber-200 space-y-1">
-                      <p><strong>Outlier Notice:</strong> This trial (${val} s) differs substantially from your other trials. We recommend repeating this replication.</p>
+                      <p><strong>Outlier Notice:</strong> This trial (${val} s) differs substantially from your other trials. We recommend repeating this replication now while you have the toy.</p>
                       <button onclick="window.labEngine.clearTrial(${this.activeToyIndex}, ${trialIdx})" class="px-2 py-1 rounded bg-amber-500/30 hover:bg-amber-500/40 text-amber-100 font-bold text-[10px] uppercase transition-colors">
                         🔄 Repeat Trial ${trialIdx + 1}
                       </button>
-                    </div>
-                  ` : ''}
-
-                  ${(!check.fullDist || !check.precise) ? `
-                    <div class="p-2 rounded-lg bg-rose-950/40 border border-rose-500/30 text-[10px] text-rose-300">
-                      ⚠️ Quality warning: If the toy stalled or timing had reaction error, re-run this replication for scientific rigor.
                     </div>
                   ` : ''}
 
@@ -319,24 +301,67 @@ class WindUpLabEngine {
           }).join('')}
         </div>
 
-        <div class="p-3 rounded-xl bg-slate-900/50 border border-white/10 flex items-center justify-between text-xs">
-          <span class="text-slate-300">Active Target: <strong>Replication ${this.activeTrialIndex + 1}</strong> of ${currentToy.name}</span>
-          <span class="text-slate-400 font-mono">Use the stopwatch above, then click <strong>"Capture Stopwatch Time"</strong></span>
-        </div>
+        <!-- Guidance Banner for Toy Transition -->
+        ${hasAllTrials ? (
+          this.activeToyIndex === 0 ? `
+            <div class="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+              <div class="flex items-center gap-2 text-slate-300">
+                <span class="text-lg">🔁</span>
+                <span><strong>Toy 1 Finished:</strong> Return ${currentToy.name} to the supply table, then grab your next toy.</span>
+              </div>
+              <button onclick="window.labEngine.switchActiveToy(1)" class="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold transition-all shadow-md active:scale-95 whitespace-nowrap">
+                Test Toy 2 &rarr;
+              </button>
+            </div>
+          ` : this.activeToyIndex === 1 ? `
+            <div class="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+              <div class="flex items-center gap-2 text-slate-300">
+                <span class="text-lg">🔁</span>
+                <span><strong>Toy 2 Finished:</strong> Return ${currentToy.name} to the supply table, then grab your final toy.</span>
+              </div>
+              <button onclick="window.labEngine.switchActiveToy(2)" class="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold transition-all shadow-md active:scale-95 whitespace-nowrap">
+                Test Toy 3 &rarr;
+              </button>
+            </div>
+          ` : `
+            <div class="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+              <div class="flex items-center gap-2 text-emerald-300">
+                <span class="text-lg">✅</span>
+                <span><strong>All 3 Toys Complete!</strong> Return Toy 3 to the supply table and proceed to calculations.</span>
+              </div>
+              <button onclick="window.labEngine.goToStep(2)" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold transition-all shadow-md active:scale-95 whitespace-nowrap">
+                Calculate Averages &rarr;
+              </button>
+            </div>
+          `
+        ) : `
+          <div class="p-3 rounded-xl bg-slate-900/50 border border-white/10 flex items-center justify-between text-xs">
+            <span class="text-slate-300">Active Target: <strong>Replication ${this.activeTrialIndex + 1}</strong> of ${currentToy.name}</span>
+            <span class="text-slate-400 font-mono">Use the stopwatch above, then click <strong>"Capture Time"</strong></span>
+          </div>
+        `}
+
       </div>
     `;
+  }
+
+  updateActiveToyName(val) {
+    const trimmed = val.trim();
+    this.toys[this.activeToyIndex].name = trimmed || `Toy ${this.activeToyIndex + 1}`;
+    const tabLabel = document.getElementById(`tab-label-${this.activeToyIndex}`);
+    if (tabLabel) tabLabel.textContent = this.toys[this.activeToyIndex].name;
   }
 
   switchActiveToy(idx) {
     this.activeToyIndex = idx;
     this.activeTrialIndex = 0;
     if (window.labSound) window.labSound.playClick();
-    this.renderStep2DataCollection();
+    this.renderStep1DataCollection();
   }
 
   setActiveTrial(trialIdx) {
     this.activeTrialIndex = trialIdx;
-    this.renderStep2DataCollection();
+    this.renderStep1DataCollection();
   }
 
   fillActiveTrial(seconds) {
@@ -350,18 +375,18 @@ class WindUpLabEngine {
       this.activeTrialIndex = nextPending;
     }
 
-    this.renderStep2DataCollection();
+    this.renderStep1DataCollection();
   }
 
   updateTrialValue(toyIdx, trialIdx, valStr) {
     const val = parseFloat(valStr);
     this.toys[toyIdx].trials[trialIdx] = isNaN(val) ? null : parseFloat(val.toFixed(2));
-    this.renderStep2DataCollection();
+    this.renderStep1DataCollection();
   }
 
   updateQualityCheck(toyIdx, trialIdx, checkField, isChecked) {
     this.toys[toyIdx].checks[trialIdx][checkField] = isChecked;
-    this.renderStep2DataCollection();
+    this.renderStep1DataCollection();
   }
 
   clearTrial(toyIdx, trialIdx) {
@@ -369,7 +394,7 @@ class WindUpLabEngine {
     this.activeToyIndex = toyIdx;
     this.activeTrialIndex = trialIdx;
     if (window.labSound) window.labSound.playClick();
-    this.renderStep2DataCollection();
+    this.renderStep1DataCollection();
   }
 
   detectOutliers(toy) {
@@ -393,22 +418,22 @@ class WindUpLabEngine {
   }
 
   prefillSampleData(toyIdx) {
-    // Helpful demo helper if student needs quick testing
     const presets = [
-      [2.35, 2.42, 2.38],
-      [4.10, 4.25, 4.18],
-      [1.75, 1.82, 1.79]
+      { name: "Green Flipping Frog", trials: [2.35, 2.42, 2.38] },
+      { name: "Blue Racing Beetle", trials: [4.10, 4.25, 4.18] },
+      { name: "Clockwork Robot", trials: [1.75, 1.82, 1.79] }
     ];
-    this.toys[toyIdx].trials = [...presets[toyIdx]];
+    this.toys[toyIdx].name = presets[toyIdx].name;
+    this.toys[toyIdx].trials = [...presets[toyIdx].trials];
     if (window.labSound) window.labSound.playSuccess();
-    this.renderStep2DataCollection();
+    this.renderStep1DataCollection();
   }
 
   // -----------------------------------------------------------------
-  // STEP 3: Guided Average Time Calculation (t_avg)
+  // STEP 2: Guided Average Time Calculation (t_avg)
   // -----------------------------------------------------------------
-  renderStep3Averages() {
-    const container = document.getElementById('step3-averages-container');
+  renderStep2Averages() {
+    const container = document.getElementById('step2-averages-container');
     if (!container) return;
 
     container.innerHTML = this.toys.map((toy, idx) => {
@@ -492,10 +517,10 @@ class WindUpLabEngine {
   }
 
   // -----------------------------------------------------------------
-  // STEP 4: Guided Average Speed Calculation (v = d / t_avg)
+  // STEP 3: Guided Average Speed Calculation (v = d / t_avg)
   // -----------------------------------------------------------------
-  renderStep4Speeds() {
-    const container = document.getElementById('step4-speeds-container');
+  renderStep3Speeds() {
+    const container = document.getElementById('step3-speeds-container');
     if (!container) return;
 
     container.innerHTML = this.toys.map((toy, idx) => {
@@ -562,18 +587,17 @@ class WindUpLabEngine {
     } else {
       toy.speedVerified = false;
       if (window.labSound) window.labSound.playOutlierAlert();
-      feedback.innerHTML = `<span class="text-rose-400">Check division in Desmos: 20.0 cm divided by ${toy.studentAvgTime} s.</span>`;
+      feedback.innerHTML = `<span class="text-rose-400">Check division (use 🧮 Calculator): 20.0 cm divided by ${toy.studentAvgTime} s.</span>`;
     }
   }
 
   // -----------------------------------------------------------------
-  // STEP 5: CAST Data Studio Scientific Bar Chart
+  // STEP 4: CAST Data Studio Scientific Bar Chart
   // -----------------------------------------------------------------
-  renderStep5BarChart() {
+  renderStep4BarChart() {
     const container = document.getElementById('cast-graph-container');
     if (!container) return;
 
-    // Check if CASTGraphEngine is loaded
     if (typeof CASTGraphEngine === 'undefined') {
       console.warn("CASTGraphEngine not loaded.");
       return;
@@ -582,14 +606,13 @@ class WindUpLabEngine {
     const toyNames = this.toys.map(t => t.name);
     const speeds = this.toys.map(t => t.studentSpeed || t.correctSpeed || 5.0);
 
-    // Instantiate CASTGraphEngine bar chart
     try {
       this.graphEngine = new CASTGraphEngine(container, {
         title: "Comparison of Wind-Up Toy Speeds (20.0 cm Track)",
         chartType: "bar",
         theme: "dark",
         xAxis: {
-          label: "Wind-Up Toy Identifier",
+          label: "Wind-Up Toy",
           unit: ""
         },
         yAxis: {
@@ -629,9 +652,9 @@ class WindUpLabEngine {
   }
 
   // -----------------------------------------------------------------
-  // STEP 6: Scientific CER Studio (Claim, Evidence, Reasoning)
+  // STEP 5: Scientific CER Studio (Claim, Evidence, Reasoning)
   // -----------------------------------------------------------------
-  renderStep6CER() {
+  renderStep5CER() {
     const claimInput = document.getElementById('cer-claim-input');
     const evidenceInput = document.getElementById('cer-evidence-input');
     const reasoningInput = document.getElementById('cer-reasoning-input');
@@ -662,24 +685,19 @@ class WindUpLabEngine {
   // -----------------------------------------------------------------
   validateCurrentStep(silent = false) {
     if (this.currentStep === 1) {
-      // Validate toy names
-      return true;
-    }
-
-    if (this.currentStep === 2) {
       // Check if all 3 toys have 3 trials recorded
       for (let i = 0; i < this.toys.length; i++) {
         const toy = this.toys[i];
         const missing = toy.trials.some(t => t === null || isNaN(t));
         if (missing) {
-          if (!silent) alert(`Please record all 3 replications for ${toy.name} before moving forward.`);
+          if (!silent) alert(`Please record all 3 replications for ${toy.name} before proceeding to calculations.`);
           return false;
         }
       }
       return true;
     }
 
-    if (this.currentStep === 3) {
+    if (this.currentStep === 2) {
       // Check if all 3 averages verified
       const allVerified = this.toys.every(t => t.avgTimeVerified);
       if (!allVerified && !silent) {
@@ -689,7 +707,7 @@ class WindUpLabEngine {
       return true;
     }
 
-    if (this.currentStep === 4) {
+    if (this.currentStep === 3) {
       // Check if all 3 speeds verified
       const allVerified = this.toys.every(t => t.speedVerified);
       if (!allVerified && !silent) {
@@ -699,7 +717,12 @@ class WindUpLabEngine {
       return true;
     }
 
-    if (this.currentStep === 6) {
+    if (this.currentStep === 4) {
+      // Bar chart step
+      return true;
+    }
+
+    if (this.currentStep === 5) {
       // Validate CER fields
       const claim = document.getElementById('cer-claim-input').value.trim();
       const evidence = document.getElementById('cer-evidence-input').value.trim();
