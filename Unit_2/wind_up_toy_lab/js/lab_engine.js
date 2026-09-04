@@ -432,11 +432,13 @@ class WindUpLabEngine {
   }
 
   // -----------------------------------------------------------------
-  // STEP 2: Guided Average Time Calculation (t_avg)
+  // STEP 2: Calculate Average Time (Plain Language)
   // -----------------------------------------------------------------
   renderStep2Averages() {
     const container = document.getElementById('step2-averages-container');
     if (!container) return;
+
+    this.updateCalculatorNumbers();
 
     container.innerHTML = this.toys.map((toy, idx) => {
       const t1 = toy.trials[0] || 0;
@@ -449,27 +451,44 @@ class WindUpLabEngine {
         <div class="glass-card p-5 rounded-2xl border border-white/10 space-y-3">
           <div class="flex items-center justify-between border-b border-white/10 pb-2">
             <h4 class="text-sm font-bold text-white flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full" style="background: ${toy.color}"></span>
+              <span class="w-3 h-3 rounded-full" style="background: ${toy.color}"></span>
               <span>${toy.name}</span>
             </h4>
-            <span class="text-xs font-mono text-slate-400">Fixed Distance: 20.0 cm</span>
+            <span class="text-xs font-mono text-slate-400">Track Distance: <strong>20.0 cm</strong></span>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs font-mono text-slate-300">
-            <div class="p-2 rounded bg-black/30 border border-white/5">Trial 1: <strong>${t1} s</strong></div>
-            <div class="p-2 rounded bg-black/30 border border-white/5">Trial 2: <strong>${t2} s</strong></div>
-            <div class="p-2 rounded bg-black/30 border border-white/5">Trial 3: <strong>${t3} s</strong></div>
+          <!-- 3 Recorded Times Display -->
+          <div class="grid grid-cols-3 gap-2 text-center text-xs font-mono">
+            <div class="p-2.5 rounded-xl bg-slate-900 border border-white/10">
+              <span class="text-[10px] text-slate-400 block uppercase tracking-wider mb-0.5">Trial 1</span>
+              <strong class="text-base text-white">${t1} s</strong>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-900 border border-white/10">
+              <span class="text-[10px] text-slate-400 block uppercase tracking-wider mb-0.5">Trial 2</span>
+              <strong class="text-base text-white">${t2} s</strong>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-900 border border-white/10">
+              <span class="text-[10px] text-slate-400 block uppercase tracking-wider mb-0.5">Trial 3</span>
+              <strong class="text-base text-white">${t3} s</strong>
+            </div>
           </div>
 
-          <div class="p-3 rounded-xl bg-sky-950/20 border border-sky-500/20 text-xs text-slate-300 space-y-1 font-mono">
-            <span class="text-sky-300 font-bold block">Averaging Formula:</span>
-            <div>t<sub>avg</sub> = (t<sub>1</sub> + t<sub>2</sub> + t<sub>3</sub>) / 3</div>
-            <div>t<sub>avg</sub> = (${t1} + ${t2} + ${t3}) / 3</div>
+          <!-- Plain Language Instructions -->
+          <div class="p-3.5 rounded-xl bg-sky-950/25 border border-sky-500/25 space-y-1.5 text-xs text-slate-200">
+            <div class="font-bold text-sky-300 text-sm">How to find the average time:</div>
+            <div class="space-y-1 text-slate-200">
+              <div><strong>Step 1:</strong> Add your 3 times together: <span class="font-mono text-white font-bold bg-black/40 px-1.5 py-0.5 rounded border border-white/10">${t1} + ${t2} + ${t3}</span></div>
+              <div><strong>Step 2:</strong> Divide that total by <strong>3</strong>.</div>
+            </div>
+            <div class="pt-1 text-[11px] text-slate-400">
+              In the calculator: type <code>(${t1} + ${t2} + ${t3}) / 3</code>
+            </div>
           </div>
 
-          <div class="flex flex-wrap items-center gap-3 pt-2">
+          <!-- Student Input & Check Button -->
+          <div class="flex flex-wrap items-center gap-3 pt-1">
             <div class="flex items-center gap-2">
-              <label class="text-xs text-slate-300">Your Calculated Average (s):</label>
+              <label class="text-xs text-slate-300 font-medium">Average Time (in seconds):</label>
               <input type="number" step="0.01" id="input-avg-${idx}" value="${toy.studentAvgTime !== null ? toy.studentAvgTime : ''}"
                      placeholder="0.00" 
                      class="w-28 bg-slate-900 border border-white/20 rounded-xl px-3 py-1.5 text-sm text-white font-mono font-bold focus:border-sky-400 outline-none">
@@ -480,7 +499,7 @@ class WindUpLabEngine {
             </button>
 
             <span id="feedback-avg-${idx}" class="text-xs font-medium">
-              ${toy.avgTimeVerified ? '<span class="text-emerald-300 font-bold">✓ Verified Correct!</span>' : ''}
+              ${toy.avgTimeVerified ? '<span class="text-emerald-300 font-bold">✓ Correct average!</span>' : ''}
             </span>
           </div>
         </div>
@@ -496,7 +515,7 @@ class WindUpLabEngine {
 
     const val = parseFloat(input.value);
     if (isNaN(val)) {
-      feedback.innerHTML = `<span class="text-rose-400">Please enter a numerical average time.</span>`;
+      feedback.innerHTML = `<span class="text-rose-400">Please enter a number for average time.</span>`;
       return;
     }
 
@@ -506,24 +525,27 @@ class WindUpLabEngine {
     if (diff <= 0.06) {
       toy.avgTimeVerified = true;
       if (window.labSound) window.labSound.playSuccess();
-      feedback.innerHTML = `<span class="text-emerald-300 font-bold">✓ Excellent! Your average calculation is accurate.</span>`;
+      feedback.innerHTML = `<span class="text-emerald-300 font-bold">✓ Correct! The average time is ${toy.correctAvgTime} seconds.</span>`;
+      this.updateCalculatorNumbers();
     } else if (Math.abs(val - (toy.trials[0] + toy.trials[1] + toy.trials[2])) <= 0.2) {
       toy.avgTimeVerified = false;
       if (window.labSound) window.labSound.playOutlierAlert();
-      feedback.innerHTML = `<span class="text-amber-300">You added the three times together, but forgot to divide by 3!</span>`;
+      feedback.innerHTML = `<span class="text-amber-300">You added the 3 times together, but forgot to divide by 3!</span>`;
     } else {
       toy.avgTimeVerified = false;
       if (window.labSound) window.labSound.playOutlierAlert();
-      feedback.innerHTML = `<span class="text-rose-400">Check your arithmetic (use the 🧮 Calculator). Sum the 3 trials first: (${toy.trials.join(' + ')}) / 3.</span>`;
+      feedback.innerHTML = `<span class="text-rose-400">In the calculator: add your 3 times in parentheses (${toy.trials.join(' + ')}), then divide by 3.</span>`;
     }
   }
 
   // -----------------------------------------------------------------
-  // STEP 3: Guided Average Speed Calculation (v = d / t_avg)
+  // STEP 3: Calculate Speed (Plain Language)
   // -----------------------------------------------------------------
   renderStep3Speeds() {
     const container = document.getElementById('step3-speeds-container');
     if (!container) return;
+
+    this.updateCalculatorNumbers();
 
     container.innerHTML = this.toys.map((toy, idx) => {
       const tAvg = toy.studentAvgTime || toy.correctAvgTime || 2.0;
@@ -534,21 +556,33 @@ class WindUpLabEngine {
         <div class="glass-card p-5 rounded-2xl border border-white/10 space-y-3">
           <div class="flex items-center justify-between border-b border-white/10 pb-2">
             <h4 class="text-sm font-bold text-white flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full" style="background: ${toy.color}"></span>
+              <span class="w-3 h-3 rounded-full" style="background: ${toy.color}"></span>
               <span>${toy.name}</span>
             </h4>
-            <span class="text-xs font-mono text-slate-400">Distance d = <strong>20.0 cm</strong></span>
+            <span class="text-xs font-mono text-slate-400">Track Distance: <strong>20.0 cm</strong></span>
           </div>
 
-          <div class="p-3 rounded-xl bg-sky-950/20 border border-sky-500/20 text-xs text-slate-300 space-y-1 font-mono">
-            <span class="text-sky-300 font-bold block">Speed Calculation Formula:</span>
-            <div>Speed (v) = Distance (d) / Average Time (t<sub>avg</sub>)</div>
-            <div>v = 20.0 cm / ${tAvg} s</div>
+          <!-- Plain Language Instructions -->
+          <div class="p-3.5 rounded-xl bg-emerald-950/25 border border-emerald-500/25 space-y-1.5 text-xs text-slate-200">
+            <div class="font-bold text-emerald-300 text-sm">How to find speed:</div>
+            <div>
+              Speed tells you how many centimeters the toy traveled each second.
+            </div>
+            <div>
+              <strong>Divide the distance (20.0 cm) by your average time (${tAvg} s):</strong>
+            </div>
+            <div class="font-mono text-sm text-white bg-black/40 px-2.5 py-1 rounded-lg border border-white/10 inline-block font-bold">
+              20.0 ÷ ${tAvg} = ?
+            </div>
+            <div class="text-[11px] text-slate-400">
+              In the calculator: type <code>20 / ${tAvg}</code>
+            </div>
           </div>
 
-          <div class="flex flex-wrap items-center gap-3 pt-2">
+          <!-- Student Input & Check Button -->
+          <div class="flex flex-wrap items-center gap-3 pt-1">
             <div class="flex items-center gap-2">
-              <label class="text-xs text-slate-300">Calculated Speed (cm/s):</label>
+              <label class="text-xs text-slate-300 font-medium">Speed (in cm per second):</label>
               <input type="number" step="0.01" id="input-speed-${idx}" value="${toy.studentSpeed !== null ? toy.studentSpeed : ''}"
                      placeholder="0.00" 
                      class="w-28 bg-slate-900 border border-white/20 rounded-xl px-3 py-1.5 text-sm text-white font-mono font-bold focus:border-sky-400 outline-none">
@@ -575,7 +609,7 @@ class WindUpLabEngine {
 
     const val = parseFloat(input.value);
     if (isNaN(val)) {
-      feedback.innerHTML = `<span class="text-rose-400">Please enter a numerical speed.</span>`;
+      feedback.innerHTML = `<span class="text-rose-400">Please enter a number for speed.</span>`;
       return;
     }
 
@@ -585,12 +619,35 @@ class WindUpLabEngine {
     if (diff <= 0.15) {
       toy.speedVerified = true;
       if (window.labSound) window.labSound.playSuccess();
-      feedback.innerHTML = `<span class="text-emerald-300 font-bold">✓ Great work! Speed = ${toy.correctSpeed} cm/s.</span>`;
+      feedback.innerHTML = `<span class="text-emerald-300 font-bold">✓ Great work! Speed is ${toy.correctSpeed} cm per second.</span>`;
     } else {
       toy.speedVerified = false;
       if (window.labSound) window.labSound.playOutlierAlert();
-      feedback.innerHTML = `<span class="text-rose-400">Check division (use 🧮 Calculator): 20.0 cm divided by ${toy.studentAvgTime} s.</span>`;
+      feedback.innerHTML = `<span class="text-rose-400">In the calculator: divide 20 by your average time: 20 ÷ ${toy.studentAvgTime}.</span>`;
     }
+  }
+
+  updateCalculatorNumbers() {
+    const display = document.getElementById('calc-numbers-display');
+    if (!display) return;
+
+    display.innerHTML = this.toys.map((toy, idx) => {
+      const t1 = toy.trials[0] !== null ? `${toy.trials[0]} s` : '---';
+      const t2 = toy.trials[1] !== null ? `${toy.trials[1]} s` : '---';
+      const t3 = toy.trials[2] !== null ? `${toy.trials[2]} s` : '---';
+      const avg = toy.studentAvgTime !== null ? `${toy.studentAvgTime} s` : (toy.correctAvgTime ? `${toy.correctAvgTime} s` : 'not calculated');
+      
+      return `
+        <div class="p-2 rounded-lg bg-black/40 border border-white/5 space-y-0.5">
+          <div class="font-bold text-white flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full" style="background: ${toy.color}"></span>
+            <span>${toy.name}</span>
+          </div>
+          <div class="text-[11px] text-slate-300">Times: <strong>${t1}</strong>, <strong>${t2}</strong>, <strong>${t3}</strong></div>
+          ${toy.studentAvgTime !== null ? `<div class="text-[11px] text-emerald-300">Average: <strong>${avg}</strong></div>` : ''}
+        </div>
+      `;
+    }).join('');
   }
 
   // -----------------------------------------------------------------

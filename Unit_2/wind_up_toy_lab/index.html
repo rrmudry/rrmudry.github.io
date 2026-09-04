@@ -83,7 +83,7 @@
   </header>
 
   <!-- MAIN FOCUSED WORKSPACE (Single-column, uncluttered) -->
-  <main class="flex-1 max-w-4xl mx-auto w-full p-4 sm:p-6 space-y-6">
+  <main id="main-container" class="flex-1 max-w-4xl mx-auto w-full p-4 sm:p-6 space-y-6">
 
     <!-- STEP PROGRESS STEPPER (5 Clean Steps) -->
     <div class="glass-card p-3 rounded-2xl border border-white/10">
@@ -176,24 +176,21 @@
     </section>
 
     <!-- ============================================================= -->
-    <!-- STEP 2: Scaffolded Average Time Calculation -->
+    <!-- STEP 2: Plain-Language Average Time Calculation -->
     <!-- ============================================================= -->
     <section id="step-section-2" class="space-y-4 hidden fade-in">
       <div class="glass-card p-5 rounded-2xl border border-white/10 space-y-3">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <h2 class="text-lg font-bold text-white font-display flex items-center gap-2">
-            <span>🧮</span> Step 2: Calculate Average Time (t<sub>avg</sub>)
+            <span>🧮</span> Step 2: Find the Average Time for Each Toy
           </h2>
           <button onclick="window.toggleCalculator(true)" class="px-3 py-1.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 text-xs font-bold border border-purple-500/40 transition-colors flex items-center gap-1.5">
-            <span>🧮</span> <span>Open Desmos Calculator</span>
+            <span>🧮</span> <span>Open Calculator</span>
           </button>
         </div>
         <p class="text-xs text-slate-300 leading-relaxed">
-          To minimize experimental timing variation, calculate the mean time for each toy:
+          Because of small release differences, calculate the average time for each toy: <strong>Add your 3 times together, then divide by 3</strong>.
         </p>
-        <div class="p-2.5 rounded-xl bg-black/30 border border-white/10 font-mono text-xs text-sky-300">
-          Formula: t<sub>avg</sub> = (Trial 1 + Trial 2 + Trial 3) / 3
-        </div>
       </div>
 
       <div id="step2-averages-container" class="space-y-4">
@@ -202,24 +199,21 @@
     </section>
 
     <!-- ============================================================= -->
-    <!-- STEP 3: Scaffolded Speed Calculation -->
+    <!-- STEP 3: Plain-Language Speed Calculation -->
     <!-- ============================================================= -->
     <section id="step-section-3" class="space-y-4 hidden fade-in">
       <div class="glass-card p-5 rounded-2xl border border-white/10 space-y-3">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <h2 class="text-lg font-bold text-white font-display flex items-center gap-2">
-            <span>🏎️</span> Step 3: Calculate Average Speed (v = d / t<sub>avg</sub>)
+            <span>🏎️</span> Step 3: Calculate the Speed of Each Toy
           </h2>
           <button onclick="window.toggleCalculator(true)" class="px-3 py-1.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 text-xs font-bold border border-purple-500/40 transition-colors flex items-center gap-1.5">
-            <span>🧮</span> <span>Open Desmos Calculator</span>
+            <span>🧮</span> <span>Open Calculator</span>
           </button>
         </div>
         <p class="text-xs text-slate-300 leading-relaxed">
-          Speed is distance divided by elapsed time. Using your fixed distance <strong>d = 20.0 cm</strong>:
+          Speed tells you how many centimeters the toy traveled each second. <strong>Divide the 20.0 cm track distance by your average time</strong>.
         </p>
-        <div class="p-2.5 rounded-xl bg-black/30 border border-white/10 font-mono text-xs text-emerald-300">
-          Formula: Speed (v) = 20.0 cm / t<sub>avg</sub>
-        </div>
       </div>
 
       <div id="step3-speeds-container" class="space-y-4">
@@ -316,33 +310,36 @@
 
   </main>
 
-  <!-- SLIDE-OVER DESMOS SCIENTIFIC CALCULATOR DRAWER (Toggled on-demand) -->
-  <div id="calculator-backdrop" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden transition-opacity" onclick="window.toggleCalculator(false)"></div>
-  <aside id="calculator-drawer" class="fixed inset-y-0 right-0 z-50 w-full sm:w-[420px] bg-slate-950/95 border-l border-purple-500/30 shadow-2xl p-5 flex flex-col space-y-3 transition-transform duration-300 translate-x-full">
+  <!-- SLIDE-OVER DESMOS SCIENTIFIC CALCULATOR DRAWER (No blurring backdrop) -->
+  <aside id="calculator-drawer" class="fixed inset-y-0 right-0 z-50 w-full sm:w-[420px] bg-slate-950 border-l border-purple-500/40 shadow-2xl p-4 sm:p-5 flex flex-col space-y-3 transition-transform duration-300 translate-x-full">
     <div class="flex items-center justify-between border-b border-white/10 pb-3">
       <div class="flex items-center gap-2">
         <span class="text-lg">🧮</span>
-        <h3 class="text-sm font-bold text-purple-200 uppercase tracking-wider">Desmos Scientific</h3>
+        <h3 class="text-sm font-bold text-purple-200 uppercase tracking-wider">Desmos Calculator</h3>
       </div>
       <button onclick="window.toggleCalculator(false)" class="p-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-slate-300 hover:text-white transition-colors text-xs font-bold">
         ✕ Close
       </button>
     </div>
 
-    <p class="text-[11px] text-slate-400 leading-tight">
-      Use this calculator to compute your averages: <code>(t1 + t2 + t3)/3</code> and speeds: <code>20 / t_avg</code>.
-    </p>
+    <!-- Live Active Numbers Reference inside Calculator -->
+    <div id="calculator-toy-pills" class="p-3 rounded-xl bg-slate-900 border border-purple-500/20 space-y-1.5 text-xs font-mono">
+      <div class="text-purple-300 font-bold text-[10px] uppercase tracking-wider">Your Recorded Times:</div>
+      <div id="calc-numbers-display" class="space-y-1 text-slate-300">
+        <!-- Live numbers updated by labEngine -->
+      </div>
+    </div>
 
     <!-- Desmos Frame Mount -->
-    <div id="desmos-calculator-container" class="flex-1 min-h-[360px] w-full rounded-xl overflow-hidden border border-white/10 bg-black">
+    <div id="desmos-calculator-container" class="flex-1 min-h-[320px] w-full rounded-xl overflow-hidden border border-white/10 bg-black">
       <!-- Desmos.ScientificCalculator mounts here -->
     </div>
 
-    <!-- Reference Formula Card -->
-    <div class="p-3 rounded-xl bg-purple-950/30 border border-purple-500/20 space-y-1 text-[11px] font-mono text-slate-300">
-      <div class="text-purple-300 font-bold uppercase tracking-wider text-[10px]">Reference Formulas:</div>
-      <div>&bull; Average Time: t<sub>avg</sub> = (t<sub>1</sub> + t<sub>2</sub> + t<sub>3</sub>) / 3</div>
-      <div>&bull; Average Speed: v = 20.0 cm / t<sub>avg</sub></div>
+    <!-- Plain Language Reference Helper -->
+    <div class="p-2.5 rounded-xl bg-purple-950/30 border border-purple-500/20 space-y-1 text-[11px] font-mono text-slate-300">
+      <div class="text-purple-300 font-bold uppercase tracking-wider text-[10px]">Plain Language Guide:</div>
+      <div>&bull; <strong>Average:</strong> (Time 1 + Time 2 + Time 3) ÷ 3</div>
+      <div>&bull; <strong>Speed:</strong> 20.0 cm ÷ Average Time</div>
     </div>
   </aside>
 
@@ -386,24 +383,26 @@
   <script src="js/lab_engine.js"></script>
 
   <script>
-    // Global Calculator Drawer Controller
+    // Global Calculator Drawer Controller (Side-by-side, no screen blurring)
     window.toggleCalculator = function(forceOpen) {
       const drawer = document.getElementById('calculator-drawer');
-      const backdrop = document.getElementById('calculator-backdrop');
-      if (!drawer || !backdrop) return;
+      if (!drawer) return;
       
       const isClosed = drawer.classList.contains('translate-x-full');
       const shouldOpen = (typeof forceOpen === 'boolean') ? forceOpen : isClosed;
 
       if (shouldOpen) {
         drawer.classList.remove('translate-x-full');
-        backdrop.classList.remove('hidden');
+        document.body.classList.add('calc-open');
+        if (window.labEngine && window.labEngine.updateCalculatorNumbers) {
+          window.labEngine.updateCalculatorNumbers();
+        }
         if (window.desmosCalculator && window.desmosCalculator.resize) {
           setTimeout(() => window.desmosCalculator.resize(), 100);
         }
       } else {
         drawer.classList.add('translate-x-full');
-        backdrop.classList.add('hidden');
+        document.body.classList.remove('calc-open');
       }
     };
 
