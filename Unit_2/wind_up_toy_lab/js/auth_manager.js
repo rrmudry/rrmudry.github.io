@@ -153,6 +153,97 @@ class LabAuthManager {
     }
   }
 
+  async ensureParentDocument(db) {
+    try {
+      const parentRef = db.collection('student_results').doc(ASSIGNMENT_ID);
+      await parentRef.set({
+        assignment_name: "Wind-Up Toy Speed Lab",
+        unit: "Unit 2: Linear Motion & Forces",
+        standards: ["HS-PS2-1"],
+        updated_at: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+    } catch (e) {
+      console.warn("Parent document metadata update note:", e);
+    }
+  }
+
+  async autoSaveDraft(draftData) {
+    if (!this.studentId) {
+      // If not logged in, persist to local storage
+      try {
+        localStorage.setItem(`windup_draft_guest`, JSON.stringify(draftData));
+      } catch (e) {
+        console.warn("Draft local save error:", e);
+      }
+      return;
+    }
+
+    try {
+      // Local backup
+      localStorage.setItem(`windup_draft_${this.studentId}`, JSON.stringify(draftData));
+
+      if (typeof firebase !== 'undefined' && firebase.firestore) {
+        const db = firebase.firestore();
+        await this.ensureParentDocument(db);
+
+        const docRef = db.collection('student_results')
+                         .doc(ASSIGNMENT_ID)
+                         .collection('students')
+                         .doc(this.studentId);
+
+        const draftPayload = {
+          studentId: this.studentId,
+          studentName: this.studentName,
+          email: this.currentUser ? this.currentUser.email : "",
+          last_saved_at: firebase.firestore.FieldValue.serverTimestamp(),
+          isCompleted: this.isCompleted || false,
+          labState: draftData
+        };
+
+        // Also lift key student fields to top level of doc for instant gradebook & console preview
+        if (draftData.toys) {
+          draftPayload.toys = draftData.toys.map(t => ({
+            name: t.name,
+            trials: t.trials,
+            avgTime: t.studentAvgTime || t.correctAvgTime || null,
+            speedCmPerSec: t.studentSpeed || t.correctSpeed || null,
+            avgVerified: !!t.avgTimeVerified,
+            speedVerified: !!t.speedVerified
+          }));
+        }
+        if (draftData.cer) {
+          draftPayload.cer = draftData.cer;
+        }
+
+        await docRef.set(draftPayload, { merge: true });
+        this.updateSaveIndicator("Saved ✓");
+      }
+    } catch (e) {
+      console.warn("Autosave draft to Firestore failed:", e);
+      this.updateSaveIndicator("Saved locally");
+    }
+  }
+
+  updateSaveIndicator(statusText) {
+    let indicator = document.getElementById('firestore-save-indicator');
+    if (!indicator) {
+      const container = document.getElementById('auth-user-status');
+      if (container) {
+        indicator = document.createElement('span');
+        indicator.id = 'firestore-save-indicator';
+        indicator.className = 'text-[11px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold transition-opacity';
+        container.parentElement.insertBefore(indicator, container);
+      }
+    }
+    if (indicator) {
+      indicator.textContent = statusText;
+      indicator.style.opacity = '1';
+      setTimeout(() => {
+        if (indicator) indicator.style.opacity = '0.6';
+      }, 2500);
+    }
+  }
+
   async saveLabResults(payload) {
     if (!this.studentId) {
       alert("Please sign in with your @orangeusd.org Google account before submitting your lab!");
@@ -168,6 +259,8 @@ class LabAuthManager {
 
     try {
       const db = firebase.firestore();
+      await this.ensureParentDocument(db);
+
       const docRef = db.collection('student_results')
                        .doc(ASSIGNMENT_ID)
                        .collection('students')
@@ -178,6 +271,7 @@ class LabAuthManager {
         studentName: this.studentName,
         email: this.currentUser ? this.currentUser.email : "",
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        last_saved_at: firebase.firestore.FieldValue.serverTimestamp(),
         isCompleted: true,
         score: 100,
         ...payload
@@ -185,6 +279,7 @@ class LabAuthManager {
 
       await docRef.set(dataToSave, { merge: true });
       this.isCompleted = true;
+      this.updateSaveIndicator("Submitted ✓");
       return true;
     } catch (e) {
       console.error("Firestore save error:", e);

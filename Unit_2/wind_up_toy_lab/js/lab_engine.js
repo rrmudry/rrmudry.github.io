@@ -132,6 +132,7 @@ class WindUpLabEngine {
     this.currentStep = stepNum;
     if (window.labSound) window.labSound.playClick();
     this.renderActiveStep();
+    this.triggerAutosave();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -364,6 +365,7 @@ class WindUpLabEngine {
     this.toys[this.activeToyIndex].name = trimmed || `Toy ${this.activeToyIndex + 1}`;
     const tabLabel = document.getElementById(`tab-label-${this.activeToyIndex}`);
     if (tabLabel) tabLabel.textContent = this.toys[this.activeToyIndex].name;
+    this.triggerAutosave();
   }
 
   switchActiveToy(idx) {
@@ -391,17 +393,20 @@ class WindUpLabEngine {
     }
 
     this.renderStep1DataCollection();
+    this.triggerAutosave();
   }
 
   updateTrialValue(toyIdx, trialIdx, valStr) {
     const val = parseFloat(valStr);
     this.toys[toyIdx].trials[trialIdx] = isNaN(val) ? null : parseFloat(val.toFixed(2));
     this.renderStep1DataCollection();
+    this.triggerAutosave();
   }
 
   updateQualityCheck(toyIdx, trialIdx, checkField, isChecked) {
     this.toys[toyIdx].checks[trialIdx][checkField] = isChecked;
     this.renderStep1DataCollection();
+    this.triggerAutosave();
   }
 
   clearTrial(toyIdx, trialIdx) {
@@ -411,6 +416,7 @@ class WindUpLabEngine {
     if (window.stopwatch) window.stopwatch.reset();
     if (window.labSound) window.labSound.playClick();
     this.renderStep1DataCollection();
+    this.triggerAutosave();
   }
 
   detectOutliers(toy) {
@@ -447,6 +453,7 @@ class WindUpLabEngine {
     this.toys[toyIdx].trials = [...presets[toyIdx].trials];
     if (window.labSound) window.labSound.playSuccess();
     this.renderStep1DataCollection();
+    this.triggerAutosave();
   }
 
   // -----------------------------------------------------------------
@@ -478,27 +485,32 @@ class WindUpLabEngine {
           <!-- 3 Recorded Times Display -->
           <div class="grid grid-cols-3 gap-2 text-center text-xs font-mono">
             <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10">
-              <span class="text-[10px] text-slate-500 dark:text-slate-400 block uppercase tracking-wider mb-0.5 font-bold">Trial 1</span>
-              <strong class="text-base text-slate-900 dark:text-white">${t1} s</strong>
+              <span class="text-[10px] text-slate-500 dark:text-slate-400 block font-sans">Trial 1</span>
+              <span class="font-bold text-slate-900 dark:text-white text-sm">${t1 > 0 ? t1 + ' s' : '—'}</span>
             </div>
             <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10">
-              <span class="text-[10px] text-slate-500 dark:text-slate-400 block uppercase tracking-wider mb-0.5 font-bold">Trial 2</span>
-              <strong class="text-base text-slate-900 dark:text-white">${t2} s</strong>
+              <span class="text-[10px] text-slate-500 dark:text-slate-400 block font-sans">Trial 2</span>
+              <span class="font-bold text-slate-900 dark:text-white text-sm">${t2 > 0 ? t2 + ' s' : '—'}</span>
             </div>
             <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10">
-              <span class="text-[10px] text-slate-500 dark:text-slate-400 block uppercase tracking-wider mb-0.5 font-bold">Trial 3</span>
-              <strong class="text-base text-slate-900 dark:text-white">${t3} s</strong>
+              <span class="text-[10px] text-slate-500 dark:text-slate-400 block font-sans">Trial 3</span>
+              <span class="font-bold text-slate-900 dark:text-white text-sm">${t3 > 0 ? t3 + ' s' : '—'}</span>
             </div>
           </div>
 
           <!-- Plain Language Instructions -->
           <div class="p-3.5 rounded-xl bg-sky-50 dark:bg-sky-950/25 border border-sky-200 dark:border-sky-500/25 space-y-1.5 text-xs text-slate-800 dark:text-slate-200">
             <div class="font-bold text-sky-900 dark:text-sky-300 text-sm">How to find the average time:</div>
-            <div class="space-y-1 text-slate-800 dark:text-slate-200">
-              <div><strong>Step 1:</strong> Add your 3 times together: <span class="font-mono text-slate-900 dark:text-white font-bold bg-white dark:bg-black/40 px-2 py-0.5 rounded border border-sky-200 dark:border-white/10">${t1} + ${t2} + ${t3}</span></div>
-              <div><strong>Step 2:</strong> Divide that total by <strong>3</strong>.</div>
+            <div>
+              1. Add all 3 trial times together.
             </div>
-            <div class="pt-1 text-[11px] text-slate-600 dark:text-slate-400">
+            <div>
+              2. Divide that total by <strong>3</strong> (because there were 3 trials).
+            </div>
+            <div class="font-mono text-xs text-sky-950 dark:text-white bg-white dark:bg-black/40 px-2.5 py-1 rounded-lg border border-sky-200 dark:border-white/10 inline-block font-bold">
+              (${t1} + ${t2} + ${t3}) ÷ 3 = ?
+            </div>
+            <div class="text-[11px] text-slate-600 dark:text-slate-400">
               In the calculator: type <code class="bg-white dark:bg-black/40 text-sky-900 dark:text-sky-300 px-1.5 py-0.5 rounded border border-sky-200 dark:border-white/10 font-mono font-bold">(${t1} + ${t2} + ${t3}) / 3</code>
             </div>
           </div>
@@ -506,7 +518,7 @@ class WindUpLabEngine {
           <!-- Student Input & Check Button -->
           <div class="flex flex-wrap items-center gap-3 pt-1">
             <div class="flex items-center gap-2">
-              <label class="text-xs text-slate-700 dark:text-slate-300 font-medium">Average Time (in seconds):</label>
+              <label class="text-xs text-slate-700 dark:text-slate-300 font-medium">Your Calculated Average (seconds):</label>
               <input type="number" step="0.01" id="input-avg-${idx}" value="${toy.studentAvgTime !== null ? toy.studentAvgTime : ''}"
                      placeholder="0.00" 
                      class="w-28 bg-white dark:bg-slate-900 border border-slate-300 dark:border-white/20 rounded-xl px-3 py-1.5 text-sm text-slate-900 dark:text-white font-mono font-bold focus:border-sky-600 dark:focus:border-sky-400 outline-none">
@@ -564,6 +576,7 @@ class WindUpLabEngine {
       if (window.labSound) window.labSound.playOutlierAlert();
       feedback.innerHTML = `<span class="text-rose-700 dark:text-rose-400 font-semibold">In the calculator: type <code>(${toy.trials.join(' + ')}) / 3</code></span>`;
     }
+    this.triggerAutosave();
   }
 
   // -----------------------------------------------------------------
@@ -661,8 +674,9 @@ class WindUpLabEngine {
     } else {
       toy.speedVerified = false;
       if (window.labSound) window.labSound.playOutlierAlert();
-      feedback.innerHTML = `<span class="text-rose-700 dark:text-rose-400 font-semibold">In the calculator: divide 20 by your average time: <code>20 / ${tAvg}</code>.</span>`;
+      feedback.innerHTML = `<span class="text-rose-700 dark:text-rose-400 font-semibold">In the calculator: type <code>20 / ${tAvg}</code></span>`;
     }
+    this.triggerAutosave();
   }
 
   updateCalculatorNumbers() {
@@ -785,9 +799,27 @@ class WindUpLabEngine {
     const evidenceInput = document.getElementById('cer-evidence-input');
     const reasoningInput = document.getElementById('cer-reasoning-input');
 
-    if (claimInput) claimInput.value = this.cer.claim;
-    if (evidenceInput) evidenceInput.value = this.cer.evidence;
-    if (reasoningInput) reasoningInput.value = this.cer.reasoning;
+    if (claimInput) {
+      claimInput.value = this.cer.claim;
+      claimInput.oninput = (e) => {
+        this.cer.claim = e.target.value;
+        this.triggerAutosave();
+      };
+    }
+    if (evidenceInput) {
+      evidenceInput.value = this.cer.evidence;
+      evidenceInput.oninput = (e) => {
+        this.cer.evidence = e.target.value;
+        this.triggerAutosave();
+      };
+    }
+    if (reasoningInput) {
+      reasoningInput.value = this.cer.reasoning;
+      reasoningInput.oninput = (e) => {
+        this.cer.reasoning = e.target.value;
+        this.triggerAutosave();
+      };
+    }
   }
 
   insertDataSnippet() {
@@ -869,6 +901,21 @@ class WindUpLabEngine {
     return true;
   }
 
+  triggerAutosave() {
+    if (this._autosaveTimer) clearTimeout(this._autosaveTimer);
+    this._autosaveTimer = setTimeout(() => {
+      const draft = {
+        toys: this.toys,
+        cer: this.cer,
+        currentStep: this.currentStep,
+        distanceCm: this.distanceCm
+      };
+      if (window.labAuth && window.labAuth.autoSaveDraft) {
+        window.labAuth.autoSaveDraft(draft);
+      }
+    }, 800);
+  }
+
   async submitLab() {
     const payload = {
       labTitle: "Wind-Up Toy Speed Lab",
@@ -897,6 +944,9 @@ class WindUpLabEngine {
   restoreSavedState(state) {
     if (state.toys) this.toys = state.toys;
     if (state.cer) this.cer = state.cer;
+    if (state.currentStep && state.currentStep > 1) {
+      this.currentStep = state.currentStep;
+    }
     this.renderActiveStep();
   }
 }
