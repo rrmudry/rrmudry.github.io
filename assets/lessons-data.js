@@ -633,6 +633,7 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
+      "Wind-Up Toy Speed Lab": "Unit_2/wind_up_toy_lab/index.html",
       "Distance vs Time App": "distance_vs_time_graphing.html",
       "Motion Curve Drawer": "Distance_vs_Time_Drawer.html",
       "Interactive Presentation": "Unit_2/describing-motion-presentation/index.html"
