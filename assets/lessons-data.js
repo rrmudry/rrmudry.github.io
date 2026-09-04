@@ -634,7 +634,8 @@ const lessonsData = [
     },
     "links": {
       "Distance vs Time App": "distance_vs_time_graphing.html",
-      "Motion Curve Drawer": "Distance_vs_Time_Drawer.html"
+      "Motion Curve Drawer": "Distance_vs_Time_Drawer.html",
+      "Interactive Presentation": "Unit_2/describing-motion-presentation/index.html"
     }
   },
   {
@@ -672,7 +673,8 @@ const lessonsData = [
       "Google Slides": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
       "PowerPoint Slides": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDTeHashMmgSoeLVDHY5TwQAbynyLTufaGMoMjm5APx0Hw?e=nwclwC",
       "Quest Story Doc": "https://docs.google.com/document/d/10pNCBkmnpn4LmwO6Fd8af0JH5ehHpj1akiyfmTqkDNA/edit?usp=sharing",
-      "Fantasy Map Worksheet": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs"
+      "Fantasy Map Worksheet": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs",
+      "Interactive Presentation": "Unit_2/describing-motion-presentation/index.html"
     }
   },
   {
@@ -709,6 +711,7 @@ const lessonsData = [
       "PowerPoint Slides": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDTeHashMmgSoeLVDHY5TwQAbynyLTufaGMoMjm5APx0Hw?e=nwclwC",
       "Quest Story Doc": "https://docs.google.com/document/d/10pNCBkmnpn4LmwO6Fd8af0JH5ehHpj1akiyfmTqkDNA/edit?usp=sharing",
       "Fantasy Map Worksheet": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs",
+      "Interactive Presentation": "Unit_2/describing-motion-presentation/index.html",
       "Fantasy Map Web App": "Unit_2/Displacement_and_distance_map_app/index.html"
     }
   },
@@ -783,6 +786,7 @@ const lessonsData = [
       "PowerPoint Slides": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDTeHashMmgSoeLVDHY5TwQAbynyLTufaGMoMjm5APx0Hw?e=nwclwC",
       "Quest Story Doc": "https://docs.google.com/document/d/10pNCBkmnpn4LmwO6Fd8af0JH5ehHpj1akiyfmTqkDNA/edit?usp=sharing",
       "Fantasy Map Worksheet": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs",
+      "Interactive Presentation": "Unit_2/describing-motion-presentation/index.html",
       "Fantasy Map Web App": "Unit_2/Displacement_and_distance_map_app/index.html"
     }
   },
