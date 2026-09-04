@@ -53,23 +53,41 @@ class LabAuthManager {
       }
     });
 
+    // Handle redirect result if popup fell back to redirect
+    firebase.auth().getRedirectResult().then((result) => {
+      if (result && result.user) {
+        console.log("Redirect login successful:", result.user.email);
+      }
+    }).catch((err) => {
+      console.error("Redirect sign-in error:", err);
+    });
+
     const loginBtn = document.getElementById('btn-google-login');
     if (loginBtn) {
-      loginBtn.addEventListener('click', () => this.signIn());
+      loginBtn.onclick = () => this.signIn();
     }
   }
 
   signIn() {
-    if (typeof firebase === 'undefined') return;
+    if (typeof firebase === 'undefined' || !firebase.auth) {
+      alert("Firebase Authentication service is still loading. Please try again in a moment.");
+      return;
+    }
     const provider = new firebase.auth.GoogleAuthProvider();
-    provider.setCustomParameters({ hd: 'orangeusd.org' });
+    provider.setCustomParameters({ hd: 'orangeusd.org', prompt: 'select_account' });
     firebase.auth().signInWithPopup(provider).catch((err) => {
       console.error("Sign-in popup error:", err);
+      if (err.code === 'auth/popup-blocked') {
+        alert("Sign-in popup was blocked by your browser. Please allow popups for this site or use redirect.");
+        firebase.auth().signInWithRedirect(provider);
+      } else if (err.code !== 'auth/popup-closed-by-user') {
+        alert("Google Sign-In error: " + (err.message || err.code));
+      }
     });
   }
 
   signOut() {
-    if (typeof firebase !== 'undefined') {
+    if (typeof firebase !== 'undefined' && firebase.auth) {
       firebase.auth().signOut();
     }
   }
@@ -80,26 +98,26 @@ class LabAuthManager {
 
     if (isSignedIn) {
       container.innerHTML = `
-        <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 border border-white/15 text-xs text-slate-200">
-          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-          <span class="font-medium max-w-[120px] truncate" title="${this.studentName}">${this.studentName}</span>
-          <button id="btn-sign-out" class="text-slate-400 hover:text-rose-400 ml-1 font-bold text-xs" title="Sign Out">&times;</button>
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-white/10 border border-slate-300 dark:border-white/15 text-xs text-slate-800 dark:text-slate-200">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span class="font-bold max-w-[130px] truncate" title="${this.studentName}">${this.studentName}</span>
+          <button id="btn-sign-out" class="text-slate-500 hover:text-rose-500 dark:text-slate-400 dark:hover:text-rose-400 ml-1 font-bold text-xs" title="Sign Out">&times;</button>
         </div>
       `;
       const signOutBtn = document.getElementById('btn-sign-out');
       if (signOutBtn) {
-        signOutBtn.addEventListener('click', () => this.signOut());
+        signOutBtn.onclick = () => this.signOut();
       }
     } else {
       container.innerHTML = `
-        <button id="btn-google-login" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-xs font-semibold text-slate-200 transition-all active:scale-95">
-          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-4 h-4" alt="Google">
+        <button id="btn-google-login" class="px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 dark:bg-sky-500 dark:hover:bg-sky-400 text-white dark:text-slate-950 text-xs font-bold transition-all shadow-sm active:scale-95 flex items-center gap-1.5">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-3.5 h-3.5 bg-white rounded-full p-0.5" alt="Google">
           <span>Sign In</span>
         </button>
       `;
       const loginBtn = document.getElementById('btn-google-login');
       if (loginBtn) {
-        loginBtn.addEventListener('click', () => this.signIn());
+        loginBtn.onclick = () => this.signIn();
       }
     }
   }
