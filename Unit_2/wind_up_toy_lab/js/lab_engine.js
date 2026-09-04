@@ -177,19 +177,16 @@ class WindUpLabEngine {
     if (!container) return;
 
     container.innerHTML = this.toys.map((toy, idx) => `
-      <div class="glass-card p-4 rounded-2xl border border-white/10 space-y-3">
+      <div class="glass-card p-4 rounded-2xl border border-white/10 space-y-2">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-mono px-2 py-0.5 rounded uppercase font-bold" style="background: ${toy.color}22; color: ${toy.color}; border: 1px solid ${toy.color}44;">
+          <span class="text-xs font-mono px-2.5 py-0.5 rounded uppercase font-bold" style="background: ${toy.color}22; color: ${toy.color}; border: 1px solid ${toy.color}44;">
             Toy ${idx + 1}
           </span>
-          <span class="text-xs text-slate-400">Fixed Distance: <strong>20.0 cm</strong></span>
+          <span class="text-[11px] text-slate-400 font-mono">Distance: 20.0 cm</span>
         </div>
         <div>
-          <label class="block text-xs text-slate-400 mb-1">Toy Name / Description:</label>
-          <input type="text" id="toy-name-input-${idx}" value="${toy.name}" class="w-full bg-slate-900 border border-white/15 rounded-xl px-3 py-2 text-sm text-white font-medium focus:border-sky-400 outline-none transition-colors">
-        </div>
-        <div class="text-[11px] text-slate-400">
-          Wind up uniformly (e.g. 3-4 full turns) so each replication receives consistent initial spring tension.
+          <label class="block text-[11px] text-slate-400 mb-1">Toy Name / Description:</label>
+          <input type="text" id="toy-name-input-${idx}" value="${toy.name}" placeholder="e.g., Green Frog" class="w-full bg-slate-900 border border-white/15 rounded-xl px-3 py-2 text-sm text-white font-medium focus:border-sky-400 outline-none transition-colors">
         </div>
       </div>
     `).join('');
@@ -490,7 +487,7 @@ class WindUpLabEngine {
     } else {
       toy.avgTimeVerified = false;
       if (window.labSound) window.labSound.playOutlierAlert();
-      feedback.innerHTML = `<span class="text-rose-400">Check your arithmetic in the Desmos calculator on the right. Sum the 3 trials first: (${toy.trials.join(' + ')}) / 3.</span>`;
+      feedback.innerHTML = `<span class="text-rose-400">Check your arithmetic (use the 🧮 Calculator). Sum the 3 trials first: (${toy.trials.join(' + ')}) / 3.</span>`;
     }
   }
 
