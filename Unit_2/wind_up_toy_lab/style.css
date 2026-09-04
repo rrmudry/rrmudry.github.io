@@ -2,18 +2,41 @@
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap');
 
 :root {
+  /* LIGHT THEME BY DEFAULT (Optimal for low laptop brightness) */
+  --bg-deep: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f1f5f9;
+  --border-subtle: #cbd5e1;
+  --border-focus: #0284c7;
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --accent-sky: #0284c7;
+  --accent-emerald: #059669;
+  --accent-amber: #d97706;
+  --accent-rose: #e11d48;
+  --accent-purple: #7c3aed;
+  --shadow-card: 0 4px 16px -2px rgba(15, 23, 42, 0.07), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+  --led-glow: 0 0 16px rgba(56, 189, 248, 0.5);
+}
+
+/* Optional Dark Theme when user clicks theme toggle */
+body.theme-dark {
   --bg-deep: #080c14;
-  --bg-card: rgba(15, 23, 42, 0.75);
-  --bg-card-hover: rgba(30, 41, 59, 0.85);
-  --border-subtle: rgba(255, 255, 255, 0.08);
+  --bg-card: #0f172a;
+  --bg-card-hover: #1e293b;
+  --border-subtle: rgba(255, 255, 255, 0.12);
   --border-focus: #38bdf8;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
   --accent-sky: #38bdf8;
   --accent-emerald: #10b981;
   --accent-amber: #f59e0b;
   --accent-rose: #f43f5e;
   --accent-purple: #a855f7;
+  --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
   --led-glow: 0 0 20px rgba(56, 189, 248, 0.45);
-  --amber-glow: 0 0 22px rgba(245, 158, 11, 0.4);
 }
 
 * {
@@ -23,13 +46,25 @@
 body {
   font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: var(--bg-deep);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Subtle background accentuation */
+body:not(.theme-dark) {
+  background-image: 
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(2, 132, 199, 0.06), transparent 70%),
+    radial-gradient(circle at 10% 40%, rgba(124, 58, 237, 0.04), transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(5, 150, 105, 0.04), transparent 40%);
+}
+
+body.theme-dark {
   background-image: 
     radial-gradient(ellipse 80% 50% at 50% -20%, rgba(56, 189, 248, 0.15), transparent 70%),
     radial-gradient(circle at 10% 40%, rgba(168, 85, 247, 0.08), transparent 40%),
     radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.06), transparent 40%);
-  color: #f1f5f9;
-  min-height: 100vh;
-  overflow-x: hidden;
 }
 
 .font-mono {
@@ -40,34 +75,42 @@ body {
   font-family: 'Space Grotesk', sans-serif;
 }
 
-/* Glassmorphism Cards */
+/* High-Contrast Cards */
 .glass-card {
   background: var(--bg-card);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border-subtle);
   border-radius: 1rem;
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-card);
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-card-hover:hover {
   background: var(--bg-card-hover);
-  border-color: rgba(255, 255, 255, 0.18);
+  border-color: var(--border-focus);
   transform: translateY(-2px);
-  box-shadow: 0 14px 34px -10px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.12);
 }
 
-.glass-pill {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+/* Form Inputs High Contrast */
+body:not(.theme-dark) input[type="text"],
+body:not(.theme-dark) input[type="number"],
+body:not(.theme-dark) textarea {
+  background-color: #ffffff;
+  color: #0f172a;
+  border-color: #cbd5e1;
 }
 
-/* Digital Stopwatch LED Readout */
+body:not(.theme-dark) input[type="text"]:focus,
+body:not(.theme-dark) input[type="number"]:focus,
+body:not(.theme-dark) textarea:focus {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+/* Digital Stopwatch LED Readout (High-contrast casing for all lighting conditions) */
 .stopwatch-box {
   background: radial-gradient(ellipse at center, #0f172a 0%, #020617 100%);
-  border: 1px solid rgba(56, 189, 248, 0.3);
+  border: 1.5px solid rgba(56, 189, 248, 0.5);
   box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.8), var(--led-glow);
   position: relative;
   overflow: hidden;
@@ -95,29 +138,37 @@ body {
   font-family: 'JetBrains Mono', monospace;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.08em;
-  text-shadow: 0 0 16px rgba(56, 189, 248, 0.7), 0 0 32px rgba(56, 189, 248, 0.3);
+  text-shadow: 0 0 16px rgba(56, 189, 248, 0.8), 0 0 32px rgba(56, 189, 248, 0.4);
 }
 
 /* Outlier Warning Pulse */
-@keyframes outlierPulse {
+@keyframes outlierPulseLight {
   0%, 100% {
     box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
-    border-color: rgba(245, 158, 11, 0.8);
+    border-color: #d97706;
   }
   50% {
-    box-shadow: 0 0 16px 4px rgba(245, 158, 11, 0.3);
-    border-color: rgba(245, 158, 11, 1);
+    box-shadow: 0 0 16px 3px rgba(245, 158, 11, 0.3);
+    border-color: #b45309;
   }
 }
 
-.outlier-card {
-  animation: outlierPulse 2.5s infinite;
-  background: rgba(69, 26, 3, 0.25) !important;
+body:not(.theme-dark) .outlier-card {
+  animation: outlierPulseLight 2.5s infinite;
+  background: #fef3c7 !important;
+  border-color: #d97706 !important;
+  color: #78350f !important;
+}
+
+body.theme-dark .outlier-card {
+  animation: outlierPulseLight 2.5s infinite;
+  background: rgba(69, 26, 3, 0.35) !important;
+  border-color: rgba(245, 158, 11, 0.9) !important;
 }
 
 /* Quality Checkpoint Checkboxes */
 input[type="checkbox"] {
-  accent-color: #38bdf8;
+  accent-color: #0284c7;
   cursor: pointer;
 }
 
@@ -126,23 +177,32 @@ input[type="checkbox"] {
   width: 8px;
   height: 8px;
 }
-::-webkit-scrollbar-track {
-  background: #0b1120;
+body:not(.theme-dark) ::-webkit-scrollbar-track {
+  background: #f1f5f9;
 }
-::-webkit-scrollbar-thumb {
-  background: #1e293b;
+body:not(.theme-dark) ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
   border-radius: 4px;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+body:not(.theme-dark) ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+body.theme-dark ::-webkit-scrollbar-track {
+  background: #0b1120;
+}
+body.theme-dark ::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
 }
 
 /* Desmos Calculator Container */
 #desmos-calculator-container {
   border-radius: 0.75rem;
   overflow: hidden;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border-subtle);
+  background: #ffffff;
 }
 
 /* Hide step containers */
@@ -177,10 +237,17 @@ input[type="checkbox"] {
 
 /* Slide-Over Calculator Drawer without Blurring Workspace */
 #calculator-drawer {
-  background: #090e1a;
-  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.8);
+  background: var(--bg-card);
+  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.15);
+  border-left: 1px solid var(--border-subtle);
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   width: 100%;
+}
+
+body.theme-dark #calculator-drawer {
+  background: #090e1a;
+  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.8);
+  border-left-color: rgba(168, 85, 247, 0.4);
 }
 
 @media (min-width: 640px) {
