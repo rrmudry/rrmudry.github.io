@@ -103,13 +103,25 @@ class WindUpLabEngine {
       });
     }
 
-    // Step dots click
+    // Step dots click (Strict sequential gating)
     const dots = document.querySelectorAll('.step-indicator-dot');
     dots.forEach((dot, idx) => {
       dot.addEventListener('click', () => {
-        if (idx + 1 < this.currentStep || this.validateCurrentStep(true)) {
-          this.goToStep(idx + 1);
+        const targetStep = idx + 1;
+        // Always allow navigating backwards to review previous work
+        if (targetStep < this.currentStep) {
+          this.goToStep(targetStep);
+          return;
         }
+        // If jumping forward, verify every step along the way up to targetStep
+        for (let s = this.currentStep; s < targetStep; s++) {
+          const originalStep = this.currentStep;
+          this.currentStep = s;
+          const isValid = this.validateCurrentStep(false);
+          this.currentStep = originalStep;
+          if (!isValid) return; // Blocked with alert explaining requirement
+        }
+        this.goToStep(targetStep);
       });
     });
   }
