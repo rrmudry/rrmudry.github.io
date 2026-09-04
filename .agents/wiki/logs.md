@@ -273,4 +273,18 @@ Append-only log tracking pattern changes across sessions.
   - Divided-by-2 check (reminding students there are 3 trials).
   - Inverted speed division check (warning when time is divided by distance instead of distance by time).
 
+---
+
+## 2026-09-04 — Light Theme by Default for Low-Brightness Laptop Visibility
+
+**Motivation**: High school students frequently dial laptop and Chromebook screen brightness down to 15%–30% to conserve battery or dim their screens in class. Dark glassmorphic themes become muddy and illegible under low backlit TN/IPS LCD conditions. A high-contrast light theme ensures crisp, effortless visibility across all steps.
+
+**Changes**:
+- Configured Light Theme as the primary default across `style.css`, `index.html`, and `lab_engine.js`.
+- Implemented high-contrast pure white card surfaces (`#ffffff`) with `#cbd5e1` defined borders and deep slate primary text (`#0f172a`, WCAG AAA 15:1+ contrast ratio).
+- Retained authentic digital stopwatch LED display in deep navy casing (`#090e1a`) with luminous cyan digits (`#38bdf8`), maximizing timer visibility in both bright and dim lighting.
+- Set light-tinted instructional guidance boxes (Sky 50 `#f0f9ff` for Averaging; Emerald 50 `#ecfdf5` for Speed; Purple 50 `#faf5ff` for Desmos reference).
+- Added header theme toggle button (`☀️` / `🌙`) with local storage persistence (`wind_up_lab_theme`), allowing optional switching to dark mode while always defaulting new visitors to light mode.
+- Integrated dynamic `CASTGraphEngine` theme synchronization (`theme: isDark ? "dark" : "light"`).
+
 
