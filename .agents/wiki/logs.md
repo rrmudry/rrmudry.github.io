@@ -300,5 +300,20 @@ Append-only log tracking pattern changes across sessions.
 - Updated `js/lab_engine.js` template generators (`renderStep1DataCollection`, `renderStep2Averages`, `renderStep3Speeds`, `updateCalculatorNumbers`) to render paired dark classes and dynamically re-render on theme toggle.
 - Ensured `CASTGraphEngine` checks `document.documentElement.classList.contains('dark')` to re-plot the comparative speed bar chart with glowing cyan bars (`#38bdf8`) on deep slate axes when dark mode is enabled.
 
+---
+
+## 2026-09-04 — Teacher-Restricted Demo Autofill & Interface Streamlining
+
+**Motivation**: The "Demo Autofill" button is a convenient tool for teacher classroom demonstrations and projection setups, but presents an academic integrity risk if exposed to students. Additionally, removing external navigation arrows keeps student focus contained within the lab activity.
+
+**Changes**:
+- Removed the dashboard return link arrow (`&larr; Unit 2`) from the lab header in `index.html`.
+- Updated calculator icons from abacus emojis (`🧮`) to standard calculator SVGs throughout the header, steps, drawer, and script sync.
+- Added `isTeacher()` check to `js/auth_manager.js` identifying `rmudry@orangeusd.org` (and personal fallback `ryan.mudry@gmail.com`).
+- Updated `js/lab_engine.js` so the "Demo Autofill" button is only rendered in the DOM if `window.labAuth.isTeacher()` evaluates to true.
+- Added guard within `prefillSampleData()` preventing execution if invoked directly via developer console by a student account.
+- Triggered dynamic re-render of Step 1 on auth state changes so the button appears immediately upon teacher login and disappears upon sign-out.
+
+
 
 

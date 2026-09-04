@@ -14,6 +14,12 @@ class LabAuthManager {
     this.initAuth();
   }
 
+  isTeacher() {
+    if (!this.currentUser || !this.currentUser.email) return false;
+    const email = this.currentUser.email.toLowerCase();
+    return email === 'rmudry@orangeusd.org' || email === 'ryan.mudry@gmail.com';
+  }
+
   initAuth() {
     if (typeof firebase === 'undefined' || !firebase.auth) {
       console.warn("Firebase Auth not loaded.");
@@ -30,6 +36,9 @@ class LabAuthManager {
           this.studentName = user.displayName || this.studentId;
           this.updateUserUI(true);
           this.loadStudentLabData();
+          if (window.labEngine && window.labEngine.currentStep === 1) {
+            window.labEngine.renderStep1DataCollection();
+          }
         } else {
           alert('Access restricted. Please sign in using your official school @orangeusd.org account.');
           firebase.auth().signOut();
@@ -38,6 +47,9 @@ class LabAuthManager {
         this.currentUser = null;
         this.studentId = null;
         this.updateUserUI(false);
+        if (window.labEngine && window.labEngine.currentStep === 1) {
+          window.labEngine.renderStep1DataCollection();
+        }
       }
     });
 
