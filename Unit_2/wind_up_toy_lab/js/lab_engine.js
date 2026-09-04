@@ -521,20 +521,30 @@ class WindUpLabEngine {
 
     toy.studentAvgTime = val;
     const diff = Math.abs(val - toy.correctAvgTime);
+    const sum = (toy.trials[0] || 0) + (toy.trials[1] || 0) + (toy.trials[2] || 0);
+    const orderOfOpsVal = (toy.trials[0] || 0) + (toy.trials[1] || 0) + ((toy.trials[2] || 0) / 3);
 
     if (diff <= 0.06) {
       toy.avgTimeVerified = true;
       if (window.labSound) window.labSound.playSuccess();
       feedback.innerHTML = `<span class="text-emerald-300 font-bold">✓ Correct! The average time is ${toy.correctAvgTime} seconds.</span>`;
       this.updateCalculatorNumbers();
-    } else if (Math.abs(val - (toy.trials[0] + toy.trials[1] + toy.trials[2])) <= 0.2) {
+    } else if (Math.abs(val - sum) <= 0.2) {
       toy.avgTimeVerified = false;
       if (window.labSound) window.labSound.playOutlierAlert();
-      feedback.innerHTML = `<span class="text-amber-300">You added the 3 times together, but forgot to divide by 3!</span>`;
+      feedback.innerHTML = `<span class="text-amber-300">You added the 3 times together (${val} s), but forgot to divide by 3!</span>`;
+    } else if (Math.abs(val - orderOfOpsVal) <= 0.2) {
+      toy.avgTimeVerified = false;
+      if (window.labSound) window.labSound.playOutlierAlert();
+      feedback.innerHTML = `<span class="text-amber-300">Order of operations: use parentheses around the sum: <code>(${toy.trials.join(' + ')}) / 3</code></span>`;
+    } else if (Math.abs(val - (sum / 2)) <= 0.2) {
+      toy.avgTimeVerified = false;
+      if (window.labSound) window.labSound.playOutlierAlert();
+      feedback.innerHTML = `<span class="text-amber-300">You divided by 2 instead of 3. Divide by 3 because there are 3 trials!</span>`;
     } else {
       toy.avgTimeVerified = false;
       if (window.labSound) window.labSound.playOutlierAlert();
-      feedback.innerHTML = `<span class="text-rose-400">In the calculator: add your 3 times in parentheses (${toy.trials.join(' + ')}), then divide by 3.</span>`;
+      feedback.innerHTML = `<span class="text-rose-400">In the calculator: type <code>(${toy.trials.join(' + ')}) / 3</code></span>`;
     }
   }
 
@@ -615,15 +625,25 @@ class WindUpLabEngine {
 
     toy.studentSpeed = val;
     const diff = Math.abs(val - toy.correctSpeed);
+    const tAvg = toy.studentAvgTime || toy.correctAvgTime || 2.0;
 
     if (diff <= 0.15) {
       toy.speedVerified = true;
       if (window.labSound) window.labSound.playSuccess();
       feedback.innerHTML = `<span class="text-emerald-300 font-bold">✓ Great work! Speed is ${toy.correctSpeed} cm per second.</span>`;
+      this.updateCalculatorNumbers();
+    } else if (Math.abs(val - (tAvg / 20.0)) <= 0.05) {
+      toy.speedVerified = false;
+      if (window.labSound) window.labSound.playOutlierAlert();
+      feedback.innerHTML = `<span class="text-amber-300">You divided time by distance. Divide distance by time: <code>20 / ${tAvg}</code></span>`;
+    } else if (Math.abs(val - (20.0 * tAvg)) <= 1.0) {
+      toy.speedVerified = false;
+      if (window.labSound) window.labSound.playOutlierAlert();
+      feedback.innerHTML = `<span class="text-amber-300">You multiplied instead of dividing! Divide 20 by average time: <code>20 / ${tAvg}</code></span>`;
     } else {
       toy.speedVerified = false;
       if (window.labSound) window.labSound.playOutlierAlert();
-      feedback.innerHTML = `<span class="text-rose-400">In the calculator: divide 20 by your average time: 20 ÷ ${toy.studentAvgTime}.</span>`;
+      feedback.innerHTML = `<span class="text-rose-400">In the calculator: divide 20 by your average time: <code>20 / ${tAvg}</code>.</span>`;
     }
   }
 
@@ -632,19 +652,47 @@ class WindUpLabEngine {
     if (!display) return;
 
     display.innerHTML = this.toys.map((toy, idx) => {
-      const t1 = toy.trials[0] !== null ? `${toy.trials[0]} s` : '---';
-      const t2 = toy.trials[1] !== null ? `${toy.trials[1]} s` : '---';
-      const t3 = toy.trials[2] !== null ? `${toy.trials[2]} s` : '---';
-      const avg = toy.studentAvgTime !== null ? `${toy.studentAvgTime} s` : (toy.correctAvgTime ? `${toy.correctAvgTime} s` : 'not calculated');
+      const t1 = (toy.trials[0] !== null && toy.trials[0] !== undefined) ? `${toy.trials[0]} s` : '---';
+      const t2 = (toy.trials[1] !== null && toy.trials[1] !== undefined) ? `${toy.trials[1]} s` : '---';
+      const t3 = (toy.trials[2] !== null && toy.trials[2] !== undefined) ? `${toy.trials[2]} s` : '---';
+      const avg = toy.studentAvgTime !== null ? `${toy.studentAvgTime} s` : (toy.correctAvgTime ? `${toy.correctAvgTime} s` : null);
+      const spd = toy.studentSpeed !== null ? `${toy.studentSpeed} cm/s` : (toy.correctSpeed ? `${toy.correctSpeed} cm/s` : null);
       
+      let stepHintHtml = '';
+      if (this.currentStep === 2) {
+        if (toy.avgTimeVerified) {
+          stepHintHtml = `<div class="text-[11px] text-emerald-400 font-bold">✓ Average verified: ${avg}</div>`;
+        } else if (toy.trials[0] !== null) {
+          stepHintHtml = `
+            <div class="text-[11px] text-amber-300">
+              Type: <code>(${toy.trials[0]} + ${toy.trials[1]} + ${toy.trials[2]}) / 3</code>
+            </div>`;
+        }
+      } else if (this.currentStep === 3) {
+        if (toy.speedVerified) {
+          stepHintHtml = `<div class="text-[11px] text-emerald-400 font-bold">✓ Speed verified: ${spd}</div>`;
+        } else if (avg) {
+          const numAvg = toy.studentAvgTime || toy.correctAvgTime;
+          stepHintHtml = `
+            <div class="text-[11px] text-amber-300">
+              Type: <code>20 / ${numAvg}</code>
+            </div>`;
+        }
+      }
+
       return `
-        <div class="p-2 rounded-lg bg-black/40 border border-white/5 space-y-0.5">
-          <div class="font-bold text-white flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full" style="background: ${toy.color}"></span>
-            <span>${toy.name}</span>
+        <div class="p-2.5 rounded-xl bg-black/50 border border-white/10 space-y-1">
+          <div class="font-bold text-white flex items-center justify-between">
+            <span class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full" style="background: ${toy.color}"></span>
+              <span>${toy.name}</span>
+            </span>
+            ${avg ? `<span class="text-[11px] font-mono text-purple-300">Avg: <strong>${avg}</strong></span>` : ''}
           </div>
-          <div class="text-[11px] text-slate-300">Times: <strong>${t1}</strong>, <strong>${t2}</strong>, <strong>${t3}</strong></div>
-          ${toy.studentAvgTime !== null ? `<div class="text-[11px] text-emerald-300">Average: <strong>${avg}</strong></div>` : ''}
+          <div class="text-[11px] text-slate-300">
+            3 Times: <strong>${t1}</strong>, <strong>${t2}</strong>, <strong>${t3}</strong>
+          </div>
+          ${stepHintHtml}
         </div>
       `;
     }).join('');
