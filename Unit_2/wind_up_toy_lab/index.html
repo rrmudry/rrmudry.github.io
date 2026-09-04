@@ -184,7 +184,7 @@
           <h2 class="text-lg font-bold text-white font-display flex items-center gap-2">
             <span>🧮</span> Step 2: Find the Average Time for Each Toy
           </h2>
-          <button onclick="window.toggleCalculator(true)" class="px-3 py-1.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 text-xs font-bold border border-purple-500/40 transition-colors flex items-center gap-1.5">
+          <button onclick="window.toggleCalculator()" class="btn-open-calc-step px-3 py-1.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 text-xs font-bold border border-purple-500/40 transition-colors flex items-center gap-1.5">
             <span>🧮</span> <span>Open Calculator</span>
           </button>
         </div>
@@ -207,7 +207,7 @@
           <h2 class="text-lg font-bold text-white font-display flex items-center gap-2">
             <span>🏎️</span> Step 3: Calculate the Speed of Each Toy
           </h2>
-          <button onclick="window.toggleCalculator(true)" class="px-3 py-1.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 text-xs font-bold border border-purple-500/40 transition-colors flex items-center gap-1.5">
+          <button onclick="window.toggleCalculator()" class="btn-open-calc-step px-3 py-1.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 text-xs font-bold border border-purple-500/40 transition-colors flex items-center gap-1.5">
             <span>🧮</span> <span>Open Calculator</span>
           </button>
         </div>
@@ -290,9 +290,9 @@
         <!-- Reasoning Card -->
         <div class="glass-card p-5 rounded-2xl border border-white/10 space-y-2">
           <label for="cer-reasoning-input" class="text-xs font-mono font-bold uppercase tracking-wider text-purple-300 block">
-            3. Physics Reasoning (Connect distance, time, and the speed formula):
+            3. Physics Reasoning (Explain why a faster toy takes less time to travel the same 20.0 cm):
           </label>
-          <textarea id="cer-reasoning-input" rows="3" placeholder="e.g., Because speed is defined as distance divided by elapsed time (v = d / t), covering the same 20.0 cm distance in fewer seconds demonstrates a greater constant speed..." class="w-full bg-slate-900 border border-white/15 rounded-xl p-3 text-sm text-white focus:border-purple-400 outline-none transition-colors"></textarea>
+          <textarea id="cer-reasoning-input" rows="3" placeholder="e.g., Because all toys had to travel the exact same 20.0 cm track distance, the toy that completed it in the fewest seconds was moving at the fastest speed (it covered more centimeters every second)..." class="w-full bg-slate-900 border border-white/15 rounded-xl p-3 text-sm text-white focus:border-purple-400 outline-none transition-colors"></textarea>
         </div>
       </div>
     </section>
@@ -311,7 +311,7 @@
   </main>
 
   <!-- SLIDE-OVER DESMOS SCIENTIFIC CALCULATOR DRAWER (No blurring backdrop) -->
-  <aside id="calculator-drawer" class="fixed inset-y-0 right-0 z-50 w-full sm:w-[420px] bg-slate-950 border-l border-purple-500/40 shadow-2xl p-4 sm:p-5 flex flex-col space-y-3 transition-transform duration-300 translate-x-full">
+  <aside id="calculator-drawer" class="fixed inset-y-0 right-0 z-50 w-full sm:w-[380px] bg-slate-950 border-l border-purple-500/40 shadow-2xl p-4 sm:p-5 flex flex-col space-y-3 transition-transform duration-300 translate-x-full">
     <div class="flex items-center justify-between border-b border-white/10 pb-3">
       <div class="flex items-center gap-2">
         <span class="text-lg">🧮</span>
@@ -338,8 +338,8 @@
     <!-- Plain Language Reference Helper -->
     <div class="p-2.5 rounded-xl bg-purple-950/30 border border-purple-500/20 space-y-1 text-[11px] font-mono text-slate-300">
       <div class="text-purple-300 font-bold uppercase tracking-wider text-[10px]">Plain Language Guide:</div>
-      <div>&bull; <strong>Average:</strong> (Time 1 + Time 2 + Time 3) ÷ 3</div>
-      <div>&bull; <strong>Speed:</strong> 20.0 cm ÷ Average Time</div>
+      <div>&bull; <strong>Average Time:</strong> Add your 3 times together, then divide by 3.</div>
+      <div>&bull; <strong>Speed:</strong> Divide 20.0 cm by your average time.</div>
     </div>
   </aside>
 
@@ -404,6 +404,13 @@
         drawer.classList.add('translate-x-full');
         document.body.classList.remove('calc-open');
       }
+
+      // Sync step button texts
+      document.querySelectorAll('.btn-open-calc-step').forEach(btn => {
+        btn.innerHTML = shouldOpen 
+          ? '<span>✕</span> <span>Close Calculator</span>' 
+          : '<span>🧮</span> <span>Open Calculator</span>';
+      });
     };
 
     document.addEventListener('DOMContentLoaded', () => {
