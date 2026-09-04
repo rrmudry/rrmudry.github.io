@@ -1,8 +1,12 @@
 /* Wind-Up Toy Speed Lab - Style System */
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap');
 
+/* =====================================================================
+   THEME VARIABLES
+   Default: Clean, high-contrast Light Theme for low-brightness laptop screens.
+   html.dark: Exact original Cosmic Dark colorway.
+   ===================================================================== */
 :root {
-  /* LIGHT THEME BY DEFAULT (Optimal for low laptop brightness) */
   --bg-deep: #f8fafc;
   --bg-card: #ffffff;
   --bg-card-hover: #f1f5f9;
@@ -20,14 +24,14 @@
   --led-glow: 0 0 16px rgba(56, 189, 248, 0.5);
 }
 
-/* Optional Dark Theme when user clicks theme toggle */
-body.theme-dark {
+/* Original Cosmic Dark Theme Variables */
+html.dark {
   --bg-deep: #080c14;
-  --bg-card: #0f172a;
-  --bg-card-hover: #1e293b;
-  --border-subtle: rgba(255, 255, 255, 0.12);
+  --bg-card: rgba(15, 23, 42, 0.75);
+  --bg-card-hover: rgba(30, 41, 59, 0.85);
+  --border-subtle: rgba(255, 255, 255, 0.08);
   --border-focus: #38bdf8;
-  --text-primary: #f8fafc;
+  --text-primary: #f1f5f9;
   --text-secondary: #cbd5e1;
   --text-muted: #94a3b8;
   --accent-sky: #38bdf8;
@@ -35,8 +39,9 @@ body.theme-dark {
   --accent-amber: #f59e0b;
   --accent-rose: #f43f5e;
   --accent-purple: #a855f7;
-  --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+  --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
   --led-glow: 0 0 20px rgba(56, 189, 248, 0.45);
+  --amber-glow: 0 0 22px rgba(245, 158, 11, 0.4);
 }
 
 * {
@@ -52,15 +57,16 @@ body {
   transition: background-color 0.25s ease, color 0.25s ease;
 }
 
-/* Subtle background accentuation */
-body:not(.theme-dark) {
+/* Light Theme Background Mesh */
+html:not(.dark) body {
   background-image: 
     radial-gradient(ellipse 80% 50% at 50% -10%, rgba(2, 132, 199, 0.06), transparent 70%),
     radial-gradient(circle at 10% 40%, rgba(124, 58, 237, 0.04), transparent 40%),
     radial-gradient(circle at 90% 80%, rgba(5, 150, 105, 0.04), transparent 40%);
 }
 
-body.theme-dark {
+/* Original Dark Theme Background Mesh */
+html.dark body {
   background-image: 
     radial-gradient(ellipse 80% 50% at 50% -20%, rgba(56, 189, 248, 0.15), transparent 70%),
     radial-gradient(circle at 10% 40%, rgba(168, 85, 247, 0.08), transparent 40%),
@@ -75,7 +81,7 @@ body.theme-dark {
   font-family: 'Space Grotesk', sans-serif;
 }
 
-/* High-Contrast Cards */
+/* Cards (Light: crisp white card; Dark: original cosmic glass card) */
 .glass-card {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
@@ -84,30 +90,23 @@ body.theme-dark {
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+html.dark .glass-card {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
 .glass-card-hover:hover {
   background: var(--bg-card-hover);
   border-color: var(--border-focus);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.12);
 }
 
-/* Form Inputs High Contrast */
-body:not(.theme-dark) input[type="text"],
-body:not(.theme-dark) input[type="number"],
-body:not(.theme-dark) textarea {
-  background-color: #ffffff;
-  color: #0f172a;
-  border-color: #cbd5e1;
+html.dark .glass-card-hover:hover {
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 14px 34px -10px rgba(0, 0, 0, 0.6);
 }
 
-body:not(.theme-dark) input[type="text"]:focus,
-body:not(.theme-dark) input[type="number"]:focus,
-body:not(.theme-dark) textarea:focus {
-  border-color: #0284c7;
-  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
-}
-
-/* Digital Stopwatch LED Readout (High-contrast casing for all lighting conditions) */
+/* Digital Stopwatch LED Readout */
 .stopwatch-box {
   background: radial-gradient(ellipse at center, #0f172a 0%, #020617 100%);
   border: 1.5px solid rgba(56, 189, 248, 0.5);
@@ -153,17 +152,28 @@ body:not(.theme-dark) textarea:focus {
   }
 }
 
-body:not(.theme-dark) .outlier-card {
+@keyframes outlierPulseDark {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+    border-color: rgba(245, 158, 11, 0.8);
+  }
+  50% {
+    box-shadow: 0 0 16px 4px rgba(245, 158, 11, 0.3);
+    border-color: rgba(245, 158, 11, 1);
+  }
+}
+
+html:not(.dark) .outlier-card {
   animation: outlierPulseLight 2.5s infinite;
   background: #fef3c7 !important;
   border-color: #d97706 !important;
   color: #78350f !important;
 }
 
-body.theme-dark .outlier-card {
-  animation: outlierPulseLight 2.5s infinite;
-  background: rgba(69, 26, 3, 0.35) !important;
-  border-color: rgba(245, 158, 11, 0.9) !important;
+html.dark .outlier-card {
+  animation: outlierPulseDark 2.5s infinite;
+  background: rgba(69, 26, 3, 0.25) !important;
+  border-color: rgba(245, 158, 11, 0.8) !important;
 }
 
 /* Quality Checkpoint Checkboxes */
@@ -171,27 +181,26 @@ input[type="checkbox"] {
   accent-color: #0284c7;
   cursor: pointer;
 }
+html.dark input[type="checkbox"] {
+  accent-color: #38bdf8;
+}
 
 /* Custom Scrollbars */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
-body:not(.theme-dark) ::-webkit-scrollbar-track {
+html:not(.dark) ::-webkit-scrollbar-track {
   background: #f1f5f9;
 }
-body:not(.theme-dark) ::-webkit-scrollbar-thumb {
+html:not(.dark) ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 4px;
 }
-body:not(.theme-dark) ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-body.theme-dark ::-webkit-scrollbar-track {
+html.dark ::-webkit-scrollbar-track {
   background: #0b1120;
 }
-body.theme-dark ::-webkit-scrollbar-thumb {
+html.dark ::-webkit-scrollbar-thumb {
   background: #1e293b;
   border-radius: 4px;
 }
@@ -203,6 +212,12 @@ body.theme-dark ::-webkit-scrollbar-thumb {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
   border: 1px solid var(--border-subtle);
   background: #ffffff;
+}
+
+html.dark #desmos-calculator-container {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #000000;
 }
 
 /* Hide step containers */
@@ -235,19 +250,19 @@ body.theme-dark ::-webkit-scrollbar-thumb {
   }
 }
 
-/* Slide-Over Calculator Drawer without Blurring Workspace */
+/* Slide-Over Calculator Drawer */
 #calculator-drawer {
-  background: var(--bg-card);
-  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.15);
-  border-left: 1px solid var(--border-subtle);
+  background: #ffffff;
+  box-shadow: -10px 0 35px rgba(0, 0, 0, 0.12);
+  border-left: 1px solid #cbd5e1;
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   width: 100%;
 }
 
-body.theme-dark #calculator-drawer {
+html.dark #calculator-drawer {
   background: #090e1a;
   box-shadow: -10px 0 40px rgba(0, 0, 0, 0.8);
-  border-left-color: rgba(168, 85, 247, 0.4);
+  border-left: 1px solid rgba(168, 85, 247, 0.4);
 }
 
 @media (min-width: 640px) {
