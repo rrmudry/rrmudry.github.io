@@ -180,15 +180,31 @@ input[type="checkbox"] {
   background: #090e1a;
   box-shadow: -10px 0 40px rgba(0, 0, 0, 0.8);
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 100%;
 }
 
-/* On medium and large screens, shift main workspace so numbers remain fully visible */
-@media (min-width: 1024px) {
+@media (min-width: 640px) {
+  #calculator-drawer {
+    width: 380px;
+  }
+}
+
+/* On tablets, Chromebooks, and desktops, shift main workspace so data remains 100% visible and interactive */
+@media (min-width: 768px) {
   main {
-    transition: margin-right 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: margin-right 0.3s cubic-bezier(0.16, 1, 0.3, 1), max-width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
   body.calc-open main {
-    margin-right: 430px;
-    margin-left: max(1rem, calc(50vw - 420px - 26rem));
+    margin-right: 390px;
+    margin-left: 1rem;
+    max-width: calc(100vw - 420px);
+  }
+}
+
+@media (min-width: 1280px) {
+  body.calc-open main {
+    margin-right: 410px;
+    margin-left: auto;
+    max-width: 56rem; /* 896px standard max-w-4xl */
   }
 }
