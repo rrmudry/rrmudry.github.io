@@ -254,4 +254,23 @@ Append-only log tracking pattern changes across sessions.
 - Updated curriculum lesson files: Linked `"Wind-Up Toy Speed Lab"` on Day 5 (`2026-09-04`) in `Unit_2/unit2_lessons.json`, `Unit_2/lesson.json`, and `assets/lessons-data.js`.
 - Adhered strictly to No-LaTeX policy (used plain text formulas and Unicode `Δ`, `v = d / t`, `t_avg`) and Productive Pedagogical Friction rules (calculator scaffolding without auto-completing student math).
 
+---
+
+## 2026-09-04 — Calculator Visibility & Plain-Language Math Scaffolding
+
+**Motivation**: Students found modal backdrop blurring (`backdrop-blur-sm`) obstructed their ability to see their recorded trial numbers while entering values into the Desmos calculator. Furthermore, algebraic notation like $t_{avg} = (t_1 + t_2 + t_3) / 3$ and $v = d / t_{avg}$ presented unnecessary abstract cognitive load for 9th-grade physical science students.
+
+**Changes**:
+- Removed all modal backdrop overlays and background blurring (`#calculator-backdrop` / `backdrop-blur-sm`).
+- Implemented responsive side-by-side workspace shifting (`body.calc-open main`) for tablets, Chromebooks, and desktops (`>= 768px`), ensuring main data cards remain 100% visible and interactive while calculating.
+- Added live `#calculator-toy-pills` inside the Desmos drawer pinned directly above the keypad, displaying the active toy's times and the exact expression to type.
+- Replaced abstract algebraic formulas across Step 2 (Averaging), Step 3 (Speed), and Step 5 (CER Reasoning) with plain English:
+  - *"Step 1: Add your 3 times together. Step 2: Divide that total by 3."*
+  - *"Speed tells you how many centimeters the toy traveled each second. Divide the 20.0 cm track distance by your average time."*
+- Added targeted formative math diagnostics in `lab_engine.js`:
+  - Order-of-operations warning when parentheses are omitted (e.g. `t1 + t2 + (t3 / 3)`).
+  - Friendly prompt when a student adds all 3 numbers but forgets to divide by 3.
+  - Divided-by-2 check (reminding students there are 3 trials).
+  - Inverted speed division check (warning when time is divided by distance instead of distance by time).
+
 
