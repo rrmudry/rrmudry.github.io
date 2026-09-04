@@ -48,7 +48,7 @@ This unit follows the classical and cognitive progression:
     *   *Links:* [Google Slides](https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing), [PowerPoint Slides (OneDrive)](https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDTeHashMmgSoeLVDHY5TwQAbynyLTufaGMoMjm5APx0Hw?e=nwclwC), [Quest Story Doc (Tale of Caelum)](https://docs.google.com/document/d/10pNCBkmnpn4LmwO6Fd8af0JH5ehHpj1akiyfmTqkDNA/edit?usp=sharing), [Fantasy Map Worksheet (DOCX)](https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs)
 
 *   **Day 4 (2026-09-03): Fantasy Map Quest — Part 4: Digital Exploration & Vector Simulation**
-    *   *Bell-Ringer:* Simulation Trail Telemetry: In the Fantasy Map simulation, an adventurer travels along a winding, curved trail for a total distance of 18 km, but their final position is only 10 km northeast of where they started. Which value represents the scalar distance, and which represents the magnitude of the vector displacement? (Distance = 18 km along path, Displacement = 10 km straight-line northeast).
+    *   *Bell-Ringer:* Runner Speed Reasoning: If a runner travels at a steady speed of 2 meters every second, how far will they travel in 5 seconds? Explain your reasoning. (`d = v · t = 2 m/s · 5 s = 10 meters`).
     *   *Focus:* Virtual string measurement, procedural spline path length, Cartesian vector components (`Δx`, `Δy`, `Δr`), and digital quest challenge scoring.
     *   *Activity:* Students launch the interactive digital simulation ([Fantasy Map Web App](https://rrmudry.github.io/displacement_and_distance_maps_app/)). Students choose fantasy biomes (Dragon's Pass, Sunken Bayou, Coast of Eldoria), deploy the unrolling string tool with 2.5x magnifying loupe to measure curved path segments onto a calibrated 20 cm ruler, calculate scale conversions, analyze straight-line displacement vectors with Pythagorean components, and submit their 5-step guided inquiry challenge score to the gradebook.
     *   *Essential Question:* How do digital vector simulations model the physical difference between scalar distance along a curved path and straight-line vector displacement?
@@ -61,7 +61,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Students release motorized tumble buggies along meter tracks, drop beanbag markers every 2.0 seconds on audible cues, record coordinate positions, plot position-time graphs, and calculate trendline slopes to verify whether velocity increments remain uniform across time intervals.
     *   *Essential Question:* How can multi-stage empirical data and position-time graphs reveal whether an object travels with truly uniform motion?
     *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 2 | *Type:* Lab
-    *   *Links:* [Distance vs Time App](https://rrmudry.github.io/distance_vs_time_graphing.html), [Motion Curve Drawer](https://rrmudry.github.io/Distance_vs_Time_Drawer.html)
+    *   *Links:* [Wind-Up Toy Speed Lab](https://rrmudry.github.io/Unit_2/wind_up_toy_lab/index.html), [Distance vs Time App](https://rrmudry.github.io/distance_vs_time_graphing.html), [Motion Curve Drawer](https://rrmudry.github.io/Distance_vs_Time_Drawer.html), [Interactive Presentation](https://rrmudry.github.io/Unit_2/describing-motion-presentation/index.html)
 
 ---
 
