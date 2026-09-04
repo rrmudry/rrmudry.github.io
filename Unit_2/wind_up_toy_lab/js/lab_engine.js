@@ -135,11 +135,11 @@ class WindUpLabEngine {
     dots.forEach((dot, idx) => {
       const stepIdx = idx + 1;
       if (stepIdx === this.currentStep) {
-        dot.className = 'step-indicator-dot px-3 py-1 rounded-full text-xs font-bold bg-sky-500 text-slate-950 ring-2 ring-sky-400/50 flex items-center gap-1.5 transition-all';
+        dot.className = 'step-indicator-dot px-3 py-1 rounded-full text-xs font-bold bg-sky-600 text-white shadow-sm ring-2 ring-sky-300 flex items-center gap-1.5 transition-all';
       } else if (stepIdx < this.currentStep) {
-        dot.className = 'step-indicator-dot px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5 transition-all';
+        dot.className = 'step-indicator-dot px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1.5 transition-all';
       } else {
-        dot.className = 'step-indicator-dot px-3 py-1 rounded-full text-xs font-semibold bg-white/5 text-slate-400 border border-white/10 flex items-center gap-1.5 transition-all';
+        dot.className = 'step-indicator-dot px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1.5 transition-all';
       }
     });
 
@@ -183,12 +183,12 @@ class WindUpLabEngine {
       return `
         <button class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
           idx === this.activeToyIndex
-            ? 'bg-sky-500 text-slate-950 shadow-md shadow-sky-500/20 ring-2 ring-sky-400'
-            : 'bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10'
+            ? 'bg-sky-600 text-white shadow-sm ring-2 ring-sky-300'
+            : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 shadow-sm'
         }" onclick="window.labEngine.switchActiveToy(${idx})">
           <span class="w-2.5 h-2.5 rounded-full" style="background: ${toy.color}"></span>
           <span id="tab-label-${idx}">${toy.name}</span>
-          ${isComplete ? '<span class="text-emerald-300 text-[10px] ml-1">✓</span>' : ''}
+          ${isComplete ? '<span class="text-emerald-600 font-bold text-[11px] ml-1">✓</span>' : ''}
         </button>
       `;
     }).join('');
@@ -205,29 +205,29 @@ class WindUpLabEngine {
       <div class="space-y-4">
         
         <!-- Active Toy Name Input Banner -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-slate-900/80 border border-white/10">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
           <div class="flex-1">
-            <label class="block text-[11px] font-mono text-slate-400 uppercase tracking-wider mb-1">
+            <label class="block text-[11px] font-mono text-slate-600 uppercase tracking-wider mb-1 font-bold">
               Active Toy at Table (Toy ${this.activeToyIndex + 1} of 3):
             </label>
             <div class="flex items-center gap-2">
               <span class="w-3 h-3 rounded-full flex-shrink-0" style="background: ${currentToy.color}"></span>
               <input type="text" id="active-toy-name-input" value="${currentToy.name}" placeholder="e.g., Green Flipping Frog, Racing Beetle..." 
-                     class="w-full bg-slate-950 border border-white/20 rounded-xl px-3 py-1.5 text-sm text-white font-semibold focus:border-sky-400 outline-none transition-colors"
+                     class="w-full bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-sm text-slate-900 font-semibold focus:border-sky-600 focus:ring-2 focus:ring-sky-100 outline-none transition-colors"
                      oninput="window.labEngine.updateActiveToyName(this.value)">
             </div>
           </div>
-          <div class="text-right sm:border-l sm:border-white/10 sm:pl-4">
-            <span class="text-[11px] text-slate-400 font-mono block">Track Distance</span>
-            <span class="text-sm font-bold text-sky-300 font-mono">20.0 cm</span>
+          <div class="text-right sm:border-l sm:border-slate-200 sm:pl-4">
+            <span class="text-[11px] text-slate-500 font-mono block">Track Distance</span>
+            <span class="text-sm font-bold text-sky-800 font-mono">20.0 cm</span>
           </div>
         </div>
 
         <div class="flex items-center justify-between">
-          <span class="text-xs text-slate-300">
+          <span class="text-xs text-slate-700 font-medium">
             Record 3 trials for <strong>${currentToy.name}</strong> before returning it:
           </span>
-          <button onclick="window.labEngine.prefillSampleData(${this.activeToyIndex})" class="text-[11px] text-sky-300 hover:text-sky-200 bg-sky-500/10 hover:bg-sky-500/20 px-2.5 py-1 rounded-lg border border-sky-500/20 transition-colors">
+          <button onclick="window.labEngine.prefillSampleData(${this.activeToyIndex})" class="text-[11px] text-sky-800 hover:text-sky-900 bg-sky-100 hover:bg-sky-200 px-2.5 py-1 rounded-lg border border-sky-300 font-semibold transition-colors">
             Demo Autofill
           </button>
         </div>
@@ -243,52 +243,52 @@ class WindUpLabEngine {
             return `
               <div class="glass-card p-4 rounded-2xl border transition-all ${
                 isOutlier 
-                  ? 'border-amber-500/60 bg-amber-950/20 shadow-lg shadow-amber-500/10 ring-1 ring-amber-500/40' 
-                  : (isActive ? 'border-sky-500/50 ring-1 ring-sky-400/40' : 'border-white/10')
+                  ? 'outlier-card border-amber-500 shadow-md ring-2 ring-amber-300' 
+                  : (isActive ? 'border-sky-600 ring-2 ring-sky-200 bg-sky-50/40 shadow-sm' : 'border-slate-200 bg-white hover:border-slate-300 shadow-sm')
               }" onclick="window.labEngine.setActiveTrial(${trialIdx})">
                 
                 <div class="flex items-center justify-between mb-2">
-                  <span class="text-xs font-mono font-bold ${isActive ? 'text-sky-300' : 'text-slate-300'}">
+                  <span class="text-xs font-mono font-bold ${isActive ? 'text-sky-800' : 'text-slate-800'}">
                     Replication ${trialIdx + 1}
                   </span>
                   ${isOutlier ? `
-                    <span class="text-[10px] font-mono bg-amber-500/30 text-amber-200 px-1.5 py-0.5 rounded border border-amber-500/40 font-bold">
+                    <span class="text-[10px] font-mono bg-amber-200 text-amber-900 px-1.5 py-0.5 rounded border border-amber-400 font-bold">
                       ⚠️ Outlier
                     </span>
-                  ` : (val !== null ? `<span class="text-xs text-emerald-400">✓ Recorded</span>` : `<span class="text-xs text-slate-500">Pending</span>`)}
+                  ` : (val !== null ? `<span class="text-xs text-emerald-700 font-bold">✓ Recorded</span>` : `<span class="text-xs text-slate-400 font-medium">Pending</span>`)}
                 </div>
 
                 <div class="space-y-2">
-                  <label class="block text-[11px] text-slate-400">Recorded Time (seconds):</label>
+                  <label class="block text-[11px] text-slate-600 font-medium">Recorded Time (seconds):</label>
                   <div class="flex items-center gap-2">
                     <input type="number" step="0.01" min="0.1" id="trial-input-${trialIdx}" value="${val !== null ? val : ''}" 
                            placeholder="0.00" 
-                           class="w-full bg-slate-900 border ${isOutlier ? 'border-amber-500' : 'border-white/15'} rounded-xl px-3 py-2 text-base text-white font-mono font-bold focus:border-sky-400 outline-none"
+                           class="w-full bg-white border ${isOutlier ? 'border-amber-500' : 'border-slate-300'} rounded-xl px-3 py-2 text-base text-slate-900 font-mono font-bold focus:border-sky-600 outline-none"
                            onchange="window.labEngine.updateTrialValue(${this.activeToyIndex}, ${trialIdx}, this.value)">
-                    <span class="text-xs font-mono text-slate-400">s</span>
+                    <span class="text-xs font-mono text-slate-500 font-bold">s</span>
                   </div>
 
                   <!-- Quality Control Checkpoints -->
-                  <div class="pt-2 border-t border-white/5 space-y-1.5 text-[11px]">
-                    <label class="flex items-start gap-2 cursor-pointer text-slate-300">
+                  <div class="pt-2 border-t border-slate-100 space-y-1.5 text-[11px]">
+                    <label class="flex items-start gap-2 cursor-pointer text-slate-700 font-medium">
                       <input type="checkbox" id="check-full-${trialIdx}" ${check.fullDist ? 'checked' : ''} 
                              onchange="window.labEngine.updateQualityCheck(${this.activeToyIndex}, ${trialIdx}, 'fullDist', this.checked)"
-                             class="mt-0.5 rounded border-white/20 bg-slate-800 text-sky-500 focus:ring-0">
+                             class="mt-0.5 rounded border-slate-300 text-sky-600 focus:ring-0">
                       <span>Traveled full 20.0 cm</span>
                     </label>
 
-                    <label class="flex items-start gap-2 cursor-pointer text-slate-300">
+                    <label class="flex items-start gap-2 cursor-pointer text-slate-700 font-medium">
                       <input type="checkbox" id="check-precise-${trialIdx}" ${check.precise ? 'checked' : ''} 
                              onchange="window.labEngine.updateQualityCheck(${this.activeToyIndex}, ${trialIdx}, 'precise', this.checked)"
-                             class="mt-0.5 rounded border-white/20 bg-slate-800 text-sky-500 focus:ring-0">
+                             class="mt-0.5 rounded border-slate-300 text-sky-600 focus:ring-0">
                       <span>Stopwatch synchronized</span>
                     </label>
                   </div>
 
                   ${isOutlier ? `
-                    <div class="p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-[11px] text-amber-200 space-y-1">
+                    <div class="p-2.5 rounded-xl bg-amber-100 border border-amber-300 text-[11px] text-amber-900 space-y-1">
                       <p><strong>Outlier Notice:</strong> This trial (${val} s) differs substantially from your other trials. We recommend repeating this replication now while you have the toy.</p>
-                      <button onclick="window.labEngine.clearTrial(${this.activeToyIndex}, ${trialIdx})" class="px-2 py-1 rounded bg-amber-500/30 hover:bg-amber-500/40 text-amber-100 font-bold text-[10px] uppercase transition-colors">
+                      <button onclick="window.labEngine.clearTrial(${this.activeToyIndex}, ${trialIdx})" class="px-2 py-1 rounded bg-amber-200 hover:bg-amber-300 text-amber-950 font-bold text-[10px] uppercase transition-colors border border-amber-400">
                         🔄 Repeat Trial ${trialIdx + 1}
                       </button>
                     </div>
@@ -304,40 +304,40 @@ class WindUpLabEngine {
         <!-- Guidance Banner for Toy Transition -->
         ${hasAllTrials ? (
           this.activeToyIndex === 0 ? `
-            <div class="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-              <div class="flex items-center gap-2 text-slate-300">
+            <div class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-300 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs shadow-sm">
+              <div class="flex items-center gap-2 text-slate-800">
                 <span class="text-lg">🔁</span>
                 <span><strong>Toy 1 Finished:</strong> Return ${currentToy.name} to the supply table, then grab your next toy.</span>
               </div>
-              <button onclick="window.labEngine.switchActiveToy(1)" class="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold transition-all shadow-md active:scale-95 whitespace-nowrap">
+              <button onclick="window.labEngine.switchActiveToy(1)" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold transition-all shadow-md active:scale-95 whitespace-nowrap">
                 Test Toy 2 &rarr;
               </button>
             </div>
           ` : this.activeToyIndex === 1 ? `
-            <div class="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-              <div class="flex items-center gap-2 text-slate-300">
+            <div class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-300 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs shadow-sm">
+              <div class="flex items-center gap-2 text-slate-800">
                 <span class="text-lg">🔁</span>
                 <span><strong>Toy 2 Finished:</strong> Return ${currentToy.name} to the supply table, then grab your final toy.</span>
               </div>
-              <button onclick="window.labEngine.switchActiveToy(2)" class="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold transition-all shadow-md active:scale-95 whitespace-nowrap">
+              <button onclick="window.labEngine.switchActiveToy(2)" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold transition-all shadow-md active:scale-95 whitespace-nowrap">
                 Test Toy 3 &rarr;
               </button>
             </div>
           ` : `
-            <div class="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-              <div class="flex items-center gap-2 text-emerald-300">
+            <div class="p-3.5 rounded-2xl bg-emerald-100 border border-emerald-300 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs shadow-sm">
+              <div class="flex items-center gap-2 text-emerald-950 font-medium">
                 <span class="text-lg">✅</span>
                 <span><strong>All 3 Toys Complete!</strong> Return Toy 3 to the supply table and proceed to calculations.</span>
               </div>
-              <button onclick="window.labEngine.goToStep(2)" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold transition-all shadow-md active:scale-95 whitespace-nowrap">
+              <button onclick="window.labEngine.goToStep(2)" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition-all shadow-md active:scale-95 whitespace-nowrap">
                 Calculate Averages &rarr;
               </button>
             </div>
           `
         ) : `
-          <div class="p-3 rounded-xl bg-slate-900/50 border border-white/10 flex items-center justify-between text-xs">
-            <span class="text-slate-300">Active Target: <strong>Replication ${this.activeTrialIndex + 1}</strong> of ${currentToy.name}</span>
-            <span class="text-slate-400 font-mono">Use the stopwatch above, then click <strong>"Capture Time"</strong></span>
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs">
+            <span class="text-slate-800 font-medium">Active Target: <strong>Replication ${this.activeTrialIndex + 1}</strong> of ${currentToy.name}</span>
+            <span class="text-slate-500 font-mono">Use the stopwatch above, then click <strong>"Capture Time"</strong></span>
           </div>
         `}
 
@@ -448,58 +448,58 @@ class WindUpLabEngine {
       toy.correctAvgTime = correctAvg;
 
       return `
-        <div class="glass-card p-5 rounded-2xl border border-white/10 space-y-3">
-          <div class="flex items-center justify-between border-b border-white/10 pb-2">
-            <h4 class="text-sm font-bold text-white flex items-center gap-2">
+        <div class="glass-card p-5 rounded-2xl border border-slate-200 bg-white space-y-3 shadow-sm">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+            <h4 class="text-sm font-bold text-slate-900 flex items-center gap-2">
               <span class="w-3 h-3 rounded-full" style="background: ${toy.color}"></span>
               <span>${toy.name}</span>
             </h4>
-            <span class="text-xs font-mono text-slate-400">Track Distance: <strong>20.0 cm</strong></span>
+            <span class="text-xs font-mono text-slate-500">Track Distance: <strong>20.0 cm</strong></span>
           </div>
 
           <!-- 3 Recorded Times Display -->
           <div class="grid grid-cols-3 gap-2 text-center text-xs font-mono">
-            <div class="p-2.5 rounded-xl bg-slate-900 border border-white/10">
-              <span class="text-[10px] text-slate-400 block uppercase tracking-wider mb-0.5">Trial 1</span>
-              <strong class="text-base text-white">${t1} s</strong>
+            <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+              <span class="text-[10px] text-slate-500 block uppercase tracking-wider mb-0.5 font-bold">Trial 1</span>
+              <strong class="text-base text-slate-900">${t1} s</strong>
             </div>
-            <div class="p-2.5 rounded-xl bg-slate-900 border border-white/10">
-              <span class="text-[10px] text-slate-400 block uppercase tracking-wider mb-0.5">Trial 2</span>
-              <strong class="text-base text-white">${t2} s</strong>
+            <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+              <span class="text-[10px] text-slate-500 block uppercase tracking-wider mb-0.5 font-bold">Trial 2</span>
+              <strong class="text-base text-slate-900">${t2} s</strong>
             </div>
-            <div class="p-2.5 rounded-xl bg-slate-900 border border-white/10">
-              <span class="text-[10px] text-slate-400 block uppercase tracking-wider mb-0.5">Trial 3</span>
-              <strong class="text-base text-white">${t3} s</strong>
+            <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+              <span class="text-[10px] text-slate-500 block uppercase tracking-wider mb-0.5 font-bold">Trial 3</span>
+              <strong class="text-base text-slate-900">${t3} s</strong>
             </div>
           </div>
 
           <!-- Plain Language Instructions -->
-          <div class="p-3.5 rounded-xl bg-sky-950/25 border border-sky-500/25 space-y-1.5 text-xs text-slate-200">
-            <div class="font-bold text-sky-300 text-sm">How to find the average time:</div>
-            <div class="space-y-1 text-slate-200">
-              <div><strong>Step 1:</strong> Add your 3 times together: <span class="font-mono text-white font-bold bg-black/40 px-1.5 py-0.5 rounded border border-white/10">${t1} + ${t2} + ${t3}</span></div>
+          <div class="p-3.5 rounded-xl bg-sky-50 border border-sky-200 space-y-1.5 text-xs text-slate-800">
+            <div class="font-bold text-sky-900 text-sm">How to find the average time:</div>
+            <div class="space-y-1 text-slate-800">
+              <div><strong>Step 1:</strong> Add your 3 times together: <span class="font-mono text-slate-900 font-bold bg-white px-2 py-0.5 rounded border border-sky-200">${t1} + ${t2} + ${t3}</span></div>
               <div><strong>Step 2:</strong> Divide that total by <strong>3</strong>.</div>
             </div>
-            <div class="pt-1 text-[11px] text-slate-400">
-              In the calculator: type <code>(${t1} + ${t2} + ${t3}) / 3</code>
+            <div class="pt-1 text-[11px] text-slate-600">
+              In the calculator: type <code class="bg-white text-sky-900 px-1.5 py-0.5 rounded border border-sky-200 font-mono font-bold">(${t1} + ${t2} + ${t3}) / 3</code>
             </div>
           </div>
 
           <!-- Student Input & Check Button -->
           <div class="flex flex-wrap items-center gap-3 pt-1">
             <div class="flex items-center gap-2">
-              <label class="text-xs text-slate-300 font-medium">Average Time (in seconds):</label>
+              <label class="text-xs text-slate-700 font-medium">Average Time (in seconds):</label>
               <input type="number" step="0.01" id="input-avg-${idx}" value="${toy.studentAvgTime !== null ? toy.studentAvgTime : ''}"
                      placeholder="0.00" 
-                     class="w-28 bg-slate-900 border border-white/20 rounded-xl px-3 py-1.5 text-sm text-white font-mono font-bold focus:border-sky-400 outline-none">
+                     class="w-28 bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-sm text-slate-900 font-mono font-bold focus:border-sky-600 outline-none">
             </div>
 
-            <button onclick="window.labEngine.checkAverage(${idx})" class="px-4 py-1.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-bold transition-all shadow-md active:scale-95">
+            <button onclick="window.labEngine.checkAverage(${idx})" class="px-4 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold transition-all shadow-md active:scale-95">
               Check Average ✓
             </button>
 
             <span id="feedback-avg-${idx}" class="text-xs font-medium">
-              ${toy.avgTimeVerified ? '<span class="text-emerald-300 font-bold">✓ Correct average!</span>' : ''}
+              ${toy.avgTimeVerified ? '<span class="text-emerald-700 font-bold">✓ Correct average!</span>' : ''}
             </span>
           </div>
         </div>
@@ -515,7 +515,7 @@ class WindUpLabEngine {
 
     const val = parseFloat(input.value);
     if (isNaN(val)) {
-      feedback.innerHTML = `<span class="text-rose-400">Please enter a number for average time.</span>`;
+      feedback.innerHTML = `<span class="text-rose-700 font-semibold">Please enter a number for average time.</span>`;
       return;
     }
 
@@ -527,24 +527,24 @@ class WindUpLabEngine {
     if (diff <= 0.06) {
       toy.avgTimeVerified = true;
       if (window.labSound) window.labSound.playSuccess();
-      feedback.innerHTML = `<span class="text-emerald-300 font-bold">✓ Correct! The average time is ${toy.correctAvgTime} seconds.</span>`;
+      feedback.innerHTML = `<span class="text-emerald-700 font-bold">✓ Correct! The average time is ${toy.correctAvgTime} seconds.</span>`;
       this.updateCalculatorNumbers();
     } else if (Math.abs(val - sum) <= 0.2) {
       toy.avgTimeVerified = false;
       if (window.labSound) window.labSound.playOutlierAlert();
-      feedback.innerHTML = `<span class="text-amber-300">You added the 3 times together (${val} s), but forgot to divide by 3!</span>`;
+      feedback.innerHTML = `<span class="text-amber-800 font-semibold">You added the 3 times together (${val} s), but forgot to divide by 3!</span>`;
     } else if (Math.abs(val - orderOfOpsVal) <= 0.2) {
       toy.avgTimeVerified = false;
       if (window.labSound) window.labSound.playOutlierAlert();
-      feedback.innerHTML = `<span class="text-amber-300">Order of operations: use parentheses around the sum: <code>(${toy.trials.join(' + ')}) / 3</code></span>`;
+      feedback.innerHTML = `<span class="text-amber-800 font-semibold">Order of operations: use parentheses around the sum: <code>(${toy.trials.join(' + ')}) / 3</code></span>`;
     } else if (Math.abs(val - (sum / 2)) <= 0.2) {
       toy.avgTimeVerified = false;
       if (window.labSound) window.labSound.playOutlierAlert();
-      feedback.innerHTML = `<span class="text-amber-300">You divided by 2 instead of 3. Divide by 3 because there are 3 trials!</span>`;
+      feedback.innerHTML = `<span class="text-amber-800 font-semibold">You divided by 2 instead of 3. Divide by 3 because there are 3 trials!</span>`;
     } else {
       toy.avgTimeVerified = false;
       if (window.labSound) window.labSound.playOutlierAlert();
-      feedback.innerHTML = `<span class="text-rose-400">In the calculator: type <code>(${toy.trials.join(' + ')}) / 3</code></span>`;
+      feedback.innerHTML = `<span class="text-rose-700 font-semibold">In the calculator: type <code>(${toy.trials.join(' + ')}) / 3</code></span>`;
     }
   }
 
@@ -563,47 +563,47 @@ class WindUpLabEngine {
       toy.correctSpeed = correctSpeed;
 
       return `
-        <div class="glass-card p-5 rounded-2xl border border-white/10 space-y-3">
-          <div class="flex items-center justify-between border-b border-white/10 pb-2">
-            <h4 class="text-sm font-bold text-white flex items-center gap-2">
+        <div class="glass-card p-5 rounded-2xl border border-slate-200 bg-white space-y-3 shadow-sm">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+            <h4 class="text-sm font-bold text-slate-900 flex items-center gap-2">
               <span class="w-3 h-3 rounded-full" style="background: ${toy.color}"></span>
               <span>${toy.name}</span>
             </h4>
-            <span class="text-xs font-mono text-slate-400">Track Distance: <strong>20.0 cm</strong></span>
+            <span class="text-xs font-mono text-slate-500">Track Distance: <strong>20.0 cm</strong></span>
           </div>
 
           <!-- Plain Language Instructions -->
-          <div class="p-3.5 rounded-xl bg-emerald-950/25 border border-emerald-500/25 space-y-1.5 text-xs text-slate-200">
-            <div class="font-bold text-emerald-300 text-sm">How to find speed:</div>
+          <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 space-y-1.5 text-xs text-slate-800">
+            <div class="font-bold text-emerald-900 text-sm">How to find speed:</div>
             <div>
               Speed tells you how many centimeters the toy traveled each second.
             </div>
             <div>
               <strong>Divide the distance (20.0 cm) by your average time (${tAvg} s):</strong>
             </div>
-            <div class="font-mono text-sm text-white bg-black/40 px-2.5 py-1 rounded-lg border border-white/10 inline-block font-bold">
+            <div class="font-mono text-sm text-emerald-950 bg-white px-2.5 py-1 rounded-lg border border-emerald-200 inline-block font-bold">
               20.0 ÷ ${tAvg} = ?
             </div>
-            <div class="text-[11px] text-slate-400">
-              In the calculator: type <code>20 / ${tAvg}</code>
+            <div class="text-[11px] text-slate-600">
+              In the calculator: type <code class="bg-white text-emerald-900 px-1.5 py-0.5 rounded border border-emerald-200 font-mono font-bold">20 / ${tAvg}</code>
             </div>
           </div>
 
           <!-- Student Input & Check Button -->
           <div class="flex flex-wrap items-center gap-3 pt-1">
             <div class="flex items-center gap-2">
-              <label class="text-xs text-slate-300 font-medium">Speed (in cm per second):</label>
+              <label class="text-xs text-slate-700 font-medium">Speed (in cm per second):</label>
               <input type="number" step="0.01" id="input-speed-${idx}" value="${toy.studentSpeed !== null ? toy.studentSpeed : ''}"
                      placeholder="0.00" 
-                     class="w-28 bg-slate-900 border border-white/20 rounded-xl px-3 py-1.5 text-sm text-white font-mono font-bold focus:border-sky-400 outline-none">
+                     class="w-28 bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-sm text-slate-900 font-mono font-bold focus:border-sky-600 outline-none">
             </div>
 
-            <button onclick="window.labEngine.checkSpeed(${idx})" class="px-4 py-1.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-bold transition-all shadow-md active:scale-95">
+            <button onclick="window.labEngine.checkSpeed(${idx})" class="px-4 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold transition-all shadow-md active:scale-95">
               Verify Speed ✓
             </button>
 
             <span id="feedback-speed-${idx}" class="text-xs font-medium">
-              ${toy.speedVerified ? '<span class="text-emerald-300 font-bold">✓ Speed Verified!</span>' : ''}
+              ${toy.speedVerified ? '<span class="text-emerald-700 font-bold">✓ Speed Verified!</span>' : ''}
             </span>
           </div>
         </div>
@@ -619,7 +619,7 @@ class WindUpLabEngine {
 
     const val = parseFloat(input.value);
     if (isNaN(val)) {
-      feedback.innerHTML = `<span class="text-rose-400">Please enter a number for speed.</span>`;
+      feedback.innerHTML = `<span class="text-rose-700 font-semibold">Please enter a number for speed.</span>`;
       return;
     }
 
@@ -630,20 +630,20 @@ class WindUpLabEngine {
     if (diff <= 0.15) {
       toy.speedVerified = true;
       if (window.labSound) window.labSound.playSuccess();
-      feedback.innerHTML = `<span class="text-emerald-300 font-bold">✓ Great work! Speed is ${toy.correctSpeed} cm per second.</span>`;
+      feedback.innerHTML = `<span class="text-emerald-700 font-bold">✓ Great work! Speed is ${toy.correctSpeed} cm per second.</span>`;
       this.updateCalculatorNumbers();
     } else if (Math.abs(val - (tAvg / 20.0)) <= 0.05) {
       toy.speedVerified = false;
       if (window.labSound) window.labSound.playOutlierAlert();
-      feedback.innerHTML = `<span class="text-amber-300">You divided time by distance. Divide distance by time: <code>20 / ${tAvg}</code></span>`;
+      feedback.innerHTML = `<span class="text-amber-800 font-semibold">You divided time by distance. Divide distance by time: <code>20 / ${tAvg}</code></span>`;
     } else if (Math.abs(val - (20.0 * tAvg)) <= 1.0) {
       toy.speedVerified = false;
       if (window.labSound) window.labSound.playOutlierAlert();
-      feedback.innerHTML = `<span class="text-amber-300">You multiplied instead of dividing! Divide 20 by average time: <code>20 / ${tAvg}</code></span>`;
+      feedback.innerHTML = `<span class="text-amber-800 font-semibold">You multiplied instead of dividing! Divide 20 by average time: <code>20 / ${tAvg}</code></span>`;
     } else {
       toy.speedVerified = false;
       if (window.labSound) window.labSound.playOutlierAlert();
-      feedback.innerHTML = `<span class="text-rose-400">In the calculator: divide 20 by your average time: <code>20 / ${tAvg}</code>.</span>`;
+      feedback.innerHTML = `<span class="text-rose-700 font-semibold">In the calculator: divide 20 by your average time: <code>20 / ${tAvg}</code>.</span>`;
     }
   }
 
@@ -661,36 +661,36 @@ class WindUpLabEngine {
       let stepHintHtml = '';
       if (this.currentStep === 2) {
         if (toy.avgTimeVerified) {
-          stepHintHtml = `<div class="text-[11px] text-emerald-400 font-bold">✓ Average verified: ${avg}</div>`;
+          stepHintHtml = `<div class="text-[11px] text-emerald-700 font-bold">✓ Average verified: ${avg}</div>`;
         } else if (toy.trials[0] !== null) {
           stepHintHtml = `
-            <div class="text-[11px] text-amber-300">
-              Type: <code>(${toy.trials[0]} + ${toy.trials[1]} + ${toy.trials[2]}) / 3</code>
+            <div class="text-[11px] text-amber-800 font-semibold">
+              Type: <code class="bg-amber-100 px-1 py-0.5 rounded border border-amber-300">(${toy.trials[0]} + ${toy.trials[1]} + ${toy.trials[2]}) / 3</code>
             </div>`;
         }
       } else if (this.currentStep === 3) {
         if (toy.speedVerified) {
-          stepHintHtml = `<div class="text-[11px] text-emerald-400 font-bold">✓ Speed verified: ${spd}</div>`;
+          stepHintHtml = `<div class="text-[11px] text-emerald-700 font-bold">✓ Speed verified: ${spd}</div>`;
         } else if (avg) {
           const numAvg = toy.studentAvgTime || toy.correctAvgTime;
           stepHintHtml = `
-            <div class="text-[11px] text-amber-300">
-              Type: <code>20 / ${numAvg}</code>
+            <div class="text-[11px] text-amber-800 font-semibold">
+              Type: <code class="bg-amber-100 px-1 py-0.5 rounded border border-amber-300">20 / ${numAvg}</code>
             </div>`;
         }
       }
 
       return `
-        <div class="p-2.5 rounded-xl bg-black/50 border border-white/10 space-y-1">
-          <div class="font-bold text-white flex items-center justify-between">
+        <div class="p-2.5 rounded-xl bg-white border border-slate-200 shadow-sm space-y-1">
+          <div class="font-bold text-slate-900 flex items-center justify-between">
             <span class="flex items-center gap-1.5">
               <span class="w-2.5 h-2.5 rounded-full" style="background: ${toy.color}"></span>
               <span>${toy.name}</span>
             </span>
-            ${avg ? `<span class="text-[11px] font-mono text-purple-300">Avg: <strong>${avg}</strong></span>` : ''}
+            ${avg ? `<span class="text-[11px] font-mono text-purple-900 font-bold">Avg: <strong>${avg}</strong></span>` : ''}
           </div>
-          <div class="text-[11px] text-slate-300">
-            3 Times: <strong>${t1}</strong>, <strong>${t2}</strong>, <strong>${t3}</strong>
+          <div class="text-[11px] text-slate-600">
+            3 Times: <strong class="text-slate-900">${t1}</strong>, <strong class="text-slate-900">${t2}</strong>, <strong class="text-slate-900">${t3}</strong>
           </div>
           ${stepHintHtml}
         </div>
@@ -712,12 +712,13 @@ class WindUpLabEngine {
 
     const toyNames = this.toys.map(t => t.name);
     const speeds = this.toys.map(t => t.studentSpeed || t.correctSpeed || 5.0);
+    const isDark = document.body.classList.contains('theme-dark');
 
     try {
       this.graphEngine = new CASTGraphEngine(container, {
         title: "Comparison of Wind-Up Toy Speeds (20.0 cm Track)",
         chartType: "bar",
-        theme: "dark",
+        theme: isDark ? "dark" : "light",
         xAxis: {
           label: "Wind-Up Toy",
           unit: ""
@@ -734,7 +735,7 @@ class WindUpLabEngine {
             id: "speed-series",
             label: "Average Speed",
             unit: "cm/s",
-            color: "#38bdf8",
+            color: isDark ? "#38bdf8" : "#0284c7",
             values: speeds
           }
         ]
