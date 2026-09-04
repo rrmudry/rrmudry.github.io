@@ -227,9 +227,11 @@ class WindUpLabEngine {
           <span class="text-xs text-slate-700 dark:text-slate-300 font-medium">
             Record 3 trials for <strong>${currentToy.name}</strong> before returning it:
           </span>
-          <button onclick="window.labEngine.prefillSampleData(${this.activeToyIndex})" class="text-[11px] text-sky-800 dark:text-sky-300 hover:text-sky-900 dark:hover:text-sky-200 bg-sky-100 dark:bg-sky-500/10 hover:bg-sky-200 dark:hover:bg-sky-500/20 px-2.5 py-1 rounded-lg border border-sky-300 dark:border-sky-500/20 font-semibold transition-colors">
-            Demo Autofill
-          </button>
+          ${(window.labAuth && window.labAuth.isTeacher()) ? `
+            <button onclick="window.labEngine.prefillSampleData(${this.activeToyIndex})" class="text-[11px] text-sky-800 dark:text-sky-300 hover:text-sky-900 dark:hover:text-sky-200 bg-sky-100 dark:bg-sky-500/10 hover:bg-sky-200 dark:hover:bg-sky-500/20 px-2.5 py-1 rounded-lg border border-sky-300 dark:border-sky-500/20 font-semibold transition-colors flex items-center gap-1" title="Teacher Demo Only">
+              <span>Demo Autofill</span>
+            </button>
+          ` : ''}
         </div>
 
         <!-- 3 Replications Grid -->
@@ -420,6 +422,10 @@ class WindUpLabEngine {
   }
 
   prefillSampleData(toyIdx) {
+    if (!window.labAuth || !window.labAuth.isTeacher()) {
+      console.warn("Autofill is reserved for teacher demonstration.");
+      return;
+    }
     const presets = [
       { name: "Green Flipping Frog", trials: [2.35, 2.42, 2.38] },
       { name: "Blue Racing Beetle", trials: [4.10, 4.25, 4.18] },
