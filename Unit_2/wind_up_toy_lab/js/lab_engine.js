@@ -687,8 +687,8 @@ class WindUpLabEngine {
       const t1 = (toy.trials[0] !== null && toy.trials[0] !== undefined) ? `${toy.trials[0]} s` : '---';
       const t2 = (toy.trials[1] !== null && toy.trials[1] !== undefined) ? `${toy.trials[1]} s` : '---';
       const t3 = (toy.trials[2] !== null && toy.trials[2] !== undefined) ? `${toy.trials[2]} s` : '---';
-      const avg = toy.studentAvgTime !== null ? `${toy.studentAvgTime} s` : (toy.correctAvgTime ? `${toy.correctAvgTime} s` : null);
-      const spd = toy.studentSpeed !== null ? `${toy.studentSpeed} cm/s` : (toy.correctSpeed ? `${toy.correctSpeed} cm/s` : null);
+      const avg = (toy.avgTimeVerified && toy.studentAvgTime !== null) ? `${toy.studentAvgTime} s` : null;
+      const spd = (toy.speedVerified && toy.studentSpeed !== null) ? `${toy.studentSpeed} cm/s` : null;
       
       let stepHintHtml = '';
       if (this.currentStep === 2) {
@@ -703,8 +703,8 @@ class WindUpLabEngine {
       } else if (this.currentStep === 3) {
         if (toy.speedVerified) {
           stepHintHtml = `<div class="text-[11px] text-emerald-700 dark:text-emerald-400 font-bold">✓ Speed verified: ${spd}</div>`;
-        } else if (avg) {
-          const numAvg = toy.studentAvgTime || toy.correctAvgTime;
+        } else if (toy.avgTimeVerified && toy.studentAvgTime) {
+          const numAvg = toy.studentAvgTime;
           stepHintHtml = `
             <div class="text-[11px] text-amber-800 dark:text-amber-300 font-semibold">
               Type: <code class="bg-amber-100 dark:bg-black/40 px-1 py-0.5 rounded border border-amber-300 dark:border-amber-500/40">20 / ${numAvg}</code>
