@@ -1,6 +1,7 @@
 /**
  * PrecisionStopwatch - High-accuracy digital stopwatch engine
  * Wind-Up Toy Speed Lab
+ * Enforces single-replication capture: each captured time can only fill ONE replication.
  */
 class PrecisionStopwatch {
   constructor(displayId, controls = {}) {
@@ -13,6 +14,7 @@ class PrecisionStopwatch {
     this.startTime = 0;
     this.elapsedTime = 0;
     this.animFrameId = null;
+    this.hasBeenCaptured = false;
 
     this.init();
   }
@@ -38,6 +40,7 @@ class PrecisionStopwatch {
     });
 
     this.updateDisplay(0);
+    this.updateRecordButtonState();
   }
 
   toggle() {
@@ -51,6 +54,7 @@ class PrecisionStopwatch {
   start() {
     if (this.isRunning) return;
     this.isRunning = true;
+    this.hasBeenCaptured = false;
     this.startTime = performance.now() - this.elapsedTime;
     if (window.labSound) window.labSound.playStopwatchStart();
 
@@ -59,6 +63,8 @@ class PrecisionStopwatch {
       this.btnToggle.classList.remove('bg-emerald-600', 'hover:bg-emerald-500');
       this.btnToggle.classList.add('bg-rose-600', 'hover:bg-rose-500');
     }
+
+    this.updateRecordButtonState();
 
     const tick = () => {
       if (!this.isRunning) return;
@@ -80,12 +86,18 @@ class PrecisionStopwatch {
       this.btnToggle.classList.remove('bg-rose-600', 'hover:bg-rose-500');
       this.btnToggle.classList.add('bg-emerald-600', 'hover:bg-emerald-500');
     }
+
+    this.updateRecordButtonState();
   }
 
   reset() {
-    this.stop();
+    if (this.isRunning) {
+      this.stop();
+    }
     this.elapsedTime = 0;
+    this.hasBeenCaptured = false;
     this.updateDisplay(0);
+    this.updateRecordButtonState();
     if (window.labSound) window.labSound.playClick();
   }
 
@@ -107,12 +119,44 @@ class PrecisionStopwatch {
     return parseFloat((this.elapsedTime / 1000).toFixed(2));
   }
 
+  updateRecordButtonState() {
+    if (!this.btnRecord) return;
+    if (this.hasBeenCaptured) {
+      this.btnRecord.disabled = true;
+      this.btnRecord.innerHTML = '<span>✓</span> <span>Recorded</span>';
+      this.btnRecord.className = 'flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-slate-800 text-slate-400 text-xs font-bold transition-all border border-white/10 cursor-not-allowed flex items-center justify-center gap-1.5 opacity-60';
+    } else if (this.elapsedTime <= 0) {
+      this.btnRecord.disabled = true;
+      this.btnRecord.innerHTML = '<span>📥</span> <span>Capture Time</span>';
+      this.btnRecord.className = 'flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-slate-800 text-slate-500 text-xs font-bold transition-all border border-white/10 cursor-not-allowed flex items-center justify-center gap-1.5 opacity-50';
+    } else {
+      this.btnRecord.disabled = false;
+      this.btnRecord.innerHTML = '<span>📥</span> <span>Capture Time</span>';
+      this.btnRecord.className = 'flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-bold transition-all shadow-md active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer';
+    }
+  }
+
   recordCurrentTime() {
+    // If still running, stop it to lock in the elapsed time
+    if (this.isRunning) {
+      this.stop();
+    }
+
     const seconds = this.getSeconds();
     if (seconds <= 0) {
-      alert("Please start and time the toy before recording!");
+      alert("Please start the stopwatch and time the toy before recording!");
       return;
     }
+
+    if (this.hasBeenCaptured) {
+      alert("This measurement has already been recorded! Start or reset the stopwatch to measure your next replication.");
+      return;
+    }
+
+    // Lock single-capture state
+    this.hasBeenCaptured = true;
+    this.updateRecordButtonState();
+
     if (window.labEngine) {
       window.labEngine.fillActiveTrial(seconds);
     }

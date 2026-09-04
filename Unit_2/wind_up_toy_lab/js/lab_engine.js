@@ -355,6 +355,7 @@ class WindUpLabEngine {
   switchActiveToy(idx) {
     this.activeToyIndex = idx;
     this.activeTrialIndex = 0;
+    if (window.stopwatch) window.stopwatch.reset();
     if (window.labSound) window.labSound.playClick();
     this.renderStep1DataCollection();
   }
@@ -393,6 +394,7 @@ class WindUpLabEngine {
     this.toys[toyIdx].trials[trialIdx] = null;
     this.activeToyIndex = toyIdx;
     this.activeTrialIndex = trialIdx;
+    if (window.stopwatch) window.stopwatch.reset();
     if (window.labSound) window.labSound.playClick();
     this.renderStep1DataCollection();
   }
