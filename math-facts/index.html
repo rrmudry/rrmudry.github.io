@@ -410,7 +410,7 @@
       line-height: 1.3;
     }
 
-    /* Table Focus Filter Pills */
+    /* Table Focus Filter Pills & Mario Kart Star System */
     .tables-filter {
       display: flex;
       flex-wrap: wrap;
@@ -427,21 +427,89 @@
       border: 1px solid var(--border);
       color: var(--text-muted);
       padding: 6px 12px;
-      border-radius: 999px;
+      border-radius: 12px;
       font-weight: 700;
       font-size: 0.85rem;
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      min-width: 52px;
+      user-select: none;
+      -webkit-user-select: none;
     }
     .table-pill:hover {
       background: rgba(255, 255, 255, 0.12);
       color: white;
+      transform: translateY(-1px);
     }
     .table-pill.active {
       background: var(--blue);
       color: #050b18;
       border-color: var(--blue);
-      box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.45);
+    }
+    .table-pill.has-3-stars {
+      border-color: rgba(251, 191, 36, 0.45);
+      background: linear-gradient(180deg, rgba(251, 191, 36, 0.12), rgba(255, 255, 255, 0.04));
+    }
+    .table-pill.active.has-3-stars {
+      background: var(--blue);
+      color: #050b18;
+      border-color: #fbbf24;
+      box-shadow: 0 0 16px rgba(251, 191, 36, 0.5), 0 0 8px rgba(56, 189, 248, 0.4);
+    }
+    .pill-label {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 0.88rem;
+      letter-spacing: 0.5px;
+      line-height: 1.1;
+    }
+    .pill-stars {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.68rem;
+      line-height: 1;
+      letter-spacing: 1px;
+    }
+    .star-gold {
+      color: #fbbf24;
+      text-shadow: 0 0 4px rgba(251, 191, 36, 0.6);
+    }
+    .table-pill.active .star-gold {
+      color: #92400e;
+      text-shadow: 0 0 2px rgba(255, 255, 255, 0.4);
+    }
+    .star-dim {
+      color: rgba(255, 255, 255, 0.2);
+    }
+    .table-pill.active .star-dim {
+      color: rgba(5, 11, 24, 0.35);
+    }
+    .mastery-total-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      color: #fbbf24;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      font-family: var(--font-display);
+      letter-spacing: 0.5px;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.15);
+    }
+    .mastery-total-badge.all-mastered {
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.3), rgba(245, 158, 11, 0.2));
+      border-color: #fbbf24;
+      box-shadow: 0 0 16px rgba(251, 191, 36, 0.4);
     }
 
     /* Large Action Buttons */
@@ -1172,6 +1240,111 @@
       to { transform: scale(1.02); box-shadow: 0 0 24px rgba(251, 191, 36, 0.55); }
     }
 
+    /* Mario Kart Table Star Banner on Results */
+    .table-star-banner {
+      display: none;
+      margin-top: 14px;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.16), rgba(217, 119, 6, 0.08));
+      border: 1px solid rgba(251, 191, 36, 0.4);
+      border-radius: var(--radius-md);
+      padding: 10px 16px;
+      text-align: center;
+      animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .table-star-banner.active {
+      display: block;
+    }
+    .table-star-banner.upgrade {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.28), rgba(217, 119, 6, 0.16));
+      border-color: #fbbf24;
+      box-shadow: 0 0 22px rgba(251, 191, 36, 0.35);
+    }
+    .table-star-title {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 1.15rem;
+      color: #fbbf24;
+      letter-spacing: 0.5px;
+      margin-bottom: 3px;
+    }
+    .table-star-desc {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+    }
+
+    /* Mario Kart Table Mastery Grid in Records View */
+    .table-mastery-card {
+      background: rgba(15, 22, 54, 0.9);
+      border: 1px solid var(--border-bright);
+      border-radius: var(--radius-lg);
+      padding: 18px 20px;
+      margin-bottom: 18px;
+    }
+    .mastery-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .mastery-card-title {
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .mastery-card-count {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: #fbbf24;
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      padding: 3px 12px;
+      border-radius: 999px;
+      font-family: var(--font-display);
+    }
+    .mastery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+      gap: 8px;
+    }
+    .mastery-cell {
+      background: rgba(8, 12, 30, 0.65);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 8px 4px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: transform 0.15s ease;
+    }
+    .mastery-cell:hover {
+      transform: translateY(-1px);
+    }
+    .mastery-cell.cell-perfect {
+      border-color: rgba(251, 191, 36, 0.5);
+      background: linear-gradient(180deg, rgba(251, 191, 36, 0.12), rgba(8, 12, 30, 0.65));
+      box-shadow: 0 0 10px rgba(251, 191, 36, 0.15);
+    }
+    .mastery-cell-label {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 0.9rem;
+      color: white;
+    }
+    .mastery-cell-stars {
+      font-size: 0.68rem;
+      letter-spacing: 1px;
+      line-height: 1;
+    }
+
     /* Welcome Screen PB Card */
     .welcome-pb-card {
       background: rgba(14, 21, 50, 0.8);
@@ -1484,7 +1657,44 @@
       gap: 4px;
     }
     body.phone-mode .table-pill {
-      padding: 3px 8px;
+      padding: 4px 6px;
+      font-size: 0.75rem;
+      min-width: 42px;
+      border-radius: 8px;
+    }
+    body.phone-mode .pill-label {
+      font-size: 0.78rem;
+    }
+    body.phone-mode .pill-stars {
+      font-size: 0.58rem;
+      letter-spacing: 0.5px;
+    }
+    body.phone-mode .mastery-total-badge {
+      font-size: 0.68rem;
+      padding: 2px 7px;
+    }
+    body.phone-mode .mastery-grid {
+      grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
+      gap: 6px;
+    }
+    body.phone-mode .mastery-cell {
+      padding: 6px 2px;
+    }
+    body.phone-mode .mastery-cell-label {
+      font-size: 0.8rem;
+    }
+    body.phone-mode .mastery-cell-stars {
+      font-size: 0.58rem;
+      letter-spacing: 0.5px;
+    }
+    body.phone-mode .table-star-banner {
+      padding: 8px 12px;
+      margin-top: 10px;
+    }
+    body.phone-mode .table-star-title {
+      font-size: 0.98rem;
+    }
+    body.phone-mode .table-star-desc {
       font-size: 0.75rem;
     }
     body.phone-mode .btn-action {
@@ -1718,22 +1928,56 @@
           </div>
         </div>
 
-        <!-- Single Table Drill (Optional) -->
-        <div style="text-align: center; margin-top: 6px; margin-bottom: 6px;">
+        <!-- Single Table Drill (Optional) with Mario Kart Mastery Badges -->
+        <div style="text-align: center; margin-top: 6px; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap;">
           <span class="input-label" style="font-size: 0.75rem;">Or Focus On A Single Table (Optional)</span>
+          <span id="mastery-total-badge" class="mastery-total-badge" title="Course Mastery Stars Earned">⭐ 0 / 33 Stars</span>
         </div>
         <div class="tables-filter" id="tables-filter">
-          <button class="table-pill" data-table="2">2s</button>
-          <button class="table-pill" data-table="3">3s</button>
-          <button class="table-pill" data-table="4">4s</button>
-          <button class="table-pill" data-table="5">5s</button>
-          <button class="table-pill" data-table="6">6s</button>
-          <button class="table-pill" data-table="7">7s</button>
-          <button class="table-pill" data-table="8">8s</button>
-          <button class="table-pill" data-table="9">9s</button>
-          <button class="table-pill" data-table="10">10s</button>
-          <button class="table-pill" data-table="11">11s</button>
-          <button class="table-pill" data-table="12">12s</button>
+          <button class="table-pill" data-table="2">
+            <span class="pill-label">2s</span>
+            <span class="pill-stars"><span class="star-dim">☆</span><span class="star-dim">☆</span><span class="star-dim">☆</span></span>
+          </button>
+          <button class="table-pill" data-table="3">
+            <span class="pill-label">3s</span>
+            <span class="pill-stars"><span class="star-dim">☆</span><span class="star-dim">☆</span><span class="star-dim">☆</span></span>
+          </button>
+          <button class="table-pill" data-table="4">
+            <span class="pill-label">4s</span>
+            <span class="pill-stars"><span class="star-dim">☆</span><span class="star-dim">☆</span><span class="star-dim">☆</span></span>
+          </button>
+          <button class="table-pill" data-table="5">
+            <span class="pill-label">5s</span>
+            <span class="pill-stars"><span class="star-dim">☆</span><span class="star-dim">☆</span><span class="star-dim">☆</span></span>
+          </button>
+          <button class="table-pill" data-table="6">
+            <span class="pill-label">6s</span>
+            <span class="pill-stars"><span class="star-dim">☆</span><span class="star-dim">☆</span><span class="star-dim">☆</span></span>
+          </button>
+          <button class="table-pill" data-table="7">
+            <span class="pill-label">7s</span>
+            <span class="pill-stars"><span class="star-dim">☆</span><span class="star-dim">☆</span><span class="star-dim">☆</span></span>
+          </button>
+          <button class="table-pill" data-table="8">
+            <span class="pill-label">8s</span>
+            <span class="pill-stars"><span class="star-dim">☆</span><span class="star-dim">☆</span><span class="star-dim">☆</span></span>
+          </button>
+          <button class="table-pill" data-table="9">
+            <span class="pill-label">9s</span>
+            <span class="pill-stars"><span class="star-dim">☆</span><span class="star-dim">☆</span><span class="star-dim">☆</span></span>
+          </button>
+          <button class="table-pill" data-table="10">
+            <span class="pill-label">10s</span>
+            <span class="pill-stars"><span class="star-dim">☆</span><span class="star-dim">☆</span><span class="star-dim">☆</span></span>
+          </button>
+          <button class="table-pill" data-table="11">
+            <span class="pill-label">11s</span>
+            <span class="pill-stars"><span class="star-dim">☆</span><span class="star-dim">☆</span><span class="star-dim">☆</span></span>
+          </button>
+          <button class="table-pill" data-table="12">
+            <span class="pill-label">12s</span>
+            <span class="pill-stars"><span class="star-dim">☆</span><span class="star-dim">☆</span><span class="star-dim">☆</span></span>
+          </button>
         </div>
 
         <!-- Start Button -->
@@ -1862,6 +2106,12 @@
             <span id="new-best-diff"></span>
           </div>
           <div id="res-prev-best-text" style="font-size: 0.82rem; color: var(--text-muted); margin-top: 5px;"></div>
+
+          <!-- Mario Kart Table Star Mastery Banner -->
+          <div id="table-star-banner" class="table-star-banner">
+            <div class="table-star-title" id="table-star-title">⭐ TABLE MASTERY</div>
+            <div class="table-star-desc" id="table-star-desc">Mastery rank progress</div>
+          </div>
         </div>
 
         <!-- Detailed Stats Grid -->
@@ -1970,6 +2220,20 @@
           </div>
           <div class="bests-metrics-grid" id="mode-metrics-grid">
             <!-- Filled dynamically -->
+          </div>
+        </div>
+
+        <!-- Mario Kart Table Mastery Card -->
+        <div class="table-mastery-card">
+          <div class="mastery-card-header">
+            <div class="mastery-card-title">
+              <span>🏆</span>
+              <span>Focus Table Mastery Stars</span>
+            </div>
+            <div class="mastery-card-count" id="rec-mastery-count">0 / 33 ⭐</div>
+          </div>
+          <div class="mastery-grid" id="rec-mastery-grid">
+            <!-- Dynamically populated with 2s through 12s -->
           </div>
         </div>
 
@@ -2195,13 +2459,20 @@
       const key = getRecordsStorageKey(name);
       try {
         const raw = localStorage.getItem(key);
-        if (raw) return JSON.parse(raw);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (!parsed.tableStars) {
+            parsed.tableStars = { "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0, "10": 0, "11": 0, "12": 0 };
+          }
+          return parsed;
+        }
       } catch (e) {}
       return {
         playerName: name || 'Player',
         totalFactsSolved: 0,
         gamesPlayed: 0,
         allTimeBestStreak: 0,
+        tableStars: { "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0, "10": 0, "11": 0, "12": 0 },
         modes: {
           blitz_60s: { highScore: 0, mostSolved: 0, bestStreak: 0, bestAccuracy: 0, fastestSpeed: null, date: null },
           sprint_100: { highScore: 0, fastestTimeSec: null, bestAccuracy: 0, bestStreak: 0, date: null },
@@ -2296,6 +2567,105 @@
     }
 
     // ========================================================================
+    // 3B. MARIO KART COURSE MASTERY STAR SYSTEM
+    // ========================================================================
+    function renderStarsSpan(numStars) {
+      let html = '';
+      for (let i = 1; i <= 3; i++) {
+        if (i <= numStars) {
+          html += '<span class="star-gold">★</span>';
+        } else {
+          html += '<span class="star-dim">☆</span>';
+        }
+      }
+      return html;
+    }
+
+    function calculateTableStars(run) {
+      const { accuracy, factsSolved, avgSpeedSec, score } = run;
+
+      // 3 Stars (★★★ Grand Master):
+      // Flawless 100% accuracy with at least 8 facts solved, or great volume + high speed
+      if (
+        (accuracy === 100 && factsSolved >= 8 && (avgSpeedSec <= 2.6 || score >= 1000)) ||
+        (accuracy >= 95 && factsSolved >= 16 && (avgSpeedSec <= 2.0 || score >= 1500)) ||
+        (accuracy === 100 && factsSolved >= 12)
+      ) {
+        return 3;
+      }
+
+      // 2 Stars (★★ Proficient):
+      if (
+        (accuracy >= 90 && factsSolved >= 6 && (avgSpeedSec <= 3.4 || score >= 650)) ||
+        (accuracy === 100 && factsSolved >= 5) ||
+        (accuracy >= 85 && factsSolved >= 10 && score >= 800)
+      ) {
+        return 2;
+      }
+
+      // 1 Star (★ Competent):
+      if (
+        (accuracy >= 80 && factsSolved >= 4) ||
+        (factsSolved >= 4 && score >= 350)
+      ) {
+        return 1;
+      }
+
+      return 0;
+    }
+
+    function updateTablePills() {
+      const data = getPersonalBests(state.playerName);
+      const tableStars = data.tableStars || {};
+      let totalStars = 0;
+      const validTables = ['2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
+
+      validTables.forEach(t => {
+        const stars = tableStars[t] || 0;
+        totalStars += stars;
+
+        const pill = document.querySelector(`.table-pill[data-table="${t}"]`);
+        if (pill) {
+          const starsSpan = pill.querySelector('.pill-stars');
+          if (starsSpan) {
+            starsSpan.innerHTML = renderStarsSpan(stars);
+          }
+          pill.classList.toggle('has-3-stars', stars === 3);
+        }
+      });
+
+      if (elements.masteryTotalBadge) {
+        elements.masteryTotalBadge.textContent = totalStars === 33 
+          ? '🏆 33 / 33 ALL MASTERED!' 
+          : `⭐ ${totalStars} / 33 Stars`;
+        elements.masteryTotalBadge.classList.toggle('all-mastered', totalStars === 33);
+      }
+    }
+
+    function renderTableMasteryGrid(data) {
+      if (!elements.recMasteryGrid) return;
+      const tableStars = data.tableStars || {};
+      let totalStars = 0;
+      const validTables = ['2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
+
+      elements.recMasteryGrid.innerHTML = validTables.map(t => {
+        const s = tableStars[t] || 0;
+        totalStars += s;
+        const isPerfect = s === 3;
+        return `
+          <div class="mastery-cell ${isPerfect ? 'cell-perfect' : ''}">
+            <div class="mastery-cell-label">${t}s</div>
+            <div class="mastery-cell-stars">${renderStarsSpan(s)}</div>
+          </div>
+        `;
+      }).join('');
+
+      if (elements.recMasteryCount) {
+        elements.recMasteryCount.textContent = `${totalStars} / 33 ⭐`;
+      }
+    }
+
+    // ========================================================================
     // 4. GAME STATE & LOGIC
     // ========================================================================
     const state = {
@@ -2345,6 +2715,7 @@
       avatarGrid: document.getElementById('avatar-grid'),
       levelGrid: document.getElementById('level-grid'),
       tablesFilter: document.getElementById('tables-filter'),
+      masteryTotalBadge: document.getElementById('mastery-total-badge'),
       modeCards: document.querySelectorAll('.mode-card'),
 
       // Welcome PB Card
@@ -2385,6 +2756,9 @@
       newBestBanner: document.getElementById('new-best-banner'),
       newBestDiff: document.getElementById('new-best-diff'),
       resPrevBestText: document.getElementById('res-prev-best-text'),
+      tableStarBanner: document.getElementById('table-star-banner'),
+      tableStarTitle: document.getElementById('table-star-title'),
+      tableStarDesc: document.getElementById('table-star-desc'),
       missedDrawer: document.getElementById('missed-drawer'),
       missedPills: document.getElementById('missed-pills'),
       replayBtn: document.getElementById('replay-btn'),
@@ -2400,6 +2774,8 @@
       recTotalSolved: document.getElementById('rec-total-solved'),
       recAllTimeStreak: document.getElementById('rec-all-time-streak'),
       recGamesPlayed: document.getElementById('rec-games-played'),
+      recMasteryCount: document.getElementById('rec-mastery-count'),
+      recMasteryGrid: document.getElementById('rec-mastery-grid'),
       modeCardTitle: document.getElementById('mode-card-title'),
       modeCardDate: document.getElementById('mode-card-date'),
       modeMetricsGrid: document.getElementById('mode-metrics-grid'),
@@ -2887,7 +3263,8 @@
         accuracy: accuracy,
         avgSpeedSec: parseFloat(avgSpeed),
         bestStreak: state.bestStreak,
-        timeSpentSec: Math.round(state.elapsedTime || (60 - state.timeRemaining))
+        timeSpentSec: Math.round(state.elapsedTime || (60 - state.timeRemaining)),
+        selectedTable: state.selectedTable
       };
 
       const pbResult = recordGameRun(runData);
@@ -2909,6 +3286,47 @@
         elements.resPrevBestText.textContent = pbResult.prevHighScore > 0 
           ? `Personal Best: ${pbResult.prevHighScore.toLocaleString()} pts` 
           : '';
+      }
+
+      // Mario Kart Table Mastery Evaluation for Single Table Focus
+      const isSingleTable = ['2','3','4','5','6','7','8','9','10','11','12'].includes(String(state.selectedTable));
+      if (isSingleTable && elements.tableStarBanner) {
+        const tableNum = String(state.selectedTable);
+        const currentData = getPersonalBests(state.playerName);
+        const prevStars = (currentData.tableStars && currentData.tableStars[tableNum]) || 0;
+        const earnedStars = calculateTableStars(runData);
+        const newStars = Math.max(prevStars, earnedStars);
+        const isUpgrade = newStars > prevStars;
+
+        if (!currentData.tableStars) currentData.tableStars = {};
+        currentData.tableStars[tableNum] = newStars;
+        savePersonalBests(currentData, state.playerName);
+        updateTablePills();
+
+        elements.tableStarBanner.classList.add('active');
+        elements.tableStarBanner.classList.toggle('upgrade', isUpgrade);
+
+        const starDisplay = renderStarsSpan(newStars);
+        if (isUpgrade) {
+          elements.tableStarTitle.innerHTML = `⭐ NEW MASTERY RANK: ${tableNum}s Table ${starDisplay}`;
+          if (newStars === 3) {
+            elements.tableStarDesc.textContent = `🏆 3-Star Grand Master! Flawless speed & accuracy on the ${tableNum}s table!`;
+          } else if (newStars === 2) {
+            elements.tableStarDesc.textContent = `⚡ 2-Star Proficient! Great speed and consistency! Keep pushing for 3 stars!`;
+          } else {
+            elements.tableStarDesc.textContent = `👍 1-Star Competent! Solid practice on the ${tableNum}s table!`;
+          }
+          sound.playComboFanfare();
+          confetti.burst(70);
+        } else if (newStars > 0) {
+          elements.tableStarTitle.innerHTML = `Table ${tableNum}s Mastery: ${starDisplay}`;
+          elements.tableStarDesc.textContent = `Personal Best Rank: ${newStars} of 3 Stars achieved on this table.`;
+        } else {
+          elements.tableStarTitle.textContent = `Table ${tableNum}s Focus Drill`;
+          elements.tableStarDesc.textContent = `Achieve 80% accuracy and at least 4 facts to unlock your first Mastery Star!`;
+        }
+      } else if (elements.tableStarBanner) {
+        elements.tableStarBanner.classList.remove('active', 'upgrade');
       }
 
       switchView('results');
@@ -2933,6 +3351,7 @@
       });
 
       renderModeMetrics(mode, data);
+      renderTableMasteryGrid(data);
       renderRecentRuns(data);
 
       switchView('records');
@@ -3114,6 +3533,7 @@
       state.playerName = elements.playerNameInput.value.trim();
       updatePlayerHeader();
       renderWelcomePB();
+      updateTablePills();
     });
 
     // 4-Choice Clicks
@@ -3215,6 +3635,7 @@
         localStorage.removeItem(key);
         showPersonalBests(state.selectedMode);
         renderWelcomePB();
+        updateTablePills();
       }
     });
 
@@ -3234,6 +3655,7 @@
     updateSoundBtn();
     initSelectedLevel();
     renderWelcomePB();
+    updateTablePills();
   </script>
 </body>
 </html>

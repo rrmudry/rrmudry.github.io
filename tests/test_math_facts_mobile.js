@@ -77,6 +77,15 @@ const fs = require('fs');
     console.log(`LocalStorage saved preference: ${savedPref}`);
     if (savedPref !== 'true') throw new Error("LocalStorage math_facts_phone_mode was not set to 'true'");
 
+    // 4b. Check Mario Kart Table Mastery Badges in Phone Mode
+    const phoneMasteryBadge = await page.$eval('#mastery-total-badge', el => el.textContent.trim());
+    console.log(`Phone mode mastery badge: "${phoneMasteryBadge}"`);
+    if (!phoneMasteryBadge.includes('/ 33 Stars')) throw new Error("Phone mode mastery badge missing");
+
+    const artifactDir = '/home/ryan/.gemini/antigravity-ide/brain/686a1591-ef47-4508-a7c2-18fb7fdd9551';
+    await page.screenshot({ path: path.join(artifactDir, 'mariokart_stars_phone.png') });
+    console.log("Saved mobile phone mode screenshot!");
+
     // 5. Select Level 1, Enter Name, and Start Sprint
     await page.type('#player-name-input', 'Kobe');
     await page.tap('#start-game-btn');
