@@ -12,10 +12,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
 
-  <!-- Firebase Compat SDKs (site-6e500) -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
   <style>
     :root {
@@ -932,17 +928,82 @@
     }
 
     /* ==========================================================================
-       VIEW 4: LEADERBOARD MODAL / SCREEN
+       VIEW 4: PERSONAL BESTS & CAREER STATS DASHBOARD
        ========================================================================== */
-    .leaderboard-container {
+    .records-container {
       width: 100%;
-      max-width: 720px;
+      max-width: 680px;
     }
 
-    .leaderboard-tabs {
+    /* Player Milestone Hero */
+    .records-hero {
+      background: rgba(18, 26, 62, 0.7);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px 20px;
+      margin-bottom: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .records-hero-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .records-avatar {
+      font-size: 2.2rem;
+      background: rgba(255, 255, 255, 0.08);
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border-bright);
+    }
+    .records-player-info h3 {
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: white;
+      margin-bottom: 2px;
+    }
+    .records-player-info p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .career-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .career-card {
+      background: rgba(10, 15, 36, 0.8);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 10px 8px;
+      text-align: center;
+    }
+    .career-card-label {
+      font-size: 0.68rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .career-card-val {
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 1.35rem;
+      color: var(--blue);
+    }
+
+    .records-tabs {
       display: flex;
       gap: 8px;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
       overflow-x: auto;
       padding-bottom: 4px;
       width: 100%;
@@ -966,95 +1027,214 @@
       box-shadow: 0 0 14px rgba(56, 189, 248, 0.4);
     }
 
-    .leaderboard-list {
+    /* Mode Bests Card */
+    .mode-bests-card {
+      background: rgba(15, 22, 54, 0.9);
+      border: 1px solid var(--border-bright);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      margin-bottom: 18px;
+    }
+    .mode-bests-header {
       display: flex;
-      flex-direction: column;
-      gap: 8px;
-      max-height: 480px;
-      overflow-y: auto;
-      padding-right: 4px;
-    }
-
-    /* Custom Scrollbar */
-    .leaderboard-list::-webkit-scrollbar {
-      width: 6px;
-    }
-    .leaderboard-list::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 999px;
-    }
-
-    .rank-row {
-      display: flex;
-      align-items: center;
       justify-content: space-between;
-      background: rgba(15, 22, 50, 0.7);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 12px 16px;
-      transition: all 0.15s ease;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
     }
-    .rank-row.is-current-user {
-      border-color: var(--accent);
-      background: rgba(249, 115, 22, 0.15);
-      box-shadow: 0 0 16px var(--accent-glow);
-    }
-    .rank-row.top-1 {
-      border-color: rgba(234, 179, 8, 0.6);
-      background: linear-gradient(90deg, rgba(234, 179, 8, 0.15), rgba(15, 22, 50, 0.8));
-    }
-    .rank-row.top-2 {
-      border-color: rgba(203, 213, 225, 0.5);
-      background: linear-gradient(90deg, rgba(203, 213, 225, 0.12), rgba(15, 22, 50, 0.8));
-    }
-    .rank-row.top-3 {
-      border-color: rgba(249, 115, 22, 0.4);
-      background: linear-gradient(90deg, rgba(249, 115, 22, 0.12), rgba(15, 22, 50, 0.8));
-    }
-
-    .rank-badge {
-      width: 32px;
+    .mode-bests-title {
+      font-size: 1.15rem;
       font-weight: 900;
-      font-size: 1.1rem;
-      color: var(--text-muted);
-      text-align: center;
-    }
-    .rank-player {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex: 1;
-      margin-left: 8px;
-    }
-    .rank-avatar {
-      font-size: 1.4rem;
-    }
-    .rank-name {
-      font-weight: 800;
       color: white;
-      font-size: 1rem;
-    }
-    .rank-details {
       display: flex;
       align-items: center;
-      gap: 16px;
-      text-align: right;
+      gap: 8px;
     }
-    .rank-stat {
+    .mode-bests-date {
       font-size: 0.8rem;
       color: var(--text-muted);
     }
-    .rank-score {
+
+    .bests-metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .metric-box {
+      background: rgba(8, 12, 30, 0.65);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+    }
+    .metric-label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .metric-value {
       font-family: var(--font-mono);
       font-weight: 800;
-      font-size: 1.25rem;
+      font-size: 1.35rem;
+      color: white;
+    }
+    .metric-value.highlight-gold {
+      color: #fbbf24;
+      text-shadow: 0 0 12px rgba(251, 191, 36, 0.35);
+    }
+    .metric-value.highlight-orange {
+      color: #fb923c;
+    }
+    .metric-value.highlight-cyan {
       color: #38bdf8;
     }
 
-    .empty-leaderboard {
-      padding: 40px 20px;
-      text-align: center;
+    /* Recent History */
+    .recent-runs-card {
+      background: rgba(15, 22, 54, 0.75);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px 18px;
+      margin-bottom: 16px;
+    }
+    .recent-runs-title {
+      font-size: 0.85rem;
+      font-weight: 800;
       color: var(--text-muted);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .recent-runs-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+    .recent-run-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(8, 12, 30, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      font-size: 0.85rem;
+    }
+    .run-badge {
+      font-weight: 700;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .run-stats {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .run-score {
+      font-family: var(--font-mono);
+      font-weight: 800;
+      color: var(--blue);
+    }
+    .run-date {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+
+    /* New Personal Best Banner on Results */
+    .new-best-banner {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: linear-gradient(135deg, rgba(234, 179, 8, 0.25), rgba(249, 115, 22, 0.25));
+      border: 2px solid #fbbf24;
+      border-radius: var(--radius-md);
+      padding: 8px 16px;
+      margin: 10px 0 6px;
+      color: #fef08a;
+      font-weight: 900;
+      font-size: 1.05rem;
+      box-shadow: 0 0 20px rgba(251, 191, 36, 0.35);
+      animation: pulseBest 1.2s infinite alternate ease-in-out;
+    }
+    .new-best-banner.active {
+      display: flex;
+    }
+    @keyframes pulseBest {
+      from { transform: scale(1); box-shadow: 0 0 14px rgba(251, 191, 36, 0.25); }
+      to { transform: scale(1.02); box-shadow: 0 0 24px rgba(251, 191, 36, 0.55); }
+    }
+
+    /* Welcome Screen PB Card */
+    .welcome-pb-card {
+      background: rgba(14, 21, 50, 0.8);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      margin: 12px 0 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      text-align: left;
+    }
+    .pb-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .pb-title {
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #fbbf24;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .pb-view-link {
+      background: none;
+      border: none;
+      color: var(--blue);
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 0;
+      text-decoration: underline;
+    }
+    .pb-view-link:hover {
+      color: #7dd3fc;
+    }
+    .pb-card-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .pb-mini-stat {
+      background: rgba(8, 12, 30, 0.5);
+      border-radius: var(--radius-sm);
+      padding: 6px 4px;
+      text-align: center;
+    }
+    .mini-label {
+      display: block;
+      font-size: 0.62rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .mini-val {
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: white;
     }
 
     /* Confetti Canvas */
@@ -1312,6 +1492,50 @@
       font-size: 1.05rem;
     }
 
+    /* Phone Mode: Personal Bests & Welcome PB Card */
+    body.phone-mode #view-records.active {
+      height: 100%;
+      overflow-y: auto;
+      padding-bottom: 24px;
+    }
+    body.phone-mode .records-container {
+      padding: 14px 12px;
+    }
+    body.phone-mode .records-hero {
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      gap: 10px;
+    }
+    body.phone-mode .career-grid {
+      gap: 6px;
+    }
+    body.phone-mode .career-card {
+      padding: 6px 4px;
+    }
+    body.phone-mode .career-card-val {
+      font-size: 1.15rem;
+    }
+    body.phone-mode .mode-bests-card {
+      padding: 14px 12px;
+      margin-bottom: 12px;
+    }
+    body.phone-mode .bests-metrics-grid {
+      gap: 8px;
+    }
+    body.phone-mode .metric-box {
+      padding: 8px 10px;
+    }
+    body.phone-mode .metric-value {
+      font-size: 1.2rem;
+    }
+    body.phone-mode .welcome-pb-card {
+      padding: 8px 10px;
+      margin: 8px 0 12px;
+    }
+    body.phone-mode .mini-val {
+      font-size: 0.85rem;
+    }
+
     /* Responsive Adjustments */
     @media (max-width: 600px) {
       .welcome-header h1 {
@@ -1366,8 +1590,8 @@
         🔊
       </button>
 
-      <button id="leaderboard-btn" class="icon-btn" title="View Leaderboards">
-        🏆
+      <button id="records-btn" class="icon-btn" title="View Personal Bests & Stats">
+        ⭐
       </button>
     </div>
   </header>
@@ -1415,6 +1639,28 @@
           <button class="avatar-option" data-avatar="🦅">🦅</button>
           <button class="avatar-option" data-avatar="🍕">🍕</button>
           <button class="avatar-option" data-avatar="💎">💎</button>
+        </div>
+
+        <!-- Personal Bests Quick Summary -->
+        <div id="welcome-pb-card" class="welcome-pb-card">
+          <div class="pb-card-header">
+            <span class="pb-title">⭐ Your Personal Bests</span>
+            <button type="button" id="view-records-from-welcome" class="pb-view-link">View All Stats ➔</button>
+          </div>
+          <div class="pb-card-stats">
+            <div class="pb-mini-stat">
+              <span class="mini-label">HIGH SCORE (BLITZ)</span>
+              <span class="mini-val" id="pb-welcome-score">0 pts</span>
+            </div>
+            <div class="pb-mini-stat">
+              <span class="mini-label">BEST STREAK</span>
+              <span class="mini-val" id="pb-welcome-streak">0 ⚡</span>
+            </div>
+            <div class="pb-mini-stat">
+              <span class="mini-label">TOTAL SOLVED</span>
+              <span class="mini-val" id="pb-welcome-solved">0</span>
+            </div>
+          </div>
         </div>
 
         <!-- Mode Selection -->
@@ -1609,6 +1855,13 @@
         <div class="score-banner">
           <div class="score-banner-label">FINAL SCORE</div>
           <div class="score-banner-value" id="res-score">0</div>
+          
+          <!-- New Best Banner -->
+          <div id="new-best-banner" class="new-best-banner">
+            <span>🌟 NEW PERSONAL BEST!</span>
+            <span id="new-best-diff"></span>
+          </div>
+          <div id="res-prev-best-text" style="font-size: 0.82rem; color: var(--text-muted); margin-top: 5px;"></div>
         </div>
 
         <!-- Detailed Stats Grid -->
@@ -1646,8 +1899,8 @@
             <span>⚡</span>
           </button>
           
-          <button id="view-leaderboard-from-results" class="btn-secondary">
-            <span>🏆 View Leaderboard</span>
+          <button id="view-records-from-results" class="btn-secondary">
+            <span>⭐ View Personal Bests</span>
           </button>
 
           <button id="return-menu-btn" class="btn-secondary">
@@ -1659,31 +1912,80 @@
     </div>
 
     <!-- ===================================================================
-         VIEW 4: LIVE LEADERBOARD
+         VIEW 4: PERSONAL BESTS & CAREER STATS
          =================================================================== -->
-    <div id="view-leaderboard" class="view-panel">
-      <div class="glass-card leaderboard-container">
+    <div id="view-records" class="view-panel">
+      <div class="glass-card records-container">
         
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-          <h2 style="font-size: 1.6rem; font-weight: 900; display: flex; align-items: center; gap: 8px;">
-            <span>🏆</span>
-            <span>Sprint Leaderboard</span>
+          <h2 style="font-size: 1.5rem; font-weight: 900; display: flex; align-items: center; gap: 8px;">
+            <span>⭐</span>
+            <span>Personal Bests</span>
           </h2>
-          <button id="close-leaderboard-btn" class="btn-secondary" style="padding: 6px 14px; font-size: 0.85rem;">
+          <button id="close-records-btn" class="btn-secondary" style="padding: 6px 14px; font-size: 0.85rem;">
             ← Back
           </button>
         </div>
 
-        <!-- Leaderboard Mode Tabs -->
-        <div class="leaderboard-tabs" id="leaderboard-tabs">
+        <!-- Player Milestone Hero -->
+        <div class="records-hero">
+          <div class="records-hero-top">
+            <div class="records-avatar" id="rec-hero-avatar">⚡</div>
+            <div class="records-player-info">
+              <h3 id="rec-hero-name">Player's Records</h3>
+              <p>Personal multiplication milestones & achievements</p>
+            </div>
+          </div>
+          <div class="career-grid">
+            <div class="career-card">
+              <div class="career-card-label">Career Solved</div>
+              <div class="career-card-val" id="rec-total-solved">0</div>
+            </div>
+            <div class="career-card">
+              <div class="career-card-label">Best Streak</div>
+              <div class="career-card-val" id="rec-all-time-streak">0 ⚡</div>
+            </div>
+            <div class="career-card">
+              <div class="career-card-label">Sprints Played</div>
+              <div class="career-card-val" id="rec-games-played">0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mode Select Tabs -->
+        <div class="records-tabs" id="records-tabs">
           <button class="tab-btn active" data-mode="blitz_60s">⚡ 60s Blitz</button>
           <button class="tab-btn" data-mode="sprint_100">🎯 100-Fact Sprint</button>
           <button class="tab-btn" data-mode="survival">🔥 Streak Survival</button>
         </div>
 
-        <!-- Leaderboard List -->
-        <div class="leaderboard-list" id="leaderboard-list">
-          <div class="empty-leaderboard">Loading champion scores...</div>
+        <!-- Mode Detail Card -->
+        <div class="mode-bests-card" id="mode-bests-card">
+          <div class="mode-bests-header">
+            <div class="mode-bests-title" id="mode-card-title">
+              <span>⚡</span>
+              <span>60s Blitz Records</span>
+            </div>
+            <div class="mode-bests-date" id="mode-card-date">No records yet</div>
+          </div>
+          <div class="bests-metrics-grid" id="mode-metrics-grid">
+            <!-- Filled dynamically -->
+          </div>
+        </div>
+
+        <!-- Recent Activity History -->
+        <div class="recent-runs-card">
+          <div class="recent-runs-title">Recent Sprints Log</div>
+          <div class="recent-runs-list" id="recent-runs-list">
+            <!-- Filled dynamically -->
+          </div>
+        </div>
+
+        <!-- Reset Button -->
+        <div style="text-align: center; margin-top: 10px;">
+          <button id="reset-records-btn" style="background: none; border: none; color: #f87171; font-size: 0.78rem; cursor: pointer; text-decoration: underline; opacity: 0.75;">
+            Reset My Personal Records
+          </button>
         </div>
 
       </div>
@@ -1882,105 +2184,114 @@
     const confetti = new ConfettiEngine('confetti-canvas');
 
     // ========================================================================
-    // 3. FIREBASE FIRESTORE LEADERBOARD (site-6e500)
+    // 3. PERSONAL BESTS & PROGRESS ENGINE (Private Local Storage)
     // ========================================================================
-    const firebaseConfig = {
-      projectId: "site-6e500",
-      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
-      storageBucket: "site-6e500.firebasestorage.app",
-      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
-      authDomain: "site-6e500.firebaseapp.com",
-      messagingSenderId: "591530758858"
-    };
-
-    let db = null;
-    try {
-      if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-      }
-      db = firebase.firestore();
-    } catch (e) {
-      console.warn("Firestore initialization fallback:", e);
+    function getRecordsStorageKey(name = state.playerName) {
+      const safe = (name || 'player').trim().toLowerCase().replace(/[^a-z0-9]/g, '_');
+      return `math_facts_bests_${safe}`;
     }
 
-    const ASSIGNMENT_DOC = "math_facts_leaderboard";
-
-    async function saveScoreToLeaderboard(record) {
-      // 1. Always save locally first for instant access & offline guarantee
-      const localKey = `math_facts_leaderboard_${record.mode}`;
-      let localScores = [];
+    function getPersonalBests(name = state.playerName) {
+      const key = getRecordsStorageKey(name);
       try {
-        localScores = JSON.parse(localStorage.getItem(localKey) || '[]');
+        const raw = localStorage.getItem(key);
+        if (raw) return JSON.parse(raw);
       } catch (e) {}
-
-      // Update personal best in local list
-      const existingIdx = localScores.findIndex(s => s.name.toLowerCase() === record.name.toLowerCase());
-      if (existingIdx >= 0) {
-        if (record.score > localScores[existingIdx].score) {
-          localScores[existingIdx] = record;
-        }
-      } else {
-        localScores.push(record);
-      }
-      localScores.sort((a, b) => b.score - a.score);
-      localStorage.setItem(localKey, JSON.stringify(localScores.slice(0, 50)));
-
-      // 2. Sync to Cloud Firestore if connected
-      if (!db) return;
-      try {
-        const sanitizedId = `${record.name.toLowerCase().replace(/[^a-z0-9]/g, '_').slice(0, 18)}_${record.mode}`;
-        const docRef = db.collection('student_results')
-                         .doc(ASSIGNMENT_DOC)
-                         .collection('students')
-                         .doc(sanitizedId);
-
-        const snap = await docRef.get();
-        if (!snap.exists || record.score > (snap.data().score || 0)) {
-          await docRef.set({
-            name: record.name,
-            avatar: record.avatar,
-            mode: record.mode,
-            score: record.score,
-            factsSolved: record.factsSolved,
-            accuracy: record.accuracy,
-            avgSpeedSec: record.avgSpeedSec,
-            bestStreak: record.bestStreak,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-          }, { merge: true });
-        }
-      } catch (err) {
-        console.warn("Firestore sync deferred / offline:", err);
-      }
+      return {
+        playerName: name || 'Player',
+        totalFactsSolved: 0,
+        gamesPlayed: 0,
+        allTimeBestStreak: 0,
+        modes: {
+          blitz_60s: { highScore: 0, mostSolved: 0, bestStreak: 0, bestAccuracy: 0, fastestSpeed: null, date: null },
+          sprint_100: { highScore: 0, fastestTimeSec: null, bestAccuracy: 0, bestStreak: 0, date: null },
+          survival: { highScore: 0, longestStreak: 0, factsSolved: 0, date: null }
+        },
+        recentRuns: []
+      };
     }
 
-    async function fetchLeaderboard(mode) {
-      // Return Firestore results or fallback to localStorage
-      if (db) {
-        try {
-          const snapshot = await db.collection('student_results')
-                                   .doc(ASSIGNMENT_DOC)
-                                   .collection('students')
-                                   .where('mode', '==', mode)
-                                   .get();
-          
-          if (!snapshot.empty) {
-            const list = [];
-            snapshot.forEach(doc => list.push(doc.data()));
-            list.sort((a, b) => b.score - a.score);
-            return list.slice(0, 30);
-          }
-        } catch (err) {
-          console.warn("Using offline leaderboard:", err);
+    function savePersonalBests(data, name = state.playerName) {
+      const key = getRecordsStorageKey(name);
+      try {
+        localStorage.setItem(key, JSON.stringify(data));
+      } catch (e) {}
+    }
+
+    function recordGameRun(run) {
+      const data = getPersonalBests(run.name);
+      const modeData = data.modes[run.mode] || { highScore: 0, mostSolved: 0, bestStreak: 0, bestAccuracy: 0, date: null };
+      
+      const prevHighScore = modeData.highScore || 0;
+      const prevStreak = modeData.bestStreak || modeData.longestStreak || 0;
+      const isNewHighScore = run.score > prevHighScore;
+      const isNewStreak = run.bestStreak > prevStreak;
+      const scoreDiff = run.score - prevHighScore;
+
+      // Update mode data
+      if (isNewHighScore) {
+        modeData.highScore = run.score;
+        modeData.date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      }
+      if (run.factsSolved > (modeData.mostSolved || 0)) {
+        modeData.mostSolved = run.factsSolved;
+      }
+      if (run.bestStreak > (modeData.bestStreak || modeData.longestStreak || 0)) {
+        modeData.bestStreak = run.bestStreak;
+        modeData.longestStreak = run.bestStreak;
+      }
+      if (run.accuracy > (modeData.bestAccuracy || 0)) {
+        modeData.bestAccuracy = run.accuracy;
+      }
+      if (run.avgSpeedSec && (!modeData.fastestSpeed || run.avgSpeedSec < modeData.fastestSpeed)) {
+        modeData.fastestSpeed = run.avgSpeedSec;
+      }
+      if (run.mode === 'sprint_100' && run.timeSpentSec) {
+        if (!modeData.fastestTimeSec || run.timeSpentSec < modeData.fastestTimeSec) {
+          modeData.fastestTimeSec = run.timeSpentSec;
         }
       }
+      data.modes[run.mode] = modeData;
 
-      // Offline fallback
-      const localKey = `math_facts_leaderboard_${mode}`;
-      try {
-        const localList = JSON.parse(localStorage.getItem(localKey) || '[]');
-        return localList.slice(0, 30);
-      } catch (e) {
-        return [];
+      // Update career totals
+      data.totalFactsSolved = (data.totalFactsSolved || 0) + run.factsSolved;
+      data.gamesPlayed = (data.gamesPlayed || 0) + 1;
+      data.allTimeBestStreak = Math.max(data.allTimeBestStreak || 0, run.bestStreak);
+
+      // Add to recent runs
+      if (!Array.isArray(data.recentRuns)) data.recentRuns = [];
+      data.recentRuns.unshift({
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        mode: run.mode,
+        score: run.score,
+        accuracy: run.accuracy,
+        streak: run.bestStreak,
+        facts: run.factsSolved
+      });
+      data.recentRuns = data.recentRuns.slice(0, 8);
+
+      savePersonalBests(data, run.name);
+      renderWelcomePB();
+
+      return {
+        isNewHighScore,
+        isNewStreak,
+        prevHighScore,
+        scoreDiff
+      };
+    }
+
+    function renderWelcomePB() {
+      const data = getPersonalBests(state.playerName);
+      if (elements.pbWelcomeScore) {
+        const blitzBest = data.modes.blitz_60s ? data.modes.blitz_60s.highScore : 0;
+        elements.pbWelcomeScore.textContent = (blitzBest || 0).toLocaleString() + ' pts';
+      }
+      if (elements.pbWelcomeStreak) {
+        elements.pbWelcomeStreak.textContent = `${data.allTimeBestStreak || 0} ⚡`;
+      }
+      if (elements.pbWelcomeSolved) {
+        elements.pbWelcomeSolved.textContent = (data.totalFactsSolved || 0).toLocaleString();
       }
     }
 
@@ -2008,7 +2319,8 @@
       timesPerQuestion: [],
       missedFacts: [],
       currentQuestion: null,
-      enteredDigits: ''
+      enteredDigits: '',
+      elapsedTime: 0
     };
 
     // DOM Elements
@@ -2016,7 +2328,7 @@
       welcome: document.getElementById('view-welcome'),
       arena: document.getElementById('view-arena'),
       results: document.getElementById('view-results'),
-      leaderboard: document.getElementById('view-leaderboard')
+      records: document.getElementById('view-records')
     };
 
     const elements = {
@@ -2028,12 +2340,18 @@
       phoneFormatToggleChip: document.getElementById('phone-format-toggle-chip'),
       phoneToggleStatus: document.getElementById('phone-toggle-status'),
       soundBtn: document.getElementById('sound-btn'),
-      leaderboardBtn: document.getElementById('leaderboard-btn'),
+      recordsBtn: document.getElementById('records-btn'),
       startGameBtn: document.getElementById('start-game-btn'),
       avatarGrid: document.getElementById('avatar-grid'),
       levelGrid: document.getElementById('level-grid'),
       tablesFilter: document.getElementById('tables-filter'),
       modeCards: document.querySelectorAll('.mode-card'),
+
+      // Welcome PB Card
+      pbWelcomeScore: document.getElementById('pb-welcome-score'),
+      pbWelcomeStreak: document.getElementById('pb-welcome-streak'),
+      pbWelcomeSolved: document.getElementById('pb-welcome-solved'),
+      viewRecordsFromWelcome: document.getElementById('view-records-from-welcome'),
 
       // Arena
       hudTimerLabel: document.getElementById('hud-timer-label'),
@@ -2064,16 +2382,28 @@
       resAccuracy: document.getElementById('res-accuracy'),
       resSpeed: document.getElementById('res-speed'),
       resStreak: document.getElementById('res-streak'),
+      newBestBanner: document.getElementById('new-best-banner'),
+      newBestDiff: document.getElementById('new-best-diff'),
+      resPrevBestText: document.getElementById('res-prev-best-text'),
       missedDrawer: document.getElementById('missed-drawer'),
       missedPills: document.getElementById('missed-pills'),
       replayBtn: document.getElementById('replay-btn'),
-      viewLeaderboardFromResults: document.getElementById('view-leaderboard-from-results'),
+      viewRecordsFromResults: document.getElementById('view-records-from-results'),
       returnMenuBtn: document.getElementById('return-menu-btn'),
 
-      // Leaderboard view
-      leaderboardTabs: document.getElementById('leaderboard-tabs'),
-      leaderboardList: document.getElementById('leaderboard-list'),
-      closeLeaderboardBtn: document.getElementById('close-leaderboard-btn')
+      // Records view
+      recordsTabs: document.getElementById('records-tabs'),
+      closeRecordsBtn: document.getElementById('close-records-btn'),
+      resetRecordsBtn: document.getElementById('reset-records-btn'),
+      recHeroAvatar: document.getElementById('rec-hero-avatar'),
+      recHeroName: document.getElementById('rec-hero-name'),
+      recTotalSolved: document.getElementById('rec-total-solved'),
+      recAllTimeStreak: document.getElementById('rec-all-time-streak'),
+      recGamesPlayed: document.getElementById('rec-games-played'),
+      modeCardTitle: document.getElementById('mode-card-title'),
+      modeCardDate: document.getElementById('mode-card-date'),
+      modeMetricsGrid: document.getElementById('mode-metrics-grid'),
+      recentRunsList: document.getElementById('recent-runs-list')
     };
 
     // Switch View Helper
@@ -2547,8 +2877,8 @@
         elements.missedDrawer.classList.remove('has-items');
       }
 
-      // Save to Leaderboard
-      const record = {
+      // Save run & record personal bests
+      const runData = {
         name: state.playerName,
         avatar: state.playerAvatar,
         mode: state.selectedMode,
@@ -2556,60 +2886,164 @@
         factsSolved: state.totalCorrect,
         accuracy: accuracy,
         avgSpeedSec: parseFloat(avgSpeed),
-        bestStreak: state.bestStreak
+        bestStreak: state.bestStreak,
+        timeSpentSec: Math.round(state.elapsedTime || (60 - state.timeRemaining))
       };
-      saveScoreToLeaderboard(record);
+
+      const pbResult = recordGameRun(runData);
+
+      if (pbResult.isNewHighScore && pbResult.prevHighScore > 0) {
+        elements.newBestBanner.classList.add('active');
+        elements.newBestDiff.textContent = `+${pbResult.scoreDiff.toLocaleString()} pts!`;
+        elements.resPrevBestText.textContent = `Previous Record: ${pbResult.prevHighScore.toLocaleString()} pts ➔ New Record: ${state.score.toLocaleString()} pts`;
+        confetti.burst(80);
+        sound.playComboFanfare();
+      } else if (pbResult.isNewHighScore && pbResult.prevHighScore === 0 && state.score > 0) {
+        elements.newBestBanner.classList.add('active');
+        elements.newBestDiff.textContent = `FIRST RECORD SET!`;
+        elements.resPrevBestText.textContent = `Baseline Personal Best established: ${state.score.toLocaleString()} pts`;
+        confetti.burst(60);
+        sound.playComboFanfare();
+      } else {
+        elements.newBestBanner.classList.remove('active');
+        elements.resPrevBestText.textContent = pbResult.prevHighScore > 0 
+          ? `Personal Best: ${pbResult.prevHighScore.toLocaleString()} pts` 
+          : '';
+      }
 
       switchView('results');
     }
 
     // ========================================================================
-    // 8. LEADERBOARD DISPLAY
+    // 8. PERSONAL BESTS DISPLAY
     // ========================================================================
-    async function showLeaderboard(mode = state.selectedMode) {
+    function showPersonalBests(mode = state.selectedMode) {
+      const data = getPersonalBests(state.playerName);
+
+      // Hero
+      elements.recHeroAvatar.textContent = state.playerAvatar || '⚡';
+      elements.recHeroName.textContent = `${state.playerName || 'Player'}'s Records`;
+      elements.recTotalSolved.textContent = (data.totalFactsSolved || 0).toLocaleString();
+      elements.recAllTimeStreak.textContent = `${data.allTimeBestStreak || 0} ⚡`;
+      elements.recGamesPlayed.textContent = (data.gamesPlayed || 0).toLocaleString();
+
       // Set active tab
-      document.querySelectorAll('.tab-btn').forEach(btn => {
+      document.querySelectorAll('#records-tabs .tab-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.mode === mode);
       });
 
-      elements.leaderboardList.innerHTML = `<div class="empty-leaderboard">Loading champion scores...</div>`;
-      switchView('leaderboard');
+      renderModeMetrics(mode, data);
+      renderRecentRuns(data);
 
-      const scores = await fetchLeaderboard(mode);
-      if (!scores.length) {
-        elements.leaderboardList.innerHTML = `
-          <div class="empty-leaderboard">
-            <div style="font-size: 2.5rem; margin-bottom: 8px;">🌟</div>
-            <div>No champion scores logged yet for this mode.</div>
-            <div style="font-size: 0.85rem; margin-top: 4px;">Be the first to set a record!</div>
+      switchView('records');
+    }
+
+    function renderModeMetrics(mode, data) {
+      const modeData = data.modes[mode] || {};
+      const modeNames = {
+        blitz_60s: '⚡ 60s Blitz Records',
+        sprint_100: '🎯 100-Fact Sprint Records',
+        survival: '🔥 Streak Survival Records'
+      };
+
+      elements.modeCardTitle.innerHTML = `<span>${modeNames[mode] || 'Personal Records'}</span>`;
+      elements.modeCardDate.textContent = modeData.date ? `Best set on ${modeData.date}` : 'No records set yet';
+
+      let metricsHTML = '';
+      if (mode === 'blitz_60s') {
+        metricsHTML = `
+          <div class="metric-box">
+            <div class="metric-label">High Score</div>
+            <div class="metric-value highlight-gold">${(modeData.highScore || 0).toLocaleString()} <span style="font-size:0.9rem;">pts</span></div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Most Solved in 60s</div>
+            <div class="metric-value highlight-cyan">${modeData.mostSolved || 0} <span style="font-size:0.9rem;">facts</span></div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Best Streak</div>
+            <div class="metric-value highlight-orange">${modeData.bestStreak || 0} <span style="font-size:0.9rem;">⚡</span></div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Best Accuracy</div>
+            <div class="metric-value">${modeData.bestAccuracy || 0}%</div>
+          </div>
+          <div class="metric-box" style="grid-column: span 2;">
+            <div class="metric-label">Fastest Average Speed</div>
+            <div class="metric-value">${modeData.fastestSpeed ? modeData.fastestSpeed + 's / fact' : '--'}</div>
+          </div>
+        `;
+      } else if (mode === 'sprint_100') {
+        const timeStr = modeData.fastestTimeSec 
+          ? `${Math.floor(modeData.fastestTimeSec / 60)}m ${modeData.fastestTimeSec % 60}s`
+          : '--';
+        metricsHTML = `
+          <div class="metric-box">
+            <div class="metric-label">High Score</div>
+            <div class="metric-value highlight-gold">${(modeData.highScore || 0).toLocaleString()} <span style="font-size:0.9rem;">pts</span></div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Fastest Completion Time</div>
+            <div class="metric-value highlight-cyan">${timeStr}</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Best Accuracy</div>
+            <div class="metric-value">${modeData.bestAccuracy || 0}%</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Best Streak</div>
+            <div class="metric-value highlight-orange">${modeData.bestStreak || 0} <span style="font-size:0.9rem;">⚡</span></div>
+          </div>
+        `;
+      } else if (mode === 'survival') {
+        metricsHTML = `
+          <div class="metric-box">
+            <div class="metric-label">Longest Streak Record</div>
+            <div class="metric-value highlight-orange">${modeData.longestStreak || modeData.bestStreak || 0} <span style="font-size:0.9rem;">🔥 in a row</span></div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">High Score</div>
+            <div class="metric-value highlight-gold">${(modeData.highScore || 0).toLocaleString()} <span style="font-size:0.9rem;">pts</span></div>
+          </div>
+          <div class="metric-box" style="grid-column: span 2;">
+            <div class="metric-label">Most Facts Survived</div>
+            <div class="metric-value highlight-cyan">${modeData.factsSolved || modeData.mostSolved || 0} <span style="font-size:0.9rem;">facts</span></div>
+          </div>
+        `;
+      }
+
+      elements.modeMetricsGrid.innerHTML = metricsHTML;
+    }
+
+    function renderRecentRuns(data) {
+      if (!data.recentRuns || !data.recentRuns.length) {
+        elements.recentRunsList.innerHTML = `
+          <div style="text-align: center; padding: 18px 10px; color: var(--text-muted); font-size: 0.85rem;">
+            No sprint runs completed yet. Play your first round to establish your records!
           </div>
         `;
         return;
       }
 
-      elements.leaderboardList.innerHTML = scores.map((s, idx) => {
-        const isSelf = s.name.toLowerCase() === state.playerName.toLowerCase();
-        let rankClass = '';
-        let medal = `#${idx + 1}`;
-        if (idx === 0) { rankClass = 'top-1'; medal = '🥇'; }
-        else if (idx === 1) { rankClass = 'top-2'; medal = '🥈'; }
-        else if (idx === 2) { rankClass = 'top-3'; medal = '🥉'; }
+      const modeLabels = {
+        blitz_60s: '⚡ Blitz',
+        sprint_100: '🎯 100 Facts',
+        survival: '🔥 Survival'
+      };
 
-        return `
-          <div class="rank-row ${rankClass} ${isSelf ? 'is-current-user' : ''}">
-            <div class="rank-badge">${medal}</div>
-            <div class="rank-player">
-              <span class="rank-avatar">${s.avatar || '⚡'}</span>
-              <span class="rank-name">${escapeHTML(s.name)} ${isSelf ? '<small style="color:var(--accent);">(You)</small>' : ''}</span>
-            </div>
-            <div class="rank-details">
-              <span class="rank-stat">${s.accuracy || 100}% acc</span>
-              <span class="rank-stat">${s.avgSpeedSec ? s.avgSpeedSec + 's' : ''}</span>
-              <span class="rank-score">${(s.score || 0).toLocaleString()}</span>
-            </div>
+      elements.recentRunsList.innerHTML = data.recentRuns.map(run => `
+        <div class="recent-run-row">
+          <div class="run-badge">
+            <span>${modeLabels[run.mode] || run.mode}</span>
           </div>
-        `;
-      }).join('');
+          <div class="run-stats">
+            <span class="run-score">${(run.score || 0).toLocaleString()} pts</span>
+            <span>${run.streak || 0} streak</span>
+            <span>${run.accuracy || 100}% acc</span>
+            <span class="run-date">${run.date || ''}</span>
+          </div>
+        </div>
+      `).join('');
     }
 
     function escapeHTML(str) {
@@ -2679,6 +3113,7 @@
     elements.playerNameInput.addEventListener('input', () => {
       state.playerName = elements.playerNameInput.value.trim();
       updatePlayerHeader();
+      renderWelcomePB();
     });
 
     // 4-Choice Clicks
@@ -2738,8 +3173,8 @@
       updateSoundBtn();
     });
 
-    elements.leaderboardBtn.addEventListener('click', () => {
-      showLeaderboard(state.selectedMode);
+    elements.recordsBtn.addEventListener('click', () => {
+      showPersonalBests(state.selectedMode);
     });
 
     elements.playerChip.addEventListener('click', () => {
@@ -2747,23 +3182,40 @@
       elements.playerNameInput.focus();
     });
 
+    // Welcome Screen Records Link
+    if (elements.viewRecordsFromWelcome) {
+      elements.viewRecordsFromWelcome.addEventListener('click', () => {
+        showPersonalBests(state.selectedMode);
+      });
+    }
+
     // Results Actions
     elements.replayBtn.addEventListener('click', startGame);
-    elements.viewLeaderboardFromResults.addEventListener('click', () => {
-      showLeaderboard(state.selectedMode);
+    elements.viewRecordsFromResults.addEventListener('click', () => {
+      showPersonalBests(state.selectedMode);
     });
     elements.returnMenuBtn.addEventListener('click', () => {
       switchView('welcome');
     });
 
-    // Leaderboard Controls
-    elements.closeLeaderboardBtn.addEventListener('click', () => {
+    // Records Screen Controls
+    elements.closeRecordsBtn.addEventListener('click', () => {
       switchView('welcome');
     });
-    elements.leaderboardTabs.addEventListener('click', (e) => {
+    elements.recordsTabs.addEventListener('click', (e) => {
       const btn = e.target.closest('.tab-btn');
       if (!btn) return;
-      showLeaderboard(btn.dataset.mode);
+      showPersonalBests(btn.dataset.mode);
+    });
+
+    elements.resetRecordsBtn.addEventListener('click', () => {
+      const name = state.playerName || 'Player';
+      if (confirm(`Reset all personal bests and history for "${name}"?`)) {
+        const key = getRecordsStorageKey(name);
+        localStorage.removeItem(key);
+        showPersonalBests(state.selectedMode);
+        renderWelcomePB();
+      }
     });
 
     function initSelectedLevel() {
@@ -2781,6 +3233,7 @@
     updatePlayerHeader();
     updateSoundBtn();
     initSelectedLevel();
+    renderWelcomePB();
   </script>
 </body>
 </html>

@@ -134,21 +134,35 @@ const fs = require('fs');
     const resAccuracy = await page.$eval('#res-accuracy', el => el.textContent);
     console.log(`Results Screen Loaded! Final Score: ${resScore}, Solved: ${resSolved}, Accuracy: ${resAccuracy}`);
 
-    // 9. View Leaderboard
-    console.log("Testing Leaderboard view...");
-    await page.tap('#view-leaderboard-from-results');
-    await page.waitForSelector('#view-leaderboard.active', { timeout: 3000 });
-    await new Promise(r => setTimeout(r, 1200));
+    // 9. Verify New Personal Best Celebration Banner
+    const isNewBest = await page.$eval('#new-best-banner', el => el.classList.contains('active'));
+    console.log(`New Personal Best Banner Active: ${isNewBest}`);
+    if (!isNewBest) throw new Error("Expected new personal best banner to be active on results");
 
-    const rowsCount = await page.$$eval('.rank-row', rows => rows.length);
-    console.log(`Leaderboard rows displayed: ${rowsCount}`);
+    // 10. View Personal Bests Dashboard
+    console.log("Testing Personal Bests & Career Stats view...");
+    await page.tap('#view-records-from-results');
+    await page.waitForSelector('#view-records.active', { timeout: 3000 });
 
-    // Verify current player is shown in leaderboard
-    const currentUserRow = await page.$('.rank-row.is-current-user');
-    if (currentUserRow) {
-      const rowText = await page.evaluate(el => el.textContent, currentUserRow);
-      console.log(`Found current user row in leaderboard: ${rowText.trim().replace(/\s+/g, ' ')}`);
-    }
+    const heroName = await page.$eval('#rec-hero-name', el => el.textContent);
+    console.log(`Records Hero Name: ${heroName}`);
+    if (!heroName.includes("Maya")) throw new Error(`Expected Maya in records hero name, got: ${heroName}`);
+
+    const careerSolved = await page.$eval('#rec-total-solved', el => el.textContent);
+    console.log(`Career Solved Facts: ${careerSolved}`);
+    if (parseInt(careerSolved, 10) < 4) throw new Error(`Expected at least 4 career solved, got: ${careerSolved}`);
+
+    // Verify recent sprints list contains our run
+    const recentRows = await page.$$eval('.recent-run-row', rows => rows.length);
+    console.log(`Recent Sprints Logged: ${recentRows}`);
+    if (recentRows < 1) throw new Error("Expected at least 1 recent run row");
+
+    // 11. Test Returning to Welcome Screen and checking Personal Best Widget
+    await page.tap('#close-records-btn');
+    await page.waitForSelector('#view-welcome.active', { timeout: 3000 });
+    const pbWelcomeSolved = await page.$eval('#pb-welcome-solved', el => el.textContent);
+    console.log(`Welcome Screen Career Solved: ${pbWelcomeSolved}`);
+    if (parseInt(pbWelcomeSolved, 10) < 4) throw new Error("Welcome PB widget did not reflect career solved");
 
     console.log("✅ All Puppeteer E2E tests passed successfully!");
   } finally {
