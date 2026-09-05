@@ -98,3 +98,15 @@ Mobile viewports (e.g. 375×667 iPhone SE to 430×932 iPhone Pro Max) introduce 
 - **Top HUD Condensation**: Reduce HUD padding and hide non-essential badge chips to keep card and numpad entirely visible on one screen without scrolling (`window.scrollY === 0`).
 - **Auto-Detection with Manual Override**: Automatically detect mobile viewports via `window.innerWidth <= 640 || ('ontouchstart' in window && window.innerWidth <= 768)`, persist user preference in `localStorage.getItem('math_facts_phone_mode')`, and offer prominent toggle triggers in both the header (`#phone-mode-btn`) and top of the welcome card (`#phone-format-toggle-chip`).
 
+## 6. Mario Kart Course Starring Badge System (Table Mastery)
+Inspired by Mario Kart's 3-star cup ranking system (`★`, `★★`, `★★★`), individual course/table focus drills reward progressive mastery that permanently records on the player's profile:
+- **Mastery Rubric (`calculateTableStars`)**:
+  - **★★★ (3 Stars - Grand Master)**: 100% accuracy with >= 8 facts solved and avg speed <= 2.6s (or score >= 1000), OR 95%+ accuracy with >= 16 facts solved and avg speed <= 2.0s, OR 100% accuracy with >= 12 facts solved.
+  - **★★ (2 Stars - Proficient)**: >= 90% accuracy with >= 6 facts solved and avg speed <= 3.4s (or score >= 650), OR 100% accuracy with >= 5 facts solved.
+  - **★ (1 Star - Competent)**: >= 80% accuracy with >= 4 facts solved, or score >= 350.
+- **Monotonic Progression**: Once earned, star ratings never downgrade (`newStars = Math.max(prevStars, earnedStars)`). Upgrades trigger celebratory confetti, fanfare, and a results card banner (`⭐ NEW MASTERY RANK: 7s Table ★★★`).
+- **Focus Pill Badges**: Each table button (`2s` through `12s`) renders its current 3-star badge directly below the label (`.pill-stars`), with earned stars in gold (`#fbbf24`) and unearned in dim white (`rgba(255,255,255,0.2)`). A `.has-3-stars` class confers a golden aura border.
+- **Overall Mastery Counter**: A header badge tracks total course stars (e.g., `⭐ 18 / 33 Stars`), changing to `🏆 33 / 33 ALL MASTERED!` when every table achieves 3 stars.
+- **Mastery Grid in Personal Bests**: The Personal Bests modal renders a full 11-table mastery matrix with perfect badges and star icons.
+
+
