@@ -357,7 +357,22 @@ Append-only log tracking pattern changes across sessions.
 - Added quick Personal Bests summary card on the Welcome screen.
 - Replaced header `🏆 Leaderboard` button with `⭐ Personal Bests`.
 - Updated `games.html` card description to reflect personal bests tracking.
-- Updated `tests/test_math_facts.js` to verify personal bests celebration banners and career stats.
+---
+
+## 2026-09-05 — Mario Kart Course Starring Badge System for Table Focus Drills
+
+**Motivation**: Added a 1-, 2-, and 3-star badge system (`★`, `★★`, `★★★`) modeled after Mario Kart's course and cup mastery system to the "Focus on a Single Table" options (`2s` through `12s`), providing rewarding visual progression as players master individual multiplication tables.
+
+**Changes**:
+- Updated table focus pills (`2s` through `12s`) in `math-facts/index.html` to render individual 3-star indicators directly on each pill (`.pill-stars`), displaying earned gold stars (`#fbbf24`) with glow and faint unearned stars (`☆`).
+- Added total course mastery counter (`⭐ 0 / 33 Stars`) in the focus filter section header that updates in real-time and turns into a celebratory `🏆 ALL 33 STARS MASTERED!` badge upon full completion.
+- Implemented `calculateTableStars(run)` evaluating round accuracy, volume of facts solved, speed, and score to award 1 Star (Competent), 2 Stars (Proficient), or 3 Stars (Grand Master).
+- Implemented monotonic rank upgrades: stars are permanently saved in player's `localStorage` profile and never downgrade.
+- Added animated Results screen banner (`#table-star-banner`) announcing star rank unlocks and upgrades with fanfare sound effects and confetti bursts.
+- Added Focus Table Mastery grid card to the Personal Bests modal (`#view-records`), showing all 11 tables with star ratings and a total star counter.
+- Created `tests/test_math_facts_stars.js` E2E test verifying single-table fact generation, star evaluation, result banner activation, personal bests table grid, and welcome screen badge updates. All test suites pass 100%.
+- Updated `wiki/patterns/touch-math-facts-engine.md` with Section 6 (Mario Kart Course Starring Badge System).
+
 
 
 
