@@ -327,6 +327,20 @@ Append-only log tracking pattern changes across sessions.
 - Created automated test suite in `tests/test_math_facts.js` validating touch tap emulation, virtual keypad entry, auto-advance, speed/streak multipliers, and leaderboard rendering.
 - Created `wiki/patterns/touch-math-facts-engine.md` and updated `wiki/index.md`.
 
+---
+
+## 2026-09-05 — Mobile-Optimized Zero-Scroll Phone Format for Math Facts Sprint
+
+**Motivation**: Added a dedicated mobile-optimized phone format option for smartphones (tested on iPhone SE 375×667 through iPhone 14/15 390×844) to provide a zero-scroll, thumb-friendly ergonomic layout that eliminates address bar clipping and scrolling during rapid multiplication sprints.
+
+**Changes**:
+- Added `.phone-mode` CSS suite in `math-facts/index.html` using `100dvh`, compact arena HUD, zero margins, and thumb-friendly `clamp(46px, 8vh, 58px)` numpad buttons with `touch-action: manipulation;`.
+- Placed toggle triggers in both the global header (`#phone-mode-btn` 📱) and at the top of the welcome card (`#phone-format-toggle-chip` pill badge).
+- Added automatic device detection (`window.innerWidth <= 640 || ('ontouchstart' in window && window.innerWidth <= 768)`) with `localStorage` persistence (`math_facts_phone_mode`).
+- Created `tests/test_math_facts_mobile.js` verifying mobile viewport auto-detection, header/chip toggle synchronization, localStorage persistence, and 0px vertical scrolling (`window.scrollY === 0`) on phone viewports.
+- Updated `wiki/patterns/touch-math-facts-engine.md` with Section 5 (Mobile-Optimized Zero-Scroll Phone Format).
+
+
 
 
 
