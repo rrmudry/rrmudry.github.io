@@ -314,6 +314,20 @@ Append-only log tracking pattern changes across sessions.
 - Added guard within `prefillSampleData()` preventing execution if invoked directly via developer console by a student account.
 - Triggered dynamic re-render of Step 1 on auth state changes so the button appears immediately upon teacher login and disappears upon sign-out.
 
+---
+
+## 2026-09-05 — Touchscreen Math Facts Sprint & Open Firestore Leaderboard
+
+**Motivation**: Created an interactive math facts fluency game in `math-facts/index.html` designed for 6th graders to practice and master multiplication facts with touchscreen compatibility, speed & consistency multipliers, and a live Cloud Firestore leaderboard without requiring school Google accounts.
+
+**Changes**:
+- Created `math-facts/index.html`: Fully interactive, touchscreen-optimized multiplication facts sprint with Web Audio synth sound effects, confetti animations, tactile virtual numpad with instant auto-advance on correct answers, physical keyboard support, and 4 game modes (60s Blitz, 100-Fact Sprint, Streak Survival, and Targeted Table Focus).
+- Integrated Cloud Firestore backend under `student_results/math_facts_leaderboard/students` allowing unauthenticated player nickname progress recording and real-time top-rank podium leaderboard queries with highest-score retention and offline `localStorage` fallback.
+- Added featured card for "⚡ Math Facts Sprint" to `games.html`.
+- Created automated test suite in `tests/test_math_facts.js` validating touch tap emulation, virtual keypad entry, auto-advance, speed/streak multipliers, and leaderboard rendering.
+- Created `wiki/patterns/touch-math-facts-engine.md` and updated `wiki/index.md`.
+
+
 
 
 
