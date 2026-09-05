@@ -769,6 +769,7 @@
       cursor: pointer;
       transition: all 0.12s ease;
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+      touch-action: manipulation;
     }
     .choice-btn:active {
       transform: scale(0.95);
@@ -1067,6 +1068,250 @@
       z-index: 100;
     }
 
+    /* Phone Format Toggle Chip */
+    .phone-toggle-pill {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      touch-action: manipulation;
+    }
+    .phone-toggle-pill * {
+      pointer-events: none;
+    }
+    .phone-toggle-pill:hover {
+      background: rgba(255, 255, 255, 0.14);
+      color: white;
+    }
+    .phone-toggle-pill.active {
+      border-color: var(--blue);
+      background: rgba(56, 189, 248, 0.16);
+      color: white;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
+    }
+    .status-indicator {
+      font-size: 0.65rem;
+      font-weight: 900;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.15);
+      color: var(--text-muted);
+    }
+    .phone-toggle-pill.active .status-indicator {
+      background: var(--blue);
+      color: #050b18;
+    }
+
+    /* ==========================================================================
+       PHONE OPTIMIZED FORMAT (COMPACT ZERO-SCROLL VIEW FOR PHONES)
+       ========================================================================== */
+    body.phone-mode {
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      justify-content: flex-start;
+    }
+
+    body.phone-mode header {
+      padding: 6px 12px;
+    }
+    body.phone-mode .brand-link {
+      font-size: 0.95rem;
+      gap: 6px;
+    }
+    body.phone-mode .brand-badge {
+      display: none;
+    }
+    body.phone-mode .player-chip {
+      padding: 4px 10px;
+      font-size: 0.8rem;
+    }
+    body.phone-mode .icon-btn {
+      width: 32px;
+      height: 32px;
+      font-size: 0.95rem;
+    }
+
+    body.phone-mode main {
+      padding: 2px 10px 6px;
+      flex: 1;
+      justify-content: flex-start;
+      height: calc(100dvh - 48px);
+      max-height: calc(100dvh - 48px);
+      overflow-y: auto;
+    }
+
+    /* Arena in Phone Mode: Strict Single-Screen Ergonomics */
+    body.phone-mode #view-arena.active {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    body.phone-mode .game-arena {
+      max-width: 100%;
+      height: 100%;
+      justify-content: space-between;
+      gap: 5px;
+    }
+
+    body.phone-mode .arena-hud {
+      gap: 5px;
+      margin-bottom: 0;
+    }
+    body.phone-mode .hud-box {
+      padding: 3px 2px;
+      border-radius: var(--radius-sm);
+    }
+    body.phone-mode .hud-label {
+      font-size: 0.6rem;
+      margin-bottom: 1px;
+    }
+    body.phone-mode .hud-value {
+      font-size: 1.05rem;
+    }
+
+    body.phone-mode .timer-bar-container {
+      height: 4px;
+      margin: 0;
+    }
+
+    body.phone-mode .question-card {
+      padding: 8px 12px;
+      border-radius: var(--radius-lg);
+      margin: 0;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+    }
+    body.phone-mode .equation-display {
+      font-size: clamp(2.2rem, 7.5vw, 3rem);
+      margin-bottom: 4px;
+      gap: 6px;
+    }
+    body.phone-mode .answer-box {
+      min-width: 95px;
+      height: 46px;
+      font-size: 1.9rem;
+      border-width: 2px;
+      padding: 0 10px;
+    }
+    body.phone-mode .feedback-banner {
+      height: 18px;
+      font-size: 0.78rem;
+    }
+
+    body.phone-mode .numpad {
+      gap: 5px;
+      margin-top: 0;
+      width: 100%;
+      max-width: 420px;
+    }
+    body.phone-mode .key-btn {
+      height: clamp(46px, 8vh, 58px);
+      font-size: clamp(1.6rem, 5.5vw, 2rem);
+      border-radius: var(--radius-md);
+    }
+    body.phone-mode .choice-grid {
+      gap: 6px;
+      margin-top: 0;
+    }
+    body.phone-mode .choice-btn {
+      height: clamp(48px, 9vh, 62px);
+      font-size: 1.7rem;
+    }
+
+    body.phone-mode .arena-subcontrols {
+      padding: 1px 4px;
+      margin-top: 0;
+    }
+
+    /* Welcome Screen in Phone Mode */
+    body.phone-mode .glass-card {
+      padding: 14px 12px;
+      border-radius: var(--radius-lg);
+    }
+    body.phone-mode .welcome-header {
+      margin-bottom: 10px;
+    }
+    body.phone-mode .welcome-header h1 {
+      font-size: 1.55rem;
+      margin-bottom: 2px;
+    }
+    body.phone-mode .welcome-header p {
+      font-size: 0.82rem;
+    }
+    body.phone-mode .name-input-group {
+      margin-bottom: 10px;
+    }
+    body.phone-mode .name-input {
+      padding: 9px 12px;
+      font-size: 1.05rem;
+    }
+    body.phone-mode .avatar-grid {
+      grid-template-columns: repeat(6, 1fr);
+      gap: 5px;
+      margin-bottom: 12px;
+    }
+    body.phone-mode .avatar-option {
+      font-size: 1.25rem;
+    }
+    body.phone-mode .mode-grid {
+      grid-template-columns: 1fr;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    body.phone-mode .mode-card {
+      flex-direction: row;
+      align-items: center;
+      padding: 8px 12px;
+      gap: 8px;
+    }
+    body.phone-mode .mode-icon {
+      font-size: 1.3rem;
+      margin-bottom: 0;
+    }
+    body.phone-mode .mode-title {
+      font-size: 0.9rem;
+      margin-bottom: 0;
+    }
+    body.phone-mode .mode-desc {
+      display: none;
+    }
+    body.phone-mode .level-grid {
+      grid-template-columns: 1fr;
+      gap: 5px;
+      margin-bottom: 8px;
+    }
+    body.phone-mode .level-card {
+      flex-direction: row;
+      justify-content: space-between;
+      padding: 7px 10px;
+    }
+    body.phone-mode .level-desc {
+      display: none;
+    }
+    body.phone-mode .tables-filter {
+      padding: 6px;
+      margin-bottom: 12px;
+      gap: 4px;
+    }
+    body.phone-mode .table-pill {
+      padding: 3px 8px;
+      font-size: 0.75rem;
+    }
+    body.phone-mode .btn-action {
+      padding: 12px 20px;
+      font-size: 1.05rem;
+    }
+
     /* Responsive Adjustments */
     @media (max-width: 600px) {
       .welcome-header h1 {
@@ -1113,6 +1358,10 @@
         <span id="player-chip-name">Player</span>
       </div>
 
+      <button id="phone-mode-btn" class="icon-btn" title="Toggle Phone Format (Compact Screen)">
+        📱
+      </button>
+
       <button id="sound-btn" class="icon-btn" title="Toggle Sound (Mute/Unmute)">
         🔊
       </button>
@@ -1134,6 +1383,13 @@
         <div class="welcome-header">
           <h1>Master Your Facts</h1>
           <p>Supercharge your multiplication speed, accuracy, and streaks!</p>
+          <div style="margin-top: 8px;">
+            <button id="phone-format-toggle-chip" class="phone-toggle-pill" title="Toggle Compact Phone Format">
+              <span>📱</span>
+              <span>Phone Format (Zero-Scroll):</span>
+              <span id="phone-toggle-status" class="status-indicator">OFF</span>
+            </button>
+          </div>
         </div>
 
         <!-- Name Input -->
@@ -1768,6 +2024,9 @@
       playerChip: document.getElementById('player-chip'),
       playerChipName: document.getElementById('player-chip-name'),
       playerChipAvatar: document.getElementById('player-chip-avatar'),
+      phoneModeBtn: document.getElementById('phone-mode-btn'),
+      phoneFormatToggleChip: document.getElementById('phone-format-toggle-chip'),
+      phoneToggleStatus: document.getElementById('phone-toggle-status'),
       soundBtn: document.getElementById('sound-btn'),
       leaderboardBtn: document.getElementById('leaderboard-btn'),
       startGameBtn: document.getElementById('start-game-btn'),
@@ -1823,6 +2082,32 @@
         views[v].classList.toggle('active', v === viewName);
       });
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Phone Mode (Compact Zero-Scroll Format for Mobile Devices)
+    function isMobileDevice() {
+      return (window.innerWidth <= 640) || ('ontouchstart' in window && window.innerWidth <= 768);
+    }
+    let phoneMode = localStorage.getItem('math_facts_phone_mode');
+    phoneMode = (phoneMode === null) ? isMobileDevice() : (phoneMode === 'true');
+
+    function applyPhoneMode() {
+      document.body.classList.toggle('phone-mode', phoneMode);
+      if (elements.phoneModeBtn) {
+        elements.phoneModeBtn.classList.toggle('active', phoneMode);
+        elements.phoneModeBtn.style.borderColor = phoneMode ? 'var(--blue)' : '';
+        elements.phoneModeBtn.style.background = phoneMode ? 'rgba(56, 189, 248, 0.25)' : '';
+      }
+      if (elements.phoneFormatToggleChip && elements.phoneToggleStatus) {
+        elements.phoneFormatToggleChip.classList.toggle('active', phoneMode);
+        elements.phoneToggleStatus.textContent = phoneMode ? 'ACTIVE' : 'OFF';
+      }
+      localStorage.setItem('math_facts_phone_mode', phoneMode ? 'true' : 'false');
+    }
+
+    function togglePhoneMode() {
+      phoneMode = !phoneMode;
+      applyPhoneMode();
     }
 
     // Initialize Player Info
@@ -2441,6 +2726,13 @@
     });
 
     // Header Actions
+    if (elements.phoneModeBtn) {
+      elements.phoneModeBtn.addEventListener('click', togglePhoneMode);
+    }
+    if (elements.phoneFormatToggleChip) {
+      elements.phoneFormatToggleChip.addEventListener('click', togglePhoneMode);
+    }
+
     elements.soundBtn.addEventListener('click', () => {
       sound.toggleMute();
       updateSoundBtn();
@@ -2485,6 +2777,7 @@
     }
 
     // First Load Init
+    applyPhoneMode();
     updatePlayerHeader();
     updateSoundBtn();
     initSelectedLevel();

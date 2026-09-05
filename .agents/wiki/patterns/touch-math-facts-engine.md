@@ -84,3 +84,11 @@ Avoid external audio files (mp3/wav) that can fail to load, suffer from mobile l
 - Use standard `AudioContext` oscillators (`sine`, `triangle`, `sawtooth`).
 - Modulate the pitch of the correct chime with current streak count (`baseFreq * (1 + min(streak, 20) * 0.04)`) to create an exhilarating crescendo.
 - Provide a persistent mute button (`localStorage.getItem('math_facts_sound')`).
+
+## 5. Mobile-Optimized Zero-Scroll Phone Format
+Mobile viewports (e.g. 375×667 iPhone SE to 430×932 iPhone Pro Max) introduce browser navigation bars that consume vertical space. For high-speed sprint games:
+- **Zero-Scroll Container**: Set `body.phone-mode { height: 100dvh; overflow: hidden; }` and `main { height: calc(100dvh - 48px); }`.
+- **Thumb-Ergonomic Virtual Numpad**: Size buttons to `clamp(46px, 8vh, 58px)` and set `touch-action: manipulation;` on all keys.
+- **Top HUD Condensation**: Reduce HUD padding and hide non-essential badge chips to keep card and numpad entirely visible on one screen without scrolling (`window.scrollY === 0`).
+- **Auto-Detection with Manual Override**: Automatically detect mobile viewports via `window.innerWidth <= 640 || ('ontouchstart' in window && window.innerWidth <= 768)`, persist user preference in `localStorage.getItem('math_facts_phone_mode')`, and offer prominent toggle triggers in both the header (`#phone-mode-btn`) and top of the welcome card (`#phone-format-toggle-chip`).
+
