@@ -54,30 +54,36 @@ Rewarding both rapid mental recall and unbroken streaks:
   - 95%+ Accuracy: `+500 pts`
   - Longest streak: `bestStreak * 50 pts`
 
-## 3. Name-Only Identity & Cloud Firestore Synchronization
-When students do not sign in with Google accounts, use a name/nickname + avatar selector with dual storage (localStorage + Cloud Firestore):
+## 3. Name-Only Identity & Personal Bests Engine
+To foster growth mindset without social comparison or leaderboard anxiety, track individual personal bests and career milestones in client-side storage partitioned by player name:
 ```javascript
-const docRef = db.collection('student_results')
-                 .doc('math_facts_leaderboard')
-                 .collection('students')
-                 .doc(sanitizedDocId);
+function getRecordsStorageKey(name = state.playerName) {
+  const safe = (name || 'player').trim().toLowerCase().replace(/[^a-z0-9]/g, '_');
+  return `math_facts_bests_${safe}`;
+}
 
-const snap = await docRef.get();
-if (!snap.exists || record.score > (snap.data().score || 0)) {
-  await docRef.set({
-    name: record.name,
-    avatar: record.avatar,
-    mode: record.mode,
-    score: record.score,
-    factsSolved: record.factsSolved,
-    accuracy: record.accuracy,
-    avgSpeedSec: record.avgSpeedSec,
-    bestStreak: record.bestStreak,
-    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-  }, { merge: true });
+function recordGameRun(run) {
+  const data = getPersonalBests(run.name);
+  const modeData = data.modes[run.mode] || {};
+  const isNewHighScore = run.score > (modeData.highScore || 0);
+
+  if (isNewHighScore) {
+    modeData.highScore = run.score;
+    modeData.date = new Date().toLocaleDateString();
+  }
+  // Career accumulation:
+  data.totalFactsSolved = (data.totalFactsSolved || 0) + run.factsSolved;
+  data.gamesPlayed = (data.gamesPlayed || 0) + 1;
+  data.allTimeBestStreak = Math.max(data.allTimeBestStreak || 0, run.bestStreak);
+  
+  savePersonalBests(data, run.name);
+  return { isNewHighScore, prevHighScore: modeData.highScore };
 }
 ```
-*Note on Firestore Rules*: Unauthenticated reads and writes are permitted under `student_results/{assignmentId}/students/{studentId}` as long as no document exists at `assessments/{assignmentId}`.
+### Pedagogical Benefits:
+- **Zero Social Anxiety**: Students focus on beating their own previous scores rather than comparing themselves to faster peers.
+- **Immediate Formative Feedback**: On setting a personal best, trigger celebratory confetti and a golden fanfare banner (`🌟 NEW PERSONAL BEST! +250 pts`).
+- **100% Offline & Private**: No authentication or external network requests required; zero data leakage.
 
 ## 4. Web Audio Zero-Latency Synthesizer
 Avoid external audio files (mp3/wav) that can fail to load, suffer from mobile latency, or cause network errors:

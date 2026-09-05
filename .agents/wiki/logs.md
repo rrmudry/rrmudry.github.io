@@ -340,6 +340,26 @@ Append-only log tracking pattern changes across sessions.
 - Created `tests/test_math_facts_mobile.js` verifying mobile viewport auto-detection, header/chip toggle synchronization, localStorage persistence, and 0px vertical scrolling (`window.scrollY === 0`) on phone viewports.
 - Updated `wiki/patterns/touch-math-facts-engine.md` with Section 5 (Mobile-Optimized Zero-Scroll Phone Format).
 
+---
+
+## 2026-09-05 — Replaced Public Leaderboard with Personal Bests & Career Stats
+
+**Motivation**: Removed the competitive public multiplayer leaderboard in favor of an individual growth-mindset "Personal Bests & Career Stats" system to eliminate social comparison anxiety while giving students visual progress milestones, personal records, and celebration banners.
+
+**Changes**:
+- Removed Cloud Firestore backend queries and external Firebase SDK scripts from `math-facts/index.html`.
+- Implemented client-side Personal Bests engine in `localStorage` (`getRecordsStorageKey`, `getPersonalBests`, `savePersonalBests`, `recordGameRun`), partitioning records by player name.
+- Added Personal Bests dashboard modal (`#view-records`) featuring:
+  - Milestone cards (Career Facts Solved, All-Time Longest Streak, Sprints Played).
+  - Mode records breakdown tabs (High Score, Most Solved in 60s, Best Streak, Best Accuracy, Fastest Average Speed, Date Achieved).
+  - Chronological Recent Sprints Activity Log.
+- Added animated "🌟 NEW PERSONAL BEST!" celebration banner on the results screen with baseline/differential score callouts and fanfare chimes.
+- Added quick Personal Bests summary card on the Welcome screen.
+- Replaced header `🏆 Leaderboard` button with `⭐ Personal Bests`.
+- Updated `games.html` card description to reflect personal bests tracking.
+- Updated `tests/test_math_facts.js` to verify personal bests celebration banners and career stats.
+
+
 
 
 
