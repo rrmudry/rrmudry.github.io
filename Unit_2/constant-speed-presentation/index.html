@@ -163,35 +163,40 @@
     <!-- SLIDE 4: The Formula Triangle -->
     <!-- ========================================== -->
     <section class="slide" data-slide="4">
-      <div class="slide-eyebrow">The Algebraic Wheel</div>
+      <div class="slide-eyebrow">The Algebraic Wheel • Interactive Explorer</div>
       <h2 class="slide-title">The "Magic" Formula Triangle</h2>
       <div class="slide-body">
         <div class="slide-grid-2">
-          <div>
-            <ul class="slide-list">
-              <li><strong>Distance (d)</strong> sits on top (the numerator).</li>
-              <li><strong>Speed (v)</strong> and <strong>Time (t)</strong> share the bottom.</li>
-              <li>The horizontal bar means <strong>DIVIDE (÷)</strong>.</li>
-              <li>The vertical bar means <strong>MULTIPLY (·)</strong>.</li>
-            </ul>
-            <div class="highlight-box" style="margin-top: 1.25rem;">
-              💡 <strong>The Thumb Rule:</strong> Cover the variable you need to find. The remaining letters give you the exact equation!
-            </div>
-          </div>
+          <!-- Left Column: Interactive Triangle SVG & Selector Buttons -->
           <div style="text-align: center;">
-            <svg class="slide-triangle-svg" viewBox="0 0 360 310">
-              <!-- Top Division: Distance (d) -->
-              <polygon points="180,20 270,145 90,145" fill="rgba(0, 242, 254, 0.28)" stroke="#00f2fe" stroke-width="4" />
-              <text x="180" y="98" fill="#00f2fe" font-size="48" font-weight="800" text-anchor="middle" font-family="var(--font-display)">d</text>
-              <text x="180" y="130" fill="#94a3b8" font-size="15" font-weight="700" text-anchor="middle" font-family="var(--font-body)">DISTANCE</text>
+            <div style="font-size: 1.25rem; font-weight: 700; color: var(--accent-cyan); margin-bottom: 0.5rem;">
+              👉 Tap or Click a Variable to Cover:
+            </div>
+            <svg class="slide-triangle-svg" viewBox="0 0 360 310" id="formulaTriangleSvg">
+              <!-- Top Sector: Distance (d) -->
+              <g class="triangle-sector active-covered" id="sector-d" onclick="selectTriangleVar('d')" role="button" tabindex="0" title="Click to cover Distance (d)">
+                <polygon points="180,20 270,145 90,145" class="sector-poly" fill="rgba(0, 242, 254, 0.28)" stroke="#00f2fe" stroke-width="4" />
+                <text x="180" y="98" fill="#00f2fe" font-size="48" font-weight="800" text-anchor="middle" font-family="var(--font-display)">d</text>
+                <text x="180" y="130" fill="#cbd5e1" font-size="14" font-weight="700" text-anchor="middle" font-family="var(--font-body)">DISTANCE</text>
+                <!-- Thumb Cover Indicator -->
+                <circle cx="180" cy="85" r="42" class="cover-ring" fill="rgba(7, 12, 24, 0.85)" stroke="#00f2fe" stroke-width="3" stroke-dasharray="6,4" />
+                <text x="180" y="96" class="cover-thumb" font-size="32" text-anchor="middle">👍</text>
+              </g>
 
               <!-- Horizontal Divider (Divide bar) -->
               <line x1="20" y1="150" x2="340" y2="150" stroke="#ffffff" stroke-width="5" />
+              <text x="45" y="142" fill="#fbbf24" font-size="22" font-weight="bold">÷</text>
+              <text x="305" y="142" fill="#fbbf24" font-size="22" font-weight="bold">÷</text>
 
               <!-- Bottom Left: Speed (v) -->
-              <polygon points="85,155 10,285 175,285 175,155" fill="rgba(192, 132, 252, 0.28)" stroke="#c084fc" stroke-width="4" />
-              <text x="95" y="225" fill="#c084fc" font-size="48" font-weight="800" text-anchor="middle" font-family="var(--font-display)">v</text>
-              <text x="95" y="258" fill="#cbd5e1" font-size="15" font-weight="700" text-anchor="middle" font-family="var(--font-body)">SPEED</text>
+              <g class="triangle-sector" id="sector-v" onclick="selectTriangleVar('v')" role="button" tabindex="0" title="Click to cover Speed (v)">
+                <polygon points="85,155 10,285 175,285 175,155" class="sector-poly" fill="rgba(192, 132, 252, 0.28)" stroke="#c084fc" stroke-width="4" />
+                <text x="95" y="222" fill="#c084fc" font-size="48" font-weight="800" text-anchor="middle" font-family="var(--font-display)">v</text>
+                <text x="95" y="254" fill="#cbd5e1" font-size="14" font-weight="700" text-anchor="middle" font-family="var(--font-body)">SPEED</text>
+                <!-- Thumb Cover Indicator -->
+                <circle cx="95" cy="215" r="42" class="cover-ring" fill="rgba(7, 12, 24, 0.85)" stroke="#c084fc" stroke-width="3" stroke-dasharray="6,4" style="display: none;" />
+                <text x="95" y="226" class="cover-thumb" font-size="32" text-anchor="middle" style="display: none;">👍</text>
+              </g>
 
               <!-- Vertical Divider (Multiply bar) -->
               <line x1="180" y1="155" x2="180" y2="285" stroke="#ffffff" stroke-width="5" />
@@ -199,10 +204,42 @@
               <text x="180" y="228" fill="#fbbf24" font-size="28" font-weight="bold" text-anchor="middle">·</text>
 
               <!-- Bottom Right: Time (t) -->
-              <polygon points="185,155 185,285 350,285 275,155" fill="rgba(16, 185, 129, 0.28)" stroke="#10b981" stroke-width="4" />
-              <text x="265" y="225" fill="#10b981" font-size="48" font-weight="800" text-anchor="middle" font-family="var(--font-display)">t</text>
-              <text x="265" y="258" fill="#cbd5e1" font-size="15" font-weight="700" text-anchor="middle" font-family="var(--font-body)">TIME</text>
+              <g class="triangle-sector" id="sector-t" onclick="selectTriangleVar('t')" role="button" tabindex="0" title="Click to cover Time (t)">
+                <polygon points="185,155 185,285 350,285 275,155" class="sector-poly" fill="rgba(16, 185, 129, 0.28)" stroke="#10b981" stroke-width="4" />
+                <text x="265" y="222" fill="#10b981" font-size="48" font-weight="800" text-anchor="middle" font-family="var(--font-display)">t</text>
+                <text x="265" y="254" fill="#cbd5e1" font-size="14" font-weight="700" text-anchor="middle" font-family="var(--font-body)">TIME</text>
+                <!-- Thumb Cover Indicator -->
+                <circle cx="265" cy="215" r="42" class="cover-ring" fill="rgba(7, 12, 24, 0.85)" stroke="#10b981" stroke-width="3" stroke-dasharray="6,4" style="display: none;" />
+                <text x="265" y="226" class="cover-thumb" font-size="32" text-anchor="middle" style="display: none;">👍</text>
+              </g>
             </svg>
+
+            <!-- Quick Selector Buttons -->
+            <div class="triangle-btn-row">
+              <button class="tri-selector-btn active" id="btnCover-d" onclick="selectTriangleVar('d')">Cover d (Distance)</button>
+              <button class="tri-selector-btn" id="btnCover-v" onclick="selectTriangleVar('v')">Cover v (Speed)</button>
+              <button class="tri-selector-btn" id="btnCover-t" onclick="selectTriangleVar('t')">Cover t (Time)</button>
+            </div>
+          </div>
+
+          <!-- Right Column: Large Dynamic Rearranged Formula Display -->
+          <div class="hero-box triangle-formula-hero" id="triangleFormulaBox">
+            <div style="font-size: 1.3rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; color: var(--text-muted);">
+              Rearranged Equation for <span id="triTargetName" style="color: var(--accent-cyan);">Distance (d)</span>:
+            </div>
+            
+            <div class="big-formula" id="triFormulaDisplay" style="font-size: clamp(4.2rem, 5.8vw, 6.2rem); margin: 1.25rem 0;">
+              <span>d = v · t</span>
+            </div>
+
+            <div id="triRuleDisplay" class="highlight-box" style="margin: 0.75rem 0; text-align: left;">
+              💡 <strong>The Multiply Rule:</strong> <span id="triRuleText">Speed (<strong style="color: #c084fc;">v</strong>) and Time (<strong style="color: #10b981;">t</strong>) sit side-by-side on the bottom ➔ <strong>MULTIPLY them!</strong></span>
+            </div>
+
+            <div style="display: flex; justify-content: space-around; font-size: 1.2rem; color: var(--text-muted); margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 0.75rem;">
+              <span>Horizontal line = <strong>DIVIDE (÷)</strong></span>
+              <span>Vertical line = <strong>MULTIPLY (·)</strong></span>
+            </div>
           </div>
         </div>
       </div>
