@@ -485,3 +485,32 @@ Append-only log tracking pattern changes across sessions.
     - Added an emerald confirmation callout: *"Score Automatically Saved to Teacher Gradebook (CONFIRMED ✓) — Your results have been automatically recorded in Firestore. No QR code, screenshot, or manual turn-in is required!"*
     - Added a Print / Save PDF action (`window.print()`) with print-optimized CSS rules.
     - Removed unused `qrcodejs` CDN dependency.
+
+---
+
+## 2026-09-07 — Unit Dashboard Pacing & Modal Clarification: Graded Coursework vs. Learning Resources
+
+**Motivation**: Resolve student and teacher confusion on unit dashboards between reference resources for learning (slide decks, guided notes, reading handouts) and assignments that will be collected or graded. Ensure crystal clarity on the lesson calendar cards, in absent makeup modules, and within the daily lesson modal drawer.
+
+**Changes**:
+- **Link Classifier Engine (`assets/lessons-data.js`)**:
+  - Implemented `categorizeLessonLinks(day)` with dual export (`window.categorizeLessonLinks` for browser and `module.exports` for Node).
+  - Automatically segments lesson materials into 3 visual tiers:
+    1. `assignments`: Graded deliverables requiring submission or automated cloud score saving.
+    2. `resources`: Lesson slide decks, lecture notes, formula sheets (`NO TURN-IN NEEDED`).
+    3. `practice`: Ungraded sandbox tools, PhET simulations, formative practice.
+  - Full backwards compatibility with legacy flat `links: { "Label": "url" }` objects via robust keyword & URL regex classification, while supporting explicit structured schema objects (`assignments: []`, `resources: []`, `practice: []`).
+- **Unit 2 Data Refinements (`assets/lessons-data.js` & `Unit_2/unit2_lessons.json`)**:
+  - Synchronized structured assignments across Days 4, 7, 8, 9, 10, 23 (e.g. Day 4 Fantasy Map Quest challenge, Day 7 Physics Speed Calculator with `Cloud Auto-Saved ✓` status).
+- **Unit Dashboard (`unit2-dashboard.html`)**:
+  - Pacing calendar grid cards now display at-a-glance header badges: `📝 GRADED WORK`, `📖 LESSON & NOTES`, or `🧪 PRACTICE`.
+  - Expanded detail modal drawer (`openLessonModal`) to `max-w-3xl` with custom scrolling (`max-h-[70vh]`).
+  - Added `renderCategorizedLinksHtml(day)` producing distinct visual tiers:
+    - Amber/gold bordered cards with `SUBMISSION REQUIRED` badge and submission method tags.
+    - Slate/indigo bordered cards with `STUDY & REFERENCE ONLY · NO TURN-IN NEEDED` badge.
+    - Cyan/teal bordered cards with `OPTIONAL · UNGRADED` badge.
+- **Absent Student Makeup Module (`missing-work.html`)**:
+  - Updated absent student assignment inspector to display separate labeled containers for Graded Work, Learning Slides/Notes, and Ungraded Practice.
+- **Documentation**:
+  - Updated `wiki/patterns/dashboard-layout.md` and `wiki/index.md`.
+
