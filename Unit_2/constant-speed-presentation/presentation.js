@@ -187,7 +187,7 @@ const DeckAudio = {
 const DeckState = {
   currentSlide: 1,
   totalSlides: 10,
-  isStudyMode: false,
+  isHandoutOpen: false,
   isTvMode: false,
   fontScale: 1.0,
   notesCollapsed: true
@@ -253,30 +253,29 @@ function toggleNotesDrawer() {
   DeckAudio.playClick();
 }
 
-function toggleStudyMode() {
-  DeckState.isStudyMode = !DeckState.isStudyMode;
-  document.body.classList.toggle('study-mode', DeckState.isStudyMode);
-
-  const icon = document.getElementById('studyIcon');
-  const text = document.getElementById('studyText');
-  const btn = document.getElementById('btnStudyMode');
-
-  if (icon) icon.textContent = DeckState.isStudyMode ? '📽️' : '📖';
-  if (text) text.textContent = DeckState.isStudyMode ? 'Slide Mode' : 'Study Mode';
-  if (btn) {
-    btn.classList.toggle('active-toggle', DeckState.isStudyMode);
-    btn.title = DeckState.isStudyMode ? 'Return to Slide Presentation (Hotkey: Esc or S)' : 'Toggle Scrollable Study Mode (Hotkey: S)';
-  }
-
-  // When returning to slide mode, smooth scroll back to current active slide
-  if (!DeckState.isStudyMode) {
-    const activeSlide = document.querySelector(`.slide[data-slide="${DeckState.currentSlide}"]`);
-    if (activeSlide) {
-      activeSlide.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  }
-
+// Student Guided Notes Handout Modal
+function openHandoutModal() {
+  const modal = document.getElementById('handoutModal');
+  if (!modal) return;
+  modal.style.display = 'flex';
+  DeckState.isHandoutOpen = true;
   DeckAudio.playClick();
+}
+
+function closeHandoutModal() {
+  const modal = document.getElementById('handoutModal');
+  if (!modal) return;
+  modal.style.display = 'none';
+  DeckState.isHandoutOpen = false;
+  DeckAudio.playClick();
+}
+
+function toggleHandoutModal() {
+  if (DeckState.isHandoutOpen) {
+    closeHandoutModal();
+  } else {
+    openHandoutModal();
+  }
 }
 
 // 25-Foot Classroom TV Mode
@@ -351,12 +350,28 @@ document.addEventListener('DOMContentLoaded', () => {
   // Navigation buttons
   document.getElementById('btnNext').addEventListener('click', nextSlide);
   document.getElementById('btnPrev').addEventListener('click', prevSlide);
-  document.getElementById('btnStudyMode').addEventListener('click', toggleStudyMode);
 
-  // Floating Study Mode exit button
-  const exitBtnFloating = document.getElementById('btnExitStudyFloating');
-  if (exitBtnFloating) {
-    exitBtnFloating.addEventListener('click', toggleStudyMode);
+  // Student Handout Modal controls
+  const btnHandout = document.getElementById('btnHandout');
+  if (btnHandout) btnHandout.addEventListener('click', toggleHandoutModal);
+
+  const btnCloseHandout = document.getElementById('btnCloseHandout');
+  if (btnCloseHandout) btnCloseHandout.addEventListener('click', closeHandoutModal);
+
+  const btnPrintHandout = document.getElementById('btnPrintHandout');
+  if (btnPrintHandout) {
+    btnPrintHandout.addEventListener('click', () => {
+      window.print();
+    });
+  }
+
+  const handoutModal = document.getElementById('handoutModal');
+  if (handoutModal) {
+    handoutModal.addEventListener('click', (e) => {
+      if (e.target === handoutModal) {
+        closeHandoutModal();
+      }
+    });
   }
 
   // Classroom TV & Display controls
@@ -381,20 +396,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Keyboard navigation & shortcuts
   document.addEventListener('keydown', (e) => {
-    // If in Study Mode, pressing Escape or S exits study mode
-    if (DeckState.isStudyMode) {
-      if (e.key === 'Escape' || e.key === 's' || e.key === 'S') {
+    // If Handout modal is open, Escape closes it
+    if (DeckState.isHandoutOpen) {
+      if (e.key === 'Escape') {
         e.preventDefault();
-        toggleStudyMode();
+        closeHandoutModal();
       }
       return;
     }
 
-    // Toggle Study Mode with S key
-    if (e.key === 's' || e.key === 'S') {
-      e.preventDefault();
-      toggleStudyMode();
-      return;
+    // Hotkey H or P toggles Student Handout
+    if (e.key === 'h' || e.key === 'H' || e.key === 'p' || e.key === 'P') {
+      // Don't trigger if modifier keys like Ctrl/Cmd are held (allow Ctrl+P standard print)
+      if (!e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        toggleHandoutModal();
+        return;
+      }
     }
 
     if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
