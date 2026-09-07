@@ -554,7 +554,7 @@ const lessonsData = [
     "semester": 1,
     "isFeatured": true,
     "summary": "Master isolating time (t = d / v) from the speed formula triangle, solve multi-step motion word problems, and resolve race scenarios comparing multiple moving objects.",
-    "activity": "Whiteboard Sprint & Leveled Tier 3 Challenges in the Speed Studio web app: Students solve for time (t = d / v), verify decimal division, convert units (cm to m, minutes to seconds), and determine which of two constant-speed vehicles arrives first at a destination.",
+    "activity": "Whiteboard sprint and multi-step motion challenges: Students solve for time (t = d / v), verify decimal division, convert units (cm to m, minutes to seconds), and complete all 3 levels of the Physics Speed Calculator to earn their Certificate of Kinematic Mastery.",
     "essentialQuestion": "Why does calculating travel time require dividing distance by speed, and how does speed act as a conversion factor between space and time?",
     "standards": [
       "HS-PS2-1"
@@ -574,11 +574,11 @@ const lessonsData = [
     },
     "assignments": [
       {
-        "title": "Physics Speed Calculator (Tier 3 Mastery)",
+        "title": "Physics Speed Calculator",
         "url": "physics_speed_calculator/dist/index.html",
         "typeLabel": "Graded Kinematics Lab",
         "submission": "Cloud Auto-Saved ✓",
-        "description": "Solve multi-step time calculations (t = d / v) with Desmos and earn your Certificate of Mastery."
+        "description": "Complete all 3 levels (Speed, Distance, and Time) using Desmos to earn your Certificate of Kinematic Mastery. Auto-saved to Firestore."
       }
     ],
     "resources": [
@@ -598,7 +598,7 @@ const lessonsData = [
       }
     ],
     "links": {
-      "Speed Calculator Mastery": "physics_speed_calculator/dist/index.html",
+      "Physics Speed Calculator": "physics_speed_calculator/dist/index.html",
       "Speed & Distance Studio": "Unit_2/speed_distance_time_app/index.html",
       "Constant Speed Presentation": "Unit_2/constant-speed-presentation/index.html"
     }
@@ -614,7 +614,7 @@ const lessonsData = [
     "semester": 1,
     "isFeatured": true,
     "summary": "Master calculating speed (v = d / t) and algebraically rearranging to solve for distance (d = v · t) using the Formula Triangle and the 5-step GUESS problem-solving method.",
-    "activity": "Interactive classroom lecture using the Constant Speed Slide Deck followed by guided practice in the Speed, Distance & Time Studio web app. Students work through Tier 1 (Speed) and Tier 2 (Distance) challenges, tracking units and practicing formula rearrangement.",
+    "activity": "Interactive classroom lecture using the Constant Speed Slide Deck followed by scaffolded practice in the Physics Speed Calculator web app. Students begin working through the 3-level progression (Speed, Distance, and Time), tracking units and using Desmos for calculations.",
     "essentialQuestion": "If you know how fast an object travels and how long it moves, how can you predict its exact final position?",
     "standards": [
       "HS-PS2-1"
@@ -634,11 +634,11 @@ const lessonsData = [
     },
     "assignments": [
       {
-        "title": "Physics Speed Calculator (Tiers 1-2)",
+        "title": "Physics Speed Calculator",
         "url": "physics_speed_calculator/dist/index.html",
-        "typeLabel": "Graded Scaffolded Lab",
+        "typeLabel": "Graded Kinematics Lab",
         "submission": "Cloud Auto-Saved ✓",
-        "description": "Formulate speed equations and calculate answers using Desmos. Scores recorded to Google account."
+        "description": "Formulate motion equations and calculate answers using Desmos across all 3 levels. Progress is automatically saved to Firestore."
       }
     ],
     "resources": [
