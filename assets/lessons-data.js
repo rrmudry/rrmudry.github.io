@@ -91,6 +91,23 @@ const lessonsData = [
       "explanation": "Crumpling extends the duration of the crash (increases Δt). Because impact force equals F = m · Δv / Δt, extending the stopping time dramatically lowers the force experienced by passengers.",
       "defaultDuration": 3
     },
+    "assignments": [
+      {
+        "title": "Operation Safe Heeler Crash Engineering Lab",
+        "url": "operation-safe-heeler.html",
+        "typeLabel": "Graded Engineering Challenge",
+        "submission": "Cloud Auto-Saved ✓",
+        "description": "Design crumple zones to minimize impact forces and submit collision telemetry to the gradebook."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Safe Heeler Telemetry & Class Results",
+        "url": "operation_safe_heeler_results.html",
+        "typeLabel": "Classroom Telemetry & Review",
+        "description": "Class-wide crash test analytics, accelerometer curves, and impulse area comparisons."
+      }
+    ],
     "links": {
       "Operation Safe Heeler": "operation-safe-heeler.html",
       "Safe Heeler Results": "operation_safe_heeler_results.html"
@@ -487,10 +504,43 @@ const lessonsData = [
       "explanation": "(A) d = v · t; (B) v = d / t; (C) t = d / v. Knowing which variable is unknown allows you to pick the exact right formula every time!",
       "defaultDuration": 3
     },
+    "assignments": [
+      {
+        "title": "Speed, Distance & Time Mastery Quiz",
+        "url": "physics_speed_calculator/dist/index.html",
+        "typeLabel": "Summative Speed Quiz",
+        "submission": "Cloud Auto-Saved ✓",
+        "description": "Complete the 3-tier kinematics quiz using Desmos. Certificate earned upon completion."
+      },
+      {
+        "title": "Wind-Up Toy Speed Lab (Final Submission)",
+        "url": "Unit_2/wind_up_toy_lab/index.html",
+        "typeLabel": "Graded Lab Report",
+        "submission": "Cloud Auto-Saved ✓",
+        "description": "Final check and submission for lab data and error reflections."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Constant Speed Presentation",
+        "url": "Unit_2/constant-speed-presentation/index.html",
+        "typeLabel": "Classroom Lecture Slides",
+        "description": "Comprehensive motion review and formula triangle summary."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Speed & Distance Studio",
+        "url": "Unit_2/speed_distance_time_app/index.html",
+        "typeLabel": "Practice Sandbox",
+        "description": "Leveled speed problem drills."
+      }
+    ],
     "links": {
       "Speed & Distance Studio": "Unit_2/speed_distance_time_app/index.html",
       "Constant Speed Presentation": "Unit_2/constant-speed-presentation/index.html",
-      "Wind-Up Toy Speed Lab": "Unit_2/wind_up_toy_lab/index.html"
+      "Wind-Up Toy Speed Lab": "Unit_2/wind_up_toy_lab/index.html",
+      "Physics Speed Calculator": "physics_speed_calculator/dist/index.html"
     }
   },
   {
@@ -522,7 +572,33 @@ const lessonsData = [
       "explanation": "Using t = d / v: time = 50 cm / (10 cm/s) = 5.0 seconds.",
       "defaultDuration": 3
     },
+    "assignments": [
+      {
+        "title": "Physics Speed Calculator (Tier 3 Mastery)",
+        "url": "physics_speed_calculator/dist/index.html",
+        "typeLabel": "Graded Kinematics Lab",
+        "submission": "Cloud Auto-Saved ✓",
+        "description": "Solve multi-step time calculations (t = d / v) with Desmos and earn your Certificate of Mastery."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Constant Speed Presentation",
+        "url": "Unit_2/constant-speed-presentation/index.html",
+        "typeLabel": "Classroom Lecture Slides",
+        "description": "Rearranging for time and multi-object race comparisons."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Speed & Distance Studio",
+        "url": "Unit_2/speed_distance_time_app/index.html",
+        "typeLabel": "Practice Sandbox",
+        "description": "Leveled speed and distance challenges."
+      }
+    ],
     "links": {
+      "Speed Calculator Mastery": "physics_speed_calculator/dist/index.html",
       "Speed & Distance Studio": "Unit_2/speed_distance_time_app/index.html",
       "Constant Speed Presentation": "Unit_2/constant-speed-presentation/index.html"
     }
@@ -556,7 +632,39 @@ const lessonsData = [
       "explanation": "Using d = v · t: distance = (3.0 m/s) · (12.0 s) = 36.0 meters.",
       "defaultDuration": 3
     },
+    "assignments": [
+      {
+        "title": "Physics Speed Calculator (Tiers 1-2)",
+        "url": "physics_speed_calculator/dist/index.html",
+        "typeLabel": "Graded Scaffolded Lab",
+        "submission": "Cloud Auto-Saved ✓",
+        "description": "Formulate speed equations and calculate answers using Desmos. Scores recorded to Google account."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Constant Speed Presentation",
+        "url": "Unit_2/constant-speed-presentation/index.html",
+        "typeLabel": "Classroom Lecture Slides",
+        "description": "Speed equation triangle and GUESS method notes."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Speed & Distance Studio",
+        "url": "Unit_2/speed_distance_time_app/index.html",
+        "typeLabel": "Practice Sandbox",
+        "description": "Interactive motion problem drills."
+      },
+      {
+        "title": "Distance vs Time App",
+        "url": "distance_vs_time_graphing.html",
+        "typeLabel": "Graphing Explorer",
+        "description": "Visualizing uniform position vs time slopes."
+      }
+    ],
     "links": {
+      "Physics Speed Calculator": "physics_speed_calculator/dist/index.html",
       "Constant Speed Presentation": "Unit_2/constant-speed-presentation/index.html",
       "Speed & Distance Studio": "Unit_2/speed_distance_time_app/index.html",
       "Distance vs Time App": "distance_vs_time_graphing.html"
@@ -591,6 +699,31 @@ const lessonsData = [
       "chatSystemInstruction": "You are a warm, adaptive, and relatable physics mentor chatting with a student over SMS/text. Your goal is to explore a physics concept together without being overly formal or using forced slang.\n\nCRITICAL RULES:\n1. NO FISHING / PIVOT TO TEACHING: Never try to \"force\" or repeatedly nudge a student toward a specific technical answer or physics term. If you ask a conceptual question and the student guesses wrong, focuses on a different variable (like friction/roughness), or says \"I don't know,\" DO NOT ask a follow-up question trying to correct their guess. Instead, pivot immediately to teaching: validate their logic, briefly explain the physics concept directly using a relatable analogy, and move on.\n2. NO SOCRATIC TRAPS: Do not get stuck in a loop asking the student to explain the same thing over and over. If they answer correctly, understand a concept, or say \"yes\"/\"obvious\", validate it briefly and immediately MOVE FORWARD to a new dimension or a real-world application.\n3. MOVE DYNAMICALLY: Keep the conversation fluid. Once a basic idea is established, introduce a fun twist, a new scenario, or a practical question (e.g., \"What happens if we try this in space?\" or \"How does that affect a rollercoaster?\"). \n4. CHAT TONE & LENGTH: Keep replies highly conversational and natural—like a text message from a knowledgeable peer. Limit replies to 1–3 short sentences max. Never send multiple distinct thoughts, lists, or bullet points in one message.\n5. CONTINUING THE CONVERSATION: Never end the conversation abruptly or push the student to stop chatting. Even after the student demonstrates understanding or has engaged in multiple turns, keep the conversation flowing naturally by offering intriguing follow-up thoughts, fun scenario twists, or real-world applications. You may let them know they can click the Finish Session button whenever they are ready to submit, but always leave the door open for them to continue chatting.",
       "defaultDuration": 3
     },
+    "assignments": [
+      {
+        "title": "Wind-Up Toy Speed Lab",
+        "url": "Unit_2/wind_up_toy_lab/index.html",
+        "typeLabel": "Graded Lab Report",
+        "submission": "Cloud Auto-Saved ✓",
+        "description": "Complete replication timing trials, compute average speed, and submit results."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Constant Speed Presentation",
+        "url": "Unit_2/constant-speed-presentation/index.html",
+        "typeLabel": "Classroom Lecture Slides",
+        "description": "Rate of travel derivations and classroom debrief notes."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Speed & Distance Studio",
+        "url": "Unit_2/speed_distance_time_app/index.html",
+        "typeLabel": "Practice Sandbox",
+        "description": "Explore variable rearrangements and practice problem sets."
+      }
+    ],
     "links": {
       "Wind-Up Toy Speed Lab": "Unit_2/wind_up_toy_lab/index.html",
       "Constant Speed Presentation": "Unit_2/constant-speed-presentation/index.html",
@@ -680,6 +813,43 @@ const lessonsData = [
       "explanation": "Using d = v · t: distance = 2 m/s · 5 s = 10 meters (each second adds 2 meters of distance: 2 + 2 + 2 + 2 + 2 = 10 m).",
       "defaultDuration": 3
     },
+    "assignments": [
+      {
+        "title": "Fantasy Map Quest Web App Challenge",
+        "url": "Unit_2/Displacement_and_distance_map_app/index.html",
+        "typeLabel": "Graded Vector Inquiry Challenge",
+        "submission": "Cloud Auto-Saved ✓",
+        "description": "Measure curved spline trails with virtual string, calculate vector displacement, and submit 5-step quest."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Google Slides Presentation",
+        "url": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
+        "typeLabel": "Classroom Lecture Slides",
+        "description": "Interactive vector displacement lecture deck."
+      },
+      {
+        "title": "Quest Story Narrative Doc",
+        "url": "https://docs.google.com/document/d/10pNCBkmnpn4LmwO6Fd8af0JH5ehHpj1akiyfmTqkDNA/edit?usp=sharing",
+        "typeLabel": "Reading & Lore Document",
+        "description": "Background story lore and adventurer travel prompt."
+      },
+      {
+        "title": "Fantasy Map Analysis Worksheet",
+        "url": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs",
+        "typeLabel": "Printable Lab Handout",
+        "description": "Student paper measurements and compass bearing calculations."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Vector Displacement Calculator",
+        "url": "Unit_2/Vector_displacement_calculator_app/index.html",
+        "typeLabel": "Component Vector Calculator",
+        "description": "Interactive Cartesian component calculator (Δx, Δy, Δr)."
+      }
+    ],
     "links": {
       "Fantasy Map Web App": "Unit_2/Displacement_and_distance_map_app/index.html",
       "Vector Displacement Calculator": "Unit_2/Vector_displacement_calculator_app/index.html",
@@ -3111,6 +3281,143 @@ const lessonsData = [
   }
 ];
 
+/**
+ * Categorizes a lesson's links and activities into three clear student-facing buckets:
+ * 1. assignments: Work that is graded, requires submission, or records scores to the gradebook.
+ * 2. resources: Lecture slide decks, study guides, reference sheets, notes, or readings (no turn-in).
+ * 3. practice: Interactive sandboxes, graphing tools, or simulations for self-paced exploration.
+ */
+function categorizeLessonLinks(day) {
+  if (!day) return { assignments: [], resources: [], practice: [] };
+
+  const result = {
+    assignments: [],
+    resources: [],
+    practice: []
+  };
+
+  // 1. Incorporate explicit arrays if present
+  if (Array.isArray(day.assignments)) {
+    result.assignments.push(...day.assignments);
+  }
+  if (Array.isArray(day.resources)) {
+    result.resources.push(...day.resources);
+  }
+  if (Array.isArray(day.practice)) {
+    result.practice.push(...day.practice);
+  }
+
+  // 2. Classify any legacy or additional day.links
+  if (day.links && typeof day.links === 'object') {
+    const existingUrls = new Set([
+      ...result.assignments.map(a => (a.url || '').toLowerCase()),
+      ...result.resources.map(r => (r.url || '').toLowerCase()),
+      ...result.practice.map(p => (p.url || '').toLowerCase())
+    ]);
+
+    Object.entries(day.links).forEach(([title, rawUrl]) => {
+      const url = String(rawUrl || '');
+      const urlLower = url.toLowerCase();
+      if (existingUrls.has(urlLower)) return;
+
+      const tLower = title.toLowerCase();
+
+      // Graded Assignment heuristics
+      const isAssignment =
+        tLower.includes('lab') ||
+        tLower.includes('quiz') ||
+        tLower.includes('exam') ||
+        tLower.includes('assessment') ||
+        tLower.includes('challenge') ||
+        tLower.includes('calculator') ||
+        tLower.includes('operation safe heeler') ||
+        tLower.includes('quest') ||
+        urlLower.includes('safe-heeler') ||
+        urlLower.includes('speed_calculator') ||
+        urlLower.includes('wind_up_toy_lab') ||
+        urlLower.includes('displacement_and_distance_maps') ||
+        (day.type === 'Assessment' && !tLower.includes('slide') && !tLower.includes('presentation'));
+
+      // Learning Resource heuristics (slides, docs, notes, reading)
+      const isResource =
+        tLower.includes('slide') ||
+        tLower.includes('presentation') ||
+        tLower.includes('notes') ||
+        tLower.includes('deck') ||
+        tLower.includes('reading') ||
+        tLower.includes('story') ||
+        tLower.includes('guide') ||
+        tLower.includes('overview') ||
+        tLower.includes('worksheet') ||
+        tLower.includes('document') ||
+        urlLower.includes('docs.google.com') ||
+        urlLower.includes('sharepoint.com') ||
+        urlLower.includes('presentation');
+
+      // Practice / Sandbox heuristics
+      const isPractice =
+        tLower.includes('studio') ||
+        tLower.includes('drawer') ||
+        tLower.includes('graphing') ||
+        tLower.includes('simulation') ||
+        tLower.includes('sandbox') ||
+        tLower.includes('explorer') ||
+        tLower.includes('phet') ||
+        tLower.includes('web app') ||
+        urlLower.includes('displacement_and_distance_map') ||
+        urlLower.includes('drawer') ||
+        urlLower.includes('graphing');
+
+      if (isAssignment && !isResource) {
+        let typeLabel = 'Graded Lab';
+        let submission = 'Cloud Auto-Saved ✓';
+        if (tLower.includes('quiz') || tLower.includes('assessment') || tLower.includes('exam')) {
+          typeLabel = 'Graded Assessment';
+          submission = 'Recorded in Gradebook';
+        } else if (tLower.includes('challenge') || tLower.includes('quest')) {
+          typeLabel = 'Inquiry Challenge';
+          submission = 'Auto-Saved to Gradebook ✓';
+        }
+        result.assignments.push({
+          title: title,
+          url: url,
+          typeLabel: typeLabel,
+          submission: submission,
+          required: true
+        });
+      } else if (isPractice && !isResource) {
+        result.practice.push({
+          title: title,
+          url: url,
+          typeLabel: 'Practice & Simulation Sandbox',
+          description: 'Self-paced tool to visualize and explore physics principles.'
+        });
+      } else {
+        let typeLabel = 'Study & Reference Material';
+        if (tLower.includes('slide') || tLower.includes('presentation') || tLower.includes('deck')) {
+          typeLabel = 'Classroom Lecture Slides';
+        } else if (tLower.includes('worksheet') || tLower.includes('handout')) {
+          typeLabel = 'Class Handout / Worksheet';
+        } else if (tLower.includes('video')) {
+          typeLabel = 'Instructional Video';
+        }
+        result.resources.push({
+          title: title,
+          url: url,
+          typeLabel: typeLabel,
+          description: 'Class material for lecture review, absent makeup, and notes.'
+        });
+      }
+    });
+  }
+
+  return result;
+}
+
+if (typeof window !== "undefined") {
+  window.categorizeLessonLinks = categorizeLessonLinks;
+}
+
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { lessonsData };
+  module.exports = { lessonsData, categorizeLessonLinks };
 }

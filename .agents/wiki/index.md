@@ -5,7 +5,7 @@
 
 | Pattern | Tags | Last Updated | Summary |
 |---|---|---|---|
-| [dashboard-layout](patterns/dashboard-layout.md) | dashboard, HTML, CSS, glass-card, tailwind | 2026-08-29 | Unit dashboard HTML structure, theming, glass cards, nav tabs, lesson cards |
+| [dashboard-layout](patterns/dashboard-layout.md) | dashboard, HTML, CSS, glass-card, tailwind, assignments, modal | 2026-09-07 | Unit dashboard HTML structure, theming, glass cards, categorized assignments vs learning resources in cards & modals |
 | [firebase-auth-gotchas](patterns/firebase-auth-gotchas.md) | firebase, auth, security, scoring | 2026-08-29 | Auth gateway, domain filtering, score submission, dual-path sync |
 | [ngss-integration](patterns/ngss-integration.md) | NGSS, standards, data-attr, badges, modal | 2026-08-29 | NGSSHelper API, three data attributes, loading chain, re-init pattern |
 | [mobile-responsive](patterns/mobile-responsive.md) | CSS, responsive, mobile, breakpoints, touch | 2026-08-29 | Breakpoints, container patterns, touch controls, iOS pitfalls |

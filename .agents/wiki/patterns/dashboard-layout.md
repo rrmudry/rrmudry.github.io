@@ -77,15 +77,20 @@ Dashboards use horizontal tab navigation with a glowing underline indicator:
 }
 ```
 
-## Daily Lesson Card Rendering
-Lesson cards are generated from a JS data array embedded in the dashboard. Each card renders:
-- Day number badge
-- Title and summary
-- Type badge (Lab, Activity, Assessment, etc.)
-- NGSS standard pill badges via `data-ngss-code` attributes
-- Links to resources
+## Daily Lesson Card & Modal Tiering Pattern (Graded vs Learning vs Practice)
+Lesson cards and detail modal popups (`openLessonModal`) must clearly distinguish between graded assignments, reference resources, and practice sandboxes to eliminate student confusion:
+- **At-a-glance pacing badges**: Rendered on the pacing card header:
+  - `📝 GRADED WORK` (Amber/gold) if the day includes an assignment requiring submission or automated gradebook logging.
+  - `📖 LESSON & NOTES` (Indigo/slate) if the day focuses on instructional slides and notes.
+  - `🧪 PRACTICE` (Cyan/teal) if the day is an ungraded interactive sandbox.
+- **Categorized Modal Tiers (`renderCategorizedLinksHtml` / `categorizeLessonLinks`)**:
+  1. **🎯 Graded Assignments & Required Coursework**: Amber/gold glowing card with `SUBMISSION REQUIRED` badge, submission type tag (`Cloud Auto-Saved ✓`, `Canvas LMS`, etc.), point value hint, and actionable button.
+  2. **📖 Learning Resources & Slide Decks**: Slate/indigo card with `STUDY & REFERENCE ONLY · NO TURN-IN NEEDED` badge, file type indicator (PPTX, DOCX, Slides), and preview link.
+  3. **🧪 Practice Tools & Simulation Sandboxes**: Cyan/teal card with `OPTIONAL · UNGRADED` badge and launch button.
+- **Backwards Compatibility**: The `categorizeLessonLinks(day)` function automatically categorizes legacy flat `links: { "Label": "url" }` objects via keyword and URL regex heuristics, while supporting explicit `assignments: []`, `resources: []`, and `practice: []` data arrays.
+- **Absent Makeup Integration**: `missing-work.html` uses the same three-tier categorization so absent students instantly see what must be submitted to earn credit versus what slides to review.
 
-Clicking a lesson card opens a detail drawer/modal containing expanded details and a `data-ngss` container for the full NGSS banner.
+Clicking a lesson card opens a detail drawer/modal containing expanded details, categorized links, and a `data-ngss` container for the full NGSS banner.
 
 ## Known Pitfalls
 - **TailwindCSS CDN + custom CSS**: Dashboards use BOTH `cdn.tailwindcss.com` AND a `<style>` block. Tailwind utility classes and custom CSS coexist — don't use `@apply` since there's no build step.
