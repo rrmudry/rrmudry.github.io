@@ -211,9 +211,9 @@ function goToSlide(slideNum) {
   // Update Presenter Notes
   updatePresenterNotes(slideNum);
 
-  // Initialize triangle on Slide 4
+  // Initialize triangle on Slide 4 (starts with no thumbs up)
   if (slideNum === 4) {
-    selectTriangleVar('d');
+    resetTriangleState();
   }
 
   DeckAudio.playWhoosh();
@@ -283,10 +283,55 @@ function toggleHandoutModal() {
   }
 }
 
+// Reset Formula Triangle to neutral state (no thumbs up, clean prompt)
+function resetTriangleState() {
+  const vars = ['d', 'v', 't'];
+  vars.forEach(v => {
+    const sector = document.getElementById(`sector-${v}`);
+    if (sector) {
+      sector.classList.remove('active-covered');
+    }
+    const btn = document.getElementById(`btnCover-${v}`);
+    if (btn) {
+      btn.classList.remove('active');
+    }
+  });
+
+  const targetName = document.getElementById('triTargetName');
+  const formulaBox = document.getElementById('triFormulaDisplay');
+  const ruleText = document.getElementById('triRuleText');
+  const heroBox = document.getElementById('triangleFormulaBox');
+
+  if (targetName) {
+    targetName.textContent = 'Choose Variable (d, v, or t)';
+    targetName.style.color = 'var(--text-muted)';
+  }
+  if (formulaBox) {
+    formulaBox.innerHTML = `<span style="font-size: clamp(1.9rem, 2.6vw, 3rem); font-weight: 600; opacity: 0.85;">👆 Click a variable to cover</span>`;
+    formulaBox.style.color = 'var(--text-muted)';
+  }
+  if (ruleText) {
+    ruleText.innerHTML = `Cover whichever variable you want to solve for. The position of the remaining two reveals the formula!`;
+  }
+  if (heroBox) {
+    heroBox.style.borderColor = 'var(--border-color)';
+  }
+}
+
 // Interactive Formula Triangle Selection (Slide 4)
 function selectTriangleVar(variable) {
   const vars = ['d', 'v', 't'];
   if (!vars.includes(variable)) return;
+
+  const currentSector = document.getElementById(`sector-${variable}`);
+  const isAlreadyActive = currentSector && currentSector.classList.contains('active-covered');
+
+  // If clicked again, deselect back to neutral (no thumbs up)
+  if (isAlreadyActive) {
+    resetTriangleState();
+    DeckAudio.playClick();
+    return;
+  }
 
   // Update SVG sectors
   vars.forEach(v => {
