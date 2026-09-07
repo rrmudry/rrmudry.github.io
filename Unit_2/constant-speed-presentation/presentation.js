@@ -216,6 +216,18 @@ function goToSlide(slideNum) {
     resetTriangleState();
   }
 
+  // Reset Audience Check on Slide 9
+  if (slideNum === 9) {
+    document.querySelectorAll('.vote-card').forEach(c => {
+      c.classList.remove('revealed-correct', 'revealed-wrong');
+    });
+    const expBox = document.getElementById('voteExplanation');
+    if (expBox) {
+      expBox.style.display = 'none';
+      expBox.innerHTML = '';
+    }
+  }
+
   DeckAudio.playWhoosh();
 }
 
