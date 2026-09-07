@@ -33,3 +33,17 @@ Unit_X/presentation-name/
    - Collapsible drawer keyed to each slide providing timing cues, discussion questions, and pedagogical pointers.
 4. **Dual-Mode Toggle**:
    - Toggling `.study-mode` on `document.body` displays all slides stacked cleanly in a structured reading layout while hiding presentation-specific controls.
+
+## 📺 Classroom TV Projection & 25-Foot Legibility Standards
+When slides are projected onto large classroom TVs (e.g. dual 65"–85" screens) where students are seated 20–25+ feet away:
+1. **Typography Hierarchy for 25-Foot Legibility**:
+   - **Slide Titles**: `clamp(2.4rem, 3.4vw, 3.8rem)` bold, high-contrast `#ffffff`.
+   - **Body Text & Bullet Points**: `clamp(1.35rem, 1.6vw, 1.75rem)` with color `#f1f5f9` (never dark gray or low-contrast muted text).
+   - **Core Formulas**: `clamp(4.2rem, 5.8vw, 6.2rem)` with glowing text-shadow (`0 0 30px rgba(0, 242, 254, 0.55)`).
+   - **Worked Examples & Cards**: Minimum `1.25rem`–`1.45rem` font sizes; inline math blocks at `1.3rem`–`1.4rem`.
+   - **Interactive Vote/Quiz Choices**: `1.5rem`–`1.75rem` bold with 48px circular option badges (`A`, `B`, `C`, `D`).
+2. **Widescreen Stage Utilization**:
+   - Stage container must scale to `min(1560px, 94vw)` to eliminate dead horizontal black bars on 16:9 1080p and 4K TVs.
+3. **Dedicated TV Mode & Hotkeys**:
+   - Add `.tv-mode` on `body` (toggled via button or `T` key) that scales container to `min(1760px, 96vw)` and boosts `--font-scale` by 15–20%.
+   - Support `F` for Fullscreen toggle (`requestFullscreen()`), `+`/`-` for dynamic zoom, and `0` for zoom reset.

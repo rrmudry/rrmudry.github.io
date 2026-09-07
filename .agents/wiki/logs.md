@@ -399,4 +399,25 @@ Append-only log tracking pattern changes across sessions.
 - Updated `unit2-dashboard.html`: Added quick-access hero cards for Speed Studio and Constant Speed Slide Deck.
 - Strict No-LaTeX compliance verified across all files.
 
+---
 
+## 2026-09-07 — Classroom TV 25-Foot Legibility & Projection Scaling for Constant Speed Deck
+
+**Motivation**: Teacher identified that default slide typography and standard container constraints (`1150px`) rendered text unreadable from 25 feet away on dual classroom TVs.
+
+**Changes**:
+- Updated `Unit_2/constant-speed-presentation/style.css`:
+  - Expanded slide stage constraint to widescreen `min(1560px, 94vw)` to eliminate empty black bars on 16:9 1080p/4K TVs.
+  - Implemented responsive fluid typography: Slide titles (`clamp(2.4rem, 3.4vw, 3.8rem)`), body & bullet points (`clamp(1.35rem, 1.6vw, 1.75rem)`), formulas (`clamp(4.2rem, 5.8vw, 6.2rem)` with glowing text-shadow).
+  - Upgraded contrast with pure `#ffffff` and `#f1f5f9` against dark slate cards.
+  - Added `.tv-mode` boost (`--font-scale: 1.18`, width `min(1760px, 96vw)`) with persistent `localStorage` preference.
+  - Redesigned 5-card GUESS grid and 3-card real-world grid with prominent step badges.
+  - Added Fullscreen optimizations for browser projection without OS/tab bars.
+- Updated `Unit_2/constant-speed-presentation/index.html`:
+  - Streamlined paragraphs into punchy, high-impact bulleted lists (`.slide-list`).
+  - Scaled Formula Triangle SVG (`viewBox="0 0 360 310"`, font sizes `48px`, stroke `4px`, color-coded partitions).
+  - Added top navbar controls: `📺 TV Mode`, `A-` / `A+` font zoom, and `⛶ Fullscreen` toggle.
+  - Redesigned Audience Check vote cards with 48px circular badges (`A`, `B`, `C`, `D`) and `1.5rem` options.
+- Updated `Unit_2/constant-speed-presentation/presentation.js`:
+  - Added TV mode toggle, font zooming (`--font-scale`), Fullscreen API integration, and hotkeys (`T`, `F`, `+`, `-`, `0`).
+- Updated `wiki/patterns/interactive-presentation-deck.md` with Section 5 (Classroom TV Projection & 25-Foot Legibility Standards).
