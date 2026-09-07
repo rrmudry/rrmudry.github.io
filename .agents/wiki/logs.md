@@ -450,3 +450,18 @@ Append-only log tracking pattern changes across sessions.
 - Removed file symlinks (`index.html`, `js`, `style.css`) from `displacement_and_distance_maps_app/`.
 - Replaced `displacement_and_distance_maps_app/index.html` with an instant `<meta http-equiv="refresh">` and `window.location.replace` redirect targeting `../Unit_2/Displacement_and_distance_map_app/index.html`.
 - Preserved `Unit_2/Displacement_and_distance_map_app/` as the single canonical source of truth linked across `unit2-dashboard.html`, `lessons-data.js`, and `unit2_lessons.json`.
+
+---
+
+## 2026-09-07 — Physics Speed Calculator: Mandatory Desmos Integration & One-Click Result Paste
+
+**Motivation**: Required students to use the embedded Desmos scientific calculator for calculating numerical values on Level 2 & 3, auto-expanding the calculator sidebar and adding a one-click paste button to transfer results into the answer input.
+
+**Changes**:
+- Integrated official Desmos Scientific Calculator API (`https://www.desmos.com/api/v1.9/calculator.js?apiKey=...`) replacing the previous static iframe.
+- Updated `physics_speed_calculator/dist/index.html`:
+  - Automatically expands the Desmos calculator sidebar on Level 2 & Level 3 in `changeLevel` and `loadQuestion`.
+  - Added real-time Desmos state observer (`desmosCalculator.observeEvent('change', ...)`) and expression evaluation supporting LaTeX fractions, products, scientific notation, and roots.
+  - Added one-click "Paste from Desmos" buttons in both the calculation telemetry panel and the Desmos header/footer to paste the evaluated number into the student answer box with sound and telemetry feedback.
+  - Enforced mandatory Desmos calculation check in `checkCurrentAnswer`: students cannot submit answers on Level 2 & 3 without performing the calculation in Desmos.
+  - Preserved strict No-LaTeX syntax in student UI and feedback messages.
