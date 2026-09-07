@@ -211,6 +211,11 @@ function goToSlide(slideNum) {
   // Update Presenter Notes
   updatePresenterNotes(slideNum);
 
+  // Initialize triangle on Slide 4
+  if (slideNum === 4) {
+    selectTriangleVar('d');
+  }
+
   DeckAudio.playWhoosh();
 }
 
@@ -276,6 +281,78 @@ function toggleHandoutModal() {
   } else {
     openHandoutModal();
   }
+}
+
+// Interactive Formula Triangle Selection (Slide 4)
+function selectTriangleVar(variable) {
+  const vars = ['d', 'v', 't'];
+  if (!vars.includes(variable)) return;
+
+  // Update SVG sectors
+  vars.forEach(v => {
+    const sector = document.getElementById(`sector-${v}`);
+    if (sector) {
+      sector.classList.toggle('active-covered', v === variable);
+    }
+    const btn = document.getElementById(`btnCover-${v}`);
+    if (btn) {
+      btn.classList.toggle('active', v === variable);
+    }
+  });
+
+  const targetName = document.getElementById('triTargetName');
+  const formulaBox = document.getElementById('triFormulaDisplay');
+  const ruleText = document.getElementById('triRuleText');
+  const heroBox = document.getElementById('triangleFormulaBox');
+
+  if (variable === 'd') {
+    if (targetName) {
+      targetName.textContent = 'Distance (d)';
+      targetName.style.color = 'var(--accent-cyan)';
+    }
+    if (formulaBox) {
+      formulaBox.innerHTML = `<span>d = v · t</span>`;
+      formulaBox.style.color = 'var(--accent-cyan)';
+    }
+    if (ruleText) {
+      ruleText.innerHTML = `Speed (<strong style="color: #c084fc;">v</strong>) and Time (<strong style="color: #10b981;">t</strong>) sit side-by-side on the bottom ➔ <strong>MULTIPLY them!</strong>`;
+    }
+    if (heroBox) {
+      heroBox.style.borderColor = 'rgba(0, 242, 254, 0.4)';
+    }
+  } else if (variable === 'v') {
+    if (targetName) {
+      targetName.textContent = 'Speed (v)';
+      targetName.style.color = 'var(--accent-purple)';
+    }
+    if (formulaBox) {
+      formulaBox.innerHTML = `<span>v = </span><span class="math-frac"><span class="num">d</span><span class="den">t</span></span>`;
+      formulaBox.style.color = 'var(--accent-purple)';
+    }
+    if (ruleText) {
+      ruleText.innerHTML = `Distance (<strong style="color: #00f2fe;">d</strong>) is on top and Time (<strong style="color: #10b981;">t</strong>) is on the bottom ➔ <strong>DIVIDE them!</strong>`;
+    }
+    if (heroBox) {
+      heroBox.style.borderColor = 'rgba(192, 132, 252, 0.4)';
+    }
+  } else if (variable === 't') {
+    if (targetName) {
+      targetName.textContent = 'Time (t)';
+      targetName.style.color = 'var(--accent-emerald)';
+    }
+    if (formulaBox) {
+      formulaBox.innerHTML = `<span>t = </span><span class="math-frac"><span class="num">d</span><span class="den">v</span></span>`;
+      formulaBox.style.color = 'var(--accent-emerald)';
+    }
+    if (ruleText) {
+      ruleText.innerHTML = `Distance (<strong style="color: #00f2fe;">d</strong>) is on top and Speed (<strong style="color: #c084fc;">v</strong>) is on the bottom ➔ <strong>DIVIDE them!</strong>`;
+    }
+    if (heroBox) {
+      heroBox.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+    }
+  }
+
+  DeckAudio.playChime();
 }
 
 // 25-Foot Classroom TV Mode
@@ -411,6 +488,23 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!e.ctrlKey && !e.metaKey) {
         e.preventDefault();
         toggleHandoutModal();
+        return;
+      }
+    }
+
+    // Slide 4 interactive triangle shortcuts (1/D: Distance, 2/V: Speed, 3: Time)
+    if (DeckState.currentSlide === 4) {
+      if (e.key === '1' || e.key === 'd' || e.key === 'D') {
+        e.preventDefault();
+        selectTriangleVar('d');
+        return;
+      } else if (e.key === '2' || e.key === 'v' || e.key === 'V') {
+        e.preventDefault();
+        selectTriangleVar('v');
+        return;
+      } else if (e.key === '3') {
+        e.preventDefault();
+        selectTriangleVar('t');
         return;
       }
     }
