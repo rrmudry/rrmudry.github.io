@@ -11,6 +11,9 @@
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
+  <!-- Official Desmos Scientific Calculator API -->
+  <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -321,19 +324,39 @@
       
                 <!-- Calculation input helper (For Level 2 & 3) -->
                 <div id="calc-input-helper" class="glass rounded-xl p-4 border border-white/5 flex flex-col justify-between hidden">
-                  <div>
-                    <span class="text-[9px] text-sky-400 uppercase tracking-widest block font-bold">Calculation Telemetry</span>
-                    <p class="text-[11px] text-slate-400 mt-0.5 leading-relaxed">Enter your calculated result. Make sure to round to 2 decimal places.</p>
+                  <div class="flex items-center justify-between gap-2">
+                    <div>
+                      <span class="text-[9px] text-sky-400 uppercase tracking-widest block font-bold">Calculation Telemetry</span>
+                      <p class="text-[11px] text-slate-400 mt-0.5 leading-relaxed">Calculate in Desmos, then paste or enter your result below.</p>
+                    </div>
+                    <span id="telemetry-req-badge" class="text-[8px] font-mono font-bold px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-300 uppercase tracking-wider">
+                      Desmos Required
+                    </span>
                   </div>
                   
-                  <div class="my-2">
+                  <div class="my-2.5 flex flex-col sm:flex-row gap-2">
                     <input 
                       type="number" 
                       step="0.01" 
                       id="manual-user-answer" 
-                      placeholder="Insert result..." 
-                      class="w-full bg-slate-950/85 text-white py-2 px-3 rounded-lg border border-white/10 text-center font-bold tracking-wide text-base focus:border-sky-500 focus:outline-none transition-all mono placeholder:font-normal placeholder:text-slate-700"
+                      placeholder="Enter or paste result..." 
+                      oninput="syncManualInput(this.value)"
+                      class="flex-1 bg-slate-950/85 text-white py-2.5 px-3 rounded-lg border border-white/10 text-center font-bold tracking-wide text-base focus:border-sky-500 focus:outline-none transition-all mono placeholder:font-normal placeholder:text-slate-600"
                     >
+                    <button 
+                      id="btn-paste-desmos-input"
+                      type="button" 
+                      onclick="pasteDesmosResult()" 
+                      class="py-2.5 px-3.5 bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-500 hover:to-cyan-500 text-white rounded-lg font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-md hover:scale-[1.02] active:scale-95 border border-sky-400/30 flex-shrink-0"
+                      title="Paste latest calculated value from Desmos"
+                    >
+                      <i data-lucide="clipboard-paste" class="w-4 h-4"></i>
+                      <span>Paste Desmos</span>
+                    </button>
+                  </div>
+
+                  <div id="calc-telemetry-status" class="text-[10px] text-slate-400 font-mono text-center min-h-[16px]">
+                    Use the Desmos calculator on the right to compute your answer.
                   </div>
                 </div>
       
@@ -367,26 +390,37 @@
          </div>
 
          <!-- Calculator Sidebar Panel -->
-         <div id="modal-calculator" class="w-full lg:w-[380px] flex-shrink-0 hidden transition-all duration-300">
-           <div class="bg-slate-900 border border-white/10 shadow-2xl rounded-2xl overflow-hidden lg:sticky lg:top-24">
+         <div id="modal-calculator" class="w-full lg:w-[410px] flex-shrink-0 hidden transition-all duration-300">
+           <div id="desmos-card-wrapper" class="bg-slate-900 border border-white/10 shadow-2xl rounded-2xl overflow-hidden lg:sticky lg:top-24">
              
              <!-- Titlebar -->
-             <div class="flex items-center justify-between px-3 py-2 bg-slate-800 text-white rounded-t-2xl select-none">
-               <div class="flex items-center gap-1 text-slate-300">
+             <div class="flex items-center justify-between px-3.5 py-2.5 bg-slate-800 text-white rounded-t-2xl select-none">
+               <div class="flex items-center gap-2 text-slate-300">
                  <i data-lucide="calculator" class="w-4 h-4 text-sky-400"></i>
-                 <span class="text-xs font-bold uppercase tracking-wider font-sans">Lab Assistant</span>
+                 <span class="text-xs font-bold uppercase tracking-wider font-sans">Desmos Scientific</span>
+                 <span id="desmos-status-badge" class="text-[8px] font-bold text-sky-300 bg-sky-950/80 px-2 py-0.5 rounded border border-sky-500/30 uppercase tracking-wider font-mono">STANDBY</span>
                </div>
                <div class="flex items-center gap-2">
-                 <span class="text-[9px] font-bold text-sky-300 bg-sky-950/60 px-2 py-0.5 rounded border border-sky-500/20 uppercase tracking-wider backdrop-blur-sm">DESMOS</span>
-                 <button onclick="toggleCalculatorModal(false)" class="text-slate-400 hover:text-white p-0.5 rounded transition-colors">
+                 <button id="btn-desmos-paste-header" onclick="pasteDesmosResult()" type="button" class="hidden px-2 py-1 rounded-md bg-sky-600 hover:bg-sky-500 text-white text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center gap-1" title="Paste result into answer box">
+                   <i data-lucide="clipboard-paste" class="w-3 h-3"></i> Paste
+                 </button>
+                 <button onclick="toggleCalculatorModal(false)" class="text-slate-400 hover:text-white p-1 rounded hover:bg-white/10 transition-colors" title="Collapse Calculator">
                    <i data-lucide="x" class="w-4 h-4"></i>
                  </button>
                </div>
              </div>
 
              <!-- Calculator Body -->
-             <div class="p-0.5 bg-slate-900 rounded-b-2xl overflow-hidden">
-               <iframe id="desmos-iframe" class="w-full h-[380px] rounded-b-2xl bg-white" frameborder="0"></iframe>
+             <div class="p-0.5 bg-slate-900 overflow-hidden">
+               <div id="desmos-calculator-container" class="w-full h-[400px] bg-white rounded-b-xl overflow-hidden"></div>
+             </div>
+
+             <!-- Calculator Footer Action Bar -->
+             <div id="desmos-footer-action" class="px-3.5 py-2.5 bg-slate-800/90 border-t border-white/10 flex items-center justify-between gap-2">
+               <span id="desmos-live-feedback" class="text-[11px] text-slate-300 font-mono truncate">Ready for calculation...</span>
+               <button onclick="pasteDesmosResult()" type="button" class="px-3 py-1.5 bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-500 hover:to-cyan-500 text-white text-xs font-bold uppercase tracking-wider rounded-lg flex items-center gap-1.5 transition-all shadow-md hover:scale-[1.02] active:scale-95 flex-shrink-0 border border-sky-400/30">
+                 <i data-lucide="clipboard-paste" class="w-3.5 h-3.5"></i> Paste Result
+               </button>
              </div>
 
            </div>
@@ -710,7 +744,237 @@ const QUESTIONS = [
     // DESMOS INTEGRATION
     // -------------------------------------------------------------
     let desmosLoaded = false;
+    let desmosCalculator = null;
     let isCurrentQuestionSolved = false;
+
+    function initDesmos() {
+      const container = document.getElementById('desmos-calculator-container');
+      if (!container) return;
+
+      if (window.Desmos && !desmosCalculator) {
+        try {
+          desmosCalculator = Desmos.ScientificCalculator(container, {
+            fontSize: Desmos.FontSizes.SMALL,
+            keypad: true,
+            settingsMenu: false
+          });
+          desmosLoaded = true;
+
+          desmosCalculator.observeEvent('change', () => {
+            onDesmosChange();
+          });
+
+          onDesmosChange();
+        } catch (err) {
+          console.error("Desmos init error:", err);
+        }
+      } else if (!window.Desmos && !desmosLoaded) {
+        setTimeout(() => {
+          if (window.Desmos && !desmosCalculator) initDesmos();
+        }, 400);
+      }
+    }
+
+    function getDesmosExpressions() {
+      if (!desmosCalculator) return [];
+      try {
+        const calcState = desmosCalculator.getState();
+        return calcState?.expressions?.list || [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function evaluateLatex(latex) {
+      if (!latex) return null;
+      let s = latex
+        .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, "($1)/($2)")
+        .replace(/\\cdot|\\times/g, "*")
+        .replace(/\\div/g, "/")
+        .replace(/\\left\(/g, "(")
+        .replace(/\\right\)/g, ")")
+        .replace(/\\sqrt\{([^}]+)\}/g, "Math.sqrt($1)")
+        .replace(/\^\{([^}]+)\}/g, "**($1)")
+        .replace(/\^([0-9]+)/g, "**$1")
+        .replace(/[^0-9+\-*/().Mathsqrt]/g, "");
+      try {
+        const val = Function('"use strict"; return (' + s + ')')();
+        return typeof val === "number" && !isNaN(val) && isFinite(val) ? val : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function evaluateExpressionItem(item) {
+      if (!item || !item.latex) return null;
+      if (desmosCalculator && typeof desmosCalculator.HelperExpression === 'function') {
+        try {
+          const helper = desmosCalculator.HelperExpression({ latex: item.latex });
+          if (typeof helper.numericValue === 'number' && !isNaN(helper.numericValue) && isFinite(helper.numericValue)) {
+            return helper.numericValue;
+          }
+        } catch (e) {}
+      }
+      return evaluateLatex(item.latex);
+    }
+
+    function getDesmosLatestCalculation() {
+      const list = getDesmosExpressions();
+      for (let i = list.length - 1; i >= 0; i--) {
+        const item = list[i];
+        if (!item || !item.latex) continue;
+        const val = evaluateExpressionItem(item);
+        if (val !== null && !isNaN(val) && isFinite(val)) {
+          return {
+            latex: item.latex,
+            value: val
+          };
+        }
+      }
+      return null;
+    }
+
+    function onDesmosChange() {
+      const calc = getDesmosLatestCalculation();
+      const statusBadge = document.getElementById('desmos-status-badge');
+      const liveFeedback = document.getElementById('desmos-live-feedback');
+      const pasteHeaderBtn = document.getElementById('btn-desmos-paste-header');
+      const telemetryReqBadge = document.getElementById('telemetry-req-badge');
+      const telemetryStatus = document.getElementById('calc-telemetry-status');
+
+      if (calc && typeof calc.value === 'number' && !isNaN(calc.value)) {
+        const rounded = Number(calc.value.toFixed(2));
+        if (statusBadge) {
+          statusBadge.textContent = "RESULT: " + rounded;
+          statusBadge.className = "text-[8px] font-bold text-emerald-300 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-500/40 uppercase tracking-wider font-mono";
+        }
+        if (liveFeedback) {
+          liveFeedback.textContent = "Computed: " + rounded;
+          liveFeedback.className = "text-[11px] text-emerald-400 font-mono font-bold truncate";
+        }
+        if (pasteHeaderBtn) pasteHeaderBtn.classList.remove('hidden');
+        if (telemetryReqBadge) {
+          telemetryReqBadge.textContent = "CALCULATION READY ✓";
+          telemetryReqBadge.className = "text-[8px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 uppercase tracking-wider";
+        }
+        if (telemetryStatus) {
+          telemetryStatus.innerHTML = `Desmos Result: <span class="text-emerald-400 font-bold">${rounded}</span> (click Paste Desmos to insert)`;
+        }
+      } else {
+        if (statusBadge) {
+          statusBadge.textContent = state && state.currentLevel >= 2 ? "WORK REQUIRED" : "STANDBY";
+          statusBadge.className = state && state.currentLevel >= 2 ?
+            "text-[8px] font-bold text-amber-300 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-500/40 uppercase tracking-wider font-mono" :
+            "text-[8px] font-bold text-sky-300 bg-sky-950/80 px-2 py-0.5 rounded border border-sky-500/30 uppercase tracking-wider font-mono";
+        }
+        if (liveFeedback) {
+          liveFeedback.textContent = "Ready for calculation...";
+          liveFeedback.className = "text-[11px] text-slate-400 font-mono truncate";
+        }
+        if (pasteHeaderBtn) pasteHeaderBtn.classList.add('hidden');
+        if (telemetryReqBadge) {
+          telemetryReqBadge.textContent = "DESMOS REQUIRED";
+          telemetryReqBadge.className = "text-[8px] font-mono font-bold px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-300 uppercase tracking-wider";
+        }
+        if (telemetryStatus) {
+          telemetryStatus.textContent = "Use the Desmos calculator on the right to compute your answer.";
+        }
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function pasteDesmosResult() {
+      const calc = getDesmosLatestCalculation();
+      const feedbackBox = document.getElementById('feedback-box');
+      if (!calc || typeof calc.value !== 'number' || isNaN(calc.value)) {
+        sound.playError();
+        if (feedbackBox) {
+          feedbackBox.innerText = "No calculated result found in Desmos yet. Type your calculation in the calculator first!";
+          feedbackBox.className = "glass rounded-xl p-3 text-center font-bold text-amber-400 text-xs min-h-[48px] flex items-center justify-center border border-amber-500/30 animate-shake";
+        }
+        toggleCalculatorModal(true);
+        return;
+      }
+
+      sound.playBeep();
+      const rounded = Number(calc.value.toFixed(2));
+
+      // 1. Populate manual telemetry input
+      const manualInput = document.getElementById('manual-user-answer');
+      if (manualInput) {
+        manualInput.value = rounded;
+        manualInput.focus();
+      }
+
+      // 2. Populate equation inline slot input if present
+      const inlineInput = document.getElementById('equation-inline-input');
+      if (inlineInput) {
+        inlineInput.value = rounded;
+      }
+
+      // 3. Telemetry feedback
+      const telemetryStatus = document.getElementById('calc-telemetry-status');
+      if (telemetryStatus) {
+        telemetryStatus.innerHTML = `<span class="text-emerald-400 font-bold">Pasted ${rounded} from Desmos ✓</span>`;
+      }
+
+      if (feedbackBox) {
+        feedbackBox.innerText = `Pasted ${rounded} into your answer box. Click Check Answer to verify!`;
+        feedbackBox.className = "glass rounded-xl p-3 text-center font-bold text-sky-300 text-xs min-h-[48px] flex items-center justify-center border border-sky-500/20";
+      }
+    }
+
+    function syncManualInput(val) {
+      const inlineInput = document.getElementById('equation-inline-input');
+      if (inlineInput && inlineInput.value !== val) {
+        inlineInput.value = val;
+      }
+    }
+
+    function verifyDesmosWork(q, exactVal) {
+      if (!state || state.currentLevel < 2) return true;
+      const calc = getDesmosLatestCalculation();
+      if (!calc || typeof calc.value !== 'number' || isNaN(calc.value)) {
+        return false;
+      }
+
+      // 1. Check if latest evaluated result is within tolerance of exact answer
+      const delta = Math.abs(calc.value - exactVal);
+      if (delta <= TOLERANCE || (exactVal !== 0 && delta / Math.abs(exactVal) <= 0.05)) {
+        return true;
+      }
+
+      // 2. Check all expressions in Desmos state
+      if (desmosCalculator) {
+        try {
+          const list = getDesmosExpressions();
+          const val1 = q && q.values && q.values[0] ? q.values[0].value : null;
+          const val2 = q && q.values && q.values[1] ? q.values[1].value : null;
+
+          for (let item of list) {
+            if (!item || !item.latex) continue;
+            const evaluated = evaluateExpressionItem(item);
+            if (evaluated !== null && !isNaN(evaluated)) {
+              if (Math.abs(evaluated - exactVal) <= TOLERANCE || (exactVal !== 0 && Math.abs(evaluated - exactVal) / Math.abs(exactVal) <= 0.05)) {
+                return true;
+              }
+            }
+
+            if (val1 !== null && val2 !== null) {
+              const l = item.latex;
+              const hasVal1 = l.includes(String(val1));
+              const hasVal2 = l.includes(String(val2));
+              const hasOp = l.includes('/') || l.includes('\\frac') || l.includes('\\cdot') || l.includes('\\times') || l.includes('*');
+              if (hasVal1 && hasVal2 && hasOp) {
+                return true;
+              }
+            }
+          }
+        } catch (e) {}
+      }
+
+      return false;
+    }
 
     // -------------------------------------------------------------
     // HELP MODAL FORMULA EXPLANATIONS (S1)
@@ -1036,6 +1300,12 @@ const QUESTIONS = [
         streakHUD.classList.remove('hidden');
       }
 
+      if (levelNum >= 2) {
+        toggleCalculatorModal(true);
+      } else {
+        toggleCalculatorModal(false);
+      }
+
       loadQuestion(0);
     }
 
@@ -1082,9 +1352,19 @@ const QUESTIONS = [
       const checkBtn = document.getElementById('btn-check-answer');
       if (checkBtn) checkBtn.classList.remove('hidden');
       
-      // Level 2/3 input box helper
+      // Level 2/3 input box helper & Desmos auto-expand
       const helper = document.getElementById('calc-input-helper');
       helper.classList.add('hidden');
+
+      if (state.currentLevel >= 2) {
+        toggleCalculatorModal(true);
+        if (desmosCalculator) {
+          try {
+            desmosCalculator.setBlank();
+          } catch(e) {}
+        }
+        onDesmosChange();
+      }
 
       updateProgressHUD();
       renderQuestionBadges();
@@ -1095,9 +1375,9 @@ const QUESTIONS = [
       if (state.currentLevel === 1) {
         return "Drag or tap the values and the unknown term from the problem into the equation.";
       } else if (state.currentLevel === 2) {
-        return "Place the given values, enter your calculated answer, and check your work.";
+        return "Place the values, compute the answer in Desmos, paste or enter your result, and check your work.";
       } else {
-        return "Final round! Earn a point for each correct calculation within the questions provided.";
+        return "Final round! Use Desmos to calculate each answer. Earn points for correct calculations!";
       }
     }
 
@@ -1265,13 +1545,13 @@ const QUESTIONS = [
 
     function validateLevel2InputHelperVisibility() {
       const helper = document.getElementById('calc-input-helper');
-      const q = state.deck[state.currentQuestionIndex];
       const isLvl2 = state.currentLevel >= 2;
-
       const unknownSlot = findUnknownSlotName();
       
       if (isLvl2 && unknownSlot) {
         helper.classList.remove('hidden');
+        if (window.lucide) lucide.createIcons();
+        onDesmosChange();
       } else {
         helper.classList.add('hidden');
       }
@@ -1523,14 +1803,31 @@ const QUESTIONS = [
         // Level 2 & 3: Check manual student calculation input
         const rawInput = document.getElementById('manual-user-answer').value;
         const userInput = parseFloat(rawInput);
- 
+
         if (isNaN(userInput)) {
-          feedbackBox.innerText = "Please enter a valid number for your answer.";
+          feedbackBox.innerText = "Please enter or paste a valid number for your answer.";
           feedbackBox.className = "glass rounded-xl p-3 text-center font-bold text-rose-400 text-xs min-h-[48px] flex items-center justify-center border border-rose-500/20 animate-shake";
           sound.playError();
           return;
         }
- 
+
+        // STRICT DESMOS REQUIREMENT FOR LEVEL 2 & 3:
+        if (state.currentLevel >= 2) {
+          const hasDesmosWork = verifyDesmosWork(q, exactVal);
+          if (!hasDesmosWork) {
+            feedbackBox.innerText = "⚠️ Desmos calculation required: please calculate your answer in the Desmos calculator!";
+            feedbackBox.className = "glass rounded-xl p-3 text-center font-bold text-amber-400 text-xs min-h-[48px] flex items-center justify-center border border-amber-500/30 animate-shake";
+            sound.playError();
+            toggleCalculatorModal(true);
+            const desmosCard = document.getElementById('desmos-card-wrapper');
+            if (desmosCard) {
+              desmosCard.classList.add('ring-2', 'ring-amber-400');
+              setTimeout(() => desmosCard.classList.remove('ring-2', 'ring-amber-400'), 1500);
+            }
+            return;
+          }
+        }
+
         const delta = Math.abs(userInput - exactVal);
         if (delta <= TOLERANCE) {
           // Success calculation!
@@ -1715,14 +2012,22 @@ const QUESTIONS = [
       const workspaceEl = document.getElementById('view-workspace');
       if (open) {
         workspaceEl.classList.remove('max-w-4xl');
-        workspaceEl.classList.add('max-w-[1250px]');
+        workspaceEl.classList.add('max-w-[1280px]');
         el.classList.remove('hidden');
-        if (!desmosLoaded) {
-          document.getElementById('desmos-iframe').src = 'https://www.desmos.com/scientific?embed';
-          desmosLoaded = true;
+        if (!desmosLoaded || !desmosCalculator) {
+          initDesmos();
+        } else {
+          onDesmosChange();
         }
+        if (window.lucide) lucide.createIcons();
       } else {
-        workspaceEl.classList.remove('max-w-[1250px]');
+        if (state && state.currentLevel >= 2) {
+          const feedbackBox = document.getElementById('feedback-box');
+          if (feedbackBox) {
+            feedbackBox.innerText = `Notice: Desmos calculator is required for Level ${state.currentLevel}. Reopen anytime with the Calculator button.`;
+          }
+        }
+        workspaceEl.classList.remove('max-w-[1280px]');
         workspaceEl.classList.add('max-w-4xl');
         el.classList.add('hidden');
       }
