@@ -550,3 +550,17 @@ Append-only log tracking pattern changes across sessions.
 - Configured explicit `assignments` array for Day 8 with `Unit Conversion Practice` (`unit-conversion-practice/index.html`), `typeLabel: "Required Practice Assignment"`, and `submission: "Cloud Auto-Saved ✓"`.
 - Kept `Printable Team Scorecard` in `resources` tier and `Measurement Olympics Leaderboard` in `practice` tier.
 - Updated `categorizeLessonLinks` heuristic in `assets/lessons-data.js` to automatically classify `unit-conversion-practice` and `unit conversion` links as required assignments.
+
+---
+
+## 2026-09-07 — Unit 2 Days 1–4: Fantasy Map Worksheet Classified as Required Assignment
+
+**Motivation**: Explicitly designate the Fantasy Map Worksheet across Unit 2 Days 1–4 as a required project assignment to be completed and turned in, ensuring it displays with glowing amber badges on `unit2-dashboard.html` and appears under required assignments on `missing-work.html`.
+
+**Changes**:
+- **Curriculum Lessons Data Sync**: Updated `Unit_2/unit2_lessons.json`, `Unit_2/lesson.json`, and `assets/lessons-data.js` across Days 1–4:
+  - Days 1–3: Configured explicit `assignments` arrays with `Fantasy Map Worksheet`, `typeLabel: "Required Project Worksheet"`, and `submission: "Turn In Completed Map & Handout"`. Kept classroom slide decks and lore documents in `resources` tier (`STUDY & REFERENCE ONLY`) and map app in `practice` tier (`OPTIONAL · UNGRADED`).
+  - Day 4: Moved `Fantasy Map Analysis Worksheet` into `assignments` alongside the digital `Fantasy Map Quest Web App Challenge`.
+- **Global Link Categorization Heuristics (`assets/lessons-data.js`)**:
+  - Updated `categorizeLessonLinks` to recognize `fantasy map worksheet` and `worksheet` links as assignments.
+  - Refined precedence so that worksheets or assignments hosted on OneDrive (`sharepoint.com`) or Google Docs are never demoted into `isResource`.
