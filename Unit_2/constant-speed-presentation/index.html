@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Describing Motion: Calculating Constant Speed | Interactive Slide Deck</title>
+  <meta name="description" content="Dual-mode interactive physics presentation on calculating speed (v = d / t), solving for distance (d = v · t), and solving for time (t = d / v).">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Deck Header -->
+  <header class="deck-header">
+    <div class="deck-brand">
+      <span>🏎️</span>
+      <span>Kinematics: Constant Speed</span>
+      <span class="ngss-tag" data-ngss-code="HS-PS2-1">HS-PS2-1</span>
+    </div>
+
+    <!-- Navigation Controls -->
+    <div class="deck-nav-controls">
+      <button id="btnPrev" class="btn-deck" title="Previous Slide (Left Arrow)">◀ Prev</button>
+      <span id="slideIndicator" class="slide-counter">1 / 10</span>
+      <button id="btnNext" class="btn-deck" title="Next Slide (Right Arrow or Space)">Next ▶</button>
+
+      <span style="color: var(--border-color); margin: 0 0.25rem;">|</span>
+
+      <button id="btnStudyMode" class="btn-deck" title="Toggle Scrollable Study Mode">
+        <span id="studyIcon">📖</span> <span>Study Mode</span>
+      </button>
+      <button id="btnSound" class="btn-deck" title="Toggle Sound FX">
+        <span id="soundIcon">🔊</span>
+      </button>
+      <a href="../unit2-dashboard.html" class="btn-deck" title="Unit 2 Dashboard">🏠</a>
+    </div>
+  </header>
+
+  <!-- Progress Bar -->
+  <div class="progress-bar-container">
+    <div id="progressBar" class="progress-bar-fill"></div>
+  </div>
+
+  <!-- Main Slide Stage -->
+  <main class="deck-stage">
+
+    <!-- ========================================== -->
+    <!-- SLIDE 1: Title & Lab Connection -->
+    <!-- ========================================== -->
+    <section class="slide active" data-slide="1">
+      <div class="slide-eyebrow">Unit 2: 1D Kinematics • Week 2</div>
+      <h1 class="slide-title">Unlocking Constant Speed: The v = d / t Equation</h1>
+      <div class="slide-body">
+        <div class="slide-grid-2">
+          <div>
+            <p style="margin-bottom: 1.25rem;">
+              In our <strong>Wind-Up Toy Speed Lab</strong>, every group recorded stopwatch times over a <strong>20.0 cm track</strong>. 
+            </p>
+            <p style="margin-bottom: 1.25rem;">
+              You calculated averages and divided distance by time. But <em>what does that number actually tell us about the motion of the toy?</em>
+            </p>
+            <div class="highlight-box">
+              🎯 <strong>Core Objective:</strong> Master the 3 forms of the constant motion equation, understand what "rate" physically represents, and solve for Speed, Distance, or Time with exact units.
+            </div>
+          </div>
+          <div class="hero-box">
+            <span style="font-size: 3.5rem;">🏎️ ⏱️ 📏</span>
+            <div class="big-formula">v = d / t</div>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">
+              Distance Traveled Divided by Time Elapsed
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 2: What is Speed? -->
+    <!-- ========================================== -->
+    <section class="slide" data-slide="2">
+      <div class="slide-eyebrow">Foundational Concept</div>
+      <h2 class="slide-title">What Exactly IS Speed?</h2>
+      <div class="slide-body">
+        <div class="slide-grid-2">
+          <div>
+            <p style="margin-bottom: 1rem;">
+              In everyday language, "speed" means fast. In physics, speed is a precise <strong>rate of travel</strong>.
+            </p>
+            <ul style="padding-left: 1.25rem; margin-bottom: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem;">
+              <li><strong>Scalar Quantity:</strong> Speed tells you <em>how fast</em> an object moves, regardless of its direction.</li>
+              <li><strong>Physical Meaning:</strong> Speed is the distance covered in <em>one single unit of time</em> (e.g. each 1 second or each 1 hour).</li>
+              <li><strong>Constant Speed:</strong> An object covers <em>equal distances in equal intervals of time</em> without speeding up or slowing down.</li>
+            </ul>
+          </div>
+          <div class="slide-card">
+            <h3 style="font-family: var(--font-display); color: var(--accent-cyan); margin-bottom: 0.75rem;">
+              Analogy: The Ticking Meter Stick
+            </h3>
+            <p style="font-size: 1rem; line-height: 1.6;">
+              If a wind-up beetle travels at <strong>5 cm/s</strong>:
+            </p>
+            <div style="font-family: var(--font-mono); background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; margin: 0.75rem 0; font-size: 0.95rem;">
+              Second 1 &rarr; Travels 5 cm<br>
+              Second 2 &rarr; Travels another 5 cm (10 cm total)<br>
+              Second 3 &rarr; Travels another 5 cm (15 cm total)
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.85rem;">
+              It never accelerates. It churns out 5 cm during every second on the clock.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 3: Formula 1: Calculating Speed -->
+    <!-- ========================================== -->
+    <section class="slide" data-slide="3">
+      <div class="slide-eyebrow">Formula 1 of 3</div>
+      <h2 class="slide-title">Calculating Speed: v = d / t</h2>
+      <div class="slide-body">
+        <div class="slide-grid-2">
+          <div class="hero-box">
+            <span style="font-size: 0.9rem; text-transform: uppercase; color: var(--accent-blue); font-weight: 700;">When you know Distance and Time:</span>
+            <div class="big-formula">v = d / t</div>
+            <p style="font-size: 0.95rem; color: #cbd5e1;">
+              Speed = Distance ÷ Time
+            </p>
+          </div>
+          <div>
+            <h3 style="font-family: var(--font-display); margin-bottom: 0.5rem;">Standard Units in Motion</h3>
+            <div style="display: flex; flex-direction: column; gap: 0.6rem; margin: 1rem 0;">
+              <div class="slide-card" style="padding: 0.75rem 1rem;">
+                <strong style="color: var(--accent-cyan);">m/s (Meters per Second):</strong> Standard SI unit for physics laboratory problems.
+              </div>
+              <div class="slide-card" style="padding: 0.75rem 1rem;">
+                <strong style="color: var(--accent-emerald);">cm/s (Centimeters per Second):</strong> Used for tabletop inquiry (like our 20.0 cm wind-up toys!).
+              </div>
+              <div class="slide-card" style="padding: 0.75rem 1rem;">
+                <strong style="color: var(--accent-amber);">km/h or mph:</strong> Used for road vehicles and long-distance navigation.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 4: The Formula Triangle -->
+    <!-- ========================================== -->
+    <section class="slide" data-slide="4">
+      <div class="slide-eyebrow">The Algebraic Wheel</div>
+      <h2 class="slide-title">The "Magic" Formula Triangle</h2>
+      <div class="slide-body">
+        <div class="slide-grid-2">
+          <div>
+            <p style="margin-bottom: 1rem;">
+              You never need to memorize three separate equations! The <strong>Formula Triangle</strong> holds all three relationships in one visual diagram:
+            </p>
+            <ul style="padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem;">
+              <li><strong>Distance (d)</strong> lives on top because it is the numerator.</li>
+              <li><strong>Speed (v)</strong> and <strong>Time (t)</strong> sit on the bottom side-by-side.</li>
+              <li>The horizontal line means <strong>DIVIDE (÷)</strong>.</li>
+              <li>The vertical line means <strong>MULTIPLY (·)</strong>.</li>
+            </ul>
+            <div class="highlight-box" style="margin-top: 1rem;">
+              💡 <strong>The Rule of Thumb:</strong> Cover the variable you want to find with your thumb. The remaining letters reveal the formula!
+            </div>
+          </div>
+          <div style="text-align: center;">
+            <svg class="slide-triangle-svg" viewBox="0 0 320 280">
+              <polygon points="160,20 230,135 90,135" fill="rgba(0, 242, 254, 0.25)" stroke="#00f2fe" stroke-width="3" />
+              <text x="160" y="95" fill="#00f2fe" font-size="34" font-weight="bold" text-anchor="middle" font-family="var(--font-display)">d</text>
+
+              <line x1="20" y1="140" x2="300" y2="140" stroke="#ffffff" stroke-width="4" />
+
+              <polygon points="90,145 20,260 155,260 155,145" fill="rgba(168, 85, 247, 0.25)" stroke="#a855f7" stroke-width="3" />
+              <text x="90" y="210" fill="#a855f7" font-size="34" font-weight="bold" text-anchor="middle" font-family="var(--font-display)">v</text>
+
+              <line x1="160" y1="145" x2="160" y2="260" stroke="#ffffff" stroke-width="4" />
+              <text x="160" y="205" fill="#f59e0b" font-size="22" font-weight="bold" text-anchor="middle">·</text>
+
+              <polygon points="165,145 165,260 300,260 230,145" fill="rgba(16, 185, 129, 0.25)" stroke="#10b981" stroke-width="3" />
+              <text x="230" y="210" fill="#10b981" font-size="34" font-weight="bold" text-anchor="middle" font-family="var(--font-display)">t</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 5: Formula 2: Solving for Distance -->
+    <!-- ========================================== -->
+    <section class="slide" data-slide="5">
+      <div class="slide-eyebrow">Formula 2 of 3</div>
+      <h2 class="slide-title">Solving for Distance: d = v · t</h2>
+      <div class="slide-body">
+        <div class="slide-grid-2">
+          <div class="hero-box">
+            <span style="font-size: 0.9rem; text-transform: uppercase; color: var(--accent-cyan); font-weight: 700;">When you know Speed and Time:</span>
+            <div class="big-formula">d = v · t</div>
+            <p style="font-size: 0.95rem; color: #cbd5e1;">
+              Distance = Speed × Time
+            </p>
+          </div>
+          <div class="slide-card">
+            <h3 style="font-family: var(--font-display); color: var(--accent-amber); margin-bottom: 0.5rem;">
+              Worked Example: The Toy Beetle
+            </h3>
+            <p style="font-size: 0.95rem; line-height: 1.6; margin-bottom: 0.75rem;">
+              A wind-up toy beetle walks at a steady speed of <strong>4.5 cm/s</strong>. How far does it travel in <strong>6.0 seconds</strong>?
+            </p>
+            <div style="font-family: var(--font-mono); background: rgba(0,0,0,0.3); padding: 0.75rem; border-radius: 8px; font-size: 0.9rem;">
+              Given: v = 4.5 cm/s, t = 6.0 s<br>
+              Formula: d = v · t<br>
+              Substitute: d = (4.5 cm/s) · (6.0 s)<br>
+              <strong>Answer: d = 27.0 cm</strong>
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">
+              Notice the seconds (s) cancel out, leaving centimeters (cm)!
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 6: Formula 3: Solving for Time -->
+    <!-- ========================================== -->
+    <section class="slide" data-slide="6">
+      <div class="slide-eyebrow">Formula 3 of 3</div>
+      <h2 class="slide-title">Solving for Time: t = d / v</h2>
+      <div class="slide-body">
+        <div class="slide-grid-2">
+          <div class="hero-box">
+            <span style="font-size: 0.9rem; text-transform: uppercase; color: var(--accent-emerald); font-weight: 700;">When you know Distance and Speed:</span>
+            <div class="big-formula">t = d / v</div>
+            <p style="font-size: 0.95rem; color: #cbd5e1;">
+              Time = Distance ÷ Speed
+            </p>
+          </div>
+          <div class="slide-card">
+            <h3 style="font-family: var(--font-display); color: var(--accent-emerald); margin-bottom: 0.5rem;">
+              Worked Example: Crossing the Classroom
+            </h3>
+            <p style="font-size: 0.95rem; line-height: 1.6; margin-bottom: 0.75rem;">
+              A motorized tumble buggy travels at <strong>0.25 m/s</strong>. How much time does it need to cross a <strong>3.0 meter</strong> lab track?
+            </p>
+            <div style="font-family: var(--font-mono); background: rgba(0,0,0,0.3); padding: 0.75rem; border-radius: 8px; font-size: 0.9rem;">
+              Given: d = 3.0 m, v = 0.25 m/s<br>
+              Formula: t = d / v<br>
+              Substitute: t = 3.0 m / 0.25 m/s<br>
+              <strong>Answer: t = 12.0 seconds</strong>
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">
+              Dividing 3 by 0.25 is the same as asking: "How many quarters are in $3.00?" (12!).
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 7: The GUESS Method Blueprint -->
+    <!-- ========================================== -->
+    <section class="slide" data-slide="7">
+      <div class="slide-eyebrow">Scientific Problem-Solving Framework</div>
+      <h2 class="slide-title">The GUESS Method: Never Get Stuck</h2>
+      <div class="slide-body">
+        <p style="margin-bottom: 1rem;">
+          Whenever you face a physics motion problem on an exam or lab report, follow the 5-step <strong>GUESS</strong> protocol:
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.75rem; margin-top: 1rem;">
+          <div class="slide-card" style="text-align: center;">
+            <div style="font-size: 1.75rem; font-family: var(--font-display); color: var(--accent-cyan); font-weight: 800;">G</div>
+            <strong style="font-size: 0.85rem;">Given</strong>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Write known numbers with units.</p>
+          </div>
+          <div class="slide-card" style="text-align: center;">
+            <div style="font-size: 1.75rem; font-family: var(--font-display); color: var(--accent-blue); font-weight: 800;">U</div>
+            <strong style="font-size: 0.85rem;">Unknown</strong>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Identify what variable you need.</p>
+          </div>
+          <div class="slide-card" style="text-align: center;">
+            <div style="font-size: 1.75rem; font-family: var(--font-display); color: var(--accent-purple); font-weight: 800;">E</div>
+            <strong style="font-size: 0.85rem;">Equation</strong>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Pick the rearranged formula.</p>
+          </div>
+          <div class="slide-card" style="text-align: center;">
+            <div style="font-size: 1.75rem; font-family: var(--font-display); color: var(--accent-amber); font-weight: 800;">S</div>
+            <strong style="font-size: 0.85rem;">Substitute</strong>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Plug in the values into variables.</p>
+          </div>
+          <div class="slide-card" style="text-align: center;">
+            <div style="font-size: 1.75rem; font-family: var(--font-display); color: var(--accent-emerald); font-weight: 800;">S</div>
+            <strong style="font-size: 0.85rem;">Solve & Unit</strong>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Calculate and write the correct unit!</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 8: Real-World Constant Speed -->
+    <!-- ========================================== -->
+    <section class="slide" data-slide="8">
+      <div class="slide-eyebrow">Physics in the Universe</div>
+      <h2 class="slide-title">Constant Speed Across the Scales</h2>
+      <div class="slide-body">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem;">
+          <div class="slide-card">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🐆</div>
+            <h3 style="font-family: var(--font-display); font-size: 1.05rem;">The Cheetah</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0.4rem 0;">
+              Sprinting at a steady <strong>30 m/s</strong> (67 mph) during the chase.
+            </p>
+            <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-cyan);">
+              In 4 s &rarr; d = 120 meters!
+            </div>
+          </div>
+          <div class="slide-card">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">⚡</div>
+            <h3 style="font-family: var(--font-display); font-size: 1.05rem;">Sound in Air</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0.4rem 0;">
+              Travels at approximately <strong>340 m/s</strong> through 20°C room temperature air.
+            </p>
+            <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-emerald);">
+              In 3 s &rarr; d ≈ 1,020 m (~1 km)
+            </div>
+          </div>
+          <div class="slide-card">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🛰️</div>
+            <h3 style="font-family: var(--font-display); font-size: 1.05rem;">Voyager 1 in Deep Space</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0.4rem 0;">
+              Cruising steadily at <strong>17,000 m/s</strong> without engine thrust (Newton's 1st Law!).
+            </p>
+            <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-purple);">
+              Travels 61,200 km every hour!
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 9: Audience Check / Whiteboard Duel -->
+    <!-- ========================================== -->
+    <section class="slide" data-slide="9">
+      <div class="slide-eyebrow">Interactive Formative Check</div>
+      <h2 class="slide-title">Audience Check: Tap Your Answer!</h2>
+      <div class="slide-body">
+        <p style="font-size: 1.1rem; margin-bottom: 0.75rem;">
+          <strong>Challenge Scenario:</strong> A battery-operated robot cruises down the hallway at a constant speed of <strong>3 m/s</strong> for <strong>15 seconds</strong>. What total distance does it travel?
+        </p>
+        <div class="vote-grid">
+          <div class="vote-card" data-correct="false" onclick="revealVote(this, false, '5 meters is 15 ÷ 3. Remember: Distance is speed MULTIPLIED by time (d = v · t).')">
+            <span style="font-size: 1.1rem; font-weight: 700;">A) 5 meters</span>
+          </div>
+          <div class="vote-card" data-correct="true" onclick="revealVote(this, true, 'Spot on! d = v · t = (3 m/s) · (15 s) = 45 meters!')">
+            <span style="font-size: 1.1rem; font-weight: 700; color: var(--accent-cyan);">B) 45 meters</span>
+          </div>
+          <div class="vote-card" data-correct="false" onclick="revealVote(this, false, '18 meters is 15 + 3. You must multiply speed and time!')">
+            <span style="font-size: 1.1rem; font-weight: 700;">C) 18 meters</span>
+          </div>
+          <div class="vote-card" data-correct="false" onclick="revealVote(this, false, 'Check the units! Distance cannot be in m/s.')">
+            <span style="font-size: 1.1rem; font-weight: 700;">D) 45 m/s</span>
+          </div>
+        </div>
+        <div id="voteExplanation" style="margin-top: 1rem; font-size: 0.95rem; display: none;" class="highlight-box"></div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 10: Summary & Mastery Takeaways -->
+    <!-- ========================================== -->
+    <section class="slide" data-slide="10">
+      <div class="slide-eyebrow">Mastery Synthesis</div>
+      <h2 class="slide-title">Key Takeaways & Today's Mission</h2>
+      <div class="slide-body">
+        <div class="slide-grid-2">
+          <div>
+            <h3 style="font-family: var(--font-display); margin-bottom: 0.75rem; color: var(--accent-cyan);">
+              The Constant Motion Triad
+            </h3>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem; font-family: var(--font-mono); font-size: 0.95rem;">
+              <div class="slide-card">1. Speed: <strong>v = d / t</strong> (Divide distance by time)</div>
+              <div class="slide-card">2. Distance: <strong>d = v · t</strong> (Multiply speed by time)</div>
+              <div class="slide-card">3. Time: <strong>t = d / v</strong> (Divide distance by speed)</div>
+            </div>
+          </div>
+          <div class="slide-card" style="text-align: center; display: flex; flex-direction: column; justify-content: center;">
+            <span style="font-size: 2.5rem;">⚡</span>
+            <h3 style="font-family: var(--font-display); font-size: 1.25rem; margin: 0.5rem 0;">Ready for Independent Practice?</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+              Launch the <strong>Speed, Distance & Time Studio</strong> to test your skills across all 4 leveled tiers!
+            </p>
+            <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+              <a href="../speed_distance_time_app/index.html" class="btn-deck" style="background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue)); color: #000; font-weight: 700; text-decoration: none; padding: 0.6rem 1.25rem;">
+                🚀 Open Practice Studio
+              </a>
+              <a href="../wind_up_toy_lab/index.html" class="btn-deck" style="text-decoration: none; padding: 0.6rem 1.25rem;">
+                🏎️ Wind-Up Toy Lab
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Presenter Notes Drawer (Teacher Mode) -->
+  <aside id="notesDrawer" class="notes-drawer collapsed">
+    <div class="notes-toggle-bar" onclick="toggleNotesDrawer()">
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <span style="color: var(--accent-amber); font-weight: bold;">📝 Presenter Notes & Lesson Pointers</span>
+        <span id="notesSlideTitle" style="font-size: 0.8rem; color: var(--text-muted);">Slide 1: Title & Lab Connection</span>
+      </div>
+      <span id="notesToggleIcon" style="color: var(--accent-cyan); font-size: 0.85rem; font-weight: 600;">▲ Expand Notes</span>
+    </div>
+    <div id="notesBody" class="notes-content">
+      <!-- Injected by presentation.js -->
+    </div>
+  </aside>
+
+  <script src="presentation.js"></script>
+</body>
+</html>
