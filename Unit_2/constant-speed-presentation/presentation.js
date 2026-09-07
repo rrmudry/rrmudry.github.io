@@ -1,6 +1,7 @@
 /**
  * Constant Speed Presentation Engine
  * Full compliance with No-LaTeX policy and NGSS HS-PS2-1.
+ * Optimized for 25-foot classroom TV projection and dual-mode instruction.
  */
 
 // Presenter Notes Database
@@ -119,7 +120,7 @@ const PRESENTER_NOTES = [
   }
 ];
 
-// Audio Synthesizer
+// Audio Synthesizer (Web Audio API)
 const DeckAudio = {
   ctx: null,
   enabled: true,
@@ -187,6 +188,8 @@ const DeckState = {
   currentSlide: 1,
   totalSlides: 10,
   isStudyMode: false,
+  isTvMode: false,
+  fontScale: 1.0,
   notesCollapsed: true
 };
 
@@ -230,12 +233,13 @@ function updatePresenterNotes(slideNum) {
   document.getElementById('notesSlideTitle').textContent = note.title;
   const body = document.getElementById('notesBody');
   body.innerHTML = `
-    <div style="color: var(--accent-cyan); font-weight: bold; margin-bottom: 0.25rem;">⏱️ ${note.cue}</div>
-    <div style="margin-bottom: 0.5rem;"><strong>Teacher Talking Points:</strong>
+    <div style="color: var(--accent-cyan); font-weight: bold; margin-bottom: 0.35rem; font-size: 1.1rem;">⏱️ ${note.cue}</div>
+    <div style="margin-bottom: 0.65rem;">
+      <strong style="color: #ffffff;">Teacher Talking Points:</strong>
       <ul>${note.talkingPoints.map(tp => `<li>${tp}</li>`).join('')}</ul>
     </div>
-    <div style="background: rgba(0,242,254,0.08); padding: 0.5rem 0.75rem; border-radius: 6px; border-left: 3px solid var(--accent-cyan);">
-      <strong>Suggested Formative Check:</strong> ${note.question}
+    <div style="background: rgba(0,242,254,0.1); padding: 0.75rem 1rem; border-radius: 8px; border-left: 4px solid var(--accent-cyan); margin-top: 0.5rem;">
+      <strong style="color: var(--accent-cyan);">Suggested Formative Check:</strong> ${note.question}
     </div>
   `;
 }
@@ -255,6 +259,53 @@ function toggleStudyMode() {
   const icon = document.getElementById('studyIcon');
   icon.textContent = DeckState.isStudyMode ? '📽️' : '📖';
   DeckAudio.playClick();
+}
+
+// 25-Foot Classroom TV Mode
+function toggleTvMode() {
+  DeckState.isTvMode = !DeckState.isTvMode;
+  document.body.classList.toggle('tv-mode', DeckState.isTvMode);
+  const btn = document.getElementById('btnTvMode');
+  if (btn) btn.classList.toggle('active-toggle', DeckState.isTvMode);
+  const icon = document.getElementById('tvIcon');
+  if (icon) icon.textContent = DeckState.isTvMode ? '📺✓' : '📺';
+
+  try {
+    localStorage.setItem('presentation_tv_mode', DeckState.isTvMode ? '1' : '0');
+  } catch (e) {}
+
+  DeckAudio.playClick();
+}
+
+// Text Scale Zoom Controls
+function adjustFontSize(delta) {
+  DeckState.fontScale = Math.min(1.8, Math.max(0.85, DeckState.fontScale + delta));
+  document.documentElement.style.setProperty('--font-scale', DeckState.fontScale.toFixed(2));
+  DeckAudio.playClick();
+}
+
+function resetFontSize() {
+  DeckState.fontScale = 1.0;
+  document.documentElement.style.setProperty('--font-scale', '1.0');
+  DeckAudio.playClick();
+}
+
+// Fullscreen API
+function toggleFullscreen() {
+  const fsIcon = document.getElementById('fsIcon');
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().then(() => {
+      if (fsIcon) fsIcon.textContent = '✕';
+    }).catch(err => {
+      console.warn('Fullscreen error:', err);
+    });
+  } else {
+    document.exitFullscreen().then(() => {
+      if (fsIcon) fsIcon.textContent = '⛶';
+    }).catch(err => {
+      console.warn('Exit fullscreen error:', err);
+    });
+  }
 }
 
 // Interactive Audience Check
@@ -284,6 +335,19 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnPrev').addEventListener('click', prevSlide);
   document.getElementById('btnStudyMode').addEventListener('click', toggleStudyMode);
 
+  // Classroom TV & Display controls
+  document.getElementById('btnTvMode').addEventListener('click', toggleTvMode);
+  document.getElementById('btnFontDown').addEventListener('click', () => adjustFontSize(-0.08));
+  document.getElementById('btnFontUp').addEventListener('click', () => adjustFontSize(0.08));
+  document.getElementById('btnFullscreen').addEventListener('click', toggleFullscreen);
+
+  document.addEventListener('fullscreenchange', () => {
+    const fsIcon = document.getElementById('fsIcon');
+    if (fsIcon) {
+      fsIcon.textContent = document.fullscreenElement ? '✕' : '⛶';
+    }
+  });
+
   // Sound toggle
   document.getElementById('btnSound').addEventListener('click', () => {
     DeckAudio.enabled = !DeckAudio.enabled;
@@ -291,9 +355,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (DeckAudio.enabled) DeckAudio.playClick();
   });
 
-  // Keyboard navigation
+  // Keyboard navigation & shortcuts
   document.addEventListener('keydown', (e) => {
     if (DeckState.isStudyMode) return;
+
     if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
       e.preventDefault();
       nextSlide();
@@ -306,8 +371,25 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (e.key === 'End') {
       e.preventDefault();
       goToSlide(DeckState.totalSlides);
+    } else if (e.key === 't' || e.key === 'T') {
+      toggleTvMode();
+    } else if (e.key === 'f' || e.key === 'F') {
+      toggleFullscreen();
+    } else if (e.key === '+' || e.key === '=') {
+      adjustFontSize(0.08);
+    } else if (e.key === '-' || e.key === '_') {
+      adjustFontSize(-0.08);
+    } else if (e.key === '0') {
+      resetFontSize();
     }
   });
+
+  // Restore saved TV mode preference if set
+  try {
+    if (localStorage.getItem('presentation_tv_mode') === '1') {
+      toggleTvMode();
+    }
+  } catch (e) {}
 
   // Initial load
   goToSlide(1);
