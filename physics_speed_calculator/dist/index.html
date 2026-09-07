@@ -9,7 +9,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <!-- Official Desmos Scientific Calculator API -->
   <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
@@ -141,6 +140,55 @@
     .pulse-amber {
       animation: levelPulse 1.5s infinite ease-in-out;
     }
+
+    /* Print Certificate Styles */
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+      }
+      body * {
+        visibility: hidden !important;
+      }
+      #modal-completion, #modal-completion * {
+        visibility: visible !important;
+      }
+      #modal-completion {
+        position: fixed !important;
+        inset: 0 !important;
+        background: #ffffff !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        backdrop-filter: none !important;
+        z-index: 999999 !important;
+      }
+      .cert-card {
+        background: #ffffff !important;
+        color: #0f172a !important;
+        border: 4px double #b45309 !important;
+        box-shadow: none !important;
+        width: 100% !important;
+        max-width: 680px !important;
+        padding: 24px !important;
+      }
+      .cert-card * {
+        color: #0f172a !important;
+        text-shadow: none !important;
+      }
+      .cert-card #cert-student-name {
+        color: #b45309 !important;
+      }
+      .cert-card .cert-badge {
+        background: #f8fafc !important;
+        border: 1px solid #cbd5e1 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
   </style>
 </head>
 <body class="bg-grid min-h-screen flex flex-col relative overflow-hidden">
@@ -215,7 +263,7 @@
         </div>
  
         <!-- Telemetry HUD -->
-        <div class="flex items-center gap-6 text-xs text-slate-400">
+        <div class="flex items-center gap-3 sm:gap-5 text-xs text-slate-400 flex-wrap justify-center">
           <div>
             <span class="font-semibold block md:inline">Student:</span> 
             <span id="hud-student-id" class="text-white font-bold mono ml-1">—</span>
@@ -228,6 +276,13 @@
             <span class="font-semibold block md:inline">Streak:</span> 
             <span id="hud-streak" class="text-white font-bold mono ml-1">0 / 4</span>
           </div>
+          <div id="hud-cloud-status" class="flex items-center gap-1.5 text-[10px] text-emerald-400 bg-emerald-950/70 border border-emerald-500/30 px-2.5 py-1 rounded-lg transition-all font-mono">
+            <i data-lucide="cloud-check" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span id="hud-cloud-text">Auto-Saved</span>
+          </div>
+          <button id="btn-view-cert" onclick="openCompletionCertificateModal()" type="button" class="hidden px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer" title="View your earned Certificate of Kinematic Mastery">
+            <span>🏆</span> View Certificate
+          </button>
         </div>
       </div>
  
@@ -504,37 +559,103 @@
     </div>
   </div>
 
-  <!-- COMPLETION MODAL WITH QR CERTIFICATE -->
-  <div id="modal-completion" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md px-4 hidden transition-opacity duration-300">
-    <div class="w-full max-w-sm bg-slate-900 border border-white/10 shadow-2xl rounded-3xl p-6 space-y-6 text-center">
+  <!-- COMPLETION CERTIFICATE MODAL -->
+  <div id="modal-completion" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md px-3 sm:px-4 hidden transition-opacity duration-300 overflow-y-auto py-6">
+    <div class="cert-card w-full max-w-2xl bg-gradient-to-b from-slate-900 via-[#0a1026] to-slate-950 border-2 border-amber-500/40 shadow-2xl rounded-3xl p-6 sm:p-8 space-y-5 text-center relative overflow-hidden my-auto">
       
-      <div class="bg-emerald-500/10 text-emerald-400 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto border border-emerald-500/20">
-        <i data-lucide="check-circle" class="w-8 h-8"></i>
-      </div>
-      
-      <div>
-        <h2 class="text-2xl font-black tracking-tight text-white uppercase italic">Well Done!</h2>
-        <p class="text-slate-400 text-sm mt-1">Quiz Completed Successfully.</p>
+      <!-- Top Decorative Gradient Ribbon -->
+      <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-amber-500 via-sky-400 to-amber-500"></div>
+
+      <!-- Close Button -->
+      <button onclick="closeCompletionModal(false)" class="no-print absolute top-4 right-4 text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer" title="Close Certificate">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <!-- Certificate Header -->
+      <div class="space-y-1.5 pt-1">
+        <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 text-3xl shadow-lg shadow-amber-500/10 mb-1">
+          🏆
+        </div>
+        <div class="text-[10px] sm:text-[11px] font-mono uppercase tracking-[0.25em] text-amber-400 font-bold">
+          Orange High School Physics Laboratory
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-black tracking-tight text-white uppercase italic">
+          Certificate of Kinematic Mastery
+        </h2>
+        <p class="text-slate-400 text-xs sm:text-sm font-medium">
+          Quantitative Speed, Distance, and Time Problem-Solving Core
+        </p>
       </div>
 
-      <div class="w-full h-px bg-white/10"></div>
+      <!-- Golden Divider -->
+      <div class="w-full h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent"></div>
 
-      <div class="space-y-1.5">
-        <p class="text-slate-400 text-xs">Student ID: <span id="completion-student-id" class="text-white font-bold mono">000000</span></p>
-        <p class="text-slate-400 text-xs">Final Quiz Score: <span id="completion-score" class="text-white font-bold mono">0 / 6</span></p>
+      <!-- Recipient -->
+      <div class="space-y-1 py-0.5">
+        <p class="text-slate-400 text-[11px] uppercase tracking-widest font-semibold">This certifies that</p>
+        <div id="cert-student-name" class="text-2xl sm:text-3xl font-black text-amber-300 tracking-wide font-sans py-0.5">
+          Student Name
+        </div>
+        <p class="text-slate-400 text-xs mono">
+          Student Account: <span id="cert-student-id" class="text-white font-bold">000000</span>
+        </p>
       </div>
 
-      <!-- Verification QR Code container -->
-      <div class="mx-auto w-52 h-52 bg-white flex items-center justify-center border border-slate-200 rounded-2xl p-2 relative shadow-lg">
-        <div id="completion-qrcode" class="w-full h-full flex items-center justify-center text-slate-900 font-bold text-xs select-none">Generating QR...</div>
+      <!-- Citation -->
+      <p class="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-lg mx-auto">
+        has successfully demonstrated proficiency in formulating equations and computing quantitative physical values for 
+        <strong class="text-sky-400">Speed (v = x / t)</strong>, 
+        <strong class="text-cyan-400">Distance (x = v · t)</strong>, and 
+        <strong class="text-purple-400">Time (t = x / v)</strong> 
+        across all three scaffolded tiers with scientific precision.
+      </p>
+
+      <!-- Performance Badges Grid -->
+      <div class="grid grid-cols-3 gap-2 sm:gap-3 max-w-md mx-auto">
+        <div class="cert-badge p-2.5 rounded-xl bg-slate-900/80 border border-white/10 text-center">
+          <span class="text-[9px] uppercase tracking-wider text-slate-400 block font-bold">Tier 1: Formula</span>
+          <span class="text-xs font-bold text-emerald-400 mt-1 block">Mastered ✓</span>
+        </div>
+        <div class="cert-badge p-2.5 rounded-xl bg-slate-900/80 border border-white/10 text-center">
+          <span class="text-[9px] uppercase tracking-wider text-slate-400 block font-bold">Tier 2: Desmos</span>
+          <span class="text-xs font-bold text-emerald-400 mt-1 block">Mastered ✓</span>
+        </div>
+        <div class="cert-badge p-2.5 rounded-xl bg-slate-900/80 border border-white/10 text-center">
+          <span class="text-[9px] uppercase tracking-wider text-slate-400 block font-bold">Tier 3: Final Score</span>
+          <span id="cert-score" class="text-xs font-bold text-amber-300 mono mt-1 block">6 / 6</span>
+        </div>
       </div>
 
-      <div class="flex gap-3 justify-center">
-        <button id="btn-download-qr" onclick="downloadQRCode()" class="flex-1 py-3 bg-sky-600 hover:bg-sky-500 text-white rounded-xl font-bold transition-all text-xs uppercase tracking-wider flex items-center justify-center gap-1 shadow-md">
-          <i data-lucide="download" class="w-4 h-4"></i> Download QR
+      <!-- Automatic Cloud Save Indication Box -->
+      <div class="p-3 bg-emerald-950/70 border border-emerald-500/40 rounded-2xl flex items-center justify-center gap-3 text-emerald-300 text-left max-w-lg mx-auto shadow-lg shadow-emerald-950/40">
+        <div class="w-9 h-9 rounded-xl bg-emerald-500/20 flex items-center justify-center flex-shrink-0 text-emerald-400">
+          <i data-lucide="cloud-check" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <div class="text-xs font-bold text-emerald-200 flex items-center gap-1.5">
+            <span>Score Automatically Saved to Teacher Gradebook</span>
+            <span class="text-[9px] font-mono bg-emerald-500/20 px-1.5 py-0.5 rounded text-emerald-300 border border-emerald-500/30">CONFIRMED ✓</span>
+          </div>
+          <div class="text-[11px] text-emerald-300/85 leading-snug mt-0.5">
+            Your results have been automatically recorded in Firestore. No QR code, screenshot, or manual turn-in is required!
+          </div>
+        </div>
+      </div>
+
+      <!-- Certificate Metadata & Verification Code -->
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-1.5 text-[10px] text-slate-400 mono border-t border-white/10 pt-3">
+        <div>Date: <span id="cert-date" class="text-slate-200 font-bold">—</span></div>
+        <div>Standard: <span class="text-slate-200 font-bold">NGSS HS-PS2-1</span></div>
+        <div>Token: <span id="cert-token" class="text-slate-200 select-all font-bold">—</span></div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="no-print flex flex-col sm:flex-row gap-2.5 justify-center pt-1">
+        <button onclick="window.print()" class="flex-1 py-3 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 rounded-xl font-bold transition-all text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 cursor-pointer">
+          <i data-lucide="printer" class="w-4 h-4"></i> Print / Save PDF
         </button>
-        <button onclick="closeCompletionModal()" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold transition-all text-xs uppercase tracking-wider border border-white/5">
-          Close
+        <button onclick="closeCompletionModal(true)" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl font-bold transition-all text-xs uppercase tracking-wider border border-white/10 cursor-pointer">
+          Practice Again
         </button>
       </div>
 
@@ -1043,6 +1164,9 @@ const QUESTIONS = [
       answered: 0,
       streak: 0,
       highScore: 0,
+      completed: false,
+      completedAt: '',
+      certificateId: '',
       deck: [],
       currentQuestionIndex: 0
     };
@@ -1052,6 +1176,32 @@ const QUESTIONS = [
     const TOLERANCE = 0.05;
     const PHYSICS_LABS_COLLECTION = 'physics_labs';
     const LAB_DOC_ID = 'speed_calculator';
+
+    function updateCloudStatus(status) {
+      const el = document.getElementById('hud-cloud-status');
+      const text = document.getElementById('hud-cloud-text');
+      if (!el || !text) return;
+      if (status === 'saving') {
+        text.innerText = 'Saving...';
+        el.className = 'flex items-center gap-1.5 text-[10px] text-amber-400 bg-amber-950/70 border border-amber-500/30 px-2.5 py-1 rounded-lg transition-all font-mono';
+      } else if (status === 'saved') {
+        text.innerText = 'Auto-Saved';
+        el.className = 'flex items-center gap-1.5 text-[10px] text-emerald-400 bg-emerald-950/70 border border-emerald-500/30 px-2.5 py-1 rounded-lg transition-all font-mono';
+      } else if (status === 'error') {
+        text.innerText = 'Sync Offline';
+        el.className = 'flex items-center gap-1.5 text-[10px] text-rose-400 bg-rose-950/70 border border-rose-500/30 px-2.5 py-1 rounded-lg transition-all font-mono';
+      }
+    }
+
+    function updateCertButtonHUD() {
+      const btn = document.getElementById('btn-view-cert');
+      if (!btn) return;
+      if (state.completed) {
+        btn.classList.remove('hidden');
+      } else {
+        btn.classList.add('hidden');
+      }
+    }
 
     // Load elements
     const viewRegister = document.getElementById('view-register');
@@ -1127,18 +1277,39 @@ const QUESTIONS = [
 
     async function saveState() {
       if (!state.studentId) return;
+      updateCloudStatus('saving');
       try {
         await fbDb.collection(PHYSICS_LABS_COLLECTION)
           .doc(state.studentId)
           .set({
             studentId: state.studentId,
             displayName: state.displayName || state.studentId,
+            currentLevel: state.currentLevel,
             unlockedLevels: state.unlockedLevels,
+            answered: state.answered,
+            streak: state.streak,
+            score: state.score,
             highScore: state.highScore,
+            completed: !!state.completed,
+            completedAt: state.completedAt || null,
+            certificateId: state.certificateId || null,
+            speed_calculator: {
+              currentLevel: state.currentLevel,
+              unlockedLevels: state.unlockedLevels,
+              answered: state.answered,
+              streak: state.streak,
+              score: state.score,
+              highScore: state.highScore,
+              completed: !!state.completed,
+              completedAt: state.completedAt || null,
+              certificateId: state.certificateId || null
+            },
             lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
           }, { merge: true });
+        updateCloudStatus('saved');
       } catch (e) {
         console.error('Firestore save error', e);
+        updateCloudStatus('error');
       }
     }
 
@@ -1146,18 +1317,44 @@ const QUESTIONS = [
       try {
         const snap = await fbDb.collection(PHYSICS_LABS_COLLECTION).doc(studentId).get();
         if (snap.exists) {
-          const data = snap.data();
-          state.unlockedLevels = data.unlockedLevels || [1];
-          state.highScore = data.highScore || 0;
+          const data = snap.data() || {};
+          const labData = data.speed_calculator || data;
+          state.unlockedLevels = data.unlockedLevels || labData.unlockedLevels || [1];
+          state.highScore = data.highScore ?? labData.highScore ?? 0;
+          state.completed = !!(labData.completed || data.completed);
+          state.completedAt = labData.completedAt || data.completedAt || '';
+          state.certificateId = labData.certificateId || data.certificateId || '';
+          
+          // Resume student's level and question progress if available
+          const savedLevel = labData.currentLevel || data.currentLevel || 1;
+          state.currentLevel = state.unlockedLevels.includes(savedLevel) ? savedLevel : 1;
+          state.answered = typeof labData.answered === 'number' ? labData.answered : (typeof data.answered === 'number' ? data.answered : 0);
+          state.streak = typeof labData.streak === 'number' ? labData.streak : (typeof data.streak === 'number' ? data.streak : 0);
+          state.score = typeof labData.score === 'number' ? labData.score : (typeof data.score === 'number' ? data.score : 0);
         } else {
           state.unlockedLevels = [1];
           state.highScore = 0;
+          state.currentLevel = 1;
+          state.answered = 0;
+          state.streak = 0;
+          state.score = 0;
+          state.completed = false;
+          state.completedAt = '';
+          state.certificateId = '';
         }
       } catch (e) {
         console.error('Firestore load error', e);
         state.unlockedLevels = [1];
         state.highScore = 0;
+        state.currentLevel = 1;
+        state.answered = 0;
+        state.streak = 0;
+        state.score = 0;
+        state.completed = false;
+        state.completedAt = '';
+        state.certificateId = '';
       }
+      updateCertButtonHUD();
     }
 
     function showSection(id) {
@@ -1212,6 +1409,9 @@ const QUESTIONS = [
           answered: 0,
           streak: 0,
           highScore: 0,
+          completed: false,
+          completedAt: '',
+          certificateId: '',
           deck: [],
           currentQuestionIndex: 0
         };
@@ -1235,11 +1435,15 @@ const QUESTIONS = [
         avatarEl.classList.add('hidden');
       }
 
+      // Update certificate button in HUD
+      updateCertButtonHUD();
+
       // Update level buttons locks
       updateLevelButtonsUI();
       
-      // Launch Level 1 by default
-      changeLevel(1);
+      // Resume student's saved level and progress
+      const targetLevel = state.currentLevel || 1;
+      changeLevel(targetLevel, true);
       showSection('view-workspace');
     }
 
@@ -1264,16 +1468,18 @@ const QUESTIONS = [
       }
     }
 
-    function changeLevel(levelNum) {
+    function changeLevel(levelNum, preserveProgress = false) {
       if (!state.unlockedLevels.includes(levelNum)) return;
       
       sound.playBeep();
       speech.cancel();
       
       state.currentLevel = levelNum;
-      state.answered = 0;
-      state.streak = 0;
-      state.score = 0;
+      if (!preserveProgress) {
+        state.answered = 0;
+        state.streak = 0;
+        state.score = 0;
+      }
       
       updateLevelButtonsUI();
       
@@ -1307,6 +1513,7 @@ const QUESTIONS = [
       }
 
       loadQuestion(0);
+      saveState();
     }
 
     function shuffleArray(arr) {
@@ -1878,6 +2085,7 @@ const QUESTIONS = [
         state.streak = 0;
       }
       updateProgressHUD();
+      saveState();
     }
 
     function evaluateLevelUnlocks() {
@@ -1908,10 +2116,24 @@ const QUESTIONS = [
           // Finish speedrun quiz! Show Certificate
           if (state.score > state.highScore) {
             state.highScore = state.score;
-            saveState();
           }
+          state.completed = true;
+          state.completedAt = new Date().toISOString();
+
+          // Generate verification token
+          const dateStr = new Date().toLocaleDateString();
+          const dataStr = `${state.studentId}-3-${state.score}-${dateStr}`;
+          let check = 0;
+          for (let i = 0; i < dataStr.length; i++) {
+            check += dataStr.charCodeAt(i) * (i + 1);
+          }
+          state.certificateId = `MUD-SPEED-${state.studentId}-3-${state.score}-${check.toString(16).toUpperCase()}`;
+
+          updateCertButtonHUD();
+          saveState();
+
           setTimeout(() => {
-            triggerCompletionQR();
+            triggerCompletionCertificate();
           }, 800);
         }
       }
@@ -2034,63 +2256,49 @@ const QUESTIONS = [
     }
 
     // -------------------------------------------------------------
-    // QR CERTIFICATE & VERIFICATION CODE
+    // COMPLETION CERTIFICATE & VERIFICATION
     // -------------------------------------------------------------
-    let generatedQRCode = null;
-
-    function triggerCompletionQR() {
+    function triggerCompletionCertificate() {
       const modal = document.getElementById('modal-completion');
-      document.getElementById('completion-student-id').innerText = state.studentId;
-      document.getElementById('completion-score').innerText = `${state.score} / ${MIN_QUESTIONS}`;
+      if (!modal) return;
+
+      const displayLabel = state.displayName || state.studentId;
+      document.getElementById('cert-student-name').innerText = displayLabel;
+      document.getElementById('cert-student-id').innerText = state.studentId;
+      document.getElementById('cert-score').innerText = `${state.score} / ${MIN_QUESTIONS}`;
+
+      const dateStr = state.completedAt 
+        ? new Date(state.completedAt).toLocaleDateString() 
+        : new Date().toLocaleDateString();
+      document.getElementById('cert-date').innerText = dateStr;
+
+      if (!state.certificateId) {
+        const dataStr = `${state.studentId}-3-${state.score}-${dateStr}`;
+        let check = 0;
+        for (let i = 0; i < dataStr.length; i++) {
+          check += dataStr.charCodeAt(i) * (i + 1);
+        }
+        state.certificateId = `MUD-SPEED-${state.studentId}-3-${state.score}-${check.toString(16).toUpperCase()}`;
+      }
+      document.getElementById('cert-token').innerText = state.certificateId;
 
       modal.classList.remove('hidden');
-      
-      const qrContainer = document.getElementById('completion-qrcode');
-      qrContainer.innerHTML = ''; // Clear
-
-      const dateStr = new Date().toLocaleDateString();
-      const dataStr = `${state.studentId}-3-${state.score}-${dateStr}`;
-      
-      // Verification token checksum
-      let check = 0;
-      for (let i = 0; i < dataStr.length; i++) {
-        check += dataStr.charCodeAt(i) * (i + 1);
-      }
-      const token = `MUD-SPEED-${state.studentId}-3-${state.score}-${check.toString(16).toUpperCase()}`;
-
-      try {
-        generatedQRCode = new QRCode(qrContainer, {
-          text: token,
-          width: 200,
-          height: 200,
-          colorDark: "#070b1a",
-          colorLight: "#ffffff",
-          correctLevel: QRCode.CorrectLevel.H
-        });
-      } catch (err) {
-        console.error("QR drawing failed", err);
-        qrContainer.innerHTML = `<span class="text-slate-800 text-xs font-semibold select-all break-all">${token}</span>`;
-      }
+      sound.playSuccess();
+      confetti({ particleCount: 80, spread: 100, origin: { y: 0.5 } });
+      if (window.lucide) lucide.createIcons();
     }
 
-    function downloadQRCode() {
+    function openCompletionCertificateModal() {
       sound.playBeep();
-      const qrCanvas = document.querySelector('#completion-qrcode canvas');
-      if (qrCanvas) {
-        const link = document.createElement('a');
-        link.download = `mudry-physics-score-${state.studentId}.png`;
-        link.href = qrCanvas.toDataURL();
-        link.click();
-      } else {
-        alert("Cannot extract QR code canvas. Please take a screenshot of your screen to show your instructor.");
-      }
+      triggerCompletionCertificate();
     }
 
-    function closeCompletionModal() {
+    function closeCompletionModal(restartPractice = false) {
       sound.playBeep();
       document.getElementById('modal-completion').classList.add('hidden');
-      // Reset Level 3 progress to practice again
-      changeLevel(3);
+      if (restartPractice) {
+        changeLevel(3);
+      }
     }
   </script>
 </body>

@@ -465,3 +465,23 @@ Append-only log tracking pattern changes across sessions.
   - Added one-click "Paste from Desmos" buttons in both the calculation telemetry panel and the Desmos header/footer to paste the evaluated number into the student answer box with sound and telemetry feedback.
   - Enforced mandatory Desmos calculation check in `checkCurrentAnswer`: students cannot submit answers on Level 2 & 3 without performing the calculation in Desmos.
   - Preserved strict No-LaTeX syntax in student UI and feedback messages.
+
+---
+
+## 2026-09-07 — Physics Speed Calculator: Firestore Progress Persistence & Completion Certificate
+
+**Motivation**: Persist student progress in Firestore across sessions so students resume where they left off, replace legacy QR code turn-in modal with a formal Completion Certificate of Kinematic Mastery, and provide clear visual confirmation of automated gradebook recording.
+
+**Changes**:
+- Updated `physics_speed_calculator/dist/index.html`:
+  - **State Persistence in Firestore (`saveState` / `loadProgressFromFirestore`)**:
+    - Persisted `currentLevel`, `unlockedLevels`, `answered`, `streak`, `score`, `highScore`, `completed`, `completedAt`, and `certificateId` to `/physics_labs/{studentId}` on each question answered and level unlocked.
+    - Updated `loadProgressFromFirestore` and `hudInitialize` to resume the student's saved level and progress without wiping counters.
+  - **Real-Time HUD Telemetry**:
+    - Added `#hud-cloud-status` badge indicating "Saving...", "Auto-Saved", or "Sync Offline".
+    - Added `#btn-view-cert` ("🏆 View Certificate") button in the HUD header once Level 3 has been completed.
+  - **Completion Certificate of Kinematic Mastery**:
+    - Replaced the legacy QR code modal with a Certificate of Kinematic Mastery featuring student name, account ID, final score, completion date, and verification token.
+    - Added an emerald confirmation callout: *"Score Automatically Saved to Teacher Gradebook (CONFIRMED ✓) — Your results have been automatically recorded in Firestore. No QR code, screenshot, or manual turn-in is required!"*
+    - Added a Print / Save PDF action (`window.print()`) with print-optimized CSS rules.
+    - Removed unused `qrcodejs` CDN dependency.
