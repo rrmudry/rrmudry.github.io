@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Speed, Distance & Time Studio | Unit 2 Kinematics</title>
+  <meta name="description" content="Interactive physics simulator and scaffolded GUESS problem solver for calculating speed, distance, and time for constant motion.">
+
+  <!-- Google Fonts: Space Grotesk, Outfit, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-group">
+        <span class="brand-icon">⚡</span>
+        <div>
+          <h1 class="brand-title">Speed, Distance & Time Studio</h1>
+          <p class="brand-subtitle">Mastering the Constant Speed Equation: v = d / t</p>
+        </div>
+        <span class="ngss-pill" data-ngss-code="HS-PS2-1" title="Click to view NGSS standard details">HS-PS2-1</span>
+      </div>
+
+      <div class="header-controls">
+        <button id="btnSoundToggle" class="btn-icon" title="Toggle Sound FX">
+          <span id="soundIcon">🔊</span> <span>Sound</span>
+        </button>
+        <button id="btnThemeToggle" class="btn-icon" title="Toggle Dark/Light Mode">
+          <span id="themeIcon">☀️</span> <span>Theme</span>
+        </button>
+        <a href="../unit2-dashboard.html" class="btn-icon" title="Return to Unit 2 Dashboard">
+          <span>🏠</span> <span>Unit 2</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="nav-tabs" role="tablist">
+    <button class="tab-btn active" data-tab="triangle-tab">
+      <span>📐</span> The Formula Triangle
+    </button>
+    <button class="tab-btn" data-tab="practice-tab">
+      <span>📝</span> Leveled GUESS Studio
+    </button>
+    <button class="tab-btn" data-tab="lab-link-tab" id="tabOpenLab">
+      <span>🏎️</span> Wind-Up Toy Lab
+    </button>
+  </nav>
+
+  <!-- Main Content Area -->
+  <main class="main-content">
+
+    <!-- ============================================================= -->
+    <!-- TAB 1: FORMULA TRIANGLE & SIMULATION EXPLORER -->
+    <!-- ============================================================= -->
+    <section id="triangle-tab" class="tab-panel active">
+      <div class="grid-2">
+
+        <!-- Left Column: The Interactive Triangle -->
+        <div class="glass-card triangle-card">
+          <div style="width: 100%; text-align: left; margin-bottom: 0.5rem;">
+            <h2 style="font-family: var(--font-display); font-size: 1.15rem; font-weight: 700;">
+              Interactive Formula Wheel
+            </h2>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">
+              Tap on any variable to cover it and see its rearranged equation.
+            </p>
+          </div>
+
+          <!-- SVG Formula Triangle -->
+          <div class="triangle-svg-container">
+            <svg class="triangle-svg" viewBox="0 0 320 280">
+              <defs>
+                <linearGradient id="gradTop" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#4facfe" />
+                  <stop offset="100%" stop-color="#00f2fe" />
+                </linearGradient>
+                <linearGradient id="gradBottomLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#8b5cf6" />
+                  <stop offset="100%" stop-color="#ec4899" />
+                </linearGradient>
+                <linearGradient id="gradBottomRight" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#10b981" />
+                  <stop offset="100%" stop-color="#3b82f6" />
+                </linearGradient>
+              </defs>
+
+              <!-- Top Segment: Distance (d) -->
+              <path id="segDistance" class="tri-segment active" d="M 160,20 L 230,135 L 90,135 Z" fill="url(#gradTop)" opacity="0.9" />
+              <text x="160" y="95" class="tri-text" fill="#04111d">d</text>
+              <text x="160" y="120" class="tri-subtext" fill="#04111d">DISTANCE</text>
+
+              <!-- Horizontal Division Bar -->
+              <line x1="20" y1="140" x2="300" y2="140" class="divider-line" stroke="#ffffff" stroke-width="4" />
+              <!-- Small Division Label -->
+              <text x="295" y="132" fill="var(--text-muted)" font-size="11" font-family="var(--font-mono)">DIVIDE (÷)</text>
+
+              <!-- Bottom-Left Segment: Speed (v) -->
+              <path id="segSpeed" class="tri-segment" d="M 90,145 L 20,260 L 155,260 L 155,145 Z" fill="url(#gradBottomLeft)" opacity="0.9" />
+              <text x="90" y="205" class="tri-text" fill="#ffffff">v</text>
+              <text x="90" y="235" class="tri-subtext" fill="#ffffff">SPEED</text>
+
+              <!-- Vertical Multiplication Divider -->
+              <line x1="160" y1="145" x2="160" y2="260" class="divider-line" stroke="#ffffff" stroke-width="4" />
+              <!-- Multiply dot -->
+              <circle cx="160" cy="205" r="5" fill="var(--accent-amber)" />
+              <text x="160" y="190" fill="var(--accent-amber)" font-size="10" font-weight="bold" text-anchor="middle" font-family="var(--font-mono)">MULTIPLY (×)</text>
+
+              <!-- Bottom-Right Segment: Time (t) -->
+              <path id="segTime" class="tri-segment" d="M 165,145 L 165,260 L 300,260 L 230,145 Z" fill="url(#gradBottomRight)" opacity="0.9" />
+              <text x="230" y="205" class="tri-text" fill="#ffffff">t</text>
+              <text x="230" y="235" class="tri-subtext" fill="#ffffff">TIME</text>
+            </svg>
+          </div>
+
+          <!-- Formula Equation Banner -->
+          <div id="formulaBanner" class="formula-display-banner">
+            <div id="formulaMath" class="formula-math">d = v · t</div>
+            <div id="formulaExplanation" class="formula-explanation">
+              <strong>Solving for Distance:</strong> Multiply speed by time traveled.
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Live Motion Simulator Track -->
+        <div class="glass-card track-card">
+          <div>
+            <h2 style="font-family: var(--font-display); font-size: 1.15rem; font-weight: 700;">
+              Constant Speed Motion Track
+            </h2>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">
+              Adjust the sliders to simulate motion. Watch how distance, speed, and time connect!
+            </p>
+          </div>
+
+          <!-- Sliders -->
+          <div class="slider-group">
+            <div class="slider-header">
+              <span>Distance (d)</span>
+              <span id="valDistance" class="slider-val">20.0 cm</span>
+            </div>
+            <input type="range" id="inputDistance" min="5" max="100" step="1" value="20">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span>Speed (v)</span>
+              <span id="valSpeed" class="slider-val">4.0 cm/s</span>
+            </div>
+            <input type="range" id="inputSpeed" min="0.5" max="20" step="0.5" value="4">
+          </div>
+
+          <!-- Canvas Track Display -->
+          <div class="canvas-track-container">
+            <canvas id="motionCanvas"></canvas>
+          </div>
+
+          <!-- Telemetry -->
+          <div class="sim-telemetry">
+            <div class="telemetry-cell">
+              <div class="telemetry-label">Distance (d)</div>
+              <div id="telDistance" class="telemetry-val">20.0 cm</div>
+            </div>
+            <div class="telemetry-cell">
+              <div class="telemetry-label">Speed (v)</div>
+              <div id="telSpeed" class="telemetry-val">4.0 cm/s</div>
+            </div>
+            <div class="telemetry-cell">
+              <div class="telemetry-label">Calculated Time (t)</div>
+              <div id="telTime" class="telemetry-val" style="color: var(--accent-cyan);">5.00 s</div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="sim-controls">
+            <button id="btnRunSim" class="btn-primary" style="flex: 2;">
+              <span>▶️</span> <span>Run Motion Test</span>
+            </button>
+            <button id="btnResetSim" class="btn-secondary" style="flex: 1;">
+              <span>↺</span> <span>Reset</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <!-- TAB 2: LEVELED GUESS PRACTICE STUDIO -->
+    <!-- ============================================================= -->
+    <section id="practice-tab" class="tab-panel">
+      <!-- Tier Selector Pills -->
+      <div class="tier-selector">
+        <button class="tier-btn active" data-tier="1">
+          <span>🏎️</span> Tier 1: Calculate Speed (v = d / t)
+        </button>
+        <button class="tier-btn" data-tier="2">
+          <span>📏</span> Tier 2: Solve for Distance (d = v · t)
+        </button>
+        <button class="tier-btn" data-tier="3">
+          <span>⏱️</span> Tier 3: Solve for Time (t = d / v)
+        </button>
+        <button class="tier-btn" data-tier="4">
+          <span>🌟</span> Tier 4: Mixed Master Challenge
+        </button>
+
+        <div class="streak-badge">
+          <span>🔥 Streak:</span>
+          <span id="streakCount">0</span>
+        </div>
+      </div>
+
+      <!-- Problem Card -->
+      <div class="glass-card problem-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+          <span id="problemTag" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--accent-cyan); font-family: var(--font-mono);">
+            Problem 1 of 5
+          </span>
+          <button id="btnNewProblem" class="btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;">
+            <span>🎲</span> New Problem
+          </button>
+        </div>
+
+        <p id="problemPrompt" class="problem-prompt">
+          <!-- Populated by JS -->
+        </p>
+
+        <!-- 5-Step GUESS Method Scaffold -->
+        <div class="scaffold-stepper">
+
+          <!-- Step 1: Given -->
+          <div class="scaffold-step active" id="stepGiven">
+            <div class="scaffold-header">
+              <span class="step-label"><span>1️⃣</span> G — Given Information</span>
+              <span style="font-size: 0.75rem; color: var(--text-muted);">Identify what values are stated in the problem</span>
+            </div>
+            <div class="step-input-row">
+              <label style="font-size: 0.85rem; font-weight: 600;">Value 1:</label>
+              <input type="number" id="inputGiven1" step="any" class="input-pill" placeholder="e.g. 20">
+              <select id="selectGivenUnit1" class="input-pill">
+                <option value="">Choose Unit</option>
+                <option value="m">meters (m)</option>
+                <option value="cm">centimeters (cm)</option>
+                <option value="s">seconds (s)</option>
+                <option value="m/s">m/s</option>
+                <option value="cm/s">cm/s</option>
+              </select>
+
+              <label style="font-size: 0.85rem; font-weight: 600; margin-left: 0.5rem;">Value 2:</label>
+              <input type="number" id="inputGiven2" step="any" class="input-pill" placeholder="e.g. 5">
+              <select id="selectGivenUnit2" class="input-pill">
+                <option value="">Choose Unit</option>
+                <option value="m">meters (m)</option>
+                <option value="cm">centimeters (cm)</option>
+                <option value="s">seconds (s)</option>
+                <option value="m/s">m/s</option>
+                <option value="cm/s">cm/s</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Step 2: Unknown -->
+          <div class="scaffold-step" id="stepUnknown">
+            <div class="scaffold-header">
+              <span class="step-label"><span>2️⃣</span> U — Unknown Variable</span>
+              <span style="font-size: 0.75rem; color: var(--text-muted);">What is the question asking you to calculate?</span>
+            </div>
+            <div class="step-input-row">
+              <label style="font-size: 0.85rem; font-weight: 600;">Target Variable:</label>
+              <select id="selectUnknown" class="input-pill" style="width: 220px;">
+                <option value="">Select target variable</option>
+                <option value="v">Speed (v)</option>
+                <option value="d">Distance (d)</option>
+                <option value="t">Time (t)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Step 3: Equation -->
+          <div class="scaffold-step" id="stepEquation">
+            <div class="scaffold-header">
+              <span class="step-label"><span>3️⃣</span> E — Equation (From the Triangle)</span>
+              <span style="font-size: 0.75rem; color: var(--text-muted);">Which rearranged formula isolates the unknown?</span>
+            </div>
+            <div class="step-input-row">
+              <label style="font-size: 0.85rem; font-weight: 600;">Correct Formula:</label>
+              <select id="selectEquation" class="input-pill" style="width: 240px;">
+                <option value="">Select formula</option>
+                <option value="v = d / t">v = d / t (Divide distance by time)</option>
+                <option value="d = v * t">d = v · t (Multiply speed by time)</option>
+                <option value="t = d / v">t = d / v (Divide distance by speed)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Step 4 & 5: Substitute, Solve & Units -->
+          <div class="scaffold-step" id="stepSolve">
+            <div class="scaffold-header">
+              <span class="step-label"><span>4️⃣ & 5️⃣</span> S & S — Substitute, Solve & Units</span>
+              <span style="font-size: 0.75rem; color: var(--text-muted);">Plug in your numbers and calculate the final answer</span>
+            </div>
+            <div class="step-input-row">
+              <label style="font-size: 0.85rem; font-weight: 600;">Your Final Answer:</label>
+              <input type="number" id="inputFinalAnswer" step="any" class="input-pill" placeholder="Numerical value">
+              <select id="selectFinalUnit" class="input-pill">
+                <option value="">Unit</option>
+                <option value="m">m</option>
+                <option value="cm">cm</option>
+                <option value="s">s</option>
+                <option value="m/s">m/s</option>
+                <option value="cm/s">cm/s</option>
+                <option value="km/h">km/h</option>
+              </select>
+
+              <button id="btnCheckAnswer" class="btn-primary" style="margin-left: auto;">
+                <span>✓</span> <span>Check Work</span>
+              </button>
+            </div>
+
+            <!-- Targeted Diagnostic Hint -->
+            <div id="diagnosticFeedback" class="diagnostic-hint"></div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <!-- TAB 3: WIND-UP TOY LAB EMBED REDIRECT -->
+    <!-- ============================================================= -->
+    <section id="lab-link-tab" class="tab-panel">
+      <div class="glass-card" style="text-align: center; padding: 3rem 1.5rem;">
+        <span style="font-size: 3.5rem;">🏎️</span>
+        <h2 style="font-family: var(--font-display); font-size: 1.5rem; margin: 0.75rem 0 0.5rem;">
+          Wind-Up Toy Speed Lab
+        </h2>
+        <p style="max-width: 550px; margin: 0 auto 1.5rem; color: var(--text-muted); font-size: 0.95rem;">
+          Take what you've learned about speed, distance, and time into the laboratory! Time 3 wind-up toys across a 20.0 cm track, calculate average time, and compute empirical speeds.
+        </p>
+        <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+          <a href="../wind_up_toy_lab/index.html" class="btn-primary" style="text-decoration: none;">
+            <span>🚀</span> Launch Wind-Up Toy Lab
+          </a>
+          <button onclick="switchTab('triangle-tab')" class="btn-secondary">
+            Back to Formula Triangle
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mastery Certificate Modal -->
+  <div id="certModal" class="modal-backdrop">
+    <div class="modal-content">
+      <div class="certificate-frame">
+        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🏆</div>
+        <div class="cert-title">Certificate of Kinematic Mastery</div>
+        <div class="cert-subtitle">Orange High School Physics • Constant Motion Honors</div>
+        <p style="font-size: 0.85rem; margin-top: 1rem; color: var(--text-muted);">This certifies that</p>
+        <div id="certStudentName" class="cert-name">Physics Master</div>
+        <p style="font-size: 0.9rem; line-height: 1.6; margin-top: 0.5rem;">
+          has demonstrated 100% quantitative proficiency in calculating <br>
+          <strong>Speed (v = d / t)</strong>, <strong>Distance (d = v · t)</strong>, and <strong>Time (t = d / v)</strong>.
+        </p>
+        <div class="cert-details">
+          Date: <span id="certDate">Sep 8, 2026</span> • NGSS Alignment: <strong>HS-PS2-1</strong>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem; justify-content: center; margin-top: 1.5rem;">
+        <button id="btnPrintCert" class="btn-primary">
+          <span>🖨️</span> Print / Save Certificate
+        </button>
+        <button id="btnCloseCert" class="btn-secondary">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
