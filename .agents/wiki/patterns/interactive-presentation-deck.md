@@ -31,10 +31,11 @@ Unit_X/presentation-name/
    - Real-time mouse and touch dragging for vector exploration.
 3. **Presenter Notes Drawer**:
    - Collapsible drawer keyed to each slide providing timing cues, discussion questions, and pedagogical pointers.
-4. **Dual-Mode Toggle & Exit Controls**:
-   - Toggling `.study-mode` on `document.body` displays all slides stacked cleanly in a structured reading layout.
-   - **Crucial Pattern**: NEVER hide the entire `.deck-nav-controls` or the study mode toggle button in `.study-mode`. Only hide slide navigation controls (`#btnPrev`, `#btnNext`, `#slideIndicator`).
-   - Highlight `#btnStudyMode` as `📽️ Return to Slide Deck` with cyan border/glow, provide a floating exit pill button (`.study-floating-bar`), and support `Escape` and `S` keyboard shortcuts to return smoothly to the active slide.
+4. **Printable Student Guided Notes & Handout (`#handoutModal`)**:
+   - Rather than stacking slides in an awkward full-page scroll, provide a dedicated **Printable Student Handout** modal.
+   - Formatted specifically for standard 8.5" × 11" paper (or interactive science notebooks): includes student metadata blanks, core conceptual definitions, the formula triangle diagram with the 3 equation derivations, the 5-step GUESS protocol grid, and guided/scaffolded practice problems.
+   - Includes a one-click **🖨️ Print / Save PDF** trigger (`window.print()`) with clean `@media print` CSS that isolates the handout sheet, applies pure black-and-white high-contrast text, and suppresses all slide projector UI and headers.
+   - Supported via hotkey `H` (or `Escape` to close).
 
 ## 📺 Classroom TV Projection & 25-Foot Legibility Standards
 When slides are projected onto large classroom TVs (e.g. dual 65"–85" screens) where students are seated 20–25+ feet away:

@@ -421,3 +421,21 @@ Append-only log tracking pattern changes across sessions.
 - Updated `Unit_2/constant-speed-presentation/presentation.js`:
   - Added TV mode toggle, font zooming (`--font-scale`), Fullscreen API integration, and hotkeys (`T`, `F`, `+`, `-`, `0`).
 - Updated `wiki/patterns/interactive-presentation-deck.md` with Section 5 (Classroom TV Projection & 25-Foot Legibility Standards).
+
+---
+
+## 2026-09-07 — Replaced Awkward Study Mode with Printable Student Guided Notes Handout
+
+**Motivation**: The vertically scrolling "Study Mode" was confusing and did not fit classroom lecture dynamics. Replaced it with a dedicated printable student guided notes and problem-solving reference sheet optimized for physical interactive notebooks and PDF export.
+
+**Changes**:
+- Replaced `#btnStudyMode` with `📄 Student Handout` (`#btnHandout`) in `Unit_2/constant-speed-presentation/index.html`.
+- Created `#handoutModal` and `.handout-sheet` formatted for 8.5" × 11" paper:
+  - Student header line (Name, Date, Period).
+  - Core concepts (scalar rate, constant speed, standard units table).
+  - Formula triangle diagram with derivations for $v = d / t$, $d = v · t$, $t = d / v$.
+  - 5-step GUESS protocol reference grid.
+  - 3 guided class practice problems with step-by-step GUESS scaffolding.
+- Added clean `@media print` CSS rules in `style.css` suppressing deck controls and isolating the handout sheet for crisp black-and-white printing.
+- Added modal event handlers, backdrop dismissal, `window.print()` trigger, and hotkey `H` in `presentation.js`.
+- Updated `wiki/patterns/interactive-presentation-deck.md` (Item 4).
