@@ -1,0 +1,344 @@
+/* Constant Speed Presentation - Stylesheet */
+:root {
+  --bg-primary: #070c18;
+  --bg-slide: #0e172a;
+  --bg-card: rgba(30, 41, 59, 0.7);
+  --border-color: rgba(255, 255, 255, 0.12);
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --accent-cyan: #00f2fe;
+  --accent-blue: #38bdf8;
+  --accent-emerald: #10b981;
+  --accent-purple: #a855f7;
+  --accent-amber: #f59e0b;
+  --accent-rose: #f43f5e;
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Outfit', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --slide-width: 1150px;
+  --slide-height: 680px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-main);
+  font-family: var(--font-body);
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* Header & Controls */
+.deck-header {
+  background: rgba(14, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.6rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.deck-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.ngss-tag {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  background: rgba(56, 189, 248, 0.15);
+  color: var(--accent-blue);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 6px;
+}
+
+.deck-nav-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-deck {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.2s ease;
+}
+
+.btn-deck:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: var(--accent-cyan);
+}
+
+.slide-counter {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  padding: 0 0.5rem;
+}
+
+/* Progress Bar */
+.progress-bar-container {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  position: sticky;
+  top: 48px;
+  z-index: 49;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+  width: 10%;
+  transition: width 0.3s ease;
+}
+
+/* Deck Container */
+.deck-stage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 1rem;
+  position: relative;
+}
+
+.slide {
+  display: none;
+  width: 100%;
+  max-width: var(--slide-width);
+  min-height: var(--slide-height);
+  background: var(--bg-slide);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 2.5rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  position: relative;
+  animation: slideFadeIn 0.3s ease-out;
+}
+
+.slide.active {
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes slideFadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Slide Typography */
+.slide-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--accent-cyan);
+  letter-spacing: 0.08em;
+  margin-bottom: 0.5rem;
+}
+
+.slide-title {
+  font-family: var(--font-display);
+  font-size: 2.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.25rem;
+  line-height: 1.2;
+}
+
+.slide-body {
+  font-size: 1.15rem;
+  color: #cbd5e1;
+  line-height: 1.7;
+  flex: 1;
+}
+
+/* Slide Layouts */
+.slide-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: center;
+  height: 100%;
+}
+
+.slide-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 1.5rem;
+  backdrop-filter: blur(8px);
+}
+
+.hero-box {
+  background: linear-gradient(135deg, rgba(0, 242, 254, 0.1), rgba(168, 85, 247, 0.1));
+  border: 2px solid rgba(0, 242, 254, 0.3);
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.big-formula {
+  font-family: var(--font-mono);
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--accent-cyan);
+  margin: 1rem 0;
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
+}
+
+.highlight-box {
+  background: rgba(245, 158, 11, 0.12);
+  border-left: 4px solid var(--accent-amber);
+  padding: 0.75rem 1rem;
+  border-radius: 0 8px 8px 0;
+  margin: 1rem 0;
+  font-size: 1rem;
+}
+
+/* Formula Triangle on Slide */
+.slide-triangle-svg {
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+  display: block;
+}
+
+/* Interactive Vote Cards */
+.vote-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.vote-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.vote-card:hover {
+  border-color: var(--accent-cyan);
+  background: rgba(0, 242, 254, 0.08);
+  transform: translateY(-2px);
+}
+
+.vote-card.revealed-correct {
+  border-color: var(--accent-emerald);
+  background: rgba(16, 185, 129, 0.15);
+}
+
+.vote-card.revealed-wrong {
+  border-color: var(--accent-rose);
+  opacity: 0.5;
+}
+
+/* Presenter Notes Drawer */
+.notes-drawer {
+  background: rgba(15, 23, 42, 0.95);
+  border-top: 1px solid var(--border-color);
+  padding: 1rem 1.5rem;
+  position: sticky;
+  bottom: 0;
+  z-index: 45;
+  transition: transform 0.3s ease;
+  max-width: 100%;
+}
+
+.notes-drawer.collapsed {
+  transform: translateY(calc(100% - 42px));
+}
+
+.notes-toggle-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  padding-bottom: 0.5rem;
+}
+
+.notes-content {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  line-height: 1.6;
+  max-height: 180px;
+  overflow-y: auto;
+  padding-top: 0.5rem;
+}
+
+.notes-content ul {
+  padding-left: 1.25rem;
+  margin-top: 0.25rem;
+}
+
+/* Study Mode Toggle (Stacks all slides for student review) */
+body.study-mode .deck-stage {
+  flex-direction: column;
+  gap: 2.5rem;
+  padding: 2.5rem 1rem;
+}
+
+body.study-mode .slide {
+  display: flex !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+body.study-mode .deck-nav-controls,
+body.study-mode .notes-drawer {
+  display: none !important;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 860px) {
+  .slide-grid-2 {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  .slide-title {
+    font-size: 1.65rem;
+  }
+  .big-formula {
+    font-size: 2.25rem;
+  }
+  .slide {
+    padding: 1.5rem;
+    min-height: auto;
+  }
+}

@@ -373,10 +373,30 @@ Append-only log tracking pattern changes across sessions.
 - Created `tests/test_math_facts_stars.js` E2E test verifying single-table fact generation, star evaluation, result banner activation, personal bests table grid, and welcome screen badge updates. All test suites pass 100%.
 - Updated `wiki/patterns/touch-math-facts-engine.md` with Section 6 (Mario Kart Course Starring Badge System).
 
+---
 
+## 2026-09-07 — 4-Day Constant Speed Instructional Arc & Practice Suite
 
+**Motivation**: Realigned the 4-day post-Labor Day week (Days 7–10, Sept 8–11) to explicitly teach, practice, and master constant speed calculations ($v = d / t$, $d = v · t$, $t = d / v$) connecting directly to empirical data from the Wind-Up Toy Speed Lab.
 
-
-
+**Changes**:
+- Created `Unit_2/speed_distance_time_app/`: Interactive student webapp featuring:
+  - SVG Formula Triangle Explorer ($d$ over $v \cdot t$) with click-to-reveal equation derivations.
+  - Live Canvas Motion Simulator with custom distance/speed sliders, animated runner/toy car, odometer track, and real-time elapsed timer.
+  - 4-Tier Leveled GUESS Problem Solving Studio (Tier 1: Speed, Tier 2: Distance, Tier 3: Time, Tier 4: Mixed Master Challenge).
+  - Target diagnostic hints addressing common inversions and unit omissions.
+  - Printable Certificate of Kinematic Mastery upon achieving 5-streak or finishing Tier 4.
+  - Symlinked root `speed_distance_time_app/` for convenience.
+- Created `Unit_2/constant-speed-presentation/`: Interactive 10-slide presentation deck:
+  - Dual-mode (Fullscreen Lecture Slideshow vs. Scrollable Student Study Mode).
+  - Collapsible Presenter Notes drawer with talking points and pacing cues.
+  - Web Audio API synthesizer for transitions, clicks, and chimes.
+  - Interactive Audience Check (Slide 9) with instant vote card feedback.
+  - Symlinked root `constant-speed-presentation/` for convenience.
+- Updated `Unit_2/outline.md`: Aligned Week 2 (Days 7–10) with detailed pedagogical goals, essential questions, and resource links.
+- Updated `Unit_2/lesson.json` & `Unit_2/unit2_lessons.json`: Synchronized Days 7–10 lesson objects with explicit NGSS `HS-PS2-1` alignment and daily bell-ringers.
+- Updated `assets/lessons-data.js`: Aligned Days 7–10 across site-wide lesson data.
+- Updated `unit2-dashboard.html`: Added quick-access hero cards for Speed Studio and Constant Speed Slide Deck.
+- Strict No-LaTeX compliance verified across all files.
 
 

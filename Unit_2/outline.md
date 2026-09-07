@@ -65,39 +65,41 @@ This unit follows the classical and cognitive progression:
 
 ---
 
-### Week 2: Acceleration, Velocity-Time Graphs & Incline Inquiry
-**Goal:** Define acceleration as the rate of change of velocity (`a = Δv / Δt`), construct velocity-time (`v-t`) graphs, investigate incline acceleration, and explore Earth's freefall constant (`g = 9.8 m/s²`).
+### Week 2: Constant Speed Mastery, Formula Triangle & Lab Wrap-Up (4-Day Week)
+**Goal:** Transition from empirical tabletop inquiry to algebraic problem-solving fluency. Complete the Wind-Up Toy Speed Lab, unpack speed as distance per unit time (`v = d / t`), master algebraic rearrangements for distance (`d = v · t`) and time (`t = d / v`) using the Formula Triangle, and establish the 5-step GUESS problem-solving methodology.
 
 *   **Day 6 (2026-09-07): Labor Day — No School**
     *   *Focus:* Holiday observed.
     *   *Activity:* No school in observance of the Labor Day holiday.
     *   *Standards:* `HS-PS2-1` | *DOK:* 0 | *Type:* Holiday
 
-*   **Day 7 (2026-09-08): Decoding Acceleration: When Velocity Changes**
-    *   *Focus:* Defining acceleration (`a = Δv / Δt`), units of `m/s²`, three ways to accelerate (speed up, slow down, change direction).
-    *   *Activity:* Car telemetry and video analysis: Students calculate acceleration from speedometer changes and explore why taking a highway curve at constant 45 mph is still physical acceleration.
-    *   *Essential Question:* Why is a vehicle turning a corner at constant speed still considered accelerating in physics?
-    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction
-    *   *Links:* [Acceleration Grapher](Interactive_Acceleration_Grapher.html)
+*   **Day 7 (2026-09-08): Wind-Up Toy Speed Lab Wrap-Up & Intro to Speed**
+    *   *Focus:* Completing replication trials, outlier checks, computing average time, and debriefing speed as a physical rate of travel (`v = d / t`).
+    *   *Activity:* Students complete their replication trials in the Wind-Up Toy Speed Lab web app, calculate average times, and transition into explicit direct instruction connecting their 20.0 cm track measurements to what the speed ratio physically means per second of travel.
+    *   *Essential Question:* How does our 20.0 cm lab measurement reveal the rate at which an object covers distance every second?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Lab / Direct Instruction
+    *   *Links:* [Wind-Up Toy Speed Lab](Unit_2/wind_up_toy_lab/index.html), [Constant Speed Presentation](Unit_2/constant-speed-presentation/index.html), [Speed & Distance Studio](Unit_2/speed_distance_time_app/index.html)
 
-*   **Day 8 (2026-09-09): Velocity vs. Time (v-t) Graphs: Slope & Area**
-    *   *Focus:* Slope of v-t graph equals acceleration (`m = Δv / Δt = a`); geometric area under v-t graph equals displacement (`Area = Δx`).
-    *   *Activity:* "Graph Matching Duel": Pairs match position-time curves with corresponding velocity-time graphs. Calculating displacement from rectangular and triangular areas under v-t curves.
-    *   *Essential Question:* How can the geometric area under a velocity-time graph reveal the total distance an object moved?
-    *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Activity
+*   **Day 8 (2026-09-09): The Speed Equation: Calculating Speed & Solving for Distance**
+    *   *Focus:* The Formula Triangle (`v = d / t`), metric units (`m/s`, `cm/s`, `km/h`), algebraic rearrangement to isolate distance (`d = v · t`), and the GUESS problem-solving framework.
+    *   *Activity:* Interactive classroom lecture using the Constant Speed Slide Deck followed by guided practice in the Speed, Distance & Time Studio web app. Students work through Tier 1 (Speed) and Tier 2 (Distance) challenges, tracking units and practicing formula rearrangement.
+    *   *Essential Question:* If you know how fast an object travels and how long it moves, how can you predict its exact final position?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction / Practice
+    *   *Links:* [Constant Speed Presentation](Unit_2/constant-speed-presentation/index.html), [Speed & Distance Studio](Unit_2/speed_distance_time_app/index.html)
 
-*   **Day 9 (2026-09-10): "Marble Race" Ramp Incline Lab**
-    *   *Focus:* Quantitative acceleration inquiry, gravity component along an incline.
-    *   *Activity:* Students set up grooved tracks at 5°, 10°, and 15° angles with photogate or stopwatch checkpoints. Teams calculate instantaneous velocities at two points, determine acceleration down the ramp, and graph `a` vs. angle.
-    *   *Essential Question:* How does ramp inclination quantitatively govern the rate of acceleration down an incline?
-    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Lab
+*   **Day 9 (2026-09-10): Solving for Time & Multi-Step Motion Challenges**
+    *   *Focus:* Rearranging for time (`t = d / v`), metric unit consistency, and multi-object race comparisons.
+    *   *Activity:* Whiteboard Sprint & Leveled Tier 3 Challenges in the Speed Studio web app: Students solve for time (`t = d / v`), verify decimal division, convert units (cm to m, minutes to seconds), and determine which of two constant-speed vehicles arrives first at a destination.
+    *   *Essential Question:* Why does calculating travel time require dividing distance by speed, and how does speed act as a conversion factor between space and time?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Practice / Activity
+    *   *Links:* [Speed & Distance Studio](Unit_2/speed_distance_time_app/index.html), [Constant Speed Presentation](Unit_2/constant-speed-presentation/index.html)
 
-*   **Day 10 (2026-09-11): Free Fall & Gravitational Acceleration (`g = 9.8 m/s²`)**
-    *   *Focus:* Earth's surface gravity constant (`g = 9.8 m/s²`), vacuum conditions, Galileo's equivalence principle vs. air drag.
-    *   *Activity:* Sensor drop lab: Dropping heavy steel spheres vs light hollow spheres from measured heights (1m, 2m). Analyzing high-speed video of Apollo 15 feather and hammer drop on the Moon.
-    *   *Essential Question:* Why do heavy and light objects fall at identical rates in the absence of air resistance?
-    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Activity
-    *   *Links:* [Skydiving Simulation](skydiving-game/index.html)
+*   **Day 10 (2026-09-11): Constant Speed Mastery & Kinematic Synthesis Review**
+    *   *Focus:* Synthesis Workshop: Diagnosing unknowns among mixed scenarios, 3-way formula fluency, and formative mastery evaluation.
+    *   *Activity:* Constant Speed Grand Prix Challenge: Students complete the Tier 4 Mixed Master Challenge in the Speed, Distance & Time Studio, resolving randomized constant speed problems and generating their personalized Certificate of Kinematic Mastery, followed by a brief formative check.
+    *   *Essential Question:* How can a single mathematical relationship (`v = d / t`) predict all aspects of uniform constant motion across any physical system?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Activity / Assessment
+    *   *Links:* [Speed & Distance Studio](Unit_2/speed_distance_time_app/index.html), [Constant Speed Presentation](Unit_2/constant-speed-presentation/index.html), [Wind-Up Toy Speed Lab](Unit_2/wind_up_toy_lab/index.html)
 
 ---
 
