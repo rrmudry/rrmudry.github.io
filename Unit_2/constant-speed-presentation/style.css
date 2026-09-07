@@ -505,67 +505,239 @@ body {
   margin-top: 0.35rem;
 }
 
-/* Study Mode Toggle (Stacks all slides for student review) */
-body.study-mode .deck-stage {
-  flex-direction: column;
-  gap: 3rem;
-  padding: 3rem 1.5rem 6rem 1.5rem;
-}
-
-body.study-mode .slide {
-  display: flex !important;
-  opacity: 1 !important;
-  transform: none !important;
-  max-width: 1200px;
-  min-height: auto;
-}
-
-/* Hide presentation-only slide navigation controls in study mode while keeping Study Mode toggle accessible */
-body.study-mode #btnPrev,
-body.study-mode #btnNext,
-body.study-mode #slideIndicator,
-body.study-mode .nav-slide-sep,
-body.study-mode .progress-bar-container,
-body.study-mode .notes-drawer {
-  display: none !important;
-}
-
-/* Prominent highlight on the Study Mode exit button in header */
-body.study-mode #btnStudyMode {
-  background: rgba(0, 242, 254, 0.22) !important;
-  border-color: var(--accent-cyan) !important;
-  color: var(--accent-cyan) !important;
-  font-weight: 700 !important;
-  box-shadow: 0 0 16px rgba(0, 242, 254, 0.35);
-}
-
-/* Floating Study Mode Exit Banner */
-.study-floating-bar {
-  display: none;
+/* Printable Student Handout Modal & Viewer */
+.handout-modal-backdrop {
   position: fixed;
-  bottom: 1.5rem;
-  right: 1.5rem;
-  background: rgba(14, 23, 42, 0.95);
-  backdrop-filter: blur(14px);
-  border: 1.5px solid var(--accent-cyan);
-  border-radius: 12px;
-  padding: 0.75rem 1.25rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 242, 254, 0.25);
-  z-index: 100;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(7, 12, 24, 0.88);
+  backdrop-filter: blur(12px);
+  z-index: 999;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow-y: auto;
+  padding: 2.5rem 1rem;
+}
+
+.handout-modal-container {
+  width: 100%;
+  max-width: 920px;
+  background: #0f172a;
+  border: 1.5px solid var(--border-color);
+  border-radius: 18px;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.9);
+  overflow: hidden;
+  margin-bottom: 3rem;
+  animation: modalFadeIn 0.25s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: scale(0.97) translateY(-10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.handout-modal-toolbar {
+  background: #1e293b;
+  border-bottom: 1px solid var(--border-color);
+  padding: 1rem 1.75rem;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
   gap: 1rem;
-  font-size: calc(1.05rem * var(--font-scale));
+}
+
+/* The Printable Handout Sheet (Formatted for 8.5" x 11" Paper / Notebooks) */
+.handout-sheet {
+  background: #ffffff;
+  color: #0f172a;
+  padding: 2.5rem 2.75rem;
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.45;
+}
+
+.handout-header {
+  border-bottom: 2.5px solid #0f172a;
+  padding-bottom: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.handout-meta-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #334155;
+}
+
+.handout-title {
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 0.25rem;
+  letter-spacing: -0.01em;
+}
+
+.handout-subtitle {
+  font-size: 0.95rem;
+  color: #475569;
   font-weight: 600;
 }
 
-body.study-mode .study-floating-bar {
+.handout-section-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+  border-bottom: 1.5px solid #cbd5e1;
+  padding-bottom: 0.25rem;
+  margin: 1.25rem 0 0.75rem 0;
   display: flex;
-  animation: slideUpFade 0.3s ease-out;
+  align-items: center;
+  gap: 0.4rem;
 }
 
-@keyframes slideUpFade {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+.handout-grid-2 {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 1.25rem;
+  align-items: center;
+}
+
+.handout-box {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  background: #f8fafc;
+}
+
+.handout-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.handout-table th, .handout-table td {
+  border: 1px solid #cbd5e1;
+  padding: 0.45rem 0.6rem;
+  text-align: left;
+}
+
+.handout-table th {
+  background: #f1f5f9;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.handout-guess-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.6rem;
+  margin: 0.75rem 0;
+}
+
+.handout-guess-card {
+  border: 1.5px solid #0f172a;
+  border-radius: 8px;
+  padding: 0.6rem 0.4rem;
+  text-align: center;
+  background: #ffffff;
+}
+
+.handout-guess-letter {
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+  color: #0284c7;
+}
+
+.handout-guess-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.handout-guess-desc {
+  font-size: 0.72rem;
+  color: #475569;
+  margin-top: 0.2rem;
+  line-height: 1.3;
+}
+
+.handout-practice-card {
+  border: 1px solid #94a3b8;
+  border-radius: 8px;
+  padding: 0.85rem 1.1rem;
+  margin-bottom: 0.85rem;
+  background: #ffffff;
+}
+
+.guess-fill-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  background: #f8fafc;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  border: 1px dashed #cbd5e1;
+}
+
+/* Clean Print Media Styles */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  
+  .deck-header,
+  .deck-stage,
+  .progress-bar-container,
+  .notes-drawer,
+  .handout-modal-toolbar,
+  .no-print {
+    display: none !important;
+  }
+
+  .handout-modal-backdrop {
+    position: static !important;
+    padding: 0 !important;
+    background: none !important;
+    display: block !important;
+  }
+
+  .handout-modal-container {
+    box-shadow: none !important;
+    border: none !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+
+  .handout-sheet {
+    padding: 0 !important;
+    width: 100% !important;
+    font-size: 11pt !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  .handout-sheet * {
+    color: #000000 !important;
+  }
+
+  .handout-box,
+  .handout-guess-card,
+  .handout-practice-card,
+  .guess-fill-grid {
+    background: #ffffff !important;
+    border-color: #333333 !important;
+  }
 }
 
 /* Fullscreen Mode Optimizations */

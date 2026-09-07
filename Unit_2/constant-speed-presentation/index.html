@@ -45,8 +45,8 @@
 
       <span style="color: var(--border-color); margin: 0 0.35rem;">|</span>
 
-      <button id="btnStudyMode" class="btn-deck" title="Toggle Scrollable Study Mode (Hotkey: S or Esc)">
-        <span id="studyIcon">📖</span> <span id="studyText">Study Mode</span>
+      <button id="btnHandout" class="btn-deck" title="Open Printable Student Guided Notes & Handout (Hotkey: H)">
+        <span>📄</span> <span>Student Handout</span>
       </button>
       <button id="btnSound" class="btn-deck" title="Toggle Sound FX">
         <span id="soundIcon">🔊</span>
@@ -447,14 +447,6 @@
 
   </main>
 
-  <!-- Floating Exit Study Mode Bar -->
-  <div id="studyModeFloatingBanner" class="study-floating-bar">
-    <span>📖 Viewing all slides in Study Mode</span>
-    <button id="btnExitStudyFloating" class="btn-deck" style="background: var(--accent-cyan); color: #000; font-weight: 700; border-radius: 8px;">
-      📽️ Return to Slide Deck (Esc)
-    </button>
-  </div>
-
   <!-- Presenter Notes Drawer (Teacher Mode) -->
   <aside id="notesDrawer" class="notes-drawer collapsed">
     <div class="notes-toggle-bar" onclick="toggleNotesDrawer()">
@@ -468,6 +460,185 @@
       <!-- Injected by presentation.js -->
     </div>
   </aside>
+
+  <!-- Printable Student Handout Modal / Guided Notes Sheet -->
+  <div id="handoutModal" class="handout-modal-backdrop" style="display: none;">
+    <div class="handout-modal-container">
+      <div class="handout-modal-toolbar no-print">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <span style="font-size: 1.5rem;">📄</span>
+          <div>
+            <h2 style="font-size: 1.2rem; font-weight: 700; color: #ffffff;">Student Guided Notes & Reference Handout</h2>
+            <p style="font-size: 0.85rem; color: #94a3b8;">Formatted for 8.5" × 11" interactive notebooks. Click Print to photocopy or export to PDF.</p>
+          </div>
+        </div>
+        <div style="display: flex; gap: 0.65rem;">
+          <button id="btnPrintHandout" class="btn-deck" style="background: var(--accent-cyan); color: #000; font-weight: 700; border-radius: 8px;">
+            🖨️ Print / Save PDF
+          </button>
+          <button id="btnCloseHandout" class="btn-deck" style="border-radius: 8px;">
+            ✕ Close
+          </button>
+        </div>
+      </div>
+
+      <!-- Printable Sheet (A4 / Letter Notebook Optimized) -->
+      <div class="handout-sheet" id="printableHandoutArea">
+        <div class="handout-header">
+          <div class="handout-meta-row">
+            <span>Name: ____________________________________</span>
+            <span>Date: ____________</span>
+            <span>Period: _____</span>
+          </div>
+          <div class="handout-title">Unit 2: Describing Motion — Calculating Constant Speed</div>
+          <div class="handout-subtitle">NGSS Standard: HS-PS2-1 • Student Guided Notes & Problem-Solving Reference Sheet</div>
+        </div>
+
+        <!-- Section 1: Core Physics Concepts -->
+        <div class="handout-section-title">1. What is Speed? (The Rate of Motion)</div>
+        <div class="handout-grid-2">
+          <div class="handout-box">
+            <p style="margin-bottom: 0.5rem;">
+              • <strong>Scalar Quantity:</strong> Speed tells <em>how fast</em> an object moves regardless of direction.
+            </p>
+            <p style="margin-bottom: 0.5rem;">
+              • <strong>Physical Meaning:</strong> Speed is the distance covered in <em>one single unit of time</em> (each 1 s or each 1 h).
+            </p>
+            <p>
+              • <strong>Constant Speed:</strong> Covering <em>equal distances in equal intervals of time</em> (zero acceleration).
+            </p>
+          </div>
+          <div class="handout-box">
+            <strong>Standard Measurement Units:</strong>
+            <table class="handout-table">
+              <tr><th>Unit</th><th>Used For</th></tr>
+              <tr><td><strong>m/s</strong></td><td>Standard SI unit in physics labs</td></tr>
+              <tr><td><strong>cm/s</strong></td><td>Tabletop labs (our 20.0 cm wind-up toys!)</td></tr>
+              <tr><td><strong>km/h, mph</strong></td><td>Road vehicles & highway travel</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <!-- Section 2: The Magic Formula Triangle -->
+        <div class="handout-section-title">2. The "Magic" Formula Triangle & The 3 Equations</div>
+        <div class="handout-grid-2">
+          <div style="text-align: center; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0.75rem; background: #f8fafc;">
+            <svg style="max-width: 220px; margin: 0 auto; display: block;" viewBox="0 0 320 270">
+              <polygon points="160,15 240,125 80,125" fill="#e0f2fe" stroke="#0284c7" stroke-width="3" />
+              <text x="160" y="85" fill="#0284c7" font-size="34" font-weight="bold" text-anchor="middle" font-family="sans-serif">d</text>
+              <text x="160" y="112" fill="#475569" font-size="11" font-weight="bold" text-anchor="middle" font-family="sans-serif">DISTANCE</text>
+              <line x1="20" y1="130" x2="300" y2="130" stroke="#0f172a" stroke-width="4" />
+              <polygon points="75,135 15,250 155,250 155,135" fill="#f3e8ff" stroke="#7e22ce" stroke-width="3" />
+              <text x="85" y="200" fill="#7e22ce" font-size="34" font-weight="bold" text-anchor="middle" font-family="sans-serif">v</text>
+              <text x="85" y="228" fill="#475569" font-size="11" font-weight="bold" text-anchor="middle" font-family="sans-serif">SPEED</text>
+              <line x1="160" y1="135" x2="160" y2="250" stroke="#0f172a" stroke-width="4" />
+              <circle cx="160" cy="195" r="11" fill="#ffffff" stroke="#b45309" stroke-width="2" />
+              <text x="160" y="201" fill="#b45309" font-size="20" font-weight="bold" text-anchor="middle">·</text>
+              <polygon points="165,135 165,250 305,250 245,135" fill="#dcfce7" stroke="#15803d" stroke-width="3" />
+              <text x="235" y="200" fill="#15803d" font-size="34" font-weight="bold" text-anchor="middle" font-family="sans-serif">t</text>
+              <text x="235" y="228" fill="#475569" font-size="11" font-weight="bold" text-anchor="middle" font-family="sans-serif">TIME</text>
+            </svg>
+            <p style="font-size: 0.8rem; color: #475569; margin-top: 0.35rem;">
+              <strong>Rule of Thumb:</strong> Cover the variable you need to find.
+            </p>
+          </div>
+          <div class="handout-box" style="display: flex; flex-direction: column; justify-content: space-around;">
+            <div>
+              <strong>1. Solving for Speed:</strong>
+              <div style="font-family: monospace; font-size: 1.15rem; font-weight: bold; color: #0284c7; margin: 0.15rem 0;">v = d / t</div>
+              <span style="font-size: 0.82rem; color: #64748b;">Distance divided by Time</span>
+            </div>
+            <div style="margin: 0.4rem 0;">
+              <strong>2. Solving for Distance:</strong>
+              <div style="font-family: monospace; font-size: 1.15rem; font-weight: bold; color: #7e22ce; margin: 0.15rem 0;">d = v · t</div>
+              <span style="font-size: 0.82rem; color: #64748b;">Speed multiplied by Time</span>
+            </div>
+            <div>
+              <strong>3. Solving for Time:</strong>
+              <div style="font-family: monospace; font-size: 1.15rem; font-weight: bold; color: #15803d; margin: 0.15rem 0;">t = d / v</div>
+              <span style="font-size: 0.82rem; color: #64748b;">Distance divided by Speed</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: GUESS Problem-Solving Blueprint -->
+        <div class="handout-section-title">3. The 5-Step GUESS Problem-Solving Framework</div>
+        <div class="handout-guess-grid">
+          <div class="handout-guess-card">
+            <div class="handout-guess-letter" style="color: #0284c7;">G</div>
+            <div class="handout-guess-title">Given</div>
+            <div class="handout-guess-desc">List numbers and units from the problem.</div>
+          </div>
+          <div class="handout-guess-card">
+            <div class="handout-guess-letter" style="color: #0369a1;">U</div>
+            <div class="handout-guess-title">Unknown</div>
+            <div class="handout-guess-desc">What variable are you finding? (d, v, or t)</div>
+          </div>
+          <div class="handout-guess-card">
+            <div class="handout-guess-letter" style="color: #7e22ce;">E</div>
+            <div class="handout-guess-title">Equation</div>
+            <div class="handout-guess-desc">Pick the rearranged formula from triangle.</div>
+          </div>
+          <div class="handout-guess-card">
+            <div class="handout-guess-letter" style="color: #b45309;">S</div>
+            <div class="handout-guess-title">Substitute</div>
+            <div class="handout-guess-desc">Plug numbers and units into formula.</div>
+          </div>
+          <div class="handout-guess-card">
+            <div class="handout-guess-letter" style="color: #15803d;">S</div>
+            <div class="handout-guess-title">Solve & Unit</div>
+            <div class="handout-guess-desc">Calculate the arithmetic and write final unit!</div>
+          </div>
+        </div>
+
+        <!-- Section 4: Practice Problems with GUESS Scaffolding -->
+        <div class="handout-section-title">4. Guided Class Practice Problems</div>
+        
+        <div class="handout-practice-card">
+          <div style="font-weight: 700; margin-bottom: 0.25rem;">Problem 1 (From Wind-Up Toy Lab):</div>
+          <div style="font-size: 0.92rem; margin-bottom: 0.4rem;">
+            A wind-up toy beetle walks at a steady speed of <strong>4.5 cm/s</strong>. How far does it travel in <strong>6.0 seconds</strong>?
+          </div>
+          <div class="guess-fill-grid">
+            <div><strong>G:</strong> v = 4.5 cm/s, t = 6.0 s</div>
+            <div><strong>U:</strong> d = ?</div>
+            <div><strong>E:</strong> d = v · t</div>
+            <div><strong>S:</strong> d = (4.5 cm/s)(6.0 s)</div>
+            <div><strong>S:</strong> <strong>d = 27.0 cm</strong></div>
+          </div>
+        </div>
+
+        <div class="handout-practice-card">
+          <div style="font-weight: 700; margin-bottom: 0.25rem;">Problem 2 (Hallway Buggy):</div>
+          <div style="font-size: 0.92rem; margin-bottom: 0.4rem;">
+            A motorized buggy cruises at <strong>0.25 m/s</strong>. How much time does it need to cross a <strong>3.0 meter</strong> lab track?
+          </div>
+          <div class="guess-fill-grid">
+            <div><strong>G:</strong> d = 3.0 m, v = 0.25 m/s</div>
+            <div><strong>U:</strong> t = ?</div>
+            <div><strong>E:</strong> t = d / v</div>
+            <div><strong>S:</strong> t = 3.0 m / 0.25 m/s</div>
+            <div><strong>S:</strong> <strong>t = 12.0 seconds</strong></div>
+          </div>
+        </div>
+
+        <div class="handout-practice-card" style="border: 1.5px dashed #0284c7; background: #f0f9ff;">
+          <div style="font-weight: 700; color: #0284c7; margin-bottom: 0.25rem;">Problem 3 (You Try! Classroom Robot Challenge):</div>
+          <div style="font-size: 0.92rem; margin-bottom: 0.4rem;">
+            A battery rover cruises down the hallway at a constant speed of <strong>3.0 m/s</strong> for <strong>15 seconds</strong>. Calculate the total distance traveled.
+          </div>
+          <div class="guess-fill-grid" style="background: #ffffff;">
+            <div><strong>G:</strong> ________________</div>
+            <div><strong>U:</strong> ________________</div>
+            <div><strong>E:</strong> ________________</div>
+            <div><strong>S:</strong> ________________</div>
+            <div><strong>S:</strong> ________________</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
 
   <script src="presentation.js"></script>
 </body>
