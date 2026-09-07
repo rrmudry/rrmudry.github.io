@@ -514,3 +514,18 @@ Append-only log tracking pattern changes across sessions.
 - **Documentation**:
   - Updated `wiki/patterns/dashboard-layout.md` and `wiki/index.md`.
 
+---
+
+## 2026-09-07 — Resolution of Missing Work Date Collisions (Pruning Unit 1 Days 9–13)
+
+**Motivation**: On `missing-work.html`, searching for dates covering early September caused an out-of-order sequence (Day 5 -> Day 13 -> Day 6). This was caused by overlapping dates between active Unit 2 lessons and obsolete placeholder draft lessons in Unit 1 (Days 9–13).
+
+**Changes**:
+- **Pruned Days 9–13 of Unit 1**:
+  - Removed phantom draft Days 9–13 from `Unit_1_Introduction/unit1_lessons.json` and `assets/lessons-data.js`. Unit 1 now cleanly concludes with Day 8 (*The Measurement Olympics* on Aug 28), resolving all calendar date overlap with Unit 2 (which starts Aug 31).
+- **Missing Work Tool Enhancements (`missing-work.html`)**:
+  - Added a prominent `Unit {lesson.unit}` badge to every lesson card date banner.
+  - Added an optional Unit Filter dropdown (`All Units`, `Unit 1: Foundations`, `Unit 2: Kinematics`).
+  - Added multi-tier sorting: `date` ascending, followed by `unit` and `day` tie-breaking.
+
+
