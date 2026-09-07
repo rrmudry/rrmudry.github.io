@@ -439,3 +439,14 @@ Append-only log tracking pattern changes across sessions.
 - Added clean `@media print` CSS rules in `style.css` suppressing deck controls and isolating the handout sheet for crisp black-and-white printing.
 - Added modal event handlers, backdrop dismissal, `window.print()` trigger, and hotkey `H` in `presentation.js`.
 - Updated `wiki/patterns/interactive-presentation-deck.md` (Item 4).
+
+---
+
+## 2026-09-07 — Resolution of Root vs Unit_2 Displacement and Distance App Symlink Duplication
+
+**Motivation**: Clarified duplicate directory structure between `Unit_2/Displacement_and_distance_map_app/` (canonical app) and root `displacement_and_distance_maps_app/` (prior symlinks). Root symlinks caused confusing duplicate listings in IDEs and broken relative back-navigation (`../../unit2-dashboard.html`).
+
+**Changes**:
+- Removed file symlinks (`index.html`, `js`, `style.css`) from `displacement_and_distance_maps_app/`.
+- Replaced `displacement_and_distance_maps_app/index.html` with an instant `<meta http-equiv="refresh">` and `window.location.replace` redirect targeting `../Unit_2/Displacement_and_distance_map_app/index.html`.
+- Preserved `Unit_2/Displacement_and_distance_map_app/` as the single canonical source of truth linked across `unit2-dashboard.html`, `lessons-data.js`, and `unit2_lessons.json`.
