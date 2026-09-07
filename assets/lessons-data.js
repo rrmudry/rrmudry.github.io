@@ -989,10 +989,35 @@ const lessonsData = [
       "SEP-4",
       "SEP-5"
     ],
+    "assignments": [
+      {
+        "title": "Unit Conversion Practice",
+        "url": "unit-conversion-practice/index.html",
+        "typeLabel": "Required Practice Assignment",
+        "submission": "Cloud Auto-Saved ✓",
+        "description": "Master dimensional analysis and conversion factors by earning a 4-in-a-row streak. Results are automatically recorded to Firestore."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Printable Team Scorecard",
+        "url": "measurement-olympics/scorecard.html",
+        "typeLabel": "Lab Event Scorecard",
+        "description": "Measurement Olympics 4-event team data logging and calibration sheet."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Measurement Olympics Leaderboard",
+        "url": "measurement-olympics/index.html",
+        "typeLabel": "Tournament Leaderboard",
+        "description": "Live tournament rankings and medal standings."
+      }
+    ],
     "links": {
+      "Unit Conversion Practice": "unit-conversion-practice/index.html",
       "Measurement Olympics Leaderboard": "measurement-olympics/index.html",
-      "Printable Team Scorecard": "measurement-olympics/scorecard.html",
-      "Interactive Unit Conversion Practice": "unit-conversion-practice/index.html"
+      "Printable Team Scorecard": "measurement-olympics/scorecard.html"
     },
     "bellRinger": {
       "type": "concept_chat",
@@ -3272,6 +3297,8 @@ function categorizeLessonLinks(day) {
         urlLower.includes('displacement_and_distance_maps') ||
         urlLower.includes('accuracy-precision-art') ||
         tLower.includes('emoji finger painting') ||
+        urlLower.includes('unit-conversion-practice') ||
+        tLower.includes('unit conversion') ||
         (day.type === 'Assessment' && !tLower.includes('slide') && !tLower.includes('presentation'));
 
       // Learning Resource heuristics (slides, docs, notes, reading)
