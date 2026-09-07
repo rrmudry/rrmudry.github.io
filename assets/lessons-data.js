@@ -820,6 +820,13 @@ const lessonsData = [
         "typeLabel": "Graded Vector Inquiry Challenge",
         "submission": "Cloud Auto-Saved ✓",
         "description": "Measure curved spline trails with virtual string, calculate vector displacement, and submit 5-step quest."
+      },
+      {
+        "title": "Fantasy Map Analysis Worksheet",
+        "url": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs",
+        "typeLabel": "Required Project Worksheet",
+        "submission": "Turn In Completed Handout",
+        "description": "Student paper measurements, scale calculations, and compass bearing analysis."
       }
     ],
     "resources": [
@@ -834,12 +841,6 @@ const lessonsData = [
         "url": "https://docs.google.com/document/d/10pNCBkmnpn4LmwO6Fd8af0JH5ehHpj1akiyfmTqkDNA/edit?usp=sharing",
         "typeLabel": "Reading & Lore Document",
         "description": "Background story lore and adventurer travel prompt."
-      },
-      {
-        "title": "Fantasy Map Analysis Worksheet",
-        "url": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs",
-        "typeLabel": "Printable Lab Handout",
-        "description": "Student paper measurements and compass bearing calculations."
       }
     ],
     "practice": [
@@ -889,11 +890,54 @@ const lessonsData = [
       "explanation": "Average speed is v = d / t = 40 km / 8 days = 5 km per day.",
       "defaultDuration": 3
     },
+    "assignments": [
+      {
+        "title": "Fantasy Map Worksheet",
+        "url": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs",
+        "typeLabel": "Required Project Worksheet",
+        "submission": "Turn In Completed Map & Handout",
+        "description": "Part 3 (Finale): Measure curved trail length with string (distance), calculate straight-line displacement vector, and complete analysis questions."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Google Slides",
+        "url": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
+        "typeLabel": "Classroom Slides",
+        "description": "Distance vs displacement, string measurement technique, and vector analysis."
+      },
+      {
+        "title": "PowerPoint Slides",
+        "url": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDTeHashMmgSoeLVDHY5TwQAbynyLTufaGMoMjm5APx0Hw?e=nwclwC",
+        "typeLabel": "OneDrive PowerPoint",
+        "description": "Class presentation deck on OneDrive."
+      },
+      {
+        "title": "Quest Story Doc",
+        "url": "https://docs.google.com/document/d/10pNCBkmnpn4LmwO6Fd8af0JH5ehHpj1akiyfmTqkDNA/edit?usp=sharing",
+        "typeLabel": "Reading & Lore",
+        "description": "Tale of Caelum story prompt and adventurer narrative."
+      },
+      {
+        "title": "Interactive Presentation",
+        "url": "Unit_2/describing-motion-presentation/index.html",
+        "typeLabel": "Interactive HTML Deck",
+        "description": "Web-based interactive presentation on describing motion."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Fantasy Map Web App",
+        "url": "Unit_2/Displacement_and_distance_map_app/index.html",
+        "typeLabel": "Cartography Sandbox",
+        "description": "Digital map tool for exploring fantasy biomes and path measurement."
+      }
+    ],
     "links": {
+      "Fantasy Map Worksheet": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs",
       "Google Slides": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
       "PowerPoint Slides": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDTeHashMmgSoeLVDHY5TwQAbynyLTufaGMoMjm5APx0Hw?e=nwclwC",
       "Quest Story Doc": "https://docs.google.com/document/d/10pNCBkmnpn4LmwO6Fd8af0JH5ehHpj1akiyfmTqkDNA/edit?usp=sharing",
-      "Fantasy Map Worksheet": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs",
       "Interactive Presentation": "Unit_2/describing-motion-presentation/index.html",
       "Fantasy Map Web App": "Unit_2/Displacement_and_distance_map_app/index.html"
     }
@@ -927,11 +971,48 @@ const lessonsData = [
       "explanation": "Total distance traveled is 30 km (15 + 15), but net displacement is 0 km because their final position is identical to their starting position (Δx = x_final - x_initial = 0).",
       "defaultDuration": 3
     },
+    "assignments": [
+      {
+        "title": "Fantasy Map Worksheet",
+        "url": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs",
+        "typeLabel": "Required Project Worksheet",
+        "submission": "Turn In Completed Map & Handout",
+        "description": "Part 2: Plot hazard terrain obstacles, calibrate landmark coordinate points, and record map scale conversions."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Google Slides",
+        "url": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
+        "typeLabel": "Classroom Slides",
+        "description": "Coordinate grids, scale factor calibration, and terrain obstacles."
+      },
+      {
+        "title": "PowerPoint Slides",
+        "url": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDTeHashMmgSoeLVDHY5TwQAbynyLTufaGMoMjm5APx0Hw?e=nwclwC",
+        "typeLabel": "OneDrive PowerPoint",
+        "description": "Class presentation deck on OneDrive."
+      },
+      {
+        "title": "Quest Story Doc",
+        "url": "https://docs.google.com/document/d/10pNCBkmnpn4LmwO6Fd8af0JH5ehHpj1akiyfmTqkDNA/edit?usp=sharing",
+        "typeLabel": "Reading & Lore",
+        "description": "Tale of Caelum story prompt and adventurer narrative."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Fantasy Map Web App",
+        "url": "Unit_2/Displacement_and_distance_map_app/index.html",
+        "typeLabel": "Cartography Sandbox",
+        "description": "Digital map tool for exploring fantasy biomes and path measurement."
+      }
+    ],
     "links": {
+      "Fantasy Map Worksheet": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs",
       "Google Slides": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
       "PowerPoint Slides": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDTeHashMmgSoeLVDHY5TwQAbynyLTufaGMoMjm5APx0Hw?e=nwclwC",
       "Quest Story Doc": "https://docs.google.com/document/d/10pNCBkmnpn4LmwO6Fd8af0JH5ehHpj1akiyfmTqkDNA/edit?usp=sharing",
-      "Fantasy Map Worksheet": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs",
       "Fantasy Map Web App": "Unit_2/Displacement_and_distance_map_app/index.html"
     }
   },
@@ -964,11 +1045,54 @@ const lessonsData = [
       "explanation": "You need to know: (1) Where to start (the Reference Point / Origin), and (2) Which direction to walk (Direction / Compass Heading). Without an origin and direction, 50 paces could be anywhere in a 360-degree circle.",
       "defaultDuration": 3
     },
+    "assignments": [
+      {
+        "title": "Fantasy Map Worksheet",
+        "url": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs",
+        "typeLabel": "Required Project Worksheet",
+        "submission": "Turn In Completed Map & Handout",
+        "description": "Part 1: Define reference frame origin (0,0), 4-direction compass rose, scale factor, and 4 realm landmarks."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Google Slides",
+        "url": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
+        "typeLabel": "Classroom Slides",
+        "description": "Reference frames, coordinate grids, and displacement lecture deck."
+      },
+      {
+        "title": "PowerPoint Slides",
+        "url": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDTeHashMmgSoeLVDHY5TwQAbynyLTufaGMoMjm5APx0Hw?e=nwclwC",
+        "typeLabel": "OneDrive PowerPoint",
+        "description": "Class presentation deck on OneDrive."
+      },
+      {
+        "title": "Quest Story Doc",
+        "url": "https://docs.google.com/document/d/10pNCBkmnpn4LmwO6Fd8af0JH5ehHpj1akiyfmTqkDNA/edit?usp=sharing",
+        "typeLabel": "Reading & Lore",
+        "description": "Tale of Caelum story prompt and adventurer narrative."
+      },
+      {
+        "title": "Interactive Presentation",
+        "url": "Unit_2/describing-motion-presentation/index.html",
+        "typeLabel": "Interactive HTML Deck",
+        "description": "Web-based interactive presentation on describing motion."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Fantasy Map Web App",
+        "url": "Unit_2/Displacement_and_distance_map_app/index.html",
+        "typeLabel": "Cartography Sandbox",
+        "description": "Digital map tool for exploring fantasy biomes and path measurement."
+      }
+    ],
     "links": {
+      "Fantasy Map Worksheet": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs",
       "Google Slides": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
       "PowerPoint Slides": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDTeHashMmgSoeLVDHY5TwQAbynyLTufaGMoMjm5APx0Hw?e=nwclwC",
       "Quest Story Doc": "https://docs.google.com/document/d/10pNCBkmnpn4LmwO6Fd8af0JH5ehHpj1akiyfmTqkDNA/edit?usp=sharing",
-      "Fantasy Map Worksheet": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs",
       "Interactive Presentation": "Unit_2/describing-motion-presentation/index.html",
       "Fantasy Map Web App": "Unit_2/Displacement_and_distance_map_app/index.html"
     }
@@ -3290,32 +3414,36 @@ function categorizeLessonLinks(day) {
         tLower.includes('challenge') ||
         tLower.includes('calculator') ||
         tLower.includes('operation safe heeler') ||
-        tLower.includes('quest') ||
+        tLower.includes('accuracy-precision-art') ||
+        tLower.includes('emoji finger painting') ||
+        urlLower.includes('unit-conversion-practice') ||
+        tLower.includes('unit conversion') ||
+        tLower.includes('fantasy map worksheet') ||
+        urlLower.includes('iqbzzhcgrqsd') ||
+        tLower.includes('worksheet') ||
+        (tLower.includes('quest') && !tLower.includes('story') && !tLower.includes('doc')) ||
         urlLower.includes('safe-heeler') ||
         urlLower.includes('speed_calculator') ||
         urlLower.includes('wind_up_toy_lab') ||
         urlLower.includes('displacement_and_distance_maps') ||
-        urlLower.includes('accuracy-precision-art') ||
-        tLower.includes('emoji finger painting') ||
-        urlLower.includes('unit-conversion-practice') ||
-        tLower.includes('unit conversion') ||
         (day.type === 'Assessment' && !tLower.includes('slide') && !tLower.includes('presentation'));
 
       // Learning Resource heuristics (slides, docs, notes, reading)
       const isResource =
-        tLower.includes('slide') ||
-        tLower.includes('presentation') ||
-        tLower.includes('notes') ||
-        tLower.includes('deck') ||
-        tLower.includes('reading') ||
-        tLower.includes('story') ||
-        tLower.includes('guide') ||
-        tLower.includes('overview') ||
-        tLower.includes('worksheet') ||
-        tLower.includes('document') ||
-        urlLower.includes('docs.google.com') ||
-        urlLower.includes('sharepoint.com') ||
-        urlLower.includes('presentation');
+        !isAssignment && (
+          tLower.includes('slide') ||
+          tLower.includes('presentation') ||
+          tLower.includes('notes') ||
+          tLower.includes('deck') ||
+          tLower.includes('reading') ||
+          tLower.includes('story') ||
+          tLower.includes('guide') ||
+          tLower.includes('overview') ||
+          tLower.includes('document') ||
+          urlLower.includes('docs.google.com') ||
+          urlLower.includes('sharepoint.com') ||
+          urlLower.includes('presentation')
+        );
 
       // Practice / Sandbox heuristics
       const isPractice =
@@ -3331,15 +3459,24 @@ function categorizeLessonLinks(day) {
         urlLower.includes('drawer') ||
         urlLower.includes('graphing');
 
-      if (isAssignment && !isResource) {
-        let typeLabel = 'Graded Lab';
-        let submission = 'Cloud Auto-Saved ✓';
-        if (tLower.includes('quiz') || tLower.includes('assessment') || tLower.includes('exam')) {
+      if (isAssignment) {
+        let typeLabel = 'Required Assignment';
+        let submission = 'Turn In / Submit for Grading';
+        if (tLower.includes('fantasy map worksheet') || urlLower.includes('iqbzzhcgrqsd')) {
+          typeLabel = 'Required Project Worksheet';
+          submission = 'Turn In Completed Map & Handout';
+        } else if (tLower.includes('quiz') || tLower.includes('assessment') || tLower.includes('exam')) {
           typeLabel = 'Graded Assessment';
           submission = 'Recorded in Gradebook';
-        } else if (tLower.includes('challenge') || tLower.includes('quest')) {
+        } else if (tLower.includes('challenge') || (tLower.includes('quest') && !tLower.includes('worksheet'))) {
           typeLabel = 'Inquiry Challenge';
           submission = 'Auto-Saved to Gradebook ✓';
+        } else if (tLower.includes('lab')) {
+          typeLabel = 'Graded Lab';
+          submission = 'Cloud Auto-Saved ✓';
+        } else if (tLower.includes('worksheet')) {
+          typeLabel = 'Required Worksheet Handout';
+          submission = 'Turn In Worksheet for Grading';
         }
         result.assignments.push({
           title: title,
