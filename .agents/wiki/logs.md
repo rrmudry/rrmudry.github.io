@@ -540,5 +540,13 @@ Append-only log tracking pattern changes across sessions.
 - Updated `categorizeLessonLinks` heuristics to recognize `accuracy-precision-art` and `emoji finger painting` as graded assignments.
 - Updated `unit1-dashboard.html` with pacing grid badge (`📝 GRADED WORK`), widened detail modal dialog (`max-w-3xl`), and 3-tier categorized link rendering.
 
+---
 
+## 2026-09-07 — Unit 1 Day 8: Unit Conversion Practice Classified as Required Assignment
 
+**Motivation**: Explicitly designate Unit Conversion Practice on Unit 1 Day 8 (*The Measurement Olympics (Unit 1 Finale)*) as a required practice assignment across `Unit_1_Introduction/unit1_lessons.json`, `assets/lessons-data.js`, `unit1-dashboard.html`, and `missing-work.html`.
+
+**Changes**:
+- Configured explicit `assignments` array for Day 8 with `Unit Conversion Practice` (`unit-conversion-practice/index.html`), `typeLabel: "Required Practice Assignment"`, and `submission: "Cloud Auto-Saved ✓"`.
+- Kept `Printable Team Scorecard` in `resources` tier and `Measurement Olympics Leaderboard` in `practice` tier.
+- Updated `categorizeLessonLinks` heuristic in `assets/lessons-data.js` to automatically classify `unit-conversion-practice` and `unit conversion` links as required assignments.
