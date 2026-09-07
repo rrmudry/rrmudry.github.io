@@ -1016,9 +1016,26 @@ const lessonsData = [
     "standards": [
       "SEP-4"
     ],
+    "assignments": [
+      {
+        "title": "Emoji Finger Painting Studio (Accuracy & Precision Project)",
+        "url": "accuracy-precision-art/index.html",
+        "typeLabel": "Required Lab Project",
+        "submission": "Export & Turn In Gallery Poster",
+        "description": "Paint 4 full-canvas emoji quadrants demonstrating accuracy vs. precision, write CER justifications, and download the finished gallery poster."
+      }
+    ],
+    "resources": [
+      {
+        "title": "The Quality of Measurement (Slides)",
+        "url": "https://docs.google.com/presentation/d/1WCuBzY6-idwpRUGULY5W2CtXGlzRFMFhXHPsC8UygRQ/edit?usp=sharing",
+        "typeLabel": "Classroom Lecture Slides",
+        "description": "Operational definitions of accuracy, precision, and experimental calibration notes."
+      }
+    ],
     "links": {
-      "The Quality of Measurement (Slides)": "https://docs.google.com/presentation/d/1WCuBzY6-idwpRUGULY5W2CtXGlzRFMFhXHPsC8UygRQ/edit?usp=sharing",
-      "Emoji Finger Painting Studio": "accuracy-precision-art/index.html"
+      "Emoji Finger Painting Studio": "accuracy-precision-art/index.html",
+      "The Quality of Measurement (Slides)": "https://docs.google.com/presentation/d/1WCuBzY6-idwpRUGULY5W2CtXGlzRFMFhXHPsC8UygRQ/edit?usp=sharing"
     },
     "bellRinger": {
       "type": "concept_chat",
@@ -3253,6 +3270,8 @@ function categorizeLessonLinks(day) {
         urlLower.includes('speed_calculator') ||
         urlLower.includes('wind_up_toy_lab') ||
         urlLower.includes('displacement_and_distance_maps') ||
+        urlLower.includes('accuracy-precision-art') ||
+        tLower.includes('emoji finger painting') ||
         (day.type === 'Assessment' && !tLower.includes('slide') && !tLower.includes('presentation'));
 
       // Learning Resource heuristics (slides, docs, notes, reading)
