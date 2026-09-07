@@ -256,8 +256,26 @@ function toggleNotesDrawer() {
 function toggleStudyMode() {
   DeckState.isStudyMode = !DeckState.isStudyMode;
   document.body.classList.toggle('study-mode', DeckState.isStudyMode);
+
   const icon = document.getElementById('studyIcon');
-  icon.textContent = DeckState.isStudyMode ? '📽️' : '📖';
+  const text = document.getElementById('studyText');
+  const btn = document.getElementById('btnStudyMode');
+
+  if (icon) icon.textContent = DeckState.isStudyMode ? '📽️' : '📖';
+  if (text) text.textContent = DeckState.isStudyMode ? 'Slide Mode' : 'Study Mode';
+  if (btn) {
+    btn.classList.toggle('active-toggle', DeckState.isStudyMode);
+    btn.title = DeckState.isStudyMode ? 'Return to Slide Presentation (Hotkey: Esc or S)' : 'Toggle Scrollable Study Mode (Hotkey: S)';
+  }
+
+  // When returning to slide mode, smooth scroll back to current active slide
+  if (!DeckState.isStudyMode) {
+    const activeSlide = document.querySelector(`.slide[data-slide="${DeckState.currentSlide}"]`);
+    if (activeSlide) {
+      activeSlide.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
   DeckAudio.playClick();
 }
 
@@ -335,6 +353,12 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnPrev').addEventListener('click', prevSlide);
   document.getElementById('btnStudyMode').addEventListener('click', toggleStudyMode);
 
+  // Floating Study Mode exit button
+  const exitBtnFloating = document.getElementById('btnExitStudyFloating');
+  if (exitBtnFloating) {
+    exitBtnFloating.addEventListener('click', toggleStudyMode);
+  }
+
   // Classroom TV & Display controls
   document.getElementById('btnTvMode').addEventListener('click', toggleTvMode);
   document.getElementById('btnFontDown').addEventListener('click', () => adjustFontSize(-0.08));
@@ -357,7 +381,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Keyboard navigation & shortcuts
   document.addEventListener('keydown', (e) => {
-    if (DeckState.isStudyMode) return;
+    // If in Study Mode, pressing Escape or S exits study mode
+    if (DeckState.isStudyMode) {
+      if (e.key === 'Escape' || e.key === 's' || e.key === 'S') {
+        e.preventDefault();
+        toggleStudyMode();
+      }
+      return;
+    }
+
+    // Toggle Study Mode with S key
+    if (e.key === 's' || e.key === 'S') {
+      e.preventDefault();
+      toggleStudyMode();
+      return;
+    }
 
     if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
       e.preventDefault();

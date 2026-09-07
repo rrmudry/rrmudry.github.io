@@ -509,7 +509,7 @@ body {
 body.study-mode .deck-stage {
   flex-direction: column;
   gap: 3rem;
-  padding: 3rem 1.5rem;
+  padding: 3rem 1.5rem 6rem 1.5rem;
 }
 
 body.study-mode .slide {
@@ -520,9 +520,52 @@ body.study-mode .slide {
   min-height: auto;
 }
 
-body.study-mode .deck-nav-controls,
+/* Hide presentation-only slide navigation controls in study mode while keeping Study Mode toggle accessible */
+body.study-mode #btnPrev,
+body.study-mode #btnNext,
+body.study-mode #slideIndicator,
+body.study-mode .nav-slide-sep,
+body.study-mode .progress-bar-container,
 body.study-mode .notes-drawer {
   display: none !important;
+}
+
+/* Prominent highlight on the Study Mode exit button in header */
+body.study-mode #btnStudyMode {
+  background: rgba(0, 242, 254, 0.22) !important;
+  border-color: var(--accent-cyan) !important;
+  color: var(--accent-cyan) !important;
+  font-weight: 700 !important;
+  box-shadow: 0 0 16px rgba(0, 242, 254, 0.35);
+}
+
+/* Floating Study Mode Exit Banner */
+.study-floating-bar {
+  display: none;
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  background: rgba(14, 23, 42, 0.95);
+  backdrop-filter: blur(14px);
+  border: 1.5px solid var(--accent-cyan);
+  border-radius: 12px;
+  padding: 0.75rem 1.25rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 242, 254, 0.25);
+  z-index: 100;
+  align-items: center;
+  gap: 1rem;
+  font-size: calc(1.05rem * var(--font-scale));
+  font-weight: 600;
+}
+
+body.study-mode .study-floating-bar {
+  display: flex;
+  animation: slideUpFade 0.3s ease-out;
+}
+
+@keyframes slideUpFade {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* Fullscreen Mode Optimizations */

@@ -31,8 +31,10 @@ Unit_X/presentation-name/
    - Real-time mouse and touch dragging for vector exploration.
 3. **Presenter Notes Drawer**:
    - Collapsible drawer keyed to each slide providing timing cues, discussion questions, and pedagogical pointers.
-4. **Dual-Mode Toggle**:
-   - Toggling `.study-mode` on `document.body` displays all slides stacked cleanly in a structured reading layout while hiding presentation-specific controls.
+4. **Dual-Mode Toggle & Exit Controls**:
+   - Toggling `.study-mode` on `document.body` displays all slides stacked cleanly in a structured reading layout.
+   - **Crucial Pattern**: NEVER hide the entire `.deck-nav-controls` or the study mode toggle button in `.study-mode`. Only hide slide navigation controls (`#btnPrev`, `#btnNext`, `#slideIndicator`).
+   - Highlight `#btnStudyMode` as `📽️ Return to Slide Deck` with cyan border/glow, provide a floating exit pill button (`.study-floating-bar`), and support `Escape` and `S` keyboard shortcuts to return smoothly to the active slide.
 
 ## 📺 Classroom TV Projection & 25-Foot Legibility Standards
 When slides are projected onto large classroom TVs (e.g. dual 65"–85" screens) where students are seated 20–25+ feet away:
