@@ -216,6 +216,11 @@ function goToSlide(slideNum) {
     resetTriangleState();
   }
 
+  // Initialize scale spotlight on Slide 8
+  if (slideNum === 8) {
+    selectScaleExample(currentScaleKey || 'cheetah');
+  }
+
   // Reset Audience Check on Slide 9
   if (slideNum === 9) {
     document.querySelectorAll('.vote-card').forEach(c => {
@@ -412,6 +417,140 @@ function selectTriangleVar(variable) {
   DeckAudio.playChime();
 }
 
+// Real-World Constant Speed Scales Spotlight (Slide 8)
+const SCALE_EXAMPLES = {
+  cheetah: {
+    id: 'cheetah',
+    index: 1,
+    icon: '🐆',
+    scaleTag: 'Terrestrial Biology • Land Animal Speed Limit',
+    accentColor: 'var(--accent-cyan)',
+    borderColor: 'rgba(0, 242, 254, 0.45)',
+    title: 'The Cheetah in Full Sprint',
+    speedMain: '30 m/s',
+    speedSub: '≈ 67 mph • 108 km/h',
+    scenario: 'Sprinting across the open savanna during the final ambush chase at steady top speed.',
+    timeGiven: '4 SECONDS',
+    calcSubstitution: 'd = (30 m/s) · (4 s)',
+    calcResult: '120 METERS',
+    contextNote: '🏈 <strong>Scale Perspective:</strong> That is longer than an entire 100-yard American football field covered in just 4 heartbeats!'
+  },
+  sound: {
+    id: 'sound',
+    index: 2,
+    icon: '⚡',
+    scaleTag: 'Mechanical Wave Physics • Sea-Level Atmosphere',
+    accentColor: 'var(--accent-emerald)',
+    borderColor: 'rgba(16, 185, 129, 0.45)',
+    title: 'Sound Waves in Room Air (20°C)',
+    speedMain: '340 m/s',
+    speedSub: '≈ 761 mph • Mach 1.0',
+    scenario: 'Sound vibrations rippling through room-temperature atmospheric air at sea level.',
+    timeGiven: '3 SECONDS',
+    calcSubstitution: 'd = (340 m/s) · (3 s)',
+    calcResult: '1,020 METERS (≈ 1 km)',
+    contextNote: '🌩️ <strong>The Lightning Trick:</strong> Count seconds between lightning flash and thunder rumble. Every 3 seconds = 1 full kilometer away!'
+  },
+  voyager: {
+    id: 'voyager',
+    index: 3,
+    icon: '🛰️',
+    scaleTag: 'Deep Space Astrophysics • Interstellar Medium',
+    accentColor: 'var(--accent-purple)',
+    borderColor: 'rgba(192, 132, 252, 0.45)',
+    title: 'Voyager 1 in the Interstellar Void',
+    speedMain: '17,000 m/s',
+    speedSub: '≈ 38,000 mph • 61,200 km/h',
+    scenario: 'Cruising through the vacuum beyond our solar system with zero friction and zero engines burning.',
+    timeGiven: '1 HOUR (3,600 s)',
+    calcSubstitution: 'd = (17,000 m/s) · (3,600 s)',
+    calcResult: '61,200,000 METERS (61,200 km)',
+    contextNote: '🚀 <strong>Newton’s 1st Law in Space:</strong> In the frictionless vacuum of deep space, constant speed requires ZERO fuel or engine thrust forever!'
+  }
+};
+
+let currentScaleKey = 'cheetah';
+const scaleKeys = ['cheetah', 'sound', 'voyager'];
+
+function selectScaleExample(key) {
+  if (!SCALE_EXAMPLES[key]) return;
+  currentScaleKey = key;
+  const data = SCALE_EXAMPLES[key];
+
+  // Update tabs
+  scaleKeys.forEach(k => {
+    const tab = document.getElementById(`tabScale-${k}`);
+    if (tab) {
+      const isActive = k === key;
+      tab.classList.toggle('active', isActive);
+      tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    }
+  });
+
+  // Update Showcase Hero
+  const heroBox = document.getElementById('scaleShowcaseHero');
+  if (heroBox) {
+    heroBox.style.borderColor = data.borderColor;
+    heroBox.style.boxShadow = `0 10px 36px ${data.borderColor.replace('0.45', '0.25')}`;
+  }
+
+  const tagEl = document.getElementById('scaleHeroTag');
+  if (tagEl) tagEl.style.color = data.accentColor;
+
+  const iconEl = document.getElementById('scaleHeroIcon');
+  if (iconEl) iconEl.textContent = data.icon;
+
+  const tagText = document.getElementById('scaleHeroTagText');
+  if (tagText) tagText.textContent = data.scaleTag;
+
+  const titleEl = document.getElementById('scaleHeroTitle');
+  if (titleEl) titleEl.textContent = data.title;
+
+  const speedBanner = document.getElementById('scaleSpeedBanner');
+  if (speedBanner) speedBanner.style.borderColor = data.borderColor;
+
+  const speedVal = document.getElementById('scaleSpeedVal');
+  if (speedVal) {
+    speedVal.textContent = data.speedMain;
+    speedVal.style.color = data.accentColor;
+  }
+
+  const speedEquiv = document.getElementById('scaleSpeedEquiv');
+  if (speedEquiv) speedEquiv.textContent = data.speedSub;
+
+  const scenarioText = document.getElementById('scaleScenarioText');
+  if (scenarioText) scenarioText.textContent = data.scenario;
+
+  const calcBox = document.getElementById('scaleCalcBox');
+  if (calcBox) calcBox.style.borderColor = data.borderColor;
+
+  const calcHeader = document.getElementById('scaleCalcHeaderTitle');
+  if (calcHeader) calcHeader.textContent = `DISTANCE TRAVELED IN ${data.timeGiven}:`;
+
+  const stepSub = document.getElementById('scaleStepSub');
+  if (stepSub) stepSub.textContent = data.calcSubstitution;
+
+  const stepRes = document.getElementById('scaleStepRes');
+  if (stepRes) {
+    stepRes.textContent = `➔ ${data.calcResult}`;
+    stepRes.style.color = data.accentColor;
+  }
+
+  const contextNote = document.getElementById('scaleContextNote');
+  if (contextNote) contextNote.innerHTML = data.contextNote;
+
+  const stepIndicator = document.getElementById('scaleStepIndicator');
+  if (stepIndicator) stepIndicator.textContent = `Scale ${data.index} of 3 (Hotkeys: Press 1, 2, or 3)`;
+
+  DeckAudio.playChime();
+}
+
+function stepScaleExample(delta) {
+  const currentIndex = scaleKeys.indexOf(currentScaleKey);
+  let nextIndex = (currentIndex + delta + scaleKeys.length) % scaleKeys.length;
+  selectScaleExample(scaleKeys[nextIndex]);
+}
+
 // 25-Foot Classroom TV Mode
 function toggleTvMode() {
   DeckState.isTvMode = !DeckState.isTvMode;
@@ -562,6 +701,23 @@ document.addEventListener('DOMContentLoaded', () => {
       } else if (e.key === '3') {
         e.preventDefault();
         selectTriangleVar('t');
+        return;
+      }
+    }
+
+    // Slide 8 interactive real-world scale shortcuts (1: Cheetah, 2: Sound, 3: Voyager)
+    if (DeckState.currentSlide === 8) {
+      if (e.key === '1') {
+        e.preventDefault();
+        selectScaleExample('cheetah');
+        return;
+      } else if (e.key === '2') {
+        e.preventDefault();
+        selectScaleExample('sound');
+        return;
+      } else if (e.key === '3') {
+        e.preventDefault();
+        selectScaleExample('voyager');
         return;
       }
     }
