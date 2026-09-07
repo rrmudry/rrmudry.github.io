@@ -528,4 +528,17 @@ Append-only log tracking pattern changes across sessions.
   - Added an optional Unit Filter dropdown (`All Units`, `Unit 1: Foundations`, `Unit 2: Kinematics`).
   - Added multi-tier sorting: `date` ascending, followed by `unit` and `day` tie-breaking.
 
+---
+
+## 2026-09-07 — Unit 1 Day 7: Emoji Finger Painting Studio Classified as Required Assignment
+
+**Motivation**: Explicitly classify the Emoji Finger Painting Studio on Day 7 of Unit 1 as a required graded lab project across `Unit_1_Introduction/unit1_lessons.json`, `assets/lessons-data.js`, `unit1-dashboard.html`, and `missing-work.html`.
+
+**Changes**:
+- Configured explicit `assignments` entry for Day 7: `Emoji Finger Painting Studio (Accuracy & Precision Project)` with `submission: "Export & Turn In Gallery Poster"`.
+- Separated `The Quality of Measurement (Slides)` into the `resources` tier (`STUDY & REFERENCE ONLY`).
+- Updated `categorizeLessonLinks` heuristics to recognize `accuracy-precision-art` and `emoji finger painting` as graded assignments.
+- Updated `unit1-dashboard.html` with pacing grid badge (`📝 GRADED WORK`), widened detail modal dialog (`max-w-3xl`), and 3-tier categorized link rendering.
+
+
 

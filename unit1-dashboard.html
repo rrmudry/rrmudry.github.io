@@ -327,7 +327,7 @@
 
     <!-- Modal -->
     <div id="modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 hidden z-50">
-        <div class="glass-card w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-300 border-emerald-500/30">
+        <div class="glass-card w-full max-w-3xl overflow-hidden animate-in fade-in zoom-in duration-300 border-emerald-500/30">
             <div class="p-8">
                 <div class="flex justify-between items-start mb-6">
                     <div>
@@ -337,7 +337,7 @@
                     </div>
                     <button id="close-modal" class="text-white/40 hover:text-white transition-colors text-3xl">&times;</button>
                 </div>
-                <div id="modal-content" class="text-slate-200 space-y-4 custom-scroll overflow-y-auto max-h-[60vh]">
+                <div id="modal-content" class="text-slate-200 space-y-4 custom-scroll overflow-y-auto max-h-[70vh]">
                 </div>
             </div>
         </div>
@@ -480,6 +480,18 @@
                     'planned': '<span class="text-emerald-300/40 text-[10px] font-bold">SCHEDULED</span>'
                 };
 
+                const categorized = typeof window.categorizeLessonLinks === 'function'
+                    ? window.categorizeLessonLinks(day)
+                    : { assignments: [], resources: [], practice: [] };
+                let paceBadge = '';
+                if (categorized.assignments && categorized.assignments.length > 0) {
+                    paceBadge = '<span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">📝 GRADED WORK</span>';
+                } else if (categorized.resources && categorized.resources.length > 0) {
+                    paceBadge = '<span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">📖 LESSON &amp; NOTES</span>';
+                } else if (categorized.practice && categorized.practice.length > 0) {
+                    paceBadge = '<span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">🧪 PRACTICE</span>';
+                }
+
                 const card = document.createElement('div');
                 card.className = `glass-card p-5 cursor-pointer transition-all ${statusStyles[status]}`;
                 card.innerHTML = `
@@ -490,6 +502,7 @@
                         </div>
                         <div class="flex flex-col items-end gap-1">
                             <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30 font-mono">DOK_${day.dok || 1}</span>
+                            ${paceBadge}
                             ${statusLabel[status]}
                         </div>
                     </div>
@@ -529,6 +542,133 @@
             };
 
             window.addEventListener('click', (e) => { if (e.target === modal) closeModal.onclick(); });
+
+            function renderCategorizedLinksHtml(day) {
+                const categorized = typeof window.categorizeLessonLinks === 'function'
+                    ? window.categorizeLessonLinks(day)
+                    : { assignments: [], resources: [], practice: [] };
+
+                const hasAssignments = categorized.assignments && categorized.assignments.length > 0;
+                const hasResources = categorized.resources && categorized.resources.length > 0;
+                const hasPractice = categorized.practice && categorized.practice.length > 0;
+
+                if (!hasAssignments && !hasResources && !hasPractice) {
+                    return '';
+                }
+
+                let html = '<div class="space-y-4 pt-4 border-t border-emerald-500/20">';
+
+                // 1. Graded Coursework & Deliverables
+                if (hasAssignments) {
+                    html += `
+                        <div class="rounded-2xl bg-amber-950/40 border border-amber-500/40 p-4 space-y-3 shadow-lg shadow-black/40">
+                            <div class="flex items-center justify-between gap-2 border-b border-amber-500/20 pb-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs border border-amber-500/30">🎯</span>
+                                    <h4 class="text-xs font-mono font-bold text-amber-300 uppercase tracking-wider">Graded Coursework & Deliverables</h4>
+                                </div>
+                                <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/40 text-amber-200">
+                                    SUBMISSION REQUIRED
+                                </span>
+                            </div>
+                            <div class="grid sm:grid-cols-2 gap-2.5">
+                                ${categorized.assignments.map(item => `
+                                    <a href="${item.url}" target="_blank" class="group p-3 rounded-xl bg-slate-900/90 hover:bg-slate-850 border border-amber-500/30 hover:border-amber-400/70 transition-all flex flex-col justify-between gap-2 shadow-md">
+                                        <div>
+                                            <div class="flex items-center justify-between gap-1 text-[10px] text-amber-400 font-mono mb-1">
+                                                <span class="font-bold flex items-center gap-1"><span>📝</span> ${item.typeLabel || 'Graded Lab'}</span>
+                                                <span class="text-[9px] text-emerald-300 bg-emerald-950/90 px-1.5 py-0.5 rounded border border-emerald-500/30 font-bold font-mono">${item.submission || 'Turn In Required'}</span>
+                                            </div>
+                                            <div class="text-xs sm:text-sm font-bold text-white group-hover:text-amber-300 transition-colors flex items-center justify-between">
+                                                <span>${item.title}</span>
+                                                <span class="text-amber-400 group-hover:translate-x-0.5 transition-transform text-xs font-bold">↗</span>
+                                            </div>
+                                            ${item.description ? `<p class="text-[11px] text-slate-400 mt-1 leading-snug">${item.description}</p>` : ''}
+                                        </div>
+                                        <div class="text-[10px] text-amber-300/90 font-mono font-semibold pt-1.5 border-t border-white/5 flex items-center justify-between">
+                                            <span>Open Assignment</span>
+                                            <span class="text-amber-400 font-bold">Launch &rarr;</span>
+                                        </div>
+                                    </a>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // 2. Learning Resources & Slide Decks
+                if (hasResources) {
+                    html += `
+                        <div class="rounded-2xl bg-indigo-950/30 border border-indigo-500/30 p-4 space-y-3 shadow-lg shadow-black/40">
+                            <div class="flex items-center justify-between gap-2 border-b border-indigo-500/20 pb-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-6 h-6 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center text-xs border border-indigo-500/30">📖</span>
+                                    <h4 class="text-xs font-mono font-bold text-indigo-200 uppercase tracking-wider">Learning Materials & Slide Decks</h4>
+                                </div>
+                                <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-indigo-500/15 border border-indigo-500/30 text-indigo-300">
+                                    STUDY & REFERENCE ONLY
+                                </span>
+                            </div>
+                            <div class="grid sm:grid-cols-2 gap-2.5">
+                                ${categorized.resources.map(item => `
+                                    <a href="${item.url}" target="_blank" class="group p-3 rounded-xl bg-slate-900/80 hover:bg-slate-850 border border-indigo-500/20 hover:border-indigo-400/50 transition-all flex flex-col justify-between gap-2 shadow-sm">
+                                        <div>
+                                            <div class="text-[10px] text-indigo-300/90 font-mono mb-1 font-semibold">${item.typeLabel || 'Class Lecture Slides'}</div>
+                                            <div class="text-xs sm:text-sm font-bold text-slate-100 group-hover:text-indigo-200 transition-colors flex items-center justify-between">
+                                                <span>${item.title}</span>
+                                                <span class="text-indigo-400 group-hover:translate-x-0.5 transition-transform text-xs">↗</span>
+                                            </div>
+                                            ${item.description ? `<p class="text-[11px] text-slate-400 mt-1 leading-snug">${item.description}</p>` : ''}
+                                        </div>
+                                        <div class="text-[10px] text-slate-400 flex items-center justify-between pt-1.5 border-t border-white/5 font-mono">
+                                            <span>No Turn-In Needed</span>
+                                            <span class="text-indigo-300">View &rarr;</span>
+                                        </div>
+                                    </a>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // 3. Practice Tools & Simulation Sandboxes
+                if (hasPractice) {
+                    html += `
+                        <div class="rounded-2xl bg-cyan-950/30 border border-cyan-500/30 p-4 space-y-3 shadow-lg shadow-black/40">
+                            <div class="flex items-center justify-between gap-2 border-b border-cyan-500/20 pb-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-6 h-6 rounded-lg bg-cyan-500/20 text-cyan-300 flex items-center justify-center text-xs border border-cyan-500/30">🧪</span>
+                                    <h4 class="text-xs font-mono font-bold text-cyan-200 uppercase tracking-wider">Practice & Simulation Sandboxes</h4>
+                                </div>
+                                <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-cyan-500/15 border border-cyan-500/30 text-cyan-300">
+                                    OPTIONAL · UNGRADED
+                                </span>
+                            </div>
+                            <div class="grid sm:grid-cols-2 gap-2.5">
+                                ${categorized.practice.map(item => `
+                                    <a href="${item.url}" target="_blank" class="group p-3 rounded-xl bg-slate-900/80 hover:bg-slate-850 border border-cyan-500/20 hover:border-cyan-400/50 transition-all flex flex-col justify-between gap-2 shadow-sm">
+                                        <div>
+                                            <div class="text-[10px] text-cyan-400/90 font-mono mb-1 font-semibold">${item.typeLabel || 'Practice Tool'}</div>
+                                            <div class="text-xs sm:text-sm font-bold text-slate-100 group-hover:text-cyan-200 transition-colors flex items-center justify-between">
+                                                <span>${item.title}</span>
+                                                <span class="text-cyan-400 group-hover:translate-x-0.5 transition-transform text-xs">↗</span>
+                                            </div>
+                                            ${item.description ? `<p class="text-[11px] text-slate-400 mt-1 leading-snug">${item.description}</p>` : ''}
+                                        </div>
+                                        <div class="text-[10px] text-cyan-400 flex items-center justify-between pt-1.5 border-t border-white/5 font-mono">
+                                            <span>Exploratory Practice</span>
+                                            <span>Launch &rarr;</span>
+                                        </div>
+                                    </a>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                html += '</div>';
+                return html;
+            }
 
             function openLessonModal(day) {
                 document.getElementById('modal-title').textContent = `DAY_${String(day.day).padStart(2, '0')} // ${day.topic}`;
@@ -609,12 +749,13 @@
 
                 const escapedTopic = day.topic.replace(/'/g, "\\'");
                 html += `<div class="flex flex-wrap gap-3 mb-4">
-                    <button onclick="generateAnalogy('${escapedTopic}')" class="text-xs bg-gradient-to-r from-emerald-500/20 to-teal-600/20 text-emerald-400 px-4 py-2 rounded-lg hover:from-emerald-500/30 hover:to-teal-600/30 border border-emerald-500/30 shadow-lg shadow-emerald-500/10">✨ Generate Analogy</button>`;
-                
-                if(day.links) {
-                    html += Object.entries(day.links).map(([lbl, u]) => `<a href="${u}" target="_blank" class="text-xs bg-white/5 hover:bg-white/10 px-4 py-2 rounded-lg border border-white/10 capitalize">Open ${lbl} ↗</a>`).join('');
+                    <button onclick="generateAnalogy('${escapedTopic}')" class="text-xs bg-gradient-to-r from-emerald-500/20 to-teal-600/20 text-emerald-400 px-4 py-2 rounded-lg hover:from-emerald-500/30 hover:to-teal-600/30 border border-emerald-500/30 shadow-lg shadow-emerald-500/10">✨ Generate Analogy</button>
+                </div>`;
+
+                const categorizedLinksHtml = renderCategorizedLinksHtml(day);
+                if (categorizedLinksHtml) {
+                    html += categorizedLinksHtml;
                 }
-                html += `</div>`;
 
                 if(day.links) {
                     Object.values(day.links).forEach(u => {
@@ -920,6 +1061,8 @@
             window.addEventListener('resize', drawRuler);
         }
     </script>
+    <!-- Lessons Data & Categorization Engine -->
+    <script src="assets/lessons-data.js"></script>
     <!-- NGSS Database Integration -->
     <script src="ngss-explorer/standards-data.js"></script>
     <script src="assets/ngss-helper.js"></script>
