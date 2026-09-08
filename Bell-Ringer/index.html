@@ -918,6 +918,9 @@
                     },
                     onSubmit: (summary, state) => {
                         submitCastChallenge(summary, state);
+                    },
+                    onChatSend: async (payload) => {
+                        return await handleCastChatSend(payload, castData, config);
                     }
                 });
                 activeCastEngine.loadChallenge(castData);
@@ -927,6 +930,93 @@
             if (timerInterval) clearInterval(timerInterval);
             const expiresAt = getTrueExpiresAt(config);
             runTimerCountdown(expiresAt);
+        }
+
+        async function handleCastChatSend(payload, castData, config) {
+            const proxyUrl = await ensureChatProxyUrl();
+            if (!proxyUrl) {
+                throw new Error("AI proxy not configured or unavailable.");
+            }
+
+            // Compile previous answers for AI prompt context
+            let answersSummary = "";
+            if (payload.allAnswers) {
+                if (Array.isArray(payload.allAnswers)) {
+                    answersSummary = payload.allAnswers.map((a, idx) => {
+                        let valStr = typeof a.answer === 'object' ? JSON.stringify(a.answer) : a.answer;
+                        return `Step ${idx + 1} (${a.title} [${a.type}]): ${valStr}`;
+                    }).join('\n');
+                } else if (typeof payload.allAnswers === 'object') {
+                    answersSummary = Object.entries(payload.allAnswers).map(([k, v]) => {
+                        let valStr = typeof v === 'object' ? JSON.stringify(v) : v;
+                        return `${k}: ${valStr}`;
+                    }).join('\n');
+                }
+            }
+
+            const phenomenonText = payload.phenomenon?.description || payload.phenomenon?.text || payload.phenomenon?.title || "";
+            const taskTitle = castData.title || config.title || "CAST 3D Science Investigation";
+
+            const systemInstruction = `You are a warm, adaptive, and relatable physics mentor chatting with a student over SMS/text. Your goal is to explore a physics concept together without being overly formal or using forced slang.
+
+CRITICAL RULES:
+1. NO FISHING / PIVOT TO TEACHING: Never try to "force" or repeatedly nudge a student toward a specific technical answer or physics term. If you ask a conceptual question and the student guesses wrong, focuses on a different variable (like friction/roughness), or says "I don't know," DO NOT ask a follow-up question trying to correct their guess. Instead, pivot immediately to teaching: validate their logic, briefly explain the physics concept directly using a relatable analogy, and move on.
+2. NO SOCRATIC TRAPS: Do not get stuck in a loop asking the student to explain the same thing over and over. If they answer correctly, understand a concept, or say "yes"/"obvious", validate it briefly and immediately MOVE FORWARD to a new dimension or a real-world application.
+3. MOVE DYNAMICALLY: Keep the conversation fluid. Once a basic idea is established, introduce a fun twist, a new scenario, or a practical question (e.g., "What happens if we try this in space?" or "How does that affect a rollercoaster?"). 
+4. CHAT TONE & LENGTH: Keep replies highly conversational and natural—like a text message from a knowledgeable peer. Limit replies to 1–3 short sentences max. Never send multiple distinct thoughts, lists, or bullet points in one message.
+5. CONTINUING THE CONVERSATION: Never end the conversation abruptly or push the student to stop chatting. Even after the student demonstrates understanding or has engaged in multiple turns, keep the conversation flowing naturally by offering intriguing follow-up thoughts, fun scenario twists, or real-world applications. You may let them know they can click the Submit button whenever they are ready to submit, but always leave the door open for them to continue chatting.
+
+INVESTIGATION CONTEXT:
+Task: "${taskTitle}"
+Phenomenon: "${phenomenonText}"
+Student's previous answers in this task:
+${answersSummary || "No previous answers recorded."}
+
+YOUR GOAL IN THIS CHAT:
+The student has gathered data or answered questions and is now explaining "WHY" to you.
+- Focus on the "WHY": Ask them why they think their answer is correct and what specific evidence or equation supports it.
+- If they defend their reasoning, validate their scientific logic.
+- If they seem uncertain or guess incorrectly, pivot immediately to teaching with a relatable analogy (NO Socratic traps).
+- If they answer correctly, challenge them with a brief scenario twist or real-world application!`;
+
+            const rawMessages = payload.messages || [];
+            const contentsPayload = rawMessages.map(m => ({
+                role: (m.role === 'user' || m.sender === 'user') ? 'user' : 'model',
+                parts: [{ text: m.text || (m.parts && m.parts[0] ? m.parts[0].text : '') }]
+            }));
+
+            const response = await fetch(proxyUrl, {
+                method: 'POST',
+                mode: 'cors',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({
+                    contents: contentsPayload,
+                    systemInstruction: systemInstruction
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`AI service error (${response.status}): ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (!replyText) {
+                throw new Error("Empty response received from AI mentor.");
+            }
+
+            // Autosave chat to Firestore
+            if (studentId) {
+                const todayStr = getTodayString();
+                const docId = `${studentId}_${todayStr}`;
+                const updatedMessages = cleanMessagesForFirestore([...rawMessages, { sender: 'ai', role: 'model', text: replyText, timestamp: Date.now() }]);
+                db.collection('bellringers').doc(docId).set({
+                    chatMessages: updatedMessages,
+                    lastActive: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true }).catch(err => console.warn("Background chat autosave failed:", err));
+            }
+
+            return replyText;
         }
 
         async function submitCastChallenge(summary, state) {
@@ -941,6 +1031,18 @@
 
             // Formulate comprehensive readable summary text for teacher inspection & gradebook
             let textParts = [];
+            let chatMessages = null;
+
+            if (state) {
+                for (const stepKey in state) {
+                    const st = state[stepKey];
+                    if (st && (Array.isArray(st.chatMessages) || Array.isArray(st.messages))) {
+                        chatMessages = cleanMessagesForFirestore(st.chatMessages || st.messages);
+                        break;
+                    }
+                }
+            }
+
             if (summary.stepResults) {
                 summary.stepResults.forEach(r => {
                     if (r.itemType === 'cer_scaffold' && r.state) {
@@ -951,6 +1053,10 @@
                         textParts.push(`[${r.title}] Selections: ${JSON.stringify(r.state.selections)}`);
                     } else if (r.itemType === 'drag_drop' && r.state?.placements) {
                         textParts.push(`[${r.title}] Placements: ${JSON.stringify(r.state.placements)}`);
+                    } else if ((r.itemType === 'ai_reasoning_chat' || r.type === 'ai_reasoning_chat') && (r.state?.chatMessages || r.state?.messages)) {
+                        const list = r.state.chatMessages || r.state.messages;
+                        const chatLog = list.map(m => `${(m.sender === 'user' || m.role === 'user') ? 'Student' : 'AI Mentor'}: ${m.text || (m.parts && m.parts[0]?.text) || ''}`).join('\n');
+                        textParts.push(`[${r.title}] AI Mentor Dialogue:\n${chatLog}`);
                     }
                 });
             }
@@ -972,6 +1078,7 @@
                     activityType: "cast_challenge",
                     castSummary: summary,
                     castState: state,
+                    chatMessages: chatMessages || undefined,
                     effortScore: summary.completedSteps > 0 ? 1 : 0,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 }, { merge: true });
@@ -1888,10 +1995,17 @@ Respond ONLY with a raw JSON object:
         }
 
         function cleanMessagesForFirestore(messages) {
-            return messages.map(m => ({
-                role: m.role,
-                parts: [{ text: m.parts && m.parts[0] ? m.parts[0].text : '' }]
-            }));
+            if (!Array.isArray(messages)) return [];
+            return messages.map(m => {
+                const text = (m.parts && m.parts[0] ? m.parts[0].text : m.text) || '';
+                const role = m.role || (m.sender === 'user' ? 'user' : 'model');
+                return {
+                    role: role,
+                    parts: [{ text: text }],
+                    sender: m.sender || (role === 'user' ? 'user' : 'ai'),
+                    text: text
+                };
+            });
         }
 
         async function ensureChatProxyUrl() {

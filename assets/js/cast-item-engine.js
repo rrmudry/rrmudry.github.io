@@ -1,16 +1,17 @@
 /**
- * CASTItemEngine v1.0 - California Science Test (CAST) Interactive Question Engine
+ * CASTItemEngine v2.0 - California Science Test (CAST) Interactive Question Engine
  * Author: CAST Science Studio
  *
  * Implements Technology-Enhanced Items (TEIs) and 3D Performance Tasks:
  * 1. Three-Dimensional NGSS Alignment (DCI, SEP, CCC badges)
- * 2. Phenomena-Based Stimuli (Graphs, Data Tables, Visual Models)
+ * 2. Phenomena-Based Stimuli (Graphs, Data Tables, Visual Models, Real-World Contexts)
  * 3. Technology-Enhanced Formats:
  *    - Inline Dropdown Menus (Cloze CER Sentences)
  *    - Data Analysis & Mathematical Thinking with Tolerance Checking
  *    - Tap & Drag Categorization / Sequence Matching
  *    - Structured Claim-Evidence-Reasoning (CER) 3-Box Scaffolds
- * 4. Multi-Step Performance Task Progression & Scoring
+ *    - AI Reasoning Chat ("Defending the Why with AI Physics Mentor")
+ * 4. Multi-Step Performance Task Progression, Auto-Scoring & Real-Time Sync
  */
 
 (function (root, factory) {
@@ -42,6 +43,7 @@
       };
       this.onStateChange = options.onStateChange || function() {};
       this.onSubmit = options.onSubmit || function() {};
+      this.onChatSend = options.onChatSend || null;
     }
 
     /**
@@ -58,6 +60,28 @@
       this.render();
     }
 
+    /**
+     * Compile student's answers across earlier steps for the AI's contextual awareness
+     */
+    getAllAnswers() {
+      const summary = {};
+      const steps = this.challenge?.steps || [];
+      steps.forEach((step, idx) => {
+        const key = `step_${idx}`;
+        const st = this.userState.steps[key];
+        if (st) {
+          const stepTitle = step.stepTitle || step.title || `Part ${idx + 1}`;
+          if (st.selections) summary[`${stepTitle} (Choices)`] = st.selections;
+          if (st.value !== undefined) summary[`${stepTitle} (Calculation)`] = `${st.value} ${step.unit || ''}`.trim();
+          if (st.claim || st.evidence || st.reasoning) {
+            summary[`${stepTitle} (CER)`] = { claim: st.claim, evidence: st.evidence, reasoning: st.reasoning };
+          }
+          if (st.placements) summary[`${stepTitle} (Sorting)`] = st.placements;
+        }
+      });
+      return summary;
+    }
+
     render() {
       if (!this.challenge) {
         this.container.innerHTML = '<div class="p-4 text-center text-slate-400">No active CAST task.</div>';
@@ -67,6 +91,14 @@
       const ch = this.challenge;
       const steps = ch.steps || [];
       const currentStep = steps[this.currentStepIndex];
+      const stepType = currentStep?.itemType || currentStep?.type || 'unknown';
+
+      // Standards mapping
+      const std = ch.standards || {};
+      const dci = ch.dci || (typeof std === 'object' ? std.dci : null);
+      const sep = ch.sep || (typeof std === 'object' ? std.sep : null);
+      const ccc = ch.ccc || (typeof std === 'object' ? std.ccc : null);
+      const standardsList = Array.isArray(std) ? std : (ch.standardsList || []);
 
       let html = `
         <div class="cast-engine-root flex flex-col h-full w-full space-y-4 text-slate-100 font-sans">
@@ -76,24 +108,24 @@
               <span class="text-[10px] font-mono font-black uppercase tracking-widest px-2.5 py-1 rounded-lg bg-orange-500/20 text-orange-400 border border-orange-500/40 shadow-sm flex items-center gap-1">
                 <span>🎯</span> CAST 3D TASK
               </span>
-              ${ch.standards && ch.standards.length ? `
+              ${standardsList && standardsList.length ? `
                 <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                  ${ch.standards.join(', ')}
+                  ${standardsList.join(', ')}
                 </span>
               ` : ''}
-              ${ch.dci ? `
+              ${dci ? `
                 <span class="text-[10px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300 border border-emerald-500/30" title="Disciplinary Core Idea">
-                  <strong>DCI:</strong> ${escapeHtml(ch.dci)}
+                  <strong>DCI:</strong> ${escapeHtml(dci)}
                 </span>
               ` : ''}
-              ${ch.sep ? `
+              ${sep ? `
                 <span class="text-[10px] font-mono px-2 py-0.5 rounded-md bg-cyan-500/15 text-cyan-300 border border-cyan-500/30" title="Science & Engineering Practice">
-                  <strong>SEP:</strong> ${escapeHtml(ch.sep)}
+                  <strong>SEP:</strong> ${escapeHtml(sep)}
                 </span>
               ` : ''}
-              ${ch.ccc ? `
+              ${ccc ? `
                 <span class="text-[10px] font-mono px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-300 border border-amber-500/30" title="Crosscutting Concept">
-                  <strong>CCC:</strong> ${escapeHtml(ch.ccc)}
+                  <strong>CCC:</strong> ${escapeHtml(ccc)}
                 </span>
               ` : ''}
             </div>
@@ -135,9 +167,9 @@
               </div>
 
               <!-- Phenomenon Context Narrative -->
-              ${ch.phenomenon?.scenario ? `
+              ${(ch.phenomenon?.text || ch.phenomenon?.scenario) ? `
                 <div class="text-xs text-slate-300 leading-relaxed bg-slate-950/50 p-3 rounded-xl border border-white/5">
-                  ${escapeHtml(ch.phenomenon.scenario)}
+                  ${escapeHtml(ch.phenomenon.text || ch.phenomenon.scenario)}
                 </div>
               ` : ''}
 
@@ -157,14 +189,12 @@
                       Part ${this.currentStepIndex + 1} of ${steps.length}
                     </span>
                     <h2 class="text-sm sm:text-base font-bold text-white mt-0.5">
-                      ${escapeHtml(currentStep?.stepTitle || `Question ${this.currentStepIndex + 1}`)}
+                      ${escapeHtml(currentStep?.title || currentStep?.stepTitle || `Question ${this.currentStepIndex + 1}`)}
                     </h2>
                   </div>
-                  ${currentStep?.itemType ? `
-                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 border border-white/10 text-slate-300">
-                      ${this.formatItemTypeLabel(currentStep.itemType)}
-                    </span>
-                  ` : ''}
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 border border-white/10 text-slate-300">
+                    ${this.formatItemTypeLabel(stepType)}
+                  </span>
                 </div>
 
                 <!-- Step Prompt Text -->
@@ -210,7 +240,7 @@
 
       // Attach Step Tab Click Listeners
       this.container.querySelectorAll('[data-step-btn]').forEach(btn => {
-        btn.addEventListener('click', (e) => {
+        btn.addEventListener('click', () => {
           const idx = parseInt(btn.getAttribute('data-step-btn'), 10);
           if (!isNaN(idx) && idx >= 0 && idx < steps.length) {
             this.currentStepIndex = idx;
@@ -256,11 +286,23 @@
 
     formatItemTypeLabel(type) {
       switch(type) {
-        case 'dropdown_cloze': return 'Cloze CER Dropdown';
-        case 'math_data': return 'Quantitative Data Analysis';
-        case 'drag_drop': return 'Classification Sorting';
-        case 'cer_scaffold': return 'Claim-Evidence-Reasoning (CER)';
-        default: return 'Technology-Enhanced Item';
+        case 'dropdown_cloze':
+        case 'cloze_dropdown':
+          return 'Cloze Concept Dropdown';
+        case 'math_data':
+        case 'data_calculation':
+          return 'Quantitative Data Analysis';
+        case 'drag_drop':
+        case 'categorize':
+          return 'Classification Sorting';
+        case 'cer_scaffold':
+        case 'cer':
+          return 'Claim-Evidence-Reasoning (CER)';
+        case 'ai_reasoning_chat':
+        case 'chat_reasoning':
+          return 'AI Mentor "Why" Challenge';
+        default:
+          return 'Technology-Enhanced Item';
       }
     }
 
@@ -299,7 +341,7 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-white/5 bg-slate-950/60">
-                ${rows.map((row, rIdx) => `
+                ${rows.map((row) => `
                   <tr class="hover:bg-white/5 transition-colors">
                     ${row.map(cell => `<td class="px-2.5 py-1.5 text-slate-200">${escapeHtml(String(cell))}</td>`).join('')}
                   </tr>
@@ -318,7 +360,7 @@
       } else {
         container.innerHTML = `
           <div class="text-xs text-slate-300 p-3 leading-relaxed text-center">
-            ${escapeHtml(phen.description || "Refer to the scientific data in the prompt.")}
+            ${escapeHtml(phen.description || phen.text || "Refer to the scientific data in the prompt.")}
           </div>
         `;
       }
@@ -337,33 +379,32 @@
 
       const stepKey = `step_${this.currentStepIndex}`;
       const stepState = this.userState.steps[stepKey] || {};
+      const type = step.itemType || step.type;
 
-      switch(step.itemType) {
-        case 'dropdown_cloze':
-          this.renderDropdownCloze(step, container, stepState, stepKey);
-          break;
-        case 'math_data':
-          this.renderMathData(step, container, stepState, stepKey);
-          break;
-        case 'drag_drop':
-          this.renderDragDrop(step, container, stepState, stepKey);
-          break;
-        case 'cer_scaffold':
-          this.renderCERScaffold(step, container, stepState, stepKey);
-          break;
-        default:
-          container.innerHTML = `<div class="text-slate-400 text-xs">Standard question type: ${escapeHtml(step.itemType)}</div>`;
+      if (type === 'dropdown_cloze' || type === 'cloze_dropdown') {
+        this.renderDropdownCloze(step, container, stepState, stepKey);
+      } else if (type === 'math_data' || type === 'data_calculation') {
+        this.renderMathData(step, container, stepState, stepKey);
+      } else if (type === 'drag_drop' || type === 'categorize') {
+        this.renderDragDrop(step, container, stepState, stepKey);
+      } else if (type === 'cer_scaffold' || type === 'cer') {
+        this.renderCERScaffold(step, container, stepState, stepKey);
+      } else if (type === 'ai_reasoning_chat' || type === 'concept_chat' || type === 'chat_reasoning') {
+        this.renderAIReasoningChat(step, container, stepState, stepKey);
+      } else {
+        container.innerHTML = `<div class="text-slate-400 text-xs">Standard question type: ${escapeHtml(type)}</div>`;
       }
     }
 
-    // --- Format 1: Inline Dropdown Menus (Cloze CER) ---
+    // --- Format 1: Inline Dropdown Menus (Cloze Concept Selection) ---
     renderDropdownCloze(step, container, stepState, stepKey) {
-      const template = step.template || "";
-      const dropdowns = step.dropdowns || {};
+      const template = step.template || step.text || "";
+      const dropdowns = step.dropdowns || step.blanks || {};
       const selections = stepState.selections || {};
 
-      // Replace {key} with <select>
-      let renderedHtml = template.replace(/\{([a-zA-Z0-9_-]+)\}/g, (match, key) => {
+      // Replace {key} or [key] with <select>
+      let renderedHtml = template.replace(/\{([a-zA-Z0-9_-]+)\}|\[([a-zA-Z0-9_-]+)\]/g, (match, k1, k2) => {
+        const key = k1 || k2;
         const dd = dropdowns[key];
         if (!dd) return match;
         const currentVal = selections[key] || "";
@@ -397,7 +438,7 @@
 
       // Attach Change Listeners
       container.querySelectorAll('[data-cloze-key]').forEach(select => {
-        select.addEventListener('change', (e) => {
+        select.addEventListener('change', () => {
           const key = select.getAttribute('data-cloze-key');
           if (!this.userState.steps[stepKey]) this.userState.steps[stepKey] = {};
           if (!this.userState.steps[stepKey].selections) this.userState.steps[stepKey].selections = {};
@@ -417,7 +458,7 @@
 
     evaluateDropdownCloze(step, stepKey) {
       const selections = this.userState.steps[stepKey]?.selections || {};
-      const dropdowns = step.dropdowns || {};
+      const dropdowns = step.dropdowns || step.blanks || {};
       let total = 0;
       let correct = 0;
 
@@ -452,26 +493,28 @@
       }
     }
 
-    // --- Format 2: Mathematical Data Analysis with Tolerance ---
+    // --- Format 2: Data Analysis & Mathematical Calculations ---
     renderMathData(step, container, stepState, stepKey) {
-      const currentVal = stepState.value !== undefined ? stepState.value : '';
+      const currentVal = (stepState.value !== undefined) ? stepState.value : '';
+      const formulaHint = step.formulaHint || step.hint;
+      const unit = step.unit || '';
 
       container.innerHTML = `
         <div class="p-4 rounded-2xl bg-slate-950/60 border border-cyan-500/20 space-y-3">
-          ${step.formulaHint ? `
+          ${formulaHint ? `
             <div class="flex items-center gap-2 text-xs font-mono bg-cyan-950/40 text-cyan-300 p-2.5 rounded-xl border border-cyan-500/30">
               <span class="font-bold">📐 Formula Reference:</span>
-              <span>${escapeHtml(step.formulaHint)}</span>
+              <span>${escapeHtml(formulaHint)}</span>
             </div>
           ` : ''}
 
           <div class="flex flex-col sm:flex-row sm:items-center gap-3 pt-2">
             <div class="flex-1 flex items-center gap-2 bg-slate-900 border border-white/10 rounded-xl px-3 py-2.5 focus-within:border-cyan-400 focus-within:ring-2 focus-within:ring-cyan-500/20">
-              <span class="text-xs text-slate-400 font-mono">Calculated Value:</span>
-              <input type="number" step="any" id="cast-math-input" value="${escapeHtml(String(currentVal))}" placeholder="e.g. -6.0" class="flex-1 bg-transparent text-white font-mono text-sm font-bold focus:outline-none">
-              ${step.unit ? `
+              <span class="text-xs text-slate-400 font-mono">${escapeHtml(step.inputLabel || "Calculated Value:")}</span>
+              <input type="number" step="any" id="cast-math-input" value="${escapeHtml(String(currentVal))}" placeholder="e.g. 0.40" class="flex-1 bg-transparent text-white font-mono text-sm font-bold focus:outline-none">
+              ${unit ? `
                 <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-800 text-cyan-300 border border-white/10">
-                  ${escapeHtml(step.unit)}
+                  ${escapeHtml(unit)}
                 </span>
               ` : ''}
             </div>
@@ -503,8 +546,8 @@
     evaluateMathData(step, stepKey) {
       const inputEl = this.container.querySelector('#cast-math-input');
       const val = parseFloat(inputEl ? inputEl.value : NaN);
-      const target = step.targetValue;
-      const tol = step.tolerance || 0.1;
+      const target = (step.targetValue !== undefined) ? step.targetValue : step.target;
+      const tol = step.tolerance !== undefined ? step.tolerance : 0.1;
       const fb = this.container.querySelector('#cast-step-feedback');
 
       if (isNaN(val)) {
@@ -558,12 +601,12 @@
               <div data-dd-cat="${cat.id}" class="rounded-xl bg-slate-950/80 border border-indigo-500/30 p-3 space-y-2 flex flex-col justify-between min-h-[110px]">
                 <div class="flex items-center justify-between border-b border-white/5 pb-1.5">
                   <span class="text-xs font-mono font-bold text-indigo-300">${escapeHtml(cat.title)}</span>
+                  <span class="text-[9px] text-slate-500 font-mono">Drop here</span>
                 </div>
-                <div data-dd-zone="${cat.id}" class="flex flex-col gap-1.5 flex-1 min-h-[50px] p-1 rounded-lg bg-slate-900/60 border border-dashed border-white/5">
+                <div class="flex flex-wrap gap-1.5 min-h-[50px] p-1.5 rounded-lg bg-slate-900/60 border border-dashed border-white/10">
                   ${items.filter(it => placements[it.id] === cat.id).map(it => `
-                    <div data-dd-item="${it.id}" class="px-2.5 py-1 rounded bg-indigo-950/80 border border-indigo-500/40 text-[11px] text-indigo-200 cursor-pointer flex items-center justify-between group">
-                      <span>${escapeHtml(it.text)}</span>
-                      <span class="text-slate-400 group-hover:text-red-400 text-[10px]">✕</span>
+                    <div data-dd-item="${it.id}" class="px-2.5 py-1 rounded bg-indigo-900/70 border border-indigo-400/40 text-[11px] text-indigo-200 cursor-pointer font-medium hover:bg-indigo-800/80">
+                      ${escapeHtml(it.text)} ✕
                     </div>
                   `).join('')}
                 </div>
@@ -582,16 +625,14 @@
       // Tap-to-Place interactions
       let selectedItemId = null;
       container.querySelectorAll('[data-dd-item]').forEach(el => {
-        el.addEventListener('click', (e) => {
+        el.addEventListener('click', () => {
           const itemId = el.getAttribute('data-dd-item');
           if (placements[itemId]) {
-            // Already placed -> return to bank
             delete placements[itemId];
             this.userState.steps[stepKey] = { placements };
             this.renderDragDrop(step, container, this.userState.steps[stepKey], stepKey);
             this.onStateChange(this.userState);
           } else {
-            // Select for placing
             selectedItemId = itemId;
             container.querySelectorAll('[data-dd-item]').forEach(i => i.classList.remove('ring-2', 'ring-orange-400'));
             el.classList.add('ring-2', 'ring-orange-400');
@@ -650,6 +691,7 @@
       const claimVal = stepState.claim || '';
       const evidenceVal = stepState.evidence || '';
       const reasoningVal = stepState.reasoning || '';
+      const scaffold = step.scaffold || {};
 
       container.innerHTML = `
         <div class="space-y-3.5">
@@ -661,7 +703,7 @@
               </label>
               <span class="text-[10px] text-slate-400 font-mono" id="claim-word-count">0 words</span>
             </div>
-            <textarea id="cast-cer-claim" placeholder="State your direct, testable answer to the phenomenon prompt..." class="w-full min-h-[55px] rounded-xl bg-slate-950/70 border border-amber-500/30 p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 font-sans resize-y">${escapeHtml(claimVal)}</textarea>
+            <textarea id="cast-cer-claim" placeholder="${escapeHtml(scaffold.claimPlaceholder || "State your direct, testable answer to the phenomenon prompt...")}" class="w-full min-h-[55px] rounded-xl bg-slate-950/70 border border-amber-500/30 p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 font-sans resize-y">${escapeHtml(claimVal)}</textarea>
           </div>
 
           <!-- Evidence Box -->
@@ -672,7 +714,7 @@
               </label>
               <span class="text-[10px] text-slate-400 font-mono" id="evidence-word-count">0 words</span>
             </div>
-            <textarea id="cast-cer-evidence" placeholder="Cite exact numerical points, graph coordinates, or experimental ratios from the stimulus..." class="w-full min-h-[60px] rounded-xl bg-slate-950/70 border border-cyan-500/30 p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 font-sans resize-y">${escapeHtml(evidenceVal)}</textarea>
+            <textarea id="cast-cer-evidence" placeholder="${escapeHtml(scaffold.evidencePlaceholder || "Cite exact numerical points, graph coordinates, or experimental observations...")}" class="w-full min-h-[60px] rounded-xl bg-slate-950/70 border border-cyan-500/30 p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 font-sans resize-y">${escapeHtml(evidenceVal)}</textarea>
           </div>
 
           <!-- Reasoning Box -->
@@ -683,7 +725,7 @@
               </label>
               <span class="text-[10px] text-slate-400 font-mono" id="reasoning-word-count">0 words</span>
             </div>
-            <textarea id="cast-cer-reasoning" placeholder="Explain WHY the evidence supports your claim using physics laws (e.g. Newton's Laws, conservation) and Crosscutting Concepts..." class="w-full min-h-[70px] rounded-xl bg-slate-950/70 border border-emerald-500/30 p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-400 font-sans resize-y">${escapeHtml(reasoningVal)}</textarea>
+            <textarea id="cast-cer-reasoning" placeholder="${escapeHtml(scaffold.reasoningPlaceholder || "Explain WHY the evidence supports your claim using physics principles (e.g. Newton's Laws, conservation)...")}" class="w-full min-h-[70px] rounded-xl bg-slate-950/70 border border-emerald-500/30 p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-400 font-sans resize-y">${escapeHtml(reasoningVal)}</textarea>
           </div>
         </div>
       `;
@@ -718,22 +760,222 @@
       updateCounts();
     }
 
+    // --- Format 5: AI Reasoning Chat ("Defending the Why with AI Mentor") ---
+    renderAIReasoningChat(step, container, stepState, stepKey) {
+      if (!stepState.chatMessages) {
+        stepState.chatMessages = [];
+      }
+
+      // Context summary of previous choices
+      const allAnswers = this.getAllAnswers();
+      const answerEntries = Object.entries(allAnswers);
+      let contextSummaryText = "";
+      if (answerEntries.length > 0) {
+        contextSummaryText = answerEntries.map(([k, v]) => {
+          if (typeof v === 'object') {
+            return `${k}: ${Object.entries(v).map(([subK, subV]) => `${subK}=${typeof subV === 'object' ? JSON.stringify(subV) : subV}`).join(', ')}`;
+          }
+          return `${k}: ${v}`;
+        }).join(' | ');
+      }
+
+      // Opening mentor message
+      if (stepState.chatMessages.length === 0) {
+        let initialMsg = step.openingPrompt || step.openingMessage;
+        if (!initialMsg) {
+          if (contextSummaryText) {
+            initialMsg = `Hi! I saw your work on the earlier parts (${contextSummaryText}). In your own words, **why** do you think the answer you selected/calculated is scientifically correct? What specific evidence from the phenomenon convinced you?`;
+          } else {
+            initialMsg = `Hi! Look closely at the scientific phenomenon on the left. In your own words, what is happening here, and **why** does the physical system behave this way?`;
+          }
+        }
+        stepState.chatMessages.push({
+          role: 'model',
+          text: initialMsg,
+          timestamp: new Date()
+        });
+        if (!this.userState.steps[stepKey]) this.userState.steps[stepKey] = {};
+        this.userState.steps[stepKey].chatMessages = stepState.chatMessages;
+        this.onStateChange(this.userState);
+      }
+
+      const quickChips = step.quickChips || [
+        "Because the slope is constant",
+        "The forces balance out to 0 N",
+        "Based on the distance formula",
+        "Can you give me a hint on why?"
+      ];
+
+      const userMessagesCount = stepState.chatMessages.filter(m => m.role === 'user').length;
+      const minTurns = step.minTurns || 1;
+      const isMet = userMessagesCount >= minTurns;
+
+      let chatHtml = `
+        <div class="flex flex-col h-[380px] rounded-2xl bg-slate-950/70 border border-cyan-500/30 overflow-hidden shadow-inner">
+          <!-- Chat Header -->
+          <div class="px-4 py-2.5 bg-slate-900 border-b border-white/10 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-xs">🤖</span>
+              <div>
+                <span class="text-xs font-bold text-cyan-300 font-mono block leading-none">Physics AI Mentor</span>
+                <span class="text-[9px] text-slate-400 font-mono">Exploring the "Why" & Challenging Your Reasoning</span>
+              </div>
+            </div>
+            <span class="text-[10px] font-mono px-2.5 py-0.5 rounded-full ${isMet ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-orange-500/20 text-orange-300 border border-orange-500/40'}">
+              ${isMet ? '✓ Discussion Complete' : `${userMessagesCount}/${minTurns} Replies`}
+            </span>
+          </div>
+
+          <!-- Chat Feed -->
+          <div id="cast-chat-messages-feed" class="flex-1 p-3.5 overflow-y-auto space-y-3 text-xs font-sans">
+            ${stepState.chatMessages.map(msg => {
+              const isUser = msg.role === 'user';
+              const bubbleClass = isUser 
+                ? 'bg-orange-600/20 text-orange-100 border-orange-500/30 ml-auto' 
+                : 'bg-cyan-950/40 text-cyan-100 border-cyan-500/30 mr-auto';
+              const roleTag = isUser ? 'You (Student)' : 'AI Mentor';
+              const tagColor = isUser ? 'text-orange-400' : 'text-cyan-400';
+              return `
+                <div class="flex flex-col max-w-[85%] ${isUser ? 'items-end ml-auto' : 'items-start mr-auto'} animate-in fade-in duration-150">
+                  <span class="text-[9px] font-mono font-bold ${tagColor} mb-0.5 px-1 uppercase tracking-wider">${roleTag}</span>
+                  <div class="p-3 rounded-2xl border text-xs leading-relaxed ${bubbleClass}">
+                    ${escapeHtml(msg.text || (msg.parts && msg.parts[0] ? msg.parts[0].text : ''))}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+            <div id="cast-chat-typing-dot" class="hidden flex items-center gap-1.5 text-[11px] text-cyan-400 italic p-1 animate-pulse">
+              <span>🤖</span> AI Mentor is thinking...
+            </div>
+          </div>
+
+          <!-- Quick Thought Chips -->
+          <div class="px-3 py-1.5 bg-slate-900/60 border-t border-white/5 flex gap-1.5 overflow-x-auto">
+            ${quickChips.map(chip => `
+              <button type="button" data-cast-chip="${escapeHtml(chip)}" class="whitespace-nowrap px-2.5 py-1 rounded-full bg-slate-800 hover:bg-slate-700 border border-white/10 text-[10px] text-cyan-200 font-mono transition-all">
+                ${escapeHtml(chip)}
+              </button>
+            `).join('')}
+          </div>
+
+          <!-- Input Bar -->
+          <form id="cast-chat-input-form" class="p-2.5 bg-slate-900 border-t border-white/10 flex items-center gap-2">
+            <input type="text" id="cast-chat-text-input" placeholder="Explain your thinking / why you chose that answer..." class="flex-1 bg-slate-950 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 font-sans">
+            <button type="submit" id="cast-chat-send-submit" class="px-3.5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold font-mono transition-all shadow-md flex items-center gap-1">
+              <span>Send</span> <span>➤</span>
+            </button>
+          </form>
+        </div>
+      `;
+
+      container.innerHTML = chatHtml;
+
+      // Auto-scroll feed to bottom
+      const feed = container.querySelector('#cast-chat-messages-feed');
+      if (feed) feed.scrollTop = feed.scrollHeight;
+
+      // Quick Chips Handler
+      container.querySelectorAll('[data-cast-chip]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const text = btn.getAttribute('data-cast-chip');
+          const input = container.querySelector('#cast-chat-text-input');
+          if (input) {
+            input.value = text;
+            input.focus();
+          }
+        });
+      });
+
+      // Form Submit Handler
+      const form = container.querySelector('#cast-chat-input-form');
+      const input = container.querySelector('#cast-chat-text-input');
+      if (form && input) {
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const userText = input.value.trim();
+          if (!userText) return;
+          input.value = "";
+
+          // Append student turn
+          stepState.chatMessages.push({
+            role: 'user',
+            text: userText,
+            timestamp: new Date()
+          });
+          if (!this.userState.steps[stepKey]) this.userState.steps[stepKey] = {};
+          this.userState.steps[stepKey].chatMessages = stepState.chatMessages;
+          this.onStateChange(this.userState);
+          this.renderAIReasoningChat(step, container, stepState, stepKey);
+
+          // Typing indicator
+          const typingDot = container.querySelector('#cast-chat-typing-dot');
+          if (typingDot) typingDot.classList.remove('hidden');
+
+          // Delegate to host callback (Bell-Ringer/index.html)
+          if (typeof this.options.onChatSend === 'function') {
+            try {
+              const reply = await this.options.onChatSend({
+                message: userText,
+                messages: stepState.chatMessages,
+                step: step,
+                allAnswers: this.getAllAnswers(),
+                phenomenon: this.challenge?.phenomenon
+              });
+
+              const replyText = typeof reply === 'string' ? reply : (reply?.text || reply?.message || "Great explanation! Keep expanding on that evidence.");
+              stepState.chatMessages.push({
+                role: 'model',
+                text: replyText,
+                timestamp: new Date()
+              });
+              this.userState.steps[stepKey].chatMessages = stepState.chatMessages;
+              this.onStateChange(this.userState);
+              this.renderAIReasoningChat(step, container, stepState, stepKey);
+            } catch (err) {
+              console.error("AI reasoning chat error:", err);
+              if (typingDot) typingDot.classList.add('hidden');
+            }
+          } else {
+            // Local fallback if no host callback attached
+            setTimeout(() => {
+              stepState.chatMessages.push({
+                role: 'model',
+                text: "Thank you for explaining your reasoning! How does that connect to the physical laws of motion?",
+                timestamp: new Date()
+              });
+              this.userState.steps[stepKey].chatMessages = stepState.chatMessages;
+              this.onStateChange(this.userState);
+              this.renderAIReasoningChat(step, container, stepState, stepKey);
+            }, 600);
+          }
+        });
+      }
+    }
+
     isStepCompleted(step, index) {
       const stepKey = `step_${index}`;
       const state = this.userState.steps[stepKey];
       if (!state) return false;
 
-      switch(step.itemType) {
+      const type = step.itemType || step.type;
+      switch(type) {
         case 'dropdown_cloze':
-          const keys = Object.keys(step.dropdowns || {});
+        case 'cloze_dropdown':
+          const keys = Object.keys(step.dropdowns || step.blanks || {});
           return keys.length > 0 && keys.every(k => state.selections && state.selections[k]);
         case 'math_data':
+        case 'data_calculation':
           return state.value !== undefined && !isNaN(state.value);
         case 'drag_drop':
+        case 'categorize':
           const items = step.items || [];
           return items.length > 0 && items.every(it => state.placements && state.placements[it.id]);
         case 'cer_scaffold':
+        case 'cer':
           return !!(state.claim && state.evidence && state.reasoning);
+        case 'ai_reasoning_chat':
+        case 'chat_reasoning':
+          return !!(state.chatMessages && state.chatMessages.filter(m => m.role === 'user').length >= (step.minTurns || 1));
         default:
           return false;
       }
@@ -757,8 +999,8 @@
         if (isDone) summary.completedSteps++;
         summary.stepResults.push({
           stepNumber: idx + 1,
-          title: s.stepTitle,
-          itemType: s.itemType,
+          title: s.stepTitle || s.title || `Part ${idx + 1}`,
+          itemType: s.itemType || s.type,
           isCompleted: isDone,
           state: this.userState.steps[`step_${idx}`] || {}
         });
