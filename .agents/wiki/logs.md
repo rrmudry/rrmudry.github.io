@@ -2,6 +2,28 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-08 — CAST 3D Bell-Ringers: Interactive Student Tasks & AI Reasoning Chat Integration
+
+**Motivation**: Connected CAST performance tasks directly to the interactive AI Concept Chat mentor. Rather than isolated or passive responses, students perform hands-on investigations (graph analysis, calculations with units and tolerances, cloze dropdowns), followed by a focused AI mentor dialogue probing the "WHY" behind their chosen answers and challenging their reasoning.
+
+**Changes**:
+- Upgraded `assets/js/cast-item-engine.js` (v2.0):
+  - Added `renderAIReasoningChat` interactive SMS-style dialogue step with typing indicator, quick-thought suggestion chips, bi-directional messaging, and context-aware opening prompts.
+  - Implemented `getAllAnswers()` to pass prior student choices and calculations to the AI mentor.
+  - Added support for flexible dropdown tokens (`{key}` and `[key]`), blanks/dropdowns mapping, and math data calculation tolerance checking.
+- Updated `Bell-Ringer/index.html`:
+  - Connected `onChatSend` to `ensureChatProxyUrl()` passing the master AI mentor persona (`.agents/AGENTS.md`) and rich task context (phenomenon + student answers).
+  - Configured automatic Firestore autosaving of reasoning chat messages to `bellringers/{studentId}_{todayStr}.chatMessages`.
+  - Updated `submitCastChallenge` to include chat logs in readable summaries and save `castState`.
+- Updated `Bell-Ringer/dashboard.html` & `Bell-Ringer/teacher.html`:
+  - Enhanced student detail modal and submission tables to render conversational AI reasoning dialogue bubbles.
+  - Added "📋 Copy Reasoning Transcript" button supporting both message schemas.
+- Upgraded Unit 2 Lessons (Days 1, 3, 5, 9, 15) in `Unit_2/unit2_lessons.json`, `Unit_2/lesson.json`, and `assets/lessons-data.js`:
+  - Part 1: Hands-on cloze dropdown / graph / kinematic proportions.
+  - Part 2: Quantitative calculation with units, hints, and tolerances.
+  - Part 3: Active AI Reasoning Chat (`ai_reasoning_chat`) challenging the student to defend the "WHY" behind their answers.
+- Maintained 100% strict compliance with the No-LaTeX math notation policy.
+
 ---
 
 ## 2026-09-08 — California Science Test (CAST) Bell-Ringer Transformation
