@@ -59,9 +59,9 @@
 
   function getPastPrideDates(count = 3, beforeDateStr = getTodayDateString()) {
     const dates = [];
-    const prideDayNames = ['Tuesday', 'Wednesday', 'Thursday'];
+    const prideDayNames = State.settings?.prideDays || ['Tuesday', 'Wednesday', 'Thursday'];
     const cur = new Date(beforeDateStr + 'T00:00:00');
-    for (let i = 1; i <= 30 && dates.length < count; i++) {
+    for (let i = 1; i <= 60 && dates.length < count; i++) {
       const prev = new Date(cur);
       prev.setDate(prev.getDate() - i);
       const dayName = prev.toLocaleDateString('en-US', { weekday: 'long' });
@@ -829,9 +829,16 @@
       const todayRecords = State.attendanceRecords[referenceDate] || [];
       const isCheckedInToday = todayRecords.some(r => String(r.studentId) === String(studentId) && !r.leftEarly);
 
-      // Collect all past session dates strictly before referenceDate that have at least 1 attendance record
+      const prideDayNames = State.settings?.prideDays || ['Tuesday', 'Wednesday', 'Thursday'];
+
+      // Collect all past session dates strictly before referenceDate that are valid PRIDE days and have at least 1 attendance record
       const pastDates = Object.keys(State.attendanceRecords)
         .filter(d => d < referenceDate && Array.isArray(State.attendanceRecords[d]) && State.attendanceRecords[d].length > 0)
+        .filter(d => {
+          const dateObj = new Date(d + 'T00:00:00');
+          const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+          return prideDayNames.includes(dayName);
+        })
         .sort((a, b) => b.localeCompare(a)); // Descending: most recent past date first
 
       let priorStreak = 0;
@@ -1903,7 +1910,8 @@
 
       const dateObj = new Date(State.currentSessionDate + 'T00:00:00');
       const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
-      const isPrideDay = ['Tuesday', 'Wednesday', 'Thursday'].includes(dayName);
+      const prideDays = State.settings?.prideDays || ['Tuesday', 'Wednesday', 'Thursday'];
+      const isPrideDay = prideDays.includes(dayName);
 
       if (isPrideDay) {
         banner.className = 'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1.5';
