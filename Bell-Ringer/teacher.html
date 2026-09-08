@@ -1473,11 +1473,40 @@ CRITICAL RULES:
                 timerPayload.phenomenonDesc = "Form groups of 4 related words.";
             }
 
+            // Sanitize payload for Firestore (Firestore strictly prohibits nested arrays)
+            const safeTimerPayload = sanitizeForFirestore(timerPayload);
+
             try {
-                await db.collection('system_config').doc('bellringer_timer').set(timerPayload);
+                await db.collection('system_config').doc('bellringer_timer').set(safeTimerPayload);
             } catch (err) {
                 alert("Failed to start timer: " + err.message);
             }
+        }
+
+        // Deep-sanitize an object for Firestore to guarantee zero nested arrays
+        function sanitizeForFirestore(val) {
+            if (val === null || val === undefined) return val;
+            if (typeof val !== 'object') return val;
+            if (val instanceof Date) return val;
+            if (val.toDate && typeof val.toDate === 'function') return val; // Firestore Timestamp
+            if (Array.isArray(val)) {
+                return val.map(item => {
+                    if (Array.isArray(item)) {
+                        // Nested array detected! Convert array to map with col_ keys
+                        const mapObj = {};
+                        item.forEach((cell, idx) => {
+                            mapObj[`col_${idx}`] = sanitizeForFirestore(cell);
+                        });
+                        return mapObj;
+                    }
+                    return sanitizeForFirestore(item);
+                });
+            }
+            const copy = {};
+            for (const [k, v] of Object.entries(val)) {
+                copy[k] = sanitizeForFirestore(v);
+            }
+            return copy;
         }
 
         // Stop timer in Firestore

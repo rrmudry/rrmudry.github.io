@@ -2,6 +2,15 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-08 — Fix: Firestore Nested Array Restriction in `bellringer_timer`
+
+**Issue**: Starting the timer from `teacher.html` threw: `Failed to start timer: Function DocumentReference.set() called with invalid data. Nested arrays are not supported (found in document system_config/bellringer_timer)`.
+**Cause**: Google Cloud Firestore strictly prohibits nested arrays (arrays inside arrays). The new CAST `dataTable.rows` structure was defined as a 2D matrix (`[ ["a", "b"], ["c", "d"] ]`), which crashed Firestore upon calling `.set(timerPayload)`.
+**Solution**:
+1. Added `sanitizeForFirestore(val)` to `Bell-Ringer/teacher.html`: Recursively detects any array inside an array and automatically maps it to a Firestore-safe plain map with column keys (`{ col_0: cell0, col_1: cell1, ... }`).
+2. Updated `assets/js/cast-item-engine.js`: The table renderer now transparently supports both array-of-arrays and Firestore map objects (`{ col_0: ... }`, `{ cols: [...] }`, `{ cells: [...] }`).
+3. Converted all data tables in `Unit_2/unit2_lessons.json`, `Unit_2/lesson.json`, and `assets/lessons-data.js` to natively Firestore-safe object maps, guaranteeing zero nested arrays.
+
 ## 2026-09-08 — CAST Bell-Ringers: UI Font Scale Upgrade, Stimulus Deduplication & Data Tables
 
 **Motivation**: Addressed visual clutter, tiny font sizes, wordy prompts, and duplicate phenomenon text in the CAST Bell-Ringer interface. Converted redundant narrative text into structured CAST Data Tables and enlarged font sizes across all question elements.
