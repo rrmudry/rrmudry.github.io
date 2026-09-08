@@ -2,6 +2,17 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-08 — Fix: Bell-Ringer Countdown Timer & NaN Timestamp Resolution
+
+**Issue**: Countdown timer was frozen or not displaying countdown progress on `index.html` and `dashboard.html`.
+**Cause**:
+1. In `teacher.html`, `sanitizeForFirestore` was applied to the entire `timerPayload`, inadvertently converting the `firebase.firestore.FieldValue.serverTimestamp()` sentinel on `startedAt` into an empty plain object `{}`.
+2. When students on `index.html` called `getTrueExpiresAt(config)`, checking `config.startedAt` caused `new Date({}).getTime()`, producing `NaN`. The function returned `Invalid Date`, freezing `diffMs` calculation.
+**Solution**:
+1. Scoped `sanitizeForFirestore` in `teacher.html` exclusively to `timerPayload.castData` (where nested arrays lived), leaving `startedAt: FieldValue.serverTimestamp()` and `timerExpiresAt` untouched.
+2. Added sentinel guard `if (val instanceof firebase.firestore.FieldValue) return val` in `sanitizeForFirestore`.
+3. Hardened `getTrueExpiresAt(config)` in both `index.html` and `dashboard.html` to prioritize valid `config.timerExpiresAt` timestamps first, and explicitly validate that `startedMs` is a real number before computing duration offsets.
+
 ## 2026-09-08 — CAST Bell-Ringers: Chat Box Expansion & Removal of Scripted Chips
 
 **Motivation**: Promoted authentic student inquiry and scientific argumentation by removing pre-scripted response buttons. Expanded the chat workspace height to eliminate cramped conversation bubbles and give students a comfortable, unobstructed dialogue area with the AI Physics Mentor.
