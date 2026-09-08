@@ -632,13 +632,28 @@
 
         function getTrueExpiresAt(config) {
             if (!config) return new Date();
-            if (config.startedAt && (config.durationSeconds || config.durationMinutes)) {
-                const startedMs = config.startedAt.toDate ? config.startedAt.toDate().getTime() : new Date(config.startedAt).getTime();
-                const durSecs = config.durationSeconds || (config.durationMinutes * 60);
-                return new Date(startedMs + (durSecs * 1000));
-            }
+            // 1. Prioritize explicit timerExpiresAt
             if (config.timerExpiresAt) {
-                return config.timerExpiresAt.toDate ? config.timerExpiresAt.toDate() : new Date(config.timerExpiresAt);
+                const expDate = config.timerExpiresAt.toDate ? config.timerExpiresAt.toDate() : new Date(config.timerExpiresAt);
+                if (expDate instanceof Date && !isNaN(expDate.getTime())) {
+                    return expDate;
+                }
+            }
+            // 2. Fallback to startedAt + duration
+            if (config.startedAt && (config.durationSeconds || config.durationMinutes)) {
+                let startedMs = NaN;
+                if (config.startedAt.toDate && typeof config.startedAt.toDate === 'function') {
+                    startedMs = config.startedAt.toDate().getTime();
+                } else if (typeof config.startedAt === 'number') {
+                    startedMs = config.startedAt;
+                } else if (typeof config.startedAt === 'string') {
+                    const d = new Date(config.startedAt);
+                    if (!isNaN(d.getTime())) startedMs = d.getTime();
+                }
+                if (!isNaN(startedMs)) {
+                    const durSecs = config.durationSeconds || ((config.durationMinutes || 4) * 60);
+                    return new Date(startedMs + (durSecs * 1000));
+                }
             }
             return new Date();
         }

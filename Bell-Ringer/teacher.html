@@ -1473,11 +1473,13 @@ CRITICAL RULES:
                 timerPayload.phenomenonDesc = "Form groups of 4 related words.";
             }
 
-            // Sanitize payload for Firestore (Firestore strictly prohibits nested arrays)
-            const safeTimerPayload = sanitizeForFirestore(timerPayload);
+            // Sanitize only castData for Firestore (Firestore strictly prohibits nested arrays)
+            if (timerPayload.castData) {
+                timerPayload.castData = sanitizeForFirestore(timerPayload.castData);
+            }
 
             try {
-                await db.collection('system_config').doc('bellringer_timer').set(safeTimerPayload);
+                await db.collection('system_config').doc('bellringer_timer').set(timerPayload);
             } catch (err) {
                 alert("Failed to start timer: " + err.message);
             }
@@ -1488,7 +1490,8 @@ CRITICAL RULES:
             if (val === null || val === undefined) return val;
             if (typeof val !== 'object') return val;
             if (val instanceof Date) return val;
-            if (val.toDate && typeof val.toDate === 'function') return val; // Firestore Timestamp
+            if (typeof val.toDate === 'function') return val; // Firestore Timestamp
+            if (firebase?.firestore?.FieldValue && val instanceof firebase.firestore.FieldValue) return val; // Sentinel
             if (Array.isArray(val)) {
                 return val.map(item => {
                     if (Array.isArray(item)) {
