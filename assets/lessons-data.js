@@ -370,24 +370,24 @@ const lessonsData = [
             "System Motion State"
           ],
           "rows": [
-            [
-              "Locomotive Drive Thrust",
-              "Forward (Horizontal)",
-              "20,000 N",
-              "Cruising at steady 40 m/s"
-            ],
-            [
-              "Resistive Drag + Friction",
-              "Backward (Horizontal)",
-              "To be determined",
-              "Opposes motion"
-            ],
-            [
-              "Net Horizontal Force (ΣF)",
-              "Horizontal",
-              "0 N",
-              "Zero acceleration (a = 0)"
-            ]
+            {
+              "col_0": "Locomotive Drive Thrust",
+              "col_1": "Forward (Horizontal)",
+              "col_2": "20,000 N",
+              "col_3": "Cruising at steady 40 m/s"
+            },
+            {
+              "col_0": "Resistive Drag + Friction",
+              "col_1": "Backward (Horizontal)",
+              "col_2": "To be determined",
+              "col_3": "Opposes motion"
+            },
+            {
+              "col_0": "Net Horizontal Force (ΣF)",
+              "col_1": "Horizontal",
+              "col_2": "0 N",
+              "col_3": "Zero acceleration (a = 0)"
+            }
           ]
         }
       },
@@ -685,18 +685,18 @@ const lessonsData = [
             "Speed (v)"
           ],
           "rows": [
-            [
-              "Aerial Drone Alpha",
-              "Direct straight flight",
-              "600 m",
-              "20 m/s"
-            ],
-            [
-              "Ground Rover Beta",
-              "Winding mountain road",
-              "800 m",
-              "20 m/s"
-            ]
+            {
+              "col_0": "Aerial Drone Alpha",
+              "col_1": "Direct straight flight",
+              "col_2": "600 m",
+              "col_3": "20 m/s"
+            },
+            {
+              "col_0": "Ground Rover Beta",
+              "col_1": "Winding mountain road",
+              "col_2": "800 m",
+              "col_3": "20 m/s"
+            }
           ]
         }
       },
@@ -1194,18 +1194,18 @@ const lessonsData = [
             "Final Position"
           ],
           "rows": [
-            [
-              "Leg 1: Outbound",
-              "Curved dune trail",
-              "120 m",
-              "At Rock Outcrop (120 m East)"
-            ],
-            [
-              "Leg 2: Return",
-              "Exact same path return",
-              "120 m",
-              "Back at Lander (Starting Point)"
-            ]
+            {
+              "col_0": "Leg 1: Outbound",
+              "col_1": "Curved dune trail",
+              "col_2": "120 m",
+              "col_3": "At Rock Outcrop (120 m East)"
+            },
+            {
+              "col_0": "Leg 2: Return",
+              "col_1": "Exact same path return",
+              "col_2": "120 m",
+              "col_3": "Back at Lander (Starting Point)"
+            }
           ]
         }
       },
@@ -1448,18 +1448,18 @@ const lessonsData = [
             "Scale Ratio"
           ],
           "rows": [
-            [
-              "Base Camp (Origin)",
-              "(0, 0)",
-              "0 grid blocks",
-              "1 block = 2.5 km"
-            ],
-            [
-              "Survey Drone Alpha",
-              "(8, 0) due East",
-              "8 grid blocks East",
-              "1 block = 2.5 km"
-            ]
+            {
+              "col_0": "Base Camp (Origin)",
+              "col_1": "(0, 0)",
+              "col_2": "0 grid blocks",
+              "col_3": "1 block = 2.5 km"
+            },
+            {
+              "col_0": "Survey Drone Alpha",
+              "col_1": "(8, 0) due East",
+              "col_2": "8 grid blocks East",
+              "col_3": "1 block = 2.5 km"
+            }
           ]
         }
       },
