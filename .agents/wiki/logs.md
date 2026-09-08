@@ -2,6 +2,16 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-08 — CAST Bell-Ringers: Chat Box Expansion & Removal of Scripted Chips
+
+**Motivation**: Promoted authentic student inquiry and scientific argumentation by removing pre-scripted response buttons. Expanded the chat workspace height to eliminate cramped conversation bubbles and give students a comfortable, unobstructed dialogue area with the AI Physics Mentor.
+
+**Key Changes**:
+- **Removed Scripted Quick Chips**: Removed all pre-written suggestion chips from `assets/js/cast-item-engine.js`, `Unit_2/unit2_lessons.json`, `Unit_2/lesson.json`, and `assets/lessons-data.js`. Students now formulate and type their reasoning in their own authentic voice rather than clicking pre-selected responses.
+- **Significantly Expanded Chat Box Height**: Increased chat box container from fixed `h-[380px]` to `min-h-[480px] h-[540px] sm:h-[600px]`, granting the message feed ample vertical space so multi-sentence explanations and thoughts display without awkward cut-offs or cramped overflow.
+- **Enhanced Input Bar**: Padded input bar with `px-4 py-3` input field and clear gradient send button (`bg-gradient-to-r from-cyan-600 to-teal-600`).
+- **Cache-Buster Bump**: Updated `Bell-Ringer/index.html` to `cast-item-engine.js?v=2.3` to guarantee immediate client updates.
+
 ## 2026-09-08 — Fix: Firestore Nested Array Restriction in `bellringer_timer`
 
 **Issue**: Starting the timer from `teacher.html` threw: `Failed to start timer: Function DocumentReference.set() called with invalid data. Nested arrays are not supported (found in document system_config/bellringer_timer)`.

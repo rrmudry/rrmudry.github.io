@@ -837,35 +837,28 @@
         this.onStateChange(this.userState);
       }
 
-      const quickChips = step.quickChips || [
-        "Because the slope is constant",
-        "The forces balance out to 0 N",
-        "Based on the distance formula",
-        "Can you give me a hint on why?"
-      ];
-
       const userMessagesCount = stepState.chatMessages.filter(m => m.role === 'user').length;
       const minTurns = step.minTurns || 1;
       const isMet = userMessagesCount >= minTurns;
 
       let chatHtml = `
-        <div class="flex flex-col h-[380px] rounded-2xl bg-slate-950/70 border border-cyan-500/30 overflow-hidden shadow-inner">
+        <div class="flex flex-col min-h-[480px] h-[540px] sm:h-[600px] rounded-2xl bg-slate-950/70 border border-cyan-500/30 overflow-hidden shadow-inner">
           <!-- Chat Header -->
-          <div class="px-4 py-2.5 bg-slate-900 border-b border-white/10 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <span class="w-6 h-6 rounded-full bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-xs">🤖</span>
+          <div class="px-4 py-3 bg-slate-900 border-b border-white/10 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="w-7 h-7 rounded-full bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-sm">🤖</span>
               <div>
-                <span class="text-xs font-bold text-cyan-300 font-mono block leading-none">Physics AI Mentor</span>
-                <span class="text-[9px] text-slate-400 font-mono">Exploring the "Why" & Challenging Your Reasoning</span>
+                <span class="text-sm font-bold text-cyan-300 font-mono block leading-none">Physics AI Mentor</span>
+                <span class="text-[10px] text-slate-400 font-mono">Exploring the "Why" & Challenging Your Reasoning</span>
               </div>
             </div>
-            <span class="text-[10px] font-mono px-2.5 py-0.5 rounded-full ${isMet ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-orange-500/20 text-orange-300 border border-orange-500/40'}">
+            <span class="text-xs font-mono px-3 py-1 rounded-full ${isMet ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-orange-500/20 text-orange-300 border border-orange-500/40'}">
               ${isMet ? '✓ Discussion Complete' : `${userMessagesCount}/${minTurns} Replies`}
             </span>
           </div>
 
           <!-- Chat Feed -->
-          <div id="cast-chat-messages-feed" class="flex-1 p-4 overflow-y-auto space-y-3.5 text-sm sm:text-base font-sans">
+          <div id="cast-chat-messages-feed" class="flex-1 p-4 sm:p-5 overflow-y-auto space-y-4 text-sm sm:text-base font-sans">
             ${stepState.chatMessages.map(msg => {
               const isUser = msg.role === 'user';
               const bubbleClass = isUser 
@@ -876,7 +869,7 @@
               return `
                 <div class="flex flex-col max-w-[85%] ${isUser ? 'items-end ml-auto' : 'items-start mr-auto'} animate-in fade-in duration-150">
                   <span class="text-[11px] font-mono font-bold ${tagColor} mb-1 px-1 uppercase tracking-wider">${roleTag}</span>
-                  <div class="p-3.5 rounded-2xl border text-sm sm:text-base leading-relaxed ${bubbleClass}">
+                  <div class="p-3.5 sm:p-4 rounded-2xl border text-sm sm:text-base leading-relaxed ${bubbleClass}">
                     ${escapeHtml(msg.text || (msg.parts && msg.parts[0] ? msg.parts[0].text : ''))}
                   </div>
                 </div>
@@ -887,19 +880,10 @@
             </div>
           </div>
 
-          <!-- Quick Thought Chips -->
-          <div class="px-3 py-2 bg-slate-900/60 border-t border-white/5 flex gap-2 overflow-x-auto">
-            ${quickChips.map(chip => `
-              <button type="button" data-cast-chip="${escapeHtml(chip)}" class="whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 border border-white/10 text-xs sm:text-sm text-cyan-200 font-sans transition-all">
-                ${escapeHtml(chip)}
-              </button>
-            `).join('')}
-          </div>
-
           <!-- Input Bar -->
-          <form id="cast-chat-input-form" class="p-3 bg-slate-900 border-t border-white/10 flex items-center gap-2.5">
-            <input type="text" id="cast-chat-text-input" placeholder="Explain your thinking / why you chose that answer..." class="flex-1 bg-slate-950 border border-white/10 rounded-xl px-4 py-2.5 text-sm sm:text-base text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 font-sans">
-            <button type="submit" id="cast-chat-send-submit" class="px-4 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-bold font-sans transition-all shadow-md flex items-center gap-1.5">
+          <form id="cast-chat-input-form" class="p-3 sm:p-4 bg-slate-900 border-t border-white/10 flex items-center gap-3">
+            <input type="text" id="cast-chat-text-input" placeholder="Explain your reasoning in your own words..." class="flex-1 bg-slate-950 border-2 border-white/15 focus:border-cyan-400 rounded-xl px-4 py-3 text-sm sm:text-base text-white placeholder-slate-500 focus:outline-none font-sans shadow-inner transition-colors">
+            <button type="submit" id="cast-chat-send-submit" class="px-5 py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white text-sm sm:text-base font-bold font-sans transition-all shadow-md flex items-center gap-1.5 flex-shrink-0">
               <span>Send</span> <span>➤</span>
             </button>
           </form>
@@ -911,18 +895,6 @@
       // Auto-scroll feed to bottom
       const feed = container.querySelector('#cast-chat-messages-feed');
       if (feed) feed.scrollTop = feed.scrollHeight;
-
-      // Quick Chips Handler
-      container.querySelectorAll('[data-cast-chip]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const text = btn.getAttribute('data-cast-chip');
-          const input = container.querySelector('#cast-chat-text-input');
-          if (input) {
-            input.value = text;
-            input.focus();
-          }
-        });
-      });
 
       // Form Submit Handler
       const form = container.querySelector('#cast-chat-input-form');
