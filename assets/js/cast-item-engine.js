@@ -151,16 +151,16 @@
           <!-- Main Body Grid: Left = Stimulus, Right = Active Step Item -->
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1">
             <!-- Left Stimulus Panel (5 Cols) -->
-            <div class="lg:col-span-5 rounded-2xl bg-slate-900/80 border border-white/10 p-4 flex flex-col gap-3 shadow-lg overflow-hidden">
-              <div class="flex items-center justify-between border-b border-white/10 pb-2">
+            <div class="lg:col-span-5 rounded-2xl bg-slate-900/80 border border-white/10 p-4 sm:p-5 flex flex-col gap-3.5 shadow-lg overflow-hidden">
+              <div class="flex items-center justify-between border-b border-white/10 pb-2.5">
                 <div class="flex items-center gap-2">
-                  <span class="w-6 h-6 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs font-bold border border-cyan-500/30">🔭</span>
-                  <h3 class="text-xs font-mono font-bold uppercase tracking-wider text-cyan-300">
+                  <span class="w-7 h-7 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-sm font-bold border border-cyan-500/30">🔭</span>
+                  <h3 class="text-sm font-mono font-bold uppercase tracking-wider text-cyan-300">
                     ${escapeHtml(ch.phenomenon?.title || "Scientific Phenomenon")}
                   </h3>
                 </div>
                 ${ch.phenomenon?.type === 'graph' ? `
-                  <button type="button" id="cast-expand-graph-btn" class="text-[10px] font-mono text-cyan-400 hover:text-cyan-200 flex items-center gap-1 px-2 py-0.5 rounded bg-cyan-950/60 border border-cyan-500/30">
+                  <button type="button" id="cast-expand-graph-btn" class="text-xs font-mono text-cyan-400 hover:text-cyan-200 flex items-center gap-1 px-2.5 py-1 rounded bg-cyan-950/60 border border-cyan-500/30">
                     🔍 Inspect
                   </button>
                 ` : ''}
@@ -168,38 +168,38 @@
 
               <!-- Phenomenon Context Narrative -->
               ${(ch.phenomenon?.text || ch.phenomenon?.scenario) ? `
-                <div class="text-xs text-slate-300 leading-relaxed bg-slate-950/50 p-3 rounded-xl border border-white/5">
+                <div class="text-sm sm:text-base text-slate-200 leading-relaxed bg-slate-950/60 p-3.5 rounded-xl border border-white/10">
                   ${escapeHtml(ch.phenomenon.text || ch.phenomenon.scenario)}
                 </div>
               ` : ''}
 
-              <!-- Visual Stimulus Container -->
-              <div id="cast-stimulus-container" class="flex-1 min-h-[220px] rounded-xl bg-slate-950/80 border border-white/5 p-2 flex flex-col justify-center items-center overflow-auto relative">
+              <!-- Visual Stimulus Container (Graph, Data Table, Image) -->
+              <div id="cast-stimulus-container" class="flex-1 min-h-[220px] rounded-xl bg-slate-950/80 border border-white/5 p-3 flex flex-col justify-center items-center overflow-auto relative">
                 <!-- Dynamically populated below -->
               </div>
             </div>
 
             <!-- Right Question & TEI Panel (7 Cols) -->
-            <div class="lg:col-span-7 rounded-2xl bg-slate-900/90 border border-white/10 p-4 sm:p-5 flex flex-col justify-between shadow-xl space-y-4">
+            <div class="lg:col-span-7 rounded-2xl bg-slate-900/90 border border-white/10 p-4 sm:p-6 flex flex-col justify-between shadow-xl space-y-4">
               <div class="space-y-4">
                 <!-- Step Header -->
                 <div class="flex items-center justify-between gap-2 border-b border-white/10 pb-3">
                   <div>
-                    <span class="text-[10px] font-mono text-orange-400 font-bold uppercase tracking-wider">
+                    <span class="text-xs font-mono text-orange-400 font-bold uppercase tracking-wider">
                       Part ${this.currentStepIndex + 1} of ${steps.length}
                     </span>
-                    <h2 class="text-sm sm:text-base font-bold text-white mt-0.5">
+                    <h2 class="text-base sm:text-lg font-bold text-white mt-0.5">
                       ${escapeHtml(currentStep?.title || currentStep?.stepTitle || `Question ${this.currentStepIndex + 1}`)}
                     </h2>
                   </div>
-                  <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 border border-white/10 text-slate-300">
+                  <span class="text-xs font-mono px-2.5 py-1 rounded-lg bg-slate-800 border border-white/10 text-slate-300">
                     ${this.formatItemTypeLabel(stepType)}
                   </span>
                 </div>
 
                 <!-- Step Prompt Text -->
                 ${currentStep?.prompt ? `
-                  <div class="text-xs sm:text-sm text-slate-200 leading-relaxed font-medium">
+                  <div class="text-sm sm:text-base text-slate-100 leading-relaxed font-medium">
                     ${escapeHtml(currentStep.prompt)}
                   </div>
                 ` : ''}
@@ -210,22 +210,22 @@
                 </div>
 
                 <!-- Formative Feedback Box -->
-                <div id="cast-step-feedback" class="hidden text-xs p-3 rounded-xl border transition-all"></div>
+                <div id="cast-step-feedback" class="hidden text-sm p-3.5 rounded-xl border transition-all"></div>
               </div>
 
               <!-- Step Navigation Footer -->
               <div class="pt-4 border-t border-white/10 flex items-center justify-between gap-3">
-                <button type="button" id="cast-prev-step-btn" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/10 text-xs font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed" ${this.currentStepIndex === 0 ? 'disabled' : ''}>
+                <button type="button" id="cast-prev-step-btn" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/10 text-xs sm:text-sm font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed" ${this.currentStepIndex === 0 ? 'disabled' : ''}>
                   ← Previous Part
                 </button>
 
                 <div class="flex items-center gap-2">
                   ${this.currentStepIndex < steps.length - 1 ? `
-                    <button type="button" id="cast-next-step-btn" class="px-5 py-2 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-bold shadow-lg shadow-orange-500/20 transition-all">
+                    <button type="button" id="cast-next-step-btn" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs sm:text-sm font-bold shadow-lg shadow-orange-500/20 transition-all">
                       Next Part →
                     </button>
                   ` : `
-                    <button type="button" id="cast-finish-submit-btn" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white text-xs font-bold shadow-lg shadow-emerald-500/25 transition-all flex items-center gap-1.5">
+                    <button type="button" id="cast-finish-submit-btn" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white text-sm font-bold shadow-lg shadow-emerald-500/25 transition-all flex items-center gap-1.5">
                       <span>✓</span> Submit CAST Task
                     </button>
                   `}
@@ -313,12 +313,13 @@
 
       const phen = this.challenge?.phenomenon;
       if (!phen) {
-        container.innerHTML = '<div class="text-xs text-slate-500">No stimulus provided.</div>';
+        container.classList.add('hidden');
         return;
       }
 
       if (phen.type === 'graph' && phen.graphData) {
-        container.innerHTML = '<div id="cast-stimulus-graph-wrapper" class="w-full h-full min-h-[220px]"></div>';
+        container.classList.remove('hidden');
+        container.innerHTML = '<div id="cast-stimulus-graph-wrapper" class="w-full h-full min-h-[240px]"></div>';
         const wrapper = container.querySelector('#cast-stimulus-graph-wrapper');
         if (typeof CASTGraphEngine !== 'undefined') {
           new CASTGraphEngine(wrapper, {
@@ -326,43 +327,46 @@
             theme: 'dark'
           });
         } else {
-          wrapper.innerHTML = '<div class="text-xs text-slate-400 p-4">Graph loaded.</div>';
+          wrapper.innerHTML = '<div class="text-sm text-slate-400 p-4">Graph loaded.</div>';
         }
       } else if (phen.type === 'data_table' || phen.dataTable) {
+        container.classList.remove('hidden');
         const table = phen.dataTable || {};
+        const caption = table.caption || table.title || phen.tableTitle || "";
         const headers = table.headers || [];
         const rows = table.rows || [];
         let tHtml = `
-          <div class="w-full overflow-x-auto">
-            <table class="w-full text-[11px] font-mono border border-white/10 rounded-lg overflow-hidden">
-              <thead class="bg-slate-800 text-cyan-300">
-                <tr>
-                  ${headers.map(h => `<th class="px-2.5 py-2 text-left border-b border-white/10 font-bold">${escapeHtml(h)}</th>`).join('')}
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-white/5 bg-slate-950/60">
-                ${rows.map((row) => `
-                  <tr class="hover:bg-white/5 transition-colors">
-                    ${row.map(cell => `<td class="px-2.5 py-1.5 text-slate-200">${escapeHtml(String(cell))}</td>`).join('')}
+          <div class="w-full h-full flex flex-col justify-center">
+            ${caption ? `<div class="text-xs sm:text-sm font-mono font-bold text-cyan-400 uppercase tracking-wider mb-2 flex items-center gap-1.5"><span>📊</span> ${escapeHtml(caption)}</div>` : ''}
+            <div class="w-full overflow-x-auto rounded-xl border border-white/10 shadow-md">
+              <table class="w-full text-left border-collapse">
+                <thead class="bg-slate-800 text-cyan-300 font-mono text-xs sm:text-sm">
+                  <tr>
+                    ${headers.map(h => `<th class="px-3.5 py-2.5 border-b border-white/10 font-bold">${escapeHtml(h)}</th>`).join('')}
                   </tr>
-                `).join('')}
-              </tbody>
-            </table>
+                </thead>
+                <tbody class="divide-y divide-white/5 bg-slate-950/80 text-sm sm:text-base text-slate-100 font-sans">
+                  ${rows.map((row, rIdx) => `
+                    <tr class="${rIdx % 2 === 0 ? 'bg-slate-900/40' : 'bg-slate-950/60'} hover:bg-cyan-950/30 transition-colors">
+                      ${row.map(cell => `<td class="px-3.5 py-2.5 font-medium">${escapeHtml(String(cell))}</td>`).join('')}
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
           </div>
         `;
         container.innerHTML = tHtml;
       } else if (phen.imageUrl || phen.type === 'image') {
+        container.classList.remove('hidden');
         container.innerHTML = `
           <div class="w-full h-full flex flex-col items-center justify-center p-1">
-            <img src="${escapeHtml(phen.imageUrl)}" alt="${escapeHtml(phen.title || 'Phenomenon')}" class="max-h-[240px] max-w-full rounded-lg object-contain shadow-md border border-white/10">
+            <img src="${escapeHtml(phen.imageUrl)}" alt="${escapeHtml(phen.title || 'Phenomenon')}" class="max-h-[260px] max-w-full rounded-lg object-contain shadow-md border border-white/10">
           </div>
         `;
       } else {
-        container.innerHTML = `
-          <div class="text-xs text-slate-300 p-3 leading-relaxed text-center">
-            ${escapeHtml(phen.description || phen.text || "Refer to the scientific data in the prompt.")}
-          </div>
-        `;
+        // Prevent duplicate text: if no graph, table, or image is provided, do not re-render phenomenon text
+        container.classList.add('hidden');
       }
     }
 
@@ -413,8 +417,8 @@
         `).join('');
 
         return `
-          <span class="inline-block my-1 mx-0.5">
-            <select data-cloze-key="${key}" class="px-2.5 py-1 rounded-lg bg-slate-950 border border-orange-500/50 text-orange-200 text-xs font-bold font-mono focus:outline-none focus:ring-2 focus:ring-orange-400 shadow-inner cursor-pointer">
+          <span class="inline-block my-1 mx-1">
+            <select data-cloze-key="${key}" class="px-3 py-1.5 rounded-xl bg-slate-900 border-2 border-orange-500/60 text-orange-200 text-sm sm:text-base font-semibold font-sans focus:outline-none focus:ring-2 focus:ring-orange-400 shadow-md cursor-pointer hover:border-orange-400 transition-colors">
               <option value="">-- select --</option>
               ${optionsHtml}
             </select>
@@ -423,14 +427,14 @@
       });
 
       container.innerHTML = `
-        <div class="p-4 rounded-2xl bg-slate-950/60 border border-orange-500/20 leading-loose text-xs sm:text-sm text-slate-200 shadow-inner">
+        <div class="p-5 sm:p-6 rounded-2xl bg-slate-950/70 border border-orange-500/30 leading-loose text-base sm:text-lg text-slate-100 shadow-inner font-normal">
           ${renderedHtml}
         </div>
         <div class="flex items-center justify-between gap-3 pt-2">
-          <div class="text-[11px] text-slate-400 font-mono">
+          <div class="text-xs sm:text-sm text-slate-300 font-sans">
             Select all dropdown terms to complete the scientific explanation.
           </div>
-          <button type="button" id="cast-check-cloze-btn" class="px-3.5 py-1.5 rounded-lg bg-orange-600/30 hover:bg-orange-600/50 text-orange-300 border border-orange-500/40 text-xs font-bold font-mono transition-all">
+          <button type="button" id="cast-check-cloze-btn" class="px-4 py-2 rounded-xl bg-orange-600/30 hover:bg-orange-600/50 text-orange-200 border border-orange-500/50 text-xs sm:text-sm font-bold font-sans transition-all shadow-sm">
             Check Statements
           </button>
         </div>
@@ -500,26 +504,26 @@
       const unit = step.unit || '';
 
       container.innerHTML = `
-        <div class="p-4 rounded-2xl bg-slate-950/60 border border-cyan-500/20 space-y-3">
+        <div class="p-5 sm:p-6 rounded-2xl bg-slate-950/70 border border-cyan-500/30 space-y-4 shadow-inner">
           ${formulaHint ? `
-            <div class="flex items-center gap-2 text-xs font-mono bg-cyan-950/40 text-cyan-300 p-2.5 rounded-xl border border-cyan-500/30">
-              <span class="font-bold">📐 Formula Reference:</span>
+            <div class="flex items-center gap-2 text-xs sm:text-sm font-mono bg-cyan-950/50 text-cyan-200 p-3 rounded-xl border border-cyan-500/30">
+              <span class="font-bold text-cyan-400">📐 Formula Reference:</span>
               <span>${escapeHtml(formulaHint)}</span>
             </div>
           ` : ''}
 
-          <div class="flex flex-col sm:flex-row sm:items-center gap-3 pt-2">
-            <div class="flex-1 flex items-center gap-2 bg-slate-900 border border-white/10 rounded-xl px-3 py-2.5 focus-within:border-cyan-400 focus-within:ring-2 focus-within:ring-cyan-500/20">
-              <span class="text-xs text-slate-400 font-mono">${escapeHtml(step.inputLabel || "Calculated Value:")}</span>
-              <input type="number" step="any" id="cast-math-input" value="${escapeHtml(String(currentVal))}" placeholder="e.g. 0.40" class="flex-1 bg-transparent text-white font-mono text-sm font-bold focus:outline-none">
+          <div class="flex flex-col sm:flex-row sm:items-center gap-3 pt-1">
+            <div class="flex-1 flex items-center gap-2.5 bg-slate-900 border-2 border-white/15 rounded-xl px-4 py-3 focus-within:border-cyan-400 focus-within:ring-2 focus-within:ring-cyan-500/30">
+              <span class="text-sm sm:text-base text-slate-300 font-medium font-sans">${escapeHtml(step.inputLabel || "Calculated Value:")}</span>
+              <input type="number" step="any" id="cast-math-input" value="${escapeHtml(String(currentVal))}" placeholder="e.g. 0.40" class="flex-1 bg-transparent text-white font-mono text-base sm:text-lg font-bold focus:outline-none">
               ${unit ? `
-                <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-800 text-cyan-300 border border-white/10">
+                <span class="text-sm sm:text-base font-mono font-bold px-3 py-1 rounded-lg bg-slate-800 text-cyan-300 border border-white/15">
                   ${escapeHtml(unit)}
                 </span>
               ` : ''}
             </div>
 
-            <button type="button" id="cast-check-math-btn" class="px-4 py-2.5 rounded-xl bg-cyan-600/30 hover:bg-cyan-600/50 text-cyan-300 border border-cyan-500/40 text-xs font-bold font-mono transition-all">
+            <button type="button" id="cast-check-math-btn" class="px-5 py-3 rounded-xl bg-cyan-600/30 hover:bg-cyan-600/50 text-cyan-200 border border-cyan-500/50 text-sm font-bold font-sans transition-all shadow-sm">
               Verify Value
             </button>
           </div>
@@ -827,7 +831,7 @@
           </div>
 
           <!-- Chat Feed -->
-          <div id="cast-chat-messages-feed" class="flex-1 p-3.5 overflow-y-auto space-y-3 text-xs font-sans">
+          <div id="cast-chat-messages-feed" class="flex-1 p-4 overflow-y-auto space-y-3.5 text-sm sm:text-base font-sans">
             ${stepState.chatMessages.map(msg => {
               const isUser = msg.role === 'user';
               const bubbleClass = isUser 
@@ -837,31 +841,31 @@
               const tagColor = isUser ? 'text-orange-400' : 'text-cyan-400';
               return `
                 <div class="flex flex-col max-w-[85%] ${isUser ? 'items-end ml-auto' : 'items-start mr-auto'} animate-in fade-in duration-150">
-                  <span class="text-[9px] font-mono font-bold ${tagColor} mb-0.5 px-1 uppercase tracking-wider">${roleTag}</span>
-                  <div class="p-3 rounded-2xl border text-xs leading-relaxed ${bubbleClass}">
+                  <span class="text-[11px] font-mono font-bold ${tagColor} mb-1 px-1 uppercase tracking-wider">${roleTag}</span>
+                  <div class="p-3.5 rounded-2xl border text-sm sm:text-base leading-relaxed ${bubbleClass}">
                     ${escapeHtml(msg.text || (msg.parts && msg.parts[0] ? msg.parts[0].text : ''))}
                   </div>
                 </div>
               `;
             }).join('')}
-            <div id="cast-chat-typing-dot" class="hidden flex items-center gap-1.5 text-[11px] text-cyan-400 italic p-1 animate-pulse">
+            <div id="cast-chat-typing-dot" class="hidden flex items-center gap-1.5 text-xs sm:text-sm text-cyan-400 italic p-1.5 animate-pulse">
               <span>🤖</span> AI Mentor is thinking...
             </div>
           </div>
 
           <!-- Quick Thought Chips -->
-          <div class="px-3 py-1.5 bg-slate-900/60 border-t border-white/5 flex gap-1.5 overflow-x-auto">
+          <div class="px-3 py-2 bg-slate-900/60 border-t border-white/5 flex gap-2 overflow-x-auto">
             ${quickChips.map(chip => `
-              <button type="button" data-cast-chip="${escapeHtml(chip)}" class="whitespace-nowrap px-2.5 py-1 rounded-full bg-slate-800 hover:bg-slate-700 border border-white/10 text-[10px] text-cyan-200 font-mono transition-all">
+              <button type="button" data-cast-chip="${escapeHtml(chip)}" class="whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 border border-white/10 text-xs sm:text-sm text-cyan-200 font-sans transition-all">
                 ${escapeHtml(chip)}
               </button>
             `).join('')}
           </div>
 
           <!-- Input Bar -->
-          <form id="cast-chat-input-form" class="p-2.5 bg-slate-900 border-t border-white/10 flex items-center gap-2">
-            <input type="text" id="cast-chat-text-input" placeholder="Explain your thinking / why you chose that answer..." class="flex-1 bg-slate-950 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 font-sans">
-            <button type="submit" id="cast-chat-send-submit" class="px-3.5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold font-mono transition-all shadow-md flex items-center gap-1">
+          <form id="cast-chat-input-form" class="p-3 bg-slate-900 border-t border-white/10 flex items-center gap-2.5">
+            <input type="text" id="cast-chat-text-input" placeholder="Explain your thinking / why you chose that answer..." class="flex-1 bg-slate-950 border border-white/10 rounded-xl px-4 py-2.5 text-sm sm:text-base text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 font-sans">
+            <button type="submit" id="cast-chat-send-submit" class="px-4 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-bold font-sans transition-all shadow-md flex items-center gap-1.5">
               <span>Send</span> <span>➤</span>
             </button>
           </form>
