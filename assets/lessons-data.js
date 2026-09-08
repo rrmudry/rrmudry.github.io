@@ -359,8 +359,37 @@ const lessonsData = [
       },
       "phenomenon": {
         "title": "High-Speed Rail Dynamic Equilibrium",
-        "type": "text",
-        "text": "A high-speed electric passenger train cruises on straight, horizontal tracks at a constant speed of 40 m/s (approx. 90 mph). The locomotive electric motors provide 20,000 N of forward thrust. At the same time, air drag and track friction push backward on the train."
+        "type": "data_table",
+        "text": "An electric passenger train cruises along a straight, horizontal track at a constant velocity of 40 m/s with balanced forces.",
+        "dataTable": {
+          "caption": "Cruising Train Force Telemetry",
+          "headers": [
+            "Force Component",
+            "Direction",
+            "Magnitude",
+            "System Motion State"
+          ],
+          "rows": [
+            [
+              "Locomotive Drive Thrust",
+              "Forward (Horizontal)",
+              "20,000 N",
+              "Cruising at steady 40 m/s"
+            ],
+            [
+              "Resistive Drag + Friction",
+              "Backward (Horizontal)",
+              "To be determined",
+              "Opposes motion"
+            ],
+            [
+              "Net Horizontal Force (ΣF)",
+              "Horizontal",
+              "0 N",
+              "Zero acceleration (a = 0)"
+            ]
+          ]
+        }
       },
       "steps": [
         {
@@ -368,17 +397,25 @@ const lessonsData = [
           "type": "cloze_dropdown",
           "title": "Part 1: Dynamic Equilibrium Principles",
           "prompt": "Apply Newton's First Law of Motion to the cruising train:",
-          "text": "Because the train cruises at a steady, unchanging velocity in a straight line, its acceleration is [blank1]. According to Newton's First Law, when an object moves at a constant velocity, the forward thrust and total backward resistive forces are [blank2].",
+          "text": "Because the train travels at a constant velocity, its acceleration is [blank1]. According to Newton's First Law, the net horizontal force must be [blank2]. The forward motor thrust and backward resistive forces are [blank3].",
           "blanks": {
             "blank1": {
-              "correct": "0 m/s² (zero acceleration)",
+              "correct": "0 m/s²",
               "options": [
-                "0 m/s² (zero acceleration)",
+                "0 m/s²",
                 "40 m/s²",
                 "9.8 m/s²"
               ]
             },
             "blank2": {
+              "correct": "0 N (balanced)",
+              "options": [
+                "0 N (balanced)",
+                "greater than 0 N forward",
+                "equal to train weight"
+              ]
+            },
+            "blank3": {
               "correct": "balanced (equal and opposite)",
               "options": [
                 "balanced (equal and opposite)",
@@ -391,20 +428,20 @@ const lessonsData = [
         {
           "stepId": "step_2",
           "type": "data_calculation",
-          "title": "Part 2: Calculating Resistive Forces",
-          "prompt": "The locomotive motors exert 20,000 N of forward thrust. Because the train maintains a constant speed with balanced forces (Net Force = 0 N), calculate the total backward resistive force (friction + air resistance) in Newtons.",
+          "title": "Part 2: Resistive Force Calculation",
+          "prompt": "The locomotive motors exert 20,000 N of forward thrust. Because the train maintains a constant speed with balanced forces (Net Force = 0 N), calculate the total backward resistive force in Newtons.",
           "inputLabel": "Total Resistive Force",
           "unit": "N",
           "targetValue": 20000,
           "tolerance": 100,
-          "hint": "Net Force = Forward Force - Backward Force = 0. Therefore, Backward Force = Forward Force = 20,000 N."
+          "hint": "ΣF = F_forward - F_resistive = 0, so F_resistive = F_forward."
         },
         {
           "stepId": "step_3",
           "type": "ai_reasoning_chat",
           "title": "Part 3: Defend Your Thinking (AI Physics Mentor)",
-          "prompt": "Discuss your thinking with the AI Physics Mentor. Defend why zero net force does NOT mean the train must be stopped.",
-          "openingMessage": "You found the backward friction equals 20,000 N! A student in class says: 'If net force is 0 N, the train can't be moving—it must be stopped!' How do you prove them wrong using Newton's First Law?",
+          "prompt": "Discuss your thinking with the AI Physics Mentor. Defend your calculation and explain why zero net force does NOT mean the train must be stopped.",
+          "openingMessage": "You calculated 20,000 N for the resistive forces! A classmate says that if the net force is zero, the train cannot be moving and must be stopped. Why are they mistaken? Defend dynamic equilibrium!",
           "quickChips": [
             "Forces don't cause motion; unbalanced forces cause changes in motion (acceleration)",
             "Zero net force means constant velocity (dynamic equilibrium), not zero speed",
@@ -412,7 +449,7 @@ const lessonsData = [
           ]
         }
       ],
-      "teacherKey": "Step 1: 0 m/s² (zero acceleration), balanced (equal and opposite). Step 2: 20000 N. Step 3: Zero net force does NOT mean an object is stopped. According to Newton's First Law, an object in motion stays in motion with constant velocity unless acted on by an unbalanced net force. Forward thrust balances friction (Net Force = 0), so acceleration is zero and the train continues at 40 m/s indefinitely."
+      "teacherKey": "Step 1: 0 m/s², 0 N (balanced), balanced (equal and opposite). Step 2: 20000 N. Step 3: Claim: Zero net force does not mean stopped; it means constant velocity. Evidence: Newton's First Law states an object in motion remains in motion unless acted upon by a net unbalanced force. Reasoning: Forces do not cause motion; net unbalanced forces cause changes in motion (acceleration). Because thrust balances drag (ΣF = 0), acceleration is zero and the train continues at 40 m/s indefinitely."
     }
   },
   {
@@ -637,23 +674,46 @@ const lessonsData = [
       },
       "phenomenon": {
         "title": "Emergency Medical Supply Dispatch Challenge",
-        "type": "text",
-        "text": "An emergency medical depot must rush critical medicine to a mountain clinic. Dispatch evaluates two transport options: Aerial Drone Alpha flies a straight direct flight of 600 meters at a steady speed of 20 m/s. Ground Rover Beta travels an 800-meter winding road route at the exact same steady speed of 20 m/s."
+        "type": "data_table",
+        "text": "An emergency depot must rush medicine to a clinic. Dispatch evaluates two transport options shown in the data table below.",
+        "dataTable": {
+          "caption": "Vehicle Transport Route & Speed Comparison",
+          "headers": [
+            "Vehicle Option",
+            "Route Description",
+            "Distance (d)",
+            "Speed (v)"
+          ],
+          "rows": [
+            [
+              "Aerial Drone Alpha",
+              "Direct straight flight",
+              "600 m",
+              "20 m/s"
+            ],
+            [
+              "Ground Rover Beta",
+              "Winding mountain road",
+              "800 m",
+              "20 m/s"
+            ]
+          ]
+        }
       },
       "steps": [
         {
           "stepId": "step_1",
           "type": "cloze_dropdown",
           "title": "Part 1: Distance and Travel Time",
-          "prompt": "Compare the two vehicles traveling at the exact same speed of 20 m/s:",
-          "text": "Because the drone flies in a straight line (600 m) while the rover takes a longer road (800 m), the vehicle that arrives first is [blank1]. When speed is kept constant, travel time is [blank2] proportional to travel distance.",
+          "prompt": "Use the data table to compare the two vehicles traveling at 20 m/s:",
+          "text": "The vehicle that arrives at the clinic first is [blank1] because its travel distance is shorter. When speed is kept constant, travel time is [blank2] proportional to travel distance.",
           "blanks": {
             "blank1": {
-              "correct": "Aerial Drone Alpha (shorter path)",
+              "correct": "Aerial Drone Alpha",
               "options": [
-                "Aerial Drone Alpha (shorter path)",
-                "Ground Rover Beta (longer path)",
-                "Both arrive at the exact same second"
+                "Aerial Drone Alpha",
+                "Ground Rover Beta",
+                "Both tie at the same time"
               ]
             },
             "blank2": {
@@ -669,28 +729,28 @@ const lessonsData = [
         {
           "stepId": "step_2",
           "type": "data_calculation",
-          "title": "Part 2: Flight Time Calculation",
+          "title": "Part 2: Travel Time Calculation",
           "prompt": "Calculate the travel time in seconds for Aerial Drone Alpha to fly 600 meters at a steady speed of 20 m/s.",
-          "inputLabel": "Drone Flight Time",
+          "inputLabel": "Drone Alpha Travel Time",
           "unit": "s",
           "targetValue": 30,
           "tolerance": 0.5,
-          "hint": "Time = Distance / Speed = 600 m / 20 m/s = 30 s."
+          "hint": "Time = distance / speed = 600 m / (20 m/s)."
         },
         {
           "stepId": "step_3",
           "type": "ai_reasoning_chat",
           "title": "Part 3: Defend Your Thinking (AI Physics Mentor)",
-          "prompt": "Discuss your thinking with the AI Physics Mentor. Defend your travel time calculation and explain how the rover could tie the drone.",
-          "openingMessage": "Drone Alpha takes 30 seconds! How many seconds does Rover Beta take for its 800 m route, and how fast would the rover have to drive to tie the drone?",
+          "prompt": "Discuss your thinking with the AI Physics Mentor. Defend why Drone Alpha arrives first and explain how extra distance impacts travel time when speed is constant.",
+          "openingMessage": "You calculated 30 seconds for Drone Alpha! Which vehicle gets there first, and why does Drone Alpha win even though both vehicles travel at the exact same speed?",
           "quickChips": [
-            "Rover Beta takes 40 seconds (800 m / 20 m/s), so the drone wins by 10 s",
-            "Extra distance requires extra time when traveling at the same speed",
+            "Drone Alpha arrives first (30 s vs 40 s) because its distance is shorter",
+            "When speed is constant, more distance requires more time (t = d / v)",
             "🚀 Advanced Challenge: To tie in 30 s, the rover must drive 26.7 m/s (800 / 30)"
           ]
         }
       ],
-      "teacherKey": "Step 1: Aerial Drone Alpha (shorter path), directly. Step 2: 30.0 seconds (600 m / 20 m/s). Step 3: Drone Alpha takes 30 s. Rover Beta takes 800 m / 20 m/s = 40 s. Drone Alpha arrives first by 10 seconds because its direct displacement route is 200 m shorter. To arrive in 30 seconds, the rover would need a speed of 800 m / 30 s = 26.7 m/s."
+      "teacherKey": "Step 1: Aerial Drone Alpha, directly. Step 2: 30 seconds (600 m / 20 m/s). Step 3: Claim: Aerial Drone Alpha arrives first by 10 seconds. Evidence: Drone Alpha time = 600 m / 20 m/s = 30 s; Rover Beta time = 800 m / 20 m/s = 40 s (40 s - 30 s = 10 s). Reasoning: When traveling at identical speeds, travel time is directly proportional to distance (t = d / v). The rover's winding road adds 200 m of extra path, requiring 10 additional seconds."
     },
     "assignments": [
       {
@@ -901,9 +961,9 @@ const lessonsData = [
         "ccc": "CCC-1: Patterns & Proportional Relationships"
       },
       "phenomenon": {
-        "title": "Tumble Buggy Motion Sensor Run",
+        "title": "Tumble Buggy Ultrasonic Sensor Run",
         "type": "graph",
-        "text": "An ultrasonic motion detector tracks a motorized tumble buggy rolling on a track. Position coordinates are sampled every 2.0 seconds: at 0 s (0 m), 2 s (1.0 m), 4 s (2.0 m), 6 s (3.0 m), 8 s (4.0 m), 10 s (5.0 m).",
+        "text": "An ultrasonic sensor tracks a motorized buggy rolling along a straight track at 2.0-second intervals as shown in the position-time scatter plot.",
         "graphData": {
           "title": "Tumble Buggy: Position vs Time",
           "chartType": "scatter",
@@ -950,23 +1010,31 @@ const lessonsData = [
           "stepId": "step_1",
           "type": "cloze_dropdown",
           "title": "Part 1: Graph Pattern Identification",
-          "prompt": "Analyze the data points and trendline on the position-time graph:",
-          "text": "Looking at the graph, the buggy gains exactly 1.0 meter of position every 2 seconds. Because the buggy covers equal distance in equal time intervals, its motion is [blank1]. On a position-time graph, the steepness (slope) of the line represents the object's [blank2].",
+          "prompt": "Analyze the pattern of data points on the position-time graph:",
+          "text": "The position vs time graph displays a [blank1] relationship. On a position-time graph, the slope represents the object's [blank2]. Because the slope remains straight and constant, the buggy moves at a [blank3].",
           "blanks": {
             "blank1": {
-              "correct": "constant steady speed",
+              "correct": "linear proportional",
               "options": [
-                "constant steady speed",
-                "rapidly speeding up",
-                "slowing down to a stop"
+                "linear proportional",
+                "curved exponential",
+                "horizontal flat"
               ]
             },
             "blank2": {
-              "correct": "speed / velocity",
+              "correct": "velocity (v = Δx / Δt)",
               "options": [
-                "speed / velocity",
-                "weight",
-                "battery voltage"
+                "velocity (v = Δx / Δt)",
+                "net force",
+                "total mass"
+              ]
+            },
+            "blank3": {
+              "correct": "steady constant speed",
+              "options": [
+                "steady constant speed",
+                "increasing acceleration",
+                "increasing friction"
               ]
             }
           }
@@ -974,20 +1042,20 @@ const lessonsData = [
         {
           "stepId": "step_2",
           "type": "data_calculation",
-          "title": "Part 2: Speed Calculation",
-          "prompt": "The buggy starts at 0 meters and reaches 5.0 meters at time 10.0 seconds. Calculate the buggy's speed in meters per second (m/s).",
-          "inputLabel": "Speed (Slope)",
+          "title": "Part 2: Slope & Velocity Calculation",
+          "prompt": "The buggy starts at 0 m and reaches 5.0 m at 10.0 s. Calculate the buggy's speed in meters per second (m/s).",
+          "inputLabel": "Calculated Speed",
           "unit": "m/s",
           "targetValue": 0.5,
           "tolerance": 0.05,
-          "hint": "Speed = Distance / Time = 5.0 m / 10.0 s = 0.5 m/s."
+          "hint": "Speed = distance / time = 5.0 m / 10.0 s."
         },
         {
           "stepId": "step_3",
           "type": "ai_reasoning_chat",
           "title": "Part 3: Defend Your Thinking (AI Physics Mentor)",
-          "prompt": "Discuss your thinking with the AI Physics Mentor. Defend why the slope represents speed and predict what happens if the buggy slows down.",
-          "openingMessage": "Great calculation: 0.5 m/s! Why does a straight line on this graph mean constant speed? And what would happen to the line if the buggy's battery started dying and it slowed down?",
+          "prompt": "Discuss your thinking with the AI Physics Mentor. Defend why the slope represents speed and predict how the line would change if the buggy slowed down.",
+          "openingMessage": "You calculated a speed of 0.5 m/s from the slope! Why does a straight line mean steady speed, and what would happen to the line if the buggy started slowing down?",
           "quickChips": [
             "A straight line means it gains the exact same distance every second",
             "If it slows down, the line curves and becomes flatter (less steep)",
@@ -995,7 +1063,7 @@ const lessonsData = [
           ]
         }
       ],
-      "teacherKey": "Step 1: constant steady speed, speed / velocity. Step 2: 0.5 m/s (5.0 m / 10.0 s). Step 3: Slope represents velocity (Δx / Δt). A straight line means constant velocity because the rate of change is constant. If the buggy slows down, less distance is covered each second, causing the slope to decrease and curve downward toward a flat horizontal line."
+      "teacherKey": "Step 1: linear proportional, velocity (v = Δx / Δt), steady constant speed. Step 2: 0.50 m/s (5.0 m / 10.0 s). Step 3: Claim: A straight line means constant velocity; if it slows down, the line curves flatter. Evidence: Slope = Δx / Δt = 0.5 m/s. Reasoning: Velocity is the rate of change of position; constant slope indicates identical displacement gained per second. Decreasing speed means less distance gained per second, curving the slope toward a horizontal line."
     },
     "links": {
       "Wind-Up Toy Speed Lab": "Unit_2/wind_up_toy_lab/index.html",
@@ -1114,40 +1182,71 @@ const lessonsData = [
         "ccc": "CCC-3: Scale, Proportion, and Quantity"
       },
       "phenomenon": {
-        "title": "Autonomous Mars Rover Navigation Log",
-        "type": "text",
-        "text": "NASA's Perseverance rover rolls along a winding crater trail on Mars to inspect a sample rock. Its wheel odometer measures every meter rolled along the twists and turns of the trail. Meanwhile, orbital satellite cameras track the straight-line vector arrow directly from the landing site to the rock."
+        "title": "Mars Rover Mission Route Telemetry",
+        "type": "data_table",
+        "text": "NASA's Perseverance rover explores Jezero Crater. The rover navigates a curved sand dune to sample a rock outcrop, then returns to the lander along the exact same path.",
+        "dataTable": {
+          "caption": "Perseverance Rover Route Log",
+          "headers": [
+            "Journey Leg",
+            "Terrain Path",
+            "Odometer Distance Rolled",
+            "Final Position"
+          ],
+          "rows": [
+            [
+              "Leg 1: Outbound",
+              "Curved dune trail",
+              "120 m",
+              "At Rock Outcrop (120 m East)"
+            ],
+            [
+              "Leg 2: Return",
+              "Exact same path return",
+              "120 m",
+              "Back at Lander (Starting Point)"
+            ]
+          ]
+        }
       },
       "steps": [
         {
           "stepId": "step_1",
           "type": "cloze_dropdown",
-          "title": "Part 1: Distance vs. Displacement",
-          "prompt": "Select the correct terms to distinguish how distance and displacement are measured:",
-          "text": "The rover's wheel odometer measures the full winding path rolled, which is the total [blank1]. In contrast, the direct straight-line arrow pointing from start to finish is the net [blank2]. Because the trail winds and curves, the odometer distance rolled is [blank3] the straight-line displacement.",
+          "title": "Part 1: Scalar Distance vs Vector Displacement",
+          "prompt": "Compare scalar distance and vector displacement using the mission telemetry:",
+          "text": "The rover wheel odometer records total [blank1], which is a [blank2] quantity that adds up every meter rolled. In contrast, the straight-line change from starting point to ending point is [blank3], which is a [blank4] quantity.",
           "blanks": {
             "blank1": {
-              "correct": "distance (scalar)",
+              "correct": "distance traveled",
               "options": [
-                "distance (scalar)",
-                "displacement (vector)",
+                "distance traveled",
+                "displacement",
                 "acceleration"
               ]
             },
             "blank2": {
-              "correct": "displacement (vector)",
+              "correct": "scalar",
               "options": [
-                "displacement (vector)",
-                "distance (scalar)",
-                "instantaneous speed"
+                "scalar",
+                "vector",
+                "unitless"
               ]
             },
             "blank3": {
-              "correct": "greater than",
+              "correct": "net displacement",
               "options": [
-                "greater than",
-                "equal to",
-                "less than"
+                "net displacement",
+                "total distance",
+                "average speed"
+              ]
+            },
+            "blank4": {
+              "correct": "vector",
+              "options": [
+                "vector",
+                "scalar",
+                "constant"
               ]
             }
           }
@@ -1155,28 +1254,28 @@ const lessonsData = [
         {
           "stepId": "step_2",
           "type": "data_calculation",
-          "title": "Part 2: Round-Trip Displacement",
-          "prompt": "The rover drives 120 meters along the winding trail to the rock. After collecting a sample, it drives 120 meters back along the exact same path to the lander where it started. What is the rover's NET DISPLACEMENT from its starting position in meters?",
+          "title": "Part 2: Net Displacement Calculation",
+          "prompt": "The rover rolls 120 m out to the rock and 120 m back to the lander where it started. What is its NET DISPLACEMENT from the starting position in meters?",
           "inputLabel": "Net Displacement",
           "unit": "m",
           "targetValue": 0,
           "tolerance": 0.1,
-          "hint": "Displacement = Final Position - Initial Position. If it returns to where it started, Δx = 0 m."
+          "hint": "Displacement = final position - initial position. If start and finish are the same, displacement is 0."
         },
         {
           "stepId": "step_3",
           "type": "ai_reasoning_chat",
           "title": "Part 3: Defend Your Thinking (AI Physics Mentor)",
-          "prompt": "Discuss your thinking with the AI Physics Mentor. Defend why a round trip gives 0 meters displacement even though the rover drove 240 meters.",
-          "openingMessage": "You got it—round-trip displacement is 0 meters! But wait: the rover's wheels rolled 240 meters total and its battery is half drained. How can displacement be 0 if it drove 240 meters? Explain the 'why'!",
+          "prompt": "Discuss your thinking with the AI Physics Mentor. Defend why the round trip has 0 meters displacement even though the rover rolled 240 meters.",
+          "openingMessage": "You found that net displacement is 0 meters! Why is net displacement zero even though the rover tires rolled 240 total meters? Defend your reasoning!",
           "quickChips": [
-            "Displacement only cares about start vs finish, not the journey",
-            "Distance adds up all motion (120 m + 120 m = 240 m)",
+            "Displacement is 0 m because start and finish positions are identical",
+            "Distance rolled is 240 m because distance adds all motion (120 + 120)",
             "🚀 Advanced Challenge: Can distance ever be smaller than displacement?"
           ]
         }
       ],
-      "teacherKey": "Step 1: distance (scalar), displacement (vector), greater than. Step 2: 0 m. Step 3: Displacement is a vector measuring net change in position (final position minus initial position). Because the rover returned to its starting spot, net displacement is 0 m. Distance is a scalar accumulating every meter traveled (120 m + 120 m = 240 m)."
+      "teacherKey": "Step 1: distance traveled, scalar, net displacement, vector. Step 2: 0 m. Step 3: Claim: Net displacement is 0 m, while total distance is 240 m. Evidence: The rover ended where it started (Δx = x_final - x_initial = 0 m). The odometer rolled 120 m + 120 m = 240 m. Reasoning: Displacement is a path-independent vector depending only on initial and final states; distance is a path-dependent scalar accumulating all ground covered."
     },
     "assignments": [
       {
@@ -1337,40 +1436,63 @@ const lessonsData = [
         "ccc": "CCC-2: Cause and Effect / Scale"
       },
       "phenomenon": {
-        "title": "The Desert Drone Distress Call",
-        "type": "text",
-        "text": "An exploration team's drone breaks down during a desert expedition. The team radios Base Camp with an urgent distress message: 'We are broken down exactly 20 kilometers away!' The rescue helicopter pilot cannot take off yet because 20 km in every direction creates a giant circle of possible search locations without a starting origin or compass direction."
+        "title": "Desert Survey Drone Navigation",
+        "type": "data_table",
+        "text": "A geological survey team tracks a search drone across a desert sector. Positions and scale conversions are recorded relative to Base Camp in the data table below.",
+        "dataTable": {
+          "caption": "Survey Sector Position & Scale Log",
+          "headers": [
+            "Entity / Landmark",
+            "Reference Position",
+            "Grid Distance",
+            "Scale Ratio"
+          ],
+          "rows": [
+            [
+              "Base Camp (Origin)",
+              "(0, 0)",
+              "0 grid blocks",
+              "1 block = 2.5 km"
+            ],
+            [
+              "Survey Drone Alpha",
+              "(8, 0) due East",
+              "8 grid blocks East",
+              "1 block = 2.5 km"
+            ]
+          ]
+        }
       },
       "steps": [
         {
           "stepId": "step_1",
           "type": "cloze_dropdown",
-          "title": "Part 1: Finding an Object in Space",
-          "prompt": "Complete the scientific principle explaining what information is missing to locate the drone:",
-          "text": "To find someone's location, a distance number alone is not enough. You must know their starting [blank1] and their compass [blank2]. Without these two pieces of information, a search helicopter would have to search in a giant [blank3] around the base camp.",
+          "title": "Part 1: Reference Frames and Positions",
+          "prompt": "Analyze the scientific principle of spatial reference frames:",
+          "text": "Describing an object's exact location requires specifying position relative to a defined [blank1]. A transmission stating only a distance number provides [blank2] without indicating [blank3].",
           "blanks": {
             "blank1": {
-              "correct": "reference point / origin (0, 0)",
+              "correct": "reference frame / origin point",
               "options": [
-                "reference point / origin (0, 0)",
+                "reference frame / origin point",
                 "speedometer reading",
-                "battery percentage"
+                "satellite clock"
               ]
             },
             "blank2": {
-              "correct": "direction / bearing (e.g. North, East)",
+              "correct": "scalar distance (magnitude)",
               "options": [
-                "direction / bearing (e.g. North, East)",
-                "weight of the drone",
-                "time of day"
+                "scalar distance (magnitude)",
+                "acceleration vector",
+                "total mass"
               ]
             },
             "blank3": {
-              "correct": "circle (all directions)",
+              "correct": "directional bearing / angle",
               "options": [
-                "circle (all directions)",
-                "straight line",
-                "single point"
+                "directional bearing / angle",
+                "wind speed",
+                "temperature"
               ]
             }
           }
@@ -1379,27 +1501,27 @@ const lessonsData = [
           "stepId": "step_2",
           "type": "data_calculation",
           "title": "Part 2: Map Scale Conversion",
-          "prompt": "Base Camp is at origin (0, 0). The team radios that they hiked 8 grid blocks East along the canyon trail. If each grid block on the map scale equals 2.5 kilometers, calculate the drone's actual distance from Base Camp in kilometers.",
-          "inputLabel": "Actual Distance",
+          "prompt": "Using the map scale (1 block = 2.5 km), calculate the drone's actual distance from Base Camp (8 blocks East) in kilometers.",
+          "inputLabel": "Calculated Distance",
           "unit": "km",
           "targetValue": 20,
           "tolerance": 0.5,
-          "hint": "Distance = 8 grid blocks × 2.5 km per block = 20 km."
+          "hint": "Distance = 8 blocks · 2.5 km/block."
         },
         {
           "stepId": "step_3",
           "type": "ai_reasoning_chat",
           "title": "Part 3: Defend Your Thinking (AI Physics Mentor)",
-          "prompt": "Discuss your thinking with the AI Physics Mentor. Defend why a reference point and direction are required to describe motion and position.",
-          "openingMessage": "Hey! I see you found that the drone is 20 km East of Base Camp. Here's a puzzle: If Base Camp moves 5 km South tomorrow, does the actual broken drone move, or just its map coordinates? Why?",
+          "prompt": "Discuss your thinking with the AI Physics Mentor. Defend your distance calculation and explain why moving Base Camp changes the coordinates, but not the drone itself.",
+          "openingMessage": "You calculated 20 km for Drone Alpha! If the team moves Base Camp 5 km South, does the drone's physical location change, or just its coordinate numbers? Defend your reasoning!",
           "quickChips": [
-            "Moving Base Camp changes the coordinate numbers, not the actual drone",
-            "A reference point is just our human viewpoint; physical reality stays the same",
+            "Moving Base Camp changes coordinate numbers, not the actual drone",
+            "A reference point is our viewpoint; physical reality stays the same",
             "🚀 Advanced Challenge: What if the drone was at (3, 4) grid blocks instead of in a straight line?"
           ]
         }
       ],
-      "teacherKey": "Step 1: reference point / origin (0, 0), direction / bearing (e.g. North, East), circle (all directions). Step 2: 20 km (8 blocks · 2.5 km/block). Step 3: Moving the origin/reference point changes the coordinate numbers assigned to the drone, but the physical drone does not move."
+      "teacherKey": "Step 1: reference frame / origin point, scalar distance (magnitude), directional bearing / angle. Step 2: 20 km (8 blocks · 2.5 km/block). Step 3: Claim: Moving base camp changes the coordinate numbers assigned to the drone, but does not move the drone itself. Evidence: Position coordinates (x, y) are defined relative to the chosen origin (0, 0). Reasoning: Reference frames are human coordinate choices; altering the observer frame does not change physical matter in space."
     },
     "assignments": [
       {
