@@ -2,6 +2,23 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-08 — CAST Bell-Ringers: Low Bar, High Ceiling Rigor Calibration
+
+**Motivation**: Calibrated the Unit 2 CAST 3D bell-ringers to match where students actually are in the learning progression. Implemented an intentional "low bar, high ceiling" design ensuring that *every* student feels empowered to engage immediately without math anxiety or confusion, while advanced students are intellectually stretched through high-order thought experiments in the AI Concept Chat.
+
+**Pedagogical Calibration**:
+- **Low Bar / Accessible Entry Points**:
+  - Replaced abstract vector root calculations (e.g. `sqrt(12² + 16²)`) on Day 1 with straight-line scale calculations (`8 blocks · 2.5 km/block = 20 km`), matching what students are drawing on their paper fantasy maps.
+  - Used accessible, single-step arithmetic with clear units and targeted hints (e.g. Day 3 net displacement on a round trip is `0 m`; Day 5 Tumble Buggy speed is `5.0 m / 10.0 s = 0.5 m/s`; Day 9 drone flight time is `600 m / 20 m/s = 30 s`; Day 15 balanced resistive force is `20,000 N`).
+  - Scaffolds vocabulary in Part 1 dropdowns with intuitive everyday language before moving to quantitative calculations.
+- **High Ceiling / Advanced Reasoning Extension**:
+  - Integrated dedicated `🚀 Advanced Challenge` suggestion chips into Part 3 for every bell-ringer, inviting advanced students to explore counter-factual physics, Pythagorean hypotenuse vectors, reverse motion graphs, and vacuum tunnel thought experiments.
+  - Upgraded the AI Concept Chat system instructions in `Bell-Ringer/index.html` to actively differentiate: gently validating intuitive logic and pivoting to teaching for struggling students, while actively counter-challenging advanced students with deeper questions and non-trivial physics scenarios.
+- **Data Synchronization**:
+  - Synchronized updated bell-ringer definitions across `Unit_2/unit2_lessons.json`, `Unit_2/lesson.json`, and `assets/lessons-data.js`.
+  - Zero LaTeX math formatting used across all questions, prompts, and teacher keys.
+
+
 ## 2026-09-08 — CAST 3D Bell-Ringers: Interactive Student Tasks & AI Reasoning Chat Integration
 
 **Motivation**: Connected CAST performance tasks directly to the interactive AI Concept Chat mentor. Rather than isolated or passive responses, students perform hands-on investigations (graph analysis, calculations with units and tolerances, cloze dropdowns), followed by a focused AI mentor dialogue probing the "WHY" behind their chosen answers and challenging their reasoning.
