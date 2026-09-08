@@ -2,7 +2,25 @@
 
 Append-only log tracking pattern changes across sessions.
 
-## 2026-09-08 — CAST Bell-Ringers: Low Bar, High Ceiling Rigor Calibration
+## 2026-09-08 — CAST Bell-Ringers: UI Font Scale Upgrade, Stimulus Deduplication & Data Tables
+
+**Motivation**: Addressed visual clutter, tiny font sizes, wordy prompts, and duplicate phenomenon text in the CAST Bell-Ringer interface. Converted redundant narrative text into structured CAST Data Tables and enlarged font sizes across all question elements.
+
+**Key Changes**:
+- **Fixed Stimulus Duplicate Bug**: Resolved issue where `renderStimulus()` in `assets/js/cast-item-engine.js` fell back to re-rendering `phenomenon.text` inside `#cast-stimulus-container`, causing an exact duplicate of the narrative box in the left panel.
+- **Integrated Rich Data Tables**: Replaced wordy narrative text with clean, high-contrast CAST data tables (SEP-4 / SEP-5) across Unit 2:
+  - Day 1: Survey Sector Position & Scale Log (`Base Camp (0,0)` vs `Survey Drone Alpha (8,0)`).
+  - Day 3: Mars Rover Mission Route Telemetry (Leg 1 Outbound 120 m vs Leg 2 Return 120 m).
+  - Day 9: Vehicle Transport Route & Speed Comparison (Aerial Drone Alpha 600 m @ 20 m/s vs Ground Rover Beta 800 m @ 20 m/s).
+  - Day 15: Cruising Train Force Telemetry (20,000 N thrust vs resistive forces).
+- **Major Typography & Font Scale Upgrade**:
+  - Cloze reading passage: upgraded from `text-xs sm:text-sm` (12-14px) to `text-base sm:text-lg` (16-18px) with `leading-loose`.
+  - Dropdown `<select>` menus: upgraded from `text-xs font-mono` to `text-sm sm:text-base font-sans font-semibold px-3 py-1.5` with rounded borders and clear hover/focus states.
+  - Phenomenon narrative: upgraded from `text-xs` to `text-sm sm:text-base text-slate-200`.
+  - Data calculation inputs: upgraded from `text-sm` to `text-base sm:text-lg font-bold`, with `text-sm sm:text-base` labels and verify button.
+  - AI reasoning chat bubbles: upgraded from `text-xs` to `text-sm sm:text-base leading-relaxed`.
+- **Eliminated Prompt Wordiness**: Tightened cloze prompts and text to direct students to the data tables rather than repeating numbers multiple times.
+
 
 **Motivation**: Calibrated the Unit 2 CAST 3D bell-ringers to match where students actually are in the learning progression. Implemented an intentional "low bar, high ceiling" design ensuring that *every* student feels empowered to engage immediately without math anxiety or confusion, while advanced students are intellectually stretched through high-order thought experiments in the AI Concept Chat.
 
