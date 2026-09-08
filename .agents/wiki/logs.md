@@ -1,6 +1,21 @@
 # Wiki Evolution Log
 
 Append-only log tracking pattern changes across sessions.
+## 2026-09-08 — Page Width Maximization: CAST Bell-Ringer & Unit 2 Dashboard
+
+**Motivation**: Maximized horizontal viewport utilization across widescreen displays, desktop monitors, and Chromebooks. Replaced artificial `max-w-5xl` (1024px) constraints in the Bell-Ringer student interface and `max-w-7xl` (1280px) in the Unit 2 Dashboard with responsive fluid layouts utilizing 95%–98% of the viewport (up to 1780px).
+
+**Key Changes**:
+- **Bell-Ringer Student Interface (`Bell-Ringer/index.html`)**:
+  - Upgraded `<main>` container padding to `p-2 sm:p-4 md:p-6 w-full`.
+  - Expanded `#cast-panel` from `max-w-5xl` to `w-full max-w-[98%] xl:max-w-[95%] 2xl:max-w-[1780px] mx-auto flex flex-col gap-4 sm:gap-5`, eliminating large dark gutters and giving the 2-column grid (5 cols stimulus vs. 7 cols question/AI reasoning chat) full horizontal room.
+  - Expanded `#bellringer-panel` from `max-w-5xl` to `w-full max-w-[98%] xl:max-w-[95%] 2xl:max-w-[1780px] mx-auto`.
+  - Enlarged fullscreen modals (`#enlarged-image-modal` and `#enlarged-graph-modal`) from `max-w-4xl` / `max-w-5xl` to `max-w-6xl 2xl:max-w-7xl`.
+  - Bumped script cache-buster to `cast-item-engine.js?v=2.4`.
+- **Unit 2 Dashboard (`unit2-dashboard.html`)**:
+  - Expanded `#app-container` from `max-w-7xl` to `w-full max-w-[98%] xl:max-w-[95%] 2xl:max-w-[1780px] mx-auto px-3 sm:px-6 lg:px-8 py-8 md:py-12`, allowing the 5-day weekly pacing guide cards and data visualizations to breathe comfortably.
+- **Responsiveness**:
+  - Preserved 100% mobile and tablet responsive layouts using Tailwind responsive prefixes.
 
 ## 2026-09-08 — Fix: Bell-Ringer Countdown Timer & NaN Timestamp Resolution
 
