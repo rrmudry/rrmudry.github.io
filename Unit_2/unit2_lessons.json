@@ -23,10 +23,77 @@ const unit2Lessons = [
       "Reading": "Interpreting compass rose bearings and coordinate grid legends."
     },
     "bellRinger": {
-      "type": "free_response",
-      "promptQuestion": "You discover an ancient map that says: 'Walk 50 paces to find the buried treasure.' Why is this instruction completely useless on its own? What two specific pieces of information do you need before you can take a single step?",
-      "explanation": "You need to know: (1) Where to start (the Reference Point / Origin), and (2) Which direction to walk (Direction / Compass Heading). Without an origin and direction, 50 paces could be anywhere in a 360-degree circle.",
-      "defaultDuration": 3
+      "type": "cast_challenge",
+      "title": "Reference Frames & Cartesian Navigation",
+      "defaultDuration": 4,
+      "standards": {
+        "dci": "HS-PS2.A: Forces & Motion",
+        "sep": "SEP-4: Analyzing & Interpreting Data",
+        "ccc": "CCC-2: Cause and Effect / Scale"
+      },
+      "phenomenon": {
+        "title": "The Desert Expedition Coordinate Mystery",
+        "type": "text",
+        "text": "A geological survey drone crashes in an uncharted sector of the desert. The emergency distress beacon transmits: 'Survey Drone Alpha located 50 kilometers away.' The search and rescue command team cannot dispatch recovery helicopters because a single scalar distance without an established reference origin or compass direction leaves a 360-degree circle of uncertainty."
+      },
+      "steps": [
+        {
+          "stepId": "step_1",
+          "type": "cloze_dropdown",
+          "title": "Part 1: Defining Spatial Position",
+          "prompt": "Complete the scientific principle explaining why the distress beacon transmission is insufficient for navigation:",
+          "text": "Describing an object's exact location requires specifying its position as a vector quantity relative to a defined [blank1]. A transmission stating only '50 km away' provides only [blank2], meaning the helicopter could search anywhere on the circumference of a circle without knowing the [blank3].",
+          "blanks": {
+            "blank1": {
+              "correct": "reference frame / origin point",
+              "options": [
+                "reference frame / origin point",
+                "speedometer reading",
+                "gravitational field line"
+              ]
+            },
+            "blank2": {
+              "correct": "scalar distance (magnitude)",
+              "options": [
+                "scalar distance (magnitude)",
+                "acceleration vector",
+                "mechanical power"
+              ]
+            },
+            "blank3": {
+              "correct": "directional bearing / angle",
+              "options": [
+                "directional bearing / angle",
+                "mass of the drone",
+                "elapsed time"
+              ]
+            }
+          }
+        },
+        {
+          "stepId": "step_2",
+          "type": "data_calculation",
+          "title": "Part 2: Map Scale Conversion",
+          "prompt": "The rescue team establishes base camp as the coordinate origin (0, 0). The satellite grid map has a calibrated scale where 1 grid square = 2.5 km. If the drone is later pinpointed at coordinates (12, 16) grid units on the map, calculate its direct straight-line distance from base camp in kilometers.",
+          "inputLabel": "Calculated Distance",
+          "unit": "km",
+          "targetValue": 50,
+          "tolerance": 1,
+          "hint": "Use the Pythagorean theorem: distance on grid = sqrt(12² + 16²) = sqrt(144 + 256) = sqrt(400) = 20 grid units. Then multiply by 2.5 km per unit."
+        },
+        {
+          "stepId": "step_3",
+          "type": "cer",
+          "title": "Part 3: Scientific Argumentation (CER)",
+          "prompt": "A trainee claims: 'If Base Camp relocates 10 km South, the actual physical wreckage of the drone moves.' Construct a Claim-Evidence-Reasoning response evaluating this claim.",
+          "scaffold": {
+            "claimPlaceholder": "State whether moving the reference frame origin alters the physical position of the object...",
+            "evidencePlaceholder": "Cite evidence from coordinate systems, origins, and geographic landmarks...",
+            "reasoningPlaceholder": "Apply scientific reasoning connecting reference points to coordinate values versus physical reality..."
+          }
+        }
+      ],
+      "teacherKey": "Step 1: reference frame / origin point, scalar distance (magnitude), directional bearing / angle. Step 2: 50 km (20 grid units · 2.5 km/unit). Step 3: Claim: False. Changing the origin changes the coordinate numbers assigned to the drone, but does not move the physical drone itself."
     },
     "assignments": [
       {
@@ -178,10 +245,85 @@ const unit2Lessons = [
       "Reading": "Reading and auditing quest worksheet prompts, scale tables, and directional bearings."
     },
     "bellRinger": {
-      "type": "free_response",
-      "promptQuestion": "If a traveler walks 40 km through an enchanted forest over 8 days, what is the traveler's average speed in km per day?",
-      "explanation": "Average speed is v = d / t = 40 km / 8 days = 5 km per day.",
-      "defaultDuration": 3
+      "type": "cast_challenge",
+      "title": "Vector Displacement vs Path Distance",
+      "defaultDuration": 4,
+      "standards": {
+        "dci": "HS-PS2.A: Forces & Motion",
+        "sep": "SEP-5: Mathematical & Computational Thinking",
+        "ccc": "CCC-3: Scale, Proportion, and Quantity"
+      },
+      "phenomenon": {
+        "title": "Autonomous Mars Rover Navigation Log",
+        "type": "text",
+        "text": "NASA's Perseverance rover explores Jezero Crater on Mars. To avoid dangerous boulder fields, the rover drives 120 meters East along a curved sand dune, then turns and drives 50 meters North to reach a rock outcrop. Its mechanical wheel odometer records the total distance rolled, while orbital GPS measures its net change in position from the landing site."
+      },
+      "steps": [
+        {
+          "stepId": "step_1",
+          "type": "cloze_dropdown",
+          "title": "Part 1: Distinguishing Scalar and Vector Quantities",
+          "prompt": "Select the correct kinematic terms to complete the analysis of the rover navigation log:",
+          "text": "The rover wheel odometer records [blank1], which is a [blank2] quantity that depends on every twist and curve of the path. In contrast, the direct straight-line arrow from landing site to outcrop represents [blank3], which is a [blank4] quantity pointing from initial to final position.",
+          "blanks": {
+            "blank1": {
+              "correct": "total distance traveled",
+              "options": [
+                "total distance traveled",
+                "net displacement",
+                "average acceleration"
+              ]
+            },
+            "blank2": {
+              "correct": "scalar",
+              "options": [
+                "scalar",
+                "vector",
+                "unitless"
+              ]
+            },
+            "blank3": {
+              "correct": "net displacement",
+              "options": [
+                "net displacement",
+                "instantaneous speed",
+                "total distance"
+              ]
+            },
+            "blank4": {
+              "correct": "vector",
+              "options": [
+                "vector",
+                "scalar",
+                "constant"
+              ]
+            }
+          }
+        },
+        {
+          "stepId": "step_2",
+          "type": "data_calculation",
+          "title": "Part 2: Vector Resultant Magnitude",
+          "prompt": "Using the perpendicular legs of the journey (Δx = 120 m East, Δy = 50 m North), calculate the magnitude of the rover's net displacement vector in meters.",
+          "inputLabel": "Displacement Magnitude",
+          "unit": "m",
+          "targetValue": 130,
+          "tolerance": 1,
+          "hint": "Use the Pythagorean relationship: c = sqrt(Δx² + Δy²) = sqrt(120² + 50²) = sqrt(14400 + 2500)."
+        },
+        {
+          "stepId": "step_3",
+          "type": "cer",
+          "title": "Part 3: Scientific Argumentation (CER)",
+          "prompt": "Evaluate the statement: 'If the rover completes its geological sampling and drives directly back to the landing site, its total distance traveled is 0 meters and its net displacement is 0 meters.' Construct a CER response.",
+          "scaffold": {
+            "claimPlaceholder": "State whether the claim regarding distance and displacement for a round trip is correct, partially correct, or incorrect...",
+            "evidencePlaceholder": "Provide the numerical values for total odometer distance vs initial and final coordinates...",
+            "reasoningPlaceholder": "Explain using physics principles why round-trip displacement equals zero while scalar distance accumulates..."
+          }
+        }
+      ],
+      "teacherKey": "Step 1: total distance traveled, scalar, net displacement, vector. Step 2: 130 m. Step 3: Claim: Partially incorrect. Round-trip displacement is 0 m because initial position equals final position (Δx = x_final - x_initial = 0), but total distance traveled is 170 m + 130 m = 300 m (or 340 m depending on return route), because scalar distance accumulates all motion."
     },
     "assignments": [
       {
@@ -337,10 +479,117 @@ const unit2Lessons = [
       "Reading": "Following multi-step laboratory protocols and safety guidelines."
     },
     "bellRinger": {
-      "type": "concept_chat",
-      "promptQuestion": "Imagine you have a walking or wind-up toy and you want to measure its speed accurately. What tools and measurements would you need, and why is it important to time multiple runs and average the results rather than relying on just one trial?",
-      "chatSystemInstruction": "You are a warm, adaptive, and relatable physics mentor chatting with a student over SMS/text. Your goal is to explore a physics concept together without being overly formal or using forced slang.\n\nCRITICAL RULES:\n1. NO FISHING / PIVOT TO TEACHING: Never try to \"force\" or repeatedly nudge a student toward a specific technical answer or physics term. If you ask a conceptual question and the student guesses wrong, focuses on a different variable (like friction/roughness), or says \"I don't know,\" DO NOT ask a follow-up question trying to correct their guess. Instead, pivot immediately to teaching: validate their logic, briefly explain the physics concept directly using a relatable analogy, and move on.\n2. NO SOCRATIC TRAPS: Do not get stuck in a loop asking the student to explain the same thing over and over. If they answer correctly, understand a concept, or say \"yes\"/\"obvious\", validate it briefly and immediately MOVE FORWARD to a new dimension or a real-world application.\n3. MOVE DYNAMICALLY: Keep the conversation fluid. Once a basic idea is established, introduce a fun twist, a new scenario, or a practical question (e.g., \"What happens if we try this in space?\" or \"How does that affect a rollercoaster?\"). \n4. CHAT TONE & LENGTH: Keep replies highly conversational and natural—like a text message from a knowledgeable peer. Limit replies to 1–3 short sentences max. Never send multiple distinct thoughts, lists, or bullet points in one message.\n5. CONTINUING THE CONVERSATION: Never end the conversation abruptly or push the student to stop chatting. Even after the student demonstrates understanding or has engaged in multiple turns, keep the conversation flowing naturally by offering intriguing follow-up thoughts, fun scenario twists, or real-world applications. You may let them know they can click the Finish Session button whenever they are ready to submit, but always leave the door open for them to continue chatting.",
-      "defaultDuration": 4
+      "type": "cast_challenge",
+      "title": "Kinematic Data & Position-Time Slopes",
+      "defaultDuration": 4,
+      "standards": {
+        "dci": "HS-PS2.A: Forces & Motion",
+        "sep": "SEP-4: Analyzing & Interpreting Data",
+        "ccc": "CCC-1: Patterns & Proportional Relationships"
+      },
+      "phenomenon": {
+        "title": "Laboratory Tumble Buggy Ultrasonic Sensor Run",
+        "type": "graph",
+        "text": "An ultrasonic motion detector tracks a battery-powered motorized tumble buggy rolling along a meter track. Position coordinates are sampled at regular 2.0-second intervals as shown in the interactive scatter plot below.",
+        "graphData": {
+          "title": "Tumble Buggy: Position vs Time",
+          "chartType": "scatter",
+          "showBestFit": true,
+          "xAxis": {
+            "label": "Time (t)",
+            "unit": "s",
+            "beginAtZero": true
+          },
+          "yAxis": {
+            "label": "Position (x)",
+            "unit": "m",
+            "beginAtZero": true
+          },
+          "xValues": [
+            0,
+            2,
+            4,
+            6,
+            8,
+            10
+          ],
+          "series": [
+            {
+              "label": "Buggy Position",
+              "unit": "m",
+              "color": "#06b6d4",
+              "pointStyle": "circle",
+              "pointRadius": 6,
+              "values": [
+                0,
+                0.8,
+                1.6,
+                2.4,
+                3.2,
+                4
+              ]
+            }
+          ]
+        }
+      },
+      "steps": [
+        {
+          "stepId": "step_1",
+          "type": "cloze_dropdown",
+          "title": "Part 1: Graph Pattern Identification",
+          "prompt": "Analyze the pattern of the data points and trendline on the position-time graph:",
+          "text": "The position vs time graph displays a [blank1] relationship. On a position-time graph, the slope of the line represents the object's [blank2]. Because the slope remains constant throughout the run, the buggy experiences [blank3].",
+          "blanks": {
+            "blank1": {
+              "correct": "linear proportional",
+              "options": [
+                "linear proportional",
+                "exponential curving",
+                "sinusoidal oscillating"
+              ]
+            },
+            "blank2": {
+              "correct": "velocity (v = Δx / Δt)",
+              "options": [
+                "velocity (v = Δx / Δt)",
+                "net force",
+                "total mass"
+              ]
+            },
+            "blank3": {
+              "correct": "constant velocity (zero acceleration)",
+              "options": [
+                "constant velocity (zero acceleration)",
+                "continuous acceleration",
+                "increasing friction"
+              ]
+            }
+          }
+        },
+        {
+          "stepId": "step_2",
+          "type": "data_calculation",
+          "title": "Part 2: Slope & Velocity Determination",
+          "prompt": "Calculate the velocity of the tumble buggy in m/s using data coordinates from t = 2.0 s (x = 0.8 m) to t = 10.0 s (x = 4.0 m).",
+          "inputLabel": "Calculated Velocity",
+          "unit": "m/s",
+          "targetValue": 0.4,
+          "tolerance": 0.02,
+          "hint": "Slope = Δx / Δt = (4.0 m - 0.8 m) / (10.0 s - 2.0 s) = 3.2 m / 8.0 s."
+        },
+        {
+          "stepId": "step_3",
+          "type": "cer",
+          "title": "Part 3: Scientific Argumentation (CER)",
+          "prompt": "If the buggy's battery began dying during the run causing it to slow down, explain what visual change would occur to the slope of the position-time graph.",
+          "scaffold": {
+            "claimPlaceholder": "State how the shape of the graph would change as speed decreases over time...",
+            "evidencePlaceholder": "Reference the relationship between instantaneous slope (steepness) and velocity...",
+            "reasoningPlaceholder": "Explain why a decreasing velocity produces a downward curving parabola rather than a straight line..."
+          }
+        }
+      ],
+      "teacherKey": "Step 1: linear proportional, velocity (v = Δx / Δt), constant velocity (zero acceleration). Step 2: 0.40 m/s. Step 3: Claim: The line would curve and become flatter over time. Evidence: Slope represents velocity; as speed decreases, the ratio Δx/Δt per time interval decreases. Reasoning: A straight line indicates constant slope/speed; decreasing speed means less position gained per second, curving the graph towards a horizontal flatline."
     },
     "links": {
       "Wind-Up Toy Speed Lab": "Unit_2/wind_up_toy_lab/index.html",
@@ -517,10 +766,77 @@ const unit2Lessons = [
       "Reading": "Deconstructing multi-sentence race prompts with multiple moving objects."
     },
     "bellRinger": {
-      "type": "free_response",
-      "promptQuestion": "A motorized car needs to travel a track distance of 50 cm. If its constant speed is 10 cm/s, how many seconds will it take to reach the finish line? State the formula you used.",
-      "explanation": "Using t = d / v: time = 50 cm / (10 cm/s) = 5.0 seconds.",
-      "defaultDuration": 3
+      "type": "cast_challenge",
+      "title": "Multi-Agent Kinematics & Proportional Rates",
+      "defaultDuration": 4,
+      "standards": {
+        "dci": "HS-PS2.A: Forces & Motion",
+        "sep": "SEP-5: Using Mathematics and Computational Thinking",
+        "ccc": "CCC-3: Scale, Proportion, and Quantity"
+      },
+      "phenomenon": {
+        "title": "Emergency Medical Supply Dispatch Challenge",
+        "type": "text",
+        "text": "An emergency medical depot must deliver critical serum to a clinic 600 meters away. Dispatch evaluates two transport options: Aerial Drone Alpha flies a direct 600-meter straight flight path at a steady speed of 25 m/s. Ground Rover Beta travels an indirect 720-meter paved road route at a steady speed of 24 m/s."
+      },
+      "steps": [
+        {
+          "stepId": "step_1",
+          "type": "cloze_dropdown",
+          "title": "Part 1: Algebraic Proportions in Kinematics",
+          "prompt": "Analyze the speed equation formula relationships:",
+          "text": "Rearranging the constant speed equation v = d / t to solve for travel time yields [blank1]. This means that travel time is [blank2] proportional to travel distance and [blank3] proportional to speed.",
+          "blanks": {
+            "blank1": {
+              "correct": "t = d / v",
+              "options": [
+                "t = d / v",
+                "t = v · d",
+                "t = ½v · d²"
+              ]
+            },
+            "blank2": {
+              "correct": "directly",
+              "options": [
+                "directly",
+                "inversely",
+                "exponentially"
+              ]
+            },
+            "blank3": {
+              "correct": "inversely",
+              "options": [
+                "inversely",
+                "directly",
+                "not"
+              ]
+            }
+          }
+        },
+        {
+          "stepId": "step_2",
+          "type": "data_calculation",
+          "title": "Part 2: Travel Time Calculation",
+          "prompt": "Calculate the exact transit time in seconds required for Aerial Drone Alpha to complete its 600-meter flight at 25 m/s.",
+          "inputLabel": "Transit Time",
+          "unit": "s",
+          "targetValue": 24,
+          "tolerance": 0.5,
+          "hint": "Using t = d / v: time = 600 m / (25 m/s)."
+        },
+        {
+          "stepId": "step_3",
+          "type": "cer",
+          "title": "Part 3: Comparative Argumentation (CER)",
+          "prompt": "Determine which vehicle arrives first at the clinic and by how many seconds. Construct a Claim-Evidence-Reasoning response justifying the optimal dispatch choice.",
+          "scaffold": {
+            "claimPlaceholder": "Identify which vehicle arrives first and state the time difference...",
+            "evidencePlaceholder": "Provide calculated times for both Drone Alpha (600 m / 25 m/s) and Rover Beta (720 m / 24 m/s)...",
+            "reasoningPlaceholder": "Explain how path distance differences offset higher ground speed to determine the winner..."
+          }
+        }
+      ],
+      "teacherKey": "Step 1: t = d / v, directly, inversely. Step 2: 24.0 seconds. Step 3: Claim: Aerial Drone Alpha arrives first by 6.0 seconds. Evidence: Drone Alpha time = 600 m / 25 m/s = 24.0 s; Rover Beta time = 720 m / 24 m/s = 30.0 s (30.0 s - 24.0 s = 6.0 s). Reasoning: Even though Rover Beta travels almost as fast as the drone, the road route adds 120 m of extra distance, requiring 6 additional seconds to arrive."
     },
     "assignments": [
       {
@@ -765,10 +1081,77 @@ const unit2Lessons = [
       "Reading": "Reading dual gauge readouts and calculating algebraic vector sums."
     },
     "bellRinger": {
-      "type": "free_response",
-      "promptQuestion": "A car cruises down the highway in a straight line at a steady speed of 65 mph. Is the net force acting on the car forward, backward, or zero?",
-      "explanation": "The net force is zero! Because the car travels at constant velocity, its acceleration is zero (a = 0), which means all forward and resistive forces are balanced.",
-      "defaultDuration": 3
+      "type": "cast_challenge",
+      "title": "Balanced Forces & Dynamic Equilibrium",
+      "defaultDuration": 4,
+      "standards": {
+        "dci": "HS-PS2.A: Forces & Motion",
+        "sep": "SEP-6: Constructing Explanations & Designing Solutions",
+        "ccc": "CCC-4: Systems & System Models / Stability and Change"
+      },
+      "phenomenon": {
+        "title": "High-Speed Rail Dynamic Equilibrium",
+        "type": "text",
+        "text": "A high-speed electric passenger train cruises along a straight, horizontal track at a constant velocity of 40 m/s (approx. 90 mph). The electric locomotive drive motors exert 18,000 N of forward horizontal thrust against the rails. Meanwhile, aerodynamic air resistance and wheel track friction exert opposing backward forces."
+      },
+      "steps": [
+        {
+          "stepId": "step_1",
+          "type": "cloze_dropdown",
+          "title": "Part 1: Dynamic Equilibrium Principles",
+          "prompt": "Apply Newton's First Law of Motion to the cruising train:",
+          "text": "Because the passenger train travels at a constant velocity, its acceleration is [blank1]. According to Newton's First Law, when acceleration is zero, the net force ΣF acting on the system must be [blank2]. The forward motor thrust and total backward resistive forces are therefore [blank3].",
+          "blanks": {
+            "blank1": {
+              "correct": "0 m/s²",
+              "options": [
+                "0 m/s²",
+                "40 m/s²",
+                "9.8 m/s²"
+              ]
+            },
+            "blank2": {
+              "correct": "equal to 0 N",
+              "options": [
+                "equal to 0 N",
+                "greater than 0 N forward",
+                "equal to the train's mass"
+              ]
+            },
+            "blank3": {
+              "correct": "balanced (equal and opposite)",
+              "options": [
+                "balanced (equal and opposite)",
+                "unbalanced forward",
+                "unbalanced backward"
+              ]
+            }
+          }
+        },
+        {
+          "stepId": "step_2",
+          "type": "data_calculation",
+          "title": "Part 2: Resistive Force Quantification",
+          "prompt": "Given that the forward motor force is 18,000 N and the train maintains constant velocity (F_net = 0), calculate the total resistive drag and friction force acting on the train in Newtons.",
+          "inputLabel": "Total Resistive Force",
+          "unit": "N",
+          "targetValue": 18000,
+          "tolerance": 100,
+          "hint": "ΣF = F_forward - F_resistive = 0, so F_resistive = F_forward."
+        },
+        {
+          "stepId": "step_3",
+          "type": "cer",
+          "title": "Part 3: Scientific Argumentation (CER)",
+          "prompt": "A student argues: 'If the net force is zero, the train cannot be moving and must immediately come to a complete stop.' Construct a Claim-Evidence-Reasoning response resolving this common physics misconception.",
+          "scaffold": {
+            "claimPlaceholder": "State whether zero net force requires an object to be at rest...",
+            "evidencePlaceholder": "Cite Newton's First Law (Law of Inertia) and experimental evidence regarding constant velocity motion...",
+            "reasoningPlaceholder": "Explain why net force causes changes in motion (acceleration), not motion itself..."
+          }
+        }
+      ],
+      "teacherKey": "Step 1: 0 m/s², equal to 0 N, balanced (equal and opposite). Step 2: 18000 N. Step 3: Claim: False. An object with zero net force can be moving at a constant velocity in dynamic equilibrium. Evidence: Newton's First Law states an object in motion remains in motion with constant speed in a straight line unless acted upon by an unbalanced net force. Reasoning: Forces do not cause motion; unbalanced net forces cause changes in velocity (acceleration). Because forward thrust balances backward friction, no acceleration occurs, allowing the train to continue at 40 m/s indefinitely."
     }
   },
   {

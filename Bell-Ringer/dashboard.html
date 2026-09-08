@@ -220,13 +220,17 @@
             <!-- Prompt Text Details -->
             <div class="lg:col-span-7 glass-panel rounded-3xl p-6 md:p-8 flex flex-col justify-between">
                 <div>
-                    <span class="text-xs font-bold text-orange-500 uppercase tracking-widest bg-orange-500/10 border border-orange-500/20 px-3 py-1 rounded-full">Bell-Ringer Prompt</span>
-                    <h2 id="dashboard-prompt-question" class="text-2xl md:text-3xl font-semibold text-white mt-6 leading-snug">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span id="dashboard-prompt-badge" class="text-xs font-bold text-orange-500 uppercase tracking-widest bg-orange-500/10 border border-orange-500/20 px-3 py-1 rounded-full">Bell-Ringer Prompt</span>
+                        <div id="dashboard-cast-badges" class="hidden flex flex-wrap gap-1.5"></div>
+                    </div>
+                    <h2 id="dashboard-prompt-question" class="text-2xl md:text-3xl font-semibold text-white mt-4 leading-snug">
                         Loading today's prompt details...
                     </h2>
+                    <div id="dashboard-phenomenon-passage" class="hidden mt-3 p-3.5 rounded-2xl bg-slate-900/60 border border-white/5 text-xs text-slate-300 leading-relaxed max-h-36 overflow-y-auto"></div>
                 </div>
                 <div class="mt-6 border-t border-white/5 pt-4 flex justify-between text-xs text-slate-500">
-                    <span>Verification Type: AI Good-Faith Gatekeeper</span>
+                    <span id="dashboard-verification-type">Verification Type: AI Good-Faith Gatekeeper</span>
                     <span id="explanation-toggle-hint">Answer hidden during countdown</span>
                 </div>
             </div>
@@ -483,27 +487,69 @@
                     // Display details
                     promptSection.classList.remove('hidden');
                     document.getElementById('dashboard-prompt-question').innerText = data.promptQuestion || "No prompt set.";
+
+                    const castBadgesEl = document.getElementById('dashboard-cast-badges');
+                    const promptBadgeEl = document.getElementById('dashboard-prompt-badge');
+                    const passageEl = document.getElementById('dashboard-phenomenon-passage');
+                    const verifTypeEl = document.getElementById('dashboard-verification-type');
+
+                    if (activeActivityType === 'cast_challenge') {
+                        if (promptBadgeEl) {
+                            promptBadgeEl.className = "text-xs font-bold text-cyan-400 uppercase tracking-widest bg-cyan-500/10 border border-cyan-500/20 px-3 py-1 rounded-full";
+                            promptBadgeEl.innerText = "CAST 3D Task";
+                        }
+                        if (verifTypeEl) verifTypeEl.innerText = "Verification: Multi-Step CAST Standards Alignment";
+
+                        const castData = data.castData;
+                        if (castData && castBadgesEl) {
+                            castBadgesEl.classList.remove('hidden');
+                            const std = castData.standards || {};
+                            let badgesHtml = '';
+                            if (std.dci) badgesHtml += `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-orange-500/10 text-orange-400 border border-orange-500/20">${escapeHtml(std.dci)}</span>`;
+                            if (std.sep) badgesHtml += `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">${escapeHtml(std.sep)}</span>`;
+                            if (std.ccc) badgesHtml += `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">${escapeHtml(std.ccc)}</span>`;
+                            castBadgesEl.innerHTML = badgesHtml;
+                        }
+
+                        if (castData?.phenomenon?.text && passageEl) {
+                            passageEl.classList.remove('hidden');
+                            passageEl.innerHTML = `<span class="font-bold text-cyan-400 uppercase tracking-wider block text-[10px] mb-1">Authentic Phenomenon Scenario:</span>${escapeHtml(castData.phenomenon.text)}`;
+                        } else if (passageEl) {
+                            passageEl.classList.add('hidden');
+                        }
+                    } else {
+                        if (promptBadgeEl) {
+                            promptBadgeEl.className = "text-xs font-bold text-orange-500 uppercase tracking-widest bg-orange-500/10 border border-orange-500/20 px-3 py-1 rounded-full";
+                            promptBadgeEl.innerText = "Bell-Ringer Prompt";
+                        }
+                        if (castBadgesEl) castBadgesEl.classList.add('hidden');
+                        if (passageEl) passageEl.classList.add('hidden');
+                        if (verifTypeEl) verifTypeEl.innerText = "Verification Type: AI Good-Faith Gatekeeper";
+                    }
                     
                     // Phenomenon image or graph
                     const imgEl = document.getElementById('dashboard-phenomenon-img');
                     const graphEl = document.getElementById('dashboard-phenomenon-graph');
                     const placeholderEl = document.getElementById('dashboard-phenomenon-placeholder');
 
-                    if ((data.activityType === 'graph_interpretation' || data.graphData) && data.graphData) {
+                    const isGraphData = (data.activityType === 'graph_interpretation' || data.graphData || (data.castData && data.castData.phenomenon && data.castData.phenomenon.graphData));
+                    const resolvedGraphData = data.graphData || (data.castData && data.castData.phenomenon && data.castData.phenomenon.graphData);
+
+                    if (isGraphData && resolvedGraphData) {
                         imgEl.classList.add('hidden');
                         placeholderEl.classList.add('hidden');
                         graphEl.classList.remove('hidden');
 
-                        const gData = { ...data.graphData, theme: 'dark' };
+                        const gData = { ...resolvedGraphData, theme: 'dark' };
                         if (!window.dashboardGraphEngine) {
                             window.dashboardGraphEngine = new CASTGraphEngine(graphEl, gData);
                         } else {
                             window.dashboardGraphEngine.update(gData);
                         }
-                    } else if (data.phenomenonImageUrl) {
+                    } else if (data.phenomenonImageUrl || (data.castData && data.castData.phenomenon && data.castData.phenomenon.imageUrl)) {
                         if (window.dashboardGraphEngine) { window.dashboardGraphEngine.destroy(); window.dashboardGraphEngine = null; }
                         graphEl.classList.add('hidden');
-                        imgEl.src = data.phenomenonImageUrl;
+                        imgEl.src = data.phenomenonImageUrl || data.castData.phenomenon.imageUrl;
                         imgEl.classList.remove('hidden');
                         placeholderEl.classList.add('hidden');
                     } else {
@@ -520,6 +566,12 @@
                             placeholderEl.innerHTML = `
                                 <span class="text-4xl block animate-pulse">💬</span>
                                 <p class="text-xs font-semibold uppercase tracking-wider mt-2 text-cyan-400 font-bold">Concept Chat Session Active</p>
+                            `;
+                        } else if (activeActivityType === 'cast_challenge') {
+                            placeholderEl.innerHTML = `
+                                <span class="text-4xl block animate-bounce">🔬</span>
+                                <p class="text-xs font-semibold uppercase tracking-wider mt-2 text-cyan-400 font-bold">CAST Performance Task Active</p>
+                                <p class="text-[10px] text-slate-400 mt-1">Multi-Step 3D Science Investigation</p>
                             `;
                         } else {
                             placeholderEl.innerHTML = `
@@ -925,6 +977,48 @@
                     <div class="p-4 rounded-2xl bg-slate-950/60 border border-white/5 flex flex-col items-center gap-3">
                         <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Physics Connections Guesses</span>
                         <div class="whitespace-pre font-mono text-xl tracking-widest leading-normal text-center">${escapeHtml(submission.studentResponse || 'No guesses submitted')}</div>
+                    </div>
+                `;
+            } else if (activeActivityType === 'cast_challenge') {
+                copyBtn.classList.add('hidden');
+                const completedSteps = submission.completedSteps || 0;
+                const totalSteps = submission.totalSteps || 3;
+                const pct = submission.percentComplete || Math.round((completedSteps / totalSteps) * 100);
+                let stepsHtml = '';
+                if (submission.castAnswers && typeof submission.castAnswers === 'object') {
+                    Object.keys(submission.castAnswers).forEach(stepKey => {
+                        const ans = submission.castAnswers[stepKey];
+                        let ansStr = '';
+                        if (typeof ans === 'object' && ans !== null) {
+                            if (ans.claim || ans.evidence || ans.reasoning) {
+                                ansStr = `<div class="space-y-1.5 mt-1 text-xs">
+                                    <div><strong class="text-cyan-400">Claim:</strong> <span class="text-slate-200">${escapeHtml(ans.claim || '')}</span></div>
+                                    <div><strong class="text-cyan-400">Evidence:</strong> <span class="text-slate-200">${escapeHtml(ans.evidence || '')}</span></div>
+                                    <div><strong class="text-cyan-400">Reasoning:</strong> <span class="text-slate-200">${escapeHtml(ans.reasoning || '')}</span></div>
+                                </div>`;
+                            } else {
+                                ansStr = Object.entries(ans).map(([k, v]) => `<span class="bg-slate-800 text-slate-200 px-2 py-0.5 rounded text-xs font-mono mr-1">${k}: ${v}</span>`).join(' ');
+                            }
+                        } else {
+                            ansStr = `<span class="font-mono text-cyan-300 font-bold text-sm">${escapeHtml(String(ans))}</span>`;
+                        }
+                        stepsHtml += `
+                            <div class="p-3.5 rounded-2xl bg-slate-950/80 border border-white/10 flex flex-col gap-1">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">${stepKey.replace('_', ' ')}</span>
+                                ${ansStr}
+                            </div>
+                        `;
+                    });
+                }
+                contentEl.innerHTML = `
+                    <div class="flex flex-col gap-3">
+                        <div class="flex items-center justify-between p-3 rounded-2xl bg-cyan-950/30 border border-cyan-500/20">
+                            <span class="text-xs font-bold text-cyan-400 uppercase tracking-wide">CAST Task Completion</span>
+                            <span class="text-xs font-mono font-bold text-cyan-300 bg-cyan-500/20 px-3 py-1 rounded-full">${completedSteps} / ${totalSteps} Steps Complete (${pct}%)</span>
+                        </div>
+                        <div class="flex flex-col gap-2 max-h-[320px] overflow-y-auto pr-1">
+                            ${stepsHtml || `<div class="p-4 rounded-xl bg-slate-950/60 text-slate-400 text-xs italic">Submitted without step details.</div>`}
+                        </div>
                     </div>
                 `;
             }
