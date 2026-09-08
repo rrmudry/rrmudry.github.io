@@ -1,6 +1,18 @@
 # Wiki Evolution Log
 
 Append-only log tracking pattern changes across sessions.
+## 2026-09-08 — Desmos Scientific Calculator Pop-Out Integration
+
+**Motivation**: Equipped students with the official California Science Test (CAST) standard Desmos Scientific Calculator as an accessible pop-out tool across both the Bell-Ringer student portal and the Unit 2 Dashboard. Students can now perform authentic calculations (distance, time, speed, balanced forces) alongside the phenomenon data without leaving the page.
+
+**Key Changes**:
+- **Desmos API Integration**: Loaded official Desmos Scientific Calculator API (`v1.9`) with public API key across `Bell-Ringer/index.html` and `unit2-dashboard.html`.
+- **Slide-Over Drawer**: Built high-performance slide-over drawer (`#desmos-calculator-drawer`) with smooth slide transitions (`translate-x-full` -> `translate-x-0`), lazy initialization, and automatic resize recalculation (`desmosCalculatorInstance.resize()`). Includes clear button and Escape key dismiss.
+- **Copy / Autofill Helper**: Added a "📋 Copy Result" button that reads the calculated value from Desmos and automatically fills the active `#cast-math-input` field with event dispatch.
+- **Contextual In-Problem Access**: In `assets/js/cast-item-engine.js` (`renderMathData`), added a direct `"🧮 Calculator"` button next to the input field so students can open the calculator with one tap right where they need it.
+- **Header & Floating Triggers**: Provided a persistent header button (`#btn-toggle-calculator`) and floating action button (FAB) at the bottom right.
+- **Unit 2 Dashboard**: Added matching themed drawer and floating trigger to `unit2-dashboard.html` for studying kinematics formulas and velocity calculations.
+
 ## 2026-09-08 — Page Width Maximization: CAST Bell-Ringer & Unit 2 Dashboard
 
 **Motivation**: Maximized horizontal viewport utilization across widescreen displays, desktop monitors, and Chromebooks. Replaced artificial `max-w-5xl` (1024px) constraints in the Bell-Ringer student interface and `max-w-7xl` (1280px) in the Unit 2 Dashboard with responsive fluid layouts utilizing 95%–98% of the viewport (up to 1780px).
