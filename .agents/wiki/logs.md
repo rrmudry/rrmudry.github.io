@@ -700,3 +700,14 @@ Append-only log tracking pattern changes across sessions.
 - **Global Link Categorization Heuristics (`assets/lessons-data.js`)**:
   - Updated `categorizeLessonLinks` to recognize `fantasy map worksheet` and `worksheet` links as assignments.
   - Refined precedence so that worksheets or assignments hosted on OneDrive (`sharepoint.com`) or Google Docs are never demoted into `isResource`.
+
+---
+
+## 2026-09-08 — PRIDE Time: Thursday to Tuesday Attendance & Streak Tracker Fix
+
+**Motivation**: Fixed an issue in the PRIDE Time Attendance & Behavior Tracker (`pride-time/pride-app.js`) where consecutive attendance streaks reset across the gap between Thursday and the following Tuesday (since PRIDE Time only runs on Tuesdays, Wednesdays, and Thursdays).
+
+**Changes**:
+- **Dynamic PRIDE Days Filtering**: Updated `AttendanceEngine.getConsecutiveStreak` in `pride-time/pride-app.js` to filter past attendance session dates against `State.settings.prideDays` (`['Tuesday', 'Wednesday', 'Thursday']`). Non-PRIDE days (Mondays, Fridays, Weekends) present in Firestore or local storage are excluded from consecutive streak evaluation.
+- **Thursday-to-Tuesday Continuity**: Thursday's session and the following Tuesday's session are now correctly treated as adjacent, consecutive PRIDE Time sessions. A student attending Tue, Wed, Thu of week 1 who scans on Tue of week 2 is accurately flagged for 3 consecutive sessions in a row.
+- **Dynamic Settings Fallback**: Updated `getPastPrideDates` and `updatePrideDayBanner` to dynamically respect `State.settings.prideDays` with safe fallback.
