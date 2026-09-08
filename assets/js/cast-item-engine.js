@@ -335,7 +335,22 @@
         const caption = table.caption || table.title || phen.tableTitle || "";
         const headers = table.headers || [];
         const rawRows = table.rows || [];
-        const rows = rawRows.map(row => {
+        let rowsArray = rawRows;
+        if (typeof rawRows === "string") {
+          try { rowsArray = JSON.parse(rawRows); } catch(e) { rowsArray = []; }
+        }
+        if (!Array.isArray(rowsArray) && typeof rowsArray === "object" && rowsArray !== null) {
+          const sortedKeys = Object.keys(rowsArray).sort((a, b) => {
+            const na = parseInt(a.replace(/\D/g, ''), 10);
+            const nb = parseInt(b.replace(/\D/g, ''), 10);
+            if (!isNaN(na) && !isNaN(nb)) return na - nb;
+            return a.localeCompare(b);
+          });
+          rowsArray = sortedKeys.map(k => rowsArray[k]);
+        }
+        if (!Array.isArray(rowsArray)) rowsArray = [];
+
+        const rows = rowsArray.map(row => {
           if (Array.isArray(row)) return row;
           if (row && typeof row === 'object') {
             if (Array.isArray(row.cells)) return row.cells;
@@ -348,8 +363,9 @@
             });
             return keys.map(k => row[k]);
           }
-          return [String(row)];
+          return [String(row ?? "")];
         });
+
         let tHtml = `
           <div class="w-full h-full flex flex-col justify-center">
             ${caption ? `<div class="text-xs sm:text-sm font-mono font-bold text-cyan-400 uppercase tracking-wider mb-2 flex items-center gap-1.5"><span>📊</span> ${escapeHtml(caption)}</div>` : ''}
@@ -361,11 +377,14 @@
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-white/5 bg-slate-950/80 text-sm sm:text-base text-slate-100 font-sans">
-                  ${rows.map((row, rIdx) => `
-                    <tr class="${rIdx % 2 === 0 ? 'bg-slate-900/40' : 'bg-slate-950/60'} hover:bg-cyan-950/30 transition-colors">
-                      ${row.map(cell => `<td class="px-3.5 py-2.5 font-medium">${escapeHtml(String(cell))}</td>`).join('')}
-                    </tr>
-                  `).join('')}
+                  ${rows.map((row, rIdx) => {
+                    const cells = Array.isArray(row) ? row : (row && typeof row === 'object' ? Object.values(row) : [String(row ?? "")]);
+                    return `
+                      <tr class="${rIdx % 2 === 0 ? 'bg-slate-900/40' : 'bg-slate-950/60'} hover:bg-cyan-950/30 transition-colors">
+                        ${cells.map(cell => `<td class="px-3.5 py-2.5 font-medium">${escapeHtml(String(cell))}</td>`).join('')}
+                      </tr>
+                    `;
+                  }).join('')}
                 </tbody>
               </table>
             </div>
