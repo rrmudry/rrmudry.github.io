@@ -1237,6 +1237,37 @@ CRITICAL RULES:
                                     stepsHtml += `<div class="p-2 rounded-lg bg-slate-900/80 border border-white/5 text-[11px]"><span class="font-bold text-cyan-400 uppercase">${stepKey.replace('_', ' ')}:</span> ${ansStr}</div>`;
                                 });
                             }
+                            // AI reasoning chat bubbles if present
+                            let castChatHtml = '';
+                            const castChatList = sub.chatMessages || [];
+                            if (castChatList.length > 0) {
+                                let bubbles = '';
+                                castChatList.forEach(msg => {
+                                    const text = (msg.parts && msg.parts[0] ? msg.parts[0].text : msg.text) || '';
+                                    const isStudent = msg.role === 'user' || msg.sender === 'user';
+                                    const roleLabel = isStudent ? 'Student' : 'AI Mentor';
+                                    const roleClass = isStudent ? 'text-orange-400 font-bold' : 'text-cyan-400 font-bold';
+                                    const bgClass = isStudent ? 'bg-orange-500/5 border border-orange-500/10' : 'bg-cyan-500/5 border-cyan-500/10';
+                                    bubbles += `
+                                        <div class="p-2 border rounded-lg ${bgClass} mb-1.5 text-[11px] leading-normal">
+                                            <div class="${roleClass} text-[10px] uppercase tracking-wider mb-0.5">${roleLabel}:</div>
+                                            <div class="text-slate-200">${escapeHtml(text)}</div>
+                                        </div>
+                                    `;
+                                });
+                                castChatHtml = `
+                                    <div class="mt-2 border-t border-white/10 pt-2">
+                                        <span class="text-[10px] font-bold text-cyan-400 uppercase tracking-wider block mb-1">AI Reasoning Dialogue:</span>
+                                        <div class="max-h-[160px] overflow-y-auto pr-1 flex flex-col gap-1 max-w-full border border-white/5 bg-slate-950/40 rounded-xl p-2">
+                                            ${bubbles}
+                                        </div>
+                                        <button id="copy-btn-${sub.docId}" onclick="copyChatTranscript('${sub.docId}')" class="mt-1.5 w-full py-1 rounded-lg border border-cyan-500/20 bg-cyan-500/5 hover:bg-cyan-500/10 text-cyan-400 text-[11px] font-bold transition-all flex items-center justify-center gap-1.5">
+                                            📋 Copy Reasoning Transcript
+                                        </button>
+                                    </div>
+                                `;
+                            }
+
                             responseDisplay = `
                                 <div class="flex flex-col gap-1.5 max-w-full">
                                     <div class="flex items-center gap-2">
@@ -1245,6 +1276,7 @@ CRITICAL RULES:
                                     <div class="flex flex-col gap-1 mt-1">
                                         ${stepsHtml || `<span class="text-slate-500 italic text-xs">${escapeHtml(sub.studentResponse || 'CAST Performance Task Submitted')}</span>`}
                                     </div>
+                                    ${castChatHtml}
                                 </div>
                             `;
                         } else {
@@ -1793,8 +1825,8 @@ CRITICAL RULES:
             transcript += `========================================\n\n`;
             
             sub.chatMessages.forEach(msg => {
-                const text = msg.parts && msg.parts[0] ? msg.parts[0].text : '';
-                const role = msg.role === 'user' ? 'Student' : 'AI Tutor';
+                const text = (msg.parts && msg.parts[0] ? msg.parts[0].text : msg.text) || '';
+                const role = (msg.role === 'user' || msg.sender === 'user') ? 'Student' : 'AI Mentor';
                 transcript += `${role}: ${text}\n\n`;
             });
             
