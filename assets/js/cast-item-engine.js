@@ -334,7 +334,22 @@
         const table = phen.dataTable || {};
         const caption = table.caption || table.title || phen.tableTitle || "";
         const headers = table.headers || [];
-        const rows = table.rows || [];
+        const rawRows = table.rows || [];
+        const rows = rawRows.map(row => {
+          if (Array.isArray(row)) return row;
+          if (row && typeof row === 'object') {
+            if (Array.isArray(row.cells)) return row.cells;
+            if (Array.isArray(row.cols)) return row.cols;
+            const keys = Object.keys(row).sort((a, b) => {
+              const na = parseInt(a.replace(/\D/g, ''), 10);
+              const nb = parseInt(b.replace(/\D/g, ''), 10);
+              if (!isNaN(na) && !isNaN(nb)) return na - nb;
+              return a.localeCompare(b);
+            });
+            return keys.map(k => row[k]);
+          }
+          return [String(row)];
+        });
         let tHtml = `
           <div class="w-full h-full flex flex-col justify-center">
             ${caption ? `<div class="text-xs sm:text-sm font-mono font-bold text-cyan-400 uppercase tracking-wider mb-2 flex items-center gap-1.5"><span>📊</span> ${escapeHtml(caption)}</div>` : ''}
