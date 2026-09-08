@@ -557,6 +557,11 @@
               ` : ''}
             </div>
 
+            <button type="button" onclick="if(window.toggleDesmosCalculator) window.toggleDesmosCalculator(true)" class="px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 hover:text-cyan-200 border border-cyan-500/40 text-sm font-bold font-sans transition-all flex items-center gap-1.5 shadow-sm" title="Open Desmos Scientific Calculator">
+              <span>🧮</span>
+              <span>Calculator</span>
+            </button>
+
             <button type="button" id="cast-check-math-btn" class="px-5 py-3 rounded-xl bg-cyan-600/30 hover:bg-cyan-600/50 text-cyan-200 border border-cyan-500/50 text-sm font-bold font-sans transition-all shadow-sm">
               Verify Value
             </button>

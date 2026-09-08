@@ -7,6 +7,7 @@
     <title>Unit 2 Dashboard: Kinematics & Velocity Vectors</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
@@ -1791,10 +1792,112 @@
             // Initial static render
             renderScope();
         }
+
+        // --- DESMOS SCIENTIFIC CALCULATOR DRAWER CONTROLLER ---
+        let desmosCalculatorInstance = null;
+
+        function initDesmosCalculator() {
+            const calcContainer = document.getElementById('desmos-calculator-container');
+            if (window.Desmos && calcContainer && !desmosCalculatorInstance) {
+                try {
+                    desmosCalculatorInstance = Desmos.ScientificCalculator(calcContainer, {
+                        fontSize: Desmos.FontSizes.SMALL,
+                        keypad: true,
+                        settingsMenu: false
+                    });
+                    window.desmosCalculator = desmosCalculatorInstance;
+                } catch (e) {
+                    console.error("Desmos init error:", e);
+                }
+            }
+        }
+
+        window.toggleDesmosCalculator = function(forceOpen) {
+            const drawer = document.getElementById('desmos-calculator-drawer');
+            const backdrop = document.getElementById('desmos-drawer-backdrop');
+            if (!drawer) return;
+
+            const isClosed = drawer.classList.contains('translate-x-full');
+            const shouldOpen = (typeof forceOpen === 'boolean') ? forceOpen : isClosed;
+
+            if (shouldOpen) {
+                drawer.classList.remove('translate-x-full');
+                drawer.classList.add('translate-x-0');
+                if (backdrop) backdrop.classList.remove('hidden');
+                if (!desmosCalculatorInstance) {
+                    initDesmosCalculator();
+                }
+                setTimeout(() => {
+                    if (desmosCalculatorInstance && desmosCalculatorInstance.resize) {
+                        desmosCalculatorInstance.resize();
+                    }
+                }, 120);
+            } else {
+                drawer.classList.add('translate-x-full');
+                drawer.classList.remove('translate-x-0');
+                if (backdrop) backdrop.classList.add('hidden');
+            }
+        };
+
+        window.clearDesmosCalculator = function() {
+            if (desmosCalculatorInstance) {
+                desmosCalculatorInstance.setBlank();
+            }
+        };
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const drawer = document.getElementById('desmos-calculator-drawer');
+                if (drawer && !drawer.classList.contains('translate-x-full')) {
+                    window.toggleDesmosCalculator(false);
+                }
+            }
+        });
     </script>
     <!-- NGSS Database Integration -->
     <script src="ngss-explorer/standards-data.js"></script>
     <script src="assets/ngss-helper.js"></script>
+
+    <!-- Slide-Over Desmos Scientific Calculator Drawer -->
+    <div id="desmos-drawer-backdrop" onclick="toggleDesmosCalculator(false)" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 hidden transition-opacity"></div>
+    <aside id="desmos-calculator-drawer" class="fixed inset-y-0 right-0 z-50 w-full sm:w-[440px] md:w-[480px] bg-slate-950/95 backdrop-blur-xl border-l border-lime-500/30 shadow-2xl p-4 sm:p-5 flex flex-col space-y-3 transition-transform duration-300 translate-x-full">
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#ccff00] to-[#facc15] flex items-center justify-center text-slate-950 text-base font-bold shadow-[0_0_15px_rgba(204,255,0,0.5)]">
+                    🧮
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-lime-300 font-mono leading-none">Desmos Calculator</h3>
+                    <p class="text-[10px] text-slate-400 font-mono mt-0.5">CAST Scientific Tool</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button type="button" onclick="clearDesmosCalculator()" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-mono border border-white/10 transition-colors" title="Clear expressions">
+                    Clear
+                </button>
+                <button type="button" onclick="toggleDesmosCalculator(false)" class="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-bold border border-white/10 transition-colors" title="Close Drawer">
+                    ✕
+                </button>
+            </div>
+        </div>
+
+        <!-- Desmos Frame Mount -->
+        <div id="desmos-calculator-container" class="flex-1 min-h-[420px] w-full rounded-xl overflow-hidden border border-white/10 bg-white shadow-inner">
+            <!-- Desmos.ScientificCalculator mounts here -->
+        </div>
+
+        <!-- Helper Footer -->
+        <div class="p-3 rounded-xl bg-slate-900/80 border border-lime-500/20 flex items-center justify-between gap-2 text-xs font-mono">
+            <span class="text-[11px] text-slate-400">💡 Press <strong class="text-lime-300">Enter</strong> or <strong class="text-lime-300">=</strong> to calculate</span>
+            <span class="text-[10px] text-lime-400 font-bold uppercase tracking-wider">Unit 2 Kinematics</span>
+        </div>
+    </aside>
+
+    <!-- Persistent Floating Desmos Calculator Trigger (Bottom Right) -->
+    <button id="floating-calc-btn" onclick="toggleDesmosCalculator()" class="fixed bottom-6 right-6 z-40 px-4 py-2.5 rounded-full bg-slate-950/95 hover:bg-slate-900 text-lime-300 border border-lime-500/40 shadow-[0_0_20px_rgba(204,255,0,0.3)] backdrop-blur-md flex items-center gap-2 text-xs font-mono font-bold hover:scale-105 active:scale-95 transition-all group" title="Open Desmos Scientific Calculator">
+        <span class="text-base group-hover:rotate-12 transition-transform">🧮</span>
+        <span>Desmos Calculator</span>
+    </button>
 </body>
 
 </html>
