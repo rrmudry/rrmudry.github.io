@@ -4,6 +4,19 @@ Append-only log tracking pattern changes across sessions.
 
 ---
 
+## 2026-09-08 — California Science Test (CAST) Bell-Ringer Transformation
+
+**Motivation**: Transformed the classroom Bell-Ringer system to align with California Science Test (CAST) items and NGSS three-dimensional performance task expectations (DCIs, SEPs, CCCs, phenomena-based contexts, Technology-Enhanced Items, and Claim-Evidence-Reasoning scaffolding).
+
+**Changes**:
+- Created `assets/js/cast-item-engine.js`: Modular client-side CAST question engine supporting DCI/SEP/CCC badges, stimulus rendering (`CASTGraphEngine`, images, data tables), and multiple TEI formats (`cloze_dropdown`, `data_calculation` with numerical tolerances, `categorize`, and `cer` 3-box scaffolding).
+- Updated `Bell-Ringer/index.html`: Integrated `cast-item-engine.js`, added `#cast-panel` full-width 2-column workspace, dynamic countdown timer integration, and structured Firebase submission logic.
+- Updated `Bell-Ringer/teacher.html`: Added `cast_challenge` option to Workspace Mode dropdown, integrated `#cast-challenge-fields` with live 3D metadata preview, multi-step breakdown, editable JSON configuration, and student submission table rendering.
+- Updated `Bell-Ringer/dashboard.html`: Added projected CAST 3D standard badges, phenomenon anchor passage, interactive graph mounting, and multi-step progress inspector in the student grading modal.
+- Upgraded 5 core Unit 2 daily bell-ringers (Days 1, 3, 5, 9, 15) in `Unit_2/unit2_lessons.json`, `Unit_2/lesson.json`, and `assets/lessons-data.js` to full CAST 3D performance tasks.
+- Preserved 100% backward compatibility with existing bell-ringer types (`free_response`, `concept_chat`, `connections`) and verified strict adherence to the No-LaTeX math formatting policy.
+
+
 ## 2026-08-29 — Initial Seed (WikiSkill Architecture)
 
 **Motivation**: Applied [WikiSkill](https://arxiv.org/html/2608.27454) three-layer architecture (Raw → Wiki → Skills) to the existing agent customization setup.

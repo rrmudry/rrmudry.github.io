@@ -28,6 +28,18 @@ Three activity types are configured via `activityType` in Firestore:
 - Key persona rules: no Socratic traps, pivot to teaching, 1-3 sentences max, never end conversation abruptly
 - Student clicks "Finish Session" to submit
 
+### 4. `cast_challenge` — CAST 3D Multi-Step Performance Tasks
+- Technology-Enhanced Items (TEIs) modeled after California Science Test formats
+- Integrates Disciplinary Core Ideas (DCIs), Science and Engineering Practices (SEPs), and Crosscutting Concepts (CCCs)
+- Supported step formats via `assets/js/cast-item-engine.js`:
+  - `cloze_dropdown`: Inline cloze sentence with drop-down concept selectors
+  - `data_calculation`: Quantitative data analysis with tolerance checking and units
+  - `categorize`: Tap-to-place / drag-and-drop category sorting
+  - `cer`: Structured 3-field Claim, Evidence, and Reasoning argumentation
+- Supports interactive phenomenon assets: `CASTGraphEngine` scatter/line/bar charts, images, and data tables
+- Automatic effort scoring (`effortScore: 1` if steps completed > 0) preserves gradebook compatibility while logging full step-by-step answers in `castAnswers`
+- Strictly conforms to No-LaTeX policy (`Δx / Δt`, `m/s²`, standard text formulas)
+
 ## Firestore Data Model
 
 ### `system_config/bellringer_timer` (Session Control)

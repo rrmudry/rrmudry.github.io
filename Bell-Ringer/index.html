@@ -11,6 +11,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="../assets/js/cast-graph-engine.js"></script>
+    <script src="../assets/js/cast-item-engine.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -538,6 +539,37 @@
 
         </div>
 
+        <!-- Active CAST 3D Challenge Interface -->
+        <div id="cast-panel" class="w-full max-w-5xl flex flex-col gap-5" style="display: none;">
+            <!-- Countdown Timer & CAST Header -->
+            <div class="glass-card rounded-[24px] p-4 sm:p-5 flex items-center justify-between shadow-xl">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center font-bold text-white shadow-lg text-lg">
+                        ⚛️
+                    </div>
+                    <div>
+                        <h2 id="cast-challenge-title" class="text-base sm:text-lg font-bold text-white tracking-wide">
+                            CAST Performance Task
+                        </h2>
+                        <p id="cast-timer-status" class="text-xs text-orange-400 font-mono">
+                            California Science Test (CAST) 3D Assessment Window
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div id="cast-countdown-timer" class="text-3xl sm:text-4xl font-bold font-mono text-orange-500 timer-glow">
+                        04:00
+                    </div>
+                </div>
+            </div>
+
+            <!-- CAST Submission Status Toast / Card -->
+            <div id="cast-submission-status" class="hidden rounded-xl border p-4 transition-all"></div>
+
+            <!-- CAST Item Engine Mount Point -->
+            <div id="cast-item-mount" class="w-full"></div>
+        </div>
+
     </main>
 
     <!-- Footer -->
@@ -761,6 +793,9 @@
         let isChatFinished = false;
         let hasUserFinishedManually = false;
 
+        let activeCastEngine = null;
+        let lastCastDataJson = null;
+
         function showWaitingPanel(customMsg) {
             hasUserFinishedManually = false;
             document.getElementById('waiting-panel').style.display = 'flex';
@@ -770,19 +805,34 @@
                 subtext.innerText = customMsg || "You are successfully authenticated. Please wait for the teacher to launch today's countdown.";
             }
             document.getElementById('bellringer-panel').style.display = 'none';
+            const castPanel = document.getElementById('cast-panel');
+            if (castPanel) castPanel.style.display = 'none';
             if (timerInterval) clearInterval(timerInterval);
         }
 
         function showBellringerPanel(config) {
             document.getElementById('waiting-panel').style.display = 'none';
-            document.getElementById('bellringer-panel').style.display = 'grid';
+            activeActivityType = config.activityType || "free_response";
+
+            const castPanel = document.getElementById('cast-panel');
+            const standardPanel = document.getElementById('bellringer-panel');
+
+            // Route to CAST 3D Performance Task Workspace
+            if (activeActivityType === "cast_challenge" || config.castData) {
+                standardPanel.style.display = 'none';
+                if (castPanel) castPanel.style.display = 'flex';
+                initCastChallenge(config);
+                return;
+            }
+
+            if (castPanel) castPanel.style.display = 'none';
+            standardPanel.style.display = 'grid';
             
             // Set Question and explanation
             activePromptText = config.promptQuestion || "";
             document.getElementById('prompt-question').innerText = activePromptText;
             document.getElementById('explanation-text').innerText = config.explanation || "No explanation provided yet.";
             
-            activeActivityType = config.activityType || "free_response";
             let studentGraphEngine = null;
 
             // Activity workspace display
@@ -847,6 +897,102 @@
             if (timerInterval) clearInterval(timerInterval);
             const expiresAt = getTrueExpiresAt(config);
             runTimerCountdown(expiresAt);
+        }
+
+        function initCastChallenge(config) {
+            const castData = config.castData || config;
+            const titleEl = document.getElementById('cast-challenge-title');
+            if (titleEl && (castData.title || config.title)) {
+                titleEl.innerText = castData.title || config.title;
+            }
+
+            const mountEl = document.getElementById('cast-item-mount');
+            if (!mountEl) return;
+
+            const castJson = JSON.stringify(castData);
+            if (window.lastCastDataJson !== castJson || !activeCastEngine) {
+                window.lastCastDataJson = castJson;
+                activeCastEngine = new CASTItemEngine(mountEl, {
+                    onStateChange: (state) => {
+                        window.latestCastState = state;
+                    },
+                    onSubmit: (summary, state) => {
+                        submitCastChallenge(summary, state);
+                    }
+                });
+                activeCastEngine.loadChallenge(castData);
+            }
+
+            // Sync Clock countdown with Atomic Server Time
+            if (timerInterval) clearInterval(timerInterval);
+            const expiresAt = getTrueExpiresAt(config);
+            runTimerCountdown(expiresAt);
+        }
+
+        async function submitCastChallenge(summary, state) {
+            if (!studentId) {
+                alert("Please log in to submit your CAST response.");
+                return;
+            }
+
+            const todayStr = getTodayString();
+            const docId = `${studentId}_${todayStr}`;
+            const statusEl = document.getElementById('cast-submission-status');
+
+            // Formulate comprehensive readable summary text for teacher inspection & gradebook
+            let textParts = [];
+            if (summary.stepResults) {
+                summary.stepResults.forEach(r => {
+                    if (r.itemType === 'cer_scaffold' && r.state) {
+                        textParts.push(`[${r.title}]\nCLAIM: ${r.state.claim || 'N/A'}\nEVIDENCE: ${r.state.evidence || 'N/A'}\nREASONING: ${r.state.reasoning || 'N/A'}`);
+                    } else if (r.itemType === 'math_data' && r.state) {
+                        textParts.push(`[${r.title}] Calculated: ${r.state.value}`);
+                    } else if (r.itemType === 'dropdown_cloze' && r.state?.selections) {
+                        textParts.push(`[${r.title}] Selections: ${JSON.stringify(r.state.selections)}`);
+                    } else if (r.itemType === 'drag_drop' && r.state?.placements) {
+                        textParts.push(`[${r.title}] Placements: ${JSON.stringify(r.state.placements)}`);
+                    }
+                });
+            }
+            const studentResponseText = textParts.join('\n\n') || "CAST Task Submitted";
+
+            try {
+                if (statusEl) {
+                    statusEl.classList.remove('hidden');
+                    statusEl.className = "rounded-xl border border-cyan-500/40 bg-cyan-950/70 p-3.5 text-xs text-cyan-200 flex items-center gap-2 animate-pulse shadow-md";
+                    statusEl.innerHTML = "<span>⏳</span> Recording CAST 3D response to Cloud Firestore...";
+                }
+
+                await db.collection('bellringers').doc(docId).set({
+                    studentId: studentId,
+                    studentName: currentUser.displayName || studentId,
+                    class_period: (studentPeriod !== undefined && studentPeriod !== null) ? studentPeriod : null,
+                    promptQuestion: summary.challengeTitle || "CAST 3D Task",
+                    studentResponse: studentResponseText,
+                    activityType: "cast_challenge",
+                    castSummary: summary,
+                    castState: state,
+                    effortScore: summary.completedSteps > 0 ? 1 : 0,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+
+                if (statusEl) {
+                    statusEl.className = "rounded-xl border border-emerald-500/50 bg-emerald-950/80 p-4 text-xs text-emerald-200 flex items-center justify-between shadow-lg shadow-emerald-500/10";
+                    statusEl.innerHTML = `
+                        <div class="flex items-center gap-2.5 font-medium">
+                            <span class="text-base text-emerald-400">✓</span>
+                            <span>CAST 3D Task successfully submitted (${summary.completedSteps}/${summary.totalSteps} parts complete). Verified for participation.</span>
+                        </div>
+                        <span class="text-[10px] font-mono px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">Auto-Saved ✓</span>
+                    `;
+                }
+            } catch (err) {
+                console.error("CAST submission failed:", err);
+                if (statusEl) {
+                    statusEl.className = "rounded-xl border border-red-500/50 bg-red-950/80 p-3.5 text-xs text-red-200";
+                    statusEl.innerText = "Submission error: " + err.message;
+                }
+            }
         }
 
         function initConnectionsGame() {
@@ -1320,14 +1466,26 @@
                 const timeStr = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
                 timerEl.innerText = timeStr;
 
+                const castTimerEl = document.getElementById('cast-countdown-timer');
+                const castTimerStatus = document.getElementById('cast-timer-status');
+                if (castTimerEl) castTimerEl.innerText = timeStr;
+
                 if (totalSeconds < 30) {
                     timerEl.className = "text-3xl md:text-4xl font-bold font-mono timer-critical";
                     timerStatusText.innerText = "Hurry! Window closing soon...";
                     timerStatusText.className = "text-xs text-red-400 mt-0.5 animate-pulse";
+                    if (castTimerEl) {
+                        castTimerEl.className = "text-3xl sm:text-4xl font-bold font-mono timer-critical";
+                        if (castTimerStatus) castTimerStatus.innerText = "Hurry! Window closing soon...";
+                    }
                 } else {
                     timerEl.className = "text-3xl md:text-4xl font-bold font-mono text-orange-500 timer-glow";
                     timerStatusText.innerText = "Active Submission Window";
                     timerStatusText.className = "text-xs text-orange-400 mt-0.5";
+                    if (castTimerEl) {
+                        castTimerEl.className = "text-3xl sm:text-4xl font-bold font-mono text-orange-500 timer-glow";
+                        if (castTimerStatus) castTimerStatus.innerText = "California Science Test (CAST) 3D Assessment Window";
+                    }
                 }
             }
 

@@ -167,6 +167,7 @@
                                 <option value="free_response">Free Response Explanation</option>
                                 <option value="concept_chat">Concept Chat (AI Messaging)</option>
                                 <option value="connections">Connections Grid Game</option>
+                                <option value="cast_challenge">CAST 3D Performance Task</option>
                             </select>
                         </div>
                         <div class="flex flex-col gap-2">
@@ -378,6 +379,61 @@ CRITICAL RULES:
                                 <input type="text" id="cat-word-3-1" placeholder="Word 2" class="rounded-lg bg-slate-950/80 border border-white/10 px-2.5 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-purple-400">
                                 <input type="text" id="cat-word-3-2" placeholder="Word 3" class="rounded-lg bg-slate-950/80 border border-white/10 px-2.5 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-purple-400">
                                 <input type="text" id="cat-word-3-3" placeholder="Word 4" class="rounded-lg bg-slate-950/80 border border-white/10 px-2.5 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-purple-400">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CAST Performance Task Settings -->
+                    <div id="cast-challenge-fields" class="hidden flex flex-col gap-4">
+                        <div class="p-4 rounded-2xl bg-cyan-950/20 border border-cyan-500/30 flex flex-col gap-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
+                                    🔬 CAST 3-Dimensional Task Overview
+                                </span>
+                                <span id="cast-badge-count" class="text-[10px] px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-mono font-bold">Multi-Step</span>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                                <div class="p-2.5 rounded-xl bg-slate-950/60 border border-white/5">
+                                    <div class="text-[10px] uppercase font-bold text-orange-400">DCI Core Idea</div>
+                                    <div id="cast-dci-preview" class="font-medium text-slate-200 mt-0.5">PS2.A: Forces & Motion</div>
+                                </div>
+                                <div class="p-2.5 rounded-xl bg-slate-950/60 border border-white/5">
+                                    <div class="text-[10px] uppercase font-bold text-cyan-400">SEP Practice</div>
+                                    <div id="cast-sep-preview" class="font-medium text-slate-200 mt-0.5">SEP-4: Analyzing & Interpreting Data</div>
+                                </div>
+                                <div class="p-2.5 rounded-xl bg-slate-950/60 border border-white/5">
+                                    <div class="text-[10px] uppercase font-bold text-emerald-400">CCC Crosscutting</div>
+                                    <div id="cast-ccc-preview" class="font-medium text-slate-200 mt-0.5">CCC-2: Cause and Effect</div>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col gap-2 mt-1">
+                                <label for="cast-title-input" class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Performance Task Title</label>
+                                <input type="text" id="cast-title-input" placeholder="e.g. Collision Dynamics & Impulse Analysis" 
+                                       class="w-full rounded-xl bg-slate-950/60 border border-white/10 px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 text-sm">
+                            </div>
+
+                            <div class="flex flex-col gap-2">
+                                <label for="cast-phenomenon-text" class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Phenomenon Context Passage / Anchor Event</label>
+                                <textarea id="cast-phenomenon-text" placeholder="Describe the authentic phenomenon context or experimental setup..." 
+                                          class="w-full min-h-[75px] rounded-xl bg-slate-950/60 border border-white/10 p-3 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 text-sm resize-y"></textarea>
+                            </div>
+
+                            <div class="flex flex-col gap-2">
+                                <label class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Active Task Steps Preview</label>
+                                <div id="cast-steps-summary" class="p-3 rounded-xl bg-slate-950/80 border border-white/10 text-xs text-slate-300 font-mono space-y-1.5">
+                                    No CAST steps loaded. Select a lesson with CAST data or configure custom steps below.
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col gap-2">
+                                <div class="flex items-center justify-between">
+                                    <label for="cast-json-input" class="text-xs text-slate-400 font-semibold tracking-wider uppercase">CAST Task Configuration JSON</label>
+                                    <span class="text-[10px] text-slate-500">Auto-populated from lesson plan</span>
+                                </div>
+                                <textarea id="cast-json-input" placeholder="Paste full CAST task JSON definition here..." 
+                                          class="w-full min-h-[140px] rounded-xl bg-slate-950/90 border border-white/10 p-3 text-xs text-cyan-300 font-mono placeholder-slate-600 focus:outline-none focus:border-cyan-500 resize-y"></textarea>
                             </div>
                         </div>
                     </div>
@@ -752,12 +808,25 @@ CRITICAL RULES:
 
             let activityType = br.type || br.activityType || "free_response";
             if (activityType === "graph_interpretation") activityType = "free_response";
+            if (activityType === "cast_challenge" || br.castData) {
+                activityType = "cast_challenge";
+                currentCastData = br.castData || br;
+                populateCastTeacherPreview(currentCastData);
+            }
 
             document.getElementById('activity-type-select').value = activityType;
             toggleActivityFields();
 
             let phenomenonType = "none";
-            if (br.graphData || br.type === "graph_interpretation") {
+            if (activityType === "cast_challenge" && currentCastData && currentCastData.phenomenon) {
+                if (currentCastData.phenomenon.type === 'graph' || currentCastData.phenomenon.graphData) {
+                    phenomenonType = "graph";
+                    br.graphData = currentCastData.phenomenon.graphData;
+                } else if (currentCastData.phenomenon.imageUrl) {
+                    phenomenonType = "image";
+                    br.phenomenonImageUrl = currentCastData.phenomenon.imageUrl;
+                }
+            } else if (br.graphData || br.type === "graph_interpretation") {
                 phenomenonType = "graph";
             } else if (br.phenomenonImageUrl) {
                 phenomenonType = "image";
@@ -804,6 +873,50 @@ CRITICAL RULES:
             }
         }
 
+        let currentCastData = null;
+
+        function populateCastTeacherPreview(cast) {
+            if (!cast) return;
+            currentCastData = cast;
+            const titleInput = document.getElementById('cast-title-input');
+            const phenomInput = document.getElementById('cast-phenomenon-text');
+            const dciEl = document.getElementById('cast-dci-preview');
+            const sepEl = document.getElementById('cast-sep-preview');
+            const cccEl = document.getElementById('cast-ccc-preview');
+            const stepsEl = document.getElementById('cast-steps-summary');
+            const badgeCountEl = document.getElementById('cast-badge-count');
+            const jsonInput = document.getElementById('cast-json-input');
+
+            if (titleInput) titleInput.value = cast.title || (cast.phenomenon ? cast.phenomenon.title : "") || "CAST 3D Performance Task";
+            if (phenomInput) phenomInput.value = cast.phenomenon?.text || "";
+
+            const standards = cast.standards || {};
+            if (dciEl) dciEl.innerText = standards.dci || "PS2.A: Forces & Motion";
+            if (sepEl) sepEl.innerText = standards.sep || "SEP-4: Analyzing & Interpreting Data";
+            if (cccEl) cccEl.innerText = standards.ccc || "CCC-2: Cause and Effect";
+
+            const steps = cast.steps || [];
+            if (badgeCountEl) badgeCountEl.innerText = `${steps.length} Steps`;
+
+            if (stepsEl) {
+                if (steps.length === 0) {
+                    stepsEl.innerHTML = `No steps defined in this task.`;
+                } else {
+                    stepsEl.innerHTML = steps.map((s, idx) => {
+                        const typeBadge = s.type === 'cloze_dropdown' ? 'Dropdown Cloze' : (s.type === 'data_calculation' ? 'Math Calculation' : (s.type === 'cer' ? 'Claim-Evidence-Reasoning' : s.type));
+                        return `<div class="flex items-center justify-between border-b border-white/5 pb-1 last:border-0 last:pb-0">
+                            <span class="font-bold text-slate-200">Part ${idx + 1}: ${escapeHtml(s.title || s.prompt?.slice(0, 35) + '...')}</span>
+                            <span class="text-[10px] text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded">${typeBadge}</span>
+                        </div>`;
+                    }).join('');
+                }
+            }
+
+            if (jsonInput) {
+                jsonInput.value = JSON.stringify(cast, null, 2);
+            }
+        }
+
         function togglePhenomenonAssetFields() {
             const pType = document.getElementById('phenomenon-type-select').value;
             document.getElementById('phenomenon-image-fields').classList.toggle('hidden', pType !== 'image');
@@ -818,6 +931,8 @@ CRITICAL RULES:
             document.getElementById('free-response-fields').classList.toggle('hidden', type !== 'free_response');
             document.getElementById('connections-fields').classList.toggle('hidden', type !== 'connections');
             document.getElementById('concept-chat-fields').classList.toggle('hidden', type !== 'concept_chat');
+            const castFields = document.getElementById('cast-challenge-fields');
+            if (castFields) castFields.classList.toggle('hidden', type !== 'cast_challenge');
         }
 
         let teacherPreviewGraphEngine = null;
@@ -924,6 +1039,8 @@ CRITICAL RULES:
                                     }
                                 }
                             }
+                        } else if (activeActivityType === "cast_challenge" && data.castData) {
+                            populateCastTeacherPreview(data.castData);
                         }
                     }
                     // Update UI status cards
@@ -1099,6 +1216,37 @@ CRITICAL RULES:
                                     </button>
                                 `;
                             }
+                        } else if (effectiveType === "cast_challenge") {
+                            const completedSteps = sub.completedSteps || 0;
+                            const totalSteps = sub.totalSteps || 3;
+                            const pct = sub.percentComplete || Math.round((completedSteps / totalSteps) * 100);
+                            let stepsHtml = '';
+                            if (sub.castAnswers && typeof sub.castAnswers === 'object') {
+                                Object.keys(sub.castAnswers).forEach(stepKey => {
+                                    const ans = sub.castAnswers[stepKey];
+                                    let ansStr = '';
+                                    if (typeof ans === 'object' && ans !== null) {
+                                        if (ans.claim || ans.evidence || ans.reasoning) {
+                                            ansStr = `<div><strong class="text-slate-400">Claim:</strong> ${escapeHtml(ans.claim || '')}</div><div><strong class="text-slate-400">Evidence:</strong> ${escapeHtml(ans.evidence || '')}</div><div><strong class="text-slate-400">Reasoning:</strong> ${escapeHtml(ans.reasoning || '')}</div>`;
+                                        } else {
+                                            ansStr = Object.entries(ans).map(([k, v]) => `[${k}: ${v}]`).join(' ');
+                                        }
+                                    } else {
+                                        ansStr = escapeHtml(String(ans));
+                                    }
+                                    stepsHtml += `<div class="p-2 rounded-lg bg-slate-900/80 border border-white/5 text-[11px]"><span class="font-bold text-cyan-400 uppercase">${stepKey.replace('_', ' ')}:</span> ${ansStr}</div>`;
+                                });
+                            }
+                            responseDisplay = `
+                                <div class="flex flex-col gap-1.5 max-w-full">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-bold text-cyan-400 font-mono">Part Progress: ${completedSteps}/${totalSteps} Steps (${pct}%)</span>
+                                    </div>
+                                    <div class="flex flex-col gap-1 mt-1">
+                                        ${stepsHtml || `<span class="text-slate-500 italic text-xs">${escapeHtml(sub.studentResponse || 'CAST Performance Task Submitted')}</span>`}
+                                    </div>
+                                </div>
+                            `;
                         } else {
                             responseDisplay = `<div class="whitespace-normal break-words leading-relaxed text-xs text-slate-300">${escapeHtml(sub.studentResponse || '')}</div>`;
                             
@@ -1230,6 +1378,39 @@ CRITICAL RULES:
 
                 timerPayload.promptQuestion = prompt;
                 timerPayload.chatSystemInstruction = systemInstruction;
+                timerPayload.connectionsData = null;
+            } else if (activityType === 'cast_challenge') {
+                let parsedCast = currentCastData;
+                const rawJson = document.getElementById('cast-json-input')?.value.trim();
+                if (rawJson) {
+                    try {
+                        parsedCast = JSON.parse(rawJson);
+                    } catch(e) {
+                        console.warn("Could not parse manual CAST JSON:", e);
+                    }
+                }
+                if (!parsedCast) {
+                    alert("Please select a lesson with CAST data or enter valid CAST JSON.");
+                    return;
+                }
+                const customTitle = document.getElementById('cast-title-input')?.value.trim();
+                if (customTitle) parsedCast.title = customTitle;
+                const customPhenomenon = document.getElementById('cast-phenomenon-text')?.value.trim();
+                if (customPhenomenon) {
+                    if (!parsedCast.phenomenon) parsedCast.phenomenon = {};
+                    parsedCast.phenomenon.text = customPhenomenon;
+                }
+                if (phenomenonType === 'graph') {
+                    if (!parsedCast.phenomenon) parsedCast.phenomenon = {};
+                    parsedCast.phenomenon.type = 'graph';
+                    parsedCast.phenomenon.graphData = graphPayload;
+                }
+
+                timerPayload.castData = parsedCast;
+                timerPayload.promptQuestion = parsedCast.title || parsedCast.phenomenon?.title || "CAST 3D Performance Task";
+                timerPayload.explanation = parsedCast.teacherKey || "Multi-step CAST task evaluation rubric.";
+                timerPayload.phenomenonImageUrl = parsedCast.phenomenon?.imageUrl || "";
+                timerPayload.phenomenonDesc = parsedCast.phenomenon?.text || "";
                 timerPayload.connectionsData = null;
             } else {
                 // Connections grid

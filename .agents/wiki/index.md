@@ -10,7 +10,7 @@
 | [ngss-integration](patterns/ngss-integration.md) | NGSS, standards, data-attr, badges, modal | 2026-08-29 | NGSSHelper API, three data attributes, loading chain, re-init pattern |
 | [mobile-responsive](patterns/mobile-responsive.md) | CSS, responsive, mobile, breakpoints, touch | 2026-08-29 | Breakpoints, container patterns, touch controls, iOS pitfalls |
 | [phaser-game-structure](patterns/phaser-game-structure.md) | game, simulation, canvas, physics, sprites | 2026-08-29 | Game file structure, physics engine, game loop, canvas, mobile controls |
-| [bell-ringer-config](patterns/bell-ringer-config.md) | bell-ringer, AI, Firestore, Gemini, persona | 2026-08-29 | Activity types, Firestore schema, AI persona, period gating |
+| [bell-ringer-config](patterns/bell-ringer-config.md) | bell-ringer, AI, Firestore, Gemini, persona, CAST, TEI | 2026-09-08 | Activity types (free response, connections, concept chat, CAST 3D tasks), Firestore schema, AI persona, period gating |
 | [classroom-gradebook-sync](patterns/classroom-gradebook-sync.md) | google-classroom, oauth, firestore, sync, gradebook | 2026-09-01 | Classroom API permission model, virtual parent doc discovery, period filtering, concurrency |
 | [interactive-presentation-deck](patterns/interactive-presentation-deck.md) | presentation, slides, kinematics, canvas, sound-fx, no-latex | 2026-09-02 | Dual-mode presentation slide deck with canvas simulations, sound synthesis, presenter notes, and strict No-LaTeX compliance |
 | [cast-aligned-webapp-design](patterns/cast-aligned-webapp-design.md) | CAST, webapp, pedagogy, measurement, NGSS, SEP3, SEP5 | 2026-09-03 | Productive pedagogical friction vs interface friction, CAST test readiness, instrument reading, and cognitive scaffolding |
