@@ -441,12 +441,7 @@ const lessonsData = [
           "type": "ai_reasoning_chat",
           "title": "Part 3: Defend Your Thinking (AI Physics Mentor)",
           "prompt": "Discuss your thinking with the AI Physics Mentor. Defend your calculation and explain why zero net force does NOT mean the train must be stopped.",
-          "openingMessage": "You calculated 20,000 N for the resistive forces! A classmate says that if the net force is zero, the train cannot be moving and must be stopped. Why are they mistaken? Defend dynamic equilibrium!",
-          "quickChips": [
-            "Forces don't cause motion; unbalanced forces cause changes in motion (acceleration)",
-            "Zero net force means constant velocity (dynamic equilibrium), not zero speed",
-            "🚀 Advanced Challenge: What happens if the train enters a vacuum tunnel with zero air resistance?"
-          ]
+          "openingMessage": "You calculated 20,000 N for the resistive forces! A classmate says that if the net force is zero, the train cannot be moving and must be stopped. Why are they mistaken? Defend dynamic equilibrium!"
         }
       ],
       "teacherKey": "Step 1: 0 m/s², 0 N (balanced), balanced (equal and opposite). Step 2: 20000 N. Step 3: Claim: Zero net force does not mean stopped; it means constant velocity. Evidence: Newton's First Law states an object in motion remains in motion unless acted upon by a net unbalanced force. Reasoning: Forces do not cause motion; net unbalanced forces cause changes in motion (acceleration). Because thrust balances drag (ΣF = 0), acceleration is zero and the train continues at 40 m/s indefinitely."
@@ -742,12 +737,7 @@ const lessonsData = [
           "type": "ai_reasoning_chat",
           "title": "Part 3: Defend Your Thinking (AI Physics Mentor)",
           "prompt": "Discuss your thinking with the AI Physics Mentor. Defend why Drone Alpha arrives first and explain how extra distance impacts travel time when speed is constant.",
-          "openingMessage": "You calculated 30 seconds for Drone Alpha! Which vehicle gets there first, and why does Drone Alpha win even though both vehicles travel at the exact same speed?",
-          "quickChips": [
-            "Drone Alpha arrives first (30 s vs 40 s) because its distance is shorter",
-            "When speed is constant, more distance requires more time (t = d / v)",
-            "🚀 Advanced Challenge: To tie in 30 s, the rover must drive 26.7 m/s (800 / 30)"
-          ]
+          "openingMessage": "You calculated 30 seconds for Drone Alpha! Which vehicle gets there first, and why does Drone Alpha win even though both vehicles travel at the exact same speed?"
         }
       ],
       "teacherKey": "Step 1: Aerial Drone Alpha, directly. Step 2: 30 seconds (600 m / 20 m/s). Step 3: Claim: Aerial Drone Alpha arrives first by 10 seconds. Evidence: Drone Alpha time = 600 m / 20 m/s = 30 s; Rover Beta time = 800 m / 20 m/s = 40 s (40 s - 30 s = 10 s). Reasoning: When traveling at identical speeds, travel time is directly proportional to distance (t = d / v). The rover's winding road adds 200 m of extra path, requiring 10 additional seconds."
@@ -1055,12 +1045,7 @@ const lessonsData = [
           "type": "ai_reasoning_chat",
           "title": "Part 3: Defend Your Thinking (AI Physics Mentor)",
           "prompt": "Discuss your thinking with the AI Physics Mentor. Defend why the slope represents speed and predict how the line would change if the buggy slowed down.",
-          "openingMessage": "You calculated a speed of 0.5 m/s from the slope! Why does a straight line mean steady speed, and what would happen to the line if the buggy started slowing down?",
-          "quickChips": [
-            "A straight line means it gains the exact same distance every second",
-            "If it slows down, the line curves and becomes flatter (less steep)",
-            "🚀 Advanced Challenge: What would the graph look like if the buggy drove backwards?"
-          ]
+          "openingMessage": "You calculated a speed of 0.5 m/s from the slope! Why does a straight line mean steady speed, and what would happen to the line if the buggy started slowing down?"
         }
       ],
       "teacherKey": "Step 1: linear proportional, velocity (v = Δx / Δt), steady constant speed. Step 2: 0.50 m/s (5.0 m / 10.0 s). Step 3: Claim: A straight line means constant velocity; if it slows down, the line curves flatter. Evidence: Slope = Δx / Δt = 0.5 m/s. Reasoning: Velocity is the rate of change of position; constant slope indicates identical displacement gained per second. Decreasing speed means less distance gained per second, curving the slope toward a horizontal line."
@@ -1267,12 +1252,7 @@ const lessonsData = [
           "type": "ai_reasoning_chat",
           "title": "Part 3: Defend Your Thinking (AI Physics Mentor)",
           "prompt": "Discuss your thinking with the AI Physics Mentor. Defend why the round trip has 0 meters displacement even though the rover rolled 240 meters.",
-          "openingMessage": "You found that net displacement is 0 meters! Why is net displacement zero even though the rover tires rolled 240 total meters? Defend your reasoning!",
-          "quickChips": [
-            "Displacement is 0 m because start and finish positions are identical",
-            "Distance rolled is 240 m because distance adds all motion (120 + 120)",
-            "🚀 Advanced Challenge: Can distance ever be smaller than displacement?"
-          ]
+          "openingMessage": "You found that net displacement is 0 meters! Why is net displacement zero even though the rover tires rolled 240 total meters? Defend your reasoning!"
         }
       ],
       "teacherKey": "Step 1: distance traveled, scalar, net displacement, vector. Step 2: 0 m. Step 3: Claim: Net displacement is 0 m, while total distance is 240 m. Evidence: The rover ended where it started (Δx = x_final - x_initial = 0 m). The odometer rolled 120 m + 120 m = 240 m. Reasoning: Displacement is a path-independent vector depending only on initial and final states; distance is a path-dependent scalar accumulating all ground covered."
@@ -1513,12 +1493,7 @@ const lessonsData = [
           "type": "ai_reasoning_chat",
           "title": "Part 3: Defend Your Thinking (AI Physics Mentor)",
           "prompt": "Discuss your thinking with the AI Physics Mentor. Defend your distance calculation and explain why moving Base Camp changes the coordinates, but not the drone itself.",
-          "openingMessage": "You calculated 20 km for Drone Alpha! If the team moves Base Camp 5 km South, does the drone's physical location change, or just its coordinate numbers? Defend your reasoning!",
-          "quickChips": [
-            "Moving Base Camp changes coordinate numbers, not the actual drone",
-            "A reference point is our viewpoint; physical reality stays the same",
-            "🚀 Advanced Challenge: What if the drone was at (3, 4) grid blocks instead of in a straight line?"
-          ]
+          "openingMessage": "You calculated 20 km for Drone Alpha! If the team moves Base Camp 5 km South, does the drone's physical location change, or just its coordinate numbers? Defend your reasoning!"
         }
       ],
       "teacherKey": "Step 1: reference frame / origin point, scalar distance (magnitude), directional bearing / angle. Step 2: 20 km (8 blocks · 2.5 km/block). Step 3: Claim: Moving base camp changes the coordinate numbers assigned to the drone, but does not move the drone itself. Evidence: Position coordinates (x, y) are defined relative to the chosen origin (0, 0). Reasoning: Reference frames are human coordinate choices; altering the observer frame does not change physical matter in space."
