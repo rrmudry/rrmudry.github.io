@@ -10,8 +10,9 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
     <script src="../assets/js/cast-graph-engine.js"></script>
-    <script src="../assets/js/cast-item-engine.js?v=2.4"></script>
+    <script src="../assets/js/cast-item-engine.js?v=2.5"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -261,9 +262,15 @@
             </div>
         </div>
         
-        <div id="user-profile" class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-full py-1 pl-3 pr-1" style="display: none;">
-            <span id="profile-name" class="text-sm font-semibold text-slate-200">Student Name</span>
-            <button onclick="logout()" class="px-3 py-1 rounded-full text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 transition-colors">Sign Out</button>
+        <div class="flex items-center gap-2.5 sm:gap-3">
+            <button id="btn-toggle-calculator" onclick="toggleDesmosCalculator()" class="px-3.5 py-1.5 rounded-full bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs font-bold font-mono transition-all flex items-center gap-1.5 shadow-sm" title="Toggle Desmos Scientific Calculator">
+                <span class="text-sm">🧮</span>
+                <span class="hidden sm:inline">Desmos Calculator</span>
+            </button>
+            <div id="user-profile" class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-full py-1 pl-3 pr-1" style="display: none;">
+                <span id="profile-name" class="text-sm font-semibold text-slate-200">Student Name</span>
+                <button onclick="logout()" class="px-3 py-1 rounded-full text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 transition-colors">Sign Out</button>
+            </div>
         </div>
     </header>
 
@@ -2464,7 +2471,143 @@ Output ONLY a raw JSON object containing a single key "score" with the integer v
             const day = String(d.getDate()).padStart(2, '0');
             return `${year}-${month}-${day}`;
         }
+
+        // --- DESMOS SCIENTIFIC CALCULATOR DRAWER CONTROLLER ---
+        let desmosCalculatorInstance = null;
+
+        function initDesmosCalculator() {
+            const calcContainer = document.getElementById('desmos-calculator-container');
+            if (window.Desmos && calcContainer && !desmosCalculatorInstance) {
+                try {
+                    desmosCalculatorInstance = Desmos.ScientificCalculator(calcContainer, {
+                        fontSize: Desmos.FontSizes.SMALL,
+                        keypad: true,
+                        settingsMenu: false
+                    });
+                    window.desmosCalculator = desmosCalculatorInstance;
+                } catch (e) {
+                    console.error("Desmos init error:", e);
+                }
+            }
+        }
+
+        window.toggleDesmosCalculator = function(forceOpen) {
+            const drawer = document.getElementById('desmos-calculator-drawer');
+            const backdrop = document.getElementById('desmos-drawer-backdrop');
+            if (!drawer) return;
+
+            const isClosed = drawer.classList.contains('translate-x-full');
+            const shouldOpen = (typeof forceOpen === 'boolean') ? forceOpen : isClosed;
+
+            if (shouldOpen) {
+                drawer.classList.remove('translate-x-full');
+                drawer.classList.add('translate-x-0');
+                if (backdrop) backdrop.classList.remove('hidden');
+                if (!desmosCalculatorInstance) {
+                    initDesmosCalculator();
+                }
+                setTimeout(() => {
+                    if (desmosCalculatorInstance && desmosCalculatorInstance.resize) {
+                        desmosCalculatorInstance.resize();
+                    }
+                }, 120);
+            } else {
+                drawer.classList.add('translate-x-full');
+                drawer.classList.remove('translate-x-0');
+                if (backdrop) backdrop.classList.add('hidden');
+            }
+        };
+
+        window.clearDesmosCalculator = function() {
+            if (desmosCalculatorInstance) {
+                desmosCalculatorInstance.setBlank();
+            }
+        };
+
+        window.copyLastDesmosResult = function() {
+            if (!desmosCalculatorInstance) return;
+            try {
+                const state = desmosCalculatorInstance.getState();
+                const list = state?.expressions?.list || [];
+                for (let i = list.length - 1; i >= 0; i--) {
+                    const exp = list[i];
+                    if (exp && exp.latex) {
+                        const numMatch = exp.latex.match(/-?\d+(\.\d+)?/g);
+                        const lastNum = numMatch ? numMatch[numMatch.length - 1] : null;
+                        if (lastNum) {
+                            navigator.clipboard?.writeText(lastNum);
+                            const mathInput = document.getElementById('cast-math-input');
+                            if (mathInput && !mathInput.value) {
+                                mathInput.value = lastNum;
+                                mathInput.dispatchEvent(new Event('input', { bubbles: true }));
+                            }
+                            const btn = document.getElementById('desmos-copy-res-btn');
+                            if (btn) {
+                                const orig = btn.innerText;
+                                btn.innerText = `Copied ${lastNum}! ✓`;
+                                setTimeout(() => { btn.innerText = orig; }, 1800);
+                            }
+                            return;
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn("Could not copy Desmos result:", e);
+            }
+        };
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const drawer = document.getElementById('desmos-calculator-drawer');
+                if (drawer && !drawer.classList.contains('translate-x-full')) {
+                    window.toggleDesmosCalculator(false);
+                }
+            }
+        });
     </script>
+
+    <!-- Slide-Over Desmos Scientific Calculator Drawer -->
+    <div id="desmos-drawer-backdrop" onclick="toggleDesmosCalculator(false)" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 hidden transition-opacity"></div>
+    <aside id="desmos-calculator-drawer" class="fixed inset-y-0 right-0 z-50 w-full sm:w-[440px] md:w-[480px] bg-slate-900/95 backdrop-blur-xl border-l border-cyan-500/30 shadow-2xl p-4 sm:p-5 flex flex-col space-y-3 transition-transform duration-300 translate-x-full">
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-teal-500 flex items-center justify-center text-white text-base font-bold shadow-md">
+                    🧮
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-cyan-300 font-mono leading-none">Desmos Calculator</h3>
+                    <p class="text-[10px] text-slate-400 font-mono mt-0.5">CAST Standard Scientific Tool</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button type="button" onclick="clearDesmosCalculator()" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono border border-white/10 transition-colors" title="Clear expressions">
+                    Clear
+                </button>
+                <button type="button" onclick="toggleDesmosCalculator(false)" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold border border-white/10 transition-colors" title="Close Drawer">
+                    ✕
+                </button>
+            </div>
+        </div>
+
+        <!-- Desmos Frame Mount -->
+        <div id="desmos-calculator-container" class="flex-1 min-h-[420px] w-full rounded-xl overflow-hidden border border-white/10 bg-white shadow-inner">
+            <!-- Desmos.ScientificCalculator mounts here -->
+        </div>
+
+        <!-- Helper Footer -->
+        <div class="p-3 rounded-xl bg-slate-950/70 border border-cyan-500/20 flex items-center justify-between gap-2 text-xs font-mono">
+            <span class="text-[11px] text-slate-400">💡 Press <strong class="text-cyan-300">Enter</strong> to calculate</span>
+            <button type="button" id="desmos-copy-res-btn" onclick="copyLastDesmosResult()" class="px-2.5 py-1 rounded bg-cyan-950/80 hover:bg-cyan-900 text-cyan-300 border border-cyan-500/30 text-[11px] font-bold transition-colors">
+                📋 Copy Result
+            </button>
+        </div>
+    </aside>
+
+    <!-- Persistent Floating Desmos Calculator Trigger (Bottom Right) -->
+    <button id="floating-calc-btn" onclick="toggleDesmosCalculator()" class="fixed bottom-5 right-5 z-40 px-4 py-2.5 rounded-full bg-slate-900/90 hover:bg-slate-800 text-cyan-300 border border-cyan-500/40 shadow-2xl backdrop-blur-md flex items-center gap-2 text-xs font-mono font-bold hover:scale-105 active:scale-95 transition-all group" title="Open Desmos Scientific Calculator">
+        <span class="text-base group-hover:rotate-12 transition-transform">🧮</span>
+        <span>Calculator</span>
+    </button>
 
     <!-- Fullscreen Enlarged Image Modal -->
     <div id="enlarged-image-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-4 md:p-8" onclick="closeEnlargedImageModal()">
