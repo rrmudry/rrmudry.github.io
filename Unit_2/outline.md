@@ -74,6 +74,7 @@ This unit follows the classical and cognitive progression:
     *   *Standards:* `HS-PS2-1` | *DOK:* 0 | *Type:* Holiday
 
 *   **Day 7 (2026-09-08): Wind-Up Toy Speed Lab Wrap-Up & Intro to Speed**
+    *   *Bell-Ringer:* Wind-Up Toy Speed & Travel Rate (AI Chat): In our lab, a toy traveled 20.0 cm in 5.0 seconds. What does dividing 20.0 by 5.0 tell us about what the toy was doing during each individual second?
     *   *Focus:* Completing replication trials, outlier checks, computing average time, and debriefing speed as a physical rate of travel (`v = d / t`).
     *   *Activity:* Students complete their replication trials in the Wind-Up Toy Speed Lab web app, calculate average times, and transition into explicit direct instruction connecting their 20.0 cm track measurements to what the speed ratio physically means per second of travel.
     *   *Essential Question:* How does our 20.0 cm lab measurement reveal the rate at which an object covers distance every second?
@@ -81,6 +82,7 @@ This unit follows the classical and cognitive progression:
     *   *Links:* [Wind-Up Toy Speed Lab](Unit_2/wind_up_toy_lab/index.html), [Constant Speed Presentation](Unit_2/constant-speed-presentation/index.html), [Speed & Distance Studio](Unit_2/speed_distance_time_app/index.html)
 
 *   **Day 8 (2026-09-09): The Speed Equation: Calculating Speed & Solving for Distance**
+    *   *Bell-Ringer:* Constant Speed Calculation: A runner jogs at a steady speed of 3.0 m/s for 12.0 seconds. Write the formula you would use to find their distance, and calculate the answer with units. (`d = v · t = 3.0 m/s · 12.0 s = 36.0 meters`).
     *   *Focus:* The Formula Triangle (`v = d / t`), metric units (`m/s`, `cm/s`, `km/h`), algebraic rearrangement to isolate distance (`d = v · t`), and the GUESS problem-solving framework.
     *   *Activity:* Interactive classroom lecture using the Constant Speed Slide Deck followed by guided practice in the Speed, Distance & Time Studio web app. Students work through Tier 1 (Speed) and Tier 2 (Distance) challenges, tracking units and practicing formula rearrangement.
     *   *Essential Question:* If you know how fast an object travels and how long it moves, how can you predict its exact final position?
@@ -88,6 +90,7 @@ This unit follows the classical and cognitive progression:
     *   *Links:* [Constant Speed Presentation](Unit_2/constant-speed-presentation/index.html), [Speed & Distance Studio](Unit_2/speed_distance_time_app/index.html)
 
 *   **Day 9 (2026-09-10): Solving for Time & Multi-Step Motion Challenges**
+    *   *Bell-Ringer:* Multi-Agent Kinematics & Proportional Rates (CAST Challenge): Emergency Medical Supply Dispatch Challenge comparing Drone Alpha (600 m direct) vs Rover Beta (800 m winding) at 20 m/s.
     *   *Focus:* Rearranging for time (`t = d / v`), metric unit consistency, and multi-object race comparisons.
     *   *Activity:* Whiteboard Sprint & Leveled Tier 3 Challenges in the Speed Studio web app: Students solve for time (`t = d / v`), verify decimal division, convert units (cm to m, minutes to seconds), and determine which of two constant-speed vehicles arrives first at a destination.
     *   *Essential Question:* Why does calculating travel time require dividing distance by speed, and how does speed act as a conversion factor between space and time?
@@ -95,6 +98,7 @@ This unit follows the classical and cognitive progression:
     *   *Links:* [Speed & Distance Studio](Unit_2/speed_distance_time_app/index.html), [Constant Speed Presentation](Unit_2/constant-speed-presentation/index.html)
 
 *   **Day 10 (2026-09-11): Constant Speed Mastery & Kinematic Synthesis Review**
+    *   *Bell-Ringer:* Diagnosing Motion Unknowns: Look at these three problems: (A) Find how far a car goes in 5s at 20 m/s; (B) Find how fast a runner is if they go 100m in 10s; (C) Find how long it takes sound to travel 680m at 340 m/s. For each, state which formula from the triangle you use! (`(A) d = v · t; (B) v = d / t; (C) t = d / v`).
     *   *Focus:* Synthesis Workshop: Diagnosing unknowns among mixed scenarios, 3-way formula fluency, and formative mastery evaluation.
     *   *Activity:* Constant Speed Grand Prix Challenge: Students complete the Tier 4 Mixed Master Challenge in the Speed, Distance & Time Studio, resolving randomized constant speed problems and generating their personalized Certificate of Kinematic Mastery, followed by a brief formative check.
     *   *Essential Question:* How can a single mathematical relationship (`v = d / t`) predict all aspects of uniform constant motion across any physical system?
