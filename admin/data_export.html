@@ -100,8 +100,11 @@
                 <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
                 ⚡ Daily Bell-Ringer Aggregator
             </button>
+            <button id="tab-physics-labs" onclick="switchTab('physics_labs')" class="px-5 py-3 rounded-2xl font-orbitron text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2.5 bg-white/5 border border-white/5 text-slate-400 hover:text-slate-200 hover:bg-white/10">
+                🚀 Physics Labs & WebApps
+            </button>
             <button id="tab-assessments" onclick="switchTab('assessments')" class="px-5 py-3 rounded-2xl font-orbitron text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2.5 bg-white/5 border border-white/5 text-slate-400 hover:text-slate-200 hover:bg-white/10">
-                📊 Assessments & Labs
+                📊 Assessments & Archive
             </button>
         </div>
 
@@ -237,7 +240,105 @@
             </div>
         </div>
 
-        <!-- SECTION 2: ASSESSMENTS & LABS -->
+        <!-- SECTION 2: PHYSICS LABS & WEBAPPS -->
+        <div id="section-physics-labs" class="space-y-6 hidden">
+            <!-- Controls Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Lab / WebApp Selector -->
+                <div class="space-y-3 bg-white/5 border border-white/5 p-4 rounded-2xl">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[10px] font-black text-sky-400 uppercase tracking-widest">01 // Select Interactive Lab</span>
+                        <span id="labs-active-count-badge" class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30">1 WebApp</span>
+                    </div>
+                    <div>
+                        <label class="text-[8px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Target Lab WebApp</label>
+                        <select id="labs-app-select" onchange="renderLabsTable()" class="w-full bg-slate-950 border border-white/10 px-3 py-2 rounded-xl text-xs font-bold text-sky-300 outline-none focus:border-sky-500">
+                            <option value="speed_calculator">🚀 Physics Speed Calculator (Scaffolded Kinematics)</option>
+                        </select>
+                    </div>
+                    <p class="text-[9px] text-slate-500 leading-relaxed">
+                        Pulls live student submissions from Firestore <code class="text-sky-400 font-mono">physics_labs</code> collection. Automatically adapts as new lab webapps are added.
+                    </p>
+                </div>
+
+                <!-- Period Filter & Status -->
+                <div class="space-y-3 bg-white/5 border border-white/5 p-4 rounded-2xl">
+                    <span class="text-[10px] font-black text-cyan-400 uppercase tracking-widest block">02 // Filter & Scope</span>
+                    <div>
+                        <label class="text-[8px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Target Class Period</label>
+                        <select id="labs-period-filter" onchange="renderLabsTable()" class="w-full bg-slate-950 border border-white/10 px-3 py-2 rounded-xl text-xs font-bold text-slate-200 outline-none focus:border-cyan-500">
+                            <option value="all">All Class Periods</option>
+                            <option value="0">Period 0</option>
+                            <option value="1">Period 1</option>
+                            <option value="2">Period 2</option>
+                            <option value="3">Period 3</option>
+                            <option value="4">Period 4</option>
+                            <option value="5">Period 5</option>
+                            <option value="6">Period 6</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center justify-between text-[9px] font-mono text-slate-400 pt-1">
+                        <span>Level 3 Completed: <strong id="labs-kpi-completed" class="text-emerald-400">0</strong></span>
+                        <span>Active Learners: <strong id="labs-kpi-active" class="text-sky-400">0</strong></span>
+                    </div>
+                </div>
+
+                <!-- Export Actions -->
+                <div class="space-y-3 bg-white/5 border border-white/5 p-4 rounded-2xl flex flex-col justify-between">
+                    <div>
+                        <span class="text-[10px] font-black text-emerald-400 uppercase tracking-widest block mb-1">03 // Export CSV</span>
+                        <p class="text-[9px] text-slate-500">Generate Gradebook-ready CSV with student ID, name, period, level, score, and verification tokens.</p>
+                    </div>
+                    <div class="space-y-2">
+                        <button onclick="exportLabsCSV('gradebook')" class="w-full bg-gradient-to-r from-sky-500 to-cyan-600 p-3 rounded-xl font-black uppercase tracking-widest text-xs shadow-lg shadow-sky-500/10 active:scale-95 transition-all flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                            Download Gradebook CSV
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Physics Labs Table Preview -->
+            <div class="space-y-3 pt-2">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                        <span>Total Records: <span id="labs-count-display" class="text-white font-bold">0</span></span>
+                        <span>•</span>
+                        <span>Filtered: <span id="labs-filtered-count" class="text-sky-400 font-bold">0</span></span>
+                    </div>
+
+                    <div class="relative flex-1 max-w-sm">
+                        <input type="text" id="labs-student-search" oninput="renderLabsTable()" placeholder="Search Labs // ID or Name" class="w-full bg-slate-900 border border-white/10 pl-8 pr-4 py-2 rounded-xl text-xs font-bold text-slate-300 focus:border-sky-500/50 outline-none transition-all placeholder:text-slate-700">
+                        <svg class="w-3.5 h-3.5 text-slate-600 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto rounded-2xl border border-white/5 bg-slate-950/60 custom-scrollbar">
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="bg-white/5 text-slate-400 font-black uppercase tracking-wider text-[10px]">
+                                <th class="p-3.5 border-b border-white/5">Student ID</th>
+                                <th class="p-3.5 border-b border-white/5">Student Name</th>
+                                <th class="p-3.5 border-b border-white/5 text-center">Period</th>
+                                <th class="p-3.5 border-b border-white/5 text-center">Current Level</th>
+                                <th class="p-3.5 border-b border-white/5 text-center">Answered</th>
+                                <th class="p-3.5 border-b border-white/5 text-center">Level 3 Score</th>
+                                <th class="p-3.5 border-b border-white/5 text-center">Status</th>
+                                <th class="p-3.5 border-b border-white/5 text-right">Certificate ID</th>
+                                <th class="p-3.5 border-b border-white/5 text-right">Last Active</th>
+                            </tr>
+                        </thead>
+                        <tbody id="labs-preview-body" class="divide-y divide-white/5 text-slate-400">
+                            <tr>
+                                <td colspan="9" class="p-8 text-center text-slate-600 font-bold uppercase tracking-widest text-[9px]">Scanning Physics Labs Records...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 3: ASSESSMENTS & ARCHIVE -->
         <div id="section-assessments" class="space-y-6 hidden">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
                 <!-- Assignment Selector -->
@@ -340,26 +441,38 @@
         ];
 
         // Tab Switching
-        let activeMainTab = 'bellringers'; // 'bellringers' or 'assessments'
+        let activeMainTab = 'bellringers'; // 'bellringers', 'physics_labs', or 'assessments'
 
         function switchTab(tab) {
             activeMainTab = tab;
             const btnBr = document.getElementById('tab-bellringers');
+            const btnLabs = document.getElementById('tab-physics-labs');
             const btnAs = document.getElementById('tab-assessments');
             const secBr = document.getElementById('section-bellringers');
+            const secLabs = document.getElementById('section-physics-labs');
             const secAs = document.getElementById('section-assessments');
+
+            // Reset all tabs to inactive styling
+            const inactiveClass = "px-5 py-3 rounded-2xl font-orbitron text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2.5 bg-white/5 border border-white/5 text-slate-400 hover:text-slate-200 hover:bg-white/10";
+            btnBr.className = inactiveClass;
+            btnLabs.className = inactiveClass;
+            btnAs.className = inactiveClass;
+
+            secBr.classList.add('hidden');
+            secLabs.classList.add('hidden');
+            secAs.classList.add('hidden');
 
             if (tab === 'bellringers') {
                 btnBr.className = "px-5 py-3 rounded-2xl font-orbitron text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2.5 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 text-amber-300 shadow-lg shadow-amber-500/5";
-                btnAs.className = "px-5 py-3 rounded-2xl font-orbitron text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2.5 bg-white/5 border border-white/5 text-slate-400 hover:text-slate-200 hover:bg-white/10";
                 secBr.classList.remove('hidden');
-                secAs.classList.add('hidden');
                 loadBrAggregation();
+            } else if (tab === 'physics_labs') {
+                btnLabs.className = "px-5 py-3 rounded-2xl font-orbitron text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2.5 bg-gradient-to-r from-sky-500/20 to-cyan-500/20 border border-sky-500/40 text-sky-300 shadow-lg shadow-sky-500/5";
+                secLabs.classList.remove('hidden');
+                renderLabsTable();
             } else {
                 btnAs.className = "px-5 py-3 rounded-2xl font-orbitron text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2.5 bg-gradient-to-r from-cyan-500/20 to-violet-500/20 border border-cyan-500/40 text-cyan-300 shadow-lg shadow-cyan-500/5";
-                btnBr.className = "px-5 py-3 rounded-2xl font-orbitron text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2.5 bg-white/5 border border-white/5 text-slate-400 hover:text-slate-200 hover:bg-white/10";
                 secAs.classList.remove('hidden');
-                secBr.classList.add('hidden');
                 loadPreview();
             }
         }
@@ -430,6 +543,7 @@
         // Global State & Caches
         let rosterCache = [];        // Central student roster docs
         let bellringersCache = [];    // All bellringer submissions
+        let physicsLabsCache = [];    // Live physics labs (Speed Calculator, etc.)
         let archiveCache = [];        // Flat student_results records
         let nestedAssignments = new Set();
         let aggregationMode = 'SUM'; // For Assessments tab: 'SUM', 'AVERAGE', 'DETAILED'
@@ -442,6 +556,7 @@
             await Promise.all([
                 loadRosterData(),
                 loadBellringersData(),
+                loadPhysicsLabsData(),
                 loadAssessmentsData()
             ]);
             loadBrAggregation();
@@ -1140,6 +1255,215 @@
                 console.error("Export failed:", err);
                 alert("Critical Export Failure");
             }
+        }
+        // =========================================================================
+        // PHYSICS LABS & INTERACTIVE WEBAPPS MODULE
+        // =========================================================================
+        async function loadPhysicsLabsData() {
+            try {
+                const snap = await db.collection('physics_labs').get();
+                physicsLabsCache = [];
+
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    const sId = String(d.studentId || doc.id).trim();
+                    const rosterEntry = rosterCache.find(r => r.student_id === sId);
+
+                    let lastActiveIso = '';
+                    if (d.lastUpdated && d.lastUpdated.seconds) {
+                        lastActiveIso = new Date(d.lastUpdated.seconds * 1000).toISOString();
+                    } else if (d.completedAt) {
+                        lastActiveIso = d.completedAt;
+                    }
+
+                    // Discover lab sub-objects (e.g. speed_calculator, or root-level fields)
+                    const speedCalc = d.speed_calculator || {};
+                    const currentLvl = speedCalc.currentLevel !== undefined ? speedCalc.currentLevel : (d.currentLevel !== undefined ? d.currentLevel : 1);
+                    const answered = speedCalc.answered !== undefined ? speedCalc.answered : (d.answered !== undefined ? d.answered : 0);
+                    const score = speedCalc.score !== undefined ? speedCalc.score : (d.score !== undefined ? d.score : 0);
+                    const isCompleted = !!(speedCalc.completed !== undefined ? speedCalc.completed : d.completed);
+                    const certId = speedCalc.certificateId || d.certificateId || '';
+
+                    physicsLabsCache.push({
+                        id: doc.id,
+                        student_id: sId,
+                        student_name: d.displayName || (rosterEntry ? rosterEntry.name : sId),
+                        class_period: String(rosterEntry ? rosterEntry.class_period : (d.class_period || '---')).trim(),
+                        labApp: 'speed_calculator',
+                        labTitle: 'Physics Speed Calculator',
+                        currentLevel: currentLvl,
+                        unlockedLevels: speedCalc.unlockedLevels || d.unlockedLevels || [1],
+                        answered: answered,
+                        score: score,
+                        completed: isCompleted,
+                        certificateId: certId,
+                        lastActive: lastActiveIso,
+                        rawData: d
+                    });
+                });
+
+                console.log(`[DATA_EXPORT] Loaded ${physicsLabsCache.length} physics lab records.`);
+                const countBadge = document.getElementById('labs-count-display');
+                if (countBadge) countBadge.textContent = physicsLabsCache.length;
+            } catch (err) {
+                console.error("[DATA_EXPORT] Error loading physics_labs collection:", err);
+            }
+        }
+
+        function renderLabsTable() {
+            const tbody = document.getElementById('labs-preview-body');
+            if (!tbody) return;
+
+            const selectedApp = document.getElementById('labs-app-select')?.value || 'speed_calculator';
+            const periodFilter = document.getElementById('labs-period-filter')?.value || 'all';
+            const searchQuery = (document.getElementById('labs-student-search')?.value || '').trim().toLowerCase();
+
+            let records = physicsLabsCache.filter(item => {
+                if (selectedApp !== 'all' && item.labApp !== selectedApp) return false;
+                if (periodFilter !== 'all' && String(item.class_period) !== String(periodFilter)) return false;
+                if (searchQuery) {
+                    const matchId = item.student_id.toLowerCase().includes(searchQuery);
+                    const matchName = item.student_name.toLowerCase().includes(searchQuery);
+                    if (!matchId && !matchName) return false;
+                }
+                return true;
+            });
+
+            // Sort by Period then Student Name
+            records.sort((a, b) => {
+                if (a.class_period !== b.class_period) {
+                    return a.class_period.localeCompare(b.class_period, undefined, { numeric: true });
+                }
+                return a.student_name.localeCompare(b.student_name);
+            });
+
+            // Update KPIs
+            const totalCountEl = document.getElementById('labs-count-display');
+            const filteredCountEl = document.getElementById('labs-filtered-count');
+            const kpiCompletedEl = document.getElementById('labs-kpi-completed');
+            const kpiActiveEl = document.getElementById('labs-kpi-active');
+
+            if (totalCountEl) totalCountEl.textContent = physicsLabsCache.length;
+            if (filteredCountEl) filteredCountEl.textContent = records.length;
+            if (kpiCompletedEl) kpiCompletedEl.textContent = records.filter(r => r.completed).length;
+            if (kpiActiveEl) kpiActiveEl.textContent = records.filter(r => r.answered > 0 || r.currentLevel > 1).length;
+
+            if (records.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="p-8 text-center text-slate-500 font-bold uppercase tracking-widest text-[10px]">
+                            No lab records found for the selected period / search filter.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = records.map(r => {
+                let statusBadge = '';
+                if (r.completed) {
+                    statusBadge = `<span class="px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">Mastered ✓</span>`;
+                } else if (r.currentLevel === 3) {
+                    statusBadge = `<span class="px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider bg-sky-500/10 border border-sky-500/30 text-sky-300">Level 3 Quiz</span>`;
+                } else if (r.currentLevel === 2) {
+                    statusBadge = `<span class="px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-500/10 border border-amber-500/30 text-amber-300">Level 2 Practice</span>`;
+                } else {
+                    statusBadge = `<span class="px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider bg-slate-800 border border-white/10 text-slate-400">Level 1 Setup</span>`;
+                }
+
+                const scoreDisplay = r.currentLevel === 3 ? `${r.score} / 6` : `---`;
+                const lastActiveDisplay = r.lastActive ? new Date(r.lastActive).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '---';
+
+                return `
+                    <tr class="hover:bg-white/5 transition-colors">
+                        <td class="p-3.5 font-mono text-slate-300 font-bold">${escapeHtml(r.student_id)}</td>
+                        <td class="p-3.5 text-white font-semibold">${escapeHtml(r.student_name)}</td>
+                        <td class="p-3.5 text-center font-bold font-mono text-cyan-400">Period ${escapeHtml(r.class_period)}</td>
+                        <td class="p-3.5 text-center font-bold text-slate-200">Level ${r.currentLevel}</td>
+                        <td class="p-3.5 text-center font-mono text-slate-300">${r.answered} / 6</td>
+                        <td class="p-3.5 text-center font-mono font-bold ${r.score >= 5 ? 'text-emerald-400' : 'text-slate-300'}">${scoreDisplay}</td>
+                        <td class="p-3.5 text-center">${statusBadge}</td>
+                        <td class="p-3.5 text-right font-mono text-[10px] text-slate-500">${r.certificateId ? `<span class="text-emerald-300/80">${escapeHtml(r.certificateId)}</span>` : '---'}</td>
+                        <td class="p-3.5 text-right font-mono text-[10px] text-slate-400">${lastActiveDisplay}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function exportLabsCSV(format = 'gradebook') {
+            const selectedApp = document.getElementById('labs-app-select')?.value || 'speed_calculator';
+            const periodFilter = document.getElementById('labs-period-filter')?.value || 'all';
+            const searchQuery = (document.getElementById('labs-student-search')?.value || '').trim().toLowerCase();
+
+            let records = physicsLabsCache.filter(item => {
+                if (selectedApp !== 'all' && item.labApp !== selectedApp) return false;
+                if (periodFilter !== 'all' && String(item.class_period) !== String(periodFilter)) return false;
+                if (searchQuery) {
+                    const matchId = item.student_id.toLowerCase().includes(searchQuery);
+                    const matchName = item.student_name.toLowerCase().includes(searchQuery);
+                    if (!matchId && !matchName) return false;
+                }
+                return true;
+            });
+
+            if (records.length === 0) {
+                alert("No records to export.");
+                return;
+            }
+
+            records.sort((a, b) => {
+                if (a.class_period !== b.class_period) {
+                    return a.class_period.localeCompare(b.class_period, undefined, { numeric: true });
+                }
+                return a.student_name.localeCompare(b.student_name);
+            });
+
+            const headers = [
+                "Student_ID",
+                "Student_Name",
+                "Class_Period",
+                "Lab_Title",
+                "Current_Level",
+                "Questions_Answered",
+                "Level_3_Score",
+                "Level_3_Max",
+                "Percentage_Grade",
+                "Mastery_Completed",
+                "Certificate_Token",
+                "Last_Active_Timestamp"
+            ];
+
+            const rows = records.map(r => {
+                const pct = r.completed ? 100 : (r.currentLevel === 3 ? Math.round((r.score / 6) * 100) : (r.currentLevel === 2 ? 65 : (r.answered > 0 ? 50 : 0)));
+                return [
+                    r.student_id,
+                    r.student_name,
+                    r.class_period,
+                    r.labTitle,
+                    r.currentLevel,
+                    r.answered,
+                    r.score,
+                    6,
+                    `${pct}%`,
+                    r.completed ? "YES" : "NO",
+                    r.certificateId || "",
+                    r.lastActive || ""
+                ];
+            });
+
+            const csvContent = [headers.join(","), ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))].join("\n");
+            const filename = `PHYSICS_LABS_${selectedApp.toUpperCase()}_PERIOD_${periodFilter.toUpperCase()}_${new Date().toISOString().split('T')[0]}.csv`;
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.setAttribute("href", URL.createObjectURL(blob));
+            link.setAttribute("download", filename);
+            link.click();
+        }
+
+        // Helper: Escape HTML
+        function escapeHtml(str) {
+            if (typeof str !== 'string') return String(str ?? '');
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
         }
     </script>
 </body>

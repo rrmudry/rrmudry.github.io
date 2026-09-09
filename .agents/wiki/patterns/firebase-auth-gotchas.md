@@ -74,6 +74,13 @@ Some apps write to TWO Firestore paths:
 1. **Live proctoring** (`student_results/{ASSIGNMENT_ID}/students/{id}`): Updated continuously during the activity for real-time dashboard monitoring.
 2. **Final archive** (`student_results_archive/{studentId}_{ASSIGNMENT_ID}`): Written only on final submission for permanent gradebook sync.
 
+## Physics Labs Collection Pattern (`physics_labs`)
+For multi-level scaffolded interactive webapps (e.g. `Physics Speed Calculator`):
+- **Collection**: `physics_labs/{studentId}` (keyed directly by the student's 6-digit ID / email prefix).
+- **Structure**: Contains root-level progression (`currentLevel`, `unlockedLevels`, `answered`, `score`, `completed`, `certificateId`, `lastUpdated`) and a namespaced sub-object for the specific tool (e.g., `speed_calculator`).
+- **Data Export Integration**: `admin/data_export.html` includes a dedicated **🚀 Physics Labs & WebApps** tab that loads `physics_labs`, joins it with `roster/{studentId}` to display class periods, and provides filtered views and one-click gradebook CSV exports.
+- **Rule for Future Interactive Webapps**: Any new multi-level physics tool should either save its progress under `physics_labs/{studentId}` (with a unique tool key) or follow the `student_results/{ASSIGNMENT_ID}/students/{studentId}` standard so that it is automatically visible in `admin/data_export.html`.
+
 ## Known Pitfalls
 - **Compat vs Modular imports**: Never mix `firebase-app-compat.js` with modular `import { getFirestore } from 'firebase/firestore'`. The entire codebase uses compat mode.
 - **ASSIGNMENT_ID collision**: Each webapp MUST use a globally unique `ASSIGNMENT_ID` string. If two apps share the same ID, scores will overwrite each other.
