@@ -1,6 +1,21 @@
 # Wiki Evolution Log
 
 Append-only log tracking pattern changes across sessions.
+## 2026-09-08 — Daily Update: Day 8 (2026-09-09) CAST Bell-Ringer Upgrade & Remote Sync
+
+**Motivation**: Executed the `/daily-update` workflow to fetch latest remote commits (including PRIDE Time streak fixes and outline sync), prepare tomorrow's lesson (Day 8: 2026-09-09, "The Speed Equation: Calculating Speed & Solving for Distance"), upgrade its daily bell-ringer to an authentic CAST 3D Performance Task with pop-out Desmos Calculator integration, and deploy to GitHub Pages.
+
+**Key Changes**:
+- **Remote Synchronization**: Pulled latest commits (`7e7e51af`) incorporating PRIDE Time streak tracking and outline alignment.
+- **Day 8 CAST 3D Bell-Ringer**:
+  - Upgraded Day 8 bell-ringer in `assets/lessons-data.js`, `Unit_2/unit2_lessons.json`, and `Unit_2/lesson.json` from generic free-response to full CAST 3D performance task (`cast_challenge`).
+  - Phenomenon: Track Athlete Constant-Speed Training Run (`v = 3.0 m/s`, `t = 12.0 s`).
+  - Part 1: Cloze dropdown identifying formula rearrangement ($d = v \cdot t$) and unit cancellation ($(\text{m/s}) \cdot \text{s} = \text{m}$).
+  - Part 2: Math calculation validating $36.0\text{ m}$ (tolerance $0.5$) with instant access to the pop-out Desmos Scientific Calculator.
+  - Part 3: AI Reasoning Chat ("Defending the Why with AI Mentor") with low-bar/high-ceiling prompt probing why speed times time yields distance.
+- **Standards & No-LaTeX Compliance**: Verified 100% compliance with `standards: ["HS-PS2-1"]` across all lessons and confirmed zero LaTeX notation.
+- **Validation & Deployment**: Tested runtime evaluation of all lesson data files and pushed cleanly to GitHub Pages (`origin/main`).
+
 ## 2026-09-08 — Daily Update: Week 2 Bell-Ringers & Pacing Synchronization
 
 **Motivation**: Executed the `/daily-update` workflow to synchronize local workspace with GitHub remote, verifying NGSS alignment (`HS-PS2-1`), No-LaTeX compliance, and full alignment between `assets/lessons-data.js` and `Unit_2/outline.md` for Day 7 (Wind-Up Toy Speed Lab Wrap-Up & Intro to Speed) and the rest of Week 2.

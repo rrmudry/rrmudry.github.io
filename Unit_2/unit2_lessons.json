@@ -733,10 +733,84 @@ const unit2Lessons = [
       "Reading": "Parsing physics word problems to identify numerical givens and target unknowns."
     },
     "bellRinger": {
-      "type": "free_response",
+      "type": "cast_challenge",
+      "title": "Kinematics & Calculating Distance from Speed",
       "promptQuestion": "A runner jogs at a steady speed of 3.0 m/s for 12.0 seconds. Write the formula you would use to find their distance, and calculate the answer with units.",
       "explanation": "Using d = v · t: distance = (3.0 m/s) · (12.0 s) = 36.0 meters.",
-      "defaultDuration": 3
+      "defaultDuration": 4,
+      "standards": {
+        "dci": "HS-PS2.A: Forces & Motion",
+        "sep": "SEP-5: Using Mathematics and Computational Thinking",
+        "ccc": "CCC-3: Scale, Proportion, and Quantity"
+      },
+      "phenomenon": {
+        "title": "Track Athlete Constant-Speed Training Run",
+        "type": "data_table",
+        "text": "A coach records an athlete running along a measured straight track at a steady pace. Telemetry data from the training session is recorded in the table below.",
+        "dataTable": {
+          "caption": "Athlete Constant Speed & Time Log",
+          "headers": [
+            "Athlete",
+            "Pace Description",
+            "Speed (v)",
+            "Time Elapsed (t)"
+          ],
+          "rows": [
+            {
+              "col_0": "Runner Track Alpha",
+              "col_1": "Steady sprint",
+              "col_2": "3.0 m/s",
+              "col_3": "12.0 s"
+            }
+          ]
+        }
+      },
+      "steps": [
+        {
+          "stepId": "step_1",
+          "type": "cloze_dropdown",
+          "title": "Part 1: Rearranging the Speed Equation",
+          "prompt": "Analyze the relationship between speed, distance, and time:",
+          "text": "The speed formula is v = d / t. To isolate distance, we multiply both sides by time to get [blank1]. In this equation, multiplying (m/s) by seconds causes the seconds units to cancel, leaving an answer with units of [blank2].",
+          "blanks": {
+            "blank1": {
+              "correct": "d = v · t",
+              "options": [
+                "d = v · t",
+                "d = v / t",
+                "d = t / v"
+              ]
+            },
+            "blank2": {
+              "correct": "meters (m)",
+              "options": [
+                "meters (m)",
+                "meters per second (m/s)",
+                "seconds (s)"
+              ]
+            }
+          }
+        },
+        {
+          "stepId": "step_2",
+          "type": "data_calculation",
+          "title": "Part 2: Distance Calculation",
+          "prompt": "Calculate the runner's total distance covered after 12.0 seconds at a constant speed of 3.0 m/s.",
+          "inputLabel": "Calculated Distance",
+          "unit": "m",
+          "targetValue": 36,
+          "tolerance": 0.5,
+          "hint": "Distance = speed · time = (3.0 m/s) · (12.0 s)."
+        },
+        {
+          "stepId": "step_3",
+          "type": "ai_reasoning_chat",
+          "title": "Part 3: Defending the Why with AI Mentor",
+          "prompt": "Defend your reasoning to the Physics AI Mentor: Why does multiplying speed by time give distance, and what does speed physically tell us about every passing second?",
+          "openingPrompt": "Hi! You found that a runner moving at 3.0 m/s for 12.0 seconds covers 36.0 meters. In your own words, **why** does multiplying speed by time give distance? What does 3.0 m/s physically tell us about the runner during each individual second?",
+          "minTurns": 1
+        }
+      ]
     },
     "assignments": [
       {
