@@ -1,6 +1,20 @@
 # Wiki Evolution Log
 
 Append-only log tracking pattern changes across sessions.
+
+## 2026-09-09 — Admin Data Export: Physics Labs & WebApps Hub Integration
+
+**Motivation**: Enabled teacher monitoring and gradebook CSV export for the Physics Speed Calculator and all upcoming multi-level interactive physics webapps in `admin/data_export.html`. Previously, `data_export.html` only queried `bellringers` and legacy `student_results`, leaving the `physics_labs` collection unviewable in the UI.
+
+**Key Changes**:
+- **Admin Hub UI (`admin/data_export.html`)**:
+  - Added a dedicated 3rd mode tab: `🚀 Physics Labs & WebApps`.
+  - Added live querying against the `physics_labs` Firestore collection, joining records with `roster/{studentId}` for student names and class periods.
+  - Added period filter (Period 0 through 6), student search, and KPI metrics (Total records, Level 3 Mastered count, Active Learners count).
+  - Added one-click Gradebook CSV export with student ID, name, period, level, score, percentage, and verification tokens.
+- **Persistent Wiki Pattern**:
+  - Updated `.agents/wiki/patterns/firebase-auth-gotchas.md` with guidelines on the `physics_labs` schema so that all future interactive student webapps automatically integrate into `admin/data_export.html`.
+
 ## 2026-09-08 — Daily Update: Day 8 (2026-09-09) CAST Bell-Ringer Upgrade & Remote Sync
 
 **Motivation**: Executed the `/daily-update` workflow to fetch latest remote commits (including PRIDE Time streak fixes and outline sync), prepare tomorrow's lesson (Day 8: 2026-09-09, "The Speed Equation: Calculating Speed & Solving for Distance"), upgrade its daily bell-ringer to an authentic CAST 3D Performance Task with pop-out Desmos Calculator integration, and deploy to GitHub Pages.
