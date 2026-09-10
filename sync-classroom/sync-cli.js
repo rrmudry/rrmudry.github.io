@@ -185,10 +185,8 @@ async function fetchAssignmentScores(assignmentId) {
     console.warn('Warning: Could not prefetch roster:', e.message);
   }
 
-  // 1. Check physics_labs
-  const isSpeedCalc = assignmentId === 'physics_speed_calculator' ||
-                      assignmentId.toLowerCase().includes('speed') ||
-                      assignmentId.toLowerCase().includes('calculator');
+  // 1. Check physics_labs (Speed Calculator only)
+  const isSpeedCalc = assignmentId === 'physics_speed_calculator' || assignmentId === 'speed_calculator';
 
   if (isSpeedCalc) {
     try {
@@ -244,7 +242,7 @@ async function fetchAssignmentScores(assignmentId) {
       if (!snap.empty) {
         snap.forEach(doc => {
           const data = doc.data();
-          const sId = String(data.student_id || doc.id).trim();
+          const sId = String(data.student_id || data.studentId || doc.id).trim();
           if (!seenIds.has(sId)) {
             seenIds.add(sId);
             const rosterInfo = rosterMap.get(sId) || {};
@@ -253,12 +251,22 @@ async function fetchAssignmentScores(assignmentId) {
               : (rosterInfo.period !== undefined && rosterInfo.period !== null && rosterInfo.period !== 'N/A' && rosterInfo.period !== '' ? rosterInfo.period : '---');
             const cleanPeriod = (rawPeriod !== undefined && rawPeriod !== null && rawPeriod !== '') ? String(rawPeriod) : '---';
 
+            let rawScore = 0;
+            if (data.score !== undefined) {
+              rawScore = Number(data.score);
+            } else if (data.isCompleted) {
+              rawScore = 100;
+            } else if (data.labState && data.labState.currentStep) {
+              const step = data.labState.currentStep;
+              rawScore = step >= 5 ? 85 : (step >= 3 ? 70 : (step >= 2 ? 60 : 50));
+            }
+
             students.push({
               studentId: sId,
-              name: data.student_name || rosterInfo.name || `Student ${sId}`,
+              name: data.student_name || data.studentName || rosterInfo.name || `Student ${sId}`,
               email: rosterInfo.email || `${sId}@orangeusd.org`,
               period: cleanPeriod,
-              rawPercentage: Number(data.score !== undefined ? data.score : 0)
+              rawPercentage: rawScore
             });
           }
         });
@@ -344,11 +352,15 @@ async function main() {
 
   let selectedAssignment = null;
   if (targetQuery) {
-    selectedAssignment = assignments.find(a => 
+    // Prioritize assignments with recorded student scores
+    const matches = assignments.filter(a => 
       a.id.toLowerCase().includes(targetQuery.toLowerCase()) || 
       a.name.toLowerCase().includes(targetQuery.toLowerCase())
-    );
-    if (!selectedAssignment) {
+    ).sort((a, b) => b.studentCount - a.studentCount);
+    
+    if (matches.length > 0) {
+      selectedAssignment = matches[0];
+    } else {
       console.warn(`No exact match for query "${targetQuery}". Checking available assignments...`);
     }
   }
