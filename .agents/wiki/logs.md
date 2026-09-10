@@ -2,6 +2,21 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-10 — Mudry Sync Dashboard: `physics_labs` Direct Integration & Period 0 Resolution
+
+**Motivation**: The Google Classroom sync server (`sync-classroom`) was querying legacy collections (`student_results`, `gradest_assignments`, `assessments`, `assignments`) but lacked an adapter for the top-level `physics_labs` collection where the Physics Speed Calculator stores student progress. As a result, the Speed Calculator did not appear in the dashboard dropdown.
+
+**Key Changes**:
+- **`sync-classroom/server.js`**:
+  - Added Section 5 in `GET /api/assignments`: Queries `physics_labs` and registers `Physics Speed Calculator (136 students)` in the assignment selector dropdown.
+  - Added score resolver in `GET /api/assignments/:assignmentId/scores`: Joins student documents with `roster` to retrieve names and class periods, mapping Level 3 mastery (100%), Level 3 quiz scores, Level 2 practice (70%), and Level 1 setup (50%).
+  - Fixed Period 0 falsy bug: Preserves `class_period: 0` for Honors Physics students instead of converting `0 || null` to `null` (`'---'`).
+  - Added dynamic `maxPoints` scaling in `POST /api/sync-grade`: Automatically scales student percentage scores proportionally against target Google Classroom coursework points (e.g. 6, 10, or 100 pts).
+- **`sync-classroom/public/app.js`**:
+  - Updated "Copy to Deploy Form" helper to automatically populate the exact URL `https://rrmudry.github.io/physics_speed_calculator/dist/index.html` into assignment descriptions when deploying coursework to Classroom.
+- **Wiki Pattern**:
+  - Added Section 4 to `.agents/wiki/patterns/classroom-gradebook-sync.md`.
+
 ## 2026-09-10 — Physics Speed Calculator: Notation Alignment ($v = d / t$) & Sub-label Scaffolding
 
 **Motivation**: Telemetry analysis of 136 student records revealed that 51 students were stalled in Level 1 due to symbolic cognitive interference between classroom notes ($v = d / t$ with distance on top of the Formula Triangle) and the app's coordinate notation ($v = x / t$). Students experienced the "algebra reflex," mistaking $x$ for the mystery unknown rather than distance.

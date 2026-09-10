@@ -25,3 +25,12 @@
 - **Concurrent Request Pools**:
   - Run sync requests in parallel pools of 4–5 concurrent promises (`Promise.all(chunk)`).
   - This reduces synchronization time for a full classroom from ~4 minutes to ~4–6 seconds.
+
+## 4. `physics_labs` Direct Collection Integration
+- **Direct Document Keying**:
+  - Unlike legacy `student_results/{assignmentId}/students/{studentId}` subcollections, modern physics webapps save directly to `physics_labs/{studentId}`.
+  - The sync server detects active lab apps (such as `physics_speed_calculator`), enumerates student records, and joins with `roster` to pull student names and class periods.
+- **Period 0 Falsy Preservation**:
+  - JavaScript `rData.class_period || null` evaluates `0` to `null`. Always use strict `!== undefined && !== null` checks to preserve Period 0 (Honors Physics).
+- **Proportional maxPoints Auto-Scaling**:
+  - When syncing grades to coursework where `maxPoints` is non-standard (e.g. 6 pts or 10 pts instead of 100), the server dynamically fetches coursework `maxPoints` and scales percentage grades proportionally.

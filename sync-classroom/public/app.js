@@ -511,7 +511,11 @@ if (btnAutofillDeploy) {
     if (assignmentTitle) assignmentTitle.value = title;
     if (assignmentMaxPoints) assignmentMaxPoints.value = 100;
     if (assignmentDescription) {
-      assignmentDescription.value = `Please complete the ${title} interactive web activity at: https://rrmudry.github.io/unit-conversion-practice/`;
+      if (selectedAssignmentId === 'physics_speed_calculator' || title.toLowerCase().includes('speed')) {
+        assignmentDescription.value = `Please complete the ${title} at: https://rrmudry.github.io/physics_speed_calculator/dist/index.html`;
+      } else {
+        assignmentDescription.value = `Please complete the ${title} interactive web activity at: https://rrmudry.github.io/unit-conversion-practice/`;
+      }
     }
     log(`📋 Copied "${title}" to the Deploy Classroom Coursework form. Check your courses and click "Deploy to Selected Courses"!`, 'info');
     if (assignmentTitle) assignmentTitle.focus();
