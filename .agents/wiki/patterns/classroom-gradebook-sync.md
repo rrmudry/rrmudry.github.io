@@ -34,3 +34,14 @@
   - JavaScript `rData.class_period || null` evaluates `0` to `null`. Always use strict `!== undefined && !== null` checks to preserve Period 0 (Honors Physics).
 - **Proportional maxPoints Auto-Scaling**:
   - When syncing grades to coursework where `maxPoints` is non-standard (e.g. 6 pts or 10 pts instead of 100), the server dynamically fetches coursework `maxPoints` and scales percentage grades proportionally.
+
+## 5. Headless Daily CLI Sync (`npm run sync`)
+- **Daily Home Routine Automation**:
+  - Teachers syncing grades from home daily can bypass the web portal completely by running `npm run sync` (or previewing with `npm run sync:dry`).
+  - The script (`sync-cli.js`) automatically:
+    1. Ignores TA sections (`Jacob P5 TA`, etc.).
+    2. Maps academic periods 0 through 6 to their Google Classroom courses.
+    3. Finds the matching coursework in each course by title.
+    4. Auto-scales scores according to each course's `maxPoints`.
+    5. Syncs and returns submissions, outputting an executive summary table across all 7 courses.
+
