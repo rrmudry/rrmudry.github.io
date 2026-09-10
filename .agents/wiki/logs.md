@@ -2,6 +2,24 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-10 — Physics Speed Calculator: Notation Alignment ($v = d / t$) & Sub-label Scaffolding
+
+**Motivation**: Telemetry analysis of 136 student records revealed that 51 students were stalled in Level 1 due to symbolic cognitive interference between classroom notes ($v = d / t$ with distance on top of the Formula Triangle) and the app's coordinate notation ($v = x / t$). Students experienced the "algebra reflex," mistaking $x$ for the mystery unknown rather than distance.
+
+**Key Changes**:
+- **Equation Board & Slots (`physics_speed_calculator/dist/index.html`)**:
+  - Replaced $v = x / t$ with $v = d / t$ across the main equation board.
+  - Added persistent English sublabels to all slots ($v$ `speed`, $d$ `distance`, $t$ `time`) in both empty and populated states.
+  - Level 2 & 3 inline solving now displays `d (distance) (solve)`.
+- **Help Modal & Formula Guides**:
+  - Updated variable selector button to `d` (Distance) and aligned dynamic formulas to $v = d / t$, $d = v \times t$, and $t = d / v$.
+- **Certificate of Kinematic Mastery**:
+  - Aligned certificate text to award mastery in Speed ($v = d / t$), Distance ($d = v \cdot t$), and Time ($t = d / v$).
+- **Data Stability**:
+  - Kept internal slot mapping (`data-slot="x"`) and Firestore schema 100% backward-compatible.
+- **Wiki Pattern**:
+  - Added Section D (Symbolic Consistency with Classroom Notation & Pacing) to `.agents/wiki/patterns/cast-aligned-webapp-design.md`.
+
 ## 2026-09-10 — Daily Update: Day 10 (2026-09-11) CAST 3D Bell-Ringer Upgrade & Remote Sync
 
 **Motivation**: Executed the `/daily-update` workflow to fetch latest remote changes (incorporating the new Physics Labs & WebApps admin export hub), verify Day 9 readiness for class, upgrade Day 10 (2026-09-11, "Constant Speed Mastery & Kinematic Synthesis Review") to an authentic CAST 3D Performance Task, and push to GitHub Pages.
