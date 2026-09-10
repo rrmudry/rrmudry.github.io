@@ -2,6 +2,24 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-10 — Bell-Ringer CAST 3D Task Response Syncing & Firestore Resolution
+
+**Motivation**: Audited and fixed an issue where student responses were not syncing to Cloud Firestore for Unit 2 Day 8 and Day 9 following the introduction of CAST 3D Performance Tasks (`cast_challenge`).
+
+**Key Changes**:
+- **`Bell-Ringer/index.html`**:
+  - **`sanitizeForFirestore()`**: Added deep-sanitization helper preventing Firestore nested array violations (`summary.stepResults[i].state.chatMessages`) by converting inner arrays into maps (`{ item_0: ... }`) and purging `undefined` properties.
+  - **`submitCastChallenge()`**: Fixed `chatMessages` extraction logic so it inspects `state.steps` and defaults to `[]` (preventing `Unsupported field value: undefined` exceptions). Extracted structured `castAnswers` object, `completedSteps`, `totalSteps`, and `percentComplete` at top-level.
+  - **`handleCastChatSend()`**: Added `studentId`, `studentName`, `class_period`, and `date` to the background chat autosave payload so Firestore security rules pass on new document creation.
+  - **Countdown Timer Auto-Submit**: Wired `activeCastEngine.submitAll()` into `runTimerCountdown()` when `diffMs <= 0`, ensuring students' progress is automatically recorded if the timer runs out.
+  - **Submission Status Synchronization**: Enhanced `startSubmissionListener()` to keep student and CAST panels synchronized with verified progress upon reload.
+- **`Bell-Ringer/dashboard.html`**:
+  - Added dedicated `activeActivityType === 'cast_challenge'` branch in `renderTiles()`, displaying live progress badges (`✓ X/Y parts`, `🔬 X/Y parts`).
+- **`assets/js/cast-item-engine.js`**:
+  - Added tactile button feedback (`Submitting Task...`) to avoid duplicate clicks during network writes.
+- **Wiki Pattern**:
+  - Documented Firestore nested array, undefined value, and timer auto-submission pitfalls in `.agents/wiki/patterns/bell-ringer-config.md`.
+
 ## 2026-09-10 — Two-Vehicle Kinematic Intercept Challenge & Dual-Engine Visualizer (`Unit_2/two_car_intercept/`)
 
 **Motivation**: Created an interactive web application for Period 0 Honors Physics based on the Unit 2 Kinematic Vector & Slope Visualizer. Designed to turn algebraic intercept word problems into an engaging classroom team competition with live physics simulation, graphical analysis, and instant scoring.
