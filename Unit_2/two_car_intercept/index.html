@@ -120,9 +120,13 @@
             <div class="flex items-center gap-2">
                 <span class="text-xl">🏎️⚡🚙</span>
                 <div>
-                    <h1 class="font-display font-bold text-lg leading-tight text-white flex items-center gap-2">
+                    <h1 class="font-display font-bold text-lg leading-tight text-white flex flex-wrap items-center gap-2">
                         <span>Two-Car Kinematic Intercept Challenge</span>
                         <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-lime-950 border border-lime-500/40 text-[#ccff00]">PERIOD 0 HONORS</span>
+                        <span id="header-role-badge" class="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-slate-300 font-bold flex items-center gap-1.5 shadow-sm">
+                            <span>🎓</span>
+                            <span id="header-role-text">STUDENT VIEW</span>
+                        </span>
                     </h1>
                     <p class="text-[11px] text-slate-400 font-mono hidden sm:block">Real-Time Kinematic Vector & Slope Intercept Engine [x(t) = x₀ + vt]</p>
                 </div>
@@ -188,7 +192,8 @@
                 <div class="space-y-3">
                     <div class="flex flex-wrap items-center gap-2">
                         <span class="text-xs font-mono text-slate-400 uppercase tracking-wider font-semibold">Scenario Mode:</span>
-                        <div class="inline-flex rounded-lg p-1 bg-slate-950 border border-slate-800">
+                        <!-- Teacher Interactive Mode Selector -->
+                        <div id="teacher-mode-controls" class="inline-flex rounded-lg p-1 bg-slate-950 border border-slate-800">
                             <button id="mode-headon" class="px-3 py-1 text-xs font-mono rounded-md font-bold transition-all bg-[#ccff00] text-slate-950 shadow-md">
                                 💥 Head-On Encounter
                             </button>
@@ -198,6 +203,10 @@
                             <button id="mode-wildcard" class="px-3 py-1 text-xs font-mono rounded-md font-bold transition-all text-slate-400 hover:text-white">
                                 🎲 Wildcard Mixed
                             </button>
+                        </div>
+                        <!-- Student Read-Only Mode Badge -->
+                        <div id="student-mode-badge" class="hidden px-3 py-1 text-xs font-mono rounded-lg bg-slate-950 border border-slate-800 text-slate-300 font-bold">
+                            💥 Head-On Encounter (Set by Teacher)
                         </div>
                     </div>
                     <h2 class="text-2xl font-bold font-display tracking-tight text-white flex items-center gap-2">
@@ -214,11 +223,17 @@
                         <span id="stopwatch-display" class="font-mono text-xl font-bold text-yellow-300">00:00.0</span>
                     </div>
 
-                    <!-- Generate New Challenge -->
+                    <!-- Generate New Challenge (Teacher Only) -->
                     <button id="btn-new-challenge" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-lime-400 to-[#ccff00] hover:from-lime-300 hover:to-lime-400 text-slate-950 font-bold font-display text-sm transition-all transform active:scale-95 shadow-neon-lime flex items-center gap-2">
                         <span>🎲</span>
                         <span>New Challenge [N]</span>
                     </button>
+
+                    <!-- Student Live Session Badge (Students Only) -->
+                    <div id="student-challenge-wait" class="hidden px-4 py-2.5 bg-slate-950/90 rounded-xl border border-slate-800 text-xs font-mono text-slate-400 flex items-center gap-2 shadow-sm">
+                        <span class="w-2 h-2 rounded-full bg-lime-400 animate-ping"></span>
+                        <span id="student-session-status-text">Classroom Race Mode (Host: Mr. Mudry)</span>
+                    </div>
                 </div>
             </div>
 
@@ -439,22 +454,36 @@
 
                 <!-- Playback Controls Bar -->
                 <div class="glass-card p-4 rounded-xl flex flex-wrap items-center justify-between gap-4">
-                    <div class="flex items-center gap-3">
-                        <button id="btn-play-sim" class="px-5 py-2 rounded-lg bg-gradient-to-r from-lime-400 to-[#ccff00] hover:from-lime-300 hover:to-lime-400 text-slate-950 font-bold font-display text-sm transition-all shadow-md flex items-center gap-2 active:scale-95">
-                            <span id="play-icon">▶</span>
-                            <span id="play-label">Run Verification Race [Space]</span>
-                        </button>
-                        <button id="btn-reset-sim" class="px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 font-mono text-sm border border-slate-700 transition-colors">
-                            Reset [R]
-                        </button>
+                    <!-- Teacher Interactive Controls -->
+                    <div id="teacher-playback-controls" class="flex flex-wrap items-center justify-between gap-4 w-full">
+                        <div class="flex items-center gap-3">
+                            <button id="btn-play-sim" class="px-5 py-2 rounded-lg bg-gradient-to-r from-lime-400 to-[#ccff00] hover:from-lime-300 hover:to-lime-400 text-slate-950 font-bold font-display text-sm transition-all shadow-md flex items-center gap-2 active:scale-95">
+                                <span id="play-icon">▶</span>
+                                <span id="play-label">Run Verification Race [Space]</span>
+                            </button>
+                            <button id="btn-reset-sim" class="px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 font-mono text-sm border border-slate-700 transition-colors">
+                                Reset [R]
+                            </button>
+                        </div>
+
+                        <!-- Simulation Speed Selector -->
+                        <div class="flex items-center gap-2 text-xs font-mono text-slate-400">
+                            <span>Speed:</span>
+                            <button class="speed-btn px-2 py-1 rounded bg-slate-900 border border-slate-700 hover:border-lime-500 text-slate-300" data-speed="0.5">0.5x</button>
+                            <button class="speed-btn px-2 py-1 rounded bg-lime-950 border border-lime-500 text-[#ccff00] font-bold" data-speed="1.0">1.0x</button>
+                            <button class="speed-btn px-2 py-1 rounded bg-slate-900 border border-slate-700 hover:border-lime-500 text-slate-300" data-speed="2.0">2.0x</button>
+                        </div>
                     </div>
 
-                    <!-- Simulation Speed Selector -->
-                    <div class="flex items-center gap-2 text-xs font-mono text-slate-400">
-                        <span>Speed:</span>
-                        <button class="speed-btn px-2 py-1 rounded bg-slate-900 border border-slate-700 hover:border-lime-500 text-slate-300" data-speed="0.5">0.5x</button>
-                        <button class="speed-btn px-2 py-1 rounded bg-lime-950 border border-lime-500 text-[#ccff00] font-bold" data-speed="1.0">1.0x</button>
-                        <button class="speed-btn px-2 py-1 rounded bg-slate-900 border border-slate-700 hover:border-lime-500 text-slate-300" data-speed="2.0">2.0x</button>
+                    <!-- Student Read-Only Race Status -->
+                    <div id="student-playback-controls" class="hidden flex-wrap items-center justify-between gap-3 w-full text-xs font-mono text-slate-300">
+                        <div class="flex items-center gap-2.5">
+                            <span class="text-base animate-pulse">🏎️</span>
+                            <span id="student-race-msg" class="text-slate-300">Solve conditions on your whiteboard & lock in prediction!</span>
+                        </div>
+                        <span class="text-[11px] text-slate-500 font-mono px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800">
+                            Race Controlled by rmudry@orangeusd.org
+                        </span>
                     </div>
                 </div>
 
@@ -507,10 +536,21 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="w-full py-2.5 rounded-lg bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-bold font-display text-sm transition-all shadow-md active:scale-98 flex items-center justify-center gap-2">
+                        <button id="btn-submit-prediction" type="submit" class="w-full py-2.5 rounded-lg bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-bold font-display text-sm transition-all shadow-md active:scale-98 flex items-center justify-center gap-2">
                             <span>🚀</span>
                             <span>Lock In Prediction!</span>
                         </button>
+
+                        <!-- Student Prediction Locked Indicator -->
+                        <div id="prediction-locked-indicator" class="hidden p-3 rounded-xl bg-lime-950/80 border border-lime-500/50 text-lime-300 text-xs font-mono space-y-1">
+                            <div class="font-bold flex items-center gap-1.5">
+                                <span>✅</span>
+                                <span>Prediction Locked In!</span>
+                            </div>
+                            <div id="prediction-locked-subtitle" class="text-[11px] text-slate-300">
+                                Waiting for Mr. Mudry to run the verification race.
+                            </div>
+                        </div>
                     </form>
                 </div>
 
@@ -775,7 +815,17 @@
 
         const teamSubmissions = [];
 
-        // Auth, Team, Gating & Focus State
+        // Auth, Role, Team & Sync State
+        const TEACHER_EMAILS = [
+            'rmudry@orangeusd.org',
+            'rrmudry@gmail.com',
+            'ryan.mudry@gmail.com'
+        ];
+
+        function isTeacherUser(user = authUser) {
+            return !!(user && user.email && TEACHER_EMAILS.includes(user.email.toLowerCase()));
+        }
+
         let authUser = null;
         let activeTeam = JSON.parse(localStorage.getItem('two_car_team_data') || 'null') || {
             name: 'Team Alpha',
@@ -786,6 +836,7 @@
         let hasSubmittedThisRound = false;
         let blurDebounceTimer = null;
         let firestoreUnsubscribe = null;
+        let sessionUnsubscribe = null;
 
         // Track Coordinate Extents (-20m to 220m)
         const trackBounds = {
@@ -864,11 +915,15 @@
             hasSubmittedThisRound = false;
             lockGraph();
 
-            // Clear inputs
+            // Clear and enable inputs & reset submit button
             const inputT = document.getElementById('input-t');
             const inputX = document.getElementById('input-x');
-            if (inputT) inputT.value = '';
-            if (inputX) inputX.value = '';
+            const submitBtn = document.getElementById('btn-submit-prediction');
+            const lockedIndicator = document.getElementById('prediction-locked-indicator');
+            if (inputT) { inputT.value = ''; inputT.disabled = false; }
+            if (inputX) { inputX.value = ''; inputX.disabled = false; }
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.classList.remove('opacity-50', 'cursor-not-allowed'); }
+            if (lockedIndicator) lockedIndicator.classList.add('hidden');
 
             updateChallengeUI();
             resetSimulation();
@@ -876,6 +931,20 @@
             // Hide disqualification toast and previous solution if open
             hideDisqualificationToast();
             hideProminentSolution();
+
+            // Broadcast active challenge to Firestore if Teacher
+            if (fbDb && isTeacherUser()) {
+                fbDb.collection('two_car_intercept_state').doc('active_session').set({
+                    challengeId: currentChallenge.id,
+                    mode: currentChallenge.mode,
+                    carA: currentChallenge.carA,
+                    carB: currentChallenge.carB,
+                    solution: currentChallenge.solution,
+                    status: 'calculating',
+                    updatedBy: authUser ? authUser.email : 'rmudry@orangeusd.org',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                }).catch(err => console.warn("Session broadcast note:", err));
+            }
 
             // Sync with Firestore real-time submissions for this challenge
             subscribeToChallengeSubmissions(currentChallenge.id);
@@ -928,6 +997,17 @@
             document.getElementById('input-t').value = '';
             document.getElementById('input-x').value = '';
             document.getElementById('intercept-overlay').style.opacity = '0';
+
+            // Sync student mode badge
+            const studentModeBadge = document.getElementById('student-mode-badge');
+            if (studentModeBadge) {
+                const modeLabels = {
+                    headon: '💥 Head-On Encounter',
+                    pursuit: '🏁 Catch-Up Pursuit',
+                    wildcard: '🎲 Wildcard Mixed'
+                };
+                studentModeBadge.innerText = (modeLabels[currentChallenge.mode] || currentChallenge.mode) + ' (Set by Teacher)';
+            }
         }
 
         // -----------------------------------------------------------------
@@ -1474,6 +1554,12 @@
                 simState.isPlaying = false;
                 updatePlayButtonUI();
                 showProminentSolution();
+
+                if (fbDb && isTeacherUser()) {
+                    fbDb.collection('two_car_intercept_state').doc('active_session').update({
+                        status: 'completed'
+                    }).catch(err => {});
+                }
             }
 
             renderFrame(simState.time, dt);
@@ -1484,6 +1570,9 @@
         }
 
         function togglePlay() {
+            // Teacher-only direct playback control
+            if (!isTeacherUser()) return;
+
             unlockGraph();
             const stopTime = currentChallenge.solution.t + 1.8;
             if (simState.time >= stopTime) {
@@ -1498,6 +1587,13 @@
                 audio.beep(440, 0.08, 'sawtooth');
                 simState.lastTimestamp = performance.now();
                 requestAnimationFrame(stepSimulation);
+
+                if (fbDb && isTeacherUser()) {
+                    fbDb.collection('two_car_intercept_state').doc('active_session').update({
+                        status: 'racing',
+                        raceStartedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    }).catch(err => console.warn("Race status update note:", err));
+                }
             }
         }
 
@@ -1508,6 +1604,12 @@
             simState.lastTimestamp = null;
             updatePlayButtonUI();
             renderFrame(0, 0);
+
+            if (fbDb && isTeacherUser()) {
+                fbDb.collection('two_car_intercept_state').doc('active_session').update({
+                    status: 'calculating'
+                }).catch(err => {});
+            }
         }
 
         function updatePlayButtonUI() {
@@ -1681,7 +1783,6 @@
             // Stop timer & mark submitted
             stopStopwatch();
             hasSubmittedThisRound = true;
-            unlockGraph();
 
             const actualT = currentChallenge.solution.t;
             const actualX = currentChallenge.solution.x;
@@ -1735,9 +1836,34 @@
 
             teamSubmissions.unshift(subItem);
             renderLeaderboard();
-            hideProminentSolution();
-            resetSimulation();
-            togglePlay(); // Automatically trigger verification race!
+
+            // Lock prediction input form for student
+            const inputT = document.getElementById('input-t');
+            const inputX = document.getElementById('input-x');
+            const submitBtn = document.getElementById('btn-submit-prediction');
+            const lockedIndicator = document.getElementById('prediction-locked-indicator');
+            const lockedSubtitle = document.getElementById('prediction-locked-subtitle');
+
+            if (inputT) inputT.disabled = true;
+            if (inputX) inputX.disabled = true;
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+            if (lockedIndicator) {
+                lockedIndicator.classList.remove('hidden');
+                if (lockedSubtitle) {
+                    lockedSubtitle.innerText = `Prediction: t = ${predT}s, x = ${predX}m. Waiting for Mr. Mudry to run the race!`;
+                }
+            }
+
+            // If teacher, immediately run verification race
+            if (isTeacherUser()) {
+                unlockGraph();
+                hideProminentSolution();
+                resetSimulation();
+                togglePlay();
+            }
         });
 
         function renderLeaderboard() {
@@ -1913,6 +2039,7 @@
                 if (user) {
                     authUser = user;
                     updateAuthUI(true);
+                    updateRoleBasedUI();
                     const saved = localStorage.getItem('two_car_team_data');
                     if (saved) {
                         try {
@@ -1920,11 +2047,14 @@
                             applyTeamData(activeTeam);
                         } catch (e) {}
                     } else {
-                        openTeamSetupModal();
+                        if (!isTeacherUser()) {
+                            openTeamSetupModal();
+                        }
                     }
                 } else {
                     authUser = null;
                     updateAuthUI(false);
+                    updateRoleBasedUI();
                 }
             });
 
@@ -2084,13 +2214,14 @@
         }
 
         // -----------------------------------------------------------------
-        // 13. Mode Switchers & Event Handlers
+        // 13. Mode Switchers & Role Controls
         // -----------------------------------------------------------------
         const modeHeadonBtn = document.getElementById('mode-headon');
         const modePursuitBtn = document.getElementById('mode-pursuit');
         const modeWildcardBtn = document.getElementById('mode-wildcard');
 
         function setMode(mode) {
+            if (!isTeacherUser()) return;
             currentChallenge.mode = mode;
             [modeHeadonBtn, modePursuitBtn, modeWildcardBtn].forEach(b => {
                 b.className = 'px-3 py-1 text-xs font-mono rounded-md font-bold transition-all text-slate-400 hover:text-white';
@@ -2112,12 +2243,178 @@
         modeWildcardBtn.addEventListener('click', () => setMode('wildcard'));
 
         document.getElementById('btn-new-challenge').addEventListener('click', () => {
+            if (!isTeacherUser()) return;
             generateChallenge();
             audio.beep(600, 0.08, 'triangle');
         });
 
         document.getElementById('btn-play-sim').addEventListener('click', togglePlay);
         document.getElementById('btn-reset-sim').addEventListener('click', resetSimulation);
+
+        document.getElementById('btn-clear-board').addEventListener('click', () => {
+            if (!isTeacherUser()) return;
+            if (confirm('Clear team standings leaderboard for the class?')) {
+                teamSubmissions.length = 0;
+                renderLeaderboard();
+            }
+        });
+
+        // -----------------------------------------------------------------
+        // 14. Live Multi-Client Classroom Synchronization
+        // -----------------------------------------------------------------
+        function updateRoleBasedUI() {
+            const isTeacher = isTeacherUser();
+
+            // 1. Header Role Badge
+            const roleBadge = document.getElementById('header-role-badge');
+            const roleText = document.getElementById('header-role-text');
+            if (roleBadge && roleText) {
+                if (isTeacher) {
+                    roleBadge.className = 'text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/50 text-amber-300 font-bold flex items-center gap-1.5 shadow-[0_0_12px_rgba(245,158,11,0.25)]';
+                    roleText.innerText = 'TEACHER / HOST (Mr. Mudry)';
+                } else {
+                    roleBadge.className = 'text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-lime-950/80 border border-lime-500/40 text-[#ccff00] font-bold flex items-center gap-1.5';
+                    roleText.innerText = authUser ? 'STUDENT TEAM VIEW' : 'STUDENT / GUEST VIEW';
+                }
+            }
+
+            // 2. Scenario Mode Controls (Teacher selects mode, student sees badge)
+            const teacherModeControls = document.getElementById('teacher-mode-controls');
+            const studentModeBadge = document.getElementById('student-mode-badge');
+            if (teacherModeControls && studentModeBadge) {
+                if (isTeacher) {
+                    teacherModeControls.classList.remove('hidden');
+                    studentModeBadge.classList.add('hidden');
+                } else {
+                    teacherModeControls.classList.add('hidden');
+                    studentModeBadge.classList.remove('hidden');
+                }
+            }
+
+            // 3. New Challenge Button (Teacher triggers, student sees waiting status)
+            const btnNewChallenge = document.getElementById('btn-new-challenge');
+            const studentChallengeWait = document.getElementById('student-challenge-wait');
+            if (btnNewChallenge && studentChallengeWait) {
+                if (isTeacher) {
+                    btnNewChallenge.classList.remove('hidden');
+                    studentChallengeWait.classList.add('hidden');
+                } else {
+                    btnNewChallenge.classList.add('hidden');
+                    studentChallengeWait.classList.remove('hidden');
+                }
+            }
+
+            // 4. Playback Controls Bar
+            const teacherPlaybackControls = document.getElementById('teacher-playback-controls');
+            const studentPlaybackControls = document.getElementById('student-playback-controls');
+            if (teacherPlaybackControls && studentPlaybackControls) {
+                if (isTeacher) {
+                    teacherPlaybackControls.classList.remove('hidden');
+                    teacherPlaybackControls.classList.add('flex');
+                    studentPlaybackControls.classList.add('hidden');
+                    studentPlaybackControls.classList.remove('flex');
+                } else {
+                    teacherPlaybackControls.classList.add('hidden');
+                    teacherPlaybackControls.classList.remove('flex');
+                    studentPlaybackControls.classList.remove('hidden');
+                    studentPlaybackControls.classList.add('flex');
+                }
+            }
+
+            // 5. Leaderboard Reset Button (Teacher Only)
+            const btnClearBoard = document.getElementById('btn-clear-board');
+            if (btnClearBoard) {
+                if (isTeacher) {
+                    btnClearBoard.classList.remove('hidden');
+                } else {
+                    btnClearBoard.classList.add('hidden');
+                }
+            }
+        }
+
+        function subscribeToLiveSession() {
+            if (!fbDb) return;
+            if (sessionUnsubscribe) sessionUnsubscribe();
+
+            try {
+                sessionUnsubscribe = fbDb.collection('two_car_intercept_state').doc('active_session')
+                    .onSnapshot((doc) => {
+                        if (!doc.exists) return;
+                        const data = doc.data();
+                        if (!data) return;
+
+                        // If I am the teacher, my local host state is authority
+                        if (isTeacherUser()) return;
+
+                        handleIncomingSessionUpdate(data);
+                    }, (err) => {
+                        console.warn("Live session sync notice:", err.message);
+                    });
+            } catch (err) {
+                console.warn("Session subscription error:", err);
+            }
+        }
+
+        function handleIncomingSessionUpdate(data) {
+            const isNewChallenge = !currentChallenge || currentChallenge.id !== data.challengeId;
+
+            if (isNewChallenge) {
+                currentChallenge = {
+                    id: data.challengeId,
+                    mode: data.mode || 'headon',
+                    carA: data.carA,
+                    carB: data.carB,
+                    solution: data.solution
+                };
+
+                // Reset round state for new challenge
+                hasSubmittedThisRound = false;
+                lockGraph();
+                updateChallengeUI();
+                resetSimulation();
+                startStopwatch();
+                hideDisqualificationToast();
+                hideProminentSolution();
+
+                // Reset student prediction form
+                const inputT = document.getElementById('input-t');
+                const inputX = document.getElementById('input-x');
+                const submitBtn = document.getElementById('btn-submit-prediction');
+                const lockedIndicator = document.getElementById('prediction-locked-indicator');
+                if (inputT) { inputT.value = ''; inputT.disabled = false; }
+                if (inputX) { inputX.value = ''; inputX.disabled = false; }
+                if (submitBtn) { submitBtn.disabled = false; submitBtn.classList.remove('opacity-50', 'cursor-not-allowed'); }
+                if (lockedIndicator) lockedIndicator.classList.add('hidden');
+
+                // Subscribe to submissions for this new challenge
+                subscribeToChallengeSubmissions(currentChallenge.id);
+
+                const statusMsg = document.getElementById('student-race-msg');
+                if (statusMsg) statusMsg.innerText = `Race #${data.challengeId} active! Solve on your whiteboard and lock in prediction.`;
+            }
+
+            // Sync race execution from teacher
+            if (data.status === 'racing') {
+                if (!simState.isPlaying && simState.time < currentChallenge.solution.t + 1.8) {
+                    unlockGraph();
+                    simState.isPlaying = true;
+                    updatePlayButtonUI();
+                    simState.lastTimestamp = performance.now();
+                    requestAnimationFrame(stepSimulation);
+                }
+                const statusMsg = document.getElementById('student-race-msg');
+                if (statusMsg) statusMsg.innerText = `🏁 Verification race is running live!`;
+            } else if (data.status === 'completed') {
+                if (simState.isPlaying) {
+                    simState.isPlaying = false;
+                    updatePlayButtonUI();
+                }
+                simState.time = currentChallenge.solution.t + 1.8;
+                showProminentSolution();
+                const statusMsg = document.getElementById('student-race-msg');
+                if (statusMsg) statusMsg.innerText = `🏁 Race #${data.challengeId} complete. Check results below!`;
+            }
+        }
 
         // Speed Buttons
         document.querySelectorAll('.speed-btn').forEach(btn => {
@@ -2149,17 +2446,21 @@
 
         // Keyboard Shortcuts
         window.addEventListener('keydown', (e) => {
-
-
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
 
             if (e.code === 'Space') {
                 e.preventDefault();
-                togglePlay();
+                if (isTeacherUser()) {
+                    togglePlay();
+                }
             } else if (e.code === 'KeyR') {
-                resetSimulation();
+                if (isTeacherUser()) {
+                    resetSimulation();
+                }
             } else if (e.code === 'KeyN') {
-                generateChallenge();
+                if (isTeacherUser()) {
+                    generateChallenge();
+                }
             } else if (e.code === 'KeyF') {
                 document.getElementById('btn-fullscreen').click();
             }
@@ -2172,6 +2473,8 @@
         window.addEventListener('DOMContentLoaded', () => {
             resizeCanvases();
             initAuth();
+            updateRoleBasedUI();
+            subscribeToLiveSession();
             generateChallenge('headon');
         });
     </script>

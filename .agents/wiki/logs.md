@@ -22,9 +22,14 @@ Append-only log tracking pattern changes across sessions.
   - Built Calculation-Phase Graph Gating: Position vs. Time ($x-t$) graph is shrouded behind a glassmorphic lock curtain while students calculate, unlocking only upon prediction submission or "Run Verification Race" activation.
   - Implemented Academic Integrity Tab/Window Switch Disqualification: Detects tab switches and `window.blur` while the problem timer is running. Replaced intrusive full-screen teacher PIN lockout with an automatic **0 points** round score (`status: 'DISQUALIFIED (0 pts) ⚠️'`), unlocked solution graph, and a non-blocking toast alert instructing students to proceed to "New Challenge". Eliminates teacher unlock friction during competitive gameplay.
   - Built Prominent Post-Run Answer Display: Designed high-contrast projector HUD card (`#post-run-solution-card`) that automatically reveals after the verification race auto-pauses, displaying massive glowing numerals for Meeting Time ($t_{meet}$) and Meeting Position ($x_{meet}$), algebraic equality validation, prediction accuracy feedback, track/graph coordinate pills, and auto-expanding the step-by-step substitution proof drawer.
-  - Added real-time Firestore sync on `two_car_intercept_submissions` for live class leaderboard updates.
+- **Teacher Host vs Student Client Architecture (`Unit_2/two_car_intercept/index.html` & `firestore.rules`)**:
+  - Whitelisted teacher accounts (`rmudry@orangeusd.org`, `rrmudry@gmail.com`) for host control: only teacher accounts can generate new challenges, switch scenario modes, toggle simulation playback (Run, Pause, Reset), or clear the leaderboard.
+  - Student and guest accounts receive read-only live sync views displaying active car initial conditions ($x_{0A}, v_A, x_{0B}, v_B$) and an interactive prediction submission form.
+  - Submitting predictions locks input fields and shows a locked confirmation badge.
+  - Student devices listen to Firestore document `two_car_intercept_state/active_session` via `onSnapshot`, automatically synchronizing challenge conditions, physical race animation, graph unlocking, and prominent post-run solution displays in real time when triggered by Mr. Mudry's host screen.
+  - Added Section 11 to `firestore.rules` enforcing admin-only write access to `two_car_intercept_state` and deployed to Firebase project `site-6e500`.
 - **Wiki**:
-  - Created `.agents/wiki/patterns/two-agent-kinematic-intercept.md` and indexed in `.agents/wiki/index.md`.
+  - Created `.agents/wiki/patterns/two-agent-kinematic-intercept.md` (including Section 7 for Host vs Client Sync Architecture) and indexed in `.agents/wiki/index.md`.
 
 ## 2026-09-10 — Headless Daily Grade Sync CLI (`npm run sync`) & Automated Workflow
 
