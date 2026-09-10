@@ -83,6 +83,12 @@ if (isNaN(studentCm)) {
 To prevent cognitive overload from a "cockpit" of tools:
 - **Phase Gating**: In Step 1, only show the measurement tool. In Step 2, show the scale conversion calculator. In Step 3, show the vector inspector.
 - **Progressive Disclosure**: Keep advanced or secondary tools (e.g., Homecoming Paradox, full realm reset) hidden or tucked into a secondary drawer until the foundational measurement steps are complete.
+
+### D. Symbolic Consistency with Classroom Notation & Pacing (v = d / t vs. v = x / t)
+Novice physics learners experience intense cognitive interference when digital tools use advanced coordinate notation ($x$, $\Delta x$) before classroom direct instruction has formalized position functions:
+- **Notebook & Formula Triangle Alignment**: In early constant speed and 1D kinematics (Unit 2, Weeks 1–2), digital calculation tools must mirror classroom notes using $v = d / t$ (where $d$ = distance).
+- **Sub-label Scaffolding**: Always accompany formula slots with explicit English sublabels ($v$ `speed`, $d$ `distance`, $t$ `time`). This actively prevents the pervasive Math 1 / Algebra misconception where students reflexively treat $x$ as "the unknown to solve for."
+- **Internal Data Decoupling**: Keep internal data models and Firestore schemas stable while ensuring the student-facing presentation layer matches the teacher's active lesson notes.
 - **Clear Call-to-Action**: Every step should feature one prominent, primary button indicating the next physical action (e.g., `[ 📏 Measure Leg 1 ]` → `[ Check Answers ✓ ]` → `[ Next Step → ]`).
 
 ---
