@@ -11,6 +11,26 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Outfit:wght@400;600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Firebase Compat SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            projectId: "site-6e500",
+            appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+            storageBucket: "site-6e500.firebasestorage.app",
+            apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+            authDomain: "site-6e500.firebaseapp.com",
+            messagingSenderId: "591530758858"
+        };
+        if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const fbAuth = typeof firebase !== 'undefined' && firebase.auth ? firebase.auth() : null;
+        const fbDb = typeof firebase !== 'undefined' && firebase.firestore ? firebase.firestore() : null;
+    </script>
+
     <!-- Tailwind CSS (via CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -111,6 +131,30 @@
 
         <!-- Header Actions & Audio Toggle -->
         <div class="flex items-center gap-2.5">
+            <!-- Google Sign-In Button (Logged Out) -->
+            <button id="btn-google-login" class="px-3 py-1.5 rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-xs font-mono text-white transition-all flex items-center gap-1.5 shadow-sm" title="Sign in with School Google Account">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                </svg>
+                <span>Team Login</span>
+            </button>
+
+            <!-- Team Profile Pill (Logged In) -->
+            <div id="user-team-profile" class="hidden items-center gap-2 bg-slate-900/90 border border-slate-700 rounded-lg px-2.5 py-1">
+                <img id="user-avatar" src="" alt="Avatar" class="w-5 h-5 rounded-full border border-[#ccff00]/60 object-cover">
+                <div class="text-left leading-none">
+                    <div class="flex items-center gap-1">
+                        <span id="user-team-name" class="text-xs font-bold text-white font-display">Team Alpha</span>
+                        <button id="btn-edit-team" class="text-[11px] text-slate-400 hover:text-lime-300" title="Edit Team Name & Members">✏️</button>
+                    </div>
+                    <span id="user-display-email" class="text-[9px] font-mono text-slate-400 truncate max-w-[100px] block">user@domain</span>
+                </div>
+                <button id="btn-google-logout" class="ml-1 text-[11px] text-slate-500 hover:text-rose-400 px-1 py-0.5 rounded transition-colors" title="Sign Out">✕</button>
+            </div>
+
             <!-- Sound Toggle -->
             <button id="btn-sound" class="px-3 py-1.5 rounded-lg bg-slate-900/90 border border-slate-700 text-xs font-mono text-slate-300 hover:text-white hover:border-slate-500 transition-colors flex items-center gap-1.5" title="Toggle Synthesized Audio FX">
                 <span id="sound-icon">🔊</span>
@@ -276,9 +320,25 @@
                         <span id="graph-cursor-readout" class="text-yellow-300 font-mono">Time: t = 0.00s</span>
                     </div>
 
-                    <!-- Graph Canvas -->
-                    <div class="w-full rounded-xl overflow-hidden bg-[#030712] border border-slate-800">
+                    <!-- Graph Canvas with Security Curtain -->
+                    <div class="relative w-full rounded-xl overflow-hidden bg-[#030712] border border-slate-800">
                         <canvas id="graphCanvas" class="w-full block" height="230"></canvas>
+
+                        <!-- Graph Concealment Curtain (Calculation Phase) -->
+                        <div id="graph-lock-curtain" class="absolute inset-0 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center transition-all duration-500 z-10">
+                            <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/40 text-amber-400 flex items-center justify-center text-2xl mb-2.5 shadow-[0_0_20px_rgba(245,158,11,0.25)] animate-pulse">
+                                🔒
+                            </div>
+                            <h4 class="font-display font-bold text-white text-base tracking-wide">Position vs. Time Graph Locked</h4>
+                            <p class="text-xs font-mono text-slate-400 max-w-md mt-1.5 leading-relaxed">
+                                Dual space-time curves are concealed during the calculation phase. 
+                                Set up <span class="text-[#ccff00] font-bold">x_A(t)</span> and <span class="text-[#38bdf8] font-bold">x_B(t)</span> on your whiteboard, solve for <span class="text-yellow-400 font-bold">t</span> and <span class="text-yellow-400 font-bold">x</span>, and submit your prediction!
+                            </p>
+                            <div class="mt-3 flex items-center gap-2 text-[11px] font-mono text-amber-300/95 bg-amber-950/50 px-3 py-1.5 rounded-lg border border-amber-500/30">
+                                <span>⚡</span>
+                                <span>Graph unlocks when <strong>Run Verification Race</strong> is activated</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -426,6 +486,94 @@
                 where both equations share the same solution.
             </p>
         </footer>
+
+        <!-- Team Registration Modal -->
+        <div id="modal-team-setup" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+            <div class="glass-card max-w-md w-full p-6 rounded-2xl border-2 border-lime-500/50 shadow-neon-lime space-y-4 relative">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="text-2xl">🏁</span>
+                        <h3 class="font-display font-bold text-lg text-white">Register Intercept Team</h3>
+                    </div>
+                    <button id="btn-close-team-modal" class="text-slate-400 hover:text-white font-mono text-sm">✕</button>
+                </div>
+
+                <p class="text-xs text-slate-300 font-mono">
+                    Connect your school account to represent your team on the live projector leaderboard!
+                </p>
+
+                <form id="team-setup-form" class="space-y-3.5">
+                    <div>
+                        <label class="block text-xs font-mono text-lime-300 mb-1 font-bold">Team Name:</label>
+                        <input id="setup-team-name" type="text" required placeholder="e.g. Velocity Vipers" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-sm font-mono text-white focus:outline-none focus:border-lime-400">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-mono text-slate-300 mb-1">Teammates / Collaborators:</label>
+                        <input id="setup-team-members" type="text" placeholder="e.g. Maya, Lucas, Ethan" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-xs font-mono text-white focus:outline-none focus:border-lime-400">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-mono text-slate-300 mb-1">Class Period:</label>
+                        <select id="setup-team-period" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-xs font-mono text-white focus:outline-none focus:border-lime-400">
+                            <option value="0" selected>Period 0 (Honors Physics)</option>
+                            <option value="1">Period 1</option>
+                            <option value="2">Period 2</option>
+                            <option value="3">Period 3</option>
+                            <option value="4">Period 4</option>
+                            <option value="5">Period 5</option>
+                            <option value="6">Period 6</option>
+                        </select>
+                    </div>
+
+                    <div class="pt-2 flex gap-2">
+                        <button type="submit" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-lime-400 to-[#ccff00] text-slate-950 font-bold font-display text-sm hover:from-lime-300 hover:to-lime-400 transition-all shadow-md">
+                            Save Team Profile 🚀
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Academic Integrity Lockout Modal (Tab Switch / Window Blur) -->
+        <div id="modal-security-lockout" class="fixed inset-0 z-[100] bg-slate-950/95 backdrop-blur-lg flex items-center justify-center p-4 hidden select-none">
+            <div class="glass-card max-w-lg w-full p-6 sm:p-8 rounded-3xl border-4 border-rose-500/80 shadow-[0_0_50px_rgba(244,63,94,0.4)] space-y-5 text-center relative overflow-hidden">
+                <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-rose-600 via-amber-500 to-rose-600 animate-pulse"></div>
+
+                <div class="w-16 h-16 mx-auto rounded-2xl bg-rose-500/20 border-2 border-rose-500 text-rose-400 flex items-center justify-center text-3xl shadow-[0_0_20px_rgba(244,63,94,0.3)] animate-bounce">
+                    🚨
+                </div>
+
+                <div>
+                    <h3 class="font-display font-black text-xl text-rose-400 uppercase tracking-wider">
+                        Academic Integrity Lockout Engaged
+                    </h3>
+                    <p class="text-xs font-mono text-slate-300 mt-2 leading-relaxed">
+                        A window blur or tab change was detected while Challenge <span id="lockout-round-num" class="text-yellow-300 font-bold">#1</span> was actively running.
+                    </p>
+                    <div class="mt-2 text-[11px] font-mono text-rose-300/80 bg-rose-950/40 p-2 rounded-lg border border-rose-500/30">
+                        Reason: <span id="lockout-reason" class="text-white">Tab switched or browser minimized</span>
+                    </div>
+                </div>
+
+                <div class="p-4 rounded-2xl bg-slate-900/90 border border-slate-700/80 space-y-3">
+                    <label class="block text-xs font-mono text-slate-300 font-bold">
+                        Teacher Clearance Override Required:
+                    </label>
+                    <div class="flex gap-2 max-w-xs mx-auto">
+                        <input id="teacher-pin-input" type="password" placeholder="Teacher PIN" class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-center text-sm font-mono tracking-widest text-white focus:outline-none focus:border-rose-400">
+                        <button id="btn-teacher-unlock" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-mono text-xs font-bold transition-all shadow-md">
+                            Unlock
+                        </button>
+                    </div>
+                    <p id="lockout-error-msg" class="text-[10px] font-mono text-rose-400 hidden">Incorrect teacher PIN. Please see Mr. Mudry.</p>
+                    <p class="text-[10px] font-mono text-slate-500">
+                        Students: Notify Mr. Mudry to clear this station.
+                    </p>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <!-- Global Partials & NGSS Helper Loader -->
@@ -498,6 +646,24 @@
                     });
                 } catch (e) {}
             }
+
+            lockoutAlarm() {
+                if (!this.enabled) return;
+                try {
+                    this.init();
+                    this.beep(220, 0.15, 'sawtooth');
+                    setTimeout(() => this.beep(160, 0.35, 'sawtooth'), 160);
+                } catch (e) {}
+            }
+
+            unlockChime() {
+                if (!this.enabled) return;
+                try {
+                    this.init();
+                    this.beep(440, 0.1, 'sine');
+                    setTimeout(() => this.beep(660, 0.2, 'sine'), 110);
+                } catch (e) {}
+            }
         }
         const audio = new AudioFX();
 
@@ -535,6 +701,19 @@
         };
 
         const teamSubmissions = [];
+
+        // Auth, Team, Lockout & Graph Gating State
+        let authUser = null;
+        let activeTeam = JSON.parse(localStorage.getItem('two_car_team_data') || 'null') || {
+            name: 'Team Alpha',
+            members: '',
+            period: 0
+        };
+        let isGraphUnlocked = false;
+        let isSecurityLocked = false;
+        let hasSubmittedThisRound = false;
+        let blurDebounceTimer = null;
+        let firestoreUnsubscribe = null;
 
         // Track Coordinate Extents (-20m to 220m)
         const trackBounds = {
@@ -609,9 +788,48 @@
                 solution: { t: tMeet, x: xMeet }
             };
 
+            // Reset Round & Security State
+            hasSubmittedThisRound = false;
+            isSecurityLocked = false;
+            lockGraph();
+
+            // Clear inputs
+            const inputT = document.getElementById('input-t');
+            const inputX = document.getElementById('input-x');
+            if (inputT) inputT.value = '';
+            if (inputX) inputX.value = '';
+
             updateChallengeUI();
             resetSimulation();
             startStopwatch();
+
+            // Check if this round was previously locked in this browser session
+            if (sessionStorage.getItem('two_car_lockout_' + currentChallenge.id) === 'true') {
+                setTimeout(() => triggerLockout('Workstation locked for this round'), 100);
+            }
+
+            // Sync with Firestore real-time submissions for this challenge
+            subscribeToChallengeSubmissions(currentChallenge.id);
+        }
+
+        function lockGraph() {
+            isGraphUnlocked = false;
+            const curtain = document.getElementById('graph-lock-curtain');
+            if (curtain) {
+                curtain.classList.remove('opacity-0', 'pointer-events-none');
+            }
+            drawGraph(simState.time);
+        }
+
+        function unlockGraph() {
+            if (isGraphUnlocked) return;
+            isGraphUnlocked = true;
+            const curtain = document.getElementById('graph-lock-curtain');
+            if (curtain) {
+                curtain.classList.add('opacity-0', 'pointer-events-none');
+            }
+            audio.unlockChime();
+            drawGraph(simState.time);
         }
 
         // -----------------------------------------------------------------
@@ -1041,59 +1259,62 @@
             ctx.lineTo(w - padRight, yZero);
             ctx.stroke();
 
-            // Function A Curve (Lime Neon)
-            ctx.save();
-            ctx.strokeStyle = '#ccff00';
-            ctx.lineWidth = 2.5;
-            ctx.shadowColor = '#ccff00';
-            ctx.shadowBlur = 8;
-            ctx.beginPath();
-            const startYA = mapPosToY(carA.x0);
-            const endYA = mapPosToY(carA.x0 + carA.v * maxGraphTime);
-            ctx.moveTo(mapTimeToX(0), startYA);
-            ctx.lineTo(mapTimeToX(maxGraphTime), endYA);
-            ctx.stroke();
-            ctx.restore();
+            // Curves & Intercept Point (Only displayed when Graph is Unlocked)
+            if (isGraphUnlocked) {
+                // Function A Curve (Lime Neon)
+                ctx.save();
+                ctx.strokeStyle = '#ccff00';
+                ctx.lineWidth = 2.5;
+                ctx.shadowColor = '#ccff00';
+                ctx.shadowBlur = 8;
+                ctx.beginPath();
+                const startYA = mapPosToY(carA.x0);
+                const endYA = mapPosToY(carA.x0 + carA.v * maxGraphTime);
+                ctx.moveTo(mapTimeToX(0), startYA);
+                ctx.lineTo(mapTimeToX(maxGraphTime), endYA);
+                ctx.stroke();
+                ctx.restore();
 
-            // Function B Curve (Electric Cyan)
-            ctx.save();
-            ctx.strokeStyle = '#38bdf8';
-            ctx.lineWidth = 2.5;
-            ctx.shadowColor = '#38bdf8';
-            ctx.shadowBlur = 8;
-            ctx.beginPath();
-            const startYB = mapPosToY(carB.x0);
-            const endYB = mapPosToY(carB.x0 + carB.v * maxGraphTime);
-            ctx.moveTo(mapTimeToX(0), startYB);
-            ctx.lineTo(mapTimeToX(maxGraphTime), endYB);
-            ctx.stroke();
-            ctx.restore();
+                // Function B Curve (Electric Cyan)
+                ctx.save();
+                ctx.strokeStyle = '#38bdf8';
+                ctx.lineWidth = 2.5;
+                ctx.shadowColor = '#38bdf8';
+                ctx.shadowBlur = 8;
+                ctx.beginPath();
+                const startYB = mapPosToY(carB.x0);
+                const endYB = mapPosToY(carB.x0 + carB.v * maxGraphTime);
+                ctx.moveTo(mapTimeToX(0), startYB);
+                ctx.lineTo(mapTimeToX(maxGraphTime), endYB);
+                ctx.stroke();
+                ctx.restore();
 
-            // Highlight Intersection Point (Intercept)
-            const meetGx = mapTimeToX(solution.t);
-            const meetGy = mapPosToY(solution.x);
+                // Highlight Intersection Point (Intercept)
+                const meetGx = mapTimeToX(solution.t);
+                const meetGy = mapPosToY(solution.x);
 
-            ctx.save();
-            ctx.strokeStyle = '#f59e0b';
-            ctx.fillStyle = '#f59e0b';
-            ctx.lineWidth = 2;
-            ctx.shadowColor = '#f59e0b';
-            ctx.shadowBlur = 12;
+                ctx.save();
+                ctx.strokeStyle = '#f59e0b';
+                ctx.fillStyle = '#f59e0b';
+                ctx.lineWidth = 2;
+                ctx.shadowColor = '#f59e0b';
+                ctx.shadowBlur = 12;
 
-            // Concentric target rings
-            ctx.beginPath();
-            ctx.arc(meetGx, meetGy, 6, 0, Math.PI * 2);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.arc(meetGx, meetGy, 2.5, 0, Math.PI * 2);
-            ctx.fill();
+                // Concentric target rings
+                ctx.beginPath();
+                ctx.arc(meetGx, meetGy, 6, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(meetGx, meetGy, 2.5, 0, Math.PI * 2);
+                ctx.fill();
 
-            // Label callout
-            ctx.font = 'bold 9.5px Fira Code, monospace';
-            ctx.fillStyle = '#f59e0b';
-            ctx.textAlign = 'left';
-            ctx.fillText(`Intersect: (${solution.t}s, ${solution.x}m)`, meetGx + 8, meetGy - 6);
-            ctx.restore();
+                // Label callout
+                ctx.font = 'bold 9.5px Fira Code, monospace';
+                ctx.fillStyle = '#f59e0b';
+                ctx.textAlign = 'left';
+                ctx.fillText(`Intersect: (${solution.t}s, ${solution.x}m)`, meetGx + 8, meetGy - 6);
+                ctx.restore();
+            }
 
             // Sweeping Live Time Cursor
             const curX = mapTimeToX(currentTime);
@@ -1165,6 +1386,7 @@
         }
 
         function togglePlay() {
+            unlockGraph();
             simState.isPlaying = !simState.isPlaying;
             updatePlayButtonUI();
 
@@ -1218,14 +1440,23 @@
 
         predictionForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const teamName = teamSelect.value === 'Custom' 
-                ? (customTeamInput.value.trim() || 'Team Custom')
-                : teamSelect.value;
+
+            // Determine team name
+            const teamName = activeTeam && activeTeam.name ? activeTeam.name : (
+                teamSelect.value === 'Custom' 
+                    ? (customTeamInput.value.trim() || 'Team Custom')
+                    : teamSelect.value
+            );
 
             const predT = parseFloat(document.getElementById('input-t').value);
             const predX = parseFloat(document.getElementById('input-x').value);
 
             if (isNaN(predT) || isNaN(predX)) return;
+
+            // Stop timer & mark submitted
+            stopStopwatch();
+            hasSubmittedThisRound = true;
+            unlockGraph();
 
             const actualT = currentChallenge.solution.t;
             const actualX = currentChallenge.solution.x;
@@ -1253,20 +1484,34 @@
                 audio.beep(220, 0.3, 'sawtooth');
             }
 
-            teamSubmissions.unshift({
+            const subItem = {
+                challengeId: currentChallenge.id,
+                mode: currentChallenge.mode,
                 team: teamName,
+                studentEmail: authUser ? authUser.email : 'guest@school',
+                studentName: authUser ? (authUser.displayName || authUser.email.split('@')[0]) : teamName,
+                period: activeTeam ? activeTeam.period : 0,
                 t: predT,
                 x: predX,
-                actualT,
-                actualX,
+                actualT: actualT,
+                actualX: actualX,
                 timeSec: stopwatch.elapsed,
-                status,
-                points
-            });
+                status: status,
+                points: points
+            };
 
+            // Write to Firestore if online
+            if (fbDb) {
+                fbDb.collection('two_car_intercept_submissions').add({
+                    ...subItem,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                }).catch(err => console.warn("Firestore save note:", err));
+            }
+
+            teamSubmissions.unshift(subItem);
             renderLeaderboard();
             resetSimulation();
-            togglePlay(); // Automatically trigger verification race so the class sees the car motion!
+            togglePlay(); // Automatically trigger verification race!
         });
 
         function renderLeaderboard() {
@@ -1338,7 +1583,267 @@
         });
 
         // -----------------------------------------------------------------
-        // 11. Mode Switchers & Event Handlers
+        // 11. Academic Integrity Lockout System (Tab / Window Focus Monitor)
+        // -----------------------------------------------------------------
+        function triggerLockout(reason = "Tab switched or window focus lost") {
+            if (!stopwatch.isRunning || hasSubmittedThisRound || isSecurityLocked) return;
+
+            isSecurityLocked = true;
+            stopStopwatch();
+            audio.lockoutAlarm();
+
+            const lockoutModal = document.getElementById('modal-security-lockout');
+            if (lockoutModal) {
+                const reasonEl = document.getElementById('lockout-reason');
+                const roundEl = document.getElementById('lockout-round-num');
+                const pinInput = document.getElementById('teacher-pin-input');
+                const err = document.getElementById('lockout-error-msg');
+                if (reasonEl) reasonEl.innerText = reason;
+                if (roundEl) roundEl.innerText = `#RACE-${String(currentChallenge.id).padStart(2, '0')}`;
+                if (pinInput) pinInput.value = '';
+                if (err) err.classList.add('hidden');
+                lockoutModal.classList.remove('hidden');
+            }
+
+            sessionStorage.setItem('two_car_lockout_' + currentChallenge.id, 'true');
+        }
+
+        function clearLockout() {
+            isSecurityLocked = false;
+            sessionStorage.removeItem('two_car_lockout_' + currentChallenge.id);
+            const lockoutModal = document.getElementById('modal-security-lockout');
+            if (lockoutModal) {
+                lockoutModal.classList.add('hidden');
+            }
+            audio.unlockChime();
+            startStopwatch();
+        }
+
+        function handleTeacherUnlock() {
+            const pinInput = document.getElementById('teacher-pin-input');
+            const pin = pinInput ? pinInput.value.trim() : '';
+            if (pin === 'mudry2026' || pin === 'mudry' || pin === '2026') {
+                clearLockout();
+            } else {
+                const err = document.getElementById('lockout-error-msg');
+                if (err) err.classList.remove('hidden');
+                audio.beep(200, 0.25, 'sawtooth');
+            }
+        }
+
+        // Window & Tab Visibility Event Listeners
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && stopwatch.isRunning && !hasSubmittedThisRound && !isSecurityLocked) {
+                triggerLockout('Tab switched or browser minimized');
+            }
+        });
+
+        window.addEventListener('blur', () => {
+            clearTimeout(blurDebounceTimer);
+            blurDebounceTimer = setTimeout(() => {
+                if (stopwatch.isRunning && !hasSubmittedThisRound && !isSecurityLocked && !document.hasFocus()) {
+                    triggerLockout('Window focus lost (switched away from active browser)');
+                }
+            }, 300);
+        });
+
+        window.addEventListener('focus', () => {
+            clearTimeout(blurDebounceTimer);
+        });
+
+        // -----------------------------------------------------------------
+        // 12. Google Authentication & Team Management
+        // -----------------------------------------------------------------
+        function initAuth() {
+            if (!fbAuth) {
+                console.warn("Firebase Auth unavailable.");
+                return;
+            }
+
+            fbAuth.onAuthStateChanged((user) => {
+                if (user) {
+                    authUser = user;
+                    updateAuthUI(true);
+                    const saved = localStorage.getItem('two_car_team_data');
+                    if (saved) {
+                        try {
+                            activeTeam = JSON.parse(saved);
+                            applyTeamData(activeTeam);
+                        } catch (e) {}
+                    } else {
+                        openTeamSetupModal();
+                    }
+                } else {
+                    authUser = null;
+                    updateAuthUI(false);
+                }
+            });
+
+            const loginBtn = document.getElementById('btn-google-login');
+            if (loginBtn) loginBtn.onclick = handleGoogleSignIn;
+
+            const logoutBtn = document.getElementById('btn-google-logout');
+            if (logoutBtn) logoutBtn.onclick = handleGoogleSignOut;
+
+            const editTeamBtn = document.getElementById('btn-edit-team');
+            if (editTeamBtn) editTeamBtn.onclick = openTeamSetupModal;
+
+            const closeTeamBtn = document.getElementById('btn-close-team-modal');
+            if (closeTeamBtn) closeTeamBtn.onclick = closeTeamSetupModal;
+
+            const teamForm = document.getElementById('team-setup-form');
+            if (teamForm) teamForm.onsubmit = saveTeamSetup;
+
+            const unlockBtn = document.getElementById('btn-teacher-unlock');
+            if (unlockBtn) unlockBtn.onclick = handleTeacherUnlock;
+
+            const pinInput = document.getElementById('teacher-pin-input');
+            if (pinInput) {
+                pinInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') handleTeacherUnlock();
+                });
+            }
+
+            // Restore saved team
+            const savedTeam = localStorage.getItem('two_car_team_data');
+            if (savedTeam) {
+                try {
+                    activeTeam = JSON.parse(savedTeam);
+                    applyTeamData(activeTeam);
+                } catch (e) {}
+            }
+        }
+
+        function handleGoogleSignIn() {
+            if (!fbAuth) {
+                alert("Firebase Authentication is initializing. Please try again.");
+                return;
+            }
+            const provider = new firebase.auth.GoogleAuthProvider();
+            provider.setCustomParameters({ prompt: 'select_account' });
+            fbAuth.signInWithPopup(provider).catch((err) => {
+                if (err.code !== 'auth/popup-closed-by-user') {
+                    alert("Google Sign-In notice: " + (err.message || err.code));
+                }
+            });
+        }
+
+        function handleGoogleSignOut() {
+            if (fbAuth) {
+                fbAuth.signOut();
+            }
+        }
+
+        function updateAuthUI(isSignedIn) {
+            const loginBtn = document.getElementById('btn-google-login');
+            const profilePill = document.getElementById('user-team-profile');
+            const avatar = document.getElementById('user-avatar');
+            const emailTag = document.getElementById('user-display-email');
+            const teamTag = document.getElementById('user-team-name');
+
+            if (isSignedIn && authUser) {
+                if (loginBtn) loginBtn.classList.add('hidden');
+                if (profilePill) {
+                    profilePill.classList.remove('hidden');
+                    profilePill.classList.add('flex');
+                }
+                if (avatar) avatar.src = authUser.photoURL || 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ccff00"><circle cx="12" cy="8" r="4"/><path d="M12 14c-6 0-8 4-8 4v2h16v-2s-2-4-8-4z"/></svg>';
+                if (emailTag) emailTag.innerText = authUser.email;
+                if (teamTag) teamTag.innerText = (activeTeam && activeTeam.name) ? activeTeam.name : 'Team Alpha';
+            } else {
+                if (loginBtn) loginBtn.classList.remove('hidden');
+                if (profilePill) {
+                    profilePill.classList.add('hidden');
+                    profilePill.classList.remove('flex');
+                }
+            }
+        }
+
+        function openTeamSetupModal() {
+            const modal = document.getElementById('modal-team-setup');
+            if (!modal) return;
+            const nameInput = document.getElementById('setup-team-name');
+            const memInput = document.getElementById('setup-team-members');
+            const perSelect = document.getElementById('setup-team-period');
+
+            if (nameInput) nameInput.value = (activeTeam && activeTeam.name) ? activeTeam.name : '';
+            if (memInput) memInput.value = (activeTeam && activeTeam.members) ? activeTeam.members : '';
+            if (perSelect) perSelect.value = String((activeTeam && activeTeam.period) || 0);
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeTeamSetupModal() {
+            const modal = document.getElementById('modal-team-setup');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function saveTeamSetup(e) {
+            e.preventDefault();
+            const name = document.getElementById('setup-team-name').value.trim() || 'Team Alpha';
+            const members = document.getElementById('setup-team-members').value.trim();
+            const period = parseInt(document.getElementById('setup-team-period').value) || 0;
+
+            activeTeam = { name, members, period };
+            localStorage.setItem('two_car_team_data', JSON.stringify(activeTeam));
+            applyTeamData(activeTeam);
+            closeTeamSetupModal();
+            audio.beep(587, 0.15, 'triangle');
+        }
+
+        function applyTeamData(team) {
+            const teamTag = document.getElementById('user-team-name');
+            if (teamTag) teamTag.innerText = team.name;
+
+            if (teamSelect) {
+                let found = false;
+                for (let i = 0; i < teamSelect.options.length; i++) {
+                    if (teamSelect.options[i].value === team.name) {
+                        teamSelect.selectedIndex = i;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    const opt = document.createElement('option');
+                    opt.value = team.name;
+                    opt.text = team.name + ' (Your Team)';
+                    teamSelect.insertBefore(opt, teamSelect.firstChild);
+                    teamSelect.selectedIndex = 0;
+                }
+            }
+        }
+
+        function subscribeToChallengeSubmissions(challengeId) {
+            if (!fbDb) return;
+            if (firestoreUnsubscribe) firestoreUnsubscribe();
+
+            try {
+                firestoreUnsubscribe = fbDb.collection('two_car_intercept_submissions')
+                    .where('challengeId', '==', challengeId)
+                    .orderBy('points', 'desc')
+                    .orderBy('timeSec', 'asc')
+                    .limit(20)
+                    .onSnapshot((snapshot) => {
+                        const cloudSubs = [];
+                        snapshot.forEach((doc) => {
+                            cloudSubs.push(doc.data());
+                        });
+                        if (cloudSubs.length > 0) {
+                            teamSubmissions.length = 0;
+                            cloudSubs.forEach(s => teamSubmissions.push(s));
+                            renderLeaderboard();
+                        }
+                    }, (err) => {
+                        console.warn("Firestore snapshot notice:", err.message);
+                    });
+            } catch (e) {
+                console.warn("Firestore subscription error:", e);
+            }
+        }
+
+        // -----------------------------------------------------------------
+        // 13. Mode Switchers & Event Handlers
         // -----------------------------------------------------------------
         const modeHeadonBtn = document.getElementById('mode-headon');
         const modePursuitBtn = document.getElementById('mode-pursuit');
@@ -1403,6 +1908,13 @@
 
         // Keyboard Shortcuts
         window.addEventListener('keydown', (e) => {
+            // Teacher Emergency Lockout Bypass: Shift + U
+            if (e.shiftKey && e.code === 'KeyU') {
+                e.preventDefault();
+                clearLockout();
+                return;
+            }
+
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
 
             if (e.code === 'Space') {
@@ -1423,6 +1935,7 @@
         // Initial Load
         window.addEventListener('DOMContentLoaded', () => {
             resizeCanvases();
+            initAuth();
             generateChallenge('headon');
         });
     </script>

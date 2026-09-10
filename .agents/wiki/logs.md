@@ -17,6 +17,11 @@ Append-only log tracking pattern changes across sessions.
   - Added direct link buttons in the hero interactive tools banner and beside the Kinematic Vector & Slope Visualizer header.
 - **`assets/lessons-data.js`**:
   - Registered the app under Day 9 (2026-09-10) practice and resource links for Period 0.
+- **Team Authentication & Integrity Features (`Unit_2/two_car_intercept/index.html`)**:
+  - Added Google Sign-In with Firebase Auth (`site-6e500`) and Team Registration modal (Team Name, Members, Period).
+  - Built Calculation-Phase Graph Gating: Position vs. Time ($x-t$) graph is shrouded behind a glassmorphic lock curtain while students calculate, unlocking only upon prediction submission or "Run Verification Race" activation.
+  - Implemented Academic Integrity Tab/Window Switch Monitor: Detects tab switches and `window.blur` while the problem timer is running, immediately locking down the station with an alarm buzzer and requiring Teacher PIN (`mudry2026` or `Shift + U`) to clear.
+  - Added real-time Firestore sync on `two_car_intercept_submissions` for live class leaderboard updates.
 - **Wiki**:
   - Created `.agents/wiki/patterns/two-agent-kinematic-intercept.md` and indexed in `.agents/wiki/index.md`.
 
