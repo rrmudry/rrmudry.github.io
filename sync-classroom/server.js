@@ -833,8 +833,27 @@ app.post('/api/create-assignment', checkAuth, async (req, res) => {
         });
         results.push({ courseId, courseworkId: response.data.id, success: true });
       } catch (err) {
-        results.push({ courseId, success: false, error: err.message });
+        // Handle transient Google Classroom 500 error: verify if the item actually created anyway
+        let recovered = false;
+        try {
+          await new Promise(r => setTimeout(r, 1200));
+          const listRes = await classroom.courses.courseWork.list({ courseId, pageSize: 20 });
+          const existing = (listRes.data.courseWork || []).find(cw => 
+            cw.title.trim().toLowerCase() === title.trim().toLowerCase()
+          );
+          if (existing) {
+            console.log(`Recovered coursework "${title}" in course ${courseId} after transient API 500 (ID: ${existing.id})`);
+            results.push({ courseId, courseworkId: existing.id, success: true, recovered: true });
+            recovered = true;
+          }
+        } catch (recoverErr) {}
+
+        if (!recovered) {
+          results.push({ courseId, success: false, error: err.message });
+        }
       }
+      // Pacing delay to prevent Google Classroom Drive folder concurrency locks
+      await new Promise(r => setTimeout(r, 400));
     }
 
     // Save/Merge unified assignment record into 'gradest_assignments'
