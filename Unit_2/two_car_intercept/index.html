@@ -300,10 +300,10 @@
                         <canvas id="trackCanvas" class="w-full block" height="150"></canvas>
                         
                         <!-- Intercept Banner Overlay -->
-                        <div id="intercept-overlay" class="absolute inset-0 bg-amber-500/10 pointer-events-none flex items-center justify-center opacity-0 transition-opacity duration-300">
-                            <div class="px-4 py-2 rounded-xl bg-amber-500/90 text-slate-950 font-display font-black text-sm uppercase tracking-widest shadow-neon-amber flex items-center gap-2 animate-bounce">
+                        <div id="intercept-overlay" class="absolute inset-0 bg-amber-500/15 pointer-events-none flex items-center justify-center opacity-0 transition-opacity duration-300">
+                            <div class="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-display font-black text-sm uppercase tracking-wider shadow-neon-amber flex items-center gap-2 animate-bounce">
                                 <span>⚡</span>
-                                <span>INTERCEPT POINT REACHED!</span>
+                                <span id="intercept-banner-text">INTERCEPT POINT REACHED!</span>
                                 <span>⚡</span>
                             </div>
                         </div>
@@ -338,6 +338,101 @@
                                 <span>⚡</span>
                                 <span>Graph unlocks when <strong>Run Verification Race</strong> is activated</span>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prominent Post-Run Intercept Solution Banner Card -->
+                <div id="post-run-solution-card" class="hidden glass-card p-5 sm:p-6 rounded-2xl border-2 border-[#ccff00] shadow-[0_0_45px_rgba(204,255,0,0.35)] bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 transition-all duration-500 space-y-4">
+                    <!-- Top Bar: Header & Badges -->
+                    <div class="flex flex-wrap items-center justify-between pb-3 border-b border-slate-800 gap-2">
+                        <div class="flex items-center gap-3">
+                            <span class="text-3xl animate-bounce">🏁</span>
+                            <div>
+                                <h3 class="font-display font-black text-lg sm:text-xl text-white tracking-wide flex items-center gap-2">
+                                    <span>EXACT INTERCEPT SOLUTION</span>
+                                    <span class="text-xs font-mono font-normal text-lime-400 px-2 py-0.5 rounded bg-lime-950 border border-lime-500/40">VERIFIED</span>
+                                </h3>
+                                <p class="text-xs font-mono text-slate-400">Position and time coordinates where both vehicle curves meet.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span id="solution-mode-badge" class="px-3 py-1 rounded-lg bg-lime-950/90 border border-lime-500/50 text-[#ccff00] font-mono font-bold text-xs uppercase">
+                                HEAD-ON INTERCEPT
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Hero Numbers Grid: High-Contrast Big Display for Classroom/Projector -->
+                    <div class="grid sm:grid-cols-2 gap-4">
+                        <!-- Intercept Time Card -->
+                        <div class="bg-slate-950/90 p-4 rounded-xl border-2 border-yellow-400/60 shadow-[0_0_25px_rgba(234,179,8,0.2)] flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="text-xs font-mono uppercase font-bold text-yellow-400 flex items-center gap-1.5">
+                                        <span>⏱️</span>
+                                        <span>Meeting Time (t_meet)</span>
+                                    </span>
+                                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-yellow-950 text-yellow-300 border border-yellow-500/30 font-bold">SOLVED FOR t</span>
+                                </div>
+                                <div id="solution-val-time" class="font-mono text-4xl sm:text-5xl font-black text-yellow-300 tracking-tight my-1 drop-shadow-[0_0_15px_rgba(253,224,71,0.6)]">
+                                    0.00 s
+                                </div>
+                            </div>
+                            <div id="solution-sub-time" class="text-xs font-mono text-slate-300 pt-2 border-t border-slate-800/80 leading-relaxed">
+                                t = Δx / Δv
+                            </div>
+                        </div>
+
+                        <!-- Intercept Position Card -->
+                        <div class="bg-slate-950/90 p-4 rounded-xl border-2 border-[#ccff00]/60 shadow-[0_0_25px_rgba(204,255,0,0.2)] flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="text-xs font-mono uppercase font-bold text-[#ccff00] flex items-center gap-1.5">
+                                        <span>📍</span>
+                                        <span>Meeting Position (x_meet)</span>
+                                    </span>
+                                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-lime-950 text-[#ccff00] border border-lime-500/30 font-bold">SOLVED FOR x</span>
+                                </div>
+                                <div id="solution-val-pos" class="font-mono text-4xl sm:text-5xl font-black text-[#ccff00] tracking-tight my-1 drop-shadow-[0_0_15px_rgba(204,255,0,0.6)]">
+                                    0.0 m
+                                </div>
+                            </div>
+                            <div id="solution-sub-pos" class="text-xs font-mono text-slate-300 pt-2 border-t border-slate-800/80 leading-relaxed">
+                                x_meet = x₀A + v_A · t
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mathematical Equality Confirmation -->
+                    <div class="grid sm:grid-cols-2 gap-3 font-mono text-xs">
+                        <div class="bg-slate-900/90 p-2.5 rounded-lg border border-slate-800 flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#ccff00] flex-shrink-0"></span>
+                            <span class="text-slate-400">Car A Position:</span>
+                            <span id="solution-eq-a" class="text-[#ccff00] font-bold">x_A(t) = ...</span>
+                        </div>
+                        <div class="bg-slate-900/90 p-2.5 rounded-lg border border-slate-800 flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#38bdf8] flex-shrink-0"></span>
+                            <span class="text-slate-400">Car B Position:</span>
+                            <span id="solution-eq-b" class="text-[#38bdf8] font-bold">x_B(t) = ...</span>
+                        </div>
+                    </div>
+
+                    <!-- Team Prediction Feedback (Dynamic) -->
+                    <div id="solution-pred-feedback" class="hidden"></div>
+
+                    <!-- Next Actions Bar -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-800">
+                        <div class="text-xs font-mono text-slate-400">
+                            Algebraic proof and step-by-step substitution drawer expanded on right.
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="togglePlay()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-mono text-xs transition-colors flex items-center gap-1.5">
+                                <span>🔄</span> Replay Race
+                            </button>
+                            <button onclick="generateChallenge()" class="px-5 py-2 rounded-xl bg-gradient-to-r from-lime-400 to-[#ccff00] hover:from-lime-300 hover:to-lime-400 text-slate-950 font-bold font-display text-xs transition-all shadow-md flex items-center gap-1.5">
+                                <span>🎲</span> New Challenge [N]
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -778,8 +873,9 @@
             updateChallengeUI();
             resetSimulation();
             startStopwatch();
-            // Hide disqualification toast if open
+            // Hide disqualification toast and previous solution if open
             hideDisqualificationToast();
+            hideProminentSolution();
 
             // Sync with Firestore real-time submissions for this challenge
             subscribeToChallengeSubmissions(currentChallenge.id);
@@ -1009,10 +1105,21 @@
                 ctx.arc(meetX, 75, 6, 0, Math.PI * 2);
                 ctx.fill();
 
-                ctx.font = 'bold 9px Fira Code, monospace';
-                ctx.fillStyle = '#f59e0b';
+                // Intercept Coordinate Pill Badge
+                const meetBadge = `MEET: x = ${solution.x.toFixed(1)}m (t = ${solution.t}s)`;
+                ctx.font = 'bold 10px Fira Code, monospace';
+                const mbWidth = ctx.measureText(meetBadge).width;
+                ctx.fillStyle = 'rgba(2, 6, 23, 0.90)';
+                ctx.strokeStyle = '#f59e0b';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.rect(meetX - (mbWidth / 2) - 6, 64, mbWidth + 12, 22);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#fef08a';
                 ctx.textAlign = 'center';
-                ctx.fillText(`MEET: x = ${solution.x.toFixed(1)}m`, meetX, 78);
+                ctx.fillText(meetBadge, meetX, 79);
             }
 
             // Wheel rotations
@@ -1281,11 +1388,21 @@
                 ctx.arc(meetGx, meetGy, 2.5, 0, Math.PI * 2);
                 ctx.fill();
 
-                // Label callout
-                ctx.font = 'bold 9.5px Fira Code, monospace';
-                ctx.fillStyle = '#f59e0b';
+                // Label callout with high-contrast background pill
+                const labelText = `Intercept: (${solution.t}s, ${solution.x}m)`;
+                ctx.font = 'bold 10px Fira Code, monospace';
+                const textWidth = ctx.measureText(labelText).width;
+                ctx.fillStyle = 'rgba(2, 6, 23, 0.90)';
+                ctx.strokeStyle = '#f59e0b';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.rect(meetGx + 8, meetGy - 18, textWidth + 12, 18);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#fef08a';
                 ctx.textAlign = 'left';
-                ctx.fillText(`Intersect: (${solution.t}s, ${solution.x}m)`, meetGx + 8, meetGy - 6);
+                ctx.fillText(labelText, meetGx + 14, meetGy - 5);
                 ctx.restore();
             }
 
@@ -1338,17 +1455,25 @@
             if (!simState.hasTriggeredIntercept && simState.time >= currentChallenge.solution.t) {
                 simState.hasTriggeredIntercept = true;
                 audio.interceptChime();
+                const bannerText = document.getElementById('intercept-banner-text');
+                if (bannerText) {
+                    const sol = currentChallenge.solution;
+                    bannerText.innerText = `INTERCEPT REACHED! t = ${sol.t}s, x = ${sol.x}m`;
+                }
                 const overlay = document.getElementById('intercept-overlay');
-                overlay.style.opacity = '1';
-                setTimeout(() => { overlay.style.opacity = '0'; }, 1500);
+                if (overlay) {
+                    overlay.style.opacity = '1';
+                    setTimeout(() => { overlay.style.opacity = '0'; }, 2000);
+                }
             }
 
-            // Auto-pause shortly after passing intercept
+            // Auto-pause shortly after passing intercept & prominently display solution
             const stopTime = currentChallenge.solution.t + 1.8;
             if (simState.time >= stopTime) {
                 simState.time = stopTime;
                 simState.isPlaying = false;
                 updatePlayButtonUI();
+                showProminentSolution();
             }
 
             renderFrame(simState.time, dt);
@@ -1360,6 +1485,12 @@
 
         function togglePlay() {
             unlockGraph();
+            const stopTime = currentChallenge.solution.t + 1.8;
+            if (simState.time >= stopTime) {
+                simState.time = 0;
+                simState.hasTriggeredIntercept = false;
+                hideProminentSolution();
+            }
             simState.isPlaying = !simState.isPlaying;
             updatePlayButtonUI();
 
@@ -1393,6 +1524,127 @@
                 label.innerText = 'Run Verification Race [Space]';
                 btn.classList.remove('bg-yellow-400');
             }
+        }
+
+        // -----------------------------------------------------------------
+        // 8b. Prominent Solution Display Controller
+        // -----------------------------------------------------------------
+        function showProminentSolution() {
+            const card = document.getElementById('post-run-solution-card');
+            if (!card) return;
+
+            const { carA, carB, solution, mode } = currentChallenge;
+            const deltaX = (carB.x0 - carA.x0);
+            const deltaV = (carA.v - carB.v);
+
+            const strVA = carA.v >= 0 ? `${carA.v}` : `(${carA.v})`;
+            const strVB = carB.v >= 0 ? `${carB.v}` : `(${carB.v})`;
+            const strX0A = carA.x0 >= 0 ? `${carA.x0}` : `(${carA.x0})`;
+            const strX0B = carB.x0 >= 0 ? `${carB.x0}` : `(${carB.x0})`;
+
+            const formattedT = Number.isInteger(solution.t) ? solution.t.toFixed(1) + ' s' : solution.t.toFixed(2) + ' s';
+            const formattedX = solution.x.toFixed(1) + ' m';
+
+            // Update Big Display Values
+            const timeEl = document.getElementById('solution-val-time');
+            const posEl = document.getElementById('solution-val-pos');
+            if (timeEl) timeEl.innerText = formattedT;
+            if (posEl) posEl.innerText = formattedX;
+
+            // Mode badge
+            const modeBadge = document.getElementById('solution-mode-badge');
+            if (modeBadge) {
+                modeBadge.innerText = mode.toUpperCase() + ' INTERCEPT';
+            }
+
+            // Formulas and substitutions
+            const subTimeEl = document.getElementById('solution-sub-time');
+            if (subTimeEl) {
+                subTimeEl.innerHTML = `t = Δx / Δv = (${strX0B} - ${strX0A}) / (${strVA} - ${strVB}) = ${deltaX} / ${deltaV} = <strong class="text-yellow-300 font-bold">${formattedT}</strong>`;
+            }
+
+            const subPosEl = document.getElementById('solution-sub-pos');
+            if (subPosEl) {
+                subPosEl.innerHTML = `x_meet = ${carA.x0} + (${carA.v})·(${solution.t}) = <strong class="text-[#ccff00] font-bold">${formattedX}</strong>`;
+            }
+
+            // Equations verification row
+            const eqA = document.getElementById('solution-eq-a');
+            if (eqA) {
+                eqA.innerHTML = `x_A(${solution.t}s) = ${carA.x0} + (${carA.v})(${solution.t}) = <strong class="text-white">${formattedX}</strong>`;
+            }
+            const eqB = document.getElementById('solution-eq-b');
+            if (eqB) {
+                eqB.innerHTML = `x_B(${solution.t}s) = ${carB.x0} + (${carB.v})(${solution.t}) = <strong class="text-white">${formattedX}</strong>`;
+            }
+
+            // Check if team submitted prediction for this round
+            const predFeedback = document.getElementById('solution-pred-feedback');
+            if (predFeedback) {
+                const lastSub = teamSubmissions.find(s => s.challengeId === currentChallenge.id);
+                if (lastSub) {
+                    const isDisqualified = lastSub.points === 0 && lastSub.status.includes('DISQUALIFIED');
+                    if (isDisqualified) {
+                        predFeedback.className = 'p-3 rounded-xl border bg-rose-950/40 border-rose-500/50 text-rose-300 flex items-center justify-between text-xs font-mono';
+                        predFeedback.innerHTML = `
+                            <div class="flex items-center gap-2">
+                                <span class="text-base">⚠️</span>
+                                <span><strong>${lastSub.team}</strong>: Round Disqualified (Tab or window switched during calculation)</span>
+                            </div>
+                            <span class="px-2 py-0.5 rounded bg-rose-900 border border-rose-500 font-bold text-white">0 pts</span>
+                        `;
+                    } else {
+                        const diffT = Math.abs(lastSub.t - solution.t);
+                        const diffX = Math.abs(lastSub.x - solution.x);
+                        const isExact = lastSub.points >= 100;
+                        const isClose = lastSub.points >= 70 && !isExact;
+                        predFeedback.className = `p-3 rounded-xl border ${
+                            isExact 
+                                ? 'bg-lime-950/60 border-lime-500/60 text-lime-200' 
+                                : (isClose ? 'bg-cyan-950/60 border-cyan-500/60 text-cyan-200' : 'bg-slate-900 border-slate-700 text-slate-300')
+                        } flex flex-wrap items-center justify-between gap-2 text-xs font-mono`;
+                        predFeedback.innerHTML = `
+                            <div class="flex items-center gap-2">
+                                <span class="text-base">${isExact ? '🎯' : (isClose ? '⚡' : '❌')}</span>
+                                <span>
+                                    <strong>${lastSub.team} Prediction</strong>: t = ${lastSub.t}s (Δt = ${diffT.toFixed(2)}s), x = ${lastSub.x}m (Δx = ${diffX.toFixed(1)}m)
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold">${lastSub.status}</span>
+                                <span class="px-2 py-0.5 rounded ${isExact ? 'bg-lime-500 text-slate-950' : 'bg-slate-800 text-yellow-300'} font-bold">
+                                    +${lastSub.points} pts
+                                </span>
+                            </div>
+                        `;
+                    }
+                    predFeedback.classList.remove('hidden');
+                } else {
+                    predFeedback.className = 'p-2.5 rounded-xl border bg-slate-900/80 border-slate-800 text-slate-400 text-xs font-mono flex items-center gap-2';
+                    predFeedback.innerHTML = `
+                        <span>💡</span>
+                        <span>Classroom Demo Mode: Verification race finished without a team prediction. Click <strong>New Challenge</strong> for the next round!</span>
+                    `;
+                    predFeedback.classList.remove('hidden');
+                }
+            }
+
+            // Auto-reveal the mathematical proof drawer
+            const proofContainer = document.getElementById('proof-container');
+            const proofToggleIcon = document.getElementById('proof-toggle-icon');
+            if (proofContainer) proofContainer.classList.remove('hidden');
+            if (proofToggleIcon) proofToggleIcon.innerText = '[Click to Hide]';
+
+            // Show card smoothly
+            card.classList.remove('hidden');
+            audio.unlockChime();
+        }
+
+        function hideProminentSolution() {
+            const card = document.getElementById('post-run-solution-card');
+            if (card) card.classList.add('hidden');
+            const overlayText = document.getElementById('intercept-banner-text');
+            if (overlayText) overlayText.innerText = 'INTERCEPT POINT REACHED!';
         }
 
         // -----------------------------------------------------------------
@@ -1483,6 +1735,7 @@
 
             teamSubmissions.unshift(subItem);
             renderLeaderboard();
+            hideProminentSolution();
             resetSimulation();
             togglePlay(); // Automatically trigger verification race!
         });

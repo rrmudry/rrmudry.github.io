@@ -119,3 +119,12 @@ Never rely on external `.mp3` or `.wav` files that could fail due to CORS or slo
 - Submissions written to Firestore collection `two_car_intercept_submissions`.
 - Real-time `onSnapshot` query automatically streams class-wide rankings to the projector and student devices.
 
+### E. Prominent Post-Run Solution Display & Automatic Proof Expansion
+- When the verification run auto-pauses at $t_{stop} = t_{meet} + 1.8\text{ s}$, `#post-run-solution-card` lights up with glowing high-contrast neon cards:
+  - **Meeting Time**: Massive $4\text{xl}$ yellow display of $t_{meet}$ (e.g. `5.00 s`) with formula substitution breakdown ($t = \Delta x / \Delta v$).
+  - **Meeting Position**: Massive $4\text{xl}$ lime neon display of $x_{meet}$ (e.g. `60.0 m`) with position function verification ($x_A(t)$ and $x_B(t)$ equality).
+  - **Prediction Comparison**: Dynamic score verdict comparing the team's prediction to the exact solution ($\Delta t, \Delta x$).
+  - **Runway & Graph Markers**: High-contrast coordinate pill badges render directly at the intersection node on both canvases.
+  - **Proof Drawer**: Automatically expands `#proof-container` on the right side of the screen, revealing the complete step-by-step substitution derivation for classroom whiteboard review.
+
+
