@@ -127,4 +127,57 @@ Never rely on external `.mp3` or `.wav` files that could fail due to CORS or slo
   - **Runway & Graph Markers**: High-contrast coordinate pill badges render directly at the intersection node on both canvases.
   - **Proof Drawer**: Automatically expands `#proof-container` on the right side of the screen, revealing the complete step-by-step substitution derivation for classroom whiteboard review.
 
+---
+
+## 7. Synchronized Teacher Host vs. Student Client Architecture
+
+### A. Role Differentiation & Authorization
+- **Teacher Account Whitelist**: `TEACHER_EMAILS = ['rmudry@orangeusd.org', 'rrmudry@gmail.com', 'ryan.mudry@gmail.com']`.
+- **Teacher Host Capabilities**:
+  - Exclusive access to Challenge Generator buttons (`New Challenge`, Scenario Mode pills: Head-on, Pursuit, Wildcard).
+  - Exclusive access to Simulation Playback (`Run Verification Race`, `Pause`, `Reset`).
+  - Clear Leaderboard button and keyboard shortcuts (`Space`, `KeyN`, `KeyR`).
+  - Automatically writes round state to Firestore document: `two_car_intercept_state/active_session`.
+- **Student Client Experience**:
+  - Sees glowing badge: `🎓 STUDENT TEAM VIEW`.
+  - Initial conditions ($x_{0A}, v_A, x_{0B}, v_B$) populate automatically from teacher's session.
+  - Controls for simulation playback and challenge generation are hidden/replaced by read-only live sync status badges ("Controlled by rmudry@orangeusd.org").
+  - Students enter predictions for $t$ and $x$ and click **Lock In Prediction**. Inputs lock down with an amber status banner.
+  - When the teacher clicks **Run Verification Race**, student devices automatically unlock the graph, run the physical race animation in lockstep, stop at the intersection, and prominently display the solution and score verdict!
+
+### B. Firestore Real-Time Synchronization Protocol
+1. **Document**: `two_car_intercept_state/active_session`
+   ```typescript
+   interface ActiveSessionState {
+       challengeId: string;
+       mode: 'headon' | 'pursuit' | 'wildcard';
+       carA: { x0: number; v: number };
+       carB: { x0: number; v: number };
+       solution: { t: number; x: number };
+       status: 'calculating' | 'racing' | 'completed';
+       updatedBy: string;
+       updatedAt: firebase.firestore.FieldValue;
+   }
+   ```
+2. **Listener Lifecycle (`subscribeToLiveSession()`)**:
+   - Registered via `fbDb.collection('two_car_intercept_state').doc('active_session').onSnapshot(doc => ...)`.
+   - On change of `challengeId`: Student views auto-update vehicle initial conditions, clear previous prediction fields, reset stopwatch, and lock graph.
+   - On change of `status: 'racing'`: Student views auto-unlock graph and initiate simulation playback simultaneously.
+   - On change of `status: 'completed'`: Displays prominent solution card and proof drawer.
+
+### C. Security Rules (`firestore.rules`)
+```javascript
+// Section 11: Two-Car Intercept Challenge
+match /two_car_intercept_state/{docId} {
+  allow read: if true;
+  allow write: if isAdmin();
+}
+match /two_car_intercept_submissions/{docId} {
+  allow read, create: if true;
+  allow update, delete: if isAdmin();
+}
+```
+Ensures students cannot overwrite the classroom challenge or manipulate state while permitting authentic leaderboard submissions.
+
+
 
