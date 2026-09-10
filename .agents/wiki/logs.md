@@ -2,6 +2,25 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-10 — Headless Daily Grade Sync CLI (`npm run sync`) & Automated Workflow
+
+**Motivation**: Enable rapid, single-command gradebook synchronization from home across all 7 Google Classroom periods (Period 0 to Period 6), eliminating repetitive manual clicking in the web UI.
+
+**Key Changes**:
+- **`sync-classroom/sync-cli.js`**:
+  - Implemented standalone Node CLI integrating Google Classroom API and Firebase Admin SDK.
+  - Automatically queries all 7 academic courses while filtering out TA sections (`Jacob P5 TA`, etc.).
+  - Matches coursework by title across all courses, scales scores to custom `maxPoints` (e.g. 10 pts), and concurrently synchronizes and returns submissions.
+  - Generates a formatted executive summary table showing period-by-period progress, average scores, and completion status.
+  - Supports `--dry-run` (`npm run sync:dry`), `--period=N`, and `--list`.
+- **`sync-classroom/package.json`**:
+  - Added `"sync": "node sync-cli.js"` and `"sync:dry": "node sync-cli.js --dry-run"`.
+- **Workflows**:
+  - Created `.agent/workflows/sync-grades.md` for `/sync-grades` slash command execution.
+  - Added optional end-of-day grade sync step in `.agent/workflows/daily-update.md`.
+- **Wiki Pattern**:
+  - Added Section 5 to `.agents/wiki/patterns/classroom-gradebook-sync.md`.
+
 ## 2026-09-10 — Mudry Sync Dashboard: `physics_labs` Direct Integration & Period 0 Resolution
 
 **Motivation**: The Google Classroom sync server (`sync-classroom`) was querying legacy collections (`student_results`, `gradest_assignments`, `assessments`, `assignments`) but lacked an adapter for the top-level `physics_labs` collection where the Physics Speed Calculator stores student progress. As a result, the Speed Calculator did not appear in the dashboard dropdown.

@@ -33,3 +33,12 @@ Open [assets/lessons-data.js](file:///home/ryan/My_Antigravity_Projects/rrmudry.
 git add . && git commit -m "update: daily lesson update with NGSS alignment" && git push origin main
 ```
 This command stages your changes, commits them, and pushes them to GitHub.
+
+## 📊 Daily Grade Sync Routine (Optional / End of Day)
+To sync student grades for today's lab across all periods to Google Classroom:
+```bash
+cd sync-classroom && npm run sync
+```
+Or simply prompt the agent in chat:
+> **/sync-grades**
+
