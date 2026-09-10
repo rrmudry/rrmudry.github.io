@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Two-Car Kinematic Intercept Challenge | Honors Physics</title>
+    <meta name="description" content="Interactive two-vehicle kinematic intercept competition and dual-curve vector visualizer for Honors Physics. Predict where and when two moving objects meet.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Outfit:wght@400;600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS (via CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#ccff00',      // Lime Neon (Car A)
+                        secondary: '#38bdf8',    // Electric Cyan (Car B)
+                        accent: '#f59e0b',       // Amber / Intercept
+                        darkBg: '#020617',
+                        cardBg: 'rgba(15, 23, 42, 0.75)',
+                    },
+                    fontFamily: {
+                        display: ['Outfit', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'neon-lime': '0 0 25px rgba(204, 255, 0, 0.35)',
+                        'neon-cyan': '0 0 25px rgba(56, 189, 248, 0.35)',
+                        'neon-amber': '0 0 30px rgba(245, 158, 11, 0.45)',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background-color: #020617;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(204, 255, 0, 0.04) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(56, 189, 248, 0.04) 0%, transparent 40%),
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+        }
+
+        .glass-card {
+            background: rgba(15, 23, 42, 0.82);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-header {
+            background: rgba(2, 6, 23, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Custom glowing scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #020617;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ccff00;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.9; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+        .animate-pulse-glow {
+            animation: pulseGlow 1.8s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="text-slate-100 font-sans min-h-screen flex flex-col selection:bg-lime-400 selection:text-slate-950">
+
+    <!-- Header Navigation -->
+    <header class="glass-header sticky top-0 z-50 px-4 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+            <a href="../../unit2-dashboard.html" class="flex items-center gap-2 text-slate-400 hover:text-[#ccff00] transition-colors text-xs font-mono uppercase tracking-wider">
+                <span class="text-base">←</span> Unit 2 Dashboard
+            </a>
+            <span class="text-slate-600">|</span>
+            <div class="flex items-center gap-2">
+                <span class="text-xl">🏎️⚡🚙</span>
+                <div>
+                    <h1 class="font-display font-bold text-lg leading-tight text-white flex items-center gap-2">
+                        <span>Two-Car Kinematic Intercept Challenge</span>
+                        <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-lime-950 border border-lime-500/40 text-[#ccff00]">PERIOD 0 HONORS</span>
+                    </h1>
+                    <p class="text-[11px] text-slate-400 font-mono hidden sm:block">Real-Time Kinematic Vector & Slope Intercept Engine [x(t) = x₀ + vt]</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Header Actions & Audio Toggle -->
+        <div class="flex items-center gap-2.5">
+            <!-- Sound Toggle -->
+            <button id="btn-sound" class="px-3 py-1.5 rounded-lg bg-slate-900/90 border border-slate-700 text-xs font-mono text-slate-300 hover:text-white hover:border-slate-500 transition-colors flex items-center gap-1.5" title="Toggle Synthesized Audio FX">
+                <span id="sound-icon">🔊</span>
+                <span class="hidden sm:inline" id="sound-label">Audio ON</span>
+            </button>
+
+            <!-- Fullscreen Button for Projector -->
+            <button id="btn-fullscreen" class="px-3 py-1.5 rounded-lg bg-slate-900/90 border border-slate-700 text-xs font-mono text-slate-300 hover:text-white hover:border-slate-500 transition-colors flex items-center gap-1.5" title="Projector Fullscreen Mode [F]">
+                <span>⛶</span>
+                <span class="hidden sm:inline">Fullscreen</span>
+            </button>
+
+            <!-- NGSS Badge -->
+            <span class="text-xs font-mono px-2.5 py-1 bg-slate-900 border border-lime-500/40 rounded-lg text-lime-300 font-bold" data-ngss-code="HS-PS2-1">
+                HS-PS2-1
+            </span>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-6 space-y-6">
+
+        <!-- Top Control HUD: Challenge Scenario Selector & Parameters Banner -->
+        <div class="glass-card p-6 rounded-2xl border-t-4 border-t-[#ccff00] shadow-2xl relative overflow-hidden">
+            <!-- Background glow accents -->
+            <div class="absolute -top-16 -left-16 w-48 h-48 bg-lime-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-16 -right-16 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
+                <!-- Left: Mode & Controls -->
+                <div class="space-y-3">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-xs font-mono text-slate-400 uppercase tracking-wider font-semibold">Scenario Mode:</span>
+                        <div class="inline-flex rounded-lg p-1 bg-slate-950 border border-slate-800">
+                            <button id="mode-headon" class="px-3 py-1 text-xs font-mono rounded-md font-bold transition-all bg-[#ccff00] text-slate-950 shadow-md">
+                                💥 Head-On Encounter
+                            </button>
+                            <button id="mode-pursuit" class="px-3 py-1 text-xs font-mono rounded-md font-bold transition-all text-slate-400 hover:text-white">
+                                🏁 Catch-Up Pursuit
+                            </button>
+                            <button id="mode-wildcard" class="px-3 py-1 text-xs font-mono rounded-md font-bold transition-all text-slate-400 hover:text-white">
+                                🎲 Wildcard Mixed
+                            </button>
+                        </div>
+                    </div>
+                    <h2 class="text-2xl font-bold font-display tracking-tight text-white flex items-center gap-2">
+                        <span>Current Intercept Challenge</span>
+                        <span id="challenge-id-badge" class="text-xs font-mono px-2.5 py-0.5 rounded bg-slate-800 text-slate-300">#RACE-01</span>
+                    </h2>
+                </div>
+
+                <!-- Right: Action Buttons & Stopwatch -->
+                <div class="flex flex-wrap items-center gap-3">
+                    <!-- Timer Display -->
+                    <div class="px-4 py-2 bg-slate-950/90 rounded-xl border border-slate-800 flex items-center gap-3">
+                        <span class="text-xs font-mono text-slate-400 uppercase">Team Timer</span>
+                        <span id="stopwatch-display" class="font-mono text-xl font-bold text-yellow-300">00:00.0</span>
+                    </div>
+
+                    <!-- Generate New Challenge -->
+                    <button id="btn-new-challenge" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-lime-400 to-[#ccff00] hover:from-lime-300 hover:to-lime-400 text-slate-950 font-bold font-display text-sm transition-all transform active:scale-95 shadow-neon-lime flex items-center gap-2">
+                        <span>🎲</span>
+                        <span>New Challenge [N]</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Parameters Big Display Cards -->
+            <div class="grid md:grid-cols-2 gap-4 mt-6">
+                <!-- Car A Card (Lime Neon) -->
+                <div class="bg-slate-950/80 p-4 rounded-xl border-l-4 border-l-[#ccff00] border border-slate-800/80 shadow-lg relative">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-[#ccff00] shadow-[0_0_8px_#ccff00]"></span>
+                            <span class="font-display font-bold text-white text-base">🏎️ CAR A (LIME TURBO)</span>
+                        </div>
+                        <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-lime-950/80 text-[#ccff00] border border-lime-500/30">LANE 1 (UPPER)</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 font-mono">
+                        <div class="bg-slate-900/90 p-2.5 rounded-lg border border-slate-800">
+                            <span class="text-[11px] text-slate-400 block">Initial Position (x₀A):</span>
+                            <span id="card-x0a" class="text-lg font-bold text-[#ccff00]">0.0 m</span>
+                        </div>
+                        <div class="bg-slate-900/90 p-2.5 rounded-lg border border-slate-800">
+                            <span class="text-[11px] text-slate-400 block">Velocity (v_A):</span>
+                            <span id="card-va" class="text-lg font-bold text-[#ccff00]">+12.0 m/s</span>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-xs font-mono text-slate-400 flex items-center justify-between">
+                        <span>Position Function:</span>
+                        <code id="func-a" class="text-lime-300 bg-slate-900 px-2 py-0.5 rounded">x_A(t) = 0 + 12t</code>
+                    </div>
+                </div>
+
+                <!-- Car B Card (Electric Cyan) -->
+                <div class="bg-slate-950/80 p-4 rounded-xl border-l-4 border-l-[#38bdf8] border border-slate-800/80 shadow-lg relative">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-[#38bdf8] shadow-[0_0_8px_#38bdf8]"></span>
+                            <span class="font-display font-bold text-white text-base">🚙 CAR B (CYAN CRUISER)</span>
+                        </div>
+                        <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-cyan-950/80 text-[#38bdf8] border border-cyan-500/30">LANE 2 (LOWER)</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 font-mono">
+                        <div class="bg-slate-900/90 p-2.5 rounded-lg border border-slate-800">
+                            <span class="text-[11px] text-slate-400 block">Initial Position (x₀B):</span>
+                            <span id="card-x0b" class="text-lg font-bold text-[#38bdf8]">100.0 m</span>
+                        </div>
+                        <div class="bg-slate-900/90 p-2.5 rounded-lg border border-slate-800">
+                            <span class="text-[11px] text-slate-400 block">Velocity (v_B):</span>
+                            <span id="card-vb" class="text-lg font-bold text-[#38bdf8]">-8.0 m/s</span>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-xs font-mono text-slate-400 flex items-center justify-between">
+                        <span>Position Function:</span>
+                        <code id="func-b" class="text-cyan-300 bg-slate-900 px-2 py-0.5 rounded">x_B(t) = 100 - 8t</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Simulation Grid: 1D Runway + Dual x-t Graph -->
+        <div class="grid lg:grid-cols-3 gap-6 items-start">
+            
+            <!-- Left 2 Cols: The Visualizers -->
+            <div class="lg:col-span-2 space-y-4">
+
+                <!-- 1D Physical Runway Track with Both Animated Cars -->
+                <div class="glass-card p-4 rounded-2xl shadow-xl relative">
+                    <div class="flex flex-wrap justify-between items-center text-xs font-mono text-slate-300 mb-2 gap-2">
+                        <span class="flex items-center gap-1.5 font-bold text-white">
+                            <span>🛣️</span>
+                            <span>DUAL 1D MOTION RUNWAY [Parallel Physical Coordinate Axis]</span>
+                        </span>
+                        <div class="flex items-center gap-2">
+                            <span id="status-lane-a" class="px-2 py-0.5 rounded bg-lime-950/80 border border-lime-500/40 text-lime-300 font-bold">A: x = 0.0m</span>
+                            <span id="status-lane-b" class="px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 font-bold">B: x = 100.0m</span>
+                        </div>
+                    </div>
+
+                    <!-- Runway Canvas (Retina sharp) -->
+                    <div class="relative w-full rounded-xl overflow-hidden bg-[#030712] border border-slate-800">
+                        <canvas id="trackCanvas" class="w-full block" height="150"></canvas>
+                        
+                        <!-- Intercept Banner Overlay -->
+                        <div id="intercept-overlay" class="absolute inset-0 bg-amber-500/10 pointer-events-none flex items-center justify-center opacity-0 transition-opacity duration-300">
+                            <div class="px-4 py-2 rounded-xl bg-amber-500/90 text-slate-950 font-display font-black text-sm uppercase tracking-widest shadow-neon-amber flex items-center gap-2 animate-bounce">
+                                <span>⚡</span>
+                                <span>INTERCEPT POINT REACHED!</span>
+                                <span>⚡</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Position vs. Time Graph [x-t] with Both Linear Curves -->
+                <div class="glass-card p-4 rounded-2xl shadow-xl">
+                    <div class="flex flex-wrap justify-between items-center text-xs font-mono text-slate-300 mb-2 gap-2">
+                        <span class="flex items-center gap-1.5 font-bold text-white">
+                            <span>📈</span>
+                            <span>POSITION VS TIME GRAPH [x-t: Slopes equal velocities Δx / Δt]</span>
+                        </span>
+                        <span id="graph-cursor-readout" class="text-yellow-300 font-mono">Time: t = 0.00s</span>
+                    </div>
+
+                    <!-- Graph Canvas -->
+                    <div class="w-full rounded-xl overflow-hidden bg-[#030712] border border-slate-800">
+                        <canvas id="graphCanvas" class="w-full block" height="230"></canvas>
+                    </div>
+                </div>
+
+                <!-- Playback Controls Bar -->
+                <div class="glass-card p-4 rounded-xl flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <button id="btn-play-sim" class="px-5 py-2 rounded-lg bg-gradient-to-r from-lime-400 to-[#ccff00] hover:from-lime-300 hover:to-lime-400 text-slate-950 font-bold font-display text-sm transition-all shadow-md flex items-center gap-2 active:scale-95">
+                            <span id="play-icon">▶</span>
+                            <span id="play-label">Run Verification Race [Space]</span>
+                        </button>
+                        <button id="btn-reset-sim" class="px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 font-mono text-sm border border-slate-700 transition-colors">
+                            Reset [R]
+                        </button>
+                    </div>
+
+                    <!-- Simulation Speed Selector -->
+                    <div class="flex items-center gap-2 text-xs font-mono text-slate-400">
+                        <span>Speed:</span>
+                        <button class="speed-btn px-2 py-1 rounded bg-slate-900 border border-slate-700 hover:border-lime-500 text-slate-300" data-speed="0.5">0.5x</button>
+                        <button class="speed-btn px-2 py-1 rounded bg-lime-950 border border-lime-500 text-[#ccff00] font-bold" data-speed="1.0">1.0x</button>
+                        <button class="speed-btn px-2 py-1 rounded bg-slate-900 border border-slate-700 hover:border-lime-500 text-slate-300" data-speed="2.0">2.0x</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Col: Team Submission, Live Leaderboard & Algebraic Proof -->
+            <div class="space-y-6">
+
+                <!-- Team Prediction Card -->
+                <div class="glass-card p-5 rounded-2xl border-t-2 border-t-yellow-400 shadow-xl space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-display font-bold text-base text-white flex items-center gap-2">
+                            <span>🎯</span>
+                            <span>Team Prediction Input</span>
+                        </h3>
+                        <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-yellow-950/80 border border-yellow-500/40 text-yellow-300">LIVE SPRINT</span>
+                    </div>
+
+                    <form id="team-prediction-form" class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-mono text-slate-300 mb-1">Select / Enter Team:</label>
+                            <div class="flex gap-2">
+                                <select id="team-select" class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono text-white focus:outline-none focus:border-yellow-400">
+                                    <option value="Team Alpha">Team Alpha</option>
+                                    <option value="Team Beta">Team Beta</option>
+                                    <option value="Team Gamma">Team Gamma</option>
+                                    <option value="Team Delta">Team Delta</option>
+                                    <option value="Team Epsilon">Team Epsilon</option>
+                                    <option value="Team Zeta">Team Zeta</option>
+                                    <option value="Custom">Other (Type below)</option>
+                                </select>
+                            </div>
+                            <input id="custom-team-input" type="text" placeholder="Enter Custom Team Name..." class="hidden w-full mt-2 bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-yellow-400">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-mono text-slate-300 mb-1">Meeting Time (t):</label>
+                                <div class="relative">
+                                    <input id="input-t" type="number" step="0.1" required placeholder="e.g. 5.0" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono text-yellow-300 font-bold focus:outline-none focus:border-yellow-400 pr-7">
+                                    <span class="absolute right-2.5 top-2 text-xs font-mono text-slate-500">s</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-mono text-slate-300 mb-1">Meeting Pos (x):</label>
+                                <div class="relative">
+                                    <input id="input-x" type="number" step="0.5" required placeholder="e.g. 60.0" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono text-yellow-300 font-bold focus:outline-none focus:border-yellow-400 pr-8">
+                                    <span class="absolute right-2.5 top-2 text-xs font-mono text-slate-500">m</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full py-2.5 rounded-lg bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-bold font-display text-sm transition-all shadow-md active:scale-98 flex items-center justify-center gap-2">
+                            <span>🚀</span>
+                            <span>Lock In Prediction!</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Instant Step-by-Step Algebraic Proof (Accordion / Card) -->
+                <div class="glass-card p-5 rounded-2xl border border-slate-800 shadow-xl space-y-3">
+                    <div class="flex items-center justify-between cursor-pointer" id="btn-toggle-proof">
+                        <h3 class="font-display font-bold text-sm text-lime-300 flex items-center gap-2">
+                            <span>📐</span>
+                            <span>Mathematical Derivation & Proof</span>
+                        </h3>
+                        <span id="proof-toggle-icon" class="text-xs text-slate-400 font-mono">[Click to Reveal]</span>
+                    </div>
+
+                    <div id="proof-container" class="space-y-2.5 text-xs font-mono text-slate-300 pt-2 border-t border-slate-800 hidden">
+                        <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+                            <span class="text-slate-400 block mb-1">1. Set Equations Equal (x_A = x_B):</span>
+                            <div id="proof-step1" class="text-white font-bold">x₀A + v_A · t = x₀B + v_B · t</div>
+                        </div>
+
+                        <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+                            <span class="text-slate-400 block mb-1">2. Isolate Time (t):</span>
+                            <div id="proof-step2" class="text-yellow-300 font-bold">(v_A - v_B) · t = x₀B - x₀A</div>
+                            <div id="proof-step2b" class="text-white font-bold mt-1">t = Δx / Δv = ?</div>
+                        </div>
+
+                        <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+                            <span class="text-slate-400 block mb-1">3. Substitute t to verify Position (x):</span>
+                            <div id="proof-step3" class="text-[#ccff00] font-bold">x_meet = ?</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Team Standings Leaderboard -->
+                <div class="glass-card p-5 rounded-2xl border border-slate-800 shadow-xl space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-display font-bold text-sm text-white flex items-center gap-2">
+                            <span>🏆</span>
+                            <span>Class Competition Standings</span>
+                        </h3>
+                        <button id="btn-clear-board" class="text-[11px] font-mono text-slate-400 hover:text-rose-400 transition-colors">
+                            Reset Board
+                        </button>
+                    </div>
+
+                    <div id="leaderboard-empty" class="text-center py-6 text-slate-500 font-mono text-xs">
+                        No team predictions locked in yet.<br>Solve the parameters above and submit!
+                    </div>
+
+                    <div id="leaderboard-list" class="space-y-2 hidden max-h-60 overflow-y-auto pr-1">
+                        <!-- Dynamically populated team cards -->
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Pedagogical Explainer & Teacher Pro-Tip Callout -->
+        <footer class="glass-card p-5 rounded-xl border border-slate-800/80 text-xs font-mono text-slate-400 space-y-2">
+            <div class="flex items-center gap-2 text-lime-300 font-bold">
+                <span>💡</span>
+                <span>Honors Kinematics Strategy & Graphical Interpretation:</span>
+            </div>
+            <p>
+                Two objects intercept in one-dimensional space if and only if their physical coordinate curves intersect: 
+                <strong>x_A(t) = x_B(t)</strong>. On the <strong>x-t graph</strong>, the slope of each line represents that vehicle's velocity 
+                (<strong>slope = Δx / Δt = v</strong>). The point of intersection <strong>(t_meet, x_meet)</strong> is the unique coordinate in space-time 
+                where both equations share the same solution.
+            </p>
+        </footer>
+    </main>
+
+    <!-- Global Partials & NGSS Helper Loader -->
+    <script src="../../assets/partials.js"></script>
+
+    <!-- Sound Synthesizer & Simulation Script -->
+    <script>
+        // -----------------------------------------------------------------
+        // 1. Procedural Web Audio Synthesizer (No external audio files!)
+        // -----------------------------------------------------------------
+        class AudioFX {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            beep(freq = 440, duration = 0.1, type = 'sine') {
+                if (!this.enabled) return;
+                try {
+                    this.init();
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch (e) {}
+            }
+
+            countdown(count) {
+                if (count > 0) {
+                    this.beep(520, 0.08, 'triangle');
+                } else {
+                    this.beep(880, 0.25, 'triangle'); // GO!
+                }
+            }
+
+            interceptChime() {
+                if (!this.enabled) return;
+                try {
+                    this.init();
+                    const notes = [587.33, 739.99, 880.0, 1174.66]; // D5, F#5, A5, D6
+                    notes.forEach((freq, idx) => {
+                        setTimeout(() => this.beep(freq, 0.25, 'sine'), idx * 70);
+                    });
+                } catch (e) {}
+            }
+
+            victoryFanfare() {
+                if (!this.enabled) return;
+                try {
+                    this.init();
+                    const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
+                    notes.forEach((freq, idx) => {
+                        setTimeout(() => this.beep(freq, 0.35, 'triangle'), idx * 90);
+                    });
+                } catch (e) {}
+            }
+        }
+        const audio = new AudioFX();
+
+        // -----------------------------------------------------------------
+        // 2. Challenge State & Kinematics Engine
+        // -----------------------------------------------------------------
+        let currentChallenge = {
+            id: 1,
+            mode: 'headon', // 'headon' | 'pursuit' | 'wildcard'
+            carA: { x0: 0, v: 12 },
+            carB: { x0: 100, v: -8 },
+            solution: {
+                t: 5.0,
+                x: 60.0
+            }
+        };
+
+        let simState = {
+            time: 0,
+            isPlaying: false,
+            speed: 1.0,
+            hasTriggeredIntercept: false,
+            wheelAngleA: 0,
+            wheelAngleB: 0,
+            particlesA: [],
+            particlesB: [],
+            lastTimestamp: null
+        };
+
+        let stopwatch = {
+            startTime: null,
+            elapsed: 0,
+            timerId: null,
+            isRunning: false
+        };
+
+        const teamSubmissions = [];
+
+        // Track Coordinate Extents (-20m to 220m)
+        const trackBounds = {
+            minM: -20,
+            maxM: 220,
+            spanM: 240
+        };
+
+        // -----------------------------------------------------------------
+        // 3. Clean Random Condition Generator
+        // -----------------------------------------------------------------
+        function generateChallenge(mode = currentChallenge.mode) {
+            let x0A = 0, vA = 10, x0B = 100, vB = -10, tMeet = 4.0, xMeet = 40.0;
+            const cleanTimes = [2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 7.0, 8.0];
+
+            if (mode === 'headon') {
+                // Car A moves forward, Car B moves backwards towards each other
+                for (let attempt = 0; attempt < 100; attempt++) {
+                    const candidateT = cleanTimes[Math.floor(Math.random() * cleanTimes.length)];
+                    const candidateVA = (Math.floor(Math.random() * 5) + 3) * 2; // 6, 8, 10, 12, 14 m/s
+                    const candidateVB = -(Math.floor(Math.random() * 4) + 2) * 2; // -4, -6, -8, -10 m/s
+                    const candidateX0A = Math.floor(Math.random() * 4) * 10; // 0, 10, 20, 30 m
+                    const candidateX0B = candidateX0A + (candidateVA - candidateVB) * candidateT;
+                    const candidateXMeet = candidateX0A + candidateVA * candidateT;
+
+                    if (candidateX0B <= 195 && candidateXMeet <= 190 && candidateXMeet >= 15) {
+                        tMeet = candidateT;
+                        vA = candidateVA;
+                        vB = candidateVB;
+                        x0A = candidateX0A;
+                        x0B = candidateX0B;
+                        xMeet = candidateXMeet;
+                        break;
+                    }
+                }
+
+            } else if (mode === 'pursuit') {
+                // Car A starts behind and is faster than Car B (both moving forward)
+                for (let attempt = 0; attempt < 100; attempt++) {
+                    const candidateT = cleanTimes[Math.floor(Math.random() * (cleanTimes.length - 2))]; // 2.0 to 6.0s
+                    const candidateVB = (Math.floor(Math.random() * 3) + 2) * 2; // 4, 6, 8 m/s
+                    const deltaV = (Math.floor(Math.random() * 3) + 1) * 2; // 2, 4, 6 m/s
+                    const candidateVA = candidateVB + deltaV; // 6 to 14 m/s
+                    const candidateX0A = 0;
+                    const candidateX0B = deltaV * candidateT;
+                    const candidateXMeet = candidateVA * candidateT;
+
+                    if (candidateXMeet <= 195 && candidateX0B <= 160 && candidateX0B >= 10) {
+                        tMeet = candidateT;
+                        vA = candidateVA;
+                        vB = candidateVB;
+                        x0A = candidateX0A;
+                        x0B = candidateX0B;
+                        xMeet = candidateXMeet;
+                        break;
+                    }
+                }
+            } else {
+                // Wildcard: 50% headon, 50% pursuit
+                return generateChallenge(Math.random() > 0.5 ? 'headon' : 'pursuit');
+            }
+
+            // Round cleanly
+            tMeet = Math.round(tMeet * 10) / 10;
+            xMeet = Math.round(xMeet * 10) / 10;
+
+            currentChallenge = {
+                id: currentChallenge.id + 1,
+                mode: mode,
+                carA: { x0: x0A, v: vA },
+                carB: { x0: x0B, v: vB },
+                solution: { t: tMeet, x: xMeet }
+            };
+
+            updateChallengeUI();
+            resetSimulation();
+            startStopwatch();
+        }
+
+        // -----------------------------------------------------------------
+        // 4. UI Updating & Parameter Sync
+        // -----------------------------------------------------------------
+        function updateChallengeUI() {
+            const { id, carA, carB, solution } = currentChallenge;
+
+            document.getElementById('challenge-id-badge').innerText = `#RACE-${String(id).padStart(2, '0')}`;
+            document.getElementById('card-x0a').innerText = `${carA.x0 >= 0 ? '' : ''}${carA.x0.toFixed(1)} m`;
+            document.getElementById('card-va').innerText = `${carA.v >= 0 ? '+' : ''}${carA.v.toFixed(1)} m/s`;
+            document.getElementById('func-a').innerText = `x_A(t) = ${carA.x0} ${carA.v >= 0 ? '+' : '-'} ${Math.abs(carA.v)}t`;
+
+            document.getElementById('card-x0b').innerText = `${carB.x0 >= 0 ? '' : ''}${carB.x0.toFixed(1)} m`;
+            document.getElementById('card-vb').innerText = `${carB.v >= 0 ? '+' : ''}${carB.v.toFixed(1)} m/s`;
+            document.getElementById('func-b').innerText = `x_B(t) = ${carB.x0} ${carB.v >= 0 ? '+' : '-'} ${Math.abs(carB.v)}t`;
+
+            // Update Mathematical Proof Text
+            document.getElementById('proof-step1').innerText = `${carA.x0} + (${carA.v})·t = ${carB.x0} + (${carB.v})·t`;
+            const deltaV = (carA.v - carB.v);
+            const deltaX = (carB.x0 - carA.x0);
+            document.getElementById('proof-step2').innerText = `(${carA.v} - (${carB.v}))·t = ${carB.x0} - (${carA.x0}) ➔ (${deltaV})·t = ${deltaX}`;
+            document.getElementById('proof-step2b').innerText = `t = ${deltaX} / ${deltaV} = ${solution.t.toFixed(2)} seconds`;
+            document.getElementById('proof-step3').innerText = `x_meet = ${carA.x0} + (${carA.v})·(${solution.t}) = ${solution.x.toFixed(1)} meters`;
+
+            // Reset input form
+            document.getElementById('input-t').value = '';
+            document.getElementById('input-x').value = '';
+            document.getElementById('intercept-overlay').style.opacity = '0';
+        }
+
+        // -----------------------------------------------------------------
+        // 5. Stopwatch Controller
+        // -----------------------------------------------------------------
+        function startStopwatch() {
+            stopwatch.startTime = performance.now();
+            stopwatch.isRunning = true;
+            if (stopwatch.timerId) clearInterval(stopwatch.timerId);
+
+            stopwatch.timerId = setInterval(() => {
+                const now = performance.now();
+                const diff = (now - stopwatch.startTime) / 1000;
+                stopwatch.elapsed = diff;
+
+                const mins = Math.floor(diff / 60);
+                const secs = (diff % 60).toFixed(1);
+                document.getElementById('stopwatch-display').innerText = 
+                    `${String(mins).padStart(2, '0')}:${secs.padStart(4, '0')}`;
+            }, 100);
+        }
+
+        function stopStopwatch() {
+            stopwatch.isRunning = false;
+            if (stopwatch.timerId) clearInterval(stopwatch.timerId);
+        }
+
+        // -----------------------------------------------------------------
+        // 6. Canvas 1: Dual 1D Motion Runway
+        // -----------------------------------------------------------------
+        const trackCanvas = document.getElementById('trackCanvas');
+        const trackCtx = trackCanvas.getContext('2d');
+
+        function resizeCanvases() {
+            const dpr = window.devicePixelRatio || 1;
+            
+            // Track Canvas
+            const rectT = trackCanvas.getBoundingClientRect();
+            trackCanvas.width = rectT.width * dpr;
+            trackCanvas.height = 150 * dpr;
+            trackCtx.scale(dpr, dpr);
+
+            // Graph Canvas
+            const rectG = graphCanvas.getBoundingClientRect();
+            graphCanvas.width = rectG.width * dpr;
+            graphCanvas.height = 230 * dpr;
+            graphCtx.scale(dpr, dpr);
+
+            renderFrame(simState.time);
+        }
+
+        function mapPosToX(m, canvasWidth) {
+            const padLeft = 45;
+            const padRight = 25;
+            const trackWidth = canvasWidth - padLeft - padRight;
+            return padLeft + ((m - trackBounds.minM) / trackBounds.spanM) * trackWidth;
+        }
+
+        function drawRunway(currentTime, dt) {
+            const w = trackCanvas.width / (window.devicePixelRatio || 1);
+            const h = 150;
+            const ctx = trackCtx;
+            ctx.clearRect(0, 0, w, h);
+
+            const { carA, carB, solution } = currentChallenge;
+            const posA = carA.x0 + carA.v * currentTime;
+            const posB = carB.x0 + carB.v * currentTime;
+
+            // Lane Coordinates
+            const lane1Y = 48; // Car A
+            const lane2Y = 108; // Car B
+            const padLeft = 45;
+            const padRight = 25;
+            const trackWidth = w - padLeft - padRight;
+
+            // Background asphalt
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, w, h);
+
+            // Road strips (Lane 1 and Lane 2)
+            const drawRoadStrip = (yTop, yBottom) => {
+                const grad = ctx.createLinearGradient(0, yTop, 0, yBottom);
+                grad.addColorStop(0, '#1e293b');
+                grad.addColorStop(0.5, '#0f172a');
+                grad.addColorStop(1, '#020617');
+                ctx.fillStyle = grad;
+                ctx.fillRect(padLeft - 10, yTop, trackWidth + 20, yBottom - yTop);
+
+                // Guardrails
+                ctx.strokeStyle = '#334155';
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(padLeft - 10, yTop, trackWidth + 20, yBottom - yTop);
+            };
+
+            drawRoadStrip(22, 68);  // Lane 1
+            drawRoadStrip(82, 128); // Lane 2
+
+            // Centerline dashes
+            ctx.strokeStyle = 'rgba(234, 179, 8, 0.35)';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([8, 8]);
+            ctx.beginPath();
+            ctx.moveTo(padLeft - 10, 45);
+            ctx.lineTo(padLeft + trackWidth + 10, 45);
+            ctx.moveTo(padLeft - 10, 105);
+            ctx.lineTo(padLeft + trackWidth + 10, 105);
+            ctx.stroke();
+            ctx.setLineDash([]); // reset
+
+            // Metric ruler ticks (-20m to 200m)
+            for (let m = -20; m <= 220; m += 20) {
+                const tx = mapPosToX(m, w);
+                const isZero = m === 0;
+
+                ctx.strokeStyle = isZero ? '#ccff00' : 'rgba(148, 163, 184, 0.3)';
+                ctx.lineWidth = isZero ? 2 : 1;
+                ctx.beginPath();
+                ctx.moveTo(tx, 18);
+                ctx.lineTo(tx, 132);
+                ctx.stroke();
+
+                // Number label at the bottom
+                ctx.fillStyle = isZero ? '#ccff00' : '#64748b';
+                ctx.font = isZero ? 'bold 10px Fira Code, monospace' : '9px Fira Code, monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText(`${m}m`, tx, 144);
+            }
+
+            // Reference Origin Flag (x = 0m)
+            const originX = mapPosToX(0, w);
+            ctx.save();
+            ctx.strokeStyle = '#ccff00';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(originX, 8);
+            ctx.lineTo(originX, 22);
+            ctx.stroke();
+            ctx.fillStyle = '#ccff00';
+            ctx.beginPath();
+            ctx.moveTo(originX, 8);
+            ctx.lineTo(originX + 10, 13);
+            ctx.lineTo(originX, 18);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+
+            // Initial start position dots
+            const startXA = mapPosToX(carA.x0, w);
+            const startXB = mapPosToX(carB.x0, w);
+            ctx.fillStyle = '#ccff00';
+            ctx.beginPath(); ctx.arc(startXA, 22, 2.5, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#38bdf8';
+            ctx.beginPath(); ctx.arc(startXB, 82, 2.5, 0, Math.PI * 2); ctx.fill();
+
+            // Intercept Beacon Line (When at or past intercept time)
+            if (currentTime >= solution.t) {
+                const meetX = mapPosToX(solution.x, w);
+                
+                // Vertical laser beacon connecting lanes
+                ctx.save();
+                ctx.strokeStyle = '#f59e0b';
+                ctx.lineWidth = 2.5;
+                ctx.shadowColor = '#f59e0b';
+                ctx.shadowBlur = 12;
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath();
+                ctx.moveTo(meetX, 15);
+                ctx.lineTo(meetX, 135);
+                ctx.stroke();
+                ctx.restore();
+
+                // Intercept Star Marker
+                ctx.fillStyle = '#f59e0b';
+                ctx.beginPath();
+                ctx.arc(meetX, 75, 6, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.font = 'bold 9px Fira Code, monospace';
+                ctx.fillStyle = '#f59e0b';
+                ctx.textAlign = 'center';
+                ctx.fillText(`MEET: x = ${solution.x.toFixed(1)}m`, meetX, 78);
+            }
+
+            // Wheel rotations
+            if (dt) {
+                simState.wheelAngleA += (carA.v * dt) * 0.5;
+                simState.wheelAngleB += (carB.v * dt) * 0.5;
+            }
+
+            // Render Car Sprites
+            drawCarSprite(ctx, mapPosToX(posA, w), lane1Y, carA.v, simState.wheelAngleA, '#ccff00', 'CAR A');
+            drawCarSprite(ctx, mapPosToX(posB, w), lane2Y, carB.v, simState.wheelAngleB, '#38bdf8', 'CAR B');
+
+            // Status Badges
+            document.getElementById('status-lane-a').innerText = `A: x = ${posA.toFixed(1)}m | v = ${carA.v >= 0 ? '+' : ''}${carA.v} m/s`;
+            document.getElementById('status-lane-b').innerText = `B: x = ${posB.toFixed(1)}m | v = ${carB.v >= 0 ? '+' : ''}${carB.v} m/s`;
+        }
+
+        // Vector Car Renderer
+        function drawCarSprite(ctx, cx, cy, v, angle, themeColor, label) {
+            ctx.save();
+            ctx.translate(cx, cy);
+
+            const facingRight = v >= -0.01;
+            if (!facingRight) {
+                ctx.scale(-1, 1);
+            }
+
+            // Ground Shadow
+            ctx.fillStyle = 'rgba(0,0,0,0.5)';
+            ctx.beginPath();
+            ctx.ellipse(0, 7, 24, 3, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Headlight Beam
+            ctx.save();
+            const beamGrad = ctx.createRadialGradient(22, 1, 0, 45, 1, 35);
+            beamGrad.addColorStop(0, 'rgba(255, 255, 255, 0.55)');
+            beamGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = beamGrad;
+            ctx.beginPath();
+            ctx.moveTo(18, 0);
+            ctx.lineTo(55, -12);
+            ctx.lineTo(55, 14);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+
+            // Lower Chassis
+            ctx.fillStyle = '#0f172a';
+            ctx.beginPath();
+            ctx.roundRect(-20, -5, 40, 10, 3);
+            ctx.fill();
+
+            // Main Aerodynamic Body
+            ctx.fillStyle = themeColor;
+            ctx.beginPath();
+            ctx.moveTo(-18, 0);
+            ctx.lineTo(-14, -8);
+            ctx.lineTo(-4, -13);
+            ctx.lineTo(8, -13);
+            ctx.lineTo(16, -5);
+            ctx.lineTo(20, 0);
+            ctx.lineTo(20, 3);
+            ctx.lineTo(-18, 3);
+            ctx.closePath();
+            ctx.fill();
+
+            // Tinted Cockpit Windshield
+            ctx.fillStyle = '#020617';
+            ctx.beginPath();
+            ctx.moveTo(-3, -12);
+            ctx.lineTo(7, -12);
+            ctx.lineTo(13, -5);
+            ctx.lineTo(-3, -5);
+            ctx.closePath();
+            ctx.fill();
+
+            // LED Headlight & Taillight
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(18, -3, 3, 3);
+            ctx.fillStyle = '#ef4444';
+            ctx.fillRect(-19, -3, 2, 3);
+
+            // Rotating Wheels
+            const wheelR = 5;
+            [-11, 11].forEach(wx => {
+                ctx.fillStyle = '#090d16';
+                ctx.strokeStyle = '#94a3b8';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.arc(wx, 4, wheelR, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                // Spoke
+                ctx.strokeStyle = '#e2e8f0';
+                ctx.beginPath();
+                ctx.moveTo(wx + Math.cos(angle) * wheelR, 4 + Math.sin(angle) * wheelR);
+                ctx.lineTo(wx - Math.cos(angle) * wheelR, 4 - Math.sin(angle) * wheelR);
+                ctx.stroke();
+            });
+
+            ctx.restore();
+
+            // Velocity Vector Arrow (Overhead)
+            drawVelocityArrow(ctx, cx, cy - 20, v, themeColor);
+        }
+
+        function drawVelocityArrow(ctx, x, y, v, color) {
+            const absV = Math.abs(v);
+            if (absV < 0.1) return;
+
+            const dir = v >= 0 ? 1 : -1;
+            const arrowLen = Math.min(55, Math.max(16, absV * 2.5));
+            const targetX = x + dir * arrowLen;
+
+            ctx.save();
+            ctx.strokeStyle = color;
+            ctx.fillStyle = color;
+            ctx.lineWidth = 2;
+            ctx.shadowColor = color;
+            ctx.shadowBlur = 6;
+
+            // Shaft
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(targetX, y);
+            ctx.stroke();
+
+            // Arrow head
+            const head = 5;
+            ctx.beginPath();
+            ctx.moveTo(targetX, y);
+            ctx.lineTo(targetX - dir * head, y - 3);
+            ctx.lineTo(targetX - dir * head, y + 3);
+            ctx.closePath();
+            ctx.fill();
+
+            // Label
+            ctx.shadowBlur = 0;
+            ctx.font = 'bold 8.5px Fira Code, monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${v >= 0 ? '+' : ''}${v}m/s`, x + (dir * arrowLen) / 2, y - 4);
+            ctx.restore();
+        }
+
+        // -----------------------------------------------------------------
+        // 7. Canvas 2: Position vs. Time Graph [x-t]
+        // -----------------------------------------------------------------
+        const graphCanvas = document.getElementById('graphCanvas');
+        const graphCtx = graphCanvas.getContext('2d');
+
+        function drawGraph(currentTime) {
+            const w = graphCanvas.width / (window.devicePixelRatio || 1);
+            const h = 230;
+            const ctx = graphCtx;
+            ctx.clearRect(0, 0, w, h);
+
+            const { carA, carB, solution } = currentChallenge;
+            const maxGraphTime = Math.max(10, Math.ceil(solution.t * 1.3));
+
+            const padLeft = 45;
+            const padRight = 25;
+            const padTop = 15;
+            const padBottom = 28;
+
+            const graphW = w - padLeft - padRight;
+            const graphH = h - padTop - padBottom;
+
+            const mapTimeToX = (t) => padLeft + (t / maxGraphTime) * graphW;
+            const mapPosToY = (p) => (h - padBottom) - ((p - trackBounds.minM) / trackBounds.spanM) * graphH;
+
+            // Grid
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+
+            // Time grid lines
+            for (let t = 1; t <= maxGraphTime; t += 1) {
+                const gx = mapTimeToX(t);
+                ctx.beginPath();
+                ctx.moveTo(gx, padTop);
+                ctx.lineTo(gx, h - padBottom);
+                ctx.stroke();
+
+                if (t % 2 === 0 || t === Math.round(solution.t)) {
+                    ctx.fillStyle = '#64748b';
+                    ctx.font = '8.5px Fira Code, monospace';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`${t}s`, gx, h - padBottom + 14);
+                }
+            }
+
+            // Position grid lines
+            for (let p = 0; p <= 200; p += 40) {
+                const gy = mapPosToY(p);
+                ctx.beginPath();
+                ctx.moveTo(padLeft, gy);
+                ctx.lineTo(w - padRight, gy);
+                ctx.stroke();
+
+                ctx.fillStyle = '#64748b';
+                ctx.font = '8.5px Fira Code, monospace';
+                ctx.textAlign = 'right';
+                ctx.fillText(`${p}m`, padLeft - 6, gy + 3);
+            }
+
+            // Axes
+            ctx.strokeStyle = '#475569';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            // Y-axis (Time = 0)
+            ctx.moveTo(padLeft, padTop);
+            ctx.lineTo(padLeft, h - padBottom);
+            // X-axis (Position = 0)
+            const yZero = mapPosToY(0);
+            ctx.moveTo(padLeft, yZero);
+            ctx.lineTo(w - padRight, yZero);
+            ctx.stroke();
+
+            // Function A Curve (Lime Neon)
+            ctx.save();
+            ctx.strokeStyle = '#ccff00';
+            ctx.lineWidth = 2.5;
+            ctx.shadowColor = '#ccff00';
+            ctx.shadowBlur = 8;
+            ctx.beginPath();
+            const startYA = mapPosToY(carA.x0);
+            const endYA = mapPosToY(carA.x0 + carA.v * maxGraphTime);
+            ctx.moveTo(mapTimeToX(0), startYA);
+            ctx.lineTo(mapTimeToX(maxGraphTime), endYA);
+            ctx.stroke();
+            ctx.restore();
+
+            // Function B Curve (Electric Cyan)
+            ctx.save();
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 2.5;
+            ctx.shadowColor = '#38bdf8';
+            ctx.shadowBlur = 8;
+            ctx.beginPath();
+            const startYB = mapPosToY(carB.x0);
+            const endYB = mapPosToY(carB.x0 + carB.v * maxGraphTime);
+            ctx.moveTo(mapTimeToX(0), startYB);
+            ctx.lineTo(mapTimeToX(maxGraphTime), endYB);
+            ctx.stroke();
+            ctx.restore();
+
+            // Highlight Intersection Point (Intercept)
+            const meetGx = mapTimeToX(solution.t);
+            const meetGy = mapPosToY(solution.x);
+
+            ctx.save();
+            ctx.strokeStyle = '#f59e0b';
+            ctx.fillStyle = '#f59e0b';
+            ctx.lineWidth = 2;
+            ctx.shadowColor = '#f59e0b';
+            ctx.shadowBlur = 12;
+
+            // Concentric target rings
+            ctx.beginPath();
+            ctx.arc(meetGx, meetGy, 6, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(meetGx, meetGy, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Label callout
+            ctx.font = 'bold 9.5px Fira Code, monospace';
+            ctx.fillStyle = '#f59e0b';
+            ctx.textAlign = 'left';
+            ctx.fillText(`Intersect: (${solution.t}s, ${solution.x}m)`, meetGx + 8, meetGy - 6);
+            ctx.restore();
+
+            // Sweeping Live Time Cursor
+            const curX = mapTimeToX(currentTime);
+            if (curX >= padLeft && curX <= w - padRight) {
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 1.5;
+                ctx.setLineDash([3, 3]);
+                ctx.beginPath();
+                ctx.moveTo(curX, padTop);
+                ctx.lineTo(curX, h - padBottom);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Current tracking dots on both curves
+                const curPosA = carA.x0 + carA.v * currentTime;
+                const curPosB = carB.x0 + carB.v * currentTime;
+                
+                ctx.fillStyle = '#ccff00';
+                ctx.beginPath(); ctx.arc(curX, mapPosToY(curPosA), 4, 0, Math.PI * 2); ctx.fill();
+
+                ctx.fillStyle = '#38bdf8';
+                ctx.beginPath(); ctx.arc(curX, mapPosToY(curPosB), 4, 0, Math.PI * 2); ctx.fill();
+            }
+
+            document.getElementById('graph-cursor-readout').innerText = 
+                `Time: t = ${currentTime.toFixed(2)}s | A: ${(carA.x0 + carA.v * currentTime).toFixed(1)}m | B: ${(carB.x0 + carB.v * currentTime).toFixed(1)}m`;
+        }
+
+        function renderFrame(currentTime, dt = 0) {
+            drawRunway(currentTime, dt);
+            drawGraph(currentTime);
+        }
+
+        // -----------------------------------------------------------------
+        // 8. Animation & Verifier Loop
+        // -----------------------------------------------------------------
+        function stepSimulation(timestamp) {
+            if (!simState.isPlaying) return;
+
+            if (!simState.lastTimestamp) simState.lastTimestamp = timestamp;
+            const deltaMs = timestamp - simState.lastTimestamp;
+            simState.lastTimestamp = timestamp;
+
+            const dt = (deltaMs / 1000) * simState.speed;
+            simState.time += dt;
+
+            // Trigger intercept event once
+            if (!simState.hasTriggeredIntercept && simState.time >= currentChallenge.solution.t) {
+                simState.hasTriggeredIntercept = true;
+                audio.interceptChime();
+                const overlay = document.getElementById('intercept-overlay');
+                overlay.style.opacity = '1';
+                setTimeout(() => { overlay.style.opacity = '0'; }, 1500);
+            }
+
+            // Auto-pause shortly after passing intercept
+            const stopTime = currentChallenge.solution.t + 1.8;
+            if (simState.time >= stopTime) {
+                simState.time = stopTime;
+                simState.isPlaying = false;
+                updatePlayButtonUI();
+            }
+
+            renderFrame(simState.time, dt);
+
+            if (simState.isPlaying) {
+                requestAnimationFrame(stepSimulation);
+            }
+        }
+
+        function togglePlay() {
+            simState.isPlaying = !simState.isPlaying;
+            updatePlayButtonUI();
+
+            if (simState.isPlaying) {
+                audio.beep(440, 0.08, 'sawtooth');
+                simState.lastTimestamp = performance.now();
+                requestAnimationFrame(stepSimulation);
+            }
+        }
+
+        function resetSimulation() {
+            simState.isPlaying = false;
+            simState.time = 0;
+            simState.hasTriggeredIntercept = false;
+            simState.lastTimestamp = null;
+            updatePlayButtonUI();
+            renderFrame(0, 0);
+        }
+
+        function updatePlayButtonUI() {
+            const btn = document.getElementById('btn-play-sim');
+            const icon = document.getElementById('play-icon');
+            const label = document.getElementById('play-label');
+
+            if (simState.isPlaying) {
+                icon.innerText = '⏸';
+                label.innerText = 'Pause Verification';
+                btn.classList.add('bg-yellow-400', 'text-slate-950');
+            } else {
+                icon.innerText = '▶';
+                label.innerText = 'Run Verification Race [Space]';
+                btn.classList.remove('bg-yellow-400');
+            }
+        }
+
+        // -----------------------------------------------------------------
+        // 9. Team Submissions & Scoring
+        // -----------------------------------------------------------------
+        const predictionForm = document.getElementById('team-prediction-form');
+        const teamSelect = document.getElementById('team-select');
+        const customTeamInput = document.getElementById('custom-team-input');
+
+        teamSelect.addEventListener('change', () => {
+            if (teamSelect.value === 'Custom') {
+                customTeamInput.classList.remove('hidden');
+                customTeamInput.focus();
+            } else {
+                customTeamInput.classList.add('hidden');
+            }
+        });
+
+        predictionForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const teamName = teamSelect.value === 'Custom' 
+                ? (customTeamInput.value.trim() || 'Team Custom')
+                : teamSelect.value;
+
+            const predT = parseFloat(document.getElementById('input-t').value);
+            const predX = parseFloat(document.getElementById('input-x').value);
+
+            if (isNaN(predT) || isNaN(predX)) return;
+
+            const actualT = currentChallenge.solution.t;
+            const actualX = currentChallenge.solution.x;
+
+            const errorT = Math.abs(predT - actualT);
+            const errorX = Math.abs(predX - actualX);
+
+            const isExact = (errorT <= 0.15 && errorX <= 1.0);
+            const isClose = (errorT <= 0.5 && errorX <= 3.0);
+
+            let status = 'MISSED';
+            let points = 0;
+
+            if (isExact) {
+                status = 'EXACT MATCH! 🎯';
+                points = 100;
+                audio.victoryFanfare();
+            } else if (isClose) {
+                status = 'CLOSE! (Within tolerance) ⚡';
+                points = 70;
+                audio.interceptChime();
+            } else {
+                status = 'INCORRECT ❌';
+                points = 20;
+                audio.beep(220, 0.3, 'sawtooth');
+            }
+
+            teamSubmissions.unshift({
+                team: teamName,
+                t: predT,
+                x: predX,
+                actualT,
+                actualX,
+                timeSec: stopwatch.elapsed,
+                status,
+                points
+            });
+
+            renderLeaderboard();
+            resetSimulation();
+            togglePlay(); // Automatically trigger verification race so the class sees the car motion!
+        });
+
+        function renderLeaderboard() {
+            const emptyEl = document.getElementById('leaderboard-empty');
+            const listEl = document.getElementById('leaderboard-list');
+
+            if (teamSubmissions.length === 0) {
+                emptyEl.classList.remove('hidden');
+                listEl.classList.add('hidden');
+                return;
+            }
+
+            emptyEl.classList.add('hidden');
+            listEl.classList.remove('hidden');
+
+            listEl.innerHTML = '';
+            teamSubmissions.forEach((sub, idx) => {
+                const card = document.createElement('div');
+                card.className = `p-3 rounded-xl border text-xs font-mono flex flex-col gap-1.5 transition-all ${
+                    sub.points >= 70 ? 'bg-lime-950/40 border-lime-500/40 text-lime-200' : 'bg-slate-950/70 border-slate-800 text-slate-300'
+                }`;
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between font-bold">
+                        <span class="text-white flex items-center gap-1.5">
+                            <span>${idx === 0 ? '🥇' : '🏎️'}</span>
+                            <span>${sub.team}</span>
+                        </span>
+                        <span class="px-2 py-0.5 rounded ${sub.points >= 70 ? 'bg-lime-950 border border-lime-500 text-[#ccff00]' : 'bg-slate-900 text-slate-400'} font-bold">
+                            +${sub.points} pts
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px] text-slate-400">
+                        <span>Prediction: t = ${sub.t}s, x = ${sub.x}m</span>
+                        <span class="text-yellow-300 font-bold">${sub.timeSec.toFixed(1)}s elapsed</span>
+                    </div>
+                    <div class="text-[10px] ${sub.points >= 70 ? 'text-lime-400' : 'text-rose-400'} font-bold flex items-center justify-between">
+                        <span>${sub.status}</span>
+                        <span class="text-slate-500">Actual: (${sub.actualT}s, ${sub.actualX}m)</span>
+                    </div>
+                `;
+                listEl.appendChild(card);
+            });
+        }
+
+        document.getElementById('btn-clear-board').addEventListener('click', () => {
+            if (confirm('Clear team standings leaderboard?')) {
+                teamSubmissions.length = 0;
+                renderLeaderboard();
+            }
+        });
+
+        // -----------------------------------------------------------------
+        // 10. Proof Reveal Accordion
+        // -----------------------------------------------------------------
+        const btnToggleProof = document.getElementById('btn-toggle-proof');
+        const proofContainer = document.getElementById('proof-container');
+        const proofToggleIcon = document.getElementById('proof-toggle-icon');
+
+        btnToggleProof.addEventListener('click', () => {
+            const isHidden = proofContainer.classList.contains('hidden');
+            if (isHidden) {
+                proofContainer.classList.remove('hidden');
+                proofToggleIcon.innerText = '[Click to Hide]';
+            } else {
+                proofContainer.classList.add('hidden');
+                proofToggleIcon.innerText = '[Click to Reveal]';
+            }
+        });
+
+        // -----------------------------------------------------------------
+        // 11. Mode Switchers & Event Handlers
+        // -----------------------------------------------------------------
+        const modeHeadonBtn = document.getElementById('mode-headon');
+        const modePursuitBtn = document.getElementById('mode-pursuit');
+        const modeWildcardBtn = document.getElementById('mode-wildcard');
+
+        function setMode(mode) {
+            currentChallenge.mode = mode;
+            [modeHeadonBtn, modePursuitBtn, modeWildcardBtn].forEach(b => {
+                b.className = 'px-3 py-1 text-xs font-mono rounded-md font-bold transition-all text-slate-400 hover:text-white';
+            });
+
+            if (mode === 'headon') {
+                modeHeadonBtn.className = 'px-3 py-1 text-xs font-mono rounded-md font-bold transition-all bg-[#ccff00] text-slate-950 shadow-md';
+            } else if (mode === 'pursuit') {
+                modePursuitBtn.className = 'px-3 py-1 text-xs font-mono rounded-md font-bold transition-all bg-[#38bdf8] text-slate-950 shadow-md';
+            } else {
+                modeWildcardBtn.className = 'px-3 py-1 text-xs font-mono rounded-md font-bold transition-all bg-yellow-400 text-slate-950 shadow-md';
+            }
+
+            generateChallenge(mode);
+        }
+
+        modeHeadonBtn.addEventListener('click', () => setMode('headon'));
+        modePursuitBtn.addEventListener('click', () => setMode('pursuit'));
+        modeWildcardBtn.addEventListener('click', () => setMode('wildcard'));
+
+        document.getElementById('btn-new-challenge').addEventListener('click', () => {
+            generateChallenge();
+            audio.beep(600, 0.08, 'triangle');
+        });
+
+        document.getElementById('btn-play-sim').addEventListener('click', togglePlay);
+        document.getElementById('btn-reset-sim').addEventListener('click', resetSimulation);
+
+        // Speed Buttons
+        document.querySelectorAll('.speed-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.speed-btn').forEach(b => {
+                    b.className = 'speed-btn px-2 py-1 rounded bg-slate-900 border border-slate-700 text-slate-300 hover:border-lime-500';
+                });
+                btn.className = 'speed-btn px-2 py-1 rounded bg-lime-950 border border-lime-500 text-[#ccff00] font-bold';
+                simState.speed = parseFloat(btn.dataset.speed);
+            });
+        });
+
+        // Audio Toggle
+        const btnSound = document.getElementById('btn-sound');
+        btnSound.addEventListener('click', () => {
+            audio.enabled = !audio.enabled;
+            document.getElementById('sound-icon').innerText = audio.enabled ? '🔊' : '🔇';
+            document.getElementById('sound-label').innerText = audio.enabled ? 'Audio ON' : 'Audio OFF';
+        });
+
+        // Fullscreen Toggle
+        document.getElementById('btn-fullscreen').addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                document.exitFullscreen().catch(() => {});
+            }
+        });
+
+        // Keyboard Shortcuts
+        window.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+
+            if (e.code === 'Space') {
+                e.preventDefault();
+                togglePlay();
+            } else if (e.code === 'KeyR') {
+                resetSimulation();
+            } else if (e.code === 'KeyN') {
+                generateChallenge();
+            } else if (e.code === 'KeyF') {
+                document.getElementById('btn-fullscreen').click();
+            }
+        });
+
+        // Responsive Resize
+        window.addEventListener('resize', resizeCanvases);
+
+        // Initial Load
+        window.addEventListener('DOMContentLoaded', () => {
+            resizeCanvases();
+            generateChallenge('headon');
+        });
+    </script>
+</body>
+</html>

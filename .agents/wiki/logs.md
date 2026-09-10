@@ -2,6 +2,24 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-10 — Two-Vehicle Kinematic Intercept Challenge & Dual-Engine Visualizer (`Unit_2/two_car_intercept/`)
+
+**Motivation**: Created an interactive web application for Period 0 Honors Physics based on the Unit 2 Kinematic Vector & Slope Visualizer. Designed to turn algebraic intercept word problems into an engaging classroom team competition with live physics simulation, graphical analysis, and instant scoring.
+
+**Key Changes**:
+- **`Unit_2/two_car_intercept/index.html`**:
+  - Implemented dual synchronized HTML5 canvases: 1D motion runway (with animated cars, headlights, exhaust particles, velocity vectors, origin, finish line, and collision shockwave) and 2D Position vs. Time ($x-t$) coordinate graph with intersecting lines and sweeping time cursor.
+  - Developed a robust randomized condition generator supporting Head-on, Pursuit, and Wildcard modes, guaranteeing clean integer or half-second meeting times ($t_{meet}$) and locations ($x_{meet}$) strictly within the $0\text{ m}$ to $200\text{ m}$ track bounds.
+  - Built an integrated team competition HUD featuring team name input, time/position prediction fields, automated stopwatch timer, tolerance-based accuracy scoring (Bullseye / Acceptable), live leaderboard, and an expandable step-by-step algebraic proof drawer.
+  - Implemented a zero-dependency Web Audio API procedural sound engine synthesizing engine revs, ignition, stopwatch ticks, success arpeggios, error buzzers, and collision impacts.
+  - Fully aligned with NGSS `HS-PS2-1` and strictly compliant with the repository's No-LaTeX formatting policy.
+- **`unit2-dashboard.html`**:
+  - Added direct link buttons in the hero interactive tools banner and beside the Kinematic Vector & Slope Visualizer header.
+- **`assets/lessons-data.js`**:
+  - Registered the app under Day 9 (2026-09-10) practice and resource links for Period 0.
+- **Wiki**:
+  - Created `.agents/wiki/patterns/two-agent-kinematic-intercept.md` and indexed in `.agents/wiki/index.md`.
+
 ## 2026-09-10 — Headless Daily Grade Sync CLI (`npm run sync`) & Automated Workflow
 
 **Motivation**: Enable rapid, single-command gradebook synchronization from home across all 7 Google Classroom periods (Period 0 to Period 6), eliminating repetitive manual clicking in the web UI.

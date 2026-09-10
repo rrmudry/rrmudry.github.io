@@ -15,4 +15,5 @@
 | [interactive-presentation-deck](patterns/interactive-presentation-deck.md) | presentation, slides, kinematics, canvas, sound-fx, no-latex | 2026-09-02 | Dual-mode presentation slide deck with canvas simulations, sound synthesis, presenter notes, and strict No-LaTeX compliance |
 | [cast-aligned-webapp-design](patterns/cast-aligned-webapp-design.md) | CAST, webapp, pedagogy, measurement, NGSS, SEP3, SEP5 | 2026-09-03 | Productive pedagogical friction vs interface friction, CAST test readiness, instrument reading, and cognitive scaffolding |
 | [touch-math-facts-engine](patterns/touch-math-facts-engine.md) | math, touch, keypad, sound-fx, leaderboard, firestore | 2026-09-05 | Touchscreen virtual numpad with auto-advance, speed/streak multipliers, name-only Firestore leaderboard |
+| [two-agent-kinematic-intercept](patterns/two-agent-kinematic-intercept.md) | kinematics, dual-car, simulation, intercept, canvas, web-audio, competition | 2026-09-10 | Two-vehicle kinematic intercept competition and dual-canvas real-time vector visualizer for Honors Physics |
 
