@@ -20,7 +20,7 @@ Append-only log tracking pattern changes across sessions.
 - **Team Authentication & Integrity Features (`Unit_2/two_car_intercept/index.html`)**:
   - Added Google Sign-In with Firebase Auth (`site-6e500`) and Team Registration modal (Team Name, Members, Period).
   - Built Calculation-Phase Graph Gating: Position vs. Time ($x-t$) graph is shrouded behind a glassmorphic lock curtain while students calculate, unlocking only upon prediction submission or "Run Verification Race" activation.
-  - Implemented Academic Integrity Tab/Window Switch Monitor: Detects tab switches and `window.blur` while the problem timer is running, immediately locking down the station with an alarm buzzer and requiring Teacher PIN (`mudry2026` or `Shift + U`) to clear.
+  - Implemented Academic Integrity Tab/Window Switch Disqualification: Detects tab switches and `window.blur` while the problem timer is running. Replaced intrusive full-screen teacher PIN lockout with an automatic **0 points** round score (`status: 'DISQUALIFIED (0 pts) ⚠️'`), unlocked solution graph, and a non-blocking toast alert instructing students to proceed to "New Challenge". Eliminates teacher unlock friction during competitive gameplay.
   - Added real-time Firestore sync on `two_car_intercept_submissions` for live class leaderboard updates.
 - **Wiki**:
   - Created `.agents/wiki/patterns/two-agent-kinematic-intercept.md` and indexed in `.agents/wiki/index.md`.
