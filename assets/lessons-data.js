@@ -856,6 +856,12 @@ const lessonsData = [
     ],
     "practice": [
       {
+        "title": "Two-Car Kinematic Intercept Challenge",
+        "url": "Unit_2/two_car_intercept/index.html",
+        "typeLabel": "Period 0 Honors Challenge",
+        "description": "Two-vehicle intercept race competition: predict meeting time and location from starting positions and velocities."
+      },
+      {
         "title": "Speed & Distance Studio",
         "url": "Unit_2/speed_distance_time_app/index.html",
         "typeLabel": "Practice Sandbox",
@@ -863,6 +869,7 @@ const lessonsData = [
       }
     ],
     "links": {
+      "Two-Car Intercept Challenge": "Unit_2/two_car_intercept/index.html",
       "Physics Speed Calculator": "physics_speed_calculator/dist/index.html",
       "Speed & Distance Studio": "Unit_2/speed_distance_time_app/index.html",
       "Constant Speed Presentation": "Unit_2/constant-speed-presentation/index.html"
