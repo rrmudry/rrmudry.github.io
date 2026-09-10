@@ -108,6 +108,9 @@ The classroom dashboard shows color-coded tiles per student:
 - **Timer sync**: The timer uses `timerExpiresAt` server timestamp, not client-side countdown. All clients read this timestamp and compute remaining time locally to stay synchronized.
 - **Period "all"**: When `targetPeriod` is `"all"`, every authenticated student gets access regardless of period.
 - **Gemini quota**: With 150+ students submitting in rapid succession, Gemini API quota can be exhausted. Use `gemini-2.5-flash-lite` if experiencing throttling.
+- **Firestore Nested Array Restriction**: Cloud Firestore rejects nested arrays (arrays inside objects that are elements of arrays, such as `summary.stepResults[i].state.chatMessages` or `chatMessages[i].parts`). Always run `sanitizeForFirestore()` to convert nested arrays into maps (`{ item_0: ... }`) and keep message items flat (`{ sender, role, text }`).
+- **Unsupported field value: undefined**: Passing `undefined` to `db.collection().set()` throws an immediate exception and halts document creation. Ensure all optional fields default to `null` or are omitted.
+- **Timer Expiry Auto-Submit**: CAST 3D tasks require explicit auto-submission hooks (`activeCastEngine.submitAll()`) on countdown timer expiration so students' partially completed work is automatically saved if the timer runs out.
 
 ## Evidence
 - Full system documented in `Bell-Ringer/README.md` (98 lines)
