@@ -561,6 +561,34 @@ app.get('/api/assignments', checkAuth, async (req, res) => {
         console.warn("Could not query legacy assignments collection:", e.message);
       }
 
+      // 5. Fetch from 'physics_labs' (Interactive Physics Labs, Speed Calculator, etc.)
+      try {
+        const labsSnap = await db.collection('physics_labs').get();
+        if (!labsSnap.empty) {
+          let speedCalcCount = 0;
+          labsSnap.forEach(doc => {
+            const data = doc.data();
+            if (data.speed_calculator || data.currentLevel !== undefined || data.score !== undefined || data.answered !== undefined) {
+              speedCalcCount++;
+            }
+          });
+
+          if (speedCalcCount > 0 && !seenIds.has('physics_speed_calculator')) {
+            seenIds.add('physics_speed_calculator');
+            assignments.push({
+              id: 'physics_speed_calculator',
+              name: `Physics Speed Calculator (${speedCalcCount} students)`,
+              rawName: 'Physics Speed Calculator',
+              studentCount: speedCalcCount,
+              isProctorAssessment: false,
+              sourceType: 'physics_labs'
+            });
+          }
+        }
+      } catch (labErr) {
+        console.warn("Could not query physics_labs collection:", labErr.message);
+      }
+
       // Sort assignments with students first, then alphabetically
       assignments.sort((a, b) => {
         if ((b.studentCount || 0) !== (a.studentCount || 0)) {
@@ -598,10 +626,16 @@ app.get('/api/assignments/:assignmentId/scores', checkAuth, async (req, res) => 
         const rosterSnap = await db.collection('roster').get();
         rosterSnap.forEach(rDoc => {
           const rData = rDoc.data();
-          const sid = String(rData.student_id || rDoc.id);
+          const sid = String(rData.student_id || rDoc.id).trim();
+          const pVal = (rData.class_period !== undefined && rData.class_period !== null)
+            ? rData.class_period
+            : (rData.period !== undefined && rData.period !== null ? rData.period : null);
+          const cleanP = pVal !== null ? String(pVal).trim() : null;
+          const sName = rData.student_name || rData.full_name || (rData.first_name ? `${rData.first_name} ${rData.last_name || ''}`.trim() : null) || rData.name || null;
+
           rosterMap.set(sid, {
-            name: rData.student_name || rData.name || null,
-            period: rData.class_period || rData.period || null,
+            name: sName,
+            period: cleanP,
             email: rData.student_email || rData.email || null
           });
         });
@@ -677,6 +711,78 @@ app.get('/api/assignments/:assignmentId/scores', checkAuth, async (req, res) => 
               }
             }
           } catch (e) {}
+        }
+      }
+
+      // If still empty or matching physics_labs, check physics_labs collection
+      const isPhysicsLab = assignmentId === 'physics_speed_calculator' ||
+                           assignmentId.toLowerCase().includes('speed') ||
+                           assignmentId.toLowerCase().includes('calculator') ||
+                           possibleIds.some(p => p.toLowerCase().includes('speed'));
+
+      if (students.length === 0 && isPhysicsLab) {
+        try {
+          const labsSnap = await db.collection('physics_labs').get();
+          if (!labsSnap.empty) {
+            labsSnap.forEach(doc => {
+              const data = doc.data();
+              const sId = String(data.studentId || doc.id).trim();
+              if (!seenStudentIds.has(sId)) {
+                seenStudentIds.add(sId);
+                const rosterInfo = rosterMap.get(sId) || {};
+                const rawPeriod = (data.class_period !== undefined && data.class_period !== null && data.class_period !== 'N/A' && data.class_period !== '')
+                  ? data.class_period
+                  : (rosterInfo.period !== undefined && rosterInfo.period !== null && rosterInfo.period !== 'N/A' && rosterInfo.period !== '' ? rosterInfo.period : '---');
+                const cleanPeriod = (rawPeriod !== undefined && rawPeriod !== null && rawPeriod !== '') ? String(rawPeriod) : '---';
+
+                const sc = data.speed_calculator || {};
+                const isCompleted = !!(sc.completed !== undefined ? sc.completed : data.completed);
+                const currentLvl = sc.currentLevel !== undefined ? sc.currentLevel : (data.currentLevel || 1);
+                const scoreLvl3 = sc.score !== undefined ? sc.score : (data.score || 0);
+                const answered = sc.answered !== undefined ? sc.answered : (data.answered || 0);
+
+                // Calculate grade percentage (0-100 scale)
+                let pct = 0;
+                if (isCompleted) {
+                  pct = 100;
+                } else if (currentLvl === 3) {
+                  pct = Math.round((scoreLvl3 / 6) * 100);
+                } else if (currentLvl === 2) {
+                  pct = 70;
+                } else if (answered > 0) {
+                  pct = 50;
+                } else {
+                  pct = 0;
+                }
+
+                let lastDate = new Date().toISOString();
+                if (data.lastUpdated && data.lastUpdated.toDate) {
+                  lastDate = data.lastUpdated.toDate().toISOString();
+                } else if (data.completedAt) {
+                  lastDate = data.completedAt;
+                }
+
+                students.push({
+                  student_id: sId,
+                  name: data.displayName || rosterInfo.name || `Student ${sId}`,
+                  class_period: cleanPeriod,
+                  score: pct,
+                  percentage: pct,
+                  level: currentLvl,
+                  completed: isCompleted,
+                  completed_at: lastDate,
+                  details: {
+                    level: currentLvl,
+                    completed: isCompleted,
+                    answered: answered,
+                    level3Score: scoreLvl3
+                  }
+                });
+              }
+            });
+          }
+        } catch (labErr) {
+          console.warn("Could not query physics_labs for scores:", labErr.message);
         }
       }
 
@@ -861,6 +967,21 @@ app.post('/api/sync-grade', checkAuth, async (req, res) => {
     const submission = submissions[0];
     const submissionId = submission.id;
 
+    // Check coursework max points to scale appropriately if needed (e.g. 10 pts, 6 pts, 100 pts)
+    let finalScore = Number(score);
+    try {
+      const cw = await classroom.courses.courseWork.get({ courseId, id: courseworkId });
+      const maxPts = cw.data.maxPoints;
+      if (maxPts && maxPts > 0 && maxPts !== 100) {
+        // If score is 0-100 percentage and maxPoints is different (e.g. 10 or 6)
+        if (finalScore > maxPts && finalScore <= 100) {
+          finalScore = Math.round((finalScore / 100) * maxPts * 10) / 10;
+        }
+      }
+    } catch (e) {
+      console.warn("Could not fetch coursework maxPoints:", e.message);
+    }
+
     // 3. Patch grades (draft and assigned)
     const patchResponse = await classroom.courses.courseWork.studentSubmissions.patch({
       courseId,
@@ -868,8 +989,8 @@ app.post('/api/sync-grade', checkAuth, async (req, res) => {
       id: submissionId,
       updateMask: 'draftGrade,assignedGrade',
       requestBody: {
-        draftGrade: score,
-        assignedGrade: score
+        draftGrade: finalScore,
+        assignedGrade: finalScore
       }
     });
 
