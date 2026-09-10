@@ -929,10 +929,105 @@
       "Reading": "Interpreting complex diagnostic prompts under assessment conditions."
     },
     "bellRinger": {
-      "type": "free_response",
-      "promptQuestion": "Look at these three problems: (A) Find how far a car goes in 5s at 20 m/s; (B) Find how fast a runner is if they go 100m in 10s; (C) Find how long it takes sound to travel 680m at 340 m/s. For each, state which formula from the triangle you use!",
-      "explanation": "(A) d = v · t; (B) v = d / t; (C) t = d / v. Knowing which variable is unknown allows you to pick the exact right formula every time!",
-      "defaultDuration": 3
+      "type": "cast_challenge",
+      "title": "Constant Motion Synthesis & 3-Way Formula Mastery",
+      "promptQuestion": "Analyze the three sensor scenarios in the data table and match each to its required formula triangle rearrangement, then calculate the transit time for Scenario C.",
+      "explanation": "Using the formula triangle: Scenario A requires d = v · t; Scenario B requires v = d / t; Scenario C requires t = d / v = 680 m / (340 m/s) = 2.0 s.",
+      "defaultDuration": 4,
+      "standards": {
+        "dci": "HS-PS2.A: Forces & Motion",
+        "sep": "SEP-5: Using Mathematics and Computational Thinking",
+        "ccc": "CCC-3: Scale, Proportion, and Quantity"
+      },
+      "phenomenon": {
+        "title": "Transit Telemetry & Sensor Monitoring Hub",
+        "type": "data_table",
+        "text": "An automated transit monitoring hub tracks three different transportation and signal systems. Each scenario contains two known quantities and one unknown kinematic variable.",
+        "dataTable": {
+          "caption": "Kinematic Scenario Sensor Telemetry",
+          "headers": [
+            "Scenario",
+            "Known Parameter 1",
+            "Known Parameter 2",
+            "Target Unknown"
+          ],
+          "rows": [
+            {
+              "col_0": "Scenario A (Commuter Train)",
+              "col_1": "Speed (v) = 20 m/s",
+              "col_2": "Time (t) = 5.0 s",
+              "col_3": "Distance (d) = ?"
+            },
+            {
+              "col_0": "Scenario B (Track Sprinter)",
+              "col_1": "Distance (d) = 100 m",
+              "col_2": "Time (t) = 10.0 s",
+              "col_3": "Speed (v) = ?"
+            },
+            {
+              "col_0": "Scenario C (Ultrasonic Echo Pulse)",
+              "col_1": "Distance (d) = 680 m",
+              "col_2": "Speed of Sound (v) = 340 m/s",
+              "col_3": "Transit Time (t) = ?"
+            }
+          ]
+        }
+      },
+      "steps": [
+        {
+          "stepId": "step_1",
+          "type": "cloze_dropdown",
+          "title": "Part 1: Formula Triangle Rearrangement",
+          "prompt": "Match each scenario from the sensor table to the correct rearrangement of the speed formula triangle:",
+          "text": "To find the distance traveled in Scenario A, use [blank1]. To calculate the sprinter speed in Scenario B, use [blank2]. To determine the pulse transit time in Scenario C, use [blank3].",
+          "blanks": {
+            "blank1": {
+              "correct": "d = v · t",
+              "options": [
+                "d = v · t",
+                "d = v / t",
+                "d = t / v"
+              ]
+            },
+            "blank2": {
+              "correct": "v = d / t",
+              "options": [
+                "v = d / t",
+                "v = d · t",
+                "v = t / d"
+              ]
+            },
+            "blank3": {
+              "correct": "t = d / v",
+              "options": [
+                "t = d / v",
+                "t = d · v",
+                "t = v / d"
+              ]
+            }
+          }
+        },
+        {
+          "stepId": "step_2",
+          "type": "data_calculation",
+          "title": "Part 2: Ultrasonic Transit Time Calculation",
+          "prompt": "Calculate the transit time in seconds for the Scenario C ultrasonic pulse to travel 680 meters at a speed of 340 m/s.",
+          "inputLabel": "Ultrasonic Transit Time",
+          "unit": "s",
+          "targetValue": 2,
+          "tolerance": 0.1,
+          "hint": "Time = distance / speed = 680 m / (340 m/s)."
+        },
+        {
+          "stepId": "step_3",
+          "type": "ai_reasoning_chat",
+          "title": "Part 3: Defending the Why with AI Mentor",
+          "prompt": "Discuss your reasoning with the AI Physics Mentor: Explain how diagnosing your target unknown guides formula selection, and how dimensional analysis (checking units) proves your answer is physically sound.",
+          "openingPrompt": "You found that the Scenario C ultrasonic pulse takes 2.0 seconds! In your own words, how does checking the units of your givens help you decide whether to multiply or divide? What would happen to the units if you accidentally multiplied distance by speed?",
+          "minTurns": 1
+        }
+      ],
+      "teacherKey": "Step 1: d = v · t, v = d / t, t = d / v. Step 2: 2.0 s (680 m / 340 m/s). Step 3: Claim: Knowing the target unknown allows you to isolate the correct variable from the formula triangle, and dimensional analysis verifies the calculation. Evidence: In Scenario A, (m/s) · s = m (distance). In Scenario B, m / s = m/s (speed). In Scenario C, m / (m/s) = s (time). If you multiplied 680 m by 340 m/s, the units would be m² / s, which does not measure time. Reasoning: Mathematical equations in physics represent physical dimensions; unit consistency confirms whether an algebraic operation is valid."
     },
     "links": {
       "Speed & Distance Studio": "Unit_2/speed_distance_time_app/index.html",
