@@ -94,3 +94,28 @@ Never rely on external `.mp3` or `.wav` files that could fail due to CORS or slo
    - Accurate within $\pm 0.3\text{ s}$ and $\pm 3.0\text{ m}$ is scored as an **Acceptable Intercept**.
 6. Leaderboard ranks teams dynamically by Accuracy then elapsed calculation time.
 7. Click **"Run Simulation" (`Space`)** to verify prediction with live animated cars meeting at the exact crosshair on both the track and the graph!
+
+---
+
+## 6. Team Authentication, Anti-Cheating Lockout & Graph Gating
+
+### A. Google Team Auth & Profile Bar
+- Single member signs in with school Google account (`fbAuth.signInWithPopup(provider)`).
+- Customizes Team Name, Collaborators, and Period (defaulting to Period 0 Honors Physics).
+- Persisted locally in `localStorage['two_car_team_data']` and broadcast in the top navigation header.
+
+### B. Graph Concealment during Calculation
+- Problem: The Position vs. Time ($x-t$) graph visually displays the exact intersection point $(t_{meet}, x_{meet})$, which would allow students to bypass algebra.
+- Solution: Shroud the graph canvas under a `#graph-lock-curtain` overlay with `backdrop-blur-md` during the calculation phase.
+- Revelation: Unlocks dynamically with `unlockGraph()` when the student submits predictions or clicks **Run Verification Race**.
+
+### C. Academic Integrity Tab/Window Switch Lockout
+- Detects `visibilitychange` (tab switch or browser minimize) and `window.blur` (switching to another desktop application or calculator window) while the problem stopwatch is running.
+- Immediately stops the timer, plays an alarm buzzer, and renders a full-screen `#modal-security-lockout` locking the station.
+- Persisted across reloads in `sessionStorage['two_car_lockout_' + challengeId]`.
+- Teacher override PIN (`mudry2026` or keyboard shortcut `Shift + U`) unlocks the station for honest accidents.
+
+### D. Real-Time Cloud Leaderboard
+- Submissions written to Firestore collection `two_car_intercept_submissions`.
+- Real-time `onSnapshot` query automatically streams class-wide rankings to the projector and student devices.
+
