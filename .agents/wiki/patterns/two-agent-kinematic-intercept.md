@@ -109,11 +109,11 @@ Never rely on external `.mp3` or `.wav` files that could fail due to CORS or slo
 - Solution: Shroud the graph canvas under a `#graph-lock-curtain` overlay with `backdrop-blur-md` during the calculation phase.
 - Revelation: Unlocks dynamically with `unlockGraph()` when the student submits predictions or clicks **Run Verification Race**.
 
-### C. Academic Integrity Tab/Window Switch Lockout
-- Detects `visibilitychange` (tab switch or browser minimize) and `window.blur` (switching to another desktop application or calculator window) while the problem stopwatch is running.
-- Immediately stops the timer, plays an alarm buzzer, and renders a full-screen `#modal-security-lockout` locking the station.
-- Persisted across reloads in `sessionStorage['two_car_lockout_' + challengeId]`.
-- Teacher override PIN (`mudry2026` or keyboard shortcut `Shift + U`) unlocks the station for honest accidents.
+### C. Academic Integrity Tab/Window Switch Disqualification (0 Points)
+- Detects `visibilitychange` (tab switch or browser minimize) and `window.blur` (switching to another desktop application or external solver) while the round calculation stopwatch is running.
+- Immediately stops the timer, plays an alert buzzer, and records an automatic **0 points** score on the leaderboard and Firestore (`status: 'DISQUALIFIED (0 pts) ⚠️'`).
+- Displays a non-blocking toast alert (`#disqualification-toast`) informing the student of the disqualification and instructing them to click **New Challenge** to attempt the next round.
+- Removes teacher overhead: No PIN codes (`mudry2026`) or manual unlocks required; the team can immediately proceed to the next challenge while taking a zero for the compromised round.
 
 ### D. Real-Time Cloud Leaderboard
 - Submissions written to Firestore collection `two_car_intercept_submissions`.
