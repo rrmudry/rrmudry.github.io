@@ -98,7 +98,7 @@ This unit follows the classical and cognitive progression:
     *   *Links:* [Speed & Distance Studio](Unit_2/speed_distance_time_app/index.html), [Constant Speed Presentation](Unit_2/constant-speed-presentation/index.html)
 
 *   **Day 10 (2026-09-11): Constant Speed Mastery & Kinematic Synthesis Review**
-    *   *Bell-Ringer:* Diagnosing Motion Unknowns: Look at these three problems: (A) Find how far a car goes in 5s at 20 m/s; (B) Find how fast a runner is if they go 100m in 10s; (C) Find how long it takes sound to travel 680m at 340 m/s. For each, state which formula from the triangle you use! (`(A) d = v · t; (B) v = d / t; (C) t = d / v`).
+    *   *Bell-Ringer:* Constant Motion Synthesis & 3-Way Formula Mastery (CAST Challenge): Transit Telemetry & Sensor Monitoring Hub comparing train distance (`d = v · t`), sprinter speed (`v = d / t`), and ultrasonic pulse transit time (`t = d / v = 680 m / (340 m/s) = 2.0 s`) with AI reasoning defense on dimensional analysis.
     *   *Focus:* Synthesis Workshop: Diagnosing unknowns among mixed scenarios, 3-way formula fluency, and formative mastery evaluation.
     *   *Activity:* Constant Speed Grand Prix Challenge: Students complete the Tier 4 Mixed Master Challenge in the Speed, Distance & Time Studio, resolving randomized constant speed problems and generating their personalized Certificate of Kinematic Mastery, followed by a brief formative check.
     *   *Essential Question:* How can a single mathematical relationship (`v = d / t`) predict all aspects of uniform constant motion across any physical system?
