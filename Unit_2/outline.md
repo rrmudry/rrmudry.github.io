@@ -103,7 +103,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Constant Speed Grand Prix Challenge: Students complete the Tier 4 Mixed Master Challenge in the Speed, Distance & Time Studio, resolving randomized constant speed problems and generating their personalized Certificate of Kinematic Mastery, followed by a brief formative check.
     *   *Essential Question:* How can a single mathematical relationship (`v = d / t`) predict all aspects of uniform constant motion across any physical system?
     *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Activity / Assessment
-    *   *Links:* [Speed & Distance Studio](Unit_2/speed_distance_time_app/index.html), [Constant Speed Presentation](Unit_2/constant-speed-presentation/index.html), [Wind-Up Toy Speed Lab](Unit_2/wind_up_toy_lab/index.html)
+    *   *Links:* [Speed & Distance Studio](Unit_2/speed_distance_time_app/index.html), [Two-Car Kinematic Intercept Challenge](Unit_2/two_car_intercept/index.html), [Constant Speed Presentation](Unit_2/constant-speed-presentation/index.html), [Wind-Up Toy Speed Lab](Unit_2/wind_up_toy_lab/index.html), [Physics Speed Calculator](physics_speed_calculator/dist/index.html)
 
 ---
 

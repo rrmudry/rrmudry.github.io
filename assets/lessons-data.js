@@ -721,10 +721,17 @@ const lessonsData = [
         "url": "Unit_2/speed_distance_time_app/index.html",
         "typeLabel": "Practice Sandbox",
         "description": "Leveled speed problem drills."
+      },
+      {
+        "title": "Two-Car Kinematic Intercept Challenge",
+        "url": "Unit_2/two_car_intercept/index.html",
+        "typeLabel": "Honors Physics Intercept Simulator",
+        "description": "Solve systems of kinematic equations to predict collision time and location."
       }
     ],
     "links": {
       "Speed & Distance Studio": "Unit_2/speed_distance_time_app/index.html",
+      "Two-Car Kinematic Intercept Challenge": "Unit_2/two_car_intercept/index.html",
       "Constant Speed Presentation": "Unit_2/constant-speed-presentation/index.html",
       "Wind-Up Toy Speed Lab": "Unit_2/wind_up_toy_lab/index.html",
       "Physics Speed Calculator": "physics_speed_calculator/dist/index.html"
