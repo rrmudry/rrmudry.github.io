@@ -323,7 +323,7 @@
                 <!-- Equation Arranging Board -->
                 <div class="glass rounded-xl p-4 border border-white/5 flex flex-col items-center justify-center">
                   
-                  <!-- Standard Formula Template: v = x / t -->
+                  <!-- Standard Formula Template: v = d / t -->
                   <div class="flex items-center justify-center gap-4 text-3xl font-mono text-slate-600 flex-wrap py-2">
                     
                     <!-- v Slot -->
@@ -333,20 +333,22 @@
                       onclick="handleSlotClick(this)"
                     >
                       <span class="text-slate-500 text-2xl sm:text-4xl font-mono select-none">v</span>
+                      <span class="text-[9px] text-slate-600 font-sans tracking-wider uppercase font-semibold select-none mt-0.5">speed</span>
                     </div>
       
                     <span class="font-sans text-slate-400 font-bold select-none">=</span>
       
-                    <!-- Fraction Block: x / t -->
+                    <!-- Fraction Block: d / t -->
                     <div class="flex flex-col items-center gap-2">
                       
-                      <!-- x Slot -->
+                      <!-- d Slot (Distance) -->
                       <div 
                         data-slot="x" 
                         class="drag-target w-28 h-20 sm:w-32 sm:h-24 bg-slate-950/80 rounded-xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-sm font-semibold select-none cursor-pointer transition-all"
                         onclick="handleSlotClick(this)"
                       >
-                        <span class="text-slate-500 text-2xl sm:text-4xl font-mono select-none">x</span>
+                        <span class="text-slate-500 text-2xl sm:text-4xl font-mono select-none">d</span>
+                        <span class="text-[9px] text-slate-600 font-sans tracking-wider uppercase font-semibold select-none mt-0.5">distance</span>
                       </div>
                       
                       <!-- Division Line -->
@@ -359,6 +361,7 @@
                         onclick="handleSlotClick(this)"
                       >
                         <span class="text-slate-500 text-2xl sm:text-4xl font-mono select-none">t</span>
+                        <span class="text-[9px] text-slate-600 font-sans tracking-wider uppercase font-semibold select-none mt-0.5">time</span>
                       </div>
       
                     </div>
@@ -506,8 +509,8 @@
 
       <!-- Formula Variable Selector -->
       <div class="flex gap-3 justify-center py-2">
-        <button onclick="selectHelpVariable('v')" id="btn-help-v" class="flex-1 py-4 rounded-xl font-bold text-center border transition-all text-lg mono italic">v<span class="block text-[10px] font-sans font-normal text-slate-500 uppercase not-italic tracking-wider mt-1">Velocity</span></button>
-        <button onclick="selectHelpVariable('x')" id="btn-help-x" class="flex-1 py-4 rounded-xl font-bold text-center border transition-all text-lg mono italic">x<span class="block text-[10px] font-sans font-normal text-slate-500 uppercase not-italic tracking-wider mt-1">Distance</span></button>
+        <button onclick="selectHelpVariable('v')" id="btn-help-v" class="flex-1 py-4 rounded-xl font-bold text-center border transition-all text-lg mono italic">v<span class="block text-[10px] font-sans font-normal text-slate-500 uppercase not-italic tracking-wider mt-1">Speed</span></button>
+        <button onclick="selectHelpVariable('x')" id="btn-help-x" class="flex-1 py-4 rounded-xl font-bold text-center border transition-all text-lg mono italic">d<span class="block text-[10px] font-sans font-normal text-slate-500 uppercase not-italic tracking-wider mt-1">Distance</span></button>
         <button onclick="selectHelpVariable('t')" id="btn-help-t" class="flex-1 py-4 rounded-xl font-bold text-center border transition-all text-lg mono italic">t<span class="block text-[10px] font-sans font-normal text-slate-500 uppercase not-italic tracking-wider mt-1">Time</span></button>
       </div>
 
@@ -604,9 +607,9 @@
       <!-- Citation -->
       <p class="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-lg mx-auto">
         has successfully demonstrated proficiency in formulating equations and computing quantitative physical values for 
-        <strong class="text-sky-400">Speed (v = x / t)</strong>, 
-        <strong class="text-cyan-400">Distance (x = v · t)</strong>, and 
-        <strong class="text-purple-400">Time (t = x / v)</strong> 
+        <strong class="text-sky-400">Speed (v = d / t)</strong>, 
+        <strong class="text-cyan-400">Distance (d = v · t)</strong>, and 
+        <strong class="text-purple-400">Time (t = d / v)</strong> 
         across all three scaffolded tiers with scientific precision.
       </p>
 
@@ -1125,14 +1128,14 @@ const QUESTIONS = [
           <span class="text-sky-400">v</span>
           <span class="font-sans text-slate-500">=</span>
           <div class="flex flex-col items-center">
-            <span class="text-cyan-400">x</span>
+            <span class="text-cyan-400">d</span>
             <div class="w-12 h-1 bg-slate-500 my-1 rounded"></div>
             <span class="text-purple-400">t</span>
           </div>
         `;
       } else if (vName === 'x') {
         equationRender.innerHTML = `
-          <span class="text-cyan-400">x</span>
+          <span class="text-cyan-400">d</span>
           <span class="font-sans text-slate-500">=</span>
           <span class="text-sky-400">v</span>
           <span class="font-sans text-slate-500">&times;</span>
@@ -1143,7 +1146,7 @@ const QUESTIONS = [
           <span class="text-purple-400">t</span>
           <span class="font-sans text-slate-500">=</span>
           <div class="flex flex-col items-center">
-            <span class="text-cyan-400">x</span>
+            <span class="text-cyan-400">d</span>
             <div class="w-12 h-1 bg-slate-500 my-1 rounded"></div>
             <span class="text-sky-400">v</span>
           </div>
@@ -1824,6 +1827,8 @@ const QUESTIONS = [
       const renderSlot = (slotName) => {
         const slotEl = document.querySelector(`[data-slot="${slotName}"]`);
         const item = placedState[slotName];
+        const displayLabel = slotName === 'x' ? 'd' : slotName;
+        const subLabel = slotName === 'x' ? 'distance' : (slotName === 'v' ? 'speed' : 'time');
 
         if (item === 'unknown') {
           // Renders unknown badge
@@ -1832,12 +1837,12 @@ const QUESTIONS = [
           if (state.currentLevel >= 2 && slotName === q.solveFor) {
             // Render input box directly inside the equation slot for Level 2 & 3
             slotEl.innerHTML = `
-              <span class="text-[9px] text-slate-500 block select-none uppercase tracking-wider mb-0.5">${slotName} (solve)</span>
+              <span class="text-[9px] text-slate-400 block select-none uppercase tracking-wider mb-0.5">${displayLabel} (${subLabel}) (solve)</span>
               <div onclick="event.stopPropagation();" class="w-full px-2">
                 <input 
                   type="number" 
                   step="0.01" 
-                  id="equation-inline-input"
+                  id="equation-inline-input" 
                   placeholder="?" 
                   value="${document.getElementById('manual-user-answer').value || ''}"
                   oninput="syncInlineInputs(this.value)"
@@ -1848,7 +1853,7 @@ const QUESTIONS = [
             slotEl.className = "drag-target w-28 h-20 sm:w-32 sm:h-24 bg-slate-900 border-2 border-slate-700 rounded-xl flex flex-col items-center justify-center transition-all scale-102";
           } else {
             slotEl.innerHTML = `
-              <span class="text-[9px] text-slate-500 block select-none uppercase tracking-wider">${slotName}</span>
+              <span class="text-[9px] text-slate-400 block select-none uppercase tracking-wider">${displayLabel} (${subLabel})</span>
               <span class="text-sm font-bold text-center px-1 truncate max-w-full">${q.unknownText}</span>
             `;
             slotEl.className = `drag-target w-28 h-20 sm:w-32 sm:h-24 ${color} border-2 rounded-xl flex flex-col items-center justify-center transition-all scale-102`;
@@ -1859,14 +1864,17 @@ const QUESTIONS = [
           if (item.variable === 'x') color = "bg-cyan-950/90 border-cyan-500 text-cyan-400";
           
           slotEl.innerHTML = `
-            <span class="text-[9px] text-slate-500 block select-none uppercase tracking-wider">${slotName}</span>
+            <span class="text-[9px] text-slate-400 block select-none uppercase tracking-wider">${displayLabel} (${subLabel})</span>
             <span class="text-base sm:text-lg font-black mono mt-0.5">${item.value}</span>
             <span class="text-[10px] text-slate-400 mono">${item.unit}</span>
           `;
           slotEl.className = `drag-target w-28 h-20 sm:w-32 sm:h-24 ${color} border-2 rounded-xl flex flex-col items-center justify-center transition-all scale-102`;
         } else {
           // Render default variable name label
-          slotEl.innerHTML = `<span class="text-slate-600 text-2xl sm:text-4xl font-mono select-none">${slotName}</span>`;
+          slotEl.innerHTML = `
+            <span class="text-slate-500 text-2xl sm:text-4xl font-mono select-none">${displayLabel}</span>
+            <span class="text-[9px] text-slate-600 font-sans tracking-wider uppercase font-semibold select-none mt-0.5">${subLabel}</span>
+          `;
           slotEl.className = "drag-target w-28 h-20 sm:w-32 sm:h-24 bg-slate-950/80 rounded-xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-slate-500 select-none cursor-pointer transition-all";
         }
       };
@@ -1994,11 +2002,12 @@ const QUESTIONS = [
         // Show answer in slot
         const unknownSlotEl = document.querySelector(`[data-slot="${q.solveFor}"]`);
         const solvedUnit = getSolvedUnit(q.solveFor);
+        const displayVar = q.solveFor === 'x' ? 'd (distance)' : (q.solveFor === 'v' ? 'v (speed)' : 't (time)');
         
         unknownSlotEl.innerHTML = `
-          <span class="text-[9px] text-slate-500 block uppercase tracking-wider">${q.solveFor}</span>
+          <span class="text-[9px] text-slate-400 block uppercase tracking-wider">${displayVar}</span>
           <span class="text-base font-extrabold text-emerald-400 mono">≈ ${exactVal.toFixed(2)}</span>
-          <span class="text-[9px] text-slate-500 mono">${solvedUnit}</span>
+          <span class="text-[9px] text-slate-400 mono">${solvedUnit}</span>
         `;
         unknownSlotEl.className = "drag-target w-28 h-20 sm:w-32 sm:h-24 bg-emerald-950/20 border-2 border-emerald-500 rounded-xl flex flex-col items-center justify-center transition-all scale-105";
  
