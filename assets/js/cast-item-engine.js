@@ -273,6 +273,8 @@
       const finishBtn = this.container.querySelector('#cast-finish-submit-btn');
       if (finishBtn) {
         finishBtn.addEventListener('click', () => {
+          finishBtn.disabled = true;
+          finishBtn.innerHTML = '<span>⏳</span> Submitting Task...';
           this.submitAll();
         });
       }

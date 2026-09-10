@@ -761,6 +761,27 @@
                             }
                             progressDisplayHTML = `<span class="text-[10px] font-bold text-slate-300 uppercase tracking-widest">${numericScore}% Score</span>`;
                         }
+                    } else if (activeActivityType === 'cast_challenge') {
+                        const comp = submission.completedSteps !== undefined ? submission.completedSteps : 0;
+                        const tot = submission.totalSteps || 3;
+                        if (score === undefined) {
+                            tileClass = 'tile-submitted';
+                            statusIcon = '🔬';
+                            statusLabel = `${comp}/${tot} parts`;
+                            progressDisplayHTML = `<span class="text-[10px] font-semibold text-cyan-400 uppercase tracking-widest">🔬 ${comp}/${tot} parts</span>`;
+                        } else if (score === "1" || score === 1) {
+                            tileClass = 'tile-success';
+                            statusIcon = '✅';
+                            statusLabel = `${comp}/${tot} done`;
+                            numVerified++;
+                            progressDisplayHTML = `<span class="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">✓ ${comp}/${tot} parts</span>`;
+                        } else {
+                            tileClass = 'tile-fail';
+                            statusIcon = '⚠️';
+                            statusLabel = 'Revision';
+                            numRevision++;
+                            progressDisplayHTML = `<span class="text-[10px] font-bold text-red-400 uppercase tracking-widest">0/${tot} parts</span>`;
+                        }
                     } else {
                         if (score === undefined) {
                             tileClass = 'tile-submitted';

@@ -1032,12 +1032,47 @@ The student is discussing their answers with you. Adapt fluidly to the student's
                 const docId = `${studentId}_${todayStr}`;
                 const updatedMessages = cleanMessagesForFirestore([...rawMessages, { sender: 'ai', role: 'model', text: replyText, timestamp: Date.now() }]);
                 db.collection('bellringers').doc(docId).set({
+                    studentId: studentId,
+                    studentName: currentUser.displayName || studentId,
+                    class_period: (studentPeriod !== undefined && studentPeriod !== null) ? studentPeriod : null,
+                    date: todayStr,
+                    activityType: "cast_challenge",
+                    promptQuestion: castData.title || config.title || "CAST 3D Science Investigation",
                     chatMessages: updatedMessages,
                     lastActive: firebase.firestore.FieldValue.serverTimestamp()
                 }, { merge: true }).catch(err => console.warn("Background chat autosave failed:", err));
             }
 
             return replyText;
+        }
+
+        // Deep-sanitize an object for Firestore to guarantee zero nested arrays and zero undefined values
+        function sanitizeForFirestore(val, insideArray = false) {
+            if (val === undefined) return null;
+            if (val === null || typeof val !== 'object') return val;
+            if (val instanceof Date) return val;
+            if (typeof val.toDate === 'function') return val; // Firestore Timestamp
+            if (firebase?.firestore?.FieldValue && val instanceof firebase.firestore.FieldValue) return val; // Sentinel
+
+            if (Array.isArray(val)) {
+                if (insideArray) {
+                    // Nested array forbidden by Firestore! Convert inner array to a map
+                    const mapObj = {};
+                    val.forEach((item, idx) => {
+                        mapObj[`item_${idx}`] = sanitizeForFirestore(item, false);
+                    });
+                    return mapObj;
+                }
+                return val.map(item => sanitizeForFirestore(item, true));
+            }
+
+            const copy = {};
+            for (const [k, v] of Object.entries(val)) {
+                if (v !== undefined) {
+                    copy[k] = sanitizeForFirestore(v, insideArray);
+                }
+            }
+            return copy;
         }
 
         async function submitCastChallenge(summary, state) {
@@ -1050,38 +1085,75 @@ The student is discussing their answers with you. Adapt fluidly to the student's
             const docId = `${studentId}_${todayStr}`;
             const statusEl = document.getElementById('cast-submission-status');
 
-            // Formulate comprehensive readable summary text for teacher inspection & gradebook
-            let textParts = [];
-            let chatMessages = null;
-
-            if (state) {
-                for (const stepKey in state) {
-                    const st = state[stepKey];
-                    if (st && (Array.isArray(st.chatMessages) || Array.isArray(st.messages))) {
-                        chatMessages = cleanMessagesForFirestore(st.chatMessages || st.messages);
+            // 1. Extract Chat Messages cleanly
+            let chatMessages = [];
+            const stepsObj = state?.steps || state || {};
+            for (const stepKey in stepsObj) {
+                const st = stepsObj[stepKey];
+                if (st && Array.isArray(st.chatMessages) && st.chatMessages.length > 0) {
+                    chatMessages = cleanMessagesForFirestore(st.chatMessages);
+                    break;
+                } else if (st && Array.isArray(st.messages) && st.messages.length > 0) {
+                    chatMessages = cleanMessagesForFirestore(st.messages);
+                    break;
+                }
+            }
+            if (chatMessages.length === 0 && summary?.stepResults) {
+                for (const r of summary.stepResults) {
+                    if (r.state && Array.isArray(r.state.chatMessages) && r.state.chatMessages.length > 0) {
+                        chatMessages = cleanMessagesForFirestore(r.state.chatMessages);
                         break;
                     }
                 }
             }
 
-            if (summary.stepResults) {
-                summary.stepResults.forEach(r => {
-                    if (r.itemType === 'cer_scaffold' && r.state) {
-                        textParts.push(`[${r.title}]\nCLAIM: ${r.state.claim || 'N/A'}\nEVIDENCE: ${r.state.evidence || 'N/A'}\nREASONING: ${r.state.reasoning || 'N/A'}`);
-                    } else if (r.itemType === 'math_data' && r.state) {
-                        textParts.push(`[${r.title}] Calculated: ${r.state.value}`);
-                    } else if (r.itemType === 'dropdown_cloze' && r.state?.selections) {
-                        textParts.push(`[${r.title}] Selections: ${JSON.stringify(r.state.selections)}`);
-                    } else if (r.itemType === 'drag_drop' && r.state?.placements) {
-                        textParts.push(`[${r.title}] Placements: ${JSON.stringify(r.state.placements)}`);
-                    } else if ((r.itemType === 'ai_reasoning_chat' || r.type === 'ai_reasoning_chat') && (r.state?.chatMessages || r.state?.messages)) {
-                        const list = r.state.chatMessages || r.state.messages;
+            // 2. Extract structured castAnswers map for teacher/dashboard inspection
+            const castAnswers = {};
+            let textParts = [];
+
+            if (summary?.stepResults) {
+                summary.stepResults.forEach((r, idx) => {
+                    const stepKey = `step_${idx + 1}`;
+                    const title = r.title || `Part ${idx + 1}`;
+                    const st = r.state || {};
+                    const type = r.itemType || r.type || '';
+
+                    if (type === 'cer_scaffold' || type === 'cer') {
+                        castAnswers[stepKey] = {
+                            claim: st.claim || '',
+                            evidence: st.evidence || '',
+                            reasoning: st.reasoning || ''
+                        };
+                        textParts.push(`[${title}]\nCLAIM: ${st.claim || 'N/A'}\nEVIDENCE: ${st.evidence || 'N/A'}\nREASONING: ${st.reasoning || 'N/A'}`);
+                    } else if (type === 'math_data' || type === 'data_calculation') {
+                        const valStr = st.value !== undefined ? String(st.value) : 'N/A';
+                        castAnswers[stepKey] = valStr;
+                        textParts.push(`[${title}] Calculated: ${valStr}`);
+                    } else if (type === 'dropdown_cloze' || type === 'cloze_dropdown') {
+                        castAnswers[stepKey] = st.selections || {};
+                        textParts.push(`[${title}] Selections: ${JSON.stringify(st.selections || {})}`);
+                    } else if (type === 'drag_drop' || type === 'categorize') {
+                        castAnswers[stepKey] = st.placements || {};
+                        textParts.push(`[${title}] Placements: ${JSON.stringify(st.placements || {})}`);
+                    } else if (type === 'ai_reasoning_chat' || type === 'concept_chat' || type === 'chat_reasoning') {
+                        const list = st.chatMessages || st.messages || chatMessages;
+                        const studentMsgs = list.filter(m => (m.sender === 'user' || m.role === 'user'));
+                        castAnswers[stepKey] = studentMsgs.length > 0 
+                            ? studentMsgs.map(m => m.text || (m.parts && m.parts[0]?.text) || '').join(' | ')
+                            : 'Discussion logged';
                         const chatLog = list.map(m => `${(m.sender === 'user' || m.role === 'user') ? 'Student' : 'AI Mentor'}: ${m.text || (m.parts && m.parts[0]?.text) || ''}`).join('\n');
-                        textParts.push(`[${r.title}] AI Mentor Dialogue:\n${chatLog}`);
+                        textParts.push(`[${title}] AI Mentor Dialogue:\n${chatLog || 'No messages'}`);
+                    } else {
+                        castAnswers[stepKey] = st.answer || 'Completed';
+                        textParts.push(`[${title}] Answer: ${JSON.stringify(st)}`);
                     }
                 });
             }
+
             const studentResponseText = textParts.join('\n\n') || "CAST Task Submitted";
+            const totalSteps = summary?.totalSteps || (summary?.stepResults ? summary.stepResults.length : 3);
+            const completedSteps = summary?.completedSteps !== undefined ? summary.completedSteps : 0;
+            const percentComplete = Math.round((completedSteps / (totalSteps || 1)) * 100);
 
             try {
                 if (statusEl) {
@@ -1090,26 +1162,37 @@ The student is discussing their answers with you. Adapt fluidly to the student's
                     statusEl.innerHTML = "<span>⏳</span> Recording CAST 3D response to Cloud Firestore...";
                 }
 
-                await db.collection('bellringers').doc(docId).set({
+                // Clean summary and state through recursive sanitizer
+                const safeSummary = sanitizeForFirestore(summary);
+                const safeState = sanitizeForFirestore(state);
+
+                const payload = {
                     studentId: studentId,
                     studentName: currentUser.displayName || studentId,
                     class_period: (studentPeriod !== undefined && studentPeriod !== null) ? studentPeriod : null,
-                    promptQuestion: summary.challengeTitle || "CAST 3D Task",
+                    date: todayStr,
+                    promptQuestion: summary?.challengeTitle || activePromptText || "CAST 3D Task",
                     studentResponse: studentResponseText,
                     activityType: "cast_challenge",
-                    castSummary: summary,
-                    castState: state,
-                    chatMessages: chatMessages || undefined,
-                    effortScore: summary.completedSteps > 0 ? 1 : 0,
+                    completedSteps: completedSteps,
+                    totalSteps: totalSteps,
+                    percentComplete: percentComplete,
+                    castAnswers: castAnswers,
+                    chatMessages: chatMessages,
+                    castSummary: safeSummary,
+                    castState: safeState,
+                    effortScore: completedSteps > 0 ? 1 : 0,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                }, { merge: true });
+                };
+
+                await db.collection('bellringers').doc(docId).set(payload, { merge: true });
 
                 if (statusEl) {
                     statusEl.className = "rounded-xl border border-emerald-500/50 bg-emerald-950/80 p-4 text-xs text-emerald-200 flex items-center justify-between shadow-lg shadow-emerald-500/10";
                     statusEl.innerHTML = `
                         <div class="flex items-center gap-2.5 font-medium">
                             <span class="text-base text-emerald-400">✓</span>
-                            <span>CAST 3D Task successfully submitted (${summary.completedSteps}/${summary.totalSteps} parts complete). Verified for participation.</span>
+                            <span>CAST 3D Task successfully submitted (${completedSteps}/${totalSteps} parts complete). Verified for participation.</span>
                         </div>
                         <span class="text-[10px] font-mono px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">Auto-Saved ✓</span>
                     `;
@@ -1564,6 +1647,13 @@ The student is discussing their answers with you. Adapt fluidly to the student's
                         performAutoGrading();
                     } else if (activeActivityType === "concept_chat") {
                         renderChatFeed();
+                    } else if (activeActivityType === "cast_challenge" && activeCastEngine) {
+                        try {
+                            console.log("[TIMER] Auto-submitting CAST 3D performance task on countdown expiry.");
+                            activeCastEngine.submitAll();
+                        } catch (err) {
+                            console.warn("Auto-submit CAST on timer expiry failed:", err);
+                        }
                     }
                     
                     clearInterval(timerInterval);
@@ -1808,14 +1898,32 @@ The student is discussing their answers with you. Adapt fluidly to the student's
                         indicator.innerText = "✅";
                         indicator.className = "w-10 h-10 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 flex items-center justify-center text-lg";
                         statusCard.classList.add('status-glow-success');
-                        title.innerText = activeActivityType === "connections" ? "Puzzle Solved!" : "Good Faith Effort Verified!";
+                        title.innerText = activeActivityType === "connections" 
+                            ? "Puzzle Solved!" 
+                            : (activeActivityType === "cast_challenge" ? "CAST Task Submitted & Verified!" : "Good Faith Effort Verified!");
                         title.className = "text-sm font-bold text-green-400 mt-0.5";
-                        msg.innerText = "Great job! You are approved to work at the collaborative lab tables.";
+                        msg.innerText = activeActivityType === "cast_challenge"
+                            ? `CAST 3D Task verified (${data.completedSteps !== undefined ? data.completedSteps : 0}/${data.totalSteps || 3} parts complete). Great work!`
+                            : "Great job! You are approved to work at the collaborative lab tables.";
                         
                         // If it's connections and solved, reflect completed groups visually
                         if (activeActivityType === "connections" && data.solvedCategories && data.solvedCategories.length === 4) {
                             connectionsCompleted = [0, 1, 2, 3];
                             renderConnectionsBoard();
+                        }
+
+                        // Reflect on CAST submission banner if present
+                        const castStatusEl = document.getElementById('cast-submission-status');
+                        if (activeActivityType === "cast_challenge" && castStatusEl) {
+                            castStatusEl.classList.remove('hidden');
+                            castStatusEl.className = "rounded-xl border border-emerald-500/50 bg-emerald-950/80 p-4 text-xs text-emerald-200 flex items-center justify-between shadow-lg shadow-emerald-500/10";
+                            castStatusEl.innerHTML = `
+                                <div class="flex items-center gap-2.5 font-medium">
+                                    <span class="text-base text-emerald-400">✓</span>
+                                    <span>CAST 3D Task submitted (${data.completedSteps !== undefined ? data.completedSteps : 0}/${data.totalSteps || 3} parts complete). Verified for participation.</span>
+                                </div>
+                                <span class="text-[10px] font-mono px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">Auto-Saved ✓</span>
+                            `;
                         }
 
                         // Show follow-up question if available
@@ -2022,9 +2130,9 @@ Respond ONLY with a raw JSON object:
                 const role = m.role || (m.sender === 'user' ? 'user' : 'model');
                 return {
                     role: role,
-                    parts: [{ text: text }],
                     sender: m.sender || (role === 'user' ? 'user' : 'ai'),
-                    text: text
+                    text: text,
+                    timestamp: (m.timestamp instanceof Date) ? m.timestamp.getTime() : (m.timestamp || Date.now())
                 };
             });
         }
