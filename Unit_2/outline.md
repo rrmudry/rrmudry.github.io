@@ -103,7 +103,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Constant Speed Story Workshop: Students receive the in-class performance task worksheet, draw and illustrate an original motion scenario with vector arrows, compose a contextual physics word problem, and complete the step-by-step mathematical proof using the GUESS method on paper.
     *   *Essential Question:* How can we communicate real-world physical motion through visual illustrations, narrative word problems, and algebraic kinematic models?
     *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* In-Class Performance Task
-    *   *Links:* [Constant Speed Story Handout](#), [Speed & Distance Studio](Unit_2/speed_distance_time_app/index.html), [Two-Car Kinematic Intercept Challenge](Unit_2/two_car_intercept/index.html), [Constant Speed Presentation](Unit_2/constant-speed-presentation/index.html), [Wind-Up Toy Speed Lab](Unit_2/wind_up_toy_lab/index.html)
+    *   *Links:* [Constant Speed Story Handout](https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing), [Speed & Distance Studio](Unit_2/speed_distance_time_app/index.html), [Two-Car Kinematic Intercept Challenge](Unit_2/two_car_intercept/index.html), [Constant Speed Presentation](Unit_2/constant-speed-presentation/index.html), [Wind-Up Toy Speed Lab](Unit_2/wind_up_toy_lab/index.html)
 
 ---
 
