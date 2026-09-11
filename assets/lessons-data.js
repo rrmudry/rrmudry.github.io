@@ -694,7 +694,7 @@ const lessonsData = [
     "assignments": [
       {
         "title": "Constant Speed Story: Author & Solve",
-        "url": "#",
+        "url": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
         "typeLabel": "In-Class Performance Task",
         "submission": "Turn In Completed Worksheet",
         "actionLabel": "View Handout",
@@ -731,7 +731,7 @@ const lessonsData = [
       }
     ],
     "links": {
-      "Constant Speed Story Handout": "#",
+      "Constant Speed Story Handout": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
       "Speed & Distance Studio": "Unit_2/speed_distance_time_app/index.html",
       "Two-Car Kinematic Intercept Challenge": "Unit_2/two_car_intercept/index.html",
       "Constant Speed Presentation": "Unit_2/constant-speed-presentation/index.html",
