@@ -577,6 +577,7 @@ const lessonsData = [
     "type": "In-Class Performance Task",
     "semester": 1,
     "isFeatured": true,
+    "image": "assets/images/constant_speed_story_exemplar.jpg",
     "summary": "Synthesize constant speed mastery through creative problem authoring: students illustrate an original motion scenario, write an authentic kinematic word problem, and construct a complete step-by-step mathematical proof using the GUESS method on paper.",
     "activity": "Constant Speed Story Workshop: Students illustrate an authentic constant-speed motion scenario, compose an original word problem targeting an unknown kinematic variable (v, d, or t), and solve it on their handout using the GUESS method with step-by-step mathematical work.",
     "essentialQuestion": "How can a single mathematical relationship (v = d / t) predict all aspects of uniform constant motion across any physical system?",
@@ -710,6 +711,12 @@ const lessonsData = [
     ],
     "resources": [
       {
+        "title": "Student Work Exemplar (Illustration & GUESS Proof)",
+        "url": "assets/images/constant_speed_story_exemplar.jpg",
+        "typeLabel": "Student Visual Guide",
+        "description": "High-resolution exemplar showing the illustrated cheetah scenario, word problem, and complete GUESS solution proof."
+      },
+      {
         "title": "Constant Speed Presentation",
         "url": "Unit_2/constant-speed-presentation/index.html",
         "typeLabel": "Classroom Lecture Slides",
@@ -732,6 +739,7 @@ const lessonsData = [
     ],
     "links": {
       "Constant Speed Story Handout": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+      "Student Work Exemplar": "assets/images/constant_speed_story_exemplar.jpg",
       "Speed & Distance Studio": "Unit_2/speed_distance_time_app/index.html",
       "Two-Car Kinematic Intercept Challenge": "Unit_2/two_car_intercept/index.html",
       "Constant Speed Presentation": "Unit_2/constant-speed-presentation/index.html",
