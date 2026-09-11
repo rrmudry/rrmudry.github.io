@@ -97,13 +97,13 @@ This unit follows the classical and cognitive progression:
     *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Practice / Activity
     *   *Links:* [Speed & Distance Studio](Unit_2/speed_distance_time_app/index.html), [Constant Speed Presentation](Unit_2/constant-speed-presentation/index.html)
 
-*   **Day 10 (2026-09-11): Constant Speed Mastery & Kinematic Synthesis Review**
+*   **Day 10 (2026-09-11): Constant Speed Story: Author & Solve**
     *   *Bell-Ringer:* Constant Motion Synthesis & 3-Way Formula Mastery (CAST Challenge): Transit Telemetry & Sensor Monitoring Hub comparing train distance (`d = v · t`), sprinter speed (`v = d / t`), and ultrasonic pulse transit time (`t = d / v = 680 m / (340 m/s) = 2.0 s`) with AI reasoning defense on dimensional analysis.
-    *   *Focus:* Synthesis Workshop: Diagnosing unknowns among mixed scenarios, 3-way formula fluency, and formative mastery evaluation.
-    *   *Activity:* Constant Speed Grand Prix Challenge: Students complete the Tier 4 Mixed Master Challenge in the Speed, Distance & Time Studio, resolving randomized constant speed problems and generating their personalized Certificate of Kinematic Mastery, followed by a brief formative check.
-    *   *Essential Question:* How can a single mathematical relationship (`v = d / t`) predict all aspects of uniform constant motion across any physical system?
-    *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Activity / Assessment
-    *   *Links:* [Speed & Distance Studio](Unit_2/speed_distance_time_app/index.html), [Two-Car Kinematic Intercept Challenge](Unit_2/two_car_intercept/index.html), [Constant Speed Presentation](Unit_2/constant-speed-presentation/index.html), [Wind-Up Toy Speed Lab](Unit_2/wind_up_toy_lab/index.html), [Physics Speed Calculator](physics_speed_calculator/dist/index.html)
+    *   *Focus:* Creative Problem Authoring & Solving Workshop: Illustrate an authentic physical scenario, write an original constant speed word problem targeting an unknown variable (`v`, `d`, or `t`), and execute step-by-step GUESS derivations.
+    *   *Activity:* Constant Speed Story Workshop: Students receive the in-class performance task worksheet, draw and illustrate an original motion scenario with vector arrows, compose a contextual physics word problem, and complete the step-by-step mathematical proof using the GUESS method on paper.
+    *   *Essential Question:* How can we communicate real-world physical motion through visual illustrations, narrative word problems, and algebraic kinematic models?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* In-Class Performance Task
+    *   *Links:* [Constant Speed Story Handout](#), [Speed & Distance Studio](Unit_2/speed_distance_time_app/index.html), [Two-Car Kinematic Intercept Challenge](Unit_2/two_car_intercept/index.html), [Constant Speed Presentation](Unit_2/constant-speed-presentation/index.html), [Wind-Up Toy Speed Lab](Unit_2/wind_up_toy_lab/index.html)
 
 ---
 
