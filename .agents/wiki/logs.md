@@ -2,6 +2,23 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-10 — Day 10 Assignment Refinement: "Constant Speed Story: Author & Solve" (Paper Performance Task)
+
+**Motivation**: Replaced the confusing Day 10 (2026-09-11) "Speed, Distance & Time Mastery Quiz" link with a creative paper-based authoring assignment requested by the teacher ("Constant Speed Story: Author & Solve"). Avoided unwanted digital/database scaffolding and tailored dashboard card labels for an authentic paper workflow.
+
+**Key Changes**:
+- **Curriculum Synchronization**:
+  - Renamed Day 10 assignment to **"Constant Speed Story: Author & Solve"** across `assets/lessons-data.js`, `Unit_2/unit2_lessons.json`, `Unit_2/lesson.json`, and `Unit_2/outline.md`.
+  - Tagged type as `In-Class Performance Task` with submission status `Turn In Completed Worksheet`.
+  - Set description: students illustrate an original motion scenario, write a word problem targeting an unknown variable ($v$, $d$, or $t$), and solve using the GUESS method on paper.
+- **Dashboard Dynamic Action Labels**:
+  - Enhanced `unit2-dashboard.html` coursework card renderer to support optional `actionLabel` property (`${item.actionLabel || 'Launch & Record Score'}`), displaying **"View Handout"** for paper tasks.
+- **Standards & LaTeX Compliance**:
+  - Preserved explicit NGSS `HS-PS2-1` standard alignment.
+  - Verified 100% adherence to the repository's strict No-LaTeX policy (pure Unicode and HTML notation).
+- **Clean Database Footprint**:
+  - Ensured no digital Firestore assets or collections were introduced for this paper assignment.
+
 ## 2026-09-10 — Daily Update: Day 10 (2026-09-11) Readiness & Intercept Simulator Curriculum Linking
 
 **Motivation**: Executed the `/daily-update` workflow to pull remote fixes for the CAST 3D bell-ringer engine, verify Day 10 (Friday, 2026-09-11) readiness across all 7 periods, ensure 100% NGSS standards tagging and zero-LaTeX compliance, link the new Two-Car Kinematic Intercept Challenge to Day 10 practice/links for Honors Physics Period 0, and push to GitHub Pages.

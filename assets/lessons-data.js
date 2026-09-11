@@ -571,24 +571,24 @@ const lessonsData = [
     "day": 10,
     "date": "2026-09-11",
     "unit": 2,
-    "title": "Constant Speed Mastery & Kinematic Synthesis Review",
-    "topic": "Synthesis Workshop: Diagnosing Unknowns, 3-Way Formula Fluency & Formative Mastery Evaluation",
+    "title": "Constant Speed Story: Author & Solve",
+    "topic": "Creative Problem Authoring & Solving Workshop (Illustrate, Write, and Solve)",
     "dok": 3,
-    "type": "Activity / Assessment",
+    "type": "In-Class Performance Task",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Synthesize the 4-day constant speed arc: students demonstrate complete fluency diagnosing whether a scenario requires solving for v, d, or t, earning their Kinematic Mastery Certificate.",
-    "activity": "Constant Speed Grand Prix Challenge: Students complete the Tier 4 Mixed Master Challenge in the Speed, Distance & Time Studio, resolving randomized constant speed problems and generating their personalized Certificate of Kinematic Mastery, followed by a brief formative check.",
+    "summary": "Synthesize constant speed mastery through creative problem authoring: students illustrate an original motion scenario, write an authentic kinematic word problem, and construct a complete step-by-step mathematical proof using the GUESS method on paper.",
+    "activity": "Constant Speed Story Workshop: Students illustrate an authentic constant-speed motion scenario, compose an original word problem targeting an unknown kinematic variable (v, d, or t), and solve it on their handout using the GUESS method with step-by-step mathematical work.",
     "essentialQuestion": "How can a single mathematical relationship (v = d / t) predict all aspects of uniform constant motion across any physical system?",
     "standards": [
       "HS-PS2-1"
     ],
     "wicor": {
-      "Writing": "Writing step-by-step mathematical proofs demonstrating mastery of speed, distance, and time.",
-      "Inquiry": "Diagnosing unknown variables across unseen physical and engineering scenarios.",
-      "Collaboration": "Classroom review circles auditing peer solution steps and unit accuracy.",
-      "Organization": "Synthesizing the complete constant motion toolkit into student study notes.",
-      "Reading": "Interpreting complex diagnostic prompts under assessment conditions."
+      "Writing": "Writing narrative scenario contexts, formulating clear kinematic word problems, and writing step-by-step mathematical proofs.",
+      "Inquiry": "Designing original physical scenarios, establishing boundary conditions, and verifying mathematical consistency.",
+      "Collaboration": "Classroom peer challenge solving: students browse the gallery and solve classmates' published word problems.",
+      "Organization": "Executing the structured 5-step GUESS method: Givens, Unknown, Equation, Substitute, and Solve.",
+      "Reading": "Reading, analyzing, and decoding peer-authored physics scenarios and diagnostic prompts."
     },
     "bellRinger": {
       "type": "cast_challenge",
@@ -693,11 +693,12 @@ const lessonsData = [
     },
     "assignments": [
       {
-        "title": "Speed, Distance & Time Mastery Quiz",
-        "url": "physics_speed_calculator/dist/index.html",
-        "typeLabel": "Summative Speed Quiz",
-        "submission": "Cloud Auto-Saved ✓",
-        "description": "Complete the 3-tier kinematics quiz using Desmos. Certificate earned upon completion."
+        "title": "Constant Speed Story: Author & Solve",
+        "url": "#",
+        "typeLabel": "In-Class Performance Task",
+        "submission": "Turn In Completed Worksheet",
+        "actionLabel": "View Handout",
+        "description": "Illustrate an original constant speed motion scenario, write a word problem targeting an unknown variable (v, d, or t), and solve using the GUESS method on your handout."
       },
       {
         "title": "Wind-Up Toy Speed Lab (Final Submission)",
@@ -730,11 +731,11 @@ const lessonsData = [
       }
     ],
     "links": {
+      "Constant Speed Story Handout": "#",
       "Speed & Distance Studio": "Unit_2/speed_distance_time_app/index.html",
       "Two-Car Kinematic Intercept Challenge": "Unit_2/two_car_intercept/index.html",
       "Constant Speed Presentation": "Unit_2/constant-speed-presentation/index.html",
-      "Wind-Up Toy Speed Lab": "Unit_2/wind_up_toy_lab/index.html",
-      "Physics Speed Calculator": "physics_speed_calculator/dist/index.html"
+      "Wind-Up Toy Speed Lab": "Unit_2/wind_up_toy_lab/index.html"
     }
   },
   {
