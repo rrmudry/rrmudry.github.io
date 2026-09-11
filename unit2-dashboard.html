@@ -674,6 +674,14 @@
                         </div>
                     </div>
                     <p class="text-sm font-semibold text-white/95 leading-tight relative z-10">${day.topic}</p>
+                    ${day.image ? `
+                        <div class="mt-2.5 rounded-lg overflow-hidden border border-lime-500/30 relative group/thumb max-h-28 bg-black/50 shadow-inner">
+                            <img src="${day.image}" alt="${day.title} Exemplar" class="w-full h-24 object-cover object-top transition-transform duration-300 group-hover/thumb:scale-105" loading="lazy" />
+                            <div class="absolute bottom-1 right-1 text-[8px] bg-black/85 text-lime-300 border border-lime-500/40 px-1.5 py-0.5 rounded font-mono font-bold flex items-center gap-1 shadow">
+                                <span>🎨</span> EXEMPLAR
+                            </div>
+                        </div>
+                    ` : ''}
                     ${day.standards ? `<div class="mt-2 flex flex-wrap gap-1 relative z-10">${day.standards.map(s => `<span class="text-[9px] bg-lime-950/90 text-[#ccff00] border border-lime-400/40 px-1.5 py-0.5 rounded font-mono font-bold" data-ngss-code="${s}">${s}</span>`).join('')}</div>` : ''}
                 `;
                 card.onclick = () => openLessonModal(day);
@@ -894,6 +902,23 @@
                         <div class="flex flex-wrap gap-2">
                             ${day.standards.map(s => `<span class="text-xs bg-lime-950/80 text-[#ccff00] border border-lime-400/40 px-2.5 py-1 rounded font-mono font-bold" data-ngss-code="${s}">${s}</span>`).join('')}
                         </div>
+                    </div>
+                ` : ''}
+                ${day.image ? `
+                    <div class="rounded-2xl bg-lime-950/40 border border-lime-500/40 p-4 space-y-2.5 shadow-lg shadow-black/40">
+                        <div class="flex items-center justify-between border-b border-lime-500/20 pb-2">
+                            <div class="flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-lg bg-lime-500/20 text-[#ccff00] flex items-center justify-center text-xs border border-lime-500/30">🎨</span>
+                                <h4 class="text-xs font-mono font-bold text-[#ccff00] uppercase tracking-wider">Student Exemplar: Illustration & GUESS Proof</h4>
+                            </div>
+                            <a href="${day.image}" target="_blank" class="text-[9px] font-mono font-bold px-2 py-0.5 rounded bg-lime-500/20 border border-lime-500/40 text-lime-200 hover:bg-lime-500/30 hover:text-white transition-colors inline-flex items-center gap-1">
+                                <span>OPEN FULL RES</span> ↗
+                            </a>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-snug">Visual reference demonstrating the complete student workflow: scenario illustration with velocity vector arrow and distance bracket, constant speed word problem, and scaffolded GUESS mathematical proof.</p>
+                        <a href="${day.image}" target="_blank" class="block rounded-xl overflow-hidden border border-lime-500/30 hover:border-[#ccff00] transition-all group/img cursor-zoom-in bg-black/60 shadow-inner">
+                            <img src="${day.image}" alt="${day.title} Student Exemplar" class="w-full max-h-80 object-cover object-top transition-transform duration-300 group-hover/img:scale-[1.02]" />
+                        </a>
                     </div>
                 ` : ''}
                 ${categorizedLinksHtml}
