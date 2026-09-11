@@ -2,6 +2,16 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-11 — Day 10 Student Exemplar Artwork Update (Dragon Sky-Mansion)
+
+**Motivation**: Replaced the placeholder student exemplar artwork on the Unit 2 Day 10 card and modal preview with the teacher's illustrated "Dragon Sky-Mansion" exemplar showcasing the complete student workflow: fantasy illustration with speed, distance, and time problem formulation, and complete GUESS method solution proof.
+
+**Key Changes**:
+- **Asset Replacement**: Overwrote `assets/images/constant_speed_story_exemplar.jpg` with the new dragon artwork.
+- **Metadata Alignment**: Updated resource descriptions in `assets/lessons-data.js` and `Unit_2/unit2_lessons.json` to describe the dragon sky-mansion scenario.
+- **Deployment**: Verified syntax and pushed to GitHub Pages (`origin/main`).
+
+
 ## 2026-09-10 — Day 10 Assignment Refinement: "Constant Speed Story: Author & Solve" (Paper Performance Task)
 
 **Motivation**: Replaced the confusing Day 10 (2026-09-11) "Speed, Distance & Time Mastery Quiz" link with a creative paper-based authoring assignment requested by the teacher ("Constant Speed Story: Author & Solve"). Avoided unwanted digital/database scaffolding and tailored dashboard card labels for an authentic paper workflow.
