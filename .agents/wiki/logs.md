@@ -10,9 +10,10 @@ Append-only log tracking pattern changes across sessions.
 - **Automated All-Assignments Batch Sync**:
   - Running `npm run sync` (or `/sync-grades`) without arguments automatically scans all scored assignments in Firestore with `studentCount > 0` and matches active Classroom coursework across Periods 0 to 6.
   - Retained single-assignment targeting (e.g. `npm run sync -- "Constant Speed Story"`) and period filtering (e.g. `--period=0`) for maximum versatility.
-- **Smart Redundant-Write Optimization**:
+- **Smart Redundant-Write Optimization & Rule B (Higher Score Wins)**:
   - Implemented batch submission retrieval (`studentSubmissions.list` with `pageSize: 100`) per period coursework, drastically reducing API calls from ~30 per period to 1.
-  - Added state & grade checking (`sub.state === 'RETURNED' && sub.assignedGrade === scaledScore`): already returned identical scores are skipped in 0ms (`✓ Up to date`), reserving network writes exclusively for new or late work.
+  - Added **Rule B (Higher Score Wins / Never Lower a Grade)**: inspects existing Google Classroom grades (`assignedGrade` and `draftGrade`) before writing. If a teacher manually entered a score in Google Classroom that is greater than or equal to the app score, it is preserved and never lowered. The sync tool only updates when an app score is strictly higher (e.g. late work replacing a zero or improved retake) or if Classroom has no grade recorded yet.
+  - Submissions already matching or exceeding the app score are skipped in 0ms (`✓ Up to date`), saving API quota and eliminating interface friction.
   - Added `--force` (`-f`) flag for forcing re-evaluation when necessary.
 - **Cross-Assignment Matching Guard & Manual Assignment Exclusion**:
   - Strengthened `findMatchingCourseWork()` with distinguishing keyword guards (`vector`, `displacement`, `distance`, `speed`, `calculator`, `conversion`) to prevent false-positive cross-matches between thematic sub-tasks (e.g., preventing "Fantasy Map Vector Calculations" from matching "Distance Displacement").
