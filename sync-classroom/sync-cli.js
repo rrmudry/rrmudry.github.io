@@ -574,11 +574,12 @@ async function syncAssignment({
       }
 
       const isAlreadyCurrent = !isForce && 
-                               sub.state === 'RETURNED' && 
-                               sub.assignedGrade === scaledScore;
+                               sub.assignedGrade === scaledScore && 
+                               sub.state !== 'TURNED_IN';
 
       if (isAlreadyCurrent) {
-        console.log(`   ✓ Up to date: ${student.name.padEnd(24)} | ID: ${sId.padEnd(8)} | ${scaledScore}/${maxPts} pts (Returned)`);
+        const stateNote = sub.state === 'RETURNED' ? 'Returned' : 'Recorded';
+        console.log(`   ✓ Up to date: ${student.name.padEnd(24)} | ID: ${sId.padEnd(8)} | ${scaledScore}/${maxPts} pts (${stateNote})`);
         pUpToDate++;
         continue;
       }
@@ -606,8 +607,9 @@ async function syncAssignment({
           });
         }
 
-        // 2. Return submission to student if not already returned
-        if (isForce || sub.state !== 'RETURNED') {
+        // 2. Return submission to student if turned in
+        let returnNote = 'Recorded';
+        if (sub.state === 'TURNED_IN' || isForce) {
           try {
             await classroom.courses.courseWork.studentSubmissions.return({
               courseId: course.id,
@@ -615,13 +617,14 @@ async function syncAssignment({
               id: sub.id,
               requestBody: {}
             });
+            returnNote = 'Returned';
           } catch (rErr) {
-            // Already returned or state transitioned
+            // State transitioned or not turn-in eligible
           }
         }
 
         const prevNote = sub.assignedGrade !== undefined ? `was: ${sub.assignedGrade}/${maxPts}` : 'new score';
-        console.log(`   🚀 Updated & Returned: ${student.name.padEnd(22)} -> ${scaledScore}/${maxPts} pts (${prevNote})`);
+        console.log(`   🚀 Updated (${returnNote}): ${student.name.padEnd(20)} -> ${scaledScore}/${maxPts} pts (${prevNote})`);
         pUpdated++;
       } catch (err) {
         console.error(`   ❌ Failed: ${student.name} (${sId}): ${err.message}`);
