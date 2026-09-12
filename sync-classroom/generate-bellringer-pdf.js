@@ -359,9 +359,9 @@ async function generateReport() {
         <div class="kpi-desc">100% of enrolled physics roster</div>
       </div>
       <div class="kpi-card purple">
-        <div class="kpi-value">99.2%</div>
-        <div class="kpi-label">Good-Faith Effort</div>
-        <div class="kpi-desc">Verified by Gemini AI evaluator</div>
+        <div class="kpi-value">93.2%</div>
+        <div class="kpi-label">Active Attempt Rate</div>
+        <div class="kpi-desc">796 / 854 authentic submissions</div>
       </div>
       <div class="kpi-card amber">
         <div class="kpi-value">0</div>
@@ -846,8 +846,8 @@ async function generateReport() {
         <tr class="highlight">
           <td><strong>Academic Sincerity & Physics Focus</strong></td>
           <td>Authentic student-authored text (excluding AI prompts & 15 UI button clicks)</td>
-          <td><strong>99.2%</strong> good-faith</td>
-          <td><span class="badge badge-primary">EXEMPLARY</span></td>
+          <td><strong>93.2%</strong> active (796/854)</td>
+          <td><span class="badge badge-primary">AUTHENTIC</span></td>
         </tr>
       </tbody>
     </table>
@@ -965,7 +965,7 @@ async function generateReport() {
           <th>Active Students</th>
           <th>Total Unit 2 Submissions</th>
           <th>Avg Submissions / Student</th>
-          <th>Verified Good-Faith Rate</th>
+          <th>Active Attempt Rate</th>
           <th>CAST Completion Rate</th>
         </tr>
       </thead>
@@ -976,7 +976,7 @@ async function generateReport() {
           <td>15</td>
           <td>88</td>
           <td><strong>5.9</strong> / 9 days</td>
-          <td><span class="badge badge-success">100%</span></td>
+          <td><span class="badge badge-success">98.9%</span></td>
           <td><strong>92%</strong> (High algebraic precision)</td>
         </tr>
         <tr>
@@ -985,7 +985,7 @@ async function generateReport() {
           <td>14</td>
           <td>57</td>
           <td><strong>4.1</strong> / 9 days</td>
-          <td><span class="badge badge-success">98.2%</span></td>
+          <td><span class="badge badge-primary">84.2%</span></td>
           <td><strong>71%</strong> (Excels with cloze prompts)</td>
         </tr>
         <tr>
@@ -994,7 +994,7 @@ async function generateReport() {
           <td>18</td>
           <td>72</td>
           <td><strong>4.0</strong> / 9 days</td>
-          <td><span class="badge badge-success">98.6%</span></td>
+          <td><span class="badge badge-success">91.7%</span></td>
           <td><strong>67%</strong> (Benefits from visual tables)</td>
         </tr>
         <tr>
@@ -1003,7 +1003,7 @@ async function generateReport() {
           <td>18</td>
           <td>79</td>
           <td><strong>4.4</strong> / 9 days</td>
-          <td><span class="badge badge-success">100%</span></td>
+          <td><span class="badge badge-primary">83.5%</span></td>
           <td><strong>72%</strong> (High turn counts in chat)</td>
         </tr>
         <tr class="highlight">
@@ -1012,7 +1012,7 @@ async function generateReport() {
           <td>35</td>
           <td>225</td>
           <td><strong>6.4</strong> / 9 days</td>
-          <td><span class="badge badge-success">99.6%</span></td>
+          <td><span class="badge badge-success">96.0%</span></td>
           <td><strong>88%</strong> (Top volume & consistency)</td>
         </tr>
         <tr class="highlight">
@@ -1021,7 +1021,7 @@ async function generateReport() {
           <td>36</td>
           <td>225</td>
           <td><strong>6.3</strong> / 9 days</td>
-          <td><span class="badge badge-success">99.1%</span></td>
+          <td><span class="badge badge-success">92.0%</span></td>
           <td><strong>86%</strong> (Deepest reasoning chats)</td>
         </tr>
         <tr>
@@ -1030,7 +1030,7 @@ async function generateReport() {
           <td>23</td>
           <td>107</td>
           <td><strong>4.7</strong> / 9 days</td>
-          <td><span class="badge badge-success">99.0%</span></td>
+          <td><span class="badge badge-success">98.1%</span></td>
           <td><strong>75%</strong> (Solid end-of-day pace)</td>
         </tr>
         <tr style="font-weight: 700; background: #f1f5f9;">
@@ -1039,7 +1039,7 @@ async function generateReport() {
           <td><strong>159 Students</strong></td>
           <td><strong>854 Submissions</strong></td>
           <td><strong>5.4 Average</strong></td>
-          <td><span class="badge badge-success">99.2% AVG</span></td>
+          <td><span class="badge badge-success">93.2% AVG</span></td>
           <td><strong>81% AVG Completion</strong></td>
         </tr>
       </tbody>
