@@ -2,6 +2,22 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-12 — Fix: Unit Conversion Practice maxPoints Rescaling (100 -> 10 pts) & Aeries Gradebook Alignment
+
+**Motivation**: Resolved an issue where "Unit Conversion Practice" was originally created in Google Classroom as a 100-point assignment (10x normal assignment weight). When Google Classroom synced to Aeries, Aeries inherited `maxPoints: 100` and overwrote teacher manual score corrections (10/10) back to 100/100.
+
+**Key Changes**:
+- **Coursework maxPoints Rescaling**:
+  - Used `classroom.courses.courseWork.patch` to update `maxPoints` from 100 to 10 across all 7 academic courses (Periods 0 through 6).
+- **Rule B Legacy Oversized Grade Recovery (`sync-classroom/sync-cli.js`)**:
+  - Enhanced Rule B with `isLegacyOversizedGrade = existingGrade !== null && maxPts < 100 && existingGrade > maxPts`.
+  - Prevents stale 100-point grades from falsely passing the `existingGrade >= scaledScore` check.
+  - Automatically rescaled and returned all 139 student submissions to 10-point grades (e.g. 100% -> 10/10, 33% -> 3.3/10, 17% -> 1.7/10).
+- **UI Deploy Default Protection**:
+  - Updated `sync-classroom/public/index.html`, `sync-classroom/public/app.js`, and `sync-classroom/server.js` to default `maxPoints` to 10 instead of 100 for all future deployments.
+- **Documentation**:
+  - Added Section 10 to `.agents/wiki/patterns/classroom-gradebook-sync.md`.
+
 ## 2026-09-12 — Grade Sync Upgrade: Automated All-Assignments Late Work Evaluation & Optimized Batch Sync
 
 **Motivation**: Enhanced the grade synchronization tool (`sync-classroom/sync-cli.js`) and `/sync-grades` workflow to automatically sync all active assignments across all 7 periods by default. This ensures late student submissions and score updates across any assignment in the unit are captured and returned in Google Classroom for Aeries gradebook sync, while preserving targeted single-assignment and period-filtered syncs without breaking existing workflows.

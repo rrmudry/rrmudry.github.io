@@ -864,8 +864,8 @@ app.post('/api/create-assignment', checkAuth, async (req, res) => {
         title: title,
         assignmentDetails: description || "",
         description: description || "",
-        maxScore: maxPoints || 100,
-        maxPoints: maxPoints || 100,
+        maxScore: maxPoints || 10,
+        maxPoints: maxPoints || 10,
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         classroomDeployments: results.filter(r => r.success)
       }, { merge: true });

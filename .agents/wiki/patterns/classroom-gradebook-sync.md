@@ -76,4 +76,16 @@
   - If a student's submission already has `assignedGrade === scaledScore` and `state === 'RETURNED'`, the script skips it without making an API write call.
   - For a typical full-roster check across 7 periods, ~590 out of 600 submissions are evaluated and verified as up-to-date in under 2 seconds, completely avoiding Google Classroom API rate limits.
 
+## 10. Coursework maxPoints Rescaling & Legacy Oversized Grade Recovery
+- **The Problem: Multiplied Scale Inversion in SIS Gradebooks (Aeries)**:
+  - If coursework is mistakenly created with `maxPoints: 100` instead of the standard 10 points (e.g. `Unit Conversion Practice`), SIS gradebooks like Aeries inherit the 100-point value and overwrite teacher manual corrections back to 100 on every Aeries sync.
+- **Automated Solution**:
+  1. **Coursework Patching**: Use `classroom.courses.courseWork.patch({ courseId, id, updateMask: 'maxPoints', requestBody: { maxPoints: 10 } })` to update the assignment to 10 points across all active courses.
+  2. **Legacy Oversized Grade Recovery in Rule B**:
+     - Standard Rule B preserves `existingGrade >= scaledScore`. If a student had `100` from the old scale and the new scaled score is `10`, naive Rule B would falsely preserve `100` because `100 >= 10`.
+     - `sync-cli.js` checks `const isLegacyOversizedGrade = existingGrade !== null && maxPts < 100 && existingGrade > maxPts;`.
+     - When an oversized legacy grade is detected, it bypasses preservation, recalculates the scaled score (e.g. 10/10, 3.3/10), updates `draftGrade` and `assignedGrade`, and returns the submission.
+  3. **UI Deploy Default**: The deployment form in `sync-classroom/public/index.html` and `server.js` defaults `maxPoints` to 10 to prevent accidental 100-point creation in the future.
+
+
 
