@@ -506,8 +506,8 @@ async function generateReport() {
         On Day 10, <strong>78%</strong> achieved 3/3 perfect rearrangements of the speed-distance-time triangle, and an additional 10% achieved partial mastery (<strong>88% total competency</strong>).
       </div>
       <div class="callout">
-        <strong>4. Impact of CAST 3D Transformation:</strong><br>
-        Replacing plain single-line text inputs with multi-step interactive TEIs raised verified completion rates from ~30% to <strong>80%–91%</strong> active engagement in scientific defense.
+        <strong>4. CAST 3D Scaffolded Engagement:</strong><br>
+        Structured TEIs sustained high multi-part persistence across all tracks: <strong>88%</strong> achieved formula triangle mastery and <strong>62%–74%</strong> actively defended their reasoning in conversational chat.
       </div>
     </div>
 
@@ -610,28 +610,32 @@ async function generateReport() {
     <div class="charts-row" style="margin-bottom: 10px;">
       <div class="chart-box">
         <div class="chart-header">
-          <span>Student Dialogue Turn Distribution (Days 5 & 7)</span>
-          <span class="badge badge-purple">221 Chats</span>
+          <span>Student Reply Turns Distribution (Days 5 & 7)</span>
+          <span class="badge badge-purple">221 Sessions</span>
         </div>
         <svg class="chart" viewBox="0 0 300 110">
-          <rect x="25" y="20" width="45" height="70" fill="#93c5fd" rx="2"/>
-          <text x="47" y="15" font-size="7" font-weight="700" fill="#1e293b" text-anchor="middle">45</text>
-          <text x="47" y="102" font-size="6.5" fill="#64748b" text-anchor="middle">1–2 msgs</text>
+          <!-- 0 Turns (Skipped / Prompt only) -->
+          <rect x="20" y="55" width="48" height="35" fill="#cbd5e1" rx="2"/>
+          <text x="44" y="50" font-size="7" font-weight="700" fill="#475569" text-anchor="middle">35 (16%)</text>
+          <text x="44" y="102" font-size="6.5" fill="#64748b" text-anchor="middle">0 Replies</text>
 
-          <rect x="95" y="12" width="45" height="78" fill="#3b82f6" rx="2"/>
-          <text x="117" y="8" font-size="7" font-weight="700" fill="#1e293b" text-anchor="middle">78</text>
-          <text x="117" y="102" font-size="6.5" fill="#64748b" text-anchor="middle">3–4 msgs</text>
+          <!-- 1 Turn -->
+          <rect x="88" y="15" width="48" height="75" fill="#3b82f6" rx="2"/>
+          <text x="112" y="11" font-size="7" font-weight="700" fill="#1e293b" text-anchor="middle">82 (37%)</text>
+          <text x="112" y="102" font-size="6.5" fill="#64748b" text-anchor="middle">1 Reply</text>
 
-          <rect x="165" y="44" width="45" height="46" fill="#8b5cf6" rx="2"/>
-          <text x="187" y="40" font-size="7" font-weight="700" fill="#1e293b" text-anchor="middle">33</text>
-          <text x="187" y="102" font-size="6.5" fill="#64748b" text-anchor="middle">5–6 msgs</text>
+          <!-- 2 Turns -->
+          <rect x="156" y="54" width="48" height="36" fill="#8b5cf6" rx="2"/>
+          <text x="180" y="50" font-size="7" font-weight="700" fill="#1e293b" text-anchor="middle">36 (16%)</text>
+          <text x="180" y="102" font-size="6.5" fill="#64748b" text-anchor="middle">2 Replies</text>
 
-          <rect x="235" y="24" width="45" height="66" fill="#10b981" rx="2"/>
-          <text x="257" y="20" font-size="7" font-weight="700" fill="#1e293b" text-anchor="middle">65</text>
-          <text x="257" y="102" font-size="6.5" fill="#64748b" text-anchor="middle">7+ msgs</text>
+          <!-- 3+ Turns -->
+          <rect x="224" y="27" width="48" height="63" fill="#10b981" rx="2"/>
+          <text x="248" y="23" font-size="7" font-weight="700" fill="#1e293b" text-anchor="middle">68 (31%)</text>
+          <text x="248" y="102" font-size="6.5" fill="#64748b" text-anchor="middle">3+ Replies</text>
         </svg>
         <div style="font-size: 6.5pt; color: #64748b; text-align: center;">
-          Over <strong>44%</strong> of students engaged in extended discussions (5 to 21 message turns).
+          <strong>84% (186/221)</strong> actively authored replies; <strong>31%</strong> held deep multi-turn discussions (3 to 8 student turns).
         </div>
       </div>
 
@@ -712,10 +716,11 @@ async function generateReport() {
         </div>
         <div>
           <div style="display:flex; justify-content:space-between; font-size:7.5pt; font-weight:600;">
-            <span>Part 3: AI Reasoning Argumentation</span>
-            <span style="color:#8b5cf6;">91% (60/66)</span>
+            <span>Part 3: Authentic Chat Defense</span>
+            <span style="color:#8b5cf6;">74% (49/66 active)</span>
           </div>
-          <div class="stat-bar"><div class="stat-fill purple" style="width: 91%;"></div></div>
+          <div class="stat-bar"><div class="stat-fill purple" style="width: 74%;"></div></div>
+          <div style="font-size: 6.5pt; color: #64748b; margin-top: 1px;">26% (17/66) auto-submitted with prompt only</div>
         </div>
       </div>
 
@@ -745,9 +750,10 @@ async function generateReport() {
         <div>
           <div style="display:flex; justify-content:space-between; font-size:7.5pt; font-weight:600;">
             <span>Part 3: Dimensional Analysis Defense</span>
-            <span style="color:#8b5cf6;">80% (91/114)</span>
+            <span style="color:#8b5cf6;">62% (71/114 active)</span>
           </div>
-          <div class="stat-bar"><div class="stat-fill purple" style="width: 80%;"></div></div>
+          <div class="stat-bar"><div class="stat-fill purple" style="width: 62%;"></div></div>
+          <div style="font-size: 6.5pt; color: #64748b; margin-top: 1px;">38% (43/114) auto-submitted with prompt only</div>
         </div>
       </div>
     </div>
@@ -794,7 +800,7 @@ async function generateReport() {
         <div class="subtitle">Comprehensive Content Screening & Persona Rule Validation</div>
       </div>
       <div class="meta-group">
-        <div><strong>Scanned Records:</strong> 1,058 docs</div>
+        <div><strong>Authentic Texts:</strong> 1,061 student items</div>
         <div><strong>Integrity:</strong> 100% Appropriate</div>
       </div>
     </div>
@@ -815,7 +821,7 @@ async function generateReport() {
       <tbody>
         <tr>
           <td><strong>Profanity & Vulgarity</strong></td>
-          <td>386 chat bubbles, 726 written submissions, 159 students</td>
+          <td>612 student chat turns, 449 written free responses, 159 students</td>
           <td><strong>0</strong> instances</td>
           <td><span class="badge badge-success">CLEAN / PASSED</span></td>
         </tr>
@@ -839,7 +845,7 @@ async function generateReport() {
         </tr>
         <tr class="highlight">
           <td><strong>Academic Sincerity & Physics Focus</strong></td>
-          <td>Overall student engagement with prompt questions</td>
+          <td>Authentic student-authored text (excluding AI prompts & 15 UI button clicks)</td>
           <td><strong>99.2%</strong> good-faith</td>
           <td><span class="badge badge-primary">EXEMPLARY</span></td>
         </tr>
@@ -880,12 +886,14 @@ async function generateReport() {
       <!-- Profile 3: Asking for Help -->
       <div class="dialogue-card">
         <div class="dialogue-header">
-          <span>ASKING FOR SCAFFOLDING</span>
+          <span>AUTHENTIC SCAFFOLDING & RECOVERY</span>
           <span>Airan Morales (Period 1 Conceptual)</span>
         </div>
-        <div class="chat-bubble user"><strong>Airan:</strong> help me pls | so multipy the distance and spped</div>
-        <div class="chat-bubble model"><strong>AI:</strong> You're on the right track by looking at distance and speed! But check this: speed is distance divided by time. If we want time all by itself, we divide distance by speed (680 / 340). Give that a shot!</div>
-        <div style="font-size:7pt; color:#64748b; margin-top:4px;"><em>Outcome:</em> Zero punitive feedback; immediate pivot to clear, step-by-step guidance.</div>
+        <div class="chat-bubble user"><strong>Airan:</strong> help me pls</div>
+        <div class="chat-bubble model"><strong>AI:</strong> No problem at all! ... if you want your final answer to be in "seconds" and have "meters" and "meters/second", how do you arrange them so only "seconds" is left?</div>
+        <div class="chat-bubble user"><strong>Airan:</strong> so multipy the distance and spped</div>
+        <div class="chat-bubble model"><strong>AI:</strong> That's a good thought! But if we multiply, we get meters² per second. To get seconds, we divide distance by speed (680 / 340). Give that a shot!</div>
+        <div style="font-size:7pt; color:#64748b; margin-top:4px;"><em>Outcome:</em> Real student-authored dialogue shows genuine struggle and scaffolded recovery without penalization.</div>
       </div>
 
       <!-- Profile 4: Deep Curiosity -->
@@ -938,9 +946,9 @@ async function generateReport() {
         </div>
       </div>
       <div class="kpi-card purple">
-        <div style="font-size: 8.5pt; font-weight: 700; color: #7e22ce; margin-bottom: 4px;">3. Preserve 3-Step CAST Design</div>
+        <div style="font-size: 8.5pt; font-weight: 700; color: #7e22ce; margin-bottom: 4px;">3. CAST Timer & Step 3 Pacing</div>
         <div style="font-size: 7.5pt; color: #475569; line-height: 1.4;">
-          The 3-part sequence (Inquiry Cloze ➔ Calculation ➔ AI Defense Chat) produced the highest authentic engagement and eliminated interface friction. Continue using this format for all Unit 2 & Unit 3 Bell-Ringers.
+          Telemetry revealed that <strong>38% (43/114)</strong> of students submitted without authoring an AI chat reply because countdown timers expired while completing Parts 1 and 2. Extending multi-step bell-ringer timers by 60 seconds will ensure 100% of students have time to articulate their reasoning.
         </div>
       </div>
     </div>
