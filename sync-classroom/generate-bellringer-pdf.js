@@ -23,7 +23,7 @@ async function generateReport() {
         color: #94a3b8;
       }
       @bottom-left {
-        content: "Canyon High School • Physics Department • Unit 2 Telemetry Audit";
+        content: "Orange High School • Physics Department • Unit 2 Telemetry Audit";
         font-family: 'Inter', sans-serif;
         font-size: 7.5pt;
         color: #94a3b8;
@@ -342,7 +342,7 @@ async function generateReport() {
       </div>
       <div class="meta-group">
         <div><strong>Teacher:</strong> Mr. Ryan Mudry</div>
-        <div><strong>School:</strong> Canyon High School (OUSD)</div>
+        <div><strong>School:</strong> Orange High School (OUSD) • Room 930</div>
         <div><strong>Window:</strong> Aug 31 – Sep 11, 2026 (Days 1–10)</div>
       </div>
     </div>
@@ -512,7 +512,7 @@ async function generateReport() {
     </div>
 
     <div class="footer-note">
-      <span>Canyon High School Physics • Unit 2 Kinematics Telemetry Report</span>
+      <span>Orange High School Physics • Unit 2 Kinematics Telemetry Report</span>
       <span>Confidential Student Data • Generated September 12, 2026</span>
     </div>
   </div>
@@ -661,7 +661,7 @@ async function generateReport() {
     </div>
 
     <div class="footer-note">
-      <span>Canyon High School Physics • Unit 2 Kinematics Telemetry Report</span>
+      <span>Orange High School Physics • Unit 2 Kinematics Telemetry Report</span>
       <span>Confidential Student Data • Generated September 12, 2026</span>
     </div>
   </div>
@@ -781,7 +781,7 @@ async function generateReport() {
     </div>
 
     <div class="footer-note">
-      <span>Canyon High School Physics • Unit 2 Kinematics Telemetry Report</span>
+      <span>Orange High School Physics • Unit 2 Kinematics Telemetry Report</span>
       <span>Confidential Student Data • Generated September 12, 2026</span>
     </div>
   </div>
@@ -902,7 +902,7 @@ async function generateReport() {
     </div>
 
     <div class="footer-note">
-      <span>Canyon High School Physics • Unit 2 Kinematics Telemetry Report</span>
+      <span>Orange High School Physics • Unit 2 Kinematics Telemetry Report</span>
       <span>Confidential Student Data • Generated September 12, 2026</span>
     </div>
   </div>
@@ -1043,7 +1043,7 @@ async function generateReport() {
     </div>
 
     <div class="footer-note">
-      <span>Canyon High School Physics • Unit 2 Kinematics Telemetry Report</span>
+      <span>Orange High School Physics • Unit 2 Kinematics Telemetry Report</span>
       <span>Confidential Student Data • Generated September 12, 2026</span>
     </div>
   </div>
