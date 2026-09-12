@@ -164,8 +164,27 @@ async function getAvailableAssignments() {
     }
   } catch (e) {}
 
-  // Filter out assignments with 0 students and deduplicate by normalized name
-  const filtered = list.filter(a => a.studentCount > 0);
+// Assignments created manually in Google Classroom UI or excluded from automated API sync
+const EXCLUDED_ASSIGNMENT_IDS = new Set([
+  'accuracy_precision_emoji_art',
+  'accuracy_precision',
+  'student_survey_and_graph',
+  'student_survey_and_graphing'
+]);
+
+  // Filter out assignments with 0 students, excluded manual assignments, and deduplicate by normalized name
+  const filtered = list.filter(a => {
+    if (a.studentCount <= 0) return false;
+    const normId = a.id.toLowerCase().replace(/[^a-z0-9]/g, '_');
+    const normName = a.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
+    if (EXCLUDED_ASSIGNMENT_IDS.has(normId) || EXCLUDED_ASSIGNMENT_IDS.has(normName) ||
+        normId.includes('accuracy_precision') || normName.includes('accuracy_precision') ||
+        normId.includes('emoji_art') || normName.includes('emoji_art')) {
+      return false;
+    }
+    return true;
+  });
+
   const byNormName = new Map();
   for (const a of filtered) {
     const key = a.name.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -530,6 +549,7 @@ async function syncAssignment({
     let pUpdated = 0;
     let pErrors = 0;
     let totalScore = 0;
+    let isManualCoursework = false;
 
     for (const student of pStudents) {
       // Calculate scaled score
@@ -627,12 +647,20 @@ async function syncAssignment({
         console.log(`   🚀 Updated (${returnNote}): ${student.name.padEnd(20)} -> ${scaledScore}/${maxPts} pts (${prevNote})`);
         pUpdated++;
       } catch (err) {
+        if (err.message && (err.message.includes('@ProjectPermissionDenied') || err.message.includes('not permitted'))) {
+          console.warn(`\n   ⚠️  [Permission Denied by Google] Coursework "${matchingCw.title}" was created manually in Google Classroom.`);
+          console.warn(`      Google API does not permit third-party tools to modify manual assignments.`);
+          console.warn(`      Skipping remaining students for this assignment in Period ${p}.\n`);
+          isManualCoursework = true;
+          break;
+        }
         console.error(`   ❌ Failed: ${student.name} (${sId}): ${err.message}`);
         pErrors++;
       }
     }
 
     const avg = pStudents.length > 0 ? (totalScore / pStudents.length).toFixed(1) : 0;
+    const periodStatus = isManualCoursework ? 'MANUAL (UI ONLY)' : (pErrors === 0 ? 'COMPLETE' : 'PARTIAL');
     periodSummaries.push({
       period: `P${p}`,
       courseName: course.name.length > 30 ? course.name.slice(0, 27) + '...' : course.name,
@@ -640,15 +668,15 @@ async function syncAssignment({
       students: pStudents.length,
       upToDate: pUpToDate,
       updated: pUpdated,
-      errors: pErrors,
+      errors: isManualCoursework ? 0 : pErrors,
       avgScore: `${avg}/${maxPts}`,
-      status: pErrors === 0 ? 'COMPLETE' : 'PARTIAL'
+      status: periodStatus
     });
 
     asgnTotalStudents += pStudents.length;
     asgnUpToDate += pUpToDate;
     asgnUpdated += pUpdated;
-    asgnErrors += pErrors;
+    asgnErrors += isManualCoursework ? 0 : pErrors;
   }
 
   return {
