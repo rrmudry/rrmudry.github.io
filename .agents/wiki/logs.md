@@ -14,8 +14,9 @@ Append-only log tracking pattern changes across sessions.
   - Implemented batch submission retrieval (`studentSubmissions.list` with `pageSize: 100`) per period coursework, drastically reducing API calls from ~30 per period to 1.
   - Added state & grade checking (`sub.state === 'RETURNED' && sub.assignedGrade === scaledScore`): already returned identical scores are skipped in 0ms (`✓ Up to date`), reserving network writes exclusively for new or late work.
   - Added `--force` (`-f`) flag for forcing re-evaluation when necessary.
-- **Cross-Assignment Matching Guard**:
+- **Cross-Assignment Matching Guard & Manual Assignment Exclusion**:
   - Strengthened `findMatchingCourseWork()` with distinguishing keyword guards (`vector`, `displacement`, `distance`, `speed`, `calculator`, `conversion`) to prevent false-positive cross-matches between thematic sub-tasks (e.g., preventing "Fantasy Map Vector Calculations" from matching "Distance Displacement").
+  - Excluded manually created Classroom coursework (e.g. `Accuracy_Precision_Emoji_Art`) from automated API sync and added graceful `@ProjectPermissionDenied` handling (`MANUAL (UI ONLY)`) to prevent permission errors on assignments created by hand in the Google Classroom web UI.
 - **Workflow & Reporting**:
   - Added Master Executive Summary reporting across all assignments and periods.
   - Updated `.agent/workflows/sync-grades.md` and added `sync:all` / `sync:all:dry` npm convenience scripts.
