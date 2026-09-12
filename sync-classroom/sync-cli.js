@@ -593,20 +593,28 @@ async function syncAssignment({
         continue;
       }
 
-      const isAlreadyCurrent = !isForce && 
-                               sub.assignedGrade === scaledScore && 
-                               sub.state !== 'TURNED_IN';
+      // Rule B: Higher Score Wins / Never Lower an Existing Manual Grade
+      const existingGrade = (sub.assignedGrade !== undefined && sub.assignedGrade !== null)
+        ? sub.assignedGrade
+        : (sub.draftGrade !== undefined && sub.draftGrade !== null ? sub.draftGrade : null);
 
-      if (isAlreadyCurrent) {
-        const stateNote = sub.state === 'RETURNED' ? 'Returned' : 'Recorded';
-        console.log(`   ✓ Up to date: ${student.name.padEnd(24)} | ID: ${sId.padEnd(8)} | ${scaledScore}/${maxPts} pts (${stateNote})`);
+      const hasHigherOrEqualExisting = !isForce && 
+                                       existingGrade !== null && 
+                                       existingGrade >= scaledScore && 
+                                       sub.state !== 'TURNED_IN';
+
+      if (hasHigherOrEqualExisting) {
+        const preserveNote = existingGrade > scaledScore 
+          ? `Preserved higher Classroom grade: ${existingGrade}/${maxPts} vs app: ${scaledScore}/${maxPts}`
+          : (sub.state === 'RETURNED' ? 'Returned' : 'Recorded');
+        console.log(`   ✓ Up to date: ${student.name.padEnd(24)} | ID: ${sId.padEnd(8)} | ${existingGrade}/${maxPts} pts (${preserveNote})`);
         pUpToDate++;
         continue;
       }
 
       if (isDryRun) {
-        const statusNote = sub.state === 'RETURNED' ? `was ${sub.assignedGrade}/${maxPts}` : `state: ${sub.state}`;
-        console.log(`   [DRY-RUN] ${student.name.padEnd(24)} | ID: ${sId.padEnd(8)} | Score: ${student.rawPercentage}% -> ${scaledScore}/${maxPts} pts (${statusNote})`);
+        const prevText = existingGrade !== null ? `was ${existingGrade}/${maxPts}` : 'no score';
+        console.log(`   [DRY-RUN] ${student.name.padEnd(24)} | ID: ${sId.padEnd(8)} | Score: ${student.rawPercentage}% -> ${scaledScore}/${maxPts} pts (${prevText}, state: ${sub.state})`);
         pUpdated++;
         continue;
       }
