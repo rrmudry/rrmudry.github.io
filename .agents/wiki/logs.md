@@ -2,6 +2,24 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-12 — Grade Sync Upgrade: Automated All-Assignments Late Work Evaluation & Optimized Batch Sync
+
+**Motivation**: Enhanced the grade synchronization tool (`sync-classroom/sync-cli.js`) and `/sync-grades` workflow to automatically sync all active assignments across all 7 periods by default. This ensures late student submissions and score updates across any assignment in the unit are captured and returned in Google Classroom for Aeries gradebook sync, while preserving targeted single-assignment and period-filtered syncs without breaking existing workflows.
+
+**Key Changes**:
+- **Automated All-Assignments Batch Sync**:
+  - Running `npm run sync` (or `/sync-grades`) without arguments automatically scans all scored assignments in Firestore with `studentCount > 0` and matches active Classroom coursework across Periods 0 to 6.
+  - Retained single-assignment targeting (e.g. `npm run sync -- "Constant Speed Story"`) and period filtering (e.g. `--period=0`) for maximum versatility.
+- **Smart Redundant-Write Optimization**:
+  - Implemented batch submission retrieval (`studentSubmissions.list` with `pageSize: 100`) per period coursework, drastically reducing API calls from ~30 per period to 1.
+  - Added state & grade checking (`sub.state === 'RETURNED' && sub.assignedGrade === scaledScore`): already returned identical scores are skipped in 0ms (`✓ Up to date`), reserving network writes exclusively for new or late work.
+  - Added `--force` (`-f`) flag for forcing re-evaluation when necessary.
+- **Cross-Assignment Matching Guard**:
+  - Strengthened `findMatchingCourseWork()` with distinguishing keyword guards (`vector`, `displacement`, `distance`, `speed`, `calculator`, `conversion`) to prevent false-positive cross-matches between thematic sub-tasks (e.g., preventing "Fantasy Map Vector Calculations" from matching "Distance Displacement").
+- **Workflow & Reporting**:
+  - Added Master Executive Summary reporting across all assignments and periods.
+  - Updated `.agent/workflows/sync-grades.md` and added `sync:all` / `sync:all:dry` npm convenience scripts.
+
 ## 2026-09-12 — Daily Update: Week 3 Launch & Day 11 (2026-09-14) Readiness Audit
 
 **Motivation**: Executed the `/daily-update` workflow following the weekend sync. Pulled remote changes (including the updated Dragon Sky-Mansion exemplar and `.gitignore` update), audited Day 11 ("The Big Question: What Keeps Things Moving? — Inertia Demos") for Monday launch, verified 100% NGSS standards alignment, and confirmed zero LaTeX violations across all 154 curriculum entries.
