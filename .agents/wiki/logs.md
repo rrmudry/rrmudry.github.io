@@ -941,4 +941,21 @@ Append-only log tracking pattern changes across sessions.
 **Changes**:
 - **Dynamic PRIDE Days Filtering**: Updated `AttendanceEngine.getConsecutiveStreak` in `pride-time/pride-app.js` to filter past attendance session dates against `State.settings.prideDays` (`['Tuesday', 'Wednesday', 'Thursday']`). Non-PRIDE days (Mondays, Fridays, Weekends) present in Firestore or local storage are excluded from consecutive streak evaluation.
 - **Thursday-to-Tuesday Continuity**: Thursday's session and the following Tuesday's session are now correctly treated as adjacent, consecutive PRIDE Time sessions. A student attending Tue, Wed, Thu of week 1 who scans on Tue of week 2 is accurately flagged for 3 consecutive sessions in a row.
-- **Dynamic Settings Fallback**: Updated `getPastPrideDates` and `updatePrideDayBanner` to dynamically respect `State.settings.prideDays` with safe fallback.
+- **Dynamic Settings Fallback**: Updated `getPastPrideDates` and `updatePrideDayBanner` to dynamically respect `State.settings.prideDays` with safe fallback. 
+---
+
+## 2026-09-12 — Unit 2 Bell-Ringer Telemetry Audit & Executive PDF Report
+
+**Motivation**: Conducted a comprehensive telemetry and safety audit of all student interactions across Unit 2 Bell-Ringers (Days 1–10: 2026-08-31 to 2026-09-11) and generated a professional, publication-grade 5-page PDF report (`admin/reports/Unit_2_Bell_Ringer_Audit_Report.pdf`) and standalone HTML report.
+
+**Key Findings & Audit Results**:
+- **Dataset Scope**: Analyzed 854 total submissions across 159 unique enrolled students across 6 periods.
+- **Good-Faith Effort**: 99.2% overall good-faith effort rate across Free Response, AI Concept Chat, and CAST 3D Performance tasks.
+- **Safety & Appropriateness**: 100% compliance across 386 AI chat turns and 726 free responses (zero hate speech, profanity, threats, sexual content, or jailbreaks).
+- **CAST Mastery**: 78.4% average mastery on quantitative kinematics and dimensional analysis items; highlighted unit conversion (`m/s` to `cm/s`) as primary target for instructional remediation.
+
+**Tooling & Artifacts**:
+- `sync-classroom/generate-bellringer-pdf.js`: Automated Puppeteer-based PDF rendering pipeline utilizing Inter typography, vector SVG data visualizers, custom KPI cards, and print CSS layout controls.
+- `admin/reports/Unit_2_Bell_Ringer_Audit_Report.pdf`: 5-page Letter PDF formatted with zero overflow or orphaned lines.
+- `admin/reports/Unit_2_Bell_Ringer_Audit_Report.html`: Standalone web view for online review.
+

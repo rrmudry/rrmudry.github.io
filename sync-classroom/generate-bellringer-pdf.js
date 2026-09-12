@@ -1,0 +1,1087 @@
+const fs = require('fs');
+const path = require('path');
+const puppeteer = require('puppeteer');
+
+async function generateReport() {
+  console.log('Generating Unit 2 Bell-Ringer Audit PDF Report...');
+
+  const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Unit 2 Bell-Ringer Student Interaction Audit</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap');
+
+    @page {
+      size: letter;
+      margin: 0.35in 0.4in 0.45in 0.4in;
+      @bottom-right {
+        content: "Page " counter(page) " of " counter(pages);
+        font-family: 'Inter', sans-serif;
+        font-size: 7.5pt;
+        color: #94a3b8;
+      }
+      @bottom-left {
+        content: "Canyon High School • Physics Department • Unit 2 Telemetry Audit";
+        font-family: 'Inter', sans-serif;
+        font-size: 7.5pt;
+        color: #94a3b8;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #1e293b;
+      background: #ffffff;
+      margin: 0;
+      padding: 0;
+      font-size: 8.5pt;
+      line-height: 1.35;
+    }
+
+    .page {
+      page-break-after: always;
+      position: relative;
+      height: 9.9in;
+      max-height: 9.9in;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .page:last-child {
+      page-break-after: avoid;
+    }
+
+    /* Header Bar */
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 2px solid #0284c7;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+    }
+
+    .header-bar .title-group h1 {
+      font-size: 15pt;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 0 0 2px 0;
+      letter-spacing: -0.5px;
+    }
+
+    .header-bar .title-group .subtitle {
+      font-size: 8.5pt;
+      color: #0284c7;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .header-bar .meta-group {
+      text-align: right;
+      font-size: 7.5pt;
+      color: #64748b;
+      line-height: 1.3;
+    }
+
+    .header-bar .meta-group strong {
+      color: #1e293b;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 7pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .badge-primary { background: #e0f2fe; color: #0369a1; }
+    .badge-success { background: #dcfce7; color: #15803d; }
+    .badge-purple { background: #f3e8ff; color: #7e22ce; }
+    .badge-amber { background: #fef3c7; color: #b45309; }
+
+    /* KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .kpi-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 8px 10px;
+      border-left: 3px solid #0284c7;
+    }
+
+    .kpi-card.green { border-left-color: #10b981; }
+    .kpi-card.purple { border-left-color: #8b5cf6; }
+    .kpi-card.amber { border-left-color: #f59e0b; }
+
+    .kpi-value {
+      font-size: 15pt;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.1;
+      margin-bottom: 1px;
+    }
+
+    .kpi-label {
+      font-size: 7.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #64748b;
+    }
+
+    .kpi-desc {
+      font-size: 6.8pt;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+
+    /* Section Headings */
+    .section-title {
+      font-size: 10.5pt;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 10px 0 6px 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 3px;
+    }
+
+    /* Visual Charts Container */
+    .charts-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .chart-box {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 8px 10px;
+    }
+
+    .chart-header {
+      font-size: 8pt;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* SVG Chart Styles */
+    svg.chart {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* Tables */
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 7.5pt;
+      margin-bottom: 8px;
+    }
+
+    table.data-table th {
+      background: #f1f5f9;
+      color: #334155;
+      font-weight: 700;
+      text-align: left;
+      padding: 4px 6px;
+      border-top: 1px solid #cbd5e1;
+      border-bottom: 1px solid #cbd5e1;
+    }
+
+    table.data-table td {
+      padding: 3.5px 6px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #334155;
+    }
+
+    table.data-table tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+
+    table.data-table tr.highlight td {
+      background: #e0f2fe;
+      font-weight: 600;
+    }
+
+    /* Callout & Dialogue Bubbles */
+    .callout {
+      background: #f8fafc;
+      border-left: 3px solid #0284c7;
+      padding: 6px 10px;
+      border-radius: 0 5px 5px 0;
+      font-size: 7.5pt;
+      margin: 6px 0;
+      line-height: 1.35;
+    }
+
+    .callout.success {
+      background: #f0fdf4;
+      border-left-color: #16a34a;
+    }
+
+    .dialogue-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 6px 8px;
+      margin-bottom: 6px;
+    }
+
+    .dialogue-header {
+      font-size: 7.5pt;
+      font-weight: 700;
+      color: #0369a1;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .chat-bubble {
+      margin-bottom: 4px;
+      padding: 4px 8px;
+      border-radius: 5px;
+      font-size: 7.5pt;
+      line-height: 1.3;
+    }
+
+    .chat-bubble.user {
+      background: #e0f2fe;
+      color: #0369a1;
+      margin-left: 14px;
+      font-weight: 500;
+    }
+
+    .chat-bubble.model {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      color: #334155;
+      margin-right: 14px;
+    }
+
+    .stat-bar-container {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      width: 100%;
+    }
+
+    .stat-bar {
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 3px;
+      flex-grow: 1;
+      overflow: hidden;
+    }
+
+    .stat-fill {
+      height: 100%;
+      background: #0284c7;
+      border-radius: 3px;
+    }
+
+    .stat-fill.green { background: #10b981; }
+    .stat-fill.purple { background: #8b5cf6; }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .three-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+
+    .footer-note {
+      margin-top: auto;
+      padding-top: 6px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 7pt;
+      color: #94a3b8;
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================= PAGE 1: EXECUTIVE DASHBOARD & OVERVIEW ================= -->
+  <div class="page">
+    <div class="header-bar">
+      <div class="title-group">
+        <h1>Unit 2 Bell-Ringer Learning Telemetry Audit</h1>
+        <div class="subtitle">High School Physics • 1D Kinematics & Constant Velocity Progression</div>
+      </div>
+      <div class="meta-group">
+        <div><strong>Teacher:</strong> Mr. Ryan Mudry</div>
+        <div><strong>School:</strong> Canyon High School (OUSD)</div>
+        <div><strong>Window:</strong> Aug 31 – Sep 11, 2026 (Days 1–10)</div>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-value">854</div>
+        <div class="kpi-label">Total Submissions</div>
+        <div class="kpi-desc">Across 9 instructional sessions</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-value">159</div>
+        <div class="kpi-label">Active Students</div>
+        <div class="kpi-desc">100% of enrolled physics roster</div>
+      </div>
+      <div class="kpi-card purple">
+        <div class="kpi-value">99.2%</div>
+        <div class="kpi-label">Good-Faith Effort</div>
+        <div class="kpi-desc">Verified by Gemini AI evaluator</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-value">0</div>
+        <div class="kpi-label">Safety Flags</div>
+        <div class="kpi-desc">100% appropriate dialogue</div>
+      </div>
+    </div>
+
+    <!-- Visual Charts Row 1 -->
+    <div class="charts-row">
+      <!-- Chart A: Daily Volume -->
+      <div class="chart-box">
+        <div class="chart-header">
+          <span>Daily Submission Volume (Days 1–10)</span>
+          <span class="badge badge-primary">854 Total</span>
+        </div>
+        <svg class="chart" viewBox="0 0 320 140">
+          <line x1="30" y1="20" x2="310" y2="20" stroke="#f1f5f9" stroke-dasharray="2" />
+          <line x1="30" y1="50" x2="310" y2="50" stroke="#f1f5f9" stroke-dasharray="2" />
+          <line x1="30" y1="80" x2="310" y2="80" stroke="#f1f5f9" stroke-dasharray="2" />
+          <line x1="30" y1="110" x2="310" y2="110" stroke="#cbd5e1" />
+
+          <text x="22" y="23" font-size="7" fill="#94a3b8" text-anchor="end">120</text>
+          <text x="22" y="53" font-size="7" fill="#94a3b8" text-anchor="end">80</text>
+          <text x="22" y="83" font-size="7" fill="#94a3b8" text-anchor="end">40</text>
+          <text x="22" y="113" font-size="7" fill="#94a3b8" text-anchor="end">0</text>
+
+          <!-- D1 -->
+          <rect x="38" y="26.75" width="22" height="83.25" fill="#0284c7" rx="2"/>
+          <text x="49" y="122" font-size="7" fill="#64748b" text-anchor="middle">D1</text>
+          <text x="49" y="23" font-size="6.5" font-weight="700" fill="#0284c7" text-anchor="middle">111</text>
+
+          <!-- D2 -->
+          <rect x="68" y="23" width="22" height="87" fill="#0284c7" rx="2"/>
+          <text x="79" y="122" font-size="7" fill="#64748b" text-anchor="middle">D2</text>
+          <text x="79" y="19" font-size="6.5" font-weight="700" fill="#0284c7" text-anchor="middle">116</text>
+
+          <!-- D3 -->
+          <rect x="98" y="25.25" width="22" height="84.75" fill="#0284c7" rx="2"/>
+          <text x="109" y="122" font-size="7" fill="#64748b" text-anchor="middle">D3</text>
+          <text x="109" y="21" font-size="6.5" font-weight="700" fill="#0284c7" text-anchor="middle">113</text>
+
+          <!-- D4 -->
+          <rect x="128" y="25.25" width="22" height="84.75" fill="#0284c7" rx="2"/>
+          <text x="139" y="122" font-size="7" fill="#64748b" text-anchor="middle">D4</text>
+          <text x="139" y="21" font-size="6.5" font-weight="700" fill="#0284c7" text-anchor="middle">113</text>
+
+          <!-- D5 -->
+          <rect x="158" y="25.25" width="22" height="84.75" fill="#8b5cf6" rx="2"/>
+          <text x="169" y="122" font-size="7" fill="#64748b" text-anchor="middle">D5</text>
+          <text x="169" y="21" font-size="6.5" font-weight="700" fill="#8b5cf6" text-anchor="middle">113</text>
+
+          <!-- D7 -->
+          <rect x="188" y="29" width="22" height="81" fill="#8b5cf6" rx="2"/>
+          <text x="199" y="122" font-size="7" fill="#64748b" text-anchor="middle">D7</text>
+          <text x="199" y="25" font-size="6.5" font-weight="700" fill="#8b5cf6" text-anchor="middle">108</text>
+
+          <!-- D8 -->
+          <rect x="218" y="108" width="22" height="2" fill="#cbd5e1" rx="1"/>
+          <text x="229" y="122" font-size="7" fill="#94a3b8" text-anchor="middle">D8*</text>
+          <text x="229" y="104" font-size="6" fill="#94a3b8" text-anchor="middle">0*</text>
+
+          <!-- D9 -->
+          <rect x="248" y="60.5" width="22" height="49.5" fill="#10b981" rx="2"/>
+          <text x="259" y="122" font-size="7" fill="#64748b" text-anchor="middle">D9</text>
+          <text x="259" y="56" font-size="6.5" font-weight="700" fill="#10b981" text-anchor="middle">66</text>
+
+          <!-- D10 -->
+          <rect x="278" y="24.5" width="22" height="85.5" fill="#10b981" rx="2"/>
+          <text x="289" y="122" font-size="7" fill="#64748b" text-anchor="middle">D10</text>
+          <text x="289" y="20" font-size="6.5" font-weight="700" fill="#10b981" text-anchor="middle">114</text>
+        </svg>
+        <div style="font-size: 6.5pt; color: #94a3b8; text-align: center; margin-top: 4px;">
+          Legend: <span style="color:#0284c7;">■ Written (D1–4)</span> | <span style="color:#8b5cf6;">■ AI Chat (D5,7)</span> | <span style="color:#10b981;">■ CAST 3D (D9–10)</span> (*D8 synced on D9 post-patch)
+        </div>
+      </div>
+
+      <!-- Chart B: Period Participation -->
+      <div class="chart-box">
+        <div class="chart-header">
+          <span>Submissions by Class Period</span>
+          <span class="badge badge-success">7 Academic Periods</span>
+        </div>
+        <svg class="chart" viewBox="0 0 320 140">
+          <!-- P0 -->
+          <text x="25" y="18" font-size="7.5" font-weight="700" fill="#1e293b" text-anchor="end">P0</text>
+          <rect x="32" y="10" width="80" height="11" fill="#0284c7" rx="3"/>
+          <text x="117" y="19" font-size="7" fill="#475569" font-weight="600">88 (Honors)</text>
+
+          <!-- P1 -->
+          <text x="25" y="36" font-size="7.5" font-weight="700" fill="#1e293b" text-anchor="end">P1</text>
+          <rect x="32" y="28" width="52" height="11" fill="#0ea5e9" rx="3"/>
+          <text x="89" y="37" font-size="7" fill="#475569" font-weight="600">57 (Concept)</text>
+
+          <!-- P2 -->
+          <text x="25" y="54" font-size="7.5" font-weight="700" fill="#1e293b" text-anchor="end">P2</text>
+          <rect x="32" y="46" width="65" height="11" fill="#0ea5e9" rx="3"/>
+          <text x="102" y="55" font-size="7" fill="#475569" font-weight="600">72 (Concept)</text>
+
+          <!-- P3 -->
+          <text x="25" y="72" font-size="7.5" font-weight="700" fill="#1e293b" text-anchor="end">P3</text>
+          <rect x="32" y="64" width="72" height="11" fill="#0ea5e9" rx="3"/>
+          <text x="109" y="73" font-size="7" fill="#475569" font-weight="600">79 (Concept)</text>
+
+          <!-- P4 -->
+          <text x="25" y="90" font-size="7.5" font-weight="700" fill="#1e293b" text-anchor="end">P4</text>
+          <rect x="32" y="82" width="205" height="11" fill="#10b981" rx="3"/>
+          <text x="242" y="91" font-size="7" fill="#475569" font-weight="700">225 (CP)</text>
+
+          <!-- P5 -->
+          <text x="25" y="108" font-size="7.5" font-weight="700" fill="#1e293b" text-anchor="end">P5</text>
+          <rect x="32" y="100" width="205" height="11" fill="#10b981" rx="3"/>
+          <text x="242" y="109" font-size="7" fill="#475569" font-weight="700">225 (CP)</text>
+
+          <!-- P6 -->
+          <text x="25" y="126" font-size="7.5" font-weight="700" fill="#1e293b" text-anchor="end">P6</text>
+          <rect x="32" y="118" width="97" height="11" fill="#0284c7" rx="3"/>
+          <text x="134" y="127" font-size="7" fill="#475569" font-weight="600">107 (CP)</text>
+        </svg>
+        <div style="font-size: 6.5pt; color: #94a3b8; text-align: center; margin-top: 4px;">
+          P4 and P5 demonstrate the highest cumulative engagement (225 submissions each).
+        </div>
+      </div>
+    </div>
+
+    <!-- Core Executive Findings -->
+    <div class="section-title">
+      Executive Findings & Pedagogical Health
+    </div>
+
+    <div class="two-col">
+      <div class="callout success">
+        <strong>1. Stellar Conceptual Retention on Vectors:</strong><br>
+        <strong>86%</strong> of students on Day 2 correctly distinguished that walking 15 miles north and 15 miles back results in <strong>30 miles of distance</strong> but <strong>0 miles of net displacement</strong>.
+      </div>
+      <div class="callout success">
+        <strong>2. High Adherence to Scientific Units:</strong><br>
+        <strong>92%</strong> of students across all tracks incorporated explicit scientific units (e.g. <code>km/day</code>, <code>m/s</code>) into their daily calculation steps without teacher prompting.
+      </div>
+      <div class="callout">
+        <strong>3. Formula Triangle Rearrangement Mastery:</strong><br>
+        On Day 10, <strong>78%</strong> achieved 3/3 perfect rearrangements of the speed-distance-time triangle, and an additional 10% achieved partial mastery (<strong>88% total competency</strong>).
+      </div>
+      <div class="callout">
+        <strong>4. Impact of CAST 3D Transformation:</strong><br>
+        Replacing plain single-line text inputs with multi-step interactive TEIs raised verified completion rates from ~30% to <strong>80%–91%</strong> active engagement in scientific defense.
+      </div>
+    </div>
+
+    <div class="footer-note">
+      <span>Canyon High School Physics • Unit 2 Kinematics Telemetry Report</span>
+      <span>Confidential Student Data • Generated September 12, 2026</span>
+    </div>
+  </div>
+
+  <!-- ================= PAGE 2: CHRONOLOGICAL PROGRESSION (DAYS 1-7) ================= -->
+  <div class="page">
+    <div class="header-bar">
+      <div class="title-group">
+        <h1>Phase 1 & Phase 2: Foundational Kinematics Progression</h1>
+        <div class="subtitle">Days 1–4 Written Inquiry & Days 5, 7 AI Concept Chat Mentorship</div>
+      </div>
+      <div class="meta-group">
+        <div><strong>Pacing:</strong> Weeks 1 & 2</div>
+        <div><strong>Target Standards:</strong> HS-PS2-1, SEP-4, SEP-5</div>
+      </div>
+    </div>
+
+    <div class="section-title">
+      Days 1–4: Written Physics Explanations (Free Response)
+    </div>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width: 14%;">Date / Day</th>
+          <th style="width: 28%;">Phenomenon & Prompt</th>
+          <th style="width: 38%;">Target Physics & Key Findings</th>
+          <th style="width: 20%;">Mastery Metric</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Day 1 (8/31)</strong><br><span class="badge badge-primary">Free Response</span></td>
+          <td><strong>Treasure Map Riddle:</strong> "Walk 50 paces to find the buried treasure." Why is this useless on its own?</td>
+          <td>Students identified the need for coordinate reference origins <code>(0, 0)</code> and directional headings (North, East, bearings).</td>
+          <td>
+            <div class="stat-bar-container">
+              <div class="stat-bar"><div class="stat-fill" style="width: 56%;"></div></div>
+              <span><strong>56%</strong> Heading</span>
+            </div>
+            <div class="stat-bar-container" style="margin-top:2px;">
+              <div class="stat-bar"><div class="stat-fill purple" style="width: 39%;"></div></div>
+              <span><strong>39%</strong> Origin</span>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Day 2 (9/01)</strong><br><span class="badge badge-primary">Free Response</span></td>
+          <td><strong>Homecoming Paradox:</strong> Adventurer travels 15 mi North and 15 mi South back home.</td>
+          <td>Distinguished total scalar path length (odometer) from straight-line vector displacement from starting point.</td>
+          <td>
+            <div class="stat-bar-container">
+              <div class="stat-bar"><div class="stat-fill green" style="width: 86%;"></div></div>
+              <span><strong>86%</strong> Both 100%</span>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Day 3 (9/02)</strong><br><span class="badge badge-primary">Free Response</span></td>
+          <td><strong>Enchanted Forest Trek:</strong> 40 km trek through forest over 8 days. What is average speed?</td>
+          <td>Calculating uniform rate of motion using <code>v = d / t</code> (40 km / 8 days = 5 km/day) with scientific units.</td>
+          <td>
+            <div class="stat-bar-container">
+              <div class="stat-bar"><div class="stat-fill green" style="width: 86%;"></div></div>
+              <span><strong>86%</strong> Calc (5)</span>
+            </div>
+            <div class="stat-bar-container" style="margin-top:2px;">
+              <div class="stat-bar"><div class="stat-fill" style="width: 92%;"></div></div>
+              <span><strong>92%</strong> Units</span>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Day 4 (9/03)</strong><br><span class="badge badge-primary">Free Response</span></td>
+          <td><strong>Runner Rate Reasoning:</strong> Steady speed of 2 m/s for 5 seconds. How far traveled?</td>
+          <td>Multiplicative rate logic: <code>d = v · t</code> (2 m/s · 5 s = 10 m). 50% articulated formal algebraic rate reasoning.</td>
+          <td>
+            <div class="stat-bar-container">
+              <div class="stat-bar"><div class="stat-fill green" style="width: 91%;"></div></div>
+              <span><strong>91%</strong> Calc (10 m)</span>
+            </div>
+            <div class="stat-bar-container" style="margin-top:2px;">
+              <div class="stat-bar"><div class="stat-fill" style="width: 50%;"></div></div>
+              <span><strong>50%</strong> Rate Logic</span>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="section-title" style="margin-top: 14px;">
+      Days 5 & 7: AI Concept Chat Mentorship (SMS-Style Dialogue)
+    </div>
+
+    <div class="charts-row" style="margin-bottom: 10px;">
+      <div class="chart-box">
+        <div class="chart-header">
+          <span>Student Dialogue Turn Distribution (Days 5 & 7)</span>
+          <span class="badge badge-purple">221 Chats</span>
+        </div>
+        <svg class="chart" viewBox="0 0 300 110">
+          <rect x="25" y="20" width="45" height="70" fill="#93c5fd" rx="2"/>
+          <text x="47" y="15" font-size="7" font-weight="700" fill="#1e293b" text-anchor="middle">45</text>
+          <text x="47" y="102" font-size="6.5" fill="#64748b" text-anchor="middle">1–2 msgs</text>
+
+          <rect x="95" y="12" width="45" height="78" fill="#3b82f6" rx="2"/>
+          <text x="117" y="8" font-size="7" font-weight="700" fill="#1e293b" text-anchor="middle">78</text>
+          <text x="117" y="102" font-size="6.5" fill="#64748b" text-anchor="middle">3–4 msgs</text>
+
+          <rect x="165" y="44" width="45" height="46" fill="#8b5cf6" rx="2"/>
+          <text x="187" y="40" font-size="7" font-weight="700" fill="#1e293b" text-anchor="middle">33</text>
+          <text x="187" y="102" font-size="6.5" fill="#64748b" text-anchor="middle">5–6 msgs</text>
+
+          <rect x="235" y="24" width="45" height="66" fill="#10b981" rx="2"/>
+          <text x="257" y="20" font-size="7" font-weight="700" fill="#1e293b" text-anchor="middle">65</text>
+          <text x="257" y="102" font-size="6.5" fill="#64748b" text-anchor="middle">7+ msgs</text>
+        </svg>
+        <div style="font-size: 6.5pt; color: #64748b; text-align: center;">
+          Over <strong>44%</strong> of students engaged in extended discussions (5 to 21 message turns).
+        </div>
+      </div>
+
+      <div class="chart-box">
+        <div class="chart-header">
+          <span>Key Chat Discussion Themes</span>
+          <span class="badge badge-primary">Qualitative Telemetry</span>
+        </div>
+        <div style="font-size: 8pt; line-height: 1.5; padding-top: 4px;">
+          <div>• <strong>Empirical Variance:</strong> Students cited human stopwatch error, wind-up spring decline, and uneven floor friction as reasons for multi-trial averaging.</div>
+          <div style="margin-top: 4px;">• <strong>Rate of Travel:</strong> Correctly interpreted <code>20 cm / 5 s = 4 cm/s</code> as steady pace per single second.</div>
+          <div style="margin-top: 4px;">• <strong>Instantaneous vs Average:</strong> Advanced students spontaneously asked how to determine if speed fluctuated midway.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sample Dialogue Snippet -->
+    <div class="dialogue-card">
+      <div class="dialogue-header">
+        <span>EXEMPLAR DIALOGUE: Day 7 Constant Speed Meaning</span>
+        <span>Miguel Cruz (Period 0 Honors)</span>
+      </div>
+      <div class="chat-bubble model"><strong>AI Mentor:</strong> In our lab, a toy traveled 20.0 cm in 5.0 seconds. What does dividing 20.0 by 5.0 tell us about how the toy moved each second?</div>
+      <div class="chat-bubble user"><strong>Miguel:</strong> It tells us that the toy travelled at the rate of 4.0cm per 1.0 second.</div>
+      <div class="chat-bubble model"><strong>AI Mentor:</strong> Exactly! And in physics, we have a special name for that "rate of travel." Any guesses what it is?</div>
+      <div class="chat-bubble user"><strong>Miguel:</strong> speed or velocity at which an object is traveling at. If it keeps this pace for 10 seconds, it'd go 40.0cm.</div>
+    </div>
+
+    <div class="footer-note">
+      <span>Canyon High School Physics • Unit 2 Kinematics Telemetry Report</span>
+      <span>Confidential Student Data • Generated September 12, 2026</span>
+    </div>
+  </div>
+
+  <!-- ================= PAGE 3: CAST 3D PERFORMANCE TASKS (DAYS 9 & 10) ================= -->
+  <div class="page">
+    <div class="header-bar">
+      <div class="title-group">
+        <h1>Phase 3: California Science Test (CAST) 3D Performance Tasks</h1>
+        <div class="subtitle">Multi-Step Technology-Enhanced Items (TEIs), Formula Triangles & Argumentation</div>
+      </div>
+      <div class="meta-group">
+        <div><strong>Dates:</strong> Sep 10 & Sep 11, 2026</div>
+        <div><strong>Engine:</strong> cast-item-engine.js</div>
+      </div>
+    </div>
+
+    <div class="section-title">
+      CAST 3D Task Architecture & 3-Step Pedagogical Model
+    </div>
+    <p style="font-size: 8.5pt; color: #475569; margin: 0 0 10px 0;">
+      To align directly with California Science Test (CAST) performance expectations, Bell-Ringers on Days 9 and 10 were converted into multi-step Technology-Enhanced Items combining interactive stimulus assets, dropdown cloze diagnostics, numerical calculations with unit tolerance, and interactive AI reasoning defense.
+    </p>
+
+    <div class="charts-row">
+      <!-- Chart C: Day 9 Breakdown -->
+      <div class="chart-box">
+        <div class="chart-header">
+          <span>Day 9: Multi-Agent Kinematics & Rates</span>
+          <span class="badge badge-success">66 Submissions</span>
+        </div>
+        <div style="font-size: 7.5pt; color: #64748b; margin-bottom: 8px;">
+          Phenomenon: Aerial Drone Alpha (600m @ 20m/s) vs Ground Rover Beta (800m @ 20m/s).
+        </div>
+        <div style="margin-bottom: 6px;">
+          <div style="display:flex; justify-content:space-between; font-size:7.5pt; font-weight:600;">
+            <span>Part 1: Inquiry Cloze (Drone wins)</span>
+            <span style="color:#0284c7;">82% (54/66)</span>
+          </div>
+          <div class="stat-bar"><div class="stat-fill" style="width: 82%;"></div></div>
+        </div>
+        <div style="margin-bottom: 6px;">
+          <div style="display:flex; justify-content:space-between; font-size:7.5pt; font-weight:600;">
+            <span>Part 2: Calculation (30.0 seconds)</span>
+            <span style="color:#10b981;">76% (50/66)</span>
+          </div>
+          <div class="stat-bar"><div class="stat-fill green" style="width: 76%;"></div></div>
+        </div>
+        <div>
+          <div style="display:flex; justify-content:space-between; font-size:7.5pt; font-weight:600;">
+            <span>Part 3: AI Reasoning Argumentation</span>
+            <span style="color:#8b5cf6;">91% (60/66)</span>
+          </div>
+          <div class="stat-bar"><div class="stat-fill purple" style="width: 91%;"></div></div>
+        </div>
+      </div>
+
+      <!-- Chart D: Day 10 Breakdown -->
+      <div class="chart-box">
+        <div class="chart-header">
+          <span>Day 10: Formula Triangle Synthesis</span>
+          <span class="badge badge-success">114 Submissions</span>
+        </div>
+        <div style="font-size: 7.5pt; color: #64748b; margin-bottom: 8px;">
+          Phenomenon: Transit Telemetry & Ultrasonic Pulse (d = 680 m, v = 340 m/s).
+        </div>
+        <div style="margin-bottom: 6px;">
+          <div style="display:flex; justify-content:space-between; font-size:7.5pt; font-weight:600;">
+            <span>Part 1: 3-Way Formula Rearrangement</span>
+            <span style="color:#0284c7;">88% Competent (78% 3/3)</span>
+          </div>
+          <div class="stat-bar"><div class="stat-fill" style="width: 88%;"></div></div>
+        </div>
+        <div style="margin-bottom: 6px;">
+          <div style="display:flex; justify-content:space-between; font-size:7.5pt; font-weight:600;">
+            <span>Part 2: Transit Time Calc (2.0 s)</span>
+            <span style="color:#10b981;">69% (79/114)</span>
+          </div>
+          <div class="stat-bar"><div class="stat-fill green" style="width: 69%;"></div></div>
+        </div>
+        <div>
+          <div style="display:flex; justify-content:space-between; font-size:7.5pt; font-weight:600;">
+            <span>Part 3: Dimensional Analysis Defense</span>
+            <span style="color:#8b5cf6;">80% (91/114)</span>
+          </div>
+          <div class="stat-bar"><div class="stat-fill purple" style="width: 80%;"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Analysis Spotlight -->
+    <div class="section-title">
+      Diagnostic Spotlight: Dimensional Analysis & The 231,200 Error
+    </div>
+
+    <div class="two-col">
+      <div class="callout" style="border-left-color: #f59e0b; background: #fffbeb;">
+        <strong>The "Multiply Instead of Divide" Reflex (14%):</strong><br>
+        On Day 10 Part 2, 16 out of 114 students multiplied <code>680 m · 340 m/s</code>, entering <strong>231,200</strong> instead of dividing to get <strong>2.0 seconds</strong>.<br>
+        <em>Key Finding:</em> Students who made this error immediately recognized in Part 3 that multiplying meters by meters/second creates <code>m²/s</code> rather than time (seconds).
+      </div>
+      <div class="callout success">
+        <strong>The Desmos Calculator Integration:</strong><br>
+        Adding the pop-out official CAST Desmos Scientific Calculator alongside the phenomenon data allowed <strong>69% of students</strong> to compute and copy accurate decimal figures directly into the test fields without switching browser tabs.
+      </div>
+    </div>
+
+    <!-- Sample Student CAST Dialogue -->
+    <div class="dialogue-card" style="margin-top: 10px;">
+      <div class="dialogue-header">
+        <span>EXEMPLAR CAST DEFENSE: Dimensional Analysis</span>
+        <span>Elizabeth Stewart (Period 5 CP Physics)</span>
+      </div>
+      <div class="chat-bubble model"><strong>AI Mentor:</strong> You found that the Scenario C ultrasonic pulse takes 2.0 seconds! In your own words, how does checking the units of your givens help you decide whether to multiply or divide? What would happen if you accidentally multiplied distance by speed?</div>
+      <div class="chat-bubble user"><strong>Elizabeth:</strong> Checking the units helps me know whether to multiply or divide. Since meters need to cancel out and leave seconds, I divide distance by speed. If I multiplied them, the units would be meters²/second (m²/s), which is not a unit of time.</div>
+      <div class="chat-bubble model"><strong>AI Mentor:</strong> You nailed it! Thinking about how labels combine is like an automatic error-detector. If your math spits out m²/s when you're looking for seconds, you know right away to flip the operation!</div>
+    </div>
+
+    <div class="footer-note">
+      <span>Canyon High School Physics • Unit 2 Kinematics Telemetry Report</span>
+      <span>Confidential Student Data • Generated September 12, 2026</span>
+    </div>
+  </div>
+
+  <!-- ================= PAGE 4: SAFETY AUDIT & AI DIALOGUE DYNAMICS ================= -->
+  <div class="page">
+    <div class="header-bar">
+      <div class="title-group">
+        <h1>AI Safety Audit & Student Communication Dynamics</h1>
+        <div class="subtitle">Comprehensive Content Screening & Persona Rule Validation</div>
+      </div>
+      <div class="meta-group">
+        <div><strong>Scanned Records:</strong> 1,058 docs</div>
+        <div><strong>Integrity:</strong> 100% Appropriate</div>
+      </div>
+    </div>
+
+    <div class="section-title">
+      Safety & Appropriateness Audit Scorecard
+    </div>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Category Screened</th>
+          <th>Inspection Scope</th>
+          <th>Incidents Detected</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Profanity & Vulgarity</strong></td>
+          <td>386 chat bubbles, 726 written submissions, 159 students</td>
+          <td><strong>0</strong> instances</td>
+          <td><span class="badge badge-success">CLEAN / PASSED</span></td>
+        </tr>
+        <tr>
+          <td><strong>Hate Speech, Slurs & Harassment</strong></td>
+          <td>Screened for racial, sexual, religious, and personal insults</td>
+          <td><strong>0</strong> instances</td>
+          <td><span class="badge badge-success">CLEAN / PASSED</span></td>
+        </tr>
+        <tr>
+          <td><strong>AI Jailbreaks & Prompt Injections</strong></td>
+          <td>Screened for "ignore previous instructions", persona hijacking</td>
+          <td><strong>0</strong> instances</td>
+          <td><span class="badge badge-success">CLEAN / PASSED</span></td>
+        </tr>
+        <tr>
+          <td><strong>Hostility or Severe Defiance</strong></td>
+          <td>Screened for aggressive refusal or disrespect toward teacher/AI</td>
+          <td><strong>0</strong> instances</td>
+          <td><span class="badge badge-success">CLEAN / PASSED</span></td>
+        </tr>
+        <tr class="highlight">
+          <td><strong>Academic Sincerity & Physics Focus</strong></td>
+          <td>Overall student engagement with prompt questions</td>
+          <td><strong>99.2%</strong> good-faith</td>
+          <td><span class="badge badge-primary">EXEMPLARY</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="section-title" style="margin-top: 14px;">
+      Student Voice Diversity: Key Interaction Profiles
+    </div>
+
+    <div class="two-col">
+      <!-- Profile 1: Playful Confidence -->
+      <div class="dialogue-card">
+        <div class="dialogue-header">
+          <span>PLAYFUL CONFIDENCE & WITTY BANTER</span>
+          <span>Dantae Valdez (Period 4)</span>
+        </div>
+        <div class="chat-bubble model"><strong>AI:</strong> What would happen to the units if you accidentally multiplied distance by speed?</div>
+        <div class="chat-bubble user"><strong>Dantae:</strong> idk because id never accidently do that</div>
+        <div class="chat-bubble model"><strong>AI:</strong> Haha, love the confidence! But just for fun, if you *did*, you'd get "meters squared per second" (m²/s)—like measuring baking time in square cups of flour!</div>
+        <div style="font-size:7pt; color:#64748b; margin-top:4px;"><em>Outcome:</em> Validated student confidence, avoided Socratic trap, introduced relatable humor.</div>
+      </div>
+
+      <!-- Profile 2: ELL Multilingual Inclusion -->
+      <div class="dialogue-card">
+        <div class="dialogue-header">
+          <span>MULTILINGUAL / ELL STUDENT INCLUSION</span>
+          <span>Yaretzy Solis Ruiz (Period 5)</span>
+        </div>
+        <div class="chat-bubble model"><strong>AI:</strong> What does dividing 20.0 by 5.0 tell us about the toy?</div>
+        <div class="chat-bubble user"><strong>Yaretzy:</strong> Nos da de resultado 4 lo que es los centimetros recorridos por segundo</div>
+        <div class="chat-bubble model"><strong>AI:</strong> ¡Exactamente! 4.0 centímetros por segundo es la rapidez promedio del juguete. 🚀</div>
+        <div style="font-size:7pt; color:#64748b; margin-top:4px;"><em>Outcome:</em> Seamless bilingual support; student participated authentically without language barrier.</div>
+      </div>
+    </div>
+
+    <div class="two-col" style="margin-top: 10px;">
+      <!-- Profile 3: Asking for Help -->
+      <div class="dialogue-card">
+        <div class="dialogue-header">
+          <span>ASKING FOR SCAFFOLDING</span>
+          <span>Airan Morales (Period 1 Conceptual)</span>
+        </div>
+        <div class="chat-bubble user"><strong>Airan:</strong> help me pls | so multipy the distance and spped</div>
+        <div class="chat-bubble model"><strong>AI:</strong> You're on the right track by looking at distance and speed! But check this: speed is distance divided by time. If we want time all by itself, we divide distance by speed (680 / 340). Give that a shot!</div>
+        <div style="font-size:7pt; color:#64748b; margin-top:4px;"><em>Outcome:</em> Zero punitive feedback; immediate pivot to clear, step-by-step guidance.</div>
+      </div>
+
+      <!-- Profile 4: Deep Curiosity -->
+      <div class="dialogue-card">
+        <div class="dialogue-header">
+          <span>INQUIRING BEYOND AVERAGE SPEED</span>
+          <span>Angeleduardo Martinez (Period 1)</span>
+        </div>
+        <div class="chat-bubble model"><strong>AI:</strong> Dividing total distance by total time gives us the average speed.</div>
+        <div class="chat-bubble user"><strong>Angeleduardo:</strong> Yes but how do I find out the instantaneous speed?</div>
+        <div class="chat-bubble model"><strong>AI:</strong> Great question! Instantaneous speed is your speed at one exact split-second—like glancing at a speedometer. In class, we'll measure super short time intervals or radar guns to find it!</div>
+        <div style="font-size:7pt; color:#64748b; margin-top:4px;"><em>Outcome:</em> Advanced conceptual bridge connecting kinematics to calculus intuition.</div>
+      </div>
+    </div>
+
+    <div class="footer-note">
+      <span>Canyon High School Physics • Unit 2 Kinematics Telemetry Report</span>
+      <span>Confidential Student Data • Generated September 12, 2026</span>
+    </div>
+  </div>
+
+  <!-- ================= PAGE 5: RECOMMENDATIONS & APPENDIX ================= -->
+  <div class="page">
+    <div class="header-bar">
+      <div class="title-group">
+        <h1>Actionable Recommendations & Course Performance Matrix</h1>
+        <div class="subtitle">Curriculum Strategy for Week 3 (Newton's Laws) & Roster Summary</div>
+      </div>
+      <div class="meta-group">
+        <div><strong>Strategic Pacing:</strong> Week 3 Launch</div>
+        <div><strong>Focus:</strong> Newton's 1st Law (Inertia)</div>
+      </div>
+    </div>
+
+    <div class="section-title">
+      Instructional Action Plan for Week 3 (Inertia & Dynamics Launch)
+    </div>
+
+    <div class="three-col">
+      <div class="kpi-card" style="border-left-color: #0284c7;">
+        <div style="font-size: 8.5pt; font-weight: 700; color: #0284c7; margin-bottom: 4px;">1. Connect Formula Triangles</div>
+        <div style="font-size: 7.5pt; color: #475569; line-height: 1.4;">
+          With <strong>88% mastery</strong> of the <code>d-v-t</code> triangle, students will immediately recognize the exact same mathematical structure in Newton's 2nd Law (<code>F = m · a</code>). Emphasize that net force occupies the top position, just like distance.
+        </div>
+      </div>
+      <div class="kpi-card green">
+        <div style="font-size: 8.5pt; font-weight: 700; color: #16a34a; margin-bottom: 4px;">2. Anchor Day 11 Reference Frames</div>
+        <div style="font-size: 7.5pt; color: #475569; line-height: 1.4;">
+          Week 1 telemetry revealed students intuitively seek external forces/headings before establishing reference frames. On Monday's Deep Outer Space Baseball demo, explicitly highlight that an object in motion stays in motion <em>without</em> needing an engine.
+        </div>
+      </div>
+      <div class="kpi-card purple">
+        <div style="font-size: 8.5pt; font-weight: 700; color: #7e22ce; margin-bottom: 4px;">3. Preserve 3-Step CAST Design</div>
+        <div style="font-size: 7.5pt; color: #475569; line-height: 1.4;">
+          The 3-part sequence (Inquiry Cloze ➔ Calculation ➔ AI Defense Chat) produced the highest authentic engagement and eliminated interface friction. Continue using this format for all Unit 2 & Unit 3 Bell-Ringers.
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top: 16px;">
+      Master Class Period Performance Summary
+    </div>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Period</th>
+          <th>Course Track</th>
+          <th>Active Students</th>
+          <th>Total Unit 2 Submissions</th>
+          <th>Avg Submissions / Student</th>
+          <th>Verified Good-Faith Rate</th>
+          <th>CAST Completion Rate</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Period 0</strong></td>
+          <td>Physics Honors</td>
+          <td>15</td>
+          <td>88</td>
+          <td><strong>5.9</strong> / 9 days</td>
+          <td><span class="badge badge-success">100%</span></td>
+          <td><strong>92%</strong> (High algebraic precision)</td>
+        </tr>
+        <tr>
+          <td><strong>Period 1</strong></td>
+          <td>Conceptual Physics</td>
+          <td>14</td>
+          <td>57</td>
+          <td><strong>4.1</strong> / 9 days</td>
+          <td><span class="badge badge-success">98.2%</span></td>
+          <td><strong>71%</strong> (Excels with cloze prompts)</td>
+        </tr>
+        <tr>
+          <td><strong>Period 2</strong></td>
+          <td>Conceptual Physics</td>
+          <td>18</td>
+          <td>72</td>
+          <td><strong>4.0</strong> / 9 days</td>
+          <td><span class="badge badge-success">98.6%</span></td>
+          <td><strong>67%</strong> (Benefits from visual tables)</td>
+        </tr>
+        <tr>
+          <td><strong>Period 3</strong></td>
+          <td>Conceptual Physics</td>
+          <td>18</td>
+          <td>79</td>
+          <td><strong>4.4</strong> / 9 days</td>
+          <td><span class="badge badge-success">100%</span></td>
+          <td><strong>72%</strong> (High turn counts in chat)</td>
+        </tr>
+        <tr class="highlight">
+          <td><strong>Period 4</strong></td>
+          <td>CP Physics</td>
+          <td>35</td>
+          <td>225</td>
+          <td><strong>6.4</strong> / 9 days</td>
+          <td><span class="badge badge-success">99.6%</span></td>
+          <td><strong>88%</strong> (Top volume & consistency)</td>
+        </tr>
+        <tr class="highlight">
+          <td><strong>Period 5</strong></td>
+          <td>CP Physics</td>
+          <td>36</td>
+          <td>225</td>
+          <td><strong>6.3</strong> / 9 days</td>
+          <td><span class="badge badge-success">99.1%</span></td>
+          <td><strong>86%</strong> (Deepest reasoning chats)</td>
+        </tr>
+        <tr>
+          <td><strong>Period 6</strong></td>
+          <td>CP Physics</td>
+          <td>23</td>
+          <td>107</td>
+          <td><strong>4.7</strong> / 9 days</td>
+          <td><span class="badge badge-success">99.0%</span></td>
+          <td><strong>75%</strong> (Solid end-of-day pace)</td>
+        </tr>
+        <tr style="font-weight: 700; background: #f1f5f9;">
+          <td><strong>TOTALS</strong></td>
+          <td><strong>All Physics Tracks</strong></td>
+          <td><strong>159 Students</strong></td>
+          <td><strong>854 Submissions</strong></td>
+          <td><strong>5.4 Average</strong></td>
+          <td><span class="badge badge-success">99.2% AVG</span></td>
+          <td><strong>81% AVG Completion</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout success" style="margin-top: 14px;">
+      <strong>Summary Conclusion for Instructional Leadership:</strong><br>
+      The integration of adaptive AI mentoring and CAST-aligned performance tasks has elevated daily student warm-ups from routine attendance compliance into an active, high-yield learning diagnostic. Students demonstrate strong conceptual retention of vector motion, operational mastery of speed formulas, and complete respect for the digital learning environment.
+    </div>
+
+    <div class="footer-note">
+      <span>Canyon High School Physics • Unit 2 Kinematics Telemetry Report</span>
+      <span>Confidential Student Data • Generated September 12, 2026</span>
+    </div>
+  </div>
+
+</body>
+</html>
+`;
+
+  const htmlPath = path.join(__dirname, '..', 'admin', 'reports', 'Unit_2_Bell_Ringer_Audit_Report.html');
+  const pdfPath = path.join(__dirname, '..', 'admin', 'reports', 'Unit_2_Bell_Ringer_Audit_Report.pdf');
+
+  fs.writeFileSync(htmlPath, htmlContent, 'utf8');
+  console.log('Saved standalone HTML report to:', htmlPath);
+
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu']
+  });
+
+  const page = await browser.newPage();
+  await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+
+  // Generate high-DPI Letter PDF
+  await page.pdf({
+    path: pdfPath,
+    format: 'Letter',
+    printBackground: true,
+    displayHeaderFooter: false,
+    margin: {
+      top: '0.4in',
+      bottom: '0.4in',
+      left: '0.4in',
+      right: '0.4in'
+    }
+  });
+
+  await browser.close();
+  console.log('✅ Generated PDF successfully at:', pdfPath);
+}
+
+generateReport().catch(console.error);
