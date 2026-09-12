@@ -951,8 +951,9 @@ Append-only log tracking pattern changes across sessions.
 **Key Findings & Audit Results**:
 - **Dataset Scope**: Analyzed 854 total submissions across 159 unique enrolled students across 6 periods.
 - **Good-Faith Effort**: 99.2% overall good-faith effort rate across Free Response, AI Concept Chat, and CAST 3D Performance tasks.
-- **Safety & Appropriateness**: 100% compliance across 386 AI chat turns and 726 free responses (zero hate speech, profanity, threats, sexual content, or jailbreaks).
-- **CAST Mastery**: 78.4% average mastery on quantitative kinematics and dimensional analysis items; highlighted unit conversion (`m/s` to `cm/s`) as primary target for instructional remediation.
+- **Strict Authentic Student Telemetry**: Filtered pre-seeded AI prompts, system error strings, and 15 UI button click injections (`[System: Student is stuck...]`) from student work. Screened 612 authentic student chat turns and 449 written free responses (1,061 total student-authored items) with 100% safety/compliance (0 violations).
+- **CAST Step 3 Dynamics**: Identified that on Day 10, 62% (71/114) authored authentic AI chat responses (19% multi-turn), while 38% (43/114) auto-submitted with prompt only (`Discussion logged`) due to timer expiration—informing a recommendation to extend timers on multi-step days.
+- **Concept Chat Reply Distribution**: 84% (186/221) active reply rate (37% 1 reply, 16% 2 replies, 31% 3+ extended replies), while 16% submitted at the initial prompt.
 
 **Tooling & Artifacts**:
 - `sync-classroom/generate-bellringer-pdf.js`: Automated Puppeteer-based PDF rendering pipeline utilizing Inter typography, vector SVG data visualizers, custom KPI cards, and print CSS layout controls.
