@@ -19,8 +19,14 @@ I will:
 1. Detect all active scored assignments in Firestore (`physics_labs`, `student_results`, `gradest_assignments`).
 2. Match coursework across all 7 Google Classroom courses (Period 0 to Period 6).
 3. Scale points proportionally to the assignment's max points (e.g. 10/10 pts or 100/100 pts).
-4. Verify existing submissions: skip submissions already returned with the matching grade, while immediately updating and returning any new, changed, or late submissions.
-5. Provide a Master Executive Summary table across all assignments and periods.
+4. Apply **Rule B (Higher Score Wins)**: check existing grades in Classroom. If you manually entered a grade or if an existing grade is higher than or equal to the app score, it is preserved and NEVER lowered. Only higher scores (e.g. late work replacing a zero or retakes) are updated.
+5. Skip submissions already up-to-date in 0ms without consuming write quota.
+6. Provide a Master Executive Summary table across all assignments and periods.
+
+## 🛡️ Grade Protection: Rule B ("Higher Score Wins")
+- **Manual Classroom Grades Are Safe**: Any score manually input into Google Classroom (for paper submissions, modified tasks, or teacher adjustments like on `Digital Fantasy Map Distance Displacement`) is protected. The sync will never overwrite a higher or equal manual grade with a lower app score.
+- **Late Work & Retakes**: If a student turns in work late or retakes an assignment and achieves a higher score, the system automatically elevates the grade and returns it to the student.
+- **Manual Assignments Excluded**: Assignments created manually in Google Classroom (without the API, such as `Accuracy_Precision_Emoji_Art`) are automatically bypassed so no `@ProjectPermissionDenied` errors occur.
 
 ## Option B: Fast Terminal Commands
 From the root workspace or `sync-classroom/` directory:
