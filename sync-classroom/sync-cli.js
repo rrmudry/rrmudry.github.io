@@ -598,7 +598,11 @@ async function syncAssignment({
         ? sub.assignedGrade
         : (sub.draftGrade !== undefined && sub.draftGrade !== null ? sub.draftGrade : null);
 
+      // Detect legacy oversized grade (e.g. 100 pts on an assignment whose maxPoints was changed to 10)
+      const isLegacyOversizedGrade = existingGrade !== null && maxPts < 100 && existingGrade > maxPts;
+
       const hasHigherOrEqualExisting = !isForce && 
+                                       !isLegacyOversizedGrade && 
                                        existingGrade !== null && 
                                        existingGrade >= scaledScore && 
                                        sub.state !== 'TURNED_IN';
@@ -614,7 +618,8 @@ async function syncAssignment({
 
       if (isDryRun) {
         const prevText = existingGrade !== null ? `was ${existingGrade}/${maxPts}` : 'no score';
-        console.log(`   [DRY-RUN] ${student.name.padEnd(24)} | ID: ${sId.padEnd(8)} | Score: ${student.rawPercentage}% -> ${scaledScore}/${maxPts} pts (${prevText}, state: ${sub.state})`);
+        const rescaleNote = isLegacyOversizedGrade ? ' [RESCALE FROM OLD SCALE]' : '';
+        console.log(`   [DRY-RUN] ${student.name.padEnd(24)} | ID: ${sId.padEnd(8)} | Score: ${student.rawPercentage}% -> ${scaledScore}/${maxPts} pts (${prevText}, state: ${sub.state})${rescaleNote}`);
         pUpdated++;
         continue;
       }
@@ -622,7 +627,7 @@ async function syncAssignment({
       // Live update & return
       try {
         // 1. Patch grades if different
-        if (isForce || sub.assignedGrade !== scaledScore || sub.draftGrade !== scaledScore) {
+        if (isForce || isLegacyOversizedGrade || sub.assignedGrade !== scaledScore || sub.draftGrade !== scaledScore) {
           await classroom.courses.courseWork.studentSubmissions.patch({
             courseId: course.id,
             courseWorkId: matchingCw.id,
@@ -635,9 +640,9 @@ async function syncAssignment({
           });
         }
 
-        // 2. Return submission to student if turned in
+        // 2. Return submission to student if turned in or if rescaling
         let returnNote = 'Recorded';
-        if (sub.state === 'TURNED_IN' || isForce) {
+        if (sub.state === 'TURNED_IN' || isForce || isLegacyOversizedGrade) {
           try {
             await classroom.courses.courseWork.studentSubmissions.return({
               courseId: course.id,

@@ -419,7 +419,7 @@ createAssignmentForm.addEventListener('submit', async (e) => {
       });
       alert('Assignment deployment complete. View logs below for coursework IDs.');
       createAssignmentForm.reset();
-      assignmentMaxPoints.value = 100;
+      assignmentMaxPoints.value = 10;
       if (courseIds.length > 0) {
         fetchClassroomCoursework(courseIds[0]);
       }
@@ -509,7 +509,7 @@ if (btnAutofillDeploy) {
     const selectedItem = activeAssignments.find(a => a.id === selectedAssignmentId);
     const title = selectedItem ? (selectedItem.rawName || selectedItem.id) : selectedAssignmentId;
     if (assignmentTitle) assignmentTitle.value = title;
-    if (assignmentMaxPoints) assignmentMaxPoints.value = 100;
+    if (assignmentMaxPoints) assignmentMaxPoints.value = 10;
     if (assignmentDescription) {
       if (selectedAssignmentId === 'physics_speed_calculator' || title.toLowerCase().includes('speed')) {
         assignmentDescription.value = `Please complete the ${title} at: https://rrmudry.github.io/physics_speed_calculator/dist/index.html`;
