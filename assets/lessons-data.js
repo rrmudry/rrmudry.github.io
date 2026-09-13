@@ -1,1188 +1,341 @@
 const lessonsData = [
   {
-    "day": 25,
-    "date": "2026-10-02",
-    "unit": 2,
-    "title": "Unit 2 Summative Assessment",
-    "topic": "Comprehensive Exam on 1D Kinematics & Newton's Laws of Motion",
-    "dok": 3,
-    "type": "Assessment",
+    "date": "2026-08-19",
+    "day": 1,
+    "unit": 1,
+    "title": "Welcome to Physics: Introduction & Seating",
+    "summary": "Welcome to Physics! Teacher introduction, assigned seating, and classroom culture.",
+    "details": "Introduction to Mr. Mudry and the Physics course. Assigned seating chart. Discussion of classroom community norms, safety foundations, and what to expect in high school physics.",
+    "type": "Orientation",
+    "dok": 1,
     "semester": 1,
     "isFeatured": true,
-    "summary": "Full summative evaluation assessing DOK 1-3 mastery of 1D kinematics (x, v, a, graphs) and Newtonian dynamics (Inertia, FBDs, F_net = m · a, Action-Reaction).",
-    "activity": "Comprehensive unit exam covering conceptual multiple-choice diagnostics, coordinate slope and area calculations, FBD construction, and two multi-step DOK 3 word problems combining kinematics and dynamics.",
-    "essentialQuestion": "How effectively can we calculate, model, and justify the motion and interaction of physical systems?",
+    "essentialQuestion": "How will our physics classroom community collaborate to explore natural phenomena safely and curiously?",
     "standards": [
-      "HS-PS2-1",
-      "HS-ETS1-2"
-    ],
-    "wicor": {
-      "Writing": "Writing formal mathematical derivations and explaining physical concepts clearly.",
-      "Inquiry": "Applying Newtonian mechanics to novel, unseen engineering and motion scenarios.",
-      "Collaboration": "Conducting post-assessment reflection on individual and class-wide growth.",
-      "Organization": "Managing assessment time effectively across conceptual and computational sections.",
-      "Reading": "Carefully reading exam prompts to identify constraints and coordinate conventions."
-    },
-    "bellRinger": {
-      "type": "free_response",
-      "promptQuestion": "Take a deep breath! What is one concept or problem from Unit 2 that you feel most confident about explaining today?",
-      "explanation": "Confidence and calm focus are keys to scientific problem solving. Trust your preparation and show all your work with units!",
-      "defaultDuration": 3
-    }
-  },
-  {
-    "day": 24,
-    "date": "2026-10-01",
-    "unit": 2,
-    "title": "Unit 2 Comprehensive Synthesis & Gallery Walk",
-    "topic": "Master Review of Kinematics and Dynamics",
-    "dok": 3,
-    "type": "Activity",
-    "semester": 1,
-    "isFeatured": true,
-    "summary": "Unify the entire 5-week journey: from measuring distance and time to predicting acceleration and forces across multi-agent physical systems.",
-    "activity": "Collaborative Problem Poster Gallery Walk: Teams create large-format solution posters for complex real-world challenges (rocket liftoff with decreasing mass, skydiving terminal velocity, multi-vehicle highway braking). Teams rotate with peer critique rubrics.",
-    "essentialQuestion": "How do kinematic motion models and Newtonian force laws unite into a single predictive framework for all physical motion?",
-    "standards": [
-      "HS-PS2-1",
-      "HS-ETS1-2"
-    ],
-    "wicor": {
-      "Writing": "Constructing written peer critiques evaluating mathematical accuracy and graph annotations.",
-      "Inquiry": "Synthesizing multi-week concepts into comprehensive multi-stage physical proofs.",
-      "Collaboration": "Team poster construction and gallery walk peer review circles.",
-      "Organization": "Formatting solution posters into quadrants: Given parameters, FBD, Motion Graphs, and Proof.",
-      "Reading": "Reading peer posters and decoding alternative algebraic problem-solving strategies."
-    },
-    "bellRinger": {
-      "type": "free_response",
-      "promptQuestion": "Summarize Newton's Three Laws of Motion in one sentence each.",
-      "explanation": "1st Law: Objects keep their velocity unless acted on by a net force. 2nd Law: Unbalanced net force causes acceleration (F_net = m · a). 3rd Law: Every action force has an equal and opposite reaction force.",
-      "defaultDuration": 3
-    }
-  },
-  {
-    "day": 23,
-    "date": "2026-09-30",
-    "unit": 2,
-    "title": "Crash Engineering & Safety: Forces in Collisions",
-    "topic": "Impulse, Impact Time & Vehicle Safety Engineering",
-    "dok": 3,
-    "type": "Activity",
-    "semester": 1,
-    "isFeatured": true,
-    "summary": "Apply Newtonian mechanics to engineering safety: investigate how crumple zones, airbags, and seatbelts minimize lethal forces by extending impact duration.",
-    "activity": "Collision Telemetry & Egg-Crash Cart Analysis: Students preview the Operation Safe Heeler crash engineering challenge. Students analyze high-speed video telemetry comparing rigid carts vs carts fitted with paper/foam crumple zones, calculating the dramatic drop in peak impact force.",
-    "essentialQuestion": "How do automotive engineers manipulate contact time to minimize lethal forces during sudden deceleration?",
-    "standards": [
-      "HS-PS2-1",
-      "HS-ETS1-2"
-    ],
-    "wicor": {
-      "Writing": "Writing an engineering justification report evaluating crumple zone materials.",
-      "Inquiry": "Analyzing accelerometer collision curves to compare peak force vs duration of impact.",
-      "Collaboration": "Teams evaluating crumple zone prototypes under safety constraints.",
-      "Organization": "Graphing force vs time curves and calculating the impulse area.",
-      "Reading": "Reading national highway safety crash test standards and helmet design criteria."
-    },
-    "bellRinger": {
-      "type": "free_response",
-      "promptQuestion": "Why do cars have crumple zones designed to crush during a front-end collision instead of being built out of unbreakable, solid steel?",
-      "explanation": "Crumpling extends the duration of the crash (increases Δt). Because impact force equals F = m · Δv / Δt, extending the stopping time dramatically lowers the force experienced by passengers.",
-      "defaultDuration": 3
-    },
-    "assignments": [
-      {
-        "title": "Operation Safe Heeler Crash Engineering Lab",
-        "url": "operation-safe-heeler.html",
-        "typeLabel": "Graded Engineering Challenge",
-        "submission": "Cloud Auto-Saved ✓",
-        "description": "Design crumple zones to minimize impact forces and submit collision telemetry to the gradebook."
-      }
-    ],
-    "resources": [
-      {
-        "title": "Safe Heeler Telemetry & Class Results",
-        "url": "operation_safe_heeler_results.html",
-        "typeLabel": "Classroom Telemetry & Review",
-        "description": "Class-wide crash test analytics, accelerometer curves, and impulse area comparisons."
-      }
+      "HS-ETS1-1"
     ],
     "links": {
-      "Operation Safe Heeler": "operation-safe-heeler.html",
-      "Safe Heeler Results": "operation_safe_heeler_results.html"
+      "2026-2027 Syllabi": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQAFyZQypLraSYElJBkJwmb2AYRLayGEZm9EwNs6cb8BSqo?e=QHMSjh",
+      "Introduction to Me (PDF)": "https://orangeusdorg-my.sharepoint.com/:b:/g/personal/rmudry_orangeusd_org/IQABuSLSXb0QRYsC7_N5JtEYAQc0lvO2AA1otsRjktR6Y5g?e=EbvhM0"
     }
   },
   {
-    "day": 22,
-    "date": "2026-09-29",
-    "unit": 2,
-    "title": "Resolving the Third Law Paradox & System Boundaries",
-    "topic": "The Horse-and-Cart Dilemma: Why Motion Occurs Despite Equal Forces",
-    "dok": 3,
-    "type": "Activity",
+    "date": "2026-08-20",
+    "day": 2,
+    "unit": 1,
+    "title": "Classroom Procedures & Digital Mindset",
+    "summary": "Introduction to daily routines, Bell-Ringer entry, and lab safety foundations.",
+    "details": "Casual introduction to daily procedures: entering the room, Bell-Ringer check-ins, digital lab dashboard access, materials routines, and team-building SEL activity.",
+    "type": "Orientation",
+    "dok": 1,
     "semester": 1,
     "isFeatured": true,
-    "summary": "Tackle the classic conceptual paradox: 'If action and reaction forces are always equal and opposite, why doesn't everything cancel out?' (They act on different objects!).",
-    "activity": "System Boundary Diagramming Sprint: Students draw boundary boxes around individual objects (the horse, the cart, the road). They discover that within the cart's system boundary, only the forward pull of the horse exists, which is not cancelled by the cart's backward pull on the horse.",
-    "essentialQuestion": "Why can't action-reaction force pairs ever cancel each other out to prevent motion?",
+    "essentialQuestion": "How do structured procedures and team routines empower us to conduct safe, high-level scientific inquiries?",
     "standards": [
-      "HS-PS2-1"
-    ],
-    "wicor": {
-      "Writing": "Composing a formal scientific rebuttal resolving the horse-and-cart paradox.",
-      "Inquiry": "Investigating how external friction between horse hooves and the ground drives forward movement.",
-      "Collaboration": "Structured Socratic debate: arguing from the horse's perspective vs the physics perspective.",
-      "Organization": "Drawing dotted system boundary lines to isolate internal from external forces.",
-      "Reading": "Analyzing historical philosophical debates on Newtonian action-reaction mechanics."
-    },
-    "bellRinger": {
-      "type": "free_response",
-      "promptQuestion": "When you walk across the floor, what physical object actually exerts the forward force that pushes your body forward?",
-      "explanation": "The floor! Your foot pushes backward on the ground; by Newton's Third Law, the ground simultaneously pushes forward on your foot.",
-      "defaultDuration": 3
-    }
-  },
-  {
-    "day": 21,
-    "date": "2026-09-28",
-    "unit": 2,
-    "title": "Newton's Third Law of Motion (Action-Reaction Pairs)",
-    "topic": "Interaction Pairs: Equal Magnitude, Opposite Direction, Different Objects",
-    "dok": 2,
-    "type": "Activity",
-    "semester": 1,
-    "isFeatured": true,
-    "summary": "Explore Newton's Third Law: Forces always exist in pairs. When Object A exerts a force on Object B, Object B exerts an equal and opposite force on Object A.",
-    "activity": "Dual Force Sensor Collisions & Skateboard Push-Offs: Students connect digital force sensors back-to-back and collide them, observing identical peak force spikes in opposite directions. Students test skateboard/rolling chair push-offs to observe mutual recoil.",
-    "essentialQuestion": "When a mosquito hits a car windshield, which object experiences the greater force?",
-    "standards": [
-      "HS-PS2-1"
-    ],
-    "wicor": {
-      "Writing": "Writing paired force statements: 'Object A exerts a force on Object B; Object B exerts an equal and opposite force on Object A.'",
-      "Inquiry": "Analyzing why equal forces produce vastly different accelerations when objects have different masses.",
-      "Collaboration": "Conducting pair skateboard and force sensor recoil trials safely.",
-      "Organization": "Creating an interaction-pair diagram clearly identifying the two interacting objects.",
-      "Reading": "Reading and critiquing common misconceptions about action-reaction pairs."
-    },
-    "bellRinger": {
-      "type": "free_response",
-      "promptQuestion": "When a heavy football linebacker tackles a light running back, does the linebacker exert more force on the running back, or do they exert equal force on each other?",
-      "explanation": "According to Newton's Third Law, they exert the exact same magnitude of force on each other! The lighter player experiences a greater acceleration due to smaller mass (a = F / m).",
-      "defaultDuration": 3
-    }
-  },
-  {
-    "day": 20,
-    "date": "2026-09-25",
-    "unit": 2,
-    "title": "Multi-Force Problem Solving Workshop",
-    "topic": "Calculating Net Force, Friction, and Resulting Acceleration",
-    "dok": 3,
-    "type": "Practice",
-    "semester": 1,
-    "isFeatured": true,
-    "summary": "Synthesize dynamics and kinematics: Given applied forces and friction, calculate F_net, determine a = F_net / m, and predict stopping distances or final speeds.",
-    "activity": "Collaborative Whiteboard Problem-Solving Sprint: Student teams solve real-world automotive braking scenarios. Given vehicle mass, tire friction on dry vs icy pavement, and initial speed, teams calculate stopping acceleration and minimum braking distance.",
-    "essentialQuestion": "How do engineers link tire friction coefficients directly to highway braking distance requirements?",
-    "standards": [
-      "HS-PS2-1"
-    ],
-    "wicor": {
-      "Writing": "Writing complete multi-step algebraic solution sequences with units at every step.",
-      "Inquiry": "Analyzing how doubling initial speed quadruples the stopping distance required by brakes.",
-      "Collaboration": "Team whiteboard problem solving where members take turns acting as solver, checker, and scribe.",
-      "Organization": "Executing a structured 4-step problem solver: FBD → Net Force equation → a = F_net / m → Kinematics.",
-      "Reading": "Extracting numerical parameters and hidden physical conditions (e.g. 'stops' means v_final = 0) from text."
-    },
-    "bellRinger": {
-      "type": "free_response",
-      "promptQuestion": "A 1,000 kg car accelerates forward with 3,000 N of engine thrust while encountering 1,000 N of air resistance and friction. What is the car's acceleration?",
-      "explanation": "F_net = 3,000 N - 1,000 N = 2,000 N forward. a = F_net / m = 2,000 N / 1,000 kg = 2.0 m/s².",
-      "defaultDuration": 3
-    }
-  },
-  {
-    "day": 19,
-    "date": "2026-09-24",
-    "unit": 2,
-    "title": "The Reality of Friction: Static vs. Kinetic",
-    "topic": "Friction Forces (F_f = μ · F_N), Surface Interfaces, and Energy Dissipation",
-    "dok": 2,
-    "type": "Lab",
-    "semester": 1,
-    "isFeatured": true,
-    "summary": "Investigate why real-world objects slow down: surface microscopic interactions, static friction threshold vs kinetic sliding friction, and normal force dependence.",
-    "activity": "Friction Block Pull Lab: Students drag weighted wooden blocks across sandpaper, vinyl, and cardboard using spring scales. They record the peak static 'breakaway' force versus the lower steady dragging kinetic force, and calculate the friction coefficient (μ = F_f / F_N).",
-    "essentialQuestion": "Why does it always require more force to start an object sliding than to keep it sliding?",
-    "standards": [
-      "HS-PS2-1"
-    ],
-    "wicor": {
-      "Writing": "Describing the microscopic interactions (asperities/welds) that create friction forces.",
-      "Inquiry": "Testing whether contact surface area changes sliding friction when mass is held constant.",
-      "Collaboration": "Partner trials testing multiple surface materials and logging peak vs sliding forces.",
-      "Organization": "Organizing data tables comparing static coefficient (μ_s) to kinetic coefficient (μ_k).",
-      "Reading": "Interpreting spring force dial peaks during initial breakaway movement."
-    },
-    "bellRinger": {
-      "type": "free_response",
-      "promptQuestion": "Why is it noticeably harder to get a heavy stalled car moving from rest than it is to keep it rolling once it starts moving?",
-      "explanation": "Static friction (which must be overcome to start moving) is higher than kinetic friction (which resists rolling/sliding motion once moving).",
-      "defaultDuration": 3
-    }
-  },
-  {
-    "day": 18,
-    "date": "2026-09-23",
-    "unit": 2,
-    "title": "Newton's Second Law Lab — Part 2: Mass vs. Acceleration",
-    "topic": "Empirical Verification of a ∝ 1/m & Derivation of F_net = m · a",
-    "dok": 3,
-    "type": "Lab",
-    "semester": 1,
-    "isFeatured": true,
-    "summary": "Empirically verify that acceleration is inversely proportional to mass under constant force, synthesizing the master equation F_net = m · a.",
-    "activity": "Part 2 of Second Law Inquiry: Students maintain a constant hanging pulling force while systematically adding mass bars to the cart (0.5 kg, 1.0 kg, 1.5 kg). Students plot acceleration vs mass (inverse curve) and acceleration vs 1/mass (straight line), deriving the equation F_net = m · a.",
-    "essentialQuestion": "Why is the relationship between mass and acceleration inverse rather than direct?",
-    "standards": [
-      "HS-PS2-1",
-      "HS-ETS1-2"
-    ],
-    "wicor": {
-      "Writing": "Writing a formal derivation of the equation F_net = m · a based on experimental slope values.",
-      "Inquiry": "Transforming non-linear inverse curves into linear plots using inverse mass (1/m).",
-      "Collaboration": "Comparing data across lab groups to confirm that the slope matches the constant pulling force.",
-      "Organization": "Linearizing data tables with calculated 1/m columns.",
-      "Reading": "Reading and comparing multiple graph representations of physical relationships."
-    },
-    "bellRinger": {
-      "type": "free_response",
-      "promptQuestion": "A 10 N net force pushes a 2 kg cart. What is the acceleration? If the mass is increased to 4 kg under the same force, what is the new acceleration?",
-      "explanation": "For 2 kg: a = F / m = 10 N / 2 kg = 5.0 m/s². For 4 kg: a = 10 N / 4 kg = 2.5 m/s² (doubling mass cuts acceleration in half).",
-      "defaultDuration": 3
-    }
-  },
-  {
-    "day": 17,
-    "date": "2026-09-22",
-    "unit": 2,
-    "title": "Newton's Second Law Lab — Part 1: Force vs. Acceleration",
-    "topic": "Empirical Verification of a ∝ F_net (Constant Mass System)",
-    "dok": 3,
-    "type": "Lab",
-    "semester": 1,
-    "isFeatured": true,
-    "summary": "Empirically verify that acceleration is directly proportional to applied net force when system mass is held constant.",
-    "activity": "Modified Atwood Track Lab: Students pull a constant-mass dynamics cart across a track using hanging masses (0.1 N, 0.2 N, 0.3 N, 0.4 N) suspended over an end pulley. Students measure acceleration with photogates or motion sensors, plot acceleration vs net force, and observe a linear trendline.",
-    "essentialQuestion": "How does experimental data verify the direct proportionality between applied net force and acceleration?",
-    "standards": [
-      "HS-PS2-1",
-      "HS-ETS1-2"
-    ],
-    "wicor": {
-      "Writing": "Drafting lab analysis explaining how linear graph slope confirms direct proportionality.",
-      "Inquiry": "Isolating variables by ensuring total system mass remains constant during force transfers.",
-      "Collaboration": "Assigning lab station roles: mass handler, sensor operator, and data recorder.",
-      "Organization": "Constructing clean data tables correlating applied force (N) with measured acceleration (m/s²).",
-      "Reading": "Reading digital sensor readouts and interpreting linear regression plots."
-    },
-    "bellRinger": {
-      "type": "free_response",
-      "promptQuestion": "If you double the net force pushing a shopping cart while keeping the total mass the same, what happens to the cart's acceleration?",
-      "explanation": "The acceleration doubles, because acceleration is directly proportional to net force (a ∝ F_net).",
-      "defaultDuration": 3
-    }
-  },
-  {
-    "day": 16,
-    "date": "2026-09-21",
-    "unit": 2,
-    "title": "Unbalanced Forces Produce Acceleration",
-    "topic": "Introducing Newton's Second Law: Cause and Effect",
-    "dok": 2,
-    "type": "Direct Instruction",
-    "semester": 1,
-    "isFeatured": true,
-    "summary": "Establish that an unbalanced net force (F_net ≠ 0) causes acceleration in the direction of the net force, introducing the proportionalities of Newton's 2nd Law.",
-    "activity": "Fan-Cart Demonstration & Proportional Reasoning Sprint: Students observe a low-friction cart with an electric fan motor. When the fan is turned on, the cart speeds up continuously. Students predict what happens when net force doubles or cart mass doubles.",
-    "essentialQuestion": "What determines whether a force makes an object speed up, slow down, or simply maintain its motion?",
-    "standards": [
-      "HS-PS2-1"
-    ],
-    "wicor": {
-      "Writing": "Documenting cause-and-effect relationships: F_net causes acceleration, mass resists it.",
-      "Inquiry": "Testing conceptual ranking scenarios: ordering systems by magnitude of acceleration.",
-      "Collaboration": "Table teams debating whether a heavy truck or light car accelerates faster under identical thrust.",
-      "Organization": "Developing a concept map linking Unbalanced Force → Acceleration → Changing Velocity.",
-      "Reading": "Reading and annotating historical explanations of Newton's Second Law."
-    },
-    "bellRinger": {
-      "type": "free_response",
-      "promptQuestion": "You push a box to the right with 30 N of force, while friction resists to the left with 10 N. What is the net force acting on the box, and what will happen to its motion?",
-      "explanation": "The net force is 30 N - 10 N = 20 N to the right. Because there is an unbalanced net force, the box will accelerate to the right.",
-      "defaultDuration": 3
-    }
-  },
-  {
-    "day": 15,
-    "date": "2026-09-18",
-    "unit": 2,
-    "title": "Balanced Forces & Mechanical Equilibrium (F_net = 0)",
-    "topic": "Static and Dynamic Equilibrium: Zero Net Force implies Zero Acceleration",
-    "dok": 3,
-    "type": "Practice",
-    "semester": 1,
-    "isFeatured": true,
-    "summary": "Compute net force in 1D systems and prove that zero net force produces zero acceleration in both static (rest) and dynamic (constant speed) states.",
-    "activity": "Dual Spring-Scale Tug-of-War: Teams use opposing calibrated spring scales attached to dynamics carts to establish balanced force states (F_left = F_right). Students verify that when net force is zero, carts remain at rest OR roll with constant velocity when pushed.",
-    "essentialQuestion": "Why does an aircraft cruising at 500 mph at constant altitude experience exactly zero net force?",
-    "standards": [
-      "HS-PS2-1"
-    ],
-    "wicor": {
-      "Writing": "Writing mathematical summation proofs: ΣF = F_forward - F_friction = 0.",
-      "Inquiry": "Investigating why engine thrust must match aerodynamic drag during steady cruising.",
-      "Collaboration": "Coordinating spring scale pulls to maintain equilibrium during cart motion.",
-      "Organization": "Structuring two-column proofs resolving vertical and horizontal force components.",
-      "Reading": "Reading dual gauge readouts and calculating algebraic vector sums."
-    },
-    "bellRinger": {
-      "type": "cast_challenge",
-      "title": "Balanced Forces & Dynamic Equilibrium",
-      "defaultDuration": 4,
-      "standards": {
-        "dci": "HS-PS2.A: Forces & Motion",
-        "sep": "SEP-6: Constructing Explanations & Designing Solutions",
-        "ccc": "CCC-4: Systems & System Models / Stability and Change"
-      },
-      "phenomenon": {
-        "title": "High-Speed Rail Dynamic Equilibrium",
-        "type": "data_table",
-        "text": "An electric passenger train cruises along a straight, horizontal track at a constant velocity of 40 m/s with balanced forces.",
-        "dataTable": {
-          "caption": "Cruising Train Force Telemetry",
-          "headers": [
-            "Force Component",
-            "Direction",
-            "Magnitude",
-            "System Motion State"
-          ],
-          "rows": [
-            {
-              "col_0": "Locomotive Drive Thrust",
-              "col_1": "Forward (Horizontal)",
-              "col_2": "20,000 N",
-              "col_3": "Cruising at steady 40 m/s"
-            },
-            {
-              "col_0": "Resistive Drag + Friction",
-              "col_1": "Backward (Horizontal)",
-              "col_2": "To be determined",
-              "col_3": "Opposes motion"
-            },
-            {
-              "col_0": "Net Horizontal Force (ΣF)",
-              "col_1": "Horizontal",
-              "col_2": "0 N",
-              "col_3": "Zero acceleration (a = 0)"
-            }
-          ]
-        }
-      },
-      "steps": [
-        {
-          "stepId": "step_1",
-          "type": "cloze_dropdown",
-          "title": "Part 1: Dynamic Equilibrium Principles",
-          "prompt": "Apply Newton's First Law of Motion to the cruising train:",
-          "text": "Because the train travels at a constant velocity, its acceleration is [blank1]. According to Newton's First Law, the net horizontal force must be [blank2]. The forward motor thrust and backward resistive forces are [blank3].",
-          "blanks": {
-            "blank1": {
-              "correct": "0 m/s²",
-              "options": [
-                "0 m/s²",
-                "40 m/s²",
-                "9.8 m/s²"
-              ]
-            },
-            "blank2": {
-              "correct": "0 N (balanced)",
-              "options": [
-                "0 N (balanced)",
-                "greater than 0 N forward",
-                "equal to train weight"
-              ]
-            },
-            "blank3": {
-              "correct": "balanced (equal and opposite)",
-              "options": [
-                "balanced (equal and opposite)",
-                "unbalanced forward",
-                "unbalanced backward"
-              ]
-            }
-          }
-        },
-        {
-          "stepId": "step_2",
-          "type": "data_calculation",
-          "title": "Part 2: Resistive Force Calculation",
-          "prompt": "The locomotive motors exert 20,000 N of forward thrust. Because the train maintains a constant speed with balanced forces (Net Force = 0 N), calculate the total backward resistive force in Newtons.",
-          "inputLabel": "Total Resistive Force",
-          "unit": "N",
-          "targetValue": 20000,
-          "tolerance": 100,
-          "hint": "ΣF = F_forward - F_resistive = 0, so F_resistive = F_forward."
-        },
-        {
-          "stepId": "step_3",
-          "type": "ai_reasoning_chat",
-          "title": "Part 3: Defend Your Thinking (AI Physics Mentor)",
-          "prompt": "Discuss your thinking with the AI Physics Mentor. Defend your calculation and explain why zero net force does NOT mean the train must be stopped.",
-          "openingMessage": "You calculated 20,000 N for the resistive forces! A classmate says that if the net force is zero, the train cannot be moving and must be stopped. Why are they mistaken? Defend dynamic equilibrium!"
-        }
-      ],
-      "teacherKey": "Step 1: 0 m/s², 0 N (balanced), balanced (equal and opposite). Step 2: 20000 N. Step 3: Claim: Zero net force does not mean stopped; it means constant velocity. Evidence: Newton's First Law states an object in motion remains in motion unless acted upon by a net unbalanced force. Reasoning: Forces do not cause motion; net unbalanced forces cause changes in motion (acceleration). Because thrust balances drag (ΣF = 0), acceleration is zero and the train continues at 40 m/s indefinitely."
-    }
-  },
-  {
-    "day": 14,
-    "date": "2026-09-17",
-    "unit": 2,
-    "title": "The Force Toolkit: Types of Forces & Free-Body Diagrams",
-    "topic": "Contact vs. Field Forces & Systematic Free-Body Modeling (FBDs)",
-    "dok": 2,
-    "type": "Activity",
-    "semester": 1,
-    "isFeatured": true,
-    "summary": "Catalog standard physical forces (Gravity, Normal, Tension, Friction, Applied) and master drawing standardized Free-Body Diagrams (FBDs).",
-    "activity": "Whiteboard FBD Drafting Sprint: Students rotate through physical stations (book resting on desk, sled pulled across snow, elevator accelerating upward, hanging traffic light) and draw isolated dot diagrams with correctly labeled and scaled vector arrows.",
-    "essentialQuestion": "How do free-body diagrams allow us to translate messy real-world objects into isolated vector systems?",
-    "standards": [
-      "HS-PS2-1"
-    ],
-    "wicor": {
-      "Writing": "Labeling force vectors with standard subscript notations: F_g, F_N, F_f, F_T, F_app.",
-      "Inquiry": "Identifying which surfaces exert contact forces versus non-contact gravitational field forces.",
-      "Collaboration": "Pair critique of whiteboard diagrams: verifying equal vector lengths for balanced situations.",
-      "Organization": "Creating an FBD reference cheat sheet mapping scenarios to force combinations.",
-      "Reading": "Extracting physical force interactions from descriptive word problems."
-    },
-    "bellRinger": {
-      "type": "free_response",
-      "promptQuestion": "A textbook sits motionless on a classroom table. What two forces act on the book, and how do their magnitudes compare?",
-      "explanation": "Gravity (F_g) pulls downward and the Normal force (F_N) of the table pushes upward. They are equal in magnitude and opposite in direction.",
-      "defaultDuration": 3
-    }
-  },
-  {
-    "day": 13,
-    "date": "2026-09-16",
-    "unit": 2,
-    "title": "Mass as the Quantitative Measure of Inertia",
-    "topic": "Mass (kg) vs. Weight (N) vs. Volume: Isolating Inertia",
-    "dok": 2,
-    "type": "Lab",
-    "semester": 1,
-    "isFeatured": true,
-    "summary": "Establish mass as the measure of an object's inertia, fundamentally distinguishing it from gravitational weight (N) and geometric volume.",
-    "activity": "Mystery Mass Inertia Shaker Lab: Blindfolded students shake identical sealed cylinders filled with cotton, wood, and lead horizontally along low-friction tracks. Because vertical gravity is supported, students rank cylinder masses purely through tactile resistance to back-and-forth acceleration.",
-    "essentialQuestion": "Why would an anvil have the exact same inertia in deep space as it does on Earth, even though it weighs zero Newtons?",
-    "standards": [
-      "HS-PS2-1"
-    ],
-    "wicor": {
-      "Writing": "Explaining the physical difference between an object's mass in kilograms and weight in Newtons.",
-      "Inquiry": "Testing whether shaking objects horizontally isolates mass from gravitational weight.",
-      "Collaboration": "Comparing blind shaker rankings across lab table teams to reach consensus.",
-      "Organization": "Constructing a three-way distinction matrix: Mass, Weight, and Volume.",
-      "Reading": "Reading technical scales and spring force indicators with appropriate units."
-    },
-    "bellRinger": {
-      "type": "free_response",
-      "promptQuestion": "Which has greater inertia: a 10 kg bowling ball on Earth or a 10 kg bowling ball floating on the International Space Station?",
-      "explanation": "They have the exact same inertia! Inertia depends solely on mass (10 kg), which does not change based on gravitational location.",
-      "defaultDuration": 3
-    }
-  },
-  {
-    "day": 12,
-    "date": "2026-09-15",
-    "unit": 2,
-    "title": "Newton's First Law of Motion (The Law of Inertia)",
-    "topic": "The First Law & Natural States of Motion",
-    "dok": 2,
-    "type": "Direct Instruction",
-    "semester": 1,
-    "isFeatured": true,
-    "summary": "Formalize Newton's First Law: objects maintain constant velocity (rest or steady straight-line motion) unless acted upon by a net external force.",
-    "activity": "AVID Critical Reading & CER Writing: Students read Galileo's double-incline thought experiment. Teams draft Claim-Evidence-Reasoning (CER) paragraphs analyzing why unrestrained vehicle passengers lurch forward during emergency braking.",
-    "essentialQuestion": "How does Newton's First Law redefine our everyday definition of what forces actually do?",
-    "standards": [
-      "HS-PS2-1"
-    ],
-    "wicor": {
-      "Writing": "Drafting formal CER arguments justifying passenger motion during sudden vehicle turns.",
-      "Inquiry": "Exploring why our intuition makes us feel an imaginary 'push' when a vehicle accelerates.",
-      "Collaboration": "Peer-editing CER evidence statements with structured partner rubrics.",
-      "Organization": "Highlighting text claims and evidence using color-coded AVID markup strategies.",
-      "Reading": "Annotating scientific text on Newton's First Law and inertial reference frames."
-    },
-    "bellRinger": {
-      "type": "free_response",
-      "promptQuestion": "When a car takes a sharp left turn, why do passengers feel like they are being thrown to the right?",
-      "explanation": "No force pushes passengers right. Due to inertia, their bodies naturally continue moving straight ahead until the car door or seatbelt exerts an unbalanced force pushing them left into the turn.",
-      "defaultDuration": 3
-    }
-  },
-  {
-    "day": 11,
-    "date": "2026-09-14",
-    "unit": 2,
-    "title": "The Big Question: What Keeps Things Moving? (Inertia Demos)",
-    "topic": "Inquiry Launch into Dynamics: Aristotle vs Galileo vs Newton",
-    "dok": 2,
-    "type": "Inquiry",
-    "semester": 1,
-    "isFeatured": true,
-    "summary": "Launch Dynamics with high-engagement inertia demonstrations that dismantle the intuitive misconception that motion requires a continuous forward push.",
-    "activity": "Inertia Phenomenon Stations: Students cycle through 4 hands-on stations: (1) The Tablecloth Pull with weighted dishes, (2) The Index Card & Penny snap into a beaker, (3) The Bowling Ball Mallet Challenge (steering a rolling ball), and (4) The Frictionless Hover Puck gliding indefinitely across the floor.",
-    "essentialQuestion": "Does an object in motion require a continuous applied force to keep moving forward?",
-    "standards": [
-      "HS-PS2-1"
-    ],
-    "wicor": {
-      "Writing": "Writing initial claim statements answering what happens to an object when all friction is removed.",
-      "Inquiry": "Observing how objects resist changes to their current state of rest or motion.",
-      "Collaboration": "Group rotation through demonstration stations, debating observations.",
-      "Organization": "Completing a four-quadrant observation sheet detailing cause, observation, and inference for each demo.",
-      "Reading": "Reading excerpts from Aristotle's motion theories vs Galileo's thought experiments."
-    },
-    "bellRinger": {
-      "type": "free_response",
-      "promptQuestion": "If you throw a baseball in deep outer space where there is no gravity, no air, and no friction, what will happen to the ball after it leaves your hand?",
-      "explanation": "The baseball will keep moving in a straight line at the exact same constant speed forever, because there is no net force to slow it down or change its direction.",
-      "defaultDuration": 3
-    }
-  },
-  {
-    "day": 10,
-    "date": "2026-09-11",
-    "unit": 2,
-    "title": "Constant Speed Story: Author & Solve",
-    "topic": "Creative Problem Authoring & Solving Workshop (Illustrate, Write, and Solve)",
-    "dok": 3,
-    "type": "In-Class Performance Task",
-    "semester": 1,
-    "isFeatured": true,
-    "image": "assets/images/constant_speed_story_exemplar.jpg",
-    "summary": "Synthesize constant speed mastery through creative problem authoring: students illustrate an original motion scenario, write an authentic kinematic word problem, and construct a complete step-by-step mathematical proof using the GUESS method on paper.",
-    "activity": "Constant Speed Story Workshop: Students illustrate an authentic constant-speed motion scenario, compose an original word problem targeting an unknown kinematic variable (v, d, or t), and solve it on their handout using the GUESS method with step-by-step mathematical work.",
-    "essentialQuestion": "How can a single mathematical relationship (v = d / t) predict all aspects of uniform constant motion across any physical system?",
-    "standards": [
-      "HS-PS2-1"
-    ],
-    "wicor": {
-      "Writing": "Writing narrative scenario contexts, formulating clear kinematic word problems, and writing step-by-step mathematical proofs.",
-      "Inquiry": "Designing original physical scenarios, establishing boundary conditions, and verifying mathematical consistency.",
-      "Collaboration": "Classroom peer challenge solving: students browse the gallery and solve classmates' published word problems.",
-      "Organization": "Executing the structured 5-step GUESS method: Givens, Unknown, Equation, Substitute, and Solve.",
-      "Reading": "Reading, analyzing, and decoding peer-authored physics scenarios and diagnostic prompts."
-    },
-    "bellRinger": {
-      "type": "cast_challenge",
-      "title": "Constant Motion Synthesis & 3-Way Formula Mastery",
-      "promptQuestion": "Analyze the three sensor scenarios in the data table and match each to its required formula triangle rearrangement, then calculate the transit time for Scenario C.",
-      "explanation": "Using the formula triangle: Scenario A requires d = v · t; Scenario B requires v = d / t; Scenario C requires t = d / v = 680 m / (340 m/s) = 2.0 s.",
-      "defaultDuration": 4,
-      "standards": {
-        "dci": "HS-PS2.A: Forces & Motion",
-        "sep": "SEP-5: Using Mathematics and Computational Thinking",
-        "ccc": "CCC-3: Scale, Proportion, and Quantity"
-      },
-      "phenomenon": {
-        "title": "Transit Telemetry & Sensor Monitoring Hub",
-        "type": "data_table",
-        "text": "An automated transit monitoring hub tracks three different transportation and signal systems. Each scenario contains two known quantities and one unknown kinematic variable.",
-        "dataTable": {
-          "caption": "Kinematic Scenario Sensor Telemetry",
-          "headers": [
-            "Scenario",
-            "Known Parameter 1",
-            "Known Parameter 2",
-            "Target Unknown"
-          ],
-          "rows": [
-            {
-              "col_0": "Scenario A (Commuter Train)",
-              "col_1": "Speed (v) = 20 m/s",
-              "col_2": "Time (t) = 5.0 s",
-              "col_3": "Distance (d) = ?"
-            },
-            {
-              "col_0": "Scenario B (Track Sprinter)",
-              "col_1": "Distance (d) = 100 m",
-              "col_2": "Time (t) = 10.0 s",
-              "col_3": "Speed (v) = ?"
-            },
-            {
-              "col_0": "Scenario C (Ultrasonic Echo Pulse)",
-              "col_1": "Distance (d) = 680 m",
-              "col_2": "Speed of Sound (v) = 340 m/s",
-              "col_3": "Transit Time (t) = ?"
-            }
-          ]
-        }
-      },
-      "steps": [
-        {
-          "stepId": "step_1",
-          "type": "cloze_dropdown",
-          "title": "Part 1: Formula Triangle Rearrangement",
-          "prompt": "Match each scenario from the sensor table to the correct rearrangement of the speed formula triangle:",
-          "text": "To find the distance traveled in Scenario A, use [blank1]. To calculate the sprinter speed in Scenario B, use [blank2]. To determine the pulse transit time in Scenario C, use [blank3].",
-          "blanks": {
-            "blank1": {
-              "correct": "d = v · t",
-              "options": [
-                "d = v · t",
-                "d = v / t",
-                "d = t / v"
-              ]
-            },
-            "blank2": {
-              "correct": "v = d / t",
-              "options": [
-                "v = d / t",
-                "v = d · t",
-                "v = t / d"
-              ]
-            },
-            "blank3": {
-              "correct": "t = d / v",
-              "options": [
-                "t = d / v",
-                "t = d · v",
-                "t = v / d"
-              ]
-            }
-          }
-        },
-        {
-          "stepId": "step_2",
-          "type": "data_calculation",
-          "title": "Part 2: Ultrasonic Transit Time Calculation",
-          "prompt": "Calculate the transit time in seconds for the Scenario C ultrasonic pulse to travel 680 meters at a speed of 340 m/s.",
-          "inputLabel": "Ultrasonic Transit Time",
-          "unit": "s",
-          "targetValue": 2,
-          "tolerance": 0.1,
-          "hint": "Time = distance / speed = 680 m / (340 m/s)."
-        },
-        {
-          "stepId": "step_3",
-          "type": "ai_reasoning_chat",
-          "title": "Part 3: Defending the Why with AI Mentor",
-          "prompt": "Discuss your reasoning with the AI Physics Mentor: Explain how diagnosing your target unknown guides formula selection, and how dimensional analysis (checking units) proves your answer is physically sound.",
-          "openingPrompt": "You found that the Scenario C ultrasonic pulse takes 2.0 seconds! In your own words, how does checking the units of your givens help you decide whether to multiply or divide? What would happen to the units if you accidentally multiplied distance by speed?",
-          "minTurns": 1
-        }
-      ],
-      "teacherKey": "Step 1: d = v · t, v = d / t, t = d / v. Step 2: 2.0 s (680 m / 340 m/s). Step 3: Claim: Knowing the target unknown allows you to isolate the correct variable from the formula triangle, and dimensional analysis verifies the calculation. Evidence: In Scenario A, (m/s) · s = m (distance). In Scenario B, m / s = m/s (speed). In Scenario C, m / (m/s) = s (time). If you multiplied 680 m by 340 m/s, the units would be m² / s, which does not measure time. Reasoning: Mathematical equations in physics represent physical dimensions; unit consistency confirms whether an algebraic operation is valid."
-    },
-    "assignments": [
-      {
-        "title": "Constant Speed Story: Author & Solve",
-        "url": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
-        "typeLabel": "In-Class Performance Task",
-        "submission": "Turn In Completed Worksheet",
-        "actionLabel": "View Handout",
-        "description": "Illustrate an original constant speed motion scenario, write a word problem targeting an unknown variable (v, d, or t), and solve using the GUESS method on your handout."
-      },
-      {
-        "title": "Wind-Up Toy Speed Lab (Final Submission)",
-        "url": "Unit_2/wind_up_toy_lab/index.html",
-        "typeLabel": "Graded Lab Report",
-        "submission": "Cloud Auto-Saved ✓",
-        "description": "Final check and submission for lab data and error reflections."
-      }
-    ],
-    "resources": [
-      {
-        "title": "Student Work Exemplar (Illustration & GUESS Proof)",
-        "url": "assets/images/constant_speed_story_exemplar.jpg",
-        "typeLabel": "Student Visual Guide",
-        "description": "High-resolution exemplar showing the illustrated dragon sky-mansion scenario, word problem, and complete GUESS solution proof."
-      },
-      {
-        "title": "Constant Speed Presentation",
-        "url": "Unit_2/constant-speed-presentation/index.html",
-        "typeLabel": "Classroom Lecture Slides",
-        "description": "Comprehensive motion review and formula triangle summary."
-      }
-    ],
-    "practice": [
-      {
-        "title": "Speed & Distance Studio",
-        "url": "Unit_2/speed_distance_time_app/index.html",
-        "typeLabel": "Practice Sandbox",
-        "description": "Leveled speed problem drills."
-      },
-      {
-        "title": "Two-Car Kinematic Intercept Challenge",
-        "url": "Unit_2/two_car_intercept/index.html",
-        "typeLabel": "Honors Physics Intercept Simulator",
-        "description": "Solve systems of kinematic equations to predict collision time and location."
-      }
+      "HS-ETS1-1"
     ],
     "links": {
-      "Constant Speed Story Handout": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
-      "Student Work Exemplar": "assets/images/constant_speed_story_exemplar.jpg",
-      "Speed & Distance Studio": "Unit_2/speed_distance_time_app/index.html",
-      "Two-Car Kinematic Intercept Challenge": "Unit_2/two_car_intercept/index.html",
-      "Constant Speed Presentation": "Unit_2/constant-speed-presentation/index.html",
-      "Wind-Up Toy Speed Lab": "Unit_2/wind_up_toy_lab/index.html"
+      "Student Survey": "https://docs.google.com/forms/d/e/1FAIpQLSfNPLkAVYrqKlyg8ks5321_JgwFNf7cNBpaCSu6zzUHNzflWA/viewform?usp=dialog"
     }
   },
   {
-    "day": 9,
-    "date": "2026-09-10",
-    "unit": 2,
-    "title": "Solving for Time & Multi-Step Motion Challenges",
-    "topic": "Rearranging for Time (t = d / v), Metric Unit Consistency, and Multi-Object Race Comparisons",
-    "dok": 3,
-    "type": "Practice / Activity",
+    "date": "2026-08-21",
+    "day": 3,
+    "unit": 1,
+    "title": "Student Survey Data Analysis & Graphing",
+    "summary": "Graphing student survey data using the Data Analysis Studio to make data-driven claims on a single slide.",
+    "details": "Students analyze class survey results using the Data Analysis Studio. Teams generate at least two distinct data visualizations (e.g. Physics Period distribution and Favorite Animal preferences) and assemble them on a single presentation slide alongside clear claim statements supported by data.<br><br><strong>Slide Layout Example:</strong><br><img src=\"assets/images/day3_slide_example.png\" alt=\"Student Survey Slide Layout Example\" style=\"max-width:100%; border-radius:12px; margin-top:0.5rem; border:1px solid rgba(255,255,255,0.15);\">",
+    "type": "Activity",
+    "dok": 2,
     "semester": 1,
     "isFeatured": true,
-    "summary": "Master isolating time (t = d / v) from the speed formula triangle, solve multi-step motion word problems, and resolve race scenarios comparing multiple moving objects.",
-    "activity": "Whiteboard sprint and multi-step motion challenges: Students solve for time (t = d / v), verify decimal division, convert units (cm to m, minutes to seconds), and complete all 3 levels of the Physics Speed Calculator to earn their Certificate of Kinematic Mastery.",
-    "essentialQuestion": "Why does calculating travel time require dividing distance by speed, and how does speed act as a conversion factor between space and time?",
+    "essentialQuestion": "How do scientists transform raw survey data into clear visual graphs to justify evidence-based claims?",
     "standards": [
-      "HS-PS2-1"
-    ],
-    "wicor": {
-      "Writing": "Formulating written justifications explaining which vehicle won a multi-interval race and why.",
-      "Inquiry": "Investigating how dividing by fractional or decimal speeds affects the calculated time.",
-      "Collaboration": "Timed whiteboard duels: partners race to isolate time and solve multi-step challenges.",
-      "Organization": "Structuring multi-step problem solutions into distinct algebraic phases.",
-      "Reading": "Deconstructing multi-sentence race prompts with multiple moving objects."
-    },
-    "bellRinger": {
-      "type": "cast_challenge",
-      "title": "Multi-Agent Kinematics & Proportional Rates",
-      "defaultDuration": 4,
-      "standards": {
-        "dci": "HS-PS2.A: Forces & Motion",
-        "sep": "SEP-5: Using Mathematics and Computational Thinking",
-        "ccc": "CCC-3: Scale, Proportion, and Quantity"
-      },
-      "phenomenon": {
-        "title": "Emergency Medical Supply Dispatch Challenge",
-        "type": "data_table",
-        "text": "An emergency depot must rush medicine to a clinic. Dispatch evaluates two transport options shown in the data table below.",
-        "dataTable": {
-          "caption": "Vehicle Transport Route & Speed Comparison",
-          "headers": [
-            "Vehicle Option",
-            "Route Description",
-            "Distance (d)",
-            "Speed (v)"
-          ],
-          "rows": [
-            {
-              "col_0": "Aerial Drone Alpha",
-              "col_1": "Direct straight flight",
-              "col_2": "600 m",
-              "col_3": "20 m/s"
-            },
-            {
-              "col_0": "Ground Rover Beta",
-              "col_1": "Winding mountain road",
-              "col_2": "800 m",
-              "col_3": "20 m/s"
-            }
-          ]
-        }
-      },
-      "steps": [
-        {
-          "stepId": "step_1",
-          "type": "cloze_dropdown",
-          "title": "Part 1: Distance and Travel Time",
-          "prompt": "Use the data table to compare the two vehicles traveling at 20 m/s:",
-          "text": "The vehicle that arrives at the clinic first is [blank1] because its travel distance is shorter. When speed is kept constant, travel time is [blank2] proportional to travel distance.",
-          "blanks": {
-            "blank1": {
-              "correct": "Aerial Drone Alpha",
-              "options": [
-                "Aerial Drone Alpha",
-                "Ground Rover Beta",
-                "Both tie at the same time"
-              ]
-            },
-            "blank2": {
-              "correct": "directly",
-              "options": [
-                "directly",
-                "inversely",
-                "not"
-              ]
-            }
-          }
-        },
-        {
-          "stepId": "step_2",
-          "type": "data_calculation",
-          "title": "Part 2: Travel Time Calculation",
-          "prompt": "Calculate the travel time in seconds for Aerial Drone Alpha to fly 600 meters at a steady speed of 20 m/s.",
-          "inputLabel": "Drone Alpha Travel Time",
-          "unit": "s",
-          "targetValue": 30,
-          "tolerance": 0.5,
-          "hint": "Time = distance / speed = 600 m / (20 m/s)."
-        },
-        {
-          "stepId": "step_3",
-          "type": "ai_reasoning_chat",
-          "title": "Part 3: Defend Your Thinking (AI Physics Mentor)",
-          "prompt": "Discuss your thinking with the AI Physics Mentor. Defend why Drone Alpha arrives first and explain how extra distance impacts travel time when speed is constant.",
-          "openingMessage": "You calculated 30 seconds for Drone Alpha! Which vehicle gets there first, and why does Drone Alpha win even though both vehicles travel at the exact same speed?"
-        }
-      ],
-      "teacherKey": "Step 1: Aerial Drone Alpha, directly. Step 2: 30 seconds (600 m / 20 m/s). Step 3: Claim: Aerial Drone Alpha arrives first by 10 seconds. Evidence: Drone Alpha time = 600 m / 20 m/s = 30 s; Rover Beta time = 800 m / 20 m/s = 40 s (40 s - 30 s = 10 s). Reasoning: When traveling at identical speeds, travel time is directly proportional to distance (t = d / v). The rover's winding road adds 200 m of extra path, requiring 10 additional seconds."
-    },
-    "assignments": [
-      {
-        "title": "Physics Speed Calculator",
-        "url": "physics_speed_calculator/dist/index.html",
-        "typeLabel": "Graded Kinematics Lab",
-        "submission": "Cloud Auto-Saved ✓",
-        "description": "Complete all 3 levels (Speed, Distance, and Time) using Desmos to earn your Certificate of Kinematic Mastery. Auto-saved to Firestore."
-      }
-    ],
-    "resources": [
-      {
-        "title": "Constant Speed Presentation",
-        "url": "Unit_2/constant-speed-presentation/index.html",
-        "typeLabel": "Classroom Lecture Slides",
-        "description": "Rearranging for time and multi-object race comparisons."
-      }
-    ],
-    "practice": [
-      {
-        "title": "Two-Car Kinematic Intercept Challenge",
-        "url": "Unit_2/two_car_intercept/index.html",
-        "typeLabel": "Period 0 Honors Challenge",
-        "description": "Two-vehicle intercept race competition: predict meeting time and location from starting positions and velocities."
-      },
-      {
-        "title": "Speed & Distance Studio",
-        "url": "Unit_2/speed_distance_time_app/index.html",
-        "typeLabel": "Practice Sandbox",
-        "description": "Leveled speed and distance challenges."
-      }
+      "HS-ETS1-1"
     ],
     "links": {
-      "Two-Car Intercept Challenge": "Unit_2/two_car_intercept/index.html",
-      "Physics Speed Calculator": "physics_speed_calculator/dist/index.html",
-      "Speed & Distance Studio": "Unit_2/speed_distance_time_app/index.html",
-      "Constant Speed Presentation": "Unit_2/constant-speed-presentation/index.html"
+      "Data Analysis Studio": "Data_Analysis/index.html",
+      "Slide Layout Example": "assets/images/day3_slide_example.png",
+      "Student Survey": "https://docs.google.com/forms/d/e/1FAIpQLSfNPLkAVYrqKlyg8ks5321_JgwFNf7cNBpaCSu6zzUHNzflWA/viewform?usp=dialog"
     }
   },
   {
-    "day": 8,
-    "date": "2026-09-09",
-    "unit": 2,
-    "title": "The Speed Equation: Calculating Speed & Solving for Distance",
-    "topic": "The Formula Triangle (v = d / t), Standard Units (m/s, cm/s), and Rearranging for Distance (d = v · t)",
+    "date": "2026-08-24",
+    "day": 4,
+    "unit": 1,
+    "title": "Why Standardize? Non-Standard Unit Challenge",
+    "summary": "Hands-on calibration challenge introducing standardized units.",
+    "details": "Students discover why standardized units are necessary through a hands-on challenge. Each group uses a unique, non-standard object (like a marker) to create their own measuring tool and measure a common classroom item. After comparing their varied and confusing initial results, they convert their measurements to a standard unit (cm), revealing a new consistency and leading to a class discussion on the importance of the SI system for scientific collaboration.",
+    "type": "Activity",
     "dok": 2,
-    "type": "Direct Instruction / Practice",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Master calculating speed (v = d / t) and algebraically rearranging to solve for distance (d = v · t) using the Formula Triangle and the 5-step GUESS problem-solving method.",
-    "activity": "Interactive classroom lecture using the Constant Speed Slide Deck followed by scaffolded practice in the Physics Speed Calculator web app. Students begin working through the 3-level progression (Speed, Distance, and Time), tracking units and using Desmos for calculations.",
-    "essentialQuestion": "If you know how fast an object travels and how long it moves, how can you predict its exact final position?",
+    "essentialQuestion": "Why is a universal standard for measurement essential for science and global collaboration?",
     "standards": [
-      "HS-PS2-1"
-    ],
-    "wicor": {
-      "Writing": "Writing out full GUESS steps (Given, Unknown, Equation, Substitute, Solve with Units) for motion word problems.",
-      "Inquiry": "Exploring how unit cancellation confirms that (m/s) · s yields meters.",
-      "Collaboration": "Paired peer audits checking whether partner answers include required metric units.",
-      "Organization": "Drawing the 3-section formula triangle in notebooks and color-coding variables.",
-      "Reading": "Parsing physics word problems to identify numerical givens and target unknowns."
-    },
-    "bellRinger": {
-      "type": "cast_challenge",
-      "title": "Kinematics & Calculating Distance from Speed",
-      "promptQuestion": "A runner jogs at a steady speed of 3.0 m/s for 12.0 seconds. Write the formula you would use to find their distance, and calculate the answer with units.",
-      "explanation": "Using d = v · t: distance = (3.0 m/s) · (12.0 s) = 36.0 meters.",
-      "defaultDuration": 4,
-      "standards": {
-        "dci": "HS-PS2.A: Forces & Motion",
-        "sep": "SEP-5: Using Mathematics and Computational Thinking",
-        "ccc": "CCC-3: Scale, Proportion, and Quantity"
-      },
-      "phenomenon": {
-        "title": "Track Athlete Constant-Speed Training Run",
-        "type": "data_table",
-        "text": "A coach records an athlete running along a measured straight track at a steady pace. Telemetry data from the training session is recorded in the table below.",
-        "dataTable": {
-          "caption": "Athlete Constant Speed & Time Log",
-          "headers": [
-            "Athlete",
-            "Pace Description",
-            "Speed (v)",
-            "Time Elapsed (t)"
-          ],
-          "rows": [
-            {
-              "col_0": "Runner Track Alpha",
-              "col_1": "Steady sprint",
-              "col_2": "3.0 m/s",
-              "col_3": "12.0 s"
-            }
-          ]
-        }
-      },
-      "steps": [
-        {
-          "stepId": "step_1",
-          "type": "cloze_dropdown",
-          "title": "Part 1: Rearranging the Speed Equation",
-          "prompt": "Analyze the relationship between speed, distance, and time:",
-          "text": "The speed formula is v = d / t. To isolate distance, we multiply both sides by time to get [blank1]. In this equation, multiplying (m/s) by seconds causes the seconds units to cancel, leaving an answer with units of [blank2].",
-          "blanks": {
-            "blank1": {
-              "correct": "d = v · t",
-              "options": [
-                "d = v · t",
-                "d = v / t",
-                "d = t / v"
-              ]
-            },
-            "blank2": {
-              "correct": "meters (m)",
-              "options": [
-                "meters (m)",
-                "meters per second (m/s)",
-                "seconds (s)"
-              ]
-            }
-          }
-        },
-        {
-          "stepId": "step_2",
-          "type": "data_calculation",
-          "title": "Part 2: Distance Calculation",
-          "prompt": "Calculate the runner's total distance covered after 12.0 seconds at a constant speed of 3.0 m/s.",
-          "inputLabel": "Calculated Distance",
-          "unit": "m",
-          "targetValue": 36,
-          "tolerance": 0.5,
-          "hint": "Distance = speed · time = (3.0 m/s) · (12.0 s)."
-        },
-        {
-          "stepId": "step_3",
-          "type": "ai_reasoning_chat",
-          "title": "Part 3: Defending the Why with AI Mentor",
-          "prompt": "Defend your reasoning to the Physics AI Mentor: Why does multiplying speed by time give distance, and what does speed physically tell us about every passing second?",
-          "openingPrompt": "Hi! You found that a runner moving at 3.0 m/s for 12.0 seconds covers 36.0 meters. In your own words, **why** does multiplying speed by time give distance? What does 3.0 m/s physically tell us about the runner during each individual second?",
-          "minTurns": 1
-        }
-      ]
-    },
-    "assignments": [
-      {
-        "title": "Physics Speed Calculator",
-        "url": "physics_speed_calculator/dist/index.html",
-        "typeLabel": "Graded Kinematics Lab",
-        "submission": "Cloud Auto-Saved ✓",
-        "description": "Formulate motion equations and calculate answers using Desmos across all 3 levels. Progress is automatically saved to Firestore."
-      }
-    ],
-    "resources": [
-      {
-        "title": "Constant Speed Presentation",
-        "url": "Unit_2/constant-speed-presentation/index.html",
-        "typeLabel": "Classroom Lecture Slides",
-        "description": "Speed equation triangle and GUESS method notes."
-      }
-    ],
-    "practice": [
-      {
-        "title": "Speed & Distance Studio",
-        "url": "Unit_2/speed_distance_time_app/index.html",
-        "typeLabel": "Practice Sandbox",
-        "description": "Interactive motion problem drills."
-      },
-      {
-        "title": "Distance vs Time App",
-        "url": "distance_vs_time_graphing.html",
-        "typeLabel": "Graphing Explorer",
-        "description": "Visualizing uniform position vs time slopes."
-      }
+      "HS-ETS1-1"
     ],
     "links": {
-      "Physics Speed Calculator": "physics_speed_calculator/dist/index.html",
-      "Constant Speed Presentation": "Unit_2/constant-speed-presentation/index.html",
-      "Speed & Distance Studio": "Unit_2/speed_distance_time_app/index.html",
-      "Distance vs Time App": "distance_vs_time_graphing.html"
-    }
-  },
-  {
-    "day": 7,
-    "date": "2026-09-08",
-    "unit": 2,
-    "title": "Wind-Up Toy Speed Lab Wrap-Up & Intro to Speed",
-    "topic": "Finishing Empirical Replications, Data Averaging & Unpacking Rate of Motion (v = d / t)",
-    "dok": 2,
-    "type": "Lab / Direct Instruction",
-    "semester": 1,
-    "isFeatured": true,
-    "summary": "Students complete remaining timing trials and data averages for their 3 wind-up toys over the 20.0 cm track, then debrief what speed physically represents as a rate of travel (v = d / t).",
-    "activity": "Students finalize their replication trials and outlier checks in the Wind-Up Toy Speed Lab web app, compute average times, and transition into class discussion connecting their 20.0 cm / seconds calculation to the formal definition of speed as distance covered per unit time.",
-    "essentialQuestion": "How does our 20.0 cm lab measurement reveal the rate at which an object covers distance every second?",
-    "standards": [
-      "HS-PS2-1"
-    ],
-    "wicor": {
-      "Writing": "Writing a reflective sentence explaining what their toy's speed value means in plain English.",
-      "Inquiry": "Connecting stopwatch intervals to physical rates of change.",
-      "Collaboration": "Lab partners verifying timer releases and comparing toy speed rankings.",
-      "Organization": "Completing data table averages and bar charts in the lab web app.",
-      "Reading": "Reading digital stopwatch displays and precision metric rulers."
+      "Student Instructions": "https://docs.google.com/document/d/188xprYNY0eogCYww45he7McWXoHCAKxVZZWibX7KaPU/edit?usp=sharing",
+      "Lesson Plan": "https://docs.google.com/document/d/1JMY5nWw3dZ_hrxVKjLZisXVsBmV_fQf317EwaEZiS_U/edit?usp=sharing",
+      "Measuring Tools Reference": "assets/images/measuring_tools_name.png"
     },
     "bellRinger": {
       "type": "concept_chat",
-      "promptQuestion": "In our lab, a toy traveled 20.0 cm in 5.0 seconds. What does dividing 20.0 by 5.0 tell us about what the toy was doing during each individual second?",
+      "promptQuestion": "There are many types of measurements. Each type of measurement uses a different type of tool and a different type of measurement Unit. For example, we measure our weight with a bathroom scale, in pounds. What other measurement tools and units do you use?",
       "chatSystemInstruction": "You are a warm, adaptive, and relatable physics mentor chatting with a student over SMS/text. Your goal is to explore a physics concept together without being overly formal or using forced slang.\n\nCRITICAL RULES:\n1. NO FISHING / PIVOT TO TEACHING: Never try to \"force\" or repeatedly nudge a student toward a specific technical answer or physics term. If you ask a conceptual question and the student guesses wrong, focuses on a different variable (like friction/roughness), or says \"I don't know,\" DO NOT ask a follow-up question trying to correct their guess. Instead, pivot immediately to teaching: validate their logic, briefly explain the physics concept directly using a relatable analogy, and move on.\n2. NO SOCRATIC TRAPS: Do not get stuck in a loop asking the student to explain the same thing over and over. If they answer correctly, understand a concept, or say \"yes\"/\"obvious\", validate it briefly and immediately MOVE FORWARD to a new dimension or a real-world application.\n3. MOVE DYNAMICALLY: Keep the conversation fluid. Once a basic idea is established, introduce a fun twist, a new scenario, or a practical question (e.g., \"What happens if we try this in space?\" or \"How does that affect a rollercoaster?\"). \n4. CHAT TONE & LENGTH: Keep replies highly conversational and natural—like a text message from a knowledgeable peer. Limit replies to 1–3 short sentences max. Never send multiple distinct thoughts, lists, or bullet points in one message.\n5. CONTINUING THE CONVERSATION: Never end the conversation abruptly or push the student to stop chatting. Even after the student demonstrates understanding or has engaged in multiple turns, keep the conversation flowing naturally by offering intriguing follow-up thoughts, fun scenario twists, or real-world applications. You may let them know they can click the Finish Session button whenever they are ready to submit, but always leave the door open for them to continue chatting.",
+      "phenomenonType": "image",
+      "phenomenonImageUrl": "https://rrmudry.github.io/assets/images/measuring_tools_name.png",
+      "phenomenonDesc": "Chart of Common Measuring Tools (Ruler, Caliper, Micrometer, Odometer, Beaker, Pipette, Scale, Clock, Voltmeter, Stopwatch, Thermometer, Protractor, Level)",
+      "defaultDuration": 4
+    }
+  },
+  {
+    "date": "2026-08-25",
+    "day": 5,
+    "unit": 1,
+    "title": "Making the Standard & The 1-Meter Challenge",
+    "summary": "Measuring classroom objects using a blank 1-meter paper strip and subdividing standard metric prefixes.",
+    "details": "Working in partner groups of 2 (max 3), students are given an unmarked strip of paper exactly 1 meter long. Using only this 1-meter blank strip, groups measure 10 different classroom objects and record their values. Afterwards, the class analyzes how they measured items shorter and longer than 1 meter, leading into formal metric prefixes (centi-, milli-) and standard SI units.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 1,
+    "isFeatured": true,
+    "essentialQuestion": "How do prefix systems expand our capability to mathematically model micro and macro realities?",
+    "standards": [
+      "HS-ETS1-1"
+    ],
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "You are given a blank 1-meter strip of paper with no markings. Which will be harder to measure: an object that is 3 meters long, or an object that is 15 centimeters long? Explain your reasoning and how you plan to measure both.",
+      "explanation": "Measuring an object longer than 1 meter requires repeating/iterating the tool end-to-end, while measuring an object shorter than 1 meter requires folding or subdividing the meter into fractional parts (like halves, tenths, or centimeters).",
       "defaultDuration": 3
     },
+    "links": {
+      "1-Meter Challenge Form": "https://forms.gle/YHPHiRryQU6mAEjv6"
+    }
+  },
+  {
+    "date": "2026-08-26",
+    "day": 6,
+    "unit": 1,
+    "title": "Unit Conversions",
+    "summary": "Mastering single and multi-step factor-label dimensional analysis.",
+    "details": "\"I do, We do, You do\" guided practice. Students work through converting single-step and multi-step problems (e.g., km/h to m/s) using the factor-label method.",
+    "type": "Practice",
+    "dok": 2,
+    "semester": 1,
+    "isFeatured": false,
+    "essentialQuestion": "How does dimensional analysis safeguard mathematical models across different dimensional levels?",
+    "standards": [
+      "HS-PS1-7",
+      "HS-ETS1-2"
+    ],
+    "links": {
+      "Unit Conversion": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQBqvZqZmpfNT4y4XdCLPzTYAcqCj0kYzFnNQg5zvKjG4VI?e=q1GtH6",
+      "Interactive Unit Conversion Practice": "unit-conversion-practice/index.html",
+      "Practice Worksheet": "https://docs.google.com/document/d/19L0sKqt97x8hOCWEDIpL3pkUmgLGjwcYPnmkPXi8wnM/edit?usp=sharing"
+    },
+    "bellRinger": {
+      "type": "connections",
+      "promptQuestion": "Group the 16 measurement terms into 4 related categories of 4!",
+      "defaultDuration": 3,
+      "connectionsData": {
+        "categories": [
+          {
+            "name": "SI Base Units",
+            "words": [
+              "Meter",
+              "Kilogram",
+              "Second",
+              "Kelvin"
+            ]
+          },
+          {
+            "name": "Metric Prefixes",
+            "words": [
+              "Kilo-",
+              "Centi-",
+              "Milli-",
+              "Micro-"
+            ]
+          },
+          {
+            "name": "Customary Units",
+            "words": [
+              "Inch",
+              "Mile",
+              "Pound",
+              "Gallon"
+            ]
+          },
+          {
+            "name": "Conversion Values",
+            "words": [
+              "2.54",
+              "1000",
+              "1.609",
+              "5280"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "date": "2026-08-27",
+    "day": 7,
+    "unit": 1,
+    "title": "Quality of Measurement: Accuracy & Precision",
+    "summary": "Quality of Measurement slide presentation followed by the 4-quadrant Emoji Finger Painting art project.",
+    "details": "1. Lesson Presentation: Walk through 'The Quality of Measurement' slide deck covering operational definitions of Accuracy (proximity to true value) vs. Precision (consistency & controlled craftsmanship). 2. Emoji Finger Painting Art Project: Paint 4 full-canvas scientific variations of a chosen emoji in the interactive studio (Accurate & Precise, Accurate NOT Precise, Precise NOT Accurate, and Neither). 3. CER Justification: Write scientific justifications explaining why each painting represents that state, and export the finished gallery poster.",
+    "type": "Lab",
+    "dok": 2,
+    "semester": 1,
+    "isFeatured": false,
+    "essentialQuestion": "What is the critical scientific boundary separating a precise measurement from an accurate one?",
+    "standards": [
+      "SEP-4"
+    ],
     "assignments": [
       {
-        "title": "Wind-Up Toy Speed Lab",
-        "url": "Unit_2/wind_up_toy_lab/index.html",
-        "typeLabel": "Graded Lab Report",
-        "submission": "Cloud Auto-Saved ✓",
-        "description": "Complete replication timing trials, compute average speed, and submit results."
+        "title": "Emoji Finger Painting Studio (Accuracy & Precision Project)",
+        "url": "accuracy-precision-art/index.html",
+        "typeLabel": "Required Lab Project",
+        "submission": "Export & Turn In Gallery Poster",
+        "description": "Paint 4 full-canvas emoji quadrants demonstrating accuracy vs. precision, write CER justifications, and download the finished gallery poster."
       }
     ],
     "resources": [
       {
-        "title": "Constant Speed Presentation",
-        "url": "Unit_2/constant-speed-presentation/index.html",
+        "title": "The Quality of Measurement (Slides)",
+        "url": "https://docs.google.com/presentation/d/1WCuBzY6-idwpRUGULY5W2CtXGlzRFMFhXHPsC8UygRQ/edit?usp=sharing",
         "typeLabel": "Classroom Lecture Slides",
-        "description": "Rate of travel derivations and classroom debrief notes."
+        "description": "Operational definitions of accuracy, precision, and experimental calibration notes."
+      }
+    ],
+    "links": {
+      "Emoji Finger Painting Studio": "accuracy-precision-art/index.html",
+      "The Quality of Measurement (Slides)": "https://docs.google.com/presentation/d/1WCuBzY6-idwpRUGULY5W2CtXGlzRFMFhXHPsC8UygRQ/edit?usp=sharing"
+    },
+    "bellRinger": {
+      "type": "concept_chat",
+      "promptQuestion": "People often think 'accurate' and 'precise' mean the exact same thing, but in physics and engineering they are very different. For example, if a bathroom scale always reads exactly 5 pounds too heavy every single time you step on it, is it accurate, precise, both, or neither? How would you describe the difference?",
+      "chatSystemInstruction": "You are a warm, adaptive, and relatable physics mentor chatting with a student over SMS/text. Your goal is to explore a physics concept together without being overly formal or using forced slang.\n\nCRITICAL RULES:\n1. NO FISHING / PIVOT TO TEACHING: Never try to \"force\" or repeatedly nudge a student toward a specific technical answer or physics term. If you ask a conceptual question and the student guesses wrong, focuses on a different variable (like friction/roughness), or says \"I don't know,\" DO NOT ask a follow-up question trying to correct their guess. Instead, pivot immediately to teaching: validate their logic, briefly explain the physics concept directly using a relatable analogy, and move on.\n2. NO SOCRATIC TRAPS: Do not get stuck in a loop asking the student to explain the same thing over and over. If they answer correctly, understand a concept, or say \"yes\"/\"obvious\", validate it briefly and immediately MOVE FORWARD to a new dimension or a real-world application.\n3. MOVE DYNAMICALLY: Keep the conversation fluid. Once a basic idea is established, introduce a fun twist, a new scenario, or a practical question (e.g., \"What happens if we try this in space?\" or \"How does that affect a rollercoaster?\"). \n4. CHAT TONE & LENGTH: Keep replies highly conversational and natural—like a text message from a knowledgeable peer. Limit replies to 1–3 short sentences max. Never send multiple distinct thoughts, lists, or bullet points in one message.\n5. CONTINUING THE CONVERSATION: Never end the conversation abruptly or push the student to stop chatting. Even after the student demonstrates understanding or has engaged in multiple turns, keep the conversation flowing naturally by offering intriguing follow-up thoughts, fun scenario twists, or real-world applications. You may let them know they can click the Finish Session button whenever they are ready to submit, but always leave the door open for them to continue chatting.",
+      "phenomenonType": "image",
+      "phenomenonImageUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCdAbFKfplT1aDyVgYV7ZaAnc2JVFevtWAvdtGsds7xEjixC5i6ruiV9IV&s=10",
+      "phenomenonDesc": "Accuracy vs Precision Target Diagram",
+      "defaultDuration": 4
+    }
+  },
+  {
+    "date": "2026-08-28",
+    "day": 8,
+    "unit": 1,
+    "title": "The Measurement Olympics (Unit 1 Finale)",
+    "summary": "Collaborative classroom Measurement Olympics culminating Unit 1 with team calibration, estimation, and reaction events.",
+    "details": "1. Team Strategy & Calibration: Groups review the 4 Olympic events, run internal qualifying trials, calibrate reference metrics, and nominate champions. 2. The 4 Olympic Events: The Mass Grab (proportional scaling of crayons to secret mass), Mystery Tape Distance (5.0m calibration vs hallway unknown), The Internal Clock (blind spacebar stopwatch challenge), and Reaction Ruler Drop (live ruler drop showdown). 3. Podium & Awards: Live tournament leaderboard, medal ceremony, and Unit 1 celebration!",
+    "type": "Lab",
+    "dok": 2,
+    "semester": 1,
+    "isFeatured": true,
+    "essentialQuestion": "How do scientists calibrate human senses, reference standards, and physical tools to achieve precision and accuracy?",
+    "standards": [
+      "SEP-4",
+      "SEP-5"
+    ],
+    "assignments": [
+      {
+        "title": "Unit Conversion Practice",
+        "url": "unit-conversion-practice/index.html",
+        "typeLabel": "Required Practice Assignment",
+        "submission": "Cloud Auto-Saved ✓",
+        "description": "Master dimensional analysis and conversion factors by earning a 4-in-a-row streak. Results are automatically recorded to Firestore."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Printable Team Scorecard",
+        "url": "measurement-olympics/scorecard.html",
+        "typeLabel": "Lab Event Scorecard",
+        "description": "Measurement Olympics 4-event team data logging and calibration sheet."
       }
     ],
     "practice": [
       {
-        "title": "Speed & Distance Studio",
-        "url": "Unit_2/speed_distance_time_app/index.html",
-        "typeLabel": "Practice Sandbox",
-        "description": "Explore variable rearrangements and practice problem sets."
+        "title": "Measurement Olympics Leaderboard",
+        "url": "measurement-olympics/index.html",
+        "typeLabel": "Tournament Leaderboard",
+        "description": "Live tournament rankings and medal standings."
       }
     ],
     "links": {
-      "Wind-Up Toy Speed Lab": "Unit_2/wind_up_toy_lab/index.html",
-      "Constant Speed Presentation": "Unit_2/constant-speed-presentation/index.html",
-      "Speed & Distance Studio": "Unit_2/speed_distance_time_app/index.html"
+      "Unit Conversion Practice": "unit-conversion-practice/index.html",
+      "Measurement Olympics Leaderboard": "measurement-olympics/index.html",
+      "Printable Team Scorecard": "measurement-olympics/scorecard.html"
+    },
+    "bellRinger": {
+      "type": "concept_chat",
+      "promptQuestion": "Science and physics connect to almost everything in our world—from how rockets launch and how athletes optimize performance, to video game engines and deep space exploration. What specific topic, technology, or real-world phenomenon in science interests you the most, and why?",
+      "chatSystemInstruction": "You are a warm, adaptive, and relatable physics mentor chatting with a student over SMS/text. Your goal is to explore a physics concept together without being overly formal or using forced slang.\n\nCRITICAL RULES:\n1. NO FISHING / PIVOT TO TEACHING: Never try to \"force\" or repeatedly nudge a student toward a specific technical answer or physics term. If you ask a conceptual question and the student guesses wrong, focuses on a different variable (like friction/roughness), or says \"I don't know,\" DO NOT ask a follow-up question trying to correct their guess. Instead, pivot immediately to teaching: validate their logic, briefly explain the physics concept directly using a relatable analogy, and move on.\n2. NO SOCRATIC TRAPS: Do not get stuck in a loop asking the student to explain the same thing over and over. If they answer correctly, understand a concept, or say \"yes\"/\"obvious\", validate it briefly and immediately MOVE FORWARD to a new dimension or a real-world application.\n3. MOVE DYNAMICALLY: Keep the conversation fluid. Once a basic idea is established, introduce a fun twist, a new scenario, or a practical question (e.g., \"What happens if we try this in space?\" or \"How does that affect a rollercoaster?\"). \n4. CHAT TONE & LENGTH: Keep replies highly conversational and natural—like a text message from a knowledgeable peer. Limit replies to 1–3 short sentences max. Never send multiple distinct thoughts, lists, or bullet points in one message.\n5. CONTINUING THE CONVERSATION: Never end the conversation abruptly or push the student to stop chatting. Even after the student demonstrates understanding or has engaged in multiple turns, keep the conversation flowing naturally by offering intriguing follow-up thoughts, fun scenario twists, or real-world applications. You may let them know they can click the Finish Session button whenever they are ready to submit, but always leave the door open for them to continue chatting.",
+      "defaultDuration": 4
     }
   },
   {
-    "day": 6,
-    "date": "2026-09-07",
+    "day": 1,
+    "date": "2026-08-31",
     "unit": 2,
-    "title": "Labor Day — No School",
-    "topic": "Labor Day Holiday (No School)",
-    "dok": 0,
-    "type": "Holiday",
-    "semester": 1,
-    "isFeatured": false,
-    "summary": "Labor Day Holiday observed. No school scheduled.",
-    "activity": "No school in observance of the Labor Day holiday.",
-    "essentialQuestion": "Holiday observed — no school.",
-    "standards": [
-      "HS-PS2-1"
-    ]
-  },
-  {
-    "day": 5,
-    "date": "2026-09-04",
-    "unit": 2,
-    "title": "\"The Monster's Journey\" Constant Velocity Lab",
-    "topic": "Multi-Interval Kinematic Data Collection (Tumble Buggy Lab) & Position-Time Slope Graphing",
+    "title": "Fantasy Map Quest — Part 1: Grid Coordinates & Realm Cartography",
+    "topic": "Reference Frames, Grid Coordinate Systems, and Map Scales",
     "dok": 2,
-    "type": "Lab",
+    "type": "Inquiry / Project",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Empirical inquiry using motorized constant-speed tumble buggies to record position stamps every 2 seconds, plot position-time (x-t) data, and verify uniform motion.",
-    "activity": "Students release battery-operated motorized cars down meter tracks, drop beanbag markers every 2 seconds on audible cues, measure cumulative positions, record coordinate pairs in tables, plot position-time graphs, and calculate trendline slope (v = Δx / Δt) to prove whether motion is truly uniform.",
-    "essentialQuestion": "How can multi-stage empirical data and position-time graphs reveal whether an object travels with truly uniform motion?",
+    "summary": "Launch the 3-day Fantasy Map Quest: student partners establish reference frames, coordinate grid origins (0,0), compass roses, map scale factors, and sketch fantasy geography.",
+    "activity": "Fantasy Map Quest (Day 1 of 3): In 45-minute periods (~30 min work time), student pairs establish a home village origin point (0,0), draw a four-direction compass rose, define a map scale (e.g. 1 cm = 10 leagues), and sketch terrain featuring 4 required quest landmarks (Village -> Forest/Swamp -> Mountain Pass -> Citadel).",
+    "essentialQuestion": "How does our choice of reference point determine whether an object is considered in motion or at rest?",
     "standards": [
-      "HS-PS2-1",
-      "HS-ETS1-2"
+      "HS-PS2-1"
     ],
     "wicor": {
-      "Writing": "Writing a formal experimental conclusion explaining whether the buggy maintained true constant speed.",
-      "Inquiry": "Analyzing experimental variances in beanbag placement to identify measurement error vs genuine motor slowing.",
-      "Collaboration": "Coordinating stopwatch calls and physical marker drops in synchronized rhythm.",
-      "Organization": "Constructing clean position-time data tables and drawing best-fit coordinate slopes.",
-      "Reading": "Following multi-step laboratory protocols and safety guidelines."
+      "Writing": "Documenting landmark coordinate points (x, y) and recording the map scale conversion rule.",
+      "Inquiry": "Investigating how changing the map origin shifts all landmark coordinates without altering land geography.",
+      "Collaboration": "Partner cartography teams dividing duties: grid calibration, terrain sketching, and landmark naming.",
+      "Organization": "Setting up the 3-day project quest log, data tables, and scale keys.",
+      "Reading": "Interpreting compass rose bearings and coordinate grid legends."
     },
     "bellRinger": {
       "type": "cast_challenge",
-      "title": "Kinematic Data & Position-Time Slopes",
+      "title": "Reference Frames & Cartesian Navigation",
       "defaultDuration": 4,
       "standards": {
         "dci": "HS-PS2.A: Forces & Motion",
         "sep": "SEP-4: Analyzing & Interpreting Data",
-        "ccc": "CCC-1: Patterns & Proportional Relationships"
+        "ccc": "CCC-2: Cause and Effect / Scale"
       },
       "phenomenon": {
-        "title": "Tumble Buggy Ultrasonic Sensor Run",
-        "type": "graph",
-        "text": "An ultrasonic sensor tracks a motorized buggy rolling along a straight track at 2.0-second intervals as shown in the position-time scatter plot.",
-        "graphData": {
-          "title": "Tumble Buggy: Position vs Time",
-          "chartType": "scatter",
-          "showBestFit": true,
-          "xAxis": {
-            "label": "Time (t)",
-            "unit": "s",
-            "beginAtZero": true
-          },
-          "yAxis": {
-            "label": "Position (x)",
-            "unit": "m",
-            "beginAtZero": true
-          },
-          "xValues": [
-            0,
-            2,
-            4,
-            6,
-            8,
-            10
+        "title": "Desert Survey Drone Navigation",
+        "type": "data_table",
+        "text": "A geological survey team tracks a search drone across a desert sector. Positions and scale conversions are recorded relative to Base Camp in the data table below.",
+        "dataTable": {
+          "caption": "Survey Sector Position & Scale Log",
+          "headers": [
+            "Entity / Landmark",
+            "Reference Position",
+            "Grid Distance",
+            "Scale Ratio"
           ],
-          "series": [
+          "rows": [
             {
-              "label": "Buggy Position",
-              "unit": "m",
-              "color": "#06b6d4",
-              "pointStyle": "circle",
-              "pointRadius": 6,
-              "values": [
-                0,
-                1,
-                2,
-                3,
-                4,
-                5
-              ]
+              "col_0": "Base Camp (Origin)",
+              "col_1": "(0, 0)",
+              "col_2": "0 grid blocks",
+              "col_3": "1 block = 2.5 km"
+            },
+            {
+              "col_0": "Survey Drone Alpha",
+              "col_1": "(8, 0) due East",
+              "col_2": "8 grid blocks East",
+              "col_3": "1 block = 2.5 km"
             }
           ]
         }
@@ -1191,32 +344,32 @@ const lessonsData = [
         {
           "stepId": "step_1",
           "type": "cloze_dropdown",
-          "title": "Part 1: Graph Pattern Identification",
-          "prompt": "Analyze the pattern of data points on the position-time graph:",
-          "text": "The position vs time graph displays a [blank1] relationship. On a position-time graph, the slope represents the object's [blank2]. Because the slope remains straight and constant, the buggy moves at a [blank3].",
+          "title": "Part 1: Reference Frames and Positions",
+          "prompt": "Analyze the scientific principle of spatial reference frames:",
+          "text": "Describing an object's exact location requires specifying position relative to a defined [blank1]. A transmission stating only a distance number provides [blank2] without indicating [blank3].",
           "blanks": {
             "blank1": {
-              "correct": "linear proportional",
+              "correct": "reference frame / origin point",
               "options": [
-                "linear proportional",
-                "curved exponential",
-                "horizontal flat"
+                "reference frame / origin point",
+                "speedometer reading",
+                "satellite clock"
               ]
             },
             "blank2": {
-              "correct": "velocity (v = Δx / Δt)",
+              "correct": "scalar distance (magnitude)",
               "options": [
-                "velocity (v = Δx / Δt)",
-                "net force",
+                "scalar distance (magnitude)",
+                "acceleration vector",
                 "total mass"
               ]
             },
             "blank3": {
-              "correct": "steady constant speed",
+              "correct": "directional bearing / angle",
               "options": [
-                "steady constant speed",
-                "increasing acceleration",
-                "increasing friction"
+                "directional bearing / angle",
+                "wind speed",
+                "temperature"
               ]
             }
           }
@@ -1224,106 +377,148 @@ const lessonsData = [
         {
           "stepId": "step_2",
           "type": "data_calculation",
-          "title": "Part 2: Slope & Velocity Calculation",
-          "prompt": "The buggy starts at 0 m and reaches 5.0 m at 10.0 s. Calculate the buggy's speed in meters per second (m/s).",
-          "inputLabel": "Calculated Speed",
-          "unit": "m/s",
-          "targetValue": 0.5,
-          "tolerance": 0.05,
-          "hint": "Speed = distance / time = 5.0 m / 10.0 s."
+          "title": "Part 2: Map Scale Conversion",
+          "prompt": "Using the map scale (1 block = 2.5 km), calculate the drone's actual distance from Base Camp (8 blocks East) in kilometers.",
+          "inputLabel": "Calculated Distance",
+          "unit": "km",
+          "targetValue": 20,
+          "tolerance": 0.5,
+          "hint": "Distance = 8 blocks · 2.5 km/block."
         },
         {
           "stepId": "step_3",
           "type": "ai_reasoning_chat",
           "title": "Part 3: Defend Your Thinking (AI Physics Mentor)",
-          "prompt": "Discuss your thinking with the AI Physics Mentor. Defend why the slope represents speed and predict how the line would change if the buggy slowed down.",
-          "openingMessage": "You calculated a speed of 0.5 m/s from the slope! Why does a straight line mean steady speed, and what would happen to the line if the buggy started slowing down?"
+          "prompt": "Discuss your thinking with the AI Physics Mentor. Defend your distance calculation and explain why moving Base Camp changes the coordinates, but not the drone itself.",
+          "openingMessage": "You calculated 20 km for Drone Alpha! If the team moves Base Camp 5 km South, does the drone's physical location change, or just its coordinate numbers? Defend your reasoning!"
         }
       ],
-      "teacherKey": "Step 1: linear proportional, velocity (v = Δx / Δt), steady constant speed. Step 2: 0.50 m/s (5.0 m / 10.0 s). Step 3: Claim: A straight line means constant velocity; if it slows down, the line curves flatter. Evidence: Slope = Δx / Δt = 0.5 m/s. Reasoning: Velocity is the rate of change of position; constant slope indicates identical displacement gained per second. Decreasing speed means less distance gained per second, curving the slope toward a horizontal line."
-    },
-    "links": {
-      "Wind-Up Toy Speed Lab": "Unit_2/wind_up_toy_lab/index.html",
-      "Distance vs Time App": "distance_vs_time_graphing.html",
-      "Motion Curve Drawer": "Distance_vs_Time_Drawer.html",
-      "Interactive Presentation": "Unit_2/describing-motion-presentation/index.html"
-    }
-  },
-  {
-    "day": 4,
-    "date": "2026-09-03",
-    "unit": 2,
-    "title": "Fantasy Map Quest — Part 4: Digital Exploration & Vector Simulation",
-    "topic": "Interactive Digital String Measurement, Vector Components & Online Quest Challenge",
-    "dok": 2,
-    "type": "Simulation / Web App",
-    "semester": 1,
-    "isFeatured": true,
-    "summary": "Complete the Fantasy Map quest with the digital interactive web app: students measure procedural spline trails with virtual string onto a calibrated 20 cm ruler, compare curved path length (distance) with net vector displacement, and complete the digital challenge.",
-    "activity": "Fantasy Map Web App Challenge: Students launch the interactive digital simulation (https://rrmudry.github.io/displacement_and_distance_maps_app/). They explore varied fantasy biomes (Dragon's Pass, Sunken Bayou, Coast of Eldoria), utilize the unrolling string tool with 2.5x magnifying loupe to measure curved trail segments, calculate scale conversions, analyze straight-line displacement vectors with Cartesian components (Δx, Δy, Δr), and submit their 5-step guided inquiry challenge score to the gradebook.",
-    "essentialQuestion": "How do digital vector simulations model the physical difference between scalar distance along a curved path and straight-line vector displacement?",
-    "standards": [
-      "HS-PS2-1"
-    ],
-    "wicor": {
-      "Writing": "Formulating written justifications explaining why net displacement depends solely on start and end points while path distance accumulates.",
-      "Inquiry": "Testing how meandering around varied terrain hazards dramatically inflates distance without changing displacement.",
-      "Collaboration": "Partner verification of digital string unroll readings and component calculations.",
-      "Organization": "Recording digitized leg measurements, vector angles, and submitting quest scores.",
-      "Reading": "Interpreting digital compass rose headings, coordinates, and interactive challenge prompts."
-    },
-    "bellRinger": {
-      "type": "free_response",
-      "promptQuestion": "If a runner travels at a steady speed of 2 meters every second, how far will they travel in 5 seconds? Explain your reasoning.",
-      "explanation": "Using d = v · t: distance = 2 m/s · 5 s = 10 meters (each second adds 2 meters of distance: 2 + 2 + 2 + 2 + 2 = 10 m).",
-      "defaultDuration": 3
+      "teacherKey": "Step 1: reference frame / origin point, scalar distance (magnitude), directional bearing / angle. Step 2: 20 km (8 blocks · 2.5 km/block). Step 3: Claim: Moving base camp changes the coordinate numbers assigned to the drone, but does not move the drone itself. Evidence: Position coordinates (x, y) are defined relative to the chosen origin (0, 0). Reasoning: Reference frames are human coordinate choices; altering the observer frame does not change physical matter in space."
     },
     "assignments": [
       {
-        "title": "Fantasy Map Quest Web App Challenge",
-        "url": "Unit_2/Displacement_and_distance_map_app/index.html",
-        "typeLabel": "Graded Vector Inquiry Challenge",
-        "submission": "Cloud Auto-Saved ✓",
-        "description": "Measure curved spline trails with virtual string, calculate vector displacement, and submit 5-step quest."
-      },
-      {
-        "title": "Fantasy Map Analysis Worksheet",
+        "title": "Fantasy Map Worksheet",
         "url": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs",
         "typeLabel": "Required Project Worksheet",
-        "submission": "Turn In Completed Handout",
-        "description": "Student paper measurements, scale calculations, and compass bearing analysis."
+        "submission": "Turn In Completed Map & Handout",
+        "description": "Part 1: Define reference frame origin (0,0), 4-direction compass rose, scale factor, and 4 realm landmarks."
       }
     ],
     "resources": [
       {
-        "title": "Google Slides Presentation",
+        "title": "Google Slides",
         "url": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
-        "typeLabel": "Classroom Lecture Slides",
-        "description": "Interactive vector displacement lecture deck."
+        "typeLabel": "Classroom Slides",
+        "description": "Reference frames, coordinate grids, and displacement lecture deck."
       },
       {
-        "title": "Quest Story Narrative Doc",
+        "title": "PowerPoint Slides",
+        "url": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDTeHashMmgSoeLVDHY5TwQAbynyLTufaGMoMjm5APx0Hw?e=nwclwC",
+        "typeLabel": "OneDrive PowerPoint",
+        "description": "Class presentation deck on OneDrive."
+      },
+      {
+        "title": "Quest Story Doc",
         "url": "https://docs.google.com/document/d/10pNCBkmnpn4LmwO6Fd8af0JH5ehHpj1akiyfmTqkDNA/edit?usp=sharing",
-        "typeLabel": "Reading & Lore Document",
-        "description": "Background story lore and adventurer travel prompt."
+        "typeLabel": "Reading & Lore",
+        "description": "Tale of Caelum story prompt and adventurer narrative."
+      },
+      {
+        "title": "Interactive Presentation",
+        "url": "Unit_2/describing-motion-presentation/index.html",
+        "typeLabel": "Interactive HTML Deck",
+        "description": "Web-based interactive presentation on describing motion."
       }
     ],
     "practice": [
       {
-        "title": "Vector Displacement Calculator",
-        "url": "Unit_2/Vector_displacement_calculator_app/index.html",
-        "typeLabel": "Component Vector Calculator",
-        "description": "Interactive Cartesian component calculator (Δx, Δy, Δr)."
+        "title": "Fantasy Map Web App",
+        "url": "Unit_2/Displacement_and_distance_map_app/index.html",
+        "typeLabel": "Cartography Sandbox",
+        "description": "Digital map tool for exploring fantasy biomes and path measurement."
       }
     ],
     "links": {
-      "Fantasy Map Web App": "Unit_2/Displacement_and_distance_map_app/index.html",
-      "Vector Displacement Calculator": "Unit_2/Vector_displacement_calculator_app/index.html",
+      "Fantasy Map Worksheet": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs",
       "Google Slides": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
       "PowerPoint Slides": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDTeHashMmgSoeLVDHY5TwQAbynyLTufaGMoMjm5APx0Hw?e=nwclwC",
       "Quest Story Doc": "https://docs.google.com/document/d/10pNCBkmnpn4LmwO6Fd8af0JH5ehHpj1akiyfmTqkDNA/edit?usp=sharing",
+      "Interactive Presentation": "Unit_2/describing-motion-presentation/index.html",
+      "Fantasy Map Web App": "Unit_2/Displacement_and_distance_map_app/index.html"
+    }
+  },
+  {
+    "day": 2,
+    "date": "2026-09-01",
+    "unit": 2,
+    "title": "Fantasy Map Quest — Part 2: Realm Cartography & Hazard Design",
+    "topic": "Grid Coordinate Systems, Scale Factor Calibration & Geographic Detailing",
+    "dok": 2,
+    "type": "Inquiry / Project",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Day 2 of the quest project: student cartographers continue drafting and detailing their fantasy realm maps, establishing reference origins (0,0), compass roses, grid scales, and terrain obstacles.",
+    "activity": "Fantasy Map Quest (Day 2 of 3): In 45-minute periods (~30 min work time), student pairs collaborate to finish designing and illustrating their fantasy realm maps. Teams establish reference points, calibrate grid coordinates for all 4 required landmarks (Origin Village -> Terrain Obstacles -> Mountain Pass -> Final Citadel), and prepare map scale keys before plotting travel trails.",
+    "essentialQuestion": "How do coordinate grids, scale factors, and reference origins allow cartographers and navigators to accurately describe locations in space?",
+    "standards": [
+      "HS-PS2-1"
+    ],
+    "wicor": {
+      "Writing": "Documenting landmark coordinate points (x, y) and recording the map scale conversion rule in the map legend.",
+      "Inquiry": "Investigating how changing the map origin shifts all landmark coordinates without altering land geography.",
+      "Collaboration": "Partner cartography teams dividing duties: grid calibration, terrain hazard sketching, and landmark naming.",
+      "Organization": "Setting up the project quest log, data tables, and scale keys.",
+      "Reading": "Interpreting compass rose bearings and coordinate grid legends."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "An adventurer leaves their home village, travels 15 km north to an ancient temple, and then travels 15 km south back to their village. What is their total distance traveled, and what is their net displacement?",
+      "explanation": "Total distance traveled is 30 km (15 + 15), but net displacement is 0 km because their final position is identical to their starting position (Δx = x_final - x_initial = 0).",
+      "defaultDuration": 3
+    },
+    "assignments": [
+      {
+        "title": "Fantasy Map Worksheet",
+        "url": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs",
+        "typeLabel": "Required Project Worksheet",
+        "submission": "Turn In Completed Map & Handout",
+        "description": "Part 2: Plot hazard terrain obstacles, calibrate landmark coordinate points, and record map scale conversions."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Google Slides",
+        "url": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
+        "typeLabel": "Classroom Slides",
+        "description": "Coordinate grids, scale factor calibration, and terrain obstacles."
+      },
+      {
+        "title": "PowerPoint Slides",
+        "url": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDTeHashMmgSoeLVDHY5TwQAbynyLTufaGMoMjm5APx0Hw?e=nwclwC",
+        "typeLabel": "OneDrive PowerPoint",
+        "description": "Class presentation deck on OneDrive."
+      },
+      {
+        "title": "Quest Story Doc",
+        "url": "https://docs.google.com/document/d/10pNCBkmnpn4LmwO6Fd8af0JH5ehHpj1akiyfmTqkDNA/edit?usp=sharing",
+        "typeLabel": "Reading & Lore",
+        "description": "Tale of Caelum story prompt and adventurer narrative."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Fantasy Map Web App",
+        "url": "Unit_2/Displacement_and_distance_map_app/index.html",
+        "typeLabel": "Cartography Sandbox",
+        "description": "Digital map tool for exploring fantasy biomes and path measurement."
+      }
+    ],
+    "links": {
       "Fantasy Map Worksheet": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs",
-      "Interactive Presentation": "Unit_2/describing-motion-presentation/index.html"
+      "Google Slides": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
+      "PowerPoint Slides": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDTeHashMmgSoeLVDHY5TwQAbynyLTufaGMoMjm5APx0Hw?e=nwclwC",
+      "Quest Story Doc": "https://docs.google.com/document/d/10pNCBkmnpn4LmwO6Fd8af0JH5ehHpj1akiyfmTqkDNA/edit?usp=sharing",
+      "Fantasy Map Web App": "Unit_2/Displacement_and_distance_map_app/index.html"
     }
   },
   {
@@ -1502,135 +697,156 @@ const lessonsData = [
     }
   },
   {
-    "day": 2,
-    "date": "2026-09-01",
+    "day": 4,
+    "date": "2026-09-03",
     "unit": 2,
-    "title": "Fantasy Map Quest — Part 2: Realm Cartography & Hazard Design",
-    "topic": "Grid Coordinate Systems, Scale Factor Calibration & Geographic Detailing",
+    "title": "Fantasy Map Quest — Part 4: Digital Exploration & Vector Simulation",
+    "topic": "Interactive Digital String Measurement, Vector Components & Online Quest Challenge",
     "dok": 2,
-    "type": "Inquiry / Project",
+    "type": "Simulation / Web App",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Day 2 of the quest project: student cartographers continue drafting and detailing their fantasy realm maps, establishing reference origins (0,0), compass roses, grid scales, and terrain obstacles.",
-    "activity": "Fantasy Map Quest (Day 2 of 3): In 45-minute periods (~30 min work time), student pairs collaborate to finish designing and illustrating their fantasy realm maps. Teams establish reference points, calibrate grid coordinates for all 4 required landmarks (Origin Village -> Terrain Obstacles -> Mountain Pass -> Final Citadel), and prepare map scale keys before plotting travel trails.",
-    "essentialQuestion": "How do coordinate grids, scale factors, and reference origins allow cartographers and navigators to accurately describe locations in space?",
+    "summary": "Complete the Fantasy Map quest with the digital interactive web app: students measure procedural spline trails with virtual string onto a calibrated 20 cm ruler, compare curved path length (distance) with net vector displacement, and complete the digital challenge.",
+    "activity": "Fantasy Map Web App Challenge: Students launch the interactive digital simulation (https://rrmudry.github.io/displacement_and_distance_maps_app/). They explore varied fantasy biomes (Dragon's Pass, Sunken Bayou, Coast of Eldoria), utilize the unrolling string tool with 2.5x magnifying loupe to measure curved trail segments, calculate scale conversions, analyze straight-line displacement vectors with Cartesian components (Δx, Δy, Δr), and submit their 5-step guided inquiry challenge score to the gradebook.",
+    "essentialQuestion": "How do digital vector simulations model the physical difference between scalar distance along a curved path and straight-line vector displacement?",
     "standards": [
       "HS-PS2-1"
     ],
     "wicor": {
-      "Writing": "Documenting landmark coordinate points (x, y) and recording the map scale conversion rule in the map legend.",
-      "Inquiry": "Investigating how changing the map origin shifts all landmark coordinates without altering land geography.",
-      "Collaboration": "Partner cartography teams dividing duties: grid calibration, terrain hazard sketching, and landmark naming.",
-      "Organization": "Setting up the project quest log, data tables, and scale keys.",
-      "Reading": "Interpreting compass rose bearings and coordinate grid legends."
+      "Writing": "Logging procedural string measurements, Cartesian components (Δx, Δy), and vector resultant magnitude (Δr).",
+      "Inquiry": "Testing how unrolling string around curved paths verifies that distance is path-dependent while displacement is purely state-dependent.",
+      "Collaboration": "Pairs verify each other's virtual string alignment and loupe decimal estimations on the calibrated ruler.",
+      "Organization": "Recording 5-step inquiry trail data into the interactive quest ledger.",
+      "Reading": "Decoding procedural biome instructions and Cartesian coordinate vector challenges."
     },
     "bellRinger": {
       "type": "free_response",
-      "promptQuestion": "An adventurer leaves their home village, travels 15 km north to an ancient temple, and then travels 15 km south back to their village. What is their total distance traveled, and what is their net displacement?",
-      "explanation": "Total distance traveled is 30 km (15 + 15), but net displacement is 0 km because their final position is identical to their starting position (Δx = x_final - x_initial = 0).",
+      "promptQuestion": "If a runner travels at a steady speed of 2 meters every second, how far will they travel in 5 seconds? Explain your reasoning.",
+      "explanation": "Using d = v · t: distance = 2 m/s · 5 s = 10 meters (each second adds 2 meters of distance: 2 + 2 + 2 + 2 + 2 = 10 m).",
       "defaultDuration": 3
     },
     "assignments": [
       {
-        "title": "Fantasy Map Worksheet",
+        "title": "Fantasy Map Quest Web App Challenge",
+        "url": "Unit_2/Displacement_and_distance_map_app/index.html",
+        "typeLabel": "Graded Vector Inquiry Challenge",
+        "submission": "Cloud Auto-Saved ✓",
+        "description": "Measure curved spline trails with virtual string, calculate vector displacement, and submit 5-step quest."
+      },
+      {
+        "title": "Fantasy Map Analysis Worksheet",
         "url": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs",
         "typeLabel": "Required Project Worksheet",
-        "submission": "Turn In Completed Map & Handout",
-        "description": "Part 2: Plot hazard terrain obstacles, calibrate landmark coordinate points, and record map scale conversions."
+        "submission": "Turn In Completed Handout",
+        "description": "Student paper measurements, scale calculations, and compass bearing analysis."
       }
     ],
     "resources": [
       {
-        "title": "Google Slides",
+        "title": "Google Slides Presentation",
         "url": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
-        "typeLabel": "Classroom Slides",
-        "description": "Coordinate grids, scale factor calibration, and terrain obstacles."
+        "typeLabel": "Classroom Lecture Slides",
+        "description": "Interactive vector displacement lecture deck."
       },
       {
-        "title": "PowerPoint Slides",
-        "url": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDTeHashMmgSoeLVDHY5TwQAbynyLTufaGMoMjm5APx0Hw?e=nwclwC",
-        "typeLabel": "OneDrive PowerPoint",
-        "description": "Class presentation deck on OneDrive."
-      },
-      {
-        "title": "Quest Story Doc",
+        "title": "Quest Story Narrative Doc",
         "url": "https://docs.google.com/document/d/10pNCBkmnpn4LmwO6Fd8af0JH5ehHpj1akiyfmTqkDNA/edit?usp=sharing",
-        "typeLabel": "Reading & Lore",
-        "description": "Tale of Caelum story prompt and adventurer narrative."
+        "typeLabel": "Reading & Lore Document",
+        "description": "Background story lore and adventurer travel prompt."
       }
     ],
     "practice": [
       {
-        "title": "Fantasy Map Web App",
-        "url": "Unit_2/Displacement_and_distance_map_app/index.html",
-        "typeLabel": "Cartography Sandbox",
-        "description": "Digital map tool for exploring fantasy biomes and path measurement."
+        "title": "Vector Displacement Calculator",
+        "url": "Unit_2/Vector_displacement_calculator_app/index.html",
+        "typeLabel": "Component Vector Calculator",
+        "description": "Interactive Cartesian component calculator (Δx, Δy, Δr)."
       }
     ],
     "links": {
-      "Fantasy Map Worksheet": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs",
+      "Fantasy Map Web App": "Unit_2/Displacement_and_distance_map_app/index.html",
+      "Vector Displacement Calculator": "Unit_2/Vector_displacement_calculator_app/index.html",
       "Google Slides": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
       "PowerPoint Slides": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDTeHashMmgSoeLVDHY5TwQAbynyLTufaGMoMjm5APx0Hw?e=nwclwC",
       "Quest Story Doc": "https://docs.google.com/document/d/10pNCBkmnpn4LmwO6Fd8af0JH5ehHpj1akiyfmTqkDNA/edit?usp=sharing",
-      "Fantasy Map Web App": "Unit_2/Displacement_and_distance_map_app/index.html"
+      "Fantasy Map Worksheet": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs",
+      "Interactive Presentation": "Unit_2/describing-motion-presentation/index.html"
     }
   },
   {
-    "day": 1,
-    "date": "2026-08-31",
+    "day": 5,
+    "date": "2026-09-04",
     "unit": 2,
-    "title": "Fantasy Map Quest — Part 1: Grid Coordinates & Realm Cartography",
-    "topic": "Reference Frames, Grid Coordinate Systems, and Map Scales",
+    "title": "\"The Monster's Journey\" Constant Velocity Lab",
+    "topic": "Multi-Interval Kinematic Data Collection (Tumble Buggy Lab) & Position-Time Slope Graphing",
     "dok": 2,
-    "type": "Inquiry / Project",
+    "type": "Lab",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Launch the 3-day Fantasy Map Quest: student partners establish reference frames, coordinate grid origins (0,0), compass roses, map scale factors, and sketch fantasy geography.",
-    "activity": "Fantasy Map Quest (Day 1 of 3): In 45-minute periods (~30 min work time), student pairs establish a home village origin point (0,0), draw a four-direction compass rose, define a map scale (e.g. 1 cm = 10 leagues), and sketch terrain featuring 4 required quest landmarks (Village -> Forest/Swamp -> Mountain Pass -> Citadel).",
-    "essentialQuestion": "How does our choice of reference point determine whether an object is considered in motion or at rest?",
+    "summary": "Empirical inquiry using motorized constant-speed tumble buggies to record position stamps every 2 seconds, plot position-time (x-t) data, and verify uniform motion.",
+    "activity": "Students release battery-operated motorized cars down meter tracks, drop beanbag markers every 2 seconds on audible cues, measure cumulative positions, record coordinate pairs in tables, plot position-time graphs, and calculate trendline slope (v = Δx / Δt) to prove whether motion is truly uniform.",
+    "essentialQuestion": "How can multi-stage empirical data and position-time graphs reveal whether an object travels with truly uniform motion?",
     "standards": [
-      "HS-PS2-1"
+      "HS-PS2-1",
+      "HS-ETS1-2"
     ],
     "wicor": {
-      "Writing": "Documenting landmark coordinate points (x, y) and recording the map scale conversion rule.",
-      "Inquiry": "Investigating how changing the map origin shifts all landmark coordinates without altering land geography.",
-      "Collaboration": "Partner cartography teams dividing duties: grid calibration, terrain sketching, and landmark naming.",
-      "Organization": "Setting up the 3-day project quest log, data tables, and scale keys.",
-      "Reading": "Interpreting compass rose bearings and coordinate grid legends."
+      "Writing": "Writing a formal experimental conclusion explaining whether the buggy maintained true constant speed.",
+      "Inquiry": "Analyzing experimental variances in beanbag placement to identify measurement error vs genuine motor slowing.",
+      "Collaboration": "Coordinating stopwatch calls and physical marker drops in synchronized rhythm.",
+      "Organization": "Constructing clean position-time data tables and drawing best-fit coordinate slopes.",
+      "Reading": "Following multi-step laboratory protocols and safety guidelines."
     },
     "bellRinger": {
       "type": "cast_challenge",
-      "title": "Reference Frames & Cartesian Navigation",
+      "title": "Kinematic Data & Position-Time Slopes",
       "defaultDuration": 4,
       "standards": {
         "dci": "HS-PS2.A: Forces & Motion",
         "sep": "SEP-4: Analyzing & Interpreting Data",
-        "ccc": "CCC-2: Cause and Effect / Scale"
+        "ccc": "CCC-1: Patterns & Proportional Relationships"
       },
       "phenomenon": {
-        "title": "Desert Survey Drone Navigation",
-        "type": "data_table",
-        "text": "A geological survey team tracks a search drone across a desert sector. Positions and scale conversions are recorded relative to Base Camp in the data table below.",
-        "dataTable": {
-          "caption": "Survey Sector Position & Scale Log",
-          "headers": [
-            "Entity / Landmark",
-            "Reference Position",
-            "Grid Distance",
-            "Scale Ratio"
+        "title": "Tumble Buggy Ultrasonic Sensor Run",
+        "type": "graph",
+        "text": "An ultrasonic sensor tracks a motorized buggy rolling along a straight track at 2.0-second intervals as shown in the position-time scatter plot.",
+        "graphData": {
+          "title": "Tumble Buggy: Position vs Time",
+          "chartType": "scatter",
+          "showBestFit": true,
+          "xAxis": {
+            "label": "Time (t)",
+            "unit": "s",
+            "beginAtZero": true
+          },
+          "yAxis": {
+            "label": "Position (x)",
+            "unit": "m",
+            "beginAtZero": true
+          },
+          "xValues": [
+            0,
+            2,
+            4,
+            6,
+            8,
+            10
           ],
-          "rows": [
+          "series": [
             {
-              "col_0": "Base Camp (Origin)",
-              "col_1": "(0, 0)",
-              "col_2": "0 grid blocks",
-              "col_3": "1 block = 2.5 km"
-            },
-            {
-              "col_0": "Survey Drone Alpha",
-              "col_1": "(8, 0) due East",
-              "col_2": "8 grid blocks East",
-              "col_3": "1 block = 2.5 km"
+              "label": "Buggy Position",
+              "unit": "m",
+              "color": "#06b6d4",
+              "pointStyle": "circle",
+              "pointRadius": 6,
+              "values": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
             }
           ]
         }
@@ -1639,32 +855,32 @@ const lessonsData = [
         {
           "stepId": "step_1",
           "type": "cloze_dropdown",
-          "title": "Part 1: Reference Frames and Positions",
-          "prompt": "Analyze the scientific principle of spatial reference frames:",
-          "text": "Describing an object's exact location requires specifying position relative to a defined [blank1]. A transmission stating only a distance number provides [blank2] without indicating [blank3].",
+          "title": "Part 1: Graph Pattern Identification",
+          "prompt": "Analyze the pattern of data points on the position-time graph:",
+          "text": "The position vs time graph displays a [blank1] relationship. On a position-time graph, the slope represents the object's [blank2]. Because the slope remains straight and constant, the buggy moves at a [blank3].",
           "blanks": {
             "blank1": {
-              "correct": "reference frame / origin point",
+              "correct": "linear proportional",
               "options": [
-                "reference frame / origin point",
-                "speedometer reading",
-                "satellite clock"
+                "linear proportional",
+                "curved exponential",
+                "horizontal flat"
               ]
             },
             "blank2": {
-              "correct": "scalar distance (magnitude)",
+              "correct": "velocity (v = Δx / Δt)",
               "options": [
-                "scalar distance (magnitude)",
-                "acceleration vector",
+                "velocity (v = Δx / Δt)",
+                "net force",
                 "total mass"
               ]
             },
             "blank3": {
-              "correct": "directional bearing / angle",
+              "correct": "steady constant speed",
               "options": [
-                "directional bearing / angle",
-                "wind speed",
-                "temperature"
+                "steady constant speed",
+                "increasing acceleration",
+                "increasing friction"
               ]
             }
           }
@@ -1672,1307 +888,1987 @@ const lessonsData = [
         {
           "stepId": "step_2",
           "type": "data_calculation",
-          "title": "Part 2: Map Scale Conversion",
-          "prompt": "Using the map scale (1 block = 2.5 km), calculate the drone's actual distance from Base Camp (8 blocks East) in kilometers.",
-          "inputLabel": "Calculated Distance",
-          "unit": "km",
-          "targetValue": 20,
-          "tolerance": 0.5,
-          "hint": "Distance = 8 blocks · 2.5 km/block."
+          "title": "Part 2: Slope & Velocity Calculation",
+          "prompt": "The buggy starts at 0 m and reaches 5.0 m at 10.0 s. Calculate the buggy's speed in meters per second (m/s).",
+          "inputLabel": "Calculated Speed",
+          "unit": "m/s",
+          "targetValue": 0.5,
+          "tolerance": 0.05,
+          "hint": "Speed = distance / time = 5.0 m / 10.0 s."
         },
         {
           "stepId": "step_3",
           "type": "ai_reasoning_chat",
           "title": "Part 3: Defend Your Thinking (AI Physics Mentor)",
-          "prompt": "Discuss your thinking with the AI Physics Mentor. Defend your distance calculation and explain why moving Base Camp changes the coordinates, but not the drone itself.",
-          "openingMessage": "You calculated 20 km for Drone Alpha! If the team moves Base Camp 5 km South, does the drone's physical location change, or just its coordinate numbers? Defend your reasoning!"
+          "prompt": "Discuss your thinking with the AI Physics Mentor. Defend why the slope represents speed and predict how the line would change if the buggy slowed down.",
+          "openingMessage": "You calculated a speed of 0.5 m/s from the slope! Why does a straight line mean steady speed, and what would happen to the line if the buggy started slowing down?"
         }
       ],
-      "teacherKey": "Step 1: reference frame / origin point, scalar distance (magnitude), directional bearing / angle. Step 2: 20 km (8 blocks · 2.5 km/block). Step 3: Claim: Moving base camp changes the coordinate numbers assigned to the drone, but does not move the drone itself. Evidence: Position coordinates (x, y) are defined relative to the chosen origin (0, 0). Reasoning: Reference frames are human coordinate choices; altering the observer frame does not change physical matter in space."
+      "teacherKey": "Step 1: linear proportional, velocity (v = Δx / Δt), steady constant speed. Step 2: 0.50 m/s (5.0 m / 10.0 s). Step 3: Claim: A straight line means constant velocity; if it slows down, the line curves flatter. Evidence: Slope = Δx / Δt = 0.5 m/s. Reasoning: Velocity is the rate of change of position; constant slope indicates identical displacement gained per second. Decreasing speed means less distance gained per second, curving the slope toward a horizontal line."
     },
-    "assignments": [
-      {
-        "title": "Fantasy Map Worksheet",
-        "url": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs",
-        "typeLabel": "Required Project Worksheet",
-        "submission": "Turn In Completed Map & Handout",
-        "description": "Part 1: Define reference frame origin (0,0), 4-direction compass rose, scale factor, and 4 realm landmarks."
-      }
-    ],
-    "resources": [
-      {
-        "title": "Google Slides",
-        "url": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
-        "typeLabel": "Classroom Slides",
-        "description": "Reference frames, coordinate grids, and displacement lecture deck."
-      },
-      {
-        "title": "PowerPoint Slides",
-        "url": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDTeHashMmgSoeLVDHY5TwQAbynyLTufaGMoMjm5APx0Hw?e=nwclwC",
-        "typeLabel": "OneDrive PowerPoint",
-        "description": "Class presentation deck on OneDrive."
-      },
-      {
-        "title": "Quest Story Doc",
-        "url": "https://docs.google.com/document/d/10pNCBkmnpn4LmwO6Fd8af0JH5ehHpj1akiyfmTqkDNA/edit?usp=sharing",
-        "typeLabel": "Reading & Lore",
-        "description": "Tale of Caelum story prompt and adventurer narrative."
-      },
-      {
-        "title": "Interactive Presentation",
-        "url": "Unit_2/describing-motion-presentation/index.html",
-        "typeLabel": "Interactive HTML Deck",
-        "description": "Web-based interactive presentation on describing motion."
-      }
-    ],
-    "practice": [
-      {
-        "title": "Fantasy Map Web App",
-        "url": "Unit_2/Displacement_and_distance_map_app/index.html",
-        "typeLabel": "Cartography Sandbox",
-        "description": "Digital map tool for exploring fantasy biomes and path measurement."
-      }
-    ],
     "links": {
-      "Fantasy Map Worksheet": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBzzhcGrqsdS5HRtMAMpy7MATF-dvV8hmz8mGy3c73MGCc?e=wEX5fs",
-      "Google Slides": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
-      "PowerPoint Slides": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDTeHashMmgSoeLVDHY5TwQAbynyLTufaGMoMjm5APx0Hw?e=nwclwC",
-      "Quest Story Doc": "https://docs.google.com/document/d/10pNCBkmnpn4LmwO6Fd8af0JH5ehHpj1akiyfmTqkDNA/edit?usp=sharing",
-      "Interactive Presentation": "Unit_2/describing-motion-presentation/index.html",
-      "Fantasy Map Web App": "Unit_2/Displacement_and_distance_map_app/index.html"
+      "Wind-Up Toy Speed Lab": "Unit_2/wind_up_toy_lab/index.html",
+      "Distance vs Time App": "distance_vs_time_graphing.html",
+      "Motion Curve Drawer": "Distance_vs_Time_Drawer.html",
+      "Interactive Presentation": "Unit_2/describing-motion-presentation/index.html"
     }
   },
   {
-    "date": "2026-08-28",
-    "day": 8,
-    "unit": 1,
-    "title": "The Measurement Olympics (Unit 1 Finale)",
-    "summary": "Collaborative classroom Measurement Olympics culminating Unit 1 with team calibration, estimation, and reaction events.",
-    "details": "1. Team Strategy & Calibration: Groups review the 4 Olympic events, run internal qualifying trials, calibrate reference metrics, and nominate champions. 2. The 4 Olympic Events: The Mass Grab (proportional scaling of crayons to secret mass), Mystery Tape Distance (5.0m calibration vs hallway unknown), The Internal Clock (blind spacebar stopwatch challenge), and Reaction Ruler Drop (live ruler drop showdown). 3. Podium & Awards: Live tournament leaderboard, medal ceremony, and Unit 1 celebration!",
-    "type": "Lab",
-    "dok": 2,
-    "semester": 1,
-    "isFeatured": true,
-    "essentialQuestion": "How do scientists calibrate human senses, reference standards, and physical tools to achieve precision and accuracy?",
-    "standards": [
-      "SEP-4",
-      "SEP-5"
-    ],
-    "assignments": [
-      {
-        "title": "Unit Conversion Practice",
-        "url": "unit-conversion-practice/index.html",
-        "typeLabel": "Required Practice Assignment",
-        "submission": "Cloud Auto-Saved ✓",
-        "description": "Master dimensional analysis and conversion factors by earning a 4-in-a-row streak. Results are automatically recorded to Firestore."
-      }
-    ],
-    "resources": [
-      {
-        "title": "Printable Team Scorecard",
-        "url": "measurement-olympics/scorecard.html",
-        "typeLabel": "Lab Event Scorecard",
-        "description": "Measurement Olympics 4-event team data logging and calibration sheet."
-      }
-    ],
-    "practice": [
-      {
-        "title": "Measurement Olympics Leaderboard",
-        "url": "measurement-olympics/index.html",
-        "typeLabel": "Tournament Leaderboard",
-        "description": "Live tournament rankings and medal standings."
-      }
-    ],
-    "links": {
-      "Unit Conversion Practice": "unit-conversion-practice/index.html",
-      "Measurement Olympics Leaderboard": "measurement-olympics/index.html",
-      "Printable Team Scorecard": "measurement-olympics/scorecard.html"
-    },
-    "bellRinger": {
-      "type": "concept_chat",
-      "promptQuestion": "Science and physics connect to almost everything in our world—from how rockets launch and how athletes optimize performance, to video game engines and deep space exploration. What specific topic, technology, or real-world phenomenon in science interests you the most, and why?",
-      "chatSystemInstruction": "You are a warm, adaptive, and relatable physics mentor chatting with a student over SMS/text. Your goal is to explore a physics concept together without being overly formal or using forced slang.\n\nCRITICAL RULES:\n1. NO FISHING / PIVOT TO TEACHING: Never try to \"force\" or repeatedly nudge a student toward a specific technical answer or physics term. If you ask a conceptual question and the student guesses wrong, focuses on a different variable (like friction/roughness), or says \"I don't know,\" DO NOT ask a follow-up question trying to correct their guess. Instead, pivot immediately to teaching: validate their logic, briefly explain the physics concept directly using a relatable analogy, and move on.\n2. NO SOCRATIC TRAPS: Do not get stuck in a loop asking the student to explain the same thing over and over. If they answer correctly, understand a concept, or say \"yes\"/\"obvious\", validate it briefly and immediately MOVE FORWARD to a new dimension or a real-world application.\n3. MOVE DYNAMICALLY: Keep the conversation fluid. Once a basic idea is established, introduce a fun twist, a new scenario, or a practical question (e.g., \"What happens if we try this in space?\" or \"How does that affect a rollercoaster?\"). \n4. CHAT TONE & LENGTH: Keep replies highly conversational and natural—like a text message from a knowledgeable peer. Limit replies to 1–3 short sentences max. Never send multiple distinct thoughts, lists, or bullet points in one message.\n5. CONTINUING THE CONVERSATION: Never end the conversation abruptly or push the student to stop chatting. Even after the student demonstrates understanding or has engaged in multiple turns, keep the conversation flowing naturally by offering intriguing follow-up thoughts, fun scenario twists, or real-world applications. You may let them know they can click the Finish Session button whenever they are ready to submit, but always leave the door open for them to continue chatting.",
-      "defaultDuration": 4
-    }
-  },
-  {
-    "date": "2026-08-27",
-    "day": 7,
-    "unit": 1,
-    "title": "Quality of Measurement: Accuracy & Precision",
-    "summary": "Quality of Measurement slide presentation followed by the 4-quadrant Emoji Finger Painting art project.",
-    "details": "1. Lesson Presentation: Walk through 'The Quality of Measurement' slide deck covering operational definitions of Accuracy (proximity to true value) vs. Precision (consistency & controlled craftsmanship). 2. Emoji Finger Painting Art Project: Paint 4 full-canvas scientific variations of a chosen emoji in the interactive studio (Accurate & Precise, Accurate NOT Precise, Precise NOT Accurate, and Neither). 3. CER Justification: Write scientific justifications explaining why each painting represents that state, and export the finished gallery poster.",
-    "type": "Lab",
-    "dok": 2,
-    "semester": 1,
-    "isFeatured": false,
-    "essentialQuestion": "What is the critical scientific boundary separating a precise measurement from an accurate one?",
-    "standards": [
-      "SEP-4"
-    ],
-    "assignments": [
-      {
-        "title": "Emoji Finger Painting Studio (Accuracy & Precision Project)",
-        "url": "accuracy-precision-art/index.html",
-        "typeLabel": "Required Lab Project",
-        "submission": "Export & Turn In Gallery Poster",
-        "description": "Paint 4 full-canvas emoji quadrants demonstrating accuracy vs. precision, write CER justifications, and download the finished gallery poster."
-      }
-    ],
-    "resources": [
-      {
-        "title": "The Quality of Measurement (Slides)",
-        "url": "https://docs.google.com/presentation/d/1WCuBzY6-idwpRUGULY5W2CtXGlzRFMFhXHPsC8UygRQ/edit?usp=sharing",
-        "typeLabel": "Classroom Lecture Slides",
-        "description": "Operational definitions of accuracy, precision, and experimental calibration notes."
-      }
-    ],
-    "links": {
-      "Emoji Finger Painting Studio": "accuracy-precision-art/index.html",
-      "The Quality of Measurement (Slides)": "https://docs.google.com/presentation/d/1WCuBzY6-idwpRUGULY5W2CtXGlzRFMFhXHPsC8UygRQ/edit?usp=sharing"
-    },
-    "bellRinger": {
-      "type": "concept_chat",
-      "promptQuestion": "People often think 'accurate' and 'precise' mean the exact same thing, but in physics and engineering they are very different. For example, if a bathroom scale always reads exactly 5 pounds too heavy every single time you step on it, is it accurate, precise, both, or neither? How would you describe the difference?",
-      "chatSystemInstruction": "You are a warm, adaptive, and relatable physics mentor chatting with a student over SMS/text. Your goal is to explore a physics concept together without being overly formal or using forced slang.\n\nCRITICAL RULES:\n1. NO FISHING / PIVOT TO TEACHING: Never try to \"force\" or repeatedly nudge a student toward a specific technical answer or physics term. If you ask a conceptual question and the student guesses wrong, focuses on a different variable (like friction/roughness), or says \"I don't know,\" DO NOT ask a follow-up question trying to correct their guess. Instead, pivot immediately to teaching: validate their logic, briefly explain the physics concept directly using a relatable analogy, and move on.\n2. NO SOCRATIC TRAPS: Do not get stuck in a loop asking the student to explain the same thing over and over. If they answer correctly, understand a concept, or say \"yes\"/\"obvious\", validate it briefly and immediately MOVE FORWARD to a new dimension or a real-world application.\n3. MOVE DYNAMICALLY: Keep the conversation fluid. Once a basic idea is established, introduce a fun twist, a new scenario, or a practical question (e.g., \"What happens if we try this in space?\" or \"How does that affect a rollercoaster?\"). \n4. CHAT TONE & LENGTH: Keep replies highly conversational and natural—like a text message from a knowledgeable peer. Limit replies to 1–3 short sentences max. Never send multiple distinct thoughts, lists, or bullet points in one message.\n5. CONTINUING THE CONVERSATION: Never end the conversation abruptly or push the student to stop chatting. Even after the student demonstrates understanding or has engaged in multiple turns, keep the conversation flowing naturally by offering intriguing follow-up thoughts, fun scenario twists, or real-world applications. You may let them know they can click the Finish Session button whenever they are ready to submit, but always leave the door open for them to continue chatting.",
-      "phenomenonType": "image",
-      "phenomenonImageUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCdAbFKfplT1aDyVgYV7ZaAnc2JVFevtWAvdtGsds7xEjixC5i6ruiV9IV&s=10",
-      "phenomenonDesc": "Accuracy vs Precision Target Diagram",
-      "defaultDuration": 4
-    }
-  },
-  {
-    "date": "2026-08-26",
     "day": 6,
-    "unit": 1,
-    "title": "Unit Conversions",
-    "summary": "Mastering single and multi-step factor-label dimensional analysis.",
-    "details": "\"I do, We do, You do\" guided practice. Students work through converting single-step and multi-step problems (e.g., km/h to m/s) using the factor-label method.",
-    "type": "Practice",
-    "dok": 2,
+    "date": "2026-09-07",
+    "unit": 2,
+    "title": "Labor Day — No School",
+    "topic": "Labor Day Holiday (No School)",
+    "dok": 0,
+    "type": "Holiday",
     "semester": 1,
     "isFeatured": false,
-    "essentialQuestion": "How does dimensional analysis safeguard mathematical models across different dimensional levels?",
+    "summary": "Labor Day Holiday observed. No school scheduled.",
+    "activity": "No school in observance of the Labor Day holiday.",
+    "essentialQuestion": "Holiday observed — no school.",
     "standards": [
-      "HS-PS1-7",
-      "HS-ETS1-2"
-    ],
-    "links": {
-      "Unit Conversion": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQBqvZqZmpfNT4y4XdCLPzTYAcqCj0kYzFnNQg5zvKjG4VI?e=q1GtH6",
-      "Interactive Unit Conversion Practice": "unit-conversion-practice/index.html",
-      "Practice Worksheet": "https://docs.google.com/document/d/19L0sKqt97x8hOCWEDIpL3pkUmgLGjwcYPnmkPXi8wnM/edit?usp=sharing"
-    },
-    "bellRinger": {
-      "type": "connections",
-      "promptQuestion": "Group the 16 measurement terms into 4 related categories of 4!",
-      "defaultDuration": 3,
-      "connectionsData": {
-        "categories": [
-          {
-            "name": "SI Base Units",
-            "words": [
-              "Meter",
-              "Kilogram",
-              "Second",
-              "Kelvin"
-            ]
-          },
-          {
-            "name": "Metric Prefixes",
-            "words": [
-              "Kilo-",
-              "Centi-",
-              "Milli-",
-              "Micro-"
-            ]
-          },
-          {
-            "name": "Customary Units",
-            "words": [
-              "Inch",
-              "Mile",
-              "Pound",
-              "Gallon"
-            ]
-          },
-          {
-            "name": "Conversion Values",
-            "words": [
-              "2.54",
-              "1000",
-              "1.609",
-              "5280"
-            ]
-          }
-        ]
-      }
-    }
+      "HS-PS2-1"
+    ]
   },
   {
-    "date": "2026-08-25",
-    "day": 5,
-    "unit": 1,
-    "title": "Making the Standard & The 1-Meter Challenge",
-    "summary": "Measuring classroom objects using a blank 1-meter paper strip and subdividing standard metric prefixes.",
-    "details": "Working in partner groups of 2 (max 3), students are given an unmarked strip of paper exactly 1 meter long. Using only this 1-meter blank strip, groups measure 10 different classroom objects and record their values. Afterwards, the class analyzes how they measured items shorter and longer than 1 meter, leading into formal metric prefixes (centi-, milli-) and standard SI units.",
-    "type": "Activity",
+    "day": 7,
+    "date": "2026-09-08",
+    "unit": 2,
+    "title": "Wind-Up Toy Speed Lab Wrap-Up & Intro to Speed",
+    "topic": "Finishing Empirical Replications, Data Averaging & Unpacking Rate of Motion (v = d / t)",
     "dok": 2,
+    "type": "Lab / Direct Instruction",
     "semester": 1,
     "isFeatured": true,
-    "essentialQuestion": "How do prefix systems expand our capability to mathematically model micro and macro realities?",
+    "summary": "Students complete remaining timing trials and data averages for their 3 wind-up toys over the 20.0 cm track, then debrief what speed physically represents as a rate of travel (v = d / t).",
+    "activity": "Students finalize their replication trials and outlier checks in the Wind-Up Toy Speed Lab web app, compute average times, and transition into class discussion connecting their 20.0 cm / seconds calculation to the formal definition of speed as distance covered per unit time.",
+    "essentialQuestion": "How does our 20.0 cm lab measurement reveal the rate at which an object covers distance every second?",
     "standards": [
-      "HS-ETS1-1"
+      "HS-PS2-1"
     ],
+    "wicor": {
+      "Writing": "Writing a reflective sentence explaining what their toy's speed value means in plain English.",
+      "Inquiry": "Connecting stopwatch intervals to physical rates of change.",
+      "Collaboration": "Lab partners verifying timer releases and comparing toy speed rankings.",
+      "Organization": "Completing data table averages and bar charts in the lab web app.",
+      "Reading": "Reading digital stopwatch displays and precision metric rulers."
+    },
     "bellRinger": {
-      "type": "free_response",
-      "promptQuestion": "You are given a blank 1-meter strip of paper with no markings. Which will be harder to measure: an object that is 3 meters long, or an object that is 15 centimeters long? Explain your reasoning and how you plan to measure both.",
-      "explanation": "Measuring an object longer than 1 meter requires repeating/iterating the tool end-to-end, while measuring an object shorter than 1 meter requires folding or subdividing the meter into fractional parts (like halves, tenths, or centimeters).",
+      "type": "concept_chat",
+      "promptQuestion": "In our lab, a toy traveled 20.0 cm in 5.0 seconds. What does dividing 20.0 by 5.0 tell us about what the toy was doing during each individual second?",
+      "chatSystemInstruction": "You are a warm, adaptive, and relatable physics mentor chatting with a student over SMS/text. Your goal is to explore a physics concept together without being overly formal or using forced slang.\n\nCRITICAL RULES:\n1. NO FISHING / PIVOT TO TEACHING: Never try to \"force\" or repeatedly nudge a student toward a specific technical answer or physics term. If you ask a conceptual question and the student guesses wrong, focuses on a different variable (like friction/roughness), or says \"I don't know,\" DO NOT ask a follow-up question trying to correct their guess. Instead, pivot immediately to teaching: validate their logic, briefly explain the physics concept directly using a relatable analogy, and move on.\n2. NO SOCRATIC TRAPS: Do not get stuck in a loop asking the student to explain the same thing over and over. If they answer correctly, understand a concept, or say \"yes\"/\"obvious\", validate it briefly and immediately MOVE FORWARD to a new dimension or a real-world application.\n3. MOVE DYNAMICALLY: Keep the conversation fluid. Once a basic idea is established, introduce a fun twist, a new scenario, or a practical question (e.g., \"What happens if we try this in space?\" or \"How does that affect a rollercoaster?\"). \n4. CHAT TONE & LENGTH: Keep replies highly conversational and natural—like a text message from a knowledgeable peer. Limit replies to 1–3 short sentences max. Never send multiple distinct thoughts, lists, or bullet points in one message.\n5. CONTINUING THE CONVERSATION: Never end the conversation abruptly or push the student to stop chatting. Even after the student demonstrates understanding or has engaged in multiple turns, keep the conversation flowing naturally by offering intriguing follow-up thoughts, fun scenario twists, or real-world applications. You may let them know they can click the Finish Session button whenever they are ready to submit, but always leave the door open for them to continue chatting.",
       "defaultDuration": 3
     },
+    "assignments": [
+      {
+        "title": "Wind-Up Toy Speed Lab",
+        "url": "Unit_2/wind_up_toy_lab/index.html",
+        "typeLabel": "Graded Lab Report",
+        "submission": "Cloud Auto-Saved ✓",
+        "description": "Complete replication timing trials, compute average speed, and submit results."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Constant Speed Presentation",
+        "url": "Unit_2/constant-speed-presentation/index.html",
+        "typeLabel": "Classroom Lecture Slides",
+        "description": "Rate of travel derivations and classroom debrief notes."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Speed & Distance Studio",
+        "url": "Unit_2/speed_distance_time_app/index.html",
+        "typeLabel": "Practice Sandbox",
+        "description": "Explore variable rearrangements and practice problem sets."
+      }
+    ],
     "links": {
-      "1-Meter Challenge Form": "https://forms.gle/YHPHiRryQU6mAEjv6"
+      "Wind-Up Toy Speed Lab": "Unit_2/wind_up_toy_lab/index.html",
+      "Constant Speed Presentation": "Unit_2/constant-speed-presentation/index.html",
+      "Speed & Distance Studio": "Unit_2/speed_distance_time_app/index.html"
     }
   },
   {
-    "date": "2026-08-24",
-    "day": 4,
-    "unit": 1,
-    "title": "Why Standardize? Non-Standard Unit Challenge",
-    "summary": "Hands-on calibration challenge introducing standardized units.",
-    "details": "Students discover why standardized units are necessary through a hands-on challenge. Each group uses a unique, non-standard object (like a marker) to create their own measuring tool and measure a common classroom item. After comparing their varied and confusing initial results, they convert their measurements to a standard unit (cm), revealing a new consistency and leading to a class discussion on the importance of the SI system for scientific collaboration.",
-    "type": "Activity",
+    "day": 8,
+    "date": "2026-09-09",
+    "unit": 2,
+    "title": "The Speed Equation: Calculating Speed & Solving for Distance",
+    "topic": "The Formula Triangle (v = d / t), Standard Units (m/s, cm/s), and Rearranging for Distance (d = v · t)",
     "dok": 2,
+    "type": "Direct Instruction / Practice",
     "semester": 1,
     "isFeatured": true,
-    "essentialQuestion": "Why is a universal standard for measurement essential for science and global collaboration?",
+    "summary": "Master calculating speed (v = d / t) and algebraically rearranging to solve for distance (d = v · t) using the Formula Triangle and the 5-step GUESS problem-solving method.",
+    "activity": "Interactive classroom lecture using the Constant Speed Slide Deck followed by scaffolded practice in the Physics Speed Calculator web app. Students begin working through the 3-level progression (Speed, Distance, and Time), tracking units and using Desmos for calculations.",
+    "essentialQuestion": "If you know how fast an object travels and how long it moves, how can you predict its exact final position?",
     "standards": [
-      "HS-ETS1-1"
+      "HS-PS2-1"
+    ],
+    "wicor": {
+      "Writing": "Writing out full GUESS steps (Given, Unknown, Equation, Substitute, Solve with Units) for motion word problems.",
+      "Inquiry": "Exploring how unit cancellation confirms that (m/s) · s yields meters.",
+      "Collaboration": "Paired peer audits checking whether partner answers include required metric units.",
+      "Organization": "Drawing the 3-section formula triangle in notebooks and color-coding variables.",
+      "Reading": "Parsing physics word problems to identify numerical givens and target unknowns."
+    },
+    "bellRinger": {
+      "type": "cast_challenge",
+      "title": "Kinematics & Calculating Distance from Speed",
+      "promptQuestion": "A runner jogs at a steady speed of 3.0 m/s for 12.0 seconds. Write the formula you would use to find their distance, and calculate the answer with units.",
+      "explanation": "Using d = v · t: distance = (3.0 m/s) · (12.0 s) = 36.0 meters.",
+      "defaultDuration": 4,
+      "standards": {
+        "dci": "HS-PS2.A: Forces & Motion",
+        "sep": "SEP-5: Using Mathematics and Computational Thinking",
+        "ccc": "CCC-3: Scale, Proportion, and Quantity"
+      },
+      "phenomenon": {
+        "title": "Track Athlete Constant-Speed Training Run",
+        "type": "data_table",
+        "text": "A coach records an athlete running along a measured straight track at a steady pace. Telemetry data from the training session is recorded in the table below.",
+        "dataTable": {
+          "caption": "Athlete Constant Speed & Time Log",
+          "headers": [
+            "Athlete",
+            "Pace Description",
+            "Speed (v)",
+            "Time Elapsed (t)"
+          ],
+          "rows": [
+            {
+              "col_0": "Runner Track Alpha",
+              "col_1": "Steady sprint",
+              "col_2": "3.0 m/s",
+              "col_3": "12.0 s"
+            }
+          ]
+        }
+      },
+      "steps": [
+        {
+          "stepId": "step_1",
+          "type": "cloze_dropdown",
+          "title": "Part 1: Rearranging the Speed Equation",
+          "prompt": "Analyze the relationship between speed, distance, and time:",
+          "text": "The speed formula is v = d / t. To isolate distance, we multiply both sides by time to get [blank1]. In this equation, multiplying (m/s) by seconds causes the seconds units to cancel, leaving an answer with units of [blank2].",
+          "blanks": {
+            "blank1": {
+              "correct": "d = v · t",
+              "options": [
+                "d = v · t",
+                "d = v / t",
+                "d = t / v"
+              ]
+            },
+            "blank2": {
+              "correct": "meters (m)",
+              "options": [
+                "meters (m)",
+                "meters per second (m/s)",
+                "seconds (s)"
+              ]
+            }
+          }
+        },
+        {
+          "stepId": "step_2",
+          "type": "data_calculation",
+          "title": "Part 2: Distance Calculation",
+          "prompt": "Calculate the runner's total distance covered after 12.0 seconds at a constant speed of 3.0 m/s.",
+          "inputLabel": "Calculated Distance",
+          "unit": "m",
+          "targetValue": 36,
+          "tolerance": 0.5,
+          "hint": "Distance = speed · time = (3.0 m/s) · (12.0 s)."
+        },
+        {
+          "stepId": "step_3",
+          "type": "ai_reasoning_chat",
+          "title": "Part 3: Defending the Why with AI Mentor",
+          "prompt": "Defend your reasoning to the Physics AI Mentor: Why does multiplying speed by time give distance, and what does speed physically tell us about every passing second?",
+          "openingPrompt": "Hi! You found that a runner moving at 3.0 m/s for 12.0 seconds covers 36.0 meters. In your own words, **why** does multiplying speed by time give distance? What does 3.0 m/s physically tell us about the runner during each individual second?",
+          "minTurns": 1
+        }
+      ]
+    },
+    "assignments": [
+      {
+        "title": "Physics Speed Calculator",
+        "url": "physics_speed_calculator/dist/index.html",
+        "typeLabel": "Graded Kinematics Lab",
+        "submission": "Cloud Auto-Saved ✓",
+        "description": "Formulate motion equations and calculate answers using Desmos across all 3 levels. Progress is automatically saved to Firestore."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Constant Speed Presentation",
+        "url": "Unit_2/constant-speed-presentation/index.html",
+        "typeLabel": "Classroom Lecture Slides",
+        "description": "Speed equation triangle and GUESS method notes."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Speed & Distance Studio",
+        "url": "Unit_2/speed_distance_time_app/index.html",
+        "typeLabel": "Practice Sandbox",
+        "description": "Interactive motion problem drills."
+      },
+      {
+        "title": "Distance vs Time App",
+        "url": "distance_vs_time_graphing.html",
+        "typeLabel": "Graphing Explorer",
+        "description": "Visualizing uniform position vs time slopes."
+      }
     ],
     "links": {
-      "Student Instructions": "https://docs.google.com/document/d/188xprYNY0eogCYww45he7McWXoHCAKxVZZWibX7KaPU/edit?usp=sharing",
-      "Lesson Plan": "https://docs.google.com/document/d/1JMY5nWw3dZ_hrxVKjLZisXVsBmV_fQf317EwaEZiS_U/edit?usp=sharing",
-      "Measuring Tools Reference": "assets/images/measuring_tools_name.png"
+      "Physics Speed Calculator": "physics_speed_calculator/dist/index.html",
+      "Constant Speed Presentation": "Unit_2/constant-speed-presentation/index.html",
+      "Speed & Distance Studio": "Unit_2/speed_distance_time_app/index.html",
+      "Distance vs Time App": "distance_vs_time_graphing.html"
+    }
+  },
+  {
+    "day": 9,
+    "date": "2026-09-10",
+    "unit": 2,
+    "title": "Solving for Time & Multi-Step Motion Challenges",
+    "topic": "Rearranging for Time (t = d / v), Metric Unit Consistency, and Multi-Object Race Comparisons",
+    "dok": 3,
+    "type": "Practice / Activity",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Master isolating time (t = d / v) from the speed formula triangle, solve multi-step motion word problems, and resolve race scenarios comparing multiple moving objects.",
+    "activity": "Whiteboard sprint and multi-step motion challenges: Students solve for time (t = d / v), verify decimal division, convert units (cm to m, minutes to seconds), and complete all 3 levels of the Physics Speed Calculator to earn their Certificate of Kinematic Mastery.",
+    "essentialQuestion": "Why does calculating travel time require dividing distance by speed, and how does speed act as a conversion factor between space and time?",
+    "standards": [
+      "HS-PS2-1"
+    ],
+    "wicor": {
+      "Writing": "Formulating written justifications explaining which vehicle won a multi-interval race and why.",
+      "Inquiry": "Investigating how dividing by fractional or decimal speeds affects the calculated time.",
+      "Collaboration": "Timed whiteboard duels: partners race to isolate time and solve multi-step challenges.",
+      "Organization": "Structuring multi-step problem solutions into distinct algebraic phases.",
+      "Reading": "Deconstructing multi-sentence race prompts with multiple moving objects."
+    },
+    "bellRinger": {
+      "type": "cast_challenge",
+      "title": "Multi-Agent Kinematics & Proportional Rates",
+      "defaultDuration": 4,
+      "standards": {
+        "dci": "HS-PS2.A: Forces & Motion",
+        "sep": "SEP-5: Using Mathematics and Computational Thinking",
+        "ccc": "CCC-3: Scale, Proportion, and Quantity"
+      },
+      "phenomenon": {
+        "title": "Emergency Medical Supply Dispatch Challenge",
+        "type": "data_table",
+        "text": "An emergency depot must rush medicine to a clinic. Dispatch evaluates two transport options shown in the data table below.",
+        "dataTable": {
+          "caption": "Vehicle Transport Route & Speed Comparison",
+          "headers": [
+            "Vehicle Option",
+            "Route Description",
+            "Distance (d)",
+            "Speed (v)"
+          ],
+          "rows": [
+            {
+              "col_0": "Aerial Drone Alpha",
+              "col_1": "Direct straight flight",
+              "col_2": "600 m",
+              "col_3": "20 m/s"
+            },
+            {
+              "col_0": "Ground Rover Beta",
+              "col_1": "Winding mountain road",
+              "col_2": "800 m",
+              "col_3": "20 m/s"
+            }
+          ]
+        }
+      },
+      "steps": [
+        {
+          "stepId": "step_1",
+          "type": "cloze_dropdown",
+          "title": "Part 1: Distance and Travel Time",
+          "prompt": "Use the data table to compare the two vehicles traveling at 20 m/s:",
+          "text": "The vehicle that arrives at the clinic first is [blank1] because its travel distance is shorter. When speed is kept constant, travel time is [blank2] proportional to travel distance.",
+          "blanks": {
+            "blank1": {
+              "correct": "Aerial Drone Alpha",
+              "options": [
+                "Aerial Drone Alpha",
+                "Ground Rover Beta",
+                "Both tie at the same time"
+              ]
+            },
+            "blank2": {
+              "correct": "directly",
+              "options": [
+                "directly",
+                "inversely",
+                "not"
+              ]
+            }
+          }
+        },
+        {
+          "stepId": "step_2",
+          "type": "data_calculation",
+          "title": "Part 2: Travel Time Calculation",
+          "prompt": "Calculate the travel time in seconds for Aerial Drone Alpha to fly 600 meters at a steady speed of 20 m/s.",
+          "inputLabel": "Drone Alpha Travel Time",
+          "unit": "s",
+          "targetValue": 30,
+          "tolerance": 0.5,
+          "hint": "Time = distance / speed = 600 m / (20 m/s)."
+        },
+        {
+          "stepId": "step_3",
+          "type": "ai_reasoning_chat",
+          "title": "Part 3: Defend Your Thinking (AI Physics Mentor)",
+          "prompt": "Discuss your thinking with the AI Physics Mentor. Defend why Drone Alpha arrives first and explain how extra distance impacts travel time when speed is constant.",
+          "openingMessage": "You calculated 30 seconds for Drone Alpha! Which vehicle gets there first, and why does Drone Alpha win even though both vehicles travel at the exact same speed?"
+        }
+      ],
+      "teacherKey": "Step 1: Aerial Drone Alpha, directly. Step 2: 30 seconds (600 m / 20 m/s). Step 3: Claim: Aerial Drone Alpha arrives first by 10 seconds. Evidence: Drone Alpha time = 600 m / 20 m/s = 30 s; Rover Beta time = 800 m / 20 m/s = 40 s (40 s - 30 s = 10 s). Reasoning: When traveling at identical speeds, travel time is directly proportional to distance (t = d / v). The rover's winding road adds 200 m of extra path, requiring 10 additional seconds."
+    },
+    "assignments": [
+      {
+        "title": "Physics Speed Calculator",
+        "url": "physics_speed_calculator/dist/index.html",
+        "typeLabel": "Graded Kinematics Lab",
+        "submission": "Cloud Auto-Saved ✓",
+        "description": "Complete all 3 levels (Speed, Distance, and Time) using Desmos to earn your Certificate of Kinematic Mastery. Auto-saved to Firestore."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Constant Speed Presentation",
+        "url": "Unit_2/constant-speed-presentation/index.html",
+        "typeLabel": "Classroom Lecture Slides",
+        "description": "Rearranging for time and multi-object race comparisons."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Speed & Distance Studio",
+        "url": "Unit_2/speed_distance_time_app/index.html",
+        "typeLabel": "Practice Sandbox",
+        "description": "Leveled speed and distance challenges."
+      }
+    ],
+    "links": {
+      "Physics Speed Calculator": "physics_speed_calculator/dist/index.html",
+      "Speed & Distance Studio": "Unit_2/speed_distance_time_app/index.html",
+      "Constant Speed Presentation": "Unit_2/constant-speed-presentation/index.html"
+    }
+  },
+  {
+    "day": 10,
+    "date": "2026-09-11",
+    "unit": 2,
+    "title": "Constant Speed Story: Author & Solve",
+    "topic": "Creative Problem Authoring & Solving Workshop (Illustrate, Write, and Solve)",
+    "dok": 3,
+    "type": "In-Class Performance Task",
+    "semester": 1,
+    "isFeatured": true,
+    "image": "assets/images/constant_speed_story_exemplar.jpg",
+    "summary": "Synthesize constant speed mastery through creative problem authoring: students illustrate an original motion scenario, write an authentic kinematic word problem, and construct a complete step-by-step mathematical proof using the GUESS method on paper.",
+    "activity": "Constant Speed Story Workshop: Students illustrate an authentic constant-speed motion scenario, compose an original word problem targeting an unknown kinematic variable (v, d, or t), and solve it on their handout using the GUESS method with step-by-step mathematical work.",
+    "essentialQuestion": "How can we communicate real-world physical motion through visual illustrations, narrative word problems, and algebraic kinematic models?",
+    "standards": [
+      "HS-PS2-1"
+    ],
+    "wicor": {
+      "Writing": "Authoring original physics narrative word problems and detailed GUESS mathematical solution proofs.",
+      "Inquiry": "Designing authentic motion scenarios, determining reasonable kinematic values, and identifying the target unknown.",
+      "Collaboration": "Publishing student-created challenges to the interactive class gallery for peer review and solving.",
+      "Organization": "Structuring solution steps systematically using Givens, Unknown, Equation, Substitute, and Solve (GUESS).",
+      "Reading": "Reading, interpreting, and analyzing peer-created physics word problems and diagrammatic vector sketches."
+    },
+    "bellRinger": {
+      "type": "cast_challenge",
+      "title": "Constant Motion Synthesis & 3-Way Formula Mastery",
+      "promptQuestion": "Analyze the three sensor scenarios in the data table and match each to its required formula triangle rearrangement, then calculate the transit time for Scenario C.",
+      "explanation": "Using the formula triangle: Scenario A requires d = v · t; Scenario B requires v = d / t; Scenario C requires t = d / v = 680 m / (340 m/s) = 2.0 s.",
+      "defaultDuration": 4,
+      "standards": {
+        "dci": "HS-PS2.A: Forces & Motion",
+        "sep": "SEP-5: Using Mathematics and Computational Thinking",
+        "ccc": "CCC-3: Scale, Proportion, and Quantity"
+      },
+      "phenomenon": {
+        "title": "Transit Telemetry & Sensor Monitoring Hub",
+        "type": "data_table",
+        "text": "An automated transit monitoring hub tracks three different transportation and signal systems. Each scenario contains two known quantities and one unknown kinematic variable.",
+        "dataTable": {
+          "caption": "Kinematic Scenario Sensor Telemetry",
+          "headers": [
+            "Scenario",
+            "Known Parameter 1",
+            "Known Parameter 2",
+            "Target Unknown"
+          ],
+          "rows": [
+            {
+              "col_0": "Scenario A (Commuter Train)",
+              "col_1": "Speed (v) = 20 m/s",
+              "col_2": "Time (t) = 5.0 s",
+              "col_3": "Distance (d) = ?"
+            },
+            {
+              "col_0": "Scenario B (Track Sprinter)",
+              "col_1": "Distance (d) = 100 m",
+              "col_2": "Time (t) = 10.0 s",
+              "col_3": "Speed (v) = ?"
+            },
+            {
+              "col_0": "Scenario C (Ultrasonic Echo Pulse)",
+              "col_1": "Distance (d) = 680 m",
+              "col_2": "Speed of Sound (v) = 340 m/s",
+              "col_3": "Transit Time (t) = ?"
+            }
+          ]
+        }
+      },
+      "steps": [
+        {
+          "stepId": "step_1",
+          "type": "cloze_dropdown",
+          "title": "Part 1: Formula Triangle Rearrangement",
+          "prompt": "Match each scenario from the sensor table to the correct rearrangement of the speed formula triangle:",
+          "text": "To find the distance traveled in Scenario A, use [blank1]. To calculate the sprinter speed in Scenario B, use [blank2]. To determine the pulse transit time in Scenario C, use [blank3].",
+          "blanks": {
+            "blank1": {
+              "correct": "d = v · t",
+              "options": [
+                "d = v · t",
+                "d = v / t",
+                "d = t / v"
+              ]
+            },
+            "blank2": {
+              "correct": "v = d / t",
+              "options": [
+                "v = d / t",
+                "v = d · t",
+                "v = t / d"
+              ]
+            },
+            "blank3": {
+              "correct": "t = d / v",
+              "options": [
+                "t = d / v",
+                "t = d · v",
+                "t = v / d"
+              ]
+            }
+          }
+        },
+        {
+          "stepId": "step_2",
+          "type": "data_calculation",
+          "title": "Part 2: Ultrasonic Transit Time Calculation",
+          "prompt": "Calculate the transit time in seconds for the Scenario C ultrasonic pulse to travel 680 meters at a speed of 340 m/s.",
+          "inputLabel": "Ultrasonic Transit Time",
+          "unit": "s",
+          "targetValue": 2,
+          "tolerance": 0.1,
+          "hint": "Time = distance / speed = 680 m / (340 m/s)."
+        },
+        {
+          "stepId": "step_3",
+          "type": "ai_reasoning_chat",
+          "title": "Part 3: Defending the Why with AI Mentor",
+          "prompt": "Discuss your reasoning with the AI Physics Mentor: Explain how diagnosing your target unknown guides formula selection, and how dimensional analysis (checking units) proves your answer is physically sound.",
+          "openingPrompt": "You found that the Scenario C ultrasonic pulse takes 2.0 seconds! In your own words, how does checking the units of your givens help you decide whether to multiply or divide? What would happen to the units if you accidentally multiplied distance by speed?",
+          "minTurns": 1
+        }
+      ],
+      "teacherKey": "Step 1: d = v · t, v = d / t, t = d / v. Step 2: 2.0 s (680 m / 340 m/s). Step 3: Claim: Knowing the target unknown allows you to isolate the correct variable from the formula triangle, and dimensional analysis verifies the calculation. Evidence: In Scenario A, (m/s) · s = m (distance). In Scenario B, m / s = m/s (speed). In Scenario C, m / (m/s) = s (time). If you multiplied 680 m by 340 m/s, the units would be m² / s, which does not measure time. Reasoning: Mathematical equations in physics represent physical dimensions; unit consistency confirms whether an algebraic operation is valid."
+    },
+    "assignments": [
+      {
+        "title": "Constant Speed Story: Author & Solve",
+        "url": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+        "typeLabel": "In-Class Performance Task",
+        "submission": "Turn In Completed Worksheet",
+        "actionLabel": "View Handout",
+        "description": "Illustrate an original constant speed motion scenario, write a word problem targeting an unknown variable (v, d, or t), and solve using the GUESS method on your handout."
+      },
+      {
+        "title": "Wind-Up Toy Speed Lab (Final Submission)",
+        "url": "Unit_2/wind_up_toy_lab/index.html",
+        "typeLabel": "Graded Lab Report",
+        "submission": "Cloud Auto-Saved ✓",
+        "description": "Final check and submission for lab data and error reflections."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Student Work Exemplar (Illustration & GUESS Proof)",
+        "url": "assets/images/constant_speed_story_exemplar.jpg",
+        "typeLabel": "Student Visual Guide",
+        "description": "High-resolution exemplar showing the illustrated dragon sky-mansion scenario, word problem, and complete GUESS solution proof."
+      },
+      {
+        "title": "Constant Speed Presentation",
+        "url": "Unit_2/constant-speed-presentation/index.html",
+        "typeLabel": "Classroom Lecture Slides",
+        "description": "Comprehensive motion review and formula triangle summary."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Speed & Distance Studio",
+        "url": "Unit_2/speed_distance_time_app/index.html",
+        "typeLabel": "Practice Sandbox",
+        "description": "Leveled speed problem drills."
+      },
+      {
+        "title": "Two-Car Kinematic Intercept Challenge",
+        "url": "Unit_2/two_car_intercept/index.html",
+        "typeLabel": "Honors Physics Intercept Simulator",
+        "description": "Solve systems of kinematic equations to predict collision time and location."
+      }
+    ],
+    "links": {
+      "Constant Speed Story Handout": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+      "Student Work Exemplar": "assets/images/constant_speed_story_exemplar.jpg",
+      "Speed & Distance Studio": "Unit_2/speed_distance_time_app/index.html",
+      "Two-Car Kinematic Intercept Challenge": "Unit_2/two_car_intercept/index.html",
+      "Constant Speed Presentation": "Unit_2/constant-speed-presentation/index.html",
+      "Wind-Up Toy Speed Lab": "Unit_2/wind_up_toy_lab/index.html"
+    }
+  },
+  {
+    "day": 11,
+    "date": "2026-09-14",
+    "unit": 2,
+    "title": "Position vs. Time (x-t) Graphing: Slope as Velocity",
+    "topic": "Decoding 1D Motion from Position-Time Graphs & Calculating Slope (v = Δx / Δt)",
+    "dok": 2,
+    "type": "Direct Instruction / Practice",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Explore the coordinate structure of position-time (x-t) graphs, prove that the line's slope represents velocity (v = Δx / Δt), and distinguish between objects at rest, moving forward, and reversing direction.",
+    "activity": "Graph Matching & Segment Storytelling: Students analyze multi-segment x-t journeys (walk forward -> pause at rest -> sprint backward), calculate segment velocities using slope coordinates (x₂ - x₁) / (t₂ - t₁), determine initial positions from y-intercepts, and translate between written narrative stories and graphical profiles.",
+    "essentialQuestion": "How does the slope of a position-time graph completely describe an object's speed, direction, and state of motion?",
+    "standards": [
+      "HS-PS2-1"
+    ],
+    "wicor": {
+      "Writing": "Composing descriptive motion narratives corresponding to 4-segment piece-wise position-time graphs.",
+      "Inquiry": "Investigating how the steepness and sign of an x-t slope correlate to physical speed and direction.",
+      "Collaboration": "Partner graph-matching challenge: one partner describes a narrative journey while the other sketches the corresponding x-t graph.",
+      "Organization": "Tabulating (t, x) coordinate endpoints, calculating rise (Δx) and run (Δt), and recording velocities with units (m/s).",
+      "Reading": "Interpreting axis labels, coordinate tick marks, and identifying stationary intervals on motion graphs."
+    },
+    "bellRinger": {
+      "type": "cast_challenge",
+      "title": "Motion Graph Intercept & Speed Analysis",
+      "defaultDuration": 4,
+      "standards": {
+        "dci": "HS-PS2.A: Forces & Motion",
+        "sep": "SEP-4: Analyzing & Interpreting Data",
+        "ccc": "CCC-2: Cause and Effect"
+      },
+      "phenomenon": {
+        "title": "Desert Sprint Relay Telemetry",
+        "description": "Two robotic ground rovers (Rover Alpha and Rover Beta) travel along a straight survey track. Their positions over a 10.0-second sprint are recorded on a calibrated position-time graph.",
+        "stimulus": {
+          "type": "data_table",
+          "title": "Rover Position-Time Coordinates",
+          "headers": [
+            "Time (s)",
+            "Rover Alpha Position (m)",
+            "Rover Beta Position (m)"
+          ],
+          "rows": [
+            {
+              "col_0": "0.0 s",
+              "col_1": "0.0 m",
+              "col_2": "12.0 m"
+            },
+            {
+              "col_0": "4.0 s",
+              "col_1": "16.0 m",
+              "col_2": "12.0 m"
+            },
+            {
+              "col_0": "8.0 s",
+              "col_1": "32.0 m",
+              "col_2": "20.0 m"
+            },
+            {
+              "col_0": "10.0 s",
+              "col_1": "40.0 m",
+              "col_2": "24.0 m"
+            }
+          ]
+        }
+      },
+      "steps": [
+        {
+          "stepId": "step_1",
+          "type": "cloze_dropdown",
+          "title": "Part 1: Identifying Segment Velocities",
+          "prompt": "Match each rover's motion characteristics based on the position-time coordinates:",
+          "text": "During the first 4.0 seconds, Rover Alpha travels at a velocity of [blank1], while Rover Beta is [blank2]. Between t = 4.0 s and t = 10.0 s, Rover Beta travels at a velocity of [blank3].",
+          "blanks": {
+            "blank1": {
+              "correct": "+4.0 m/s",
+              "options": [
+                "+4.0 m/s",
+                "+2.0 m/s",
+                "+16.0 m/s"
+              ]
+            },
+            "blank2": {
+              "correct": "at rest (velocity = 0 m/s)",
+              "options": [
+                "at rest (velocity = 0 m/s)",
+                "moving forward at +3.0 m/s",
+                "reversing at -3.0 m/s"
+              ]
+            },
+            "blank3": {
+              "correct": "+2.0 m/s",
+              "options": [
+                "+2.0 m/s",
+                "+4.0 m/s",
+                "+1.2 m/s"
+              ]
+            }
+          }
+        },
+        {
+          "stepId": "step_2",
+          "type": "data_calculation",
+          "title": "Part 2: Intercept Time Calculation",
+          "prompt": "Calculate the exact time in seconds when Rover Alpha passes Rover Beta (when Alpha reaches x = 12.0 m where Beta is paused).",
+          "inputLabel": "Intercept Time",
+          "unit": "s",
+          "targetValue": 3,
+          "tolerance": 0.1,
+          "hint": "Rover Alpha starts at x = 0 m with constant velocity v = 4.0 m/s. Time = position / velocity = 12.0 m / (4.0 m/s)."
+        },
+        {
+          "stepId": "step_3",
+          "type": "ai_reasoning_chat",
+          "title": "Part 3: Defending the Graphical Why",
+          "prompt": "Discuss your reasoning with the AI Physics Mentor: Explain how slope visually reveals speed and direction, and what the intersection of two lines represents on a position-time graph.",
+          "openingPrompt": "You found that Rover Alpha overtakes Rover Beta at t = 3.0 seconds! Looking at a position-time graph, how can you immediately tell who is moving faster just by looking at the lines, without doing any math? What does the intersection point of two lines physically mean?",
+          "minTurns": 1
+        }
+      ],
+      "teacherKey": "Step 1: +4.0 m/s, at rest (velocity = 0 m/s), +2.0 m/s. Step 2: 3.0 s (12.0 m / 4.0 m/s). Step 3: Claim: Steeper slope indicates greater velocity; the intersection point indicates identical position at that instant. Evidence: Alpha's slope is 4 m/s while Beta's is 0 m/s then 2 m/s. Their lines cross at (3.0 s, 12.0 m). Reasoning: Slope on an x-t graph is Δx/Δt (velocity). Steeper lines cover more distance per second. Crossing lines share the exact same spatial position at that time."
+    },
+    "assignments": [
+      {
+        "title": "Position vs. Time Graph Matching & Slope Worksheet",
+        "url": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+        "typeLabel": "Classwork Practice",
+        "submission": "Turn In Completed Handout",
+        "actionLabel": "View Handout",
+        "description": "Calculate velocities for 4 multi-segment position-time graphs and sketch matching motion journeys."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Distance vs. Time Graph Simulator",
+        "url": "https://rrmudry.github.io/distance_vs_time_graphing.html",
+        "typeLabel": "Interactive Web Tool",
+        "description": "Add custom motion segments, animate the runner, and plot live position-time graphs."
+      },
+      {
+        "title": "Motion Curve Drawer",
+        "url": "https://rrmudry.github.io/Distance_vs_Time_Drawer.html",
+        "typeLabel": "Interactive Graph Canvas",
+        "description": "Draw arbitrary motion curves and inspect tangent slopes in real time."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Speed & Distance Studio",
+        "url": "Unit_2/speed_distance_time_app/index.html",
+        "typeLabel": "Practice Sandbox",
+        "description": "Leveled speed problem drills and unit conversions."
+      }
+    ],
+    "links": {
+      "Distance vs Time App": "https://rrmudry.github.io/distance_vs_time_graphing.html",
+      "Motion Curve Drawer": "https://rrmudry.github.io/Distance_vs_Time_Drawer.html",
+      "Speed & Distance Studio": "Unit_2/speed_distance_time_app/index.html"
+    }
+  },
+  {
+    "day": 12,
+    "date": "2026-09-15",
+    "unit": 2,
+    "title": "Velocity vs. Time (v-t) Graphing: Direction & Graph Translation",
+    "topic": "Interpreting Velocity-Time Graphs & Translating x-t Graphs into v-t Graphs",
+    "dok": 2,
+    "type": "Workshop / Inquiry",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Master velocity vs. time (v-t) graphs: interpret what regions above and below the horizontal time axis represent, recognize that v = 0 means stopped, and translate piecewise x-t graphs into corresponding v-t graphs.",
+    "activity": "Dual-Graph Translation Workshop: Students receive a 4-segment piecewise position-time graph depicting an urban delivery courier. For each interval, students calculate slope (velocity), determine the sign of motion, and plot the corresponding step-wise velocity-time graph, verifying that constant slopes translate into flat horizontal velocity segments.",
+    "essentialQuestion": "What is the fundamental difference between what a horizontal line represents on a position-time graph versus a velocity-time graph?",
+    "standards": [
+      "HS-PS2-1"
+    ],
+    "wicor": {
+      "Writing": "Articulating the physical distinction between an object at position zero versus an object with velocity zero.",
+      "Inquiry": "Discovering how positive and negative coordinates on a v-t graph correspond to physical travel directions rather than positions.",
+      "Collaboration": "Peer review of student-generated v-t graphs against peer x-t source graphs.",
+      "Organization": "Setting up dual coordinate axes (x-t on top, v-t aligned directly below on the same time scale).",
+      "Reading": "Decoding velocity vector signs and identifying directional turnaround points where a graph crosses the time axis."
     },
     "bellRinger": {
       "type": "concept_chat",
-      "promptQuestion": "There are many types of measurements. Each type of measurement uses a different type of tool and a different type of measurement Unit. For example, we measure our weight with a bathroom scale, in pounds. What other measurement tools and units do you use?",
-      "chatSystemInstruction": "You are a warm, adaptive, and relatable physics mentor chatting with a student over SMS/text. Your goal is to explore a physics concept together without being overly formal or using forced slang.\n\nCRITICAL RULES:\n1. NO FISHING / PIVOT TO TEACHING: Never try to \"force\" or repeatedly nudge a student toward a specific technical answer or physics term. If you ask a conceptual question and the student guesses wrong, focuses on a different variable (like friction/roughness), or says \"I don't know,\" DO NOT ask a follow-up question trying to correct their guess. Instead, pivot immediately to teaching: validate their logic, briefly explain the physics concept directly using a relatable analogy, and move on.\n2. NO SOCRATIC TRAPS: Do not get stuck in a loop asking the student to explain the same thing over and over. If they answer correctly, understand a concept, or say \"yes\"/\"obvious\", validate it briefly and immediately MOVE FORWARD to a new dimension or a real-world application.\n3. MOVE DYNAMICALLY: Keep the conversation fluid. Once a basic idea is established, introduce a fun twist, a new scenario, or a practical question (e.g., \"What happens if we try this in space?\" or \"How does that affect a rollercoaster?\"). \n4. CHAT TONE & LENGTH: Keep replies highly conversational and natural—like a text message from a knowledgeable peer. Limit replies to 1–3 short sentences max. Never send multiple distinct thoughts, lists, or bullet points in one message.\n5. CONTINUING THE CONVERSATION: Never end the conversation abruptly or push the student to stop chatting. Even after the student demonstrates understanding or has engaged in multiple turns, keep the conversation flowing naturally by offering intriguing follow-up thoughts, fun scenario twists, or real-world applications. You may let them know they can click the Finish Session button whenever they are ready to submit, but always leave the door open for them to continue chatting.",
-      "phenomenonType": "image",
-      "phenomenonImageUrl": "https://rrmudry.github.io/assets/images/measuring_tools_name.png",
-      "phenomenonDesc": "Chart of Common Measuring Tools (Ruler, Caliper, Micrometer, Odometer, Beaker, Pipette, Scale, Clock, Voltmeter, Stopwatch, Thermometer, Protractor, Level)",
-      "defaultDuration": 4
-    }
-  },
-  {
-    "date": "2026-08-21",
-    "day": 3,
-    "unit": 1,
-    "title": "Student Survey Data Analysis & Graphing",
-    "summary": "Graphing student survey data using the Data Analysis Studio to make data-driven claims on a single slide.",
-    "details": "Students analyze class survey results using the Data Analysis Studio. Teams generate at least two distinct data visualizations (e.g. Physics Period distribution and Favorite Animal preferences) and assemble them on a single presentation slide alongside clear claim statements supported by data.<br><br><strong>Slide Layout Example:</strong><br><img src=\"assets/images/day3_slide_example.png\" alt=\"Student Survey Slide Layout Example\" style=\"max-width:100%; border-radius:12px; margin-top:0.5rem; border:1px solid rgba(255,255,255,0.15);\">",
-    "type": "Activity",
-    "dok": 2,
-    "semester": 1,
-    "isFeatured": true,
-    "essentialQuestion": "How do scientists transform raw survey data into clear visual graphs to justify evidence-based claims?",
-    "standards": [
-      "HS-ETS1-1"
+      "title": "The Sign and the Speed",
+      "promptQuestion": "A fellow student says: 'A car with a velocity of -15 m/s is moving slower than a car with a velocity of +5 m/s because negative 15 is smaller than positive 5.' How would you explain to them why their physics logic is incorrect?",
+      "explanation": "In physics, the plus or minus sign indicates direction, not speed magnitude. A velocity of -15 m/s means the car is moving in the negative direction at 15 m/s, which is three times faster than +5 m/s (5 m/s in the positive direction).",
+      "defaultDuration": 3
+    },
+    "assignments": [
+      {
+        "title": "Dual-Graph Translation Workshop: x-t to v-t",
+        "url": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+        "typeLabel": "Classwork Practice",
+        "submission": "Turn In Completed Handout",
+        "actionLabel": "View Handout",
+        "description": "Convert 4 piecewise position graphs into step-wise velocity-time profiles."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Interactive Distance vs. Time Grapher",
+        "url": "https://rrmudry.github.io/distance_vs_time_graphing.html",
+        "typeLabel": "Interactive Web Tool",
+        "description": "Explore segment velocity outputs and inspect step transitions."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Speed & Distance Studio",
+        "url": "Unit_2/speed_distance_time_app/index.html",
+        "typeLabel": "Practice Sandbox",
+        "description": "Practice directional velocity calculations."
+      }
     ],
     "links": {
-      "Data Analysis Studio": "Data_Analysis/index.html",
-      "Slide Layout Example": "assets/images/day3_slide_example.png",
-      "Student Survey": "https://docs.google.com/forms/d/e/1FAIpQLSfNPLkAVYrqKlyg8ks5321_JgwFNf7cNBpaCSu6zzUHNzflWA/viewform?usp=dialog"
+      "Distance vs Time App": "https://rrmudry.github.io/distance_vs_time_graphing.html",
+      "Speed & Distance Studio": "Unit_2/speed_distance_time_app/index.html"
     }
   },
   {
-    "date": "2026-08-20",
-    "day": 2,
-    "unit": 1,
-    "title": "Classroom Procedures & Digital Mindset",
-    "summary": "Introduction to daily routines, Bell-Ringer entry, and lab safety foundations.",
-    "details": "Casual introduction to daily procedures: entering the room, Bell-Ringer check-ins, digital lab dashboard access, materials routines, and team-building SEL activity.",
-    "type": "Orientation",
-    "dok": 1,
-    "semester": 1,
-    "isFeatured": true,
-    "essentialQuestion": "How do structured procedures and team routines empower us to conduct safe, high-level scientific inquiries?",
-    "standards": [
-      "HS-ETS1-1"
-    ],
-    "links": {
-      "Student Survey": "https://docs.google.com/forms/d/e/1FAIpQLSfNPLkAVYrqKlyg8ks5321_JgwFNf7cNBpaCSu6zzUHNzflWA/viewform?usp=dialog"
-    }
-  },
-  {
-    "date": "2026-08-19",
-    "day": 1,
-    "unit": 1,
-    "title": "Welcome to Physics: Introduction & Seating",
-    "summary": "Welcome to Physics! Teacher introduction, assigned seating, and classroom culture.",
-    "details": "Introduction to Mr. Mudry and the Physics course. Assigned seating chart. Discussion of classroom community norms, safety foundations, and what to expect in high school physics.",
-    "type": "Orientation",
-    "dok": 1,
-    "semester": 1,
-    "isFeatured": true,
-    "essentialQuestion": "How will our physics classroom community collaborate to explore natural phenomena safely and curiously?",
-    "standards": [
-      "HS-ETS1-1"
-    ],
-    "links": {
-      "2026-2027 Syllabi": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQAFyZQypLraSYElJBkJwmb2AYRLayGEZm9EwNs6cb8BSqo?e=QHMSjh",
-      "Introduction to Me (PDF)": "https://orangeusdorg-my.sharepoint.com/:b:/g/personal/rmudry_orangeusd_org/IQABuSLSXb0QRYsC7_N5JtEYAQc0lvO2AA1otsRjktR6Y5g?e=EbvhM0"
-    }
-  },
-  {
-    "date": "2026-06-05",
-    "day": 20,
-    "unit": 7,
-    "title": "Unit Wrap-Up & Final Reflection",
-    "summary": "Reflection and cleanup.",
-    "details": "Have students dismantle and organize the kits. Do a low-stakes reflection on their favorite build.",
-    "type": "Activity",
-    "dok": 1,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "What was the most impactful concept learned about energy transfer during this unit?",
-    "standards": [
-      "HS-PS3-1"
-    ]
-  },
-  {
-    "date": "2026-06-04",
-    "day": 19,
-    "unit": 7,
-    "title": "Flex Day // Project Completion",
-    "summary": "A flexible catches-up and final studio day to finish up projects.",
-    "details": "A dedicated flexible studio day. Students utilize this time to finalize wiring, debug, and troubleshoot their Matching Game Boxes, DIY Speakers, or any outstanding labs before final submission.",
-    "type": "Activity",
-    "dok": 2,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How does engineering iteration and systematic troubleshooting lead to a polished final product?",
-    "standards": [
-      "HS-ETS1-3",
-      "HS-ETS1-4"
-    ]
-  },
-  {
-    "date": "2026-06-03",
-    "day": 18,
-    "unit": 7,
-    "title": "DIY Speaker Testing & Analysis",
-    "summary": "Connect speakers to audio sources to test, measure, and analyze performance.",
-    "details": "Students connect their DIY speakers to a function generator app or audio amplifier. They test the frequency response of their speakers, observe mechanical vibrations at different pitches, and analyze how voice coil windings and plate size affect amplitude and volume.",
-    "type": "Lab",
-    "dok": 3,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "What scientific variables determine the volume and frequency response of a homemade speaker?",
-    "standards": [
-      "HS-PS4-1",
-      "HS-PS4-5"
-    ]
-  },
-  {
-    "date": "2026-06-02",
-    "day": 17,
-    "unit": 7,
-    "title": "DIY Speaker Build",
-    "summary": "Students construct an electromagnetic speaker from scratch using wire, plates, and magnets.",
-    "details": "Students build their own functioning speaker using magnet wire, a paper plate, a strong neodymium magnet, and tape. They wind the voice coil, secure it to the plate, and position the permanent magnet to establish the magnetic field interface.",
-    "type": "Lab",
-    "dok": 3,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How do electrical signals and permanent magnets interact to create physical sound waves?",
-    "standards": [
-      "HS-PS2-5",
-      "HS-PS4-5"
-    ]
-  },
-  {
-    "date": "2026-06-01",
-    "day": 16,
-    "unit": 7,
-    "title": "Faraday & Lenz (Induction)",
-    "summary": "Proving that a changing magnetic field creates a current.",
-    "details": "If you have copper pipes and neodymium magnets, do the 'magnet falling slowly through a pipe' demo. Alternatively, pass a magnet back and forth through a coiled wire connected to a sensitive galvanometer. In the second half of class, students will begin prototyping their matching game boxes by mapping out logical electrical paths and wire layouts.",
-    "type": "Activity",
-    "dok": 2,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How can a changing magnetic environment induce an electrical current?",
-    "links": {
-      "Lecture Slides": "https://docs.google.com/presentation/d/1c1EjPrm7TfrSmSsvtHfzrf8WNQBMUz_fa2OsyMa1y-Y/edit?usp=sharing"
-    },
-    "standards": [
-      "HS-PS2-5"
-    ]
-  },
-  {
-    "date": "2026-05-29",
-    "day": 15,
-    "unit": 7,
-    "title": "Introduction to the \"Matching Game Box Project\"",
-    "summary": "Introduction to the electromagnetism-based Matching Game Box Project.",
-    "details": "Students are introduced to the Matching Game Box Project, where they will design and wire a custom game board. Review the project criteria and layout guidelines.",
-    "type": "Activity",
-    "dok": 3,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How can we apply circuit principles to design a multi-pathway electrical matching game?",
-    "links": {
-      "Project Instructions": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQCsSySzcLnISaGhGr6Amqe-AYCUUUVxrg1-p0ZU8Iu2p8c?e=6JRJ1c",
-      "Interactive: Simulator": "Unit_7_Electricity_and_Magnetism/Matching_Game_Box_Simulation.html"
-    },
-    "embed": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQCsSySzcLnISaGhGr6Amqe-AYCUUUVxrg1-p0ZU8Iu2p8c?e=6JRJ1c&action=embedview",
-    "standards": [
-      "HS-ETS1-1",
-      "HS-ETS1-2"
-    ]
-  },
-  {
-    "date": "2026-05-28",
-    "day": 14,
-    "unit": 7,
-    "title": "Tesla vs. Edison: War of the Currents",
-    "summary": "A conceptual and historical comparison of Alternating Current (AC) and Direct Current (DC).",
-    "details": "Watch the 'Tesla vs. Edison' video on EdPuzzle. Emphasize that this is a required EdPuzzle assignment with embedded check-for-understanding questions that will go directly into the gradebook.",
-    "type": "Activity",
-    "dok": 2,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "What were the key scientific and practical differences between Edison's DC system and Tesla's AC system?",
-    "links": {
-      "Tesla vs. Edison Video": "https://youtu.be/lFa8Wydalyw?si=Wj-EhHlgM7JpaPHE",
-      "EdPuzzle Assignment": "https://edpuzzle.com"
-    },
-    "standards": [
-      "HS-PS4-5",
-      "HS-ESS3-2"
-    ]
-  },
-  {
-    "date": "2026-05-27",
     "day": 13,
-    "unit": 7,
-    "title": "Lab: The Jumping Wire",
-    "summary": "Observe how moving electric charges (current) create a magnetic field, and how that field interacts with other magnets to create a physical force.",
-    "details": "Construct a circuit with a thin aluminum foil strip suspended over a permanent magnet. Briefly close the switch to observe the electromagnetic force ('jumping') acting on the wire. Test the effects of reversing current and flipping magnetic poles.",
-    "type": "Lab",
+    "date": "2026-09-16",
+    "unit": 2,
+    "title": "Geometric Integration: Displacement as Area Under the v-t Curve",
+    "topic": "Calculating Net Displacement (Δx) and Total Distance from Geometric Shapes on v-t Graphs",
     "dok": 3,
-    "semester": 2,
+    "type": "Practice / Analysis",
+    "semester": 1,
     "isFeatured": true,
-    "essentialQuestion": "How do moving electric charges interact with magnetic fields to produce a physical force?",
-    "links": {
-      "The Jumping Wire Lab Guide": "https://docs.google.com/document/d/1RqSFUnC39sCqbsYbOsCqsZj73Bzvo7FSJoWpjEDbueA/edit?usp=sharing"
-    },
-    "embed": "https://docs.google.com/document/d/1RqSFUnC39sCqbsYbOsCqsZj73Bzvo7FSJoWpjEDbueA/preview",
+    "summary": "Connect velocity, time, and displacement geometrically: prove that the area bounded between a velocity graph and the time axis equals net displacement (Δx = Area), distinguishing between positive and negative areas.",
+    "activity": "The Area-Displacement Mystery: Students receive multi-stage velocity telemetry from an autonomous planetary exploration drone. Students partition the v-t graph into geometric rectangles (constant velocity: base · height) and triangles (changing velocity: ½ · base · height), compute positive and negative displacements, calculate total distance traveled, and reconstruct the complete position-time path.",
+    "essentialQuestion": "Why does calculating the geometric area between a velocity graph and the time axis yield the exact displacement of the object?",
     "standards": [
-      "HS-PS2-5",
-      "HS-PS3-5"
-    ]
+      "HS-PS2-1"
+    ],
+    "wicor": {
+      "Writing": "Justifying mathematically why the units of graph area (height in m/s multiplied by base in s) yield meters of displacement.",
+      "Inquiry": "Analyzing how area below the horizontal axis subtracts from net position while adding to total distance.",
+      "Collaboration": "Partner problem solving on complex multi-shape v-t area partitioning.",
+      "Organization": "Partitioning irregular graphs into standard geometric shapes (rectangles and triangles) and recording calculations systematically.",
+      "Reading": "Reading piecewise velocity functions and cross-referencing positive and negative areas."
+    },
+    "bellRinger": {
+      "type": "cast_challenge",
+      "title": "Drone Telemetry & Geometric Displacement",
+      "defaultDuration": 4,
+      "standards": {
+        "dci": "HS-PS2.A: Forces & Motion",
+        "sep": "SEP-5: Using Mathematics & Computational Thinking",
+        "ccc": "CCC-1: Patterns"
+      },
+      "phenomenon": {
+        "title": "Subterranean Exploration Drone Mission",
+        "description": "An autonomous mapping drone operates in an underground volcanic tunnel for 16.0 seconds. Its velocity profile features forward motion, a holding hover, and a reverse retreat.",
+        "stimulus": {
+          "type": "data_table",
+          "title": "Flight Telemetry Segments",
+          "headers": [
+            "Segment",
+            "Time Interval (s)",
+            "Velocity (m/s)",
+            "Motion Type"
+          ],
+          "rows": [
+            {
+              "col_0": "Segment 1",
+              "col_1": "0.0 s to 6.0 s",
+              "col_2": "+5.0 m/s",
+              "col_3": "Constant Forward Velocity"
+            },
+            {
+              "col_0": "Segment 2",
+              "col_1": "6.0 s to 10.0 s",
+              "col_2": "0.0 m/s",
+              "col_3": "Stationary Hover"
+            },
+            {
+              "col_0": "Segment 3",
+              "col_1": "10.0 s to 16.0 s",
+              "col_2": "-3.0 m/s",
+              "col_3": "Constant Reverse Velocity"
+            }
+          ]
+        }
+      },
+      "steps": [
+        {
+          "stepId": "step_1",
+          "type": "cloze_dropdown",
+          "title": "Part 1: Bounded Segment Areas",
+          "prompt": "Analyze the geometric areas under each segment of the velocity-time graph:",
+          "text": "Segment 1 covers a bounded rectangular area of [blank1], Segment 2 covers an area of [blank2], and Segment 3 covers an area of [blank3].",
+          "blanks": {
+            "blank1": {
+              "correct": "+30.0 meters",
+              "options": [
+                "+30.0 meters",
+                "+15.0 meters",
+                "+5.0 meters"
+              ]
+            },
+            "blank2": {
+              "correct": "0.0 meters",
+              "options": [
+                "0.0 meters",
+                "+4.0 meters",
+                "+10.0 meters"
+              ]
+            },
+            "blank3": {
+              "correct": "-18.0 meters",
+              "options": [
+                "-18.0 meters",
+                "+18.0 meters",
+                "-3.0 meters"
+              ]
+            }
+          }
+        },
+        {
+          "stepId": "step_2",
+          "type": "data_calculation",
+          "title": "Part 2: Net Displacement Calculation",
+          "prompt": "Calculate the drone's net displacement in meters from its starting origin after the full 16.0-second mission.",
+          "inputLabel": "Net Displacement",
+          "unit": "m",
+          "targetValue": 12,
+          "tolerance": 0.1,
+          "hint": "Net displacement = Area 1 + Area 2 + Area 3 = (+30.0 m) + (0.0 m) + (-18.0 m)."
+        },
+        {
+          "stepId": "step_3",
+          "type": "ai_reasoning_chat",
+          "title": "Part 3: Defending Distance vs. Displacement with AI Mentor",
+          "prompt": "Discuss your reasoning with the AI Physics Mentor: Explain how you find total distance traveled versus net displacement from signed graph areas.",
+          "openingPrompt": "You calculated a net displacement of +12.0 meters! What was the drone's total distance traveled during this 16.0-second flight, and why is total distance different from net displacement when an object reverses direction?",
+          "minTurns": 1
+        }
+      ],
+      "teacherKey": "Step 1: +30.0 meters, 0.0 meters, -18.0 meters. Step 2: 12.0 m (+30.0 m - 18.0 m). Step 3: Claim: Total distance is 48.0 m, while net displacement is +12.0 m. Evidence: Forward distance is |+30 m| = 30 m; reverse distance is |-18 m| = 18 m. Total distance = 30 m + 18 m = 48 m. Net displacement accounts for direction: +30 m + (-18 m) = +12 m. Reasoning: Displacement is a vector describing change in position from the starting origin, so reverse motion cancels forward motion. Distance is a scalar measuring the entire odometer path length regardless of direction."
+    },
+    "assignments": [
+      {
+        "title": "Area Under the v-t Curve: Displacement & Distance Lab Sheet",
+        "url": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+        "typeLabel": "Classwork Practice",
+        "submission": "Turn In Completed Worksheet",
+        "actionLabel": "View Handout",
+        "description": "Partition complex v-t velocity graphs into geometric shapes to calculate net displacement and total distance."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Interactive Distance vs. Time Grapher",
+        "url": "https://rrmudry.github.io/distance_vs_time_graphing.html",
+        "typeLabel": "Interactive Web Tool",
+        "description": "Explore how velocity area integrates directly into total distance."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Speed & Distance Studio",
+        "url": "Unit_2/speed_distance_time_app/index.html",
+        "typeLabel": "Practice Sandbox",
+        "description": "Solve multi-segment distance challenges."
+      }
+    ],
+    "links": {
+      "Distance vs Time App": "https://rrmudry.github.io/distance_vs_time_graphing.html",
+      "Speed & Distance Studio": "Unit_2/speed_distance_time_app/index.html"
+    }
   },
   {
-    "date": "2026-05-26",
-    "day": 12,
-    "unit": 7,
-    "title": "Lab: Measuring Resistance",
-    "summary": "Construct electrical circuits to measure voltage and current, and experimentally calculate resistance using Ohm's Law.",
-    "details": "Using the EUDAX kits, wire resistors in series with ammeters and voltmeters. Measure voltage and current to calculate resistance, verifying Ohm's Law.",
-    "type": "Lab",
-    "dok": 3,
-    "semester": 2,
+    "day": 14,
+    "date": "2026-09-17",
+    "unit": 2,
+    "title": "Introducing Acceleration: Slope of Velocity-Time (a = Δv / Δt)",
+    "topic": "Defining Acceleration as the Rate of Change of Velocity, Interpreting Units (m/s²), and Sign Conventions",
+    "dok": 2,
+    "type": "Direct Instruction / Inquiry",
+    "semester": 1,
     "isFeatured": true,
-    "essentialQuestion": "How can we experimentally determine the electrical resistance of a circuit component?",
-    "links": {
-      "Lab Guide": "https://docs.google.com/document/d/1Z-SxsWJtH0KioUbKowQLXkdWQnZQqO-lhXS-XFW_dtg/edit?usp=sharing"
-    },
-    "embed": "https://docs.google.com/document/d/1Z-SxsWJtH0KioUbKowQLXkdWQnZQqO-lhXS-XFW_dtg/preview",
+    "summary": "Define acceleration as the rate of change of velocity (a = Δv / Δt = (v - v₀) / t), analyze the slope of v-t graphs, and resolve the fundamental misconception of speeding up vs. slowing down.",
+    "activity": "Acceleration Sign Detective & Curve Matching: Students investigate 6 authentic physical scenarios (a car braking at a red light, a rocket launching upward, a roller coaster rolling backward down a hill, a ball tossed into the air). Students determine the signs of velocity and acceleration, prove that 'speeding up' requires matching signs and 'slowing down' requires opposing signs, and match scenarios to corresponding parabolic x-t and linear v-t graph cards.",
+    "essentialQuestion": "How can an object have a negative acceleration and still be speeding up?",
     "standards": [
-      "HS-PS2-6"
-    ]
+      "HS-PS2-1"
+    ],
+    "wicor": {
+      "Writing": "Formulating CER explanations justifying whether an object is speeding up or slowing down based on the signs of v and a.",
+      "Inquiry": "Testing motion tracks and observing how gravity accelerates a cart in the direction of the incline regardless of initial push direction.",
+      "Collaboration": "Small-group whiteboard sprint categorizing motion scenarios into a 2x2 sign matrix (v > 0, v < 0 vs a > 0, a < 0).",
+      "Organization": "Creating an Acceleration Sign Rule Reference Table.",
+      "Reading": "Analyzing word problems to identify initial velocity (v₀), final velocity (v), and time elapsed (t)."
+    },
+    "bellRinger": {
+      "type": "cast_challenge",
+      "title": "Acceleration Vector Signs & Speed Changes",
+      "defaultDuration": 4,
+      "standards": {
+        "dci": "HS-PS2.A: Forces & Motion",
+        "sep": "SEP-2: Developing & Using Models",
+        "ccc": "CCC-2: Cause and Effect"
+      },
+      "phenomenon": {
+        "title": "Transit System Autonomous Telemetry",
+        "description": "Four test vehicles on a straight automated test track report their velocity and acceleration telemetry. Engineers must classify each vehicle's motion behavior.",
+        "stimulus": {
+          "type": "data_table",
+          "title": "Vehicle Kinematic Telemetry",
+          "headers": [
+            "Vehicle",
+            "Initial Velocity (v₀)",
+            "Acceleration (a)",
+            "Observation"
+          ],
+          "rows": [
+            {
+              "col_0": "Pod Alpha",
+              "col_1": "+12.0 m/s",
+              "col_2": "+3.0 m/s²",
+              "col_3": "Heading East, Positive Thrust"
+            },
+            {
+              "col_0": "Pod Beta",
+              "col_1": "+18.0 m/s",
+              "col_2": "-4.0 m/s²",
+              "col_3": "Heading East, Reverse Braking"
+            },
+            {
+              "col_0": "Pod Gamma",
+              "col_1": "-8.0 m/s",
+              "col_2": "-2.0 m/s²",
+              "col_3": "Heading West, Westward Thrust"
+            },
+            {
+              "col_0": "Pod Delta",
+              "col_1": "-14.0 m/s",
+              "col_2": "+5.0 m/s²",
+              "col_3": "Heading West, Eastward Braking"
+            }
+          ]
+        }
+      },
+      "steps": [
+        {
+          "stepId": "step_1",
+          "type": "cloze_dropdown",
+          "title": "Part 1: Classifying Motion Changes",
+          "prompt": "Classify the motion change for each test vehicle based on the signs of velocity and acceleration:",
+          "text": "Pod Alpha is [blank1]. Pod Beta is [blank2]. Pod Gamma is [blank3]. Pod Delta is [blank4].",
+          "blanks": {
+            "blank1": {
+              "correct": "speeding up (v and a have same sign)",
+              "options": [
+                "speeding up (v and a have same sign)",
+                "slowing down (v and a have opposite signs)",
+                "moving at constant speed"
+              ]
+            },
+            "blank2": {
+              "correct": "slowing down (v and a have opposite signs)",
+              "options": [
+                "slowing down (v and a have opposite signs)",
+                "speeding up (v and a have same sign)",
+                "at rest"
+              ]
+            },
+            "blank3": {
+              "correct": "speeding up (v and a have same sign)",
+              "options": [
+                "speeding up (v and a have same sign)",
+                "slowing down (v and a have opposite signs)",
+                "at rest"
+              ]
+            },
+            "blank4": {
+              "correct": "slowing down (v and a have opposite signs)",
+              "options": [
+                "slowing down (v and a have opposite signs)",
+                "speeding up (v and a have same sign)",
+                "moving at constant speed"
+              ]
+            }
+          }
+        },
+        {
+          "stepId": "step_2",
+          "type": "data_calculation",
+          "title": "Part 2: Braking Velocity Calculation",
+          "prompt": "Calculate Pod Beta's final velocity in m/s after braking with an acceleration of -4.0 m/s² for 3.0 seconds (initial velocity = +18.0 m/s).",
+          "inputLabel": "Final Velocity",
+          "unit": "m/s",
+          "targetValue": 6,
+          "tolerance": 0.1,
+          "hint": "v = v₀ + a · t = 18.0 m/s + (-4.0 m/s²)(3.0 s)."
+        },
+        {
+          "stepId": "step_3",
+          "type": "ai_reasoning_chat",
+          "title": "Part 3: Defending Negative Acceleration with AI Mentor",
+          "prompt": "Discuss your reasoning with the AI Physics Mentor: Explain why negative acceleration does not always mean an object is slowing down.",
+          "openingPrompt": "Pod Beta slowed down from 18 m/s to 6 m/s! Look at Pod Gamma: it has a negative acceleration (-2 m/s²) and yet it is SPEEDING UP! In your own words, why does negative acceleration NOT always mean slowing down?",
+          "minTurns": 1
+        }
+      ],
+      "teacherKey": "Step 1: speeding up, slowing down, speeding up, slowing down. Step 2: 6.0 m/s (18.0 - 12.0). Step 3: Claim: An object speeds up whenever its velocity and acceleration point in the same direction, regardless of whether that direction is positive or negative. Evidence: Pod Gamma has v = -8 m/s and a = -2 m/s². After 1 second, its velocity becomes -10 m/s. Its speed magnitude increased from 8 m/s to 10 m/s. Reasoning: Velocity indicates the direction of motion, while acceleration indicates the direction of the push/rate of change. When acceleration pushes in the same direction the object is already moving (both negative), it adds to the speed magnitude in that direction."
+    },
+    "assignments": [
+      {
+        "title": "Acceleration Sign Detective & Curve Matching Worksheet",
+        "url": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+        "typeLabel": "Classwork Practice",
+        "submission": "Turn In Completed Handout",
+        "actionLabel": "View Handout",
+        "description": "Analyze motion scenarios, determine signs of velocity and acceleration, and match x-t and v-t graph curves."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Interactive Distance vs. Time Grapher",
+        "url": "https://rrmudry.github.io/distance_vs_time_graphing.html",
+        "typeLabel": "Interactive Web Tool",
+        "description": "Simulate acceleration curves and inspect changing velocity slopes."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Two-Car Kinematic Intercept Challenge",
+        "url": "Unit_2/two_car_intercept/index.html",
+        "typeLabel": "Kinematic Challenge",
+        "description": "Inspect real-time vector arrows and velocity changes."
+      }
+    ],
+    "links": {
+      "Distance vs Time App": "https://rrmudry.github.io/distance_vs_time_graphing.html",
+      "Two-Car Kinematic Intercept Challenge": "Unit_2/two_car_intercept/index.html"
+    }
   },
   {
-    "date": "2026-05-25",
-    "day": 11,
-    "unit": 7,
-    "title": "No School - Memorial Day",
-    "summary": "No School - Memorial Day Holiday.",
-    "details": "No School - Memorial Day Holiday.",
-    "type": "Activity",
-    "dok": 1,
-    "semester": 2,
-    "isFeatured": false,
-    "essentialQuestion": "No School - Memorial Day Holiday.",
-    "standards": [
-      "HS-PS2-6"
-    ]
-  },
-  {
-    "date": "2026-05-22",
-    "day": 10,
-    "unit": 7,
-    "title": "Parallel Circuit Construction & Analysis",
-    "summary": "Understand multi-pathway circuits and why our homes are wired this way.",
-    "details": "Wire the same bulbs in parallel. Compare brightness to Day 8. Observe that unscrewing one bulb does not affect the others.",
-    "type": "Lab",
+    "day": 15,
+    "date": "2026-09-18",
+    "unit": 2,
+    "title": "Uniformly Accelerated Motion (UAM) & Kinematic Relationships",
+    "topic": "Predicting Velocity and Position under Constant Acceleration (v = v₀ + at, x = x₀ + v₀t + ½at²)",
     "dok": 3,
-    "semester": 2,
+    "type": "Performance Task / Problem Solving",
+    "semester": 1,
     "isFeatured": true,
-    "essentialQuestion": "Why are parallel pathways more reliable for residential and industrial electrical grids?",
-    "links": {
-      "Analysis Document": "https://docs.google.com/document/d/1h3akDW6z-lk6M_8thxP_pp1lSAwcWW9dsMuL149cEiQ/edit?usp=sharing"
-    },
+    "summary": "Master Uniformly Accelerated Motion (UAM): apply the two fundamental kinematic equations (v = v₀ + at and x = x₀ + v₀t + ½at²) derived from the slope and area of v-t graphs to solve multi-stage engineering and collision-avoidance challenges.",
+    "activity": "UAM Performance Challenge — Runway Takeoff & Emergency Braking: Students receive two authentic engineering challenge briefs: (1) Runway Takeoff: determining the required runway length for a cargo aircraft accelerating at 2.5 m/s² from rest to liftoff speed (70 m/s), and (2) Autonomous Vehicle Braking: calculating total stopping distance incorporating sensor reaction delay (constant speed phase: d = v · t) and braking deceleration (UAM phase: x = v₀t + ½at²). Teams verify solutions algebraically and sketch matching x-t, v-t, and a-t graphs.",
+    "essentialQuestion": "How do the two core kinematic equations allow us to predict both the exact speed and final position of an accelerating object at any point in time?",
     "standards": [
-      "HS-PS3-1",
+      "HS-PS2-1",
       "HS-ETS1-2"
-    ]
-  },
-  {
-    "date": "2026-05-21",
-    "day": 9,
-    "unit": 7,
-    "title": "Series Circuits (The 'All or Nothing' Path)",
-    "summary": "Understand single-pathway circuits and voltage drops.",
-    "details": "Wire multiple bulbs and buzzers in series. Observe the dimming of bulbs (voltage drops) and what happens when one component is unscrewed. Measure cumulative voltage across components.",
-    "type": "Lab",
-    "dok": 3,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How does adding components in a single pathway affect the overall voltage and current in a system?",
-    "links": {
-      "Series Circuits Lab Guide": "https://docs.google.com/document/d/19saFSDiEkrrwfXqvs8RcJLT6ZN4E6EdARxewIaZ2v3A/edit?usp=sharing"
+    ],
+    "wicor": {
+      "Writing": "Executing step-by-step GUESS problem-solving proofs with explicit unit tracking.",
+      "Inquiry": "Deconstructing why the distance covered in UAM grows proportionally with time squared (t²).",
+      "Collaboration": "Engineering teams dividing two-phase motion problems into reaction-time and braking-distance stages.",
+      "Organization": "Setting up motion variable checklists: givens (x₀, v₀, v, a, t) and target unknowns.",
+      "Reading": "Extracting implicit physics clues from technical text: 'starts from rest' means v₀ = 0; 'comes to a stop' means v = 0."
     },
-    "embed": "https://docs.google.com/document/d/19saFSDiEkrrwfXqvs8RcJLT6ZN4E6EdARxewIaZ2v3A/preview",
-    "standards": [
-      "HS-PS3-1"
-    ]
-  },
-  {
-    "date": "2026-05-20",
-    "day": 8,
-    "unit": 7,
-    "title": "Lab: Fruit Batteries (Continued)",
-    "summary": "Completing our wet cell batteries using household items.",
-    "details": "Finish generating a measurable voltage using lemons, potatoes, and apples with zinc/copper electrodes. Experiment with series vs. parallel combinations of fruit to increase output.",
-    "type": "Lab",
-    "dok": 3,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How can series and parallel combinations of chemical cells increase electrical output?",
-    "links": {
-      "Lab Guide": "https://docs.google.com/document/d/1JqCjePXRHLkZDq3AIfAvVi-TEN4iSrhszef7YzSvbqg/edit?usp=sharing",
-      "Fruit Battery Simulation": "Unit_7_Electricity_and_Magnetism/Fruit_Battery/Fruit_Battery_Simulation.html"
+    "bellRinger": {
+      "type": "cast_challenge",
+      "title": "Autonomous Emergency Braking & Stopping Distance",
+      "defaultDuration": 4,
+      "standards": {
+        "dci": "HS-PS2.A: Forces & Motion",
+        "sep": "SEP-5: Using Mathematics & Computational Thinking",
+        "ccc": "CCC-4: Systems & System Models"
+      },
+      "phenomenon": {
+        "title": "Highway Collision Avoidance Sensor Test",
+        "description": "A smart highway test car travels at a steady speed of 20.0 m/s (approx. 45 mph). The forward lidar sensor detects a fallen tree branch 42.0 meters ahead. The system experiences a 0.50-second processing and mechanical reaction delay before the brakes engage with a constant deceleration of -5.0 m/s².",
+        "stimulus": {
+          "type": "data_table",
+          "title": "Braking System Parameters",
+          "headers": [
+            "Stage",
+            "Duration / Variable",
+            "Kinematic Model",
+            "Value"
+          ],
+          "rows": [
+            {
+              "col_0": "Stage 1: Reaction Time",
+              "col_1": "t_react = 0.50 s",
+              "col_2": "Constant Speed (d = v · t)",
+              "col_3": "v = 20.0 m/s (no braking yet)"
+            },
+            {
+              "col_0": "Stage 2: Active Braking",
+              "col_1": "a = -5.0 m/s²",
+              "col_2": "UAM (v = v₀ + at, d = v_avg · t)",
+              "col_3": "Brakes to complete stop (v = 0)"
+            },
+            {
+              "col_0": "Obstacle Distance",
+              "col_1": "d_obstacle = 42.0 m",
+              "col_2": "Safety Constraint",
+              "col_3": "Car must stop before 42.0 m"
+            }
+          ]
+        }
+      },
+      "steps": [
+        {
+          "stepId": "step_1",
+          "type": "cloze_dropdown",
+          "title": "Part 1: Two-Stage Stopping Parameters",
+          "prompt": "Break down the two stages of the emergency stopping sequence:",
+          "text": "During the 0.50 s reaction delay, the car travels [blank1] at constant speed. During active braking from 20 m/s to 0 m/s at -5.0 m/s², the braking time is [blank2].",
+          "blanks": {
+            "blank1": {
+              "correct": "10.0 meters",
+              "options": [
+                "10.0 meters",
+                "20.0 meters",
+                "5.0 meters"
+              ]
+            },
+            "blank2": {
+              "correct": "4.0 seconds",
+              "options": [
+                "4.0 seconds",
+                "2.5 seconds",
+                "5.0 seconds"
+              ]
+            }
+          }
+        },
+        {
+          "stepId": "step_2",
+          "type": "data_calculation",
+          "title": "Part 2: Active Braking Distance Calculation",
+          "prompt": "Calculate the car's active braking distance in meters during Stage 2 (using average speed v_avg = 10.0 m/s for 4.0 s, or d = v₀t + ½at²).",
+          "inputLabel": "Active Braking Distance",
+          "unit": "m",
+          "targetValue": 40,
+          "tolerance": 0.1,
+          "hint": "d_brake = v₀ · t + ½ · a · t² = (20.0)(4.0) + ½(-5.0)(4.0)² = 80 - 40 = 40.0 meters."
+        },
+        {
+          "stepId": "step_3",
+          "type": "ai_reasoning_chat",
+          "title": "Part 3: Defending Collision Safety with AI Mentor",
+          "prompt": "Discuss your reasoning with the AI Physics Mentor: Evaluate whether the car avoids the collision and analyze the engineering trade-offs of sensor reaction time versus braking deceleration.",
+          "openingPrompt": "The car traveled 10.0 m during reaction time and 40.0 m during braking, for a total stopping distance of 50.0 meters! Does the car stop before hitting the fallen branch at 42.0 meters? What could automotive engineers improve to prevent a collision in this scenario?",
+          "minTurns": 1
+        }
+      ],
+      "teacherKey": "Step 1: 10.0 meters (20 m/s · 0.5 s), 4.0 seconds ((0 - 20 m/s) / -5 m/s²). Step 2: 40.0 meters ((20 m/s · 4 s) + 0.5(-5 m/s²)(16 s²) = 80 - 40 = 40 m). Step 3: Claim: The car collides with the tree branch because total stopping distance (50.0 m) exceeds obstacle distance (42.0 m). Evidence: Reaction distance (10.0 m) + braking distance (40.0 m) = 50.0 m. The branch is at 42.0 m, meaning the car hits the obstacle at 8.0 meters before stopping. Reasoning: Total stopping distance is the sum of reaction distance and braking distance. To prevent a collision, engineers could reduce sensor reaction delay (e.g. from 0.50 s to 0.20 s, saving 6 m) or increase braking deceleration (e.g. enhanced tires/calipers producing a > -6.5 m/s² deceleration)."
     },
-    "standards": [
-      "HS-PS3-3"
-    ]
-  },
-  {
-    "date": "2026-05-19",
-    "day": 7,
-    "unit": 7,
-    "title": "Lab: Fruit Batteries",
-    "summary": "Creating a functioning wet cell battery using household items.",
-    "details": "Use lemons, potatoes, and apples with zinc/copper electrodes to generate a measurable voltage. Experiment with series vs. parallel combinations of fruit to increase output.",
-    "type": "Lab",
-    "dok": 3,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How can chemical reactions in everyday items be harnessed to create electrical energy?",
+    "assignments": [
+      {
+        "title": "UAM Performance Challenge: Takeoff & Emergency Braking",
+        "url": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+        "typeLabel": "Performance Task",
+        "submission": "Turn In Completed Worksheet",
+        "actionLabel": "View Handout",
+        "description": "Calculate runway takeoff requirements and multi-stage vehicle braking distances using UAM equations."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Two-Car Kinematic Intercept Challenge",
+        "url": "Unit_2/two_car_intercept/index.html",
+        "typeLabel": "Honors Physics Intercept Simulator",
+        "description": "Explore acceleration intercepts and collision timing."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Speed & Distance Studio",
+        "url": "Unit_2/speed_distance_time_app/index.html",
+        "typeLabel": "Practice Sandbox",
+        "description": "Review constant velocity baselines before accelerated motion."
+      }
+    ],
     "links": {
-      "Lab Guide": "https://docs.google.com/document/d/1JqCjePXRHLkZDq3AIfAvVi-TEN4iSrhszef7YzSvbqg/edit?usp=sharing",
-      "Fruit Battery Simulation": "Unit_7_Electricity_and_Magnetism/Fruit_Battery/Fruit_Battery_Simulation.html"
-    },
-    "standards": [
-      "HS-PS3-3",
-      "HS-PS1-4"
-    ]
+      "Two-Car Kinematic Intercept Challenge": "Unit_2/two_car_intercept/index.html",
+      "Speed & Distance Studio": "Unit_2/speed_distance_time_app/index.html"
+    }
   },
   {
-    "date": "2026-05-18",
-    "day": 6,
-    "unit": 7,
-    "title": "Voltage & Batteries (Conceptual Intro)",
-    "summary": "Understand electric potential difference and how batteries store chemical energy.",
-    "details": "Discuss how voltage acts as the 'push' for current. Test various batteries (AA, 9V, coin cell) using the EUDAX voltmeter to understand potential difference.",
-    "type": "Activity",
+    "day": 16,
+    "date": "2026-09-21",
+    "unit": 2,
+    "title": "What Keeps Things Moving? Newton's First Law & Inertia Demos",
+    "topic": "Inquiry Launch into Dynamics: Aristotle vs Galileo vs Newton & Balanced Forces",
     "dok": 2,
-    "semester": 2,
+    "type": "Inquiry / Demonstration",
+    "semester": 1,
     "isFeatured": true,
-    "essentialQuestion": "What is voltage, and how do batteries provide the necessary 'push' for an electrical circuit?",
-    "links": {
-      "Reading Resource": "https://docs.google.com/document/d/1RngZHHhh-DNdu4tW6ifUW949sCGWyxFUEZ0UluMLgiE/edit?usp=sharing",
-      "Fruit Battery Simulation": "Unit_7_Electricity_and_Magnetism/Fruit_Battery/Fruit_Battery_Simulation.html"
-    },
+    "summary": "Launch Dynamics with high-engagement inertia demonstrations that dismantle the intuitive misconception that motion requires a continuous forward push, formalizing Newton's First Law (objects maintain constant velocity unless acted upon by a net external force).",
+    "activity": "Inertia Phenomenon Stations: Students cycle through 4 hands-on stations: (1) The Tablecloth Pull with weighted dishes, (2) The Index Card & Penny snap into a beaker, (3) The Bowling Ball Mallet Challenge (steering a rolling ball), and (4) The Frictionless Hover Puck gliding indefinitely across the floor.",
+    "essentialQuestion": "Does an object in motion require a continuous applied force to keep moving forward?",
     "standards": [
-      "HS-PS3-1"
-    ]
+      "HS-PS2-1"
+    ],
+    "wicor": {
+      "Writing": "Writing initial claim statements answering what happens to an object when all friction is removed.",
+      "Inquiry": "Observing how objects resist changes to their current state of rest or motion.",
+      "Collaboration": "Group rotation through demonstration stations, debating observations.",
+      "Organization": "Completing a four-quadrant observation sheet detailing cause, observation, and inference for each demo.",
+      "Reading": "Reading excerpts from Aristotle's motion theories vs Galileo's thought experiments."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "If you throw a baseball in deep outer space where there is no gravity, no air, and no friction, what will happen to the ball after it leaves your hand?",
+      "explanation": "The baseball will keep moving in a straight line at the exact same constant speed forever, because there is no net force to slow it down or change its direction.",
+      "defaultDuration": 3
+    }
   },
   {
-    "date": "2026-05-15",
-    "day": 5,
-    "unit": 7,
-    "title": "Circuit Diagram Symbols & Virtual Lab",
-    "summary": "Master the visual language of electronics using standard symbols and virtual simulations.",
-    "details": "Learn to translate physical components into standard schematic symbols. Use the PhET DC Circuit Construction Kit to build virtual circuits and complete the guided analysis document.",
-    "type": "Lab",
+    "day": 17,
+    "date": "2026-09-22",
+    "unit": 2,
+    "title": "Mass as Inertia & Free-Body Diagrams (FBDs)",
+    "topic": "Mass (kg) vs. Weight (N) & Systematic Free-Body Diagram Modeling",
     "dok": 2,
-    "semester": 2,
+    "type": "Lab / Direct Instruction",
+    "semester": 1,
     "isFeatured": true,
-    "essentialQuestion": "Why is a standardized visual language necessary for designing and troubleshooting electrical systems?",
-    "links": {
-      "PhET Virtual Lab": "https://phet.colorado.edu/en/simulations/circuit-construction-kit-dc-virtual-lab",
-      "Analysis Document": "https://docs.google.com/document/d/1R2oaA7OXGS9rTVmTqJ1pqz9px860v6jGDGwirT3Z1Fs/edit?usp=sharing"
-    },
+    "summary": "Establish mass as the quantitative measure of an object's inertia (resistance to acceleration), catalog contact and field forces, and master constructing isolated Free-Body Diagrams (FBDs).",
+    "activity": "Mystery Mass Shakers & Whiteboard FBD Sprint: Blindfolded students shake sealed cans filled with cotton, wood, and lead horizontally (isolated from vertical gravity) to rank inertia purely by resistance to acceleration, followed by drafting FBDs for 6 authentic physical scenarios.",
+    "essentialQuestion": "Why does an anvil have the exact same inertia in deep space as it does on Earth, even though it weighs zero Newtons?",
     "standards": [
-      "HS-PS2-6",
+      "HS-PS2-1"
+    ],
+    "wicor": {
+      "Writing": "Documenting force labels and vector coordinate conventions.",
+      "Inquiry": "Feeling horizontal resistance to acceleration without gravitational weight cues.",
+      "Collaboration": "Partner whiteboard drafting and peer critique of FBD arrow lengths.",
+      "Organization": "Classifying forces into contact (Normal, Tension, Friction, Applied) vs field (Gravity) categories.",
+      "Reading": "Decoding word problem descriptions to identify all physical interactions acting on a system."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "Why is an object's mass in kilograms identical on the Earth, the Moon, and in deep space, while its weight in Newtons changes drastically depending on location?",
+      "explanation": "Mass is the fundamental quantity of matter and measure of inertia (resistance to acceleration), which never changes. Weight is the gravitational pull exerted on that mass by a planet (W = m · g), which depends on local gravitational field strength.",
+      "defaultDuration": 3
+    }
+  },
+  {
+    "day": 18,
+    "date": "2026-09-23",
+    "unit": 2,
+    "title": "Newton's Second Law Lab: Force, Mass & Acceleration (F_net = m · a)",
+    "topic": "Empirical Derivation of Newton's Second Law: a ∝ F_net and a ∝ 1/m",
+    "dok": 3,
+    "type": "Lab",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Empirically verify the direct proportionality between net force and acceleration (a ∝ F_net) and inverse proportionality with mass (a ∝ 1/m) using dynamics track carts to synthesize F_net = m · a.",
+    "activity": "Modified Atwood Track Inquiry: Student teams pull low-friction dynamics carts with varying hanging weights, track photogate accelerations, plot a vs F_net and a vs 1/m trendlines, and derive the master relationship F_net = m · a.",
+    "essentialQuestion": "How does empirical experimental data prove that acceleration is directly proportional to net force and inversely proportional to system mass?",
+    "standards": [
+      "HS-PS2-1",
       "HS-ETS1-2"
-    ]
-  },
-  {
-    "date": "2026-05-14",
-    "day": 4,
-    "unit": 7,
-    "title": "The Simple Circuit & Energy Flow",
-    "summary": "Introduce EUDAX kits and the transition from static to dynamic electricity.",
-    "details": "Build the simplest circuit: battery, switch, and lightbulb. Test materials for conductivity and discuss thermal energy dissipation (The Short).",
-    "type": "Activity",
-    "dok": 2,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "Why do some materials allow energy to flow freely while others block it?",
-    "links": {
-      "Annotated Reading": "https://docs.google.com/document/d/10cRWbSNLpgQLlJVKppLbAixq0uXjd6VhizD8L6oZ83w/edit?usp=sharing",
-      "Lighting a Bulb Lab": "Unit_7_Electricity_and_Magnetism/Lighting_Light_Bulbs/Lighting_Light_Bulbs.html"
+    ],
+    "wicor": {
+      "Writing": "Synthesizing empirical findings into a formal scientific CER lab conclusion.",
+      "Inquiry": "Isolating variables: varying net force while keeping mass constant, then varying mass while keeping force constant.",
+      "Collaboration": "Lab teams dividing roles: track operator, photogate timer, mass coordinator, data recorder.",
+      "Organization": "Graphing linearized empirical data (a vs 1/m) and evaluating slope.",
+      "Reading": "Interpreting photogate sensor readouts and experimental error margins."
     },
-    "standards": [
-      "HS-PS2-6"
-    ]
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "If you double the net force applied to an object while keeping its mass constant, what happens to its acceleration? What happens if you instead keep the force constant and double its mass?",
+      "explanation": "Doubling net force doubles the acceleration (direct proportionality). Doubling mass cuts acceleration in half (inverse proportionality).",
+      "defaultDuration": 3
+    }
   },
   {
-    "date": "2026-05-13",
-    "day": 3,
-    "unit": 7,
-    "title": "The Van de Graaff Spark & Annotated Reading",
-    "summary": "Introduction to charge and fields through high-voltage experiments and literacy focus.",
-    "details": "Run experiments with the Van de Graaff generator (hair standing, sparks, flying pie tins). Complete an annotated reading on Coulomb's Law and the concept of 'Action at a Distance'.",
-    "type": "Lab",
-    "dok": 3,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How do invisible electric fields interact with matter to create visible energy transfers?",
-    "links": {
-      "Annotated Reading": "https://docs.google.com/document/d/1sZa3-Rs5Z5VwNP0NrhcdVlkp_yHXZMGY0rN0QmRrf28/edit?usp=sharing",
-      "Interactive Module": "Unit_7_Electricity_and_Magnetism/Unit7_Interactive_module.html"
-    },
-    "standards": [
-      "HS-PS2-4"
-    ]
-  },
-  {
-    "date": "2026-05-12",
-    "day": 2,
-    "unit": 7,
-    "title": "Rocket Project Final Launch & Analysis",
-    "summary": "Concluding the Rocketry unit with final stability testing and data collection.",
-    "details": "Final launches and retrospective on design improvements made during the extension days.",
-    "type": "Activity",
+    "day": 19,
+    "date": "2026-09-24",
+    "unit": 2,
+    "title": "The Reality of Friction: Static vs. Kinetic",
+    "topic": "Friction Forces (F_f = μ · F_N), Surface Interfaces, and Energy Dissipation",
     "dok": 2,
-    "semester": 2,
-    "isFeatured": false,
-    "essentialQuestion": "How do design iterations lead to more predictable engineering outcomes?",
+    "type": "Lab / Activity",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Investigate why real-world objects slow down: surface microscopic interactions, static friction threshold vs kinetic sliding friction, and normal force dependence.",
+    "activity": "Friction Block Pull Lab: Dragging wooden blocks with varying mass across sandpaper, vinyl, and felt with spring scales. Measuring peak static friction vs steady kinetic friction; computing friction coefficients (μ).",
+    "essentialQuestion": "Why does it always require more force to start an object sliding than to keep it sliding?",
     "standards": [
-      "HS-ETS1-3"
-    ]
+      "HS-PS2-1"
+    ],
+    "wicor": {
+      "Writing": "Explaining the molecular mechanism of microscopic asperities interlocking between surface interfaces.",
+      "Inquiry": "Measuring the instant of breakaway to identify peak static friction vs steady kinetic dragging force.",
+      "Collaboration": "Partner trials measuring force readouts across 3 different textures.",
+      "Organization": "Calculating friction coefficients (μ = F_f / F_N) across trials in structured data tables.",
+      "Reading": "Reading spring scale calibrations and force vs time graphs."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "Why does a heavy couch require a tremendous initial shove to start moving across a carpeted floor, but feels significantly easier to keep sliding once it is already moving?",
+      "explanation": "Static friction (which locks surfaces together at rest) has a higher coefficient than kinetic sliding friction. Once motion begins, microscopic surface ridges skip over one another, requiring less force to sustain sliding.",
+      "defaultDuration": 3
+    }
   },
   {
-    "date": "2026-05-11",
-    "day": 1,
-    "unit": 7,
-    "title": "Rocket Project Extension (Stability Improvements)",
-    "summary": "Students iterate on their 2-liter bottle rocket designs to improve flight stability.",
-    "details": "Focus on fin alignment, center of mass vs. center of pressure, and recovery systems. Final launch window extension.",
-    "type": "Lab",
+    "day": 20,
+    "date": "2026-09-25",
+    "unit": 2,
+    "title": "Multi-Force Problem Solving: Connecting Dynamics to Kinematics",
+    "topic": "Calculating Net Force, Friction, and Resulting Acceleration and Stopping Distances",
     "dok": 3,
-    "semester": 2,
-    "isFeatured": false,
-    "essentialQuestion": "How does aerodynamic stability affect the flight path of a pressurized rocket?",
+    "type": "Practice / Performance Task",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Synthesize dynamics and kinematics: Given applied forces and friction, calculate F_net, determine a = F_net / m, and predict stopping distances or final speeds using kinematic equations.",
+    "activity": "Highway Braking & Traction Design Workshop: Students calculate stopping distances and required braking forces for vehicles of varying mass on dry vs wet pavement, linking tire friction directly to highway safety standards and motion equations.",
+    "essentialQuestion": "How do engineers unite free-body force analysis with kinematic equations to predict stopping distance and design vehicle braking systems?",
     "standards": [
+      "HS-PS2-1",
       "HS-ETS1-2"
-    ]
-  },
-  {
-    "date": "2026-05-05",
-    "day": 26,
-    "unit": 7,
-    "title": "Virtual Rocket Design Lab (Sub Assignment)",
-    "summary": "Independent simulation & mastery quiz. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
-    "details": "Students will use the Virtual Rocket Lab to design, test, and stabilize a 2-liter bottle rocket. A 10-question debrief quiz follows the simulation. GRADING: This assignment is graded on accuracy (out of 20 points).",
-    "type": "Lab",
-    "dok": 3,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How do the Center of Mass and Center of Pressure determine the stability of a rocket?",
-    "links": {
-      "Interactive: Virtual Rocket Lab": "2-Liter_Bottle_Rockets/Virtual_Rocket_Lab/Virtual_Rocket_Design_Lab.html"
+    ],
+    "wicor": {
+      "Writing": "Writing complete multi-stage mathematical derivations linking Newton's 2nd Law to kinematic stopping equations.",
+      "Inquiry": "Investigating how mass cancels out when calculating vehicle stopping distance on a level friction surface (a = μ · g).",
+      "Collaboration": "Small-group whiteboard problem-solving sprint on vehicle crash avoidance.",
+      "Organization": "Executing the 5-step GUESS method across two-stage dynamics and kinematics problems.",
+      "Reading": "Interpreting highway safety tables and traction coefficient data."
     },
-    "standards": [
-      "HS-ETS1-2"
-    ]
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "A 1000 kg car brakes with a net friction force of 5000 N. What is the car's deceleration, and how does Newton's 2nd Law (a = F_net / m) connect to how long it takes the car to stop?",
+      "explanation": "a = F_net / m = -5000 N / 1000 kg = -5.0 m/s². The deceleration produced by the net force determines the rate at which velocity drops to zero (t = Δv / a) and the required stopping distance (d = v₀t + ½at²).",
+      "defaultDuration": 3
+    }
   },
   {
-    "date": "2026-05-01",
-    "day": 25,
-    "unit": 6,
-    "title": "Unit 6 Summative Assessment",
-    "summary": "Comprehensive assessment covering mechanical waves, EM radiation, and signal technology.",
-    "details": "Final unit exam covering all major concepts from the past 5 weeks including the wave equation, interference, the EM spectrum, and digital/analog signals.",
-    "type": "Assessment",
-    "dok": 4,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How do we demonstrate mastery of wave properties, electromagnetic radiation, and information technology?",
-    "standards": [
-      "HS-PS4-1",
-      "HS-PS4-2",
-      "HS-PS4-3",
-      "HS-PS4-4",
-      "HS-PS4-5"
-    ]
-  },
-  {
-    "date": "2026-04-30",
-    "day": 24,
-    "unit": 6,
-    "title": "Unit 6 Review Day",
-    "summary": "Collaborative review session covering the full unit curriculum.",
-    "details": "Students rotate through review stations focusing on math practice, vocabulary mastery, and conceptual modeling in preparation for the summative assessment.",
-    "type": "Activity",
-    "dok": 3,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How can we synthesize our understanding of waves and radiation to prepare for the final evaluation?",
-    "standards": [
-      "HS-PS4-1",
-      "HS-PS4-2",
-      "HS-PS4-5"
-    ]
-  },
-  {
-    "date": "2026-04-29",
-    "day": 23,
-    "unit": 6,
-    "title": "Wave Signal Analysis Lab",
-    "summary": "Interactive simulation: Signal creation, noise recovery, and sampling.",
-    "details": "Students act as signal engineers to explore the physics of communication. Tasks include drawing analog/digital waves, recovering original signals from 'extreme' noise environments, and analyzing how sampling rates impact digital resolution.",
-    "type": "Lab",
-    "dok": 3,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "Why are digital signals more robust against interference (noise) than analog signals?",
-    "links": {
-      "Interactive: Wave Signals Lab": "Unit_6_Waves_Radiation/Wave_Signals/Wave_signals.html"
-    },
-    "standards": [
-      "HS-PS4-2",
-      "HS-PS4-5"
-    ]
-  },
-  {
-    "date": "2026-04-28",
-    "day": 22,
-    "unit": 6,
-    "title": "The Digital Revolution",
-    "summary": "Independent WebQuest: Mapping the shift from analog to digital tech.",
-    "details": "Silent independent work day. Students research how technology changed from TV antennas and cassette tapes to fiber optics and streaming.",
-    "type": "Activity",
-    "dok": 2,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How has the transition from analog to digital technology changed the way we share information?",
-    "links": {
-      "Interactive: Signals Reference": "Unit_6_Waves_Radiation/Signals_reference/Signals_Reference.html",
-      "WebQuest: Digital Revolution": "https://docs.google.com/document/d/1Bl6WI0cS01nbkmJR3nSa5d2htQ_8-ugwACPnsnmacHQ/edit?usp=sharing"
-    },
-    "standards": [
-      "HS-PS4-2",
-      "HS-PS4-5"
-    ]
-  },
-  {
-    "date": "2026-04-27",
     "day": 21,
-    "unit": 6,
-    "title": "Introduction to Signals",
-    "summary": "AVID Annotated Reading & Vocabulary: Analog vs. Digital.",
-    "details": "Students evaluate the core differences between continuous wave energy (Analog) and pulse-based encoding (Digital) through a structured AVID annotation process.",
-    "type": "Activity",
-    "links": {
-      "Reading: Intro to Signals": "https://docs.google.com/document/d/1tJt_5sCD5xCK7sU6Ngt42QMbGeT4arcFUetXcozQR8k/edit?usp=sharing",
-      "Interactive AVID Notebook": "Unit_6_Waves_Radiation/Interactive_AVID_Notebook_Signals/signals.html"
-    },
+    "date": "2026-09-28",
+    "unit": 2,
+    "title": "Newton's Third Law of Motion (Action-Reaction Pairs)",
+    "topic": "Interaction Pairs: Equal Magnitude, Opposite Direction, Different Objects",
     "dok": 2,
-    "semester": 2,
+    "type": "Activity",
+    "semester": 1,
     "isFeatured": true,
-    "essentialQuestion": "How do we convert wave energy into information that can be sent over long distances?",
-    "wicor": {
-      "reading": "Critical Reading: Marking the text for signal patterns.",
-      "writing": "3-word Gist summaries for each paragraph.",
-      "organization": "Bilingual Venn Diagram comparison."
-    },
+    "summary": "Explore Newton's Third Law: Forces always exist in pairs. When Object A exerts a force on Object B, Object B exerts an equal and opposite force on Object A.",
+    "activity": "Dual Force Sensor Collisions & Skateboard Push-Offs: Students connect digital force sensors back-to-back and collide them, observing identical peak force spikes in opposite directions. Students test skateboard/rolling chair push-offs to observe mutual recoil.",
+    "essentialQuestion": "When a mosquito hits a car windshield, which object experiences the greater force?",
     "standards": [
-      "HS-PS4-2",
-      "HS-PS4-5"
-    ]
+      "HS-PS2-1"
+    ],
+    "wicor": {
+      "Writing": "Writing paired force statements: 'Object A exerts a force on Object B; Object B exerts an equal and opposite force on Object A.'",
+      "Inquiry": "Analyzing why equal forces produce vastly different accelerations when objects have different masses.",
+      "Collaboration": "Conducting pair skateboard and force sensor recoil trials safely.",
+      "Organization": "Creating an interaction-pair diagram clearly identifying the two interacting objects.",
+      "Reading": "Reading and critiquing common misconceptions about action-reaction pairs."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "When a heavy football linebacker tackles a light running back, does the linebacker exert more force on the running back, or do they exert equal force on each other?",
+      "explanation": "According to Newton's Third Law, they exert the exact same magnitude of force on each other! The lighter player experiences a greater acceleration due to smaller mass (a = F / m).",
+      "defaultDuration": 3
+    }
   },
   {
-    "date": "2026-04-24",
-    "day": 20,
-    "unit": 6,
-    "title": "Spectrum City: Final Master Plan",
-    "summary": "Project Completion: Finalizing hazard maps & EM Rapid Review.",
-    "details": "Students complete their Spectrum City Hazard Maps, ensuring all district interactions are modeled. Following project submission, students perform the EM Spectrum Rapid Review assessment.",
+    "day": 22,
+    "date": "2026-09-29",
+    "unit": 2,
+    "title": "Resolving the Third Law Paradox & System Boundaries",
+    "topic": "The Horse-and-Cart Dilemma: Why Motion Occurs Despite Equal Forces",
+    "dok": 3,
+    "type": "Activity",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Tackle the classic conceptual paradox: 'If action and reaction forces are always equal and opposite, why doesn't everything cancel out?' (They act on different objects!).",
+    "activity": "System Boundary Diagramming Sprint: Students draw boundary boxes around individual objects (the horse, the cart, the road). They discover that within the cart's system boundary, only the forward pull of the horse exists, which is not cancelled by the cart's backward pull on the horse.",
+    "essentialQuestion": "Why can't action-reaction force pairs ever cancel each other out to prevent motion?",
+    "standards": [
+      "HS-PS2-1"
+    ],
+    "wicor": {
+      "Writing": "Composing a formal scientific rebuttal resolving the horse-and-cart paradox.",
+      "Inquiry": "Investigating how external friction between horse hooves and the ground drives forward movement.",
+      "Collaboration": "Structured Socratic debate: arguing from the horse's perspective vs the physics perspective.",
+      "Organization": "Drawing dotted system boundary lines to isolate internal from external forces.",
+      "Reading": "Analyzing historical philosophical debates on Newtonian action-reaction mechanics."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "When you walk across the floor, what physical object actually exerts the forward force that pushes your body forward?",
+      "explanation": "The floor! Your foot pushes backward on the ground; by Newton's Third Law, the ground simultaneously pushes forward on your foot.",
+      "defaultDuration": 3
+    }
+  },
+  {
+    "day": 23,
+    "date": "2026-09-30",
+    "unit": 2,
+    "title": "Crash Engineering & Safety: Forces in Collisions",
+    "topic": "Impulse, Impact Time & Vehicle Safety Engineering",
+    "dok": 3,
+    "type": "Activity",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Apply Newtonian mechanics to engineering safety: investigate how crumple zones, airbags, and seatbelts minimize lethal forces by extending impact duration.",
+    "activity": "Collision Telemetry & Egg-Crash Cart Analysis: Students preview the Operation Safe Heeler crash engineering challenge. Students analyze high-speed video telemetry comparing rigid carts vs carts fitted with paper/foam crumple zones, calculating the dramatic drop in peak impact force.",
+    "essentialQuestion": "How do automotive engineers manipulate contact time to minimize lethal forces during sudden deceleration?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-ETS1-2"
+    ],
+    "wicor": {
+      "Writing": "Writing an engineering justification report evaluating crumple zone materials.",
+      "Inquiry": "Analyzing accelerometer collision curves to compare peak force vs duration of impact.",
+      "Collaboration": "Teams evaluating crumple zone prototypes under safety constraints.",
+      "Organization": "Graphing force vs time curves and calculating the impulse area.",
+      "Reading": "Reading national highway safety crash test standards and helmet design criteria."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "Why do cars have crumple zones designed to crush during a front-end collision instead of being built out of unbreakable, solid steel?",
+      "explanation": "Crumpling extends the duration of the crash (increases Δt). Because impact force equals F = m · Δv / Δt, extending the stopping time dramatically lowers the force experienced by passengers.",
+      "defaultDuration": 3
+    },
+    "assignments": [
+      {
+        "title": "Operation Safe Heeler Crash Engineering Lab",
+        "url": "operation-safe-heeler.html",
+        "typeLabel": "Graded Engineering Challenge",
+        "submission": "Cloud Auto-Saved ✓",
+        "description": "Design crumple zones to minimize impact forces and submit collision telemetry to the gradebook."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Safe Heeler Telemetry & Class Results",
+        "url": "operation_safe_heeler_results.html",
+        "typeLabel": "Classroom Telemetry & Review",
+        "description": "Class-wide crash test analytics, accelerometer curves, and impulse area comparisons."
+      }
+    ],
+    "links": {
+      "Operation Safe Heeler": "operation-safe-heeler.html",
+      "Safe Heeler Results": "operation_safe_heeler_results.html"
+    }
+  },
+  {
+    "day": 24,
+    "date": "2026-10-01",
+    "unit": 2,
+    "title": "Unit 2 Comprehensive Synthesis & Gallery Walk",
+    "topic": "Master Review of Kinematics and Dynamics",
+    "dok": 3,
+    "type": "Activity",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Unify the entire 5-week journey: from measuring distance and time to predicting acceleration and forces across multi-agent physical systems.",
+    "activity": "Collaborative Problem Poster Gallery Walk: Teams create large-format solution posters for complex real-world challenges (rocket liftoff with decreasing mass, skydiving terminal velocity, multi-vehicle highway braking). Teams rotate with peer critique rubrics.",
+    "essentialQuestion": "How do kinematic motion models and Newtonian force laws unite into a single predictive framework for all physical motion?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-ETS1-2"
+    ],
+    "wicor": {
+      "Writing": "Constructing written peer critiques evaluating mathematical accuracy and graph annotations.",
+      "Inquiry": "Synthesizing multi-week concepts into comprehensive multi-stage physical proofs.",
+      "Collaboration": "Team poster construction and gallery walk peer review circles.",
+      "Organization": "Formatting solution posters into quadrants: Given parameters, FBD, Motion Graphs, and Proof.",
+      "Reading": "Reading peer posters and decoding alternative algebraic problem-solving strategies."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "Summarize Newton's Three Laws of Motion in one sentence each.",
+      "explanation": "1st Law: Objects keep their velocity unless acted on by a net force. 2nd Law: Unbalanced net force causes acceleration (F_net = m · a). 3rd Law: Every action force has an equal and opposite reaction force.",
+      "defaultDuration": 3
+    }
+  },
+  {
+    "day": 25,
+    "date": "2026-10-02",
+    "unit": 2,
+    "title": "Unit 2 Summative Assessment",
+    "topic": "Comprehensive Exam on 1D Kinematics & Newton's Laws of Motion",
+    "dok": 3,
     "type": "Assessment",
-    "dok": 3,
-    "semester": 2,
+    "semester": 1,
     "isFeatured": true,
-    "essentialQuestion": "How do the physical properties of the EM spectrum determine its real-world hazards and applications?",
-    "links": {
-      "Spectrum City Map": "Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html",
-      "EM Rapid Review": "Unit_6_Waves_Radiation/EM_Spectrum_Rapid_Review/index.html"
-    },
+    "summary": "Full summative evaluation assessing DOK 1-3 mastery of 1D kinematics (x, v, a, graphs) and Newtonian dynamics (Inertia, FBDs, F_net = m · a, Action-Reaction).",
+    "activity": "Comprehensive unit exam covering conceptual multiple-choice diagnostics, coordinate slope and area calculations, FBD construction, and two multi-step DOK 3 word problems combining kinematics and dynamics.",
+    "essentialQuestion": "How effectively can we calculate, model, and justify the motion and interaction of physical systems?",
     "standards": [
-      "HS-PS4-4",
-      "HS-PS4-5"
-    ]
-  },
-  {
-    "date": "2026-04-23",
-    "day": 19,
-    "unit": 6,
-    "title": "Spectrum City: Final Review",
-    "summary": "Finalizing hazard maps and preparing for Rapid Fire sequencing.",
-    "details": "Synthesizing EM relationships (Energy vs Wavelength) to complete the Spectrum City master plan.",
-    "type": "Activity",
-    "dok": 2,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "What experimental evidence confirms that light behaves like a wave?",
-    "links": {
-      "Project: Spectrum City Map": "Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html",
-      "EM Spectrum Rapid Review": "Unit_6_Waves_Radiation/EM_Spectrum_Rapid_Review/index.html"
-    },
-    "standards": [
-      "HS-PS4-3"
-    ]
-  },
-  {
-    "date": "2026-04-22",
-    "day": 18,
-    "unit": 6,
-    "title": "Spectrum City: Hazard Quantification",
-    "summary": "Modeling wave interactions and calculating biological hazard levels. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
-    "details": "Quantifying how ionizing radiation (UV, X-ray, Gamma) interacts with cellular tissue in the city's high-energy districts.",
-    "type": "Activity",
-    "dok": 3,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "What makes certain frequencies of the EM spectrum hazardous to living tissue?",
-    "links": {
-      "Spectrum City Project": "Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html",
-      "EM Spectrum Rapid Review": "Unit_6_Waves_Radiation/EM_Spectrum_Rapid_Review/index.html"
-    },
-    "standards": [
-      "HS-PS4-4"
-    ]
-  },
-  {
-    "date": "2026-04-21",
-    "day": 17,
-    "unit": 6,
-    "title": "Spectrum City: District Zoning",
-    "summary": "Mapping architectural zones across the 7 EM regions. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
-    "details": "Zoning Spectrum City based on material absorption, reflection, and transmission properties.",
-    "type": "Activity",
-    "dok": 2,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "What determines whether a material will absorb or transmit a specific frequency of light?",
-    "links": {
-      "Spectrum City Project": "Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html"
-    },
-    "standards": [
-      "HS-PS4-4",
-      "HS-PS4-5"
-    ]
-  },
-  {
-    "date": "2026-04-20",
-    "day": 16,
-    "unit": 6,
-    "title": "Hubble's Law Lab",
-    "summary": "Analyzing the expanding universe through the Doppler shift of light. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
-    "details": "Using galactic redshift data to calculate the expansion rate (Hubble's Constant) and exploring evidence for the Big Bang.",
-    "type": "Lab",
-    "links": {
-      "Hubble's Law Lab": "Unit_6_Waves_Radiation/The_Big_Bang/Hubbles_Law.html",
-      "Spectrum City Map": "Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html"
-    },
-    "dok": 3,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How does the Doppler shift of light provide evidence for the expansion of the universe?",
-    "standards": [
-      "HS-ESS1-2",
-      "HS-PS4-2"
-    ]
-  },
-  {
-    "date": "2026-04-17",
-    "day": 15,
-    "unit": 6,
-    "title": "Week 3 Quiz: Sound & EM Foundations",
-    "summary": "Assessment on the Doppler Effect and basic EM spectrum properties.",
-    "details": "Summative check for understanding covering acoustic shifts and the organization of the EM spectrum.",
-    "type": "Assessment",
-    "dok": 3,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How well can we apply Doppler principles and identify regions of the EM spectrum?",
-    "standards": [
-      "HS-PS4-1",
-      "HS-PS4-4"
-    ]
-  },
-  {
-    "date": "2026-04-16",
-    "day": 14,
-    "unit": 6,
-    "title": "EM Spectrum Comic Poster",
-    "summary": "Design a superhero/villain based on a specific EM region.",
-    "details": "Mapping physical properties (wavelength, frequency, energy) to character abilities, hazards, and weaknesses.",
-    "type": "Activity",
-    "links": {
-      "Spectrum City Project": "Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html",
-      "Comic Poster Instructions": "https://docs.google.com/document/d/1JMt2gsKlaqpJWbMAr52scifNDr8ydx_todBrnqLMhyQ/edit?usp=sharing",
-      "EM Spectrum Rapid Review": "Unit_6_Waves_Radiation/EM_Spectrum_Rapid_Review/index.html"
-    },
-    "image": "Unit_6_Waves_Radiation/Comic_Book_EM/Examples.png",
-    "dok": 3,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How are the regions of the EM spectrum organized by energy and wavelength?",
-    "standards": [
-      "HS-PS4-4"
-    ]
-  },
-  {
-    "date": "2026-04-15",
-    "day": 13,
-    "unit": 6,
-    "title": "The Nature of Light",
-    "summary": "Introduction to EM waves (no medium required) and the constant speed c.",
-    "details": "Understanding light as an oscillation of electric and magnetic fields and comparing its behavior to mechanical sound waves.",
-    "type": "Activity",
-    "dok": 2,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "Why does light not require a physical medium to travel through space?",
-    "links": {
-      "EM Spectrum Explorer": "Unit_6_Waves_Radiation/EM_Spectrum/EM_Spectrum.html"
-    },
-    "standards": [
-      "HS-PS4-3",
-      "HS-PS4-4"
-    ]
-  },
-  {
-    "date": "2026-04-14",
-    "day": 12,
-    "unit": 6,
-    "title": "The Doppler Effect & Sonic Booms",
-    "summary": "Visualizing the Doppler Effect using the Doppler Detective Simulation.",
-    "details": "Deep dive into stationary vs. moving observers, sonic booms (breaking the sound barrier), and everyday examples of acoustic frequency shifts.",
-    "type": "Activity",
-    "links": {
-      "Doppler Detective Sim": "Unit_6_Waves_Radiation/Doppler_Detective/Doppler_Detective.html"
-    },
-    "dok": 2,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "What causes the 'sonic boom' when an object travels faster than the speed of sound?",
-    "standards": [
-      "HS-PS4-1",
-      "HS-PS4-2"
-    ]
-  },
-  {
-    "date": "2026-04-13",
-    "day": 11,
-    "unit": 6,
-    "title": "Physics of Sound & Moving Sources",
-    "summary": "Exploring longitudinal waves with the Speed of Sound Lab.",
-    "details": "Focusing on sound as a mechanical longitudinal wave and introducing how movement of the source or observer begins to compress or stretch wavefronts.",
-    "type": "Activity",
-    "dok": 2,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How does the relative motion of a sound source change the way we perceive its frequency?",
-    "links": {
-      "Speed of Sound Lab": "Unit_6_Waves_Radiation/Sound_waves/Speed_of_sound.html"
-    },
-    "standards": [
-      "HS-PS4-1",
-      "HS-PS4-2"
-    ]
-  },
-  {
-    "date": "2026-04-10",
-    "day": 10,
-    "unit": 6,
-    "title": "Interference Lab/Activity",
-    "summary": "Hands-on station work with ripple tanks or sound interference apps.",
-    "details": "Practical application and observation of interference patterns.",
-    "type": "Lab",
-    "dok": 3,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How can we experimentally verify the principle of superposition?",
-    "links": {
-      "Rapid Review Game": "Unit_6_Waves_Radiation/Review_Game/index.html"
-    },
-    "standards": [
-      "HS-PS4-1",
-      "HS-PS4-3"
-    ]
-  },
-  {
-    "date": "2026-04-09",
-    "day": 9,
-    "unit": 6,
-    "title": "Standing Waves & Ruben's Tube",
-    "summary": "Modeling standing waves and nodes using fire and sound in the Ruben's Tube demonstration.",
-    "details": "Physics of musical instruments, harmonics, and natural frequency. Demonstrating standing waves with the Ruben's Tube.",
-    "type": "Activity",
-    "links": {
-      "Ruben's Tube Simulator": "Unit_6_Waves_Radiation/Rubens_Tube_Sim/Rubens_Tube_Sim.html"
-    },
-    "dok": 3,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How do standing waves and resonance explain the physics of music?",
+      "HS-PS2-1",
+      "HS-ETS1-2"
+    ],
     "wicor": {
-      "inquiry": "Ruben's Tube Demo: Visualizing nodes and antinodes using flammable gas and acoustic pressure.",
-      "writing": "CER Statement: How does changing frequency affect the number of fire peaks?",
-      "collaboration": "Harmonics Mapping: Group identification of node locations."
+      "Writing": "Writing formal mathematical derivations and explaining physical concepts clearly.",
+      "Inquiry": "Applying Newtonian mechanics to novel, unseen engineering and motion scenarios.",
+      "Collaboration": "Conducting post-assessment reflection on individual and class-wide growth.",
+      "Organization": "Managing assessment time effectively across conceptual and computational sections.",
+      "Reading": "Carefully reading exam prompts to identify constraints and coordinate conventions."
     },
-    "standards": [
-      "HS-PS4-1"
-    ]
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "Take a deep breath! What is one concept or problem from Unit 2 that you feel most confident about explaining today?",
+      "explanation": "Confidence and calm focus are keys to scientific problem solving. Trust your preparation and show all your work with units!",
+      "defaultDuration": 3
+    }
   },
   {
-    "date": "2026-04-08",
-    "day": 8,
-    "unit": 6,
-    "title": "Constructive vs. Destructive Interference",
-    "summary": "Mapping 'dead spots' and 'loud spots' in sound and light.",
-    "details": "Detailed study of phase relationships and their effect on wave amplitude.",
-    "type": "Activity",
-    "links": {
-      "Wave Interference Tutorial": "Unit_6_Waves_Radiation/Wave_Interference_Tutorial/Wave_Interference_tutorial.html",
-      "Wave Interference & Beats": "Unit_6_Waves_Radiation/Wave_Beat_Generator/Wave_Beat_Generator.html",
-      "Lesson Slides: Phase & Interference": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQBTUZf19lWfSK5U3EdpOBeAAaDCdeqiOiYePW5FTtIJU8Q?e=y7gOye"
-    },
-    "dok": 2,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How do phase differences lead to constructive and destructive interference?",
-    "standards": [
-      "HS-PS4-1",
-      "HS-PS4-3"
-    ]
-  },
-  {
-    "date": "2026-04-07",
-    "day": 7,
-    "unit": 6,
-    "title": "Diffraction & Interference",
-    "summary": "Waves bending around obstacles and the Principle of Superposition.",
-    "details": "Investigating how waves interact and combine when they occupy the same space.",
-    "type": "Activity",
-    "links": {
-      "Wave Diffraction Lab": "Unit_6_Waves_Radiation/Diffraction_tutorial/Diffraction_tutorial.html",
-      "Wavefront Simulations": "Unit_6_Waves_Radiation/Wavefront_simulations/Wavefront_Simulations.html"
-    },
-    "dok": 2,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "What happens when two or more waves overlap in the same medium?",
-    "standards": [
-      "HS-PS4-1",
-      "HS-PS4-3"
-    ]
-  },
-  {
-    "date": "2026-04-06",
-    "day": 6,
-    "unit": 6,
-    "title": "Boundary Behaviors",
-    "summary": "Reading: Wave Interactions & WaveMaster Lab Exploration",
-    "details": "Students analyze wave behavior via an AVID Close Reading assignment and explore reflection/refraction using the interactive WaveMaster Lab.",
-    "type": "Activity",
-    "links": {
-      "Reading: Wave Interactions": "https://docs.google.com/document/d/1e_JUg_6KbCQ4vhj7HWrtcr0wjPWAvbpgNW7U9wViWbE/edit?usp=sharing",
-      "WaveMaster Lab": "Unit_6_Waves_Radiation/WaveMaster_Lab/wavemaster_lab.html"
-    },
-    "dok": 2,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How does the medium determine whether a wave reflects or refracts at a boundary?",
-    "wicor": {
-      "reading": "Close Reading: Marking the text for Reflection, Refraction, Diffraction, and Absorption.",
-      "writing": "Summary: Distinguishing between boundary behaviors in different media.",
-      "organization": "Comparison Matrix for wave behaviors."
-    },
-    "standards": [
-      "HS-PS4-1",
-      "HS-PS4-3"
-    ]
-  },
-  {
-    "date": "2026-03-27",
-    "day": 5,
-    "unit": 6,
-    "title": "Week 1 Review & Quiz",
-    "summary": "Assessment on wave anatomy and basic calculations.",
-    "details": "Summative check on wave properties and the wave equation.",
-    "type": "Assessment",
-    "dok": 3,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How well can we model and calculate basic wave properties?",
-    "wicor": {
-      "writing": "Self-Reflection: Which wave concept is most challenging so far?",
-      "organization": "Flashcard review for wave vocabulary.",
-      "collaboration": "Peer-grading of the Week 1 Review Set."
-    },
-    "standards": [
-      "HS-PS4-1"
-    ]
-  },
-  {
-    "date": "2026-03-26",
-    "day": 4,
-    "unit": 6,
-    "title": "Period and Frequency",
-    "summary": "Exploring the inverse relationship (T = 1/f); Simple harmonic motion basics.",
-    "details": "Understanding the relationship between the time for one cycle and the number of cycles per second.",
+    "date": "2026-01-12",
+    "day": 1,
+    "unit": 4,
+    "title": "Understanding Car Crashes",
+    "summary": "Welcome back! Today we transition from static forces to the physics of impact.",
+    "details": "Watched the YouTube video (MythBusters: Crash Force) and completed the Google Doc.",
     "type": "Activity",
     "dok": 1,
+    "links": {
+      "video": "https://www.youtube.com/watch?v=2XKOzibVqJg",
+      "worksheet": "https://docs.google.com/document/d/1-byPZiH6PZ6kOckrk3-35An7i1IDFM6GL_S3jvvXqNs/edit?usp=sharing"
+    },
     "semester": 2,
     "isFeatured": true,
-    "essentialQuestion": "What is the inverse relationship between the period and frequency of a wave?",
-    "links": {
-      "Pendulum Mastery Lab": "Unit_6_Waves_Radiation/pendulum_lab/index.html"
-    },
-    "wicor": {
-      "inquiry": "Pendulum Swing: Measuring time for 10 swings vs. swings per second.",
-      "writing": "Summary: Explaining why T = 1/f makes sense using physical units.",
-      "organization": "Graphic Organizer: Period vs. Frequency."
-    },
+    "essentialQuestion": "How does the physics of impact differ from static forces?",
     "standards": [
-      "HS-PS4-1"
+      "HS-PS2-1",
+      "HS-PS2-2"
     ]
   },
   {
-    "date": "2026-03-25",
+    "date": "2026-01-13",
+    "day": 2,
+    "unit": 4,
+    "title": "Momentum (PowerPoint Intro)",
+    "summary": "Formal introduction to the mathematical definition of momentum.",
+    "details": "Lecture and demonstration covering p=mv. Students began notes using the class presentation.",
+    "type": "Activity",
+    "dok": 2,
+    "links": {
+      "notes": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDAf56uDWDvRrHKm_dqPjndAaZFIsdJv1aFlRtInx7he0M?e=tpeQBO"
+    },
+    "semester": 2,
+    "isFeatured": false,
+    "essentialQuestion": "What is momentum and how is it mathematically defined?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-PS2-2"
+    ]
+  },
+  {
+    "date": "2026-01-14",
     "day": 3,
-    "unit": 6,
-    "title": "The Wave Equation",
-    "summary": "Practicing calculations for wave speed, frequency, and wavelength.",
-    "details": "Applying the fundamental wave equation v = fλ to various scenarios.",
+    "unit": 4,
+    "title": "Momentum and Impulse Practice",
+    "summary": "Numerical practice with p=mv and J=Ft equations.",
+    "details": "Computational worksheet to solidify the mathematical relationship between force, time, and momentum change.",
     "type": "Practice",
-    "links": {
-      "Frequency...Practice 'til it Hertz": "Unit_6_Waves_Radiation/frequency_calculator/index.html"
-    },
     "dok": 2,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How can we mathematically relate wave speed, frequency, and wavelength?",
-    "wicor": {
-      "writing": "Variable Mapping: Defining v, f, and λ with units.",
-      "organization": "The Formula Triangle for v = fλ.",
-      "inquiry": "Predicting how doubling frequency affects wavelength if speed is constant."
+    "links": {
+      "worksheet": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQCwJD7mmYGORJTobad0Q3FjAZ70FTiLHMdqRQNOBAPoVOk?e=P4qdky"
     },
+    "semester": 2,
+    "isFeatured": false,
+    "essentialQuestion": "How do we calculate momentum and impulse using p=mv and J=Ft?",
     "standards": [
-      "HS-PS4-1"
+      "HS-PS2-1",
+      "HS-PS2-2"
     ]
   },
   {
-    "date": "2026-03-24",
-    "day": 2,
-    "unit": 6,
-    "title": "Wave Types: Transverse vs. Longitudinal",
-    "summary": "Modeling particle motion using slinkies or simulations.",
-    "details": "Distinguishing between transverse waves (perpendicular motion) and longitudinal waves (parallel motion/compressions).",
+    "date": "2026-01-15",
+    "day": 4,
+    "unit": 4,
+    "title": "Hey! Stop that thing!! (Impulse)",
+    "summary": "Scenario-based lab calculating the impulse needed to stop an object.",
+    "details": "Students create scenarios where objects with momentum are brought to a stop, calculating force and time requirements. Lab worksheet available on dashboard.",
+    "type": "Lab",
+    "dok": 3,
+    "links": {
+      "worksheet": "https://docs.google.com/document/d/1S_9AbUsIyIVDCooBL63XZ5qcB95RGBQCnODqmRtfD3Y/edit?usp=sharing"
+    },
+    "semester": 2,
+    "isFeatured": false,
+    "essentialQuestion": "What determines how much force is needed to stop a moving object?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-PS2-2"
+    ]
+  },
+  {
+    "date": "2026-01-16",
+    "day": 5,
+    "unit": 4,
+    "title": "Momentum & Impulse Quiz",
+    "summary": "Quiz covering momentum foundations and the impulse-momentum theorem.",
+    "details": "Summative assessment on the first week's concepts.",
+    "type": "Assessment",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": false,
+    "essentialQuestion": "How can we demonstrate mastery of momentum and the impulse-momentum theorem?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-PS2-2"
+    ]
+  },
+  {
+    "date": "2026-01-19",
+    "day": 6,
+    "unit": 4,
+    "title": "MLK Day - No School",
+    "summary": "Holiday observed. No school activities scheduled.",
+    "details": "Martin Luther King Jr. Day observed.",
+    "type": "Activity",
+    "semester": 2,
+    "isFeatured": false,
+    "standards": [
+      "HS-PS2-1",
+      "HS-PS2-2"
+    ]
+  },
+  {
+    "date": "2026-01-20",
+    "day": 7,
+    "unit": 4,
+    "title": "Project Launch: Operation Safe Heeler",
+    "summary": "Today we launch our Unit 4 project: Operation Safe Heeler!",
+    "details": "Introduction to crash attenuation barriers. Students will design and build a safety system for a cart. Project Worksheet and Day 7 Link available on dashboard.",
+    "type": "Activity",
+    "dok": 3,
+    "links": {
+      "worksheet": "https://docs.google.com/document/d/1hn4Wwx4MjXH5IWOp-Md69w7-nHm6eNq7SO1o1MgSFYA/edit?usp=sharing",
+      "project website": "operation-safe-heeler.html",
+      "Day 7 Link": "https://docs.google.com/forms/d/e/1FAIpQLSe43Z06ocBI9LJXwOOFsx4zbF6SfLm73l5uQvU-l76Lpu8bEw/viewform?usp=publish-editor",
+      "crash barriers video": "https://www.youtube.com/watch?v=w6CKltZfToY&t=61s"
+    },
+    "semester": 2,
+    "isFeatured": false,
+    "essentialQuestion": "How can we engineer safety systems to reduce impulse during a crash?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-PS2-2"
+    ]
+  },
+  {
+    "date": "2026-01-21",
+    "day": 8,
+    "unit": 4,
+    "title": "Rocket Cart Lab: Impulse & Momentum",
+    "summary": "Interactive lab exploring impulse and momentum with rocket-powered carts.",
+    "details": "Students use the Rocket Cart Lab webapp to investigate the relationship between impulse and momentum.",
+    "type": "Lab",
+    "dok": 3,
+    "links": {
+      "webapp": "https://rrmudry.github.io/rocket-cart-lab/index.html",
+      "worksheet": "https://docs.google.com/document/d/1Wdb2nz8V71ER6nSFD-mLFTPlBpVAbEQP86q2BWbG1EQ/edit?usp=sharing"
+    },
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "What is the relationship between impulse and the change in an object's momentum?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-PS2-2"
+    ]
+  },
+  {
+    "date": "2026-01-22",
+    "day": 9,
+    "unit": 4,
+    "title": "Project Build: Operation Safe Heeler",
+    "summary": "Hands-on construction day for building crash attenuation barriers.",
+    "details": "Students apply their knowledge of impulse and momentum to engineer safety systems for the 'Operation Safe Heeler' project.",
+    "type": "Activity",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do material choices affect the time of impact and the resulting force?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-PS2-2"
+    ]
+  },
+  {
+    "date": "2026-01-23",
+    "day": 10,
+    "unit": 4,
+    "title": "Project Testing: Operation Safe Heeler (Crash Test Day)",
+    "summary": "Crash test day! Testing barriers and analyzing impulse results.",
+    "details": "Final testing day for the crash attenuation barriers. Results available on the project dashboard.",
+    "type": "Activity",
+    "dok": 3,
+    "links": {
+      "project results": "operation_safe_heeler_results.html"
+    },
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "Which design features are most effective at increasing impact time to protect a passenger?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-PS2-2"
+    ]
+  },
+  {
+    "date": "2026-01-26",
+    "day": 11,
+    "unit": 4,
+    "title": "FINAL ENGINEERING REPORT",
+    "summary": "Internal forces driving objects apart. Video analysis.",
+    "details": "Students analyze the physics of explosions and internal forces.",
+    "type": "Lab",
+    "dok": 3,
+    "links": {
+      "worksheet": "https://docs.google.com/document/d/15eeYq-2sPEcbqNAOQ0AN9TQ_3i-XIMWXb9Nx_q_w0ps/edit?usp=sharing"
+    },
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do internal forces drive objects apart in an explosion?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-PS2-2"
+    ]
+  },
+  {
+    "date": "2026-01-27",
+    "day": 12,
+    "unit": 4,
+    "title": "Conservation of Momentum Day 1 Explosions in 1D",
+    "summary": "Simulated explosions! Applying conservation laws to 1D system. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
+    "details": "In-class investigation of 1D explosions using the simulator. Links: <a href='https://rrmudry.github.io/physics-momentum-lab-report/index.html'>Lab Report Webapp</a> | <a href='https://rrmudry.github.io/conservation-of-momentum/index.html'>Simulation</a>",
+    "type": "Lab",
+    "dok": 3,
+    "links": {
+      "Lab Report Webapp": "https://rrmudry.github.io/physics-momentum-lab-report/index.html",
+      "Simulation": "https://rrmudry.github.io/conservation-of-momentum/index.html"
+    },
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How is momentum conserved in a closed system during an explosion?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-PS2-2"
+    ]
+  },
+  {
+    "date": "2026-01-28",
+    "day": 13,
+    "unit": 4,
+    "title": "PHYSICS LAB: 2D MOMENTUM",
+    "summary": "Analyzing conservation of momentum in two dimensions using vector addition. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
+    "details": "Students conduct a 2D explosion lab, recording masses and (vx, vy) components to verify conservation rules. Links: <a href='https://rrmudry.github.io/physics-2d-momentum-lab/index.html'>Lab Report Webapp</a> | <a href='https://rrmudry.github.io/conservation-of-momentum/index.html'>Simulation</a>",
+    "type": "Lab",
+    "dok": 3,
+    "links": {
+      "Lab Report Webapp": "https://rrmudry.github.io/physics-2d-momentum-lab/index.html",
+      "Simulation": "https://rrmudry.github.io/conservation-of-momentum/index.html"
+    },
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do we apply conservation of momentum using vector addition in two dimensions?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-PS2-2"
+    ]
+  },
+  {
+    "date": "2026-01-29",
+    "day": 14,
+    "unit": 4,
+    "title": "Collisions in 1D Lab (PhET Simulation)",
+    "summary": "Investigating elastic and inelastic collisions using PhET simulation. Partners allowed.",
+    "details": "Students used the PhET Collision Lab to collect data and verify conservation of momentum in 1D. Links provided for the simulation and lab worksheet.",
+    "type": "Lab",
+    "dok": 2,
+    "links": {
+      "PhET Simulation": "https://phet.colorado.edu/sims/html/collision-lab/latest/collision-lab_all.html",
+      "worksheet": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBqZra85A4SSK1ZmAvZcPY-ASLOQK3ArJx-cqWamoCeOBc?e=tHrura"
+    },
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "What are the differences between elastic and inelastic collisions in terms of momentum conservation?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-PS2-2"
+    ]
+  },
+  {
+    "date": "2026-01-30",
+    "day": 15,
+    "unit": 4,
+    "title": "Project Launch: Egg Drop Challenge",
+    "summary": "Instructions & constraints for the classic Egg Drop project.",
+    "details": "Introduction to the Egg Drop Challenge. Students will review the project guidelines, material constraints, and the physics of impulse reduction required to keep their egg safe.",
     "type": "Activity",
     "dok": 2,
     "semester": 2,
     "isFeatured": true,
-    "essentialQuestion": "How does the direction of particle motion distinguish transverse from longitudinal waves?",
-    "links": {
-      "Simulation: Wave Measurement": "wave_measurement_simulation.html"
-    },
-    "wicor": {
-      "inquiry": "Modeling particle motion with human 'stadium waves' vs. 'domino lines'.",
-      "collaboration": "Think-Pair-Share: Which wave type better models sound in air?",
-      "reading": "Venn Diagram comparing transverse and longitudinal properties."
-    },
+    "essentialQuestion": "How can we apply the impulse-momentum theorem to protect a fragile object from a fall?",
     "standards": [
-      "HS-PS4-1"
+      "HS-PS2-2",
+      "HS-PS2-3",
+      "HS-ETS1-2"
     ]
   },
   {
-    "date": "2026-03-23",
+    "date": "2026-02-02",
+    "day": 16,
+    "unit": 4,
+    "title": "Reading: Elastic vs. Inelastic Collisions",
+    "summary": "AVID annotations of reading material & Egg Drop project kickoff.",
+    "details": "Students annotated the text on Elastic and Inelastic Collisions. We also reviewed the instructions for the upcoming Egg Drop challenge.",
+    "type": "Activity",
+    "dok": 2,
+    "links": {
+      "worksheet": "https://docs.google.com/document/d/1SSEvaA1CjvFzp_syOhSzLdmLxeYmgo4XvjxS0VEK-6Q/edit?usp=sharing",
+      "Egg Drop Instructions": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQCK_YeyS2K9R6Rpf-S4iTzOAe736fEhXKILK4262BaDQbY?e=FbF2YO"
+    },
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How does the conservation of kinetic energy distinguish elastic from inelastic collisions?",
+    "standards": [
+      "HS-PS2-2",
+      "HS-PS2-3",
+      "HS-ETS1-2"
+    ]
+  },
+  {
+    "date": "2026-02-03",
+    "day": 17,
+    "unit": 4,
+    "title": "Practice: Elastic & Inelastic Collisions",
+    "summary": "Guided review of collision calculations followed by independent practice.",
+    "details": "We reviewed the PowerPoint slides on collision types and worked through example problems. Students then completed the practice worksheet.",
+    "type": "Practice",
+    "dok": 2,
+    "links": {
+      "worksheet": "https://docs.google.com/document/d/1oPYECLlG-p7O3gOdFiw0aGqtdZxQLd9OvZ5jA0VVzSA/edit?usp=sharing"
+    },
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do we mathematically predict the outcomes of various types of collisions?",
+    "standards": [
+      "HS-PS2-2",
+      "HS-PS2-3",
+      "HS-ETS1-2"
+    ]
+  },
+  {
+    "date": "2026-02-04",
+    "day": 18,
+    "unit": 4,
+    "title": "Impulse, Momentum, and Collisions Review",
+    "summary": "Students will work on an impulse, momentum, and collisions review.",
+    "details": "Review session covering key concepts of Unit 4 including impulse, momentum, and collision types.",
+    "type": "Practice",
+    "dok": 2,
+    "links": {
+      "worksheet": "https://docs.google.com/document/d/1NTlmnUfAbc-M5DIXjM16fddZQ4kT22gp/edit?usp=drive_link&ouid=111972921986195834260&rtpof=true&sd=true"
+    },
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do we demonstrate mastery of Unit 4 concepts through comprehensive review?",
+    "standards": [
+      "HS-PS2-2",
+      "HS-PS2-3",
+      "HS-ETS1-2"
+    ]
+  },
+  {
+    "date": "2026-02-05",
+    "day": 19,
+    "unit": 4,
+    "title": "Egg Drop: Building Day",
+    "summary": "Hands-on construction of egg drop protection containers.",
+    "details": "Students build their egg drop protection containers using approved materials, applying impulse reduction principles to protect the egg during impact.",
+    "type": "Activity",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do we apply engineering constraints to maximize safety in a collision?",
+    "standards": [
+      "HS-PS2-2",
+      "HS-PS2-3",
+      "HS-ETS1-2"
+    ]
+  },
+  {
+    "date": "2026-02-06",
+    "day": 20,
+    "unit": 4,
+    "title": "Egg Drop: Test Day",
+    "summary": "Drop day! Testing egg containers and analyzing impulse reduction effectiveness.",
+    "details": "Students drop their egg containers from designated height and analyze which designs were most effective at reducing impulse to protect the egg.",
+    "type": "Activity",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "Which design features are most effective at increasing impact time to protect a passenger?",
+    "standards": [
+      "HS-PS2-2",
+      "HS-PS2-3",
+      "HS-ETS1-2"
+    ]
+  },
+  {
+    "date": "2026-02-09",
     "day": 1,
-    "unit": 6,
-    "title": "Intro to Waves: Energy in Motion",
-    "summary": "AVID Critical Reading: Exploring the fundamental rule of waves—energy transports, matter stays.",
-    "details": "Students analyze a 5-paragraph text on mechanical and electromagnetic waves. The lesson focuses on the 5-part AVID annotation process, including gist statements and DOK 3 inquiry questions.",
+    "unit": 5,
+    "title": "Wrap up of previous week",
+    "summary": "Wrapping up Unit 4 concepts and finalizing outstanding work.",
+    "details": "Review and wrap up of concepts from the previous week to ensure a smooth transition into Thermodynamics.",
     "type": "Activity",
     "dok": 1,
     "semester": 2,
     "isFeatured": true,
-    "essentialQuestion": "How can energy travel across a distance without actually moving matter from one place to another?",
-    "links": {
-      "Reading: Intro to Waves": "https://docs.google.com/document/d/1UJdSuMXqWDw-NatiVyo9lG93a-24oYWkZH2dACjiFLQ/edit?usp=sharing",
-      "Strategy: 3-Word Gist Statements": "https://youtu.be/YQKIc5apEUM",
-      "Interactive: Waves & Energy Report": "Waves_Interactive_report.html"
-    },
-    "wicor": {
-      "writing": "3-Word Gist Statements: Summarizing each of the 5 text paragraphs using exactly three words.",
-      "inquiry": "Level 3 Question: Developing a complex inquiry about Mediums vs. Vacuums.",
-      "organization": "Marking-the-Text: Numbering paragraphs, circling key terms, and underlining the 'Fundamental Rule' in Para 1.",
-      "reading": "Comparative Analysis: Distinguishing between mechanical waves and EM radiation."
-    },
-    "standards": [
-      "HS-PS4-1"
-    ]
-  },
-  {
-    "date": "2026-03-20",
-    "day": 30,
-    "unit": 5,
-    "title": "Unit 5 Assessment",
-    "summary": "Summative assessment on Thermodynamics, Entropy, and Heat Engines.",
-    "details": "Students will demonstrate their understanding of the laws of thermodynamics, heat engines, and entropy in this unit assessment.",
-    "type": "Assessment",
-    "dok": 3,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How do we demonstrate mastery of thermodynamic laws and entropy concepts?",
+    "essentialQuestion": "How do we bridge the gap between momentum concepts and thermodynamic energy?",
     "standards": [
       "HS-PS3-1",
       "HS-PS3-2",
@@ -2980,20 +2876,20 @@ const lessonsData = [
     ]
   },
   {
-    "date": "2026-03-19",
-    "day": 29,
+    "date": "2026-02-10",
+    "day": 2,
     "unit": 5,
-    "title": "Heat Pump Dynamics",
-    "summary": "Exploring how heat pumps move energy against the gradient using the interactive model.",
-    "details": "Students analyze the thermodynamic cycle of a heat pump. Using the interactive model, they investigate how work is used to extract heat from a cold environment and release it into a warm one.",
+    "title": "Properties of Matter",
+    "summary": "Unit 5 Kickoff! Understanding matter and its thermal properties.",
+    "details": "Students will use AVID annotation strategies to read and analyze the 'Thermodynamics & Matter' reading, exploring the distinction between temperature (microscopic average KE) and heat (macroscopic energy transfer).",
     "type": "Activity",
-    "dok": 3,
+    "dok": 1,
     "semester": 2,
     "isFeatured": true,
     "links": {
-      "Heat Pump Interactive Model": "Heat_Pump_Model/index.html"
+      "reading": "https://docs.google.com/document/d/1B2MmWi6uCSIEM9hKdQufnxnwlf1sqyod420oX_KwyBg/edit?usp=sharing"
     },
-    "essentialQuestion": "How can we 'pump' heat against its natural flow from hot to cold?",
+    "essentialQuestion": "What is the distinction between temperature and heat?",
     "standards": [
       "HS-PS3-1",
       "HS-PS3-2",
@@ -3001,27 +2897,17 @@ const lessonsData = [
     ]
   },
   {
-    "date": "2026-03-18",
-    "day": 28,
+    "date": "2026-02-11",
+    "day": 3,
     "unit": 5,
-    "title": "AVID Focused Note Taking: Entropy & Heat Engines",
-    "summary": "Using AVID strategies to synthesize information on entropy and the efficiency of heat engines.",
-    "details": "Focused Reading and Note Taking: Students use marking-the-text strategies to analyze the 'Entropy and the Cost of Power' reading and connect it to heat engine efficiency.",
+    "title": "Thermal Equilibrium",
+    "summary": "When hot meets cold: The inevitable balance.",
+    "details": "Conceptual understanding of heat flow. Heat moves from high T to low T until T_final is reached.",
     "type": "Activity",
-    "dok": 2,
+    "dok": 1,
     "semester": 2,
     "isFeatured": true,
-    "links": {
-      "Reading: Entropy and the Cost of Power": "https://docs.google.com/document/d/18SCo219sB0k27d_VGOXa20wFp4iQk0fOInLbwq_5AHI/edit?usp=sharing",
-      "Interactive: Entropy & The Cost of Power": "Entropy_Cost_of_power.html",
-      "Presentation: Heat Engines": "https://docs.google.com/presentation/d/1H1-IDxkyQ0MPDQ3y6Y9ebC_dmjzDTJwj9SjFLwdkmqU/edit?usp=sharing",
-      "Printed Instructions": "https://docs.google.com/document/d/1UXZ83sRCXzGNUq2MnIk-QF7sgIUhuqS9M9M57cFeDNE/edit?usp=sharing"
-    },
-    "wicor": {
-      "reading": "Marking the Text & Focused Annotation.",
-      "writing": "Focused Note Taking: Identifying Main Ideas & Supporting Details."
-    },
-    "essentialQuestion": "How can we use focused note-taking to analyze the relationship between entropy and engine efficiency?",
+    "essentialQuestion": "Why does heat always flow from higher temperature to lower temperature?",
     "standards": [
       "HS-PS3-1",
       "HS-PS3-2",
@@ -3029,22 +2915,17 @@ const lessonsData = [
     ]
   },
   {
-    "date": "2026-03-17",
-    "day": 27,
+    "date": "2026-02-12",
+    "day": 4,
     "unit": 5,
-    "title": "Project: Entropy and Zombies",
-    "summary": "Applying entropy concepts to a survival scenario in the 'Entropy and Zombies' project.",
-    "details": "Students work in groups to solve thermodynamics-based survival challenges, applying the Second Law to predict the inevitable decay of systems and resource management.",
+    "title": "Systems vs. Surroundings",
+    "summary": "Defining the boundary of our study.",
+    "details": "Vocabulary drill: Open vs. Closed vs. Isolated systems. Identifying the system in various scenarios.",
     "type": "Activity",
-    "dok": 3,
+    "dok": 1,
     "semester": 2,
     "isFeatured": true,
-    "links": {
-      "Entropy and Zombies Project Doc": "https://docs.google.com/document/d/1P6zTrHvILhcegkh_KdeMliKIxFxIRzz-Wh3mwSht6Yg/edit?usp=sharing",
-      "Entropy and Zombies Examples": "https://drive.google.com/file/d/1zU6kPKk03noFmwDFEidzMLBkTBjnposw/view?usp=sharing",
-      "Thermodynamics: Entropy & Heat Engines": "https://docs.google.com/document/d/18SCo219sB0k27d_VGOXa20wFp4iQk0fOInLbwq_5AHI/edit?usp=sharing"
-    },
-    "essentialQuestion": "How does the Second Law of Thermodynamics predict the inevitable decay of all systems?",
+    "essentialQuestion": "How do we define the boundaries of a thermodynamic system?",
     "standards": [
       "HS-PS3-1",
       "HS-PS3-2",
@@ -3052,203 +2933,58 @@ const lessonsData = [
     ]
   },
   {
-    "date": "2026-03-16",
-    "day": 26,
+    "date": "2026-02-13",
+    "day": 5,
     "unit": 5,
-    "title": "Introduction to Entropy & Entropy Lab",
-    "summary": "Introducing the Second Law of Thermodynamics and the concept of disorder using the Entropy Lab.",
-    "details": "Defining entropy as a measure of disorder and microstates. Students use the Entropy Lab to observe particle diffusion (Microscopic) and structural decay (Macroscopic).",
+    "title": "Presidents' Day (Observed) - No School",
+    "summary": "Holiday observed.",
+    "details": "No school.",
+    "type": "Activity",
+    "dok": 0,
+    "semester": 2,
+    "isFeatured": false,
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
+  },
+  {
+    "date": "2026-02-16",
+    "day": 6,
+    "unit": 5,
+    "title": "Presidents' Day - No School",
+    "summary": "Holiday observed. No school activities scheduled.",
+    "details": "Martin Luther King Jr. Day observed.",
+    "type": "Activity",
+    "dok": 0,
+    "semester": 2,
+    "isFeatured": false,
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
+  },
+  {
+    "date": "2026-02-17",
+    "day": 7,
+    "unit": 5,
+    "title": "Food Coloring Lab + Temp Scales",
+    "summary": "Inquiry: Predicting motion based on previous reading. Organization: Conversion Practice Worksheet.",
+    "details": "Predicting motion based on previous reading. Practicing temperature scale conversions.",
     "type": "Lab",
     "dok": 2,
     "semester": 2,
     "isFeatured": true,
-    "links": {
-      "Entropy Lab: Micro & Macro": "Entropy_Simulation/index.html",
-      "Entropy and Zombies Examples": "https://drive.google.com/file/d/1zU6kPKk03noFmwDFEidzMLBkTBjnposw/view?usp=sharing"
-    },
-    "essentialQuestion": "What is the relationship between microscopic disorder and macroscopic decay?",
-    "standards": [
-      "HS-PS3-1",
-      "HS-PS3-2",
-      "HS-PS3-4"
-    ]
-  },
-  {
-    "date": "2026-03-13",
-    "day": 25,
-    "unit": 5,
-    "title": "First Law Assessment",
-    "summary": "Assessment covering the First Law of Thermodynamics.",
-    "details": "Students will complete the interactive First Law Assessment to test their understanding of internal energy, heat, and work.",
-    "type": "Assessment",
-    "dok": 3,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How do we demonstrate mastery of the First Law of Thermodynamics?",
-    "standards": [
-      "HS-PS3-1",
-      "HS-PS3-2",
-      "HS-PS3-4"
-    ]
-  },
-  {
-    "date": "2026-03-12",
-    "day": 24,
-    "unit": 5,
-    "title": "Review: Thermodynamics U, Q, W",
-    "summary": "Reviewing the Thermodynamics U Q W worksheet and preparing for the quiz.",
-    "details": "In-class review of the Thermodynamics U Q W worksheet answers to clarify concepts on internal energy, heat, and work before the upcoming assessment.",
-    "type": "Activity",
-    "dok": 2,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How do we clarify the relationships between U, Q, and W before assessment?",
-    "standards": [
-      "HS-PS3-1",
-      "HS-PS3-2",
-      "HS-PS3-4"
-    ]
-  },
-  {
-    "date": "2026-03-11",
-    "day": 23,
-    "unit": 5,
-    "title": "Heat Engine Report",
-    "summary": "Researching and reporting on 5 different heat engines.",
-    "details": "Students will find information about the 5 listed heat engines and fill in the requested information for each.",
-    "type": "Activity",
-    "dok": 2,
-    "semester": 2,
-    "isFeatured": true,
-    "links": {
-      "Heat Engine Report Slides": "https://docs.google.com/presentation/d/1n7nqFHerCyZs3wRiW2Aj633TNEDT_MCpJwWWih13XRs/edit?usp=sharing"
-    },
-    "essentialQuestion": "How do heat engines convert thermal energy into useful mechanical work?",
-    "standards": [
-      "HS-PS3-1",
-      "HS-PS3-2",
-      "HS-PS3-4"
-    ]
-  },
-  {
-    "date": "2026-03-10",
-    "day": 22,
-    "unit": 5,
-    "title": "The First Law of Thermodynamics",
-    "summary": "Energy conservation in thermodynamic systems (ΔU = Q + W).",
-    "details": "Defining Heat (Q) and Work (W) sign conventions. Understanding how adding heat or doing work changes a system's internal energy.",
-    "type": "Activity",
-    "dok": 2,
-    "semester": 2,
-    "isFeatured": true,
-    "links": {
-      "Presentation: First Law of Thermodynamics": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDZATPiyvvPR4J3orI6Kv85AY7a8qbPR-NCTCusDW9_dXQ?e=blosae",
-      "Worksheet: The First Law": "https://orangeusdorg-my.sharepoint.com/:b:/g/personal/rmudry_orangeusd_org/IQDDLo9r5BE4RYLXfENSHuFgATTddX3SJRYqYsTJsdXkIQI?e=LVtN99",
-      "Interactive Model: The Cylinder & Piston": "First_Law_Sim/index.html"
-    },
-    "essentialQuestion": "How does the First Law of Thermodynamics relate changes in internal energy to heat and work?",
-    "standards": [
-      "HS-PS3-1",
-      "HS-PS3-2",
-      "HS-PS3-4"
-    ]
-  },
-  {
-    "date": "2026-03-09",
-    "day": 21,
-    "unit": 5,
-    "title": "Temperature vs. Internal Energy",
-    "summary": "Understanding the difference between average kinetic energy and total system energy.",
-    "details": "Comparing hot coffee to an iceberg, and analyzing the 'Oven vs. Sparkler' phenomenon. Introduction to how molecular mass affects speed at the same temperature.",
-    "type": "Activity",
-    "dok": 2,
-    "semester": 2,
-    "isFeatured": true,
-    "links": {
-      "Presentation: Temp vs. Internal Energy": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDZATPiyvvPR4J3orI6Kv85AY7a8qbPR-NCTCusDW9_dXQ?e=MzCXqr",
-      "Heat Engine Research": "https://docs.google.com/presentation/d/1n7nqFHerCyZs3wRiW2Aj633TNEDT_MCpJwWWih13XRs/edit?usp=sharing",
-      "Thermodynamics: First Law Reading (English)": "https://docs.google.com/document/d/1fezNGOy_SmsX2H3Iaf4L75OUl0XI_pqBlIbHZXIKjYY/edit?usp=sharing",
-      "Thermodynamics: First Law Reading (Spanish)": "https://docs.google.com/document/d/10VUp5VlLS08d7J85TxhYlACc3BvctmfZIrUWwqKoMlk/edit?usp=sharing"
-    },
-    "essentialQuestion": "What is the difference between average kinetic energy and the total energy of a system?",
-    "standards": [
-      "HS-PS3-1",
-      "HS-PS3-2",
-      "HS-PS3-4"
-    ]
-  },
-  {
-    "date": "2026-03-06",
-    "day": 20,
-    "unit": 5,
-    "title": "Radiation Week Wrap-Up & Turn In",
-    "summary": "Finalizing Radiation Lab analysis and turning in the week's work.",
-    "details": "Organization: Finishing CER arguments and data matrices from Radiation Week. Students submitted their complete lab reports and worksheets for credit. This includes wrapping up the study of radiative heat transfer using the interactive Virtual Radiation Lab simulation.",
-    "type": "Activity",
-    "dok": 3,
-    "semester": 2,
-    "isFeatured": true,
-    "links": {
-      "Turn In: Radiation Week Work": "https://docs.google.com/document/d/1EJcKSlydN5ovtlp496SewBpOR_eqeMN2bZCXyISU1gU/edit?usp=sharing",
-      "Virtual Radiation Lab": "Radiation_Lab/index.html"
-    },
-    "essentialQuestion": "How do we finalize our analysis of radiative heat transfer?",
-    "standards": [
-      "HS-PS3-1",
-      "HS-PS3-2",
-      "HS-PS3-4"
-    ]
-  },
-  {
-    "date": "2026-03-05",
-    "day": 19,
-    "unit": 5,
-    "title": "Synthesis: The Physics of Radiation",
-    "summary": "Connecting Reading, Demo, and Lab data to build a CER argument. <span class='inline-flex items-center gap-1 bg-blue-950/40 text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded border border-blue-500/30 ml-2 animate-pulse'>★ VISITOR DAY</span>",
-    "details": "Writing & Organization: Students synthesize their observations from the week into a cohesive scientific argument. Visitors will observe AVID strategies in action.",
-    "type": "Activity",
-    "dok": 3,
-    "semester": 2,
-    "isFeatured": true,
-    "links": {
-      "CER: The Physics of Radiation": "https://docs.google.com/document/d/17auQmJ0RMZ8FiMe9m6arPO1T7Mh-AwGfP39jidER6NY/edit?usp=sharing",
-      "Radiation Lab Worksheet": "https://docs.google.com/document/d/1GhgcEpqwD06hJCLF0XsDtxKn1F2LjeIhoBKjFEs2G1M/edit?usp=sharing",
-      "Synthesis Discussion Slides": "https://docs.google.com/presentation/d/1b0NVmEJQjWIlre7w85iYGDkQF8Cx-0GJrplIvzE1FmI/edit?usp=sharing",
-      "AI Career Outlook": "ai-impact/index.html"
-    },
     "wicor": {
-      "writing": "CER Statement: How does distance and albedo affect thermal energy transfer?",
-      "organization": "Data Matrix connecting previous 3 days of evidence.",
-      "collaboration": "Peer review of arguments."
+      "inquiry": "Predicting motion based on previous reading.",
+      "organization": "Conversion Practice Worksheet."
     },
-    "essentialQuestion": "How do we build a scientific argument for heat transfer using evidence and reasoning?",
-    "standards": [
-      "HS-PS3-1",
-      "HS-PS3-2",
-      "HS-PS3-4"
-    ]
-  },
-  {
-    "date": "2026-03-04",
-    "day": 18,
-    "unit": 5,
-    "title": "Virtual Lab: Radiation & Albedo",
-    "summary": "Using a digital simulation to test variables that affect radiative heat transfer.",
-    "details": "Inquiry & Collaboration: Groups use the Virtual Lab webapp to test how different materials and distances affect heat absorption.",
-    "type": "Lab",
-    "dok": 3,
-    "semester": 2,
-    "isFeatured": true,
     "links": {
-      "Virtual Lab Worksheet": "https://docs.google.com/document/d/1GhgcEpqwD06hJCLF0XsDtxKn1F2LjeIhoBKjFEs2G1M/edit?usp=sharing",
-      "Virtual Radiation Lab": "Radiation_Lab/index.html",
-      "Albedo Simulation": "Radiation_Lab/albedo_sim.html"
+      "Class Presentation": "https://docs.google.com/presentation/d/1hIh64bCJDzl2VfIUFaMOoDsfsF9F7vvSPdYArvxsAFk/edit?usp=sharing"
     },
-    "wicor": {
-      "inquiry": "Testing variables (Distance vs. Absorption).",
-      "collaboration": "Group data analysis."
-    },
-    "essentialQuestion": "What variables most significantly impact the rate of heat absorption by radiation?",
+    "essentialQuestion": "How does temperature affect the rate of molecular motion?",
     "standards": [
       "HS-PS3-1",
       "HS-PS3-2",
@@ -3256,187 +2992,25 @@ const lessonsData = [
     ]
   },
   {
-    "date": "2026-03-03",
-    "day": 17,
+    "date": "2026-02-18",
+    "day": 8,
     "unit": 5,
-    "title": "Demonstration: Albedo & Inverse Square Law",
-    "summary": "Predicting and tracking temperature changes in black vs. white surfaces. Discussing Albedo and the Inverse Square Law.",
-    "details": "Inquiry & Organization: Predict/Observe/Explain cycle. Live data collection comparing a black can and a white can under a heat source to observe differential absorption and how distance affects intensity via the Inverse Square Law.",
+    "title": "Annotated Reading: 3 Modes of Heat Transfer",
+    "summary": "Reading: Focused Annotation & Marking the Text. Writing: Summarizing the 'Micro-View' of each mode.",
+    "details": "Focused annotation of text on conduction, convection, and radiation. Writing summaries of microscopic energy transfer.",
     "type": "Activity",
     "dok": 2,
     "semester": 2,
     "isFeatured": true,
-    "links": {
-      "Live Demo Tracker": "Radiation_Lab/demo_tracker.html",
-      "Albedo Simulation": "Radiation_Lab/albedo_sim.html",
-      "Interactive: Inverse Square Law": "Inverse_Square_Law/index.html",
-      "Inverse Square Law Notes": "https://docs.google.com/document/d/1HYCiVSm_oczVIswpvDMwy9FBXZT0Aw4KEypgDabVfs0/edit?usp=sharing",
-      "Video: Albedo explained": "https://www.youtube.com/watch?v=8SG5hxx2RH4"
-    },
-    "wicor": {
-      "inquiry": "Predicting heating rates based on surface color and distance.",
-      "organization": "Data table & Graphing of live temperatures."
-    },
-    "essentialQuestion": "How do surface color and distance affect the intensity of radiative heating?",
-    "standards": [
-      "HS-PS3-1",
-      "HS-PS3-2",
-      "HS-PS3-4"
-    ]
-  },
-  {
-    "date": "2026-03-02",
-    "day": 16,
-    "unit": 5,
-    "title": "Reading: Heat Transfer by Radiation",
-    "summary": "Focused annotation of text on electromagnetic waves and thermal energy.",
-    "details": "Reading & Writing: Students use marking-the-text strategies to identify key concepts in radiative heat transfer.",
-    "type": "Activity",
-    "dok": 2,
-    "semester": 2,
-    "isFeatured": true,
-    "links": {
-      "Radiation Reading (English)": "https://docs.google.com/document/d/16y1kJZq4Rafpjyqr0EvsMSPGIB4eLmo9IiJBKGKgWXY/edit?usp=sharing",
-      "Radiation Reading (Spanish)": "https://docs.google.com/document/d/1q-3hxNYXSkdU6HIvrrGyLSqfclUkX4alEuqBnIXoQFg/edit?usp=sharing",
-      "Web App Reading Version": "Radiation_Lab/reading.html"
-    },
     "wicor": {
       "reading": "Focused Annotation & Marking the Text.",
-      "writing": "Quick-summary of the Stefan-Boltzmann relationship."
-    },
-    "essentialQuestion": "How is thermal energy transferred through electromagnetic waves?",
-    "standards": [
-      "HS-PS3-1",
-      "HS-PS3-2",
-      "HS-PS3-4"
-    ]
-  },
-  {
-    "date": "2026-02-27",
-    "day": 15,
-    "unit": 5,
-    "title": "Work Catchup & Turn In Day",
-    "summary": "Time to finalize boat designs, finish lab reports, and submit all pending Unit 5 assignments.",
-    "details": "Students will have the full period to complete their Penny Boat Lab analysis, finalize any missing work from the previous two weeks, and ensure all digital assignments are turned in.",
-    "type": "Activity",
-    "dok": 1,
-    "semester": 2,
-    "isFeatured": true,
-    "wicor": {
-      "writing": "Quick-Write (The Beach Analogy).",
-      "organization": "Formula breakdown and variable mapping."
-    },
-    "essentialQuestion": "How do we summarize our understanding of buoyancy and heat transfer?",
-    "standards": [
-      "HS-PS3-1",
-      "HS-PS3-2",
-      "HS-PS3-4"
-    ]
-  },
-  {
-    "date": "2026-02-26",
-    "day": 14,
-    "unit": 5,
-    "title": "Lab: Penny Boat Activity",
-    "summary": "Testing boat designs and maximizing carrying capacity.",
-    "details": "Students iterate on their designs and compete to see which boat can hold the most pennies before sinking.",
-    "type": "Lab",
-    "dok": 3,
-    "semester": 2,
-    "isFeatured": true,
-    "links": {
-      "Penny Boat Lab Simulation": "penny-boat-lab/index.html",
-      "Lab Worksheet": "https://docs.google.com/document/d/1VQUuUUDHWyi3-RyGK4vMBHEynfavdPs9/edit?usp=sharing&ouid=111972921986195834260&rtpof=true&sd=true"
-    },
-    "essentialQuestion": "How can we maximize buoyant force through boat design?",
-    "standards": [
-      "HS-PS3-1",
-      "HS-PS3-2",
-      "HS-PS3-4"
-    ]
-  },
-  {
-    "date": "2026-02-25",
-    "day": 13,
-    "unit": 5,
-    "title": "Connections: Reading and Lab",
-    "summary": "Making connections between the reading and the lab.",
-    "details": "Students will collaborate with their group to make connections between the reading materials and the recent lab using a shared document.",
-    "type": "Activity",
-    "dok": 3,
-    "semester": 2,
-    "isFeatured": true,
-    "wicor": {
-      "collaboration": "Students will collaborate with their group.",
-      "reading": "Making connections to the reading materials.",
-      "writing": "Documenting connections in the shared document."
+      "writing": "Summarizing the 'Micro-View' of each mode."
     },
     "links": {
-      "Collaborative Document": "https://docs.google.com/document/d/1dCXH40YVvT2zvgQBGSn-YRu4R8j7p8ardLDmhJd7KPU/edit?usp=sharing"
+      "3 Modes of Heat Transfer Reading": "https://docs.google.com/document/d/1l2lmOQW4ekqVNpc30GCE69UrxQnn1oShPBXC_snQ7rk/edit?usp=sharing",
+      "Class Presentation": "https://docs.google.com/presentation/d/12PEKCsPVp568VA8rfx8KKHJlrR2sRCQR3ffCJ4YhWjA/edit?usp=sharing"
     },
-    "essentialQuestion": "How do we synthesize lab observations with core thermodynamic principles?",
-    "standards": [
-      "HS-PS3-1",
-      "HS-PS3-2",
-      "HS-PS3-4"
-    ]
-  },
-  {
-    "date": "2026-02-24",
-    "day": 12,
-    "unit": 5,
-    "title": "Buoyancy and Buoyant Force",
-    "summary": "Archimedes' Principle: Why things float (or sink).",
-    "details": "Study of buoyant force and how it relates to displaced fluid volume. Introduction to Archimedes' Principle.",
-    "type": "Activity",
-    "dok": 2,
-    "semester": 2,
-    "isFeatured": true,
-    "links": {
-      "Reading": "https://docs.google.com/document/d/1e1Cwzw_ZKKNy2roVR3oCfLnWNxiGaqZaq77qNkj7fpg/edit?usp=sharing",
-      "Worksheet": "https://docs.google.com/document/d/1IdLCxbYPBPB3RsRsxvp4UjFD1nPYD-4RXy-5t6UIXCI/edit?usp=sharing",
-      "Buoyancy Basics Simulation": "https://rrmudry.github.io/Buoyancy_Basics/buoyancy-basics_en.html"
-    },
-    "essentialQuestion": "How does Archimedes' Principle explain why objects float in a fluid?",
-    "standards": [
-      "HS-PS3-1",
-      "HS-PS3-2",
-      "HS-PS3-4"
-    ]
-  },
-  {
-    "date": "2026-02-23",
-    "day": 11,
-    "unit": 5,
-    "title": "Thermal Expansion & Convection",
-    "summary": "Why bridges have gaps and how heat fluids move.",
-    "details": "Investigating linear and volumetric expansion and the movement of energy through fluid currents (convection).",
-    "type": "Activity",
-    "dok": 2,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How does thermal energy affect the volume and density of fluids and solids?",
-    "standards": [
-      "HS-PS3-1",
-      "HS-PS3-2",
-      "HS-PS3-4"
-    ]
-  },
-  {
-    "date": "2026-02-20",
-    "day": 10,
-    "unit": 5,
-    "title": "Temperature Scales Practice",
-    "summary": "Finishing the Food Coloring Lab Worksheet. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
-    "details": "Students will complete the Lab Worksheet from Day 7.",
-    "type": "Activity",
-    "dok": 2,
-    "semester": 2,
-    "isFeatured": true,
-    "links": {
-      "Lab Worksheet": "https://docs.google.com/document/d/1onqDNCSUDJi4u-oreNEpD4egYqTfwLuH8jObR6BUdwU/edit?usp=sharing"
-    },
-    "essentialQuestion": "How do we convert between Celsius, Fahrenheit, and Kelvin scales?",
+    "essentialQuestion": "What are the microscopic mechanisms for conduction, convection, and radiation?",
     "standards": [
       "HS-PS3-1",
       "HS-PS3-2",
@@ -3473,25 +3047,158 @@ const lessonsData = [
     ]
   },
   {
-    "date": "2026-02-18",
-    "day": 8,
+    "date": "2026-02-20",
+    "day": 10,
     "unit": 5,
-    "title": "Annotated Reading: 3 Modes of Heat Transfer",
-    "summary": "Reading: Focused Annotation & Marking the Text. Writing: Summarizing the 'Micro-View' of each mode.",
-    "details": "Focused annotation of text on conduction, convection, and radiation. Writing summaries of microscopic energy transfer.",
+    "title": "Temperature Scales Practice",
+    "summary": "Finishing the Food Coloring Lab Worksheet. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
+    "details": "Students will complete the Lab Worksheet from Day 7.",
     "type": "Activity",
     "dok": 2,
     "semester": 2,
     "isFeatured": true,
+    "links": {
+      "Lab Worksheet": "https://docs.google.com/document/d/1onqDNCSUDJi4u-oreNEpD4egYqTfwLuH8jObR6BUdwU/edit?usp=sharing"
+    },
+    "essentialQuestion": "How do we convert between Celsius, Fahrenheit, and Kelvin scales?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
+  },
+  {
+    "date": "2026-02-23",
+    "day": 11,
+    "unit": 5,
+    "title": "Thermal Expansion & Convection",
+    "summary": "Why bridges have gaps and how heat fluids move.",
+    "details": "Investigating linear and volumetric expansion and the movement of energy through fluid currents (convection).",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How does thermal energy affect the volume and density of fluids and solids?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
+  },
+  {
+    "date": "2026-02-24",
+    "day": 12,
+    "unit": 5,
+    "title": "Buoyancy and Buoyant Force",
+    "summary": "Archimedes' Principle: Why things float (or sink).",
+    "details": "Study of buoyant force and how it relates to displaced fluid volume. Introduction to Archimedes' Principle.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "links": {
+      "Reading": "https://docs.google.com/document/d/1e1Cwzw_ZKKNy2roVR3oCfLnWNxiGaqZaq77qNkj7fpg/edit?usp=sharing",
+      "Worksheet": "https://docs.google.com/document/d/1IdLCxbYPBPB3RsRsxvp4UjFD1nPYD-4RXy-5t6UIXCI/edit?usp=sharing",
+      "Buoyancy Basics Simulation": "https://rrmudry.github.io/Buoyancy_Basics/buoyancy-basics_en.html"
+    },
+    "essentialQuestion": "How does Archimedes' Principle explain why objects float in a fluid?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
+  },
+  {
+    "date": "2026-02-25",
+    "day": 13,
+    "unit": 5,
+    "title": "Connections: Reading and Lab",
+    "summary": "Making connections between the reading and the lab.",
+    "details": "Students will collaborate with their group to make connections between the reading materials and the recent lab using a shared document.",
+    "type": "Activity",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "wicor": {
+      "collaboration": "Students will collaborate with their group.",
+      "reading": "Making connections to the reading materials.",
+      "writing": "Documenting connections in the shared document."
+    },
+    "links": {
+      "Collaborative Document": "https://docs.google.com/document/d/1dCXH40YVvT2zvgQBGSn-YRu4R8j7p8ardLDmhJd7KPU/edit?usp=sharing"
+    },
+    "essentialQuestion": "How do we synthesize lab observations with core thermodynamic principles?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
+  },
+  {
+    "date": "2026-02-26",
+    "day": 14,
+    "unit": 5,
+    "title": "Lab: Penny Boat Activity",
+    "summary": "Testing boat designs and maximizing carrying capacity.",
+    "details": "Students iterate on their designs and compete to see which boat can hold the most pennies before sinking.",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "links": {
+      "Penny Boat Lab Simulation": "penny-boat-lab/index.html",
+      "Lab Worksheet": "https://docs.google.com/document/d/1VQUuUUDHWyi3-RyGK4vMBHEynfavdPs9/edit?usp=sharing&ouid=111972921986195834260&rtpof=true&sd=true"
+    },
+    "essentialQuestion": "How can we maximize buoyant force through boat design?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
+  },
+  {
+    "date": "2026-02-27",
+    "day": 15,
+    "unit": 5,
+    "title": "Work Catchup & Turn In Day",
+    "summary": "Time to finalize boat designs, finish lab reports, and submit all pending Unit 5 assignments.",
+    "details": "Students will have the full period to complete their Penny Boat Lab analysis, finalize any missing work from the previous two weeks, and ensure all digital assignments are turned in.",
+    "type": "Activity",
+    "dok": 1,
+    "semester": 2,
+    "isFeatured": true,
+    "wicor": {
+      "writing": "Quick-Write (The Beach Analogy).",
+      "organization": "Formula breakdown and variable mapping."
+    },
+    "essentialQuestion": "How do we summarize our understanding of buoyancy and heat transfer?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
+  },
+  {
+    "date": "2026-03-02",
+    "day": 16,
+    "unit": 5,
+    "title": "Reading: Heat Transfer by Radiation",
+    "summary": "Focused annotation of text on electromagnetic waves and thermal energy.",
+    "details": "Reading & Writing: Students use marking-the-text strategies to identify key concepts in radiative heat transfer.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "links": {
+      "Radiation Reading (English)": "https://docs.google.com/document/d/16y1kJZq4Rafpjyqr0EvsMSPGIB4eLmo9IiJBKGKgWXY/edit?usp=sharing",
+      "Radiation Reading (Spanish)": "https://docs.google.com/document/d/1q-3hxNYXSkdU6HIvrrGyLSqfclUkX4alEuqBnIXoQFg/edit?usp=sharing",
+      "Web App Reading Version": "Radiation_Lab/reading.html"
+    },
     "wicor": {
       "reading": "Focused Annotation & Marking the Text.",
-      "writing": "Summarizing the 'Micro-View' of each mode."
+      "writing": "Quick-summary of the Stefan-Boltzmann relationship."
     },
-    "links": {
-      "3 Modes of Heat Transfer Reading": "https://docs.google.com/document/d/1l2lmOQW4ekqVNpc30GCE69UrxQnn1oShPBXC_snQ7rk/edit?usp=sharing",
-      "Class Presentation": "https://docs.google.com/presentation/d/12PEKCsPVp568VA8rfx8KKHJlrR2sRCQR3ffCJ4YhWjA/edit?usp=sharing"
-    },
-    "essentialQuestion": "What are the microscopic mechanisms for conduction, convection, and radiation?",
+    "essentialQuestion": "How is thermal energy transferred through electromagnetic waves?",
     "standards": [
       "HS-PS3-1",
       "HS-PS3-2",
@@ -3499,684 +3206,1268 @@ const lessonsData = [
     ]
   },
   {
-    "date": "2026-02-17",
-    "day": 7,
-    "unit": 5,
-    "title": "Food Coloring Lab + Temp Scales",
-    "summary": "Inquiry: Predicting motion based on previous reading. Organization: Conversion Practice Worksheet.",
-    "details": "Predicting motion based on previous reading. Practicing temperature scale conversions.",
-    "type": "Lab",
-    "dok": 2,
-    "semester": 2,
-    "isFeatured": true,
-    "wicor": {
-      "inquiry": "Predicting motion based on previous reading.",
-      "organization": "Conversion Practice Worksheet."
-    },
-    "links": {
-      "Class Presentation": "https://docs.google.com/presentation/d/1hIh64bCJDzl2VfIUFaMOoDsfsF9F7vvSPdYArvxsAFk/edit?usp=sharing"
-    },
-    "essentialQuestion": "How does temperature affect the rate of molecular motion?",
-    "standards": [
-      "HS-PS3-1",
-      "HS-PS3-2",
-      "HS-PS3-4"
-    ]
-  },
-  {
-    "date": "2026-02-16",
-    "day": 6,
-    "unit": 5,
-    "title": "Presidents' Day - No School",
-    "summary": "Holiday observed. No school activities scheduled.",
-    "details": "Martin Luther King Jr. Day observed.",
-    "type": "Activity",
-    "dok": 0,
-    "semester": 2,
-    "isFeatured": false,
-    "standards": [
-      "HS-PS3-1",
-      "HS-PS3-2",
-      "HS-PS3-4"
-    ]
-  },
-  {
-    "date": "2026-02-13",
-    "day": 5,
-    "unit": 5,
-    "title": "Presidents' Day (Observed) - No School",
-    "summary": "Holiday observed.",
-    "details": "No school.",
-    "type": "Activity",
-    "dok": 0,
-    "semester": 2,
-    "isFeatured": false,
-    "standards": [
-      "HS-PS3-1",
-      "HS-PS3-2",
-      "HS-PS3-4"
-    ]
-  },
-  {
-    "date": "2026-02-12",
-    "day": 4,
-    "unit": 5,
-    "title": "Systems vs. Surroundings",
-    "summary": "Defining the boundary of our study.",
-    "details": "Vocabulary drill: Open vs. Closed vs. Isolated systems. Identifying the system in various scenarios.",
-    "type": "Activity",
-    "dok": 1,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How do we define the boundaries of a thermodynamic system?",
-    "standards": [
-      "HS-PS3-1",
-      "HS-PS3-2",
-      "HS-PS3-4"
-    ]
-  },
-  {
-    "date": "2026-02-11",
-    "day": 3,
-    "unit": 5,
-    "title": "Thermal Equilibrium",
-    "summary": "When hot meets cold: The inevitable balance.",
-    "details": "Conceptual understanding of heat flow. Heat moves from high T to low T until T_final is reached.",
-    "type": "Activity",
-    "dok": 1,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "Why does heat always flow from higher temperature to lower temperature?",
-    "standards": [
-      "HS-PS3-1",
-      "HS-PS3-2",
-      "HS-PS3-4"
-    ]
-  },
-  {
-    "date": "2026-02-10",
-    "day": 2,
-    "unit": 5,
-    "title": "Properties of Matter",
-    "summary": "Unit 5 Kickoff! Understanding matter and its thermal properties.",
-    "details": "Students will use AVID annotation strategies to read and analyze the 'Thermodynamics & Matter' reading, exploring the distinction between temperature (microscopic average KE) and heat (macroscopic energy transfer).",
-    "type": "Activity",
-    "dok": 1,
-    "semester": 2,
-    "isFeatured": true,
-    "links": {
-      "reading": "https://docs.google.com/document/d/1B2MmWi6uCSIEM9hKdQufnxnwlf1sqyod420oX_KwyBg/edit?usp=sharing"
-    },
-    "essentialQuestion": "What is the distinction between temperature and heat?",
-    "standards": [
-      "HS-PS3-1",
-      "HS-PS3-2",
-      "HS-PS3-4"
-    ]
-  },
-  {
-    "date": "2026-02-09",
-    "day": 1,
-    "unit": 5,
-    "title": "Wrap up of previous week",
-    "summary": "Wrapping up Unit 4 concepts and finalizing outstanding work.",
-    "details": "Review and wrap up of concepts from the previous week to ensure a smooth transition into Thermodynamics.",
-    "type": "Activity",
-    "dok": 1,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How do we bridge the gap between momentum concepts and thermodynamic energy?",
-    "standards": [
-      "HS-PS3-1",
-      "HS-PS3-2",
-      "HS-PS3-4"
-    ]
-  },
-  {
-    "date": "2026-02-06",
-    "day": 20,
-    "unit": 4,
-    "title": "Egg Drop: Test Day",
-    "summary": "Drop day! Testing egg containers and analyzing impulse reduction effectiveness.",
-    "details": "Students drop their egg containers from designated height and analyze which designs were most effective at reducing impulse to protect the egg.",
-    "type": "Activity",
-    "dok": 3,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "Which design features are most effective at increasing impact time to protect a passenger?",
-    "standards": [
-      "HS-PS2-2",
-      "HS-PS2-3",
-      "HS-ETS1-2"
-    ]
-  },
-  {
-    "date": "2026-02-05",
-    "day": 19,
-    "unit": 4,
-    "title": "Egg Drop: Building Day",
-    "summary": "Hands-on construction of egg drop protection containers.",
-    "details": "Students build their egg drop protection containers using approved materials, applying impulse reduction principles to protect the egg during impact.",
-    "type": "Activity",
-    "dok": 3,
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How do we apply engineering constraints to maximize safety in a collision?",
-    "standards": [
-      "HS-PS2-2",
-      "HS-PS2-3",
-      "HS-ETS1-2"
-    ]
-  },
-  {
-    "date": "2026-02-04",
-    "day": 18,
-    "unit": 4,
-    "title": "Impulse, Momentum, and Collisions Review",
-    "summary": "Students will work on an impulse, momentum, and collisions review.",
-    "details": "Review session covering key concepts of Unit 4 including impulse, momentum, and collision types.",
-    "type": "Practice",
-    "dok": 2,
-    "links": {
-      "worksheet": "https://docs.google.com/document/d/1NTlmnUfAbc-M5DIXjM16fddZQ4kT22gp/edit?usp=drive_link&ouid=111972921986195834260&rtpof=true&sd=true"
-    },
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How do we demonstrate mastery of Unit 4 concepts through comprehensive review?",
-    "standards": [
-      "HS-PS2-2",
-      "HS-PS2-3",
-      "HS-ETS1-2"
-    ]
-  },
-  {
-    "date": "2026-02-03",
+    "date": "2026-03-03",
     "day": 17,
-    "unit": 4,
-    "title": "Practice: Elastic & Inelastic Collisions",
-    "summary": "Guided review of collision calculations followed by independent practice.",
-    "details": "We reviewed the PowerPoint slides on collision types and worked through example problems. Students then completed the practice worksheet.",
-    "type": "Practice",
-    "dok": 2,
-    "links": {
-      "worksheet": "https://docs.google.com/document/d/1oPYECLlG-p7O3gOdFiw0aGqtdZxQLd9OvZ5jA0VVzSA/edit?usp=sharing"
-    },
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How do we mathematically predict the outcomes of various types of collisions?",
-    "standards": [
-      "HS-PS2-2",
-      "HS-PS2-3",
-      "HS-ETS1-2"
-    ]
-  },
-  {
-    "date": "2026-02-02",
-    "day": 16,
-    "unit": 4,
-    "title": "Reading: Elastic vs. Inelastic Collisions",
-    "summary": "AVID annotations of reading material & Egg Drop project kickoff.",
-    "details": "Students annotated the text on Elastic and Inelastic Collisions. We also reviewed the instructions for the upcoming Egg Drop challenge.",
-    "type": "Activity",
-    "dok": 2,
-    "links": {
-      "worksheet": "https://docs.google.com/document/d/1SSEvaA1CjvFzp_syOhSzLdmLxeYmgo4XvjxS0VEK-6Q/edit?usp=sharing",
-      "Egg Drop Instructions": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQCK_YeyS2K9R6Rpf-S4iTzOAe736fEhXKILK4262BaDQbY?e=FbF2YO"
-    },
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How does the conservation of kinetic energy distinguish elastic from inelastic collisions?",
-    "standards": [
-      "HS-PS2-2",
-      "HS-PS2-3",
-      "HS-ETS1-2"
-    ]
-  },
-  {
-    "date": "2026-01-30",
-    "day": 15,
-    "unit": 4,
-    "title": "Project Launch: Egg Drop Challenge",
-    "summary": "Instructions & constraints for the classic Egg Drop project.",
-    "details": "Introduction to the Egg Drop Challenge. Students will review the project guidelines, material constraints, and the physics of impulse reduction required to keep their egg safe.",
+    "unit": 5,
+    "title": "Demonstration: Albedo & Inverse Square Law",
+    "summary": "Predicting and tracking temperature changes in black vs. white surfaces. Discussing Albedo and the Inverse Square Law.",
+    "details": "Inquiry & Organization: Predict/Observe/Explain cycle. Live data collection comparing a black can and a white can under a heat source to observe differential absorption and how distance affects intensity via the Inverse Square Law.",
     "type": "Activity",
     "dok": 2,
     "semester": 2,
     "isFeatured": true,
-    "essentialQuestion": "How can we apply the impulse-momentum theorem to protect a fragile object from a fall?",
+    "links": {
+      "Live Demo Tracker": "Radiation_Lab/demo_tracker.html",
+      "Albedo Simulation": "Radiation_Lab/albedo_sim.html",
+      "Interactive: Inverse Square Law": "Inverse_Square_Law/index.html",
+      "Inverse Square Law Notes": "https://docs.google.com/document/d/1HYCiVSm_oczVIswpvDMwy9FBXZT0Aw4KEypgDabVfs0/edit?usp=sharing",
+      "Video: Albedo explained": "https://www.youtube.com/watch?v=8SG5hxx2RH4"
+    },
+    "wicor": {
+      "inquiry": "Predicting heating rates based on surface color and distance.",
+      "organization": "Data table & Graphing of live temperatures."
+    },
+    "essentialQuestion": "How do surface color and distance affect the intensity of radiative heating?",
     "standards": [
-      "HS-PS2-2",
-      "HS-PS2-3",
-      "HS-ETS1-2"
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
     ]
   },
   {
-    "date": "2026-01-29",
-    "day": 14,
-    "unit": 4,
-    "title": "Collisions in 1D Lab (PhET Simulation)",
-    "summary": "Investigating elastic and inelastic collisions using PhET simulation. Partners allowed.",
-    "details": "Students used the PhET Collision Lab to collect data and verify conservation of momentum in 1D. Links provided for the simulation and lab worksheet.",
+    "date": "2026-03-04",
+    "day": 18,
+    "unit": 5,
+    "title": "Virtual Lab: Radiation & Albedo",
+    "summary": "Using a digital simulation to test variables that affect radiative heat transfer.",
+    "details": "Inquiry & Collaboration: Groups use the Virtual Lab webapp to test how different materials and distances affect heat absorption.",
     "type": "Lab",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "links": {
+      "Virtual Lab Worksheet": "https://docs.google.com/document/d/1GhgcEpqwD06hJCLF0XsDtxKn1F2LjeIhoBKjFEs2G1M/edit?usp=sharing",
+      "Virtual Radiation Lab": "Radiation_Lab/index.html",
+      "Albedo Simulation": "Radiation_Lab/albedo_sim.html"
+    },
+    "wicor": {
+      "inquiry": "Testing variables (Distance vs. Absorption).",
+      "collaboration": "Group data analysis."
+    },
+    "essentialQuestion": "What variables most significantly impact the rate of heat absorption by radiation?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
+  },
+  {
+    "date": "2026-03-05",
+    "day": 19,
+    "unit": 5,
+    "title": "Synthesis: The Physics of Radiation",
+    "summary": "Connecting Reading, Demo, and Lab data to build a CER argument. <span class='inline-flex items-center gap-1 bg-blue-950/40 text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded border border-blue-500/30 ml-2 animate-pulse'>★ VISITOR DAY</span>",
+    "details": "Writing & Organization: Students synthesize their observations from the week into a cohesive scientific argument. Visitors will observe AVID strategies in action.",
+    "type": "Activity",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "links": {
+      "CER: The Physics of Radiation": "https://docs.google.com/document/d/17auQmJ0RMZ8FiMe9m6arPO1T7Mh-AwGfP39jidER6NY/edit?usp=sharing",
+      "Radiation Lab Worksheet": "https://docs.google.com/document/d/1GhgcEpqwD06hJCLF0XsDtxKn1F2LjeIhoBKjFEs2G1M/edit?usp=sharing",
+      "Synthesis Discussion Slides": "https://docs.google.com/presentation/d/1b0NVmEJQjWIlre7w85iYGDkQF8Cx-0GJrplIvzE1FmI/edit?usp=sharing",
+      "AI Career Outlook": "ai-impact/index.html"
+    },
+    "wicor": {
+      "writing": "CER Statement: How does distance and albedo affect thermal energy transfer?",
+      "organization": "Data Matrix connecting previous 3 days of evidence.",
+      "collaboration": "Peer review of arguments."
+    },
+    "essentialQuestion": "How do we build a scientific argument for heat transfer using evidence and reasoning?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
+  },
+  {
+    "date": "2026-03-06",
+    "day": 20,
+    "unit": 5,
+    "title": "Radiation Week Wrap-Up & Turn In",
+    "summary": "Finalizing Radiation Lab analysis and turning in the week's work.",
+    "details": "Organization: Finishing CER arguments and data matrices from Radiation Week. Students submitted their complete lab reports and worksheets for credit. This includes wrapping up the study of radiative heat transfer using the interactive Virtual Radiation Lab simulation.",
+    "type": "Activity",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "links": {
+      "Turn In: Radiation Week Work": "https://docs.google.com/document/d/1EJcKSlydN5ovtlp496SewBpOR_eqeMN2bZCXyISU1gU/edit?usp=sharing",
+      "Virtual Radiation Lab": "Radiation_Lab/index.html"
+    },
+    "essentialQuestion": "How do we finalize our analysis of radiative heat transfer?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
+  },
+  {
+    "date": "2026-03-09",
+    "day": 21,
+    "unit": 5,
+    "title": "Temperature vs. Internal Energy",
+    "summary": "Understanding the difference between average kinetic energy and total system energy.",
+    "details": "Comparing hot coffee to an iceberg, and analyzing the 'Oven vs. Sparkler' phenomenon. Introduction to how molecular mass affects speed at the same temperature.",
+    "type": "Activity",
     "dok": 2,
-    "links": {
-      "PhET Simulation": "https://phet.colorado.edu/sims/html/collision-lab/latest/collision-lab_all.html",
-      "worksheet": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQBqZra85A4SSK1ZmAvZcPY-ASLOQK3ArJx-cqWamoCeOBc?e=tHrura"
-    },
     "semester": 2,
     "isFeatured": true,
-    "essentialQuestion": "What are the differences between elastic and inelastic collisions in terms of momentum conservation?",
+    "links": {
+      "Presentation: Temp vs. Internal Energy": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDZATPiyvvPR4J3orI6Kv85AY7a8qbPR-NCTCusDW9_dXQ?e=MzCXqr",
+      "Heat Engine Research": "https://docs.google.com/presentation/d/1n7nqFHerCyZs3wRiW2Aj633TNEDT_MCpJwWWih13XRs/edit?usp=sharing",
+      "Thermodynamics: First Law Reading (English)": "https://docs.google.com/document/d/1fezNGOy_SmsX2H3Iaf4L75OUl0XI_pqBlIbHZXIKjYY/edit?usp=sharing",
+      "Thermodynamics: First Law Reading (Spanish)": "https://docs.google.com/document/d/10VUp5VlLS08d7J85TxhYlACc3BvctmfZIrUWwqKoMlk/edit?usp=sharing"
+    },
+    "essentialQuestion": "What is the difference between average kinetic energy and the total energy of a system?",
     "standards": [
-      "HS-PS2-1",
-      "HS-PS2-2"
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
     ]
   },
   {
-    "date": "2026-01-28",
-    "day": 13,
-    "unit": 4,
-    "title": "PHYSICS LAB: 2D MOMENTUM",
-    "summary": "Analyzing conservation of momentum in two dimensions using vector addition. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
-    "details": "Students conduct a 2D explosion lab, recording masses and (vx, vy) components to verify conservation rules. Links: <a href='https://rrmudry.github.io/physics-2d-momentum-lab/index.html'>Lab Report Webapp</a> | <a href='https://rrmudry.github.io/conservation-of-momentum/index.html'>Simulation</a>",
-    "type": "Lab",
-    "dok": 3,
-    "links": {
-      "Lab Report Webapp": "https://rrmudry.github.io/physics-2d-momentum-lab/index.html",
-      "Simulation": "https://rrmudry.github.io/conservation-of-momentum/index.html"
-    },
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How do we apply conservation of momentum using vector addition in two dimensions?",
-    "standards": [
-      "HS-PS2-1",
-      "HS-PS2-2"
-    ]
-  },
-  {
-    "date": "2026-01-27",
-    "day": 12,
-    "unit": 4,
-    "title": "Conservation of Momentum Day 1 Explosions in 1D",
-    "summary": "Simulated explosions! Applying conservation laws to 1D system. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
-    "details": "In-class investigation of 1D explosions using the simulator. Links: <a href='https://rrmudry.github.io/physics-momentum-lab-report/index.html'>Lab Report Webapp</a> | <a href='https://rrmudry.github.io/conservation-of-momentum/index.html'>Simulation</a>",
-    "type": "Lab",
-    "dok": 3,
-    "links": {
-      "Lab Report Webapp": "https://rrmudry.github.io/physics-momentum-lab-report/index.html",
-      "Simulation": "https://rrmudry.github.io/conservation-of-momentum/index.html"
-    },
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How is momentum conserved in a closed system during an explosion?",
-    "standards": [
-      "HS-PS2-1",
-      "HS-PS2-2"
-    ]
-  },
-  {
-    "date": "2026-01-26",
-    "day": 11,
-    "unit": 4,
-    "title": "FINAL ENGINEERING REPORT",
-    "summary": "Internal forces driving objects apart. Video analysis.",
-    "details": "Students analyze the physics of explosions and internal forces.",
-    "type": "Lab",
-    "dok": 3,
-    "links": {
-      "worksheet": "https://docs.google.com/document/d/15eeYq-2sPEcbqNAOQ0AN9TQ_3i-XIMWXb9Nx_q_w0ps/edit?usp=sharing"
-    },
-    "semester": 2,
-    "isFeatured": true,
-    "essentialQuestion": "How do internal forces drive objects apart in an explosion?",
-    "standards": [
-      "HS-PS2-1",
-      "HS-PS2-2"
-    ]
-  },
-  {
-    "date": "2026-01-23",
-    "day": 10,
-    "unit": 4,
-    "title": "Project Testing: Operation Safe Heeler (Crash Test Day)",
-    "summary": "Crash test day! Testing barriers and analyzing impulse results.",
-    "details": "Final testing day for the crash attenuation barriers. Results available on the project dashboard.",
+    "date": "2026-03-10",
+    "day": 22,
+    "unit": 5,
+    "title": "The First Law of Thermodynamics",
+    "summary": "Energy conservation in thermodynamic systems (ΔU = Q + W).",
+    "details": "Defining Heat (Q) and Work (W) sign conventions. Understanding how adding heat or doing work changes a system's internal energy.",
     "type": "Activity",
-    "dok": 3,
-    "links": {
-      "project results": "operation_safe_heeler_results.html"
-    },
+    "dok": 2,
     "semester": 2,
     "isFeatured": true,
-    "essentialQuestion": "Which design features are most effective at increasing impact time to protect a passenger?",
+    "links": {
+      "Presentation: First Law of Thermodynamics": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDZATPiyvvPR4J3orI6Kv85AY7a8qbPR-NCTCusDW9_dXQ?e=blosae",
+      "Worksheet: The First Law": "https://orangeusdorg-my.sharepoint.com/:b:/g/personal/rmudry_orangeusd_org/IQDDLo9r5BE4RYLXfENSHuFgATTddX3SJRYqYsTJsdXkIQI?e=LVtN99",
+      "Interactive Model: The Cylinder & Piston": "First_Law_Sim/index.html"
+    },
+    "essentialQuestion": "How does the First Law of Thermodynamics relate changes in internal energy to heat and work?",
     "standards": [
-      "HS-PS2-1",
-      "HS-PS2-2"
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
     ]
   },
   {
-    "date": "2026-01-22",
-    "day": 9,
-    "unit": 4,
-    "title": "Project Build: Operation Safe Heeler",
-    "summary": "Hands-on construction day for building crash attenuation barriers.",
-    "details": "Students apply their knowledge of impulse and momentum to engineer safety systems for the 'Operation Safe Heeler' project.",
+    "date": "2026-03-11",
+    "day": 23,
+    "unit": 5,
+    "title": "Heat Engine Report",
+    "summary": "Researching and reporting on 5 different heat engines.",
+    "details": "Students will find information about the 5 listed heat engines and fill in the requested information for each.",
     "type": "Activity",
-    "dok": 3,
+    "dok": 2,
     "semester": 2,
     "isFeatured": true,
-    "essentialQuestion": "How do material choices affect the time of impact and the resulting force?",
+    "links": {
+      "Heat Engine Report Slides": "https://docs.google.com/presentation/d/1n7nqFHerCyZs3wRiW2Aj633TNEDT_MCpJwWWih13XRs/edit?usp=sharing"
+    },
+    "essentialQuestion": "How do heat engines convert thermal energy into useful mechanical work?",
     "standards": [
-      "HS-PS2-1",
-      "HS-PS2-2"
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
     ]
   },
   {
-    "date": "2026-01-21",
-    "day": 8,
-    "unit": 4,
-    "title": "Rocket Cart Lab: Impulse & Momentum",
-    "summary": "Interactive lab exploring impulse and momentum with rocket-powered carts.",
-    "details": "Students use the Rocket Cart Lab webapp to investigate the relationship between impulse and momentum.",
-    "type": "Lab",
-    "dok": 3,
-    "links": {
-      "webapp": "https://rrmudry.github.io/rocket-cart-lab/index.html",
-      "worksheet": "https://docs.google.com/document/d/1Wdb2nz8V71ER6nSFD-mLFTPlBpVAbEQP86q2BWbG1EQ/edit?usp=sharing"
-    },
+    "date": "2026-03-12",
+    "day": 24,
+    "unit": 5,
+    "title": "Review: Thermodynamics U, Q, W",
+    "summary": "Reviewing the Thermodynamics U Q W worksheet and preparing for the quiz.",
+    "details": "In-class review of the Thermodynamics U Q W worksheet answers to clarify concepts on internal energy, heat, and work before the upcoming assessment.",
+    "type": "Activity",
+    "dok": 2,
     "semester": 2,
     "isFeatured": true,
-    "essentialQuestion": "What is the relationship between impulse and the change in an object's momentum?",
+    "essentialQuestion": "How do we clarify the relationships between U, Q, and W before assessment?",
     "standards": [
-      "HS-PS2-1",
-      "HS-PS2-2"
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
     ]
   },
   {
-    "date": "2026-01-20",
-    "day": 7,
-    "unit": 4,
-    "title": "Project Launch: Operation Safe Heeler",
-    "summary": "Today we launch our Unit 4 project: Operation Safe Heeler!",
-    "details": "Introduction to crash attenuation barriers. Students will design and build a safety system for a cart. Project Worksheet and Day 7 Link available on dashboard.",
-    "type": "Activity",
-    "dok": 3,
-    "links": {
-      "worksheet": "https://docs.google.com/document/d/1hn4Wwx4MjXH5IWOp-Md69w7-nHm6eNq7SO1o1MgSFYA/edit?usp=sharing",
-      "project website": "operation-safe-heeler.html",
-      "Day 7 Link": "https://docs.google.com/forms/d/e/1FAIpQLSe43Z06ocBI9LJXwOOFsx4zbF6SfLm73l5uQvU-l76Lpu8bEw/viewform?usp=publish-editor",
-      "crash barriers video": "https://www.youtube.com/watch?v=w6CKltZfToY&t=61s"
-    },
-    "semester": 2,
-    "isFeatured": false,
-    "essentialQuestion": "How can we engineer safety systems to reduce impulse during a crash?",
-    "standards": [
-      "HS-PS2-1",
-      "HS-PS2-2"
-    ]
-  },
-  {
-    "date": "2026-01-19",
-    "day": 6,
-    "unit": 4,
-    "title": "MLK Day - No School",
-    "summary": "Holiday observed. No school activities scheduled.",
-    "details": "Martin Luther King Jr. Day observed.",
-    "type": "Activity",
-    "semester": 2,
-    "isFeatured": false,
-    "standards": [
-      "HS-PS2-1",
-      "HS-PS2-2"
-    ]
-  },
-  {
-    "date": "2026-01-16",
-    "day": 5,
-    "unit": 4,
-    "title": "Momentum & Impulse Quiz",
-    "summary": "Quiz covering momentum foundations and the impulse-momentum theorem.",
-    "details": "Summative assessment on the first week's concepts.",
+    "date": "2026-03-13",
+    "day": 25,
+    "unit": 5,
+    "title": "First Law Assessment",
+    "summary": "Assessment covering the First Law of Thermodynamics.",
+    "details": "Students will complete the interactive First Law Assessment to test their understanding of internal energy, heat, and work.",
     "type": "Assessment",
     "dok": 3,
     "semester": 2,
-    "isFeatured": false,
-    "essentialQuestion": "How can we demonstrate mastery of momentum and the impulse-momentum theorem?",
+    "isFeatured": true,
+    "essentialQuestion": "How do we demonstrate mastery of the First Law of Thermodynamics?",
     "standards": [
-      "HS-PS2-1",
-      "HS-PS2-2"
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
     ]
   },
   {
-    "date": "2026-01-15",
-    "day": 4,
-    "unit": 4,
-    "title": "Hey! Stop that thing!! (Impulse)",
-    "summary": "Scenario-based lab calculating the impulse needed to stop an object.",
-    "details": "Students create scenarios where objects with momentum are brought to a stop, calculating force and time requirements. Lab worksheet available on dashboard.",
+    "date": "2026-03-16",
+    "day": 26,
+    "unit": 5,
+    "title": "Introduction to Entropy & Entropy Lab",
+    "summary": "Introducing the Second Law of Thermodynamics and the concept of disorder using the Entropy Lab.",
+    "details": "Defining entropy as a measure of disorder and microstates. Students use the Entropy Lab to observe particle diffusion (Microscopic) and structural decay (Macroscopic).",
     "type": "Lab",
-    "dok": 3,
-    "links": {
-      "worksheet": "https://docs.google.com/document/d/1S_9AbUsIyIVDCooBL63XZ5qcB95RGBQCnODqmRtfD3Y/edit?usp=sharing"
-    },
-    "semester": 2,
-    "isFeatured": false,
-    "essentialQuestion": "What determines how much force is needed to stop a moving object?",
-    "standards": [
-      "HS-PS2-1",
-      "HS-PS2-2"
-    ]
-  },
-  {
-    "date": "2026-01-14",
-    "day": 3,
-    "unit": 4,
-    "title": "Momentum and Impulse Practice",
-    "summary": "Numerical practice with p=mv and J=Ft equations.",
-    "details": "Computational worksheet to solidify the mathematical relationship between force, time, and momentum change.",
-    "type": "Practice",
     "dok": 2,
-    "links": {
-      "worksheet": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQCwJD7mmYGORJTobad0Q3FjAZ70FTiLHMdqRQNOBAPoVOk?e=P4qdky"
-    },
-    "semester": 2,
-    "isFeatured": false,
-    "essentialQuestion": "How do we calculate momentum and impulse using p=mv and J=Ft?",
-    "standards": [
-      "HS-PS2-1",
-      "HS-PS2-2"
-    ]
-  },
-  {
-    "date": "2026-01-13",
-    "day": 2,
-    "unit": 4,
-    "title": "Momentum (PowerPoint Intro)",
-    "summary": "Formal introduction to the mathematical definition of momentum.",
-    "details": "Lecture and demonstration covering p=mv. Students began notes using the class presentation.",
-    "type": "Activity",
-    "dok": 2,
-    "links": {
-      "notes": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQDAf56uDWDvRrHKm_dqPjndAaZFIsdJv1aFlRtInx7he0M?e=tpeQBO"
-    },
-    "semester": 2,
-    "isFeatured": false,
-    "essentialQuestion": "What is momentum and how is it mathematically defined?",
-    "standards": [
-      "HS-PS2-1",
-      "HS-PS2-2"
-    ]
-  },
-  {
-    "date": "2026-01-12",
-    "day": 1,
-    "unit": 4,
-    "title": "Understanding Car Crashes",
-    "summary": "Welcome back! Today we transition from static forces to the physics of impact.",
-    "details": "Watched the YouTube video (MythBusters: Crash Force) and completed the Google Doc.",
-    "type": "Activity",
-    "dok": 1,
-    "links": {
-      "video": "https://www.youtube.com/watch?v=2XKOzibVqJg",
-      "worksheet": "https://docs.google.com/document/d/1-byPZiH6PZ6kOckrk3-35An7i1IDFM6GL_S3jvvXqNs/edit?usp=sharing"
-    },
     "semester": 2,
     "isFeatured": true,
-    "essentialQuestion": "How does the physics of impact differ from static forces?",
+    "links": {
+      "Entropy Lab: Micro & Macro": "Entropy_Simulation/index.html",
+      "Entropy and Zombies Examples": "https://drive.google.com/file/d/1zU6kPKk03noFmwDFEidzMLBkTBjnposw/view?usp=sharing"
+    },
+    "essentialQuestion": "What is the relationship between microscopic disorder and macroscopic decay?",
     "standards": [
-      "HS-PS2-1",
-      "HS-PS2-2"
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
+  },
+  {
+    "date": "2026-03-17",
+    "day": 27,
+    "unit": 5,
+    "title": "Project: Entropy and Zombies",
+    "summary": "Applying entropy concepts to a survival scenario in the 'Entropy and Zombies' project.",
+    "details": "Students work in groups to solve thermodynamics-based survival challenges, applying the Second Law to predict the inevitable decay of systems and resource management.",
+    "type": "Activity",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "links": {
+      "Entropy and Zombies Project Doc": "https://docs.google.com/document/d/1P6zTrHvILhcegkh_KdeMliKIxFxIRzz-Wh3mwSht6Yg/edit?usp=sharing",
+      "Entropy and Zombies Examples": "https://drive.google.com/file/d/1zU6kPKk03noFmwDFEidzMLBkTBjnposw/view?usp=sharing",
+      "Thermodynamics: Entropy & Heat Engines": "https://docs.google.com/document/d/18SCo219sB0k27d_VGOXa20wFp4iQk0fOInLbwq_5AHI/edit?usp=sharing"
+    },
+    "essentialQuestion": "How does the Second Law of Thermodynamics predict the inevitable decay of all systems?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
+  },
+  {
+    "date": "2026-03-18",
+    "day": 28,
+    "unit": 5,
+    "title": "AVID Focused Note Taking: Entropy & Heat Engines",
+    "summary": "Using AVID strategies to synthesize information on entropy and the efficiency of heat engines.",
+    "details": "Focused Reading and Note Taking: Students use marking-the-text strategies to analyze the 'Entropy and the Cost of Power' reading and connect it to heat engine efficiency.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "links": {
+      "Reading: Entropy and the Cost of Power": "https://docs.google.com/document/d/18SCo219sB0k27d_VGOXa20wFp4iQk0fOInLbwq_5AHI/edit?usp=sharing",
+      "Interactive: Entropy & The Cost of Power": "Entropy_Cost_of_power.html",
+      "Presentation: Heat Engines": "https://docs.google.com/presentation/d/1H1-IDxkyQ0MPDQ3y6Y9ebC_dmjzDTJwj9SjFLwdkmqU/edit?usp=sharing",
+      "Printed Instructions": "https://docs.google.com/document/d/1UXZ83sRCXzGNUq2MnIk-QF7sgIUhuqS9M9M57cFeDNE/edit?usp=sharing"
+    },
+    "wicor": {
+      "reading": "Marking the Text & Focused Annotation.",
+      "writing": "Focused Note Taking: Identifying Main Ideas & Supporting Details."
+    },
+    "essentialQuestion": "How can we use focused note-taking to analyze the relationship between entropy and engine efficiency?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
+  },
+  {
+    "date": "2026-03-19",
+    "day": 29,
+    "unit": 5,
+    "title": "Heat Pump Dynamics",
+    "summary": "Exploring how heat pumps move energy against the gradient using the interactive model.",
+    "details": "Students analyze the thermodynamic cycle of a heat pump. Using the interactive model, they investigate how work is used to extract heat from a cold environment and release it into a warm one.",
+    "type": "Activity",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "links": {
+      "Heat Pump Interactive Model": "Heat_Pump_Model/index.html"
+    },
+    "essentialQuestion": "How can we 'pump' heat against its natural flow from hot to cold?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
+  },
+  {
+    "date": "2026-03-20",
+    "day": 30,
+    "unit": 5,
+    "title": "Unit 5 Assessment",
+    "summary": "Summative assessment on Thermodynamics, Entropy, and Heat Engines.",
+    "details": "Students will demonstrate their understanding of the laws of thermodynamics, heat engines, and entropy in this unit assessment.",
+    "type": "Assessment",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do we demonstrate mastery of thermodynamic laws and entropy concepts?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-PS3-4"
+    ]
+  },
+  {
+    "date": "2026-03-23",
+    "day": 1,
+    "unit": 6,
+    "title": "Intro to Waves: Energy in Motion",
+    "summary": "AVID Critical Reading: Exploring the fundamental rule of waves—energy transports, matter stays.",
+    "details": "Students analyze a 5-paragraph text on mechanical and electromagnetic waves. The lesson focuses on the 5-part AVID annotation process, including gist statements and DOK 3 inquiry questions.",
+    "type": "Activity",
+    "dok": 1,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How can energy travel across a distance without actually moving matter from one place to another?",
+    "links": {
+      "Reading: Intro to Waves": "https://docs.google.com/document/d/1UJdSuMXqWDw-NatiVyo9lG93a-24oYWkZH2dACjiFLQ/edit?usp=sharing",
+      "Strategy: 3-Word Gist Statements": "https://youtu.be/YQKIc5apEUM",
+      "Interactive: Waves & Energy Report": "Waves_Interactive_report.html"
+    },
+    "wicor": {
+      "writing": "3-Word Gist Statements: Summarizing each of the 5 text paragraphs using exactly three words.",
+      "inquiry": "Level 3 Question: Developing a complex inquiry about Mediums vs. Vacuums.",
+      "organization": "Marking-the-Text: Numbering paragraphs, circling key terms, and underlining the 'Fundamental Rule' in Para 1.",
+      "reading": "Comparative Analysis: Distinguishing between mechanical waves and EM radiation."
+    },
+    "standards": [
+      "HS-PS4-1"
+    ]
+  },
+  {
+    "date": "2026-03-24",
+    "day": 2,
+    "unit": 6,
+    "title": "Wave Types: Transverse vs. Longitudinal",
+    "summary": "Modeling particle motion using slinkies or simulations.",
+    "details": "Distinguishing between transverse waves (perpendicular motion) and longitudinal waves (parallel motion/compressions).",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How does the direction of particle motion distinguish transverse from longitudinal waves?",
+    "links": {
+      "Simulation: Wave Measurement": "wave_measurement_simulation.html"
+    },
+    "wicor": {
+      "inquiry": "Modeling particle motion with human 'stadium waves' vs. 'domino lines'.",
+      "collaboration": "Think-Pair-Share: Which wave type better models sound in air?",
+      "reading": "Venn Diagram comparing transverse and longitudinal properties."
+    },
+    "standards": [
+      "HS-PS4-1"
+    ]
+  },
+  {
+    "date": "2026-03-25",
+    "day": 3,
+    "unit": 6,
+    "title": "The Wave Equation",
+    "summary": "Practicing calculations for wave speed, frequency, and wavelength.",
+    "details": "Applying the fundamental wave equation v = fλ to various scenarios.",
+    "type": "Practice",
+    "links": {
+      "Frequency...Practice 'til it Hertz": "Unit_6_Waves_Radiation/frequency_calculator/index.html"
+    },
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How can we mathematically relate wave speed, frequency, and wavelength?",
+    "wicor": {
+      "writing": "Variable Mapping: Defining v, f, and λ with units.",
+      "organization": "The Formula Triangle for v = fλ.",
+      "inquiry": "Predicting how doubling frequency affects wavelength if speed is constant."
+    },
+    "standards": [
+      "HS-PS4-1"
+    ]
+  },
+  {
+    "date": "2026-03-26",
+    "day": 4,
+    "unit": 6,
+    "title": "Period and Frequency",
+    "summary": "Exploring the inverse relationship (T = 1/f); Simple harmonic motion basics.",
+    "details": "Understanding the relationship between the time for one cycle and the number of cycles per second.",
+    "type": "Activity",
+    "dok": 1,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "What is the inverse relationship between the period and frequency of a wave?",
+    "links": {
+      "Pendulum Mastery Lab": "Unit_6_Waves_Radiation/pendulum_lab/index.html"
+    },
+    "wicor": {
+      "inquiry": "Pendulum Swing: Measuring time for 10 swings vs. swings per second.",
+      "writing": "Summary: Explaining why T = 1/f makes sense using physical units.",
+      "organization": "Graphic Organizer: Period vs. Frequency."
+    },
+    "standards": [
+      "HS-PS4-1"
+    ]
+  },
+  {
+    "date": "2026-03-27",
+    "day": 5,
+    "unit": 6,
+    "title": "Week 1 Review & Quiz",
+    "summary": "Assessment on wave anatomy and basic calculations.",
+    "details": "Summative check on wave properties and the wave equation.",
+    "type": "Assessment",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How well can we model and calculate basic wave properties?",
+    "wicor": {
+      "writing": "Self-Reflection: Which wave concept is most challenging so far?",
+      "organization": "Flashcard review for wave vocabulary.",
+      "collaboration": "Peer-grading of the Week 1 Review Set."
+    },
+    "standards": [
+      "HS-PS4-1"
+    ]
+  },
+  {
+    "date": "2026-04-06",
+    "day": 6,
+    "unit": 6,
+    "title": "Boundary Behaviors",
+    "summary": "Reading: Wave Interactions & WaveMaster Lab Exploration",
+    "details": "Students analyze wave behavior via an AVID Close Reading assignment and explore reflection/refraction using the interactive WaveMaster Lab.",
+    "type": "Activity",
+    "links": {
+      "Reading: Wave Interactions": "https://docs.google.com/document/d/1e_JUg_6KbCQ4vhj7HWrtcr0wjPWAvbpgNW7U9wViWbE/edit?usp=sharing",
+      "WaveMaster Lab": "Unit_6_Waves_Radiation/WaveMaster_Lab/wavemaster_lab.html"
+    },
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How does the medium determine whether a wave reflects or refracts at a boundary?",
+    "wicor": {
+      "reading": "Close Reading: Marking the text for Reflection, Refraction, Diffraction, and Absorption.",
+      "writing": "Summary: Distinguishing between boundary behaviors in different media.",
+      "organization": "Comparison Matrix for wave behaviors."
+    },
+    "standards": [
+      "HS-PS4-1",
+      "HS-PS4-3"
+    ]
+  },
+  {
+    "date": "2026-04-07",
+    "day": 7,
+    "unit": 6,
+    "title": "Diffraction & Interference",
+    "summary": "Waves bending around obstacles and the Principle of Superposition.",
+    "details": "Investigating how waves interact and combine when they occupy the same space.",
+    "type": "Activity",
+    "links": {
+      "Wave Diffraction Lab": "Unit_6_Waves_Radiation/Diffraction_tutorial/Diffraction_tutorial.html",
+      "Wavefront Simulations": "Unit_6_Waves_Radiation/Wavefront_simulations/Wavefront_Simulations.html"
+    },
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "What happens when two or more waves overlap in the same medium?",
+    "standards": [
+      "HS-PS4-1",
+      "HS-PS4-3"
+    ]
+  },
+  {
+    "date": "2026-04-08",
+    "day": 8,
+    "unit": 6,
+    "title": "Constructive vs. Destructive Interference",
+    "summary": "Mapping 'dead spots' and 'loud spots' in sound and light.",
+    "details": "Detailed study of phase relationships and their effect on wave amplitude.",
+    "type": "Activity",
+    "links": {
+      "Wave Interference Tutorial": "Unit_6_Waves_Radiation/Wave_Interference_Tutorial/Wave_Interference_tutorial.html",
+      "Wave Interference & Beats": "Unit_6_Waves_Radiation/Wave_Beat_Generator/Wave_Beat_Generator.html",
+      "Lesson Slides: Phase & Interference": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQBTUZf19lWfSK5U3EdpOBeAAaDCdeqiOiYePW5FTtIJU8Q?e=y7gOye"
+    },
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do phase differences lead to constructive and destructive interference?",
+    "standards": [
+      "HS-PS4-1",
+      "HS-PS4-3"
+    ]
+  },
+  {
+    "date": "2026-04-09",
+    "day": 9,
+    "unit": 6,
+    "title": "Standing Waves & Ruben's Tube",
+    "summary": "Modeling standing waves and nodes using fire and sound in the Ruben's Tube demonstration.",
+    "details": "Physics of musical instruments, harmonics, and natural frequency. Demonstrating standing waves with the Ruben's Tube.",
+    "type": "Activity",
+    "links": {
+      "Ruben's Tube Simulator": "Unit_6_Waves_Radiation/Rubens_Tube_Sim/Rubens_Tube_Sim.html"
+    },
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do standing waves and resonance explain the physics of music?",
+    "wicor": {
+      "inquiry": "Ruben's Tube Demo: Visualizing nodes and antinodes using flammable gas and acoustic pressure.",
+      "writing": "CER Statement: How does changing frequency affect the number of fire peaks?",
+      "collaboration": "Harmonics Mapping: Group identification of node locations."
+    },
+    "standards": [
+      "HS-PS4-1"
+    ]
+  },
+  {
+    "date": "2026-04-10",
+    "day": 10,
+    "unit": 6,
+    "title": "Interference Lab/Activity",
+    "summary": "Hands-on station work with ripple tanks or sound interference apps.",
+    "details": "Practical application and observation of interference patterns.",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How can we experimentally verify the principle of superposition?",
+    "links": {
+      "Rapid Review Game": "Unit_6_Waves_Radiation/Review_Game/index.html"
+    },
+    "standards": [
+      "HS-PS4-1",
+      "HS-PS4-3"
+    ]
+  },
+  {
+    "date": "2026-04-13",
+    "day": 11,
+    "unit": 6,
+    "title": "Physics of Sound & Moving Sources",
+    "summary": "Exploring longitudinal waves with the Speed of Sound Lab.",
+    "details": "Focusing on sound as a mechanical longitudinal wave and introducing how movement of the source or observer begins to compress or stretch wavefronts.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How does the relative motion of a sound source change the way we perceive its frequency?",
+    "links": {
+      "Speed of Sound Lab": "Unit_6_Waves_Radiation/Sound_waves/Speed_of_sound.html"
+    },
+    "standards": [
+      "HS-PS4-1",
+      "HS-PS4-2"
+    ]
+  },
+  {
+    "date": "2026-04-14",
+    "day": 12,
+    "unit": 6,
+    "title": "The Doppler Effect & Sonic Booms",
+    "summary": "Visualizing the Doppler Effect using the Doppler Detective Simulation.",
+    "details": "Deep dive into stationary vs. moving observers, sonic booms (breaking the sound barrier), and everyday examples of acoustic frequency shifts.",
+    "type": "Activity",
+    "links": {
+      "Doppler Detective Sim": "Unit_6_Waves_Radiation/Doppler_Detective/Doppler_Detective.html"
+    },
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "What causes the 'sonic boom' when an object travels faster than the speed of sound?",
+    "standards": [
+      "HS-PS4-1",
+      "HS-PS4-2"
+    ]
+  },
+  {
+    "date": "2026-04-15",
+    "day": 13,
+    "unit": 6,
+    "title": "The Nature of Light",
+    "summary": "Introduction to EM waves (no medium required) and the constant speed c.",
+    "details": "Understanding light as an oscillation of electric and magnetic fields and comparing its behavior to mechanical sound waves.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "Why does light not require a physical medium to travel through space?",
+    "links": {
+      "EM Spectrum Explorer": "Unit_6_Waves_Radiation/EM_Spectrum/EM_Spectrum.html"
+    },
+    "standards": [
+      "HS-PS4-3",
+      "HS-PS4-4"
+    ]
+  },
+  {
+    "date": "2026-04-16",
+    "day": 14,
+    "unit": 6,
+    "title": "EM Spectrum Comic Poster",
+    "summary": "Design a superhero/villain based on a specific EM region.",
+    "details": "Mapping physical properties (wavelength, frequency, energy) to character abilities, hazards, and weaknesses.",
+    "type": "Activity",
+    "links": {
+      "Spectrum City Project": "Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html",
+      "Comic Poster Instructions": "https://docs.google.com/document/d/1JMt2gsKlaqpJWbMAr52scifNDr8ydx_todBrnqLMhyQ/edit?usp=sharing",
+      "EM Spectrum Rapid Review": "Unit_6_Waves_Radiation/EM_Spectrum_Rapid_Review/index.html"
+    },
+    "image": "Unit_6_Waves_Radiation/Comic_Book_EM/Examples.png",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How are the regions of the EM spectrum organized by energy and wavelength?",
+    "standards": [
+      "HS-PS4-4"
+    ]
+  },
+  {
+    "date": "2026-04-17",
+    "day": 15,
+    "unit": 6,
+    "title": "Week 3 Quiz: Sound & EM Foundations",
+    "summary": "Assessment on the Doppler Effect and basic EM spectrum properties.",
+    "details": "Summative check for understanding covering acoustic shifts and the organization of the EM spectrum.",
+    "type": "Assessment",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How well can we apply Doppler principles and identify regions of the EM spectrum?",
+    "standards": [
+      "HS-PS4-1",
+      "HS-PS4-4"
+    ]
+  },
+  {
+    "date": "2026-04-20",
+    "day": 16,
+    "unit": 6,
+    "title": "Hubble's Law Lab",
+    "summary": "Analyzing the expanding universe through the Doppler shift of light. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
+    "details": "Using galactic redshift data to calculate the expansion rate (Hubble's Constant) and exploring evidence for the Big Bang.",
+    "type": "Lab",
+    "links": {
+      "Hubble's Law Lab": "Unit_6_Waves_Radiation/The_Big_Bang/Hubbles_Law.html",
+      "Spectrum City Map": "Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html"
+    },
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How does the Doppler shift of light provide evidence for the expansion of the universe?",
+    "standards": [
+      "HS-ESS1-2",
+      "HS-PS4-2"
+    ]
+  },
+  {
+    "date": "2026-04-21",
+    "day": 17,
+    "unit": 6,
+    "title": "Spectrum City: District Zoning",
+    "summary": "Mapping architectural zones across the 7 EM regions. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
+    "details": "Zoning Spectrum City based on material absorption, reflection, and transmission properties.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "What determines whether a material will absorb or transmit a specific frequency of light?",
+    "links": {
+      "Spectrum City Project": "Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html"
+    },
+    "standards": [
+      "HS-PS4-4",
+      "HS-PS4-5"
+    ]
+  },
+  {
+    "date": "2026-04-22",
+    "day": 18,
+    "unit": 6,
+    "title": "Spectrum City: Hazard Quantification",
+    "summary": "Modeling wave interactions and calculating biological hazard levels. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
+    "details": "Quantifying how ionizing radiation (UV, X-ray, Gamma) interacts with cellular tissue in the city's high-energy districts.",
+    "type": "Activity",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "What makes certain frequencies of the EM spectrum hazardous to living tissue?",
+    "links": {
+      "Spectrum City Project": "Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html",
+      "EM Spectrum Rapid Review": "Unit_6_Waves_Radiation/EM_Spectrum_Rapid_Review/index.html"
+    },
+    "standards": [
+      "HS-PS4-4"
+    ]
+  },
+  {
+    "date": "2026-04-23",
+    "day": 19,
+    "unit": 6,
+    "title": "Spectrum City: Final Review",
+    "summary": "Finalizing hazard maps and preparing for Rapid Fire sequencing.",
+    "details": "Synthesizing EM relationships (Energy vs Wavelength) to complete the Spectrum City master plan.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "What experimental evidence confirms that light behaves like a wave?",
+    "links": {
+      "Project: Spectrum City Map": "Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html",
+      "EM Spectrum Rapid Review": "Unit_6_Waves_Radiation/EM_Spectrum_Rapid_Review/index.html"
+    },
+    "standards": [
+      "HS-PS4-3"
+    ]
+  },
+  {
+    "date": "2026-04-24",
+    "day": 20,
+    "unit": 6,
+    "title": "Spectrum City: Final Master Plan",
+    "summary": "Project Completion: Finalizing hazard maps & EM Rapid Review.",
+    "details": "Students complete their Spectrum City Hazard Maps, ensuring all district interactions are modeled. Following project submission, students perform the EM Spectrum Rapid Review assessment.",
+    "type": "Assessment",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do the physical properties of the EM spectrum determine its real-world hazards and applications?",
+    "links": {
+      "Spectrum City Map": "Unit_6_Waves_Radiation/Spectrum_City_Map/Spectrum_City_Map_Project.html",
+      "EM Rapid Review": "Unit_6_Waves_Radiation/EM_Spectrum_Rapid_Review/index.html"
+    },
+    "standards": [
+      "HS-PS4-4",
+      "HS-PS4-5"
+    ]
+  },
+  {
+    "date": "2026-04-27",
+    "day": 21,
+    "unit": 6,
+    "title": "Introduction to Signals",
+    "summary": "AVID Annotated Reading & Vocabulary: Analog vs. Digital.",
+    "details": "Students evaluate the core differences between continuous wave energy (Analog) and pulse-based encoding (Digital) through a structured AVID annotation process.",
+    "type": "Activity",
+    "links": {
+      "Reading: Intro to Signals": "https://docs.google.com/document/d/1tJt_5sCD5xCK7sU6Ngt42QMbGeT4arcFUetXcozQR8k/edit?usp=sharing",
+      "Interactive AVID Notebook": "Unit_6_Waves_Radiation/Interactive_AVID_Notebook_Signals/signals.html"
+    },
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do we convert wave energy into information that can be sent over long distances?",
+    "wicor": {
+      "reading": "Critical Reading: Marking the text for signal patterns.",
+      "writing": "3-word Gist summaries for each paragraph.",
+      "organization": "Bilingual Venn Diagram comparison."
+    },
+    "standards": [
+      "HS-PS4-2",
+      "HS-PS4-5"
+    ]
+  },
+  {
+    "date": "2026-04-28",
+    "day": 22,
+    "unit": 6,
+    "title": "The Digital Revolution",
+    "summary": "Independent WebQuest: Mapping the shift from analog to digital tech.",
+    "details": "Silent independent work day. Students research how technology changed from TV antennas and cassette tapes to fiber optics and streaming.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How has the transition from analog to digital technology changed the way we share information?",
+    "links": {
+      "Interactive: Signals Reference": "Unit_6_Waves_Radiation/Signals_reference/Signals_Reference.html",
+      "WebQuest: Digital Revolution": "https://docs.google.com/document/d/1Bl6WI0cS01nbkmJR3nSa5d2htQ_8-ugwACPnsnmacHQ/edit?usp=sharing"
+    },
+    "standards": [
+      "HS-PS4-2",
+      "HS-PS4-5"
+    ]
+  },
+  {
+    "date": "2026-04-29",
+    "day": 23,
+    "unit": 6,
+    "title": "Wave Signal Analysis Lab",
+    "summary": "Interactive simulation: Signal creation, noise recovery, and sampling.",
+    "details": "Students act as signal engineers to explore the physics of communication. Tasks include drawing analog/digital waves, recovering original signals from 'extreme' noise environments, and analyzing how sampling rates impact digital resolution.",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "Why are digital signals more robust against interference (noise) than analog signals?",
+    "links": {
+      "Interactive: Wave Signals Lab": "Unit_6_Waves_Radiation/Wave_Signals/Wave_signals.html"
+    },
+    "standards": [
+      "HS-PS4-2",
+      "HS-PS4-5"
+    ]
+  },
+  {
+    "date": "2026-04-30",
+    "day": 24,
+    "unit": 6,
+    "title": "Unit 6 Review Day",
+    "summary": "Collaborative review session covering the full unit curriculum.",
+    "details": "Students rotate through review stations focusing on math practice, vocabulary mastery, and conceptual modeling in preparation for the summative assessment.",
+    "type": "Activity",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How can we synthesize our understanding of waves and radiation to prepare for the final evaluation?",
+    "standards": [
+      "HS-PS4-1",
+      "HS-PS4-2",
+      "HS-PS4-5"
+    ]
+  },
+  {
+    "date": "2026-05-01",
+    "day": 25,
+    "unit": 6,
+    "title": "Unit 6 Summative Assessment",
+    "summary": "Comprehensive assessment covering mechanical waves, EM radiation, and signal technology.",
+    "details": "Final unit exam covering all major concepts from the past 5 weeks including the wave equation, interference, the EM spectrum, and digital/analog signals.",
+    "type": "Assessment",
+    "dok": 4,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do we demonstrate mastery of wave properties, electromagnetic radiation, and information technology?",
+    "standards": [
+      "HS-PS4-1",
+      "HS-PS4-2",
+      "HS-PS4-3",
+      "HS-PS4-4",
+      "HS-PS4-5"
+    ]
+  },
+  {
+    "date": "2026-05-11",
+    "day": 1,
+    "unit": 7,
+    "title": "Rocket Project Extension (Stability Improvements)",
+    "summary": "Students iterate on their 2-liter bottle rocket designs to improve flight stability.",
+    "details": "Focus on fin alignment, center of mass vs. center of pressure, and recovery systems. Final launch window extension.",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": false,
+    "essentialQuestion": "How does aerodynamic stability affect the flight path of a pressurized rocket?",
+    "standards": [
+      "HS-ETS1-2"
+    ]
+  },
+  {
+    "date": "2026-05-12",
+    "day": 2,
+    "unit": 7,
+    "title": "Rocket Project Final Launch & Analysis",
+    "summary": "Concluding the Rocketry unit with final stability testing and data collection.",
+    "details": "Final launches and retrospective on design improvements made during the extension days.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": false,
+    "essentialQuestion": "How do design iterations lead to more predictable engineering outcomes?",
+    "standards": [
+      "HS-ETS1-3"
+    ]
+  },
+  {
+    "date": "2026-05-13",
+    "day": 3,
+    "unit": 7,
+    "title": "The Van de Graaff Spark & Annotated Reading",
+    "summary": "Introduction to charge and fields through high-voltage experiments and literacy focus.",
+    "details": "Run experiments with the Van de Graaff generator (hair standing, sparks, flying pie tins). Complete an annotated reading on Coulomb's Law and the concept of 'Action at a Distance'.",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do invisible electric fields interact with matter to create visible energy transfers?",
+    "links": {
+      "Annotated Reading": "https://docs.google.com/document/d/1sZa3-Rs5Z5VwNP0NrhcdVlkp_yHXZMGY0rN0QmRrf28/edit?usp=sharing",
+      "Interactive Module": "Unit_7_Electricity_and_Magnetism/Unit7_Interactive_module.html"
+    },
+    "standards": [
+      "HS-PS2-4"
+    ]
+  },
+  {
+    "date": "2026-05-14",
+    "day": 4,
+    "unit": 7,
+    "title": "The Simple Circuit & Energy Flow",
+    "summary": "Introduce EUDAX kits and the transition from static to dynamic electricity.",
+    "details": "Build the simplest circuit: battery, switch, and lightbulb. Test materials for conductivity and discuss thermal energy dissipation (The Short).",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "Why do some materials allow energy to flow freely while others block it?",
+    "links": {
+      "Annotated Reading": "https://docs.google.com/document/d/10cRWbSNLpgQLlJVKppLbAixq0uXjd6VhizD8L6oZ83w/edit?usp=sharing",
+      "Lighting a Bulb Lab": "Unit_7_Electricity_and_Magnetism/Lighting_Light_Bulbs/Lighting_Light_Bulbs.html"
+    },
+    "standards": [
+      "HS-PS2-6"
+    ]
+  },
+  {
+    "date": "2026-05-15",
+    "day": 5,
+    "unit": 7,
+    "title": "Circuit Diagram Symbols & Virtual Lab",
+    "summary": "Master the visual language of electronics using standard symbols and virtual simulations.",
+    "details": "Learn to translate physical components into standard schematic symbols. Use the PhET DC Circuit Construction Kit to build virtual circuits and complete the guided analysis document.",
+    "type": "Lab",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "Why is a standardized visual language necessary for designing and troubleshooting electrical systems?",
+    "links": {
+      "PhET Virtual Lab": "https://phet.colorado.edu/en/simulations/circuit-construction-kit-dc-virtual-lab",
+      "Analysis Document": "https://docs.google.com/document/d/1R2oaA7OXGS9rTVmTqJ1pqz9px860v6jGDGwirT3Z1Fs/edit?usp=sharing"
+    },
+    "standards": [
+      "HS-PS2-6",
+      "HS-ETS1-2"
+    ]
+  },
+  {
+    "date": "2026-05-18",
+    "day": 6,
+    "unit": 7,
+    "title": "Voltage & Batteries (Conceptual Intro)",
+    "summary": "Understand electric potential difference and how batteries store chemical energy.",
+    "details": "Discuss how voltage acts as the 'push' for current. Test various batteries (AA, 9V, coin cell) using the EUDAX voltmeter to understand potential difference.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "What is voltage, and how do batteries provide the necessary 'push' for an electrical circuit?",
+    "links": {
+      "Reading Resource": "https://docs.google.com/document/d/1RngZHHhh-DNdu4tW6ifUW949sCGWyxFUEZ0UluMLgiE/edit?usp=sharing",
+      "Fruit Battery Simulation": "Unit_7_Electricity_and_Magnetism/Fruit_Battery/Fruit_Battery_Simulation.html"
+    },
+    "standards": [
+      "HS-PS3-1"
+    ]
+  },
+  {
+    "date": "2026-05-19",
+    "day": 7,
+    "unit": 7,
+    "title": "Lab: Fruit Batteries",
+    "summary": "Creating a functioning wet cell battery using household items.",
+    "details": "Use lemons, potatoes, and apples with zinc/copper electrodes to generate a measurable voltage. Experiment with series vs. parallel combinations of fruit to increase output.",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How can chemical reactions in everyday items be harnessed to create electrical energy?",
+    "links": {
+      "Lab Guide": "https://docs.google.com/document/d/1JqCjePXRHLkZDq3AIfAvVi-TEN4iSrhszef7YzSvbqg/edit?usp=sharing",
+      "Fruit Battery Simulation": "Unit_7_Electricity_and_Magnetism/Fruit_Battery/Fruit_Battery_Simulation.html"
+    },
+    "standards": [
+      "HS-PS3-3",
+      "HS-PS1-4"
+    ]
+  },
+  {
+    "date": "2026-05-20",
+    "day": 8,
+    "unit": 7,
+    "title": "Lab: Fruit Batteries (Continued)",
+    "summary": "Completing our wet cell batteries using household items.",
+    "details": "Finish generating a measurable voltage using lemons, potatoes, and apples with zinc/copper electrodes. Experiment with series vs. parallel combinations of fruit to increase output.",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How can series and parallel combinations of chemical cells increase electrical output?",
+    "links": {
+      "Lab Guide": "https://docs.google.com/document/d/1JqCjePXRHLkZDq3AIfAvVi-TEN4iSrhszef7YzSvbqg/edit?usp=sharing",
+      "Fruit Battery Simulation": "Unit_7_Electricity_and_Magnetism/Fruit_Battery/Fruit_Battery_Simulation.html"
+    },
+    "standards": [
+      "HS-PS3-3"
+    ]
+  },
+  {
+    "date": "2026-05-21",
+    "day": 9,
+    "unit": 7,
+    "title": "Series Circuits (The 'All or Nothing' Path)",
+    "summary": "Understand single-pathway circuits and voltage drops.",
+    "details": "Wire multiple bulbs and buzzers in series. Observe the dimming of bulbs (voltage drops) and what happens when one component is unscrewed. Measure cumulative voltage across components.",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How does adding components in a single pathway affect the overall voltage and current in a system?",
+    "links": {
+      "Series Circuits Lab Guide": "https://docs.google.com/document/d/19saFSDiEkrrwfXqvs8RcJLT6ZN4E6EdARxewIaZ2v3A/edit?usp=sharing"
+    },
+    "embed": "https://docs.google.com/document/d/19saFSDiEkrrwfXqvs8RcJLT6ZN4E6EdARxewIaZ2v3A/preview",
+    "standards": [
+      "HS-PS3-1"
+    ]
+  },
+  {
+    "date": "2026-05-22",
+    "day": 10,
+    "unit": 7,
+    "title": "Parallel Circuit Construction & Analysis",
+    "summary": "Understand multi-pathway circuits and why our homes are wired this way.",
+    "details": "Wire the same bulbs in parallel. Compare brightness to Day 8. Observe that unscrewing one bulb does not affect the others.",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "Why are parallel pathways more reliable for residential and industrial electrical grids?",
+    "links": {
+      "Analysis Document": "https://docs.google.com/document/d/1h3akDW6z-lk6M_8thxP_pp1lSAwcWW9dsMuL149cEiQ/edit?usp=sharing"
+    },
+    "standards": [
+      "HS-PS3-1",
+      "HS-ETS1-2"
+    ]
+  },
+  {
+    "date": "2026-05-25",
+    "day": 11,
+    "unit": 7,
+    "title": "No School - Memorial Day",
+    "summary": "No School - Memorial Day Holiday.",
+    "details": "No School - Memorial Day Holiday.",
+    "type": "Activity",
+    "dok": 1,
+    "semester": 2,
+    "isFeatured": false,
+    "essentialQuestion": "No School - Memorial Day Holiday.",
+    "standards": [
+      "HS-PS2-6"
+    ]
+  },
+  {
+    "date": "2026-05-26",
+    "day": 12,
+    "unit": 7,
+    "title": "Lab: Measuring Resistance",
+    "summary": "Construct electrical circuits to measure voltage and current, and experimentally calculate resistance using Ohm's Law.",
+    "details": "Using the EUDAX kits, wire resistors in series with ammeters and voltmeters. Measure voltage and current to calculate resistance, verifying Ohm's Law.",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How can we experimentally determine the electrical resistance of a circuit component?",
+    "links": {
+      "Lab Guide": "https://docs.google.com/document/d/1Z-SxsWJtH0KioUbKowQLXkdWQnZQqO-lhXS-XFW_dtg/edit?usp=sharing"
+    },
+    "embed": "https://docs.google.com/document/d/1Z-SxsWJtH0KioUbKowQLXkdWQnZQqO-lhXS-XFW_dtg/preview",
+    "standards": [
+      "HS-PS2-6"
+    ]
+  },
+  {
+    "date": "2026-05-27",
+    "day": 13,
+    "unit": 7,
+    "title": "Lab: The Jumping Wire",
+    "summary": "Observe how moving electric charges (current) create a magnetic field, and how that field interacts with other magnets to create a physical force.",
+    "details": "Construct a circuit with a thin aluminum foil strip suspended over a permanent magnet. Briefly close the switch to observe the electromagnetic force ('jumping') acting on the wire. Test the effects of reversing current and flipping magnetic poles.",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do moving electric charges interact with magnetic fields to produce a physical force?",
+    "links": {
+      "The Jumping Wire Lab Guide": "https://docs.google.com/document/d/1RqSFUnC39sCqbsYbOsCqsZj73Bzvo7FSJoWpjEDbueA/edit?usp=sharing"
+    },
+    "embed": "https://docs.google.com/document/d/1RqSFUnC39sCqbsYbOsCqsZj73Bzvo7FSJoWpjEDbueA/preview",
+    "standards": [
+      "HS-PS2-5",
+      "HS-PS3-5"
+    ]
+  },
+  {
+    "date": "2026-05-28",
+    "day": 14,
+    "unit": 7,
+    "title": "Tesla vs. Edison: War of the Currents",
+    "summary": "A conceptual and historical comparison of Alternating Current (AC) and Direct Current (DC).",
+    "details": "Watch the 'Tesla vs. Edison' video on EdPuzzle. Emphasize that this is a required EdPuzzle assignment with embedded check-for-understanding questions that will go directly into the gradebook.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "What were the key scientific and practical differences between Edison's DC system and Tesla's AC system?",
+    "links": {
+      "Tesla vs. Edison Video": "https://youtu.be/lFa8Wydalyw?si=Wj-EhHlgM7JpaPHE",
+      "EdPuzzle Assignment": "https://edpuzzle.com"
+    },
+    "standards": [
+      "HS-PS4-5",
+      "HS-ESS3-2"
+    ]
+  },
+  {
+    "date": "2026-05-29",
+    "day": 15,
+    "unit": 7,
+    "title": "Introduction to the \"Matching Game Box Project\"",
+    "summary": "Introduction to the electromagnetism-based Matching Game Box Project.",
+    "details": "Students are introduced to the Matching Game Box Project, where they will design and wire a custom game board. Review the project criteria and layout guidelines.",
+    "type": "Activity",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How can we apply circuit principles to design a multi-pathway electrical matching game?",
+    "links": {
+      "Project Instructions": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQCsSySzcLnISaGhGr6Amqe-AYCUUUVxrg1-p0ZU8Iu2p8c?e=6JRJ1c",
+      "Interactive: Simulator": "Unit_7_Electricity_and_Magnetism/Matching_Game_Box_Simulation.html"
+    },
+    "embed": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQCsSySzcLnISaGhGr6Amqe-AYCUUUVxrg1-p0ZU8Iu2p8c?e=6JRJ1c&action=embedview",
+    "standards": [
+      "HS-ETS1-1",
+      "HS-ETS1-2"
+    ]
+  },
+  {
+    "date": "2026-06-01",
+    "day": 16,
+    "unit": 7,
+    "title": "Faraday & Lenz (Induction)",
+    "summary": "Proving that a changing magnetic field creates a current.",
+    "details": "If you have copper pipes and neodymium magnets, do the 'magnet falling slowly through a pipe' demo. Alternatively, pass a magnet back and forth through a coiled wire connected to a sensitive galvanometer. In the second half of class, students will begin prototyping their matching game boxes by mapping out logical electrical paths and wire layouts.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How can a changing magnetic environment induce an electrical current?",
+    "links": {
+      "Lecture Slides": "https://docs.google.com/presentation/d/1c1EjPrm7TfrSmSsvtHfzrf8WNQBMUz_fa2OsyMa1y-Y/edit?usp=sharing"
+    },
+    "standards": [
+      "HS-PS2-5"
+    ]
+  },
+  {
+    "date": "2026-06-02",
+    "day": 17,
+    "unit": 7,
+    "title": "DIY Speaker Build",
+    "summary": "Students construct an electromagnetic speaker from scratch using wire, plates, and magnets.",
+    "details": "Students build their own functioning speaker using magnet wire, a paper plate, a strong neodymium magnet, and tape. They wind the voice coil, secure it to the plate, and position the permanent magnet to establish the magnetic field interface.",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do electrical signals and permanent magnets interact to create physical sound waves?",
+    "standards": [
+      "HS-PS2-5",
+      "HS-PS4-5"
+    ]
+  },
+  {
+    "date": "2026-06-03",
+    "day": 18,
+    "unit": 7,
+    "title": "DIY Speaker Testing & Analysis",
+    "summary": "Connect speakers to audio sources to test, measure, and analyze performance.",
+    "details": "Students connect their DIY speakers to a function generator app or audio amplifier. They test the frequency response of their speakers, observe mechanical vibrations at different pitches, and analyze how voice coil windings and plate size affect amplitude and volume.",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "What scientific variables determine the volume and frequency response of a homemade speaker?",
+    "standards": [
+      "HS-PS4-1",
+      "HS-PS4-5"
+    ]
+  },
+  {
+    "date": "2026-06-04",
+    "day": 19,
+    "unit": 7,
+    "title": "Flex Day // Project Completion",
+    "summary": "A flexible catches-up and final studio day to finish up projects.",
+    "details": "A dedicated flexible studio day. Students utilize this time to finalize wiring, debug, and troubleshoot their Matching Game Boxes, DIY Speakers, or any outstanding labs before final submission.",
+    "type": "Activity",
+    "dok": 2,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How does engineering iteration and systematic troubleshooting lead to a polished final product?",
+    "standards": [
+      "HS-ETS1-3",
+      "HS-ETS1-4"
+    ]
+  },
+  {
+    "date": "2026-06-05",
+    "day": 20,
+    "unit": 7,
+    "title": "Unit Wrap-Up & Final Reflection",
+    "summary": "Reflection and cleanup.",
+    "details": "Have students dismantle and organize the kits. Do a low-stakes reflection on their favorite build.",
+    "type": "Activity",
+    "dok": 1,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "What was the most impactful concept learned about energy transfer during this unit?",
+    "standards": [
+      "HS-PS3-1"
+    ]
+  },
+  {
+    "date": "2026-05-05",
+    "day": 26,
+    "unit": 7,
+    "title": "Virtual Rocket Design Lab (Sub Assignment)",
+    "summary": "Independent simulation & mastery quiz. <span class=\"inline-flex items-center gap-1 bg-red-950/40 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30 ml-2 animate-pulse\">⚠ SUB PRESENT</span>",
+    "details": "Students will use the Virtual Rocket Lab to design, test, and stabilize a 2-liter bottle rocket. A 10-question debrief quiz follows the simulation. GRADING: This assignment is graded on accuracy (out of 20 points).",
+    "type": "Lab",
+    "dok": 3,
+    "semester": 2,
+    "isFeatured": true,
+    "essentialQuestion": "How do the Center of Mass and Center of Pressure determine the stability of a rocket?",
+    "links": {
+      "Interactive: Virtual Rocket Lab": "2-Liter_Bottle_Rockets/Virtual_Rocket_Lab/Virtual_Rocket_Design_Lab.html"
+    },
+    "standards": [
+      "HS-ETS1-2"
     ]
   }
 ];
 
-function categorizeLessonLinks(day) {
-  if (!day) return { assignments: [], resources: [], practice: [] };
-
-  const result = {
-    assignments: [],
-    resources: [],
-    practice: []
-  };
-
-  // 1. Incorporate explicit arrays if present
-  if (Array.isArray(day.assignments)) {
-    result.assignments.push(...day.assignments);
-  }
-  if (Array.isArray(day.resources)) {
-    result.resources.push(...day.resources);
-  }
-  if (Array.isArray(day.practice)) {
-    result.practice.push(...day.practice);
-  }
-
-  // 2. Classify any legacy or additional day.links
-  if (day.links && typeof day.links === 'object') {
-    const existingUrls = new Set([
-      ...result.assignments.map(a => (a.url || '').toLowerCase()),
-      ...result.resources.map(r => (r.url || '').toLowerCase()),
-      ...result.practice.map(p => (p.url || '').toLowerCase())
-    ]);
-
-    Object.entries(day.links).forEach(([title, rawUrl]) => {
-      const url = String(rawUrl || '');
-      const urlLower = url.toLowerCase();
-      if (existingUrls.has(urlLower)) return;
-
-      const tLower = title.toLowerCase();
-
-      // Graded Assignment heuristics
-      const isAssignment =
-        tLower.includes('lab') ||
-        tLower.includes('quiz') ||
-        tLower.includes('exam') ||
-        tLower.includes('assessment') ||
-        tLower.includes('challenge') ||
-        tLower.includes('calculator') ||
-        tLower.includes('operation safe heeler') ||
-        tLower.includes('accuracy-precision-art') ||
-        tLower.includes('emoji finger painting') ||
-        urlLower.includes('unit-conversion-practice') ||
-        tLower.includes('unit conversion') ||
-        tLower.includes('fantasy map worksheet') ||
-        urlLower.includes('iqbzzhcgrqsd') ||
-        tLower.includes('worksheet') ||
-        (tLower.includes('quest') && !tLower.includes('story') && !tLower.includes('doc')) ||
-        urlLower.includes('safe-heeler') ||
-        urlLower.includes('speed_calculator') ||
-        urlLower.includes('wind_up_toy_lab') ||
-        urlLower.includes('displacement_and_distance_maps') ||
-        (day.type === 'Assessment' && !tLower.includes('slide') && !tLower.includes('presentation'));
-
-      // Learning Resource heuristics (slides, docs, notes, reading)
-      const isResource =
-        !isAssignment && (
-          tLower.includes('slide') ||
-          tLower.includes('presentation') ||
-          tLower.includes('notes') ||
-          tLower.includes('deck') ||
-          tLower.includes('reading') ||
-          tLower.includes('story') ||
-          tLower.includes('guide') ||
-          tLower.includes('overview') ||
-          tLower.includes('document') ||
-          urlLower.includes('docs.google.com') ||
-          urlLower.includes('sharepoint.com') ||
-          urlLower.includes('presentation')
-        );
-
-      // Practice / Sandbox heuristics
-      const isPractice =
-        tLower.includes('studio') ||
-        tLower.includes('drawer') ||
-        tLower.includes('graphing') ||
-        tLower.includes('simulation') ||
-        tLower.includes('sandbox') ||
-        tLower.includes('explorer') ||
-        tLower.includes('phet') ||
-        tLower.includes('web app') ||
-        urlLower.includes('displacement_and_distance_map') ||
-        urlLower.includes('drawer') ||
-        urlLower.includes('graphing');
-
-      if (isAssignment) {
-        let typeLabel = 'Required Assignment';
-        let submission = 'Turn In / Submit for Grading';
-        if (tLower.includes('fantasy map worksheet') || urlLower.includes('iqbzzhcgrqsd')) {
-          typeLabel = 'Required Project Worksheet';
-          submission = 'Turn In Completed Map & Handout';
-        } else if (tLower.includes('quiz') || tLower.includes('assessment') || tLower.includes('exam')) {
-          typeLabel = 'Graded Assessment';
-          submission = 'Recorded in Gradebook';
-        } else if (tLower.includes('challenge') || (tLower.includes('quest') && !tLower.includes('worksheet'))) {
-          typeLabel = 'Inquiry Challenge';
-          submission = 'Auto-Saved to Gradebook ✓';
-        } else if (tLower.includes('lab')) {
-          typeLabel = 'Graded Lab';
-          submission = 'Cloud Auto-Saved ✓';
-        } else if (tLower.includes('worksheet')) {
-          typeLabel = 'Required Worksheet Handout';
-          submission = 'Turn In Worksheet for Grading';
-        }
-        result.assignments.push({
-          title: title,
-          url: url,
-          typeLabel: typeLabel,
-          submission: submission,
-          required: true
-        });
-      } else if (isPractice && !isResource) {
-        result.practice.push({
-          title: title,
-          url: url,
-          typeLabel: 'Practice & Simulation Sandbox',
-          description: 'Self-paced tool to visualize and explore physics principles.'
-        });
-      } else {
-        let typeLabel = 'Study & Reference Material';
-        if (tLower.includes('slide') || tLower.includes('presentation') || tLower.includes('deck')) {
-          typeLabel = 'Classroom Lecture Slides';
-        } else if (tLower.includes('worksheet') || tLower.includes('handout')) {
-          typeLabel = 'Class Handout / Worksheet';
-        } else if (tLower.includes('video')) {
-          typeLabel = 'Instructional Video';
-        }
-        result.resources.push({
-          title: title,
-          url: url,
-          typeLabel: typeLabel,
-          description: 'Class material for lecture review, absent makeup, and notes.'
-        });
-      }
-    });
-  }
-
-  return result;
-}
-
-if (typeof window !== "undefined") {
-  window.categorizeLessonLinks = categorizeLessonLinks;
-}
-
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { lessonsData, categorizeLessonLinks };
+  module.exports = { lessonsData };
 }
