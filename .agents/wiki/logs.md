@@ -2,7 +2,29 @@
 
 Append-only log tracking pattern changes across sessions.
 
-## 2026-09-13 — Curriculum Architecture: Unit 2 Week 3 (Days 11–15) Motion Graphing & UAM Sequence
+## 2026-09-13 — Curriculum Architecture: Unit 2 Extension to 35 Instructional Days (7 Weeks)
+
+**Motivation**: Extended Unit 2 ("1D Kinematics & Newton's Laws of Motion") from 25 days (5 weeks) to 35 instructional days (7 weeks) through October 16, 2026. This extension provides robust instructional time for both 1D Kinematics (free fall, vertical projectiles, Galileo's incline lab, multi-vehicle intercepts) and Newtonian Dynamics (Newton's 1st, 2nd, and 3rd Laws, FBDs, mechanical equilibrium, static/kinetic friction measurement, crash safety crumple zone engineering).
+
+**Key Changes**:
+- **7-Week Curriculum Architecture (Days 1–35)**:
+  - **Part 1: 1D Kinematics (Weeks 1–4, Days 1–20)**:
+    - *Week 1 (Days 1–5)*: Reference Frames, Cartography, Vector Displacement vs Scalar Distance, Tumble Buggy Uniform Motion Lab.
+    - *Week 2 (Days 6–10)*: Labor Day Holiday, Wind-Up Toy Speed Lab Wrap-Up, Constant Speed Formulas (`v = d/t`, `d = v·t`, `t = d/v`), Constant Speed Story Performance Task.
+    - *Week 3 (Days 11–15)*: Position vs. Time (`x-t`) Slope as Velocity, Velocity vs. Time (`v-t`) Translation, Geometric Area Displacement Integration, Acceleration (`a = Δv/Δt`), Uniformly Accelerated Motion (UAM).
+    - *Week 4 (Days 16–20)*: Gravitational Free Fall (`g = 9.8 m/s²`), Vertical Projectiles & Symmetry, Galileo Incline Ramp Lab (`Δx ∝ t²`), Two-Car Kinematic Intercept Challenge, Kinematics Mid-Unit Mastery Checkpoint.
+  - **Part 2: Newtonian Dynamics (Weeks 5–7, Days 21–35)**:
+    - *Week 5 (Days 21–25)*: Newton's 1st Law (Inertia Demonstrations), Mass as Inertia vs Gravitational Weight (`W = m·g`), Free-Body Diagrams (FBDs), Mechanical Equilibrium (`F_net = 0`), Static Rigging Challenges.
+    - *Week 6 (Days 26–30)*: Newton's 2nd Law (`F_net = m·a`), Modified Atwood Machine Track Lab, Friction Physics (Static vs Kinetic), Friction Block Inquiry Lab (`μ = F_f / F_N`), Multi-Force Braking & Stopping Distances.
+    - *Week 7 (Days 31–35)*: Newton's 3rd Law (Action-Reaction Pairs), System Boundaries & Horse-Cart Paradox, Vehicle Crash Safety & Impulse Engineering (`F·Δt = m·Δv`), Unit 2 Grand Synthesis & Poster Gallery Walk, Unit 2 Summative Examination.
+- **Repository-Wide Synchronization**:
+  - `Unit_2/unit2_lessons.json`: Extended to 35 full lesson objects with WICOR, NGSS standards, DOK levels, and CAST/AI bell-ringers.
+  - `Unit_2/lesson.json`: Synchronized pure JSON store with all 35 lessons.
+  - `assets/lessons-data.js`: Master calendar updated with 139 total lessons across the academic year.
+  - `Unit_2/outline.md`: Rewritten to reflect the complete 7-week, 35-day blueprint.
+  - `unit2-dashboard.html`: Header updated to "Unit 2: 1D Kinematics & Newton's Laws of Motion", overview updated, and cache-buster updated to `?v=20260913d`. Dynamic DOK chart and progress bar verified for 35 days.
+  - Zero LaTeX math syntax guaranteed across all lessons and UI files.
+
 
 **Motivation**: Redesigned Unit 2 Week 3 (Days 11–15: September 14–18, 2026) to transition from constant-speed kinematics into comprehensive graphical motion analysis (position-time and velocity-time graphs), geometric integration (displacement as area under `v-t`), and uniformly accelerated motion (UAM). Consolidated Newtonian dynamics into Weeks 4 and 5, maintaining a strict 25-day unit pacing.
 
