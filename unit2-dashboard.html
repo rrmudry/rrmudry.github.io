@@ -91,7 +91,7 @@
         .blink-cursor::after { content: '_'; animation: blink 1s step-end infinite; color: var(--accent-volt); margin-left: 2px; }
         @keyframes blink { 50% { opacity: 0; } }
 
-        .chart-bg { background: rgba(3, 7, 3, 0.6); border-radius: 14px; padding: 1rem; border: 1px solid rgba(163, 230, 53, 0.15); }
+        .chart-bg { background: rgba(3, 7, 3, 0.6); border-radius: 14px; padding: 1.25rem 1.25rem 1.25rem 1.5rem; border: 1px solid rgba(163, 230, 53, 0.15); }
         
         .custom-scroll::-webkit-scrollbar { width: 6px; }
         .custom-scroll::-webkit-scrollbar-track { background: transparent; }
@@ -999,14 +999,26 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            left: 15,
+                            right: 20,
+                            top: 15,
+                            bottom: 10
+                        }
+                    },
                     scales: {
                         y: {
+                            afterFit: function(axis) {
+                                axis.width = Math.max(axis.width, 135);
+                            },
                             min: 1,
                             max: 4,
                             ticks: {
                                 stepSize: 1,
                                 color: '#94a3b8',
-                                font: { family: 'Fira Code' },
+                                font: { family: 'Fira Code', size: 11 },
+                                padding: 10,
                                 callback: function(val) {
                                     const labels = {1: 'DOK 1: Recall', 2: 'DOK 2: Skill', 3: 'DOK 3: Strategy', 4: 'DOK 4: Extended'};
                                     return labels[val] || val;
