@@ -975,7 +975,7 @@
             const ctx = document.getElementById('dokChart');
             if (!ctx) return;
 
-            const labels = unitData.map(d => `Day ${d.day}`);
+            const labels = unitData.map(d => `${d.day}`);
             const dokValues = unitData.map(d => d.dok || 1);
 
             new Chart(ctx, {
@@ -990,8 +990,8 @@
                         borderWidth: 3,
                         pointBackgroundColor: '#facc15',
                         pointBorderColor: '#040804',
-                        pointRadius: 6,
-                        pointHoverRadius: 9,
+                        pointRadius: 5,
+                        pointHoverRadius: 8,
                         fill: true,
                         tension: 0.35
                     }]
@@ -1015,7 +1015,19 @@
                             grid: { color: 'rgba(163, 230, 53, 0.08)' }
                         },
                         x: {
-                            ticks: { color: '#94a3b8', font: { family: 'Fira Code' } },
+                            title: {
+                                display: true,
+                                text: 'Instructional Day',
+                                color: '#a3e635',
+                                font: { family: 'Fira Code', size: 11, weight: '600' },
+                                padding: { top: 6 }
+                            },
+                            ticks: { 
+                                color: '#94a3b8', 
+                                font: { family: 'Fira Code', size: 10 },
+                                maxRotation: 0,
+                                autoSkip: false
+                            },
                             grid: { color: 'rgba(163, 230, 53, 0.08)' }
                         }
                     },
@@ -1028,6 +1040,11 @@
                             borderColor: 'rgba(204, 255, 0, 0.4)',
                             borderWidth: 1,
                             callbacks: {
+                                title: (tooltipItems) => {
+                                    const index = tooltipItems[0].dataIndex;
+                                    const d = unitData[index];
+                                    return `Day ${d?.day || index + 1} (${d?.date || ''})`;
+                                },
                                 label: (context) => `Cognitive Rigor: DOK ${context.raw} (${unitData[context.dataIndex]?.topic || ''})`
                             }
                         }
