@@ -184,12 +184,14 @@ This unit follows the classical and cognitive progression:
     *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Simulation / Performance Task
     *   *Links:* [Two-Car Kinematic Intercept Challenge](Unit_2/two_car_intercept/index.html)
 
-*   **Day 20 (2026-09-25): Kinematics Mid-Unit Synthesis & Mastery Checkpoint**
+*   **Day 20 (2026-09-25): Autonomous Vehicle Forensic Crash Reconstruction & Kinematic Synthesis**
     *   *Bell-Ringer:* Kinematics 3-Way Representation Synthesis (CAST Matrix): Given a multi-stage velocity-time graph, compute total displacement via area, instantaneous acceleration via slope, and select the matching position-time trajectory.
-    *   *Focus:* Comprehensive review and formative evaluation of 1D Kinematics (Days 1–19): reference frames, constant speed, `x-t` and `v-t` graphing, area under `v-t`, UAM kinematic equations, and free-fall motion.
-    *   *Activity:* Mid-Unit Kinematics Mastery Checkpoint: 45-minute formative assessment featuring motion graph interpretation, multi-step GUESS word problems, and a self-correction peer reflection protocol.
-    *   *Essential Question:* How do graphs, equations, and narrative descriptions work together to provide a complete mathematical description of 1D motion?
-    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Assessment / Checkpoint
+    *   *Focus:* Forensic 1D Kinematic Reconstruction: Multi-Stage Acceleration, Reaction Latency, and Error Sensitivity Modeling. Synthesizing reaction time latencies, quadratic braking deceleration curves, and GPS telemetry.
+    *   *Activity:* Autonomous Vehicle Forensic Crash Reconstruction (DOK 4 Extended Investigation): Working in forensic engineering teams, students receive a collision case file containing timestamped GPS pings, noisy accelerometer sensor traces, and intersection traffic camera stills. Teams must: (1) partition the collision into distinct kinematic phases (pre-detection cruise, sensor-processing latency, anti-lock braking deceleration, and post-impact skid), (2) apply kinematic models to resolve initial speeds, (3) conduct parameter sensitivity analysis evaluating how pavement moisture (dry vs wet) and reaction latency (0.2s vs 0.8s) affect the collision envelope, and (4) author a formal Forensic Collision Investigation Report defending whether autonomous perception latency or human driver speeding caused the incident.
+    *   *Essential Question:* How do forensic engineers synthesize multi-stage kinematic models and sensor uncertainty to determine the true sequence and root cause of a vehicular collision?
+    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 4 | *Type:* Forensic Investigation / Performance Task
+    *   *Links:* [Forensic Case Dossier](https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing), [Forensic Methodology Guide](https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing), [Two-Car Intercept Simulator](Unit_2/two_car_intercept/index.html)
+
 
 ---
 
@@ -273,13 +275,14 @@ This unit follows the classical and cognitive progression:
     *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Lab
     *   *Links:* [Friction Block Lab Handout](https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing)
 
-*   **Day 30 (2026-10-09): Multi-Force Dynamics & Highway Stopping Distances**
+*   **Day 30 (2026-10-09): Student-Designed Traction Investigation & Highway Curve Safety Specification**
     *   *Bell-Ringer:* Emergency Braking on Wet vs. Dry Road (CAST Challenge): A 1,200 kg car traveling at 25 m/s slams on its brakes. On dry asphalt `μ_k = 0.80`; on icy wet pavement `μ_k = 0.20`. Calculate the deceleration and total stopping distance for both road conditions.
-    *   *Focus:* Uniting Newtonian Dynamics with 1D Kinematics: 2-step solution pipeline: (1) Construct FBD and compute `F_net = m · a` to find acceleration `a`, (2) Substitute `a` into kinematic equations (`v² = v₀² + 2aΔx` or `x = x₀ + v₀t + ½at²`) to find distance or time.
-    *   *Activity:* Highway Safety & Stopping Distance Workshop: Students evaluate real-world accident reconstruction data, calculating skid mark lengths, initial vehicle speeds, and the impact of driver reaction time on multi-stage stopping distance.
-    *   *Essential Question:* How do traffic safety engineers combine Newton's Second Law with kinematic motion models to determine highway speed limits and safe following distances?
-    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Practice / Performance Task
-    *   *Links:* [Highway Stopping Distance Workshop](https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing), [Two-Car Intercept Challenge](Unit_2/two_car_intercept/index.html)
+    *   *Focus:* Comparative Empirical Friction Methodology, Systematic Error Reconciliation, and Highway Safety Engineering. Reconciling discrepancies between dynamic pull sensors and incline slip angles.
+    *   *Activity:* Comparative Traction Protocol & Highway Safety Specification (DOK 4 Extended Investigation): Teams act as highway safety research consultants. Rather than following a step-by-step procedure, teams must: (1) independently formulate and carry out two distinct experimental protocols to measure friction coefficients on road materials (horizontal force sensor drag vs. critical angle of incline slip where μ_s = tan θ), (2) identify and reconcile discrepancies between the methods by analyzing contact temperature, surface wear, and stick-slip chatter, and (3) synthesize empirical friction coefficients with Newton's 2nd Law and kinematics to calculate stopping distance envelopes and specify safe wet-weather speed limits for a banked mountain highway curve.
+    *   *Essential Question:* Why must materials engineers reconcile multiple experimental paradigms and error sources before establishing critical safety specifications for transportation systems?
+    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 4 | *Type:* Engineering Design / Investigation
+    *   *Links:* [Highway Safety Engineering Specification](https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing), [Friction Methodology & Pavement Guide](https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing), [Two-Car Intercept Challenge](Unit_2/two_car_intercept/index.html)
+
 
 ---
 
@@ -302,21 +305,22 @@ This unit follows the classical and cognitive progression:
     *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Workshop / Analysis
     *   *Links:* [System Boundary Diagramming Worksheet](https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing)
 
-*   **Day 33 (2026-10-14): Vehicle Crash Safety & Impulse Engineering**
+*   **Day 33 (2026-10-14): Structural Crashworthiness Engineering: Crumple Zone Impulse Optimization**
     *   *Bell-Ringer:* Bungee Jump vs. Steel Cable (AI Chat): Why would bungee jumping with an inelastic steel cable instead of an elastic rubber cord be fatal, even though both cords stop your fall over the exact same vertical distance?
-    *   *Focus:* Reducing collision impact force by extending deceleration time: `F_avg · Δt = m · Δv`. Automotive safety features: crumple zones, airbags, seatbelts, breakaway highway poles, and bicycle helmets. Engineering constraints and trade-offs.
-    *   *Activity:* Crumple Zone Engineering Challenge: Teams design and test cardboard and foam bumper structures for dynamic test carts rolling down ramps into force sensors, comparing peak impact force and deceleration time profiles between rigid and crumple bumpers.
-    *   *Essential Question:* How do automotive engineers manipulate contact time and deformation distance to minimize lethal deceleration forces during a sudden collision?
-    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Lab / Engineering Design
-    *   *Links:* [Operation Safe Heeler](https://rrmudry.github.io/operation-safe-heeler.html), [Safe Heeler Results](https://rrmudry.github.io/operation_safe_heeler_results.html)
+    *   *Focus:* Iterative Engineering Design: Reducing Impact Force via Deceleration Duration Extension under Physical Constraints (`F_avg · Δt = m · Δv`).
+    *   *Activity:* Operation Safe Heeler Crashworthiness Engineering Challenge (DOK 4 Engineering Design): Teams receive client design constraints for an autonomous passenger pod: vehicle crumple depth < 15 cm, bumper mass < 150 g, structural budget < $25, and zero passenger cabin intrusion. Teams: (1) construct physical/digital baseline prototype bumpers and run collision tests with accelerometer and force sensors, (2) integrate real-time impulse curves to quantify peak g-force and deceleration duration (Δt), (3) perform iterative redesigns (comparing accordion folds, progressive honeycomb cells, and composite dampening) to optimize deceleration profiles, and (4) log collision telemetry to the cloud gradebook.
+    *   *Essential Question:* How do automotive engineers manipulate structural deformation and material failure modes to minimize lethal deceleration forces within strict mass and space constraints?
+    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 4 | *Type:* Engineering Design / Lab
+    *   *Links:* [Operation Safe Heeler Lab](https://rrmudry.github.io/operation-safe-heeler.html), [Safe Heeler Analytics](https://rrmudry.github.io/operation_safe_heeler_results.html)
 
-*   **Day 34 (2026-10-15): Comprehensive Unit 2 Synthesis & Gallery Walk**
+*   **Day 34 (2026-10-15): Automotive Safety Symposium & Peer Defense Gallery Walk**
     *   *Bell-Ringer:* Unit 2 Grand Synthesis (CAST Matrix): An autonomous rocket launches upward, runs out of fuel, reaches apex, falls, and deploys a parachute to terminal velocity. Identify the correct FBD, `x-t` curve, `v-t` slope, and acceleration sign for each flight phase.
-    *   *Focus:* Grand synthesis uniting 1D Kinematics (`x`, `v`, `a`, motion graphs, UAM formulas) with Newtonian Dynamics (Inertia, `F_net = m · a`, FBDs, Friction, Action-Reaction). Collaborative problem solving and peer defense.
-    *   *Activity:* Multi-Tier Problem Poster Gallery Walk: Teams create large whiteboard solution posters for complex real-world challenges (spacecraft docking, elevator cable failure, high-speed rail braking), rotate through peer review stations, and leave sticky-note peer audits.
-    *   *Essential Question:* How do kinematic motion measurements and Newtonian force laws unite into a single universal mathematical framework for all physical motion?
-    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Review / Gallery Walk
-    *   *Links:* [Unit 2 Grand Synthesis Rubric](https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing), [Unit 2 Review Slide Deck](Unit_2/describing-motion-presentation/index.html)
+    *   *Focus:* Cross-Disciplinary Kinematics-Dynamics Synthesis, Model Defense, and Peer Technical Review. Uniting 1D Kinematics and Newtonian Dynamics into an integrated engineering portfolio.
+    *   *Activity:* Automotive Safety Symposium & Technical Peer Defense (DOK 4 Synthesis & Critique): Teams present large technical poster portfolios that integrate the entire unit's physics: (1) Free-Body Diagrams of impact phases, (2) Piecewise kinematics curves (x-t, v-t, a-t), (3) Newton's 2nd & 3rd Law interaction pair analysis, and (4) Empirical crashworthiness trade-offs. Teams rotate through structured defense rounds, answering formal technical cross-examinations from peer audit panels and evaluating competing engineering portfolios using standardized criteria.
+    *   *Essential Question:* How do scientists and engineers critically evaluate and defend complex physical models when public safety depends on the accuracy of the physics?
+    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 4 | *Type:* Symposium / Model Defense
+    *   *Links:* [Technical Symposium Rubric & Audit Form](https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing), [Unit 2 Grand Synthesis Slide Deck](Unit_2/describing-motion-presentation/index.html)
+
 
 *   **Day 35 (2026-10-16): Unit 2 Summative Assessment**
     *   *Bell-Ringer:* Exam Readiness Mindset & Formula Check: Final 5-minute formula sheet review and calculator setup.

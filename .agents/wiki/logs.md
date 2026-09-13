@@ -2,7 +2,26 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-13 — Curriculum Architecture: Embed Authentic DOK 4 Culminating Performance Tasks & Engineering Anchors in Unit 2
+
+**Motivation**: The Cognitive Progression Chart on `unit2-dashboard.html` previously peaked at DOK 3, lacking authentic DOK 4 (Extended Thinking, Modeling, and Engineering Design) tasks. Rather than artificially inflating routine assignments, 4 culminating milestone lessons were pedagogically elevated into rigorous DOK 4 anchors featuring multi-step investigations, student-formulated empirical protocols, iterative engineering cycles under physical constraints, and peer defense under cross-examination.
+
+**Key Changes**:
+- **Elevated 4 Culminating DOK 4 Anchors**:
+  - **Day 20 (2026-09-25)**: *Autonomous Vehicle Forensic Crash Reconstruction & Kinematic Synthesis* (`HS-PS2-1`, `HS-ETS1-2`, DOK 4). Forensic engineering case study: piecewise kinematic phase partitioning (cruise, sensor latency, ABS braking, post-impact skid), parameter sensitivity modeling (pavement friction and reaction latency), and authoring a formal legal liability report.
+  - **Day 30 (2026-10-09)**: *Student-Designed Traction Investigation & Highway Curve Safety Specification* (`HS-PS2-1`, `HS-ETS1-2`, DOK 4). Materials engineering investigation: teams formulate two independent empirical protocols (horizontal force sensor drag vs. critical incline slip angle `μ_s = tan θ`), reconcile systematic errors (stick-slip, temperature, contact wear), and author a banked highway safety speed limit specification.
+  - **Day 33 (2026-10-14)**: *Structural Crashworthiness Engineering: Crumple Zone Impulse Optimization* (`HS-PS2-1`, `HS-ETS1-2`, DOK 4). Iterative engineering design cycle on Operation Safe Heeler: testing physical/virtual bumper crumple structures under strict constraints (crumple depth < 15 cm, bumper mass < 150 g, budget < $25), optimizing impulse deceleration duration (`F_avg · Δt = m · Δv`), and cloud logging telemetry.
+  - **Day 34 (2026-10-15)**: *Automotive Safety Symposium & Peer Defense Gallery Walk* (`HS-PS2-1`, `HS-ETS1-2`, DOK 4). Cross-disciplinary synthesis uniting 1D Kinematics and Newtonian Dynamics: teams present comprehensive engineering portfolios, defend physical models during structured peer cross-examinations, and author technical audit critiques.
+- **Data Store Synchronization**:
+  - Updated `Unit_2/lesson.json`, `Unit_2/unit2_lessons.json`, and `assets/lessons-data.js` with comprehensive titles, topics, summaries, DOK levels (`4`), activities, essential questions, WICOR strategies, and resource links.
+  - Updated `Unit_2/outline.md` blueprints for Days 20, 30, 33, and 34.
+  - Updated DOK 4 overview card and script cache busters (`?v=20260913f`) in `unit2-dashboard.html`.
+- **Standards & Policy Compliance**:
+  - All lessons retain explicit NGSS standards (`HS-PS2-1`, `HS-ETS1-2`).
+  - Zero LaTeX math notation throughout all files; plain text and Unicode symbols only (`Δ`, `x₀`, `v₀`, `m/s²`, `μ`).
+
 ## 2026-09-13 — Bug Fix: Restore categorizeLessonLinks & Enrich Days 21–35 Rich Resources & Materials
+
 
 **Motivation**: Resolved an issue where rich resource badges, modal popover cards, and the `#resources` section links (Labs & Activities, Assessments) were missing from `unit2-dashboard.html`.
 
