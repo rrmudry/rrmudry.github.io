@@ -2,6 +2,26 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-13 — Curriculum Architecture: Unit 2 Week 3 (Days 11–15) Motion Graphing & UAM Sequence
+
+**Motivation**: Redesigned Unit 2 Week 3 (Days 11–15: September 14–18, 2026) to transition from constant-speed kinematics into comprehensive graphical motion analysis (position-time and velocity-time graphs), geometric integration (displacement as area under `v-t`), and uniformly accelerated motion (UAM). Consolidated Newtonian dynamics into Weeks 4 and 5, maintaining a strict 25-day unit pacing.
+
+**Key Changes**:
+- **Week 3 Kinematics Progression (Days 11–15)**:
+  - **Day 11 (2026-09-14)**: Position vs. Time (`x-t`) Graphing: Slope as Velocity (`v = Δx / Δt`), horizontal rest, direction, and intercept interpretations. Bell-Ringer: CAST Challenge (Desert sprint relay telemetry and runner intercept).
+  - **Day 12 (2026-09-15)**: Velocity vs. Time (`v-t`) Graphing: Direction, zero velocity axis, and piecewise graph translation workshop (`x-t` into step-wise `v-t`). Bell-Ringer: AI Concept Chat ("The Sign and the Speed").
+  - **Day 13 (2026-09-16)**: Geometric Integration: Displacement as the Area Under the `v-t` Curve (`Δx = Area`, rectangles for uniform motion, triangles for changing motion, signed area for reverse travel). Bell-Ringer: CAST Challenge (Subterranean drone telemetry & distance vs. displacement).
+  - **Day 14 (2026-09-17)**: Introducing Acceleration: Slope of Velocity-Time (`a = Δv / Δt`), units (`m/s²`), speeding up vs. slowing down sign rules, and parabolic curvature on `x-t`. Bell-Ringer: CAST Matrix (Automated transit pod telemetry).
+  - **Day 15 (2026-09-18)**: Uniformly Accelerated Motion (UAM) & Kinematic Relationships: Deriving `v = v₀ + at` and `x = x₀ + v₀t + ½at²`. Bell-Ringer: CAST Challenge (Autonomous emergency braking & stopping distance performance task).
+- **Consolidated Dynamics Progression (Weeks 4 & 5)**:
+  - **Week 4 (Days 16–20)**: Causes of Motion: Newton's 1st Law & Inertia Demos (Day 16), Mass vs. Weight & FBDs (Day 17), Newton's 2nd Law Lab `F_net = m · a` (Day 18), Friction (Day 19), and Connecting Dynamics to Kinematic Stopping Distances (Day 20).
+  - **Week 5 (Days 21–25)**: Newton's 3rd Law, System Boundaries, Vehicle Crash Safety Engineering, Comprehensive Unit Synthesis, and Unit 2 Summative Assessment.
+- **Repository-Wide Alignment**:
+  - Updated `Unit_2/outline.md` curriculum blueprint.
+  - Updated `Unit_2/unit2_lessons.json` with complete WICOR, essential questions, and CAST/AI bell-ringers.
+  - Synchronized `assets/lessons-data.js` master calendar (129 lessons).
+  - Verified 100% adherence to the strict No-LaTeX policy (plain text/Unicode symbols) and mandatory daily NGSS standards arrays.
+
 ## 2026-09-12 — Fix: Unit Conversion Practice maxPoints Rescaling (100 -> 10 pts) & Aeries Gradebook Alignment
 
 **Motivation**: Resolved an issue where "Unit Conversion Practice" was originally created in Google Classroom as a 100-point assignment (10x normal assignment weight). When Google Classroom synced to Aeries, Aeries inherited `maxPoints: 100` and overwrote teacher manual score corrections (10/10) back to 100/100.
