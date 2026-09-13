@@ -522,23 +522,20 @@
     </div>
 
     <script src="assets/partials.js"></script>
-    <script src="assets/lessons-data.js"></script>
+    <script src="assets/lessons-data.js?v=20260913c"></script>
+    <script src="Unit_2/unit2_lessons.json?v=20260913c"></script>
     <script>
-        const lessonScript = document.createElement('script');
-        lessonScript.src = 'Unit_2/unit2_lessons.json?v=' + Date.now();
-        document.head.appendChild(lessonScript);
-
         window.addEventListener('load', () => {
-            if (typeof unit2Lessons === 'undefined' && typeof lessonsData === 'undefined') {
-                const checkInterval = setInterval(() => {
-                    if (typeof unit2Lessons !== 'undefined' || typeof lessonsData !== 'undefined') {
-                        clearInterval(checkInterval);
-                        initDashboard();
-                    }
-                }, 50);
-            } else {
-                initDashboard();
+            function launchDashboard() {
+                if (typeof unit2Lessons !== 'undefined' && Array.isArray(unit2Lessons) && unit2Lessons.length > 0) {
+                    initDashboard();
+                } else if (typeof lessonsData !== 'undefined' && Array.isArray(lessonsData)) {
+                    initDashboard();
+                } else {
+                    setTimeout(launchDashboard, 30);
+                }
             }
+            launchDashboard();
             initSimVisualizer();
             initScopeMotionGraph();
         });
