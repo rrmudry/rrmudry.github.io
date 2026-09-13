@@ -2,7 +2,27 @@
 
 Append-only log tracking pattern changes across sessions.
 
-## 2026-09-13 — Curriculum Architecture: Unit 2 Extension to 35 Instructional Days (7 Weeks)
+## 2026-09-13 — Bug Fix: Restore categorizeLessonLinks & Enrich Days 21–35 Rich Resources & Materials
+
+**Motivation**: Resolved an issue where rich resource badges, modal popover cards, and the `#resources` section links (Labs & Activities, Assessments) were missing from `unit2-dashboard.html`.
+
+**Root Cause**:
+1. `categorizeLessonLinks(day)` was inadvertently omitted during an earlier file regeneration of `assets/lessons-data.js`. Because `window.categorizeLessonLinks` was undefined, calls across `unit2-dashboard.html` (`renderCategorizedLinksHtml`, modal drawers, and `#labs-list` / `#assessments-list`) defaulted to empty arrays `{ assignments: [], resources: [], practice: [] }`.
+2. Days 21–35 in `Unit_2/unit2_lessons.json` and `assets/lessons-data.js` were missing explicit `assignments`, `resources`, `practice`, and `links` objects.
+
+**Key Changes**:
+- **Restored `categorizeLessonLinks`**:
+  - Restored full heuristic classification in `assets/lessons-data.js`, exporting to both `window.categorizeLessonLinks` and `module.exports = { lessonsData, categorizeLessonLinks }`.
+  - Added an inline defensive fallback definition of `window.categorizeLessonLinks` directly inside `unit2-dashboard.html` to guarantee availability regardless of script load order or caching.
+- **Enriched Days 21–35 Across All Stores**:
+  - Fully populated `assignments`, `resources`, `practice`, and `links` for all dynamics days (Days 21–35) across `Unit_2/unit2_lessons.json`, `Unit_2/lesson.json`, and `assets/lessons-data.js`.
+  - Linked interactive tools: PhET Forces and Motion Basics, Vector Displacement & Force Calculator (`Unit_2/Vector_displacement_calculator_app/index.html`), Two-Car Kinematic Intercept Challenge (`Unit_2/two_car_intercept/index.html`), Operation Safe Heeler Crash Lab (`operation-safe-heeler.html`), and Safe Heeler Results (`operation_safe_heeler_results.html`).
+  - Added lab handouts, slide decks, CER writing guides, problem sets, and formula reference sheets for all days.
+- **Dashboard UI & Cache Busting**:
+  - Added Operation Safe Heeler and Safe Heeler Results to the featured button cluster in the Mission Briefing card.
+  - Reset `#labs-list` and `#assessments-list` on `initDashboard()`.
+  - Bumped script cache busters to `?v=20260913e`.
+
 
 **Motivation**: Extended Unit 2 ("1D Kinematics & Newton's Laws of Motion") from 25 days (5 weeks) to 35 instructional days (7 weeks) through October 16, 2026. This extension provides robust instructional time for both 1D Kinematics (free fall, vertical projectiles, Galileo's incline lab, multi-vehicle intercepts) and Newtonian Dynamics (Newton's 1st, 2nd, and 3rd Laws, FBDs, mechanical equilibrium, static/kinetic friction measurement, crash safety crumple zone engineering).
 
