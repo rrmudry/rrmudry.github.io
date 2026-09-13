@@ -2745,7 +2745,37 @@ const lessonsData = [
       "promptQuestion": "If you throw a baseball in deep outer space where there is no gravity, no air, and no friction, what will happen to the ball after it leaves your hand?",
       "explanation": "The baseball will keep moving in a straight line at the exact same constant speed forever, because there is no net force to slow it down or change its direction.",
       "defaultDuration": 3
-    }
+    },
+    "links": {
+      "PhET Forces and Motion: Basics": "https://phet.colorado.edu/sims/html/forces-and-motion-basics/latest/forces-and-motion-basics_en.html",
+      "Inertia Stations Handout": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing"
+    },
+    "assignments": [
+      {
+        "title": "Inertia Phenomenon Stations Handout",
+        "url": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+        "typeLabel": "Lab Handout",
+        "submission": "Turn In Completed Station Observations",
+        "actionLabel": "View Handout",
+        "description": "Four-station inquiry recording cause, observation, and inference for inertia demos."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Galileo vs. Aristotle Thought Experiments",
+        "url": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
+        "typeLabel": "Lecture Slides",
+        "description": "Historical debate on natural states of motion and Galileo double incline."
+      }
+    ],
+    "practice": [
+      {
+        "title": "PhET Forces & Motion: Basics (Motion)",
+        "url": "https://phet.colorado.edu/sims/html/forces-and-motion-basics/latest/forces-and-motion-basics_en.html",
+        "typeLabel": "Interactive Simulation",
+        "description": "Explore pushing objects across frictionless surfaces."
+      }
+    ]
   },
   {
     "day": 22,
@@ -2776,7 +2806,29 @@ const lessonsData = [
       "promptQuestion": "A student pushes a heavy crate across the floor at a steady, constant speed. The student says: 'My push is greater than friction, and that is why the crate is moving forward.' Explain why their physics understanding is incorrect.",
       "explanation": "If the crate is moving at a CONSTANT speed, its acceleration is zero! By Newton's First Law, zero acceleration requires zero net force. Therefore, the student's forward push exactly EQUALS friction—it is not greater.",
       "defaultDuration": 3
-    }
+    },
+    "links": {
+      "Newton's 1st Law Presentation": "Unit_2/describing-motion-presentation/index.html",
+      "Seatbelt Physics CER Handout": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing"
+    },
+    "assignments": [
+      {
+        "title": "Seatbelt Physics & Inertia CER Argument",
+        "url": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+        "typeLabel": "Required CER Writing",
+        "submission": "Turn In CER Argument",
+        "actionLabel": "View Prompt",
+        "description": "Construct a Claim-Evidence-Reasoning response explaining how seatbelts protect against vehicular inertia."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Newton's First Law Slide Deck",
+        "url": "Unit_2/describing-motion-presentation/index.html",
+        "typeLabel": "Classroom Slides",
+        "description": "Direct instruction on balanced forces, inertia, and Galileo thought experiments."
+      }
+    ]
   },
   {
     "day": 23,
@@ -2806,7 +2858,28 @@ const lessonsData = [
       "promptQuestion": "Why is an object's mass in kilograms identical on the Earth, the Moon, and in deep space, while its weight in Newtons changes drastically depending on location?",
       "explanation": "Mass is the fundamental quantity of matter and measure of inertia (resistance to acceleration), which never changes. Weight is the gravitational pull exerted on that mass by a planet (W = m · g), which depends on local gravitational field strength.",
       "defaultDuration": 3
-    }
+    },
+    "links": {
+      "Mass vs Weight Lab Guide": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing"
+    },
+    "assignments": [
+      {
+        "title": "Mystery Mass Shakers & Inertia Lab Sheet",
+        "url": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+        "typeLabel": "Lab Activity",
+        "submission": "Turn In Lab Data Sheet",
+        "actionLabel": "View Lab Sheet",
+        "description": "Rank unknown masses by horizontal resistance to acceleration without gravitational weight assistance."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Mass vs. Weight Reference Guide",
+        "url": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+        "typeLabel": "Reference Handout",
+        "description": "Comparing inertial mass (kg) and gravitational force (N = m · g) across the solar system."
+      }
+    ]
   },
   {
     "day": 24,
@@ -2918,20 +2991,20 @@ const lessonsData = [
     },
     "assignments": [
       {
-        "title": "Free-Body Diagram (FBD) Drafting Sprint Handout",
+        "title": "Whiteboard FBD Sprint & Force Identification Sheet",
         "url": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
-        "typeLabel": "Classwork Practice",
-        "submission": "Turn In Completed FBDs",
-        "actionLabel": "View Handout",
-        "description": "Construct 8 standardized Free-Body Diagrams across resting, constant speed, and accelerating systems."
+        "typeLabel": "Practice Handout",
+        "submission": "Turn In FBD Problem Set",
+        "actionLabel": "View Worksheet",
+        "description": "Construct isolated Free-Body Diagrams with tail-on-dot force vectors for 8 real-world physical scenarios."
       }
     ],
     "resources": [
       {
-        "title": "Two-Car Kinematic Intercept Challenge",
-        "url": "Unit_2/two_car_intercept/index.html",
-        "typeLabel": "Interactive Tool",
-        "description": "Inspect dynamic vector arrows."
+        "title": "The Force Toolkit & FBD Presentation",
+        "url": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
+        "typeLabel": "Classroom Slides",
+        "description": "Guide to normal forces, tension, friction, gravity, and applied forces."
       }
     ],
     "practice": [
@@ -2943,7 +3016,8 @@ const lessonsData = [
       }
     ],
     "links": {
-      "FBD Sprint Handout": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing"
+      "Free-Body Diagram Sprint Sheets": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+      "Force Toolkit Reference Guide": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing"
     }
   },
   {
@@ -2974,7 +3048,37 @@ const lessonsData = [
       "promptQuestion": "A commercial Boeing 777 jet cruises at a steady altitude of 35,000 feet in a straight line at 550 mph. What is the net force acting on the 300,000 kg airplane? Explain your reasoning.",
       "explanation": "The net force is exactly ZERO Newtons! Because the jet travels at a constant velocity (constant speed in a straight line), its acceleration is zero. By Newton's First Law, a = 0 means F_net = 0. Forward jet engine thrust perfectly equals aerodynamic drag, and wing lift perfectly equals gravitational weight.",
       "defaultDuration": 3
-    }
+    },
+    "links": {
+      "Vector Calculator App": "Unit_2/Vector_displacement_calculator_app/index.html",
+      "Cable Rigging Challenge Sheet": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing"
+    },
+    "assignments": [
+      {
+        "title": "Cable Rigging Equilibrium Engineering Challenge",
+        "url": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+        "typeLabel": "Engineering Task",
+        "submission": "Turn In Equilibrium Proof",
+        "actionLabel": "View Challenge",
+        "description": "Calculate theoretical cable tensions to achieve static equilibrium (ΣF = 0) on a 3-string force table."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Translational Equilibrium Notes",
+        "url": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
+        "typeLabel": "Lecture Notes",
+        "description": "Resolving forces into perpendicular components: ΣFx = 0 and ΣFy = 0."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Vector Displacement & Force Calculator",
+        "url": "Unit_2/Vector_displacement_calculator_app/index.html",
+        "typeLabel": "Interactive Tool",
+        "description": "Compute vector components and resultant net forces."
+      }
+    ]
   },
   {
     "day": 26,
@@ -3004,7 +3108,37 @@ const lessonsData = [
       "promptQuestion": "If a car is traveling east at 20 m/s and the driver hits the brakes, creating a net force pointing west: What is the direction of the car's acceleration, and what happens to the car's speed?",
       "explanation": "The acceleration points WEST, in the exact same direction as the net force! Because the velocity (east) and acceleration (west) point in opposite directions, the car slows down.",
       "defaultDuration": 3
-    }
+    },
+    "links": {
+      "PhET Forces and Motion: Basics": "https://phet.colorado.edu/sims/html/forces-and-motion-basics/latest/forces-and-motion-basics_en.html",
+      "Newton's 2nd Law Problem Set": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing"
+    },
+    "assignments": [
+      {
+        "title": "Newton's Second Law Problem Set (F_net = m · a)",
+        "url": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+        "typeLabel": "Required Problem Set",
+        "submission": "Turn In Completed Calculations",
+        "actionLabel": "View Handout",
+        "description": "Solve quantitative acceleration and net force challenges applying F_net = m · a."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Newton's Second Law Presentation",
+        "url": "Unit_2/constant-speed-presentation/index.html",
+        "typeLabel": "Classroom Slides",
+        "description": "Proportional relationships between force, mass, and acceleration."
+      }
+    ],
+    "practice": [
+      {
+        "title": "PhET Forces & Motion: Basics (Acceleration)",
+        "url": "https://phet.colorado.edu/sims/html/forces-and-motion-basics/latest/forces-and-motion-basics_en.html",
+        "typeLabel": "Simulation Sandbox",
+        "description": "Systematically vary mass and force to observe real-time accelerations."
+      }
+    ]
   },
   {
     "day": 27,
@@ -3035,7 +3169,28 @@ const lessonsData = [
       "promptQuestion": "In a lab where total system mass is kept constant at 1.0 kg, what happens to the acceleration if you double the hanging pulling force from 0.2 N to 0.4 N?",
       "explanation": "The acceleration doubles (from 0.2 m/s² to 0.4 m/s²)! Newton's 2nd Law states that acceleration is directly proportional to net force when mass is held constant.",
       "defaultDuration": 3
-    }
+    },
+    "links": {
+      "Modified Atwood Track Lab Sheet": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing"
+    },
+    "assignments": [
+      {
+        "title": "Modified Atwood Track Lab Report",
+        "url": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+        "typeLabel": "Graded Lab Report",
+        "submission": "Turn In Lab Report & Plots",
+        "actionLabel": "View Lab Sheet",
+        "description": "Measure dynamics cart photogate acceleration as hanging mass pulls system, graphing a vs F_net and a vs 1/m."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Atwood Machine System Analysis Guide",
+        "url": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
+        "typeLabel": "Lab Reference",
+        "description": "System boundary derivation: accelerating force (m_hang · g) over total mass (m_cart + m_hang)."
+      }
+    ]
   },
   {
     "day": 28,
@@ -3066,7 +3221,29 @@ const lessonsData = [
       "promptQuestion": "If you apply the same net force of 10 N to an empty 2 kg shopping cart and then to a fully loaded 10 kg shopping cart: How do their accelerations compare?",
       "explanation": "The empty cart accelerates at a = 10 N / 2 kg = 5.0 m/s². The loaded cart accelerates at a = 10 N / 10 kg = 1.0 m/s². The loaded cart has 5x more mass, so it experiences 1/5 the acceleration.",
       "defaultDuration": 3
-    }
+    },
+    "links": {
+      "Science of Friction Presentation": "Unit_2/describing-motion-presentation/index.html",
+      "Friction Analysis Handout": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing"
+    },
+    "assignments": [
+      {
+        "title": "Static vs. Kinetic Friction Analysis Worksheet",
+        "url": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+        "typeLabel": "Class Worksheet",
+        "submission": "Turn In Worksheet",
+        "actionLabel": "View Worksheet",
+        "description": "Analyze force vs time sensor graphs to identify static breakaway peaks and kinetic plateaus."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Microscopic Friction & Normal Force Slides",
+        "url": "Unit_2/describing-motion-presentation/index.html",
+        "typeLabel": "Classroom Slides",
+        "description": "Contact asperities, cold welding, normal force dependence, and friction coefficients."
+      }
+    ]
   },
   {
     "day": 29,
@@ -3096,7 +3273,28 @@ const lessonsData = [
       "promptQuestion": "Why does a heavy couch require a tremendous initial shove to start moving across a carpeted floor, but feels significantly easier to keep sliding once it is already moving?",
       "explanation": "Static friction (which locks surfaces together at rest) has a higher coefficient than kinetic sliding friction. Once motion begins, microscopic surface ridges skip over one another, requiring less force to sustain sliding.",
       "defaultDuration": 3
-    }
+    },
+    "links": {
+      "Friction Block Lab Handout": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing"
+    },
+    "assignments": [
+      {
+        "title": "Tabletop Friction Coefficient Inquiry Lab",
+        "url": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+        "typeLabel": "Graded Lab",
+        "submission": "Turn In Lab Report & Linear Fits",
+        "actionLabel": "View Lab Sheet",
+        "description": "Measure friction forces across varying surface textures and normal forces to calculate μ_s and μ_k."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Friction Coefficients Reference Table",
+        "url": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+        "typeLabel": "Reference Chart",
+        "description": "Standard engineering friction coefficients for tires, wood, steel, and ice."
+      }
+    ]
   },
   {
     "day": 30,
@@ -3127,7 +3325,37 @@ const lessonsData = [
       "promptQuestion": "A 1000 kg car brakes with a net friction force of 5000 N. What is the car's deceleration, and how does Newton's 2nd Law (a = F_net / m) connect to how long it takes the car to stop?",
       "explanation": "a = F_net / m = -5000 N / 1000 kg = -5.0 m/s². The deceleration produced by the net force determines the rate at which velocity drops to zero (t = Δv / a) and the required stopping distance (d = v₀t + ½at²).",
       "defaultDuration": 3
-    }
+    },
+    "links": {
+      "Highway Stopping Distance Workshop": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+      "Two-Car Intercept Challenge": "Unit_2/two_car_intercept/index.html"
+    },
+    "assignments": [
+      {
+        "title": "Highway Safety & Multi-Force Stopping Distance Workshop",
+        "url": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+        "typeLabel": "Performance Task",
+        "submission": "Turn In Accident Reconstruction Proofs",
+        "actionLabel": "View Workshop",
+        "description": "Unite Newton's 2nd Law with 1D Kinematics to calculate braking decelerations and stopping distances on wet vs dry roads."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Dynamics-Kinematics Two-Step Derivation Guide",
+        "url": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
+        "typeLabel": "Methodology Handout",
+        "description": "Step 1: F_net = m·a to find acceleration; Step 2: kinematic formulas for distance and time."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Two-Car Intercept Simulator",
+        "url": "Unit_2/two_car_intercept/index.html",
+        "typeLabel": "Practice Tool",
+        "description": "Simulate vehicle braking and pursuit intercepts."
+      }
+    ]
   },
   {
     "day": 31,
@@ -3157,7 +3385,29 @@ const lessonsData = [
       "promptQuestion": "When a giant Mack truck collides with a tiny mosquito on the highway, does the truck exert more force on the mosquito, does the mosquito exert more force on the truck, or are the forces equal?",
       "explanation": "The forces are EXACTLY EQUAL in magnitude! By Newton's Third Law, every force is a mutual interaction. The mosquito experiences devastating acceleration because its mass is tiny (a = F / m), while the truck barely flinches due to its huge mass, but the interaction force is identical.",
       "defaultDuration": 3
-    }
+    },
+    "links": {
+      "Newton's 3rd Law Slides": "Unit_2/describing-motion-presentation/index.html",
+      "Action-Reaction Collision Lab Sheet": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing"
+    },
+    "assignments": [
+      {
+        "title": "Action-Reaction Collision Investigation Sheet",
+        "url": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+        "typeLabel": "Lab Activity",
+        "submission": "Turn In Interaction Pair Proofs",
+        "actionLabel": "View Lab Sheet",
+        "description": "Analyze dual force sensor collision data between equal and unequal cart masses to prove F_A_on_B = -F_B_on_A."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Newton's Third Law Presentation",
+        "url": "Unit_2/describing-motion-presentation/index.html",
+        "typeLabel": "Classroom Slides",
+        "description": "Mutual interaction pairs, equal force vs unequal acceleration, and recoil physics."
+      }
+    ]
   },
   {
     "day": 32,
@@ -3187,7 +3437,28 @@ const lessonsData = [
       "promptQuestion": "A stubborn horse says to a farmer: 'If I pull on the cart, the cart pulls back on me with an equal and opposite force. The forces cancel out, so it is impossible for me to move the cart!' How would you explain to the horse why it can move?",
       "explanation": "Action-reaction pairs act on DIFFERENT objects, so they never cancel! The force on the cart determines whether the cart accelerates (cart FBD), while the forward push from the ground on the horse's hooves determines whether the horse accelerates (horse FBD). The horse accelerates because its forward push against the ground exceeds the backward pull from the cart.",
       "defaultDuration": 3
-    }
+    },
+    "links": {
+      "System Boundary Diagramming Worksheet": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing"
+    },
+    "assignments": [
+      {
+        "title": "Resolving the Third Law Paradox Worksheet",
+        "url": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+        "typeLabel": "Analysis Worksheet",
+        "submission": "Turn In System Boundary Analysis",
+        "actionLabel": "View Worksheet",
+        "description": "Draw dashed system boundaries around the Horse, Cart, and Ground to prove why internal action-reaction pairs do not cancel external forces."
+      }
+    ],
+    "resources": [
+      {
+        "title": "System Boundaries & The Horse-Cart Paradox Guide",
+        "url": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
+        "typeLabel": "Concept Guide",
+        "description": "Detailed explanation of internal forces vs external unbalanced forces."
+      }
+    ]
   },
   {
     "day": 33,
@@ -3218,7 +3489,37 @@ const lessonsData = [
       "promptQuestion": "Why are modern cars designed with front ends that crumple and collapse like an accordion in a crash, instead of being built out of indestructible solid steel?",
       "explanation": "Crumple zones intentionally lengthen the time (Δt) it takes the passenger cabin to come to a stop. Because F_impact = m · Δv / Δt, increasing stopping time by a factor of 4 reduces the lethal impact force on passengers by 75%, saving lives.",
       "defaultDuration": 3
-    }
+    },
+    "links": {
+      "Operation Safe Heeler": "operation-safe-heeler.html",
+      "Safe Heeler Results": "operation_safe_heeler_results.html"
+    },
+    "assignments": [
+      {
+        "title": "Operation Safe Heeler Crash Engineering Lab",
+        "url": "operation-safe-heeler.html",
+        "typeLabel": "Graded Engineering Challenge",
+        "submission": "Cloud Auto-Saved ✓",
+        "actionLabel": "Launch Challenge",
+        "description": "Design crumple zones to minimize impact forces and submit collision telemetry to the gradebook."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Safe Heeler Telemetry & Class Results",
+        "url": "operation_safe_heeler_results.html",
+        "typeLabel": "Classroom Telemetry & Review",
+        "description": "Class-wide crash test analytics, accelerometer curves, and impulse area comparisons."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Operation Safe Heeler Simulator",
+        "url": "operation-safe-heeler.html",
+        "typeLabel": "Engineering Sandbox",
+        "description": "Test bumper materials and monitor deceleration g-forces."
+      }
+    ]
   },
   {
     "day": 34,
@@ -3249,7 +3550,29 @@ const lessonsData = [
       "promptQuestion": "Imagine you are explaining physics to a younger student: What is the single most important rule or relationship you learned in Unit 2 that connects how an object moves (kinematics) to why it moves (forces)?",
       "explanation": "Newton's Second Law: F_net = m · a! Forces cause acceleration (dynamics), and acceleration changes an object's velocity and position over time (kinematics). It is the master bridge of physics.",
       "defaultDuration": 3
-    }
+    },
+    "links": {
+      "Unit 2 Grand Synthesis Rubric": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+      "Gallery Walk Sticky Audit Guide": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing"
+    },
+    "assignments": [
+      {
+        "title": "Multi-Tier Problem Poster & Synthesis Task",
+        "url": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+        "typeLabel": "Collaborative Poster Task",
+        "submission": "Turn In Peer Review Rubrics",
+        "actionLabel": "View Rubric",
+        "description": "Construct large whiteboard solution posters integrating motion curves, FBDs, and F_net = m · a derivations."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Unit 2 Grand Review Slide Deck",
+        "url": "Unit_2/describing-motion-presentation/index.html",
+        "typeLabel": "Comprehensive Review Deck",
+        "description": "Unifying 1D Kinematics and Newtonian Dynamics into a single predictive framework."
+      }
+    ]
   },
   {
     "day": 35,
@@ -3280,7 +3603,28 @@ const lessonsData = [
       "promptQuestion": "Take a deep breath! What is one concept or problem from Unit 2 that you feel most confident about explaining today?",
       "explanation": "Confidence and calm focus are keys to scientific problem solving. Trust your preparation and show all your work with units!",
       "defaultDuration": 3
-    }
+    },
+    "links": {
+      "Unit 2 Reference Formula Sheet": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing"
+    },
+    "assignments": [
+      {
+        "title": "Unit 2 Summative Examination",
+        "url": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+        "typeLabel": "Summative Exam",
+        "submission": "Recorded in Gradebook",
+        "actionLabel": "Exam Reference",
+        "description": "Comprehensive unit exam covering 1D Kinematics and Newton's Laws of Motion (DOK 1-3)."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Unit 2 Reference Formula Sheet",
+        "url": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+        "typeLabel": "Formula & Constant Sheet",
+        "description": "Standard physics formula sheet including kinematics models, Newton's laws, and metric conversions."
+      }
+    ]
   },
   {
     "date": "2026-01-12",
@@ -5288,6 +5632,155 @@ const lessonsData = [
   }
 ];
 
-if (typeof module !== "undefined" && module.exports) {
-  module.exports = { lessonsData };
+function categorizeLessonLinks(day) {
+  if (!day) return { assignments: [], resources: [], practice: [] };
+
+  const result = {
+    assignments: [],
+    resources: [],
+    practice: []
+  };
+
+  // 1. Incorporate explicit arrays if present
+  if (Array.isArray(day.assignments)) {
+    result.assignments.push(...day.assignments);
+  }
+  if (Array.isArray(day.resources)) {
+    result.resources.push(...day.resources);
+  }
+  if (Array.isArray(day.practice)) {
+    result.practice.push(...day.practice);
+  }
+
+  // 2. Classify any legacy or additional day.links
+  if (day.links && typeof day.links === 'object') {
+    const existingUrls = new Set([
+      ...result.assignments.map(a => (a.url || '').toLowerCase()),
+      ...result.resources.map(r => (r.url || '').toLowerCase()),
+      ...result.practice.map(p => (p.url || '').toLowerCase())
+    ]);
+
+    Object.entries(day.links).forEach(([title, rawUrl]) => {
+      const url = String(rawUrl || '');
+      const urlLower = url.toLowerCase();
+      if (existingUrls.has(urlLower)) return;
+
+      const tLower = title.toLowerCase();
+
+      // Graded Assignment heuristics
+      const isAssignment =
+        tLower.includes('lab') ||
+        tLower.includes('quiz') ||
+        tLower.includes('exam') ||
+        tLower.includes('assessment') ||
+        tLower.includes('challenge') ||
+        tLower.includes('calculator') ||
+        tLower.includes('operation safe heeler') ||
+        tLower.includes('accuracy-precision-art') ||
+        tLower.includes('emoji finger painting') ||
+        urlLower.includes('unit-conversion-practice') ||
+        tLower.includes('unit conversion') ||
+        tLower.includes('fantasy map worksheet') ||
+        urlLower.includes('iqbzzhcgrqsd') ||
+        tLower.includes('worksheet') ||
+        (tLower.includes('quest') && !tLower.includes('story') && !tLower.includes('doc')) ||
+        urlLower.includes('safe-heeler') ||
+        urlLower.includes('speed_calculator') ||
+        urlLower.includes('wind_up_toy_lab') ||
+        urlLower.includes('displacement_and_distance_maps') ||
+        (day.type === 'Assessment' && !tLower.includes('slide') && !tLower.includes('presentation'));
+
+      // Learning Resource heuristics (slides, docs, notes, reading)
+      const isResource =
+        !isAssignment && (
+          tLower.includes('slide') ||
+          tLower.includes('presentation') ||
+          tLower.includes('notes') ||
+          tLower.includes('deck') ||
+          tLower.includes('reading') ||
+          tLower.includes('story') ||
+          tLower.includes('guide') ||
+          tLower.includes('overview') ||
+          tLower.includes('document') ||
+          urlLower.includes('docs.google.com') ||
+          urlLower.includes('sharepoint.com') ||
+          urlLower.includes('presentation')
+        );
+
+      // Practice / Sandbox heuristics
+      const isPractice =
+        tLower.includes('studio') ||
+        tLower.includes('drawer') ||
+        tLower.includes('graphing') ||
+        tLower.includes('simulation') ||
+        tLower.includes('sandbox') ||
+        tLower.includes('explorer') ||
+        tLower.includes('phet') ||
+        tLower.includes('web app') ||
+        urlLower.includes('displacement_and_distance_map') ||
+        urlLower.includes('drawer') ||
+        urlLower.includes('graphing');
+
+      if (isAssignment) {
+        let typeLabel = 'Required Assignment';
+        let submission = 'Turn In / Submit for Grading';
+        if (tLower.includes('fantasy map worksheet') || urlLower.includes('iqbzzhcgrqsd')) {
+          typeLabel = 'Required Project Worksheet';
+          submission = 'Turn In Completed Map & Handout';
+        } else if (tLower.includes('quiz') || tLower.includes('assessment') || tLower.includes('exam')) {
+          typeLabel = 'Graded Assessment';
+          submission = 'Recorded in Gradebook';
+        } else if (tLower.includes('challenge') || (tLower.includes('quest') && !tLower.includes('worksheet'))) {
+          typeLabel = 'Inquiry Challenge';
+          submission = 'Auto-Saved to Gradebook ✓';
+        } else if (tLower.includes('lab')) {
+          typeLabel = 'Graded Lab';
+          submission = 'Cloud Auto-Saved ✓';
+        } else if (tLower.includes('worksheet')) {
+          typeLabel = 'Required Worksheet Handout';
+          submission = 'Turn In Worksheet for Grading';
+        }
+        result.assignments.push({
+          title: title,
+          url: url,
+          typeLabel: typeLabel,
+          submission: submission,
+          required: true
+        });
+      } else if (isPractice && !isResource) {
+        result.practice.push({
+          title: title,
+          url: url,
+          typeLabel: 'Practice & Simulation Sandbox',
+          description: 'Self-paced tool to visualize and explore physics principles.'
+        });
+      } else {
+        let typeLabel = 'Study & Reference Material';
+        if (tLower.includes('slide') || tLower.includes('presentation') || tLower.includes('deck')) {
+          typeLabel = 'Classroom Lecture Slides';
+        } else if (tLower.includes('worksheet') || tLower.includes('handout')) {
+          typeLabel = 'Class Handout / Worksheet';
+        } else if (tLower.includes('video')) {
+          typeLabel = 'Instructional Video';
+        }
+        result.resources.push({
+          title: title,
+          url: url,
+          typeLabel: typeLabel,
+          description: 'Class material for lecture review, absent makeup, and notes.'
+        });
+      }
+    });
+  }
+
+  return result;
 }
+
+if (typeof window !== "undefined") {
+  window.categorizeLessonLinks = categorizeLessonLinks;
+}
+
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { lessonsData, categorizeLessonLinks };
+}
+
