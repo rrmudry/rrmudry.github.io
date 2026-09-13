@@ -243,6 +243,14 @@
                                    class="inline-flex items-center justify-center gap-2 bg-slate-900/90 hover:bg-slate-800 text-slate-300 border border-slate-700 font-bold px-6 py-3 rounded-xl transition-all hover:border-lime-400">
                                     Motion Curve Drawer ↗
                                 </a>
+                                <a href="operation-safe-heeler.html" 
+                                   class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 via-orange-500 to-amber-500 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-[0_0_20px_rgba(239,68,68,0.4)] hover:shadow-[0_0_30px_rgba(239,68,68,0.6)] transform hover:-translate-y-1 active:scale-95">
+                                    🚗💥 Operation Safe Heeler Crash Lab ↗
+                                </a>
+                                <a href="operation_safe_heeler_results.html" 
+                                   class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-bold px-6 py-3 rounded-xl transition-all shadow-[0_0_20px_rgba(245,158,11,0.4)] hover:shadow-[0_0_30px_rgba(245,158,11,0.6)] transform hover:-translate-y-1 active:scale-95">
+                                    📊 Safe Heeler Results &amp; Telemetry ↗
+                                </a>
                             </div>
                         </div>
 
@@ -521,9 +529,44 @@
     </div>
 
     <script src="assets/partials.js"></script>
-    <script src="assets/lessons-data.js?v=20260913d"></script>
-    <script src="Unit_2/unit2_lessons.json?v=20260913d"></script>
+    <script src="assets/lessons-data.js?v=20260913e"></script>
+    <script src="Unit_2/unit2_lessons.json?v=20260913e"></script>
     <script>
+        // Ensure categorizeLessonLinks is always defined
+        if (typeof window.categorizeLessonLinks !== 'function') {
+            window.categorizeLessonLinks = function(day) {
+                if (!day) return { assignments: [], resources: [], practice: [] };
+                const result = { assignments: [], resources: [], practice: [] };
+                if (Array.isArray(day.assignments)) result.assignments.push(...day.assignments);
+                if (Array.isArray(day.resources)) result.resources.push(...day.resources);
+                if (Array.isArray(day.practice)) result.practice.push(...day.practice);
+                if (day.links && typeof day.links === 'object') {
+                    const existingUrls = new Set([
+                        ...result.assignments.map(a => (a.url || '').toLowerCase()),
+                        ...result.resources.map(r => (r.url || '').toLowerCase()),
+                        ...result.practice.map(p => (p.url || '').toLowerCase())
+                    ]);
+                    Object.entries(day.links).forEach(([title, rawUrl]) => {
+                        const url = String(rawUrl || '');
+                        const urlLower = url.toLowerCase();
+                        if (existingUrls.has(urlLower)) return;
+                        const tLower = title.toLowerCase();
+                        const isAssignment = tLower.includes('lab') || tLower.includes('quiz') || tLower.includes('exam') || tLower.includes('assessment') || tLower.includes('challenge') || tLower.includes('worksheet') || urlLower.includes('safe-heeler');
+                        const isResource = !isAssignment && (tLower.includes('slide') || tLower.includes('presentation') || tLower.includes('notes') || tLower.includes('deck') || tLower.includes('doc') || urlLower.includes('docs.google.com') || urlLower.includes('presentation'));
+                        const isPractice = tLower.includes('studio') || tLower.includes('drawer') || tLower.includes('graphing') || tLower.includes('simulation') || tLower.includes('phet') || tLower.includes('app') || urlLower.includes('calculator') || urlLower.includes('graphing');
+                        if (isAssignment) {
+                            result.assignments.push({ title, url, typeLabel: 'Required Assignment', submission: 'Turn In / Auto-Saved ✓', required: true });
+                        } else if (isPractice && !isResource) {
+                            result.practice.push({ title, url, typeLabel: 'Practice Tool', description: 'Self-paced tool to explore physics principles.' });
+                        } else {
+                            result.resources.push({ title, url, typeLabel: 'Learning Resource', description: 'Class material for review and notes.' });
+                        }
+                    });
+                }
+                return result;
+            };
+        }
+
         window.addEventListener('load', () => {
             function launchDashboard() {
                 if (typeof unit2Lessons !== 'undefined' && Array.isArray(unit2Lessons) && unit2Lessons.length > 0) {
@@ -619,6 +662,8 @@
             } else {
                 pacingCards.innerHTML = '';
             }
+            if (labsList) labsList.innerHTML = '';
+            if (assessmentsList) assessmentsList.innerHTML = '';
 
             unitData.forEach(day => {
                 const status = getLessonStatus(day.date);
