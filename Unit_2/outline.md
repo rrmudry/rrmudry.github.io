@@ -8,12 +8,12 @@
 
 ---
 
-## Pedagogical Progression (Option A: Kinematics First, Then Dynamics)
+## Pedagogical Progression (Kinematics First, Then Dynamics)
 
 This unit follows the classical and cognitive progression:
-1. **Part 1: Describing Motion (Kinematics — Weeks 1 & 2):**  
-   Students establish coordinate frames, measure distance and displacement, calculate average and instantaneous speed/velocity, decode position-time (`x-t`) and velocity-time (`v-t`) graphs, and define acceleration as the rate of change of velocity (`a = Δv / Δt`).
-2. **Part 2: Explaining Motion (Dynamics — Weeks 3, 4 & 5):**  
+1. **Part 1: Describing Motion (Kinematics — Weeks 1, 2 & 3):**  
+   Students establish coordinate frames, measure distance and displacement, calculate uniform speed (`v = d / t`), decode position-time (`x-t`) and velocity-time (`v-t`) graphs, geometrically integrate displacement as the area under `v-t`, and master uniformly accelerated motion (UAM: `v = v₀ + at`, `x = x₀ + v₀t + ½at²`).
+2. **Part 2: Explaining Motion (Dynamics — Weeks 4 & 5):**  
    With the concept of acceleration firmly grounded, students investigate *why* acceleration occurs. They explore Inertia (Newton's 1st Law), quantify mass as resistance to acceleration, build Free-Body Diagrams (FBDs), verify Newton's 2nd Law (`F_net = m · a`), explore friction, analyze interaction pairs (Newton's 3rd Law), and engineer collision safety models.
 
 ---
@@ -107,83 +107,93 @@ This unit follows the classical and cognitive progression:
 
 ---
 
-### Week 3: Causes of Motion — Inertia, Mass & Newton's First Law (Balanced Forces)
-**Goal:** Transition from describing motion to explaining its causes. Explore Inertia, formalize Newton's 1st Law, distinguish mass from weight, catalog force types, and draw Free-Body Diagrams (FBDs).
+### Week 3: Motion Graphing (x-t & v-t), Geometric Area & Uniform Acceleration
+**Goal:** Transition from single-speed calculation to comprehensive graphical motion decoding. Interpret position vs. time (`x-t`) slope as velocity, analyze velocity vs. time (`v-t`) graphs, integrate displacement geometrically as the signed area under the `v-t` curve, introduce acceleration as the rate of change of velocity (`a = Δv / Δt`), and model uniformly accelerated motion (UAM).
 
-*   **Day 11 (2026-09-14): The Big Question: What Keeps Things Moving? (Inertia Demos)**
-    *   *Focus:* Challenging the Aristotelian misconception that force is needed to sustain motion.
-    *   *Activity:* Discrepant event stations: Tablecloth pull with weighted dishes, coin-on-card flick into beaker, bowling ball guided with a mallet, and low-friction hover puck gliding without stopping.
+*   **Day 11 (2026-09-14): Position vs. Time (`x-t`) Graphing: Slope as Velocity**
+    *   *Bell-Ringer:* Motion Graph Decoding (CAST Challenge): Two sprinters on a straight track are tracked on a position-time graph. Determine each runner's velocity from slope coordinates `Δx / Δt` and identify the exact moment and position where Runner B overtakes Runner A.
+    *   *Focus:* Position-time coordinate space `(t, x)`. Slope as velocity (`v = Δx / Δt = (x₂ - x₁) / (t₂ - t₁)`). Flat slope = rest (`v = 0`); positive slope = forward motion; negative slope = backward motion; slope steepness = speed magnitude.
+    *   *Activity:* Graph Matching & Segment Storytelling: Students analyze multi-segment `x-t` journeys (walk forward -> pause -> sprint backward), calculate segment velocities from slopes, identify start/end coordinates, and translate between written narrative stories and graphical profiles.
+    *   *Essential Question:* How does the slope of a position-time graph completely describe an object's velocity and direction of travel?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction / Practice
+    *   *Links:* [Distance vs Time App](https://rrmudry.github.io/distance_vs_time_graphing.html), [Motion Curve Drawer](https://rrmudry.github.io/Distance_vs_Time_Drawer.html)
+
+*   **Day 12 (2026-09-15): Velocity vs. Time (`v-t`) Graphing: Direction & Graph Translation**
+    *   *Bell-Ringer:* The Sign and the Speed (AI Concept Chat): A mentor text challenge exploring why an object with velocity `v = -15 m/s` is traveling faster than an object with `v = +5 m/s`, and how to recognize when an object stops or changes direction on a `v-t` graph.
+    *   *Focus:* Translating motion into velocity-time space `(t, v)`. Crucial distinction: horizontal axis (`v = 0`) means the object is stopped (not at the origin). Regions above the axis (`v > 0`) mean forward travel; regions below the axis (`v < 0`) mean reverse travel. Flat horizontal lines represent uniform, constant velocity.
+    *   *Activity:* Dual-Graph Translation Workshop: Given a 4-segment piecewise `x-t` graph, students calculate the numerical slope of each interval and draft the corresponding step-wise `v-t` graph, verifying that constant slopes produce horizontal velocity bars.
+    *   *Essential Question:* What is the fundamental difference between what a flat line means on a position-time graph versus a velocity-time graph?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Workshop / Inquiry
+    *   *Links:* [Distance vs Time App](https://rrmudry.github.io/distance_vs_time_graphing.html)
+
+*   **Day 13 (2026-09-16): Geometric Integration: Displacement as Area Under the `v-t` Curve**
+    *   *Bell-Ringer:* Rover Telemetry & Geometric Displacement (CAST Challenge): An autonomous planetary rover's velocity is logged over a 20-second mission with forward and reverse stages. Calculate the rover's net displacement and total distance traveled using the bounded graphical area.
+    *   *Focus:* Connecting velocity, time, and displacement geometrically: `Δx = v · Δt`. Bounded area between the velocity line and the time axis equals displacement. Rectangles (`base · height = Δt · v`) for constant speed; triangles (`½ · base · height`) for changing speed. Signed area: area above axis is `+Δx`; area below axis is `-Δx`. Net displacement = `Area_above - Area_below`; total distance = `|Area_above| + |Area_below|`.
+    *   *Activity:* The Area-Displacement Mystery: Students receive complex multi-stage `v-t` velocity graphs representing courier drones and rovers. Teams partition graphs into geometric rectangles and triangles, compute net displacement, and plot the reconstructed `x-t` position trajectory.
+    *   *Essential Question:* Why does calculating the geometric area between a velocity graph and the time axis yield the exact displacement of the object?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Practice / Analysis
+    *   *Links:* [Distance vs Time App](https://rrmudry.github.io/distance_vs_time_graphing.html)
+
+*   **Day 14 (2026-09-17): Introducing Acceleration: Slope of Velocity-Time (`a = Δv / Δt`)**
+    *   *Bell-Ringer:* Acceleration & Changing Motion (CAST Matrix): Evaluating 4 vehicles with given velocity and acceleration vectors. Students determine whether each vehicle is speeding up, slowing down, or moving at constant speed, and defend their reasoning.
+    *   *Focus:* Defining acceleration as the rate of change of velocity: `a = Δv / Δt = (v - v₀) / t`. Units: `(m/s) / s = m/s²`. Linear slope on a `v-t` graph equals constant acceleration. Speeding up vs. slowing down: speeding up occurs when `v` and `a` share the same sign; slowing down occurs when `v` and `a` have opposite signs. Curvature on `x-t` graphs: changing velocity creates parabolas (concave up = `a > 0`, concave down = `a < 0`).
+    *   *Activity:* Acceleration Sign Detective & Curve Matching: Students analyze real-world scenarios (ball rolling up and down an incline, car braking at a yellow light, subway pulling out of a station) to determine signs of `v` and `a`, and match physical motions to coordinated `x-t`, `v-t`, and `a-t` graph cards.
+    *   *Essential Question:* How can an object have a negative acceleration and still be speeding up?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction / Inquiry
+    *   *Links:* [Distance vs Time App](https://rrmudry.github.io/distance_vs_time_graphing.html)
+
+*   **Day 15 (2026-09-18): Uniformly Accelerated Motion (UAM) & Kinematic Relationships**
+    *   *Bell-Ringer:* Autonomous Braking & Collision Avoidance (CAST Challenge): A self-driving vehicle traveling at 24.0 m/s detects a stalled vehicle 60.0 meters ahead. After a 0.50 s sensor reaction delay, the brakes apply a constant deceleration of 6.0 m/s². Determine if the vehicle stops in time.
+    *   *Focus:* Uniformly Accelerated Motion (UAM) with `a = constant`. Kinematic Model 1: `v = v₀ + at` (from `v-t` slope). Kinematic Model 2: `x = x₀ + v₀t + ½at²` (from trapezoid area under `v-t`: rectangle `v₀t` + triangle `½at²`). Average velocity under uniform acceleration: `v_avg = (v₀ + v) / 2`.
+    *   *Activity:* UAM Performance Challenge — Runway Takeoff & Emergency Braking: Students work through multi-stage motion scenarios (acceleration sprint followed by constant-velocity cruise or emergency braking). Teams calculate stopping distances, flight takeoff speeds, and sketch complete `x-t`, `v-t`, and `a-t` kinematic profiles.
+    *   *Essential Question:* How do the two core kinematic equations allow us to predict both the exact speed and final position of an accelerating object at any point in time?
+    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Performance Task / Problem Solving
+    *   *Links:* [Two-Car Kinematic Intercept Challenge](Unit_2/two_car_intercept/index.html)
+
+---
+
+### Week 4: Causes of Motion — Newton's First & Second Laws (Inertia, FBDs & F_net = m · a)
+**Goal:** Transition from describing how objects move (kinematics) to explaining why motion changes (dynamics). Explore Inertia (Newton's 1st Law), build Free-Body Diagrams (FBDs), empirically verify Newton's 2nd Law (`F_net = m · a`), investigate friction forces, and connect forces to resulting accelerations.
+
+*   **Day 16 (2026-09-21): What Keeps Things Moving? Newton's First Law & Inertia Demos**
+    *   *Focus:* Challenging the Aristotelian misconception that force is needed to sustain motion. Formalizing Newton's First Law: constant velocity (`a = 0`) unless acted upon by an unbalanced external force.
+    *   *Activity:* Discrepant event stations: Tablecloth pull with weighted dishes, coin-on-card flick into beaker, bowling ball guided with a mallet, and low-friction hover puck gliding without slowing down. Galileo's thought experiment analysis.
     *   *Essential Question:* Does an object in motion require a continuous applied force to keep moving forward?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Inquiry / Demonstration
 
-*   **Day 12 (2026-09-15): Newton's First Law of Motion (The Law of Inertia)**
-    *   *Focus:* Formal First Law definition: objects maintain constant velocity (`a = 0`) unless acted upon by a net external force.
-    *   *Activity:* Galileo's thought experiment text analysis (frictionless double ramps). Argumentation writing (CER): Why does a passenger lurch forward when a bus slams on the brakes?
-    *   *Essential Question:* How does Newton's First Law redefine our everyday definition of what forces actually do?
-    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction
+*   **Day 17 (2026-09-22): Mass as Inertia & Free-Body Diagrams (FBDs)**
+    *   *Focus:* Mass (kg) as the quantitative measure of inertia vs. Weight (N = kg · m/s²). Cataloging force types (`F_g`, `F_N`, `F_T`, `F_f`, `F_app`) and systematic Free-Body Diagram (FBD) construction.
+    *   *Activity:* Mystery mass shakers (ranking inertia horizontally without gravity assistance) followed by Whiteboard FBD Sprint: translating 6 real-world scenarios into isolated vector diagrams.
+    *   *Essential Question:* Why does an anvil have the exact same inertia in deep space as it does on Earth, even though it weighs zero Newtons?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Lab / Direct Instruction
 
-*   **Day 13 (2026-09-16): Mass as the Quantitative Measure of Inertia**
-    *   *Focus:* Fundamental difference between Mass (inertia, kg) and Weight (gravitational force, N = kg · m/s²).
-    *   *Activity:* Inertia Balance / Mystery Mass Shaker: Blindfolded students shake identical sealed cans filled with cotton, wood, and lead horizontally (isolated from vertical gravity) to rank inertia purely by resistance to acceleration.
-    *   *Essential Question:* Why would an anvil have the exact same inertia in deep space as it does on Earth, even though it weighs zero Newtons?
-    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Lab / Activity
-
-*   **Day 14 (2026-09-17): The Force Toolkit: Types of Forces & Free-Body Diagrams**
-    *   *Focus:* Contact forces (`F_N`, `F_T`, `F_f`, `F_app`) vs. field forces (`F_g`). Vector conventions for Free-Body Diagrams (FBDs).
-    *   *Activity:* Whiteboard FBD drafting sprint: Students translate 6 physical scenarios (book at rest, cart pulled at constant speed, elevator accelerating upward, skydiver in terminal velocity) into isolated dot force diagrams.
-    *   *Essential Question:* How do free-body diagrams allow us to translate messy real-world objects into isolated vector systems?
-    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Activity
-
-*   **Day 15 (2026-09-18): Balanced Forces & Mechanical Equilibrium (`F_net = 0`)**
-    *   *Focus:* Vector force cancellation (`ΣF_x = 0, ΣF_y = 0`); static vs dynamic equilibrium.
-    *   *Activity:* Dual spring scale tug-of-war: Students balance opposing forces on carts, verifying that equal and opposite pulling forces yield zero acceleration whether the cart is at rest or rolling steadily.
-    *   *Essential Question:* Why does an aircraft cruising at 500 mph at constant altitude experience exactly zero net force?
-    *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Practice
-
----
-
-### Week 4: Unbalanced Forces, Newton's Second Law (`F_net = m · a`) & Friction
-**Goal:** Investigate how unbalanced forces cause acceleration, empirically derive Newton's 2nd Law through inquiry labs, investigate static vs. kinetic friction, and solve multi-force problems.
-
-*   **Day 16 (2026-09-21): Unbalanced Forces Produce Acceleration**
-    *   *Focus:* Connecting net force to acceleration: `F_net ≠ 0` causes `a ≠ 0`. Direction of acceleration matches net force direction.
-    *   *Activity:* Fan-cart and spring scale demonstrations: Observing what happens when pulling force exceeds friction. Conceptual ranking tasks on varying force and mass.
-    *   *Essential Question:* What determines whether a force makes an object speed up, slow down, or simply maintain its motion?
-    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction
-
-*   **Day 17 (2026-09-22): Newton's Second Law Lab — Part 1: Force vs. Acceleration**
-    *   *Focus:* Empirical proof that `a ∝ F_net` when mass is held constant.
-    *   *Activity:* Modified Atwood track lab: Students pull a constant-mass dynamics cart with hanging masses (0.1 N, 0.2 N, 0.3 N, 0.4 N) using motion sensors to measure acceleration. Plotting `a` vs `F_net` to establish linearity.
-    *   *Essential Question:* How does experimental data verify the direct proportionality between applied net force and acceleration?
-    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Lab
-
-*   **Day 18 (2026-09-23): Newton's Second Law Lab — Part 2: Mass vs. Acceleration**
-    *   *Focus:* Empirical proof that `a ∝ 1/m` when net force is held constant; synthesizing `F_net = m · a`.
-    *   *Activity:* Part 2 of Second Law inquiry: Keeping hanging mass constant while systematically stacking mass bars on the cart (0.5 kg, 1.0 kg, 1.5 kg). Plotting `a` vs `m` (inverse curve) and `a` vs `1/m` (linear), deriving `F_net = m · a`.
-    *   *Essential Question:* Why is the relationship between mass and acceleration inverse rather than direct?
+*   **Day 18 (2026-09-23): Newton's Second Law Lab: Force, Mass & Acceleration (F_net = m · a)**
+    *   *Focus:* Empirical verification of `a ∝ F_net` and `a ∝ 1/m`, leading directly to Newton's Second Law: `F_net = m · a`.
+    *   *Activity:* Modified Atwood track inquiry: Students pull dynamics carts with hanging weights, record photogate accelerations, plot `a` vs `F_net` (linear) and `a` vs `m` (inverse), synthesizing the fundamental equation of dynamics.
+    *   *Essential Question:* How does empirical experimental data prove that acceleration is directly proportional to net force and inversely proportional to system mass?
     *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Lab
 
 *   **Day 19 (2026-09-24): The Reality of Friction: Static vs. Kinetic**
-    *   *Focus:* Microscopic origin of friction, normal force dependence (`F_f = μ · F_N`), static threshold vs. kinetic sliding friction.
-    *   *Activity:* Friction block pull lab: Dragging wooden blocks across sandpaper, vinyl, and felt with added weights. Measuring the static "breakaway" spike vs lower kinetic dragging force; computing friction coefficients (`μ`).
+    *   *Focus:* Microscopic origin of friction, normal force dependence (`F_f = μ · F_N`), and the static "breakaway" threshold vs. kinetic sliding friction.
+    *   *Activity:* Friction block pull lab: Dragging wooden blocks with varying mass across sandpaper, vinyl, and felt with spring scales. Measuring peak static friction vs steady kinetic friction; computing friction coefficients (`μ`).
     *   *Essential Question:* Why does it always require more force to start an object sliding than to keep it sliding?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Lab / Activity
 
-*   **Day 20 (2026-09-25): Multi-Force Problem Solving Workshop**
-    *   *Focus:* Synthesizing dynamics and kinematics: `F_net = m · a` combined with motion equations.
-    *   *Activity:* Collaborative whiteboard challenge: Students calculate vehicle braking distances on dry vs icy pavement given tire friction, vehicle mass, and initial speed.
-    *   *Essential Question:* How do engineers link tire friction coefficients directly to highway braking distance requirements?
-    *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Practice
+*   **Day 20 (2026-09-25): Multi-Force Problem Solving: Connecting Dynamics to Kinematics**
+    *   *Focus:* Synthesizing Newton's Second Law (`F_net = m · a`) with kinematic motion models (`v = v₀ + at`, `x = x₀ + v₀t + ½at²`).
+    *   *Activity:* Highway Braking & Traction Design Workshop: Students calculate stopping distances and required braking forces for vehicles of varying mass on dry vs. wet pavement, linking tire friction directly to highway safety standards.
+    *   *Essential Question:* How do engineers unite free-body force analysis with kinematic equations to predict stopping distance and design vehicle braking systems?
+    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Practice / Performance Task
 
 ---
 
-### Week 5: Newton's Third Law, Crash Engineering & Unit Mastery
-**Goal:** Explore interaction pairs (Newton's 3rd Law), resolve action-reaction misconceptions, apply impulse and deceleration forces to vehicle safety engineering, and master summative performance goals.
+### Week 5: Newton's Third Law, Crash Engineering & Unit Summative Mastery
+**Goal:** Explore interaction pairs (Newton's 3rd Law), resolve action-reaction paradoxes, apply impulse and impact forces to vehicle collision safety engineering, and master summative performance goals.
 
 *   **Day 21 (2026-09-28): Newton's Third Law of Motion (Action-Reaction Pairs)**
-    *   *Focus:* Forces as mutual interactions between two objects: `F_A_on_B = -F_B_on_A`. Equal magnitude, opposite direction.
+    *   *Focus:* Forces as mutual interactions between two objects: `F_A_on_B = -F_B_on_A`. Equal magnitude, opposite direction, simultaneous existence.
     *   *Activity:* Dual force sensor collision tests: Crashing equal and unequal mass carts together with live force readouts. Skateboard push-off trials and balloon rocket track launches.
-    *   *Essential Question:* When a mosquito hits a car windshield, which object experiences the greater force?
+    *   *Essential Question:* When a massive truck collides with a tiny compact car, which vehicle experiences the greater force?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Activity
 
 *   **Day 22 (2026-09-29): Resolving the Third Law Paradox & System Boundaries**
