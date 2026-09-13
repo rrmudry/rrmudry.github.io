@@ -2140,7 +2140,588 @@ const lessonsData = [
     "day": 16,
     "date": "2026-09-21",
     "unit": 2,
-    "title": "What Keeps Things Moving? Newton's First Law & Inertia Demos",
+    "title": "Free Fall & Acceleration due to Gravity (g = 9.8 m/s²)",
+    "topic": "Uniform Gravitational Acceleration in 1D Free Fall (a = -9.8 m/s²)",
+    "dok": 2,
+    "type": "Inquiry / Lab",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Investigate free fall as a premier real-world manifestation of uniformly accelerated motion, verifying that in the absence of air resistance, all objects accelerate downward at g = 9.8 m/s² regardless of mass.",
+    "activity": "Reaction Time Ruler Drop & Strobe-Photo Analysis: Student partner pairs conduct ruler-drop tests, measuring the centimeter drop distance before catching to calculate human visual-motor reaction time using d = ½ · g · t² (t = sqrt(2d / g)), followed by analyzing multi-flash stroboscopic photos of falling spheres to verify constant acceleration.",
+    "essentialQuestion": "Why do all objects accelerate at the exact same rate in free fall near Earth's surface regardless of how heavy they are?",
+    "standards": [
+      "HS-PS2-1"
+    ],
+    "wicor": {
+      "Writing": "Documenting reaction-time trials and deriving the algebraic rearrangement for time from d = ½gt².",
+      "Inquiry": "Testing whether heavier falling objects strike the ground earlier than lighter objects in evacuated tubes (guinea-and-feather demonstration).",
+      "Collaboration": "Partner lab teams: dropper, catcher, and precision metric data recorder.",
+      "Organization": "Constructing reaction-time calibration charts mapping caught centimeter marks directly to milliseconds.",
+      "Reading": "Reading historical accounts of Galileo Galilei's Tower of Pisa thought experiment."
+    },
+    "bellRinger": {
+      "type": "cast_challenge",
+      "title": "Free Fall Gravitational Telemetry",
+      "defaultDuration": 4,
+      "standards": {
+        "dci": "HS-PS2.A: Forces & Motion",
+        "sep": "SEP-4: Analyzing & Interpreting Data",
+        "ccc": "CCC-2: Cause and Effect"
+      },
+      "phenomenon": {
+        "title": "Lunar Vacuum Drop vs. Terrestrial Atmosphere Drop",
+        "description": "During the Apollo 15 mission, astronaut David Scott dropped a 1.32 kg aluminum geological hammer and a 0.03 kg falcon feather simultaneously from a height of 1.6 meters in the lunar vacuum. On Earth, the same drop was repeated inside a normal atmosphere.",
+        "stimulus": {
+          "type": "data_table",
+          "title": "Drop Telemetry Matrix",
+          "headers": [
+            "Location",
+            "Objects Dropped",
+            "Medium",
+            "Observed Result"
+          ],
+          "rows": [
+            {
+              "col_0": "Moon Surface (Apollo 15)",
+              "col_1": "1.32 kg Hammer & 0.03 kg Feather",
+              "col_2": "Complete Vacuum (no air)",
+              "col_3": "Both strike lunar surface at the exact same instant (t = 1.40 s)"
+            },
+            {
+              "col_0": "Earth Physics Classroom",
+              "col_1": "1.32 kg Hammer & 0.03 kg Feather",
+              "col_2": "Sea-Level Air Atmosphere",
+              "col_3": "Hammer strikes in 0.57 s; feather drifts slowly in 2.8 s"
+            }
+          ]
+        }
+      },
+      "steps": [
+        {
+          "stepId": "step_1",
+          "type": "cloze_dropdown",
+          "title": "Part 1: Analyzing Vacuum vs. Atmospheric Falls",
+          "prompt": "Identify the cause of the differing drop behaviors between the Moon and the Earth:",
+          "text": "In the lunar vacuum, the feather and hammer land together because [blank1]. On Earth, the feather lags behind because [blank2]. If Earth's atmosphere is completely pumped out of a vacuum chamber, the feather will [blank3].",
+          "blanks": {
+            "blank1": {
+              "correct": "gravitational acceleration is identical for all masses in vacuum",
+              "options": [
+                "gravitational acceleration is identical for all masses in vacuum",
+                "the Moon has zero gravity",
+                "the hammer lost all its mass"
+              ]
+            },
+            "blank2": {
+              "correct": "air resistance upward opposes the feather's downward motion",
+              "options": [
+                "air resistance upward opposes the feather's downward motion",
+                "gravity pulls harder on heavier objects causing greater acceleration",
+                "feathers have negative mass"
+              ]
+            },
+            "blank3": {
+              "correct": "fall at the exact same acceleration as the hammer (g = 9.8 m/s²)",
+              "options": [
+                "fall at the exact same acceleration as the hammer (g = 9.8 m/s²)",
+                "float suspended in place",
+                "fall faster than the hammer"
+              ]
+            }
+          }
+        },
+        {
+          "stepId": "step_2",
+          "type": "data_calculation",
+          "title": "Part 2: Calculating Free Fall Drop Time on Earth",
+          "prompt": "Calculate the time in seconds for a rock dropped from rest (v₀ = 0) to fall 19.6 meters to the ground in Earth's gravity (use g = 9.8 m/s², d = ½ · g · t²).",
+          "inputLabel": "Drop Time",
+          "unit": "s",
+          "targetValue": 2,
+          "tolerance": 0.1,
+          "hint": "t = sqrt(2 · d / g) = sqrt(2 · 19.6 / 9.8) = sqrt(4.0) = 2.0 seconds."
+        },
+        {
+          "stepId": "step_3",
+          "type": "ai_reasoning_chat",
+          "title": "Part 3: Defending Gravitational Universality with AI Mentor",
+          "prompt": "Discuss your reasoning with the AI Physics Mentor: Explain why Earth's gravity pulls with more force on heavy objects, yet heavy and light objects accelerate at the exact same rate in free fall.",
+          "openingPrompt": "You calculated that a 19.6 m drop takes exactly 2.0 seconds! Here is the classic puzzle: Earth pulls on a heavy bowling ball with ten times more gravitational force than a baseball. Why doesn't the bowling ball accelerate ten times faster in a vacuum?",
+          "minTurns": 1
+        }
+      ],
+      "teacherKey": "Step 1: gravitational acceleration is identical, air resistance upward opposes, fall at the exact same acceleration. Step 2: 2.0 s (sqrt(39.2 / 9.8)). Step 3: Claim: Heavy and light objects accelerate at the same rate because greater gravitational force is exactly balanced by greater inertia (resistance to acceleration). Evidence: F_g = m · g, while a = F_net / m. Substituting F_g into Newton's 2nd Law gives a = (m · g) / m = g. The mass cancels out! Reasoning: Although the bowling ball experiences 10x more gravitational pull, it also has 10x more mass (inertia) resisting acceleration. These two effects cancel out perfectly, yielding an identical acceleration of 9.8 m/s² for all falling masses."
+    },
+    "assignments": [
+      {
+        "title": "Reaction Time & Free Fall Investigation Handout",
+        "url": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+        "typeLabel": "Lab Handout",
+        "submission": "Turn In Completed Worksheet",
+        "actionLabel": "View Handout",
+        "description": "Calculate human reaction times from ruler drop distances and solve free-fall height and impact speed problems."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Apollo 15 Lunar Hammer & Feather Drop Video",
+        "url": "https://www.youtube.com/watch?v=KDp1tiUsZw8",
+        "typeLabel": "Historical Experiment Video",
+        "description": "Archival footage of Astronaut David Scott performing Galileo's drop experiment on the lunar surface."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Speed & Distance Studio",
+        "url": "Unit_2/speed_distance_time_app/index.html",
+        "typeLabel": "Practice Sandbox",
+        "description": "Review baseline kinematic calculations."
+      }
+    ],
+    "links": {
+      "Reaction Time Handout": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+      "Apollo 15 Video": "https://www.youtube.com/watch?v=KDp1tiUsZw8"
+    }
+  },
+  {
+    "day": 17,
+    "date": "2026-09-22",
+    "unit": 2,
+    "title": "Up-and-Down 1D Projectiles & Motion Symmetry",
+    "topic": "Vertical Kinematic Symmetry: Apogee (v = 0), Time Symmetries, and Quadratic Flight Paths",
+    "dok": 2,
+    "type": "Inquiry / Direct Instruction",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Analyze vertical 1D projectile trajectories launched upward against gravity, unpacking the kinematic symmetry of flight: peak apogee velocity (v = 0), equal rising and falling times (t_up = t_down), and velocity magnitude symmetry (v_launch = -v_land).",
+    "activity": "Pop-Rocket Apogee Challenge: Students launch vertical air-powered pop-rockets outdoors or in the gym, use synchronized stopwatches to log total hang time (t_total), apply vertical symmetry (t_up = ½ · t_total) to calculate initial launch velocity (v₀ = g · t_up), and compute maximum apogee altitude using h_max = ½ · g · (t_up)².",
+    "essentialQuestion": "How does vertical motion symmetry allow us to determine the launch speed and peak altitude of a rocket using nothing more than a stopwatch?",
+    "standards": [
+      "HS-PS2-1"
+    ],
+    "wicor": {
+      "Writing": "Writing step-by-step mathematical proofs demonstrating why velocity at the apex equals zero while acceleration remains -9.8 m/s².",
+      "Inquiry": "Discovering that doubling launch speed quadruples maximum apogee height due to the v² relationship.",
+      "Collaboration": "Launch teams coordinating timer synchronizations and visual apex sighting.",
+      "Organization": "Tracking launch time data across 3 trials and computing flight averages.",
+      "Reading": "Interpreting parabolic height vs. time curves and matching velocity vectors at equal heights."
+    },
+    "bellRinger": {
+      "type": "concept_chat",
+      "title": "The Instant at the Top",
+      "promptQuestion": "A student tosses a tennis ball straight up into the air. At the very highest point of its flight, the ball momentarily comes to a complete stop (v = 0 m/s). What is the ball's acceleration at this exact instant? Explain your thinking.",
+      "explanation": "At the peak, velocity is momentarily 0 m/s, but acceleration is still -9.8 m/s² downward! If acceleration were zero at the top, the ball would remain suspended in midair forever. Gravity never turns off.",
+      "defaultDuration": 3
+    },
+    "assignments": [
+      {
+        "title": "Vertical 1D Projectile Symmetry Problem Set",
+        "url": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+        "typeLabel": "Classwork Practice",
+        "submission": "Turn In Completed Handout",
+        "actionLabel": "View Handout",
+        "description": "Calculate apogee altitudes, launch velocities, and total hang times for vertical projectiles."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Distance vs. Time Graph Simulator",
+        "url": "https://rrmudry.github.io/distance_vs_time_graphing.html",
+        "typeLabel": "Interactive Web Tool",
+        "description": "Visualize parabolic position curves for decelerating and reversing vertical motion."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Two-Car Kinematic Intercept Challenge",
+        "url": "Unit_2/two_car_intercept/index.html",
+        "typeLabel": "Kinematic Sandbox",
+        "description": "Explore acceleration vectors and directional turnaround."
+      }
+    ],
+    "links": {
+      "Projectile Problem Set": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing"
+    }
+  },
+  {
+    "day": 18,
+    "date": "2026-09-23",
+    "unit": 2,
+    "title": "Galileo's Incline Ramp Acceleration Lab",
+    "topic": "Empirical Measurement of Uniform Acceleration on Inclined Tracks (a = g · sin θ & d ∝ t²)",
+    "dok": 3,
+    "type": "Lab",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Replicate Galileo's foundational inclined plane experiments to measure constant acceleration, verifying that distance traveled down an incline increases with the square of elapsed time (d ∝ t²) and calculating track acceleration from linearized data.",
+    "activity": "Incline Ramp Timing Lab: Student lab teams release dynamics carts or steel spheres down 2.0-meter grooved aluminum tracks elevated at a fixed angle (5° to 10°). Teams measure rolling times across 4 incremental release distances (0.5 m, 1.0 m, 1.5 m, 2.0 m), plot distance vs time (curved) and distance vs time squared (linear), determine the slope (½ · a), and calculate experimental acceleration.",
+    "essentialQuestion": "How did Galileo use inclined ramps to slow down gravitational acceleration enough to prove that falling objects accelerate uniformly?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-ETS1-2"
+    ],
+    "wicor": {
+      "Writing": "Composing a formal scientific lab report analyzing empirical sources of error (friction, rolling rotational inertia, stopwatch latency).",
+      "Inquiry": "Linearizing non-linear data by plotting position (d) against time squared (t²) to determine slope.",
+      "Collaboration": "Lab group roles: ramp angle calibrator, release manager, electronic timer operator, data table recorder.",
+      "Organization": "Recording raw times, computing trial averages, calculating t², and graphing trendlines.",
+      "Reading": "Reading technical instructions for photogate sensor alignment and track leveling."
+    },
+    "bellRinger": {
+      "type": "cast_challenge",
+      "title": "Incline Ramp Photogate Telemetry",
+      "defaultDuration": 4,
+      "standards": {
+        "dci": "HS-PS2.A: Forces & Motion",
+        "sep": "SEP-5: Using Mathematics & Computational Thinking",
+        "ccc": "CCC-1: Patterns"
+      },
+      "phenomenon": {
+        "title": "Precision Incline Track Sensor Run",
+        "description": "Physics students release a low-friction cart from rest at the top of an inclined track. Laser photogates at 4 distance intervals record the time required for the cart to reach each marker.",
+        "stimulus": {
+          "type": "data_table",
+          "title": "Incline Distance vs. Time Data",
+          "headers": [
+            "Distance (d)",
+            "Elapsed Time (t)",
+            "Time Squared (t²)",
+            "Calculated Ratio (d / t²)"
+          ],
+          "rows": [
+            {
+              "col_0": "0.20 m",
+              "col_1": "1.00 s",
+              "col_2": "1.00 s²",
+              "col_3": "0.20 m/s²"
+            },
+            {
+              "col_0": "0.80 m",
+              "col_1": "2.00 s",
+              "col_2": "4.00 s²",
+              "col_3": "0.20 m/s²"
+            },
+            {
+              "col_0": "1.80 m",
+              "col_1": "3.00 s",
+              "col_2": "9.00 s²",
+              "col_3": "0.20 m/s²"
+            },
+            {
+              "col_0": "3.20 m",
+              "col_1": "4.00 s",
+              "col_2": "16.00 s²",
+              "col_3": "0.20 m/s²"
+            }
+          ]
+        }
+      },
+      "steps": [
+        {
+          "stepId": "step_1",
+          "type": "cloze_dropdown",
+          "title": "Part 1: Identifying the Mathematical Pattern",
+          "prompt": "Evaluate the empirical relationship demonstrated in the photogate table:",
+          "text": "As time doubles from 1.0 s to 2.0 s, distance increases by a factor of [blank1]. As time triples from 1.0 s to 3.0 s, distance increases by a factor of [blank2]. This confirms that distance is directly proportional to [blank3].",
+          "blanks": {
+            "blank1": {
+              "correct": "4 (from 0.20 m to 0.80 m)",
+              "options": [
+                "4 (from 0.20 m to 0.80 m)",
+                "2 (from 0.20 m to 0.40 m)",
+                "8 (from 0.20 m to 1.60 m)"
+              ]
+            },
+            "blank2": {
+              "correct": "9 (from 0.20 m to 1.80 m)",
+              "options": [
+                "9 (from 0.20 m to 1.80 m)",
+                "3 (from 0.20 m to 0.60 m)",
+                "6 (from 0.20 m to 1.20 m)"
+              ]
+            },
+            "blank3": {
+              "correct": "time squared (t²)",
+              "options": [
+                "time squared (t²)",
+                "elapsed time (t)",
+                "track length"
+              ]
+            }
+          }
+        },
+        {
+          "stepId": "step_2",
+          "type": "data_calculation",
+          "title": "Part 2: Calculating Track Acceleration",
+          "prompt": "From the kinematic formula d = ½ · a · t², the ratio d / t² equals ½ · a. Given d / t² = 0.20 m/s², calculate the cart's acceleration (a) in m/s².",
+          "inputLabel": "Cart Acceleration",
+          "unit": "m/s²",
+          "targetValue": 0.4,
+          "tolerance": 0.05,
+          "hint": "Since ½ · a = 0.20 m/s², a = 2 · (0.20 m/s²) = 0.40 m/s²."
+        },
+        {
+          "stepId": "step_3",
+          "type": "ai_reasoning_chat",
+          "title": "Part 3: Defending the Linearization with AI Mentor",
+          "prompt": "Discuss your reasoning with the AI Physics Mentor: Explain why plotting distance vs. time produces a curved parabola, whereas plotting distance vs. time squared produces a straight line.",
+          "openingPrompt": "You found that the cart's acceleration is 0.40 m/s²! When you graph d vs t, the line curves upward. But when you graph d vs t², it becomes a perfect straight line. Why is turning a curve into a straight line so valuable in physics experiments?",
+          "minTurns": 1
+        }
+      ],
+      "teacherKey": "Step 1: 4, 9, time squared (t²). Step 2: 0.40 m/s² (2 · 0.20). Step 3: Claim: Linearizing non-linear data allows physicists to verify mathematical models and directly calculate unknown constants from the slope of a best-fit line. Evidence: The formula d = ½ · a · t² is a quadratic parabola in terms of t, but it is linear with respect to t² (y = m · x where y = d, x = t², and slope m = ½ · a). Reasoning: Curves are difficult to assess for exact fits and error bars, whereas straight lines have a constant slope that can be calculated via linear regression. Multiplying the slope of the d vs t² line by 2 provides an immediate, highly accurate measurement of acceleration."
+    },
+    "assignments": [
+      {
+        "title": "Galileo Incline Ramp Acceleration Lab Report",
+        "url": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+        "typeLabel": "Lab Report",
+        "submission": "Turn In Lab Report & Graphs",
+        "actionLabel": "View Lab Sheet",
+        "description": "Log photogate times across 4 track distances, construct linearized d vs t² graphs, and determine ramp acceleration."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Distance vs. Time Graph Simulator",
+        "url": "https://rrmudry.github.io/distance_vs_time_graphing.html",
+        "typeLabel": "Interactive Web Tool",
+        "description": "Simulate acceleration down an incline and inspect position curves."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Speed & Distance Studio",
+        "url": "Unit_2/speed_distance_time_app/index.html",
+        "typeLabel": "Practice Sandbox",
+        "description": "Review kinematics formulas."
+      }
+    ],
+    "links": {
+      "Incline Lab Sheet": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing"
+    }
+  },
+  {
+    "day": 19,
+    "date": "2026-09-24",
+    "unit": 2,
+    "title": "Multi-Stage Kinematic Challenges & Intercepts",
+    "topic": "Solving Systems of Kinematic Equations: Multi-Stage Acceleration and Intercept Challenges",
+    "dok": 3,
+    "type": "Performance Task / Workshop",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Master multi-stage kinematics and multi-vehicle intercept problems by setting up systems of algebraic motion equations, equating position functions x₁(t) = x₂(t), and predicting collision times and locations.",
+    "activity": "Two-Car Kinematic Intercept Competition: Students deploy the interactive [Two-Car Kinematic Intercept Challenge](Unit_2/two_car_intercept/index.html). Teams configure competing vehicles (one constant-velocity runner vs one accelerating interceptor starting from rest or with a head start), calculate the theoretical intercept time and collision coordinate algebraically on whiteboards, and verify by running the live dual-canvas vector simulation.",
+    "essentialQuestion": "How do we algebraically solve for the exact time and position where two moving vehicles with different velocities and accelerations meet?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-ETS1-2"
+    ],
+    "wicor": {
+      "Writing": "Writing simultaneous kinematic proofs showing how setting x₁(t) = x₂(t) eliminates spatial position to isolate time.",
+      "Inquiry": "Investigating how initial head-start distance alters whether an accelerating vehicle can catch a constant-speed vehicle before the finish line.",
+      "Collaboration": "Pairs competing in intercept calibration challenges with randomized vehicle profiles.",
+      "Organization": "Partitioning multi-stage journeys into discrete time intervals with separate initial conditions (x₀, v₀).",
+      "Reading": "Decoding multi-variable word problem descriptions with two moving reference frames."
+    },
+    "bellRinger": {
+      "type": "cast_challenge",
+      "title": "Automated Intercept & Collision Avoidance",
+      "defaultDuration": 4,
+      "standards": {
+        "dci": "HS-PS2.A: Forces & Motion",
+        "sep": "SEP-5: Using Mathematics & Computational Thinking",
+        "ccc": "CCC-4: Systems & System Models"
+      },
+      "phenomenon": {
+        "title": "Automated Rail Transit Switch Intercept",
+        "description": "Two autonomous maintenance shuttles operate on parallel tracks merging into a single tunnel. Shuttle A travels at a constant speed of 15.0 m/s starting at x = 0 m. Shuttle B starts 50.0 meters ahead (x = 50.0 m) from rest (v₀ = 0) and accelerates at 2.0 m/s².",
+        "stimulus": {
+          "type": "data_table",
+          "title": "Shuttle Kinematic Profiles",
+          "headers": [
+            "Vehicle",
+            "Initial Position (x₀)",
+            "Initial Velocity (v₀)",
+            "Acceleration (a)",
+            "Position Equation x(t)"
+          ],
+          "rows": [
+            {
+              "col_0": "Shuttle A",
+              "col_1": "0.0 m",
+              "col_2": "+15.0 m/s",
+              "col_3": "x_A(t) = 15.0 · t"
+            },
+            {
+              "col_0": "Shuttle B",
+              "col_1": "+50.0 m",
+              "col_2": "0.0 m/s",
+              "col_3": "x_B(t) = 50.0 + ½(2.0) · t² = 50.0 + 1.0 · t²"
+            }
+          ]
+        }
+      },
+      "steps": [
+        {
+          "stepId": "step_1",
+          "type": "cloze_dropdown",
+          "title": "Part 1: Setting Up the Intercept Equation",
+          "prompt": "To find when Shuttle A overtakes Shuttle B, equate their position models x_A(t) = x_B(t):",
+          "text": "The resulting quadratic equation in standard form is [blank1]. This yields two positive time solutions, t₁ = 5.0 s and t₂ = 10.0 s. The first intercept at t = 5.0 s represents [blank2], while the second at t = 10.0 s represents [blank3].",
+          "blanks": {
+            "blank1": {
+              "correct": "t² - 15t + 50 = 0",
+              "options": [
+                "t² - 15t + 50 = 0",
+                "t² + 15t - 50 = 0",
+                "2t² - 15t + 50 = 0"
+              ]
+            },
+            "blank2": {
+              "correct": "Shuttle A overtaking Shuttle B while A is faster",
+              "options": [
+                "Shuttle A overtaking Shuttle B while A is faster",
+                "Shuttle B crashing into Shuttle A from behind",
+                "both shuttles coming to a stop"
+              ]
+            },
+            "blank3": {
+              "correct": "Shuttle B overtaking Shuttle A as B accelerates to higher speed",
+              "options": [
+                "Shuttle B overtaking Shuttle A as B accelerates to higher speed",
+                "both shuttles reversing direction",
+                "Shuttle A running out of power"
+              ]
+            }
+          }
+        },
+        {
+          "stepId": "step_2",
+          "type": "data_calculation",
+          "title": "Part 2: Calculating Intercept Position",
+          "prompt": "Calculate the track position in meters of the first intercept at t = 5.0 seconds using Shuttle A's equation x_A = 15.0 · t.",
+          "inputLabel": "First Intercept Position",
+          "unit": "m",
+          "targetValue": 75,
+          "tolerance": 0.1,
+          "hint": "x_A(5.0 s) = 15.0 m/s · 5.0 s = 75.0 meters."
+        },
+        {
+          "stepId": "step_3",
+          "type": "ai_reasoning_chat",
+          "title": "Part 3: Defending Dual Quadratic Roots with AI Mentor",
+          "prompt": "Discuss your reasoning with the AI Physics Mentor: Explain physically why the quadratic equation produces two separate times where positions are equal, and what Shuttle B's speed is at each pass.",
+          "openingPrompt": "You found that Shuttle A and Shuttle B are at the exact same location at t = 5.0 s (at 75 m) AND again at t = 10.0 s (at 150 m)! How is it physically possible for two vehicles on the same straight track to cross each other twice?",
+          "minTurns": 1
+        }
+      ],
+      "teacherKey": "Step 1: t² - 15t + 50 = 0, Shuttle A overtaking Shuttle B, Shuttle B overtaking Shuttle A. Step 2: 75.0 m (15.0 · 5.0). Step 3: Claim: Two vehicles can cross each other twice when one vehicle moves with a constant speed while the other accelerates from behind. Evidence: At t = 0, B is ahead by 50 m but stopped. A is moving at 15 m/s, so A catches up and passes B at t = 5.0 s (at x = 75 m). At that instant, B has only accelerated to v_B = a · t = 2 · 5 = 10 m/s (slower than A). However, B keeps accelerating. By t = 10.0 s, B reaches v_B = 2 · 10 = 20 m/s (faster than A), so B catches and re-passes A at x = 150 m. Reasoning: Setting x_A(t) = x_B(t) yields a quadratic equation because position depends on t². A parabolic curve intersecting a straight line produces two intersection points, representing two distinct physical passes."
+    },
+    "assignments": [
+      {
+        "title": "Two-Car Kinematic Intercept Challenge Handout",
+        "url": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+        "typeLabel": "Performance Task",
+        "submission": "Turn In Completed Challenge Proofs",
+        "actionLabel": "View Handout",
+        "description": "Derive systems of equations to solve 3 leveled two-vehicle intercept challenges."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Two-Car Kinematic Intercept Simulator",
+        "url": "Unit_2/two_car_intercept/index.html",
+        "typeLabel": "Honors Physics Intercept Simulator",
+        "description": "Configure vehicle velocities and accelerations, watch live vector readouts, and simulate race collisions."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Two-Car Kinematic Intercept Challenge",
+        "url": "Unit_2/two_car_intercept/index.html",
+        "typeLabel": "Interactive Sandbox",
+        "description": "Interactive intercept simulator."
+      }
+    ],
+    "links": {
+      "Two-Car Simulator": "Unit_2/two_car_intercept/index.html"
+    }
+  },
+  {
+    "day": 20,
+    "date": "2026-09-25",
+    "unit": 2,
+    "title": "Kinematics Mastery Synthesis & Mid-Unit Milestone",
+    "topic": "Comprehensive Synthesis of 1D Kinematics (x, v, a, Graphs, Free Fall, and UAM)",
+    "dok": 3,
+    "type": "Assessment / Milestone",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Conduct a formative mid-unit milestone evaluating complete student mastery of 1D Kinematics: reference frames, distance vs. displacement, constant velocity, graph slope and area decoding, acceleration sign analysis, free fall, and UAM problem solving.",
+    "activity": "Kinematics Mid-Unit Performance Milestone: Students complete a multi-part synthesis task featuring: (1) Graph Analysis: decoding a multi-segment journey with x-t and v-t translation, (2) Quantitative UAM derivations (stopping distance and reaction time), and (3) Free-fall apogee calculations. Students self-evaluate with diagnostic rubrics before launching Part 2 (Dynamics) next week.",
+    "essentialQuestion": "How effectively can we model, calculate, and graphically represent any 1D motion scenario using kinematic principles?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-ETS1-2"
+    ],
+    "wicor": {
+      "Writing": "Writing formal mathematical justifications defending kinematic problem solutions.",
+      "Inquiry": "Evaluating individual mastery gaps across graphical vs algebraic kinematics.",
+      "Collaboration": "Post-assessment collaborative debrief and error analysis protocol.",
+      "Organization": "Managing time across conceptual diagnostics and multi-step derivations.",
+      "Reading": "Carefully dissecting multi-sentence engineering prompts to extract all initial conditions."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "Looking back over our first 4 weeks of Kinematics (motion graphing, constant speed, acceleration, and free fall): Which concept do you feel most confident about, and which concept would you like to review before we start Newton's Laws of Motion next week?",
+      "explanation": "Reflecting on your own conceptual strengths and growth areas is an essential scientific metacognitive practice. You have built a tremendous kinematic toolkit!",
+      "defaultDuration": 3
+    },
+    "assignments": [
+      {
+        "title": "Unit 2 Kinematics Mid-Unit Milestone",
+        "url": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+        "typeLabel": "Mid-Unit Assessment",
+        "submission": "Turn In Completed Milestone",
+        "actionLabel": "View Milestone",
+        "description": "Formative evaluation covering motion graphs, displacement integration, and UAM word problems."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Interactive Distance vs. Time Grapher",
+        "url": "https://rrmudry.github.io/distance_vs_time_graphing.html",
+        "typeLabel": "Study Tool",
+        "description": "Review motion curve behaviors."
+      },
+      {
+        "title": "Two-Car Kinematic Intercept Simulator",
+        "url": "Unit_2/two_car_intercept/index.html",
+        "typeLabel": "Study Tool",
+        "description": "Review accelerated motion intercepts."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Speed & Distance Studio",
+        "url": "Unit_2/speed_distance_time_app/index.html",
+        "typeLabel": "Practice Sandbox",
+        "description": "Final review problem sets."
+      }
+    ],
+    "links": {
+      "Distance vs Time App": "https://rrmudry.github.io/distance_vs_time_graphing.html",
+      "Two-Car Intercept Challenge": "Unit_2/two_car_intercept/index.html"
+    }
+  },
+  {
+    "day": 21,
+    "date": "2026-09-28",
+    "unit": 2,
+    "title": "The Big Question: What Keeps Things Moving? (Inertia Demos)",
     "topic": "Inquiry Launch into Dynamics: Aristotle vs Galileo vs Newton & Balanced Forces",
     "dok": 2,
     "type": "Inquiry / Demonstration",
@@ -2167,27 +2748,58 @@ const lessonsData = [
     }
   },
   {
-    "day": 17,
-    "date": "2026-09-22",
+    "day": 22,
+    "date": "2026-09-29",
     "unit": 2,
-    "title": "Mass as Inertia & Free-Body Diagrams (FBDs)",
-    "topic": "Mass (kg) vs. Weight (N) & Systematic Free-Body Diagram Modeling",
+    "title": "Newton's First Law of Motion (The Law of Inertia)",
+    "topic": "The First Law & Natural States of Motion",
     "dok": 2,
-    "type": "Lab / Direct Instruction",
+    "type": "Direct Instruction",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Establish mass as the quantitative measure of an object's inertia (resistance to acceleration), catalog contact and field forces, and master constructing isolated Free-Body Diagrams (FBDs).",
-    "activity": "Mystery Mass Shakers & Whiteboard FBD Sprint: Blindfolded students shake sealed cans filled with cotton, wood, and lead horizontally (isolated from vertical gravity) to rank inertia purely by resistance to acceleration, followed by drafting FBDs for 6 authentic physical scenarios.",
-    "essentialQuestion": "Why does an anvil have the exact same inertia in deep space as it does on Earth, even though it weighs zero Newtons?",
+    "summary": "Formalize Newton's First Law: objects maintain constant velocity (rest or steady straight-line motion) unless acted upon by a net external force, analyzing Galileo's frictionless double-incline thought experiment.",
+    "activity": "Galileo's Double Ramp Text Analysis & CER Writing: Students analyze Galileo's thought experiment (a ball rolling down one ramp will rise to the exact same height on an opposite ramp regardless of angle; if the opposite ramp is flat, it rolls forever). Students write a CER explanation answering: Why does a seatbelt save a passenger's life when a car suddenly brakes?",
+    "essentialQuestion": "How does Newton's First Law redefine our everyday definition of what forces actually do?",
     "standards": [
       "HS-PS2-1"
     ],
     "wicor": {
-      "Writing": "Documenting force labels and vector coordinate conventions.",
-      "Inquiry": "Feeling horizontal resistance to acceleration without gravitational weight cues.",
-      "Collaboration": "Partner whiteboard drafting and peer critique of FBD arrow lengths.",
-      "Organization": "Classifying forces into contact (Normal, Tension, Friction, Applied) vs field (Gravity) categories.",
-      "Reading": "Decoding word problem descriptions to identify all physical interactions acting on a system."
+      "Writing": "Composing a Claim-Evidence-Reasoning (CER) argument analyzing vehicular inertia and seatbelt physics.",
+      "Inquiry": "Analyzing Galileo's double-ramp geometry and extrapolating to zero-angle horizontal motion.",
+      "Collaboration": "Partner debate contrasting Aristotle's 'natural place' theory with Newton's inertia.",
+      "Organization": "Mapping cause-and-effect relationships between external forces and velocity changes.",
+      "Reading": "Reading primary source translations of Galileo's Dialogues Concerning Two New Sciences."
+    },
+    "bellRinger": {
+      "type": "concept_chat",
+      "title": "Forces Change Motion, Not Sustain It",
+      "promptQuestion": "A student pushes a heavy crate across the floor at a steady, constant speed. The student says: 'My push is greater than friction, and that is why the crate is moving forward.' Explain why their physics understanding is incorrect.",
+      "explanation": "If the crate is moving at a CONSTANT speed, its acceleration is zero! By Newton's First Law, zero acceleration requires zero net force. Therefore, the student's forward push exactly EQUALS friction—it is not greater.",
+      "defaultDuration": 3
+    }
+  },
+  {
+    "day": 23,
+    "date": "2026-09-30",
+    "unit": 2,
+    "title": "Mass as the Quantitative Measure of Inertia",
+    "topic": "Mass (kg) vs. Weight (N) vs. Volume: Isolating Inertia",
+    "dok": 2,
+    "type": "Lab / Activity",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Establish mass as the measure of an object's inertia, fundamentally distinguishing it from gravitational weight (N) and geometric volume.",
+    "activity": "Mystery Mass Shakers & Inertia Balance: Blindfolded students shake sealed cans filled with cotton, wood, and lead horizontally (isolated from vertical gravity) to rank inertia purely by resistance to acceleration, followed by measuring oscillation frequencies on an inertia balance.",
+    "essentialQuestion": "Why would an anvil have the exact same inertia in deep space as it does on Earth, even though it weighs zero Newtons?",
+    "standards": [
+      "HS-PS2-1"
+    ],
+    "wicor": {
+      "Writing": "Documenting mass rankings and explaining why shaking frequency is independent of local gravity.",
+      "Inquiry": "Feeling horizontal resistance to acceleration without gravitational weight assistance.",
+      "Collaboration": "Partner trials timing 10 cycles on the inertia balance to calibrate unknown masses.",
+      "Organization": "Constructing calibration curves: period squared (T²) vs added mass (m).",
+      "Reading": "Reading technical distinctions between inertial mass and gravitational mass."
     },
     "bellRinger": {
       "type": "free_response",
@@ -2197,39 +2809,268 @@ const lessonsData = [
     }
   },
   {
-    "day": 18,
-    "date": "2026-09-23",
+    "day": 24,
+    "date": "2026-10-01",
     "unit": 2,
-    "title": "Newton's Second Law Lab: Force, Mass & Acceleration (F_net = m · a)",
-    "topic": "Empirical Derivation of Newton's Second Law: a ∝ F_net and a ∝ 1/m",
+    "title": "The Force Toolkit: Types of Forces & Free-Body Diagrams",
+    "topic": "Contact vs. Field Forces & Systematic Free-Body Modeling (FBDs)",
+    "dok": 2,
+    "type": "Activity / Direct Instruction",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Catalog standard physical forces (Gravity, Normal, Tension, Friction, Applied) and master drawing standardized Free-Body Diagrams (FBDs).",
+    "activity": "Whiteboard FBD Drafting Sprint: Students translate 6 physical scenarios (book at rest on a table, cart pulled at constant speed, elevator accelerating upward, skydiver in terminal velocity, box on an incline) into isolated dot force diagrams with labeled vector arrows and congruence tick marks.",
+    "essentialQuestion": "How do free-body diagrams allow us to translate messy real-world objects into isolated vector systems?",
+    "standards": [
+      "HS-PS2-1"
+    ],
+    "wicor": {
+      "Writing": "Standardizing force vector notation (F_g, F_N, F_T, F_f, F_app) with coordinate subscripts.",
+      "Inquiry": "Evaluating whether arrow lengths in FBDs accurately represent balanced vs unbalanced states.",
+      "Collaboration": "Whiteboard sprint pairs critiquing and correcting peer diagrams.",
+      "Organization": "Using a Force Identification Flowchart (Is it touching? Contact force! Is it in gravity? Field force!).",
+      "Reading": "Decoding written descriptions of physical systems into isolated dot representations."
+    },
+    "bellRinger": {
+      "type": "cast_challenge",
+      "title": "Free-Body Diagram Vector Modeling",
+      "defaultDuration": 4,
+      "standards": {
+        "dci": "HS-PS2.A: Forces & Motion",
+        "sep": "SEP-2: Developing & Using Models",
+        "ccc": "CCC-4: Systems & System Models"
+      },
+      "phenomenon": {
+        "title": "Elevator Cable & Passenger Telemetry",
+        "description": "An elevator with a 70 kg passenger accelerates upward at 2.0 m/s². Sensors in the floor scale and cable winch record the forces acting on the passenger and elevator car.",
+        "stimulus": {
+          "type": "data_table",
+          "title": "Passenger Force Balance",
+          "headers": [
+            "Force",
+            "Agent / Cause",
+            "Direction",
+            "Magnitude"
+          ],
+          "rows": [
+            {
+              "col_0": "Gravitational Force (F_g)",
+              "col_1": "Earth's Gravity (m · g)",
+              "col_2": "Downward (-y)",
+              "col_3": "70 kg · 9.8 m/s² = 686 N"
+            },
+            {
+              "col_0": "Normal Force (F_N)",
+              "col_1": "Elevator Floor Scale",
+              "col_2": "Upward (+y)",
+              "col_3": "826 N"
+            }
+          ]
+        }
+      },
+      "steps": [
+        {
+          "stepId": "step_1",
+          "type": "cloze_dropdown",
+          "title": "Part 1: Comparing Force Magnitudes",
+          "prompt": "Evaluate the passenger's Free-Body Diagram vectors while accelerating upward:",
+          "text": "Because the passenger accelerates upward (+y), the upward Normal force (F_N) must be [blank1] the downward gravitational force (F_g). The net force acting on the passenger is [blank2].",
+          "blanks": {
+            "blank1": {
+              "correct": "strictly greater than",
+              "options": [
+                "strictly greater than",
+                "equal to",
+                "less than"
+              ]
+            },
+            "blank2": {
+              "correct": "+140 N upward (826 N - 686 N)",
+              "options": [
+                "+140 N upward (826 N - 686 N)",
+                "0 N (balanced)",
+                "-140 N downward"
+              ]
+            }
+          }
+        },
+        {
+          "stepId": "step_2",
+          "type": "data_calculation",
+          "title": "Part 2: Verifying Acceleration from Net Force",
+          "prompt": "Using a = F_net / m, calculate the passenger's acceleration in m/s² given F_net = 140 N and mass m = 70 kg.",
+          "inputLabel": "Upward Acceleration",
+          "unit": "m/s²",
+          "targetValue": 2,
+          "tolerance": 0.1,
+          "hint": "a = F_net / m = 140 N / 70 kg = 2.0 m/s²."
+        },
+        {
+          "stepId": "step_3",
+          "type": "ai_reasoning_chat",
+          "title": "Part 3: Defending Apparent Weight with AI Mentor",
+          "prompt": "Discuss your reasoning with the AI Physics Mentor: Explain why the floor scale reads 826 N (heavier than 686 N) when accelerating upward, and what the scale would read if the elevator cable snapped.",
+          "openingPrompt": "You verified that a 140 N upward net force produces a 2.0 m/s² upward acceleration! Why does the passenger feel 'heavier' during this upward acceleration, and what would the bathroom scale read if the elevator cable snapped into complete free fall?",
+          "minTurns": 1
+        }
+      ],
+      "teacherKey": "Step 1: strictly greater than, +140 N upward. Step 2: 2.0 m/s² (140 / 70). Step 3: Claim: An upward acceleration increases apparent weight (Normal force), whereas complete free fall drops apparent weight to zero. Evidence: Normal force F_N = m(g + a) = 70(9.8 + 2.0) = 826 N. If the cable snaps, the elevator and passenger both accelerate downward at g, so the floor cannot push up against the passenger: F_N = m(g - g) = 0 N. Reasoning: Scales do not measure gravitational pull directly; they measure the Normal support force pushing back. When accelerating upward, the floor must push with extra force to both counter gravity and supply net upward acceleration. In free fall, the floor falls out from beneath the feet at the exact same rate, producing apparent weightlessness."
+    },
+    "assignments": [
+      {
+        "title": "Free-Body Diagram (FBD) Drafting Sprint Handout",
+        "url": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
+        "typeLabel": "Classwork Practice",
+        "submission": "Turn In Completed FBDs",
+        "actionLabel": "View Handout",
+        "description": "Construct 8 standardized Free-Body Diagrams across resting, constant speed, and accelerating systems."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Two-Car Kinematic Intercept Challenge",
+        "url": "Unit_2/two_car_intercept/index.html",
+        "typeLabel": "Interactive Tool",
+        "description": "Inspect dynamic vector arrows."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Speed & Distance Studio",
+        "url": "Unit_2/speed_distance_time_app/index.html",
+        "typeLabel": "Practice Sandbox",
+        "description": "Review kinematics foundations."
+      }
+    ],
+    "links": {
+      "FBD Sprint Handout": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing"
+    }
+  },
+  {
+    "day": 25,
+    "date": "2026-10-02",
+    "unit": 2,
+    "title": "Balanced Forces & Mechanical Equilibrium (F_net = 0)",
+    "topic": "Static and Dynamic Equilibrium: Zero Net Force implies Zero Acceleration",
+    "dok": 3,
+    "type": "Practice / Lab",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Compute net force in 1D systems and prove that zero net force produces zero acceleration in both static (rest) and dynamic (constant speed) states.",
+    "activity": "Dual Spring Scale Tug-of-War: Students balance opposing forces on carts, verifying that equal and opposite pulling forces yield zero acceleration whether the cart is at rest or rolling steadily.",
+    "essentialQuestion": "Why does an aircraft cruising at 500 mph at constant altitude experience exactly zero net force?",
+    "standards": [
+      "HS-PS2-1"
+    ],
+    "wicor": {
+      "Writing": "Explaining the difference between static equilibrium (v = 0, a = 0) and dynamic equilibrium (v = const ≠ 0, a = 0).",
+      "Inquiry": "Verifying with spring scales that pulling an object at constant speed produces identical opposing friction force.",
+      "Collaboration": "Partner trials balancing opposing spring scales on frictionless tracks.",
+      "Organization": "Setting up net force summation equations: ΣF = F₁ + F₂ = 0.",
+      "Reading": "Reading flight telemetry data to analyze balanced thrust vs drag and lift vs weight."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "A commercial Boeing 777 jet cruises at a steady altitude of 35,000 feet in a straight line at 550 mph. What is the net force acting on the 300,000 kg airplane? Explain your reasoning.",
+      "explanation": "The net force is exactly ZERO Newtons! Because the jet travels at a constant velocity (constant speed in a straight line), its acceleration is zero. By Newton's First Law, a = 0 means F_net = 0. Forward jet engine thrust perfectly equals aerodynamic drag, and wing lift perfectly equals gravitational weight.",
+      "defaultDuration": 3
+    }
+  },
+  {
+    "day": 26,
+    "date": "2026-10-05",
+    "unit": 2,
+    "title": "Unbalanced Forces Produce Acceleration",
+    "topic": "Introducing Newton's Second Law: Cause and Effect & Vector Direction",
+    "dok": 2,
+    "type": "Direct Instruction / Inquiry",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Establish that an unbalanced net force (F_net ≠ 0) causes acceleration in the direction of the net force, introducing the proportionalities of Newton's 2nd Law.",
+    "activity": "Fan-Cart Demonstrations: Observing what happens when fan thrust exceeds friction; ranking tasks comparing accelerations under varied force and mass combinations.",
+    "essentialQuestion": "What determines whether a force makes an object speed up, slow down, or simply maintain its motion?",
+    "standards": [
+      "HS-PS2-1"
+    ],
+    "wicor": {
+      "Writing": "Formulating rules for vector direction alignment between net force and acceleration.",
+      "Inquiry": "Testing fan speeds on low-friction dynamics tracks.",
+      "Collaboration": "Ranking task pairs ordering 6 cart scenarios by acceleration magnitude.",
+      "Organization": "Calculating net force vectors: F_net = ΣF.",
+      "Reading": "Reading conceptual physics ranking prompts."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "If a car is traveling east at 20 m/s and the driver hits the brakes, creating a net force pointing west: What is the direction of the car's acceleration, and what happens to the car's speed?",
+      "explanation": "The acceleration points WEST, in the exact same direction as the net force! Because the velocity (east) and acceleration (west) point in opposite directions, the car slows down.",
+      "defaultDuration": 3
+    }
+  },
+  {
+    "day": 27,
+    "date": "2026-10-06",
+    "unit": 2,
+    "title": "Newton's Second Law Lab — Part 1: Force vs. Acceleration",
+    "topic": "Empirical Verification of a ∝ F_net (Constant Mass System)",
     "dok": 3,
     "type": "Lab",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Empirically verify the direct proportionality between net force and acceleration (a ∝ F_net) and inverse proportionality with mass (a ∝ 1/m) using dynamics track carts to synthesize F_net = m · a.",
-    "activity": "Modified Atwood Track Inquiry: Student teams pull low-friction dynamics carts with varying hanging weights, track photogate accelerations, plot a vs F_net and a vs 1/m trendlines, and derive the master relationship F_net = m · a.",
-    "essentialQuestion": "How does empirical experimental data prove that acceleration is directly proportional to net force and inversely proportional to system mass?",
+    "summary": "Empirically verify that acceleration is directly proportional to applied net force when system mass is held constant.",
+    "activity": "Modified Atwood Track Lab (Part 1): Pulling a constant-mass cart using hanging masses (0.1 N, 0.2 N, 0.3 N, 0.4 N) and measuring acceleration with photogates; plotting a vs F_net to establish linearity.",
+    "essentialQuestion": "How does experimental data verify the direct proportionality between applied net force and acceleration?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-ETS1-2"
+    ],
+    "wicor": {
+      "Writing": "Writing lab observations and data table analyses.",
+      "Inquiry": "Controlling variables: transferring mass between cart and hanger to keep total system mass strictly constant.",
+      "Collaboration": "Lab group roles: cart handler, hanging mass coordinator, photogate timer, data recorder.",
+      "Organization": "Plotting linear trendlines of acceleration vs net force.",
+      "Reading": "Reading photogate digital timer readouts."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "In a lab where total system mass is kept constant at 1.0 kg, what happens to the acceleration if you double the hanging pulling force from 0.2 N to 0.4 N?",
+      "explanation": "The acceleration doubles (from 0.2 m/s² to 0.4 m/s²)! Newton's 2nd Law states that acceleration is directly proportional to net force when mass is held constant.",
+      "defaultDuration": 3
+    }
+  },
+  {
+    "day": 28,
+    "date": "2026-10-07",
+    "unit": 2,
+    "title": "Newton's Second Law Lab — Part 2: Mass vs. Acceleration",
+    "topic": "Empirical Verification of a ∝ 1/m & Derivation of F_net = m · a",
+    "dok": 3,
+    "type": "Lab",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Empirically verify that acceleration is inversely proportional to mass under constant force, synthesizing the master equation F_net = m · a.",
+    "activity": "Modified Atwood Track Lab (Part 2): Keeping hanging pulling mass constant while systematically stacking mass bars on the cart (0.5 kg, 1.0 kg, 1.5 kg). Plotting a vs m (inverse curve) and a vs 1/m (linear), synthesizing F_net = m · a.",
+    "essentialQuestion": "Why is the relationship between mass and acceleration inverse rather than direct?",
     "standards": [
       "HS-PS2-1",
       "HS-ETS1-2"
     ],
     "wicor": {
       "Writing": "Synthesizing empirical findings into a formal scientific CER lab conclusion.",
-      "Inquiry": "Isolating variables: varying net force while keeping mass constant, then varying mass while keeping force constant.",
-      "Collaboration": "Lab teams dividing roles: track operator, photogate timer, mass coordinator, data recorder.",
-      "Organization": "Graphing linearized empirical data (a vs 1/m) and evaluating slope.",
-      "Reading": "Interpreting photogate sensor readouts and experimental error margins."
+      "Inquiry": "Linearizing inverse curves by calculating 1/m to determine the proportionality constant.",
+      "Collaboration": "Lab teams combining Part 1 and Part 2 data sets.",
+      "Organization": "Data tables tracking cart mass, system mass, time intervals, and computed accelerations.",
+      "Reading": "Reading scientific graphs to verify slope = net force."
     },
     "bellRinger": {
       "type": "free_response",
-      "promptQuestion": "If you double the net force applied to an object while keeping its mass constant, what happens to its acceleration? What happens if you instead keep the force constant and double its mass?",
-      "explanation": "Doubling net force doubles the acceleration (direct proportionality). Doubling mass cuts acceleration in half (inverse proportionality).",
+      "promptQuestion": "If you apply the same net force of 10 N to an empty 2 kg shopping cart and then to a fully loaded 10 kg shopping cart: How do their accelerations compare?",
+      "explanation": "The empty cart accelerates at a = 10 N / 2 kg = 5.0 m/s². The loaded cart accelerates at a = 10 N / 10 kg = 1.0 m/s². The loaded cart has 5x more mass, so it experiences 1/5 the acceleration.",
       "defaultDuration": 3
     }
   },
   {
-    "day": 19,
-    "date": "2026-09-24",
+    "day": 29,
+    "date": "2026-10-08",
     "unit": 2,
     "title": "The Reality of Friction: Static vs. Kinetic",
     "topic": "Friction Forces (F_f = μ · F_N), Surface Interfaces, and Energy Dissipation",
@@ -2258,8 +3099,8 @@ const lessonsData = [
     }
   },
   {
-    "day": 20,
-    "date": "2026-09-25",
+    "day": 30,
+    "date": "2026-10-09",
     "unit": 2,
     "title": "Multi-Force Problem Solving: Connecting Dynamics to Kinematics",
     "topic": "Calculating Net Force, Friction, and Resulting Acceleration and Stopping Distances",
@@ -2289,151 +3130,130 @@ const lessonsData = [
     }
   },
   {
-    "day": 21,
-    "date": "2026-09-28",
+    "day": 31,
+    "date": "2026-10-12",
     "unit": 2,
     "title": "Newton's Third Law of Motion (Action-Reaction Pairs)",
     "topic": "Interaction Pairs: Equal Magnitude, Opposite Direction, Different Objects",
     "dok": 2,
-    "type": "Activity",
+    "type": "Activity / Inquiry",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Explore Newton's Third Law: Forces always exist in pairs. When Object A exerts a force on Object B, Object B exerts an equal and opposite force on Object A.",
-    "activity": "Dual Force Sensor Collisions & Skateboard Push-Offs: Students connect digital force sensors back-to-back and collide them, observing identical peak force spikes in opposite directions. Students test skateboard/rolling chair push-offs to observe mutual recoil.",
-    "essentialQuestion": "When a mosquito hits a car windshield, which object experiences the greater force?",
+    "summary": "Investigate interaction force pairs: whenever one object exerts a force on a second, the second exerts an equal and opposite force back on the first (F_A_on_B = -F_B_on_A).",
+    "activity": "Dual Force Sensor Collisions & Skateboard Push-Offs: Students collide equal and unequal mass dynamics carts equipped with wireless force sensors to observe identical opposing force spikes in real time, followed by skateboard push-off demonstrations.",
+    "essentialQuestion": "When a massive Mack truck hits a tiny mosquito on the highway, which object experiences the greater impact force?",
     "standards": [
       "HS-PS2-1"
     ],
     "wicor": {
-      "Writing": "Writing paired force statements: 'Object A exerts a force on Object B; Object B exerts an equal and opposite force on Object A.'",
-      "Inquiry": "Analyzing why equal forces produce vastly different accelerations when objects have different masses.",
-      "Collaboration": "Conducting pair skateboard and force sensor recoil trials safely.",
-      "Organization": "Creating an interaction-pair diagram clearly identifying the two interacting objects.",
-      "Reading": "Reading and critiquing common misconceptions about action-reaction pairs."
+      "Writing": "Formulating Third Law interaction statements: 'Object A exerts a force on Object B, and Object B exerts an equal and opposite force on Object A.'",
+      "Inquiry": "Analyzing collision sensor graphs to confirm peak force spikes are perfectly equal and opposite at every millisecond of contact.",
+      "Collaboration": "Partner pairs operating colliding carts and interpreting live force telemetry.",
+      "Organization": "Cataloging interaction pairs in a 3-column matrix (Action Force, Reaction Force, Objects Involved).",
+      "Reading": "Reading conceptual collision paradox scenarios."
     },
     "bellRinger": {
       "type": "free_response",
-      "promptQuestion": "When a heavy football linebacker tackles a light running back, does the linebacker exert more force on the running back, or do they exert equal force on each other?",
-      "explanation": "According to Newton's Third Law, they exert the exact same magnitude of force on each other! The lighter player experiences a greater acceleration due to smaller mass (a = F / m).",
+      "promptQuestion": "When a giant Mack truck collides with a tiny mosquito on the highway, does the truck exert more force on the mosquito, does the mosquito exert more force on the truck, or are the forces equal?",
+      "explanation": "The forces are EXACTLY EQUAL in magnitude! By Newton's Third Law, every force is a mutual interaction. The mosquito experiences devastating acceleration because its mass is tiny (a = F / m), while the truck barely flinches due to its huge mass, but the interaction force is identical.",
       "defaultDuration": 3
     }
   },
   {
-    "day": 22,
-    "date": "2026-09-29",
+    "day": 32,
+    "date": "2026-10-13",
     "unit": 2,
     "title": "Resolving the Third Law Paradox & System Boundaries",
-    "topic": "The Horse-and-Cart Dilemma: Why Motion Occurs Despite Equal Forces",
+    "topic": "The Horse-and-Cart Dilemma: Why Motion Occurs Despite Equal Opposing Forces",
     "dok": 3,
-    "type": "Activity",
+    "type": "Activity / Discussion",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Tackle the classic conceptual paradox: 'If action and reaction forces are always equal and opposite, why doesn't everything cancel out?' (They act on different objects!).",
-    "activity": "System Boundary Diagramming Sprint: Students draw boundary boxes around individual objects (the horse, the cart, the road). They discover that within the cart's system boundary, only the forward pull of the horse exists, which is not cancelled by the cart's backward pull on the horse.",
+    "summary": "Resolve the classic Third Law paradox: Action-reaction pairs NEVER cancel each other out to prevent motion because they act on DIFFERENT objects; identify system boundaries to determine net external force.",
+    "activity": "System Boundary Diagramming Workshop: Students draw system boundaries around a walker, the ground, and the Earth, proving why the forward friction force from the ground on the person's feet is an unbalanced external force that accelerates the person forward.",
     "essentialQuestion": "Why can't action-reaction force pairs ever cancel each other out to prevent motion?",
     "standards": [
       "HS-PS2-1"
     ],
     "wicor": {
-      "Writing": "Composing a formal scientific rebuttal resolving the horse-and-cart paradox.",
-      "Inquiry": "Investigating how external friction between horse hooves and the ground drives forward movement.",
-      "Collaboration": "Structured Socratic debate: arguing from the horse's perspective vs the physics perspective.",
-      "Organization": "Drawing dotted system boundary lines to isolate internal from external forces.",
-      "Reading": "Analyzing historical philosophical debates on Newtonian action-reaction mechanics."
+      "Writing": "Writing a formal logical refutation of the horse's argument in the Horse-Cart dilemma.",
+      "Inquiry": "Drawing system boundaries to isolate internal forces from external accelerating forces.",
+      "Collaboration": "Debate teams representing the Horse (skeptic) vs the Farmer (physicist).",
+      "Organization": "Constructing dual Free-Body Diagrams highlighting which forces act on which specific body.",
+      "Reading": "Reading the philosophical and mathematical text of the Horse-Cart paradox."
     },
     "bellRinger": {
       "type": "free_response",
-      "promptQuestion": "When you walk across the floor, what physical object actually exerts the forward force that pushes your body forward?",
-      "explanation": "The floor! Your foot pushes backward on the ground; by Newton's Third Law, the ground simultaneously pushes forward on your foot.",
+      "promptQuestion": "A stubborn horse says to a farmer: 'If I pull on the cart, the cart pulls back on me with an equal and opposite force. The forces cancel out, so it is impossible for me to move the cart!' How would you explain to the horse why it can move?",
+      "explanation": "Action-reaction pairs act on DIFFERENT objects, so they never cancel! The force on the cart determines whether the cart accelerates (cart FBD), while the forward push from the ground on the horse's hooves determines whether the horse accelerates (horse FBD). The horse accelerates because its forward push against the ground exceeds the backward pull from the cart.",
       "defaultDuration": 3
     }
   },
   {
-    "day": 23,
-    "date": "2026-09-30",
+    "day": 33,
+    "date": "2026-10-14",
     "unit": 2,
     "title": "Crash Engineering & Safety: Forces in Collisions",
-    "topic": "Impulse, Impact Time & Vehicle Safety Engineering",
+    "topic": "Impulse, Impact Time & Vehicle Safety Engineering (F · Δt = m · Δv)",
     "dok": 3,
-    "type": "Activity",
+    "type": "Activity / Engineering",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Apply Newtonian mechanics to engineering safety: investigate how crumple zones, airbags, and seatbelts minimize lethal forces by extending impact duration.",
-    "activity": "Collision Telemetry & Egg-Crash Cart Analysis: Students preview the Operation Safe Heeler crash engineering challenge. Students analyze high-speed video telemetry comparing rigid carts vs carts fitted with paper/foam crumple zones, calculating the dramatic drop in peak impact force.",
-    "essentialQuestion": "How do automotive engineers manipulate contact time to minimize lethal forces during sudden deceleration?",
+    "summary": "Apply Newton's Second and Third Laws to automotive safety engineering: prove that extending collision impact duration (Δt) dramatically reduces lethal impact force (F = m · Δv / Δt) via crumple zones, airbags, and seatbelts.",
+    "activity": "Operation Safe Heeler Crash Design Challenge: Students test egg-cart and digital bumper collisions (previewing the Operation Safe Heeler web simulation), measuring deceleration distances and computing impact forces for rigid steel vs crumple-zone energy-absorbing bumpers.",
+    "essentialQuestion": "How do automotive engineers manipulate contact time to minimize lethal forces during sudden vehicle deceleration?",
     "standards": [
       "HS-PS2-1",
       "HS-ETS1-2"
     ],
     "wicor": {
-      "Writing": "Writing an engineering justification report evaluating crumple zone materials.",
-      "Inquiry": "Analyzing accelerometer collision curves to compare peak force vs duration of impact.",
-      "Collaboration": "Teams evaluating crumple zone prototypes under safety constraints.",
-      "Organization": "Graphing force vs time curves and calculating the impulse area.",
-      "Reading": "Reading national highway safety crash test standards and helmet design criteria."
+      "Writing": "Writing an engineering design brief justifying bumper crumple zone material selection.",
+      "Inquiry": "Testing egg-protection models on inclined crash tracks.",
+      "Collaboration": "Engineering design teams building crumple zones within strict mass and budget constraints.",
+      "Organization": "Data tables comparing impact time (milliseconds) vs peak force (Newtons).",
+      "Reading": "Reading National Highway Traffic Safety Administration (NHTSA) crash test telemetry standards."
     },
     "bellRinger": {
       "type": "free_response",
-      "promptQuestion": "Why do cars have crumple zones designed to crush during a front-end collision instead of being built out of unbreakable, solid steel?",
-      "explanation": "Crumpling extends the duration of the crash (increases Δt). Because impact force equals F = m · Δv / Δt, extending the stopping time dramatically lowers the force experienced by passengers.",
+      "promptQuestion": "Why are modern cars designed with front ends that crumple and collapse like an accordion in a crash, instead of being built out of indestructible solid steel?",
+      "explanation": "Crumple zones intentionally lengthen the time (Δt) it takes the passenger cabin to come to a stop. Because F_impact = m · Δv / Δt, increasing stopping time by a factor of 4 reduces the lethal impact force on passengers by 75%, saving lives.",
       "defaultDuration": 3
-    },
-    "assignments": [
-      {
-        "title": "Operation Safe Heeler Crash Engineering Lab",
-        "url": "operation-safe-heeler.html",
-        "typeLabel": "Graded Engineering Challenge",
-        "submission": "Cloud Auto-Saved ✓",
-        "description": "Design crumple zones to minimize impact forces and submit collision telemetry to the gradebook."
-      }
-    ],
-    "resources": [
-      {
-        "title": "Safe Heeler Telemetry & Class Results",
-        "url": "operation_safe_heeler_results.html",
-        "typeLabel": "Classroom Telemetry & Review",
-        "description": "Class-wide crash test analytics, accelerometer curves, and impulse area comparisons."
-      }
-    ],
-    "links": {
-      "Operation Safe Heeler": "operation-safe-heeler.html",
-      "Safe Heeler Results": "operation_safe_heeler_results.html"
     }
   },
   {
-    "day": 24,
-    "date": "2026-10-01",
+    "day": 34,
+    "date": "2026-10-15",
     "unit": 2,
     "title": "Unit 2 Comprehensive Synthesis & Gallery Walk",
-    "topic": "Master Review of Kinematics and Dynamics",
+    "topic": "Master Review of 1D Kinematics and Newtonian Dynamics",
     "dok": 3,
-    "type": "Activity",
+    "type": "Review / Practice",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Unify the entire 5-week journey: from measuring distance and time to predicting acceleration and forces across multi-agent physical systems.",
-    "activity": "Collaborative Problem Poster Gallery Walk: Teams create large-format solution posters for complex real-world challenges (rocket liftoff with decreasing mass, skydiving terminal velocity, multi-vehicle highway braking). Teams rotate with peer critique rubrics.",
+    "summary": "Review and synthesize the complete 7-week curriculum uniting Kinematics (x, v, a, motion graphs, UAM, free fall) with Dynamics (Newton's 1st, 2nd, 3rd Laws, FBDs, friction, and crash safety).",
+    "activity": "Synthesis Gallery Walk: Student teams solve complex multi-tier scenario posters (e.g. rocket liftoff, highway emergency braking, skydiver terminal velocity, freight train intercept) that require coordinated motion graphs, FBDs, and mathematical derivations, followed by a peer gallery walk.",
     "essentialQuestion": "How do kinematic motion models and Newtonian force laws unite into a single predictive framework for all physical motion?",
     "standards": [
       "HS-PS2-1",
       "HS-ETS1-2"
     ],
     "wicor": {
-      "Writing": "Constructing written peer critiques evaluating mathematical accuracy and graph annotations.",
-      "Inquiry": "Synthesizing multi-week concepts into comprehensive multi-stage physical proofs.",
-      "Collaboration": "Team poster construction and gallery walk peer review circles.",
-      "Organization": "Formatting solution posters into quadrants: Given parameters, FBD, Motion Graphs, and Proof.",
-      "Reading": "Reading peer posters and decoding alternative algebraic problem-solving strategies."
+      "Writing": "Annotating peer posters with constructive mathematical and conceptual feedback.",
+      "Inquiry": "Diagnosing subtle conceptual errors in student-generated multi-force and kinematic derivations.",
+      "Collaboration": "Group poster production and rotational peer gallery walk.",
+      "Organization": "Synthesizing the entire Unit 2 equation sheet (Kinematics + Newton's Laws + Friction).",
+      "Reading": "Reviewing comprehensive study guides and past formative assessments."
     },
     "bellRinger": {
       "type": "free_response",
-      "promptQuestion": "Summarize Newton's Three Laws of Motion in one sentence each.",
-      "explanation": "1st Law: Objects keep their velocity unless acted on by a net force. 2nd Law: Unbalanced net force causes acceleration (F_net = m · a). 3rd Law: Every action force has an equal and opposite reaction force.",
+      "promptQuestion": "Imagine you are explaining physics to a younger student: What is the single most important rule or relationship you learned in Unit 2 that connects how an object moves (kinematics) to why it moves (forces)?",
+      "explanation": "Newton's Second Law: F_net = m · a! Forces cause acceleration (dynamics), and acceleration changes an object's velocity and position over time (kinematics). It is the master bridge of physics.",
       "defaultDuration": 3
     }
   },
   {
-    "day": 25,
-    "date": "2026-10-02",
+    "day": 35,
+    "date": "2026-10-16",
     "unit": 2,
     "title": "Unit 2 Summative Assessment",
     "topic": "Comprehensive Exam on 1D Kinematics & Newton's Laws of Motion",
@@ -2441,8 +3261,8 @@ const lessonsData = [
     "type": "Assessment",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Full summative evaluation assessing DOK 1-3 mastery of 1D kinematics (x, v, a, graphs) and Newtonian dynamics (Inertia, FBDs, F_net = m · a, Action-Reaction).",
-    "activity": "Comprehensive unit exam covering conceptual multiple-choice diagnostics, coordinate slope and area calculations, FBD construction, and two multi-step DOK 3 word problems combining kinematics and dynamics.",
+    "summary": "Full summative evaluation assessing DOK 1-3 mastery across 1D kinematics (x, v, a, graphs, UAM, free fall) and Newtonian dynamics (Inertia, FBDs, F_net = m · a, Friction, Action-Reaction, and Crash Engineering).",
+    "activity": "Comprehensive Unit 2 Examination featuring conceptual diagnostic questions, coordinate graph slope and area calculations, Free-Body Diagram construction, and multi-step dynamics and stopping-distance word problems.",
     "essentialQuestion": "How effectively can we calculate, model, and justify the motion and interaction of physical systems?",
     "standards": [
       "HS-PS2-1",

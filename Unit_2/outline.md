@@ -1,6 +1,6 @@
 # Unit 2: 1D Kinematics & Newton's Laws of Motion (Motion and Forces)
 
-**Pacing:** 5 Weeks (25 Instructional Days)  
+**Pacing:** 7 Weeks (35 Instructional Days)  
 **Target Audience:** High School Physics (Physics of the Universe / California NGSS)  
 **Core Disciplinary Core Ideas (DCI):** PS2.A: Forces and Motion  
 **Target Performance Expectations:** [HS-PS2-1](https://rrmudry.github.io/ngss-explorer/), [HS-ETS1-2](https://rrmudry.github.io/ngss-explorer/)  
@@ -11,10 +11,10 @@
 ## Pedagogical Progression (Kinematics First, Then Dynamics)
 
 This unit follows the classical and cognitive progression:
-1. **Part 1: Describing Motion (Kinematics — Weeks 1, 2 & 3):**  
-   Students establish coordinate frames, measure distance and displacement, calculate uniform speed (`v = d / t`), decode position-time (`x-t`) and velocity-time (`v-t`) graphs, geometrically integrate displacement as the area under `v-t`, and master uniformly accelerated motion (UAM: `v = v₀ + at`, `x = x₀ + v₀t + ½at²`).
-2. **Part 2: Explaining Motion (Dynamics — Weeks 4 & 5):**  
-   With the concept of acceleration firmly grounded, students investigate *why* acceleration occurs. They explore Inertia (Newton's 1st Law), quantify mass as resistance to acceleration, build Free-Body Diagrams (FBDs), verify Newton's 2nd Law (`F_net = m · a`), explore friction, analyze interaction pairs (Newton's 3rd Law), and engineer collision safety models.
+1. **Part 1: Describing Motion (1D Kinematics — Weeks 1, 2, 3 & 4 | Days 1–20):**  
+   Students establish coordinate frames, measure distance and displacement, calculate uniform speed (`v = d / t`), decode position-time (`x-t`) and velocity-time (`v-t`) graphs, geometrically integrate displacement as the area under `v-t`, master uniformly accelerated motion (UAM: `v = v₀ + at`, `x = x₀ + v₀t + ½at²`), analyze free fall under gravity (`g = 9.8 m/s²`), verify ramp dilution with Galileo's incline lab, solve multi-vehicle intercepts, and complete a mid-unit kinematics milestone checkpoint.
+2. **Part 2: Explaining Motion (Newtonian Dynamics — Weeks 5, 6 & 7 | Days 21–35):**  
+   With the concept of acceleration firmly grounded, students investigate *why* acceleration occurs. They explore Inertia (Newton's 1st Law), quantify mass as resistance to acceleration, differentiate mass from gravitational weight, construct Free-Body Diagrams (FBDs), analyze mechanical equilibrium (`F_net = 0`), empirically verify Newton's 2nd Law (`F_net = m · a`) using Atwood track carts, measure static vs. kinetic friction, analyze interaction pairs (Newton's 3rd Law), resolve system boundary paradoxes, engineer vehicle crumple zones, and synthesize unit concepts in a peer gallery walk and summative examination.
 
 ---
 
@@ -152,80 +152,173 @@ This unit follows the classical and cognitive progression:
 
 ---
 
-### Week 4: Causes of Motion — Newton's First & Second Laws (Inertia, FBDs & F_net = m · a)
-**Goal:** Transition from describing how objects move (kinematics) to explaining why motion changes (dynamics). Explore Inertia (Newton's 1st Law), build Free-Body Diagrams (FBDs), empirically verify Newton's 2nd Law (`F_net = m · a`), investigate friction forces, and connect forces to resulting accelerations.
+### Week 4: Free Fall, Gravitational Acceleration & Incline Planes (Kinematics Milestone)
+**Goal:** Master gravitational free fall (`g = 9.8 m/s²`), verify that all objects fall at the same rate regardless of mass in a vacuum, model vertical projectile symmetry, recreate Galileo's inclined plane experiment to dilute gravity, solve multi-vehicle intercept problems, and complete the Part 1 Kinematics mastery checkpoint.
 
-*   **Day 16 (2026-09-21): What Keeps Things Moving? Newton's First Law & Inertia Demos**
-    *   *Focus:* Challenging the Aristotelian misconception that force is needed to sustain motion. Formalizing Newton's First Law: constant velocity (`a = 0`) unless acted upon by an unbalanced external force.
-    *   *Activity:* Discrepant event stations: Tablecloth pull with weighted dishes, coin-on-card flick into beaker, bowling ball guided with a mallet, and low-friction hover puck gliding without slowing down. Galileo's thought experiment analysis.
-    *   *Essential Question:* Does an object in motion require a continuous applied force to keep moving forward?
-    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Inquiry / Demonstration
-
-*   **Day 17 (2026-09-22): Mass as Inertia & Free-Body Diagrams (FBDs)**
-    *   *Focus:* Mass (kg) as the quantitative measure of inertia vs. Weight (N = kg · m/s²). Cataloging force types (`F_g`, `F_N`, `F_T`, `F_f`, `F_app`) and systematic Free-Body Diagram (FBD) construction.
-    *   *Activity:* Mystery mass shakers (ranking inertia horizontally without gravity assistance) followed by Whiteboard FBD Sprint: translating 6 real-world scenarios into isolated vector diagrams.
-    *   *Essential Question:* Why does an anvil have the exact same inertia in deep space as it does on Earth, even though it weighs zero Newtons?
+*   **Day 16 (2026-09-21): Free Fall & Gravitational Acceleration (`g = 9.8 m/s²`)**
+    *   *Bell-Ringer:* Dropping Heavy vs. Light (AI Chat): If a bowling ball and a tennis ball are dropped simultaneously in a vacuum chamber with no air resistance, which hits the ground first? Explain the physical reasoning.
+    *   *Focus:* Universal free-fall acceleration near Earth's surface (`g = 9.8 m/s²` downward). Independence of falling acceleration from object mass in a vacuum. Vacuum tube penny-and-feather demonstration. Kinematic adaptation for vertical motion (`a = -g = -9.8 m/s²`, `v = v₀ - gt`, `y = y₀ + v₀t - ½gt²`).
+    *   *Activity:* Metric Reaction Time Lab: Students catch a dropped metric ruler between thumb and forefinger, record fall distance in centimeters, and calculate human neural reaction time using `t = √(2Δy / g)`.
+    *   *Essential Question:* Why do heavy and light objects accelerate at the exact same rate when falling in the absence of air resistance?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Lab / Direct Instruction
 
-*   **Day 18 (2026-09-23): Newton's Second Law Lab: Force, Mass & Acceleration (F_net = m · a)**
-    *   *Focus:* Empirical verification of `a ∝ F_net` and `a ∝ 1/m`, leading directly to Newton's Second Law: `F_net = m · a`.
-    *   *Activity:* Modified Atwood track inquiry: Students pull dynamics carts with hanging weights, record photogate accelerations, plot `a` vs `F_net` (linear) and `a` vs `m` (inverse), synthesizing the fundamental equation of dynamics.
-    *   *Essential Question:* How does empirical experimental data prove that acceleration is directly proportional to net force and inversely proportional to system mass?
+*   **Day 17 (2026-09-22): Vertical Projectiles & Motion Symmetry (Toss & Catch)**
+    *   *Bell-Ringer:* Upward Toss Velocity at Peak (CAST Challenge): A ball is thrown straight up with an initial speed of 19.6 m/s. Calculate its velocity at the peak and total round-trip hang time back to the thrower's hand.
+    *   *Focus:* Vertical projectile symmetry: time to rise equals time to fall (`t_up = t_down`). Velocity at apex is instantaneously zero (`v_top = 0`), but acceleration remains non-zero (`a = -9.8 m/s²`). Impact velocity equals launch velocity in opposite direction (`v_final = -v₀`).
+    *   *Activity:* Hang Time & Vertical Leap Workshop: Students time vertical ball tosses and standing jumps with digital stopwatches, reconstruct peak heights using kinematics, and plot full `y-t`, `v-t`, and `a-t` parabolic trajectories.
+    *   *Essential Question:* Why is the acceleration of a tossed ball still -9.8 m/s² at the exact instant it stops at the highest point of its trajectory?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Workshop / Inquiry
+
+*   **Day 18 (2026-09-23): Galileo's Incline Ramp Lab: Diluting Gravity**
+    *   *Bell-Ringer:* Diluting Free Fall (AI Chat): Galileo could not measure split-second free fall with 17th-century water clocks. How did rolling bronze balls down gentle ramps allow him to study falling acceleration?
+    *   *Focus:* Diluted acceleration along an incline: `a = g · sin(θ)`. Position proportional to time squared (`Δx ∝ t²`) under constant acceleration: odd-number rule (1, 3, 5, 7 distance ratios per time tick).
+    *   *Activity:* Incline Ramp Investigation: Rolling steel marbles down grooved track ramps at varying tilt angles (5°, 10°, 15°). Students record travel time across 25 cm, 50 cm, 75 cm, and 100 cm intervals, plot `Δx` vs `t²`, and compute acceleration from the linear slope.
+    *   *Essential Question:* How did rolling balls down an inclined plane allow Galileo to prove that falling objects gain equal increments of speed in equal intervals of time?
     *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Lab
 
-*   **Day 19 (2026-09-24): The Reality of Friction: Static vs. Kinetic**
-    *   *Focus:* Microscopic origin of friction, normal force dependence (`F_f = μ · F_N`), and the static "breakaway" threshold vs. kinetic sliding friction.
-    *   *Activity:* Friction block pull lab: Dragging wooden blocks with varying mass across sandpaper, vinyl, and felt with spring scales. Measuring peak static friction vs steady kinetic friction; computing friction coefficients (`μ`).
-    *   *Essential Question:* Why does it always require more force to start an object sliding than to keep it sliding?
-    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Lab / Activity
+*   **Day 19 (2026-09-24): Multi-Stage & Relative Motion Intercepts (Two-Car Challenge)**
+    *   *Bell-Ringer:* Police Cruiser Pursuit Intercept (CAST Challenge): A speeder passes a stationary police cruiser at a constant 30 m/s. One second later, the cruiser accelerates at 5.0 m/s². Determine when and where the cruiser intercepts the speeder.
+    *   *Focus:* Simultaneous kinematics equations: equating positions `x₁(t) = x₂(t)` to solve for intercept time. Combining constant velocity with uniformly accelerated motion. Graphical intersection on `x-t` plots.
+    *   *Activity:* Interactive Two-Car Kinematic Intercept Challenge: Students adjust speed and acceleration sliders in the simulation web app to solve chase, head-on, and traffic light sprint scenarios, verifying solutions with quadratic formulas.
+    *   *Essential Question:* How do we mathematically find the exact point in space and time where two independent moving objects meet?
+    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Simulation / Performance Task
+    *   *Links:* [Two-Car Kinematic Intercept Challenge](Unit_2/two_car_intercept/index.html)
 
-*   **Day 20 (2026-09-25): Multi-Force Problem Solving: Connecting Dynamics to Kinematics**
-    *   *Focus:* Synthesizing Newton's Second Law (`F_net = m · a`) with kinematic motion models (`v = v₀ + at`, `x = x₀ + v₀t + ½at²`).
-    *   *Activity:* Highway Braking & Traction Design Workshop: Students calculate stopping distances and required braking forces for vehicles of varying mass on dry vs. wet pavement, linking tire friction directly to highway safety standards.
-    *   *Essential Question:* How do engineers unite free-body force analysis with kinematic equations to predict stopping distance and design vehicle braking systems?
+*   **Day 20 (2026-09-25): Kinematics Mid-Unit Synthesis & Mastery Checkpoint**
+    *   *Bell-Ringer:* Kinematics 3-Way Representation Synthesis (CAST Matrix): Given a multi-stage velocity-time graph, compute total displacement via area, instantaneous acceleration via slope, and select the matching position-time trajectory.
+    *   *Focus:* Comprehensive review and formative evaluation of 1D Kinematics (Days 1–19): reference frames, constant speed, `x-t` and `v-t` graphing, area under `v-t`, UAM kinematic equations, and free-fall motion.
+    *   *Activity:* Mid-Unit Kinematics Mastery Checkpoint: 45-minute formative assessment featuring motion graph interpretation, multi-step GUESS word problems, and a self-correction peer reflection protocol.
+    *   *Essential Question:* How do graphs, equations, and narrative descriptions work together to provide a complete mathematical description of 1D motion?
+    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Assessment / Checkpoint
+
+---
+
+### Week 5: Causes of Motion — Inertia, Forces & Equilibrium (Newton's 1st Law)
+**Goal:** Transition from describing motion (kinematics) to explaining why motion changes (dynamics). Explore Inertia (Newton's 1st Law), quantify mass as resistance to acceleration, differentiate mass from weight, catalog contact and field forces, construct Free-Body Diagrams (FBDs), and solve mechanical equilibrium problems (`F_net = 0`).
+
+*   **Day 21 (2026-09-28): What Keeps Things Moving? Newton's First Law & Inertia Demos**
+    *   *Bell-Ringer:* Aristotelian Motion vs. Inertia (AI Chat): In ancient Greece, Aristotle claimed that an object requires a continuous applied force to keep moving forward. Why did this misconception feel intuitive, and how does Newton's First Law overturn it?
+    *   *Focus:* Challenging the misconception that force causes velocity. Newton's First Law of Motion: an object at rest remains at rest, and an object in uniform motion continues at constant velocity unless acted on by an unbalanced net external force. Galileo's double-incline thought experiment.
+    *   *Activity:* Inertia Station Circus: Tablecloth pull under weighted plates, coin-on-card index card flick into a beaker, rolling a bowling ball with mallet tap guidance, and battery hover puck gliding across the floor without slowing down.
+    *   *Essential Question:* Does an object in motion require a continuous applied force to keep moving forward at constant velocity?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Inquiry / Demonstration
+
+*   **Day 22 (2026-09-29): Mass as Inertia vs. Weight (`W = m · g`)**
+    *   *Bell-Ringer:* Astronaut Wrench on the Moon (CAST Challenge): An astronaut holds a 2.0 kg wrench on Earth and on the Moon (`g_moon = 1.6 m/s²`). Compare its mass, weight, and the horizontal force needed to accelerate it at 3.0 m/s² in both environments.
+    *   *Focus:* Mass (kg) as the quantitative measure of inertia (resistance to changes in motion) vs. Weight (N) as the gravitational force acting on mass: `W = F_g = m · g`. Gravitational variation across planets; invariance of inertial mass across the universe.
+    *   *Activity:* Mystery Inertia Shakers: Students horizontally oscillate identical sealed cans containing cotton, sand, lead shot, and wood without lifting them. Ranking cans purely by horizontal resistance to acceleration, then verifying weights on spring scales.
+    *   *Essential Question:* Why does an anvil have the exact same inertia in deep space as it does on Earth, even though its weight in space is zero Newtons?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Lab / Direct Instruction
+
+*   **Day 23 (2026-09-30): The Force Toolkit & Free-Body Diagrams (FBDs)**
+    *   *Bell-Ringer:* Book at Rest on a Table (AI Chat): A book rests on a flat table. What forces are acting on it? Why doesn't the downward gravitational pull cause the book to accelerate downward through the table surface?
+    *   *Focus:* Cataloging forces: Gravity (`F_g`), Normal force (`F_N`), Tension (`F_T`), Friction (`F_f`), Applied force (`F_app`), and Air resistance (`F_air`). Standardized Free-Body Diagram (FBD) conventions: isolated dot representing object, tail-on-dot force vectors, proper relative lengths, and axis labeling.
+    *   *Activity:* Whiteboard FBD Sprint: 8 real-world scenarios (skydiver with open chute, sled pushed across snow, elevator moving upward at constant speed, car coasting to a stop). Students construct FBDs and write net force expressions in x and y dimensions.
+    *   *Essential Question:* How does an isolated Free-Body Diagram allow physicists to identify all external interactions acting on an object?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction / Practice
+
+*   **Day 24 (2026-10-01): Translational & Mechanical Equilibrium (`F_net = 0`)**
+    *   *Bell-Ringer:* Elevator at Constant Velocity (CAST Challenge): A 70 kg person stands on a scale inside an elevator moving upward at a steady 2.5 m/s. Calculate the scale reading in Newtons and explain why the scale does not read greater than the person's resting weight.
+    *   *Focus:* Definition of equilibrium: `ΣF = 0` (`ΣF_x = 0` and `ΣF_y = 0`). Static equilibrium (object at rest, `v = 0`, `a = 0`) vs. Dynamic equilibrium (object moving at constant velocity, `v = constant`, `a = 0`). Balanced forces produce zero acceleration.
+    *   *Activity:* Spring Scale Equilibrium Rig: Students suspend hanging masses from dual spring scales at varying symmetrical angles, measure tension readings, resolve vertical vector components, and verify that the sum of upward tensions equals the downward weight.
+    *   *Essential Question:* What is the fundamental physical equivalence between an object sitting completely motionless and an object coasting at 1,000 km/h?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Lab / Activity
+
+*   **Day 25 (2026-10-02): Static Equilibrium Challenges & Vector Balancing**
+    *   *Bell-Ringer:* Traffic Light Suspended by Cables (CAST Challenge): A 150 N traffic light hangs in equilibrium from two cables making equal 45° angles with the horizontal ceiling. Calculate the tension force in each support cable.
+    *   *Focus:* Multi-directional equilibrium problem solving: resolving forces into horizontal (`F_x = F · cos(θ)`) and vertical (`F_y = F · sin(θ)`) components. Setting `ΣF_x = 0` and `ΣF_y = 0` to solve for unknown tensions and normal forces.
+    *   *Activity:* Cable Rigging Engineering Challenge: Teams configure ring-and-pulley force tables with 3 hanging mass cords at custom angles, calculate theoretical mass balances using vector components, and test whether the center ring floats centered on the pin.
+    *   *Essential Question:* How do structural engineers utilize vector equilibrium conditions to guarantee that bridges, cranes, and suspended signs remain completely stable?
     *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Practice / Performance Task
 
 ---
 
-### Week 5: Newton's Third Law, Crash Engineering & Unit Summative Mastery
+### Week 6: Newton's Second Law & Friction Dynamics (`F_net = m · a`)
+**Goal:** Empirically establish and mathematically apply Newton's Second Law of Motion (`F_net = m · a`). Use modified Atwood machines to prove proportional relationships, differentiate static from kinetic friction, measure friction coefficients (`μ`), and unite dynamics with kinematics to solve multi-force stopping distance challenges.
+
+*   **Day 26 (2026-10-05): Newton's Second Law: Unbalanced Force & Acceleration**
+    *   *Bell-Ringer:* Doubling Force and Doubling Mass (AI Chat): If you double the net force pushing a shopping cart, what happens to its acceleration? What if you double the cart's mass while keeping the force constant?
+    *   *Focus:* Unbalanced net external force causes acceleration in the direction of the net force: `a = F_net / m`, leading to `F_net = m · a`. Proportionality: `a ∝ F_net` (direct linear) and `a ∝ 1/m` (inverse). Units of force: 1 Newton = 1 kg · m/s².
+    *   *Activity:* Interactive PhET "Forces and Motion: Basics" inquiry: Students systematically vary applied force while keeping cart mass constant, then vary mass under fixed force, recording acceleration readouts and generating linearizing data tables.
+    *   *Essential Question:* How does an unbalanced net force fundamentally alter the state of motion of an object?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction / Simulation
+
+*   **Day 27 (2026-10-06): Modified Atwood Machine Lab: Proving `F_net = m · a`**
+    *   *Bell-Ringer:* Atwood Accelerating Mass (CAST Challenge): A 0.80 kg cart on a frictionless track is pulled by a hanging 0.20 kg mass over a pulley. Calculate the net accelerating force, the total system mass, and the theoretical acceleration of the system.
+    *   *Focus:* Modified Atwood system dynamics: accelerating force is the weight of the hanging mass (`F_net = m_hang · g`), but the total accelerated mass is the entire system (`m_sys = m_cart + m_hang`). System acceleration: `a = (m_hang · g) / (m_cart + m_hang)`.
+    *   *Activity:* Modified Atwood Track Lab: Students release dynamics carts connected over low-friction pulleys to hanging slotted masses, measure cart acceleration across photogate timing flags, plot `a` vs `F_net` (confirming slope = `1/m`), and compare empirical vs theoretical acceleration.
+    *   *Essential Question:* In an Atwood system, why must the net pulling force accelerate the mass of the cart AND the hanging mass together?
+    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Lab
+
+*   **Day 28 (2026-10-07): The Science of Friction: Static vs. Kinetic (`F_f = μ · F_N`)**
+    *   *Bell-Ringer:* Pushing a Heavy Couch (AI Chat): Why is it always much harder to get a heavy couch to start sliding across a wooden floor than it is to keep it moving once it's already sliding?
+    *   *Focus:* Microscopic origin of friction: surface roughness, contact asperities, and microscopic welding. Static friction (`F_s ≤ μ_s · F_N`) as an adaptive response up to a peak threshold; kinetic friction (`F_k = μ_k · F_N`) as a constant resisting sliding force. Normal force dependence; independence from apparent surface area.
+    *   *Activity:* Demonstration & Interactive Analysis: Slowly increasing tension on a heavy wood block using a force sensor until breakaway, displaying the classic static peak spike followed by the lower, flat kinetic friction plateau.
+    *   *Essential Question:* What occurs at the microscopic interface between two solid surfaces when static friction breaks away into kinetic friction?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction / Demonstration
+
+*   **Day 29 (2026-10-08): Friction Block Inquiry Lab: Measuring Friction Coefficients**
+    *   *Bell-Ringer:* Friction Coefficient Calculation (CAST Challenge): A 4.0 kg wooden crate requires 16.0 N of horizontal force to slide across a warehouse floor at constant speed. Calculate the normal force, the kinetic friction force, and the coefficient of kinetic friction `μ_k`.
+    *   *Focus:* Measuring coefficients of friction: `μ_k = F_k / F_N` and `μ_s = F_s_max / F_N`. Effect of varying surface textures (wood, felt, sandpaper) and varying normal force (adding bar weights). Incline tilt angle method: `μ_s = tan(θ_slip)`.
+    *   *Activity:* Tabletop Friction Coefficient Lab: Teams drag multi-sided wooden friction blocks across lab benches with spring scales, log dynamic pull forces under varying added masses (0.5 kg, 1.0 kg, 1.5 kg), plot `F_f` vs `F_N`, and extract `μ_k` from the regression slope.
+    *   *Essential Question:* How do materials scientists determine the friction coefficient between two substances, and why is this value independent of surface area?
+    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Lab
+
+*   **Day 30 (2026-10-09): Multi-Force Dynamics & Highway Stopping Distances**
+    *   *Bell-Ringer:* Emergency Braking on Wet vs. Dry Road (CAST Challenge): A 1,200 kg car traveling at 25 m/s slams on its brakes. On dry asphalt `μ_k = 0.80`; on icy wet pavement `μ_k = 0.20`. Calculate the deceleration and total stopping distance for both road conditions.
+    *   *Focus:* Uniting Newtonian Dynamics with 1D Kinematics: 2-step solution pipeline: (1) Construct FBD and compute `F_net = m · a` to find acceleration `a`, (2) Substitute `a` into kinematic equations (`v² = v₀² + 2aΔx` or `x = x₀ + v₀t + ½at²`) to find distance or time.
+    *   *Activity:* Highway Safety & Stopping Distance Workshop: Students evaluate real-world accident reconstruction data, calculating skid mark lengths, initial vehicle speeds, and the impact of driver reaction time on multi-stage stopping distance.
+    *   *Essential Question:* How do traffic safety engineers combine Newton's Second Law with kinematic motion models to determine highway speed limits and safe following distances?
+    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Practice / Performance Task
+
+---
+
+### Week 7: Newton's Third Law, Crash Engineering & Unit Summative Assessment
 **Goal:** Explore interaction pairs (Newton's 3rd Law), resolve action-reaction paradoxes, apply impulse and impact forces to vehicle collision safety engineering, and master summative performance goals.
 
-*   **Day 21 (2026-09-28): Newton's Third Law of Motion (Action-Reaction Pairs)**
-    *   *Focus:* Forces as mutual interactions between two objects: `F_A_on_B = -F_B_on_A`. Equal magnitude, opposite direction, simultaneous existence.
-    *   *Activity:* Dual force sensor collision tests: Crashing equal and unequal mass carts together with live force readouts. Skateboard push-off trials and balloon rocket track launches.
-    *   *Essential Question:* When a massive truck collides with a tiny compact car, which vehicle experiences the greater force?
-    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Activity
+*   **Day 31 (2026-10-12): Newton's Third Law: Action-Reaction Interaction Pairs**
+    *   *Bell-Ringer:* Semi-Truck vs. Mosquito Collision (AI Chat): A massive semi-truck traveling down the highway collides with a tiny mosquito hovering in midair. Which experiences the greater impact force during the collision: the truck or the mosquito? Defend your answer using physics.
+    *   *Focus:* Forces as simultaneous mutual interactions between two bodies: `F_A_on_B = -F_B_on_A`. Equal magnitude, opposite direction, simultaneous in time, acting on different objects. Common misconceptions: confusing equal force with equal acceleration (`a = F / m`).
+    *   *Activity:* Dual Force Sensor Collisions & Skateboard Recoil: Students pair Vernier force sensors together and record real-time force graphs during collisions, pushes, and pulls between equal and unequal cart masses. Verification of matching peak forces.
+    *   *Essential Question:* When two objects of wildly different masses interact, why MUST the forces they exert on each other be exactly equal in size?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction / Inquiry
 
-*   **Day 22 (2026-09-29): Resolving the Third Law Paradox & System Boundaries**
-    *   *Focus:* The Horse-Cart paradox: Why motion occurs despite equal and opposite forces (action-reaction pairs act on *different* objects, not the same object).
-    *   *Activity:* System boundary diagramming: Students draw system boundaries around a walker, the ground, and the Earth to prove why the forward force on the person is an unbalanced external force.
-    *   *Essential Question:* Why can't action-reaction force pairs ever cancel each other out to prevent motion?
-    *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Activity
+*   **Day 32 (2026-10-13): Resolving the 3rd Law Paradox & System Boundaries**
+    *   *Bell-Ringer:* The Horse-Cart Paradox (CAST Challenge): A stubborn horse refuses to pull a cart, arguing: "According to Newton's 3rd Law, if I pull the cart forward with force F, the cart pulls me backward with equal force -F. The forces cancel out, so we can never accelerate!" Identify the logical flaw in the horse's argument.
+    *   *Focus:* Defining physical system boundaries. Action-reaction pairs NEVER cancel because they act on *different* bodies. Net force on an object depends solely on the external forces acting *on that specific object*. Ground friction as the external forward force on the horse.
+    *   *Activity:* System Boundary Mapping Workshop: Students analyze complex scenarios (walking person, flying rocket, tug-of-war match), draw dashed system boundaries around individual components, and identify internal versus external forces.
+    *   *Essential Question:* Why can action-reaction force pairs never cancel each other out to prevent acceleration?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Workshop / Analysis
 
-*   **Day 23 (2026-09-30): Crash Engineering & Safety Application (Forces in Collisions)**
-    *   *Focus:* Reducing impact force by extending deceleration time (`F · Δt = m · Δv`); crumple zones, airbags, and helmets.
-    *   *Activity:* Digital collision simulation and egg-cart crash analysis (previewing the [Operation Safe Heeler](https://rrmudry.github.io/operation-safe-heeler.html) engineering challenge). Students calculate deceleration forces for rigid vs crumple bumpers.
-    *   *Essential Question:* How do automotive engineers manipulate contact time to minimize lethal forces during sudden deceleration?
-    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Activity / Engineering
+*   **Day 33 (2026-10-14): Vehicle Crash Safety & Impulse Engineering**
+    *   *Bell-Ringer:* Bungee Jump vs. Steel Cable (AI Chat): Why would bungee jumping with an inelastic steel cable instead of an elastic rubber cord be fatal, even though both cords stop your fall over the exact same vertical distance?
+    *   *Focus:* Reducing collision impact force by extending deceleration time: `F_avg · Δt = m · Δv`. Automotive safety features: crumple zones, airbags, seatbelts, breakaway highway poles, and bicycle helmets. Engineering constraints and trade-offs.
+    *   *Activity:* Crumple Zone Engineering Challenge: Teams design and test cardboard and foam bumper structures for dynamic test carts rolling down ramps into force sensors, comparing peak impact force and deceleration time profiles between rigid and crumple bumpers.
+    *   *Essential Question:* How do automotive engineers manipulate contact time and deformation distance to minimize lethal deceleration forces during a sudden collision?
+    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Lab / Engineering Design
+    *   *Links:* [Operation Safe Heeler](https://rrmudry.github.io/operation-safe-heeler.html)
 
-*   **Day 24 (2026-10-01): Unit 2 Comprehensive Synthesis & Gallery Walk**
-    *   *Focus:* Review and synthesis uniting Kinematics (x, v, a) with Dynamics (Newton's 1st, 2nd, and 3rd Laws).
-    *   *Activity:* Peer gallery walk of multi-tiered problem posters: Analyzing complex scenarios (rocket takeoff, emergency braking, skydiving terminal velocity) integrating motion graphs, FBDs, and mathematical justifications.
-    *   *Essential Question:* How do kinematic motion models and Newtonian force laws unite into a single predictive framework for all physical motion?
-    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Activity
+*   **Day 34 (2026-10-15): Comprehensive Unit 2 Synthesis & Gallery Walk**
+    *   *Bell-Ringer:* Unit 2 Grand Synthesis (CAST Matrix): An autonomous rocket launches upward, runs out of fuel, reaches apex, falls, and deploys a parachute to terminal velocity. Identify the correct FBD, `x-t` curve, `v-t` slope, and acceleration sign for each flight phase.
+    *   *Focus:* Grand synthesis uniting 1D Kinematics (`x`, `v`, `a`, motion graphs, UAM formulas) with Newtonian Dynamics (Inertia, `F_net = m · a`, FBDs, Friction, Action-Reaction). Collaborative problem solving and peer defense.
+    *   *Activity:* Multi-Tier Problem Poster Gallery Walk: Teams create large whiteboard solution posters for complex real-world challenges (spacecraft docking, elevator cable failure, high-speed rail braking), rotate through peer review stations, and leave sticky-note peer audits.
+    *   *Essential Question:* How do kinematic motion measurements and Newtonian force laws unite into a single universal mathematical framework for all physical motion?
+    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Review / Gallery Walk
 
-*   **Day 25 (2026-10-02): Unit 2 Summative Assessment**
-    *   *Focus:* Summative evaluation across 1D Kinematics and Newton's Laws of Motion.
-    *   *Activity:* Comprehensive unit examination featuring multiple-choice conceptual diagnostics, graph slope & area calculations, FBD construction, and multi-step `F_net = m · a` problem-solving (DOK 1-3).
-    *   *Essential Question:* How effectively can we calculate, model, and justify the motion and interaction of physical systems?
-    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Assessment
+*   **Day 35 (2026-10-16): Unit 2 Summative Assessment**
+    *   *Bell-Ringer:* Exam Readiness Mindset & Formula Check: Final 5-minute formula sheet review and calculator setup.
+    *   *Focus:* Comprehensive summative evaluation across 1D Kinematics and Newtonian Dynamics (Days 1–34).
+    *   *Activity:* Unit 2 Summative Examination: 50-minute exam featuring conceptual multiple-choice items, graphical slope and area calculations, FBD construction and equilibrium problem solving, and multi-step `F_net = m · a` dynamics-kinematics integration (DOK 1-3).
+    *   *Essential Question:* How effectively can we measure, calculate, model, and explain the motion and interactions of physical systems?
+    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Summative Assessment
 
 ---
 
 ## Materials & Lab Equipment Checklist
 *   **Constant Speed Buggies:** Battery-powered motorized cars, beanbags, stopwatches, 2-meter sticks or rolling tape measures.
-*   **Graphing & Software:** Chromebooks, [Distance vs Time App](https://rrmudry.github.io/distance_vs_time_graphing.html), [Motion Curve Drawer](https://rrmudry.github.io/Distance_vs_Time_Drawer.html), PhET "The Moving Man".
+*   **Graphing & Software:** Chromebooks, [Distance vs Time App](https://rrmudry.github.io/distance_vs_time_graphing.html), [Motion Curve Drawer](https://rrmudry.github.io/Distance_vs_Time_Drawer.html), PhET "Forces and Motion", PhET "The Moving Man".
 *   **Acceleration & Incline:** 1.5m grooved physics tracks/ramps, steel and glass marbles, photogates / digital timers, angle protractors.
 *   **Inertia Demonstrations:** Silk tablecloth, heavy ceramic plate/mug, 500g flasks with water, index cards, pennies/washers, bowling ball, rubber mallet, battery hover puck.
 *   **Force & Newton's 2nd Law:** Low-friction dynamics carts, track pulleys, braided nylon string, slotted hanging masses (10g - 100g), dual spring scales (0-5N, 0-10N), Vernier/smart force sensors (if available).
-*   **Friction Exploration:** Wooden friction blocks with felt/sandpaper/bare faces, standard 500g bar weights.
+*   **Friction Exploration:** Wooden friction blocks with felt/sandpaper/bare faces, standard 500g bar weights, spring scales (0-5N, 0-10N).
+*   **Crash Safety Engineering:** Cardboard bumpers, foam padding, egg collision carts, dynamics carts, force sensors.
