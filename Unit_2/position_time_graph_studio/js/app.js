@@ -1707,9 +1707,30 @@
           </div>
         `;
 
-        this.bindChoices(vData.step0.correctVal, 5, 'm1', 'l1_s0', () => {
-          this.loadLevel(1, 1);
-        });
+        const diagClues = {
+          '0': 'Clue: 0m is where the car started at 0s! At 3s, the car has already driven forward. Look directly under the car wheels on the ground track.',
+          '6': 'Correct!',
+          '8': 'Clue: Check the number directly under the car wheels on the track line.',
+          '12': 'Clue: 12m is farther ahead than where the car traveled. Look closely at the number under the car wheels.',
+          '14': 'Clue: Look closely at the number under the car wheels on the ground track.',
+          '16': 'Clue: Look closely at the number under the car wheels on the ground track.'
+        };
+
+        this.bindChoices(
+          vData.step0.correctVal,
+          5,
+          'm1',
+          'l1_s0',
+          () => {
+            this.loadLevel(1, 1);
+          },
+          diagClues,
+          () => {
+            // Retry with alternate seed variant
+            this.studentSeed = (this.studentSeed + 13) % 99999;
+            this.loadLevel(1, 0);
+          }
+        );
       } else if (step === 1) {
         this.visualizer.setHighlightTime(vData.step1.time);
         ws.innerHTML = `
@@ -1741,9 +1762,25 @@
           </div>
         `;
 
-        this.bindChoices('stopped', 5, 'm1', 'l1_s1', () => {
-          this.loadLevel(1, 2);
-        });
+        const diagClues = {
+          fast: 'Clue: If the car was driving fast, its position would climb up quickly! Here the line is flat and the position number does not change at all.',
+          backward: 'Clue: A backward drive moves down toward 0 meters. A flat line means position is not changing at all.'
+        };
+
+        this.bindChoices(
+          'stopped',
+          5,
+          'm1',
+          'l1_s1',
+          () => {
+            this.loadLevel(1, 2);
+          },
+          diagClues,
+          () => {
+            this.studentSeed = (this.studentSeed + 17) % 99999;
+            this.loadLevel(1, 1);
+          }
+        );
       } else {
         this.visualizer.setHighlightTime(vData.step2.time);
         ws.innerHTML = `
@@ -1774,9 +1811,24 @@
           </div>
         `;
 
-        this.bindChoices('backward', 5, 'm1', 'l1_s2', () => {
-          this.loadLevel(2, 0);
-        });
+        const diagClues = {
+          forward: 'Clue: Driving forward means moving higher up to bigger meters (10m, 12m). This line goes downhill back to 0 meters (the start)!'
+        };
+
+        this.bindChoices(
+          'backward',
+          5,
+          'm1',
+          'l1_s2',
+          () => {
+            this.loadLevel(2, 0);
+          },
+          diagClues,
+          () => {
+            this.studentSeed = (this.studentSeed + 19) % 99999;
+            this.loadLevel(1, 2);
+          }
+        );
       }
     }
 
@@ -1817,9 +1869,25 @@
           </div>
         `;
 
-        this.bindChoices(vData.steeperColor, 5, 'm2', 'l2_s0', () => {
-          this.loadLevel(2, 1);
-        });
+        const otherColor = vData.steeperColor === 'green' ? 'blue' : 'green';
+        const diagClues = {
+          [otherColor]: 'Clue: Think of climbing a hill! The steeper line rises almost straight up, while the other line is a long, gentle ramp.'
+        };
+
+        this.bindChoices(
+          vData.steeperColor,
+          5,
+          'm2',
+          'l2_s0',
+          () => {
+            this.loadLevel(2, 1);
+          },
+          diagClues,
+          () => {
+            this.studentSeed = (this.studentSeed + 23) % 99999;
+            this.loadLevel(2, 0);
+          }
+        );
       } else if (step === 1) {
         ws.innerHTML = `
           ${this.renderStepHeader(2, 'Fast or Slow?', 3, 1)}
@@ -1861,9 +1929,25 @@
           };
         }
 
-        this.bindChoices(vData.winnerColor, 5, 'm2', 'l2_s1', () => {
-          this.loadLevel(2, 2);
-        });
+        const loserColor = vData.winnerColor === 'green' ? 'blue' : 'green';
+        const diagClues = {
+          [loserColor]: 'Clue: Hit the [▶ Race the Cars] button above and keep your eyes on the finish line! Notice which car arrives at the flag first.'
+        };
+
+        this.bindChoices(
+          vData.winnerColor,
+          5,
+          'm2',
+          'l2_s1',
+          () => {
+            this.loadLevel(2, 2);
+          },
+          diagClues,
+          () => {
+            this.studentSeed = (this.studentSeed + 29) % 99999;
+            this.loadLevel(2, 1);
+          }
+        );
       } else {
         ws.innerHTML = `
           ${this.renderStepHeader(2, 'Fast or Slow?', 3, 2)}
@@ -1891,9 +1975,25 @@
           </div>
         `;
 
-        this.bindChoices('faster', 5, 'm2', 'l2_s2', () => {
-          this.loadLevel(3, 0);
-        });
+        const diagClues = {
+          slower: 'Clue: In the race, the car with the steeper line reached the finish line in much less time! Taking less time means it moved FASTER.',
+          stopped: 'Clue: A stopped car stays at the same position, which creates a completely FLAT horizontal line.'
+        };
+
+        this.bindChoices(
+          'faster',
+          5,
+          'm2',
+          'l2_s2',
+          () => {
+            this.loadLevel(3, 0);
+          },
+          diagClues,
+          () => {
+            this.studentSeed = (this.studentSeed + 31) % 99999;
+            this.loadLevel(2, 2);
+          }
+        );
       }
     }
 
@@ -2378,30 +2478,74 @@
       }
     }
 
-    // Helper: Bind Choice Buttons
-    bindChoices(correctVal, points, levelKey, stepKey, nextCallback) {
+    // Helper: Bind Choice Buttons with Diagnostic Feedback & Attentive Mastery
+    bindChoices(correctVal, points, levelKey, stepKey, nextCallback, diagnosticClues = {}, retryCallback = null) {
       const cards = document.querySelectorAll('.choice-card');
       const fb = document.getElementById('stepFeedback');
       const next = document.getElementById('nextArea');
       const nxtBtn = document.getElementById('btnNextStep');
 
+      let attempts = 0;
+
       cards.forEach((c) => {
         c.onclick = () => {
+          if (c.classList.contains('disabled') || c.classList.contains('correct')) return;
+
+          attempts++;
           const val = c.dataset.val;
-          cards.forEach((x) => x.classList.remove('selected', 'correct', 'incorrect'));
 
           if (val === correctVal) {
+            cards.forEach((x) => x.classList.add('disabled'));
+            c.classList.remove('disabled');
             c.classList.add('correct');
-            fb.className = 'text-xs font-mono text-emerald-400 font-bold';
-            fb.textContent = '✓ That is correct! Well done (+5 pts).';
-            sfx.success();
+
+            const isFirstTry = attempts === 1;
+            const starBadge = isFirstTry
+              ? `<span class="attentive-badge">⭐ Attentive Reader!</span> `
+              : '';
+
+            fb.innerHTML = `
+              <div class="flex items-center gap-2 pt-1">
+                ${starBadge}
+                <span class="text-xs font-mono text-emerald-400 font-bold">
+                  ✓ That is correct! Well done (+${points} pts).
+                </span>
+              </div>
+            `;
+            if (isFirstTry) sfx.fanfare();
+            else sfx.success();
+
             this.awardPoints(levelKey, points, stepKey);
             if (next) next.classList.remove('hidden');
           } else {
-            c.classList.add('incorrect');
-            fb.className = 'text-xs font-mono text-rose-400';
-            fb.textContent = 'Not quite. Check the clue in the question and try again!';
+            c.classList.add('incorrect', 'disabled');
             sfx.error();
+
+            const customClue = diagnosticClues[val] || 'Look carefully at the glowing line and the numbers on the track above!';
+            
+            const retryHtml = retryCallback
+              ? `<div class="pt-2">
+                   <button id="btnRetryFresh" class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-mono text-amber-300 font-bold transition-all flex items-center gap-1">
+                     <span>🔄 Try a Fresh Scenario to Master This</span>
+                   </button>
+                 </div>`
+              : '';
+
+            fb.innerHTML = `
+              <div class="diagnostic-clue-card mt-1">
+                <span class="text-base shrink-0">💡</span>
+                <div class="space-y-1">
+                  <div class="font-bold text-rose-300">Not quite:</div>
+                  <div class="text-slate-200 text-xs leading-relaxed">${customClue}</div>
+                  ${retryHtml}
+                </div>
+              </div>
+            `;
+
+            const retryBtn = document.getElementById('btnRetryFresh');
+            if (retryBtn && retryCallback) {
+              retryBtn.onclick = () => retryCallback();
+            }
           }
         };
       });
