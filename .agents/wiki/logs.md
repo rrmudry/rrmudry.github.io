@@ -2,6 +2,15 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-14 — Daily Update & Presentation Link Fix
+
+**Task**: Executed `/daily-update` routine for Monday, September 14, 2026 (Unit 2, Day 11).
+- Synchronized local repository with remote GitHub commits (`aaa5b6c6`).
+- Verified Day 11 lesson tagging (`HS-PS2-1`), CAST telemetry Bell-Ringer, and Position vs. Time Graphing Studio links in `assets/lessons-data.js`, `Unit_2/unit2_lessons.json`, and `Unit_2/lesson.json`.
+- Fixed relative link in `Unit_2/constant-speed-presentation/index.html` navigating back to `../../unit2-dashboard.html`.
+
+---
+
 ## 2026-09-14 — Pedagogy: Low Floor / High Ceiling Scaffolding for Day 11 Bell-Ringer
 
 **Motivation**: The teacher flagged that the Day 11 CAST Bell-Ringer ("Motion Graph Intercept & Speed Analysis") was too challenging for many students to access independently without upfront scaffolding.
