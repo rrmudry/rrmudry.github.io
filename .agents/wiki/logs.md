@@ -2,6 +2,25 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-14 — Pedagogy: Low Floor / High Ceiling Scaffolding for Day 11 Bell-Ringer
+
+**Motivation**: The teacher flagged that the Day 11 CAST Bell-Ringer ("Motion Graph Intercept & Speed Analysis") was too challenging for many students to access independently without upfront scaffolding.
+
+**Pedagogical Enhancements (Low Floor / High Ceiling)**:
+- **Low Floor (Total Accessibility)**:
+  - **Part 1 (Motion States & Velocities)**: Dropped confusing uncontextualized math distractor options (`+1.2 m/s`, `+16.0 m/s`). Replaced with intuitive rate calculations directly tied to table intervals:
+    - `+4.0 m/s (moves +16 m in 4 s)`
+    - `at rest / stopped (velocity = 0 m/s)`
+    - `+2.0 m/s (steady forward)`
+  - **Part 2 (Catch-Up Time)**: Re-framed abstract mathematical intercept syntax into an intuitive catch-up scenario: *"Rover Alpha travels forward at 4.0 m/s starting from 0 m. Rover Beta is stopped ahead at the 12.0 m mark. How many seconds does it take for Rover Alpha to catch up?"* Added an explicit formula guide: `Time = Distance / Velocity = 12.0 m / (4.0 m/s) = 3.0 s`.
+  - **Part 3 (AI Conceptual Chat)**: Replaced high-barrier academic questions with visual, relatable questions: *"How can you immediately tell who is going faster just by looking at the lines without doing math? What does the moment they meet look like on a graph?"*
+- **High Ceiling (Deep Extension for Advanced Students)**:
+  - Students connect visual steepness to quantitative slope (`v = Δx / Δt`) and graph intersections to simultaneous coordinate equations `x(t) = x_0 + v*t`.
+- **Synchronized Across Platform**:
+  - Updated `Unit_2/unit2_lessons.json`, `Unit_2/lesson.json`, `assets/lessons-data.js`, and live Firestore active session in `system_config/bellringer_timer`.
+
+---
+
 ## 2026-09-14 — Fix: CAST Telemetry & Data Table Stimulus Schema Resilience
 
 **Motivation**: On Monday's Bell-Ringer, the Desert Sprint Relay telemetry table and scenario narrative were not rendering in the left stimulus container, showing a blank column.
