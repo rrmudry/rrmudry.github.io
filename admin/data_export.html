@@ -356,11 +356,12 @@
                     </div>
                     
                     <div class="flex flex-wrap items-center gap-1.5 p-2.5 bg-white/5 rounded-xl border border-white/5">
-                        <span class="text-[8px] font-black text-slate-500 uppercase tracking-widest mr-1">Presets:</span>
-                        <button onclick="applyPreset('unit1')" class="px-2.5 py-1 bg-slate-950 border border-white/10 rounded-lg text-[9px] font-black hover:border-cyan-500 hover:text-cyan-400 transition-all uppercase tracking-tighter">Unit 1</button>
-                        <button onclick="applyPreset('unit2')" class="px-2.5 py-1 bg-slate-950 border border-white/10 rounded-lg text-[9px] font-black hover:border-cyan-500 hover:text-cyan-400 transition-all uppercase tracking-tighter">Unit 2</button>
-                        <button onclick="applyPreset('unit6')" class="px-2.5 py-1 bg-slate-950 border border-white/10 rounded-lg text-[9px] font-black hover:border-cyan-500 hover:text-cyan-400 transition-all uppercase tracking-tighter">Unit 6</button>
+                        <span class="text-[8px] font-black text-slate-500 uppercase tracking-widest mr-1">Quick Filters:</span>
                         <button onclick="applyPreset('with_scores')" class="px-2.5 py-1 bg-slate-950 border border-emerald-500/30 text-emerald-300 rounded-lg text-[9px] font-black hover:border-emerald-400 transition-all uppercase tracking-tighter">With Scores</button>
+                        <button onclick="applyPreset('gradest')" class="px-2.5 py-1 bg-slate-950 border border-amber-500/30 text-amber-300 rounded-lg text-[9px] font-black hover:border-amber-400 transition-all uppercase tracking-tighter">Scanned (Gradest)</button>
+                        <button onclick="applyPreset('student_results')" class="px-2.5 py-1 bg-slate-950 border border-violet-500/30 text-violet-300 rounded-lg text-[9px] font-black hover:border-violet-400 transition-all uppercase tracking-tighter">WebApp Labs</button>
+                        <button onclick="applyPreset('assessments')" class="px-2.5 py-1 bg-slate-950 border border-sky-500/30 text-sky-300 rounded-lg text-[9px] font-black hover:border-sky-400 transition-all uppercase tracking-tighter">Assessments</button>
+                        <button onclick="applyPreset('all')" class="px-2.5 py-1 bg-slate-950 border border-white/10 rounded-lg text-[9px] font-black hover:border-cyan-500 hover:text-cyan-400 transition-all uppercase tracking-tighter">All</button>
                     </div>
 
                     <div class="relative">
@@ -986,29 +987,7 @@
         let gradestListenerUnsub = null;
         let studentResultsListenerUnsub = null;
         let assessmentsListenerUnsub = null;
-
-        const PRESETS = {
-            'unit1': ['Unit_Conversion_Practice', 'Accuracy_Precision_Emoji_Art'],
-            'unit2': [
-                'Constant Speed Story',
-                'Digital Fantasy Map Distance Displacement',
-                'Fantasy Maps',
-                'Physics Speed Calculator',
-                'Wind Up Toy Speed Lab',
-                'Fantasy_Map_Distance_Displacement',
-                'Fantasy_Map_Vector_Calculations',
-                'Wind_Up_Toy_Speed_Lab'
-            ],
-            'unit6': [
-                'WaveMaster Lab',
-                'Wave Diffraction Lab',
-                'Wave Interference Tutorial',
-                'Unit 6 Rapid Review',
-                'Waves_Unit_Test',
-                'Doppler Detective',
-                'Wave Signals Lab'
-            ]
-        };
+        let initialLoadComplete = false;
 
         async function loadAssessmentsData() {
             const statusEl = document.getElementById('db-status');
@@ -1049,7 +1028,7 @@
                 });
 
                 // 2. Set up Real-Time Listener on 'student_results'
-                // Discovers all lab webapp subcollections and archives
+                // Discovers all lab webapp subcollections and fetches student counts
                 if (studentResultsListenerUnsub) studentResultsListenerUnsub();
                 studentResultsListenerUnsub = db.collection('student_results').onSnapshot(async snapshot => {
                     for (const doc of snapshot.docs) {
@@ -1057,22 +1036,38 @@
                         const id = doc.id;
                         const title = (data.assignment_name || id).replace(/_/g, ' ');
 
+                        // Fetch actual subcollection student count
+                        let subCount = 0;
+                        try {
+                            const subSnap = await db.collection('student_results').doc(id).collection('students').get();
+                            subCount = subSnap.size;
+                        } catch (e) {
+                            console.warn(`[DATA_EXPORT] Could not count students for ${id}:`, e.message);
+                        }
+
                         if (!assignmentsRegistry.has(id)) {
                             assignmentsRegistry.set(id, {
                                 id: id,
                                 title: title,
                                 source: 'student_results',
                                 maxScore: data.maxScore || 100,
-                                count: 0,
+                                count: subCount,
                                 hasSubcollection: true
                             });
                         } else {
                             const existing = assignmentsRegistry.get(id);
                             existing.hasSubcollection = true;
+                            // Update count if subcollection has more records
+                            if (subCount > existing.count) existing.count = subCount;
                         }
                     }
-                    console.log(`[DATA_EXPORT] Live student_results updated: ${snapshot.size} parent assignments.`);
+                    console.log(`[DATA_EXPORT] Live student_results updated: ${snapshot.size} parent assignments (with subcollection counts).`);
                     renderAssignmentListUI();
+                    // Auto-select assignments with scores on initial load
+                    if (!initialLoadComplete) {
+                        initialLoadComplete = true;
+                        setTimeout(() => applyPreset('with_scores'), 300);
+                    }
                 }, err => {
                     console.warn("[DATA_EXPORT] student_results snapshot warning:", err.message);
                 });
@@ -1201,16 +1196,19 @@
 
         function applyPreset(presetId) {
             document.querySelectorAll('.assignment-cb').forEach(cb => {
-                const val = cb.value.toLowerCase();
+                const entry = assignmentsRegistry.get(cb.value);
+                if (!entry) { cb.checked = false; return; }
+
                 if (presetId === 'with_scores') {
-                    const entry = assignmentsRegistry.get(cb.value);
-                    cb.checked = !!(entry && (entry.count > 0 || entry.hasSubcollection));
-                } else if (presetId === 'unit1') {
-                    cb.checked = val.includes('conversion') || val.includes('accuracy') || val.includes('precision') || val.includes('emoji');
-                } else if (presetId === 'unit2') {
-                    cb.checked = val.includes('fantasy') || val.includes('speed') || val.includes('story') || val.includes('wind') || val.includes('toy') || val.includes('intercept') || val.includes('map');
-                } else if (presetId === 'unit6') {
-                    cb.checked = val.includes('wave') || val.includes('doppler');
+                    cb.checked = !!(entry.count > 0 || entry.hasSubcollection);
+                } else if (presetId === 'gradest') {
+                    cb.checked = entry.source === 'gradest_assignments';
+                } else if (presetId === 'student_results') {
+                    cb.checked = entry.source === 'student_results' || entry.source === 'physics_labs';
+                } else if (presetId === 'assessments') {
+                    cb.checked = entry.source === 'assessments';
+                } else if (presetId === 'all') {
+                    cb.checked = true;
                 } else {
                     cb.checked = false;
                 }
@@ -1428,7 +1426,7 @@
                         name: s.name, id: s.id, period: s.period, assignment: r.assignment_name, score: r.score, date: new Date(r.created_at).toLocaleDateString()
                     })));
 
-                    tbody.innerHTML = detailedRows.slice(0, 50).map(r => `
+                    tbody.innerHTML = detailedRows.map(r => `
                         <tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
                             <td class="p-4 font-medium text-slate-300 capitalize">${escapeHtml(r.name)} <span class="text-[9px] text-slate-600 block font-mono">${escapeHtml(r.id)}</span></td>
                             <td class="p-4 font-bold text-slate-400">P${escapeHtml(r.period || '?')}</td>
@@ -1445,7 +1443,7 @@
                         <th class="p-4 border-b border-white/5">Total_Score</th>
                         <th class="p-4 border-b border-white/5 text-right">Count</th>
                     `;
-                    tbody.innerHTML = sortedStudents.slice(0, 30).map(s => `
+                    tbody.innerHTML = sortedStudents.map(s => `
                         <tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
                             <td class="p-4 font-mono font-bold text-cyan-400">${escapeHtml(s.id)}</td>
                             <td class="p-4 font-medium text-slate-300 capitalize">${escapeHtml(s.name)}</td>
