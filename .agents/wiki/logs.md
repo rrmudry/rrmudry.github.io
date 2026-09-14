@@ -2,6 +2,24 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-14 — Pedagogy: Mandatory Fresh Scenario Reload on Errors & Dynamic Option Permutation
+
+**Motivation**: The teacher requested that retrying questions after an incorrect answer in multiple-choice levels be mandatory rather than optional (preventing guessing by elimination on the same problem), and that correct answers not always be placed as the first choice (A).
+
+**Key Changes**:
+- **Mandatory Scenario Reload on Error**:
+  - In `bindChoices()`, selecting an incorrect option immediately locks all choice buttons (`.disabled`) and displays the targeted diagnostic clue.
+  - An interactive primary action button `[🔄 Load Fresh Scenario to Master This ➜]` is displayed, which the student must click to generate a fresh problem variant with new numerical values and graph lines.
+  - Guessing by elimination on the same scenario is completely eliminated while maintaining zero penalty to student scores.
+- **Seeded Dynamic Option Permutation (`renderChoiceButtons`)**:
+  - Implemented `renderChoiceButtons(choices, seedSalt)` in `GameController` which deterministically rotates answer choices across positions using `(this.studentSeed / 7 + seedSalt) % choices.length`.
+  - Automatically prepends clean `A)`, `B)`, `C)` labels.
+  - Ensures correct answers are distributed evenly across choices A, B, and C across all students, problem variants, and retries.
+- **Extended Coverage**:
+  - Applied dynamic option permutation and mandatory error-reload workflows to Level 1, Level 2, and Level 4.
+
+---
+
 ## 2026-09-14 — Pedagogy: Diagnostic Feedback, Anti-Click-Spam Disabling & Attentive Rewards (Levels 1 & 2)
 
 **Motivation**: In Levels 1 and 2, multiple-choice questions previously permitted random guessing by clicking choices repeatedly with zero friction or penalty. Students could pass by rapid trial-and-error rather than engaging with the graph. The teacher requested that mistakes not hurt the student's score, but serve as authentic learning experiences while rewarding attentive reading.
