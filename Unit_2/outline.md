@@ -116,7 +116,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Graph Matching & Segment Storytelling: Students analyze multi-segment `x-t` journeys (walk forward -> pause -> sprint backward), calculate segment velocities from slopes, identify start/end coordinates, and translate between written narrative stories and graphical profiles.
     *   *Essential Question:* How does the slope of a position-time graph completely describe an object's velocity and direction of travel?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction / Practice
-    *   *Links:* [Position vs. Time Graphing Studio](Unit_2/position_time_graph_studio/index.html), [Distance vs Time App](https://rrmudry.github.io/distance_vs_time_graphing.html), [Motion Curve Drawer](https://rrmudry.github.io/Distance_vs_Time_Drawer.html)
+    *   *Links:* [Position vs. Time Graphing Studio](Unit_2/position_time_graph_studio/index.html), [Position vs. Time Graphing Presentation](https://docs.google.com/presentation/d/10BYEOwOhdXK3HSZ7jlwFLyS_i-b1vq5-RNVsJXzMg-M/edit?usp=sharing), [Distance vs Time App](https://rrmudry.github.io/distance_vs_time_graphing.html), [Motion Curve Drawer](https://rrmudry.github.io/Distance_vs_Time_Drawer.html)
 
 *   **Day 12 (2026-09-15): Velocity vs. Time (`v-t`) Graphing: Direction & Graph Translation**
     *   *Bell-Ringer:* The Sign and the Speed (AI Concept Chat): A mentor text challenge exploring why an object with velocity `v = -15 m/s` is traveling faster than an object with `v = +5 m/s`, and how to recognize when an object stops or changes direction on a `v-t` graph.

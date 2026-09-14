@@ -1598,6 +1598,12 @@ const lessonsData = [
         "description": "Master slope as velocity, number line mapping, fast/slow slopes, and graph-to-table translation."
       },
       {
+        "title": "Position vs. Time Graphing Presentation",
+        "url": "https://docs.google.com/presentation/d/10BYEOwOhdXK3HSZ7jlwFLyS_i-b1vq5-RNVsJXzMg-M/edit?usp=sharing",
+        "typeLabel": "Classroom Lecture Slides",
+        "description": "Interactive slide deck covering position vs. time graphing, slope as velocity, and graph interpretation."
+      },
+      {
         "title": "Distance vs. Time Graph Simulator",
         "url": "https://rrmudry.github.io/distance_vs_time_graphing.html",
         "typeLabel": "Interactive Web Tool",
@@ -1626,6 +1632,7 @@ const lessonsData = [
     ],
     "links": {
       "Position vs. Time Graphing Studio": "Unit_2/position_time_graph_studio/index.html",
+      "Position vs. Time Graphing Presentation": "https://docs.google.com/presentation/d/10BYEOwOhdXK3HSZ7jlwFLyS_i-b1vq5-RNVsJXzMg-M/edit?usp=sharing",
       "Distance vs Time App": "https://rrmudry.github.io/distance_vs_time_graphing.html",
       "Motion Curve Drawer": "https://rrmudry.github.io/Distance_vs_Time_Drawer.html",
       "Speed & Distance Studio": "Unit_2/speed_distance_time_app/index.html"
