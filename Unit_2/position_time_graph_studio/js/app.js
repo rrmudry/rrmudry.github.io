@@ -1878,11 +1878,13 @@
       this.visualizer.setMultiRunners(vData.runners);
 
       if (step === 0) {
+        const greenText = vData.car1Option.includes('Green') ? vData.car1Option : vData.car2Option;
+        const blueText = vData.car1Option.includes('Blue') ? vData.car1Option : vData.car2Option;
         const choices = [
-          { val: 'green', text: vData.steeperColor === 'green' ? vData.car1Option : vData.car2Option },
-          { val: 'blue', text: vData.steeperColor === 'green' ? vData.car2Option : vData.car1Option }
+          { val: 'green', text: greenText },
+          { val: 'blue', text: blueText }
         ];
-        // Distribute correct choices evenly across A and B
+        // Distribute choices evenly across A and B
         const choicesHtml = this.renderChoiceButtons(choices, 201);
 
         ws.innerHTML = `
