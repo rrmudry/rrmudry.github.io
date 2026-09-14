@@ -2,6 +2,24 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-14 — Classroom Deployment: "Position vs. Time Graphing Practice" (Periods 0–6)
+
+**Motivation**: The teacher requested creating the Google Classroom assignment for Periods 0 through 6 for the newly built Position vs. Time Graphing Practice studio, scheduled for Monday, September 14 at 6:00 PM PDT, worth 10 points.
+
+**Key Changes**:
+- **Google Classroom API Deployment**:
+  - Automatically iterated across active courses (`Period 0 - Physics H`, `Period 1 - Concept Phys`, `Period 2 - Concept Phys`, `Period 3 - Concept Phys`, `Period 4 - Physics`, `Period 5 - Physics`, `Period 6 - Physics`).
+  - Created coursework with:
+    - Title: `"Position vs. Time Graphing Practice"`
+    - Due Date: `2026-09-15T01:00:00Z` (Monday, Sep 14, 2026 at 6:00 PM PDT)
+    - Max Points: `10`
+    - Materials Link: `https://rrmudry.github.io/Unit_2/position_time_graph_studio/index.html`
+- **Unified Firestore Grade Sync Registration**:
+  - Saved assignment metadata and deployment records into Firestore `gradest_assignments/Position vs. Time Graphing Practice`.
+  - Enables automatic 1-click grade syncing with score normalization (100% → 10/10 pts) and submission returns via `/sync-grades`.
+
+---
+
 ## 2026-09-14 — Infrastructure: Live Firestore State Backup & Automatic Session Resume
 
 **Motivation**: Students frequently close Chromebook lids or refresh pages mid-session. The teacher requested ensuring performance is backed up live to Firestore so students can leave and return to their exact progress without losing points or completed questions.
