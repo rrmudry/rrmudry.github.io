@@ -2,6 +2,25 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-14 — Infrastructure: Live Firestore State Backup & Automatic Session Resume
+
+**Motivation**: Students frequently close Chromebook lids or refresh pages mid-session. The teacher requested ensuring performance is backed up live to Firestore so students can leave and return to their exact progress without losing points or completed questions.
+
+**Key Changes**:
+- **Live Background Autosave**:
+  - `awardPoints()` now immediately snapshots `liveStatePayload` (`studentSeed`, `levelScores`, `completedSteps`, `currentLevelId`, `currentStep`, `lastActiveAt`) and calls `saveStudioGrade(..., isAutosave=true)`.
+  - Saves in the background without modal alerts or interrupting student focus.
+- **Seamless Session Resumption**:
+  - Enhanced `restoreSavedState()` in `GameController`:
+    - Automatically calculates the highest incomplete level and step.
+    - Loads the student straight into their active question with their unique seeded variant parameters intact.
+- **Guest-to-Student Cloud Migration**:
+  - If a student begins working before signing in, their local progress is preserved and immediately synced to Firestore upon Google Sign-In.
+- **Top Bar Sync Status Indicator (`#firestore-save-indicator`)**:
+  - Added visual cloud pill in header (`Backing up...` pulsing amber, `Cloud Synced ✓` volt green, `Offline Backup` rose).
+
+---
+
 ## 2026-09-14 — Pedagogy: Elimination of "Moving Up / Mountain Climb" Misconception Terminology
 
 **Motivation**: A common student misconception on position-time graphs is believing that a positive slope means the vehicle is physically climbing upward or ascending an altitude incline, rather than moving forward horizontally along a 1D track. The teacher flagged that questions and clues referencing "going straight UP" or "climbing up like a steep mountain cliff" reinforced this spatial misconception.
