@@ -145,7 +145,30 @@ getVariant(levelIndex, totalVariants = 4) {
 
 ---
 
-## 7. Grading & Compliance Checklist
+## 7. Mindful Engagement & Diagnostic Mistake Reframing Pattern (Levels 1 & 2)
+
+### A. The Pedagogical Problem
+When multiple-choice options are unconstrained and zero penalties are applied, students can rapidly "click-spam" through options by process of elimination without engaging with the graph or reading the prompt. Conversely, penalizing mistakes with point deductions induces anxiety and discourages exploration.
+
+### B. The Solution: Attentive Rewards + Diagnostic Clues + Fresh Scenario Retries
+1. **First-Try Recognition (`⭐ Attentive Reader!`)**:
+   - Students who inspect the graph, read carefully, and select the correct answer on their first attempt receive a celebratory `⭐ Attentive Reader!` badge alongside full points.
+2. **Tactile Error Feedback & Card Disabling**:
+   - When an incorrect choice is selected, an error tone sounds, the chosen card shakes (`card-shake`), and the card becomes disabled (`opacity: 0.4`, `pointer-events: none`, dashed border).
+   - This physically halts click-spamming by elimination while preserving the visual choice so the student can compare.
+3. **Targeted Diagnostic Clue Cards**:
+   - Instead of generic "Incorrect, try again" messages, a high-contrast diagnostic card appears displaying a concrete pedagogical clue directing their eyes to the simulation:
+     - *Starting vs Current Position*: Reminds them that t=0s is the left edge, but the question asks about where the car stopped later.
+     - *Flat Horizontal Line*: Explains that flat means zero rise—the clock ticked forward but position stayed locked.
+     - *Downhill Slope*: Clarifies that moving downward on position-time means returning backward toward 0m.
+     - *Steep Cliff vs Gentle Ramp*: Compares steepness to climbing a mountain—the steeper line climbs meters much faster.
+4. **"🔄 Try a Fresh Scenario to Master This" Button**:
+   - Students are given the option to re-roll the problem with a fresh numerical and trajectory variant (`(this.studentSeed + prime) % 99999`).
+   - If they reset with a new scenario, their attempt counter resets, allowing them to earn the `⭐ Attentive Reader!` badge and demonstrate authentic conceptual mastery without penalty.
+
+---
+
+## 8. Grading & Compliance Checklist
 - [x] Unique `ASSIGNMENT_ID`: `"Position_Time_Graph_Studio"`
 - [x] Parent doc initialized in Firestore `student_results/{ASSIGNMENT_ID}`
 - [x] Highest attempt score retention (`score = Math.max(existing, new)`)
