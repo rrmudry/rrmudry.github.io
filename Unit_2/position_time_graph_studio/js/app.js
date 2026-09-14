@@ -1662,6 +1662,26 @@
       `;
     }
 
+    // Helper: Render Multiple Choice Buttons with Deterministic Seeded Permutation
+    // Guarantees correct answers are distributed across positions (not always Choice A)
+    renderChoiceButtons(choices, seedSalt = 0) {
+      const letters = ['A', 'B', 'C', 'D', 'E'];
+      // Deterministic shift based on studentSeed and salt
+      const shift = Math.abs(Math.floor((this.studentSeed || 12345) / 7) + seedSalt) % choices.length;
+      const permuted = [];
+      for (let i = 0; i < choices.length; i++) {
+        permuted.push(choices[(i + shift) % choices.length]);
+      }
+      return permuted
+        .map((c, idx) => {
+          const letter = letters[idx] || `${idx + 1}`;
+          // Strip existing leading 'A) ', 'B) ', etc. if present in text
+          const cleanText = c.text.replace(/^[A-Z]\)\s*/, '');
+          return `<button class="choice-card" data-val="${c.val}">${letter}) ${cleanText}</button>`;
+        })
+        .join('');
+    }
+
     // --------------------------------------------------------------
     // LEVEL 1: Where is the Car? (Zero Math, Concrete Location)
     // --------------------------------------------------------------
@@ -1676,9 +1696,11 @@
       if (step === 0) {
         this.visualizer.setHighlightTime(vData.step0.time);
 
-        const choicesHtml = vData.step0.choices
-          .map((c) => `<button class="choice-card" data-val="${c.val}">${c.label}</button>`)
-          .join('');
+        const choices = vData.step0.choices.map((c) => ({
+          val: c.val,
+          text: c.label
+        }));
+        const choicesHtml = this.renderChoiceButtons(choices, 101);
 
         ws.innerHTML = `
           ${this.renderStepHeader(1, 'Where is the Car?', 3, 0)}
@@ -1733,6 +1755,14 @@
         );
       } else if (step === 1) {
         this.visualizer.setHighlightTime(vData.step1.time);
+
+        const choices = [
+          { val: 'stopped', text: 'The car is parked / stopped (not moving)' },
+          { val: 'fast', text: 'The car is driving super fast' },
+          { val: 'backward', text: 'The car is driving backward' }
+        ];
+        const choicesHtml = this.renderChoiceButtons(choices, 102);
+
         ws.innerHTML = `
           ${this.renderStepHeader(1, 'Where is the Car?', 3, 1)}
 
@@ -1747,9 +1777,7 @@
             </p>
 
             <div class="space-y-2">
-              <button class="choice-card" data-val="stopped">A) The car is parked / stopped (not moving)</button>
-              <button class="choice-card" data-val="fast">B) The car is driving super fast</button>
-              <button class="choice-card" data-val="backward">C) The car is driving backward</button>
+              ${choicesHtml}
             </div>
 
             <div id="stepFeedback" class="text-xs font-mono min-h-[24px]"></div>
@@ -1783,6 +1811,13 @@
         );
       } else {
         this.visualizer.setHighlightTime(vData.step2.time);
+
+        const choices = [
+          { val: 'backward', text: 'Driving backwards toward the start (0m)' },
+          { val: 'forward', text: 'Driving forward away from the start' }
+        ];
+        const choicesHtml = this.renderChoiceButtons(choices, 103);
+
         ws.innerHTML = `
           ${this.renderStepHeader(1, 'Where is the Car?', 3, 2)}
 
@@ -1797,8 +1832,7 @@
             </p>
 
             <div class="space-y-2">
-              <button class="choice-card" data-val="backward">A) Driving backwards toward the start (0m)</button>
-              <button class="choice-card" data-val="forward">B) Driving forward away from the start</button>
+              ${choicesHtml}
             </div>
 
             <div id="stepFeedback" class="text-xs font-mono min-h-[24px]"></div>
@@ -1844,6 +1878,13 @@
       this.visualizer.setMultiRunners(vData.runners);
 
       if (step === 0) {
+        const choices = [
+          { val: 'green', text: vData.steeperColor === 'green' ? vData.car1Option : vData.car2Option },
+          { val: 'blue', text: vData.steeperColor === 'green' ? vData.car2Option : vData.car1Option }
+        ];
+        // Distribute correct choices evenly across A and B
+        const choicesHtml = this.renderChoiceButtons(choices, 201);
+
         ws.innerHTML = `
           ${this.renderStepHeader(2, 'Fast or Slow?', 3, 0)}
 
@@ -1855,8 +1896,7 @@
             </p>
 
             <div class="space-y-2">
-              <button class="choice-card" data-val="${vData.steeperColor === 'green' ? 'green' : 'blue'}">${vData.steeperColor === 'green' ? vData.car1Option : vData.car2Option}</button>
-              <button class="choice-card" data-val="${vData.steeperColor === 'green' ? 'blue' : 'green'}">${vData.steeperColor === 'green' ? vData.car2Option : vData.car1Option}</button>
+              ${choicesHtml}
             </div>
 
             <div id="stepFeedback" class="text-xs font-mono min-h-[24px]"></div>
@@ -1889,6 +1929,14 @@
           }
         );
       } else if (step === 1) {
+        const greenText = vData.raceWinnerChoiceA.includes('Green') ? vData.raceWinnerChoiceA : vData.raceWinnerChoiceB;
+        const blueText = vData.raceWinnerChoiceA.includes('Blue') ? vData.raceWinnerChoiceA : vData.raceWinnerChoiceB;
+        const choices = [
+          { val: 'green', text: greenText },
+          { val: 'blue', text: blueText }
+        ];
+        const choicesHtml = this.renderChoiceButtons(choices, 202);
+
         ws.innerHTML = `
           ${this.renderStepHeader(2, 'Fast or Slow?', 3, 1)}
 
@@ -1906,8 +1954,7 @@
             </p>
 
             <div class="space-y-2">
-              <button class="choice-card" data-val="${vData.winnerColor === 'green' ? 'green' : 'blue'}">${vData.raceWinnerChoiceA.startsWith('A) Green') && vData.winnerColor === 'green' ? vData.raceWinnerChoiceA : (vData.raceWinnerChoiceB.startsWith('B) Green') ? vData.raceWinnerChoiceB : vData.raceWinnerChoiceA)}</button>
-              <button class="choice-card" data-val="${vData.winnerColor === 'green' ? 'blue' : 'green'}">${vData.winnerColor === 'green' ? vData.raceWinnerChoiceB : vData.raceWinnerChoiceA}</button>
+              ${choicesHtml}
             </div>
 
             <div id="stepFeedback" class="text-xs font-mono min-h-[24px]"></div>
@@ -1949,6 +1996,13 @@
           }
         );
       } else {
+        const choices = [
+          { val: 'faster', text: 'Faster (covering more meters every second)' },
+          { val: 'slower', text: 'Slower' },
+          { val: 'stopped', text: 'Stopped' }
+        ];
+        const choicesHtml = this.renderChoiceButtons(choices, 203);
+
         ws.innerHTML = `
           ${this.renderStepHeader(2, 'Fast or Slow?', 3, 2)}
 
@@ -1960,9 +2014,7 @@
             </p>
 
             <div class="space-y-2">
-              <button class="choice-card" data-val="faster">A) Faster (covering more meters every second)</button>
-              <button class="choice-card" data-val="slower">B) Slower</button>
-              <button class="choice-card" data-val="stopped">C) Stopped</button>
+              ${choicesHtml}
             </div>
 
             <div id="stepFeedback" class="text-xs font-mono min-h-[24px]"></div>
@@ -2118,6 +2170,13 @@
       if (step === 0) {
         const midBackT = (vData.tBackStart + vData.tBackEnd) / 2;
         this.visualizer.setHighlightTime(midBackT);
+
+        const choices = [
+          { val: 'pos', text: `${vData.posSpeed} m/s (speed is always positive!)` },
+          { val: 'neg', text: `${vData.negVel} m/s` }
+        ];
+        const choicesHtml = this.renderChoiceButtons(choices, 401);
+
         ws.innerHTML = `
           ${this.renderStepHeader(4, 'Driving Backwards', 3, 0)}
 
@@ -2131,8 +2190,7 @@
             </p>
 
             <div class="space-y-2">
-              <button class="choice-card" data-val="pos">A) ${vData.posSpeed} m/s (speed is always positive!)</button>
-              <button class="choice-card" data-val="neg">B) ${vData.negVel} m/s</button>
+              ${choicesHtml}
             </div>
 
             <div id="stepFeedback" class="text-xs font-mono min-h-[24px]"></div>
@@ -2145,10 +2203,31 @@
           </div>
         `;
 
-        this.bindChoices('pos', 5, 'm4', 'l4_s0', () => {
-          this.loadLevel(4, 1);
-        });
+        const diagClues = {
+          neg: `Clue: Speedometers never show negative numbers! Speed is always a positive number (${vData.posSpeed} m/s). The minus sign is only for velocity (direction).`
+        };
+
+        this.bindChoices(
+          'pos',
+          5,
+          'm4',
+          'l4_s0',
+          () => {
+            this.loadLevel(4, 1);
+          },
+          diagClues,
+          () => {
+            this.studentSeed = (this.studentSeed + 37) % 99999;
+            this.loadLevel(4, 0);
+          }
+        );
       } else if (step === 1) {
+        const choices = [
+          { val: 'B', text: vData.compWinnerOption },
+          { val: 'A', text: vData.compLoserOption }
+        ];
+        const choicesHtml = this.renderChoiceButtons(choices, 402);
+
         ws.innerHTML = `
           ${this.renderStepHeader(4, 'Driving Backwards', 3, 1)}
 
@@ -2162,8 +2241,7 @@
             </p>
 
             <div class="space-y-2">
-              <button class="choice-card" data-val="B">${vData.compWinnerOption}</button>
-              <button class="choice-card" data-val="A">${vData.compLoserOption}</button>
+              ${choicesHtml}
             </div>
 
             <div id="stepFeedback" class="text-xs font-mono min-h-[24px]"></div>
@@ -2176,9 +2254,24 @@
           </div>
         `;
 
-        this.bindChoices('B', 5, 'm4', 'l4_s1', () => {
-          this.loadLevel(4, 2);
-        });
+        const diagClues = {
+          A: `Clue: Ignore the minus sign when comparing speeds! Car B is driving at ${vData.compCarB.replace('-', '')}, which is faster than Car A (${vData.compCarA}).`
+        };
+
+        this.bindChoices(
+          'B',
+          5,
+          'm4',
+          'l4_s1',
+          () => {
+            this.loadLevel(4, 2);
+          },
+          diagClues,
+          () => {
+            this.studentSeed = (this.studentSeed + 41) % 99999;
+            this.loadLevel(4, 1);
+          }
+        );
       } else {
         ws.innerHTML = `
           ${this.renderStepHeader(4, 'Driving Backwards', 3, 2)}
@@ -2518,23 +2611,26 @@
             this.awardPoints(levelKey, points, stepKey);
             if (next) next.classList.remove('hidden');
           } else {
-            c.classList.add('incorrect', 'disabled');
+            // Lock ALL choices so the student cannot guess by elimination without reloading
+            cards.forEach((x) => x.classList.add('disabled'));
+            c.classList.add('incorrect');
             sfx.error();
 
             const customClue = diagnosticClues[val] || 'Look carefully at the glowing line and the numbers on the track above!';
             
+            // Mandatory retry button when retryCallback is provided
             const retryHtml = retryCallback
               ? `<div class="pt-2">
-                   <button id="btnRetryFresh" class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-mono text-amber-300 font-bold transition-all flex items-center gap-1">
-                     <span>🔄 Try a Fresh Scenario to Master This</span>
+                   <button id="btnRetryFresh" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-400 to-rose-400 text-slate-950 font-mono font-bold text-xs hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-md">
+                     <span>🔄 Load Fresh Scenario to Master This</span> <span>➜</span>
                    </button>
                  </div>`
-              : '';
+              : `<div class="pt-1 text-[11px] text-amber-300 font-mono">Review the graph and track, then try again.</div>`;
 
             fb.innerHTML = `
               <div class="diagnostic-clue-card mt-1">
                 <span class="text-base shrink-0">💡</span>
-                <div class="space-y-1">
+                <div class="space-y-1 w-full">
                   <div class="font-bold text-rose-300">Not quite:</div>
                   <div class="text-slate-200 text-xs leading-relaxed">${customClue}</div>
                   ${retryHtml}
@@ -2545,6 +2641,13 @@
             const retryBtn = document.getElementById('btnRetryFresh');
             if (retryBtn && retryCallback) {
               retryBtn.onclick = () => retryCallback();
+            } else if (!retryCallback) {
+              // If no specific retryCallback provided, allow unlocking for this step after brief pause
+              setTimeout(() => {
+                cards.forEach((x) => {
+                  if (x !== c) x.classList.remove('disabled');
+                });
+              }, 1200);
             }
           }
         };
