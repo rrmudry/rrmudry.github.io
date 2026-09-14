@@ -1573,6 +1573,15 @@ const lessonsData = [
     },
     "assignments": [
       {
+        "title": "Position vs. Time Graphing Studio",
+        "url": "Unit_2/position_time_graph_studio/index.html",
+        "typeLabel": "Graded Web App",
+        "submission": "Submit in Web App (Synced to Gradebook)",
+        "actionLabel": "Launch Studio 🚀",
+        "description": "Interactive graded laboratory: Master slope as velocity (rise/run), spatial number line mapping, fast vs. slow steepness, and bidirectional graph-table translation.",
+        "points": 100
+      },
+      {
         "title": "Position vs. Time Graph Matching & Slope Worksheet",
         "url": "https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing",
         "typeLabel": "Classwork Practice",
@@ -1582,6 +1591,12 @@ const lessonsData = [
       }
     ],
     "resources": [
+      {
+        "title": "Position vs. Time Graphing Studio",
+        "url": "Unit_2/position_time_graph_studio/index.html",
+        "typeLabel": "Graded Web App",
+        "description": "Master slope as velocity, number line mapping, fast/slow slopes, and graph-to-table translation."
+      },
       {
         "title": "Distance vs. Time Graph Simulator",
         "url": "https://rrmudry.github.io/distance_vs_time_graphing.html",
@@ -1597,6 +1612,12 @@ const lessonsData = [
     ],
     "practice": [
       {
+        "title": "Position vs. Time Graphing Studio",
+        "url": "Unit_2/position_time_graph_studio/index.html",
+        "typeLabel": "Graded Practice Studio",
+        "description": "6 leveled mastery missions with instant feedback and certificate generation."
+      },
+      {
         "title": "Speed & Distance Studio",
         "url": "Unit_2/speed_distance_time_app/index.html",
         "typeLabel": "Practice Sandbox",
@@ -1604,6 +1625,7 @@ const lessonsData = [
       }
     ],
     "links": {
+      "Position vs. Time Graphing Studio": "Unit_2/position_time_graph_studio/index.html",
       "Distance vs Time App": "https://rrmudry.github.io/distance_vs_time_graphing.html",
       "Motion Curve Drawer": "https://rrmudry.github.io/Distance_vs_Time_Drawer.html",
       "Speed & Distance Studio": "Unit_2/speed_distance_time_app/index.html"

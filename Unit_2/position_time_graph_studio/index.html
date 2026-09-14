@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Position vs. Time Graphing Studio | Unit 2 Kinematics</title>
+  <meta name="description" content="Entry-level, step-by-step physics studio for mastering position-time graphing, slope as velocity, number line mapping, and data tables.">
+
+  <!-- Tailwind CSS CDN & Dark Mode Config -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class'
+    };
+  </script>
+
+  <!-- Google Fonts: Space Grotesk, Outfit, JetBrains Mono, Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700;800&display=swap" rel="stylesheet">
+
+  <!-- Firebase Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <!-- Firebase App Initialization -->
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  </script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-[#040804] text-slate-100 min-h-screen flex flex-col font-sans selection:bg-[#ccff00] selection:text-slate-950">
+
+  <!-- Ambient Velocity Streaks -->
+  <div class="speed-line speed-line-1"></div>
+  <div class="speed-line speed-line-2"></div>
+
+  <!-- APP TOP HEADER (Ultra-Compact Single-Bar for 1280x720 Viewports) -->
+  <header class="border-b border-lime-500/20 bg-[#060c07]/95 backdrop-blur-md sticky top-0 z-40 px-3 sm:px-4 py-1.5 shadow-md">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-3">
+      
+      <!-- Brand & Standard Pill -->
+      <div class="flex items-center gap-2 shrink-0">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#ccff00] to-[#a3e635] flex items-center justify-center text-slate-950 text-base font-black shadow-[0_0_12px_rgba(204,255,0,0.4)]">
+          📈
+        </div>
+        <div class="flex items-center gap-1.5">
+          <h1 class="font-extrabold text-sm sm:text-base tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[#ccff00] via-[#a3e635] to-[#facc15] whitespace-nowrap">
+            Graph Studio
+          </h1>
+          <span class="hidden sm:inline-block px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-lime-950/70 border border-lime-500/40 text-lime-300 uppercase cursor-pointer hover:border-lime-400 transition-colors" data-ngss-code="HS-PS2-1" title="Click to view NGSS standard details">
+            HS-PS2-1
+          </span>
+        </div>
+      </div>
+
+      <!-- Center Navigation Tabs (Inline) -->
+      <nav class="flex items-center gap-1 overflow-x-auto scrollbar-none py-0.5">
+        <button class="nav-tab active" data-tab="tab-missions">
+          <span class="tab-badge">100p</span>
+          <span>🎯 Missions</span>
+        </button>
+        <button class="nav-tab" data-tab="tab-sandbox">
+          <span>🧪 Sandbox</span>
+        </button>
+        <button class="nav-tab" data-tab="tab-reference">
+          <span>📖 Help</span>
+        </button>
+      </nav>
+
+      <!-- Right Controls: Score Badge, Submit, Theme, Sound, Auth -->
+      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <!-- Compact Score Pill -->
+        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-lime-950/50 border border-lime-500/30 font-mono text-xs">
+          <svg class="w-4 h-4 -rotate-90" viewBox="0 0 48 48">
+            <circle cx="24" cy="24" r="20" stroke="currentColor" stroke-width="4" class="text-white/10" fill="none" />
+            <circle id="scoreProgressCircle" cx="24" cy="24" r="20" stroke="currentColor" stroke-width="4" class="text-[#ccff00] transition-all duration-500 ease-out" fill="none" stroke-dasharray="125.6" stroke-dashoffset="125.6" />
+          </svg>
+          <span class="font-bold text-slate-200"><span id="totalPointsDisplay" class="text-[#ccff00]">0</span>/100</span>
+          <span id="scorePercentDisplay" class="text-[10px] text-lime-400 font-bold hidden sm:inline">(0%)</span>
+          <span id="badgeCompletion" class="hidden px-1.5 py-0.2 text-[9px] font-mono font-bold bg-emerald-950 border border-emerald-500/40 text-emerald-300 rounded">⭐ 100%</span>
+        </div>
+
+        <button id="btnSubmitGrade" class="px-2.5 py-1 rounded-lg bg-gradient-to-r from-[#ccff00] to-[#a3e635] text-slate-950 font-mono font-bold text-xs hover:brightness-110 active:scale-95 transition-all shadow-[0_0_8px_rgba(204,255,0,0.3)] whitespace-nowrap">
+          🚀 Submit
+        </button>
+        <button id="btnSubmitGradeNav" class="hidden"></button>
+
+        <button id="btnViewCert" class="px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/15 text-slate-300 font-mono text-xs transition-all" title="View Certificate">
+          🏆
+        </button>
+
+        <button id="btnSoundToggle" class="p-1 sm:px-2 sm:py-1 rounded-lg bg-white/5 border border-white/10 hover:border-lime-500/40 text-xs font-mono text-slate-300 hover:text-[#ccff00] transition-all flex items-center gap-1" title="Toggle Sound FX">
+          <span id="soundIcon">🔊</span>
+        </button>
+
+        <button id="btnThemeToggle" class="p-1 sm:px-2 sm:py-1 rounded-lg bg-white/5 border border-white/10 hover:border-lime-500/40 text-xs font-mono text-slate-300 hover:text-[#ccff00] transition-all flex items-center gap-1" title="Toggle Theme">
+          <span id="themeIcon">☀️</span>
+        </button>
+
+        <div id="auth-user-status" class="flex items-center">
+          <button id="btn-google-login" class="px-2.5 py-1 rounded-lg bg-[#ccff00] hover:bg-lime-300 text-slate-950 text-xs font-bold font-mono transition-all shadow-[0_0_8px_rgba(204,255,0,0.3)] active:scale-95 flex items-center gap-1">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-3 h-3 bg-white rounded-full p-0.5" alt="Google">
+            <span class="hidden sm:inline">Sign In</span>
+          </button>
+        </div>
+
+        <a href="../unit2-dashboard.html" class="p-1 sm:px-2 sm:py-1 rounded-lg bg-lime-950/40 border border-lime-500/30 hover:border-[#ccff00] text-lime-300 text-xs font-mono transition-all flex items-center gap-1" title="Return to Unit 2 Dashboard">
+          <span>🏠</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN WRAPPER (Tightly padded for 720p viewports) -->
+  <main class="max-w-7xl mx-auto w-full px-2 sm:px-4 py-2 sm:py-3 flex-1 flex flex-col gap-2">
+
+    <!-- ============================================================== -->
+    <!-- TAB 1: GUIDED LEARNING MISSIONS (LOW FLOOR, HIGH CEILING) -->
+    <!-- ============================================================== -->
+    <section id="tab-missions" class="tab-panel active space-y-2">
+
+      <!-- Friendly Level Progression Bar & Encouragement (Single-Row Strip) -->
+      <div class="flex items-center justify-between gap-2 overflow-x-auto scrollbar-none pb-0.5">
+        <div class="grid grid-cols-6 gap-1.5 flex-1 min-w-[620px]">
+          <button class="level-btn active" data-level="1">
+            <div class="flex items-center justify-between">
+              <span class="lvl-tag">Level 1</span>
+              <span class="lvl-points" id="m1-status">0/15</span>
+            </div>
+            <div class="lvl-name">Where is Car?</div>
+          </button>
+          <button class="level-btn" data-level="2">
+            <div class="flex items-center justify-between">
+              <span class="lvl-tag">Level 2</span>
+              <span class="lvl-points" id="m2-status">0/15</span>
+            </div>
+            <div class="lvl-name">Fast / Slow</div>
+          </button>
+          <button class="level-btn" data-level="3">
+            <div class="flex items-center justify-between">
+              <span class="lvl-tag">Level 3</span>
+              <span class="lvl-points" id="m3-status">0/20</span>
+            </div>
+            <div class="lvl-name">Rise / Run</div>
+          </button>
+          <button class="level-btn" data-level="4">
+            <div class="flex items-center justify-between">
+              <span class="lvl-tag">Level 4</span>
+              <span class="lvl-points" id="m4-status">0/15</span>
+            </div>
+            <div class="lvl-name">Reverse</div>
+          </button>
+          <button class="level-btn" data-level="5">
+            <div class="flex items-center justify-between">
+              <span class="lvl-tag">Level 5</span>
+              <span class="lvl-points" id="m5-status">0/15</span>
+            </div>
+            <div class="lvl-name">Data Table</div>
+          </button>
+          <button class="level-btn" data-level="6">
+            <div class="flex items-center justify-between">
+              <span class="lvl-tag">Level 6</span>
+              <span class="lvl-points" id="m6-status">0/20</span>
+            </div>
+            <div class="lvl-name">Draw Graph</div>
+          </button>
+        </div>
+        <p id="progressEncouragement" class="hidden xl:inline text-[11px] text-lime-300/80 font-mono whitespace-nowrap pl-2">
+          Let's ease into it! Complete Level 1 to get your first points.
+        </p>
+      </div>
+
+      <!-- INTERACTIVE STAGE: CANVASES + ACTIVE QUESTION WORKSPACE -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-2.5 items-start">
+        
+        <!-- Left 7 Columns: Dual Canvases (Visual Anchors) -->
+        <div class="lg:col-span-7 flex flex-col gap-2">
+          
+          <!-- Position vs Time Graph Canvas Card -->
+          <div class="glass-card p-2.5 border border-lime-500/20 flex flex-col gap-1.5">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-[#ccff00] animate-pulse"></span>
+                <span class="font-mono text-xs font-bold text-lime-300 uppercase tracking-wider">Position vs. Time Graph</span>
+              </div>
+              <span id="canvasModeLabel" class="text-[11px] font-mono text-slate-400">Level 1: Finding Position</span>
+            </div>
+
+            <!-- Position Graph Canvas with optical loupe -->
+            <div class="relative w-full h-[290px] sm:h-[320px] lg:h-[340px] xl:h-[360px] bg-[#020502] rounded-xl border border-lime-950 overflow-hidden shadow-inner flex items-center justify-center">
+              <canvas id="graphCanvas" class="w-full h-full block cursor-crosshair"></canvas>
+              <div id="loupeOverlay" class="loupe-reticle hidden">
+                <div class="loupe-crosshair"></div>
+                <div id="loupeCoordText" class="loupe-coords">(0.0s, 0.0m)</div>
+              </div>
+            </div>
+
+            <!-- Accessible Multi-Modal Player & Scrubber Hub -->
+            <div class="flex flex-col gap-2 pt-2 border-t border-white/5">
+              <!-- Top Row: Play/Reset, Nudge Buttons, Slider, Time Readout -->
+              <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2">
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <button id="btnPlayPause" class="px-3 py-1.5 rounded-lg bg-[#ccff00] text-slate-950 text-xs font-mono font-bold hover:bg-lime-300 active:scale-95 transition-all flex items-center gap-1 shadow-[0_0_8px_rgba(204,255,0,0.3)]" title="Play or Pause simulation (Spacebar)">
+                    <span id="playIcon">▶</span>
+                    <span id="playLabel">Play Car</span>
+                  </button>
+                  <button id="btnResetSim" class="px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 active:scale-95 text-slate-300 text-xs font-mono transition-all" title="Start over at 0.0s (Home key)">
+                    ⏮ Reset
+                  </button>
+                </div>
+
+                <!-- Slider with Nudge -1s / +1s Steppers -->
+                <div class="flex-1 flex items-center gap-1.5 min-w-[200px]">
+                  <button id="btnTimeMinus" class="px-2 py-1 rounded-md bg-white/5 hover:bg-white/15 active:scale-95 border border-white/10 text-slate-200 text-xs font-mono font-bold transition-all shrink-0 hover:border-lime-500/40" title="Step back 1.0s (or press ◀ Left Arrow)">
+                    ◀ -1s
+                  </button>
+
+                  <input id="timeScrubber" type="range" min="0" max="10" step="0.1" value="0" class="w-full accent-[#ccff00] cursor-pointer" title="Drag timer, or click anywhere on graph">
+
+                  <button id="btnTimePlus" class="px-2 py-1 rounded-md bg-white/5 hover:bg-white/15 active:scale-95 border border-white/10 text-slate-200 text-xs font-mono font-bold transition-all shrink-0 hover:border-lime-500/40" title="Step forward 1.0s (or press ▶ Right Arrow)">
+                    +1s ▶
+                  </button>
+
+                  <span id="timeDisplay" class="font-mono text-xs font-bold text-[#ccff00] min-w-[36px] text-right shrink-0">0.0s</span>
+                </div>
+              </div>
+
+              <!-- Quick Jump Time Chips Bar & Assistive Tips -->
+              <div class="flex flex-wrap items-center justify-between gap-1.5 pt-1.5 border-t border-white/5 text-[11px] font-mono">
+                <div class="flex items-center gap-1 overflow-x-auto scrollbar-none py-0.5">
+                  <span class="text-slate-400 text-[10px] uppercase font-bold mr-1 shrink-0">Quick Jump:</span>
+                  <button class="time-chip active" data-time="0">0s</button>
+                  <button class="time-chip" data-time="2">2s</button>
+                  <button class="time-chip" data-time="3">3s</button>
+                  <button class="time-chip" data-time="5">5s</button>
+                  <button class="time-chip" data-time="6">6s</button>
+                  <button class="time-chip" data-time="8">8s</button>
+                  <button class="time-chip" data-time="10">10s</button>
+                </div>
+                <div class="text-[10px] text-lime-400/80 hidden md:inline">
+                  💡 Tip: Click lines on graph or press ◀ / ▶ keys!
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 1D Number Line Track Canvas Card -->
+          <div class="glass-card p-2.5 sm:p-3 border border-lime-500/20 flex flex-col gap-1.5">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-1.5">
+                <span class="text-sm">🏎️</span>
+                <span class="font-mono text-xs font-bold text-slate-200 uppercase tracking-wider">Ground Track</span>
+              </div>
+              <div class="flex items-center gap-3 text-xs font-mono">
+                <div>Car is at: <span id="telemetryPos" class="font-bold text-[#ccff00]">0.0 m</span></div>
+                <div>Speed: <span id="telemetryVel" class="font-bold text-[#38bdf8]">0.0 m/s</span></div>
+              </div>
+            </div>
+
+            <!-- Number Line Canvas -->
+            <div class="w-full h-16 sm:h-20 bg-[#020502] rounded-xl border border-lime-950 overflow-hidden shadow-inner">
+              <canvas id="trackCanvas" class="w-full h-full block"></canvas>
+            </div>
+            <p class="text-[10px] text-slate-400 truncate">💡 As the line goes up or down on the graph, the car moves right or left on the track!</p>
+          </div>
+
+        </div>
+
+        <!-- Right 5 Columns: ONE BITE-SIZED QUESTION AT A TIME -->
+        <div class="lg:col-span-5">
+          <div id="activeStepWorkspace" class="glass-card p-4 sm:p-5 border border-lime-500/30 flex flex-col gap-3 min-h-[460px] lg:min-h-[500px] xl:min-h-[530px] overflow-y-auto">
+            <!-- Injected dynamically by app.js: 1 Question at a time -->
+            <div class="animate-pulse text-xs font-mono text-lime-300">Loading Step 1...</div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- TAB 2: FREE MOTION SANDBOX -->
+    <!-- ============================================================== -->
+    <section id="tab-sandbox" class="tab-panel hidden space-y-5">
+      <div class="glass-card p-6 border border-lime-500/30 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+              <span>🧪</span> Free-Play Motion Sandbox
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-300 mt-1">
+              Test your own motion paths! Add a speed and time, then watch the graph and track draw together.
+            </p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="btnSandboxPreset1" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-mono text-slate-300">
+              Preset: Drive &amp; Stop
+            </button>
+            <button id="btnSandboxPreset2" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-mono text-slate-300">
+              Preset: Round Trip
+            </button>
+            <button id="btnSandboxReset" class="px-3 py-1.5 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/30 text-xs font-mono text-rose-300">
+              Clear All
+            </button>
+          </div>
+        </div>
+
+        <!-- Add Segment -->
+        <div class="p-4 rounded-xl bg-slate-950/60 border border-white/10 space-y-3">
+          <h3 class="text-xs font-mono font-bold text-lime-300 uppercase">Add Motion Segment</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+            <div>
+              <label for="sbVelocity" class="block text-[11px] font-mono text-slate-400 mb-1">Speed (m/s):</label>
+              <input id="sbVelocity" type="number" step="0.5" value="3.0" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/15 text-sm font-mono text-white focus:border-[#ccff00] outline-none">
+              <span class="text-[10px] text-slate-400">(Positive = forward, Negative = backward)</span>
+            </div>
+            <div>
+              <label for="sbDuration" class="block text-[11px] font-mono text-slate-400 mb-1">Time (seconds):</label>
+              <input id="sbDuration" type="number" min="0.5" max="10" step="0.5" value="3.0" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/15 text-sm font-mono text-white focus:border-[#ccff00] outline-none">
+            </div>
+            <div>
+              <button id="btnAddSbSegment" class="w-full py-2 px-4 rounded-lg bg-[#ccff00] text-slate-950 font-mono font-bold text-xs hover:bg-lime-300 transition-all shadow-[0_0_12px_rgba(204,255,0,0.3)]">
+                + Add Step
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="sbSegmentsList" class="space-y-2"></div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 pt-4 border-t border-white/10">
+          <div class="relative aspect-[16/10] bg-[#020502] rounded-xl border border-lime-950 overflow-hidden shadow-inner">
+            <canvas id="sbGraphCanvas" class="w-full h-full block"></canvas>
+          </div>
+          <div class="space-y-4 flex flex-col justify-between">
+            <div class="h-28 bg-[#020502] rounded-xl border border-lime-950 overflow-hidden shadow-inner">
+              <canvas id="sbTrackCanvas" class="w-full h-full block"></canvas>
+            </div>
+            <div class="glass-card p-4 border border-white/10 space-y-2 text-xs font-mono">
+              <div class="flex justify-between"><span>Total Time:</span><span id="sbTotalTime" class="text-[#ccff00] font-bold">0.0 s</span></div>
+              <div class="flex justify-between"><span>Ending Spot:</span><span id="sbFinalPos" class="text-[#38bdf8] font-bold">0.0 m</span></div>
+              <div class="flex justify-between"><span>Net Change:</span><span id="sbNetDisp" class="text-lime-300 font-bold">0.0 m</span></div>
+              <div class="flex justify-between"><span>Total Distance:</span><span id="sbTotalDist" class="text-amber-300 font-bold">0.0 m</span></div>
+              <div class="flex justify-between"><span>Average Speed:</span><span id="sbAvgSpeed" class="text-white font-bold">0.0 m/s</span></div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button id="btnSbPlay" class="flex-1 py-2 rounded-lg bg-[#ccff00] text-slate-950 font-mono font-bold text-xs hover:bg-lime-300 transition-all">
+                ▶ Run Simulation
+              </button>
+              <button id="btnSbReset" class="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 font-mono text-xs text-slate-300">
+                ⏮ Reset
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- TAB 3: HELP & CHEAT SHEET -->
+    <!-- ============================================================== -->
+    <section id="tab-reference" class="tab-panel hidden space-y-5">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+
+        <div class="glass-card p-5 border border-lime-500/20 space-y-2">
+          <div class="text-2xl">📏</div>
+          <h3 class="font-bold text-sm text-lime-300">Where is the Car?</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            The side axis (up/down) tells you where the car is on the ground in meters. The bottom axis tells you the clock time in seconds.
+          </p>
+        </div>
+
+        <div class="glass-card p-5 border border-lime-500/20 space-y-2">
+          <div class="text-2xl">🏔️</div>
+          <h3 class="font-bold text-sm text-sky-300">Steep vs. Flat</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            A <strong>steep line</strong> (like a mountain cliff) means the car is moving fast. A <strong>gentle line</strong> means it is moving slow. A <strong>flat line</strong> means it is parked/stopped.
+          </p>
+        </div>
+
+        <div class="glass-card p-5 border border-lime-500/20 space-y-2">
+          <div class="text-2xl">📐</div>
+          <h3 class="font-bold text-sm text-amber-300">Rise over Run</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Count how many meters it went <strong>UP</strong> (Rise), and divide by how many seconds it went <strong>ACROSS</strong> (Run).<br>
+            <strong>Speed = Rise ÷ Run</strong>.
+          </p>
+        </div>
+
+        <div class="glass-card p-5 border border-lime-500/20 space-y-2">
+          <div class="text-2xl">🔙</div>
+          <h3 class="font-bold text-sm text-rose-300">Going Backwards</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            When a line slopes <strong>downward</strong>, the car is driving in reverse back toward the start. Its direction is negative, but its speed is always positive.
+          </p>
+        </div>
+
+        <div class="glass-card p-5 border border-lime-500/20 space-y-2">
+          <div class="text-2xl">📊</div>
+          <h3 class="font-bold text-sm text-emerald-300">Reading a Data Table</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Each point on a graph is written as (Time, Position). For example, at 3 seconds, the car is at 6 meters: (3s, 6m).
+          </p>
+        </div>
+
+        <div class="glass-card p-5 border border-lime-500/20 space-y-2">
+          <div class="text-2xl">✍️</div>
+          <h3 class="font-bold text-sm text-cyan-300">Plotting Points</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Find the time on the bottom, go straight up to the position number, click to place a dot, and connect the dots with straight lines!
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================================================== -->
+  <!-- MANDATORY LOGIN GATE OVERLAY (School Account Required) -->
+  <!-- ============================================================== -->
+  <div id="loginGateModal" class="fixed inset-0 bg-black/90 backdrop-blur-xl z-50 flex items-center justify-center p-4">
+    <div class="glass-card max-w-md w-full p-6 sm:p-8 border border-lime-500/50 rounded-2xl relative shadow-[0_0_60px_rgba(204,255,0,0.25)] text-center space-y-5 bg-[#060c07]/95">
+      
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#ccff00] to-[#a3e635] mx-auto flex items-center justify-center text-3xl shadow-[0_0_20px_rgba(204,255,0,0.4)]">
+        📈
+      </div>
+
+      <div class="space-y-1.5">
+        <span class="text-[11px] font-mono text-lime-400 font-bold uppercase tracking-wider">Physics Unit 2 • Kinematics</span>
+        <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight">
+          Position vs. Time Graph Studio
+        </h2>
+        <p class="text-xs text-slate-300 leading-relaxed pt-1">
+          To generate your personal graph missions and sync your lab grade directly to the gradebook, please sign in with your school Google account:
+        </p>
+      </div>
+
+      <div class="p-3 rounded-xl bg-lime-950/40 border border-lime-500/30 text-xs font-mono text-lime-300 flex items-center justify-center gap-2">
+        <span>🔒</span>
+        <span>Requires <strong>@orangeusd.org</strong> Account</span>
+      </div>
+
+      <div class="space-y-2 pt-2">
+        <button id="btn-gate-google-login" class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#ccff00] to-[#a3e635] text-slate-950 font-bold font-mono text-sm hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 shadow-[0_0_16px_rgba(204,255,0,0.35)]">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5 bg-white rounded-full p-0.5" alt="Google">
+          <span>Sign In with School Google Account</span>
+        </button>
+
+        <div id="loginGateError" class="text-xs font-mono text-rose-400 min-h-[20px] hidden"></div>
+      </div>
+
+      <div class="pt-2 text-[11px] text-slate-400 flex items-center justify-center gap-3">
+        <span>Standard: <strong>HS-PS2-1</strong></span>
+        <span>•</span>
+        <span>Grade Auto-Sync</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: MASTERY CERTIFICATE -->
+  <!-- ============================================================== -->
+  <div id="certModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="glass-card max-w-lg w-full p-6 sm:p-8 border border-lime-500/40 relative shadow-[0_0_50px_rgba(204,255,0,0.2)]">
+      <button id="btnCloseCert" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl font-bold">&times;</button>
+      
+      <div class="certificate-frame p-6 border-2 border-dashed border-[#ccff00]/40 rounded-xl text-center space-y-4 bg-slate-950/70">
+        <div class="text-4xl">🏆</div>
+        <div>
+          <h3 class="text-xl font-black uppercase tracking-wider text-[#ccff00]">Certificate of Kinematic Mastery</h3>
+          <p class="text-xs font-mono text-slate-400">Orange High School Physics • Unit 2 Kinematics</p>
+        </div>
+
+        <div class="py-2 border-y border-white/10 space-y-1">
+          <p class="text-xs text-slate-400">This official certificate is proudly awarded to:</p>
+          <div id="certStudentName" class="text-lg font-bold text-white font-mono">Student Investigator</div>
+          <p class="text-xs text-lime-300">for achieving a score of <span id="certScoreDisplay" class="font-bold">100%</span></p>
+        </div>
+
+        <div class="text-left text-xs text-slate-300 space-y-1 bg-white/5 p-3 rounded-lg font-mono">
+          <div>✓ Mapped Graph Coordinates to 1D Spatial Number Line</div>
+          <div>✓ Compared Fast vs. Slow Motion by Slope Steepness</div>
+          <div>✓ Mastered Rise over Run (Slope = Speed)</div>
+          <div>✓ Understood Driving Backwards & Speedometer Reading</div>
+          <div>✓ Successfully Decoded 3 Different Motion Log Data Tables</div>
+          <div>✓ Plotted & Tested 3 Custom Coordinate Grid Missions</div>
+        </div>
+
+        <div class="flex justify-between items-center text-[10px] font-mono text-slate-400 pt-2">
+          <span>Date: <span id="certDateDisplay">Sep 14, 2026</span></span>
+          <span>Standard: <strong>HS-PS2-1</strong></span>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-center gap-3 mt-5">
+        <button id="btnPrintCert" class="px-4 py-2 rounded-xl bg-[#ccff00] text-slate-950 font-mono font-bold text-xs hover:bg-lime-300 transition-all flex items-center gap-1.5">
+          <span>🖨️</span> Print / Save PDF
+        </button>
+        <button id="btnDismissCert" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-slate-200 font-mono text-xs transition-all">
+          Back to Studio
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP SCRIPTS -->
+  <script src="js/auth_manager.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

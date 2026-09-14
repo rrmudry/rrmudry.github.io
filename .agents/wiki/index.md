@@ -16,4 +16,5 @@
 | [cast-aligned-webapp-design](patterns/cast-aligned-webapp-design.md) | CAST, webapp, pedagogy, measurement, NGSS, SEP3, SEP5 | 2026-09-03 | Productive pedagogical friction vs interface friction, CAST test readiness, instrument reading, and cognitive scaffolding |
 | [touch-math-facts-engine](patterns/touch-math-facts-engine.md) | math, touch, keypad, sound-fx, leaderboard, firestore | 2026-09-05 | Touchscreen virtual numpad with auto-advance, speed/streak multipliers, name-only Firestore leaderboard |
 | [two-agent-kinematic-intercept](patterns/two-agent-kinematic-intercept.md) | kinematics, dual-car, simulation, intercept, canvas, web-audio, competition | 2026-09-10 | Two-vehicle kinematic intercept competition and dual-canvas real-time vector visualizer for Honors Physics |
+| [position-time-graphing-studio](patterns/position-time-graphing-studio.md) | kinematics, position-time, graphing, slope, number-line, canvas, firestore, grading | 2026-09-14 | Graded dual-canvas studio for slope as velocity, number line mapping, fast/slow steepness, and bidirectional graph-table plotting |
 
