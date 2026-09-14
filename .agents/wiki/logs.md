@@ -2,6 +2,31 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-14 — Pedagogy: Diagnostic Feedback, Anti-Click-Spam Disabling & Attentive Rewards (Levels 1 & 2)
+
+**Motivation**: In Levels 1 and 2, multiple-choice questions previously permitted random guessing by clicking choices repeatedly with zero friction or penalty. Students could pass by rapid trial-and-error rather than engaging with the graph. The teacher requested that mistakes not hurt the student's score, but serve as authentic learning experiences while rewarding attentive reading.
+
+**Key Changes**:
+- **Tactile Card Disabling & Shake Animation**:
+  - When an incorrect choice is selected, an error tone plays, the card shakes with a subtle red outline (`@keyframes card-shake`), and the choice is dimmed and disabled (`pointer-events: none; opacity: 0.4; border-style: dashed;`).
+  - This immediately prevents rapid guess-by-elimination spam while keeping the wrong choice visible for comparison.
+- **Contextual Diagnostic Clue Cards**:
+  - Replaced generic "Try again" text with rich, tailored pedagogical clues in a high-contrast card (`.diagnostic-clue-card`):
+    - *Level 1 Step 0*: Starting position (t=0s at left axis) vs. where the car moved later.
+    - *Level 1 Step 1*: Flat horizontal lines mean time passes with zero change in position (resting at a standstill).
+    - *Level 1 Step 2*: Downhill slope indicates returning backward toward the 0m starting line.
+    - *Level 2 Step 0*: Mountain cliff vs. gentle ramp analogy for comparing slope steepness and meters climbed per second.
+    - *Level 2 Step 1*: Checking who reaches the target finish line earliest on the horizontal time axis.
+    - *Level 2 Step 2*: Steeper lines mean greater speed.
+- **First-Try Mastery Recognition (`⭐ Attentive Reader!`)**:
+  - Tracking attempts per question (`attempts`).
+  - Students who read attentively and answer correctly on their first try receive an exclusive `⭐ Attentive Reader!` celebratory badge alongside full points.
+- **Fresh Scenario Retry Mechanism ("🔄 Try a Fresh Scenario to Master This")**:
+  - Students who make an error are never permanently penalized in their score.
+  - Clicking the retry button rolls a fresh numerical variant and trajectory via prime seeding, clearing disabled cards and resetting the attempt counter so they can demonstrate genuine mastery and earn the attentive recognition.
+
+---
+
 ## 2026-09-14 — Pedagogy: Multi-Dataset Requirement (3 Datasets Each) for Levels 5 & 6
 
 **Motivation**: Deepen student fluency in translating between position-time graphs and data tables by requiring multiple rounds of authentic measurement and coordinate plotting rather than a single trial.
