@@ -2,6 +2,26 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-14 — Pedagogy: Elimination of "Moving Up / Mountain Climb" Misconception Terminology
+
+**Motivation**: A common student misconception on position-time graphs is believing that a positive slope means the vehicle is physically climbing upward or ascending an altitude incline, rather than moving forward horizontally along a 1D track. The teacher flagged that questions and clues referencing "going straight UP" or "climbing up like a steep mountain cliff" reinforced this spatial misconception.
+
+**Key Changes**:
+- **Level 3 (Rise over Run)**:
+  - Replaced *"Look at the red Rise bracket going straight UP on the graph. How many meters did the car go UP from 0 to X?"* with:
+    `"Look at the red Rise bracket (Δx) measuring change in position. Notice the car is moving forward along the horizontal track. How many meters forward did the car travel from 0m to Xm?"`
+  - Explicitly labeled slope triangle annotations with physical kinematics definitions: `Δx = Xm` (Rise / Distance covered) and `Δt = Xs` (Run / Time elapsed).
+- **Level 2 (Fast or Slow?)**:
+  - Replaced *"One line climbs up quickly like a steep mountain cliff"* with:
+    `"Both cars are moving forward horizontally along the track, but one line has a steeper slope (covering meters much faster in less time). Which line has the steeper slope?"`
+  - Replaced option phrasing *"climbs up fast"* with *"steeper slope — covers distance fast"*.
+  - Reframed diagnostic clues around covering meters across time intervals rather than climbing hills.
+- **Level 1 (Finding Position)**:
+  - Replaced *"moving higher up to bigger meters"* with *"moving forward to larger meter marks"*.
+  - Replaced *"position would climb up quickly"* with *"would cover meters down the track quickly"*.
+
+---
+
 ## 2026-09-14 — Pedagogy: Mandatory Fresh Scenario Reload on Errors & Dynamic Option Permutation
 
 **Motivation**: The teacher requested that retrying questions after an incorrect answer in multiple-choice levels be mandatory rather than optional (preventing guessing by elimination on the same problem), and that correct answers not always be placed as the first choice (A).

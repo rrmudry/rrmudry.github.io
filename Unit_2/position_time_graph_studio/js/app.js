@@ -952,8 +952,8 @@
       winnerColor: 'green',
       car1Name: 'Green line',
       car2Name: 'Blue line',
-      car1Option: 'A) Green line (climbs up fast)',
-      car2Option: 'B) Blue line (gentle ramp)',
+      car1Option: 'A) Green line (steeper slope — covers distance fast)',
+      car2Option: 'B) Blue line (gentle slope — covers distance slowly)',
       raceWinnerChoiceA: 'A) Green car (wins in 4 seconds!)',
       raceWinnerChoiceB: 'B) Blue car (takes 10 seconds)'
     },
@@ -968,8 +968,8 @@
       winnerColor: 'blue',
       car1Name: 'Green line',
       car2Name: 'Blue line',
-      car1Option: 'A) Green line (gentle ramp)',
-      car2Option: 'B) Blue line (climbs up fast)',
+      car1Option: 'A) Green line (gentle slope — covers distance slowly)',
+      car2Option: 'B) Blue line (steeper slope — covers distance fast)',
       raceWinnerChoiceA: 'A) Green car (takes 9 seconds)',
       raceWinnerChoiceB: 'B) Blue car (wins in 3 seconds!)'
     },
@@ -984,8 +984,8 @@
       winnerColor: 'green',
       car1Name: 'Green line',
       car2Name: 'Blue line',
-      car1Option: 'A) Green line (climbs up fast)',
-      car2Option: 'B) Blue line (gentle ramp)',
+      car1Option: 'A) Green line (steeper slope — covers distance fast)',
+      car2Option: 'B) Blue line (gentle slope — covers distance slowly)',
       raceWinnerChoiceA: 'A) Green car (wins in 5 seconds!)',
       raceWinnerChoiceB: 'B) Blue car (takes 10 seconds)'
     },
@@ -1000,8 +1000,8 @@
       winnerColor: 'blue',
       car1Name: 'Green line',
       car2Name: 'Blue line',
-      car1Option: 'A) Green line (gentle ramp)',
-      car2Option: 'B) Blue line (climbs up fast)',
+      car1Option: 'A) Green line (gentle slope — covers distance slowly)',
+      car2Option: 'B) Blue line (steeper slope — covers distance fast)',
       raceWinnerChoiceA: 'A) Green car (takes 7 seconds)',
       raceWinnerChoiceB: 'B) Blue car (wins in 2 seconds!)'
     }
@@ -1791,8 +1791,8 @@
         `;
 
         const diagClues = {
-          fast: 'Clue: If the car was driving fast, its position would climb up quickly! Here the line is flat and the position number does not change at all.',
-          backward: 'Clue: A backward drive moves down toward 0 meters. A flat line means position is not changing at all.'
+          fast: 'Clue: If the car was driving fast, it would cover meters down the track quickly! Here the line is flat, meaning the car stays in one spot and does not move at all.',
+          backward: 'Clue: Driving backward means returning toward 0 meters. A flat line means position is not changing at all.'
         };
 
         this.bindChoices(
@@ -1828,7 +1828,7 @@
                 ⚡ Set to ${vData.step2.time}s
               </button>
               <br><br>
-              The line slopes downward back toward 0. <strong>Which way is the car driving?</strong>
+              The line slopes downward back toward 0. <strong>Which way is the car driving along the track?</strong>
             </p>
 
             <div class="space-y-2">
@@ -1846,7 +1846,7 @@
         `;
 
         const diagClues = {
-          forward: 'Clue: Driving forward means moving higher up to bigger meters (10m, 12m). This line goes downhill back to 0 meters (the start)!'
+          forward: 'Clue: Driving forward means moving forward to larger meter marks (10m, 12m). This line slopes back toward 0 meters (the starting line)!'
         };
 
         this.bindChoices(
@@ -1894,7 +1894,7 @@
             <p class="text-sm text-slate-200 leading-relaxed font-medium">
               Look at the <strong>${vData.car1Name}</strong> and the <strong>${vData.car2Name}</strong> on the graph.
               <br><br>
-              One line climbs up quickly like a <strong>steep mountain cliff</strong>. Which line is steeper?
+              Both cars are moving forward horizontally along the track, but one line has a <strong>steeper slope</strong> (covering meters much faster in less time). Which line has the steeper slope?
             </p>
 
             <div class="space-y-2">
@@ -1913,7 +1913,7 @@
 
         const otherColor = vData.steeperColor === 'green' ? 'blue' : 'green';
         const diagClues = {
-          [otherColor]: 'Clue: Think of climbing a hill! The steeper line rises almost straight up, while the other line is a long, gentle ramp.'
+          [otherColor]: 'Clue: Check the tilt! The steeper line covers more meters on the vertical axis in very few seconds, while the other line takes much longer.'
         };
 
         this.bindChoices(
@@ -1944,7 +1944,7 @@
 
           <div class="space-y-4 py-2">
             <p class="text-sm text-slate-200 leading-relaxed font-medium">
-              Let's test it! Hit the <strong>[▶ Race the Cars]</strong> button below to watch them drive together.
+              Let's test it! Hit the <strong>[▶ Race the Cars]</strong> button below to watch them drive together along the track.
             </p>
 
             <button id="btnRace" class="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-mono text-lime-300 font-bold flex items-center justify-center gap-2">
@@ -2061,7 +2061,7 @@
       const vData = L3_VARIANTS[vIndex];
 
       this.visualizer.setJourneySegments(vData.journey);
-      this.visualizer.setSlopeTriangle(vData.p1, vData.p2, `${vData.rise}m`, `${vData.run}s`);
+      this.visualizer.setSlopeTriangle(vData.p1, vData.p2, `Δx = ${vData.rise}m`, `Δt = ${vData.run}s`);
 
       if (step === 0) {
         ws.innerHTML = `
@@ -2071,7 +2071,7 @@
             <p class="text-sm text-slate-200 leading-relaxed font-medium">
               Speed is simply: <strong>How far did it go?</strong> divided by <strong>How long did it take?</strong>
               <br><br>
-              Look at the <strong class="text-rose-400">red Rise bracket</strong> going straight UP on the graph. How many meters did the car go UP from 0 to ${vData.rise}?
+              Look at the <strong class="text-rose-400">red Rise bracket (Δx)</strong> measuring change in position. Notice the car is moving forward along the horizontal track. <strong>How many meters forward did the car travel from 0m to ${vData.rise}m?</strong>
             </p>
 
             <div class="flex items-center gap-3">
@@ -2099,9 +2099,9 @@
 
           <div class="space-y-4 py-2">
             <p class="text-sm text-slate-200 leading-relaxed font-medium">
-              Now look at the <strong class="text-sky-400">blue Run bracket</strong> going ACROSS on the bottom.
+              Now look at the <strong class="text-sky-400">blue Run bracket (Δt)</strong> along the horizontal time axis.
               <br><br>
-              How many seconds did it take to go from 0s to ${vData.run}s?
+              How much time passed from 0s to ${vData.run}s?
             </p>
 
             <div class="flex items-center gap-3">
@@ -2114,7 +2114,7 @@
 
             <div id="nextArea" class="hidden pt-2">
               <button id="btnNextStep" class="btn-next-step w-full py-3 rounded-xl bg-[#ccff00] text-slate-950 font-bold font-mono text-sm hover:bg-lime-300 transition-all flex items-center justify-center gap-2">
-                <span>Almost there! Next Step</span> <span>➜</span>
+                <span>Awesome! Final Step</span> <span>➜</span>
               </button>
             </div>
           </div>
@@ -2129,15 +2129,13 @@
 
           <div class="space-y-4 py-2">
             <p class="text-sm text-slate-200 leading-relaxed font-medium">
-              Now divide them!
+              Now calculate the speed using the slope formula:
               <br><br>
-              <strong>Speed = Rise ÷ Run</strong>
-              <br>
-              What is <strong>${vData.rise} meters ÷ ${vData.run} seconds</strong>?
+              <strong>Speed = Rise (Distance) ÷ Run (Time) = ${vData.rise}m ÷ ${vData.run}s = ?</strong>
             </p>
 
             <div class="flex items-center gap-3">
-              <input id="stepInput" type="number" placeholder="${vData.rise} ÷ ${vData.run}" class="big-input w-36">
+              <input id="stepInput" type="number" placeholder="Speed" class="big-input w-36">
               <span class="text-sm font-mono text-slate-300">m/s</span>
               <button id="btnCheckInput" class="px-4 py-2.5 rounded-xl bg-[#ccff00] text-slate-950 font-bold font-mono text-xs hover:bg-lime-300">Check</button>
             </div>
