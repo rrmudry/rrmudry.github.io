@@ -2,7 +2,23 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-13 — Data Architecture: Real-Time Dynamic Firestore Assignment & Gradebook Hub (`admin/data_export.html`)
+
+**Motivation**: Previously, `admin/data_export.html` relied on static hardcoded arrays and only scanned legacy `student_results` documents via a one-off `.get()`, failing to detect assignments in `gradest_assignments` (like *Constant Speed Story*, *Fantasy Maps*, *Quiz 1*) or newly created teacher assignments.
+
+**Key Changes**:
+- **Real-Time Reactive Registry**:
+  - Implemented real-time `onSnapshot` listeners on `gradest_assignments`, `student_results`, and `assessments`.
+  - Any time a new assignment is created, saved, or graded in Firestore (via *The Gradest*, *Assessment Editor*, or *Google Classroom Sync*), it automatically appears in the assignment list in real time with a live score count badge.
+- **Dynamic Score Aggregation (`fetchFilteredResults`)**:
+  - Ingests student grades from `gradest_assignments` (via `grades: [{ id, name, score, percentage, period }]`), `student_results/{assignment}/students` subcollections, and `physics_labs` (`speed_calculator`).
+  - Automatically enriches student records with names and class periods from `rosterCache`.
+- **Enhanced Filtering & UI**:
+  - Added Class Period filter (`Period 0` to `Period 6`) to Section 3 for single-period Aeries SIS gradebook exports.
+  - Added dynamic assignment text search filter (`#assignment-search-input`) and smart presets (`Unit 1`, `Unit 2`, `Unit 6`, `With Scores`).
+
 ## 2026-09-13 — Curriculum Architecture: Embed Authentic DOK 4 Culminating Performance Tasks & Engineering Anchors in Unit 2
+
 
 **Motivation**: The Cognitive Progression Chart on `unit2-dashboard.html` previously peaked at DOK 3, lacking authentic DOK 4 (Extended Thinking, Modeling, and Engineering Design) tasks. Rather than artificially inflating routine assignments, 4 culminating milestone lessons were pedagogically elevated into rigorous DOK 4 anchors featuring multi-step investigations, student-formulated empirical protocols, iterative engineering cycles under physical constraints, and peer defense under cross-examination.
 

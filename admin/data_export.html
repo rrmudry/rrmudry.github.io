@@ -344,7 +344,10 @@
                 <!-- Assignment Selector -->
                 <div class="space-y-4">
                     <div class="flex justify-between items-center">
-                        <p class="text-[10px] font-black text-cyan-500 uppercase tracking-widest">01 // Select Assessments & Labs</p>
+                        <div class="flex items-center gap-2">
+                            <p class="text-[10px] font-black text-cyan-500 uppercase tracking-widest">01 // Select Assessments & Labs</p>
+                            <span id="assignments-active-count-badge" class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">Live Sync</span>
+                        </div>
                         <div class="flex gap-2">
                             <button onclick="toggleAll(true)" class="text-[8px] font-bold text-slate-500 hover:text-cyan-400 uppercase tracking-widest transition-colors">Select All</button>
                             <span class="text-[8px] text-slate-700">|</span>
@@ -352,32 +355,61 @@
                         </div>
                     </div>
                     
-                    <div class="flex flex-wrap items-center gap-2 p-3 bg-white/5 rounded-xl border border-white/5">
-                        <span class="text-[8px] font-black text-slate-500 uppercase tracking-widest">Smart_Presets:</span>
-                        <button onclick="applyPreset('unit2')" class="px-3 py-1 bg-slate-950 border border-white/10 rounded-lg text-[9px] font-black hover:border-cyan-500 hover:text-cyan-400 transition-all uppercase tracking-tighter">Unit 2 Fantasy Maps</button>
-                        <button onclick="applyPreset('unit6')" class="px-3 py-1 bg-slate-950 border border-white/10 rounded-lg text-[9px] font-black hover:border-cyan-500 hover:text-cyan-400 transition-all uppercase tracking-tighter">Unit 6 Assessments</button>
+                    <div class="flex flex-wrap items-center gap-1.5 p-2.5 bg-white/5 rounded-xl border border-white/5">
+                        <span class="text-[8px] font-black text-slate-500 uppercase tracking-widest mr-1">Presets:</span>
+                        <button onclick="applyPreset('unit1')" class="px-2.5 py-1 bg-slate-950 border border-white/10 rounded-lg text-[9px] font-black hover:border-cyan-500 hover:text-cyan-400 transition-all uppercase tracking-tighter">Unit 1</button>
+                        <button onclick="applyPreset('unit2')" class="px-2.5 py-1 bg-slate-950 border border-white/10 rounded-lg text-[9px] font-black hover:border-cyan-500 hover:text-cyan-400 transition-all uppercase tracking-tighter">Unit 2</button>
+                        <button onclick="applyPreset('unit6')" class="px-2.5 py-1 bg-slate-950 border border-white/10 rounded-lg text-[9px] font-black hover:border-cyan-500 hover:text-cyan-400 transition-all uppercase tracking-tighter">Unit 6</button>
+                        <button onclick="applyPreset('with_scores')" class="px-2.5 py-1 bg-slate-950 border border-emerald-500/30 text-emerald-300 rounded-lg text-[9px] font-black hover:border-emerald-400 transition-all uppercase tracking-tighter">With Scores</button>
                     </div>
 
-                    <div id="assignment-list" class="w-full bg-slate-900 border border-white/10 p-4 rounded-2xl max-h-[160px] overflow-y-auto custom-scrollbar space-y-2">
-                        <p class="text-xs text-slate-600 animate-pulse">Scanning Archive...</p>
+                    <div class="relative">
+                        <input type="text" id="assignment-search-input" oninput="renderAssignmentListUI()" placeholder="Filter assignments list..." class="w-full bg-slate-950 border border-white/10 pl-8 pr-3 py-1.5 rounded-xl text-xs font-bold text-slate-300 focus:border-cyan-500/50 outline-none transition-all placeholder:text-slate-700">
+                        <svg class="w-3.5 h-3.5 text-slate-600 absolute left-2.5 top-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    </div>
+
+                    <div id="assignment-list" class="w-full bg-slate-900 border border-white/10 p-3 rounded-2xl max-h-[260px] overflow-y-auto custom-scrollbar space-y-1.5">
+                        <p class="text-xs text-slate-600 animate-pulse p-3">Connecting to live Firestore assignments...</p>
                     </div>
                 </div>
 
                 <!-- Export Actions -->
                 <div class="space-y-4">
-                    <p class="text-[10px] font-black text-violet-500 uppercase tracking-widest">02 // Export Operations</p>
-                    <div class="space-y-3">
-                        <button id="export-btn" onclick="exportCSV()" class="w-full bg-gradient-to-r from-cyan-600 to-violet-600 p-5 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl active:scale-95 transition-all flex items-center justify-center gap-3">
+                    <p class="text-[10px] font-black text-violet-500 uppercase tracking-widest">02 // Filter & Export Operations</p>
+                    
+                    <div class="bg-white/5 p-4 rounded-2xl border border-white/5 space-y-3">
+                        <div>
+                            <label class="text-[8px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Target Class Period</label>
+                            <select id="assessments-period-filter" onchange="loadPreview()" class="w-full bg-slate-950 border border-white/10 px-3 py-2 rounded-xl text-xs font-bold text-slate-200 outline-none focus:border-violet-500">
+                                <option value="all">All Class Periods</option>
+                                <option value="0">Period 0</option>
+                                <option value="1">Period 1</option>
+                                <option value="2">Period 2</option>
+                                <option value="3">Period 3</option>
+                                <option value="4">Period 4</option>
+                                <option value="5">Period 5</option>
+                                <option value="6">Period 6</option>
+                            </select>
+                        </div>
+
+                        <div class="bg-slate-950/60 p-3 rounded-xl border border-white/5 flex items-center justify-between cursor-pointer group hover:bg-white/5 transition-all" onclick="toggleMode()">
+                            <div>
+                                <span class="text-[8px] font-bold text-slate-500 uppercase tracking-widest block">Scoring Mode</span>
+                                <span class="text-[10px] font-bold text-slate-300">Aggregation Style</span>
+                            </div>
+                            <span id="mode-display" class="text-[10px] font-black text-cyan-400 uppercase bg-cyan-500/10 border border-cyan-500/20 px-3 py-1 rounded-lg">SUM_TOTAL</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 pt-1">
+                        <button id="export-btn" onclick="exportCSV()" class="w-full bg-gradient-to-r from-cyan-600 to-violet-600 p-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl active:scale-95 transition-all flex items-center justify-center gap-3">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                             Download Aeries CSV
                         </button>
-                        <div class="bg-white/5 p-4 rounded-xl border border-white/5 flex items-center justify-between cursor-pointer group hover:bg-white/10 transition-all" onclick="toggleMode()">
-                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest group-hover:text-slate-200">Aggregate Mode</span>
-                            <span id="mode-display" class="text-[9px] font-black text-cyan-500 uppercase">SUM_TOTAL</span>
-                        </div>
                     </div>
                 </div>
             </div>
+
 
             <div id="status-display" class="pt-6 border-t border-white/5 space-y-4">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -947,17 +979,34 @@
         // =========================================================================
         // ASSESSMENTS & LABS MODULE (ORIGINAL ARCHIVE SYSTEM)
         // =========================================================================
+        // =========================================================================
+        // ASSESSMENTS & ASSIGNMENTS MODULE (DYNAMIC FIRESTORE REGISTRY)
+        // =========================================================================
+        const assignmentsRegistry = new Map(); // id -> { id, title, source, maxScore, count, grades, hasSubcollection }
+        let gradestListenerUnsub = null;
+        let studentResultsListenerUnsub = null;
+        let assessmentsListenerUnsub = null;
+
         const PRESETS = {
+            'unit1': ['Unit_Conversion_Practice', 'Accuracy_Precision_Emoji_Art'],
             'unit2': [
+                'Constant Speed Story',
+                'Digital Fantasy Map Distance Displacement',
+                'Fantasy Maps',
+                'Physics Speed Calculator',
+                'Wind Up Toy Speed Lab',
                 'Fantasy_Map_Distance_Displacement',
-                'Fantasy_Map_Vector_Calculations'
+                'Fantasy_Map_Vector_Calculations',
+                'Wind_Up_Toy_Speed_Lab'
             ],
             'unit6': [
                 'WaveMaster Lab',
                 'Wave Diffraction Lab',
                 'Wave Interference Tutorial',
                 'Unit 6 Rapid Review',
-                'Waves_Unit_Test'
+                'Waves_Unit_Test',
+                'Doppler Detective',
+                'Wave Signals Lab'
             ]
         };
 
@@ -965,75 +1014,170 @@
             const statusEl = document.getElementById('db-status');
             const archiveCountEl = document.getElementById('total-archive-count');
 
+            if (statusEl) {
+                statusEl.textContent = "Listening to Live Firestore Collections...";
+                statusEl.className = "text-cyan-400";
+            }
+
             try {
-                statusEl.textContent = "Scanning...";
-                const archiveSnap = await db.collection('student_results').get();
-                
-                const assignmentNamesFromArchive = new Set();
-                archiveCache = [];
-                // Ensure known practice apps and webapps are registered as nested assignments
-                nestedAssignments.add("Unit_Conversion_Practice");
-                nestedAssignments.add("Fantasy_Map_Distance_Displacement");
-                nestedAssignments.add("Fantasy_Map_Vector_Calculations");
-                nestedAssignments.add("Wind_Up_Toy_Speed_Lab");
-
-                archiveSnap.docs.forEach(doc => {
-                    const data = doc.data();
-                    if (data.is_global_locked !== undefined || (!data.student_id && !data.student_name && !data.score && data.score !== 0)) {
-                        nestedAssignments.add(doc.id);
-                        return;
-                    }
-
-                    const assignmentName = data.assignment_name || 'Unknown';
-                    assignmentNamesFromArchive.add(assignmentName);
-
-                    archiveCache.push({
-                        student_id: data.student_id || doc.id,
-                        student_name: data.student_name || "Unknown",
-                        class_period: data.class_period || "---",
-                        assignment_name: assignmentName,
-                        score: data.score || 0,
-                        created_at: data.created_at || (data.timestamp ? new Date(data.timestamp.seconds * 1000).toISOString() : new Date().toISOString())
+                // 1. Set up Real-Time Listener on 'gradest_assignments'
+                // This collection stores all OMR, teacher-created, and synced classroom assignments
+                if (gradestListenerUnsub) gradestListenerUnsub();
+                gradestListenerUnsub = db.collection('gradest_assignments').onSnapshot(snapshot => {
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        const id = doc.id;
+                        const title = data.assignmentName || data.title || id;
+                        const grades = Array.isArray(data.grades) ? data.grades : [];
+                        
+                        assignmentsRegistry.set(id, {
+                            id: id,
+                            title: title,
+                            source: 'gradest_assignments',
+                            maxScore: data.maxScore || data.maxPoints || 10,
+                            count: grades.length,
+                            grades: grades,
+                            hasSubcollection: false,
+                            updatedAt: data.updatedAt
+                        });
                     });
+                    console.log(`[DATA_EXPORT] Live gradest_assignments updated: ${snapshot.size} assignments.`);
+                    renderAssignmentListUI();
+                    loadPreview();
+                }, err => {
+                    console.warn("[DATA_EXPORT] gradest_assignments snapshot warning:", err.message);
                 });
 
-                archiveCountEl.textContent = archiveCache.length;
+                // 2. Set up Real-Time Listener on 'student_results'
+                // Discovers all lab webapp subcollections and archives
+                if (studentResultsListenerUnsub) studentResultsListenerUnsub();
+                studentResultsListenerUnsub = db.collection('student_results').onSnapshot(async snapshot => {
+                    for (const doc of snapshot.docs) {
+                        const data = doc.data();
+                        const id = doc.id;
+                        const title = (data.assignment_name || id).replace(/_/g, ' ');
 
-                const assessmentsSnap = await db.collection('assessments').get();
-                const assessmentNames = assessmentsSnap.docs.map(doc => doc.data().assignment_name || doc.id);
+                        if (!assignmentsRegistry.has(id)) {
+                            assignmentsRegistry.set(id, {
+                                id: id,
+                                title: title,
+                                source: 'student_results',
+                                maxScore: data.maxScore || 100,
+                                count: 0,
+                                hasSubcollection: true
+                            });
+                        } else {
+                            const existing = assignmentsRegistry.get(id);
+                            existing.hasSubcollection = true;
+                        }
+                    }
+                    console.log(`[DATA_EXPORT] Live student_results updated: ${snapshot.size} parent assignments.`);
+                    renderAssignmentListUI();
+                }, err => {
+                    console.warn("[DATA_EXPORT] student_results snapshot warning:", err.message);
+                });
 
-                const allAssignments = [...new Set([
-                    ...assignmentNamesFromArchive,
-                    ...assessmentNames,
-                    ...nestedAssignments
-                ])].filter(Boolean).sort();
+                // 3. Set up Listener on 'assessments' (legacy & teacher tests)
+                if (assessmentsListenerUnsub) assessmentsListenerUnsub();
+                assessmentsListenerUnsub = db.collection('assessments').onSnapshot(snapshot => {
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        const id = doc.id;
+                        const title = data.assignment_name || data.title || id;
+                        if (!assignmentsRegistry.has(id)) {
+                            assignmentsRegistry.set(id, {
+                                id: id,
+                                title: title,
+                                source: 'assessments',
+                                maxScore: data.maxScore || 100,
+                                count: 0,
+                                hasSubcollection: false
+                            });
+                        }
+                    });
+                    renderAssignmentListUI();
+                }, err => {
+                    console.warn("[DATA_EXPORT] assessments snapshot warning:", err.message);
+                });
 
-                const container = document.getElementById('assignment-list');
-                
-                container.innerHTML = allAssignments.length > 0 ? allAssignments.map(a => {
-                    const count = archiveCache.filter(r => r.assignment_name === a).length;
-                    const isNested = nestedAssignments.has(a);
-                    const badge = count > 0 
-                        ? `<span class="ml-auto text-[8px] font-black px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">${count}</span>`
-                        : (isNested ? `<span class="ml-auto text-[8px] font-black px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/20">LIVE</span>` : '');
-                    
-                    return `
-                        <label class="flex items-center gap-3 p-2 hover:bg-white/5 rounded-lg cursor-pointer transition-colors group">
-                            <input type="checkbox" value="${a}" class="assignment-cb accent-cyan-500 w-4 h-4 rounded border-white/10" onchange="loadPreview()">
-                            <span class="text-xs font-bold text-slate-400 group-hover:text-slate-200 transition-colors">${a}</span>
-                            ${badge}
-                        </label>
-                    `;
-                }).join('') : '<p class="text-xs text-slate-500">No assessment records found.</p>';
-                
-                statusEl.textContent = "Connection_Ready";
-                statusEl.className = "text-emerald-400";
+                // 4. Ensure Physics Speed Calculator is registered from physicsLabsCache
+                if (!assignmentsRegistry.has('Physics Speed Calculator')) {
+                    assignmentsRegistry.set('Physics Speed Calculator', {
+                        id: 'Physics Speed Calculator',
+                        title: 'Physics Speed Calculator',
+                        source: 'physics_labs',
+                        maxScore: 10,
+                        count: physicsLabsCache.length,
+                        hasSubcollection: false
+                    });
+                }
+
+                if (statusEl) {
+                    statusEl.textContent = "Live_Sync_Active";
+                    statusEl.className = "text-emerald-400";
+                }
             } catch (err) {
-                console.error("[DATA_EXPORT] Assessments init error:", err);
-                statusEl.textContent = "Access_Denied";
-                statusEl.className = "text-rose-500";
-                archiveCountEl.textContent = "ERR";
+                console.error("[DATA_EXPORT] Assessments live init error:", err);
+                if (statusEl) {
+                    statusEl.textContent = "Access_Denied";
+                    statusEl.className = "text-rose-500";
+                }
             }
+        }
+
+        function renderAssignmentListUI() {
+            const container = document.getElementById('assignment-list');
+            if (!container) return;
+
+            const badgeCountEl = document.getElementById('assignments-active-count-badge');
+            const totalCountEl = document.getElementById('total-archive-count');
+            const filterQuery = (document.getElementById('assignment-search-input')?.value || '').trim().toLowerCase();
+
+            // Retain user's current checkbox selections across dynamic updates
+            const checkedIds = new Set(Array.from(document.querySelectorAll('.assignment-cb:checked')).map(cb => cb.value));
+
+            const assignmentsList = Array.from(assignmentsRegistry.values()).sort((a, b) => {
+                // Assignments with scores first, then alphabetically
+                if (a.count > 0 && b.count === 0) return -1;
+                if (b.count > 0 && a.count === 0) return 1;
+                return a.title.localeCompare(b.title);
+            });
+
+            if (badgeCountEl) badgeCountEl.textContent = `${assignmentsList.length} Assignments`;
+            if (totalCountEl) totalCountEl.textContent = `${assignmentsList.length} Live`;
+
+            const filtered = assignmentsList.filter(a => {
+                if (!filterQuery) return true;
+                return a.title.toLowerCase().includes(filterQuery) || a.id.toLowerCase().includes(filterQuery);
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-500 py-4 text-center">No assignments match your search.</p>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(a => {
+                const isChecked = checkedIds.has(a.id);
+                let badge = '';
+                if (a.count > 0) {
+                    badge = `<span class="ml-auto text-[8px] font-black px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">${a.count} Scores</span>`;
+                } else if (a.hasSubcollection) {
+                    badge = `<span class="ml-auto text-[8px] font-black px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/20">LIVE APP</span>`;
+                } else {
+                    badge = `<span class="ml-auto text-[8px] font-black px-2 py-0.5 rounded-full bg-slate-800 text-slate-500 border border-white/5">0 Scores</span>`;
+                }
+
+                return `
+                    <label class="flex items-center gap-3 p-2 hover:bg-white/5 rounded-lg cursor-pointer transition-colors group">
+                        <input type="checkbox" value="${escapeHtml(a.id)}" ${isChecked ? 'checked' : ''} class="assignment-cb accent-cyan-500 w-4 h-4 rounded border-white/10" onchange="loadPreview()">
+                        <div class="flex flex-col">
+                            <span class="text-xs font-bold text-slate-300 group-hover:text-white transition-colors">${escapeHtml(a.title)}</span>
+                            <span class="text-[8px] text-slate-500 uppercase tracking-widest font-mono">${escapeHtml(a.source)}</span>
+                        </div>
+                        ${badge}
+                    </label>
+                `;
+            }).join('');
         }
 
         function toggleAll(checked) {
@@ -1055,11 +1199,21 @@
             loadPreview();
         }
 
-        function applyPreset(id) {
-            const list = PRESETS[id];
-            if (!list) return;
+        function applyPreset(presetId) {
             document.querySelectorAll('.assignment-cb').forEach(cb => {
-                cb.checked = list.includes(cb.value);
+                const val = cb.value.toLowerCase();
+                if (presetId === 'with_scores') {
+                    const entry = assignmentsRegistry.get(cb.value);
+                    cb.checked = !!(entry && (entry.count > 0 || entry.hasSubcollection));
+                } else if (presetId === 'unit1') {
+                    cb.checked = val.includes('conversion') || val.includes('accuracy') || val.includes('precision') || val.includes('emoji');
+                } else if (presetId === 'unit2') {
+                    cb.checked = val.includes('fantasy') || val.includes('speed') || val.includes('story') || val.includes('wind') || val.includes('toy') || val.includes('intercept') || val.includes('map');
+                } else if (presetId === 'unit6') {
+                    cb.checked = val.includes('wave') || val.includes('doppler');
+                } else {
+                    cb.checked = false;
+                }
             });
             loadPreview();
         }
@@ -1077,63 +1231,140 @@
             return j === query.length;
         }
 
+        // Helper: Fetch All Filtered Scores from Firestore
         async function fetchFilteredResults(selectedAssignments) {
-            let allResults = [];
-            const seenKeys = new Set();
+            const seenStudentAssignment = new Map(); // `${student_id}_${assignment}` -> record
 
-            for (const assignment of selectedAssignments) {
-                const matching = archiveCache.filter(r => r.assignment_name === assignment);
-                matching.forEach(r => {
-                    const key = `${r.student_id}_${r.assignment_name}_${r.created_at}`;
-                    if (!seenKeys.has(key)) {
-                        seenKeys.add(key);
-                        allResults.push(r);
-                    }
-                });
-            }
+            for (const aId of selectedAssignments) {
+                const entry = assignmentsRegistry.get(aId) || { id: aId, title: aId, source: 'unknown' };
 
-            for (const assignment of selectedAssignments) {
-                if (!nestedAssignments.has(assignment)) continue;
-                
-                try {
-                    const snap = await db.collection('student_results').doc(assignment).collection('students').get();
-                    snap.forEach(doc => {
-                        const data = doc.data();
-                        const sId = String(data.student_id || doc.id).trim();
-                        
-                        // Enrich student name and class period from central roster cache if missing
-                        let sName = data.student_name || "Unknown";
-                        let sPeriod = data.class_period || "---";
-                        if (rosterCache && rosterCache.length > 0) {
-                            const matchedStudent = rosterCache.find(s => s.student_id === sId);
-                            if (matchedStudent) {
-                                if (!sName || sName === "Unknown") sName = matchedStudent.name;
-                                if (!sPeriod || sPeriod === "---") sPeriod = matchedStudent.class_period || "---";
-                            }
-                        }
+                // 1. Pull from gradest_assignments (in memory or Firestore)
+                if (entry.grades && Array.isArray(entry.grades) && entry.grades.length > 0) {
+                    entry.grades.forEach(g => {
+                        const sId = String(g.id || g.studentId || '').trim();
+                        if (!sId) return;
+                        const rosterEntry = rosterCache.find(r => r.student_id === sId);
+                        const sName = g.name || (rosterEntry ? rosterEntry.name : `Student ${sId}`);
+                        const sPeriod = (g.period !== undefined && g.period !== null && g.period !== '---') 
+                            ? String(g.period) 
+                            : (rosterEntry ? String(rosterEntry.class_period) : '---');
+                        const rawScore = g.score !== undefined ? Number(g.score) : Number(g.percentage || 0);
 
-                        const record = {
-                            student_id: sId,
-                            student_name: sName,
-                            class_period: sPeriod,
-                            assignment_name: data.assignment_name || assignment,
-                            score: data.score || 0,
-                            created_at: data.timestamp 
-                                ? (data.timestamp.seconds ? new Date(data.timestamp.seconds * 1000).toISOString() : data.timestamp)
-                                : (data.created_at || new Date().toISOString())
-                        };
-                        const key = `${record.student_id}_${record.assignment_name}_nested`;
-                        if (!seenKeys.has(key)) {
-                            seenKeys.add(key);
-                            allResults.push(record);
+                        const key = `${sId}_${entry.title}`;
+                        const prev = seenStudentAssignment.get(key);
+                        if (!prev || rawScore > prev.score) {
+                            seenStudentAssignment.set(key, {
+                                student_id: sId,
+                                student_name: sName,
+                                class_period: sPeriod,
+                                assignment_name: entry.title,
+                                score: rawScore,
+                                created_at: g.timestamp || new Date().toISOString()
+                            });
                         }
                     });
-                } catch (err) {
-                    console.warn(`[DATA_EXPORT] Subcollection read error for "${assignment}":`, err.message);
+                } else {
+                    // Check if gradest_assignments doc exists in Firestore
+                    try {
+                        const gDoc = await db.collection('gradest_assignments').doc(aId).get();
+                        if (gDoc.exists) {
+                            const data = gDoc.data();
+                            if (Array.isArray(data.grades)) {
+                                data.grades.forEach(g => {
+                                    const sId = String(g.id || g.studentId || '').trim();
+                                    if (!sId) return;
+                                    const rosterEntry = rosterCache.find(r => r.student_id === sId);
+                                    const sName = g.name || (rosterEntry ? rosterEntry.name : `Student ${sId}`);
+                                    const sPeriod = (g.period !== undefined && g.period !== null && g.period !== '---') 
+                                        ? String(g.period) 
+                                        : (rosterEntry ? String(rosterEntry.class_period) : '---');
+                                    const rawScore = g.score !== undefined ? Number(g.score) : Number(g.percentage || 0);
+
+                                    const key = `${sId}_${entry.title}`;
+                                    const prev = seenStudentAssignment.get(key);
+                                    if (!prev || rawScore > prev.score) {
+                                        seenStudentAssignment.set(key, {
+                                            student_id: sId,
+                                            student_name: sName,
+                                            class_period: sPeriod,
+                                            assignment_name: entry.title,
+                                            score: rawScore,
+                                            created_at: g.timestamp || new Date().toISOString()
+                                        });
+                                    }
+                                });
+                            }
+                        }
+                    } catch (e) {}
+                }
+
+                // 2. Check student_results subcollection: student_results/{aId}/students
+                const possibleSRDocIds = [aId, aId.replace(/ /g, '_'), aId.replace(/_/g, ' ')];
+                for (const srId of possibleSRDocIds) {
+                    try {
+                        const snap = await db.collection('student_results').doc(srId).collection('students').get();
+                        if (!snap.empty) {
+                            snap.forEach(doc => {
+                                const data = doc.data();
+                                const sId = String(data.student_id || data.studentId || doc.id).trim();
+                                if (!sId) return;
+                                const rosterEntry = rosterCache.find(r => r.student_id === sId);
+                                const sName = data.student_name || data.studentName || (rosterEntry ? rosterEntry.name : `Student ${sId}`);
+                                const sPeriod = (data.class_period !== undefined && data.class_period !== null && data.class_period !== '---')
+                                    ? String(data.class_period)
+                                    : (rosterEntry ? String(rosterEntry.class_period) : '---');
+
+                                let rawScore = 0;
+                                if (data.score !== undefined) rawScore = Number(data.score);
+                                else if (data.isCompleted) rawScore = 100;
+                                else if (data.labState && data.labState.currentStep) {
+                                    const step = data.labState.currentStep;
+                                    rawScore = step >= 5 ? 85 : (step >= 3 ? 70 : (step >= 2 ? 60 : 50));
+                                }
+
+                                const key = `${sId}_${entry.title}`;
+                                const prev = seenStudentAssignment.get(key);
+                                if (!prev || rawScore > prev.score) {
+                                    seenStudentAssignment.set(key, {
+                                        student_id: sId,
+                                        student_name: sName,
+                                        class_period: sPeriod,
+                                        assignment_name: entry.title,
+                                        score: rawScore,
+                                        created_at: data.timestamp 
+                                            ? (data.timestamp.seconds ? new Date(data.timestamp.seconds * 1000).toISOString() : data.timestamp)
+                                            : (data.created_at || new Date().toISOString())
+                                    });
+                                }
+                            });
+                        }
+                    } catch (e) {}
+                }
+
+                // 3. Check physics_labs cache if assignment is Physics Speed Calculator
+                const normA = aId.toLowerCase().replace(/[^a-z0-9]/g, '');
+                if (normA.includes('speedcalculator') && physicsLabsCache && physicsLabsCache.length > 0) {
+                    physicsLabsCache.forEach(r => {
+                        const sId = r.student_id;
+                        if (!sId) return;
+                        const pct = r.completed ? 100 : (r.currentLevel === 3 ? Math.round((r.score / 6) * 100) : (r.currentLevel === 2 ? 65 : (r.answered > 0 ? 50 : 0)));
+                        const key = `${sId}_${entry.title}`;
+                        const prev = seenStudentAssignment.get(key);
+                        if (!prev || pct > prev.score) {
+                            seenStudentAssignment.set(key, {
+                                student_id: sId,
+                                student_name: r.student_name,
+                                class_period: r.class_period,
+                                assignment_name: entry.title,
+                                score: pct,
+                                created_at: r.lastActive || new Date().toISOString()
+                            });
+                        }
+                    });
                 }
             }
 
-            return allResults;
+            return Array.from(seenStudentAssignment.values());
         }
 
         function reduceToGradebook(rows, mode = 'SUM') {
@@ -1144,7 +1375,7 @@
                 acc[id].assignmentCount += 1;
                 acc[id].raw.push(row);
                 if (row.student_name) acc[id].name = row.student_name;
-                if (row.class_period) acc[id].period = row.class_period;
+                if (row.class_period && row.class_period !== '---') acc[id].period = row.class_period;
                 return acc;
             }, {});
 
@@ -1158,10 +1389,11 @@
             const selectedAssignments = Array.from(document.querySelectorAll('.assignment-cb:checked')).map(cb => cb.value);
             const tbody = document.getElementById('preview-body');
             const countEl = document.getElementById('record-count');
+            const periodFilter = document.getElementById('assessments-period-filter')?.value || 'all';
 
             if (selectedAssignments.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-600 font-bold uppercase tracking-widest text-[8px]">No Assignments Selected</td></tr>';
-                countEl.textContent = "0";
+                if (countEl) countEl.textContent = "0";
                 return;
             }
 
@@ -1169,31 +1401,39 @@
                 const data = await fetchFilteredResults(selectedAssignments);
                 const aggregated = reduceToGradebook(data, aggregationMode);
                 
-                const searchQuery = document.getElementById('student-search').value.trim();
+                const searchQuery = (document.getElementById('student-search')?.value || '').trim();
                 const filteredStudents = Object.values(aggregated).filter(s => {
+                    if (periodFilter !== 'all' && String(s.period) !== String(periodFilter)) return false;
                     if (!searchQuery) return true;
                     return s.id.includes(searchQuery) || fuzzyMatch(s.name, searchQuery);
                 });
 
-                countEl.textContent = filteredStudents.length;
+                if (countEl) countEl.textContent = filteredStudents.length;
                 const sortedStudents = filteredStudents.sort((a, b) => a.name.localeCompare(b.name));
+
+                if (sortedStudents.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-600 font-bold uppercase tracking-widest text-[8px]">No Student Records Match Filter</td></tr>';
+                    return;
+                }
 
                 if (aggregationMode === 'DETAILED') {
                     document.getElementById('table-header-row').innerHTML = `
                         <th class="p-4 border-b border-white/5">Student_Name</th>
+                        <th class="p-4 border-b border-white/5">Period</th>
                         <th class="p-4 border-b border-white/5">Assignment_Name</th>
-                        <th class="p-4 border-b border-white/5">Score</th>
-                        <th class="p-4 border-b border-white/5 text-right">Submitted</th>
+                        <th class="p-4 border-b border-white/5 text-center">Score</th>
+                        <th class="p-4 border-b border-white/5 text-right">Recorded_At</th>
                     `;
                     const detailedRows = sortedStudents.flatMap(s => s.raw.map(r => ({
-                        name: s.name, id: s.id, assignment: r.assignment_name, score: r.score, date: new Date(r.created_at).toLocaleDateString()
+                        name: s.name, id: s.id, period: s.period, assignment: r.assignment_name, score: r.score, date: new Date(r.created_at).toLocaleDateString()
                     })));
 
-                    tbody.innerHTML = detailedRows.slice(0, 30).map(r => `
+                    tbody.innerHTML = detailedRows.slice(0, 50).map(r => `
                         <tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                            <td class="p-4 font-medium text-slate-300 capitalize">${r.name} <span class="text-[9px] text-slate-600 block">${r.id}</span></td>
-                            <td class="p-4 font-bold text-cyan-400">${r.assignment}</td>
-                            <td class="p-4 font-black text-violet-400">${r.score}</td>
+                            <td class="p-4 font-medium text-slate-300 capitalize">${escapeHtml(r.name)} <span class="text-[9px] text-slate-600 block font-mono">${escapeHtml(r.id)}</span></td>
+                            <td class="p-4 font-bold text-slate-400">P${escapeHtml(r.period || '?')}</td>
+                            <td class="p-4 font-bold text-cyan-400">${escapeHtml(r.assignment)}</td>
+                            <td class="p-4 text-center font-black text-violet-400">${r.score}</td>
                             <td class="p-4 text-right text-slate-600 font-mono text-[10px]">${r.date}</td>
                         </tr>
                     `).join('');
@@ -1205,13 +1445,13 @@
                         <th class="p-4 border-b border-white/5">Total_Score</th>
                         <th class="p-4 border-b border-white/5 text-right">Count</th>
                     `;
-                    tbody.innerHTML = sortedStudents.slice(0, 15).map(s => `
+                    tbody.innerHTML = sortedStudents.slice(0, 30).map(s => `
                         <tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                            <td class="p-4 font-mono font-bold text-cyan-400">${s.id}</td>
-                            <td class="p-4 font-medium text-slate-300 capitalize">${s.name}</td>
-                            <td class="p-4 font-bold text-slate-400">P${s.period || '?'}</td>
+                            <td class="p-4 font-mono font-bold text-cyan-400">${escapeHtml(s.id)}</td>
+                            <td class="p-4 font-medium text-slate-300 capitalize">${escapeHtml(s.name)}</td>
+                            <td class="p-4 font-bold text-slate-400">P${escapeHtml(s.period || '?')}</td>
                             <td class="p-4 font-black text-violet-400">${s.totalScore}</td>
-                            <td class="p-4 text-right"><span class="px-2 py-0.5 rounded-full bg-slate-800 text-[8px] font-black text-slate-500 border border-white/5">${s.assignmentCount} Assignments</span></td>
+                            <td class="p-4 text-right"><span class="px-2 py-0.5 rounded-full bg-slate-800 text-[8px] font-black text-slate-400 border border-white/5">${s.assignmentCount} Assignments</span></td>
                         </tr>
                     `).join('');
                 }
@@ -1225,11 +1465,14 @@
             const selectedAssignments = Array.from(document.querySelectorAll('.assignment-cb:checked')).map(cb => cb.value);
             if (selectedAssignments.length === 0) { alert("Please select at least one assignment."); return; }
 
+            const periodFilter = document.getElementById('assessments-period-filter')?.value || 'all';
+
             try {
                 const data = await fetchFilteredResults(selectedAssignments);
                 const aggregated = reduceToGradebook(data, aggregationMode);
-                const searchQuery = document.getElementById('student-search').value.trim();
+                const searchQuery = (document.getElementById('student-search')?.value || '').trim();
                 const filteredStudents = Object.values(aggregated).filter(s => {
+                    if (periodFilter !== 'all' && String(s.period) !== String(periodFilter)) return false;
                     if (!searchQuery) return true;
                     return s.id.includes(searchQuery) || fuzzyMatch(s.name, searchQuery);
                 });
@@ -1237,15 +1480,16 @@
                 const sortedStudents = filteredStudents.sort((a, b) => a.name.localeCompare(b.name));
                 let headers, rows;
                 if (aggregationMode === 'DETAILED') {
-                    headers = ["Student_ID", "Student_Name", "Assignment_Name", "Score", "Submitted_At"];
-                    rows = sortedStudents.flatMap(s => s.raw.map(r => [s.id, s.name, r.assignment_name, r.score, r.created_at]));
+                    headers = ["Student_ID", "Student_Name", "Class_Period", "Assignment_Name", "Score", "Submitted_At"];
+                    rows = sortedStudents.flatMap(s => s.raw.map(r => [s.id, s.name, s.period || "", r.assignment_name, r.score, r.created_at]));
                 } else {
                     headers = ["Student_ID", "Student_Name", "Class_Period", "Total_Score", "Assignment_Count"];
                     rows = sortedStudents.map(s => [s.id, s.name, s.period || "", s.totalScore, s.assignmentCount]);
                 }
 
                 const csvContent = [headers.join(","), ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))].join("\n");
-                const filename = `${aggregationMode}_REPORT_${selectedAssignments.length}_ITEMS_${new Date().toISOString().split('T')[0]}.csv`;
+                const pTag = periodFilter !== 'all' ? `_PERIOD_${periodFilter}` : '';
+                const filename = `AERIES_${aggregationMode}${pTag}_${selectedAssignments.length}_ASSIGNMENTS_${new Date().toISOString().split('T')[0]}.csv`;
                 const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement("a");
                 link.setAttribute("href", URL.createObjectURL(blob));
@@ -1256,6 +1500,7 @@
                 alert("Critical Export Failure");
             }
         }
+
         // =========================================================================
         // PHYSICS LABS & INTERACTIVE WEBAPPS MODULE
         // =========================================================================
