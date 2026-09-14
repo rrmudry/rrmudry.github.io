@@ -2,6 +2,102 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-14 — Pedagogy: Multi-Dataset Requirement (3 Datasets Each) for Levels 5 & 6
+
+**Motivation**: Deepen student fluency in translating between position-time graphs and data tables by requiring multiple rounds of authentic measurement and coordinate plotting rather than a single trial.
+
+**Key Changes**:
+- **Level 5: 3 Motion Log Datasets (15 pts: 3 @ 5 pts)**:
+  - Students decode and verify 3 distinct graph-to-table datasets in sequence (`Dataset 1 of 3 (● ○ ○)`, `Dataset 2 of 3 (● ● ○)`, `Dataset 3 of 3 (● ● ●)`).
+  - Each dataset features unique time intervals and car positions with synchronized `⚡ Jump` helper buttons.
+  - Verifying each table awards 5 points and unlocks the transition button to the next dataset or Level 6.
+- **Level 6: 3 Grid Plotting Missions (20 pts: 6, 7, 7 pts)**:
+  - Students complete 3 distinct 4-waypoint table-to-graph grid plotting missions (`Mission 1 of 3 (● ○ ○)`, `Mission 2 of 3 (● ● ○)`, `Mission 3 of 3 (● ● ●)`).
+  - Each mission tests drive playback and validation; completing the 3rd mission unlocks the printable Mastery Certificate.
+- **Progress Tracking & State**:
+  - Sub-steps tracked individually (`l5_s0`, `l5_s1`, `l5_s2` and `l6_s0`, `l6_s1`, `l6_s2`) for granular Firestore persistence and recovery.
+
+---
+
+## 2026-09-14 — Auth: Mandatory School Account Login Gate (@orangeusd.org)
+
+**Motivation**: Ensure every student logs in with their official school Google account prior to interacting with the Graph Studio, ensuring automatic gradebook synchronization and proper student-specific variant generation.
+
+**Key Changes**:
+- **Full-Screen Blur Login Gate (`#loginGateModal`)**: Blocks view and interaction with the missions until the student signs in with an `@orangeusd.org` or teacher account.
+- **Domain Enforcement**: Strict validation in `auth_manager.js` checks that the user's email ends with `@orangeusd.org` (or recognized teacher accounts). Non-school accounts are rejected with clear diagnostic error feedback and immediately signed out.
+- **Automatic Seed & Mission Calibration**: Once authenticated, `onStudentLoggedIn(studentId)` triggers in `StudioEngine`, instantly configuring the student's unique permutation of graph missions, restoring past scores from Firestore, and dismissing the gate.
+
+---
+
+## 2026-09-14 — Anti-Copying: Parameterized Problem Variants & Deterministic Seeding
+
+**Motivation**: Prevent students from copying answers from neighbors during class while preserving equivalent cognitive difficulty, whole-number division, and Low Floor High Ceiling pedagogical accessibility.
+
+**Key Changes**:
+- **4 Distinct Variants Across All 6 Levels (4^6 = 4,096 Unique Combinations)**:
+  - **Level 1 (Finding Position)**: Randomized flat rest intervals (3s-6s, 4s-7s, 2s-5s) and target positions (6m, 8m, 12m).
+  - **Level 2 (Fast or Slow?)**: Randomized race scenarios, finishing distances (14m, 16m, 18m, 20m), and race winners alternating between Green and Blue cars.
+  - **Level 3 (Rise over Run)**: Box-counting slope triangles with distinct whole-number velocities (6m÷2s=3 m/s, 8m÷2s=4 m/s, 12m÷3s=4 m/s, 10m÷2s=5 m/s).
+  - **Level 4 (Driving Backwards)**: Distinct reverse velocities (-2, -3, -4 m/s) and scalar speedometer verification checks.
+  - **Level 5 (Motion Log Table)**: Randomized 4-row motion log time points and positions synchronized with one-click jump chips.
+  - **Level 6 (Draw the Drive)**: Randomized 4-coordinate mission waypoints for interactive coordinate grid plotting.
+- **Deterministic Student Seeding (FNV-1a 32-bit Hash)**:
+  - Students signed in via Google (`@orangeusd.org`) receive a persistent seed based on `studentId`.
+  - Guest users receive a persisted seed in `localStorage ('pvt_studio_guest_seed')`.
+  - Variants across levels are decorrelated using prime multipliers (`[17, 31, 53, 71, 89, 107, 131]`), ensuring high permutation variety between adjacent students.
+- **State & Seed Persistence**: `studentSeed` is stored and restored across sessions in Firestore grade records and guest `localStorage`.
+
+---
+
+## 2026-09-14 — UI/Viewport: 90% Global Scaling for Zero-Scroll 720p Display
+
+**Motivation**: On Chromebook and standard 1280x720 / 1366x768 screens, browser chrome and OS bars left limited vertical space, causing the lower question workspace and ground track to require minor vertical scrolling.
+
+**Key Changes**:
+- **CSS `zoom: 0.9`**: Added to `body` in `Unit_2/position_time_graph_studio/style.css`, proportionally scaling all cards, canvases, fonts, and controls to 90%.
+- **Zoom-Compensated Reticle Tracking**: Updated `js/app.js` to scale loupe absolute coordinates by the computed zoom factor (`mx / zoom`, `my / zoom`), preserving exact crosshair alignment under the mouse pointer.
+- **Print Reset**: Preserved `zoom: 1 !important` for printable mastery certificates.
+- **Result**: The entire UI (header + 6-level strip + dual visualizers + question workspace) fits seamlessly within 720p screens with zero scrolling.
+
+---
+
+## 2026-09-14 — UI/Accessibility: High-Contrast Light Theme Overhaul (WCAG AAA) for Graph Studio
+
+**Motivation**: In light theme mode, white text classes (`text-white`), pale grays (`text-slate-200/300`), and neon volt/lime accents (`#ccff00`, `text-lime-300`) lacked sufficient contrast on light cards and canvas backgrounds, causing question headers, instructions, and multiple-choice options to wash out.
+
+**Key Changes**:
+- **WCAG AAA Text Mapping**: Overrode `.text-white` to `#0f172a` (Slate 900) and `.text-slate-100/200/300` to `#1e293b` (Slate 800) under `html:not(.dark)`.
+- **Primary Accent Shift**: Neon volt (`#ccff00`) and yellow (`#facc15`) mapped to rich Emerald/Forest green (`#15803d`, 7.2:1 contrast) and warm amber (`#b45309`) across badges, buttons, and titles.
+- **Card & Button Boundaries**: Replaced faint semi-transparent borders with crisp `1.5px solid #cbd5e1` on choice cards, level strip buttons, and inputs.
+- **Dynamic Canvas Contrast**: Added `getContrastColor(color, isDark)` in `MotionVisualizer` so lines, runners, time cursor, ticks, and vehicle sprites render with high contrast on white canvas backgrounds.
+- **Theme Persistence**: Theme preference stored in `localStorage` and restored automatically on load.
+
+---
+
+## 2026-09-14 — Graded Webapp: Position vs. Time Graphing Studio (`Unit_2/position_time_graph_studio`)
+
+**Motivation**: Created a comprehensive, graded interactive physics web application for Unit 2 (Day 11: 2026-09-14) addressing all 6 required student learning targets:
+1. Slope is velocity (Rise over Run: `Δx / Δt`)
+2. Determining from a graph where along a 1D spatial number line a moving object is
+3. Comparing fast and slow movements on graphs (steepness & multi-agent races)
+4. Entering information into a data table based on a graph (reticle coordinate inspection)
+5. Creating a graph based on data in a data table (interactive grid plotting & simulation)
+6. Determining speed from a graph (scalar magnitude `|v|` vs directional velocity `v`)
+
+**Key Architecture & Features**:
+- **Dual-Canvas Synchronized Visualizer**: Upper (t, x) graph with reticle loupe and dynamic rise/run triangles, synchronized with lower 1D Number Line track featuring animated cyber rover and live velocity vector telemetry.
+- **Low Floor, High Ceiling Design**: 1 bite-sized question at a time, 5th-grade accessible reading level, box-counting scaffolding, and zero Greek formula barriers.
+- **Chromebook 1280x720 Zero-Scroll Optimization**: Compact single-bar header (44px), horizontal 6-level pill strip (34px), and height-capped canvases (graph: 185px-215px, track: 52px-64px). The entire interaction loop (dual canvases + question workspace + instant feedback) fits within standard 560px-600px Chromebook viewports with zero vertical scrolling needed.
+- **6 Graded Mastery Missions (100 Points Total)**: Progressive challenges with constructive diagnostic feedback, local storage backup, and highest attempt score retention.
+- **Interactive Grid Plotter (Mission 6)**: Point-to-grid snap plotting with line connecting and instant simulation playback.
+- **Free-Play Motion Sandbox**: Piecewise journey builder with presets and journey metrics (total distance, displacement, speed).
+- **Google Auth & Firestore Submission**: Hardcoded `ASSIGNMENT_ID = "Position_Time_Graph_Studio"` targeting `student_results`, `@orangeusd.org` domain enforcement, and printable Certificate of Kinematic Mastery.
+- **Zero-LaTeX Compliance**: Plain text and Unicode notation (`Δx`, `Δt`, `v = Δx / Δt`, `m/s`) throughout.
+- **Curriculum Integration**: Featured on `unit2-dashboard.html`, `assets/lessons-data.js`, `Unit_2/unit2_lessons.json`, `Unit_2/lesson.json`, and `Unit_2/outline.md`.
+
+---
+
 ## 2026-09-13 — Admin Data Export: Fully Dynamic Firestore Assignment Discovery
 
 **Motivation**: The `admin/data_export.html` Assessments & Archive tab used hard-coded `PRESETS` objects (Unit 1/2/6 assignment name lists) that required manual updates every time a new assignment was scanned or synced. Student result counts from `student_results` subcollections were not being fetched, showing "0 Scores" even when records existed.
