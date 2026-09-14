@@ -1483,8 +1483,8 @@ const lessonsData = [
       "phenomenon": {
         "title": "Desert Sprint Relay Telemetry",
         "type": "data_table",
-        "text": "Two robotic ground rovers (Rover Alpha and Rover Beta) travel along a straight survey track. Their positions over a 10.0-second sprint are recorded on a calibrated position-time graph.",
-        "description": "Two robotic ground rovers (Rover Alpha and Rover Beta) travel along a straight survey track. Their positions over a 10.0-second sprint are recorded on a calibrated position-time graph.",
+        "text": "Two robotic ground rovers (Rover Alpha and Rover Beta) travel along a straight survey track. Their positions over a 10.0-second sprint are recorded in the telemetry coordinate table.",
+        "description": "Two robotic ground rovers (Rover Alpha and Rover Beta) travel along a straight survey track. Their positions over a 10.0-second sprint are recorded in the telemetry coordinate table.",
         "dataTable": {
           "caption": "Rover Position-Time Coordinates",
           "headers": [
@@ -1595,13 +1595,13 @@ const lessonsData = [
         {
           "stepId": "step_3",
           "type": "ai_reasoning_chat",
-          "title": "Part 3: Defending the Graphical Why",
-          "prompt": "Discuss your reasoning with the AI Physics Mentor: How can someone immediately tell which rover moves faster just by looking at a graph line, and what does the moment they meet look like on a graph?",
-          "openingPrompt": "Nice job! Rover Alpha catches up to Rover Beta at t = 3.0 seconds. If you plot both rovers on a position-time graph, how can you immediately tell who is going faster just by looking at the lines (without doing any math)? And what does the moment they pass each other look like on the graph?",
+          "title": "Part 3: Explaining the Data Pattern",
+          "prompt": "Discuss your observations with the AI Physics Mentor: How can you tell from the telemetry table which rover covered ground faster, and what was happening at t = 3.0 s when they met?",
+          "openingPrompt": "Nice job! Rover Alpha caught up to Rover Beta at t = 3.0 seconds. Looking at the telemetry table, how can you prove to someone that Rover Alpha was moving faster during the first 4 seconds? And what was Rover Beta doing while Alpha caught up?",
           "minTurns": 1
         }
       ],
-      "teacherKey": "Step 1: +4.0 m/s (16 m / 4 s), at rest / stopped (velocity = 0 m/s), +2.0 m/s (12 m / 6 s). Step 2: 3.0 s (12.0 m / 4.0 m/s). Step 3: Low floor: Steeper line = moving faster; crossing lines = at the same place at the same time. High ceiling: Slope equals velocity (Δx/Δt). Intersection point represents identical (t, x) coordinates where paths cross in space and time."
+      "teacherKey": "Step 1: +4.0 m/s (16 m / 4 s), at rest / stopped (velocity = 0 m/s), +2.0 m/s (12 m / 6 s). Step 2: 3.0 s (12.0 m / 4.0 m/s). Step 3: Low floor: Alpha moved 16 m in 4 s (4 m every second), while Beta stayed frozen at 12 m (moved 0 m). High ceiling: Average velocity is rate of change of position (Δx/Δt). Alpha has a greater rate of change (4 m/s vs 0 m/s), allowing it to reach the 12.0 m mark at t = 3.0 s where both rovers share the exact same position."
     },
     "assignments": [
       {
