@@ -1270,32 +1270,32 @@ const unit2Lessons = [
         {
           "stepId": "step_1",
           "type": "cloze_dropdown",
-          "title": "Part 1: Identifying Segment Velocities",
-          "prompt": "Match each rover's motion characteristics based on the position-time coordinates:",
-          "text": "During the first 4.0 seconds, Rover Alpha travels at a velocity of [blank1], while Rover Beta is [blank2]. Between t = 4.0 s and t = 10.0 s, Rover Beta travels at a velocity of [blank3].",
+          "title": "Part 1: Reading Rover Motion States",
+          "prompt": "Examine the telemetry coordinates table to match each rover's physical state of motion and velocity (v = Δx / Δt):",
+          "text": "During the first 4.0 seconds, Rover Alpha moves from 0 m to 16 m at a steady velocity of [blank1]. During that same time, Rover Beta stays at position 12.0 m, meaning it is [blank2]. Between t = 4.0 s and t = 10.0 s, Rover Beta gains 12 m in 6 s (12 m / 6 s), traveling at a velocity of [blank3].",
           "blanks": {
             "blank1": {
-              "correct": "+4.0 m/s",
+              "correct": "+4.0 m/s (moves +16 m in 4 s)",
               "options": [
-                "+4.0 m/s",
-                "+2.0 m/s",
-                "+16.0 m/s"
+                "+4.0 m/s (moves +16 m in 4 s)",
+                "+2.0 m/s (moves +8 m in 4 s)",
+                "+16.0 m/s (moves +64 m in 4 s)"
               ]
             },
             "blank2": {
-              "correct": "at rest (velocity = 0 m/s)",
+              "correct": "at rest / stopped (velocity = 0 m/s)",
               "options": [
-                "at rest (velocity = 0 m/s)",
+                "at rest / stopped (velocity = 0 m/s)",
                 "moving forward at +3.0 m/s",
-                "reversing at -3.0 m/s"
+                "reversing backward at -3.0 m/s"
               ]
             },
             "blank3": {
-              "correct": "+2.0 m/s",
+              "correct": "+2.0 m/s (steady forward)",
               "options": [
-                "+2.0 m/s",
-                "+4.0 m/s",
-                "+1.2 m/s"
+                "+2.0 m/s (steady forward)",
+                "+4.0 m/s (speeding forward)",
+                "at rest (stopped)"
               ]
             }
           }
@@ -1304,23 +1304,23 @@ const unit2Lessons = [
           "stepId": "step_2",
           "type": "data_calculation",
           "title": "Part 2: Intercept Time Calculation",
-          "prompt": "Calculate the exact time in seconds when Rover Alpha passes Rover Beta (when Alpha reaches x = 12.0 m where Beta is paused).",
-          "inputLabel": "Intercept Time",
+          "prompt": "Rover Alpha travels forward at a constant 4.0 m/s starting from 0 m. Rover Beta is stopped ahead at the 12.0 m mark. How many seconds does it take for Rover Alpha to catch up and reach x = 12.0 m?",
+          "inputLabel": "Catch-Up Time (s):",
           "unit": "s",
           "targetValue": 3,
           "tolerance": 0.1,
-          "hint": "Rover Alpha starts at x = 0 m with constant velocity v = 4.0 m/s. Time = position / velocity = 12.0 m / (4.0 m/s)."
+          "hint": "Formula: Time = Distance / Velocity. Here: Time = 12.0 m / (4.0 m/s) = 3.0 seconds."
         },
         {
           "stepId": "step_3",
           "type": "ai_reasoning_chat",
           "title": "Part 3: Defending the Graphical Why",
-          "prompt": "Discuss your reasoning with the AI Physics Mentor: Explain how slope visually reveals speed and direction, and what the intersection of two lines represents on a position-time graph.",
-          "openingPrompt": "You found that Rover Alpha overtakes Rover Beta at t = 3.0 seconds! Looking at a position-time graph, how can you immediately tell who is moving faster just by looking at the lines, without doing any math? What does the intersection point of two lines physically mean?",
+          "prompt": "Discuss your reasoning with the AI Physics Mentor: How can someone immediately tell which rover moves faster just by looking at a graph line, and what does the moment they meet look like on a graph?",
+          "openingPrompt": "Nice job! Rover Alpha catches up to Rover Beta at t = 3.0 seconds. If you plot both rovers on a position-time graph, how can you immediately tell who is going faster just by looking at the lines (without doing any math)? And what does the moment they pass each other look like on the graph?",
           "minTurns": 1
         }
       ],
-      "teacherKey": "Step 1: +4.0 m/s, at rest (velocity = 0 m/s), +2.0 m/s. Step 2: 3.0 s (12.0 m / 4.0 m/s). Step 3: Claim: Steeper slope indicates greater velocity; the intersection point indicates identical position at that instant. Evidence: Alpha's slope is 4 m/s while Beta's is 0 m/s then 2 m/s. Their lines cross at (3.0 s, 12.0 m). Reasoning: Slope on an x-t graph is Δx/Δt (velocity). Steeper lines cover more distance per second. Crossing lines share the exact same spatial position at that time."
+      "teacherKey": "Step 1: +4.0 m/s (16 m / 4 s), at rest / stopped (velocity = 0 m/s), +2.0 m/s (12 m / 6 s). Step 2: 3.0 s (12.0 m / 4.0 m/s). Step 3: Low floor: Steeper line = moving faster; crossing lines = at the same place at the same time. High ceiling: Slope equals velocity (Δx/Δt). Intersection point represents identical (t, x) coordinates where paths cross in space and time."
     },
     "assignments": [
       {
