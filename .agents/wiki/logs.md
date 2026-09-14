@@ -2,6 +2,33 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-14 — Safari & iPadOS Touch/Pointer Event Precision Alignment (Level 6 Plotting)
+
+**Motivation**: iPad users running Safari reported that the optical loupe crosshair and touch point were misaligned on `https://rrmudry.github.io/Unit_2/position_time_graph_studio/index.html`, making it impossible to complete Level 6 ("Draw the Drive!").
+
+**Root Causes Identified**:
+1. **Non-Standard CSS `body { zoom: 0.9; }`**: WebKit/Safari handles CSS `zoom` differently from Blink. In `app.js`, dividing offset `mx` by `zoom` multiplied coordinates by $1.111$, causing 50–60px of reticle drift while `click` calculated unscaled `mx`, guaranteeing failed point snapping.
+2. **Missing Touch & Pointer Events on `#graphCanvas`**: The studio only listened to `mousemove` and `click`. On iPad Safari, finger drag initiates native page scrolling rather than `mousemove`, canceling taps and preventing students from aiming.
+3. **Finger Occlusion**: On touchscreens, the user's fingertip and hand occluded the bottom coordinate badge (`bottom: -22px`).
+
+**Key Architectural Changes**:
+- **CSS (`Unit_2/position_time_graph_studio/style.css`)**:
+  - Removed `zoom: 0.9;` from `body`.
+  - Added `#graphCanvas { touch-action: none; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }`.
+  - Added `.loupe-reticle.touch-aiming` styles: enlarges reticle to 76px and flips coordinate badge above finger (`top: -30px; bottom: auto;`).
+- **HTML (`Unit_2/position_time_graph_studio/index.html`)**:
+  - Added inline `style="touch-action: none;"` and `select-none` to `#graphCanvas`.
+- **JS (`Unit_2/position_time_graph_studio/js/app.js`)**:
+  - Unified mouse, touch, and Apple Pencil with the **Pointer Events API** (`pointerdown`, `pointermove`, `pointerup`, `pointercancel`, `pointerleave`).
+  - Positioned reticle relative to positioned parent container: `loupe.style.left = `${e.clientX - parentRect.left}px``, guaranteeing 1:1 physical centering at `(e.clientX, e.clientY)`.
+  - Added `plotPointAt(mx, my)` supporting both direct tapping and drag-to-aim with release-to-plot.
+  - Added live snap preview text in Level 6 (e.g. `2.9s, 8.8m [Snaps: 3s, 9m]`).
+  - Deduplicated synthetic `click` events with timestamp guard (`Date.now() - lastPointerActionTime < 650`).
+  - Added `orientationchange` listener for iPad rotation.
+- **Pattern Updated**: Added Section 10 to `.agents/wiki/patterns/position-time-graphing-studio.md`.
+
+---
+
 ## 2026-09-14 — Daily Update & Presentation Link Fix
 
 **Task**: Executed `/daily-update` routine for Monday, September 14, 2026 (Unit 2, Day 11).

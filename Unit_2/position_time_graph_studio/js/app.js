@@ -141,70 +141,190 @@
       const loupe = document.getElementById('loupeOverlay');
       const loupeCoord = document.getElementById('loupeCoordText');
 
-      this.graphCanvas.addEventListener('mousemove', (e) => {
+      let isPointerDown = false;
+      let lastPointerActionTime = 0;
+      let hideLoupeTimer = null;
+
+      const updateLoupe = (e) => {
         const rect = this.graphCanvas.getBoundingClientRect();
+        const parentRect = this.graphCanvas.parentElement.getBoundingClientRect();
         const mx = e.clientX - rect.left;
         const my = e.clientY - rect.top;
 
-        if (
-          mx >= this.padding.left &&
-          mx <= this.gWidth - this.padding.right &&
-          my >= this.padding.top &&
-          my <= this.gHeight - this.padding.bottom
-        ) {
+        // Tolerant margins to allow effortless tapping on edge axes (t=0, t=10, x=0, x=20)
+        const margin = 18;
+        const inBounds = (
+          mx >= this.padding.left - margin &&
+          mx <= this.gWidth - this.padding.right + margin &&
+          my >= this.padding.top - margin &&
+          my <= this.gHeight - this.padding.bottom + margin
+        );
+
+        if (inBounds && loupe && loupeCoord) {
+          loupe.classList.remove('hidden');
+
+          // Position reticle relative to positioned parent container (1:1 physical tracking)
+          const lx = e.clientX - parentRect.left;
+          const ly = e.clientY - parentRect.top;
+          loupe.style.left = `${lx}px`;
+          loupe.style.top = `${ly}px`;
+
+          // Apply touch-aiming styling on touch screens (offsets coordinates above finger)
+          const isTouch = e.pointerType === 'touch';
+          if (isTouch) {
+            loupe.classList.add('touch-aiming');
+          } else {
+            loupe.classList.remove('touch-aiming');
+          }
+
           const t = this.pixelToTime(mx);
           const x = this.pixelToPos(my);
 
-          if (loupe && loupeCoord) {
-            loupe.classList.remove('hidden');
-            const zoom = parseFloat(getComputedStyle(document.body).zoom) || 1;
-            loupe.style.left = `${mx / zoom}px`;
-            loupe.style.top = `${my / zoom}px`;
+          if (this.isPlottingMode) {
+            const snappedT = Math.round(t);
+            const snappedX = Math.round(x);
+            loupeCoord.textContent = `${t.toFixed(1)}s, ${x.toFixed(1)}m [Snaps: ${snappedT}s, ${snappedX}m]`;
+          } else {
             loupeCoord.textContent = `${t.toFixed(1)}s, ${x.toFixed(1)}m`;
           }
+          return { mx, my, inBounds: true };
         } else if (loupe) {
           loupe.classList.add('hidden');
+          loupe.classList.remove('touch-aiming');
+        }
+        return { mx, my, inBounds: false };
+      };
+
+      // Pointer Events (Unified Mouse, Touch, & Pen for Safari iPad / Chrome / Edge)
+      this.graphCanvas.addEventListener('pointerdown', (e) => {
+        if (e.button !== 0 && e.pointerType === 'mouse') return;
+
+        isPointerDown = true;
+        if (hideLoupeTimer) {
+          clearTimeout(hideLoupeTimer);
+          hideLoupeTimer = null;
+        }
+
+        try {
+          if (this.graphCanvas.setPointerCapture) {
+            this.graphCanvas.setPointerCapture(e.pointerId);
+          }
+        } catch (err) {}
+
+        const info = updateLoupe(e);
+
+        if (!this.isPlottingMode && info.inBounds) {
+          // Levels 1-5: Immediate scrubbing on pointerdown
+          const rawT = this.pixelToTime(info.mx);
+          this.pause();
+          this.setTime(Math.max(0, Math.min(this.tMax, rawT)));
         }
       });
 
-      this.graphCanvas.addEventListener('mouseleave', () => {
-        if (loupe) loupe.classList.add('hidden');
+      this.graphCanvas.addEventListener('pointermove', (e) => {
+        const info = updateLoupe(e);
+
+        if (isPointerDown && !this.isPlottingMode && info.inBounds) {
+          // Levels 1-5: Smooth real-time timeline scrubbing while dragging
+          const rawT = this.pixelToTime(info.mx);
+          this.pause();
+          this.setTime(Math.max(0, Math.min(this.tMax, rawT)));
+        }
       });
 
-      // Interactive Click Plotting (Level 6) OR Accessible Click-to-Scrub (Levels 1-5)
-      this.graphCanvas.addEventListener('click', (e) => {
+      this.graphCanvas.addEventListener('pointerup', (e) => {
+        if (!isPointerDown) return;
+        isPointerDown = false;
+
+        try {
+          if (this.graphCanvas.releasePointerCapture) {
+            this.graphCanvas.releasePointerCapture(e.pointerId);
+          }
+        } catch (err) {}
+
         const rect = this.graphCanvas.getBoundingClientRect();
         const mx = e.clientX - rect.left;
         const my = e.clientY - rect.top;
 
-        if (
-          mx >= this.padding.left &&
-          mx <= this.gWidth - this.padding.right &&
-          my >= this.padding.top &&
-          my <= this.gHeight - this.padding.bottom
-        ) {
-          const rawT = this.pixelToTime(mx);
-          const rawX = this.pixelToPos(my);
+        const margin = 18;
+        const inBounds = (
+          mx >= this.padding.left - margin &&
+          mx <= this.gWidth - this.padding.right + margin &&
+          my >= this.padding.top - margin &&
+          my <= this.gHeight - this.padding.bottom + margin
+        );
+
+        if (inBounds) {
+          lastPointerActionTime = Date.now();
 
           if (this.isPlottingMode) {
-            const snappedT = Math.round(rawT);
-            const snappedX = Math.round(rawX);
-
-            const existingIdx = this.plottedPoints.findIndex((p) => p.t === snappedT);
-            if (existingIdx >= 0) {
-              this.plottedPoints[existingIdx].x = snappedX;
-            } else if (this.plottedPoints.length < this.maxPlottedPoints) {
-              this.plottedPoints.push({ t: snappedT, x: snappedX });
-              this.plottedPoints.sort((a, b) => a.t - b.t);
-            }
-            sfx.click();
-            this.render();
-
-            if (window.studioApp && window.studioApp.onPointPlotted) {
-              window.studioApp.onPointPlotted(this.plottedPoints);
-            }
+            // Level 6: Plot point on tap OR drag-and-release
+            this.plotPointAt(mx, my);
           } else {
-            // Accessible Click-to-Scrub: snap to nearest integer if within 0.2s, else 0.1s
+            // Levels 1-5: Accessible click-to-scrub
+            const rawT = this.pixelToTime(mx);
+            const nearestInt = Math.round(rawT);
+            const finalT = Math.abs(rawT - nearestInt) < 0.2 ? nearestInt : Math.round(rawT * 10) / 10;
+            this.pause();
+            this.setTime(Math.max(0, Math.min(this.tMax, finalT)));
+            sfx.click();
+          }
+        }
+
+        // On touch screens, keep the loupe visible briefly for feedback, then hide
+        if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+          if (hideLoupeTimer) clearTimeout(hideLoupeTimer);
+          hideLoupeTimer = setTimeout(() => {
+            if (!isPointerDown && loupe) {
+              loupe.classList.add('hidden');
+              loupe.classList.remove('touch-aiming');
+            }
+          }, 800);
+        }
+      });
+
+      this.graphCanvas.addEventListener('pointercancel', (e) => {
+        isPointerDown = false;
+        try {
+          if (this.graphCanvas.releasePointerCapture) {
+            this.graphCanvas.releasePointerCapture(e.pointerId);
+          }
+        } catch (err) {}
+        if (loupe) {
+          loupe.classList.add('hidden');
+          loupe.classList.remove('touch-aiming');
+        }
+      });
+
+      this.graphCanvas.addEventListener('pointerleave', (e) => {
+        if (!isPointerDown && loupe) {
+          loupe.classList.add('hidden');
+          loupe.classList.remove('touch-aiming');
+        }
+      });
+
+      // Synthetic click deduplication and legacy fallback
+      this.graphCanvas.addEventListener('click', (e) => {
+        if (Date.now() - lastPointerActionTime < 650) {
+          e.preventDefault();
+          e.stopPropagation();
+          return;
+        }
+
+        const rect = this.graphCanvas.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+        const margin = 18;
+        if (
+          mx >= this.padding.left - margin &&
+          mx <= this.gWidth - this.padding.right + margin &&
+          my >= this.padding.top - margin &&
+          my <= this.gHeight - this.padding.bottom + margin
+        ) {
+          if (this.isPlottingMode) {
+            this.plotPointAt(mx, my);
+          } else {
+            const rawT = this.pixelToTime(mx);
             const nearestInt = Math.round(rawT);
             const finalT = Math.abs(rawT - nearestInt) < 0.2 ? nearestInt : Math.round(rawT * 10) / 10;
             this.pause();
@@ -213,6 +333,34 @@
           }
         }
       });
+
+      // Keep canvases sharp when iPad is rotated between portrait and landscape
+      window.addEventListener('orientationchange', () => {
+        setTimeout(() => this.resizeCanvases(), 150);
+      });
+    }
+
+    plotPointAt(mx, my) {
+      if (!this.isPlottingMode) return;
+
+      const rawT = this.pixelToTime(mx);
+      const rawX = this.pixelToPos(my);
+      const snappedT = Math.round(rawT);
+      const snappedX = Math.round(rawX);
+
+      const existingIdx = this.plottedPoints.findIndex((p) => p.t === snappedT);
+      if (existingIdx >= 0) {
+        this.plottedPoints[existingIdx].x = snappedX;
+      } else if (this.plottedPoints.length < this.maxPlottedPoints) {
+        this.plottedPoints.push({ t: snappedT, x: snappedX });
+        this.plottedPoints.sort((a, b) => a.t - b.t);
+      }
+      sfx.click();
+      this.render();
+
+      if (window.studioApp && window.studioApp.onPointPlotted) {
+        window.studioApp.onPointPlotted(this.plottedPoints);
+      }
     }
 
     setJourneySegments(segments) {
