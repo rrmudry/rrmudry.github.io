@@ -2,6 +2,20 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-13 — Admin Data Export: Fully Dynamic Firestore Assignment Discovery
+
+**Motivation**: The `admin/data_export.html` Assessments & Archive tab used hard-coded `PRESETS` objects (Unit 1/2/6 assignment name lists) that required manual updates every time a new assignment was scanned or synced. Student result counts from `student_results` subcollections were not being fetched, showing "0 Scores" even when records existed.
+
+**Key Changes**:
+- **Removed hard-coded PRESETS**: Replaced Unit 1/2/6 keyword-matching with dynamic source-based quick filters (`With Scores`, `Scanned (Gradest)`, `WebApp Labs`, `Assessments`, `All`).
+- **Subcollection count fetching**: `student_results` listener now fetches actual `students` subcollection `.size` for accurate score badge counts.
+- **Auto-select on load**: Assignments with scores are auto-selected on first page load via `applyPreset('with_scores')`.
+- **Removed row caps**: Table previews no longer cap at 30 (SUM) or 50 (DETAILED) rows — all students are shown.
+
+**Pattern**: Assignment discovery is fully driven by Firestore `onSnapshot` listeners on `gradest_assignments`, `student_results`, and `assessments` collections. No assignment names need to be hard-coded anywhere.
+
+---
+
 ## 2026-09-13 — Data Architecture & Grade Sync: Google Classroom Grade Ingestion & Complete Firestore Sync for Constant Speed Story
 
 **Motivation**: Scanned student grades for *Constant Speed Story: Author & Solve* from Friday had been entered into Google Classroom across Periods 0–6 (124 graded submissions), but because previous sync scripts operated only from Firestore to Google Classroom, the Firestore collections (`gradest_assignments` and `student_results`) remained unpopulated except for a single manual record. Furthermore, `sync-cli.js` evaluated raw 10-point scale scores as raw percentages (10/100 = 10%), risking inaccurate down-scaling.
