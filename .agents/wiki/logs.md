@@ -13,7 +13,10 @@ Append-only log tracking pattern changes across sessions.
     - `at rest / stopped (velocity = 0 m/s)`
     - `+2.0 m/s (steady forward)`
   - **Part 2 (Catch-Up Time)**: Re-framed abstract mathematical intercept syntax into an intuitive catch-up scenario: *"Rover Alpha travels forward at 4.0 m/s starting from 0 m. Rover Beta is stopped ahead at the 12.0 m mark. How many seconds does it take for Rover Alpha to catch up?"* Added an explicit formula guide: `Time = Distance / Velocity = 12.0 m / (4.0 m/s) = 3.0 s`.
-  - **Part 3 (AI Conceptual Chat)**: Replaced high-barrier academic questions with visual, relatable questions: *"How can you immediately tell who is going faster just by looking at the lines without doing math? What does the moment they meet look like on a graph?"*
+  - **Part 3 (AI Conceptual Chat)**: Aligned directly to the visible telemetry table (removing confusing references to graph slope or graph lines that have not been taught yet):
+    - Title: *"Part 3: Explaining the Data Pattern"*
+    - Prompt: *"Discuss your observations with the AI Physics Mentor: How can you tell from the telemetry table which rover covered ground faster, and what was happening at t = 3.0 s when they met?"*
+    - Opening: *"Nice job! Rover Alpha caught up to Rover Beta at t = 3.0 seconds. Looking at the telemetry table, how can you prove to someone that Rover Alpha was moving faster during the first 4 seconds? And what was Rover Beta doing while Alpha caught up?"*
 - **High Ceiling (Deep Extension for Advanced Students)**:
   - Students connect visual steepness to quantitative slope (`v = Δx / Δt`) and graph intersections to simultaneous coordinate equations `x(t) = x_0 + v*t`.
 - **Synchronized Across Platform**:
