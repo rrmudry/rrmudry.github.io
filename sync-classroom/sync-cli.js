@@ -297,14 +297,24 @@ async function fetchAssignmentScores(assignmentId, rosterMap) {
               : (rosterInfo.period !== undefined && rosterInfo.period !== null && rosterInfo.period !== 'N/A' && rosterInfo.period !== '' ? rosterInfo.period : '---');
             const cleanPeriod = (rawPeriod !== undefined && rawPeriod !== null && rawPeriod !== '') ? String(rawPeriod) : '---';
 
-            let rawScore = 0;
-            if (data.score !== undefined) {
-              rawScore = Number(data.score);
+            let rawPct = 0;
+            if (data.percentage !== undefined && data.percentage !== null) {
+              rawPct = Number(data.percentage);
+            } else if (data.score !== undefined && data.score !== null) {
+              const numScore = Number(data.score);
+              const max = Number(data.maxScore || data.maxPoints || 0);
+              if (max > 0 && max <= 15) {
+                rawPct = Math.round((numScore / max) * 100);
+              } else if (numScore <= 15 && numScore > 0) {
+                rawPct = Math.round((numScore / 10) * 100);
+              } else {
+                rawPct = numScore;
+              }
             } else if (data.isCompleted) {
-              rawScore = 100;
+              rawPct = 100;
             } else if (data.labState && data.labState.currentStep) {
               const step = data.labState.currentStep;
-              rawScore = step >= 5 ? 85 : (step >= 3 ? 70 : (step >= 2 ? 60 : 50));
+              rawPct = step >= 5 ? 85 : (step >= 3 ? 70 : (step >= 2 ? 60 : 50));
             }
 
             students.push({
@@ -312,7 +322,7 @@ async function fetchAssignmentScores(assignmentId, rosterMap) {
               name: data.student_name || data.studentName || rosterInfo.name || `Student ${sId}`,
               email: rosterInfo.email || `${sId}@orangeusd.org`,
               period: cleanPeriod,
-              rawPercentage: rawScore
+              rawPercentage: rawPct
             });
           }
         });
@@ -338,12 +348,27 @@ async function fetchAssignmentScores(assignmentId, rosterMap) {
                 : (rosterInfo.period !== undefined && rosterInfo.period !== null && rosterInfo.period !== 'N/A' && rosterInfo.period !== '' ? rosterInfo.period : '---');
               const cleanPeriod = (rawPeriod !== undefined && rawPeriod !== null && rawPeriod !== '') ? String(rawPeriod) : '---';
 
+              let rawPct = 0;
+              if (g.percentage !== undefined && g.percentage !== null) {
+                rawPct = Number(g.percentage);
+              } else if (g.score !== undefined && g.score !== null) {
+                const numScore = Number(g.score);
+                const max = Number(g.maxPoints || g.maxScore || data.maxPoints || data.maxScore || 0);
+                if (max > 0 && max <= 15) {
+                  rawPct = Math.round((numScore / max) * 100);
+                } else if (numScore <= 15 && numScore > 0) {
+                  rawPct = Math.round((numScore / 10) * 100);
+                } else {
+                  rawPct = numScore;
+                }
+              }
+
               students.push({
                 studentId: sId,
                 name: g.name || rosterInfo.name || `Student ${sId}`,
                 email: rosterInfo.email || `${sId}@orangeusd.org`,
                 period: cleanPeriod,
-                rawPercentage: Number(g.percentage !== undefined ? g.percentage : (g.score || 0))
+                rawPercentage: rawPct
               });
             }
           });
@@ -704,6 +729,185 @@ async function syncAssignment({
 }
 
 // ---------------------------------------------------------------------
+// 8.5. Pull Grades From Google Classroom into Firestore
+// ---------------------------------------------------------------------
+async function handlePullFromClassroom(targetQuery, filterPeriod, isDryRun) {
+  console.log(`\n📥 INITIATING CLASSROOM -> FIRESTORE GRADE PULL`);
+  console.log(`Target: ${targetQuery ? `"${targetQuery}"` : 'ALL Coursework'} | Period: ${filterPeriod !== null ? `P${filterPeriod}` : 'All Periods'} | Mode: ${isDryRun ? 'DRY-RUN' : 'LIVE WRITE'}`);
+
+  const classroom = getClassroomClient();
+  const rosterMap = await fetchRosterMap();
+
+  process.stdout.write('⏳ Fetching active Google Classroom courses...');
+  const coursesRes = await classroom.courses.list({ courseStates: ['ACTIVE'], pageSize: 100 });
+  const courses = coursesRes.data.courses || [];
+  console.log(` Found ${courses.length} courses.`);
+
+  const periodCourses = new Map();
+  for (const c of courses) {
+    const p = extractPeriod(c.name);
+    if (p !== null && !periodCourses.has(p)) {
+      periodCourses.set(p, c);
+    }
+  }
+
+  const periodsToPull = filterPeriod !== null ? [filterPeriod] : [0, 1, 2, 3, 4, 5, 6];
+  const pulledByCw = new Map();
+  const userProfileCache = new Map();
+
+  for (const p of periodsToPull) {
+    const course = periodCourses.get(p);
+    if (!course) continue;
+
+    try {
+      const cwRes = await classroom.courses.courseWork.list({ courseId: course.id, pageSize: 100 });
+      const cws = cwRes.data.courseWork || [];
+
+      for (const cw of cws) {
+        if (targetQuery && !cw.title.toLowerCase().includes(targetQuery.toLowerCase())) {
+          continue;
+        }
+
+        if (!pulledByCw.has(cw.title)) {
+          pulledByCw.set(cw.title, {
+            title: cw.title,
+            maxPoints: cw.maxPoints || 10,
+            grades: new Map()
+          });
+        }
+        const cwBucket = pulledByCw.get(cw.title);
+
+        let subs = [];
+        let pageToken = null;
+        do {
+          const sRes = await classroom.courses.courseWork.studentSubmissions.list({
+            courseId: course.id,
+            courseWorkId: cw.id,
+            pageToken: pageToken
+          });
+          if (sRes.data.studentSubmissions) subs.push(...sRes.data.studentSubmissions);
+          pageToken = sRes.data.nextPageToken;
+        } while (pageToken);
+
+        let stuMap = new Map();
+        let stuPageToken = null;
+        do {
+          const stuRes = await classroom.courses.students.list({ courseId: course.id, pageToken: stuPageToken });
+          if (stuRes.data.students) {
+            stuRes.data.students.forEach(s => stuMap.set(s.userId, s.profile));
+          }
+          stuPageToken = stuRes.data.nextPageToken;
+        } while (stuPageToken);
+
+        for (const s of subs) {
+          const hasScore = (s.assignedGrade !== undefined && s.assignedGrade !== null) ||
+                           (s.draftGrade !== undefined && s.draftGrade !== null && s.draftGrade > 0);
+          if (!hasScore) continue;
+
+          let profile = stuMap.get(s.userId) || userProfileCache.get(s.userId);
+          if (!profile || !profile.emailAddress) {
+            try {
+              const uRes = await classroom.userProfiles.get({ userId: s.userId });
+              profile = uRes.data;
+              userProfileCache.set(s.userId, profile);
+            } catch (err) {}
+          }
+
+          const email = profile ? profile.emailAddress : '';
+          const studentId = email ? email.split('@')[0] : s.userId;
+          if (!studentId) continue;
+
+          const rosterInfo = rosterMap.get(studentId) || rosterMap.get(email.toLowerCase());
+          const name = rosterInfo?.name || (profile ? profile.name?.fullName : `Student ${studentId}`);
+          const score = s.assignedGrade !== undefined && s.assignedGrade !== null ? s.assignedGrade : s.draftGrade;
+          const maxPts = cw.maxPoints || 10;
+          const pct = Math.round((score / maxPts) * 100);
+
+          const existing = cwBucket.grades.get(studentId);
+          if (!existing || score > existing.score) {
+            cwBucket.grades.set(studentId, {
+              id: studentId,
+              name: name,
+              score: score,
+              maxPoints: maxPts,
+              percentage: pct,
+              period: String(p),
+              status: 'Valid',
+              state: s.state,
+              timestamp: s.updateTime || new Date().toISOString()
+            });
+          }
+        }
+      }
+    } catch (e) {
+      console.warn(`Error pulling Period ${p}:`, e.message);
+    }
+  }
+
+  console.log(`\nFound ${pulledByCw.size} matching coursework assignments:`);
+  for (const [title, data] of pulledByCw.entries()) {
+    const list = Array.from(data.grades.values()).sort((a, b) => (a.period || '').localeCompare(b.period || '') || a.name.localeCompare(b.name));
+    console.log(`\n📁 Coursework: "${title}" -> ${list.length} student scores found.`);
+
+    if (list.length === 0) continue;
+
+    if (isDryRun) {
+      console.log(`   [DRY-RUN] Would write ${list.length} scores to Firestore collections.`);
+      continue;
+    }
+
+    const payload = {
+      assignmentName: title,
+      assignmentDetails: 'Classroom pulled grades',
+      maxScore: data.maxPoints,
+      maxPoints: data.maxPoints,
+      grades: list,
+      sourceType: 'classroom_pull',
+      userEmail: 'rmudry@orangeusd.org',
+      isProctorAssessment: false,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    };
+
+    await db.collection('gradest_assignments').doc(title).set(payload, { merge: true });
+    const altKey = title.replace(/:/g, '').trim();
+    if (altKey !== title) {
+      await db.collection('gradest_assignments').doc(altKey).set(payload, { merge: true });
+    }
+
+    const srDocKey = title.replace(/[^a-zA-Z0-9]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
+    await db.collection('student_results').doc(srDocKey).set({
+      assignment_name: title,
+      maxScore: data.maxPoints,
+      has_subcollection: true,
+      total_submissions: list.length,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+
+    const batch = db.batch();
+    list.forEach(g => {
+      const sRef = db.collection('student_results').doc(srDocKey).collection('students').doc(g.id);
+      batch.set(sRef, {
+        student_id: g.id,
+        student_name: g.name,
+        class_period: g.period,
+        score: g.score,
+        maxScore: g.maxPoints,
+        percentage: g.percentage,
+        isCompleted: true,
+        status: g.status,
+        state: g.state,
+        timestamp: g.timestamp
+      }, { merge: true });
+    });
+    await batch.commit();
+
+    console.log(`   ✓ Wrote ${list.length} scores to gradest_assignments & student_results/${srDocKey}`);
+  }
+
+  console.log('\n🎉 Classroom pull complete!\n');
+}
+
+// ---------------------------------------------------------------------
 // 9. Main Sync Execution
 // ---------------------------------------------------------------------
 async function main() {
@@ -712,6 +916,7 @@ async function main() {
   const isListOnly = args.includes('--list') || args.includes('-l');
   const isForce = args.includes('--force') || args.includes('-f');
   const isExplicitAll = args.includes('--all') || args.includes('-a');
+  const isPull = args.includes('--pull');
 
   const periodArg = args.find(a => a.startsWith('--period=') || a.startsWith('-p='));
   let filterPeriod = null;
@@ -730,6 +935,12 @@ async function main() {
   console.log('\n========================================================================');
   console.log('       MUDRY GOOGLE CLASSROOM GRADEBOOK HEADLESS SYNC');
   console.log('========================================================================');
+
+  // Pull mode: Import from Google Classroom to Firestore
+  if (isPull) {
+    await handlePullFromClassroom(targetQuery, filterPeriod, isDryRun);
+    process.exit(0);
+  }
 
   // List mode
   if (isListOnly) {

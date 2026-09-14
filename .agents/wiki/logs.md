@@ -2,6 +2,20 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-13 — Data Architecture & Grade Sync: Google Classroom Grade Ingestion & Complete Firestore Sync for Constant Speed Story
+
+**Motivation**: Scanned student grades for *Constant Speed Story: Author & Solve* from Friday had been entered into Google Classroom across Periods 0–6 (124 graded submissions), but because previous sync scripts operated only from Firestore to Google Classroom, the Firestore collections (`gradest_assignments` and `student_results`) remained unpopulated except for a single manual record. Furthermore, `sync-cli.js` evaluated raw 10-point scale scores as raw percentages (10/100 = 10%), risking inaccurate down-scaling.
+
+**Key Changes**:
+- **Bidirectional Grade Ingestion (`handlePullFromClassroom` & `--pull`)**:
+  - Implemented `handlePullFromClassroom` in `sync-classroom/sync-cli.js` and added `npm run pull` / `npm run pull:dry` scripts.
+  - Automatically queries Google Classroom coursework across active periods, handles student profile pagination and fallback direct lookups, maps student emails (`id@orangeusd.org`) to roster Perm IDs, and writes complete score arrays to both `gradest_assignments` and `student_results/{assignment}/students/{studentId}`.
+  - Successfully ingested all **124 graded student records** for *Constant Speed Story: Author & Solve* across Periods 0–6 into Firestore with authentic scores (10/10, 9/10, 8/10).
+- **Scale Normalization Fix in `sync-cli.js`**:
+  - Fixed `fetchAssignmentScores()` in `sync-classroom/sync-cli.js` to inspect `data.percentage` before `data.score`, and dynamically normalize small-scale point values (<= 15 pts) to 0–100 percentage values, ensuring 10/10 scores evaluate to 100% rather than 10%.
+- **Live Admin Data Export Tool (`admin/data_export.html`)**:
+  - The dynamic real-time Firestore listener immediately registers all 124 students under *Constant Speed Story: Author & Solve* with the `[124 Scores]` badge, fully previewable and filterable by Period 0–6 for instant Aeries CSV export.
+
 ## 2026-09-13 — Data Architecture: Real-Time Dynamic Firestore Assignment & Gradebook Hub (`admin/data_export.html`)
 
 **Motivation**: Previously, `admin/data_export.html` relied on static hardcoded arrays and only scanned legacy `student_results` documents via a one-off `.get()`, failing to detect assignments in `gradest_assignments` (like *Constant Speed Story*, *Fantasy Maps*, *Quiz 1*) or newly created teacher assignments.
