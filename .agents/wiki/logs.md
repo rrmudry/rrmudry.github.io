@@ -2,6 +2,32 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-14 — Fix: CAST Telemetry & Data Table Stimulus Schema Resilience
+
+**Motivation**: On Monday's Bell-Ringer, the Desert Sprint Relay telemetry table and scenario narrative were not rendering in the left stimulus container, showing a blank column.
+
+**Root Cause**:
+- Schema mismatch between lesson curriculum authoring and the item rendering engine:
+  - Day 11 authored `phenomenon.description` and `phenomenon.stimulus: { type: "data_table", ... }`.
+  - `assets/js/cast-item-engine.js` was specifically checking for `phenomenon.text` and `phenomenon.dataTable`.
+  - As a result, narrative context was skipped and the stimulus container fell into the fallback `classList.add('hidden')`.
+  - In addition, teacher launcher (`Bell-Ringer/teacher.html`) and live projection (`Bell-Ringer/dashboard.html`) lacked fallback handling for `description` and in-dashboard rendering for `data_table`.
+
+**Key Changes**:
+- **`assets/js/cast-item-engine.js`**:
+  - Context narrative now checks `ch.phenomenon?.text || ch.phenomenon?.description || ch.phenomenon?.scenario`.
+  - Stimulus detection now supports `phen.type === 'data_table' || phen.dataTable || (phen.stimulus && (phen.stimulus.type === 'data_table' || phen.stimulus.headers))`.
+  - Extracts table metadata cleanly via `const table = phen.dataTable || phen.stimulus || {};`.
+- **Curriculum Harmonization**:
+  - Updated `Unit_2/unit2_lessons.json`, `Unit_2/lesson.json`, and `assets/lessons-data.js` Day 11 definitions to provide both standard (`text`, `type: "data_table"`, `dataTable`) and legacy fields (`description`, `stimulus`) for full bidirectional compatibility.
+- **Teacher UI & Projection Dashboard**:
+  - `Bell-Ringer/teacher.html`: Populates and launches with both `text` and `description`.
+  - `Bell-Ringer/dashboard.html`: Added dedicated data table rendering in `#dashboard-phenomenon-table` within the aspect-video anchor card.
+- **Live Firestore Session**:
+  - Directly patched the active `system_config/bellringer_timer` document so open client sessions instantly receive both the narrative and the telemetry table on refresh.
+
+---
+
 ## 2026-09-14 — Classroom Deployment: "Position vs. Time Graphing Practice" (Periods 0–6)
 
 **Motivation**: The teacher requested creating the Google Classroom assignment for Periods 0 through 6 for the newly built Position vs. Time Graphing Practice studio, scheduled for Monday, September 14 at 6:00 PM PDT, worth 10 points.

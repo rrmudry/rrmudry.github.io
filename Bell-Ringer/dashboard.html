@@ -210,6 +210,7 @@
                 <div class="flex-grow aspect-video bg-slate-950/80 rounded-2xl border border-white/5 overflow-hidden flex items-center justify-center relative">
                     <img id="dashboard-phenomenon-img" src="" alt="Active Phenomenon Anchor" class="w-full h-full object-contain hidden">
                     <div id="dashboard-phenomenon-graph" class="w-full h-full p-2 hidden relative"></div>
+                    <div id="dashboard-phenomenon-table" class="w-full h-full p-2 hidden overflow-auto flex items-center justify-center"></div>
                     <div id="dashboard-phenomenon-placeholder" class="text-slate-600 text-center p-4">
                         <span class="text-4xl block">📊</span>
                         <p class="text-xs font-semibold uppercase tracking-wider mt-2">Refer to Projection Screen</p>
@@ -526,9 +527,10 @@
                             castBadgesEl.innerHTML = badgesHtml;
                         }
 
-                        if (castData?.phenomenon?.text && passageEl) {
+                        const phenomScenario = castData?.phenomenon?.text || castData?.phenomenon?.description || data.phenomenonDesc;
+                        if (phenomScenario && passageEl) {
                             passageEl.classList.remove('hidden');
-                            passageEl.innerHTML = `<span class="font-bold text-cyan-400 uppercase tracking-wider block text-[10px] mb-1">Authentic Phenomenon Scenario:</span>${escapeHtml(castData.phenomenon.text)}`;
+                            passageEl.innerHTML = `<span class="font-bold text-cyan-400 uppercase tracking-wider block text-[10px] mb-1">Authentic Phenomenon Scenario:</span>${escapeHtml(phenomScenario)}`;
                         } else if (passageEl) {
                             passageEl.classList.add('hidden');
                         }
@@ -542,16 +544,21 @@
                         if (verifTypeEl) verifTypeEl.innerText = "Verification Type: AI Good-Faith Gatekeeper";
                     }
                     
-                    // Phenomenon image or graph
+                    // Phenomenon image, graph, or data table
                     const imgEl = document.getElementById('dashboard-phenomenon-img');
                     const graphEl = document.getElementById('dashboard-phenomenon-graph');
+                    const tableEl = document.getElementById('dashboard-phenomenon-table');
                     const placeholderEl = document.getElementById('dashboard-phenomenon-placeholder');
 
                     const isGraphData = (data.activityType === 'graph_interpretation' || data.graphData || (data.castData && data.castData.phenomenon && data.castData.phenomenon.graphData));
                     const resolvedGraphData = data.graphData || (data.castData && data.castData.phenomenon && data.castData.phenomenon.graphData);
 
+                    const phenomObj = data.castData?.phenomenon;
+                    const resolvedTableData = phenomObj?.dataTable || (phenomObj?.stimulus && (phenomObj.stimulus.type === 'data_table' || phenomObj.stimulus.headers) ? phenomObj.stimulus : (phenomObj?.type === 'data_table' ? phenomObj : null));
+
                     if (isGraphData && resolvedGraphData) {
                         imgEl.classList.add('hidden');
+                        if (tableEl) tableEl.classList.add('hidden');
                         placeholderEl.classList.add('hidden');
                         graphEl.classList.remove('hidden');
 
@@ -561,9 +568,75 @@
                         } else {
                             window.dashboardGraphEngine.update(gData);
                         }
+                    } else if (resolvedTableData && tableEl) {
+                        if (window.dashboardGraphEngine) { window.dashboardGraphEngine.destroy(); window.dashboardGraphEngine = null; }
+                        graphEl.classList.add('hidden');
+                        imgEl.classList.add('hidden');
+                        placeholderEl.classList.add('hidden');
+                        tableEl.classList.remove('hidden');
+
+                        const caption = resolvedTableData.caption || resolvedTableData.title || "";
+                        const headers = resolvedTableData.headers || [];
+                        const rawRows = resolvedTableData.rows || [];
+                        let rowsArray = rawRows;
+                        if (typeof rawRows === "string") {
+                            try { rowsArray = JSON.parse(rawRows); } catch(e) { rowsArray = []; }
+                        }
+                        if (!Array.isArray(rowsArray) && typeof rowsArray === "object" && rowsArray !== null) {
+                            const sortedKeys = Object.keys(rowsArray).sort((a, b) => {
+                                const na = parseInt(a.replace(/\D/g, ''), 10);
+                                const nb = parseInt(b.replace(/\D/g, ''), 10);
+                                if (!isNaN(na) && !isNaN(nb)) return na - nb;
+                                return a.localeCompare(b);
+                            });
+                            rowsArray = sortedKeys.map(k => rowsArray[k]);
+                        }
+                        if (!Array.isArray(rowsArray)) rowsArray = [];
+
+                        const rows = rowsArray.map(row => {
+                            if (Array.isArray(row)) return row;
+                            if (row && typeof row === 'object') {
+                                if (Array.isArray(row.cells)) return row.cells;
+                                if (Array.isArray(row.cols)) return row.cols;
+                                const keys = Object.keys(row).sort((a, b) => {
+                                    const na = parseInt(a.replace(/\D/g, ''), 10);
+                                    const nb = parseInt(b.replace(/\D/g, ''), 10);
+                                    if (!isNaN(na) && !isNaN(nb)) return na - nb;
+                                    return a.localeCompare(b);
+                                });
+                                return keys.map(k => row[k]);
+                            }
+                            return [String(row ?? "")];
+                        });
+
+                        tableEl.innerHTML = `
+                            <div class="w-full flex flex-col justify-center max-w-md">
+                                ${caption ? `<div class="text-[11px] font-mono font-bold text-cyan-400 uppercase tracking-wider mb-1.5 flex items-center gap-1"><span>📊</span> ${escapeHtml(caption)}</div>` : ''}
+                                <div class="w-full overflow-x-auto rounded-lg border border-white/10 shadow-md">
+                                    <table class="w-full text-left border-collapse text-xs">
+                                        <thead class="bg-slate-800 text-cyan-300 font-mono text-[11px]">
+                                            <tr>
+                                                ${headers.map(h => `<th class="px-2.5 py-1.5 border-b border-white/10 font-bold">${escapeHtml(h)}</th>`).join('')}
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-white/5 bg-slate-950/80 text-slate-200">
+                                            ${rows.map((row, rIdx) => {
+                                                const cells = Array.isArray(row) ? row : (row && typeof row === 'object' ? Object.values(row) : [String(row ?? "")]);
+                                                return `
+                                                    <tr class="${rIdx % 2 === 0 ? 'bg-slate-900/40' : 'bg-slate-950/60'}">
+                                                        ${cells.map(cell => `<td class="px-2.5 py-1.5 font-medium">${escapeHtml(String(cell))}</td>`).join('')}
+                                                    </tr>
+                                                `;
+                                            }).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        `;
                     } else if (data.phenomenonImageUrl || (data.castData && data.castData.phenomenon && data.castData.phenomenon.imageUrl)) {
                         if (window.dashboardGraphEngine) { window.dashboardGraphEngine.destroy(); window.dashboardGraphEngine = null; }
                         graphEl.classList.add('hidden');
+                        if (tableEl) tableEl.classList.add('hidden');
                         imgEl.src = data.phenomenonImageUrl || data.castData.phenomenon.imageUrl;
                         imgEl.classList.remove('hidden');
                         placeholderEl.classList.add('hidden');
@@ -571,6 +644,7 @@
                         if (window.dashboardGraphEngine) { window.dashboardGraphEngine.destroy(); window.dashboardGraphEngine = null; }
                         graphEl.classList.add('hidden');
                         imgEl.classList.add('hidden');
+                        if (tableEl) tableEl.classList.add('hidden');
                         placeholderEl.classList.remove('hidden');
                         if (activeActivityType === 'connections') {
                             placeholderEl.innerHTML = `
