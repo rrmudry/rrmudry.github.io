@@ -64,11 +64,15 @@ Both canvases run off a shared state model:
 - When an object stops (Δx = 0), the graph draws a horizontal line while the sprite halts on the track.
 - When an object reverses (v < 0), the graph slopes downward while the sprite drives backward with a reversed vector arrow.
 
-### B. Interactive Grid Plotting (Mission 6)
-In Mission 6, `visualizer.enablePlottingMode()` allows students to click on the canvas:
-- Raw pixel coordinates (mx, my) are mapped to mathematical coordinates (t, x).
-- Snapping rounds to the nearest integer (t, x) to prevent fractional trackpad alignment frustration on Chromebooks.
-- Plotted points sort chronologically by t, render connecting dashed lines, and once verified, animate the rover along the student's custom curve.
+### B. Interactive Grid Plotting & Draggable Datapoints (Mission 6)
+In Mission 6, `visualizer.enablePlottingMode()` allows students to click or drag on the canvas:
+- **Click or Tap to Place**: Click/tap on empty grid space places a new point (up to 4 points).
+- **Universal Draggable Datapoints**: Any plotted point can be grabbed and dragged by mouse, trackpad, or touchscreen:
+  - Hit testing identifies nearest point within 22px (mouse) or 35px (touch).
+  - While dragging, the point, coordinate HUD, and connecting dashed path update fluidly in real-time.
+  - On release (`pointerup`), the point snaps to integer grid values `(snappedT, snappedX)` and re-sorts chronologically.
+  - Hover cursor shifts dynamically from `crosshair` to `grab` and `grabbing`.
+  - Tactile visual rings (10px ring, 14px hover glow, 17px amber drag aura) make draggable affordances clear immediately.
 
 ### C. Slope Triangle Overlay
 During Mission 2, `setSlopeTriangle(p1, p2, labelRise, labelRun)` renders:

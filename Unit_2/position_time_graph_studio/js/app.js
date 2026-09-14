@@ -99,6 +99,8 @@
       this.isPlottingMode = false;
       this.plottedPoints = [];
       this.maxPlottedPoints = 4;
+      this.draggingPointIdx = null;
+      this.hoveredPointIdx = null;
 
       // Slope triangle overlay
       this.slopeTriangle = null; // { p1: {t, x}, p2: {t, x}, labelRise, labelRun }
@@ -183,7 +185,11 @@
           if (this.isPlottingMode) {
             const snappedT = Math.round(t);
             const snappedX = Math.round(x);
-            loupeCoord.textContent = `${t.toFixed(1)}s, ${x.toFixed(1)}m [Snaps: ${snappedT}s, ${snappedX}m]`;
+            if (this.draggingPointIdx !== null && this.draggingPointIdx >= 0) {
+              loupeCoord.textContent = `Move: ${t.toFixed(1)}s, ${x.toFixed(1)}m → [${snappedT}s, ${snappedX}m]`;
+            } else {
+              loupeCoord.textContent = `${t.toFixed(1)}s, ${x.toFixed(1)}m [Snaps: ${snappedT}s, ${snappedX}m]`;
+            }
           } else {
             loupeCoord.textContent = `${t.toFixed(1)}s, ${x.toFixed(1)}m`;
           }
@@ -211,6 +217,23 @@
           }
         } catch (err) {}
 
+        const rect = this.graphCanvas.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+        const isTouch = e.pointerType === 'touch' || e.pointerType === 'pen';
+
+        if (this.isPlottingMode) {
+          // Check if touching/clicking on an existing plotted point to drag it
+          const hitIdx = this.findPlottedPointAt(mx, my, isTouch);
+          if (hitIdx >= 0) {
+            this.draggingPointIdx = hitIdx;
+            this.graphCanvas.style.cursor = 'grabbing';
+            this.render();
+          } else {
+            this.draggingPointIdx = null;
+          }
+        }
+
         const info = updateLoupe(e);
 
         if (!this.isPlottingMode && info.inBounds) {
@@ -222,6 +245,33 @@
       });
 
       this.graphCanvas.addEventListener('pointermove', (e) => {
+        const rect = this.graphCanvas.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+        const isTouch = e.pointerType === 'touch' || e.pointerType === 'pen';
+
+        if (this.isPlottingMode) {
+          if (isPointerDown && this.draggingPointIdx !== null && this.draggingPointIdx >= 0) {
+            // Live point dragging! Update position continuously
+            const rawT = this.pixelToTime(mx);
+            const rawX = this.pixelToPos(my);
+
+            if (this.plottedPoints[this.draggingPointIdx]) {
+              this.plottedPoints[this.draggingPointIdx].t = rawT;
+              this.plottedPoints[this.draggingPointIdx].x = rawX;
+              this.render();
+            }
+          } else if (!isPointerDown) {
+            // Hover indication on desktop/trackpad
+            const hitIdx = this.findPlottedPointAt(mx, my, false);
+            if (hitIdx !== this.hoveredPointIdx) {
+              this.hoveredPointIdx = hitIdx;
+              this.render();
+            }
+            this.graphCanvas.style.cursor = hitIdx >= 0 ? 'grab' : 'crosshair';
+          }
+        }
+
         const info = updateLoupe(e);
 
         if (isPointerDown && !this.isPlottingMode && info.inBounds) {
@@ -258,8 +308,34 @@
           lastPointerActionTime = Date.now();
 
           if (this.isPlottingMode) {
-            // Level 6: Plot point on tap OR drag-and-release
-            this.plotPointAt(mx, my);
+            if (this.draggingPointIdx !== null && this.draggingPointIdx >= 0) {
+              // Finish dragging point: snap cleanly to nearest integer grid intersection
+              const rawT = this.pixelToTime(mx);
+              const rawX = this.pixelToPos(my);
+              const snappedT = Math.round(rawT);
+              const snappedX = Math.round(rawX);
+
+              const draggedPt = this.plottedPoints[this.draggingPointIdx];
+              if (draggedPt) {
+                // If another point already occupies snappedT, filter it out to keep unique time steps
+                this.plottedPoints = this.plottedPoints.filter((p, idx) => idx === this.draggingPointIdx || p.t !== snappedT);
+                draggedPt.t = snappedT;
+                draggedPt.x = snappedX;
+                this.plottedPoints.sort((a, b) => a.t - b.t);
+              }
+
+              this.draggingPointIdx = null;
+              this.graphCanvas.style.cursor = 'crosshair';
+              sfx.click();
+              this.render();
+
+              if (window.studioApp && window.studioApp.onPointPlotted) {
+                window.studioApp.onPointPlotted(this.plottedPoints);
+              }
+            } else {
+              // Placed a new point on tap or empty space release
+              this.plotPointAt(mx, my);
+            }
           } else {
             // Levels 1-5: Accessible click-to-scrub
             const rawT = this.pixelToTime(mx);
@@ -268,6 +344,26 @@
             this.pause();
             this.setTime(Math.max(0, Math.min(this.tMax, finalT)));
             sfx.click();
+          }
+        } else if (this.isPlottingMode && this.draggingPointIdx !== null && this.draggingPointIdx >= 0) {
+          // If released out of bounds, snap to valid clamped integer
+          const rawT = this.pixelToTime(mx);
+          const rawX = this.pixelToPos(my);
+          const snappedT = Math.round(rawT);
+          const snappedX = Math.round(rawX);
+          const draggedPt = this.plottedPoints[this.draggingPointIdx];
+          if (draggedPt) {
+            this.plottedPoints = this.plottedPoints.filter((p, idx) => idx === this.draggingPointIdx || p.t !== snappedT);
+            draggedPt.t = snappedT;
+            draggedPt.x = snappedX;
+            this.plottedPoints.sort((a, b) => a.t - b.t);
+          }
+          this.draggingPointIdx = null;
+          this.graphCanvas.style.cursor = 'crosshair';
+          sfx.click();
+          this.render();
+          if (window.studioApp && window.studioApp.onPointPlotted) {
+            window.studioApp.onPointPlotted(this.plottedPoints);
           }
         }
 
@@ -285,6 +381,17 @@
 
       this.graphCanvas.addEventListener('pointercancel', (e) => {
         isPointerDown = false;
+        if (this.isPlottingMode && this.draggingPointIdx !== null && this.draggingPointIdx >= 0) {
+          const pt = this.plottedPoints[this.draggingPointIdx];
+          if (pt) {
+            pt.t = Math.round(pt.t);
+            pt.x = Math.round(pt.x);
+            this.plottedPoints.sort((a, b) => a.t - b.t);
+          }
+          this.draggingPointIdx = null;
+          this.graphCanvas.style.cursor = 'crosshair';
+          this.render();
+        }
         try {
           if (this.graphCanvas.releasePointerCapture) {
             this.graphCanvas.releasePointerCapture(e.pointerId);
@@ -297,9 +404,16 @@
       });
 
       this.graphCanvas.addEventListener('pointerleave', (e) => {
-        if (!isPointerDown && loupe) {
-          loupe.classList.add('hidden');
-          loupe.classList.remove('touch-aiming');
+        if (!isPointerDown) {
+          this.hoveredPointIdx = null;
+          if (this.isPlottingMode) {
+            this.graphCanvas.style.cursor = 'crosshair';
+            this.render();
+          }
+          if (loupe) {
+            loupe.classList.add('hidden');
+            loupe.classList.remove('touch-aiming');
+          }
         }
       });
 
@@ -340,6 +454,33 @@
       });
     }
 
+    findPlottedPointAt(mx, my, isTouch = false) {
+      if (!this.isPlottingMode || !this.plottedPoints || this.plottedPoints.length === 0) {
+        return -1;
+      }
+      const hitRadius = isTouch ? 35 : 22;
+      const hitRadiusSq = hitRadius * hitRadius;
+
+      let closestIdx = -1;
+      let closestDistSq = Infinity;
+
+      for (let i = 0; i < this.plottedPoints.length; i++) {
+        const pt = this.plottedPoints[i];
+        const px = this.timeToPixel(pt.t);
+        const py = this.posToPixel(pt.x);
+        const dx = mx - px;
+        const dy = my - py;
+        const distSq = dx * dx + dy * dy;
+
+        if (distSq <= hitRadiusSq && distSq < closestDistSq) {
+          closestDistSq = distSq;
+          closestIdx = i;
+        }
+      }
+
+      return closestIdx;
+    }
+
     plotPointAt(mx, my) {
       if (!this.isPlottingMode) return;
 
@@ -367,6 +508,9 @@
       this.segments = segments;
       this.runners = [];
       this.isPlottingMode = false;
+      this.draggingPointIdx = null;
+      this.hoveredPointIdx = null;
+      if (this.graphCanvas) this.graphCanvas.style.cursor = 'crosshair';
       this.slopeTriangle = null;
       this.highlightTime = null;
       this.currentTime = 0;
@@ -378,6 +522,9 @@
       this.runners = runnersList;
       this.segments = [];
       this.isPlottingMode = false;
+      this.draggingPointIdx = null;
+      this.hoveredPointIdx = null;
+      if (this.graphCanvas) this.graphCanvas.style.cursor = 'crosshair';
       this.slopeTriangle = null;
       this.highlightTime = null;
       this.currentTime = 0;
@@ -404,6 +551,9 @@
       this.isPlottingMode = true;
       this.plottedPoints = [...initialPoints];
       this.maxPlottedPoints = maxPoints;
+      this.draggingPointIdx = null;
+      this.hoveredPointIdx = null;
+      if (this.graphCanvas) this.graphCanvas.style.cursor = 'crosshair';
       this.segments = [];
       this.runners = [];
       this.slopeTriangle = null;
@@ -764,7 +914,9 @@
           ctx.strokeStyle = plotStrokeColor;
           ctx.setLineDash([5, 4]);
           ctx.beginPath();
-          this.plottedPoints.forEach((p, idx) => {
+          // Connect points in time-sorted order so line never tangles during dragging
+          const sortedPts = [...this.plottedPoints].sort((a, b) => a.t - b.t);
+          sortedPts.forEach((p, idx) => {
             const px = this.timeToPixel(p.t);
             const py = this.posToPixel(p.x);
             if (idx === 0) ctx.moveTo(px, py);
@@ -774,22 +926,44 @@
           ctx.setLineDash([]);
         }
 
-        this.plottedPoints.forEach((p) => {
+        this.plottedPoints.forEach((p, idx) => {
           const px = this.timeToPixel(p.t);
           const py = this.posToPixel(p.x);
 
-          ctx.fillStyle = plotStrokeColor;
+          const isBeingDragged = (this.draggingPointIdx === idx);
+          const isHovered = (this.hoveredPointIdx === idx);
+
+          // Draggable aura / glowing halo
+          if (isBeingDragged || isHovered) {
+            ctx.fillStyle = isBeingDragged ? 'rgba(250, 204, 21, 0.4)' : 'rgba(204, 255, 0, 0.28)';
+            ctx.beginPath();
+            ctx.arc(px, py, isBeingDragged ? 17 : 14, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // Main point circle
+          ctx.fillStyle = isBeingDragged ? '#facc15' : plotStrokeColor;
           ctx.beginPath();
-          ctx.arc(px, py, 7, 0, Math.PI * 2);
+          ctx.arc(px, py, isBeingDragged ? 9 : 7, 0, Math.PI * 2);
           ctx.fill();
           ctx.strokeStyle = isDark ? '#040804' : '#ffffff';
           ctx.lineWidth = 2;
           ctx.stroke();
 
+          // Tactile drag ring indicator
+          ctx.strokeStyle = isBeingDragged ? '#ffffff' : (isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(15, 23, 42, 0.7)');
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.arc(px, py, isBeingDragged ? 13 : 10, 0, Math.PI * 2);
+          ctx.stroke();
+
+          // Coordinate label
           ctx.fillStyle = isDark ? '#ffffff' : '#0f172a';
-          ctx.font = 'bold 10px JetBrains Mono, monospace';
+          ctx.font = isBeingDragged ? 'bold 11px JetBrains Mono, monospace' : 'bold 10px JetBrains Mono, monospace';
           ctx.textAlign = 'center';
-          ctx.fillText(`(${p.t}s, ${p.x}m)`, px, py - 10);
+          const labelT = typeof p.t === 'number' && Number.isInteger(p.t) ? p.t : p.t.toFixed(1);
+          const labelX = typeof p.x === 'number' && Number.isInteger(p.x) ? p.x : p.x.toFixed(1);
+          ctx.fillText(`(${labelT}s, ${labelX}m)`, px, py - 14);
         });
       }
 
@@ -2621,7 +2795,7 @@
 
         <div class="space-y-3 py-2">
           <p class="text-xs text-slate-300">
-            Click on the <strong>graph grid</strong> to place the 4 points for <strong>Mission ${step + 1} of 3</strong>:
+            Click, tap, or <strong>drag any point</strong> on the <strong>graph grid</strong> to match the target positions for <strong>Mission ${step + 1} of 3</strong>:
           </p>
 
           <div class="p-2.5 rounded-xl bg-slate-950/60 border border-white/10 space-y-1.5 text-xs font-mono">

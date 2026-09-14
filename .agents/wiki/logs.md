@@ -2,6 +2,22 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-14 — Universal Draggable Datapoints (Level 6 Plotting Studio)
+
+**Motivation**: Students needed the ability to drag any plotted point directly on the graph grid across both desktop and touch devices, eliminating the frustration of having to click "Reset Points" if a single point was misaligned.
+
+**Key Architectural Changes**:
+- **Interactive Drag Engine (`Unit_2/position_time_graph_studio/js/app.js`)**:
+  - Added `findPlottedPointAt(mx, my, isTouch)` with 22px mouse / 35px touch hit radii.
+  - On `pointerdown`: Detects if an existing plotted point was targeted and initiates dragging mode.
+  - On `pointermove`: Fluidly moves the active point and real-time connecting dashed path across the grid, updating the coordinate HUD with `Move: ts, xm → [snappedT, snappedX]`.
+  - On `pointerup`: Snaps the dragged point to integer coordinates, deduplicates any matching time steps, sorts chronologically, and triggers live mission validation.
+  - Cursor transitions: Dynamically transitions from `crosshair` to `grab` on hover and `grabbing` while dragging.
+  - Visual styling: Rendered tactile 10px drag rings, glowing 14px hover halos, and 17px amber-yellow active drag auras.
+- **Pattern Updated**: Documented Section 3B in `.agents/wiki/patterns/position-time-graphing-studio.md`.
+
+---
+
 ## 2026-09-14 — Safari & iPadOS Touch/Pointer Event Precision Alignment (Level 6 Plotting)
 
 **Motivation**: iPad users running Safari reported that the optical loupe crosshair and touch point were misaligned on `https://rrmudry.github.io/Unit_2/position_time_graph_studio/index.html`, making it impossible to complete Level 6 ("Draw the Drive!").
