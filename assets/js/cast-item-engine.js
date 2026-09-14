@@ -167,9 +167,9 @@
               </div>
 
               <!-- Phenomenon Context Narrative -->
-              ${(ch.phenomenon?.text || ch.phenomenon?.scenario) ? `
+              ${(ch.phenomenon?.text || ch.phenomenon?.description || ch.phenomenon?.scenario) ? `
                 <div class="text-sm sm:text-base text-slate-200 leading-relaxed bg-slate-950/60 p-3.5 rounded-xl border border-white/10">
-                  ${escapeHtml(ch.phenomenon.text || ch.phenomenon.scenario)}
+                  ${escapeHtml(ch.phenomenon.text || ch.phenomenon.description || ch.phenomenon.scenario)}
                 </div>
               ` : ''}
 
@@ -331,9 +331,9 @@
         } else {
           wrapper.innerHTML = '<div class="text-sm text-slate-400 p-4">Graph loaded.</div>';
         }
-      } else if (phen.type === 'data_table' || phen.dataTable) {
+      } else if (phen.type === 'data_table' || phen.dataTable || (phen.stimulus && (phen.stimulus.type === 'data_table' || phen.stimulus.headers))) {
         container.classList.remove('hidden');
-        const table = phen.dataTable || {};
+        const table = phen.dataTable || phen.stimulus || {};
         const caption = table.caption || table.title || phen.tableTitle || "";
         const headers = table.headers || [];
         const rawRows = table.rows || [];

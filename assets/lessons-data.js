@@ -1482,7 +1482,39 @@ const lessonsData = [
       },
       "phenomenon": {
         "title": "Desert Sprint Relay Telemetry",
+        "type": "data_table",
+        "text": "Two robotic ground rovers (Rover Alpha and Rover Beta) travel along a straight survey track. Their positions over a 10.0-second sprint are recorded on a calibrated position-time graph.",
         "description": "Two robotic ground rovers (Rover Alpha and Rover Beta) travel along a straight survey track. Their positions over a 10.0-second sprint are recorded on a calibrated position-time graph.",
+        "dataTable": {
+          "caption": "Rover Position-Time Coordinates",
+          "headers": [
+            "Time (s)",
+            "Rover Alpha Position (m)",
+            "Rover Beta Position (m)"
+          ],
+          "rows": [
+            {
+              "col_0": "0.0 s",
+              "col_1": "0.0 m",
+              "col_2": "12.0 m"
+            },
+            {
+              "col_0": "4.0 s",
+              "col_1": "16.0 m",
+              "col_2": "12.0 m"
+            },
+            {
+              "col_0": "8.0 s",
+              "col_1": "32.0 m",
+              "col_2": "20.0 m"
+            },
+            {
+              "col_0": "10.0 s",
+              "col_1": "40.0 m",
+              "col_2": "24.0 m"
+            }
+          ]
+        },
         "stimulus": {
           "type": "data_table",
           "title": "Rover Position-Time Coordinates",
