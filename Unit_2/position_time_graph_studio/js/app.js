@@ -1600,8 +1600,6 @@
     onStudentLoggedIn(studentId) {
       if (!studentId) return;
       this.studentSeed = this.hashString(studentId);
-      // Re-render current level with the student's unique variants
-      this.loadLevel(this.currentLevelId, this.currentStep);
     }
 
     restoreSavedState(savedState, savedScore) {
@@ -1615,9 +1613,26 @@
       if (savedState.completedSteps) {
         this.completedSteps = { ...this.completedSteps, ...savedState.completedSteps };
       }
+
+      // Resume at saved level & step, or highest uncompleted level
+      let resumeLevel = savedState.currentLevelId || this.currentLevelId || 1;
+      let resumeStep = savedState.currentStep || 0;
+
+      // If saved level is already completed, find the first incomplete level
+      const maxLevels = [15, 15, 20, 15, 15, 20];
+      for (let i = 1; i <= 6; i++) {
+        const scoreKey = `m${i}`;
+        const maxScore = maxLevels[i - 1];
+        if (this.levelScores[scoreKey] < maxScore) {
+          resumeLevel = i;
+          resumeStep = 0;
+          break;
+        }
+      }
+
       this.updateScoreUI();
-      // Reload current level to ensure variants and completed states align
-      this.loadLevel(this.currentLevelId, this.currentStep);
+      // Reload level to resume student exactly where they left off
+      this.loadLevel(resumeLevel, resumeStep);
     }
 
     // ==============================================================
@@ -2702,7 +2717,7 @@
         this.levelScores[levelKey] = Math.min(max, this.levelScores[levelKey] + points);
         this.updateScoreUI();
 
-        // Autosave
+        // Live Backup & Autosave
         const total =
           this.levelScores.m1 +
           this.levelScores.m2 +
@@ -2711,22 +2726,23 @@
           this.levelScores.m5 +
           this.levelScores.m6;
 
+        const liveStatePayload = {
+          studentSeed: this.studentSeed,
+          levelScores: this.levelScores,
+          completedSteps: this.completedSteps,
+          currentLevelId: this.currentLevelId,
+          currentStep: this.currentStep,
+          lastActiveAt: new Date().toISOString()
+        };
+
         if (window.studioAuth && window.studioAuth.studentId) {
-          window.studioAuth.saveStudioGrade(total, {
-            studentSeed: this.studentSeed,
-            levelScores: this.levelScores,
-            completedSteps: this.completedSteps
-          });
+          window.studioAuth.saveStudioGrade(total, liveStatePayload, true);
         } else {
           // Guest autosave
           try {
             localStorage.setItem(
               'pvt_studio_guest_state',
-              JSON.stringify({
-                studentSeed: this.studentSeed,
-                levelScores: this.levelScores,
-                completedSteps: this.completedSteps
-              })
+              JSON.stringify(liveStatePayload)
             );
           } catch (e) {
             console.warn('Could not save guest state:', e);

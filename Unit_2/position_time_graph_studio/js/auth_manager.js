@@ -177,6 +177,8 @@ class StudioAuthManager {
   async loadStudentResults() {
     if (!this.studentId || typeof firebase === 'undefined' || !firebase.firestore) return;
 
+    this.updateSaveIndicator("Loading Progress...", 'syncing');
+
     try {
       const db = firebase.firestore();
       const docRef = db.collection('student_results')
@@ -191,51 +193,102 @@ class StudioAuthManager {
         if (data.score >= 100) {
           this.isCompleted = true;
         }
+
+        // Restore saved studio state
         if (window.studioApp && data.studioState) {
           window.studioApp.restoreSavedState(data.studioState, data.score);
         }
-        this.updateSaveIndicator(`High Score: ${this.previousHighScore}%`);
+        this.updateSaveIndicator(`High Score: ${this.previousHighScore}%`, 'synced');
+      } else {
+        // First time on Firestore: check if there is local guest state to import
+        const guestStateRaw = localStorage.getItem('pvt_studio_guest_state');
+        const guestScore = parseInt(localStorage.getItem('pvt_studio_guest_score') || '0', 10);
+        if (guestStateRaw && window.studioApp) {
+          try {
+            const guestState = JSON.parse(guestStateRaw);
+            if (guestState) {
+              window.studioApp.restoreSavedState(guestState, guestScore);
+              // Immediately back up this imported progress to Firestore
+              const total =
+                (guestState.levelScores?.m1 || 0) +
+                (guestState.levelScores?.m2 || 0) +
+                (guestState.levelScores?.m3 || 0) +
+                (guestState.levelScores?.m4 || 0) +
+                (guestState.levelScores?.m5 || 0) +
+                (guestState.levelScores?.m6 || 0);
+              this.saveStudioGrade(total, guestState, true);
+            }
+          } catch (e) {
+            console.warn("Guest state migration note:", e);
+          }
+        }
+        this.updateSaveIndicator("Ready & Synced", 'synced');
       }
     } catch (e) {
       console.warn("Could not load student results:", e);
-    }
-  }
-
-  updateSaveIndicator(statusText) {
-    let indicator = document.getElementById('firestore-save-indicator');
-    if (!indicator) {
-      const container = document.getElementById('auth-user-status');
-      if (container && container.parentElement) {
-        indicator = document.createElement('span');
-        indicator.id = 'firestore-save-indicator';
-        indicator.className = 'text-[11px] font-mono text-lime-400 font-semibold transition-opacity hidden sm:inline-block mr-2';
-        container.parentElement.insertBefore(indicator, container);
+      // Fallback to local storage
+      const localBackupRaw = localStorage.getItem(`pvt_studio_${this.studentId}`);
+      if (localBackupRaw && window.studioApp) {
+        try {
+          const localData = JSON.parse(localBackupRaw);
+          if (localData && localData.studioState) {
+            window.studioApp.restoreSavedState(localData.studioState, localData.score);
+          }
+        } catch (err) {}
       }
-    }
-    if (indicator) {
-      indicator.textContent = statusText;
-      indicator.style.opacity = '1';
-      setTimeout(() => {
-        if (indicator) indicator.style.opacity = '0.7';
-      }, 3500);
+      this.updateSaveIndicator("Offline Mode", 'error');
     }
   }
 
-  async saveStudioGrade(scorePercentage, studioState) {
+  updateSaveIndicator(statusText, state = 'synced') {
+    const indicator = document.getElementById('firestore-save-indicator');
+    const dot = document.getElementById('syncStatusDot');
+    const txt = document.getElementById('syncStatusText');
+
+    if (!indicator || !dot || !txt) return;
+
+    indicator.classList.remove('hidden');
+    txt.textContent = statusText;
+
+    if (state === 'syncing') {
+      dot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping';
+      indicator.className = 'hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-950/40 border border-amber-500/40 font-mono text-[10px] text-amber-300 transition-all shadow-sm';
+    } else if (state === 'synced') {
+      dot.className = 'w-1.5 h-1.5 rounded-full bg-[#ccff00]';
+      indicator.className = 'hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-lg bg-lime-950/60 border border-lime-500/40 font-mono text-[10px] text-lime-300 transition-all shadow-sm';
+    } else if (state === 'error') {
+      dot.className = 'w-1.5 h-1.5 rounded-full bg-rose-400';
+      indicator.className = 'hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-lg bg-rose-950/40 border border-rose-500/40 font-mono text-[10px] text-rose-300 transition-all shadow-sm';
+    } else {
+      dot.className = 'w-1.5 h-1.5 rounded-full bg-slate-400';
+      indicator.className = 'hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-900/80 border border-slate-700/60 font-mono text-[10px] text-slate-300 transition-all shadow-sm';
+    }
+  }
+
+  async saveStudioGrade(scorePercentage, studioState, isAutosave = false) {
     const percentage = Math.max(0, Math.min(100, Math.round(scorePercentage)));
 
     if (!this.studentId) {
-      // Local storage fallback for guest/practice mode
-      localStorage.setItem(`pvt_studio_guest_score`, percentage);
-      localStorage.setItem(`pvt_studio_guest_state`, JSON.stringify(studioState));
-      this.updateSaveIndicator(`Saved locally (${percentage}%)`);
-      alert(`Score of ${percentage}% saved locally. Please sign in with your @orangeusd.org account to sync your grade to the official gradebook!`);
-      this.signIn();
+      // Local storage fallback for guest mode
+      try {
+        localStorage.setItem(`pvt_studio_guest_score`, percentage);
+        localStorage.setItem(`pvt_studio_guest_state`, JSON.stringify(studioState));
+      } catch (e) {
+        console.warn("Local storage write error:", e);
+      }
+      this.updateSaveIndicator(`Local ${percentage}%`, 'idle');
+      if (!isAutosave) {
+        alert(`Score of ${percentage}% saved locally. Please sign in with your @orangeusd.org account to sync your grade to the official gradebook!`);
+        this.signIn();
+      }
       return { success: true, isGuest: true, score: percentage };
     }
 
+    this.updateSaveIndicator("Backing up...", 'syncing');
+
     if (typeof firebase === 'undefined' || !firebase.firestore) {
       localStorage.setItem(`pvt_studio_${this.studentId}`, JSON.stringify({ score: percentage, studioState }));
+      this.updateSaveIndicator("Offline Backup", 'idle');
       return { success: true, localOnly: true, score: percentage };
     }
 
@@ -268,12 +321,14 @@ class StudioAuthManager {
 
       await docRef.set(payload, { merge: true });
       this.previousHighScore = bestScore;
-      this.updateSaveIndicator(`Grade Synced: ${bestScore}% ✓`);
+      this.updateSaveIndicator("Cloud Synced ✓", 'synced');
       return { success: true, score: bestScore, newRecord: percentage >= bestScore };
     } catch (e) {
       console.error("Firestore grade sync error:", e);
-      localStorage.setItem(`pvt_studio_${this.studentId}`, JSON.stringify({ score: percentage, studioState }));
-      this.updateSaveIndicator("Saved locally (Offline)");
+      try {
+        localStorage.setItem(`pvt_studio_${this.studentId}`, JSON.stringify({ score: percentage, studioState }));
+      } catch (err) {}
+      this.updateSaveIndicator("Saved Offline", 'error');
       return { success: false, error: e };
     }
   }
