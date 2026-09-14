@@ -209,7 +209,23 @@ Students on school Chromebooks frequently close their browser tabs at the bell, 
 
 ---
 
-## 9. Grading & Compliance Checklist
+## 10. Safari & iPad Touch Coordinate Alignment Architecture
+
+### A. The Non-Standard `zoom` Pitfall
+- Never apply CSS `zoom` (e.g. `body { zoom: 0.9; }`) in responsive webapps.
+- Blink/Chromium and WebKit/Safari handle `zoom` inconsistently across DOM coordinate conversions, `getBoundingClientRect()`, and synthetic event coordinates.
+- Dividing event offsets by `zoom` in JavaScript creates up to 50px–60px of reticle drift in Safari while breaking 1:1 synchronization with unscaled click/tap handlers.
+
+### B. Standard Pointer Events & Touch Action
+- Always declare `touch-action: none;` on interactive `<canvas>` elements to prevent iOS Safari from intercepting drag gestures as page scroll/pan events.
+- Unify mouse, touch, and pen interactions using the **Pointer Events API** (`pointerdown`, `pointermove`, `pointerup`, `pointercancel`, `pointerleave`).
+- Position absolute overlay elements (such as reticles) using `e.clientX - parentRect.left` and `e.clientY - parentRect.top`, guaranteeing physical centering at `(e.clientX, e.clientY)` across all platforms.
+- For touch pointers (`e.pointerType === 'touch'`), flip coordinate readouts above the reticle (`.touch-aiming`) to prevent the student's finger and palm from occluding values while aiming.
+- Deduplicate synthetic `click` events dispatched after `pointerup` using timestamp thresholding (`Date.now() - lastPointerActionTime < 650`).
+
+---
+
+## 11. Grading & Compliance Checklist
 - [x] Unique `ASSIGNMENT_ID`: `"Position_Time_Graph_Studio"`
 - [x] Parent doc initialized in Firestore `student_results/{ASSIGNMENT_ID}`
 - [x] Highest attempt score retention (`score = Math.max(existing, new)`)
@@ -222,4 +238,6 @@ Students on school Chromebooks frequently close their browser tabs at the bell, 
 - [x] Anti-Copying Parameterized Seeding (4,096 unique combinations)
 - [x] Declared NGSS Standard badge: `HS-PS2-1`
 - [x] Chromebook 1280x720 Zero-Scroll Viewport Certified
+- [x] Safari & iPadOS Touch/Pointer Event Precision Alignment Certified
+
 
