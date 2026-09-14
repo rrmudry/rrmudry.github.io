@@ -173,12 +173,50 @@ When multiple-choice options are unconstrained and zero penalties are applied, s
 
 ---
 
-## 8. Grading & Compliance Checklist
+## 8. Live Background State Backup & Seamless Session Restore Pattern
+
+### A. The Challenge
+Students on school Chromebooks frequently close their browser tabs at the bell, switch classrooms, or lose Wi-Fi connectivity mid-activity. If state is only saved upon final submission (`🚀 Submit`), in-progress question responses and partial points would be lost.
+
+### B. The Live Backup Architecture
+1. **Per-Action Autosave (`awardPoints`)**:
+   - Immediately whenever a step is answered correctly, `awardPoints()` packages a full snapshot of `liveStatePayload`:
+     ```javascript
+     {
+       studentSeed: this.studentSeed,
+       levelScores: this.levelScores,
+       completedSteps: this.completedSteps,
+       currentLevelId: this.currentLevelId,
+       currentStep: this.currentStep,
+       lastActiveAt: new Date().toISOString()
+     }
+     ```
+   - Automatically invokes `saveStudioGrade(total, liveStatePayload, isAutosave=true)` in the background without modal interruptions.
+2. **Dual-Layer Fallback (Cloud + LocalStorage)**:
+   - When authenticated with an `@orangeusd.org` account, writes merge directly into Firestore:
+     `student_results/Position_Time_Graph_Studio/students/{studentId}`.
+   - If offline or unauthenticated, writes to `localStorage` (`pvt_studio_{studentId}` and `pvt_studio_guest_state`).
+   - Upon subsequent Google login, guest progress is automatically migrated to Firestore.
+3. **Seamless Session Restoration (`restoreSavedState`)**:
+   - On page load or after sign-in, the latest Firestore document is fetched.
+   - Reconstructs `studentSeed`, `levelScores`, and `completedSteps`.
+   - Automatically navigates the student directly to their highest incomplete level and step so they can instantly resume work without re-doing completed questions.
+4. **Visual Cloud Sync Pill (`#firestore-save-indicator`)**:
+   - Displays real-time sync state in the top header row:
+     - `Backing up...` (pulsing amber dot) during write operations.
+     - `Cloud Synced ✓` (crisp volt dot) when confirmed by Firestore.
+     - `Offline Backup` (rose dot) if running offline.
+
+---
+
+## 9. Grading & Compliance Checklist
 - [x] Unique `ASSIGNMENT_ID`: `"Position_Time_Graph_Studio"`
 - [x] Parent doc initialized in Firestore `student_results/{ASSIGNMENT_ID}`
 - [x] Highest attempt score retention (`score = Math.max(existing, new)`)
+- [x] Live Per-Action Background Backup to Firestore (`awardPoints`)
+- [x] Automatic Session Resume at Saved Level/Step (`restoreSavedState`)
 - [x] Google Auth with `@orangeusd.org` domain check and teacher bypass
-- [x] Guest mode local storage auto-save fallback
+- [x] Guest mode local storage auto-save fallback & login migration
 - [x] High-contrast WCAG AAA light theme support
 - [x] Strict No-LaTeX Compliance: all formulas use Unicode (`Δx`, `Δt`, `v = Δx / Δt`, `m/s`)
 - [x] Anti-Copying Parameterized Seeding (4,096 unique combinations)
