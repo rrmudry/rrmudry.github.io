@@ -70,5 +70,15 @@ npm run sync -- "Constant Speed Story" --period=0
 ### 5. Force Re-Sync
 If you ever need to force a re-evaluation and re-return of all submissions regardless of current state:
 ```bash
+cd sync-classroom
 npm run sync -- --force
+```
+
+### 6. Pull Grades from Google Classroom to Firestore
+If you scan bubble sheets, grade assignments, or input scores directly in Google Classroom, pull them down to Firestore so they are immediately available in the Admin Data Export tool (`admin/data_export.html`):
+```bash
+cd sync-classroom
+npm run pull                             # Pull all coursework with grades into Firestore
+npm run pull -- "Constant Speed Story"   # Pull a specific assignment
+npm run pull:dry                         # Preview without writing to Firestore
 ```
