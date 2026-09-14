@@ -1131,7 +1131,24 @@
             // Retain user's current checkbox selections across dynamic updates
             const checkedIds = new Set(Array.from(document.querySelectorAll('.assignment-cb:checked')).map(cb => cb.value));
 
-            const assignmentsList = Array.from(assignmentsRegistry.values()).sort((a, b) => {
+            // Deduplicate by normalized title (strip punctuation, lowercase)
+            const normalizeTitle = (t) => t.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
+            const deduped = new Map(); // normalizedTitle -> merged entry
+            for (const a of assignmentsRegistry.values()) {
+                const normKey = normalizeTitle(a.title);
+                if (deduped.has(normKey)) {
+                    const existing = deduped.get(normKey);
+                    // Merge: keep highest count, collect all doc IDs
+                    if (a.count > existing.count) existing.count = a.count;
+                    if (a.grades && (!existing.grades || a.grades.length > existing.grades.length)) existing.grades = a.grades;
+                    if (a.hasSubcollection) existing.hasSubcollection = true;
+                    existing._allIds.push(a.id);
+                } else {
+                    deduped.set(normKey, { ...a, _allIds: [a.id] });
+                }
+            }
+
+            const assignmentsList = Array.from(deduped.values()).sort((a, b) => {
                 // Assignments with scores first, then alphabetically
                 if (a.count > 0 && b.count === 0) return -1;
                 if (b.count > 0 && a.count === 0) return 1;
@@ -1152,7 +1169,8 @@
             }
 
             container.innerHTML = filtered.map(a => {
-                const isChecked = checkedIds.has(a.id);
+                const allIdsStr = a._allIds.join('|');
+                const isChecked = a._allIds.some(id => checkedIds.has(id)) || checkedIds.has(allIdsStr);
                 let badge = '';
                 if (a.count > 0) {
                     badge = `<span class="ml-auto text-[8px] font-black px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">${a.count} Scores</span>`;
@@ -1164,10 +1182,10 @@
 
                 return `
                     <label class="flex items-center gap-3 p-2 hover:bg-white/5 rounded-lg cursor-pointer transition-colors group">
-                        <input type="checkbox" value="${escapeHtml(a.id)}" ${isChecked ? 'checked' : ''} class="assignment-cb accent-cyan-500 w-4 h-4 rounded border-white/10" onchange="loadPreview()">
+                        <input type="checkbox" value="${escapeHtml(allIdsStr)}" ${isChecked ? 'checked' : ''} class="assignment-cb accent-cyan-500 w-4 h-4 rounded border-white/10" onchange="loadPreview()">
                         <div class="flex flex-col">
                             <span class="text-xs font-bold text-slate-300 group-hover:text-white transition-colors">${escapeHtml(a.title)}</span>
-                            <span class="text-[8px] text-slate-500 uppercase tracking-widest font-mono">${escapeHtml(a.source)}</span>
+                            <span class="text-[8px] text-slate-500 uppercase tracking-widest font-mono">${escapeHtml(a.source)}${a._allIds.length > 1 ? ` (+${a._allIds.length - 1} merged)` : ''}</span>
                         </div>
                         ${badge}
                     </label>
@@ -1196,7 +1214,8 @@
 
         function applyPreset(presetId) {
             document.querySelectorAll('.assignment-cb').forEach(cb => {
-                const entry = assignmentsRegistry.get(cb.value);
+                const ids = cb.value.split('|');
+                const entry = assignmentsRegistry.get(ids[0]);
                 if (!entry) { cb.checked = false; return; }
 
                 if (presetId === 'with_scores') {
@@ -1384,7 +1403,7 @@
         }
 
         async function loadPreview() {
-            const selectedAssignments = Array.from(document.querySelectorAll('.assignment-cb:checked')).map(cb => cb.value);
+            const selectedAssignments = [...new Set(Array.from(document.querySelectorAll('.assignment-cb:checked')).flatMap(cb => cb.value.split('|')))];
             const tbody = document.getElementById('preview-body');
             const countEl = document.getElementById('record-count');
             const periodFilter = document.getElementById('assessments-period-filter')?.value || 'all';
@@ -1460,7 +1479,7 @@
         }
 
         async function exportCSV() {
-            const selectedAssignments = Array.from(document.querySelectorAll('.assignment-cb:checked')).map(cb => cb.value);
+            const selectedAssignments = [...new Set(Array.from(document.querySelectorAll('.assignment-cb:checked')).flatMap(cb => cb.value.split('|')))];
             if (selectedAssignments.length === 0) { alert("Please select at least one assignment."); return; }
 
             const periodFilter = document.getElementById('assessments-period-filter')?.value || 'all';

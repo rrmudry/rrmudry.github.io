@@ -869,10 +869,6 @@ async function handlePullFromClassroom(targetQuery, filterPeriod, isDryRun) {
     };
 
     await db.collection('gradest_assignments').doc(title).set(payload, { merge: true });
-    const altKey = title.replace(/:/g, '').trim();
-    if (altKey !== title) {
-      await db.collection('gradest_assignments').doc(altKey).set(payload, { merge: true });
-    }
 
     const srDocKey = title.replace(/[^a-zA-Z0-9]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
     await db.collection('student_results').doc(srDocKey).set({
