@@ -1314,7 +1314,7 @@
       // Google gate login button
       const gateLoginBtn = document.getElementById('btnGateSignIn');
       if (gateLoginBtn && window.authManager) {
-        gateLoginBtn.addEventListener('click', () => window.authManager.signInWithGoogle());
+        gateLoginBtn.addEventListener('click', () => window.authManager.signIn());
       }
 
       // Grade submit button
@@ -1322,10 +1322,15 @@
       if (submitBtn) {
         submitBtn.addEventListener('click', () => {
           const total = this.getTotalScore();
-          if (window.authManager) {
-            window.authManager.submitScore(total);
+          if (window.authManager && window.authManager.currentUser) {
+            window.authManager.saveStudioGrade(total, {
+              levelScores: this.levelScores,
+              completedSteps: this.completedSteps,
+              currentLevel: this.currentLevel,
+              currentStep: this.currentStep
+            }, false);
           } else {
-            alert(`Score saved: ${total}/100 pts!`);
+            alert(`Score: ${total}/100 pts. Please sign in to sync your grade!`);
           }
         });
       }
@@ -1374,6 +1379,45 @@
     onStudentLoggedIn(studentId) {
       this.studentSeed = this.hashString(studentId);
       this.switchLevel(this.currentLevel);
+    }
+
+    restoreSavedState(studioState, score) {
+      if (!studioState) return;
+
+      // Restore level scores (handle both array and object formats)
+      if (Array.isArray(studioState.levelScores)) {
+        this.levelScores = studioState.levelScores.slice(0, 6);
+        while (this.levelScores.length < 6) this.levelScores.push(0);
+      } else if (studioState.levelScores && typeof studioState.levelScores === 'object') {
+        // Legacy object format from guest state: {m1: 15, m2: 15, ...}
+        this.levelScores = [
+          studioState.levelScores.m1 || studioState.levelScores[0] || 0,
+          studioState.levelScores.m2 || studioState.levelScores[1] || 0,
+          studioState.levelScores.m3 || studioState.levelScores[2] || 0,
+          studioState.levelScores.m4 || studioState.levelScores[3] || 0,
+          studioState.levelScores.m5 || studioState.levelScores[4] || 0,
+          studioState.levelScores.m6 || studioState.levelScores[5] || 0
+        ];
+      }
+
+      // Restore completed steps
+      if (studioState.completedSteps && typeof studioState.completedSteps === 'object') {
+        this.completedSteps = { ...studioState.completedSteps };
+      }
+
+      // Restore position (level and step)
+      if (typeof studioState.currentLevel === 'number' && studioState.currentLevel >= 1 && studioState.currentLevel <= 6) {
+        this.currentLevel = studioState.currentLevel;
+      }
+      if (typeof studioState.currentStep === 'number') {
+        this.currentStep = studioState.currentStep;
+      }
+
+      // Refresh UI
+      this.updateScoreDisplay();
+      this.switchLevel(this.currentLevel);
+
+      console.log(`[DualStudio] Restored state: score=${score}, levels=${this.levelScores}, completed=${Object.keys(this.completedSteps).length} steps`);
     }
 
     getTotalScore() {
