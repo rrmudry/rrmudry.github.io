@@ -2,6 +2,20 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-14 — Dual-Graph Motion Studio (Google Sign-In Button Binding & Classroom Posting)
+
+**Motivation**: The "Sign in with Google" button on the mandatory login gate modal was unresponsive upon initial load, and coursework needed deployment to Google Classroom.
+
+**Root Causes & Fixes**:
+- **Button ID Mismatch & Null Gate Binding**: The gate modal button had `id="btnGateSignIn"`, while `auth_manager.js` only queried `btn-gate-google-login`. Furthermore, `app.js` checked `if (gateLoginBtn && window.authManager)` inside `new DualStudioApp()` before `window.authManager` was instantiated.
+- **Resilient Binding & Dual Aliasing**:
+  - `auth_manager.js` now queries both `btnGateSignIn` and `btn-gate-google-login`.
+  - Exported and self-initialized `window.authManager` and `window.studioAuth` globally.
+  - `app.js` now initializes auth prior to `DualStudioApp` and binds both gate and top-bar login triggers with fallback.
+- **Classroom Deployment**: Published "Dual-Graph Velocity vs Time Practice" (10 pts, due 9/15 6:00PM PDT) across all 7 class periods with topic "Unit 2: Motion".
+
+---
+
 ## 2026-09-14 — Dual-Graph Motion Studio (x-t to v-t Translation)
 
 **Motivation**: Building on the high success of the Position vs. Time Graphing Practice (135 completions, ~9.3/10 avg), students needed intermediate practice with 3-segment piecewise motion (direction, interval displacement, and slope-to-velocity) before executing dual-graph translation into velocity-time graphs.
