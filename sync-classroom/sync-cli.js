@@ -399,6 +399,15 @@ function findMatchingCourseWork(assignment, cwList) {
   });
   if (m) return m;
 
+  // 1b. Direct studio alias: Position Time Graph Studio -> Position vs. Time Graphing Practice
+  if (aNorm.includes('positiontimegraph') || aNorm.includes('positionvstime')) {
+    m = cwList.find(cw => {
+      const cwNorm = cw.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+      return (cwNorm.includes('positiontime') || cwNorm.includes('positionvstime')) && (cwNorm.includes('graph') || cwNorm.includes('practice') || cwNorm.includes('studio'));
+    });
+    if (m) return m;
+  }
+
   // 2. Contains match (e.g. "Constant Speed Story" in "Constant Speed Story: Author & Solve",
   //    or "Fantasy Map Distance Displacement" in "Digital Fantasy Map Distance Displacement")
   m = cwList.find(cw => {
