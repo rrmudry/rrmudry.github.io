@@ -911,49 +911,49 @@
     {
       id: 0,
       segments: [
-        { t0: 0, t1: 3, x0: 0, x1: 6, color: '#ccff00' },
+        { t0: 0, t1: 3, x0: 0, x1: 6, color: '#38bdf8' },
         { t0: 3, t1: 6, x0: 6, x1: 6, color: '#facc15' },
-        { t0: 6, t1: 10, x0: 6, x1: 0, color: '#38bdf8' }
+        { t0: 6, t1: 10, x0: 6, x1: 0, color: '#a855f7' }
       ],
       sec1: { dir: 'forward', dx: 6, dt: 3, v: 2, label: '0s to 3s' },
       sec2: { dir: 'stopped', dx: 0, dt: 3, v: 0, label: '3s to 6s' },
       sec3: { dir: 'backward', dx: -6, dt: 4, v: -1.5, label: '6s to 10s' }
     },
-    // Scenario 1: Forward (0-2s, +8m -> +4 m/s), Stop (2-5s, 0m -> 0 m/s), Forward Fast (5-9s, +8m -> +2 m/s)
+    // Scenario 1: Stopped at start (0-3s, at 8m -> 0 m/s), Reverse (3-6s, down to 2m -> -2 m/s), Forward Fast (6-10s, up to 14m -> +3 m/s)
     {
       id: 1,
       segments: [
-        { t0: 0, t1: 2, x0: 0, x1: 8, color: '#ccff00' },
-        { t0: 2, t1: 5, x0: 8, x1: 8, color: '#facc15' },
-        { t0: 5, t1: 9, x0: 8, x1: 16, color: '#38bdf8' }
+        { t0: 0, t1: 3, x0: 8, x1: 8, color: '#facc15' },
+        { t0: 3, t1: 6, x0: 8, x1: 2, color: '#f43f5e' },
+        { t0: 6, t1: 10, x0: 2, x1: 14, color: '#38bdf8' }
       ],
-      sec1: { dir: 'forward', dx: 8, dt: 2, v: 4, label: '0s to 2s' },
-      sec2: { dir: 'stopped', dx: 0, dt: 3, v: 0, label: '2s to 5s' },
-      sec3: { dir: 'forward', dx: 8, dt: 4, v: 2, label: '5s to 9s' }
+      sec1: { dir: 'stopped', dx: 0, dt: 3, v: 0, label: '0s to 3s' },
+      sec2: { dir: 'backward', dx: -6, dt: 3, v: -2, label: '3s to 6s' },
+      sec3: { dir: 'forward', dx: 12, dt: 4, v: 3, label: '6s to 10s' }
     },
-    // Scenario 2: Forward (0-4s, +8m -> +2 m/s), Reverse (4-7s, -6m -> -2 m/s), Stop (7-10s, 0m -> 0 m/s)
+    // Scenario 2: Reverse first (0-3s, from 12m down to 6m -> -2 m/s), Stopped (3-6s, at 6m -> 0 m/s), Forward (6-10s, up to 14m -> +2 m/s)
     {
       id: 2,
       segments: [
-        { t0: 0, t1: 4, x0: 0, x1: 8, color: '#ccff00' },
-        { t0: 4, t1: 7, x0: 8, x1: 2, color: '#facc15' },
-        { t0: 7, t1: 10, x0: 2, x1: 2, color: '#38bdf8' }
+        { t0: 0, t1: 3, x0: 12, x1: 6, color: '#f43f5e' },
+        { t0: 3, t1: 6, x0: 6, x1: 6, color: '#facc15' },
+        { t0: 6, t1: 10, x0: 6, x1: 14, color: '#38bdf8' }
       ],
-      sec1: { dir: 'forward', dx: 8, dt: 4, v: 2, label: '0s to 4s' },
-      sec2: { dir: 'backward', dx: -6, dt: 3, v: -2, label: '4s to 7s' },
-      sec3: { dir: 'stopped', dx: 0, dt: 3, v: 0, label: '7s to 10s' }
+      sec1: { dir: 'backward', dx: -6, dt: 3, v: -2, label: '0s to 3s' },
+      sec2: { dir: 'stopped', dx: 0, dt: 3, v: 0, label: '3s to 6s' },
+      sec3: { dir: 'forward', dx: 8, dt: 4, v: 2, label: '6s to 10s' }
     },
-    // Scenario 3: Forward Fast (0-2s, +6m -> +3 m/s), Stop (2-6s, 0m -> 0 m/s), Reverse (6-8s, -6m -> -3 m/s)
+    // Scenario 3: Stopped at start (0-3s, at 4m -> 0 m/s), Forward Fast (3-6s, up to 16m -> +4 m/s), Stopped at rest (6-10s, at 16m -> 0 m/s)
     {
       id: 3,
       segments: [
-        { t0: 0, t1: 2, x0: 0, x1: 6, color: '#ccff00' },
-        { t0: 2, t1: 6, x0: 6, x1: 6, color: '#facc15' },
-        { t0: 6, t1: 8, x0: 6, x1: 0, color: '#38bdf8' }
+        { t0: 0, t1: 3, x0: 4, x1: 4, color: '#facc15' },
+        { t0: 3, t1: 6, x0: 4, x1: 16, color: '#38bdf8' },
+        { t0: 6, t1: 10, x0: 16, x1: 16, color: '#facc15' }
       ],
-      sec1: { dir: 'forward', dx: 6, dt: 2, v: 3, label: '0s to 2s' },
-      sec2: { dir: 'stopped', dx: 0, dt: 4, v: 0, label: '2s to 6s' },
-      sec3: { dir: 'backward', dx: -6, dt: 2, v: -3, label: '6s to 8s' }
+      sec1: { dir: 'stopped', dx: 0, dt: 3, v: 0, label: '0s to 3s' },
+      sec2: { dir: 'forward', dx: 12, dt: 3, v: 4, label: '3s to 6s' },
+      sec3: { dir: 'stopped', dx: 0, dt: 4, v: 0, label: '6s to 10s' }
     }
   ];
 
@@ -1249,26 +1249,29 @@
     renderLevel1(ws, sc) {
       const stepKey = `L1_S${this.currentStep}`;
       const isDone = !!this.completedSteps[stepKey];
+      const secIdx = this.currentStep; // 0 = Section 1, 1 = Section 2, 2 = Section 3
+      const sec = secIdx === 0 ? sc.sec1 : (secIdx === 1 ? sc.sec2 : sc.sec3);
+      const seg = sc.segments[secIdx];
 
       ws.innerHTML = `
         <div class="space-y-4">
-          <div class="flex items-center justify-between border-b border-white/10 pb-2">
+          <div class="flex items-center justify-between border-b border-sky-500/20 pb-2">
             <div>
-              <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-lime-400">Level 1 • Qualitative Motion</span>
-              <h2 class="text-base font-bold text-white">Question 1 of 3: Section 1 Direction</h2>
+              <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-sky-400">Level 1 • Qualitative Motion</span>
+              <h2 class="text-base font-bold text-white">Question ${secIdx + 1} of 3: Section ${secIdx + 1} Direction</h2>
             </div>
-            <span class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-lime-950 border border-lime-500/30 text-lime-300">5 pts</span>
+            <span class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-sky-950 border border-sky-500/30 text-sky-300">5 pts</span>
           </div>
 
-          <div class="p-3 rounded-xl bg-slate-950/60 border border-lime-500/30 text-xs font-sans text-slate-200 leading-relaxed space-y-1">
-            <p>Inspect <strong>Section 1 (${sc.sec1.label})</strong> on the graph. As time ticks from ${sc.segments[0].t0}s to ${sc.segments[0].t1}s, what is the car doing?</p>
-            <p class="text-slate-400 text-[11px]">💡 Watch the Ground Track or scrub the slider!</p>
+          <div class="p-3 rounded-xl bg-slate-950/60 border border-sky-500/30 text-xs font-sans text-slate-200 leading-relaxed space-y-1">
+            <p>Inspect <strong>Section ${secIdx + 1} (${sec.label})</strong> on the graph. As time ticks from ${seg.t0}s to ${seg.t1}s, what is the car doing?</p>
+            <p class="text-slate-400 text-[11px]">💡 Watch the Ground Track cyber car or scrub the time slider!</p>
           </div>
 
           <div class="space-y-2">
             <button class="choice-btn w-full p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-left text-xs font-mono text-white transition-all flex items-center justify-between" data-choice="forward">
               <span>A) Moving Forward (position is increasing)</span>
-              <span class="text-lime-300 font-bold">↗</span>
+              <span class="text-sky-300 font-bold">↗</span>
             </button>
             <button class="choice-btn w-full p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-left text-xs font-mono text-white transition-all flex items-center justify-between" data-choice="stopped">
               <span>B) Stopped at rest (position is not changing)</span>
@@ -1281,18 +1284,19 @@
           </div>
 
           <div id="stepFeedback" class="hidden p-3 rounded-xl text-xs font-sans"></div>
-          <button id="btnNextStep" class="hidden w-full py-2.5 rounded-xl bg-[#ccff00] text-slate-950 font-mono font-bold text-xs hover:bg-lime-300 transition-all shadow-[0_0_10px_rgba(204,255,0,0.3)]">
-            Next Question ➜
+          <button id="btnNextStep" class="hidden w-full py-2.5 rounded-xl bg-gradient-to-r from-[#38bdf8] to-[#a855f7] text-slate-950 font-mono font-bold text-xs hover:brightness-110 transition-all shadow-[0_0_10px_rgba(56,189,248,0.3)]">
+            ${secIdx < 2 ? 'Next Section Question ➜' : 'Level 1 Complete! Go to Level 2 ➜'}
           </button>
         </div>
       `;
 
-      this.visualizer.setHighlightSection(0);
+      this.visualizer.setHighlightSection(secIdx);
+      this.visualizer.setTime(seg.t0);
 
       ws.querySelectorAll('.choice-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           const choice = btn.dataset.choice;
-          const correct = sc.sec1.dir;
+          const correct = sec.dir;
           const fb = document.getElementById('stepFeedback');
           const nextBtn = document.getElementById('btnNextStep');
 
@@ -1300,7 +1304,10 @@
             sfx.success();
             btn.classList.add('bg-emerald-950', 'border-emerald-500', 'text-emerald-300');
             fb.className = 'p-3 rounded-xl text-xs font-sans bg-emerald-950/70 border border-emerald-500/40 text-emerald-200';
-            fb.innerHTML = `<strong>⭐ Correct!</strong> In Section 1, the graph slopes upward, meaning the car is driving forward.`;
+            const actionText = correct === 'forward' 
+              ? 'slopes upward, so the car is driving forward.' 
+              : (correct === 'stopped' ? 'is horizontal, so the car is stopped at rest.' : 'slopes downward, so the car is moving backward in reverse.');
+            fb.innerHTML = `<strong>⭐ Correct!</strong> In Section ${secIdx + 1}, the line ${actionText}`;
             fb.classList.remove('hidden');
             nextBtn.classList.remove('hidden');
 
@@ -1313,7 +1320,7 @@
             sfx.error();
             btn.classList.add('bg-rose-950', 'border-rose-500', 'text-rose-300');
             fb.className = 'p-3 rounded-xl text-xs font-sans bg-rose-950/70 border border-rose-500/40 text-rose-200';
-            fb.innerHTML = `<strong>Diagnostic Clue:</strong> Look at the height of the line. Does position increase, stay flat, or decrease?`;
+            fb.innerHTML = `<strong>Diagnostic Clue:</strong> Look at Section ${secIdx + 1} (${sec.label}). Is the line rising (forward), flat horizontal (stopped), or falling (backward)?`;
             fb.classList.remove('hidden');
           }
         });
@@ -1526,38 +1533,79 @@
     // =========================================================================
     renderLevel4(ws, sc) {
       const stepKey = `L4_S${this.currentStep}`;
+      const secIdx = this.currentStep; // 0, 1, 2
+      const sec = secIdx === 0 ? sc.sec1 : (secIdx === 1 ? sc.sec2 : sc.sec3);
+
+      // Question 1: What does horizontal flat line mean on v-t?
+      // Question 2: Which section is the fastest speed?
+      // Question 3: What does being below the zero line mean?
+      let qTitle = '';
+      let qPrompt = '';
+      let choices = [];
+      let correctChoice = '';
+      let explanation = '';
+
+      if (secIdx === 0) {
+        qTitle = 'Question 1 of 3: Flat Lines on Velocity Graphs';
+        qPrompt = `Look at the new <strong>Velocity vs. Time (v-t)</strong> graph. Why are constant speeds shown as <strong>flat horizontal lines</strong> on this graph?`;
+        choices = [
+          { key: 'stopped', label: 'A) Because the car is completely stopped.' },
+          { key: 'steady', label: 'B) Because the velocity is STEADY/CONSTANT (not speeding up or slowing down).' },
+          { key: 'flatroad', label: 'C) Because the road is completely flat.' }
+        ];
+        correctChoice = 'steady';
+        explanation = 'On a velocity graph, the height shows speed. A flat horizontal line means the speed is not changing—it is cruising steadily!';
+      } else if (secIdx === 1) {
+        qTitle = 'Question 2 of 3: Identifying Speed on v-t';
+        // Compare speeds
+        const speeds = [Math.abs(sc.sec1.v), Math.abs(sc.sec2.v), Math.abs(sc.sec3.v)];
+        const maxSpeed = Math.max(...speeds);
+        const fastestSecNum = speeds.indexOf(maxSpeed) + 1;
+        qPrompt = `Look at the heights of the three horizontal bars on the v-t graph. Which section has the <strong>fastest speed magnitude</strong>?`;
+        choices = [
+          { key: '1', label: `A) Section 1 (|v| = ${speeds[0]} m/s)` },
+          { key: '2', label: `B) Section 2 (|v| = ${speeds[1]} m/s)` },
+          { key: '3', label: `C) Section 3 (|v| = ${speeds[2]} m/s)` }
+        ];
+        correctChoice = String(fastestSecNum);
+        explanation = `The furthest bar away from the zero axis has the greatest speed magnitude (${maxSpeed} m/s)!`;
+      } else {
+        qTitle = 'Question 3 of 3: Above vs. Below the Zero Line';
+        qPrompt = `On this Velocity vs. Time graph, what does a line plotted <strong>below the zero axis (negative velocity)</strong> tell you?`;
+        choices = [
+          { key: 'reverse', label: 'A) The car is driving in REVERSE (negative direction).' },
+          { key: 'slower_zero', label: 'B) The car is moving slower than stopped.' },
+          { key: 'broken', label: 'C) The engine broke down.' }
+        ];
+        correctChoice = 'reverse';
+        explanation = 'Negative velocity indicates direction! The car is driving backward in reverse.';
+      }
 
       ws.innerHTML = `
         <div class="space-y-4">
           <div class="flex items-center justify-between border-b border-rose-500/20 pb-2">
             <div>
               <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-rose-400">Level 4 • v-t Graph Basics</span>
-              <h2 class="text-base font-bold text-white">Question 1 of 3: Identifying Speed on v-t</h2>
+              <h2 class="text-base font-bold text-white">${qTitle}</h2>
             </div>
             <span class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-rose-950 border border-rose-500/30 text-rose-300">5 pts</span>
           </div>
 
           <div class="p-3 rounded-xl bg-rose-950/40 border border-rose-500/30 text-xs font-sans text-rose-200 leading-relaxed space-y-1">
-            <p>Look at the new <strong>Velocity vs. Time (v-t)</strong> graph. Notice that each section is rendered as a <strong>flat horizontal line</strong>.</p>
-            <p class="font-bold text-white">Why is each constant velocity represented by a horizontal flat line on this graph?</p>
+            <p>${qPrompt}</p>
           </div>
 
           <div class="space-y-2">
-            <button class="choice-btn w-full p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-left text-xs font-mono text-white transition-all flex items-center justify-between" data-choice="stopped">
-              <span>A) Because the car has stopped moving entirely.</span>
-            </button>
-            <button class="choice-btn w-full p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-left text-xs font-mono text-white transition-all flex items-center justify-between" data-choice="steady">
-              <span>B) Because its velocity is CONSTANT (not speeding up or slowing down).</span>
-              <span class="text-emerald-300 font-bold">✓</span>
-            </button>
-            <button class="choice-btn w-full p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-left text-xs font-mono text-white transition-all flex items-center justify-between" data-choice="height">
-              <span>C) Because the car is driving on a flat road.</span>
-            </button>
+            ${choices.map(c => `
+              <button class="choice-btn w-full p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-left text-xs font-mono text-white transition-all flex items-center justify-between" data-choice="${c.key}">
+                <span>${c.label}</span>
+              </button>
+            `).join('')}
           </div>
 
           <div id="stepFeedback" class="hidden p-3 rounded-xl text-xs font-sans"></div>
-          <button id="btnNextStep" class="hidden w-full py-2.5 rounded-xl bg-[#ccff00] text-slate-950 font-mono font-bold text-xs hover:bg-lime-300 transition-all shadow-[0_0_10px_rgba(204,255,0,0.3)]">
-            Next v-t Concept ➜
+          <button id="btnNextStep" class="hidden w-full py-2.5 rounded-xl bg-gradient-to-r from-[#38bdf8] to-[#a855f7] text-slate-950 font-mono font-bold text-xs hover:brightness-110 transition-all shadow-[0_0_10px_rgba(56,189,248,0.3)]">
+            ${secIdx < 2 ? 'Next v-t Concept ➜' : 'Level 4 Complete! Go to Level 5 ➜'}
           </button>
         </div>
       `;
@@ -1568,24 +1616,24 @@
           const fb = document.getElementById('stepFeedback');
           const nextBtn = document.getElementById('btnNextStep');
 
-          if (choice === 'steady') {
+          if (choice === correctChoice) {
             sfx.success();
             btn.classList.add('bg-emerald-950', 'border-emerald-500', 'text-emerald-300');
             fb.className = 'p-3 rounded-xl text-xs font-sans bg-emerald-950/70 border border-emerald-500/40 text-emerald-200';
-            fb.innerHTML = `<strong>⭐ That's the key takeaway!</strong> On a velocity graph, a flat line means the SPEED IS STEADY. (Only a line right on 0 m/s means stopped).`;
+            fb.innerHTML = `<strong>⭐ That's right!</strong> ${explanation}`;
             fb.classList.remove('hidden');
             nextBtn.classList.remove('hidden');
 
             if (!this.completedSteps[stepKey]) {
               this.completedSteps[stepKey] = true;
-              this.levelScores[3] = Math.min(15, this.levelScores[3] + 15);
+              this.levelScores[3] = Math.min(15, this.levelScores[3] + 5);
               this.updateScoreDisplay();
             }
           } else {
             sfx.error();
             btn.classList.add('bg-rose-950', 'border-rose-500', 'text-rose-300');
             fb.className = 'p-3 rounded-xl text-xs font-sans bg-rose-950/70 border border-rose-500/40 text-rose-200';
-            fb.innerHTML = `<strong>Watch out!</strong> On an x-t graph, flat means stopped. But on a v-t graph, the vertical axis measures speed! A line at +2 m/s means moving at a steady 2 m/s!`;
+            fb.innerHTML = `<strong>Diagnostic Clue:</strong> On a velocity graph, height = speed magnitude, and sign (+ or -) = direction.`;
             fb.classList.remove('hidden');
           }
         });
@@ -1594,8 +1642,13 @@
       const nextBtn = document.getElementById('btnNextStep');
       if (nextBtn) {
         nextBtn.addEventListener('click', () => {
-          sfx.fanfare();
-          this.switchLevel(5);
+          if (this.currentStep < 2) {
+            this.currentStep++;
+            this.loadStep();
+          } else {
+            sfx.fanfare();
+            this.switchLevel(5);
+          }
         });
       }
     }
