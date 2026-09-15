@@ -408,6 +408,15 @@ function findMatchingCourseWork(assignment, cwList) {
     if (m) return m;
   }
 
+  // 1c. Direct studio alias: Dual Graph Studio -> Dual-Graph Translation or Dual Graph
+  if (aNorm.includes('dualgraph')) {
+    m = cwList.find(cw => {
+      const cwNorm = cw.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+      return cwNorm.includes('dualgraph');
+    });
+    if (m) return m;
+  }
+
   // 2. Contains match (e.g. "Constant Speed Story" in "Constant Speed Story: Author & Solve",
   //    or "Fantasy Map Distance Displacement" in "Digital Fantasy Map Distance Displacement")
   m = cwList.find(cw => {
