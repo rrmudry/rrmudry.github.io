@@ -86,7 +86,7 @@ class StudioAuthManager {
       loginBtn.onclick = () => this.signIn();
     }
 
-    const gateLoginBtn = document.getElementById('btn-gate-google-login');
+    const gateLoginBtn = document.getElementById('btnGateSignIn') || document.getElementById('btn-gate-google-login');
     if (gateLoginBtn) {
       gateLoginBtn.onclick = () => this.signIn();
     }
@@ -142,9 +142,9 @@ class StudioAuthManager {
       }
     } else {
       container.innerHTML = `
-        <button id="btn-google-login" class="px-3 py-1.5 rounded-xl bg-[#ccff00] hover:bg-lime-300 text-slate-950 text-xs font-bold font-mono transition-all shadow-[0_0_12px_rgba(204,255,0,0.3)] active:scale-95 flex items-center gap-1.5">
+        <button id="btn-google-login" class="px-2.5 py-1 rounded-lg bg-[#38bdf8] hover:bg-sky-300 text-slate-950 text-xs font-bold font-mono transition-all shadow-[0_0_8px_rgba(56,189,248,0.3)] active:scale-95 flex items-center gap-1">
           <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-3.5 h-3.5 bg-white rounded-full p-0.5" alt="Google">
-          <span>Sign In</span>
+          <span class="hidden sm:inline">Sign In</span>
         </button>
       `;
       const loginBtn = document.getElementById('btn-google-login');
@@ -330,6 +330,24 @@ class StudioAuthManager {
       } catch (err) {}
       this.updateSaveIndicator("Saved Offline", 'error');
       return { success: false, error: e };
+    }
+  }
+}
+
+// Ensure StudioAuthManager is instantiated and accessible globally
+if (typeof window !== 'undefined') {
+  window.StudioAuthManager = StudioAuthManager;
+  if (!window.authManager) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        if (!window.authManager) {
+          window.authManager = new StudioAuthManager();
+          window.studioAuth = window.authManager;
+        }
+      });
+    } else {
+      window.authManager = new StudioAuthManager();
+      window.studioAuth = window.authManager;
     }
   }
 }
