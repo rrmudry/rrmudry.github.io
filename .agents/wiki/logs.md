@@ -11,7 +11,8 @@ Append-only log tracking pattern changes across sessions.
 - **Resilient Binding & Dual Aliasing**:
   - `auth_manager.js` now queries both `btnGateSignIn` and `btn-gate-google-login`.
   - Exported and self-initialized `window.authManager` and `window.studioAuth` globally.
-  - `app.js` now initializes auth prior to `DualStudioApp` and binds both gate and top-bar login triggers with fallback.
+  - Resolved `auth/cancelled-popup-request` by removing duplicate listeners in `app.js` (giving `auth_manager.js` single ownership of auth triggers) and adding an `isSigningIn` lock with 1200ms debounce in `signIn()`.
+  - Linked Unit 2 SVG favicon in `<head>` to prevent 404 console noise.
 - **Classroom Deployment**: Published "Dual-Graph Velocity vs Time Practice" (10 pts, due 9/15 6:00PM PDT) across all 7 class periods with topic "Unit 2: Motion".
 
 ---
