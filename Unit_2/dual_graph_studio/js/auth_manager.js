@@ -164,7 +164,7 @@ class StudioAuthManager {
     try {
       const parentRef = db.collection('student_results').doc(ASSIGNMENT_ID);
       await parentRef.set({
-        assignment_name: "Position vs. Time Graphing Studio",
+        assignment_name: "Dual-Graph Motion Studio",
         unit: "Unit 2: 1D Kinematics & Newton's Laws",
         standards: ["HS-PS2-1"],
         updated_at: firebase.firestore.FieldValue.serverTimestamp()
@@ -195,19 +195,19 @@ class StudioAuthManager {
         }
 
         // Restore saved studio state
-        if (window.studioApp && data.studioState) {
-          window.studioApp.restoreSavedState(data.studioState, data.score);
+        if (window.dualStudioApp && data.studioState) {
+          window.dualStudioApp.restoreSavedState(data.studioState, data.score);
         }
         this.updateSaveIndicator(`High Score: ${this.previousHighScore}%`, 'synced');
       } else {
         // First time on Firestore: check if there is local guest state to import
         const guestStateRaw = localStorage.getItem('pvt_studio_guest_state');
         const guestScore = parseInt(localStorage.getItem('pvt_studio_guest_score') || '0', 10);
-        if (guestStateRaw && window.studioApp) {
+        if (guestStateRaw && window.dualStudioApp) {
           try {
             const guestState = JSON.parse(guestStateRaw);
             if (guestState) {
-              window.studioApp.restoreSavedState(guestState, guestScore);
+              window.dualStudioApp.restoreSavedState(guestState, guestScore);
               // Immediately back up this imported progress to Firestore
               const total =
                 (guestState.levelScores?.m1 || 0) +
@@ -228,11 +228,11 @@ class StudioAuthManager {
       console.warn("Could not load student results:", e);
       // Fallback to local storage
       const localBackupRaw = localStorage.getItem(`pvt_studio_${this.studentId}`);
-      if (localBackupRaw && window.studioApp) {
+      if (localBackupRaw && window.dualStudioApp) {
         try {
           const localData = JSON.parse(localBackupRaw);
           if (localData && localData.studioState) {
-            window.studioApp.restoreSavedState(localData.studioState, localData.score);
+            window.dualStudioApp.restoreSavedState(localData.studioState, localData.score);
           }
         } catch (err) {}
       }
@@ -333,5 +333,3 @@ class StudioAuthManager {
     }
   }
 }
-
-window.studioAuth = new StudioAuthManager();
