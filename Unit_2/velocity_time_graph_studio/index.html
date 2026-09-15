@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Velocity vs. Time Motion Studio: Constant Speed &amp; Uniform Acceleration</title>
+  <meta name="description" content="Explore Velocity vs. Time (v-t) graphs with constant velocity, uniform acceleration, live 1D motion visualization, area integration, and full user graph editing.">
+  <link rel="icon" type="image/svg+xml" href="../../assets/unit2-favicon.svg">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class'
+    };
+  </script>
+
+  <!-- Google Fonts: Outfit & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-[#030712] text-slate-100 min-h-screen flex flex-col font-sans selection:bg-[#38bdf8] selection:text-slate-950">
+
+  <!-- Ambient Animated Speed Lines -->
+  <div class="speed-line speed-line-1"></div>
+  <div class="speed-line speed-line-2"></div>
+
+  <!-- ============================================================== -->
+  <!-- TOP HEADER (Compact Unified Header) -->
+  <!-- ============================================================== -->
+  <header class="border-b border-sky-500/20 bg-[#070d1e]/95 backdrop-blur-md sticky top-0 z-40 px-3 sm:px-4 py-2 shadow-md">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-3">
+      
+      <!-- Brand & Standard Pill -->
+      <div class="flex items-center gap-2.5 shrink-0">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#38bdf8] via-[#818cf8] to-[#fbbf24] flex items-center justify-center text-slate-950 text-base font-black shadow-[0_0_12px_rgba(56,189,248,0.4)]">
+          📈
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-extrabold text-sm sm:text-base tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[#38bdf8] via-[#a3e635] to-[#fbbf24] whitespace-nowrap">
+              Velocity vs. Time Studio
+            </h1>
+            <span class="hidden sm:inline-block px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-sky-950/70 border border-sky-500/40 text-sky-300 uppercase cursor-pointer hover:border-sky-400 transition-colors" data-ngss-code="HS-PS2-1" title="Click to view NGSS standard details">
+              HS-PS2-1
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-400 font-sans hidden md:block">Constant Speed (a = 0) • Uniform Acceleration (a = Δv / Δt) • Motion Visualizer</p>
+        </div>
+      </div>
+
+      <!-- Right Utility Actions -->
+      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <!-- Quick Help Modal Toggle -->
+        <button id="btnHelpModal" class="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 text-xs font-mono transition-all flex items-center gap-1" title="Keyboard Shortcuts &amp; Physics Guide">
+          <span>💡 Guide</span>
+        </button>
+
+        <!-- Sound Toggle -->
+        <button id="btnSoundToggle" class="p-1 sm:px-2 sm:py-1 rounded-lg bg-white/5 border border-white/10 hover:border-sky-500/40 text-xs font-mono text-slate-300 hover:text-[#38bdf8] transition-all flex items-center gap-1" title="Toggle Sound FX">
+          <span id="soundIcon">🔊</span>
+        </button>
+
+        <!-- Light/Dark Mode Toggle -->
+        <button id="btnThemeToggle" class="p-1 sm:px-2 sm:py-1 rounded-lg bg-white/5 border border-white/10 hover:border-sky-500/40 text-xs font-mono text-slate-300 hover:text-[#38bdf8] transition-all flex items-center gap-1" title="Toggle Contrast Theme">
+          <span id="themeIcon">☀️</span>
+        </button>
+
+        <!-- Return to Unit 2 Dashboard -->
+        <a href="../unit2-dashboard.html" class="p-1 sm:px-2 sm:py-1 rounded-lg bg-sky-950/40 border border-sky-500/30 hover:border-[#38bdf8] text-sky-300 text-xs font-mono transition-all flex items-center gap-1" title="Return to Unit 2 Dashboard">
+          <span>🏠 Dashboard</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================================== -->
+  <!-- PRESET SCENARIO SELECTOR STRIP -->
+  <!-- ============================================================== -->
+  <section class="bg-slate-950/80 border-b border-white/5 px-2 sm:px-4 py-2">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-2 overflow-x-auto scrollbar-none">
+      <div class="flex items-center gap-1.5 flex-nowrap">
+        <span class="text-[11px] font-mono font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-1 flex items-center gap-1">
+          <span>🎯</span> Presets:
+        </span>
+        <button class="btn-preset active" data-preset="constant">
+          <span>🏎️</span> Constant Speed (a = 0)
+        </button>
+        <button class="btn-preset" data-preset="accelerating">
+          <span>🚀</span> Speeding Up (a &gt; 0)
+        </button>
+        <button class="btn-preset" data-preset="braking">
+          <span>🛑</span> Braking to Stop (a &lt; 0)
+        </button>
+        <button class="btn-preset" data-preset="three_phase">
+          <span>⚡</span> 3-Phase Journey
+        </button>
+        <button class="btn-preset" data-preset="ramp">
+          <span>🔄</span> Reversing / Ramp Motion
+        </button>
+        <button class="btn-preset" data-preset="sandbox">
+          <span>🧪</span> Custom Sandbox
+        </button>
+      </div>
+
+      <!-- Quick Action: Add Point or Reset -->
+      <div class="flex items-center gap-1.5 shrink-0">
+        <button id="btnResetPoints" class="px-2.5 py-1 rounded-md bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-mono border border-white/10 transition-all hover:border-sky-500/40" title="Reset current graph to default">
+          ↺ Reset Graph
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- MAIN WORKSPACE (12-Column Responsive Layout) -->
+  <!-- ============================================================== -->
+  <main class="max-w-7xl mx-auto w-full px-2 sm:px-4 py-2 sm:py-3 flex-1 flex flex-col gap-2.5">
+    
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-start">
+      
+      <!-- ============================================================ -->
+      <!-- LEFT 7 COLUMNS: CANVASES (v-t Graph + Ground Track + Scrubber) -->
+      <!-- ============================================================ -->
+      <div class="lg:col-span-7 flex flex-col gap-2.5">
+        
+        <!-- Primary Velocity vs. Time Graph Card -->
+        <div class="glass-card p-3 border border-sky-500/20 flex flex-col gap-2 relative">
+          
+          <!-- Card Header & Display Controls -->
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-[#38bdf8] pulse-dot"></span>
+              <span class="font-mono text-xs font-bold text-sky-300 uppercase tracking-wider">Velocity vs. Time Graph (v-t)</span>
+              <span id="presetBadge" class="badge-motion badge-constant">Constant Velocity</span>
+            </div>
+
+            <!-- Visual Layer Toggles -->
+            <div class="flex items-center gap-2 text-[10px] font-mono text-slate-300">
+              <label class="flex items-center gap-1 cursor-pointer hover:text-sky-300 transition-colors" title="Shade the area between the curve and the time axis (Displacement)">
+                <input type="checkbox" id="toggleAreaShading" checked class="rounded accent-[#38bdf8]">
+                <span>Area (Δx)</span>
+              </label>
+              <label class="flex items-center gap-1 cursor-pointer hover:text-amber-300 transition-colors" title="Show segment acceleration slope brackets">
+                <input type="checkbox" id="toggleSlopeBrackets" checked class="rounded accent-[#fbbf24]">
+                <span>Slope (a)</span>
+              </label>
+              <label class="flex items-center gap-1 cursor-pointer hover:text-lime-300 transition-colors" title="Show live coordinates on keyframes">
+                <input type="checkbox" id="togglePointLabels" checked class="rounded accent-[#a3e635]">
+                <span>Coordinates</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- The Interactive Velocity Canvas Container with Loupe -->
+          <div class="relative w-full h-[270px] sm:h-[300px] lg:h-[320px] bg-[#020510] rounded-xl border border-sky-950 overflow-hidden shadow-inner flex items-center justify-center">
+            <canvas id="vtCanvas" class="w-full h-full block cursor-crosshair select-none" style="touch-action: none; -webkit-touch-callout: none;"></canvas>
+            
+            <!-- Optical Loupe Reticle for Precision Tracking -->
+            <div id="loupeOverlay" class="loupe-reticle hidden">
+              <div class="loupe-crosshair"></div>
+              <div id="loupeCoordText" class="loupe-coords">(0.0s, 0.0m/s)</div>
+            </div>
+
+            <!-- On-Canvas Drag Guidance Overlay -->
+            <div id="dragHintBadge" class="absolute bottom-2 right-2 px-2 py-1 rounded bg-slate-950/80 border border-sky-500/30 text-[10px] font-mono text-sky-300 pointer-events-none transition-opacity duration-300">
+              💡 Drag any point to change velocity or time!
+            </div>
+          </div>
+
+          <!-- Playback & Time Scrubber Hub -->
+          <div class="flex flex-col gap-2 pt-1 border-t border-white/5">
+            <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2">
+              
+              <!-- Play / Reset Controls -->
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button id="btnPlayPause" class="px-3 py-1.5 rounded-lg bg-[#38bdf8] hover:bg-sky-300 active:scale-95 text-slate-950 text-xs font-mono font-bold transition-all flex items-center gap-1.5 shadow-[0_0_10px_rgba(56,189,248,0.4)]" title="Play or Pause Motion (Hotkey: Spacebar)">
+                  <span id="playIcon">▶</span>
+                  <span id="playLabel">Play Car</span>
+                </button>
+                <button id="btnResetSim" class="px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 active:scale-95 text-slate-300 text-xs font-mono border border-white/10 transition-all" title="Reset Timeline to 0.0s">
+                  ⏮ Reset
+                </button>
+              </div>
+
+              <!-- Time Scrubber with -1s / +1s Steppers -->
+              <div class="flex-1 flex items-center gap-1.5 min-w-[200px]">
+                <button id="btnTimeMinus" class="px-2 py-1 rounded-md bg-white/5 hover:bg-white/15 active:scale-95 border border-white/10 text-slate-200 text-xs font-mono font-bold transition-all shrink-0 hover:border-sky-500/40" title="Step back 0.5s">
+                  ◀ -0.5s
+                </button>
+
+                <input id="timeScrubber" type="range" min="0" max="10" step="0.05" value="0" class="w-full accent-[#38bdf8] cursor-pointer" title="Scrub through simulation timeline">
+
+                <button id="btnTimePlus" class="px-2 py-1 rounded-md bg-white/5 hover:bg-white/15 active:scale-95 border border-white/10 text-slate-200 text-xs font-mono font-bold transition-all shrink-0 hover:border-sky-500/40" title="Step forward 0.5s">
+                  +0.5s ▶
+                </button>
+
+                <span id="timeDisplay" class="font-mono text-xs font-bold text-[#38bdf8] min-w-[42px] text-right shrink-0">
+                  0.00s
+                </span>
+              </div>
+
+              <!-- Speed Multiplier Pill -->
+              <div class="flex items-center gap-1 text-[11px] font-mono text-slate-400 shrink-0">
+                <button class="speed-btn px-1.5 py-0.5 rounded bg-white/5 hover:bg-white/10 active" data-speed="1.0">1x</button>
+                <button class="speed-btn px-1.5 py-0.5 rounded bg-white/5 hover:bg-white/10" data-speed="0.5">0.5x</button>
+                <button class="speed-btn px-1.5 py-0.5 rounded bg-white/5 hover:bg-white/10" data-speed="2.0">2x</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1D Ground Track & Motion Visualizer Card -->
+        <div class="glass-card p-3 border border-sky-500/20 flex flex-col gap-2">
+          
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-sm">🏎️</span>
+              <span class="font-mono text-xs font-bold text-slate-200 uppercase tracking-wider">Physical Motion Visualizer (Ground Track)</span>
+            </div>
+            
+            <div class="flex items-center gap-3 text-xs font-mono">
+              <label class="flex items-center gap-1.5 text-[11px] text-slate-400 cursor-pointer hover:text-amber-300 transition-colors" title="Drop motion strobe markers at regular 0.5s time intervals">
+                <input type="checkbox" id="toggleStrobeDots" checked class="rounded accent-[#fbbf24]">
+                <span>Strobe Trails (0.5s)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 1D Ground Track Canvas -->
+          <div class="relative w-full h-[95px] sm:h-[110px] bg-[#020510] rounded-xl border border-sky-950 overflow-hidden shadow-inner">
+            <canvas id="trackCanvas" class="w-full h-full block select-none" style="touch-action: none;"></canvas>
+          </div>
+
+          <!-- Live Physical State Strip (Position, Velocity, Acceleration) -->
+          <div class="grid grid-cols-3 gap-2 pt-1 font-mono text-center">
+            <div class="p-2 rounded-lg bg-slate-900/60 border border-white/5">
+              <div class="text-[10px] uppercase text-slate-400">Position x(t)</div>
+              <div id="statPosition" class="text-sm sm:text-base font-bold text-[#38bdf8]">0.0 m</div>
+            </div>
+            <div class="p-2 rounded-lg bg-slate-900/60 border border-white/5">
+              <div class="text-[10px] uppercase text-slate-400">Velocity v(t)</div>
+              <div id="statVelocity" class="text-sm sm:text-base font-bold text-[#a3e635]">0.0 m/s</div>
+            </div>
+            <div class="p-2 rounded-lg bg-slate-900/60 border border-white/5">
+              <div class="text-[10px] uppercase text-slate-400">Acceleration a(t)</div>
+              <div id="statAcceleration" class="text-sm sm:text-base font-bold text-[#fbbf24]">0.0 m/s²</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Position vs. Time (x-t) Relationship Drawer -->
+        <div class="glass-card border border-sky-500/20 overflow-hidden">
+          <button id="toggleXtDrawer" class="w-full px-3 py-2 flex items-center justify-between text-xs font-mono text-slate-300 hover:bg-white/5 transition-colors">
+            <div class="flex items-center gap-2">
+              <span class="text-purple-400">📊</span>
+              <span class="font-bold">See Position vs. Time (x-t) Curve (Parabola vs. Straight Line)</span>
+            </div>
+            <span id="xtDrawerIcon" class="text-slate-400">▼ Expand</span>
+          </button>
+
+          <div id="xtDrawerContent" class="hidden p-3 pt-0 border-t border-white/5 flex flex-col gap-2">
+            <div class="text-[11px] text-slate-400 font-sans">
+              Watch how uniform acceleration on v-t transforms into a <strong>curved quadratic parabola</strong> on x-t, while constant velocity forms a <strong>straight line</strong>!
+            </div>
+            <div class="relative w-full h-[140px] bg-[#020510] rounded-lg border border-purple-950/60 overflow-hidden">
+              <canvas id="xtCanvas" class="w-full h-full block select-none" style="touch-action: none;"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- RIGHT 5 COLUMNS: DYNAMIC GAUGES, INSIGHTS & SEGMENT EDITOR -->
+      <!-- ============================================================ -->
+      <div class="lg:col-span-5 flex flex-col gap-2.5">
+        
+        <!-- Live Concept Diagnostic Insight Card -->
+        <div class="glass-card p-3 border border-sky-500/20 flex flex-col gap-2">
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+              <span>🧠</span> Physical Meaning &amp; Analysis
+            </span>
+            <span id="motionPhasePill" class="badge-motion badge-constant">Constant Velocity</span>
+          </div>
+
+          <div id="insightCardBody" class="p-2.5 rounded-xl bg-slate-900/80 border border-white/10 font-sans text-xs text-slate-200 leading-relaxed space-y-1.5">
+            <!-- Dynamically populated physics explanation based on current segment -->
+            <p><strong>Horizontal Line (Slope = 0):</strong> The velocity stays constant. Acceleration is exactly <strong>0 m/s²</strong>.</p>
+            <p class="text-[11px] text-slate-400">The shaded rectangle represents displacement: <strong>Base × Height = Δt × v</strong>.</p>
+          </div>
+
+          <!-- Mathematical Integral Summary Strip -->
+          <div class="grid grid-cols-2 gap-2 text-xs font-mono">
+            <div class="p-2 rounded-lg bg-slate-950/60 border border-white/5">
+              <div class="text-[10px] text-slate-400 uppercase">Net Displacement (Area)</div>
+              <div id="summaryDisplacement" class="text-sm font-bold text-[#38bdf8]">+0.0 m</div>
+              <div class="text-[9px] text-slate-500">Δx = Area above - Area below</div>
+            </div>
+            <div class="p-2 rounded-lg bg-slate-950/60 border border-white/5">
+              <div class="text-[10px] text-slate-400 uppercase">Total Distance Traveled</div>
+              <div id="summaryDistance" class="text-sm font-bold text-[#fbbf24]">0.0 m</div>
+              <div class="text-[9px] text-slate-500">d = |Area above| + |Area below|</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interactive Graph Segment Editor -->
+        <div class="glass-card p-3 border border-sky-500/20 flex flex-col gap-2.5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5">
+              <span class="text-sm">✏️</span>
+              <span class="font-mono text-xs font-bold text-slate-200 uppercase tracking-wider">Graph Waypoint Editor</span>
+            </div>
+            <span class="text-[10px] font-mono text-slate-400">Drag dots on graph OR edit below</span>
+          </div>
+
+          <!-- Waypoints Table Container -->
+          <div class="space-y-2 max-h-[300px] overflow-y-auto pr-1" id="waypointListContainer">
+            <!-- Dynamically populated waypoint rows -->
+          </div>
+
+          <!-- Waypoint Add / Reset Toolbar -->
+          <div class="flex items-center gap-2 pt-2 border-t border-white/10">
+            <button id="btnAddWaypoint" class="flex-1 py-1.5 rounded-lg bg-[#38bdf8]/20 hover:bg-[#38bdf8]/30 active:scale-95 border border-[#38bdf8]/40 text-[#38bdf8] font-mono font-bold text-xs transition-all flex items-center justify-center gap-1">
+              <span>➕ Add Keyframe Point</span>
+            </button>
+            <button id="btnClearPoints" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-rose-300 font-mono text-xs border border-white/10 transition-all" title="Reset to simple 2-point graph">
+              Clear
+            </button>
+          </div>
+        </div>
+
+        <!-- Kinematics Formula Reference Card (Strictly No-LaTeX) -->
+        <div class="glass-card p-3 border border-sky-500/20 flex flex-col gap-2">
+          <div class="font-mono text-xs font-bold text-sky-300 uppercase tracking-wider flex items-center gap-1.5">
+            <span>📐</span> Kinematic Relationships (v-t)
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
+            <div class="p-2 rounded-lg bg-slate-900/60 border border-white/5">
+              <div class="text-[10px] text-amber-400 font-bold">Slope = Acceleration</div>
+              <div class="text-slate-200 mt-0.5">a = Δv / Δt</div>
+              <div class="text-[10px] text-slate-400">a = (v₂ - v₁) / (t₂ - t₁)</div>
+            </div>
+            <div class="p-2 rounded-lg bg-slate-900/60 border border-white/5">
+              <div class="text-[10px] text-sky-400 font-bold">Area = Displacement</div>
+              <div class="text-slate-200 mt-0.5">Δx = Area under v-t</div>
+              <div class="text-[10px] text-slate-400">Rect: b·h | Tri: ½·b·h</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: HELP & SHORTCUTS GUIDE -->
+  <!-- ============================================================== -->
+  <div id="guideModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-3">
+    <div class="glass-card max-w-xl w-full p-4 sm:p-6 border border-sky-500/30 flex flex-col gap-3 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-white/10 pb-2">
+        <h2 class="text-base font-bold font-mono text-sky-300 flex items-center gap-2">
+          <span>📖</span> How to Read Velocity vs. Time (v-t) Graphs
+        </h2>
+        <button id="btnCloseGuide" class="p-1 rounded hover:bg-white/10 text-slate-400 hover:text-white text-sm">✕</button>
+      </div>
+
+      <div class="space-y-3 text-xs text-slate-200 font-sans leading-relaxed">
+        <div class="p-3 rounded-lg bg-sky-950/30 border border-sky-500/20">
+          <h3 class="font-mono font-bold text-sky-300 mb-1">1. Value vs. Slope</h3>
+          <ul class="list-disc pl-4 space-y-1 text-slate-300">
+            <li><strong>Value of the curve:</strong> The height on the vertical axis tells you the object's instantaneous velocity (speed and direction) in m/s.</li>
+            <li><strong>Slope of the curve:</strong> The steepness equals acceleration (a = Δv / Δt) in m/s².</li>
+          </ul>
+        </div>
+
+        <div class="p-3 rounded-lg bg-amber-950/30 border border-amber-500/20">
+          <h3 class="font-mono font-bold text-amber-300 mb-1">2. Flat Line vs. Uphill/Downhill Slope</h3>
+          <ul class="list-disc pl-4 space-y-1 text-slate-300">
+            <li><strong>Flat horizontal line:</strong> Constant speed! Acceleration is 0 m/s². The car is NOT stopped unless it sits on 0 m/s.</li>
+            <li><strong>Uphill slope (positive slope):</strong> Constant positive acceleration. Velocity is increasing.</li>
+            <li><strong>Downhill slope (negative slope):</strong> Constant negative acceleration. Velocity is decreasing.</li>
+          </ul>
+        </div>
+
+        <div class="p-3 rounded-lg bg-emerald-950/30 border border-emerald-500/20">
+          <h3 class="font-mono font-bold text-emerald-300 mb-1">3. Area Under the Curve (Displacement)</h3>
+          <p class="text-slate-300">The geometric area bounded between the velocity line and the horizontal zero axis equals displacement:</p>
+          <ul class="list-disc pl-4 space-y-1 text-slate-300 mt-1">
+            <li><strong>Area above axis (v &gt; 0):</strong> Positive forward displacement (+Δx).</li>
+            <li><strong>Area below axis (v &lt; 0):</strong> Negative backward displacement (-Δx).</li>
+          </ul>
+        </div>
+
+        <div class="p-3 rounded-lg bg-purple-950/30 border border-purple-500/20 font-mono text-[11px]">
+          <h3 class="font-bold text-purple-300 mb-1">⌨️ Keyboard Hotkeys</h3>
+          <div class="grid grid-cols-2 gap-2 text-slate-300">
+            <div><kbd class="px-1.5 py-0.5 rounded bg-white/10">Space</kbd> Play / Pause</div>
+            <div><kbd class="px-1.5 py-0.5 rounded bg-white/10">Home</kbd> Reset to 0.0s</div>
+            <div><kbd class="px-1.5 py-0.5 rounded bg-white/10">◀ / ▶</kbd> Step -0.5s / +0.5s</div>
+            <div><kbd class="px-1.5 py-0.5 rounded bg-white/10">1 - 6</kbd> Switch Presets</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-2 border-t border-white/10 flex justify-end">
+        <button id="btnDismissGuide" class="px-4 py-2 rounded-lg bg-[#38bdf8] text-slate-950 font-mono font-bold text-xs hover:bg-sky-300 transition-all">
+          Awesome, Let's Experiment!
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Logic -->
+  <script src="js/app.js"></script>
+</body>
+</html>

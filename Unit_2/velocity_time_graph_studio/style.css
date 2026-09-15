@@ -1,0 +1,362 @@
+/* ==========================================================================
+   Velocity vs. Time Motion Studio Stylesheet
+   Theme: Cosmic Cyber Kinematics (Electric Cyan, Amber, Volt Lime, Deep Space)
+   ========================================================================== */
+
+:root {
+  --bg-dark: #030712;
+  --card-bg: rgba(15, 23, 42, 0.75);
+  --card-border: rgba(56, 189, 248, 0.2);
+  --accent-cyan: #38bdf8;
+  --accent-amber: #fbbf24;
+  --accent-volt: #a3e635;
+  --accent-rose: #f43f5e;
+  --accent-purple: #c084fc;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+/* Light Theme Overrides (WCAG AAA High Contrast) */
+html:not(.dark) {
+  --bg-dark: #f8fafc;
+  --card-bg: rgba(255, 255, 255, 0.95);
+  --card-border: rgba(148, 163, 184, 0.45);
+  --accent-cyan: #0284c7;
+  --accent-amber: #b45309;
+  --accent-volt: #15803d;
+  --accent-rose: #be123c;
+  --accent-purple: #7e22ce;
+  --text-main: #0f172a;
+  --text-muted: #475569;
+}
+
+html:not(.dark) body {
+  background-color: #f1f5f9;
+  color: #0f172a;
+  background-image: 
+    radial-gradient(circle at 15% 20%, rgba(2, 132, 199, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(180, 83, 9, 0.06) 0%, transparent 40%),
+    linear-gradient(rgba(148, 163, 184, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.12) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 28px 28px, 28px 28px;
+}
+
+html:not(.dark) .glass-card {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.08);
+}
+
+html:not(.dark) .text-slate-100,
+html:not(.dark) .text-slate-200,
+html:not(.dark) .text-white {
+  color: #0f172a !important;
+}
+
+html:not(.dark) .text-slate-300,
+html:not(.dark) .text-slate-400 {
+  color: #334155 !important;
+}
+
+html:not(.dark) .bg-slate-900,
+html:not(.dark) .bg-slate-950,
+html:not(.dark) .bg-slate-900\/80,
+html:not(.dark) .bg-slate-950\/60 {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+html:not(.dark) .btn-preset {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #1e293b;
+}
+
+html:not(.dark) .btn-preset.active {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+  border-color: #0369a1 !important;
+}
+
+html:not(.dark) .loupe-reticle {
+  border-color: #0284c7;
+  background: radial-gradient(circle, rgba(2, 132, 199, 0.2) 0%, rgba(255, 255, 255, 0.5) 80%);
+  box-shadow: 0 0 12px rgba(2, 132, 199, 0.4);
+}
+
+html:not(.dark) .loupe-coords {
+  background: #0f172a;
+  color: #38bdf8;
+  border-color: #0284c7;
+}
+
+/* Base Body */
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  background-image: 
+    radial-gradient(circle at 15% 20%, rgba(56, 189, 248, 0.06) 0%, transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(251, 191, 36, 0.05) 0%, transparent 40%),
+    linear-gradient(rgba(56, 189, 248, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 189, 248, 0.03) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+}
+
+/* Ambient Speed Streaks */
+@keyframes speed-streak {
+  0% { transform: translateX(-100vw); opacity: 0; }
+  25% { opacity: 0.35; }
+  75% { opacity: 0.35; }
+  100% { transform: translateX(100vw); opacity: 0; }
+}
+
+.speed-line {
+  position: fixed;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.6), transparent);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.speed-line-1 {
+  top: 18%;
+  width: 260px;
+  animation: speed-streak 14s infinite linear;
+}
+
+.speed-line-2 {
+  top: 72%;
+  width: 320px;
+  animation: speed-streak 18s infinite 4s linear;
+}
+
+/* Glassmorphic Cards */
+.glass-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--card-border);
+  border-radius: 1rem;
+  box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.3);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.glass-card:hover {
+  border-color: rgba(56, 189, 248, 0.35);
+}
+
+/* Canvases: Prevent iPad Safari Scrolling & Selection */
+canvas {
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Preset Buttons */
+.btn-preset {
+  padding: 0.35rem 0.75rem;
+  border-radius: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  color: #e2e8f0;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.btn-preset:hover {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.5);
+  color: #38bdf8;
+  transform: translateY(-1px);
+}
+
+.btn-preset.active {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(168, 85, 247, 0.2));
+  border-color: #38bdf8;
+  color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+}
+
+/* Optical Loupe Reticle */
+.loupe-reticle {
+  position: absolute;
+  width: 68px;
+  height: 68px;
+  border: 2px solid var(--accent-cyan);
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.2) 0%, rgba(3, 7, 18, 0.5) 80%);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.45), inset 0 0 10px rgba(56, 189, 248, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  transition: width 0.15s ease, height 0.15s ease;
+}
+
+.loupe-crosshair {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.loupe-crosshair::before,
+.loupe-crosshair::after {
+  content: '';
+  position: absolute;
+  background: rgba(56, 189, 248, 0.85);
+}
+
+.loupe-crosshair::before {
+  top: 50%;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  transform: translateY(-50%);
+}
+
+.loupe-crosshair::after {
+  left: 50%;
+  top: 10%;
+  bottom: 10%;
+  width: 1px;
+  transform: translateX(-50%);
+}
+
+.loupe-coords {
+  position: absolute;
+  bottom: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  border: 1px solid var(--accent-cyan);
+  border-radius: 4px;
+  padding: 1px 7px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--accent-cyan);
+  white-space: nowrap;
+  pointer-events: none;
+  transition: top 0.15s ease, bottom 0.15s ease;
+}
+
+/* Touch Aiming Enhancement (iPad / Touchscreens) */
+.loupe-reticle.touch-aiming {
+  width: 78px;
+  height: 78px;
+}
+
+.loupe-reticle.touch-aiming .loupe-coords {
+  bottom: auto;
+  top: -30px;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 2px 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+}
+
+/* Custom Styled Range Sliders */
+input[type="range"] {
+  accent-color: var(--accent-cyan);
+  cursor: pointer;
+}
+
+/* Segment Row Card in Inspector */
+.segment-row {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.65rem;
+  padding: 0.6rem 0.75rem;
+  transition: all 0.15s ease;
+}
+
+.segment-row:hover,
+.segment-row.active {
+  border-color: rgba(56, 189, 248, 0.4);
+  background: rgba(56, 189, 248, 0.06);
+}
+
+/* Motion Mode Badges */
+.badge-motion {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge-constant {
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  color: #38bdf8;
+}
+
+.badge-speeding-up {
+  background: rgba(163, 230, 53, 0.15);
+  border: 1px solid rgba(163, 230, 53, 0.4);
+  color: #a3e635;
+}
+
+.badge-slowing-down {
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  color: #fbbf24;
+}
+
+.badge-stopped {
+  background: rgba(148, 163, 184, 0.15);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  color: #94a3b8;
+}
+
+.badge-reversing {
+  background: rgba(244, 63, 94, 0.15);
+  border: 1px solid rgba(244, 63, 94, 0.4);
+  color: #f43f5e;
+}
+
+/* Pulse Animation for Live Telemetry */
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+.pulse-dot {
+  animation: pulse-ring 2s infinite ease-in-out;
+}
+
+/* Scrollbar refinement */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.6);
+}
