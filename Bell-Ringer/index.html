@@ -2200,14 +2200,14 @@ Respond ONLY with a raw JSON object:
             feedEl.innerHTML = '';
             
             chatMessages.forEach(msg => {
-                const text = msg.parts && msg.parts[0] ? msg.parts[0].text : '';
+                const text = (msg.parts && msg.parts[0] ? msg.parts[0].text : msg.text) || '';
                 if (!text) return;
                 
                 // Do not render hidden system evaluation instruction prompts
                 if (text.startsWith('[System:')) return;
                 
                 const bubble = document.createElement('div');
-                const isStudent = msg.role === 'user';
+                const isStudent = msg.role === 'user' || msg.sender === 'user';
                 
                 if (isStudent) {
                     bubble.className = "self-end bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-2xl rounded-tr-none px-4 py-2.5 max-w-[85%] text-xs shadow-md shadow-orange-500/10 leading-normal";
