@@ -1720,6 +1720,12 @@ const lessonsData = [
     ],
     "practice": [
       {
+        "title": "Dual-Graph Motion Studio",
+        "url": "Unit_2/dual_graph_studio/index.html",
+        "typeLabel": "Graded Practice Studio",
+        "description": "6 leveled missions: 3-segment x-t motion, interval Δx, slope-to-velocity, and interactive v-t translation."
+      },
+      {
         "title": "Speed & Distance Studio",
         "url": "Unit_2/speed_distance_time_app/index.html",
         "typeLabel": "Practice Sandbox",
@@ -1727,6 +1733,8 @@ const lessonsData = [
       }
     ],
     "links": {
+      "Dual-Graph Motion Studio": "Unit_2/dual_graph_studio/index.html",
+      "Position vs. Time Graphing Studio": "Unit_2/position_time_graph_studio/index.html",
       "Distance vs Time App": "https://rrmudry.github.io/distance_vs_time_graphing.html",
       "Speed & Distance Studio": "Unit_2/speed_distance_time_app/index.html"
     }

@@ -2,6 +2,20 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-14 — Dual-Graph Motion Studio (x-t to v-t Translation)
+
+**Motivation**: Building on the high success of the Position vs. Time Graphing Practice (135 completions, ~9.3/10 avg), students needed intermediate practice with 3-segment piecewise motion (direction, interval displacement, and slope-to-velocity) before executing dual-graph translation into velocity-time graphs.
+
+**Key Architectural Changes**:
+- **New Webapp (`Unit_2/dual_graph_studio/`)**:
+  - 6 progressive levels: Level 1 (3-Section Motion Direction), Level 2 (Section Displacement Δx), Level 3 (Slope to Velocity v = Rise/Run), Level 4 (Red Alert Transition to v-t), Level 5 (Velocity Data Table), Level 6 (Dual-Graph Interactive Translation with draggable velocity bars).
+  - Dual canvas engine: Synchronized Position vs. Time (Left) and Velocity vs. Time (Right) with 1D number line Ground Track simulation.
+  - Full Google Auth (`@orangeusd.org`), live autosave, and score retention.
+- **Sync Integration**: Added `dualgraph` matching rule to `sync-classroom/sync-cli.js`.
+- **Curriculum Integration**: Added to Day 12 practice and links in `assets/lessons-data.js`.
+
+---
+
 ## 2026-09-14 — Universal Draggable Datapoints (Level 6 Plotting Studio)
 
 **Motivation**: Students needed the ability to drag any plotted point directly on the graph grid across both desktop and touch devices, eliminating the frustration of having to click "Reset Points" if a single point was misaligned.
