@@ -11,6 +11,7 @@ class StudioAuthManager {
     this.studentName = "Student Investigator";
     this.previousHighScore = 0;
     this.isCompleted = false;
+    this.isSigningIn = false;
 
     this.initAuth();
   }
@@ -97,25 +98,41 @@ class StudioAuthManager {
       alert("Firebase Authentication service is still loading. Please try again in a moment.");
       return;
     }
+    if (this.isSigningIn) {
+      console.log("Sign-in already in progress, skipping duplicate request.");
+      return;
+    }
+    this.isSigningIn = true;
+
     const gateError = document.getElementById('loginGateError');
     if (gateError) gateError.classList.add('hidden');
 
     const provider = new firebase.auth.GoogleAuthProvider();
     provider.setCustomParameters({ hd: 'orangeusd.org', prompt: 'select_account' });
-    firebase.auth().signInWithPopup(provider).catch((err) => {
-      console.error("Sign-in popup error:", err);
-      if (err.code === 'auth/popup-blocked') {
-        alert("Sign-in popup was blocked by your browser. Redirecting to Google Sign-In...");
-        firebase.auth().signInWithRedirect(provider);
-      } else if (err.code !== 'auth/popup-closed-by-user') {
-        if (gateError) {
-          gateError.textContent = `Google Sign-In error: ${err.message || err.code}`;
-          gateError.classList.remove('hidden');
-        } else {
-          alert("Google Sign-In error: " + (err.message || err.code));
+    firebase.auth().signInWithPopup(provider)
+      .catch((err) => {
+        if (err.code === 'auth/cancelled-popup-request') {
+          console.warn("Conflicting popup request cancelled by Firebase SDK.");
+          return;
         }
-      }
-    });
+        console.error("Sign-in popup error:", err);
+        if (err.code === 'auth/popup-blocked') {
+          alert("Sign-in popup was blocked by your browser. Redirecting to Google Sign-In...");
+          firebase.auth().signInWithRedirect(provider);
+        } else if (err.code !== 'auth/popup-closed-by-user') {
+          if (gateError) {
+            gateError.textContent = `Google Sign-In error: ${err.message || err.code}`;
+            gateError.classList.remove('hidden');
+          } else {
+            alert("Google Sign-In error: " + (err.message || err.code));
+          }
+        }
+      })
+      .finally(() => {
+        setTimeout(() => {
+          this.isSigningIn = false;
+        }, 1200);
+      });
   }
 
   signOut() {
