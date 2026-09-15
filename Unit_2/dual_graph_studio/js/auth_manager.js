@@ -44,8 +44,8 @@ class StudioAuthManager {
           if (gateError) gateError.classList.add('hidden');
 
           // Calibrate student-specific variants and restore progress
-          if (window.studioApp) {
-            window.studioApp.onStudentLoggedIn(this.studentId);
+          if (window.dualStudioApp) {
+            window.dualStudioApp.onStudentLoggedIn(this.studentId);
           }
 
           this.loadStudentResults();
