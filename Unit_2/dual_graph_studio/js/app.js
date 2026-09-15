@@ -2195,10 +2195,15 @@
       const modal = document.getElementById('certModal');
       const nameEl = document.getElementById('certStudentName');
       const scoreEl = document.getElementById('certScore');
+      const dateEl = document.getElementById('certDate');
       const total = this.getTotalScore();
 
       if (modal) modal.classList.remove('hidden');
-      if (scoreEl) scoreEl.textContent = `${total} / 100`;
+      if (scoreEl) scoreEl.textContent = total;
+      if (dateEl) {
+        const now = new Date();
+        dateEl.textContent = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      }
       if (nameEl && window.authManager) {
         nameEl.textContent = window.authManager.studentName || 'Student Investigator';
       }
