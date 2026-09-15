@@ -569,7 +569,7 @@
           const seg = this.segments[this.highlightSectionIdx];
           const px0 = this.timeToPixel(seg.t0, w);
           const px1 = this.timeToPixel(seg.t1, w);
-          ctx.fillStyle = isDark ? 'rgba(204,255,0,0.12)' : 'rgba(22,163,74,0.12)';
+          ctx.fillStyle = isDark ? 'rgba(56,189,248,0.15)' : 'rgba(2,132,199,0.12)';
           ctx.fillRect(px0, this.padding.top, px1 - px0, h - this.padding.top - this.padding.bottom);
         }
 
@@ -798,7 +798,7 @@
       }
     }
 
-    // --- 1D Number Line Track Canvas Render ---
+    // --- 1D Number Line Track Canvas Render (Exact Match to Position vs Time Studio) ---
     renderTrack() {
       if (!this.tCtx || !this.tW || !this.tH) return;
       const ctx = this.tCtx;
@@ -807,66 +807,100 @@
       const isDark = this.isDarkMode();
 
       ctx.clearRect(0, 0, w, h);
-      ctx.fillStyle = isDark ? '#020502' : '#ffffff';
+      ctx.fillStyle = isDark ? '#040804' : '#f8fafc';
       ctx.fillRect(0, 0, w, h);
 
+      const trackY = Math.floor(h * 0.58);
       const tPad = 40;
-      const lineY = Math.floor(h * 0.58);
 
-      // Track axis line
-      ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)';
-      ctx.lineWidth = 2;
+      // Track Lane (Padded asphalt run)
+      ctx.fillStyle = isDark ? 'rgba(56, 189, 248, 0.05)' : 'rgba(0, 0, 0, 0.03)';
+      ctx.fillRect(tPad - 15, trackY - 22, w - (tPad - 15) * 2, 44);
+
+      // Track Baseline
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = isDark ? 'rgba(56, 189, 248, 0.45)' : '#0284c7';
       ctx.beginPath();
-      ctx.moveTo(tPad, lineY);
-      ctx.lineTo(w - tPad, lineY);
+      ctx.moveTo(tPad, trackY);
+      ctx.lineTo(w - tPad, trackY);
       ctx.stroke();
 
-      // Tick markers
-      for (let x = this.xMin; x <= this.xMax; x += 2) {
-        const px = this.trackPosToPixel(x);
-        const isOrigin = x === 0;
-        ctx.strokeStyle = isOrigin ? '#ccff00' : (isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)');
-        ctx.lineWidth = isOrigin ? 2 : 1;
+      // Number Line Markers (every 2m: 0m, 2m, 4m, 6m, 8m, 10m, 12m, 14m, 16m, 18m)
+      for (let xPos = 0; xPos <= this.xMax; xPos += 2) {
+        const px = this.trackPosToPixel(xPos);
+
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = xPos === 0 ? (isDark ? '#38bdf8' : '#0284c7') : (isDark ? '#64748b' : '#94a3b8');
         ctx.beginPath();
-        ctx.moveTo(px, lineY - (isOrigin ? 8 : 5));
-        ctx.lineTo(px, lineY + (isOrigin ? 8 : 5));
+        ctx.moveTo(px, trackY - 6);
+        ctx.lineTo(px, trackY + 6);
         ctx.stroke();
 
-        ctx.fillStyle = isOrigin ? '#ccff00' : (isDark ? '#94a3b8' : '#475569');
-        ctx.font = isOrigin ? 'bold 10px monospace' : '9px monospace';
+        ctx.fillStyle = xPos === 0 ? (isDark ? '#38bdf8' : '#0284c7') : (isDark ? '#f1f5f9' : '#0f172a');
+        ctx.font = 'bold 10px JetBrains Mono, monospace';
         ctx.textAlign = 'center';
-        ctx.fillText(`${x}m`, px, lineY + 18);
+        ctx.fillText(`${xPos}m`, px, trackY + 22);
       }
 
-      // Car position and vehicle sprite
+      // Start Flag at 0m
+      const originPx = this.trackPosToPixel(0);
+      ctx.font = '14px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('🏁', originPx, trackY - 14);
+
+      // Single Car Position & Velocity
       const state = this.getStateAtTime(this.currentTime);
       const carPx = this.trackPosToPixel(state.x);
 
-      // Direction vector arrow
-      if (Math.abs(state.v) > 0.1) {
-        const arrowLen = Math.min(32, Math.abs(state.v) * 8);
-        const dir = state.v > 0 ? 1 : -1;
-        ctx.strokeStyle = state.v > 0 ? '#38bdf8' : '#f43f5e';
+      // Velocity direction arrow
+      if (Math.abs(state.v) > 0.05) {
+        const arrowLen = Math.max(-35, Math.min(35, state.v * 6));
+        const arrowColor = state.v > 0 ? (isDark ? '#38bdf8' : '#0369a1') : (isDark ? '#f43f5e' : '#be123c');
         ctx.lineWidth = 2.5;
+        ctx.strokeStyle = arrowColor;
         ctx.beginPath();
-        ctx.moveTo(carPx, lineY - 14);
-        ctx.lineTo(carPx + dir * arrowLen, lineY - 14);
+        ctx.moveTo(carPx, trackY - 26);
+        ctx.lineTo(carPx + arrowLen, trackY - 26);
         ctx.stroke();
 
-        // Arrowhead
-        ctx.fillStyle = state.v > 0 ? '#38bdf8' : '#f43f5e';
+        const arrowDir = state.v > 0 ? 1 : -1;
         ctx.beginPath();
-        ctx.moveTo(carPx + dir * arrowLen, lineY - 14);
-        ctx.lineTo(carPx + dir * (arrowLen - 6), lineY - 18);
-        ctx.lineTo(carPx + dir * (arrowLen - 6), lineY - 10);
+        ctx.moveTo(carPx + arrowLen, trackY - 26);
+        ctx.lineTo(carPx + arrowLen - arrowDir * 5, trackY - 29);
+        ctx.lineTo(carPx + arrowLen - arrowDir * 5, trackY - 23);
+        ctx.fillStyle = arrowColor;
         ctx.fill();
       }
 
-      // Car Emoji Sprite
-      ctx.font = '22px sans-serif';
+      // Cyber Car Sprite (Exact replica from position_time_graph_studio)
+      ctx.save();
+      ctx.translate(carPx, trackY - 2);
+
+      const carBorder = isDark ? '#38bdf8' : '#0284c7';
+      ctx.fillStyle = isDark ? '#0f172a' : '#334155';
+      ctx.strokeStyle = carBorder;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(-15, -12, 30, 14, 4);
+      ctx.fill();
+      ctx.stroke();
+
+      // Cyber Car Cockpit Window
+      ctx.fillStyle = carBorder;
+      ctx.fillRect(-6, -10, 12, 5);
+
+      // Cyber Car Wheels
+      ctx.fillStyle = isDark ? '#020617' : '#0f172a';
+      ctx.fillRect(-13, 0, 7, 5);
+      ctx.fillRect(6, 0, 7, 5);
+
+      ctx.restore();
+
+      // Clear Floating Position Badge above Car
+      ctx.fillStyle = isDark ? '#38bdf8' : '#0284c7';
+      ctx.font = 'bold 11px JetBrains Mono, monospace';
       ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(state.v < -0.1 ? '🚗' : '🏎️', carPx, lineY - 8);
+      ctx.fillText(`${state.x.toFixed(1)}m`, carPx, trackY - 32);
     }
   }
 
