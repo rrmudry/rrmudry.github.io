@@ -943,29 +943,29 @@
       sec2: { dir: 'stopped', dx: 0, dt: 3, v: 0, label: '3s to 6s' },
       sec3: { dir: 'forward', dx: 8, dt: 4, v: 2, label: '6s to 10s' }
     },
-    // Scenario 3: Stopped at start (0-3s, at 4m -> 0 m/s), Forward Fast (3-6s, up to 16m -> +4 m/s), Stopped at rest (6-10s, at 16m -> 0 m/s)
+    // Scenario 3: Stopped at start (0-3s, at 10m -> 0 m/s), Forward Fast (3-6s, 10m up to 16m -> +2 m/s), Reverse (6-10s, 16m down to 4m -> -3 m/s)
     {
       id: 3,
       segments: [
-        { t0: 0, t1: 3, x0: 4, x1: 4, color: '#facc15' },
-        { t0: 3, t1: 6, x0: 4, x1: 16, color: '#38bdf8' },
-        { t0: 6, t1: 10, x0: 16, x1: 16, color: '#facc15' }
+        { t0: 0, t1: 3, x0: 10, x1: 10, color: '#facc15' },
+        { t0: 3, t1: 6, x0: 10, x1: 16, color: '#38bdf8' },
+        { t0: 6, t1: 10, x0: 16, x1: 4, color: '#f43f5e' }
       ],
       sec1: { dir: 'stopped', dx: 0, dt: 3, v: 0, label: '0s to 3s' },
-      sec2: { dir: 'forward', dx: 12, dt: 3, v: 4, label: '3s to 6s' },
-      sec3: { dir: 'stopped', dx: 0, dt: 4, v: 0, label: '6s to 10s' }
+      sec2: { dir: 'forward', dx: 6, dt: 3, v: 2, label: '3s to 6s' },
+      sec3: { dir: 'backward', dx: -12, dt: 4, v: -3, label: '6s to 10s' }
     },
-    // Scenario 4: Forward Steady (0-4s, 0m to 8m -> +2 m/s), Forward Fast (4-7s, 8m to 17m -> +3 m/s), Stopped (7-10s, at 17m -> 0 m/s)
+    // Scenario 4: Forward Steady (0-4s, 4m to 12m -> +2 m/s), Stopped (4-7s, at 12m -> 0 m/s), Reverse (7-10s, 12m down to 3m -> -3 m/s)
     {
       id: 4,
       segments: [
-        { t0: 0, t1: 4, x0: 0, x1: 8, color: '#38bdf8' },
-        { t0: 4, t1: 7, x0: 8, x1: 17, color: '#a855f7' },
-        { t0: 7, t1: 10, x0: 17, x1: 17, color: '#facc15' }
+        { t0: 0, t1: 4, x0: 4, x1: 12, color: '#38bdf8' },
+        { t0: 4, t1: 7, x0: 12, x1: 12, color: '#facc15' },
+        { t0: 7, t1: 10, x0: 12, x1: 3, color: '#f43f5e' }
       ],
       sec1: { dir: 'forward', dx: 8, dt: 4, v: 2, label: '0s to 4s' },
-      sec2: { dir: 'forward', dx: 9, dt: 3, v: 3, label: '4s to 7s' },
-      sec3: { dir: 'stopped', dx: 0, dt: 3, v: 0, label: '7s to 10s' }
+      sec2: { dir: 'stopped', dx: 0, dt: 3, v: 0, label: '4s to 7s' },
+      sec3: { dir: 'backward', dx: -9, dt: 3, v: -3, label: '7s to 10s' }
     },
     // Scenario 5: Reverse fast (0-2s, from 14m down to 6m -> -4 m/s), Stopped (2-6s, at 6m -> 0 m/s), Reverse slow (6-10s, 6m down to 2m -> -1 m/s)
     {
@@ -1584,9 +1584,8 @@
       const secIdx = this.currentStep; // 0, 1, 2
       const sec = secIdx === 0 ? sc.sec1 : (secIdx === 1 ? sc.sec2 : sc.sec3);
 
-      // Question 1: What does horizontal flat line mean on v-t?
-      // Question 2: Which section is the fastest speed?
-      // Question 3: What does being below the zero line mean?
+      // Level 4 introduces the Velocity vs. Time (v-t) graph.
+      // We ensure the questions are 100% directly related to what is visible on the student's graph!
       let qTitle = '';
       let qPrompt = '';
       let choices = [];
@@ -1594,39 +1593,61 @@
       let explanation = '';
 
       if (secIdx === 0) {
+        // Question 1: What do the horizontal flat bars on this graph represent?
         qTitle = 'Question 1 of 3: Flat Lines on Velocity Graphs';
-        qPrompt = `Look at the new <strong>Velocity vs. Time (v-t)</strong> graph. Why are constant speeds shown as <strong>flat horizontal lines</strong> on this graph?`;
+        qPrompt = `Look at the horizontal bars on the <strong>Velocity vs. Time (v-t)</strong> graph above. Why is each section shown as a <strong>flat horizontal line</strong>?`;
         choices = [
-          { key: 'stopped', label: 'A) Because the car is completely stopped.' },
-          { key: 'steady', label: 'B) Because the velocity is STEADY/CONSTANT (not speeding up or slowing down).' },
-          { key: 'flatroad', label: 'C) Because the road is completely flat.' }
+          { key: 'steady', label: 'A) The velocity in each section is STEADY / CONSTANT (not speeding up or slowing down).' },
+          { key: 'stopped', label: 'B) The car is completely stopped the whole time.' },
+          { key: 'flatroad', label: 'C) The road is completely flat.' }
         ];
         correctChoice = 'steady';
-        explanation = 'On a velocity graph, the height shows speed. A flat horizontal line means the speed is not changing—it is cruising steadily!';
+        explanation = 'On a velocity graph, vertical height shows speed! A flat horizontal line means velocity is staying constant.';
       } else if (secIdx === 1) {
-        qTitle = 'Question 2 of 3: Identifying Speed on v-t';
-        // Compare speeds
+        // Question 2: Which section is the fastest speed?
         const speeds = [Math.abs(sc.sec1.v), Math.abs(sc.sec2.v), Math.abs(sc.sec3.v)];
         const maxSpeed = Math.max(...speeds);
         const fastestSecNum = speeds.indexOf(maxSpeed) + 1;
-        qPrompt = `Look at the heights of the three horizontal bars on the v-t graph. Which section has the <strong>fastest speed magnitude</strong>?`;
+        qTitle = 'Question 2 of 3: Identifying Speed on v-t';
+        qPrompt = `Look at the vertical heights of the bars from the zero axis (0 m/s). Which section has the <strong>fastest speed magnitude</strong> on this graph?`;
         choices = [
           { key: '1', label: `A) Section 1 (|v| = ${speeds[0]} m/s)` },
           { key: '2', label: `B) Section 2 (|v| = ${speeds[1]} m/s)` },
           { key: '3', label: `C) Section 3 (|v| = ${speeds[2]} m/s)` }
         ];
         correctChoice = String(fastestSecNum);
-        explanation = `The furthest bar away from the zero axis has the greatest speed magnitude (${maxSpeed} m/s)!`;
+        explanation = `Section ${fastestSecNum} is furthest from the zero axis, giving it the fastest speed magnitude (${maxSpeed} m/s)!`;
       } else {
-        qTitle = 'Question 3 of 3: Above vs. Below the Zero Line';
-        qPrompt = `On this Velocity vs. Time graph, what does a line plotted <strong>below the zero axis (negative velocity)</strong> tell you?`;
-        choices = [
-          { key: 'reverse', label: 'A) The car is driving in REVERSE (negative direction).' },
-          { key: 'slower_zero', label: 'B) The car is moving slower than stopped.' },
-          { key: 'broken', label: 'C) The engine broke down.' }
-        ];
-        correctChoice = 'reverse';
-        explanation = 'Negative velocity indicates direction! The car is driving backward in reverse.';
+        // Question 3: Direction on v-t (Above, On, or Below the zero line)
+        // Find if there is a negative velocity section in this scenario
+        const negSecIdx = [sc.sec1.v, sc.sec2.v, sc.sec3.v].findIndex(v => v < 0);
+
+        if (negSecIdx !== -1) {
+          const negSecNum = negSecIdx + 1;
+          const negVal = [sc.sec1.v, sc.sec2.v, sc.sec3.v][negSecIdx];
+          qTitle = `Question 3 of 3: Negative Velocity in Section ${negSecNum}`;
+          qPrompt = `Look at <strong>Section ${negSecNum}</strong> plotted <strong>below the zero line (v = ${negVal} m/s)</strong>. What is the car physically doing during this time?`;
+          choices = [
+            { key: 'reverse', label: 'A) Driving in REVERSE / BACKWARD (negative direction toward 0m).' },
+            { key: 'slower_zero', label: 'B) Moving slower than 0 m/s (stopped).' },
+            { key: 'broken', label: 'C) Parked with the engine turned off.' }
+          ];
+          correctChoice = 'reverse';
+          explanation = `On a velocity graph, bars below the zero axis indicate negative velocity: the car is driving backward in reverse at ${Math.abs(negVal)} m/s!`;
+        } else {
+          // If this scenario has no negative velocity (e.g. forward and stop only), ask about the 0 m/s section on the zero line
+          const stopSecIdx = [sc.sec1.v, sc.sec2.v, sc.sec3.v].findIndex(v => v === 0);
+          const stopSecNum = stopSecIdx !== -1 ? stopSecIdx + 1 : 3;
+          qTitle = `Question 3 of 3: Velocity On the Zero Line`;
+          qPrompt = `Look at <strong>Section ${stopSecNum}</strong> plotted directly <strong>on the zero line (v = 0 m/s)</strong>. What does v = 0 m/s mean on this graph?`;
+          choices = [
+            { key: 'stopped', label: 'A) The car is completely STOPPED AT REST (not moving).' },
+            { key: 'reverse', label: 'B) The car is driving backward in reverse.' },
+            { key: 'flying', label: 'C) The car has left the ground.' }
+          ];
+          correctChoice = 'stopped';
+          explanation = `When the velocity line sits right on the 0 m/s axis, speed is zero—the car is stopped at rest!`;
+        }
       }
 
       ws.innerHTML = `
