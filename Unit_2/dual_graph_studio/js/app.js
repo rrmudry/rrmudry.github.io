@@ -1085,6 +1085,81 @@
     }
 
     initDOM() {
+      // Navigation Tabs (Missions, Dual Sandbox, Help Guide)
+      const tabs = document.querySelectorAll('.nav-tab');
+      tabs.forEach(btn => {
+        btn.addEventListener('click', () => {
+          tabs.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          const targetId = btn.dataset.tab;
+          document.querySelectorAll('.tab-panel').forEach(panel => {
+            panel.classList.add('hidden');
+          });
+
+          if (targetId === 'tab-missions') {
+            const missionsBar = document.getElementById('tab-missions');
+            const missionsWs = document.getElementById('tab-missions-workspace');
+            if (missionsBar) missionsBar.classList.remove('hidden');
+            if (missionsWs) missionsWs.classList.remove('hidden');
+            this.switchLevel(this.currentLevel);
+          } else {
+            const activePanel = document.getElementById(targetId);
+            if (activePanel) activePanel.classList.remove('hidden');
+            // When in sandbox or help, hide missions progression bar
+            const missionsBar = document.getElementById('tab-missions');
+            if (missionsBar) missionsBar.classList.add('hidden');
+          }
+
+          sfx.click();
+
+          if (targetId === 'tab-sandbox') {
+            const modeLabel = document.getElementById('canvasModeLabel');
+            if (modeLabel) modeLabel.textContent = 'Free-Play Dual Sandbox';
+            // Run initial sandbox state
+            const sbApply = document.getElementById('btnApplySandbox');
+            if (sbApply) sbApply.click();
+          }
+        });
+      });
+
+      // Sandbox Presets & Reset
+      const btnPreset1 = document.getElementById('btnSbPreset1');
+      if (btnPreset1) {
+        btnPreset1.addEventListener('click', () => {
+          document.getElementById('sbVel1').value = '2.0';
+          document.getElementById('sbVel2').value = '0.0';
+          document.getElementById('sbVel3').value = '-2.0';
+          sfx.click();
+          const sbApply = document.getElementById('btnApplySandbox');
+          if (sbApply) sbApply.click();
+        });
+      }
+
+      const btnPreset2 = document.getElementById('btnSbPreset2');
+      if (btnPreset2) {
+        btnPreset2.addEventListener('click', () => {
+          document.getElementById('sbVel1').value = '1.0';
+          document.getElementById('sbVel2').value = '3.0';
+          document.getElementById('sbVel3').value = '-3.0';
+          sfx.click();
+          const sbApply = document.getElementById('btnApplySandbox');
+          if (sbApply) sbApply.click();
+        });
+      }
+
+      const btnSbReset = document.getElementById('btnSbReset');
+      if (btnSbReset) {
+        btnSbReset.addEventListener('click', () => {
+          document.getElementById('sbVel1').value = '0.0';
+          document.getElementById('sbVel2').value = '0.0';
+          document.getElementById('sbVel3').value = '0.0';
+          sfx.click();
+          const sbApply = document.getElementById('btnApplySandbox');
+          if (sbApply) sbApply.click();
+        });
+      }
+
       // Level Buttons
       document.querySelectorAll('.level-btn').forEach(btn => {
         btn.addEventListener('click', () => {
