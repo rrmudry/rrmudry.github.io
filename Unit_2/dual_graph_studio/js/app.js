@@ -1842,23 +1842,26 @@
     }
 
     // =========================================================================
-    // LEVEL 5: VELOCITY DATA TABLE COMPLETION
+    // =========================================================================
+    // LEVEL 5: VELOCITY DATA TABLE COMPLETION (3 DISTINCT GRAPHS)
     // =========================================================================
     renderLevel5(ws, sc) {
       const stepKey = `L5_S${this.currentStep}`;
+      const graphNum = this.currentStep + 1; // 1, 2, or 3
+      const pts = 5; // 5 + 5 + 5 = 15 pts
 
       ws.innerHTML = `
         <div class="space-y-4">
           <div class="flex items-center justify-between border-b border-white/10 pb-2">
             <div>
               <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-rose-400">Level 5 • Kinematic Data Table</span>
-              <h2 class="text-base font-bold text-white">Record the 3 Section Velocities</h2>
+              <h2 class="text-base font-bold text-white">Graph ${graphNum} of 3: Read 3 Section Velocities</h2>
             </div>
-            <span class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-rose-950 border border-rose-500/30 text-rose-300">15 pts</span>
+            <span class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-rose-950 border border-rose-500/30 text-rose-300">${pts} pts</span>
           </div>
 
           <div class="p-3 rounded-xl bg-slate-950/60 border border-rose-500/30 text-xs font-sans text-slate-200 leading-relaxed space-y-1">
-            <p>Read the velocity for each interval directly from the <strong>Velocity vs. Time (v-t) graph</strong> above, and complete the table below:</p>
+            <p>Read the velocity for each interval directly from the <strong>Velocity vs. Time (v-t) graph</strong> above (Graph ${graphNum} of 3):</p>
             <p class="text-[11px] text-slate-400">💡 Look at the height of each horizontal line relative to the vertical velocity axis (m/s). Use negative values if the line is below 0 m/s!</p>
           </div>
 
@@ -1892,7 +1895,7 @@
 
           <div id="stepFeedback" class="hidden p-3 rounded-xl text-xs font-sans"></div>
           <button id="btnNextStep" class="hidden w-full py-2.5 rounded-xl bg-[#ccff00] text-slate-950 font-mono font-bold text-xs hover:bg-lime-300 transition-all shadow-[0_0_10px_rgba(204,255,0,0.3)]">
-            Unlock Level 6: Dual Translation ➜
+            ${this.currentStep < 2 ? 'Next Graph Table ➜' : 'Level 5 Complete! Unlock Level 6: Dual Translation ➜'}
           </button>
         </div>
       `;
@@ -1913,13 +1916,13 @@
               Math.abs(v3 - sc.sec3.v) < 0.05) {
             sfx.success();
             fb.className = 'p-3 rounded-xl text-xs font-sans bg-emerald-950/70 border border-emerald-500/40 text-emerald-200';
-            fb.innerHTML = `<strong>⭐ 100% Correct!</strong> You've successfully read all 3 velocities from the graph: v₁ = ${sc.sec1.v} m/s, v₂ = ${sc.sec2.v} m/s, v₃ = ${sc.sec3.v} m/s.`;
+            fb.innerHTML = `<strong>⭐ Graph ${graphNum} Correct!</strong> You've successfully read all 3 velocities: v₁ = ${sc.sec1.v} m/s, v₂ = ${sc.sec2.v} m/s, v₃ = ${sc.sec3.v} m/s.`;
             fb.classList.remove('hidden');
             nextBtn.classList.remove('hidden');
 
             if (!this.completedSteps[stepKey]) {
               this.completedSteps[stepKey] = true;
-              this.levelScores[4] = 15;
+              this.levelScores[4] = Math.min(15, this.levelScores[4] + pts);
               this.updateScoreDisplay();
             }
           } else {
@@ -1942,17 +1945,25 @@
       const nextBtn = document.getElementById('btnNextStep');
       if (nextBtn) {
         nextBtn.addEventListener('click', () => {
-          sfx.fanfare();
-          this.switchLevel(6);
+          if (this.currentStep < 2) {
+            this.currentStep++;
+            this.loadStep();
+          } else {
+            sfx.fanfare();
+            this.switchLevel(6);
+          }
         });
       }
     }
 
     // =========================================================================
-    // LEVEL 6: DUAL-GRAPH TRANSLATION (CLICK & DRAG BARS INTO POSITION)
+    // =========================================================================
+    // LEVEL 6: DUAL-GRAPH TRANSLATION (3 DISTINCT GRAPHS TO DRAW)
     // =========================================================================
     renderLevel6(ws, sc) {
       const stepKey = `L6_S${this.currentStep}`;
+      const graphNum = this.currentStep + 1; // 1, 2, or 3
+      const pts = (this.currentStep === 2) ? 6 : 7; // 7 + 7 + 6 = 20 pts
 
       // Initialize student drag velocity bars on the right canvas
       this.visualizer.setupDualBars([
@@ -1966,15 +1977,15 @@
           <div class="flex items-center justify-between border-b border-sky-500/20 pb-2">
             <div>
               <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-sky-400">Level 6 • Authentic Translation</span>
-              <h2 class="text-base font-bold text-white">Mission: Draw the Velocity-Time Graph</h2>
+              <h2 class="text-base font-bold text-white">Graph ${graphNum} of 3: Draw the Velocity-Time Graph</h2>
             </div>
-            <span class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-sky-950 border border-sky-500/30 text-sky-300">20 pts</span>
+            <span class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-sky-950 border border-sky-500/30 text-sky-300">${pts} pts</span>
           </div>
 
           <div class="p-3 rounded-xl bg-sky-950/50 border border-sky-500/30 text-xs font-sans text-sky-200 leading-relaxed space-y-1.5">
-            <p><strong>How to Translate:</strong></p>
+            <p><strong>How to Translate (Challenge ${graphNum} of 3):</strong></p>
             <ol class="list-decimal list-inside space-y-1 text-slate-200">
-              <li>Look at each section's slope on the <strong>Left Graph (x-t)</strong>.</li>
+              <li>Calculate each section's slope (Rise ÷ Run) on the <strong>Left Graph (x-t)</strong>.</li>
               <li>Click and drag the horizontal velocity bars on the <strong>Right Graph (v-t)</strong> UP or DOWN until their speed values match!</li>
             </ol>
           </div>
@@ -1994,8 +2005,8 @@
           </button>
 
           <div id="stepFeedback" class="hidden p-3 rounded-xl text-xs font-sans"></div>
-          <button id="btnCompleteMission" class="hidden w-full py-2.5 rounded-xl bg-[#ccff00] text-slate-950 font-mono font-bold text-xs hover:bg-lime-300 transition-all shadow-[0_0_10px_rgba(204,255,0,0.3)]">
-            🏆 View Mastery Certificate!
+          <button id="btnNextStep" class="hidden w-full py-2.5 rounded-xl bg-[#ccff00] text-slate-950 font-mono font-bold text-xs hover:bg-lime-300 transition-all shadow-[0_0_10px_rgba(204,255,0,0.3)]">
+            ${this.currentStep < 2 ? 'Next Translation Challenge ➜' : '🏆 Complete Studio & View Certificate!'}
           </button>
         </div>
       `;
@@ -2009,18 +2020,18 @@
           const bars = this.visualizer.studentVelocityBars;
           const isAllMatch = bars.every(b => Math.abs(b.v - b.expectedV) < 0.1);
           const fb = document.getElementById('stepFeedback');
-          const completeBtn = document.getElementById('btnCompleteMission');
+          const nextBtn = document.getElementById('btnNextStep');
 
           if (isAllMatch) {
             sfx.fanfare();
             fb.className = 'p-3 rounded-xl text-xs font-sans bg-emerald-950/70 border border-emerald-500/40 text-emerald-200';
-            fb.innerHTML = `<strong>🎉 MASTER TRANSLATION COMPLETE!</strong> Both graphs are in perfect kinematic alignment! You've successfully converted an x-t piecewise motion into a v-t profile.`;
+            fb.innerHTML = `<strong>🎉 Graph ${graphNum} Translation Accurate!</strong> Both graphs are in perfect kinematic alignment!`;
             fb.classList.remove('hidden');
-            completeBtn.classList.remove('hidden');
+            nextBtn.classList.remove('hidden');
 
             if (!this.completedSteps[stepKey]) {
               this.completedSteps[stepKey] = true;
-              this.levelScores[5] = 20;
+              this.levelScores[5] = Math.min(20, this.levelScores[5] + pts);
               this.updateScoreDisplay();
             }
           } else {
@@ -2044,9 +2055,16 @@
         });
       }
 
-      const completeBtn = document.getElementById('btnCompleteMission');
-      if (completeBtn) {
-        completeBtn.addEventListener('click', () => this.showCertificate());
+      const nextBtn = document.getElementById('btnNextStep');
+      if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+          if (this.currentStep < 2) {
+            this.currentStep++;
+            this.loadStep();
+          } else {
+            this.showCertificate();
+          }
+        });
       }
     }
 
