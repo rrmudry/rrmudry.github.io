@@ -1194,8 +1194,8 @@ CRITICAL RULES:
                             } else {
                                 let bubbles = '';
                                 chatMessages.forEach(msg => {
-                                    const text = msg.parts && msg.parts[0] ? msg.parts[0].text : '';
-                                    const isStudent = msg.role === 'user';
+                                    const text = (msg.parts && msg.parts[0] ? msg.parts[0].text : msg.text) || '';
+                                    const isStudent = msg.role === 'user' || msg.sender === 'user';
                                     const roleLabel = isStudent ? 'Student' : 'AI Tutor';
                                     const roleClass = isStudent ? 'text-orange-400 font-bold' : 'text-cyan-400 font-bold';
                                     const bgClass = isStudent ? 'bg-orange-500/5 border border-orange-500/10' : 'bg-cyan-500/5 border-cyan-500/10';

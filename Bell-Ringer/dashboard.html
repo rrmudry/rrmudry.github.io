@@ -1045,8 +1045,8 @@
                 } else {
                     let html = '';
                     chatMessages.forEach(msg => {
-                        const text = msg.parts && msg.parts[0] ? msg.parts[0].text : '';
-                        const isUser = msg.role === 'user';
+                        const text = (msg.parts && msg.parts[0] ? msg.parts[0].text : msg.text) || '';
+                        const isUser = msg.role === 'user' || msg.sender === 'user';
                         const roleLabel = isUser ? 'Student' : 'AI Tutor';
                         const bubbleClass = isUser ? 'bg-orange-500/10 border-orange-500/20 text-orange-200 self-end' : 'bg-cyan-500/10 border-cyan-500/20 text-cyan-200 self-start';
                         const roleClass = isUser ? 'text-orange-400' : 'text-cyan-400';
