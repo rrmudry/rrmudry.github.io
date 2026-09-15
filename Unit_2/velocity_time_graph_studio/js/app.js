@@ -2,12 +2,12 @@
  * Velocity vs. Time (v-t) Motion Visualizer & Graph Studio
  * Clean, reliable, and straightforward classroom presentation tool.
  *
- * Core Features:
- * - Constant Speed Examples (a = 0, flat horizontal line)
- * - Uniform Acceleration Examples (a = const, straight diagonal lines)
- * - 1D Motion Track with physical car, vector arrows, and 0.5s strobe drops
- * - Draggable keyframes on graph
- * - Strictly No-LaTeX math (plain Unicode/HTML)
+ * Updates:
+ * - High-Contrast Light Mode Support (with matching canvas backgrounds and axes)
+ * - "New Custom Example" creation preset
+ * - Quick "Add Point" button and click-on-line to insert datapoints
+ * - Reset points to clean default
+ * - Interactive dragging of all datapoints with live recalculation
  */
 
 (function () {
@@ -50,6 +50,7 @@
 
         blip() { this.playTone(600, 0.05, 'sine', 0.05); }
         snap() { this.playTone(800, 0.06, 'triangle', 0.08); }
+        add() { this.playTone(950, 0.08, 'sine', 0.09); }
     }
 
     const sound = new SoundFX();
@@ -126,6 +127,18 @@
                 { t: 5, v: -4 },
                 { t: 10, v: -4 }
             ]
+        },
+        custom: {
+            title: 'Custom Example (User Created)',
+            body: 'Design your own velocity graph! Click anywhere on the line or click the <strong>&ldquo;+ Add Point&rdquo;</strong> button to insert new keyframes. Drag any round dot up/down to adjust velocity or left/right to adjust time.',
+            slopeNote: 'Slope changes per segment (a = Δv / Δt)',
+            areaNote: 'Area under the curve calculates live displacement Δx',
+            status: 'Custom Scenario',
+            points: [
+                { t: 0, v: 0 },
+                { t: 4, v: 8 },
+                { t: 10, v: 0 }
+            ]
         }
     };
 
@@ -157,8 +170,15 @@
             this.chkSlope = document.getElementById('chkSlope');
             this.chkStrobes = document.getElementById('chkStrobes');
             this.btnSound = document.getElementById('btnSound');
+            this.btnTheme = document.getElementById('btnTheme');
+
+            // Point actions
+            this.btnAddPoint = document.getElementById('btnAddPoint');
+            this.btnResetPoints = document.getElementById('btnResetPoints');
+            this.pointCountDisplay = document.getElementById('pointCountDisplay');
 
             // State
+            this.isLightMode = false;
             this.tMax = 10;
             this.currentTime = 0;
             this.isPlaying = false;
@@ -225,6 +245,37 @@
                 });
             });
 
+            // Light Mode Toggle
+            if (this.btnTheme) {
+                this.btnTheme.addEventListener('click', () => {
+                    this.isLightMode = !this.isLightMode;
+                    document.documentElement.setAttribute('data-theme', this.isLightMode ? 'light' : 'dark');
+                    this.btnTheme.textContent = this.isLightMode ? '🌙 Dark Mode' : '☀️ Light Mode';
+                    sound.blip();
+                    this.render();
+                });
+            }
+
+            // Add Point Button
+            if (this.btnAddPoint) {
+                this.btnAddPoint.addEventListener('click', () => {
+                    this.addNewDatapoint();
+                });
+            }
+
+            // Reset Points Button
+            if (this.btnResetPoints) {
+                this.btnResetPoints.addEventListener('click', () => {
+                    sound.blip();
+                    // Reset to a clean simple 2-point line (0,0) to (10,6)
+                    this.points = [
+                        { t: 0, v: 0 },
+                        { t: 10, v: 6 }
+                    ];
+                    this.onPointsChanged();
+                });
+            }
+
             // Sound Toggle
             this.btnSound.addEventListener('click', () => {
                 sound.muted = !sound.muted;
@@ -237,8 +288,61 @@
                 if (chk) chk.addEventListener('change', () => this.render());
             });
 
-            // Pointer events for dragging graph dots
+            // Pointer events for dragging & clicking graph dots
             this.initGraphPointerEvents();
+        }
+
+        // Insert a new point in the largest time gap
+        addNewDatapoint() {
+            sound.add();
+
+            // Find biggest time gap
+            let maxGap = 0;
+            let insertIndex = 0;
+            for (let i = 0; i < this.points.length - 1; i++) {
+                const gap = this.points[i + 1].t - this.points[i].t;
+                if (gap > maxGap) {
+                    maxGap = gap;
+                    insertIndex = i;
+                }
+            }
+
+            if (maxGap < 0.6) {
+                alert('Points are too close together! Drag existing points further apart first.');
+                return;
+            }
+
+            const p1 = this.points[insertIndex];
+            const p2 = this.points[insertIndex + 1];
+            const newT = Math.round(((p1.t + p2.t) / 2) * 2) / 2; // snap to 0.5s
+            const newV = Math.round((p1.v + p2.v) / 2); // interpolate velocity
+
+            this.points.splice(insertIndex + 1, 0, { t: newT, v: newV });
+
+            // Highlight custom preset button
+            document.querySelectorAll('.preset-btn').forEach(b => {
+                b.classList.toggle('active', b.dataset.preset === 'custom');
+            });
+
+            this.noteTitle.textContent = 'Custom Example (User Created)';
+            this.noteBody.innerHTML = 'You added a new datapoint! Drag any round dot up/down to adjust velocity or left/right to adjust time.';
+
+            this.onPointsChanged();
+        }
+
+        onPointsChanged() {
+            // Sort points by time
+            this.points.sort((a, b) => a.t - b.t);
+            this.points[0].t = 0;
+            this.points[this.points.length - 1].t = this.tMax;
+
+            if (this.pointCountDisplay) {
+                this.pointCountDisplay.textContent = `${this.points.length} Data Points`;
+            }
+
+            this.strobeMarkers = [];
+            this.updateTelemetry();
+            this.render();
         }
 
         loadPreset(key) {
@@ -258,6 +362,10 @@
             this.takeawaySlope.textContent = preset.slopeNote;
             this.takeawayArea.textContent = preset.areaNote;
             this.motionStatusBadge.textContent = preset.status;
+
+            if (this.pointCountDisplay) {
+                this.pointCountDisplay.textContent = `${this.points.length} Data Points`;
+            }
 
             this.strobeMarkers = [];
             this.setTime(0);
@@ -426,7 +534,16 @@
             return Math.max(this.vMin, Math.min(this.vMax, this.vMin + frac * (this.vMax - this.vMin)));
         }
 
-        // --- Interactive Dragging on Graph ---
+        // Distance from point (px, py) to line segment (x1, y1)-(x2, y2)
+        distToSegment(px, py, x1, y1, x2, y2) {
+            const l2 = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
+            if (l2 === 0) return Math.hypot(px - x1, py - y1);
+            let t = ((px - x1) * (x2 - x1) + (py - y1) * (y2 - y1)) / l2;
+            t = Math.max(0, Math.min(1, t));
+            return Math.hypot(px - (x1 + t * (x2 - x1)), py - (y1 + t * (y2 - y1)));
+        }
+
+        // --- Interactive Dragging & Clicking on Graph ---
         initGraphPointerEvents() {
             const canvas = this.vtCanvas;
 
@@ -444,7 +561,7 @@
                 const pos = getPos(e);
                 sound.init();
 
-                // Find clicked point (threshold 22px)
+                // 1. Check if clicking on an existing dot (hit threshold 22px)
                 let hitIndex = -1;
                 for (let i = 0; i < this.points.length; i++) {
                     const px = this.tToPx(this.points[i].t);
@@ -458,12 +575,34 @@
                 if (hitIndex !== -1) {
                     this.draggedPointIndex = hitIndex;
                     sound.snap();
-                } else {
-                    // Click sets playhead time
-                    const t = this.pxToT(pos.x);
-                    this.setTime(t);
-                    sound.blip();
+                    return;
                 }
+
+                // 2. Check if clicking on the line path to insert a new point directly!
+                for (let i = 0; i < this.points.length - 1; i++) {
+                    const x1 = this.tToPx(this.points[i].t);
+                    const y1 = this.vToPy(this.points[i].v);
+                    const x2 = this.tToPx(this.points[i + 1].t);
+                    const y2 = this.vToPy(this.points[i + 1].v);
+
+                    if (this.distToSegment(pos.x, pos.y, x1, y1, x2, y2) < 14) {
+                        const clickT = Math.round(this.pxToT(pos.x) * 2) / 2;
+                        const clickV = Math.round(this.pyToV(pos.y));
+                        // Check spacing
+                        if (clickT > this.points[i].t + 0.3 && clickT < this.points[i + 1].t - 0.3) {
+                            this.points.splice(i + 1, 0, { t: clickT, v: clickV });
+                            this.draggedPointIndex = i + 1;
+                            sound.add();
+                            this.onPointsChanged();
+                            return;
+                        }
+                    }
+                }
+
+                // 3. Otherwise click sets the playhead scrubber time
+                const t = this.pxToT(pos.x);
+                this.setTime(t);
+                sound.blip();
             });
 
             canvas.addEventListener('pointermove', (e) => {
@@ -488,15 +627,32 @@
                     this.updateTelemetry();
                     this.render();
                 } else {
-                    // Hover check
-                    let hover = false;
+                    // Hover check: over dot OR near line
+                    let hoverDot = false;
                     for (let p of this.points) {
                         if (Math.hypot(pos.x - this.tToPx(p.t), pos.y - this.vToPy(p.v)) < 18) {
-                            hover = true;
+                            hoverDot = true;
                             break;
                         }
                     }
-                    canvas.style.cursor = hover ? 'grab' : 'crosshair';
+
+                    let hoverLine = false;
+                    if (!hoverDot) {
+                        for (let i = 0; i < this.points.length - 1; i++) {
+                            const x1 = this.tToPx(this.points[i].t);
+                            const y1 = this.vToPy(this.points[i].v);
+                            const x2 = this.tToPx(this.points[i + 1].t);
+                            const y2 = this.vToPy(this.points[i + 1].v);
+                            if (this.distToSegment(pos.x, pos.y, x1, y1, x2, y2) < 14) {
+                                hoverLine = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (hoverDot) canvas.style.cursor = 'grab';
+                    else if (hoverLine) canvas.style.cursor = 'copy';
+                    else canvas.style.cursor = 'crosshair';
                 }
             });
 
@@ -540,14 +696,14 @@
             const trackY = rect.y + rect.height * 0.45;
 
             // Road surface
-            ctx.fillStyle = '#1e293b';
+            ctx.fillStyle = this.isLightMode ? '#e2e8f0' : '#1e293b';
             ctx.fillRect(rect.x, trackY - 14, rect.width, 28);
-            ctx.strokeStyle = '#334155';
+            ctx.strokeStyle = this.isLightMode ? '#cbd5e1' : '#334155';
             ctx.lineWidth = 1;
             ctx.strokeRect(rect.x, trackY - 14, rect.width, 28);
 
             // Road center dashed line
-            ctx.strokeStyle = '#eab308';
+            ctx.strokeStyle = this.isLightMode ? '#d97706' : '#eab308';
             ctx.lineWidth = 1.5;
             ctx.setLineDash([8, 8]);
             ctx.beginPath();
@@ -557,8 +713,8 @@
             ctx.setLineDash([]);
 
             // Ruler markings
-            ctx.strokeStyle = '#64748b';
-            ctx.fillStyle = '#94a3b8';
+            ctx.strokeStyle = this.isLightMode ? '#94a3b8' : '#64748b';
+            ctx.fillStyle = this.isLightMode ? '#475569' : '#94a3b8';
             ctx.font = '10px "JetBrains Mono", monospace';
             ctx.textAlign = 'center';
 
@@ -597,9 +753,9 @@
             const h = 20;
 
             // Car body
-            ctx.fillStyle = '#0284c7';
+            ctx.fillStyle = this.isLightMode ? '#0284c7' : '#0284c7';
             ctx.fillRect(x - w / 2, y - h / 2, w, h);
-            ctx.strokeStyle = '#38bdf8';
+            ctx.strokeStyle = this.isLightMode ? '#0369a1' : '#38bdf8';
             ctx.lineWidth = 2;
             ctx.strokeRect(x - w / 2, y - h / 2, w, h);
 
@@ -618,13 +774,13 @@
             // Velocity Vector Arrow (Green)
             if (Math.abs(v) > 0.2) {
                 const arrowLen = v * 5;
-                this.drawArrow(ctx, x, y - 20, x + arrowLen, y - 20, '#22c55e', 'v');
+                this.drawArrow(ctx, x, y - 20, x + arrowLen, y - 20, this.isLightMode ? '#16a34a' : '#22c55e', 'v');
             }
 
             // Acceleration Vector Arrow (Amber)
             if (Math.abs(a) > 0.2) {
                 const arrowLen = a * 10;
-                this.drawArrow(ctx, x, y + 20, x + arrowLen, y + 20, '#f59e0b', 'a');
+                this.drawArrow(ctx, x, y + 20, x + arrowLen, y + 20, this.isLightMode ? '#d97706' : '#f59e0b', 'a');
             }
 
             ctx.restore();
@@ -666,7 +822,7 @@
             ctx.clearRect(0, 0, w, h);
 
             // Grid background
-            ctx.fillStyle = '#070c18';
+            ctx.fillStyle = this.isLightMode ? '#ffffff' : '#070c18';
             ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
 
             // Vertical Time Gridlines (every 1s)
@@ -676,13 +832,18 @@
 
             for (let t = 0; t <= 10; t += 1) {
                 const px = this.tToPx(t);
-                ctx.strokeStyle = t % 2 === 0 ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.05)';
+                if (this.isLightMode) {
+                    ctx.strokeStyle = t % 2 === 0 ? 'rgba(0, 0, 0, 0.18)' : 'rgba(0, 0, 0, 0.08)';
+                    ctx.fillStyle = '#475569';
+                } else {
+                    ctx.strokeStyle = t % 2 === 0 ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.05)';
+                    ctx.fillStyle = '#94a3b8';
+                }
                 ctx.beginPath();
                 ctx.moveTo(px, rect.y);
                 ctx.lineTo(px, rect.y + rect.height);
                 ctx.stroke();
 
-                ctx.fillStyle = '#94a3b8';
                 ctx.fillText(`${t}s`, px, rect.y + rect.height + 16);
             }
 
@@ -693,28 +854,28 @@
                 const py = this.vToPy(v);
                 ctx.beginPath();
                 if (v === 0) {
-                    ctx.strokeStyle = '#38bdf8'; // Highlight v = 0 axis
+                    ctx.strokeStyle = this.isLightMode ? '#0284c7' : '#38bdf8'; // Highlight v = 0 axis
                     ctx.lineWidth = 2;
                 } else {
-                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+                    ctx.strokeStyle = this.isLightMode ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)';
                     ctx.lineWidth = 1;
                 }
                 ctx.moveTo(rect.x, py);
                 ctx.lineTo(rect.x + rect.width, py);
                 ctx.stroke();
 
-                ctx.fillStyle = v === 0 ? '#38bdf8' : '#94a3b8';
+                ctx.fillStyle = v === 0 ? (this.isLightMode ? '#0284c7' : '#38bdf8') : (this.isLightMode ? '#475569' : '#94a3b8');
                 ctx.textAlign = 'right';
                 ctx.fillText(`${v > 0 ? '+' : ''}${v}`, rect.x - 8, py + 4);
             }
 
             // Outer border
-            ctx.strokeStyle = '#334155';
+            ctx.strokeStyle = this.isLightMode ? '#cbd5e1' : '#334155';
             ctx.lineWidth = 1.5;
             ctx.strokeRect(rect.x, rect.y, rect.width, rect.height);
 
             // Axis labels
-            ctx.fillStyle = '#cbd5e1';
+            ctx.fillStyle = this.isLightMode ? '#1e293b' : '#cbd5e1';
             ctx.font = '12px Outfit, sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText('Time t (seconds)', rect.x + rect.width / 2, rect.y + rect.height + 34);
@@ -732,7 +893,7 @@
 
             // Graph Line
             ctx.beginPath();
-            ctx.strokeStyle = '#38bdf8';
+            ctx.strokeStyle = this.isLightMode ? '#0284c7' : '#38bdf8';
             ctx.lineWidth = 3.5;
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
@@ -763,7 +924,11 @@
                     const py = this.vToPy(midV) - 12;
 
                     const aText = Math.abs(a) < 0.05 ? 'a = 0 (Constant Speed)' : `a = ${a > 0 ? '+' : ''}${a.toFixed(1)} m/s²`;
-                    ctx.fillStyle = Math.abs(a) < 0.05 ? '#38bdf8' : (a > 0 ? '#22c55e' : '#f43f5e');
+                    if (this.isLightMode) {
+                        ctx.fillStyle = Math.abs(a) < 0.05 ? '#0284c7' : (a > 0 ? '#16a34a' : '#e11d48');
+                    } else {
+                        ctx.fillStyle = Math.abs(a) < 0.05 ? '#38bdf8' : (a > 0 ? '#22c55e' : '#f43f5e');
+                    }
                     ctx.fillText(aText, px, py);
                 }
             }
@@ -774,7 +939,7 @@
             const curPy = this.vToPy(curState.v);
 
             ctx.beginPath();
-            ctx.strokeStyle = '#f59e0b';
+            ctx.strokeStyle = this.isLightMode ? '#d97706' : '#f59e0b';
             ctx.lineWidth = 2;
             ctx.setLineDash([4, 4]);
             ctx.moveTo(curPx, rect.y);
@@ -785,7 +950,7 @@
             // Dot at current velocity
             ctx.beginPath();
             ctx.arc(curPx, curPy, 6, 0, Math.PI * 2);
-            ctx.fillStyle = '#f59e0b';
+            ctx.fillStyle = this.isLightMode ? '#d97706' : '#f59e0b';
             ctx.fill();
             ctx.strokeStyle = '#fff';
             ctx.lineWidth = 2;
@@ -798,15 +963,15 @@
 
                 ctx.beginPath();
                 ctx.arc(px, py, index === this.draggedPointIndex ? 9 : 7, 0, Math.PI * 2);
-                ctx.fillStyle = index === this.draggedPointIndex ? '#facc15' : '#38bdf8';
+                ctx.fillStyle = index === this.draggedPointIndex ? '#facc15' : (this.isLightMode ? '#0284c7' : '#38bdf8');
                 ctx.fill();
-                ctx.strokeStyle = '#ffffff';
+                ctx.strokeStyle = this.isLightMode ? '#0f172a' : '#ffffff';
                 ctx.lineWidth = 2.5;
                 ctx.stroke();
 
                 // Coordinate label
-                ctx.fillStyle = '#fff';
-                ctx.font = '10px "JetBrains Mono", monospace';
+                ctx.fillStyle = this.isLightMode ? '#0f172a' : '#fff';
+                ctx.font = 'bold 10px "JetBrains Mono", monospace';
                 ctx.textAlign = 'center';
                 ctx.fillText(`(${p.t.toFixed(1)}s, ${p.v}m/s)`, px, py - 12);
             });
@@ -841,7 +1006,11 @@
                 ctx.lineTo(x2, yZero);
                 ctx.closePath();
 
-                ctx.fillStyle = vStart >= 0 ? 'rgba(34, 197, 94, 0.25)' : 'rgba(244, 63, 94, 0.25)';
+                if (this.isLightMode) {
+                    ctx.fillStyle = vStart >= 0 ? 'rgba(22, 163, 74, 0.28)' : 'rgba(225, 29, 72, 0.28)';
+                } else {
+                    ctx.fillStyle = vStart >= 0 ? 'rgba(34, 197, 94, 0.25)' : 'rgba(244, 63, 94, 0.25)';
+                }
                 ctx.fill();
             }
 
