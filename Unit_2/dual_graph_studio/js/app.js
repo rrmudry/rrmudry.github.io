@@ -436,7 +436,10 @@
       const playBtn = document.getElementById('btnPlayPause');
       const playIcon = document.getElementById('playIcon');
       const playLabel = document.getElementById('playLabel');
-      if (playBtn) playBtn.classList.replace('bg-[#ccff00]', 'bg-amber-400');
+      if (playBtn) {
+        playBtn.classList.remove('bg-[#38bdf8]', 'hover:bg-sky-300');
+        playBtn.classList.add('bg-amber-400', 'hover:bg-amber-300');
+      }
       if (playIcon) playIcon.textContent = '⏸';
       if (playLabel) playLabel.textContent = 'Pause';
 
@@ -463,7 +466,10 @@
       const playBtn = document.getElementById('btnPlayPause');
       const playIcon = document.getElementById('playIcon');
       const playLabel = document.getElementById('playLabel');
-      if (playBtn) playBtn.classList.replace('bg-amber-400', 'bg-[#ccff00]');
+      if (playBtn) {
+        playBtn.classList.remove('bg-amber-400', 'hover:bg-amber-300');
+        playBtn.classList.add('bg-[#38bdf8]', 'hover:bg-sky-300');
+      }
       if (playIcon) playIcon.textContent = '▶';
       if (playLabel) playLabel.textContent = 'Play Car';
     }
@@ -1014,6 +1020,7 @@
       this.studentSeed = 42;
       this.levelScores = [0, 0, 0, 0, 0, 0]; // L1:15, L2:15, L3:20, L4:15, L5:15, L6:20 = 100
       this.completedSteps = {};
+      this.hasPlayedCurrentStep = false;
 
       this.initDOM();
       this.initApp();
@@ -1033,6 +1040,25 @@
       return SCENARIOS[idx];
     }
 
+    checkCarPlayed() {
+      if (this.hasPlayedCurrentStep || this.visualizer.isPlaying || this.visualizer.currentTime > 0.1) {
+        return true;
+      }
+      const playBtn = document.getElementById('btnPlayPause');
+      if (playBtn) {
+        playBtn.classList.add('play-prompt-glow');
+        setTimeout(() => playBtn.classList.remove('play-prompt-glow'), 4000);
+      }
+      const fb = document.getElementById('stepFeedback');
+      if (fb) {
+        fb.className = 'p-3 rounded-xl text-xs font-sans bg-sky-950/80 border border-sky-400 text-sky-200 question-locked-banner';
+        fb.innerHTML = '🏎️ <strong>Observe the motion first!</strong> Please click <strong>▶ Play Car</strong> above to watch how the car moves before answering.';
+        fb.classList.remove('hidden');
+      }
+      sfx.click();
+      return false;
+    }
+
     initDOM() {
       // Level Buttons
       document.querySelectorAll('.level-btn').forEach(btn => {
@@ -1044,7 +1070,17 @@
 
       // Simulation Controls
       const playBtn = document.getElementById('btnPlayPause');
-      if (playBtn) playBtn.addEventListener('click', () => this.visualizer.togglePlay());
+      if (playBtn) {
+        playBtn.addEventListener('click', () => {
+          this.hasPlayedCurrentStep = true;
+          playBtn.classList.remove('play-prompt-glow');
+          const fb = document.getElementById('stepFeedback');
+          if (fb && fb.classList.contains('question-locked-banner')) {
+            fb.classList.add('hidden');
+          }
+          this.visualizer.togglePlay();
+        });
+      }
 
       const resetBtn = document.getElementById('btnResetSim');
       if (resetBtn) resetBtn.addEventListener('click', () => this.visualizer.reset());
@@ -1280,6 +1316,9 @@
       const workspace = document.getElementById('activeStepWorkspace');
       if (!workspace) return;
 
+      const stepKey = `L${this.currentLevel}_S${this.currentStep}`;
+      this.hasPlayedCurrentStep = !!this.completedSteps[stepKey];
+
       const sc = this.getScenario(this.currentLevel, this.currentStep);
       this.visualizer.set3Segments(sc.segments);
 
@@ -1343,6 +1382,7 @@
 
       ws.querySelectorAll('.choice-btn').forEach(btn => {
         btn.addEventListener('click', () => {
+          if (!this.checkCarPlayed()) return;
           const choice = btn.dataset.choice;
           const correct = sec.dir;
           const fb = document.getElementById('stepFeedback');
@@ -1436,6 +1476,7 @@
       const checkBtn = document.getElementById('btnCheckDx');
       if (checkBtn) {
         checkBtn.addEventListener('click', () => {
+          if (!this.checkCarPlayed()) return;
           const val = parseFloat(document.getElementById('inpDx').value);
           const fb = document.getElementById('stepFeedback');
           const nextBtn = document.getElementById('btnNextStep');
@@ -1476,27 +1517,26 @@
     }
 
     // =========================================================================
-    // LEVEL 3: SLOPE TO VELOCITY (Rise ÷ Run)
+    // LEVEL 3: SLOPE TO VELOCITY (v = Δx ÷ Δt)
     // =========================================================================
     renderLevel3(ws, sc) {
       const stepKey = `L3_S${this.currentStep}`;
       const sec = this.currentStep === 0 ? sc.sec1 : (this.currentStep === 1 ? sc.sec2 : sc.sec3);
       const secIdx = this.currentStep;
-      const pts = this.currentStep === 2 ? 10 : 5; // 5 + 5 + 10 = 20 pts
+      const pts = (secIdx === 2) ? 10 : 5; // 5 + 5 + 10 = 20
 
       ws.innerHTML = `
         <div class="space-y-4">
           <div class="flex items-center justify-between border-b border-white/10 pb-2">
             <div>
-              <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-lime-400">Level 3 • Slope to Velocity</span>
-              <h2 class="text-base font-bold text-white">Section ${secIdx + 1} (${sec.label}): Velocity (m/s)</h2>
+              <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-lime-400">Level 3 • Slope = Velocity</span>
+              <h2 class="text-base font-bold text-white">Section ${secIdx + 1} (${sec.label}): Calculate Velocity</h2>
             </div>
             <span class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-lime-950 border border-lime-500/30 text-lime-300">${pts} pts</span>
           </div>
 
-          <div class="p-3 rounded-xl bg-slate-950/60 border border-lime-500/30 text-xs font-sans text-slate-200 leading-relaxed space-y-1">
-            <p>What is the velocity (slope) of <strong>Section ${secIdx + 1} (${sec.label})</strong>?</p>
-            <p class="text-slate-400 text-[11px]">Formula: <span class="font-mono text-lime-300 font-bold">Velocity = Rise ÷ Run = Δx ÷ Δt</span></p>
+          <div class="p-3 rounded-xl bg-slate-950/60 border border-lime-500/30 text-xs font-sans text-slate-200 leading-relaxed space-y-1.5">
+            <p>Determine the velocity of <strong>Section ${secIdx + 1}</strong> by finding the slope: <span class="font-mono text-lime-300 font-bold">v = Rise ÷ Run = Δx ÷ Δt</span></p>
             <div class="text-[11px] font-mono text-slate-300 bg-white/5 p-1.5 rounded">
               Δx = ${sec.dx} m, Δt = ${sec.dt} s
             </div>
@@ -1534,6 +1574,7 @@
       const checkBtn = document.getElementById('btnCheckVel');
       if (checkBtn) {
         checkBtn.addEventListener('click', () => {
+          if (!this.checkCarPlayed()) return;
           const val = parseFloat(document.getElementById('inpVel').value);
           const fb = document.getElementById('stepFeedback');
           const nextBtn = document.getElementById('btnNextStep');
@@ -1582,8 +1623,6 @@
       const secIdx = this.currentStep; // 0, 1, 2
       const sec = secIdx === 0 ? sc.sec1 : (secIdx === 1 ? sc.sec2 : sc.sec3);
 
-      // Level 4 introduces the Velocity vs. Time (v-t) graph.
-      // We ensure the questions are 100% directly related to what is visible on the student's graph!
       let qTitle = '';
       let qPrompt = '';
       let choices = [];
@@ -1592,67 +1631,63 @@
 
       if (secIdx === 0) {
         // Question 1: What do the horizontal flat bars on this graph represent?
-        qTitle = 'Question 1 of 3: Flat Lines on Velocity Graphs';
-        qPrompt = `Look at the horizontal bars on the <strong>Velocity vs. Time (v-t)</strong> graph above. Why is each section shown as a <strong>flat horizontal line</strong>?`;
+        qTitle = 'Question 1 of 3: Flat Lines on v-t Graph';
+        qPrompt = 'Take a look at the Velocity vs. Time (v-t) graph above. Each section is drawn as a horizontal flat line. What does a horizontal line mean on a <strong>Velocity</strong> graph?';
         choices = [
-          { key: 'steady', label: 'A) The velocity in each section is STEADY / CONSTANT (not speeding up or slowing down).' },
-          { key: 'stopped', label: 'B) The car is completely stopped the whole time.' },
-          { key: 'flatroad', label: 'C) The road is completely flat.' }
+          { key: 'stopped', label: 'A) The car must be stopped at rest.' },
+          { key: 'constant_v', label: 'B) The car is moving with CONSTANT velocity during that section.' },
+          { key: 'speeding_up', label: 'C) The car is accelerating faster and faster.' }
         ];
-        correctChoice = 'steady';
-        explanation = 'On a velocity graph, vertical height shows speed! A flat horizontal line means velocity is staying constant.';
+        correctChoice = 'constant_v';
+        explanation = 'On a Velocity vs. Time graph, a flat line means the velocity value stays the SAME number over time (constant speed), not that the car is stopped (unless the line is on 0 m/s)!';
       } else if (secIdx === 1) {
-        // Question 2: Which section is the fastest speed?
-        const speeds = [Math.abs(sc.sec1.v), Math.abs(sc.sec2.v), Math.abs(sc.sec3.v)];
-        const maxSpeed = Math.max(...speeds);
-        const fastestSecNum = speeds.indexOf(maxSpeed) + 1;
-        qTitle = 'Question 2 of 3: Identifying Speed on v-t';
-        qPrompt = `Look at the vertical heights of the bars from the zero axis (0 m/s). Which section has the <strong>fastest speed magnitude</strong> on this graph?`;
-        choices = [
-          { key: '1', label: `A) Section 1 (|v| = ${speeds[0]} m/s)` },
-          { key: '2', label: `B) Section 2 (|v| = ${speeds[1]} m/s)` },
-          { key: '3', label: `C) Section 3 (|v| = ${speeds[2]} m/s)` }
+        // Question 2: Comparing Section Speeds directly from the active graph
+        const absV1 = Math.abs(sc.sec1.v);
+        const absV2 = Math.abs(sc.sec2.v);
+        const absV3 = Math.abs(sc.sec3.v);
+        const speeds = [
+          { name: 'Section 1 (0-3s)', speed: absV1, v: sc.sec1.v },
+          { name: 'Section 2 (3-6s)', speed: absV2, v: sc.sec2.v },
+          { name: 'Section 3 (6-10s)', speed: absV3, v: sc.sec3.v }
         ];
-        correctChoice = String(fastestSecNum);
-        explanation = `Section ${fastestSecNum} is furthest from the zero axis, giving it the fastest speed magnitude (${maxSpeed} m/s)!`;
+        // Sort descending by speed
+        speeds.sort((a, b) => b.speed - a.speed);
+        const fastest = speeds[0];
+        
+        qTitle = 'Question 2 of 3: Identifying the Fastest Section';
+        qPrompt = `Comparing the 3 sections on your active graph (Sec 1: ${sc.sec1.v} m/s, Sec 2: ${sc.sec2.v} m/s, Sec 3: ${sc.sec3.v} m/s), which section has the <strong>fastest speed</strong> (furthest distance from the 0 m/s axis line)?`;
+        choices = [
+          { key: 'sec1', label: `A) Section 1 (0-3s: ${sc.sec1.v} m/s)` },
+          { key: 'sec2', label: `B) Section 2 (3-6s: ${sc.sec2.v} m/s)` },
+          { key: 'sec3', label: `C) Section 3 (6-10s: ${sc.sec3.v} m/s)` }
+        ];
+        correctChoice = fastest.name.includes('Section 1') ? 'sec1' : (fastest.name.includes('Section 2') ? 'sec2' : 'sec3');
+        explanation = `${fastest.name} has the greatest magnitude (|v| = ${fastest.speed} m/s). Speed is the distance away from zero on the velocity axis!`;
       } else {
-        // Question 3: Direction on v-t (Above, On, or Below the zero line)
-        // Find if there is a negative velocity section in this scenario
-        const negSecIdx = [sc.sec1.v, sc.sec2.v, sc.sec3.v].findIndex(v => v < 0);
+        // Question 3: Direction & Negative Velocity on the active graph
+        const negSec = [sc.sec1, sc.sec2, sc.sec3].find(s => s.v < 0);
+        const zeroSec = [sc.sec1, sc.sec2, sc.sec3].find(s => s.v === 0);
 
-        if (negSecIdx !== -1) {
-          const negSecNum = negSecIdx + 1;
-          const negVal = [sc.sec1.v, sc.sec2.v, sc.sec3.v][negSecIdx];
-          qTitle = `Question 3 of 3: Negative Velocity in Section ${negSecNum}`;
-          qPrompt = `Look at <strong>Section ${negSecNum}</strong> plotted <strong>below the zero line (v = ${negVal} m/s)</strong>. What is the car physically doing during this time?`;
-          choices = [
-            { key: 'reverse', label: 'A) Driving in REVERSE / BACKWARD (negative direction toward 0m).' },
-            { key: 'slower_zero', label: 'B) Moving slower than 0 m/s (stopped).' },
-            { key: 'broken', label: 'C) Parked with the engine turned off.' }
-          ];
-          correctChoice = 'reverse';
-          explanation = `On a velocity graph, bars below the zero axis indicate negative velocity: the car is driving backward in reverse at ${Math.abs(negVal)} m/s!`;
+        qTitle = 'Question 3 of 3: Negative Velocity & Direction';
+        if (negSec) {
+          qPrompt = `On your graph, there is a section plotted BELOW the 0 m/s line with a negative velocity (${negSec.v} m/s). What does a <strong>negative velocity</strong> tell you about the car's real motion?`;
         } else {
-          // If this scenario has no negative velocity (e.g. forward and stop only), ask about the 0 m/s section on the zero line
-          const stopSecIdx = [sc.sec1.v, sc.sec2.v, sc.sec3.v].findIndex(v => v === 0);
-          const stopSecNum = stopSecIdx !== -1 ? stopSecIdx + 1 : 3;
-          qTitle = `Question 3 of 3: Velocity On the Zero Line`;
-          qPrompt = `Look at <strong>Section ${stopSecNum}</strong> plotted directly <strong>on the zero line (v = 0 m/s)</strong>. What does v = 0 m/s mean on this graph?`;
-          choices = [
-            { key: 'stopped', label: 'A) The car is completely STOPPED AT REST (not moving).' },
-            { key: 'reverse', label: 'B) The car is driving backward in reverse.' },
-            { key: 'flying', label: 'C) The car has left the ground.' }
-          ];
-          correctChoice = 'stopped';
-          explanation = `When the velocity line sits right on the 0 m/s axis, speed is zero—the car is stopped at rest!`;
+          qPrompt = `If a line on a Velocity vs. Time graph is plotted in the negative region (below 0 m/s), what does that negative sign represent?`;
         }
+        choices = [
+          { key: 'slowing_down', label: 'A) The car is slowing down and losing fuel.' },
+          { key: 'backward', label: 'B) The car is moving in the NEGATIVE direction (backward / in reverse).' },
+          { key: 'underground', label: 'C) The car is below ground level.' }
+        ];
+        correctChoice = 'backward';
+        explanation = 'Velocity is a vector! A negative velocity indicates motion in the opposite/negative direction (backward toward 0m).';
       }
 
       ws.innerHTML = `
         <div class="space-y-4">
           <div class="flex items-center justify-between border-b border-rose-500/20 pb-2">
             <div>
-              <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-rose-400">Level 4 • v-t Graph Basics</span>
+              <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-rose-400">Level 4 • v-t Interpretation</span>
               <h2 class="text-base font-bold text-white">${qTitle}</h2>
             </div>
             <span class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-rose-950 border border-rose-500/30 text-rose-300">5 pts</span>
@@ -1679,6 +1714,7 @@
 
       ws.querySelectorAll('.choice-btn').forEach(btn => {
         btn.addEventListener('click', () => {
+          if (!this.checkCarPlayed()) return;
           const choice = btn.dataset.choice;
           const fb = document.getElementById('stepFeedback');
           const nextBtn = document.getElementById('btnNextStep');
@@ -1778,6 +1814,7 @@
       const checkBtn = document.getElementById('btnCheckTable');
       if (checkBtn) {
         checkBtn.addEventListener('click', () => {
+          if (!this.checkCarPlayed()) return;
           const v1 = parseFloat(document.getElementById('tblV1').value);
           const v2 = parseFloat(document.getElementById('tblV2').value);
           const v3 = parseFloat(document.getElementById('tblV3').value);
@@ -1874,6 +1911,7 @@
       const checkBtn = document.getElementById('btnCheckTranslation');
       if (checkBtn) {
         checkBtn.addEventListener('click', () => {
+          if (!this.checkCarPlayed()) return;
           const bars = this.visualizer.studentVelocityBars;
           const isAllMatch = bars.every(b => Math.abs(b.v - b.expectedV) < 0.1);
           const fb = document.getElementById('stepFeedback');
