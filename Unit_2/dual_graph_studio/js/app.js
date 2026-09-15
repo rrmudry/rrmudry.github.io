@@ -230,7 +230,8 @@
           if (barIdx !== -1) {
             this.draggingBarIdx = barIdx;
             this.dualRightCanvas.setPointerCapture(e.pointerId);
-            const snappedV = Math.round(this.pixelToVel(y, this.drH));
+            const rawV = this.pixelToVel(y, this.drH);
+            const snappedV = Math.round(rawV * 2) / 2;
             this.studentVelocityBars[barIdx].v = Math.max(this.vMin, Math.min(this.vMax, snappedV));
             sfx.click();
             this.render();
@@ -243,7 +244,8 @@
         this.dualRightCanvas.addEventListener('pointermove', (e) => {
           if (this.draggingBarIdx === null) return;
           const { y } = getPointerPos(e);
-          const snappedV = Math.round(this.pixelToVel(y, this.drH));
+          const rawV = this.pixelToVel(y, this.drH);
+          const snappedV = Math.round(rawV * 2) / 2;
           const clampedV = Math.max(this.vMin, Math.min(this.vMax, snappedV));
           if (this.studentVelocityBars[this.draggingBarIdx].v !== clampedV) {
             this.studentVelocityBars[this.draggingBarIdx].v = clampedV;
