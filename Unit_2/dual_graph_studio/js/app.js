@@ -1312,9 +1312,27 @@
       }
 
       // Google gate login button
-      const gateLoginBtn = document.getElementById('btnGateSignIn');
-      if (gateLoginBtn && window.authManager) {
-        gateLoginBtn.addEventListener('click', () => window.authManager.signIn());
+      const gateLoginBtn = document.getElementById('btnGateSignIn') || document.getElementById('btn-gate-google-login');
+      if (gateLoginBtn) {
+        gateLoginBtn.addEventListener('click', () => {
+          const auth = window.authManager || window.studioAuth;
+          if (auth) {
+            auth.signIn();
+          } else {
+            console.error('AuthManager not initialized yet.');
+          }
+        });
+      }
+
+      // Top-bar Google login button
+      const topLoginBtn = document.getElementById('btn-google-login');
+      if (topLoginBtn) {
+        topLoginBtn.addEventListener('click', () => {
+          const auth = window.authManager || window.studioAuth;
+          if (auth) {
+            auth.signIn();
+          }
+        });
       }
 
       // Grade submit button
@@ -1374,6 +1392,12 @@
       }
 
       this.switchLevel(1);
+
+      // Check if user is already authenticated
+      const auth = window.authManager || window.studioAuth;
+      if (auth && auth.studentId) {
+        this.onStudentLoggedIn(auth.studentId);
+      }
     }
 
     onStudentLoggedIn(studentId) {
@@ -2261,8 +2285,11 @@
   }
 
   window.addEventListener('DOMContentLoaded', () => {
+    if (!window.authManager && typeof StudioAuthManager !== 'undefined') {
+      window.authManager = new StudioAuthManager();
+    }
+    window.studioAuth = window.authManager;
     window.dualStudioApp = new DualStudioApp();
-    window.authManager = new StudioAuthManager();
   });
 
 })();
