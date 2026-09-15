@@ -919,101 +919,125 @@
   // --- Parameterized Problem Scenarios & Seeding ---
   // Clean integer math: Δx / Δt produces round velocities
   const SCENARIOS = [
-    // Scenario 0: Forward (0-3s, +6m -> +2 m/s), Stop (3-6s, 0m -> 0 m/s), Reverse (6-10s, -6m -> -1.5 m/s)
+    // Scenario 0: Forward steady (0-4s: 0 -> 8m, dx=+8, v=+2), Stopped (4-7s: 8 -> 8m, dx=0, v=0), Reverse (7-10s: 8 -> 2m, dx=-6, v=-2)
     {
       id: 0,
       segments: [
-        { t0: 0, t1: 3, x0: 0, x1: 6, color: '#38bdf8' },
-        { t0: 3, t1: 6, x0: 6, x1: 6, color: '#facc15' },
-        { t0: 6, t1: 10, x0: 6, x1: 0, color: '#a855f7' }
-      ],
-      sec1: { dir: 'forward', dx: 6, dt: 3, v: 2, label: '0s to 3s' },
-      sec2: { dir: 'stopped', dx: 0, dt: 3, v: 0, label: '3s to 6s' },
-      sec3: { dir: 'backward', dx: -6, dt: 4, v: -1.5, label: '6s to 10s' }
-    },
-    // Scenario 1: Stopped at start (0-3s, at 8m -> 0 m/s), Reverse (3-6s, down to 2m -> -2 m/s), Forward Fast (6-10s, up to 14m -> +3 m/s)
-    {
-      id: 1,
-      segments: [
-        { t0: 0, t1: 3, x0: 8, x1: 8, color: '#facc15' },
-        { t0: 3, t1: 6, x0: 8, x1: 2, color: '#f43f5e' },
-        { t0: 6, t1: 10, x0: 2, x1: 14, color: '#38bdf8' }
-      ],
-      sec1: { dir: 'stopped', dx: 0, dt: 3, v: 0, label: '0s to 3s' },
-      sec2: { dir: 'backward', dx: -6, dt: 3, v: -2, label: '3s to 6s' },
-      sec3: { dir: 'forward', dx: 12, dt: 4, v: 3, label: '6s to 10s' }
-    },
-    // Scenario 2: Reverse first (0-3s, from 12m down to 6m -> -2 m/s), Stopped (3-6s, at 6m -> 0 m/s), Forward (6-10s, up to 14m -> +2 m/s)
-    {
-      id: 2,
-      segments: [
-        { t0: 0, t1: 3, x0: 12, x1: 6, color: '#f43f5e' },
-        { t0: 3, t1: 6, x0: 6, x1: 6, color: '#facc15' },
-        { t0: 6, t1: 10, x0: 6, x1: 14, color: '#38bdf8' }
-      ],
-      sec1: { dir: 'backward', dx: -6, dt: 3, v: -2, label: '0s to 3s' },
-      sec2: { dir: 'stopped', dx: 0, dt: 3, v: 0, label: '3s to 6s' },
-      sec3: { dir: 'forward', dx: 8, dt: 4, v: 2, label: '6s to 10s' }
-    },
-    // Scenario 3: Stopped at start (0-3s, at 10m -> 0 m/s), Forward Fast (3-6s, 10m up to 16m -> +2 m/s), Reverse (6-10s, 16m down to 4m -> -3 m/s)
-    {
-      id: 3,
-      segments: [
-        { t0: 0, t1: 3, x0: 10, x1: 10, color: '#facc15' },
-        { t0: 3, t1: 6, x0: 10, x1: 16, color: '#38bdf8' },
-        { t0: 6, t1: 10, x0: 16, x1: 4, color: '#f43f5e' }
-      ],
-      sec1: { dir: 'stopped', dx: 0, dt: 3, v: 0, label: '0s to 3s' },
-      sec2: { dir: 'forward', dx: 6, dt: 3, v: 2, label: '3s to 6s' },
-      sec3: { dir: 'backward', dx: -12, dt: 4, v: -3, label: '6s to 10s' }
-    },
-    // Scenario 4: Forward Steady (0-4s, 4m to 12m -> +2 m/s), Stopped (4-7s, at 12m -> 0 m/s), Reverse (7-10s, 12m down to 3m -> -3 m/s)
-    {
-      id: 4,
-      segments: [
-        { t0: 0, t1: 4, x0: 4, x1: 12, color: '#38bdf8' },
-        { t0: 4, t1: 7, x0: 12, x1: 12, color: '#facc15' },
-        { t0: 7, t1: 10, x0: 12, x1: 3, color: '#f43f5e' }
+        { t0: 0, t1: 4, x0: 0, x1: 8, color: '#38bdf8' },
+        { t0: 4, t1: 7, x0: 8, x1: 8, color: '#facc15' },
+        { t0: 7, t1: 10, x0: 8, x1: 2, color: '#f43f5e' }
       ],
       sec1: { dir: 'forward', dx: 8, dt: 4, v: 2, label: '0s to 4s' },
       sec2: { dir: 'stopped', dx: 0, dt: 3, v: 0, label: '4s to 7s' },
-      sec3: { dir: 'backward', dx: -9, dt: 3, v: -3, label: '7s to 10s' }
+      sec3: { dir: 'backward', dx: -6, dt: 3, v: -2, label: '7s to 10s' }
     },
-    // Scenario 5: Reverse fast (0-2s, from 14m down to 6m -> -4 m/s), Stopped (2-6s, at 6m -> 0 m/s), Reverse slow (6-10s, 6m down to 2m -> -1 m/s)
+    // Scenario 1: Reverse (0-3s: 14 -> 5m, dx=-9, v=-3), Stopped (3-6s: 5 -> 5m, dx=0, v=0), Forward (6-10s: 5 -> 17m, dx=+12, v=+3)
     {
-      id: 5,
+      id: 1,
       segments: [
-        { t0: 0, t1: 2, x0: 14, x1: 6, color: '#f43f5e' },
-        { t0: 2, t1: 6, x0: 6, x1: 6, color: '#facc15' },
-        { t0: 6, t1: 10, x0: 6, x1: 2, color: '#f43f5e' }
+        { t0: 0, t1: 3, x0: 14, x1: 5, color: '#f43f5e' },
+        { t0: 3, t1: 6, x0: 5, x1: 5, color: '#facc15' },
+        { t0: 6, t1: 10, x0: 5, x1: 17, color: '#38bdf8' }
       ],
-      sec1: { dir: 'backward', dx: -8, dt: 2, v: -4, label: '0s to 2s' },
-      sec2: { dir: 'stopped', dx: 0, dt: 4, v: 0, label: '2s to 6s' },
-      sec3: { dir: 'backward', dx: -4, dt: 4, v: -1, label: '6s to 10s' }
+      sec1: { dir: 'backward', dx: -9, dt: 3, v: -3, label: '0s to 3s' },
+      sec2: { dir: 'stopped', dx: 0, dt: 3, v: 0, label: '3s to 6s' },
+      sec3: { dir: 'forward', dx: 12, dt: 4, v: 3, label: '6s to 10s' }
     },
-    // Scenario 6: Forward fast (0-3s, 2m to 14m -> +4 m/s), Reverse (3-7s, 14m down to 6m -> -2 m/s), Stopped (7-10s, at 6m -> 0 m/s)
+    // Scenario 2: Stopped at start (0-3s: at 6m, dx=0, v=0), Forward Fast (3-6s: 6 -> 18m, dx=+12, v=+4), Reverse (6-10s: 18 -> 10m, dx=-8, v=-2)
     {
-      id: 6,
+      id: 2,
       segments: [
-        { t0: 0, t1: 3, x0: 2, x1: 14, color: '#38bdf8' },
-        { t0: 3, t1: 7, x0: 14, x1: 6, color: '#f43f5e' },
-        { t0: 7, t1: 10, x0: 6, x1: 6, color: '#facc15' }
+        { t0: 0, t1: 3, x0: 6, x1: 6, color: '#facc15' },
+        { t0: 3, t1: 6, x0: 6, x1: 18, color: '#38bdf8' },
+        { t0: 6, t1: 10, x0: 18, x1: 10, color: '#f43f5e' }
       ],
-      sec1: { dir: 'forward', dx: 12, dt: 3, v: 4, label: '0s to 3s' },
+      sec1: { dir: 'stopped', dx: 0, dt: 3, v: 0, label: '0s to 3s' },
+      sec2: { dir: 'forward', dx: 12, dt: 3, v: 4, label: '3s to 6s' },
+      sec3: { dir: 'backward', dx: -8, dt: 4, v: -2, label: '6s to 10s' }
+    },
+    // Scenario 3: Forward (0-3s: 2 -> 8m, dx=+6, v=+2), Reverse (3-7s: 8 -> 0m, dx=-8, v=-2), Stopped (7-10s: at 0m, dx=0, v=0)
+    {
+      id: 3,
+      segments: [
+        { t0: 0, t1: 3, x0: 2, x1: 8, color: '#38bdf8' },
+        { t0: 3, t1: 7, x0: 8, x1: 0, color: '#f43f5e' },
+        { t0: 7, t1: 10, x0: 0, x1: 0, color: '#facc15' }
+      ],
+      sec1: { dir: 'forward', dx: 6, dt: 3, v: 2, label: '0s to 3s' },
       sec2: { dir: 'backward', dx: -8, dt: 4, v: -2, label: '3s to 7s' },
       sec3: { dir: 'stopped', dx: 0, dt: 3, v: 0, label: '7s to 10s' }
     },
-    // Scenario 7: Stopped (0-4s, at 10m -> 0 m/s), Forward (4-7s, 10m to 16m -> +2 m/s), Reverse (7-10s, 16m down to 4m -> -4 m/s)
+    // Scenario 4: Reverse (0-4s: 16 -> 8m, dx=-8, v=-2), Stopped (4-7s: at 8m, dx=0, v=0), Forward (7-10s: 8 -> 17m, dx=+9, v=+3)
+    {
+      id: 4,
+      segments: [
+        { t0: 0, t1: 4, x0: 16, x1: 8, color: '#f43f5e' },
+        { t0: 4, t1: 7, x0: 8, x1: 8, color: '#facc15' },
+        { t0: 7, t1: 10, x0: 8, x1: 17, color: '#38bdf8' }
+      ],
+      sec1: { dir: 'backward', dx: -8, dt: 4, v: -2, label: '0s to 4s' },
+      sec2: { dir: 'stopped', dx: 0, dt: 3, v: 0, label: '4s to 7s' },
+      sec3: { dir: 'forward', dx: 9, dt: 3, v: 3, label: '7s to 10s' }
+    },
+    // Scenario 5: Forward gentle (0-4s: 1 -> 5m, dx=+4, v=+1), Forward fast (4-7s: 5 -> 14m, dx=+9, v=+3), Reverse (7-10s: 14 -> 2m, dx=-12, v=-4)
+    {
+      id: 5,
+      segments: [
+        { t0: 0, t1: 4, x0: 1, x1: 5, color: '#38bdf8' },
+        { t0: 4, t1: 7, x0: 5, x1: 14, color: '#a855f7' },
+        { t0: 7, t1: 10, x0: 14, x1: 2, color: '#f43f5e' }
+      ],
+      sec1: { dir: 'forward', dx: 4, dt: 4, v: 1, label: '0s to 4s' },
+      sec2: { dir: 'forward', dx: 9, dt: 3, v: 3, label: '4s to 7s' },
+      sec3: { dir: 'backward', dx: -12, dt: 3, v: -4, label: '7s to 10s' }
+    },
+    // Scenario 6: Stopped (0-3s: at 15m, dx=0, v=0), Reverse (3-7s: 15 -> 3m, dx=-12, v=-3), Forward (7-10s: 3 -> 12m, dx=+9, v=+3)
+    {
+      id: 6,
+      segments: [
+        { t0: 0, t1: 3, x0: 15, x1: 15, color: '#facc15' },
+        { t0: 3, t1: 7, x0: 15, x1: 3, color: '#f43f5e' },
+        { t0: 7, t1: 10, x0: 3, x1: 12, color: '#38bdf8' }
+      ],
+      sec1: { dir: 'stopped', dx: 0, dt: 3, v: 0, label: '0s to 3s' },
+      sec2: { dir: 'backward', dx: -12, dt: 4, v: -3, label: '3s to 7s' },
+      sec3: { dir: 'forward', dx: 9, dt: 3, v: 3, label: '7s to 10s' }
+    },
+    // Scenario 7: Forward fast (0-3s: 2 -> 14m, dx=+12, v=+4), Stopped (3-6s: at 14m, dx=0, v=0), Reverse (6-10s: 14 -> 6m, dx=-8, v=-2)
     {
       id: 7,
       segments: [
-        { t0: 0, t1: 4, x0: 10, x1: 10, color: '#facc15' },
-        { t0: 4, t1: 7, x0: 10, x1: 16, color: '#38bdf8' },
-        { t0: 7, t1: 10, x0: 16, x1: 4, color: '#f43f5e' }
+        { t0: 0, t1: 3, x0: 2, x1: 14, color: '#38bdf8' },
+        { t0: 3, t1: 6, x0: 14, x1: 14, color: '#facc15' },
+        { t0: 6, t1: 10, x0: 14, x1: 6, color: '#f43f5e' }
       ],
-      sec1: { dir: 'stopped', dx: 0, dt: 4, v: 0, label: '0s to 4s' },
-      sec2: { dir: 'forward', dx: 6, dt: 3, v: 2, label: '4s to 7s' },
-      sec3: { dir: 'backward', dx: -12, dt: 3, v: -4, label: '7s to 10s' }
+      sec1: { dir: 'forward', dx: 12, dt: 3, v: 4, label: '0s to 3s' },
+      sec2: { dir: 'stopped', dx: 0, dt: 3, v: 0, label: '3s to 6s' },
+      sec3: { dir: 'backward', dx: -8, dt: 4, v: -2, label: '6s to 10s' }
+    },
+    // Scenario 8: Reverse (0-3s: 15 -> 9m, dx=-6, v=-2), Forward slow (3-6s: 9 -> 12m, dx=+3, v=+1), Reverse fast (6-10s: 12 -> 0m, dx=-12, v=-3)
+    {
+      id: 8,
+      segments: [
+        { t0: 0, t1: 3, x0: 15, x1: 9, color: '#f43f5e' },
+        { t0: 3, t1: 6, x0: 9, x1: 12, color: '#38bdf8' },
+        { t0: 6, t1: 10, x0: 12, x1: 0, color: '#f43f5e' }
+      ],
+      sec1: { dir: 'backward', dx: -6, dt: 3, v: -2, label: '0s to 3s' },
+      sec2: { dir: 'forward', dx: 3, dt: 3, v: 1, label: '3s to 6s' },
+      sec3: { dir: 'backward', dx: -12, dt: 4, v: -3, label: '6s to 10s' }
+    },
+    // Scenario 9: Forward (0-4s: 0 -> 12m, dx=+12, v=+3), Stopped (4-8s: at 12m, dx=0, v=0), Reverse (8-10s: 12 -> 4m, dx=-8, v=-4)
+    {
+      id: 9,
+      segments: [
+        { t0: 0, t1: 4, x0: 0, x1: 12, color: '#38bdf8' },
+        { t0: 4, t1: 8, x0: 12, x1: 12, color: '#facc15' },
+        { t0: 8, t1: 10, x0: 12, x1: 4, color: '#f43f5e' }
+      ],
+      sec1: { dir: 'forward', dx: 12, dt: 4, v: 3, label: '0s to 4s' },
+      sec2: { dir: 'stopped', dx: 0, dt: 4, v: 0, label: '4s to 8s' },
+      sec3: { dir: 'backward', dx: -8, dt: 2, v: -4, label: '8s to 10s' }
     }
   ];
 
@@ -1023,9 +1047,9 @@
       this.visualizer = new DualVisualizer();
       this.currentLevel = 1;
       this.currentStep = 0;
-      this.studentSeed = 42;
-      this.levelScores = [0, 0, 0, 0, 0, 0]; // L1:15, L2:15, L3:20, L4:15, L5:15, L6:20 = 100
+      this.levelScores = [0, 0, 0, 0, 0, 0];
       this.completedSteps = {};
+      this.studentSeed = 0;
       this.hasPlayedCurrentStep = false;
       this.attemptOffsets = {}; // tracks how many reviews/retries per step
 
@@ -1043,15 +1067,24 @@
     }
 
     getScenario(levelIdx, round = 0) {
-      const stepKey = `L${levelIdx}_S${round}`;
-      const offset = this.attemptOffsets[stepKey] || 0;
-      const idx = (this.studentSeed + levelIdx * 17 + (round + offset) * 31) % SCENARIOS.length;
-      return SCENARIOS[idx];
+      if (levelIdx <= 4) {
+        // Levels 1-4: The 3 section questions investigate one consistent, cohesive trip
+        const key = `L${levelIdx}`;
+        const offset = this.attemptOffsets[key] || 0;
+        const idx = (this.studentSeed + levelIdx * 19 + offset * 37) % SCENARIOS.length;
+        return SCENARIOS[idx];
+      } else {
+        // Levels 5 and 6: 3 distinct graphs to analyze or translate (round = 0, 1, 2)
+        const key = `L${levelIdx}_S${round}`;
+        const offset = this.attemptOffsets[key] || 0;
+        const idx = (this.studentSeed + levelIdx * 17 + (round + offset) * 31) % SCENARIOS.length;
+        return SCENARIOS[idx];
+      }
     }
 
     triggerConceptReview(title, conceptHtml) {
-      const stepKey = `L${this.currentLevel}_S${this.currentStep}`;
-      this.attemptOffsets[stepKey] = (this.attemptOffsets[stepKey] || 0) + 1;
+      const offsetKey = (this.currentLevel <= 4) ? `L${this.currentLevel}` : `L${this.currentLevel}_S${this.currentStep}`;
+      this.attemptOffsets[offsetKey] = (this.attemptOffsets[offsetKey] || 0) + 1;
       this.hasPlayedCurrentStep = false;
 
       const modal = document.getElementById('conceptReviewModal');
