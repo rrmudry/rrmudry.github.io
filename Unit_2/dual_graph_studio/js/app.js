@@ -919,27 +919,27 @@
   // --- Parameterized Problem Scenarios & Seeding ---
   // Clean integer math: Δx / Δt produces round velocities
   const SCENARIOS = [
-    // Scenario 0: Forward steady (0-4s: 0 -> 8m, dx=+8, v=+2), Stopped (4-7s: 8 -> 8m, dx=0, v=0), Reverse (7-10s: 8 -> 2m, dx=-6, v=-2)
+    // Scenario 0: Forward (0-4s: 0 -> 12m, dx=+12, v=+3), Stopped (4-7s: 12 -> 12m, dx=0, v=0), Reverse (7-10s: 12 -> 6m, dx=-6, v=-2)
     {
       id: 0,
       segments: [
-        { t0: 0, t1: 4, x0: 0, x1: 8, color: '#38bdf8' },
-        { t0: 4, t1: 7, x0: 8, x1: 8, color: '#facc15' },
-        { t0: 7, t1: 10, x0: 8, x1: 2, color: '#f43f5e' }
+        { t0: 0, t1: 4, x0: 0, x1: 12, color: '#38bdf8' },
+        { t0: 4, t1: 7, x0: 12, x1: 12, color: '#facc15' },
+        { t0: 7, t1: 10, x0: 12, x1: 6, color: '#f43f5e' }
       ],
-      sec1: { dir: 'forward', dx: 8, dt: 4, v: 2, label: '0s to 4s' },
+      sec1: { dir: 'forward', dx: 12, dt: 4, v: 3, label: '0s to 4s' },
       sec2: { dir: 'stopped', dx: 0, dt: 3, v: 0, label: '4s to 7s' },
       sec3: { dir: 'backward', dx: -6, dt: 3, v: -2, label: '7s to 10s' }
     },
-    // Scenario 1: Reverse (0-3s: 14 -> 5m, dx=-9, v=-3), Stopped (3-6s: 5 -> 5m, dx=0, v=0), Forward (6-10s: 5 -> 17m, dx=+12, v=+3)
+    // Scenario 1: Reverse fast (0-3s: 14 -> 2m, dx=-12, v=-4), Stopped (3-6s: 2 -> 2m, dx=0, v=0), Forward (6-10s: 2 -> 14m, dx=+12, v=+3)
     {
       id: 1,
       segments: [
-        { t0: 0, t1: 3, x0: 14, x1: 5, color: '#f43f5e' },
-        { t0: 3, t1: 6, x0: 5, x1: 5, color: '#facc15' },
-        { t0: 6, t1: 10, x0: 5, x1: 17, color: '#38bdf8' }
+        { t0: 0, t1: 3, x0: 14, x1: 2, color: '#f43f5e' },
+        { t0: 3, t1: 6, x0: 2, x1: 2, color: '#facc15' },
+        { t0: 6, t1: 10, x0: 2, x1: 14, color: '#38bdf8' }
       ],
-      sec1: { dir: 'backward', dx: -9, dt: 3, v: -3, label: '0s to 3s' },
+      sec1: { dir: 'backward', dx: -12, dt: 3, v: -4, label: '0s to 3s' },
       sec2: { dir: 'stopped', dx: 0, dt: 3, v: 0, label: '3s to 6s' },
       sec3: { dir: 'forward', dx: 12, dt: 4, v: 3, label: '6s to 10s' }
     },
@@ -955,15 +955,15 @@
       sec2: { dir: 'forward', dx: 12, dt: 3, v: 4, label: '3s to 6s' },
       sec3: { dir: 'backward', dx: -8, dt: 4, v: -2, label: '6s to 10s' }
     },
-    // Scenario 3: Forward (0-3s: 2 -> 8m, dx=+6, v=+2), Reverse (3-7s: 8 -> 0m, dx=-8, v=-2), Stopped (7-10s: at 0m, dx=0, v=0)
+    // Scenario 3: Forward (0-3s: 2 -> 11m, dx=+9, v=+3), Reverse (3-7s: 11 -> 3m, dx=-8, v=-2), Stopped (7-10s: at 3m, dx=0, v=0)
     {
       id: 3,
       segments: [
-        { t0: 0, t1: 3, x0: 2, x1: 8, color: '#38bdf8' },
-        { t0: 3, t1: 7, x0: 8, x1: 0, color: '#f43f5e' },
-        { t0: 7, t1: 10, x0: 0, x1: 0, color: '#facc15' }
+        { t0: 0, t1: 3, x0: 2, x1: 11, color: '#38bdf8' },
+        { t0: 3, t1: 7, x0: 11, x1: 3, color: '#f43f5e' },
+        { t0: 7, t1: 10, x0: 3, x1: 3, color: '#facc15' }
       ],
-      sec1: { dir: 'forward', dx: 6, dt: 3, v: 2, label: '0s to 3s' },
+      sec1: { dir: 'forward', dx: 9, dt: 3, v: 3, label: '0s to 3s' },
       sec2: { dir: 'backward', dx: -8, dt: 4, v: -2, label: '3s to 7s' },
       sec3: { dir: 'stopped', dx: 0, dt: 3, v: 0, label: '7s to 10s' }
     },
@@ -991,17 +991,17 @@
       sec2: { dir: 'forward', dx: 9, dt: 3, v: 3, label: '4s to 7s' },
       sec3: { dir: 'backward', dx: -12, dt: 3, v: -4, label: '7s to 10s' }
     },
-    // Scenario 6: Stopped (0-3s: at 15m, dx=0, v=0), Reverse (3-7s: 15 -> 3m, dx=-12, v=-3), Forward (7-10s: 3 -> 12m, dx=+9, v=+3)
+    // Scenario 6: Stopped (0-3s: at 15m, dx=0, v=0), Reverse (3-7s: 15 -> 3m, dx=-12, v=-3), Forward (7-10s: 3 -> 9m, dx=+6, v=+2)
     {
       id: 6,
       segments: [
         { t0: 0, t1: 3, x0: 15, x1: 15, color: '#facc15' },
         { t0: 3, t1: 7, x0: 15, x1: 3, color: '#f43f5e' },
-        { t0: 7, t1: 10, x0: 3, x1: 12, color: '#38bdf8' }
+        { t0: 7, t1: 10, x0: 3, x1: 9, color: '#38bdf8' }
       ],
       sec1: { dir: 'stopped', dx: 0, dt: 3, v: 0, label: '0s to 3s' },
       sec2: { dir: 'backward', dx: -12, dt: 4, v: -3, label: '3s to 7s' },
-      sec3: { dir: 'forward', dx: 9, dt: 3, v: 3, label: '7s to 10s' }
+      sec3: { dir: 'forward', dx: 6, dt: 3, v: 2, label: '7s to 10s' }
     },
     // Scenario 7: Forward fast (0-3s: 2 -> 14m, dx=+12, v=+4), Stopped (3-6s: at 14m, dx=0, v=0), Reverse (6-10s: 14 -> 6m, dx=-8, v=-2)
     {
