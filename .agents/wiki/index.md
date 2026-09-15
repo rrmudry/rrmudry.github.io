@@ -17,4 +17,5 @@
 | [touch-math-facts-engine](patterns/touch-math-facts-engine.md) | math, touch, keypad, sound-fx, leaderboard, firestore | 2026-09-05 | Touchscreen virtual numpad with auto-advance, speed/streak multipliers, name-only Firestore leaderboard |
 | [two-agent-kinematic-intercept](patterns/two-agent-kinematic-intercept.md) | kinematics, dual-car, simulation, intercept, canvas, web-audio, competition | 2026-09-10 | Two-vehicle kinematic intercept competition and dual-canvas real-time vector visualizer for Honors Physics |
 | [position-time-graphing-studio](patterns/position-time-graphing-studio.md) | kinematics, position-time, graphing, slope, number-line, canvas, firestore, grading | 2026-09-14 | Graded dual-canvas studio for slope as velocity, number line mapping, fast/slow steepness, and bidirectional graph-table plotting |
+| [velocity-time-graphing-studio](patterns/velocity-time-graphing-studio.md) | kinematics, velocity-time, graphing, acceleration, area-displacement, vectors, strobe-trail | 2026-09-15 | Interactive velocity-time studio with constant speed, uniform acceleration, area integration, 1D motion visualizer, and strobe trails |
 
