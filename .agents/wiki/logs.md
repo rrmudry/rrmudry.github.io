@@ -2,6 +2,22 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-15 — Velocity-Time Graph Studio (Constant Speed & Uniform Acceleration Engine)
+
+**Motivation**: Created an interactive velocity vs. time ($v\text{-}t$) laboratory webapp featuring constant speed examples, uniform acceleration examples (speeding up, braking to a halt, multi-segment trips, direction reversals), and real-time 1D vehicle motion visualization.
+
+**Key Architecture & Highlights**:
+- **New Webapp (`Unit_2/velocity_time_graph_studio/`)**:
+  - Interactive $v\text{-}t$ canvas with touch/mouse draggable waypoint keyframes, grid snapping (0.5s time, 0.5 m/s velocity), live slope annotations ($a = \Delta v / \Delta t$), and integral area shading for displacement ($\Delta x$).
+  - 1D highway motion track with responsive metric ruler, direction-aware car sprite, dynamic velocity ($v$) and acceleration ($a$) vector arrows, and real-time oil-drop / strobe markers dropped every 0.5s.
+  - Collapsible synchronized position-time ($x\text{-}t$) curve graph.
+  - 6 educational presets covering constant velocity ($a = 0$), uniform positive acceleration, negative acceleration braking, 3-phase trips, and direction reversal crossing $v = 0$.
+  - Dual-waypoint synchronization: interactive graph dragging updates table inputs; table numerical edits update graph immediately.
+  - Strict compliance with No-LaTeX rules (plain Unicode/HTML), Pointer Events with elevated optical loupe reticles, and high-contrast Cosmic Theme design system.
+- **Wiki Pattern**: Documented in `.agents/wiki/patterns/velocity-time-graphing-studio.md`.
+
+---
+
 ## 2026-09-14 — Dual-Graph Motion Studio (Google Sign-In Button Binding & Classroom Posting)
 
 **Motivation**: The "Sign in with Google" button on the mandatory login gate modal was unresponsive upon initial load, and coursework needed deployment to Google Classroom.
