@@ -1415,7 +1415,7 @@
             <div>
               <label class="block text-xs font-mono text-slate-300 mb-1">Displacement Δx (in meters):</label>
               <div class="flex items-center gap-2">
-                <input id="inpDx" type="number" step="1" placeholder="e.g. 6 or -6" class="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/15 text-sm font-mono text-white outline-none focus:border-[#ccff00]">
+                <input id="inpDx" type="number" step="1" placeholder="for example: 6 or -6" class="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/15 text-sm font-mono text-white outline-none focus:border-[#ccff00]">
                 <span class="font-mono text-xs text-slate-400">meters</span>
               </div>
             </div>
@@ -1440,10 +1440,10 @@
           const fb = document.getElementById('stepFeedback');
           const nextBtn = document.getElementById('btnNextStep');
 
-          if (val === sec.dx) {
+          if (Math.abs(val - sec.dx) < 0.05) {
             sfx.success();
             fb.className = 'p-3 rounded-xl text-xs font-sans bg-emerald-950/70 border border-emerald-500/40 text-emerald-200';
-            fb.innerHTML = `<strong>⭐ Perfect!</strong> Section ${secIdx + 1} displacement is <strong>${sec.dx} meters</strong> (${sec.dx > 0 ? 'forward' : (sec.dx === 0 ? 'stationary' : 'backward')}).`;
+            fb.innerHTML = `<strong>⭐ Excellent!</strong> In Section ${secIdx + 1}, the car started at ${sc.segments[secIdx].x0}m and ended at ${sc.segments[secIdx].x1}m. Displacement = <strong>${sec.dx} m</strong>.`;
             fb.classList.remove('hidden');
             nextBtn.classList.remove('hidden');
 
@@ -1455,7 +1455,7 @@
           } else {
             sfx.error();
             fb.className = 'p-3 rounded-xl text-xs font-sans bg-rose-950/70 border border-rose-500/40 text-rose-200';
-            fb.innerHTML = `<strong>Try again:</strong> It started at x = ${sc.segments[secIdx].x0}m and ended at x = ${sc.segments[secIdx].x1}m. What is ${sc.segments[secIdx].x1} - ${sc.segments[secIdx].x0}?`;
+            fb.innerHTML = `<strong>Diagnostic Tip:</strong> Subtract starting position from ending position: (${sc.segments[secIdx].x1}m) - (${sc.segments[secIdx].x0}m). Include a negative sign if moving backward!`;
             fb.classList.remove('hidden');
           }
         });
@@ -1476,7 +1476,7 @@
     }
 
     // =========================================================================
-    // LEVEL 3: SLOPE TO VELOCITY (v = Rise / Run)
+    // LEVEL 3: SLOPE TO VELOCITY (Rise ÷ Run)
     // =========================================================================
     renderLevel3(ws, sc) {
       const stepKey = `L3_S${this.currentStep}`;
@@ -1489,26 +1489,24 @@
           <div class="flex items-center justify-between border-b border-white/10 pb-2">
             <div>
               <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-lime-400">Level 3 • Slope to Velocity</span>
-              <h2 class="text-base font-bold text-white">Section ${secIdx + 1} (${sec.label}): Calculate Slope</h2>
+              <h2 class="text-base font-bold text-white">Section ${secIdx + 1} (${sec.label}): Velocity (m/s)</h2>
             </div>
             <span class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-lime-950 border border-lime-500/30 text-lime-300">${pts} pts</span>
           </div>
 
           <div class="p-3 rounded-xl bg-slate-950/60 border border-lime-500/30 text-xs font-sans text-slate-200 leading-relaxed space-y-1">
-            <p>Determine the velocity of <strong>Section ${secIdx + 1}</strong> by dividing Rise by Run:</p>
-            <p class="font-mono text-lime-300 font-bold">Velocity = Rise / Run = Δx / Δt</p>
-          </div>
-
-          <div class="p-3 rounded-xl bg-white/5 border border-white/10 font-mono text-xs space-y-1 text-slate-300">
-            <div>• Rise (Δx) = <span class="text-rose-400 font-bold">${sec.dx} m</span></div>
-            <div>• Run (Δt) = <span class="text-sky-400 font-bold">${sec.dt} s</span></div>
+            <p>What is the velocity (slope) of <strong>Section ${secIdx + 1} (${sec.label})</strong>?</p>
+            <p class="text-slate-400 text-[11px]">Formula: <span class="font-mono text-lime-300 font-bold">Velocity = Rise ÷ Run = Δx ÷ Δt</span></p>
+            <div class="text-[11px] font-mono text-slate-300 bg-white/5 p-1.5 rounded">
+              Δx = ${sec.dx} m, Δt = ${sec.dt} s
+            </div>
           </div>
 
           <div class="space-y-3">
             <div>
               <label class="block text-xs font-mono text-slate-300 mb-1">Velocity (Rise ÷ Run in m/s):</label>
               <div class="flex items-center gap-2">
-                <input id="inpVel" type="number" step="0.5" placeholder="e.g. 2 or -1.5" class="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/15 text-sm font-mono text-white outline-none focus:border-[#ccff00]">
+                <input id="inpVel" type="number" step="0.5" placeholder="for example: 2 or -1.5" class="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/15 text-sm font-mono text-white outline-none focus:border-[#ccff00]">
                 <span class="font-mono text-xs text-slate-400">m/s</span>
               </div>
             </div>
