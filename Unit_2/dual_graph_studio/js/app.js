@@ -954,6 +954,54 @@
       sec1: { dir: 'stopped', dx: 0, dt: 3, v: 0, label: '0s to 3s' },
       sec2: { dir: 'forward', dx: 12, dt: 3, v: 4, label: '3s to 6s' },
       sec3: { dir: 'stopped', dx: 0, dt: 4, v: 0, label: '6s to 10s' }
+    },
+    // Scenario 4: Forward Steady (0-4s, 0m to 8m -> +2 m/s), Forward Fast (4-7s, 8m to 17m -> +3 m/s), Stopped (7-10s, at 17m -> 0 m/s)
+    {
+      id: 4,
+      segments: [
+        { t0: 0, t1: 4, x0: 0, x1: 8, color: '#38bdf8' },
+        { t0: 4, t1: 7, x0: 8, x1: 17, color: '#a855f7' },
+        { t0: 7, t1: 10, x0: 17, x1: 17, color: '#facc15' }
+      ],
+      sec1: { dir: 'forward', dx: 8, dt: 4, v: 2, label: '0s to 4s' },
+      sec2: { dir: 'forward', dx: 9, dt: 3, v: 3, label: '4s to 7s' },
+      sec3: { dir: 'stopped', dx: 0, dt: 3, v: 0, label: '7s to 10s' }
+    },
+    // Scenario 5: Reverse fast (0-2s, from 14m down to 6m -> -4 m/s), Stopped (2-6s, at 6m -> 0 m/s), Reverse slow (6-10s, 6m down to 2m -> -1 m/s)
+    {
+      id: 5,
+      segments: [
+        { t0: 0, t1: 2, x0: 14, x1: 6, color: '#f43f5e' },
+        { t0: 2, t1: 6, x0: 6, x1: 6, color: '#facc15' },
+        { t0: 6, t1: 10, x0: 6, x1: 2, color: '#f43f5e' }
+      ],
+      sec1: { dir: 'backward', dx: -8, dt: 2, v: -4, label: '0s to 2s' },
+      sec2: { dir: 'stopped', dx: 0, dt: 4, v: 0, label: '2s to 6s' },
+      sec3: { dir: 'backward', dx: -4, dt: 4, v: -1, label: '6s to 10s' }
+    },
+    // Scenario 6: Forward fast (0-3s, 2m to 14m -> +4 m/s), Reverse (3-7s, 14m down to 6m -> -2 m/s), Stopped (7-10s, at 6m -> 0 m/s)
+    {
+      id: 6,
+      segments: [
+        { t0: 0, t1: 3, x0: 2, x1: 14, color: '#38bdf8' },
+        { t0: 3, t1: 7, x0: 14, x1: 6, color: '#f43f5e' },
+        { t0: 7, t1: 10, x0: 6, x1: 6, color: '#facc15' }
+      ],
+      sec1: { dir: 'forward', dx: 12, dt: 3, v: 4, label: '0s to 3s' },
+      sec2: { dir: 'backward', dx: -8, dt: 4, v: -2, label: '3s to 7s' },
+      sec3: { dir: 'stopped', dx: 0, dt: 3, v: 0, label: '7s to 10s' }
+    },
+    // Scenario 7: Stopped (0-4s, at 10m -> 0 m/s), Forward (4-7s, 10m to 16m -> +2 m/s), Reverse (7-10s, 16m down to 4m -> -4 m/s)
+    {
+      id: 7,
+      segments: [
+        { t0: 0, t1: 4, x0: 10, x1: 10, color: '#facc15' },
+        { t0: 4, t1: 7, x0: 10, x1: 16, color: '#38bdf8' },
+        { t0: 7, t1: 10, x0: 16, x1: 4, color: '#f43f5e' }
+      ],
+      sec1: { dir: 'stopped', dx: 0, dt: 4, v: 0, label: '0s to 4s' },
+      sec2: { dir: 'forward', dx: 6, dt: 3, v: 2, label: '4s to 7s' },
+      sec3: { dir: 'backward', dx: -12, dt: 3, v: -4, label: '7s to 10s' }
     }
   ];
 
