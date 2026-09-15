@@ -1027,6 +1027,7 @@
       this.levelScores = [0, 0, 0, 0, 0, 0]; // L1:15, L2:15, L3:20, L4:15, L5:15, L6:20 = 100
       this.completedSteps = {};
       this.hasPlayedCurrentStep = false;
+      this.attemptOffsets = {}; // tracks how many reviews/retries per step
 
       this.initDOM();
       this.initApp();
@@ -1042,8 +1043,26 @@
     }
 
     getScenario(levelIdx, round = 0) {
-      const idx = (this.studentSeed + levelIdx * 17 + round * 31) % SCENARIOS.length;
+      const stepKey = `L${levelIdx}_S${round}`;
+      const offset = this.attemptOffsets[stepKey] || 0;
+      const idx = (this.studentSeed + levelIdx * 17 + (round + offset) * 31) % SCENARIOS.length;
       return SCENARIOS[idx];
+    }
+
+    triggerConceptReview(title, conceptHtml) {
+      const stepKey = `L${this.currentLevel}_S${this.currentStep}`;
+      this.attemptOffsets[stepKey] = (this.attemptOffsets[stepKey] || 0) + 1;
+      this.hasPlayedCurrentStep = false;
+
+      const modal = document.getElementById('conceptReviewModal');
+      const titleEl = document.getElementById('reviewModalTitle');
+      const bodyEl = document.getElementById('reviewModalBody');
+
+      if (titleEl) titleEl.textContent = title;
+      if (bodyEl) bodyEl.innerHTML = conceptHtml;
+      if (modal) modal.classList.remove('hidden');
+
+      sfx.error();
     }
 
     checkCarPlayed() {
@@ -1163,6 +1182,17 @@
       if (btnCloseCert) btnCloseCert.addEventListener('click', () => this.hideCertificate());
       const btnCloseCert2 = document.getElementById('btnCloseCert2');
       if (btnCloseCert2) btnCloseCert2.addEventListener('click', () => this.hideCertificate());
+
+      // Concept Review Dismiss Button
+      const btnDismissReview = document.getElementById('btnDismissReview');
+      if (btnDismissReview) {
+        btnDismissReview.addEventListener('click', () => {
+          const modal = document.getElementById('conceptReviewModal');
+          if (modal) modal.classList.add('hidden');
+          sfx.click();
+          this.loadStep();
+        });
+      }
 
       // Guest explore button
       const guestBtn = document.getElementById('btnContinueGuest');
@@ -1420,11 +1450,19 @@
               this.updateScoreDisplay();
             }
           } else {
-            sfx.error();
             btn.classList.add('bg-rose-950', 'border-rose-500', 'text-rose-300');
-            fb.className = 'p-3 rounded-xl text-xs font-sans bg-rose-950/70 border border-rose-500/40 text-rose-200';
-            fb.innerHTML = `<strong>Diagnostic Clue:</strong> Look at Section ${secIdx + 1} (${sec.label}). Is the line rising (forward), flat horizontal (stopped), or falling (backward)?`;
-            fb.classList.remove('hidden');
+            this.triggerConceptReview(
+              `Review: Direction on Position-Time Graphs`,
+              `
+                <p>On a <strong>Position vs. Time (x-t)</strong> graph, the direction of motion is given by the <strong>slope</strong> of the line:</p>
+                <div class="space-y-1.5 font-mono text-[11px] my-2 p-2.5 rounded bg-black/40 border border-white/10">
+                  <div class="text-sky-300">↗ Slopes UP = Moving Forward (position increases)</div>
+                  <div class="text-amber-300">― FLAT line = Stopped at rest (position does not change)</div>
+                  <div class="text-rose-300">↘ Slopes DOWN = Moving Backward (heading in reverse toward 0m)</div>
+                </div>
+                <p>Take a breath, watch the cyber car, and see which way the position number line changes!</p>
+              `
+            );
           }
         });
       });
@@ -1509,10 +1547,22 @@
               this.updateScoreDisplay();
             }
           } else {
-            sfx.error();
-            fb.className = 'p-3 rounded-xl text-xs font-sans bg-rose-950/70 border border-rose-500/40 text-rose-200';
-            fb.innerHTML = `<strong>Diagnostic Tip:</strong> Subtract starting position from ending position: (${sc.segments[secIdx].x1}m) - (${sc.segments[secIdx].x0}m). Include a negative sign if moving backward!`;
-            fb.classList.remove('hidden');
+            this.triggerConceptReview(
+              `Review: Calculating Section Displacement (Δx)`,
+              `
+                <p>To find the displacement for a specific section, always subtract the starting position from the ending position:</p>
+                <div class="my-2 p-2.5 rounded bg-black/40 border border-white/10 font-mono text-[11px] text-lime-300">
+                  Δx = x_final - x_initial
+                </div>
+                <p>For Section ${secIdx + 1}:</p>
+                <ul class="list-disc list-inside text-[11px] text-slate-300 space-y-1">
+                  <li>Start: <strong>${sc.segments[secIdx].x0} m</strong> at ${sc.segments[secIdx].t0}s</li>
+                  <li>End: <strong>${sc.segments[secIdx].x1} m</strong> at ${sc.segments[secIdx].t1}s</li>
+                  <li>Displacement: (${sc.segments[secIdx].x1}m) - (${sc.segments[secIdx].x0}m) = <strong>${sec.dx} m</strong></li>
+                </ul>
+                <p class="text-rose-300 text-[11px] mt-1">Remember: if the car moves backward, the displacement must be <strong>negative</strong>!</p>
+              `
+            );
           }
         });
       }
@@ -1607,10 +1657,22 @@
               this.updateScoreDisplay();
             }
           } else {
-            sfx.error();
-            fb.className = 'p-3 rounded-xl text-xs font-sans bg-rose-950/70 border border-rose-500/40 text-rose-200';
-            fb.innerHTML = `<strong>Tip:</strong> Divide ${sec.dx} by ${sec.dt}. Keep the negative sign if moving backward!`;
-            fb.classList.remove('hidden');
+            this.triggerConceptReview(
+              `Review: Calculating Velocity from Slope (Rise ÷ Run)`,
+              `
+                <p>The slope of a <strong>Position vs. Time</strong> line is its <strong>velocity</strong>:</p>
+                <div class="my-2 p-2.5 rounded bg-black/40 border border-white/10 font-mono text-[11px] text-lime-300">
+                  v = Rise ÷ Run = Δx ÷ Δt
+                </div>
+                <p>For Section ${secIdx + 1}:</p>
+                <ul class="list-disc list-inside text-[11px] text-slate-300 space-y-1">
+                  <li>Displacement (Rise): <strong>${sec.dx} m</strong></li>
+                  <li>Time Duration (Run): <strong>${sec.dt} s</strong></li>
+                  <li>Velocity: ${sec.dx} m ÷ ${sec.dt} s = <strong>${sec.v} m/s</strong></li>
+                </ul>
+                <p class="text-rose-300 text-[11px] mt-1">If the line slopes downward, the rise (Δx) is negative, so velocity must also be <strong>negative</strong>!</p>
+              `
+            );
           }
         });
       }
@@ -1748,11 +1810,19 @@
               this.updateScoreDisplay();
             }
           } else {
-            sfx.error();
             btn.classList.add('bg-rose-950', 'border-rose-500', 'text-rose-300');
-            fb.className = 'p-3 rounded-xl text-xs font-sans bg-rose-950/70 border border-rose-500/40 text-rose-200';
-            fb.innerHTML = `<strong>Diagnostic Clue:</strong> On a velocity graph, height = speed magnitude, and sign (+ or -) = direction.`;
-            fb.classList.remove('hidden');
+            this.triggerConceptReview(
+              `Review: Interpreting Velocity vs. Time (v-t) Graphs`,
+              `
+                <p>On a <strong>Velocity vs. Time (v-t)</strong> graph, the vertical axis measures <strong>speed and direction</strong>, NOT position:</p>
+                <div class="space-y-1.5 font-mono text-[11px] my-2 p-2.5 rounded bg-black/40 border border-white/10">
+                  <div class="text-sky-300">― Horizontal Flat Line = Constant steady velocity (not speeding up or slowing down)</div>
+                  <div class="text-lime-300">📏 Speed Magnitude = Distance away from 0 m/s (higher or lower = faster)</div>
+                  <div class="text-rose-300">➕ Above 0 m/s = Moving Forward | ➖ Below 0 m/s = Moving Backward</div>
+                </div>
+                <p>A fresh motion scenario will be loaded so you can practice reading the velocity graph accurately!</p>
+              `
+            );
           }
         });
       });
@@ -1853,10 +1923,18 @@
               this.updateScoreDisplay();
             }
           } else {
-            sfx.error();
-            fb.className = 'p-3 rounded-xl text-xs font-sans bg-rose-950/70 border border-rose-500/40 text-rose-200';
-            fb.innerHTML = `<strong>Diagnostic Check:</strong> Look closely at the vertical axis ticks of the Velocity vs. Time graph for each interval. Remember: lines below 0 m/s have a negative velocity!`;
-            fb.classList.remove('hidden');
+            this.triggerConceptReview(
+              `Review: Reading the Velocity vs. Time (v-t) Graph`,
+              `
+                <p>On a <strong>Velocity vs. Time (v-t)</strong> graph, each section's velocity is found by tracing horizontally to the vertical axis:</p>
+                <ul class="list-disc list-inside text-[11px] text-slate-300 space-y-1 my-2">
+                  <li>Section 1 (${sc.sec1.label}): line is at <strong class="text-lime-300">${sc.sec1.v} m/s</strong></li>
+                  <li>Section 2 (${sc.sec2.label}): line is at <strong class="text-amber-300">${sc.sec2.v} m/s</strong></li>
+                  <li>Section 3 (${sc.sec3.label}): line is at <strong class="text-sky-300">${sc.sec3.v} m/s</strong></li>
+                </ul>
+                <p class="text-rose-300 text-[11px]">Notice: lines plotted below the 0 m/s axis line must have a <strong>negative (-) sign</strong>!</p>
+              `
+            );
           }
         });
       }
@@ -1946,10 +2024,22 @@
               this.updateScoreDisplay();
             }
           } else {
-            sfx.error();
-            fb.className = 'p-3 rounded-xl text-xs font-sans bg-rose-950/70 border border-rose-500/40 text-rose-200';
-            fb.innerHTML = `<strong>Not quite aligned yet:</strong> Compare your dragged bars to the slopes on the left. (Remember: Section 1 slope is ${sc.sec1.v} m/s, Section 2 is ${sc.sec2.v} m/s, Section 3 is ${sc.sec3.v} m/s).`;
-            fb.classList.remove('hidden');
+            this.triggerConceptReview(
+              `Review: Translating x-t Slopes into v-t Bars`,
+              `
+                <p>To translate a <strong>Position vs. Time (x-t)</strong> graph into a <strong>Velocity vs. Time (v-t)</strong> graph:</p>
+                <div class="my-2 p-2.5 rounded bg-black/40 border border-white/10 font-mono text-[11px] text-sky-300 space-y-1">
+                  <div>1. Find the slope (Rise ÷ Run = Δx ÷ Δt) of each section on the left graph.</div>
+                  <div>2. Drag the horizontal bar on the right graph so its height equals that exact slope value!</div>
+                </div>
+                <ul class="list-disc list-inside text-[11px] text-slate-300 space-y-1">
+                  <li>Section 1 slope: <strong>${sc.sec1.v} m/s</strong> (bar should be at ${sc.sec1.v})</li>
+                  <li>Section 2 slope: <strong>${sc.sec2.v} m/s</strong> (bar should be at ${sc.sec2.v})</li>
+                  <li>Section 3 slope: <strong>${sc.sec3.v} m/s</strong> (bar should be at ${sc.sec3.v})</li>
+                </ul>
+                <p class="text-amber-300 text-[11px] mt-1">Check the signs carefully! Downward slopes must be dragged below the 0 m/s line.</p>
+              `
+            );
           }
         });
       }
