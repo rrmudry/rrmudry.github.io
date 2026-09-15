@@ -169,6 +169,7 @@
             this.chkArea = document.getElementById('chkArea');
             this.chkSlope = document.getElementById('chkSlope');
             this.chkStrobes = document.getElementById('chkStrobes');
+            this.btnClearStrobes = document.getElementById('btnClearStrobes');
             this.btnSound = document.getElementById('btnSound');
             this.btnTheme = document.getElementById('btnTheme');
 
@@ -287,6 +288,15 @@
             [this.chkArea, this.chkSlope, this.chkStrobes].forEach(chk => {
                 if (chk) chk.addEventListener('change', () => this.render());
             });
+
+            // Clear Strobe Dots button
+            if (this.btnClearStrobes) {
+                this.btnClearStrobes.addEventListener('click', () => {
+                    sound.blip();
+                    this.strobeMarkers = [];
+                    this.render();
+                });
+            }
 
             // Pointer events for dragging & clicking graph dots
             this.initGraphPointerEvents();
