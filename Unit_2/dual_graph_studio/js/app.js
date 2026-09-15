@@ -116,6 +116,7 @@
       // Highlights & overlays
       this.highlightSectionIdx = null;
       this.slopeTriangle = null; // { p1, p2, labelRise, labelRun }
+      this.hideValueTags = false;
 
       this.padding = { left: 45, right: 20, top: 25, bottom: 35 };
 
@@ -659,30 +660,33 @@
         ctx.stroke();
 
       } else if (this.graphMode === 'vt') {
-        // Level 4: Velocity-Time Graph Mode
+        // Level 4 & Level 5: Velocity-Time Graph Mode
         this.drawGrid(ctx, w, h, 0, this.tMax, this.vMin, this.vMax, 'Velocity v (m/s)', true);
 
         // Draw horizontal velocity steps
         for (let i = 0; i < this.segments.length; i++) {
           const seg = this.segments[i];
           const color = this.getContrastColor(seg.color);
+          const isHighlighted = this.highlightSectionIdx === null || this.highlightSectionIdx === i;
           const px0 = this.timeToPixel(seg.t0, w);
           const px1 = this.timeToPixel(seg.t1, w);
           const py = this.velToPixel(seg.v, h);
 
           // Horizontal flat bar
-          ctx.strokeStyle = color;
-          ctx.lineWidth = 5;
+          ctx.strokeStyle = isHighlighted ? color : (isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)');
+          ctx.lineWidth = isHighlighted ? 5 : 2;
           ctx.beginPath();
           ctx.moveTo(px0, py);
           ctx.lineTo(px1, py);
           ctx.stroke();
 
-          // Value tag
-          ctx.fillStyle = isDark ? '#ffffff' : '#0f172a';
-          ctx.font = 'bold 11px monospace';
-          ctx.textAlign = 'center';
-          ctx.fillText(`${seg.v >= 0 ? '+' : ''}${seg.v} m/s`, (px0 + px1) / 2, py - 8);
+          // Value tag (shown in Level 4, or when hideValueTags is false)
+          if (!this.hideValueTags) {
+            ctx.fillStyle = isDark ? '#ffffff' : '#0f172a';
+            ctx.font = 'bold 11px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${seg.v >= 0 ? '+' : ''}${seg.v} m/s`, (px0 + px1) / 2, py - 8);
+          }
 
           // Vertical transition connector
           if (i < this.segments.length - 1) {
@@ -1288,9 +1292,10 @@
       });
 
       const alertBanner = document.getElementById('redAlertBanner');
-      if (level === 4 || level === 6) {
-        if (alertBanner) alertBanner.classList.remove('hidden');
-        sfx.alert();
+      if (level === 4 || level === 5 || level === 6) {
+        if (alertBanner && level === 4) alertBanner.classList.remove('hidden');
+        else if (alertBanner) alertBanner.classList.add('hidden');
+        if (level === 4 || level === 6) sfx.alert();
       } else {
         if (alertBanner) alertBanner.classList.add('hidden');
       }
@@ -1299,12 +1304,15 @@
 
       if (level === 6) {
         this.visualizer.setMode('dual');
+        this.visualizer.hideValueTags = false;
         if (modeLabel) modeLabel.textContent = 'Level 6: Dual-Graph Translation';
-      } else if (level === 4) {
+      } else if (level === 4 || level === 5) {
         this.visualizer.setMode('vt');
-        if (modeLabel) modeLabel.textContent = 'Level 4: Velocity vs. Time (v-t)';
+        this.visualizer.hideValueTags = (level === 5); // In Level 5, students read values off the v-t graph axis
+        if (modeLabel) modeLabel.textContent = level === 4 ? 'Level 4: Velocity vs. Time (v-t)' : 'Level 5: Velocity Table (from v-t graph)';
       } else {
         this.visualizer.setMode('xt');
+        this.visualizer.hideValueTags = false;
         const names = ['', 'Direction', 'Displacement Δx', 'Slope to Velocity', 'v-t Alert', 'Velocity Table', 'Dual Translation'];
         if (modeLabel) modeLabel.textContent = `Level ${level}: ${names[level]}`;
       }
@@ -1321,6 +1329,11 @@
 
       const sc = this.getScenario(this.currentLevel, this.currentStep);
       this.visualizer.set3Segments(sc.segments);
+
+      if (this.currentLevel === 5) {
+        this.visualizer.setMode('vt');
+        this.visualizer.hideValueTags = true;
+      }
 
       if (this.currentLevel === 1) this.renderLevel1(workspace, sc);
       else if (this.currentLevel === 2) this.renderLevel2(workspace, sc);
@@ -1766,14 +1779,15 @@
         <div class="space-y-4">
           <div class="flex items-center justify-between border-b border-white/10 pb-2">
             <div>
-              <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-lime-400">Level 5 • Kinematic Data Table</span>
-              <h2 class="text-base font-bold text-white">Fill in the 3 Section Velocities</h2>
+              <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-rose-400">Level 5 • Kinematic Data Table</span>
+              <h2 class="text-base font-bold text-white">Record the 3 Section Velocities</h2>
             </div>
-            <span class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-lime-950 border border-lime-500/30 text-lime-300">15 pts</span>
+            <span class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-rose-950 border border-rose-500/30 text-rose-300">15 pts</span>
           </div>
 
-          <div class="p-3 rounded-xl bg-slate-950/60 border border-lime-500/30 text-xs font-sans text-slate-200 leading-relaxed">
-            Extract the velocities for each interval from the Position-Time graph and complete the table below:
+          <div class="p-3 rounded-xl bg-slate-950/60 border border-rose-500/30 text-xs font-sans text-slate-200 leading-relaxed space-y-1">
+            <p>Read the velocity for each interval directly from the <strong>Velocity vs. Time (v-t) graph</strong> above, and complete the table below:</p>
+            <p class="text-[11px] text-slate-400">💡 Look at the height of each horizontal line relative to the vertical velocity axis (m/s). Use negative values if the line is below 0 m/s!</p>
           </div>
 
           <!-- Structured Data Table -->
@@ -1827,7 +1841,7 @@
               Math.abs(v3 - sc.sec3.v) < 0.05) {
             sfx.success();
             fb.className = 'p-3 rounded-xl text-xs font-sans bg-emerald-950/70 border border-emerald-500/40 text-emerald-200';
-            fb.innerHTML = `<strong>⭐ 100% Correct!</strong> You've successfully extracted all 3 velocities: v₁ = ${sc.sec1.v} m/s, v₂ = ${sc.sec2.v} m/s, v₃ = ${sc.sec3.v} m/s.`;
+            fb.innerHTML = `<strong>⭐ 100% Correct!</strong> You've successfully read all 3 velocities from the graph: v₁ = ${sc.sec1.v} m/s, v₂ = ${sc.sec2.v} m/s, v₃ = ${sc.sec3.v} m/s.`;
             fb.classList.remove('hidden');
             nextBtn.classList.remove('hidden');
 
@@ -1839,7 +1853,7 @@
           } else {
             sfx.error();
             fb.className = 'p-3 rounded-xl text-xs font-sans bg-rose-950/70 border border-rose-500/40 text-rose-200';
-            fb.innerHTML = `<strong>Check your values:</strong> Review your slope calculations (Rise ÷ Run) for any incorrect cells.`;
+            fb.innerHTML = `<strong>Diagnostic Check:</strong> Look closely at the vertical axis ticks of the Velocity vs. Time graph for each interval. Remember: lines below 0 m/s have a negative velocity!`;
             fb.classList.remove('hidden');
           }
         });
