@@ -2,6 +2,17 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-15 — Marble Ramp Lab: Cloud State Restoration & Checks Array Guard
+
+**Pattern Updated**: `marble-ramp-graphing-lab.md` — Fixed cloud draft state merging.
+
+**Changes**:
+- Resolved `TypeError: Cannot read properties of undefined (reading '0')` at `lab_engine.js:438`.
+- In `auth_manager.js`, `loadStudentLabData()` now passes `data.labState || data` to `loadExternalState()` so the full saved lab data is restored instead of the lifted dashboard summary.
+- In `lab_engine.js`, `loadExternalState()` safely deep-merges level fields rather than replacing `this.levels`.
+- Added defensive array initialization for `activeLvl.trials` and `activeLvl.checks` across `renderStep2DataCollection()` and `updateQualityCheck()`.
+- Added inline SVG favicon to eliminate 404 console request.
+
 ## 2026-09-15 — Marble Ramp Lab: Mandatory Beginning Login Gate
 
 **Pattern Updated**: `marble-ramp-graphing-lab.md` — Enforced mandatory Google login gateway prior to lab access.
