@@ -90,9 +90,30 @@ Lesson cards and detail modal popups (`openLessonModal`) must clearly distinguis
 - **Backwards Compatibility**: The `categorizeLessonLinks(day)` function automatically categorizes legacy flat `links: { "Label": "url" }` objects via keyword and URL regex heuristics, while supporting explicit `assignments: []`, `resources: []`, and `practice: []` data arrays.
 - **Absent Makeup Integration**: `missing-work.html` uses the same three-tier categorization so absent students instantly see what must be submitted to earn credit versus what slides to review.
 
+## Planned Activity Fallback Pattern (Lesson Plans Subject to Change)
+Future unit activities, handouts, and laboratory exercises frequently evolve based on classroom pacing, inquiry needs, and student mastery. To prevent broken links or accidental redirects to placeholder documents (e.g. copying an earlier unit Google Doc across future days):
+- **Data Definition**: In `assets/lessons-data.js` and unit JSON files, planned items that do not yet have a live webapp or Google Doc MUST be flagged with:
+  ```json
+  {
+    "title": "Modified Atwood Track Lab Report",
+    "status": "planned",
+    "typeLabel": "Classwork Practice",
+    "submission": "In-Class Handout (Subject to Pacing)",
+    "actionLabel": "In-Class Activity Notice",
+    "description": "Examine net force and accelerating mass with rolling track carts."
+  }
+  ```
+  Omit `url` or set `url: ""` so no broken link is registered.
+- **UI Rendering**: In `renderCategorizedLinksHtml(day)` and card pill bars:
+  - Check `isPlanned = item.status === 'planned' || item.isPlanned || !item.url || item.url === '#' || item.url.startsWith('javascript:');`
+  - Render a distinct amber button card with badge `📋 PLANNED · IN-CLASS` and action `Preview Notice ℹ️`.
+  - Clicking triggers `showPlannedActivityNotice(title, description, topic, dayNumber)`, opening a sleek glassmorphic modal explaining that upcoming activities are subject to pacing and official digital editions are released on the day of instruction.
+- **Missing Work Graceful Degradation**: `missing-work.html` renders planned items as non-clickable `Planned In-Class` indicators rather than dead link anchors.
+
 Clicking a lesson card opens a detail drawer/modal containing expanded details, categorized links, and a `data-ngss` container for the full NGSS banner.
 
 ## Known Pitfalls
+- **Placeholder URL Copy-Paste**: Never use an existing document's Google Doc link as a generic filler for future uncreated days. Use `status: "planned"` with no URL instead.
 - **TailwindCSS CDN + custom CSS**: Dashboards use BOTH `cdn.tailwindcss.com` AND a `<style>` block. Tailwind utility classes and custom CSS coexist — don't use `@apply` since there's no build step.
 - **Partials load order**: `partials.js` must be loaded AFTER the main content DOM. Place it at the bottom of `<body>`. It auto-loads `ngss-helper.js` which runs `autoInit()`.
 - **Scroll margin**: Content sections need `scroll-margin-top: 100px` to account for the sticky header when using anchor navigation.

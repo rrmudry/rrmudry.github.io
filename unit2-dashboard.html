@@ -540,6 +540,48 @@
         </div>
     </div>
 
+    <!-- Planned Activity Notice Modal (Fallback for upcoming activities subject to change) -->
+    <div id="planned-notice-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 hidden z-[60]">
+        <div class="glass-card w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-200 border-amber-500/40 p-6 sm:p-7 rounded-2xl shadow-2xl relative">
+            <div class="flex items-center justify-between gap-3 border-b border-white/10 pb-3 mb-4">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center text-base border border-amber-500/40 shadow-sm">📋</span>
+                    <div>
+                        <span class="text-[10px] font-mono text-amber-400 uppercase tracking-widest block font-bold">Planned Activity Notice</span>
+                        <h3 id="planned-notice-title" class="text-base sm:text-lg font-bold text-white leading-tight"></h3>
+                    </div>
+                </div>
+                <button id="close-planned-modal" class="text-white/40 hover:text-white transition-colors text-2xl leading-none cursor-pointer">&times;</button>
+            </div>
+
+            <div class="space-y-3.5 text-xs text-slate-300 leading-relaxed">
+                <div id="planned-notice-desc-container" class="bg-slate-900/80 p-3.5 rounded-xl border border-white/5 space-y-1">
+                    <span class="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">Target Activity Scope:</span>
+                    <p id="planned-notice-desc" class="text-slate-200 font-medium"></p>
+                </div>
+                
+                <div class="rounded-xl bg-gradient-to-br from-amber-950/40 via-amber-900/20 to-slate-950/60 border border-amber-500/35 p-4 space-y-2 text-amber-200/90 shadow-inner">
+                    <div class="flex items-center gap-2 font-bold text-amber-300 font-mono text-xs">
+                        <span>⚠️</span>
+                        <span>Lesson Plans Subject to Pacing & Inquiry Adaptations</span>
+                    </div>
+                    <p class="text-[11px] leading-relaxed text-amber-200/90">
+                        This activity is currently scheduled as an in-class laboratory, collaborative workshop, or printed handout. Because daily physics inquiry adapts dynamically to student pacing, lab apparatus needs, and concept mastery, upcoming materials are <strong>subject to change</strong>.
+                    </p>
+                    <p class="text-[10px] text-amber-300/80 font-mono pt-1 border-t border-amber-500/20">
+                        ✓ Official digital handouts, simulators, and live web apps are published on this dashboard on the morning of each lesson.
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end">
+                <button id="close-planned-modal-btn" class="px-5 py-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-200 text-xs font-mono font-bold transition-all cursor-pointer hover:shadow-[0_0_15px_rgba(245,158,11,0.3)]">
+                    Understood ✓
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="assets/partials.js"></script>
     <script src="assets/lessons-data.js?v=20260913f"></script>
     <script src="Unit_2/unit2_lessons.json?v=20260913f"></script>
@@ -746,13 +788,31 @@
                     
                     let linksHtml = '';
                     if (categorized.assignments.length > 0) {
-                        linksHtml += categorized.assignments.map(a => `<a href="${a.url}" target="_blank" class="text-[10px] bg-amber-950/80 hover:bg-amber-800/50 px-2.5 py-1 rounded-lg border border-amber-500/40 text-amber-200 transition-colors inline-flex items-center gap-1.5 font-bold shadow-sm"><span>📝</span> ${a.title} ↗</a>`).join('');
+                        linksHtml += categorized.assignments.map(a => {
+                            const isPlanned = a.status === 'planned' || a.isPlanned || !a.url || a.url === '#' || a.url.startsWith('javascript:');
+                            if (isPlanned) {
+                                return `<button type="button" data-title="${escapeHtml(a.title)}" data-desc="${escapeHtml(a.description || '')}" data-topic="${escapeHtml(day.topic || '')}" data-day="${day.day}" onclick="event.stopPropagation(); window.handlePlannedCardClick(this);" class="text-[10px] bg-amber-950/60 hover:bg-amber-800/40 px-2 py-0.5 rounded-lg border border-amber-500/30 text-amber-200/90 transition-colors inline-flex items-center gap-1 font-semibold cursor-pointer"><span>📋</span> ${a.title} ℹ️</button>`;
+                            }
+                            return `<a href="${a.url}" target="_blank" onclick="event.stopPropagation()" class="text-[10px] bg-amber-950/80 hover:bg-amber-800/50 px-2.5 py-1 rounded-lg border border-amber-500/40 text-amber-200 transition-colors inline-flex items-center gap-1.5 font-bold shadow-sm"><span>📝</span> ${a.title} ↗</a>`;
+                        }).join('');
                     }
                     if (categorized.resources.length > 0) {
-                        linksHtml += categorized.resources.map(r => `<a href="${r.url}" target="_blank" class="text-[10px] bg-indigo-950/70 hover:bg-indigo-800/40 px-2 py-1 rounded-lg border border-indigo-500/30 text-indigo-200 transition-colors inline-flex items-center gap-1"><span>📖</span> ${r.title} ↗</a>`).join('');
+                        linksHtml += categorized.resources.map(r => {
+                            const isPlanned = r.status === 'planned' || r.isPlanned || !r.url || r.url === '#' || r.url.startsWith('javascript:');
+                            if (isPlanned) {
+                                return `<button type="button" data-title="${escapeHtml(r.title)}" data-desc="${escapeHtml(r.description || '')}" data-topic="${escapeHtml(day.topic || '')}" data-day="${day.day}" onclick="event.stopPropagation(); window.handlePlannedCardClick(this);" class="text-[10px] bg-indigo-950/50 hover:bg-indigo-800/40 px-2 py-0.5 rounded-lg border border-indigo-500/30 text-indigo-200/90 transition-colors inline-flex items-center gap-1 font-semibold cursor-pointer"><span>📖</span> ${r.title} ℹ️</button>`;
+                            }
+                            return `<a href="${r.url}" target="_blank" onclick="event.stopPropagation()" class="text-[10px] bg-indigo-950/70 hover:bg-indigo-800/40 px-2 py-1 rounded-lg border border-indigo-500/30 text-indigo-200 transition-colors inline-flex items-center gap-1"><span>📖</span> ${r.title} ↗</a>`;
+                        }).join('');
                     }
                     if (categorized.practice.length > 0) {
-                        linksHtml += categorized.practice.map(p => `<a href="${p.url}" target="_blank" class="text-[10px] bg-cyan-950/70 hover:bg-cyan-800/40 px-2 py-1 rounded-lg border border-cyan-500/30 text-cyan-200 transition-colors inline-flex items-center gap-1"><span>🧪</span> ${p.title} ↗</a>`).join('');
+                        linksHtml += categorized.practice.map(p => {
+                            const isPlanned = p.status === 'planned' || p.isPlanned || !p.url || p.url === '#' || p.url.startsWith('javascript:');
+                            if (isPlanned) {
+                                return `<button type="button" data-title="${escapeHtml(p.title)}" data-desc="${escapeHtml(p.description || '')}" data-topic="${escapeHtml(day.topic || '')}" data-day="${day.day}" onclick="event.stopPropagation(); window.handlePlannedCardClick(this);" class="text-[10px] bg-cyan-950/50 hover:bg-cyan-800/40 px-2 py-0.5 rounded-lg border border-cyan-500/30 text-cyan-200/90 transition-colors inline-flex items-center gap-1 font-semibold cursor-pointer"><span>🧪</span> ${p.title} ℹ️</button>`;
+                            }
+                            return `<a href="${p.url}" target="_blank" onclick="event.stopPropagation()" class="text-[10px] bg-cyan-950/70 hover:bg-cyan-800/40 px-2 py-1 rounded-lg border border-cyan-500/30 text-cyan-200 transition-colors inline-flex items-center gap-1"><span>🧪</span> ${p.title} ↗</a>`;
+                        }).join('');
                     }
 
                     li.innerHTML = `
@@ -778,8 +838,44 @@
                 window.NGSSHelper.autoInit();
             }
 
-            closeModal.onclick = () => modal.classList.add('hidden');
-            window.onclick = (e) => { if (e.target === modal) modal.classList.add('hidden'); };
+            // Modal Controls
+            const plannedModal = document.getElementById('planned-notice-modal');
+            const closePlannedModal = document.getElementById('close-planned-modal');
+            const closePlannedModalBtn = document.getElementById('close-planned-modal-btn');
+
+            if (closeModal) closeModal.onclick = () => modal.classList.add('hidden');
+            if (closePlannedModal) closePlannedModal.onclick = () => plannedModal.classList.add('hidden');
+            if (closePlannedModalBtn) closePlannedModalBtn.onclick = () => plannedModal.classList.add('hidden');
+
+            window.showPlannedActivityNotice = function(title, description, topic, dayNumber) {
+                if (!plannedModal) return;
+                document.getElementById('planned-notice-title').textContent = title || 'In-Class Activity';
+                document.getElementById('planned-notice-desc').textContent = description || (topic ? `Topic: ${topic}` : 'In-class collaborative workshop / laboratory activity.');
+                plannedModal.classList.remove('hidden');
+            };
+
+            window.handlePlannedCardClick = function(btn) {
+                const title = btn.getAttribute('data-title');
+                const desc = btn.getAttribute('data-desc');
+                const topic = btn.getAttribute('data-topic');
+                const day = btn.getAttribute('data-day');
+                window.showPlannedActivityNotice(title, desc, topic, day);
+            };
+
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    if (plannedModal && !plannedModal.classList.contains('hidden')) {
+                        plannedModal.classList.add('hidden');
+                    } else if (modal && !modal.classList.contains('hidden')) {
+                        modal.classList.add('hidden');
+                    }
+                }
+            });
+
+            window.onclick = (e) => { 
+                if (e.target === plannedModal) plannedModal.classList.add('hidden');
+                else if (e.target === modal) modal.classList.add('hidden'); 
+            };
 
             // Insight button trigger
             const insightBtn = document.getElementById('suggest-insight-btn');
@@ -798,6 +894,15 @@
                     }
                 };
             }
+        }
+
+        function escapeHtml(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
         }
 
         function renderCategorizedLinksHtml(day) {
@@ -829,25 +934,55 @@
                             </span>
                         </div>
                         <div class="grid sm:grid-cols-2 gap-2.5">
-                            ${categorized.assignments.map(item => `
-                                <a href="${item.url}" target="_blank" class="group p-3 rounded-xl bg-slate-900/90 hover:bg-slate-850 border border-amber-500/30 hover:border-amber-400/70 transition-all flex flex-col justify-between gap-2 shadow-md">
-                                    <div>
-                                        <div class="flex items-center justify-between gap-1 text-[10px] text-amber-400 font-mono mb-1">
-                                            <span class="font-bold flex items-center gap-1"><span>📝</span> ${item.typeLabel || 'Graded Lab'}</span>
-                                            <span class="text-[9px] text-emerald-300 bg-emerald-950/90 px-1.5 py-0.5 rounded border border-emerald-500/30 font-bold font-mono">${item.submission || 'Auto-Saved ✓'}</span>
+                            ${categorized.assignments.map(item => {
+                                const isPlanned = item.status === 'planned' || item.isPlanned || !item.url || item.url === '#' || item.url.startsWith('javascript:');
+                                if (isPlanned) {
+                                    return `
+                                        <button type="button" 
+                                                data-title="${escapeHtml(item.title)}" 
+                                                data-desc="${escapeHtml(item.description || '')}" 
+                                                data-topic="${escapeHtml(day.topic || '')}" 
+                                                data-day="${day.day}"
+                                                onclick="window.handlePlannedCardClick(this);" 
+                                                class="group p-3 rounded-xl bg-slate-900/85 hover:bg-slate-850 border border-amber-500/30 hover:border-amber-400/60 transition-all flex flex-col justify-between gap-2 shadow-md text-left w-full cursor-pointer hover:-translate-y-0.5">
+                                            <div>
+                                                <div class="flex items-center justify-between gap-1 text-[10px] text-amber-400 font-mono mb-1">
+                                                    <span class="font-bold flex items-center gap-1"><span>📝</span> ${item.typeLabel || 'Classwork Practice'}</span>
+                                                    <span class="text-[9px] text-amber-300 bg-amber-950/90 px-1.5 py-0.5 rounded border border-amber-500/40 font-bold font-mono">📋 PLANNED · IN-CLASS</span>
+                                                </div>
+                                                <div class="text-xs sm:text-sm font-bold text-white group-hover:text-amber-300 transition-colors flex items-center justify-between">
+                                                    <span>${item.title}</span>
+                                                    <span class="text-amber-400/80 group-hover:translate-x-0.5 transition-transform text-xs font-bold">ℹ️</span>
+                                                </div>
+                                                ${item.description ? `<p class="text-[11px] text-slate-400 mt-1 leading-snug">${item.description}</p>` : ''}
+                                            </div>
+                                            <div class="text-[10px] text-amber-300/80 font-mono font-semibold pt-1.5 border-t border-white/5 flex items-center justify-between">
+                                                <span>${item.submission || 'Assigned in Class (Subject to Pacing)'}</span>
+                                                <span class="text-amber-400 font-bold">Preview Notice ℹ️</span>
+                                            </div>
+                                        </button>
+                                    `;
+                                }
+                                return `
+                                    <a href="${item.url}" target="_blank" class="group p-3 rounded-xl bg-slate-900/90 hover:bg-slate-850 border border-amber-500/30 hover:border-amber-400/70 transition-all flex flex-col justify-between gap-2 shadow-md hover:-translate-y-0.5">
+                                        <div>
+                                            <div class="flex items-center justify-between gap-1 text-[10px] text-amber-400 font-mono mb-1">
+                                                <span class="font-bold flex items-center gap-1"><span>📝</span> ${item.typeLabel || 'Graded Lab'}</span>
+                                                <span class="text-[9px] text-emerald-300 bg-emerald-950/90 px-1.5 py-0.5 rounded border border-emerald-500/30 font-bold font-mono">${item.submission || 'Auto-Saved ✓'}</span>
+                                            </div>
+                                            <div class="text-xs sm:text-sm font-bold text-white group-hover:text-amber-300 transition-colors flex items-center justify-between">
+                                                <span>${item.title}</span>
+                                                <span class="text-amber-400 group-hover:translate-x-0.5 transition-transform text-xs font-bold">↗</span>
+                                            </div>
+                                            ${item.description ? `<p class="text-[11px] text-slate-400 mt-1 leading-snug">${item.description}</p>` : ''}
                                         </div>
-                                        <div class="text-xs sm:text-sm font-bold text-white group-hover:text-amber-300 transition-colors flex items-center justify-between">
-                                            <span>${item.title}</span>
-                                            <span class="text-amber-400 group-hover:translate-x-0.5 transition-transform text-xs font-bold">↗</span>
+                                        <div class="text-[10px] text-amber-300/90 font-mono font-semibold pt-1.5 border-t border-white/5 flex items-center justify-between">
+                                            <span>${item.actionLabel || 'Launch & Record Score'}</span>
+                                            <span class="text-amber-400 font-bold">Open &rarr;</span>
                                         </div>
-                                        ${item.description ? `<p class="text-[11px] text-slate-400 mt-1 leading-snug">${item.description}</p>` : ''}
-                                    </div>
-                                    <div class="text-[10px] text-amber-300/90 font-mono font-semibold pt-1.5 border-t border-white/5 flex items-center justify-between">
-                                        <span>${item.actionLabel || 'Launch & Record Score'}</span>
-                                        <span class="text-amber-400 font-bold">Open &rarr;</span>
-                                    </div>
-                                </a>
-                            `).join('')}
+                                    </a>
+                                `;
+                            }).join('')}
                         </div>
                     </div>
                 `;
@@ -867,22 +1002,52 @@
                             </span>
                         </div>
                         <div class="grid sm:grid-cols-2 gap-2.5">
-                            ${categorized.resources.map(item => `
-                                <a href="${item.url}" target="_blank" class="group p-3 rounded-xl bg-slate-900/80 hover:bg-slate-850 border border-indigo-500/20 hover:border-indigo-400/50 transition-all flex flex-col justify-between gap-2 shadow-sm">
-                                    <div>
-                                        <div class="text-[10px] text-indigo-300/90 font-mono mb-1 font-semibold">${item.typeLabel || 'Class Lecture Slides'}</div>
-                                        <div class="text-xs sm:text-sm font-bold text-slate-100 group-hover:text-indigo-200 transition-colors flex items-center justify-between">
-                                            <span>${item.title}</span>
-                                            <span class="text-indigo-400 group-hover:translate-x-0.5 transition-transform text-xs">↗</span>
+                            ${categorized.resources.map(item => {
+                                const isPlanned = item.status === 'planned' || item.isPlanned || !item.url || item.url === '#' || item.url.startsWith('javascript:');
+                                if (isPlanned) {
+                                    return `
+                                        <button type="button" 
+                                                data-title="${escapeHtml(item.title)}" 
+                                                data-desc="${escapeHtml(item.description || '')}" 
+                                                data-topic="${escapeHtml(day.topic || '')}" 
+                                                data-day="${day.day}"
+                                                onclick="window.handlePlannedCardClick(this);" 
+                                                class="group p-3 rounded-xl bg-slate-900/75 hover:bg-slate-850 border border-indigo-500/25 hover:border-indigo-400/50 transition-all flex flex-col justify-between gap-2 shadow-sm text-left w-full cursor-pointer hover:-translate-y-0.5">
+                                            <div>
+                                                <div class="flex items-center justify-between gap-1 text-[10px] text-indigo-300 font-mono mb-1">
+                                                    <span class="font-semibold">${item.typeLabel || 'Class Resource'}</span>
+                                                    <span class="text-[9px] text-indigo-300 bg-indigo-950/80 px-1.5 py-0.5 rounded border border-indigo-500/30 font-mono">PLANNED</span>
+                                                </div>
+                                                <div class="text-xs sm:text-sm font-bold text-slate-100 group-hover:text-indigo-200 transition-colors flex items-center justify-between">
+                                                    <span>${item.title}</span>
+                                                    <span class="text-indigo-400/80 text-xs">ℹ️</span>
+                                                </div>
+                                                ${item.description ? `<p class="text-[11px] text-slate-400 mt-1 leading-snug">${item.description}</p>` : ''}
+                                            </div>
+                                            <div class="text-[10px] text-slate-400 flex items-center justify-between pt-1.5 border-t border-white/5 font-mono">
+                                                <span>Subject to Pacing</span>
+                                                <span class="text-indigo-300 font-bold">Notice ℹ️</span>
+                                            </div>
+                                        </button>
+                                    `;
+                                }
+                                return `
+                                    <a href="${item.url}" target="_blank" class="group p-3 rounded-xl bg-slate-900/80 hover:bg-slate-850 border border-indigo-500/20 hover:border-indigo-400/50 transition-all flex flex-col justify-between gap-2 shadow-sm hover:-translate-y-0.5">
+                                        <div>
+                                            <div class="text-[10px] text-indigo-300/90 font-mono mb-1 font-semibold">${item.typeLabel || 'Class Lecture Slides'}</div>
+                                            <div class="text-xs sm:text-sm font-bold text-slate-100 group-hover:text-indigo-200 transition-colors flex items-center justify-between">
+                                                <span>${item.title}</span>
+                                                <span class="text-indigo-400 group-hover:translate-x-0.5 transition-transform text-xs">↗</span>
+                                            </div>
+                                            ${item.description ? `<p class="text-[11px] text-slate-400 mt-1 leading-snug">${item.description}</p>` : ''}
                                         </div>
-                                        ${item.description ? `<p class="text-[11px] text-slate-400 mt-1 leading-snug">${item.description}</p>` : ''}
-                                    </div>
-                                    <div class="text-[10px] text-slate-400 flex items-center justify-between pt-1.5 border-t border-white/5 font-mono">
-                                        <span>No Turn-In Needed</span>
-                                        <span class="text-indigo-300">View &rarr;</span>
-                                    </div>
-                                </a>
-                            `).join('')}
+                                        <div class="text-[10px] text-slate-400 flex items-center justify-between pt-1.5 border-t border-white/5 font-mono">
+                                            <span>No Turn-In Needed</span>
+                                            <span class="text-indigo-300">View &rarr;</span>
+                                        </div>
+                                    </a>
+                                `;
+                            }).join('')}
                         </div>
                     </div>
                 `;
@@ -902,22 +1067,49 @@
                             </span>
                         </div>
                         <div class="grid sm:grid-cols-2 gap-2.5">
-                            ${categorized.practice.map(item => `
-                                <a href="${item.url}" target="_blank" class="group p-3 rounded-xl bg-slate-900/80 hover:bg-slate-850 border border-cyan-500/20 hover:border-cyan-400/50 transition-all flex flex-col justify-between gap-2 shadow-sm">
-                                    <div>
-                                        <div class="text-[10px] text-cyan-300/90 font-mono mb-1 font-semibold">${item.typeLabel || 'Interactive Simulation'}</div>
-                                        <div class="text-xs sm:text-sm font-bold text-slate-100 group-hover:text-cyan-200 transition-colors flex items-center justify-between">
-                                            <span>${item.title}</span>
-                                            <span class="text-cyan-400 group-hover:translate-x-0.5 transition-transform text-xs">↗</span>
+                            ${categorized.practice.map(item => {
+                                const isPlanned = item.status === 'planned' || item.isPlanned || !item.url || item.url === '#' || item.url.startsWith('javascript:');
+                                if (isPlanned) {
+                                    return `
+                                        <button type="button" 
+                                                data-title="${escapeHtml(item.title)}" 
+                                                data-desc="${escapeHtml(item.description || '')}" 
+                                                data-topic="${escapeHtml(day.topic || '')}" 
+                                                data-day="${day.day}"
+                                                onclick="window.handlePlannedCardClick(this);" 
+                                                class="group p-3 rounded-xl bg-slate-900/75 hover:bg-slate-850 border border-cyan-500/25 hover:border-cyan-400/50 transition-all flex flex-col justify-between gap-2 shadow-sm text-left w-full cursor-pointer hover:-translate-y-0.5">
+                                            <div>
+                                                <div class="text-[10px] text-cyan-300/90 font-mono mb-1 font-semibold">${item.typeLabel || 'Interactive Simulation'}</div>
+                                                <div class="text-xs sm:text-sm font-bold text-slate-100 group-hover:text-cyan-200 transition-colors flex items-center justify-between">
+                                                    <span>${item.title}</span>
+                                                    <span class="text-cyan-400/80 text-xs">ℹ️</span>
+                                                </div>
+                                                ${item.description ? `<p class="text-[11px] text-slate-400 mt-1 leading-snug">${item.description}</p>` : ''}
+                                            </div>
+                                            <div class="text-[10px] text-slate-400 flex items-center justify-between pt-1.5 border-t border-white/5 font-mono">
+                                                <span>Subject to Pacing</span>
+                                                <span class="text-cyan-300 font-bold">Notice ℹ️</span>
+                                            </div>
+                                        </button>
+                                    `;
+                                }
+                                return `
+                                    <a href="${item.url}" target="_blank" class="group p-3 rounded-xl bg-slate-900/80 hover:bg-slate-850 border border-cyan-500/20 hover:border-cyan-400/50 transition-all flex flex-col justify-between gap-2 shadow-sm hover:-translate-y-0.5">
+                                        <div>
+                                            <div class="text-[10px] text-cyan-300/90 font-mono mb-1 font-semibold">${item.typeLabel || 'Interactive Simulation'}</div>
+                                            <div class="text-xs sm:text-sm font-bold text-slate-100 group-hover:text-cyan-200 transition-colors flex items-center justify-between">
+                                                <span>${item.title}</span>
+                                                <span class="text-cyan-400 group-hover:translate-x-0.5 transition-transform text-xs">↗</span>
+                                            </div>
+                                            ${item.description ? `<p class="text-[11px] text-slate-400 mt-1 leading-snug">${item.description}</p>` : ''}
                                         </div>
-                                        ${item.description ? `<p class="text-[11px] text-slate-400 mt-1 leading-snug">${item.description}</p>` : ''}
-                                    </div>
-                                    <div class="text-[10px] text-slate-400 flex items-center justify-between pt-1.5 border-t border-white/5 font-mono">
-                                        <span>Self-Paced Practice</span>
-                                        <span class="text-cyan-300">Explore &rarr;</span>
-                                    </div>
-                                </a>
-                            `).join('')}
+                                        <div class="text-[10px] text-slate-400 flex items-center justify-between pt-1.5 border-t border-white/5 font-mono">
+                                            <span>Self-Paced Practice</span>
+                                            <span class="text-cyan-300">Explore &rarr;</span>
+                                        </div>
+                                    </a>
+                                `;
+                            }).join('')}
                         </div>
                     </div>
                 `;
