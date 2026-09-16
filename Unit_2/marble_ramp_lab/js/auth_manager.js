@@ -27,26 +27,40 @@ class LabAuthManager {
     }
 
     firebase.auth().onAuthStateChanged((user) => {
+      const gateModal = document.getElementById('loginGateModal');
+      const gateError = document.getElementById('loginGateError');
+
       if (user) {
         const email = (user.email || "").toLowerCase();
         // Domain enforcement: @orangeusd.org or teacher account
-        if (email.endsWith('@orangeusd.org') || email === 'ryan.mudry@gmail.com') {
+        if (email.endsWith('@orangeusd.org') || email === 'ryan.mudry@gmail.com' || email === 'rmudry@orangeusd.org') {
           this.currentUser = user;
           this.studentId = email.split('@')[0];
           this.studentName = user.displayName || this.studentId;
           this.updateUserUI(true);
+
+          if (gateModal) gateModal.classList.add('hidden');
+          if (gateError) gateError.classList.add('hidden');
+
           this.loadStudentLabData();
           if (window.labEngine && window.labEngine.currentStep === 2) {
             window.labEngine.renderStep2DataCollection();
           }
         } else {
-          alert('Access restricted. Please sign in using your official school @orangeusd.org account.');
+          if (gateError) {
+            gateError.textContent = `Access restricted: ${email} is not an official school account. Please sign in with your @orangeusd.org Google account.`;
+            gateError.classList.remove('hidden');
+          } else {
+            alert('Access restricted. Please sign in using your official school @orangeusd.org account.');
+          }
+          if (gateModal) gateModal.classList.remove('hidden');
           firebase.auth().signOut();
         }
       } else {
         this.currentUser = null;
         this.studentId = null;
         this.updateUserUI(false);
+        if (gateModal) gateModal.classList.remove('hidden');
         if (window.labEngine && window.labEngine.currentStep === 2) {
           window.labEngine.renderStep2DataCollection();
         }
@@ -59,11 +73,21 @@ class LabAuthManager {
       }
     }).catch((err) => {
       console.error("Redirect sign-in error:", err);
+      const gateError = document.getElementById('loginGateError');
+      if (gateError) {
+        gateError.textContent = `Sign-in error: ${err.message || err.code}`;
+        gateError.classList.remove('hidden');
+      }
     });
 
     const loginBtn = document.getElementById('btn-google-login');
     if (loginBtn) {
       loginBtn.onclick = () => this.signIn();
+    }
+
+    const gateLoginBtn = document.getElementById('btn-gate-google-login');
+    if (gateLoginBtn) {
+      gateLoginBtn.onclick = () => this.signIn();
     }
   }
 
@@ -72,15 +96,23 @@ class LabAuthManager {
       alert("Firebase Authentication service is still loading. Please try again in a moment.");
       return;
     }
+    const gateError = document.getElementById('loginGateError');
+    if (gateError) gateError.classList.add('hidden');
+
     const provider = new firebase.auth.GoogleAuthProvider();
     provider.setCustomParameters({ hd: 'orangeusd.org', prompt: 'select_account' });
     firebase.auth().signInWithPopup(provider).catch((err) => {
       console.error("Sign-in popup error:", err);
       if (err.code === 'auth/popup-blocked') {
-        alert("Sign-in popup was blocked by your browser. Please allow popups for this site or use redirect.");
+        alert("Sign-in popup was blocked by your browser. Redirecting to Google Sign-In...");
         firebase.auth().signInWithRedirect(provider);
       } else if (err.code !== 'auth/popup-closed-by-user') {
-        alert("Google Sign-In error: " + (err.message || err.code));
+        if (gateError) {
+          gateError.textContent = `Google Sign-In error: ${err.message || err.code}`;
+          gateError.classList.remove('hidden');
+        } else {
+          alert("Google Sign-In error: " + (err.message || err.code));
+        }
       }
     });
   }
