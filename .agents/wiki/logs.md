@@ -2,6 +2,25 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-15 — Planned Activity Fallback Pattern (Eliminating Placeholder Document Redirects)
+
+**Motivation**: Discovered that an authentic Day 10 Google Doc URL (`Constant Speed Story Handout`) was historically copied as a generic placeholder across 46 distinct assignment, lab, and handout slots (Days 11–35) when Unit 2 was first scaffolded, causing uncreated or future activities to erroneously open the Day 10 document.
+
+**Key Architecture & Highlights**:
+- **Data Cleanup**:
+  - Preserved authentic Day 10 URL for "Constant Speed Story Handout".
+  - Day 11 updated with primary link to `Unit_2/position_time_graph_studio/index.html`.
+  - Day 12 updated with primary link to `Unit_2/dual_graph_studio/index.html`.
+  - Day 13 updated with primary link to `Unit_2/velocity_time_graph_studio/index.html`.
+  - Days 14–35: All 44 erroneous placeholder doc references removed across `assets/lessons-data.js`, `Unit_2/unit2_lessons.json`, `Unit_2/lesson.json`, and `Unit_2/outline.md`. Flagged planned items with `status: "planned"`, omitting dead URLs.
+- **Dynamic Planned Activity UX**:
+  - Implemented `showPlannedActivityNotice(title, description, topic, dayNumber)` modal in `unit2-dashboard.html` with glassmorphic amber styling acknowledging that future lesson plans adapt dynamically based on classroom pacing, with official materials published on the morning of instruction.
+  - Interactive cards render as `📋 PLANNED · IN-CLASS` buttons opening the modal notice rather than dead/confusing external hyperlinks.
+  - Synchronized `missing-work.html` to display planned items gracefully as non-clickable status indicators.
+- **Wiki Pattern**: Documented in `.agents/wiki/patterns/dashboard-layout.md`.
+
+---
+
 ## 2026-09-15 — Velocity-Time Graph Studio (Constant Speed & Uniform Acceleration Engine)
 
 **Motivation**: Created an interactive velocity vs. time ($v\text{-}t$) laboratory webapp featuring constant speed examples, uniform acceleration examples (speeding up, braking to a halt, multi-segment trips, direction reversals), and real-time 1D vehicle motion visualization.
