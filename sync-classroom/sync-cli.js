@@ -417,6 +417,15 @@ function findMatchingCourseWork(assignment, cwList) {
     if (m) return m;
   }
 
+  // 1d. Direct lab alias: Marble Ramp Lab -> Marble Ramp Motion & Graphing Lab
+  if (aNorm.includes('marbleramp')) {
+    m = cwList.find(cw => {
+      const cwNorm = cw.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+      return cwNorm.includes('marbleramp');
+    });
+    if (m) return m;
+  }
+
   // 2. Contains match (e.g. "Constant Speed Story" in "Constant Speed Story: Author & Solve",
   //    or "Fantasy Map Distance Displacement" in "Digital Fantasy Map Distance Displacement")
   m = cwList.find(cw => {
