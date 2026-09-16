@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Photogate Telemetry Lab | ESP32-C3 Precision Timing</title>
+  <meta name="description" content="Microsecond-precision dual laser photogate web dashboard for physics classrooms and experiments using Web Serial API and Seeed Studio XIAO ESP32-C3.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Header Navigation Bar -->
+    <header class="top-nav">
+      <div class="brand-container">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polygon points="12 6 12 12 16 14"></polygon>
+          </svg>
+        </div>
+        <div class="brand-titles">
+          <h1>Photogate Telemetry Lab</h1>
+          <span class="sub-badge">ESP32-C3 &bull; Dual Laser &bull; &mu;s Precision</span>
+        </div>
+      </div>
+
+      <!-- Serial Connection Control Center -->
+      <div class="connection-cluster">
+        <div class="status-indicator-pill" id="connectionStatusPill">
+          <span class="status-dot"></span>
+          <span class="status-text" id="connectionStatusText">Disconnected</span>
+        </div>
+
+        <select id="baudRateSelect" class="styled-select" title="Baud Rate">
+          <option value="115200" selected>115200 baud</option>
+          <option value="9600">9600 baud</option>
+          <option value="230400">230400 baud</option>
+          <option value="921600">921600 baud</option>
+        </select>
+
+        <button id="connectBtn" class="btn btn-primary">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+          </svg>
+          <span id="connectBtnText">Connect ESP32</span>
+        </button>
+
+        <button id="simModeBtn" class="btn btn-secondary" title="Simulate gate breaks without hardware">
+          Simulate Pass
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Dynamic Content Grid -->
+    <main class="dashboard-grid">
+      
+      <!-- Left Column: Gate Visualizer & Configuration -->
+      <section class="panel panel-visualizer">
+        <div class="panel-header">
+          <h2>Optical Gate HUD</h2>
+          <div class="panel-actions">
+            <label class="toggle-control" title="Invert optical logic (HIGH vs LOW)">
+              <input type="checkbox" id="invertLogicCheckbox">
+              <span class="toggle-slider"></span>
+              <span class="toggle-label">Invert Logic</span>
+            </label>
+            <label class="toggle-control" title="Play sound effects on gate triggers">
+              <input type="checkbox" id="audioChimeCheckbox" checked>
+              <span class="toggle-slider"></span>
+              <span class="toggle-label">Audio Chime</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Laser Photogate Visual Displays -->
+        <div class="gates-container">
+          <!-- Gate 1 Card -->
+          <div class="gate-card" id="gateCard1">
+            <div class="gate-laser-emitter">
+              <span class="laser-diode">LASER A</span>
+              <div class="laser-beam" id="laserBeam1"></div>
+              <span class="laser-sensor">TEPT4400 (D0)</span>
+            </div>
+            <div class="gate-info-row">
+              <div class="gate-title">
+                <h3>Gate 1 (A)</h3>
+                <span class="gate-state-tag" id="gateStateTag1">CLEAR</span>
+              </div>
+              <div class="gate-timestamp mono" id="gateTimeReadout1">
+                --:--:--.&mu;s
+              </div>
+            </div>
+            <div class="gate-telemetry-metrics">
+              <div class="mini-metric">
+                <span class="metric-label">Last Block Duration (&Delta;t1)</span>
+                <span class="metric-value mono" id="gateBlockedDuration1">0.0000 s</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mid Track Transit Graphic -->
+          <div class="track-separator">
+            <div class="track-line">
+              <div class="transit-puck" id="transitPuck"></div>
+            </div>
+            <div class="track-label">
+              <span id="trackDistanceBadge">Dist: 10.0 cm</span>
+              <span id="trackTransitBadge" class="mono">&Delta;t: -- ms</span>
+            </div>
+          </div>
+
+          <!-- Gate 2 Card -->
+          <div class="gate-card" id="gateCard2">
+            <div class="gate-laser-emitter">
+              <span class="laser-diode">LASER B</span>
+              <div class="laser-beam" id="laserBeam2"></div>
+              <span class="laser-sensor">TEPT4400 (D1)</span>
+            </div>
+            <div class="gate-info-row">
+              <div class="gate-title">
+                <h3>Gate 2 (B)</h3>
+                <span class="gate-state-tag" id="gateStateTag2">CLEAR</span>
+              </div>
+              <div class="gate-timestamp mono" id="gateTimeReadout2">
+                --:--:--.&mu;s
+              </div>
+            </div>
+            <div class="gate-telemetry-metrics">
+              <div class="mini-metric">
+                <span class="metric-label">Last Block Duration (&Delta;t2)</span>
+                <span class="metric-value mono" id="gateBlockedDuration2">0.0000 s</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Experiment Parameters Configuration -->
+        <div class="config-card">
+          <h3>Lab Mode & Physical Parameters</h3>
+          <div class="config-grid">
+            <div class="config-field">
+              <label for="experimentModeSelect">Calculation Mode</label>
+              <select id="experimentModeSelect" class="styled-select">
+                <option value="dual_gate_speed" selected>Dual Gate: Average Velocity (v = &Delta;x / &Delta;t)</option>
+                <option value="incline_acceleration">Two-Gate Incline Acceleration (a = 2&Delta;x / t&sup2; from rest)</option>
+                <option value="flag_both_acceleration">Two-Flag Acceleration (v1, v2 & a = (v2&sup2; - v1&sup2;)/2d)</option>
+                <option value="single_gate_flag">Single Gate Flag Speed (v = Flag / &Delta;t)</option>
+                <option value="pendulum_period">Pendulum Period (T = 2 &times; &Delta;t_cycle)</option>
+              </select>
+            </div>
+
+            <div class="config-field" id="gateDistanceField">
+              <label for="gateDistanceInput">Gate Spacing (&Delta;x)</label>
+              <div class="input-with-unit">
+                <input type="number" id="gateDistanceInput" value="10.0" step="0.1" min="0.1">
+                <span class="unit-tag">cm</span>
+              </div>
+            </div>
+
+            <div class="config-field" id="flagWidthField">
+              <label for="flagWidthInput">Flag / Cart Width</label>
+              <div class="input-with-unit">
+                <input type="number" id="flagWidthInput" value="2.5" step="0.1" min="0.1">
+                <span class="unit-tag">cm</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: Live Calculation HUD & Data Table -->
+      <section class="panel panel-telemetry">
+        
+        <!-- Live Instant Results Cards -->
+        <div class="results-banner">
+          <div class="result-tile highlight">
+            <span class="result-title">Computed Velocity (v)</span>
+            <div class="result-value-group">
+              <span class="result-number mono" id="hudVelocity">0.000</span>
+              <span class="result-unit">m/s</span>
+            </div>
+            <span class="result-secondary mono" id="hudVelocitySecondary">0.00 cm/s</span>
+          </div>
+
+          <div class="result-tile">
+            <span class="result-title">Transit Time (&Delta;t)</span>
+            <div class="result-value-group">
+              <span class="result-number mono" id="hudTransitTime">0.0000</span>
+              <span class="result-unit">s</span>
+            </div>
+            <span class="result-secondary mono" id="hudTransitTimeUs">0 &mu;s</span>
+          </div>
+
+          <div class="result-tile">
+            <span class="result-title">Acceleration (a)</span>
+            <div class="result-value-group">
+              <span class="result-number mono" id="hudAcceleration">0.000</span>
+              <span class="result-unit">m/s&sup2;</span>
+            </div>
+            <span class="result-secondary mono" id="hudAccelerationSecondary">--</span>
+          </div>
+        </div>
+
+        <!-- Summary Statistics Bar -->
+        <div class="stats-ribbon">
+          <div class="stat-item">
+            <span class="stat-name">Runs</span>
+            <span class="stat-val mono" id="statCount">0</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-name">Mean Velocity</span>
+            <span class="stat-val mono" id="statMean">-- m/s</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-name">Std Dev (&sigma;)</span>
+            <span class="stat-val mono" id="statStdDev">-- m/s</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-name">Min / Max</span>
+            <span class="stat-val mono" id="statMinMax">-- / --</span>
+          </div>
+        </div>
+
+        <!-- Recorded Runs Table -->
+        <div class="table-container">
+          <div class="table-toolbar">
+            <h3>Trial Runs Log</h3>
+            <div class="table-actions">
+              <button id="exportCsvBtn" class="btn btn-sm btn-outline">
+                <svg class="btn-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Export CSV
+              </button>
+              <button id="copyClipboardBtn" class="btn btn-sm btn-outline">
+                Copy Table
+              </button>
+              <button id="clearDataBtn" class="btn btn-sm btn-danger">
+                Clear All
+              </button>
+            </div>
+          </div>
+
+          <div class="table-scroll-wrapper">
+            <table class="data-table" id="runsTable">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Time</th>
+                  <th>Gate 1 &Delta;t (ms)</th>
+                  <th>Gate 2 &Delta;t (ms)</th>
+                  <th>Transit &Delta;t (ms)</th>
+                  <th>Velocity (m/s)</th>
+                  <th>Accel (m/s&sup2;)</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="runsTableBody">
+                <tr class="empty-state-row">
+                  <td colspan="8">No timing runs recorded yet. Connect your ESP32-C3 or click "Simulate Pass" to test.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Raw Serial Event Monitor Accordion -->
+        <details class="serial-monitor-details">
+          <summary>
+            <span>ESP32 Hardware Diagnostics & Serial Terminal</span>
+            <span class="tag-status mono" id="terminalCounter">0 events</span>
+          </summary>
+          <div class="terminal-body">
+            <div class="terminal-toolbar">
+              <button id="pingEspBtn" class="btn btn-xs btn-outline">Send PING</button>
+              <button id="queryStatusBtn" class="btn btn-xs btn-outline">Query STATUS</button>
+              <button id="clearTerminalBtn" class="btn btn-xs btn-outline">Clear Log</button>
+            </div>
+            <pre class="terminal-output mono" id="terminalOutput">// Serial terminal logs will appear here...</pre>
+          </div>
+        </details>
+
+      </section>
+
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
