@@ -185,12 +185,33 @@ class MarbleRampLabEngine {
 
   loadExternalState(cloudData) {
     if (!cloudData) return;
-    if (cloudData.distanceCm) this.distanceCm = cloudData.distanceCm;
-    if (cloudData.levels && cloudData.levels.length === 3) {
-      this.levels = cloudData.levels;
-      this.levels.forEach(lvl => this.detectOutliers(lvl));
+    const state = cloudData.labState || cloudData;
+    if (state.distanceCm) this.distanceCm = state.distanceCm;
+    if (state.levels && state.levels.length === 3) {
+      this.levels.forEach((lvl, idx) => {
+        const savedLvl = state.levels[idx];
+        if (savedLvl) {
+          if (savedLvl.stackHeightCm !== undefined) lvl.stackHeightCm = savedLvl.stackHeightCm;
+          if (Array.isArray(savedLvl.trials)) lvl.trials = savedLvl.trials;
+          lvl.checks = (Array.isArray(savedLvl.checks) && savedLvl.checks.length === 3) ? savedLvl.checks : [
+            { cleanRelease: true, fullDist: true },
+            { cleanRelease: true, fullDist: true },
+            { cleanRelease: true, fullDist: true }
+          ];
+          if (savedLvl.studentAvgTime !== undefined) lvl.studentAvgTime = savedLvl.studentAvgTime;
+          if (savedLvl.avgTime !== undefined && lvl.studentAvgTime === undefined) lvl.studentAvgTime = savedLvl.avgTime;
+          if (savedLvl.studentSpeed !== undefined) lvl.studentSpeed = savedLvl.studentSpeed;
+          if (savedLvl.speedCmPerSec !== undefined && lvl.studentSpeed === undefined) lvl.studentSpeed = savedLvl.speedCmPerSec;
+          if (savedLvl.avgTimeVerified !== undefined) lvl.avgTimeVerified = !!savedLvl.avgTimeVerified;
+          if (savedLvl.avgVerified !== undefined && lvl.avgTimeVerified === undefined) lvl.avgTimeVerified = !!savedLvl.avgVerified;
+          if (savedLvl.speedVerified !== undefined) lvl.speedVerified = !!savedLvl.speedVerified;
+          if (Array.isArray(savedLvl.posPoints)) lvl.posPoints = savedLvl.posPoints;
+          if (Array.isArray(savedLvl.velPoints)) lvl.velPoints = savedLvl.velPoints;
+          this.detectOutliers(lvl);
+        }
+      });
     }
-    if (cloudData.cer) this.cer = cloudData.cer;
+    if (state.cer) this.cer = state.cer;
     this.computeCorrectAveragesAndSpeeds();
     this.renderActiveStep();
   }
@@ -362,6 +383,19 @@ class MarbleRampLabEngine {
     }).join('');
 
     const activeLvl = this.levels[this.activeLevelIdx];
+    if (!activeLvl) return;
+
+    if (!Array.isArray(activeLvl.trials)) {
+      activeLvl.trials = [null, null, null];
+    }
+    if (!Array.isArray(activeLvl.checks) || activeLvl.checks.length !== 3) {
+      activeLvl.checks = [
+        { cleanRelease: true, fullDist: true },
+        { cleanRelease: true, fullDist: true },
+        { cleanRelease: true, fullDist: true }
+      ];
+    }
+
     this.detectOutliers(activeLvl);
 
     const hasHeight = activeLvl.stackHeightCm !== null && activeLvl.stackHeightCm > 0;
@@ -435,7 +469,7 @@ class MarbleRampLabEngine {
             const isFilled = val !== null && val > 0;
             const isSelected = this.activeTrialIdx === trialIdx;
             const isOutlier = activeLvl.outlierIndex === trialIdx;
-            const check = activeLvl.checks[trialIdx] || { cleanRelease: true, fullDist: true };
+            const check = (activeLvl.checks && activeLvl.checks[trialIdx]) || { cleanRelease: true, fullDist: true };
 
             return `
               <div id="trial-card-${trialIdx}" 
@@ -587,9 +621,18 @@ class MarbleRampLabEngine {
   }
 
   updateQualityCheck(lvlIdx, trialIdx, checkField, isChecked) {
-    if (this.levels[lvlIdx] && this.levels[lvlIdx].checks[trialIdx]) {
-      this.levels[lvlIdx].checks[trialIdx][checkField] = isChecked;
-      this.saveProgress();
+    if (this.levels[lvlIdx]) {
+      if (!Array.isArray(this.levels[lvlIdx].checks) || this.levels[lvlIdx].checks.length !== 3) {
+        this.levels[lvlIdx].checks = [
+          { cleanRelease: true, fullDist: true },
+          { cleanRelease: true, fullDist: true },
+          { cleanRelease: true, fullDist: true }
+        ];
+      }
+      if (this.levels[lvlIdx].checks[trialIdx]) {
+        this.levels[lvlIdx].checks[trialIdx][checkField] = isChecked;
+        this.saveProgress();
+      }
     }
   }
 
