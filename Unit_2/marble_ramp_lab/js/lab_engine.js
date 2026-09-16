@@ -235,6 +235,11 @@ class MarbleRampLabEngine {
   }
 
   goToStep(stepNum) {
+    if (window.labAuth && !window.labAuth.currentUser) {
+      const gate = document.getElementById('loginGateModal');
+      if (gate) gate.classList.remove('hidden');
+      return;
+    }
     if (stepNum < 1) stepNum = 1;
     if (stepNum > this.totalSteps) stepNum = this.totalSteps;
     this.currentStep = stepNum;
@@ -1094,6 +1099,13 @@ class MarbleRampLabEngine {
 
   // --- VALIDATION & TRANSITIONS (RIGOROUS SCIENTIFIC ACCOUNTABILITY) ---
   validateCurrentStep(showAlert = true) {
+    if (window.labAuth && !window.labAuth.currentUser) {
+      const gate = document.getElementById('loginGateModal');
+      if (gate) gate.classList.remove('hidden');
+      if (showAlert) alert("Please sign in with your school Google account (@orangeusd.org) to continue.");
+      return false;
+    }
+
     if (this.currentStep === 1) {
       if (!this.distanceCm || this.distanceCm < 30) {
         if (showAlert) alert("Please enter a valid marked distance across the table (50 to 100 cm).");

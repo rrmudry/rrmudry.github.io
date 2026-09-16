@@ -2,6 +2,16 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-15 — Marble Ramp Lab: Mandatory Beginning Login Gate
+
+**Pattern Updated**: `marble-ramp-graphing-lab.md` — Enforced mandatory Google login gateway prior to lab access.
+
+**Changes**:
+- Added `#loginGateModal` fullscreen backdrop blur overlay to `Unit_2/marble_ramp_lab/index.html`.
+- Updated `auth_manager.js` to manage gate modal visibility and display inline validation errors if a non-`@orangeusd.org` account attempts sign-in.
+- Added programmatic guard checks in `lab_engine.js` (`goToStep` and `validateCurrentStep`) ensuring students cannot bypass or advance through steps without active authentication.
+- Immediate cloud state restoration via `loadStudentLabData()` upon login ensures seamless pickup from previous sessions.
+
 ## 2026-09-15 — Marble Ramp Lab: Firestore Continuous Progress Autosave
 
 **Pattern Updated**: `marble-ramp-graphing-lab.md` — Added dual autosave architecture (localStorage + Firestore).
