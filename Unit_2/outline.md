@@ -190,7 +190,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Autonomous Vehicle Forensic Crash Reconstruction (DOK 4 Extended Investigation): Working in forensic engineering teams, students receive a collision case file containing timestamped GPS pings, noisy accelerometer sensor traces, and intersection traffic camera stills. Teams must: (1) partition the collision into distinct kinematic phases (pre-detection cruise, sensor-processing latency, anti-lock braking deceleration, and post-impact skid), (2) apply kinematic models to resolve initial speeds, (3) conduct parameter sensitivity analysis evaluating how pavement moisture (dry vs wet) and reaction latency (0.2s vs 0.8s) affect the collision envelope, and (4) author a formal Forensic Collision Investigation Report defending whether autonomous perception latency or human driver speeding caused the incident.
     *   *Essential Question:* How do forensic engineers synthesize multi-stage kinematic models and sensor uncertainty to determine the true sequence and root cause of a vehicular collision?
     *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 4 | *Type:* Forensic Investigation / Performance Task
-    *   *Links:* [Forensic Case Dossier](https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing), [Forensic Methodology Guide](https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing), [Two-Car Intercept Simulator](Unit_2/two_car_intercept/index.html)
+    *   *Links:* Forensic Case Dossier *(Planned In-Class)*, [Forensic Methodology Guide](https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing), [Two-Car Intercept Simulator](Unit_2/two_car_intercept/index.html)
 
 
 ---
@@ -204,7 +204,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Inertia Station Circus: Tablecloth pull under weighted plates, coin-on-card index card flick into a beaker, rolling a bowling ball with mallet tap guidance, and battery hover puck gliding across the floor without slowing down.
     *   *Essential Question:* Does an object in motion require a continuous applied force to keep moving forward at constant velocity?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Inquiry / Demonstration
-    *   *Links:* [PhET Forces and Motion: Basics](https://phet.colorado.edu/sims/html/forces-and-motion-basics/latest/forces-and-motion-basics_en.html), [Inertia Stations Handout](https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing)
+    *   *Links:* [PhET Forces and Motion: Basics](https://phet.colorado.edu/sims/html/forces-and-motion-basics/latest/forces-and-motion-basics_en.html), Inertia Stations Handout *(Planned In-Class)*
 
 *   **Day 22 (2026-09-29): Mass as Inertia vs. Weight (`W = m · g`)**
     *   *Bell-Ringer:* Astronaut Wrench on the Moon (CAST Challenge): An astronaut holds a 2.0 kg wrench on Earth and on the Moon (`g_moon = 1.6 m/s²`). Compare its mass, weight, and the horizontal force needed to accelerate it at 3.0 m/s² in both environments.
@@ -212,7 +212,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Mystery Inertia Shakers: Students horizontally oscillate identical sealed cans containing cotton, sand, lead shot, and wood without lifting them. Ranking cans purely by horizontal resistance to acceleration, then verifying weights on spring scales.
     *   *Essential Question:* Why does an anvil have the exact same inertia in deep space as it does on Earth, even though its weight in space is zero Newtons?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Lab / Direct Instruction
-    *   *Links:* [Newton's 1st Law Presentation](Unit_2/describing-motion-presentation/index.html), [Seatbelt Physics CER Handout](https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing)
+    *   *Links:* [Newton's 1st Law Presentation](Unit_2/describing-motion-presentation/index.html), Seatbelt Physics CER Handout *(Planned In-Class)*
 
 *   **Day 23 (2026-09-30): The Force Toolkit & Free-Body Diagrams (FBDs)**
     *   *Bell-Ringer:* Book at Rest on a Table (AI Chat): A book rests on a flat table. What forces are acting on it? Why doesn't the downward gravitational pull cause the book to accelerate downward through the table surface?
@@ -220,7 +220,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Whiteboard FBD Sprint: 8 real-world scenarios (skydiver with open chute, sled pushed across snow, elevator moving upward at constant speed, car coasting to a stop). Students construct FBDs and write net force expressions in x and y dimensions.
     *   *Essential Question:* How does an isolated Free-Body Diagram allow physicists to identify all external interactions acting on an object?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction / Practice
-    *   *Links:* [Mass vs Weight Lab Guide](https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing)
+    *   *Links:* Mass vs Weight Lab Guide *(Planned In-Class)*
 
 *   **Day 24 (2026-10-01): Translational & Mechanical Equilibrium (`F_net = 0`)**
     *   *Bell-Ringer:* Elevator at Constant Velocity (CAST Challenge): A 70 kg person stands on a scale inside an elevator moving upward at a steady 2.5 m/s. Calculate the scale reading in Newtons and explain why the scale does not read greater than the person's resting weight.
@@ -228,7 +228,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Spring Scale Equilibrium Rig: Students suspend hanging masses from dual spring scales at varying symmetrical angles, measure tension readings, resolve vertical vector components, and verify that the sum of upward tensions equals the downward weight.
     *   *Essential Question:* What is the fundamental physical equivalence between an object sitting completely motionless and an object coasting at 1,000 km/h?
     *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Lab / Activity
-    *   *Links:* [Free-Body Diagram Sprint Sheets](https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing), [Force Toolkit Reference Guide](https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing)
+    *   *Links:* Free-Body Diagram Sprint Sheets *(Planned In-Class)*, [Force Toolkit Reference Guide](https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing)
 
 *   **Day 25 (2026-10-02): Static Equilibrium Challenges & Vector Balancing**
     *   *Bell-Ringer:* Traffic Light Suspended by Cables (CAST Challenge): A 150 N traffic light hangs in equilibrium from two cables making equal 45° angles with the horizontal ceiling. Calculate the tension force in each support cable.
@@ -236,7 +236,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Cable Rigging Engineering Challenge: Teams configure ring-and-pulley force tables with 3 hanging mass cords at custom angles, calculate theoretical mass balances using vector components, and test whether the center ring floats centered on the pin.
     *   *Essential Question:* How do structural engineers utilize vector equilibrium conditions to guarantee that bridges, cranes, and suspended signs remain completely stable?
     *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Practice / Performance Task
-    *   *Links:* [Vector Calculator App](Unit_2/Vector_displacement_calculator_app/index.html), [Cable Rigging Challenge Sheet](https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing)
+    *   *Links:* [Vector Calculator App](Unit_2/Vector_displacement_calculator_app/index.html), Cable Rigging Challenge Sheet *(Planned In-Class)*
 
 ---
 
@@ -249,7 +249,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Interactive PhET "Forces and Motion: Basics" inquiry: Students systematically vary applied force while keeping cart mass constant, then vary mass under fixed force, recording acceleration readouts and generating linearizing data tables.
     *   *Essential Question:* How does an unbalanced net force fundamentally alter the state of motion of an object?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction / Simulation
-    *   *Links:* [PhET Forces and Motion: Basics](https://phet.colorado.edu/sims/html/forces-and-motion-basics/latest/forces-and-motion-basics_en.html), [Newton's 2nd Law Problem Set](https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing)
+    *   *Links:* [PhET Forces and Motion: Basics](https://phet.colorado.edu/sims/html/forces-and-motion-basics/latest/forces-and-motion-basics_en.html), Newton's 2nd Law Problem Set *(Planned In-Class)*
 
 *   **Day 27 (2026-10-06): Modified Atwood Machine Lab: Proving `F_net = m · a`**
     *   *Bell-Ringer:* Atwood Accelerating Mass (CAST Challenge): A 0.80 kg cart on a frictionless track is pulled by a hanging 0.20 kg mass over a pulley. Calculate the net accelerating force, the total system mass, and the theoretical acceleration of the system.
@@ -257,7 +257,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Modified Atwood Track Lab: Students release dynamics carts connected over low-friction pulleys to hanging slotted masses, measure cart acceleration across photogate timing flags, plot `a` vs `F_net` (confirming slope = `1/m`), and compare empirical vs theoretical acceleration.
     *   *Essential Question:* In an Atwood system, why must the net pulling force accelerate the mass of the cart AND the hanging mass together?
     *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Lab
-    *   *Links:* [Modified Atwood Track Lab Sheet](https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing)
+    *   *Links:* Modified Atwood Track Lab Sheet *(Planned In-Class)*
 
 *   **Day 28 (2026-10-07): The Science of Friction: Static vs. Kinetic (`F_f = μ · F_N`)**
     *   *Bell-Ringer:* Pushing a Heavy Couch (AI Chat): Why is it always much harder to get a heavy couch to start sliding across a wooden floor than it is to keep it moving once it's already sliding?
@@ -265,7 +265,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Demonstration & Interactive Analysis: Slowly increasing tension on a heavy wood block using a force sensor until breakaway, displaying the classic static peak spike followed by the lower, flat kinetic friction plateau.
     *   *Essential Question:* What occurs at the microscopic interface between two solid surfaces when static friction breaks away into kinetic friction?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction / Demonstration
-    *   *Links:* [Science of Friction Presentation](Unit_2/describing-motion-presentation/index.html), [Friction Analysis Handout](https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing)
+    *   *Links:* [Science of Friction Presentation](Unit_2/describing-motion-presentation/index.html), Friction Analysis Handout *(Planned In-Class)*
 
 *   **Day 29 (2026-10-08): Friction Block Inquiry Lab: Measuring Friction Coefficients**
     *   *Bell-Ringer:* Friction Coefficient Calculation (CAST Challenge): A 4.0 kg wooden crate requires 16.0 N of horizontal force to slide across a warehouse floor at constant speed. Calculate the normal force, the kinetic friction force, and the coefficient of kinetic friction `μ_k`.
@@ -273,7 +273,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Tabletop Friction Coefficient Lab: Teams drag multi-sided wooden friction blocks across lab benches with spring scales, log dynamic pull forces under varying added masses (0.5 kg, 1.0 kg, 1.5 kg), plot `F_f` vs `F_N`, and extract `μ_k` from the regression slope.
     *   *Essential Question:* How do materials scientists determine the friction coefficient between two substances, and why is this value independent of surface area?
     *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Lab
-    *   *Links:* [Friction Block Lab Handout](https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing)
+    *   *Links:* Friction Block Lab Handout *(Planned In-Class)*
 
 *   **Day 30 (2026-10-09): Student-Designed Traction Investigation & Highway Curve Safety Specification**
     *   *Bell-Ringer:* Emergency Braking on Wet vs. Dry Road (CAST Challenge): A 1,200 kg car traveling at 25 m/s slams on its brakes. On dry asphalt `μ_k = 0.80`; on icy wet pavement `μ_k = 0.20`. Calculate the deceleration and total stopping distance for both road conditions.
@@ -281,7 +281,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Comparative Traction Protocol & Highway Safety Specification (DOK 4 Extended Investigation): Teams act as highway safety research consultants. Rather than following a step-by-step procedure, teams must: (1) independently formulate and carry out two distinct experimental protocols to measure friction coefficients on road materials (horizontal force sensor drag vs. critical angle of incline slip where μ_s = tan θ), (2) identify and reconcile discrepancies between the methods by analyzing contact temperature, surface wear, and stick-slip chatter, and (3) synthesize empirical friction coefficients with Newton's 2nd Law and kinematics to calculate stopping distance envelopes and specify safe wet-weather speed limits for a banked mountain highway curve.
     *   *Essential Question:* Why must materials engineers reconcile multiple experimental paradigms and error sources before establishing critical safety specifications for transportation systems?
     *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 4 | *Type:* Engineering Design / Investigation
-    *   *Links:* [Highway Safety Engineering Specification](https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing), [Friction Methodology & Pavement Guide](https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing), [Two-Car Intercept Challenge](Unit_2/two_car_intercept/index.html)
+    *   *Links:* Highway Safety Engineering Specification *(Planned In-Class)*, [Friction Methodology & Pavement Guide](https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing), [Two-Car Intercept Challenge](Unit_2/two_car_intercept/index.html)
 
 
 ---
@@ -295,7 +295,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Dual Force Sensor Collisions & Skateboard Recoil: Students pair Vernier force sensors together and record real-time force graphs during collisions, pushes, and pulls between equal and unequal cart masses. Verification of matching peak forces.
     *   *Essential Question:* When two objects of wildly different masses interact, why MUST the forces they exert on each other be exactly equal in size?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction / Inquiry
-    *   *Links:* [Newton's 3rd Law Slides](Unit_2/describing-motion-presentation/index.html), [Action-Reaction Collision Lab Sheet](https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing)
+    *   *Links:* [Newton's 3rd Law Slides](Unit_2/describing-motion-presentation/index.html), Action-Reaction Collision Lab Sheet *(Planned In-Class)*
 
 *   **Day 32 (2026-10-13): Resolving the 3rd Law Paradox & System Boundaries**
     *   *Bell-Ringer:* The Horse-Cart Paradox (CAST Challenge): A stubborn horse refuses to pull a cart, arguing: "According to Newton's 3rd Law, if I pull the cart forward with force F, the cart pulls me backward with equal force -F. The forces cancel out, so we can never accelerate!" Identify the logical flaw in the horse's argument.
@@ -303,7 +303,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* System Boundary Mapping Workshop: Students analyze complex scenarios (walking person, flying rocket, tug-of-war match), draw dashed system boundaries around individual components, and identify internal versus external forces.
     *   *Essential Question:* Why can action-reaction force pairs never cancel each other out to prevent acceleration?
     *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Workshop / Analysis
-    *   *Links:* [System Boundary Diagramming Worksheet](https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing)
+    *   *Links:* System Boundary Diagramming Worksheet *(Planned In-Class)*
 
 *   **Day 33 (2026-10-14): Structural Crashworthiness Engineering: Crumple Zone Impulse Optimization**
     *   *Bell-Ringer:* Bungee Jump vs. Steel Cable (AI Chat): Why would bungee jumping with an inelastic steel cable instead of an elastic rubber cord be fatal, even though both cords stop your fall over the exact same vertical distance?
@@ -319,7 +319,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Automotive Safety Symposium & Technical Peer Defense (DOK 4 Synthesis & Critique): Teams present large technical poster portfolios that integrate the entire unit's physics: (1) Free-Body Diagrams of impact phases, (2) Piecewise kinematics curves (x-t, v-t, a-t), (3) Newton's 2nd & 3rd Law interaction pair analysis, and (4) Empirical crashworthiness trade-offs. Teams rotate through structured defense rounds, answering formal technical cross-examinations from peer audit panels and evaluating competing engineering portfolios using standardized criteria.
     *   *Essential Question:* How do scientists and engineers critically evaluate and defend complex physical models when public safety depends on the accuracy of the physics?
     *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 4 | *Type:* Symposium / Model Defense
-    *   *Links:* [Technical Symposium Rubric & Audit Form](https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing), [Unit 2 Grand Synthesis Slide Deck](Unit_2/describing-motion-presentation/index.html)
+    *   *Links:* Technical Symposium Rubric & Audit Form *(Planned In-Class)*, [Unit 2 Grand Synthesis Slide Deck](Unit_2/describing-motion-presentation/index.html)
 
 
 *   **Day 35 (2026-10-16): Unit 2 Summative Assessment**
@@ -328,7 +328,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Unit 2 Summative Examination: 50-minute exam featuring conceptual multiple-choice items, graphical slope and area calculations, FBD construction and equilibrium problem solving, and multi-step `F_net = m · a` dynamics-kinematics integration (DOK 1-3).
     *   *Essential Question:* How effectively can we measure, calculate, model, and explain the motion and interactions of physical systems?
     *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Summative Assessment
-    *   *Links:* [Unit 2 Reference Formula Sheet](https://docs.google.com/document/d/1zt3bUa0O468n_TjHjcKc3XsfJ11_Yv_wLNlX2RxKiMA/edit?usp=sharing)
+    *   *Links:* Unit 2 Reference Formula Sheet *(Planned In-Class)*
 
 ---
 
