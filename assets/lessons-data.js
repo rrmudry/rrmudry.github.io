@@ -1712,6 +1712,12 @@ const lessonsData = [
     ],
     "resources": [
       {
+        "title": "Velocity vs. Time (v-t) Graph & Motion Visualizer",
+        "url": "Unit_2/velocity_time_graph_studio/index.html",
+        "typeLabel": "Interactive Visualizer",
+        "description": "Compare constant speed vs. uniform acceleration with 1D car track, strobe trails, and slope analysis."
+      },
+      {
         "title": "Interactive Distance vs. Time Grapher",
         "url": "https://rrmudry.github.io/distance_vs_time_graphing.html",
         "typeLabel": "Interactive Web Tool",
@@ -1726,6 +1732,12 @@ const lessonsData = [
         "description": "6 leveled missions: 3-segment x-t motion, interval Δx, slope-to-velocity, and interactive v-t translation."
       },
       {
+        "title": "Velocity vs. Time Graph Studio",
+        "url": "Unit_2/velocity_time_graph_studio/index.html",
+        "typeLabel": "Interactive Visualizer",
+        "description": "Interactive constant speed and acceleration simulator with 1D motion tracking."
+      },
+      {
         "title": "Speed & Distance Studio",
         "url": "Unit_2/speed_distance_time_app/index.html",
         "typeLabel": "Practice Sandbox",
@@ -1733,6 +1745,7 @@ const lessonsData = [
       }
     ],
     "links": {
+      "Velocity vs. Time Visualizer": "Unit_2/velocity_time_graph_studio/index.html",
       "Dual-Graph Motion Studio": "Unit_2/dual_graph_studio/index.html",
       "Position vs. Time Graphing Studio": "Unit_2/position_time_graph_studio/index.html",
       "Distance vs Time App": "https://rrmudry.github.io/distance_vs_time_graphing.html",
@@ -1873,6 +1886,12 @@ const lessonsData = [
     ],
     "resources": [
       {
+        "title": "Velocity vs. Time (v-t) Graph & Motion Visualizer",
+        "url": "Unit_2/velocity_time_graph_studio/index.html",
+        "typeLabel": "Interactive Visualizer",
+        "description": "Inspect displacement as geometric area under the velocity-time curve with 1D car motion."
+      },
+      {
         "title": "Interactive Distance vs. Time Grapher",
         "url": "https://rrmudry.github.io/distance_vs_time_graphing.html",
         "typeLabel": "Interactive Web Tool",
@@ -1881,6 +1900,18 @@ const lessonsData = [
     ],
     "practice": [
       {
+        "title": "Dual-Graph Motion Studio",
+        "url": "Unit_2/dual_graph_studio/index.html",
+        "typeLabel": "Graded Practice Studio",
+        "description": "6 leveled missions: 3-segment x-t motion, interval Δx, slope-to-velocity, and interactive v-t translation."
+      },
+      {
+        "title": "Velocity vs. Time Graph Studio",
+        "url": "Unit_2/velocity_time_graph_studio/index.html",
+        "typeLabel": "Interactive Visualizer",
+        "description": "Explore geometric area under the curve and uniform acceleration profiles."
+      },
+      {
         "title": "Speed & Distance Studio",
         "url": "Unit_2/speed_distance_time_app/index.html",
         "typeLabel": "Practice Sandbox",
@@ -1888,6 +1919,8 @@ const lessonsData = [
       }
     ],
     "links": {
+      "Velocity vs. Time Visualizer": "Unit_2/velocity_time_graph_studio/index.html",
+      "Dual-Graph Motion Studio": "Unit_2/dual_graph_studio/index.html",
       "Distance vs Time App": "https://rrmudry.github.io/distance_vs_time_graphing.html",
       "Speed & Distance Studio": "Unit_2/speed_distance_time_app/index.html"
     }
@@ -2040,6 +2073,12 @@ const lessonsData = [
     ],
     "resources": [
       {
+        "title": "Velocity vs. Time (v-t) Graph & Motion Visualizer",
+        "url": "Unit_2/velocity_time_graph_studio/index.html",
+        "typeLabel": "Interactive Visualizer",
+        "description": "Examine acceleration as slope of the v-t curve (a = Δv / Δt) with strobe trail markers."
+      },
+      {
         "title": "Interactive Distance vs. Time Grapher",
         "url": "https://rrmudry.github.io/distance_vs_time_graphing.html",
         "typeLabel": "Interactive Web Tool",
@@ -2048,6 +2087,12 @@ const lessonsData = [
     ],
     "practice": [
       {
+        "title": "Velocity vs. Time Graph Studio",
+        "url": "Unit_2/velocity_time_graph_studio/index.html",
+        "typeLabel": "Interactive Visualizer",
+        "description": "Compare constant speed vs. positive/negative uniform acceleration."
+      },
+      {
         "title": "Two-Car Kinematic Intercept Challenge",
         "url": "Unit_2/two_car_intercept/index.html",
         "typeLabel": "Kinematic Challenge",
@@ -2055,6 +2100,7 @@ const lessonsData = [
       }
     ],
     "links": {
+      "Velocity vs. Time Visualizer": "Unit_2/velocity_time_graph_studio/index.html",
       "Distance vs Time App": "https://rrmudry.github.io/distance_vs_time_graphing.html",
       "Two-Car Kinematic Intercept Challenge": "Unit_2/two_car_intercept/index.html"
     }
