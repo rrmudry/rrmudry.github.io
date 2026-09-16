@@ -2,6 +2,38 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-15 — Marble Ramp Lab: Firestore Continuous Progress Autosave
+
+**Pattern Updated**: `marble-ramp-graphing-lab.md` — Added dual autosave architecture (localStorage + Firestore).
+
+**Changes**:
+- Added `autoSaveDraft()` method to `auth_manager.js` mirroring the Wind-Up Toy Lab pattern: saves student draft progress to `student_results/Marble_Ramp_Lab/students/{studentId}` with top-level field lifting for gradebook preview.
+- Added `saveProgress()` method to `lab_engine.js` that calls `saveLocalStorage()` immediately and debounces `autoSaveDraft()` at 1.5s.
+- Replaced all 18 `saveLocalStorage()` call sites with `saveProgress()` so every state change (trial capture, stack height entry, calculation verification, graph point placement, CER text edits, step navigation) triggers cloud persistence.
+- Added `updateSaveIndicator()` visual feedback ("Saved ✓" / "Submitted ✓") in the header.
+- Final submission via `saveLabProgress()` now uses `ensureParentDocument()` for consistent parent doc metadata.
+
+## 2026-09-15 — Marble Ramp Motion & Graphing Lab (Click-to-Plot x-t & v-t Incline Inquiry)
+
+**Motivation**: Modernized the paper marble ramp lab ("Determining the Acceleration of a Marble Rolling Down a Ramp") into an authentic step-by-step interactive web application (`Unit_2/marble_ramp_lab/`) modeled on the Wind-Up Toy Speed Lab. Upgraded the activity for empirical position vs. time and velocity vs. time data collection, replication averaging, and student click-to-plot graphing.
+
+**Key Architecture & Highlights**:
+- **Apparatus & Scaffolding**:
+  - 30.0 cm wooden ruler ramp with center guide groove elevated by book stacks (Low, Medium, High).
+  - Marble released from rest level with the top book; constant-speed rolling across a marked table distance ($d = 60.0\text{ cm}$).
+  - 3 timing replications per height with built-in precision digital stopwatch (Spacebar shortcut and direct time capture) and outlier detection checks.
+  - Plain-language averaging ($t_{\text{avg}}$) and speed calculations ($v = d / t_{\text{avg}}$) integrated with the slide-out Desmos scientific calculator drawer.
+- **Click-to-Plot Graphing Engine (`graph_studio.js`)**:
+  - High-DPI canvas engine supporting mouse, trackpad, and touchscreen pointer events.
+  - **Position vs. Time ($x$ vs $t$)**: Students click to place start $(0, 0)$ and finish $(t_{\text{avg}}, d)$ points. Dynamic slope triangle overlay calculates $\text{Rise} = \Delta x$, $\text{Run} = \Delta t$, and $\text{Slope} = \Delta x / \Delta t = v$, verifying that steeper slope equals faster speed.
+  - **Velocity vs. Time ($v$ vs $t$)**: Students click $(0, v)$ and $(t_{\text{avg}}, v)$ to construct flat horizontal lines representing constant speed. Interactive shaded area rectangle illustrates $\text{Area} = v \cdot t_{\text{avg}} = d$ (the table distance).
+  - Generous snap assistance, drag-to-adjust point handles, and one-click PNG export.
+- **Standards, Auth & Gradebook Sync**:
+  - Tagged with `HS-PS2-1`, Firebase Auth with `@orangeusd.org` domain filter, and Firestore score submission to `ASSIGNMENT_ID = "Marble_Ramp_Lab"` with highest-attempt retention.
+- **Wiki Pattern**: Documented in `.agents/wiki/patterns/marble-ramp-graphing-lab.md`.
+
+---
+
 ## 2026-09-15 — Planned Activity Fallback Pattern (Eliminating Placeholder Document Redirects)
 
 **Motivation**: Discovered that an authentic Day 10 Google Doc URL (`Constant Speed Story Handout`) was historically copied as a generic placeholder across 46 distinct assignment, lab, and handout slots (Days 11–35) when Unit 2 was first scaffolded, causing uncreated or future activities to erroneously open the Day 10 document.

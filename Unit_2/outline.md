@@ -116,7 +116,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Graph Matching & Segment Storytelling: Students analyze multi-segment `x-t` journeys (walk forward -> pause -> sprint backward), calculate segment velocities from slopes, identify start/end coordinates, and translate between written narrative stories and graphical profiles.
     *   *Essential Question:* How does the slope of a position-time graph completely describe an object's velocity and direction of travel?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction / Practice
-    *   *Links:* [Position vs. Time Graphing Studio](Unit_2/position_time_graph_studio/index.html), [Position vs. Time Graphing Presentation](https://docs.google.com/presentation/d/10BYEOwOhdXK3HSZ7jlwFLyS_i-b1vq5-RNVsJXzMg-M/edit?usp=sharing), [Distance vs Time App](https://rrmudry.github.io/distance_vs_time_graphing.html), [Motion Curve Drawer](https://rrmudry.github.io/Distance_vs_Time_Drawer.html)
+    *   *Links:* [Position vs. Time Graphing Studio](Unit_2/position_time_graph_studio/index.html), [Marble Ramp Motion & Graphing Lab](Unit_2/marble_ramp_lab/index.html), [Position vs. Time Graphing Presentation](https://docs.google.com/presentation/d/10BYEOwOhdXK3HSZ7jlwFLyS_i-b1vq5-RNVsJXzMg-M/edit?usp=sharing), [Distance vs Time App](https://rrmudry.github.io/distance_vs_time_graphing.html), [Motion Curve Drawer](https://rrmudry.github.io/Distance_vs_Time_Drawer.html)
 
 *   **Day 12 (2026-09-15): Velocity vs. Time (`v-t`) Graphing: Direction & Graph Translation**
     *   *Bell-Ringer:* The Sign and the Speed (AI Concept Chat): A mentor text challenge exploring why an object with velocity `v = -15 m/s` is traveling faster than an object with `v = +5 m/s`, and how to recognize when an object stops or changes direction on a `v-t` graph.
@@ -124,15 +124,15 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Dual-Graph Translation Workshop: Given a 4-segment piecewise `x-t` graph, students calculate the numerical slope of each interval and draft the corresponding step-wise `v-t` graph, verifying that constant slopes produce horizontal velocity bars.
     *   *Essential Question:* What is the fundamental difference between what a flat line means on a position-time graph versus a velocity-time graph?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Workshop / Inquiry
-    *   *Links:* [Distance vs Time App](https://rrmudry.github.io/distance_vs_time_graphing.html)
+    *   *Links:* [Marble Ramp Motion & Graphing Lab](Unit_2/marble_ramp_lab/index.html), [Distance vs Time App](https://rrmudry.github.io/distance_vs_time_graphing.html)
 
-*   **Day 13 (2026-09-16): Geometric Integration: Displacement as Area Under the `v-t` Curve**
-    *   *Bell-Ringer:* Rover Telemetry & Geometric Displacement (CAST Challenge): An autonomous planetary rover's velocity is logged over a 20-second mission with forward and reverse stages. Calculate the rover's net displacement and total distance traveled using the bounded graphical area.
-    *   *Focus:* Connecting velocity, time, and displacement geometrically: `Δx = v · Δt`. Bounded area between the velocity line and the time axis equals displacement. Rectangles (`base · height = Δt · v`) for constant speed; triangles (`½ · base · height`) for changing speed. Signed area: area above axis is `+Δx`; area below axis is `-Δx`. Net displacement = `Area_above - Area_below`; total distance = `|Area_above| + |Area_below|`.
-    *   *Activity:* The Area-Displacement Mystery: Students receive complex multi-stage `v-t` velocity graphs representing courier drones and rovers. Teams partition graphs into geometric rectangles and triangles, compute net displacement, and plot the reconstructed `x-t` position trajectory.
-    *   *Essential Question:* Why does calculating the geometric area between a velocity graph and the time axis yield the exact displacement of the object?
-    *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Practice / Analysis
-    *   *Links:* [Distance vs Time App](https://rrmudry.github.io/distance_vs_time_graphing.html)
+*   **Day 13 (2026-09-16): Marble Ramp Motion & Graphing Lab: Position-Time & Velocity-Time Data Collection**
+    *   *Bell-Ringer:* Ramp Height & Rolling Speed (Concept Chat): Before starting the lab, students predict and discuss whether a steeper ramp produces a faster or slower marble across the table, and explain their reasoning.
+    *   *Focus:* Empirical data collection with replicated trials, calculating averages and speeds, and constructing Position vs. Time and Velocity vs. Time graphs via click-to-plot interactive canvases. Slope triangles on x-t graphs reveal speed; horizontal lines and shaded area rectangles on v-t graphs connect velocity to displacement.
+    *   *Activity:* Marble Ramp Motion & Graphing Lab: Students elevate a wooden ruler ramp using 1, 2, and 3 book stacks, release a marble from rest (level with the top book), and time its constant-speed travel across a marked table distance using a built-in digital stopwatch (3 replications per height). After calculating averages and speeds, students click to plot data points on interactive x-t and v-t canvases, then write a CER synthesis.
+    *   *Essential Question:* How does increasing ramp height change the marble's constant speed across the table, and how do we see this relationship in the slopes and areas of motion graphs?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Lab Investigation
+    *   *Links:* [Marble Ramp Lab](Unit_2/marble_ramp_lab/index.html), [Position vs. Time Graphing Studio](Unit_2/position_time_graph_studio/index.html)
 
 *   **Day 14 (2026-09-17): Introducing Acceleration: Slope of Velocity-Time (`a = Δv / Δt`)**
     *   *Bell-Ringer:* Acceleration & Changing Motion (CAST Matrix): Evaluating 4 vehicles with given velocity and acceleration vectors. Students determine whether each vehicle is speeding up, slowing down, or moving at constant speed, and defend their reasoning.
