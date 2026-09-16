@@ -57,3 +57,9 @@ Whenever creating or modifying student-facing physics webapps, inquiry labs, or 
 - **Eliminate Interface Friction Only**: Streamline controls, avoid overwhelming students with 10 simultaneous buttons, provide clear visual focal tools (e.g. 2x–3x magnifying loupes with crosshairs), and offer targeted diagnostic hints rather than punitive rejections.
 - **Consult Wiki Pattern**: Reference `.agents/wiki/patterns/cast-aligned-webapp-design.md` for full implementation matrices and tolerance-checking guidelines.
 
+## ⏱️ Site Footer Last-Updated Timestamp
+Whenever modifying the homepage (`index.html`), updating dashboards, or deploying site-wide updates:
+- Run `node scripts/update-timestamp.js` to refresh the `Site Updated: <span id="last-updated">...</span>` timestamp inside `partials/footer.html`.
+- This ensures the footer consistently reflects the actual deployment date and time.
+
+
