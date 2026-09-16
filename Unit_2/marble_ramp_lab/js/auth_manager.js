@@ -175,7 +175,7 @@ class LabAuthManager {
           }
         }
         if (window.labEngine && typeof window.labEngine.loadExternalState === 'function') {
-          window.labEngine.loadExternalState(data);
+          window.labEngine.loadExternalState(data.labState || data);
         }
       }
     } catch (e) {
