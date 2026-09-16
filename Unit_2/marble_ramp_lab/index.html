@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marble Ramp Motion &amp; Graphing Lab | Unit 2 Kinematics</title>
+  <meta name="description" content="Interactive student laboratory activity: Measure the rolling speed of a marble down a grooved ruler ramp and across a flat table, calculate averages, and click to plot Position-Time and Velocity-Time graphs.">
+
+  <!-- Tailwind CSS CDN & Dark Mode Config -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class'
+    };
+  </script>
+
+  <!-- Google Fonts: Space Grotesk, Outfit, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+
+  <!-- Desmos Scientific Calculator API -->
+  <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+
+  <!-- Firebase Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <!-- Firebase App Initialization -->
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  </script>
+
+  <!-- App Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col min-h-screen">
+
+  <!-- TOP LAB APP HEADER -->
+  <header class="border-b border-slate-200 dark:border-white/10 bg-white/95 dark:bg-slate-950/85 backdrop-blur-md sticky top-0 z-40 px-4 py-2.5 shadow-sm">
+    <div class="max-w-4xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- App Brand -->
+      <div class="flex items-center gap-3">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xl">⚪</span>
+            <h1 class="font-display text-base sm:text-lg font-bold tracking-wide text-slate-900 dark:text-sky-200">
+              Marble Ramp Motion &amp; Graphing Lab
+            </h1>
+            <span data-ngss-code="HS-PS2-1" class="hidden sm:inline-block px-2 py-0.5 rounded text-[11px] font-mono bg-sky-100 text-sky-800 border border-sky-300 dark:bg-sky-500/20 dark:text-sky-300 dark:border-sky-500/30 font-semibold">
+              HS-PS2-1
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-600 dark:text-slate-400 hidden sm:block">
+            30.0 cm Grooved Ramp &bull; 3 Book Heights &bull; 3 Replications &bull; Click-to-Plot x-t &amp; v-t Graphs
+          </p>
+        </div>
+      </div>
+
+      <!-- Utilities & Auth -->
+      <div class="flex items-center gap-2">
+        <!-- Desmos Calculator Drawer Toggle -->
+        <button id="btn-toggle-calculator" class="px-3 py-1.5 rounded-xl bg-purple-100 hover:bg-purple-200 text-purple-800 dark:bg-purple-500/20 dark:hover:bg-purple-500/30 dark:text-purple-200 text-xs font-bold border border-purple-300 dark:border-purple-500/40 transition-all flex items-center gap-1.5 shadow-sm" title="Toggle Desmos Scientific Calculator">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>
+          <span class="hidden sm:inline">Calculator</span>
+        </button>
+
+        <!-- Sound FX Toggle -->
+        <button id="btn-sound-toggle" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 border border-slate-300 dark:border-white/10 text-slate-700 dark:text-slate-300 text-xs transition-colors" title="Toggle Sound FX">
+          🔊
+        </button>
+
+        <!-- Theme Toggle (Default Light) -->
+        <button id="btn-theme-toggle" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 border border-slate-300 dark:border-white/10 text-slate-700 dark:text-slate-300 text-xs transition-colors" title="Toggle Light / Dark Theme">
+          ☀️
+        </button>
+
+        <!-- Google Sign-in / User Profile -->
+        <div id="auth-user-status">
+          <button id="btn-google-login" class="px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 dark:bg-sky-500 dark:hover:bg-sky-400 text-white dark:text-slate-950 text-xs font-bold transition-all shadow-sm active:scale-95 flex items-center gap-1.5">
+            <span>Sign In</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN FOCUSED WORKSPACE (Single-column, uncluttered) -->
+  <main id="main-container" class="flex-1 max-w-4xl mx-auto w-full p-4 sm:p-6 space-y-6">
+
+    <!-- STEP PROGRESS STEPPER (6 Clean Steps) -->
+    <div class="glass-card p-3 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
+      <div class="flex items-center justify-between step-bar-scroll gap-2 py-1">
+        <button class="step-indicator-dot px-3 py-1 rounded-full text-xs font-bold bg-sky-600 dark:bg-sky-500 text-white dark:text-slate-950 shadow-sm ring-2 ring-sky-300 dark:ring-sky-400/50 flex items-center gap-1.5 transition-all">
+          <span>1</span> <span class="hidden md:inline">Setup</span>
+        </button>
+        <span class="text-slate-400 dark:text-slate-600 text-xs">&rarr;</span>
+        <button class="step-indicator-dot px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/10 flex items-center gap-1.5 transition-all">
+          <span>2</span> <span class="hidden md:inline">Time Trials</span>
+        </button>
+        <span class="text-slate-400 dark:text-slate-600 text-xs">&rarr;</span>
+        <button class="step-indicator-dot px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/10 flex items-center gap-1.5 transition-all">
+          <span>3</span> <span class="hidden md:inline">Averages &amp; Speed</span>
+        </button>
+        <span class="text-slate-400 dark:text-slate-600 text-xs">&rarr;</span>
+        <button class="step-indicator-dot px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/10 flex items-center gap-1.5 transition-all">
+          <span>4</span> <span class="hidden md:inline">Draw x-t Graph</span>
+        </button>
+        <span class="text-slate-400 dark:text-slate-600 text-xs">&rarr;</span>
+        <button class="step-indicator-dot px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/10 flex items-center gap-1.5 transition-all">
+          <span>5</span> <span class="hidden md:inline">Draw v-t Graph</span>
+        </button>
+        <span class="text-slate-400 dark:text-slate-600 text-xs">&rarr;</span>
+        <button class="step-indicator-dot px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/10 flex items-center gap-1.5 transition-all">
+          <span>6</span> <span class="hidden md:inline">CER Studio</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ============================================================= -->
+    <!-- STEP 1: Setup & Materials Guide -->
+    <!-- ============================================================= -->
+    <section id="step-section-1" class="space-y-4 fade-in">
+      <div class="glass-card p-5 sm:p-6 rounded-2xl border border-slate-200 dark:border-white/10 space-y-4 shadow-sm">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-bold text-slate-900 dark:text-white font-display flex items-center gap-2">
+            <span>📐</span> Step 1: Laboratory Apparatus &amp; Setup
+          </h2>
+          <span class="text-xs font-mono font-bold text-sky-800 dark:text-sky-300 bg-sky-100 dark:bg-sky-500/20 px-2.5 py-1 rounded-lg border border-sky-300 dark:border-sky-500/30">
+            Ramp: 30.0 cm
+          </span>
+        </div>
+
+        <!-- Apparatus Diagram Graphic Card -->
+        <div class="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-sky-50 via-white to-amber-50 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900 border border-slate-200 dark:border-white/10 space-y-4">
+          <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+            
+            <!-- Visual SVG Diagram of Ramp & Table Track -->
+            <div class="w-full md:w-3/5 bg-slate-950 rounded-xl p-3 border border-slate-800 shadow-inner">
+              <svg viewBox="0 0 500 160" class="w-full h-auto">
+                <!-- Flat Table Surface -->
+                <rect x="20" y="130" width="460" height="8" rx="2" fill="#334155" />
+                
+                <!-- Book Stack -->
+                <rect x="30" y="70" width="60" height="20" rx="2" fill="#d97706" />
+                <rect x="30" y="90" width="60" height="20" rx="2" fill="#0284c7" />
+                <rect x="30" y="110" width="60" height="20" rx="2" fill="#059669" />
+                <text x="60" y="62" font-family="'JetBrains Mono', monospace" font-size="10" fill="#f59e0b" text-anchor="middle">Books Stack</text>
+
+                <!-- Wooden Ruler Ramp with Groove -->
+                <polygon points="90,70 200,130 196,134 86,74" fill="#b45309" />
+                <!-- Center Groove Guideline -->
+                <line x1="88" y1="72" x2="198" y2="132" stroke="#78350f" stroke-width="2" stroke-dasharray="2,2" />
+                <text x="145" y="90" font-family="'Outfit', sans-serif" font-size="10" fill="#fcd34d" text-anchor="middle" transform="rotate(27 145 90)">30.0 cm Ruler Ramp</text>
+
+                <!-- Marble at Release Height -->
+                <circle cx="85" cy="67" r="7" fill="#e2e8f0" stroke="#0284c7" stroke-width="2" />
+                <text x="85" y="48" font-family="'JetBrains Mono', monospace" font-size="9" fill="#38bdf8" text-anchor="middle">Release at Top</text>
+
+                <!-- Table Entry Mark (0 cm) -->
+                <line x1="200" y1="120" x2="200" y2="145" stroke="#38bdf8" stroke-width="2" />
+                <text x="200" y="112" font-family="'JetBrains Mono', monospace" font-size="9" fill="#38bdf8" text-anchor="middle">0 cm (Start Timer)</text>
+
+                <!-- Table Rolling Distance Indicator -->
+                <line x1="200" y1="145" x2="420" y2="145" stroke="#e2e8f0" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)" />
+                <text x="310" y="157" font-family="'JetBrains Mono', monospace" font-size="10" fill="#e2e8f0" text-anchor="middle">Marked Distance across Flat Table (d)</text>
+
+                <!-- Finish Tape (d cm) -->
+                <line x1="420" y1="120" x2="420" y2="145" stroke="#f43f5e" stroke-width="2" />
+                <text x="420" y="112" font-family="'JetBrains Mono', monospace" font-size="9" fill="#f43f5e" text-anchor="middle">Finish (Stop Timer)</text>
+
+                <!-- Rolling Motion Vector Arrow -->
+                <path d="M 230 124 L 270 124 M 265 120 L 271 124 L 265 128" stroke="#10b981" stroke-width="2" fill="none" />
+                <text x="250" y="116" font-family="'Outfit', sans-serif" font-size="9" fill="#10b981" text-anchor="middle">Constant Speed (v)</text>
+              </svg>
+            </div>
+
+            <!-- Setup Checkpoints List -->
+            <div class="w-full md:w-2/5 space-y-2.5 text-xs text-slate-700 dark:text-slate-300">
+              <div class="font-bold text-slate-900 dark:text-white uppercase tracking-wider text-[11px] text-sky-800 dark:text-sky-300">
+                Crucial Setup Rules:
+              </div>
+              <div class="flex items-start gap-2">
+                <span class="text-emerald-700 dark:text-emerald-400 font-bold">1.</span>
+                <span><strong>Center Groove:</strong> The ruler's groove keeps the marble rolling in a straight, repeatable line.</span>
+              </div>
+              <div class="flex items-start gap-2">
+                <span class="text-emerald-700 dark:text-emerald-400 font-bold">2.</span>
+                <span><strong>Release Height:</strong> Always release the marble from rest level with the <em>top book</em> of the stack. Never push it!</span>
+              </div>
+              <div class="flex items-start gap-2">
+                <span class="text-emerald-700 dark:text-emerald-400 font-bold">3.</span>
+                <span><strong>Constant Speed Zone:</strong> Start your stopwatch the instant the marble hits the flat table (0 cm), and stop it when it crosses your finish line.</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Custom Table Distance Configuration -->
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div>
+            <div class="text-xs font-bold text-slate-900 dark:text-white">
+              Marked Distance on Flat Table (d):
+            </div>
+            <p class="text-[11px] text-slate-600 dark:text-slate-400">
+              Measure between 50.0 cm and 100.0 cm on your table using a meter stick and tape.
+            </p>
+          </div>
+          <div class="flex items-center gap-2">
+            <input type="number" id="setup-distance-input" step="1" min="30" max="200" value="60"
+                   class="w-24 px-3 py-1.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-white/15 rounded-xl font-mono text-sm font-bold text-center text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500 outline-none">
+            <span class="font-mono text-xs font-semibold text-slate-600 dark:text-slate-400">cm</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <!-- STEP 2: Tabletop Timing Trials (Replications) -->
+    <!-- ============================================================= -->
+    <section id="step-section-2" class="space-y-4 hidden fade-in">
+      <div class="glass-card p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-white/10 space-y-2 shadow-sm">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-bold text-slate-900 dark:text-white font-display flex items-center gap-2">
+            <span>⏱️</span> Step 2: Time 3 Replications for Each Ramp Height
+          </h2>
+          <span class="text-xs font-mono font-bold text-sky-800 dark:text-sky-300 bg-sky-100 dark:bg-sky-500/10 px-2.5 py-1 rounded-lg border border-sky-300 dark:border-sky-500/20">
+            3 Heights &bull; 3 Trials Each
+          </span>
+        </div>
+        <p class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+          Select a ramp height below, measure your book stack height, release the marble from rest at the top of the ramp, and use the stopwatch to time how long it takes to cross the table distance. Complete 3 replications for Low, Medium, and High stacks!
+        </p>
+      </div>
+
+      <!-- STOPWATCH REQUIRED TOAST BANNER (Shown when student tries manual typing) -->
+      <div id="stopwatch-required-toast" class="hidden p-4 rounded-2xl bg-amber-500 text-slate-950 font-bold text-xs shadow-xl border-2 border-amber-300 flex items-center justify-between gap-3 transition-all">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">⏱️</span>
+          <div>
+            <div class="font-extrabold uppercase tracking-wide text-xs text-slate-950">Stopwatch Required!</div>
+            <div class="font-normal text-[11px] text-slate-900 mt-0.5">
+              No, you need to use the stopwatch! Direct typing is disabled so every student collects authentic empirical data.
+            </div>
+          </div>
+        </div>
+        <button onclick="document.getElementById('stopwatch-required-toast').classList.add('hidden')" class="px-3 py-1.5 rounded-lg bg-slate-950 hover:bg-slate-900 text-white text-[11px] font-bold transition-all shrink-0">
+          Got It
+        </button>
+      </div>
+
+      <!-- PRECISION DIGITAL STOPWATCH BANNER -->
+      <div id="stopwatch-container" class="glass-card p-4 sm:p-5 rounded-2xl border border-sky-200 dark:border-sky-500/30 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/80 dark:from-slate-900/95 dark:via-sky-950/30 dark:to-slate-900/95 shadow-sm dark:shadow-xl">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+          
+          <!-- LED Time Readout -->
+          <div class="flex items-center gap-4">
+            <div class="stopwatch-box px-5 py-2.5 rounded-xl border border-slate-900 dark:border-sky-400/40 bg-slate-950">
+              <span id="stopwatch-display" class="digital-timer-font text-3xl sm:text-4xl font-bold text-sky-300">00:00.00</span>
+            </div>
+            <div>
+              <div class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                <span>Precision Stopwatch</span>
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-sky-100 dark:bg-sky-500/20 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-transparent font-bold">Spacebar</span>
+              </div>
+              <p class="text-[11px] text-slate-600 dark:text-slate-400">
+                Press Spacebar to start and stop.
+              </p>
+            </div>
+          </div>
+
+          <!-- Stopwatch Action Controls -->
+          <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+            <button id="btn-stopwatch-toggle" class="flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md active:scale-95 flex items-center justify-center gap-1.5">
+              <span>▶️</span> <span>Start (Space)</span>
+            </button>
+            <button id="btn-stopwatch-reset" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 text-xs font-semibold border border-slate-300 dark:border-white/10 transition-colors">
+              Reset
+            </button>
+            <button id="btn-stopwatch-record" class="flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 dark:bg-sky-500 dark:hover:bg-sky-400 text-white dark:text-slate-950 text-xs font-bold transition-all shadow-md active:scale-95 flex items-center justify-center gap-1.5">
+              <span>📥</span> <span>Capture Time</span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Level Selection Tabs (Low, Med, High) -->
+      <div id="step2-level-tabs" class="flex flex-wrap gap-2">
+        <!-- Dynamically populated by lab_engine.js -->
+      </div>
+
+      <!-- Active Level Trials Container -->
+      <div id="step2-trials-container" class="glass-card p-5 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
+        <!-- Dynamically populated by lab_engine.js -->
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <!-- STEP 3: Average Time & Velocity Calculations -->
+    <!-- ============================================================= -->
+    <section id="step-section-3" class="space-y-4 hidden fade-in">
+      <div class="glass-card p-5 rounded-2xl border border-slate-200 dark:border-white/10 space-y-3 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <h2 class="text-lg font-bold text-slate-900 dark:text-white font-display flex items-center gap-2">
+            <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>
+            <span>Step 3: Calculate Average Time &amp; Speed across Table</span>
+          </h2>
+          <button onclick="window.toggleCalculator()" class="btn-open-calc-step px-3 py-1.5 rounded-xl bg-purple-100 hover:bg-purple-200 text-purple-800 dark:bg-purple-500/20 dark:hover:bg-purple-500/30 dark:text-purple-200 text-xs font-bold border border-purple-300 dark:border-purple-500/40 transition-colors flex items-center gap-1.5 shadow-sm">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>
+            <span>Open Calculator</span>
+          </button>
+        </div>
+        <p class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+          1. <strong>Average Time:</strong> Add your 3 times together, then divide by 3.<br>
+          2. <strong>Speed across Table:</strong> Divide your marked table distance by your average time (v = d / t_avg).
+        </p>
+      </div>
+
+      <div id="step3-calculations-container" class="space-y-4">
+        <!-- Dynamically populated by lab_engine.js -->
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <!-- STEP 4: Draw Position vs. Time Graph (Click to Plot) -->
+    <!-- ============================================================= -->
+    <section id="step-section-4" class="space-y-4 hidden fade-in">
+      <div class="glass-card p-5 rounded-2xl border border-slate-200 dark:border-white/10 space-y-2 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <h2 class="text-lg font-bold text-slate-900 dark:text-white font-display flex items-center gap-2">
+            <span>📈</span> Step 4: Draw Position vs. Time Graph (x vs. t)
+          </h2>
+          <button onclick="window.labEngine.exportPosGraphPng()" class="px-3 py-1.5 rounded-xl bg-sky-100 hover:bg-sky-200 text-sky-800 dark:bg-sky-500/20 dark:hover:bg-sky-500/30 dark:text-sky-300 text-xs font-bold border border-sky-300 dark:border-sky-500/30 transition-colors flex items-center gap-1.5 shadow-sm">
+            <span>💾</span> <span>Save Graph PNG</span>
+          </button>
+        </div>
+        <p class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+          Draw your Position vs. Time motion graph by clicking to create datapoints! The slope of each line represents the marble's speed across the table.
+        </p>
+      </div>
+
+      <!-- Level Selector Chips for Graph 4 -->
+      <div id="step4-level-toggles" class="flex flex-wrap gap-2">
+        <!-- Dynamically populated by lab_engine.js -->
+      </div>
+
+      <!-- Guided Instruction Callout -->
+      <div id="step4-guidance">
+        <!-- Dynamically updated by lab_engine.js -->
+      </div>
+
+      <!-- Canvas Mount Container -->
+      <div class="glass-card p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm graph-canvas-box">
+        <canvas id="canvas-position-graph"></canvas>
+      </div>
+
+      <!-- Low Floor / High Ceiling Slope Insight Box -->
+      <div class="p-4 rounded-xl bg-gradient-to-r from-sky-50 via-white to-sky-50 dark:from-slate-900 dark:via-sky-950/20 dark:to-slate-900 border border-sky-200 dark:border-sky-500/30 text-xs text-slate-700 dark:text-slate-300 space-y-1.5">
+        <div class="font-bold text-sky-800 dark:text-sky-300 flex items-center gap-1.5 uppercase tracking-wider text-[11px]">
+          <span>💡</span> <span>Kinematic Slope Discovery:</span>
+        </div>
+        <div>
+          &bull; <strong>Slope = Rise / Run:</strong> The vertical rise is distance (Δx) and the horizontal run is time (Δt).
+        </div>
+        <div>
+          &bull; <strong>Steepness = Speed:</strong> Notice how the High Ramp produces a <em>steeper slope</em> because the marble travels the same distance in fewer seconds!
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <!-- STEP 5: Draw Velocity vs. Time Graph (Click to Plot) -->
+    <!-- ============================================================= -->
+    <section id="step-section-5" class="space-y-4 hidden fade-in">
+      <div class="glass-card p-5 rounded-2xl border border-slate-200 dark:border-white/10 space-y-2 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <h2 class="text-lg font-bold text-slate-900 dark:text-white font-display flex items-center gap-2">
+            <span>⚡</span> Step 5: Draw Velocity vs. Time Graph (v vs. t)
+          </h2>
+          <button onclick="window.labEngine.exportVelGraphPng()" class="px-3 py-1.5 rounded-xl bg-sky-100 hover:bg-sky-200 text-sky-800 dark:bg-sky-500/20 dark:hover:bg-sky-500/30 dark:text-sky-300 text-xs font-bold border border-sky-300 dark:border-sky-500/30 transition-colors flex items-center gap-1.5 shadow-sm">
+            <span>💾</span> <span>Save Graph PNG</span>
+          </button>
+        </div>
+        <p class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+          Because we assume the marble rolls across the flat table at a <strong>constant speed</strong>, its velocity does not change! Plot the start and end velocity points to create horizontal lines.
+        </p>
+      </div>
+
+      <!-- Level Selector Chips for Graph 5 -->
+      <div id="step5-level-toggles" class="flex flex-wrap gap-2">
+        <!-- Dynamically populated by lab_engine.js -->
+      </div>
+
+      <!-- Guided Instruction Callout -->
+      <div id="step5-guidance">
+        <!-- Dynamically updated by lab_engine.js -->
+      </div>
+
+      <!-- Canvas Mount Container -->
+      <div class="glass-card p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm graph-canvas-box">
+        <canvas id="canvas-velocity-graph"></canvas>
+      </div>
+
+      <!-- Low Floor / High Ceiling Area Insight Box -->
+      <div class="p-4 rounded-xl bg-gradient-to-r from-emerald-50 via-white to-emerald-50 dark:from-slate-900 dark:via-emerald-950/20 dark:to-slate-900 border border-emerald-200 dark:border-emerald-500/30 text-xs text-slate-700 dark:text-slate-300 space-y-1.5">
+        <div class="font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5 uppercase tracking-wider text-[11px]">
+          <span>💡</span> <span>Area Under the Curve Discovery:</span>
+        </div>
+        <div>
+          &bull; <strong>Flat Horizontal Line:</strong> On a velocity vs. time graph, a flat line means <em>constant, unchanging speed</em>.
+        </div>
+        <div>
+          &bull; <strong>Geometric Area = Distance:</strong> The rectangular shaded area equals (base &times; height) = (t_avg &times; v) = distance traveled across the table!
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <!-- STEP 6: Scientific CER Studio & Mastery Submission -->
+    <!-- ============================================================= -->
+    <section id="step-section-6" class="space-y-4 hidden fade-in">
+      <div class="glass-card p-5 rounded-2xl border border-slate-200 dark:border-white/10 space-y-2 shadow-sm">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-bold text-slate-900 dark:text-white font-display flex items-center gap-2">
+            <span>📝</span> Step 6: Scientific Explanation (CER)
+          </h2>
+          <span class="text-xs font-mono font-bold text-sky-800 dark:text-sky-300 bg-sky-100 dark:bg-sky-500/20 px-2.5 py-1 rounded-lg border border-sky-300 dark:border-sky-500/30">
+            Cite Numerical Data
+          </span>
+        </div>
+        <p class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+          Write a concise Claim-Evidence-Reasoning response explaining how changing the ramp height influenced the marble's velocity:
+        </p>
+      </div>
+
+      <div class="space-y-4">
+        <!-- Claim Card -->
+        <div class="glass-card p-5 rounded-2xl border border-slate-200 dark:border-white/10 space-y-2 shadow-sm">
+          <label for="cer-claim-input" class="text-xs font-mono font-bold uppercase tracking-wider text-sky-800 dark:text-sky-300 block">
+            1. Scientific Claim (What effect did increasing the ramp height have on the marble's speed across the table?):
+          </label>
+          <textarea id="cer-claim-input" rows="2" placeholder="e.g., Increasing the height of the book stack caused the marble to roll across the flat table with a greater velocity." class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-white/15 rounded-xl p-3 text-sm text-slate-900 dark:text-white focus:border-sky-600 dark:focus:border-sky-400 focus:ring-2 focus:ring-sky-100 dark:focus:ring-sky-950 outline-none transition-all"></textarea>
+        </div>
+
+        <!-- Evidence Card -->
+        <div class="glass-card p-5 rounded-2xl border border-slate-200 dark:border-white/10 space-y-2 shadow-sm">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <label for="cer-evidence-input" class="text-xs font-mono font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">
+              2. Data Evidence (Cite exact stack heights, average times, and calculated velocities):
+            </label>
+            <button onclick="window.labEngine.insertDataSnippet()" class="text-[11px] text-emerald-800 dark:text-emerald-300 hover:text-emerald-900 dark:hover:text-emerald-200 bg-emerald-100 dark:bg-emerald-500/20 hover:bg-emerald-200 dark:hover:bg-emerald-500/30 px-2.5 py-1 rounded-lg border border-emerald-300 dark:border-emerald-500/30 transition-colors flex items-center gap-1 font-semibold">
+              <span>📋</span> <span>Insert My Lab Data Summary</span>
+            </button>
+          </div>
+          <textarea id="cer-evidence-input" rows="3" placeholder="e.g., At the low ramp height (3.0 cm), the marble took an average of 2.80 s resulting in a velocity of 21.4 cm/s. At the high ramp height (9.0 cm), the time dropped to 1.45 s and velocity increased to 41.4 cm/s..." class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-white/15 rounded-xl p-3 text-sm text-slate-900 dark:text-white focus:border-emerald-600 dark:focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-950 outline-none transition-all"></textarea>
+        </div>
+
+        <!-- Reasoning Card -->
+        <div class="glass-card p-5 rounded-2xl border border-slate-200 dark:border-white/10 space-y-2 shadow-sm">
+          <label for="cer-reasoning-input" class="text-xs font-mono font-bold uppercase tracking-wider text-purple-800 dark:text-purple-300 block">
+            3. Physics Reasoning (Connect ramp elevation, graph slopes, and why 3 replications improve accuracy):
+          </label>
+          <textarea id="cer-reasoning-input" rows="3" placeholder="e.g., A steeper ramp angle causes greater acceleration down the incline, delivering the marble to the table with a higher initial speed. On the Position vs. Time graph, this higher speed appeared as a steeper slope. Averaging 3 trials reduced random human stopwatch timing errors..." class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-white/15 rounded-xl p-3 text-sm text-slate-900 dark:text-white focus:border-purple-600 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-100 dark:focus:ring-purple-950 outline-none transition-all"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- BOTTOM WIZARD NAVIGATION BAR -->
+    <div class="glass-card p-4 rounded-2xl border border-slate-200 dark:border-white/10 flex items-center justify-between gap-4 shadow-sm">
+      <button id="btn-lab-prev" class="hidden px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 text-xs font-bold border border-slate-300 dark:border-white/10 transition-colors">
+        &larr; Previous Step
+      </button>
+      <div class="flex-1"></div>
+      <button id="btn-lab-next" class="px-6 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 dark:bg-sky-500 dark:hover:bg-sky-400 text-white dark:text-slate-950 text-xs font-bold transition-all shadow-md active:scale-95 flex items-center gap-1.5">
+        <span>Next Step &rarr;</span>
+      </button>
+    </div>
+
+  </main>
+
+  <!-- SLIDE-OVER DESMOS SCIENTIFIC CALCULATOR DRAWER -->
+  <aside id="calculator-drawer" class="fixed inset-y-0 right-0 z-50 w-full sm:w-[380px] bg-white dark:bg-slate-950 border-l border-slate-200 dark:border-purple-500/30 shadow-2xl p-4 sm:p-5 flex flex-col space-y-3 transition-transform duration-300 translate-x-full">
+    <div class="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-3">
+      <div class="flex items-center gap-2">
+        <svg class="w-5 h-5 text-purple-600 dark:text-purple-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>
+        <h3 class="text-sm font-bold text-purple-900 dark:text-purple-300 uppercase tracking-wider">Desmos Calculator</h3>
+      </div>
+      <button onclick="window.toggleCalculator(false)" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors text-xs font-bold border border-slate-300 dark:border-white/10">
+        ✕ Close
+      </button>
+    </div>
+
+    <!-- Live Active Numbers Reference inside Calculator -->
+    <div id="calculator-level-pills" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 space-y-1.5 text-xs font-mono">
+      <div class="text-purple-800 dark:text-purple-400 font-bold text-[10px] uppercase tracking-wider">Your Recorded Times:</div>
+      <div id="calc-numbers-display" class="space-y-1.5 text-slate-800 dark:text-slate-200">
+        <!-- Live numbers updated by labEngine -->
+      </div>
+    </div>
+
+    <!-- Desmos Frame Mount -->
+    <div id="desmos-calculator-container" class="flex-1 min-h-[320px] w-full rounded-xl overflow-hidden border border-slate-200 dark:border-white/15 bg-white dark:bg-black">
+      <!-- Desmos.ScientificCalculator mounts here -->
+    </div>
+
+    <!-- Plain Language Reference Helper -->
+    <div class="p-2.5 rounded-xl bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-500/30 space-y-1 text-[11px] font-mono text-purple-950 dark:text-purple-200">
+      <div class="text-purple-800 dark:text-purple-400 font-bold uppercase tracking-wider text-[10px]">Plain Language Guide:</div>
+      <div>&bull; <strong>Average Time:</strong> Add your 3 times together, then divide by 3.</div>
+      <div>&bull; <strong>Speed:</strong> Divide table distance by average time.</div>
+    </div>
+  </aside>
+
+  <!-- COMPLETION CELEBRATION MODAL -->
+  <div id="modal-completion" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm hidden fade-in">
+    <div class="glass-card p-6 sm:p-8 rounded-3xl border border-sky-300 dark:border-sky-500/40 max-w-lg w-full bg-white dark:bg-slate-900 shadow-2xl space-y-5 text-center">
+      <div class="text-5xl">🏆</div>
+      <div class="space-y-2">
+        <h3 class="text-2xl font-bold font-display text-slate-900 dark:text-white">Marble Ramp Lab Complete!</h3>
+        <p class="text-xs text-slate-600 dark:text-slate-400">
+          Your timing replications, calculated averages, position vs. time and velocity vs. time graphs, and scientific CER explanation have been synced to Firestore!
+        </p>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-white/10 text-left space-y-2 text-xs font-mono">
+        <div class="text-sky-800 dark:text-sky-300 font-bold border-b border-slate-200 dark:border-white/10 pb-1 flex justify-between">
+          <span>Submission Status</span>
+          <span class="text-emerald-700 dark:text-emerald-400 font-bold">✓ Saved in Database (100%)</span>
+        </div>
+        <div class="text-slate-800 dark:text-slate-300">Assignment: <strong>Marble_Ramp_Lab</strong></div>
+        <div class="text-slate-800 dark:text-slate-300">Standard: <strong>HS-PS2-1</strong></div>
+        <div class="text-slate-500 dark:text-slate-400 text-[11px]">Your teacher can view your complete replication dataset and motion graphs in the teacher portal.</div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-3 pt-2">
+        <a href="../../unit2-dashboard.html" class="flex-1 py-3 rounded-xl bg-sky-600 hover:bg-sky-500 dark:bg-sky-500 dark:hover:bg-sky-400 text-white dark:text-slate-950 text-xs font-bold transition-all text-center shadow-lg shadow-sky-600/25">
+          Return to Unit 2 Dashboard &rarr;
+        </a>
+        <button onclick="document.getElementById('modal-completion').classList.add('hidden')" class="px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 text-xs font-semibold border border-slate-300 dark:border-white/10 transition-colors">
+          Close Window
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- APPLICATION SCRIPTS -->
+  <script src="../../assets/partials.js"></script>
+  <script src="js/sound_fx.js"></script>
+  <script src="js/stopwatch.js"></script>
+  <script src="js/graph_studio.js"></script>
+  <script src="js/auth_manager.js"></script>
+  <script src="js/lab_engine.js"></script>
+
+  <script>
+    // Theme Manager (Light by default, html.dark for dark mode)
+    window.initTheme = function() {
+      const savedTheme = localStorage.getItem('marble_ramp_lab_theme') || 'light';
+      window.setTheme(savedTheme, false);
+    };
+
+    window.setTheme = function(theme, reRender = true) {
+      const isDark = theme === 'dark';
+      document.documentElement.classList.toggle('dark', isDark);
+      document.body.classList.toggle('theme-dark', isDark);
+      localStorage.setItem('marble_ramp_lab_theme', isDark ? 'dark' : 'light');
+      
+      const themeBtn = document.getElementById('btn-theme-toggle');
+      if (themeBtn) {
+        themeBtn.innerHTML = isDark ? '🌙' : '☀️';
+        themeBtn.title = isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme';
+      }
+
+      if (reRender && window.labEngine) {
+        if (window.labEngine.posGraph) window.labEngine.posGraph.render();
+        if (window.labEngine.velGraph) window.labEngine.velGraph.render();
+      }
+    };
+
+    window.toggleTheme = function() {
+      const isCurrentlyDark = document.documentElement.classList.contains('dark');
+      window.setTheme(isCurrentlyDark ? 'light' : 'dark', true);
+    };
+
+    // Global Calculator Drawer Controller (Side-by-side)
+    window.toggleCalculator = function(forceOpen) {
+      const drawer = document.getElementById('calculator-drawer');
+      if (!drawer) return;
+      
+      const isClosed = drawer.classList.contains('translate-x-full');
+      const shouldOpen = (typeof forceOpen === 'boolean') ? forceOpen : isClosed;
+
+      if (shouldOpen) {
+        drawer.classList.remove('translate-x-full');
+        document.body.classList.add('calc-open');
+        if (window.labEngine && window.labEngine.updateCalculatorNumbers) {
+          window.labEngine.updateCalculatorNumbers();
+        }
+        if (window.desmosCalculator && window.desmosCalculator.resize) {
+          setTimeout(() => window.desmosCalculator.resize(), 100);
+        }
+      } else {
+        drawer.classList.add('translate-x-full');
+        document.body.classList.remove('calc-open');
+      }
+
+      // Sync step button texts
+      document.querySelectorAll('.btn-open-calc-step').forEach(btn => {
+        btn.innerHTML = shouldOpen 
+          ? '<span>✕</span> <span>Close Calculator</span>' 
+          : '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg> <span>Open Calculator</span>';
+      });
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // 0. Initialize Light Theme as Default
+      window.initTheme();
+      const themeToggleBtn = document.getElementById('btn-theme-toggle');
+      if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', () => window.toggleTheme());
+      }
+
+      // 1. Initialize Precision Stopwatch
+      window.stopwatch = new PrecisionStopwatch('stopwatch-display', {
+        toggleBtnId: 'btn-stopwatch-toggle',
+        resetBtnId: 'btn-stopwatch-reset',
+        recordBtnId: 'btn-stopwatch-record'
+      });
+
+      // 2. Initialize Desmos Scientific Calculator inside drawer
+      const calcContainer = document.getElementById('desmos-calculator-container');
+      if (window.Desmos && calcContainer) {
+        try {
+          window.desmosCalculator = Desmos.ScientificCalculator(calcContainer, {
+            fontSize: Desmos.FontSizes.SMALL,
+            keypad: true,
+            settingsMenu: false
+          });
+        } catch (e) {
+          console.error("Desmos init error:", e);
+        }
+      }
+
+      // 3. Calculator Toggle Button
+      const toggleCalcBtn = document.getElementById('btn-toggle-calculator');
+      if (toggleCalcBtn) {
+        toggleCalcBtn.addEventListener('click', () => window.toggleCalculator());
+      }
+
+      // 4. Sound FX Toggle
+      const soundBtn = document.getElementById('btn-sound-toggle');
+      if (soundBtn && window.labSound) {
+        soundBtn.addEventListener('click', () => {
+          const isMuted = window.labSound.toggleMute();
+          soundBtn.innerText = isMuted ? '🔇' : '🔊';
+        });
+      }
+
+      // 5. Trigger NGSS autoInit if helper loaded
+      if (window.NGSSHelper) {
+        window.NGSSHelper.autoInit();
+      }
+    });
+  </script>
+
+</body>
+</html>

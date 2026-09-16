@@ -1,0 +1,292 @@
+/* Marble Ramp Motion & Graphing Lab - Style System */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap');
+
+/* =====================================================================
+   THEME VARIABLES
+   Default: Clean, high-contrast Light Theme for low-brightness school Chromebook screens.
+   html.dark: Cosmic Dark colorway.
+   ===================================================================== */
+:root {
+  --bg-deep: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f1f5f9;
+  --border-subtle: #cbd5e1;
+  --border-focus: #0284c7;
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --accent-sky: #0284c7;
+  --accent-emerald: #059669;
+  --accent-amber: #d97706;
+  --accent-rose: #e11d48;
+  --accent-purple: #7c3aed;
+  --shadow-card: 0 4px 16px -2px rgba(15, 23, 42, 0.07), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+  --led-glow: 0 0 16px rgba(56, 189, 248, 0.5);
+}
+
+html.dark {
+  --bg-deep: #080c14;
+  --bg-card: rgba(15, 23, 42, 0.75);
+  --bg-card-hover: rgba(30, 41, 59, 0.85);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-focus: #38bdf8;
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --accent-sky: #38bdf8;
+  --accent-emerald: #10b981;
+  --accent-amber: #f59e0b;
+  --accent-rose: #f43f5e;
+  --accent-purple: #a855f7;
+  --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  --led-glow: 0 0 20px rgba(56, 189, 248, 0.45);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--bg-deep);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Light Theme Background Mesh */
+html:not(.dark) body {
+  background-image: 
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(2, 132, 199, 0.06), transparent 70%),
+    radial-gradient(circle at 10% 40%, rgba(124, 58, 237, 0.04), transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(5, 150, 105, 0.04), transparent 40%);
+}
+
+/* Dark Theme Background Mesh */
+html.dark body {
+  background-image: 
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(56, 189, 248, 0.15), transparent 70%),
+    radial-gradient(circle at 10% 40%, rgba(168, 85, 247, 0.08), transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.06), transparent 40%);
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.font-display {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+/* Glass & Solid Cards */
+.glass-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 1rem;
+  box-shadow: var(--shadow-card);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html.dark .glass-card {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.glass-card-hover:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-focus);
+  transform: translateY(-2px);
+}
+
+/* Digital Stopwatch LED Readout */
+.stopwatch-box {
+  background: radial-gradient(ellipse at center, #0f172a 0%, #020617 100%);
+  border: 1.5px solid rgba(56, 189, 248, 0.5);
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.8), var(--led-glow);
+  position: relative;
+  overflow: hidden;
+}
+
+.stopwatch-box::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+  animation: shineScan 6s infinite;
+  pointer-events: none;
+}
+
+@keyframes shineScan {
+  0% { left: -150%; }
+  25% { left: 150%; }
+  100% { left: 150%; }
+}
+
+.digital-timer-font {
+  font-family: 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 16px rgba(56, 189, 248, 0.8), 0 0 32px rgba(56, 189, 248, 0.4);
+}
+
+/* Graph Canvas Container */
+.graph-canvas-box {
+  position: relative;
+  width: 100%;
+  border-radius: 1rem;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.graph-canvas-box canvas {
+  display: block;
+  width: 100%;
+  height: 320px;
+  cursor: crosshair;
+}
+
+/* Desmos Calculator Container */
+#desmos-calculator-container {
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border-subtle);
+  background: #ffffff;
+}
+
+html.dark #desmos-calculator-container {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #000000;
+}
+
+/* Outlier Warning Pulse */
+@keyframes outlierPulseLight {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+    border-color: #d97706;
+  }
+  50% {
+    box-shadow: 0 0 16px 3px rgba(245, 158, 11, 0.3);
+    border-color: #b45309;
+  }
+}
+
+@keyframes outlierPulseDark {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+    border-color: rgba(245, 158, 11, 0.8);
+  }
+  50% {
+    box-shadow: 0 0 16px 4px rgba(245, 158, 11, 0.3);
+    border-color: rgba(245, 158, 11, 1);
+  }
+}
+
+html:not(.dark) .outlier-card {
+  animation: outlierPulseLight 2.5s infinite;
+  background: #fef3c7 !important;
+  border-color: #d97706 !important;
+  color: #78350f !important;
+}
+
+html.dark .outlier-card {
+  animation: outlierPulseDark 2.5s infinite;
+  background: rgba(69, 26, 3, 0.3) !important;
+  border-color: rgba(245, 158, 11, 0.8) !important;
+}
+
+/* Shake Animation for Disallowed Manual Typing */
+@keyframes shakeBox {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-7px); }
+  40%, 80% { transform: translateX(7px); }
+}
+
+.shake-animation {
+  animation: shakeBox 0.45s ease-in-out;
+}
+
+/* Quality Checkboxes */
+input[type="checkbox"] {
+  accent-color: #0284c7;
+  cursor: pointer;
+}
+html.dark input[type="checkbox"] {
+  accent-color: #38bdf8;
+}
+
+/* Hide helper */
+.hidden {
+  display: none !important;
+}
+
+/* Fade In Animation */
+.fade-in {
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile Horizontal Scroll for Steps */
+@media (max-width: 640px) {
+  .step-bar-scroll {
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: thin;
+  }
+}
+
+/* Slide-Over Calculator Drawer */
+#calculator-drawer {
+  background: #ffffff;
+  box-shadow: -10px 0 35px rgba(0, 0, 0, 0.12);
+  border-left: 1px solid #cbd5e1;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 100%;
+}
+
+html.dark #calculator-drawer {
+  background: #090e1a;
+  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.8);
+  border-left: 1px solid rgba(168, 85, 247, 0.4);
+}
+
+@media (min-width: 640px) {
+  #calculator-drawer {
+    width: 380px;
+  }
+}
+
+/* Side-by-side shift when calculator is open */
+@media (min-width: 768px) {
+  main {
+    transition: margin-right 0.3s cubic-bezier(0.16, 1, 0.3, 1), max-width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  body.calc-open main {
+    margin-right: 390px;
+    margin-left: 1rem;
+    max-width: calc(100vw - 420px);
+  }
+}
+
+@media (min-width: 1280px) {
+  body.calc-open main {
+    margin-right: 410px;
+    margin-left: auto;
+    max-width: 56rem;
+  }
+}
