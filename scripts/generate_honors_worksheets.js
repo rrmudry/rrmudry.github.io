@@ -1,14 +1,15 @@
 /**
- * Generates 3 Single-Page Honors Physics Graphing Worksheets & PDFs
+ * Generates Combined 2-Page Honors Physics Graphing Worksheet (Challenges 1 & 2)
  * Unit 2: Kinematics (Period 0 Honors Physics)
  * 
- * Design Criteria:
- * - EXACTLY 1 PAGE PER WORKSHEET (No flipping, clean single sheet)
- * - Graph-first pedagogy: Students read the scenario, plot the motion, and use the graph to solve the rendezvous
- * - No confusing algebra jargon (no "formulate continuous equation")
- * - NO legend inside the plot area (uncluttered, maximum drawing space)
- * - High-precision SVG coordinate grid with major & minor subdivisions
- * - Strictly No-LaTeX (plain text Unicode: Δ, x₀, v₀, m/s)
+ * Requirements:
+ * - Single PDF file containing Challenge 1 (Page 1) and Challenge 2 (Page 2)
+ * - Individual assignment: says "Name:" instead of "Names:"
+ * - Scenario 3 left out
+ * - Graph-first layout: students read scenario, plot on grid, solve from graph
+ * - Clean SVG grids with NO legend inside the plot area
+ * - Exactly 2 pages in the PDF (perfect for a single double-sided printout)
+ * - Matching 1-page Teacher Master Key
  */
 
 const fs = require('fs');
@@ -17,11 +18,11 @@ const puppeteer = require('puppeteer');
 
 function generateCleanGrid({
   width = 690,
-  height = 420,
+  height = 425,
   marginLeft = 60,
   marginBottom = 44,
-  marginRight = 25,
-  marginTop = 24,
+  marginRight = 20,
+  marginTop = 22,
   xMin = 0,
   xMax = 70,
   xMajor = 10,
@@ -111,8 +112,8 @@ function generateCleanGrid({
   `;
 }
 
-// Single-Page Strict Print CSS
-const singlePageCss = `
+// Strict Print CSS
+const printCss = `
   @page {
     size: letter portrait;
     margin: 0.32in 0.42in 0.32in 0.42in;
@@ -134,7 +135,7 @@ const singlePageCss = `
     font-size: 9pt;
   }
 
-  .single-page {
+  .worksheet-page {
     width: 100%;
     height: 10.36in;
     max-height: 10.36in;
@@ -142,6 +143,11 @@ const singlePageCss = `
     flex-direction: column;
     justify-content: space-between;
     overflow: hidden;
+    page-break-after: always;
+  }
+
+  .worksheet-page:last-child {
+    page-break-after: avoid;
   }
 
   /* Header */
@@ -314,7 +320,7 @@ const singlePageCss = `
   .inline-blank {
     display: inline-block;
     border-bottom: 1px solid #475569;
-    min-width: 80px;
+    min-width: 75px;
     text-align: center;
     font-weight: 700;
   }
@@ -331,11 +337,9 @@ const singlePageCss = `
   }
 `;
 
-// =========================================================================
-// WORKSHEET 1: SINGLE-PAGE SHIP & DRONE RENDEZVOUS
-// =========================================================================
-function renderSinglePageWorksheet1() {
-  const gridSvg = generateCleanGrid({
+function renderCombinedWorksheet() {
+  // Grid 1: Ship & Drone (70s x 800m)
+  const gridSvg1 = generateCleanGrid({
     width: 690,
     height: 425,
     marginLeft: 58,
@@ -355,28 +359,52 @@ function renderSinglePageWorksheet1() {
     title: "Position vs. Time: Rescue Ship & Medical Drone"
   });
 
+  // Grid 2: Highway Intercept (100s x 1400m)
+  const gridSvg2 = generateCleanGrid({
+    width: 690,
+    height: 425,
+    marginLeft: 62,
+    marginBottom: 44,
+    marginRight: 20,
+    marginTop: 22,
+    xMin: 0,
+    xMax: 100,
+    xMajor: 10,
+    xMinor: 2,
+    xLabel: "Time Elapsed t (seconds)",
+    yMin: 0,
+    yMax: 1400,
+    yMajor: 200,
+    yMinor: 40,
+    yLabel: "Highway Position x (meters)",
+    title: "Position vs. Time: Target 3-Leg Journey & Patrol Intercept Options"
+  });
+
   return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Honors Physics: Ship & Drone Kinematic Rendezvous</title>
-  <style>${singlePageCss}</style>
+  <title>Honors Physics: Kinematic Intercept Challenges 1 &amp; 2</title>
+  <style>${printCss}</style>
 </head>
 <body>
 
-  <div class="single-page">
+  <!-- ============================================================ -->
+  <!-- PAGE 1: CHALLENGE 1 (HARBOR SHIP & DRONE RENDEZVOUS)          -->
+  <!-- ============================================================ -->
+  <div class="worksheet-page">
     <div>
       <!-- Header -->
       <div class="worksheet-header">
         <div class="header-titles">
           <h1>Honors Physics: Kinematic Rendezvous Challenge</h1>
-          <p class="sub">Unit 2: Constant Velocity &amp; Graphical Intercept Modeling</p>
+          <p class="sub">Unit 2: Constant Velocity &amp; Graphical Intercept Modeling &bull; Challenge 1 of 2</p>
         </div>
         <div class="header-meta">
           <span class="badge badge-blue">HS-PS2-1 • SEP-5</span>
           <div class="student-fields">
-            <div><span class="field-label">Names:</span> <span class="field-line" style="min-width:180px;"></span></div>
+            <div><span class="field-label">Name:</span> <span class="field-line" style="min-width:180px;"></span></div>
             <div><span class="field-label">Period:</span> <span class="field-line" style="min-width:35px;">0</span></div>
             <div><span class="field-label">Date:</span> <span class="field-line" style="min-width:65px;"></span></div>
           </div>
@@ -411,7 +439,7 @@ function renderSinglePageWorksheet1() {
 
       <!-- Large Clean Grid Area -->
       <div class="graph-wrapper">
-        ${gridSvg}
+        ${gridSvg1}
       </div>
 
       <!-- Questions from Graph -->
@@ -424,8 +452,8 @@ function renderSinglePageWorksheet1() {
         <div class="q-item">
           <div class="q-prompt">1. Rendezvous Coordinates (From Graph):</div>
           At what exact time and position do the two lines intersect? &nbsp;
-          <strong>Time (t):</strong> <span class="inline-blank" style="min-width:70px;"></span> seconds &nbsp;&nbsp;&nbsp;&nbsp;
-          <strong>Position (x):</strong> <span class="inline-blank" style="min-width:80px;"></span> meters from dock
+          <strong>Time (t):</strong> <span class="inline-blank"></span> seconds &nbsp;&nbsp;&nbsp;&nbsp;
+          <strong>Position (x):</strong> <span class="inline-blank" style="min-width:85px;"></span> meters from dock
         </div>
 
         <div class="q-item">
@@ -437,7 +465,7 @@ function renderSinglePageWorksheet1() {
 
         <div class="q-item">
           <div class="q-prompt">3. Actual Drone Flight Duration:</div>
-          The clock reads your rendezvous time when they meet, but the drone was delayed until t = 20 s. How many seconds was the drone actually flying in the air? <span class="inline-blank" style="min-width:70px;"></span> seconds
+          The clock reads your rendezvous time when they meet, but the drone was delayed until t = 20 s. How many seconds was the drone actually flying in the air? <span class="inline-blank" style="min-width:65px;"></span> seconds
         </div>
 
         <div class="q-item">
@@ -451,62 +479,26 @@ function renderSinglePageWorksheet1() {
     <!-- Footer -->
     <div class="footer-bar">
       <span>Orange High School • Period 0 Honors Physics</span>
-      <span>Unit 2: Kinematics • Challenge 1</span>
+      <span>Challenge 1: Ship &amp; Drone Rendezvous &bull; Page 1 of 2</span>
       <span>Teacher: Mr. Mudry</span>
     </div>
   </div>
 
-</body>
-</html>
-  `;
-}
-
-// =========================================================================
-// WORKSHEET 2: SINGLE-PAGE HIGHWAY SURVEILLANCE INTERCEPT
-// =========================================================================
-function renderSinglePageWorksheet2() {
-  const gridSvg = generateCleanGrid({
-    width: 690,
-    height: 425,
-    marginLeft: 62,
-    marginBottom: 44,
-    marginRight: 20,
-    marginTop: 22,
-    xMin: 0,
-    xMax: 100,
-    xMajor: 10,
-    xMinor: 2,
-    xLabel: "Time Elapsed t (seconds)",
-    yMin: 0,
-    yMax: 1400,
-    yMajor: 200,
-    yMinor: 40,
-    yLabel: "Highway Position x (meters)",
-    title: "Position vs. Time: Target 3-Leg Journey & Patrol Intercept Options"
-  });
-
-  return `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Honors Physics: Tactical Highway Intercept</title>
-  <style>${singlePageCss}</style>
-</head>
-<body>
-
-  <div class="single-page">
+  <!-- ============================================================ -->
+  <!-- PAGE 2: CHALLENGE 2 (HIGHWAY SURVEILLANCE INTERCEPT)          -->
+  <!-- ============================================================ -->
+  <div class="worksheet-page">
     <div>
       <!-- Header -->
       <div class="worksheet-header">
         <div class="header-titles">
           <h1>Honors Physics: Tactical Highway Intercept</h1>
-          <p class="sub">Unit 2: Piecewise 1D Motion, Rest Intervals &amp; Pursuit Slopes</p>
+          <p class="sub">Unit 2: Piecewise 1D Motion, Rest Intervals &amp; Pursuit Slopes &bull; Challenge 2 of 2</p>
         </div>
         <div class="header-meta">
           <span class="badge badge-blue">HS-PS2-1 • Piecewise Graphs</span>
           <div class="student-fields">
-            <div><span class="field-label">Names:</span> <span class="field-line" style="min-width:180px;"></span></div>
+            <div><span class="field-label">Name:</span> <span class="field-line" style="min-width:180px;"></span></div>
             <div><span class="field-label">Period:</span> <span class="field-line" style="min-width:35px;">0</span></div>
             <div><span class="field-label">Date:</span> <span class="field-line" style="min-width:65px;"></span></div>
           </div>
@@ -531,7 +523,7 @@ function renderSinglePageWorksheet2() {
 
       <!-- Large Clean Grid Area -->
       <div class="graph-wrapper">
-        ${gridSvg}
+        ${gridSvg2}
       </div>
 
       <!-- Questions from Graph -->
@@ -549,8 +541,8 @@ function renderSinglePageWorksheet2() {
 
         <div class="q-item">
           <div class="q-prompt">2. Cruiser Speed Calculations (From Slopes of Lines A and B):</div>
-          • <strong>Strategy A (Catch at rest stop at t = 50 s):</strong> Cruiser travels 300 m in 20 s (from t=30 to 50s). Required speed: <span class="inline-blank" style="min-width:70px;"></span> m/s<br>
-          • <strong>Strategy B (Catch at t = 90 s):</strong> Cruiser travels 1,300 m in 60 s (from t=30 to 90s). Required speed: <span class="inline-blank" style="min-width:70px;"></span> m/s
+          • <strong>Strategy A (Catch at rest stop at t = 50 s):</strong> Cruiser travels 300 m in 20 s (from t=30 to 50s). Required speed: <span class="inline-blank"></span> m/s<br>
+          • <strong>Strategy B (Catch at t = 90 s):</strong> Cruiser travels 1,300 m in 60 s (from t=30 to 90s). Required speed: <span class="inline-blank"></span> m/s
         </div>
 
         <div class="q-item">
@@ -564,7 +556,7 @@ function renderSinglePageWorksheet2() {
     <!-- Footer -->
     <div class="footer-bar">
       <span>Orange High School • Period 0 Honors Physics</span>
-      <span>Unit 2: Kinematics • Challenge 2</span>
+      <span>Challenge 2: Highway Surveillance Intercept &bull; Page 2 of 2</span>
       <span>Teacher: Mr. Mudry</span>
     </div>
   </div>
@@ -574,200 +566,79 @@ function renderSinglePageWorksheet2() {
   `;
 }
 
-// =========================================================================
-// WORKSHEET 3: SINGLE-PAGE MOUNTAIN RESCUE DISTANCE VS DISPLACEMENT
-// =========================================================================
-function renderSinglePageWorksheet3() {
-  const gridSvg = generateCleanGrid({
-    width: 690,
-    height: 425,
-    marginLeft: 62,
-    marginBottom: 44,
-    marginRight: 20,
-    marginTop: 22,
-    xMin: 0,
-    xMax: 140,
-    xMajor: 20,
-    xMinor: 4,
-    xLabel: "Elapsed Mission Time t (seconds)",
-    yMin: 0,
-    yMax: 2000,
-    yMajor: 200,
-    yMinor: 40,
-    yLabel: "Distance Traveled d (meters)",
-    title: "Distance vs. Time: Ground Rover vs. Autonomous Rescue Drone"
-  });
-
+function renderCombinedKey() {
   return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Honors Physics: Mountain Rescue Relay</title>
-  <style>${singlePageCss}</style>
-</head>
-<body>
-
-  <div class="single-page">
-    <div>
-      <!-- Header -->
-      <div class="worksheet-header">
-        <div class="header-titles">
-          <h1>Honors Physics: Alpine Rescue Relay</h1>
-          <p class="sub">Unit 2: Scalar Path Distance vs. Vector Displacement &bull; Race Dynamics</p>
-        </div>
-        <div class="header-meta">
-          <span class="badge badge-blue">HS-PS2-1 • Distance vs Time</span>
-          <div class="student-fields">
-            <div><span class="field-label">Names:</span> <span class="field-line" style="min-width:180px;"></span></div>
-            <div><span class="field-label">Period:</span> <span class="field-line" style="min-width:35px;">0</span></div>
-            <div><span class="field-label">Date:</span> <span class="field-line" style="min-width:65px;"></span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Scenario -->
-      <div class="scenario-container">
-        <div class="scenario-title">Emergency Dispatch: Alpine Relief Operation</div>
-        An injured climber activates a beacon at <strong>(800 m East, 600 m North)</strong> from Base Camp (origin = 0 m). Two rescue units depart at <strong>t = 0 s</strong>:<br>
-        • <strong>Ground Rover Alpha:</strong> Must follow a curved switchback road with a total distance of <strong>1,800 meters</strong> at a steady speed of <strong>15.0 m/s</strong>.<br>
-        • <strong>Rescue Drone Beta:</strong> Flies straight over the trees. Its straight-line displacement is <strong>1,000 meters</strong> (√(800² + 600²) = 1,000 m). It cruises at <strong>20.0 m/s</strong>, but must land on a ridge for a <strong>35-second thermal cooldown pause</strong> at the 500 m mark (from t = 25 s to 60 s).
-      </div>
-
-      <!-- Graphing Directives Bar -->
-      <div class="task-bar">
-        <span>✏️ <strong>Graphing Task:</strong> 1) Plot Rover line from (0s, 0m) to (120s, 1800m). 2) Plot Drone: 0-25s (up to 500m), flat line 25-60s (pause), 60-85s (up to 1000m).</span>
-        <span class="badge badge-green">Race Telemetry</span>
-      </div>
-
-      <!-- Large Clean Grid Area -->
-      <div class="graph-wrapper">
-        ${gridSvg}
-      </div>
-
-      <!-- Questions from Graph -->
-      <div class="questions-container">
-        <div class="questions-title">
-          <span>Graphical Analysis &amp; Margin of Victory</span>
-          <span style="font-size:7.5pt; color:#64748b; font-weight:600;">Answer using your graph above</span>
-        </div>
-
-        <div class="q-item">
-          <div class="q-prompt">1. Destination Arrival Times (From Graph):</div>
-          At what time does Drone Beta reach its 1,000 m destination? <span class="inline-blank" style="min-width:60px;"></span> s &nbsp;|&nbsp;
-          At what time does Rover Alpha reach its 1,800 m destination? <span class="inline-blank" style="min-width:60px;"></span> s
-        </div>
-
-        <div class="q-item">
-          <div class="q-prompt">2. Margin of Victory:</div>
-          Which vehicle reaches the climber first, and by how many seconds? <span class="inline-blank" style="min-width:110px;"></span> by <span class="inline-blank" style="min-width:50px;"></span> seconds
-        </div>
-
-        <div class="q-item">
-          <div class="q-prompt">3. Path Distance vs. Net Displacement:</div>
-          Why does the Rover travel 800 meters more distance than the Drone to reach the exact same destination?
-          <div class="answer-line"></div>
-        </div>
-
-        <div class="q-item">
-          <div class="q-prompt">4. Maximum Allowable Cooldown (Honors Critical Thinking):</div>
-          What is the maximum duration the drone could spend cooling down on the ridge and still arrive at the climber before the rover? (Show math):
-          <div class="answer-line"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Footer -->
-    <div class="footer-bar">
-      <span>Orange High School • Period 0 Honors Physics</span>
-      <span>Unit 2: Kinematics • Challenge 3</span>
-      <span>Teacher: Mr. Mudry</span>
-    </div>
-  </div>
-
-</body>
-</html>
-  `;
-}
-
-// =========================================================================
-// SINGLE-PAGE TEACHER MASTER KEY
-// =========================================================================
-function renderSinglePageKey() {
-  return `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Teacher Master Key: Honors Kinematics Challenges</title>
+  <title>Teacher Master Key: Honors Kinematics Challenges 1 &amp; 2</title>
   <style>
     @page { size: letter portrait; margin: 0.35in 0.45in; }
     body { font-family: "Inter", Arial, sans-serif; font-size: 8.5pt; line-height: 1.35; color: #0f172a; }
-    .page { page-break-after: always; height: 10.2in; max-height: 10.2in; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
-    .page:last-child { page-break-after: avoid; }
+    .page { width: 100%; height: 10.2in; max-height: 10.2in; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
     .key-header { border-bottom: 2px solid #b91c1c; padding-bottom: 4px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: flex-end; }
     h1 { font-size: 13pt; margin: 0 0 2px 0; color: #b91c1c; text-transform: uppercase; font-weight: 900; }
     .badge { padding: 2px 6px; border-radius: 4px; font-weight: 800; font-size: 7.5pt; background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
-    .card { border: 1.2px solid #cbd5e1; border-radius: 6px; padding: 6px 10px; margin-bottom: 8px; background: #ffffff; }
+    .card { border: 1.2px solid #cbd5e1; border-radius: 6px; padding: 7px 10px; margin-bottom: 8px; background: #ffffff; }
     .card-title { font-size: 9.5pt; font-weight: 800; color: #0f172a; margin-bottom: 4px; border-bottom: 1px solid #e2e8f0; padding-bottom: 2px; display: flex; justify-content: space-between; }
-    .ans-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 4px; padding: 4px 8px; margin: 4px 0; font-family: monospace; font-size: 8.5pt; color: #166534; }
+    .ans-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 4px; padding: 5px 8px; margin: 4px 0; font-family: monospace; font-size: 8.5pt; color: #166534; }
     .bold-lbl { font-weight: 700; color: #1e293b; }
     .footer { border-top: 1px solid #cbd5e1; padding-top: 3px; font-size: 7.5pt; color: #64748b; display: flex; justify-content: space-between; }
   </style>
 </head>
 <body>
 
-  <!-- SINGLE MASTER REFERENCE PAGE -->
   <div class="page">
     <div>
       <div class="key-header">
         <div>
-          <h1>TEACHER MASTER KEY: ALL 3 HONORS CHALLENGES</h1>
+          <h1>TEACHER MASTER KEY: HONORS CHALLENGES 1 &amp; 2</h1>
           <div style="font-size: 8pt; font-weight: 700; color: #475569;">Quick-Reference Answers, Coordinates &amp; Debrief Solutions</div>
         </div>
         <div><span class="badge">CONFIDENTIAL • MR. MUDRY</span></div>
       </div>
 
-      <!-- CHALLENGE 1 -->
+      <!-- CHALLENGE 1 KEY -->
       <div class="card">
-        <div class="card-title"><span>Challenge 1: Ship &amp; Drone Kinematic Rendezvous</span><span>Dock Origin (x = 0)</span></div>
-        <p><span class="bold-lbl">Graphed Points:</span> Ship: (0s, 300m), (10s, 360m), (20s, 420m), (30s, 480m), (40s, 540m), (50s, 600m), (55s, 630m). Drone: (0 to 20s at 0m), (30s, 180m), (40s, 360m), (50s, 540m), (55s, 630m).</p>
+        <div class="card-title"><span>Challenge 1: Ship &amp; Drone Kinematic Rendezvous</span><span>Page 1 of Student Sheet</span></div>
+        <p><span class="bold-lbl">Plotted Points on Grid:</span><br>
+          • <strong>Ship:</strong> (0s, 300m), (10s, 360m), (20s, 420m), (30s, 480m), (40s, 540m), (50s, 600m), (55s, 630m), (60s, 660m).<br>
+          • <strong>Drone:</strong> (0 to 20s flat on dock at 0m), (30s, 180m), (40s, 360m), (50s, 540m), (55s, 630m), (60s, 720m).
+        </p>
         <div class="ans-box">
-          • <strong>Rendezvous Coordinates:</strong> t = <strong>55.0 seconds</strong>, x = <strong>630.0 meters</strong> from dock.<br>
-          • <strong>Slopes:</strong> Ship = +6.0 m/s &bull; Drone (after t=20s) = (540 - 0)/(50 - 20) = +18.0 m/s.<br>
-          • <strong>Drone Flight Duration:</strong> 55 s - 20 s = <strong>35.0 seconds</strong> in the air.<br>
-          • <strong>Battery Safety Audit:</strong> Round-trip = 630 m + 630 m = <strong>1,260 m</strong>. Battery limit is 1,200 m → <strong>FAIL (Will crash 60 m short of dock)</strong>.
+          1. <strong>Rendezvous Coordinates:</strong> Time t = <strong>55.0 seconds</strong>, Position x = <strong>630.0 meters</strong> from dock.<br>
+          2. <strong>Slopes (Speeds):</strong> Ship Slope = <strong>+6.0 m/s</strong> &bull; Drone Slope (after t=20s) = (540 - 0)/(50 - 20) = <strong>+18.0 m/s</strong>.<br>
+          3. <strong>Actual Drone Flight Duration:</strong> 55 s - 20 s delay = <strong>35.0 seconds</strong> flying in the air.<br>
+          4. <strong>Battery Safety Audit:</strong> Total round-trip distance = 630 m outbound + 630 m return = <strong>1,260 meters</strong>.<br>
+             → Since battery max is 1,200 m, <strong>the drone cannot make it back</strong> (crashes 60 m short of the dock).
         </div>
       </div>
 
-      <!-- CHALLENGE 2 -->
+      <!-- CHALLENGE 2 KEY -->
       <div class="card">
-        <div class="card-title"><span>Challenge 2: Tactical Highway Surveillance Intercept</span><span>Piecewise Motion</span></div>
-        <p><span class="bold-lbl">Graphed Points:</span> Target: (0s, 0m) → (20s, 300m) [Leg 1] → (50s, 300m) [Leg 2, flat line] → (90s, 1300m) [Leg 3].</p>
+        <div class="card-title"><span>Challenge 2: Tactical Highway Surveillance Intercept</span><span>Page 2 of Student Sheet</span></div>
+        <p><span class="bold-lbl">Plotted Points on Grid:</span><br>
+          • <strong>Target Car:</strong> (0s, 0m) → (20s, 300m) [Leg 1] → (50s, 300m) [Leg 2, flat line] → (90s, 1300m) [Leg 3].<br>
+          • <strong>Patrol Line A:</strong> Starts at (30s, 0m), connects to rest stop at (50s, 300m).<br>
+          • <strong>Patrol Line B:</strong> Starts at (30s, 0m), connects to final highway point at (90s, 1300m).
+        </p>
         <div class="ans-box">
-          • <strong>Rest Stop Meaning:</strong> Zero slope = zero velocity (car is stationary / not moving).<br>
-          • <strong>Patrol Line A (Catch at Rest Stop at t=50s):</strong> Slope = (300 m - 0 m) / (50 s - 30 s) = 300 / 20 = <strong>15.0 m/s</strong>.<br>
-          • <strong>Patrol Line B (Catch at Highway End at t=90s):</strong> Slope = (1,300 m - 0 m) / (90 s - 30 s) = 1,300 / 60 = <strong>21.7 m/s</strong>.<br>
-          • <strong>Speed Limit Constraint (Cap = 20.0 m/s):</strong> Strategy A requires 15.0 m/s ≤ 20.0 m/s (<strong>VIABLE</strong>). Strategy B requires 21.7 m/s &gt; 20.0 m/s (<strong>TOO FAST / IMPOSSIBLE</strong>).
-        </div>
-      </div>
-
-      <!-- CHALLENGE 3 -->
-      <div class="card">
-        <div class="card-title"><span>Challenge 3: Alpine Mountain Rescue Relay</span><span>Distance vs. Displacement</span></div>
-        <p><span class="bold-lbl">Graphed Points:</span> Rover: (0s, 0m) → (120s, 1800m). Drone: (0s, 0m) → (25s, 500m) → (60s, 500m) [pause] → (85s, 1000m).</p>
-        <div class="ans-box">
-          • <strong>Arrival Times:</strong> Drone reaches 1,000 m at <strong>t = 85 seconds</strong> &bull; Rover reaches 1,800 m at <strong>t = 120 seconds</strong>.<br>
-          • <strong>Margin of Victory:</strong> <strong>Drone Beta wins by 35.0 seconds</strong> (120 s - 85 s).<br>
-          • <strong>Path Distance vs. Displacement:</strong> Rover travels winding switchback road (1,800 m); drone flies straight-line vector (1,000 m).<br>
-          • <strong>Maximum Allowable Cooldown:</strong> Rover takes 120 s. Drone flies for 50 s total. 120 s - 50 s = <strong>70.0 seconds max pause</strong>.
+          1. <strong>Rest Stop Meaning:</strong> Slope is zero (Δx/Δt = 0), which means velocity is 0 m/s and position does not change (car is stationary).<br>
+          2. <strong>Cruiser Speed Calculations:</strong><br>
+             • <strong>Strategy A (Rest Stop at t=50s):</strong> Slope = (300 m - 0 m) / (50 s - 30 s) = 300 / 20 = <strong>15.0 m/s</strong> (33.6 mph).<br>
+             • <strong>Strategy B (Highway End at t=90s):</strong> Slope = (1,300 m - 0 m) / (90 s - 30 s) = 1,300 / 60 = <strong>21.67 m/s ≈ 21.7 m/s</strong> (48.5 mph).<br>
+          3. <strong>Speed Limit Constraint (Cruiser Top Speed = 20.0 m/s):</strong><br>
+             • Strategy A requires 15.0 m/s ≤ 20.0 m/s → <strong>PHYSICALLY POSSIBLE ✓</strong><br>
+             • Strategy B requires 21.7 m/s &gt; 20.0 m/s → <strong>EXCEEDS SPEED LIMIT / IMPOSSIBLE ✗</strong><br>
+             → Therefore, <strong>Strategy A is the only viable option</strong> for the patrol interceptor.
         </div>
       </div>
     </div>
 
     <div class="footer">
       <span>Orange High School • Period 0 Honors Physics</span>
-      <span>Teacher Single-Sheet Master Key</span>
+      <span>Teacher Single-Sheet Master Key (Challenges 1 &amp; 2)</span>
       <span>Teacher: Mr. Mudry</span>
     </div>
   </div>
@@ -777,69 +648,59 @@ function renderSinglePageKey() {
   `;
 }
 
-// Build runner
-async function buildSinglePageWorksheets() {
+async function run() {
   const outDir = path.join(__dirname, '../Unit_2/honors_worksheets');
   if (!fs.existsSync(outDir)) {
     fs.mkdirSync(outDir, { recursive: true });
   }
 
-  const worksheets = [
-    {
-      name: 'Worksheet_1_Ship_Drone_Rendezvous',
-      html: renderSinglePageWorksheet1()
-    },
-    {
-      name: 'Worksheet_2_Highway_Surveillance_Intercept',
-      html: renderSinglePageWorksheet2()
-    },
-    {
-      name: 'Worksheet_3_Mountain_Rescue_Distance_Displacement',
-      html: renderSinglePageWorksheet3()
-    },
-    {
-      name: 'Teacher_Master_Key_All_3_Challenges',
-      html: renderSinglePageKey()
-    }
-  ];
-
-  console.log('🚀 Launching Puppeteer to compile Single-Page Worksheets & Key...');
+  console.log('🚀 Launching Puppeteer to compile Combined 2-Page Worksheet & Key...');
   const browser = await puppeteer.launch({
     headless: true,
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu']
   });
 
-  for (const ws of worksheets) {
-    const htmlPath = path.join(outDir, `${ws.name}.html`);
-    const pdfPath = path.join(outDir, `${ws.name}.pdf`);
+  // 1. Combined Worksheet (Page 1 = Challenge 1, Page 2 = Challenge 2)
+  const wsHtml = renderCombinedWorksheet();
+  const wsHtmlPath = path.join(outDir, 'Honors_Kinematics_Graphing_Challenges_1_and_2.html');
+  const wsPdfPath = path.join(outDir, 'Honors_Kinematics_Graphing_Challenges_1_and_2.pdf');
+  fs.writeFileSync(wsHtmlPath, wsHtml, 'utf8');
 
-    fs.writeFileSync(htmlPath, ws.html, 'utf8');
+  const page1 = await browser.newPage();
+  await page1.setContent(wsHtml, { waitUntil: 'networkidle0' });
+  await page1.pdf({
+    path: wsPdfPath,
+    format: 'Letter',
+    printBackground: true,
+    displayHeaderFooter: false,
+    margin: { top: '0.32in', bottom: '0.32in', left: '0.42in', right: '0.42in' }
+  });
+  await page1.close();
+  console.log(`✅ Generated Combined 2-Page Worksheet PDF: ${wsPdfPath}`);
 
-    const page = await browser.newPage();
-    await page.setContent(ws.html, { waitUntil: 'networkidle0' });
+  // 2. Combined Teacher Key (1 Page)
+  const keyHtml = renderCombinedKey();
+  const keyHtmlPath = path.join(outDir, 'Teacher_Master_Key_Challenges_1_and_2.html');
+  const keyPdfPath = path.join(outDir, 'Teacher_Master_Key_Challenges_1_and_2.pdf');
+  fs.writeFileSync(keyHtmlPath, keyHtml, 'utf8');
 
-    await page.pdf({
-      path: pdfPath,
-      format: 'Letter',
-      printBackground: true,
-      displayHeaderFooter: false,
-      margin: {
-        top: '0.32in',
-        bottom: '0.32in',
-        left: '0.42in',
-        right: '0.42in'
-      }
-    });
-
-    await page.close();
-    console.log(`✅ Generated Single-Page PDF: ${ws.name}.pdf`);
-  }
+  const page2 = await browser.newPage();
+  await page2.setContent(keyHtml, { waitUntil: 'networkidle0' });
+  await page2.pdf({
+    path: keyPdfPath,
+    format: 'Letter',
+    printBackground: true,
+    displayHeaderFooter: false,
+    margin: { top: '0.35in', bottom: '0.35in', left: '0.45in', right: '0.45in' }
+  });
+  await page2.close();
+  console.log(`✅ Generated Teacher Master Key PDF: ${keyPdfPath}`);
 
   await browser.close();
-  console.log('🎉 All 3 Single-Page Worksheets + Teacher Key compiled successfully!');
+  console.log('🎉 Combined 2-Page Worksheet & Master Key compiled successfully!');
 }
 
-buildSinglePageWorksheets().catch(err => {
-  console.error('❌ Error compiling single-page worksheets:', err);
+run().catch(err => {
+  console.error('❌ Error compiling combined worksheet:', err);
   process.exit(1);
 });
