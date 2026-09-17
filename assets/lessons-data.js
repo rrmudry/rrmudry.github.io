@@ -2080,12 +2080,12 @@ const lessonsData = [
     },
     "assignments": [
       {
-        "title": "Kinematics Graphing Challenges 1 & 2",
+        "title": "Kinematics Graphing Challenges 1 & 2 (Physics-Regular)",
         "url": "Unit_2/worksheets/Kinematics_Graphing_Challenges_1_and_2.pdf",
-        "typeLabel": "Required Worksheet (Periods 1–6)",
+        "typeLabel": "Physics-Regular",
         "submission": "Turn In Completed Worksheet (10 pts)",
         "actionLabel": "Open Worksheet PDF",
-        "description": "Plot constant-speed motion journeys, track intercepts, and calculate required speeds from graph slopes."
+        "description": "Periods 1–6 Physics-Regular: Plot constant-speed motion journeys, track intercepts, and calculate required speeds from graph slopes."
       },
       {
         "title": "Honors Kinematics Graphing Challenges 1 & 2 (Honors only)",
@@ -2127,7 +2127,7 @@ const lessonsData = [
       }
     ],
     "links": {
-      "Kinematics Graphing Challenges 1 & 2": "Unit_2/worksheets/Kinematics_Graphing_Challenges_1_and_2.pdf",
+      "Kinematics Graphing Challenges 1 & 2 (Physics-Regular)": "Unit_2/worksheets/Kinematics_Graphing_Challenges_1_and_2.pdf",
       "Honors Kinematics Graphing Challenges 1 & 2 (Honors only)": "Unit_2/honors_worksheets/Honors_Kinematics_Graphing_Challenges_1_and_2.pdf",
       "Velocity vs. Time Visualizer": "Unit_2/velocity_time_graph_studio/index.html",
       "Distance vs Time App": "https://rrmudry.github.io/distance_vs_time_graphing.html"
