@@ -1,24 +1,27 @@
 /**
- * Generates 3 High-Scaffolded Honors Physics Graphing Worksheets & PDFs
- * Unit 2: Kinematics & Velocity Vectors (Period 0 Honors Physics)
+ * Generates 3 Single-Page Honors Physics Graphing Worksheets & PDFs
+ * Unit 2: Kinematics (Period 0 Honors Physics)
  * 
- * Strict compliance:
- * - No LaTeX notation (plain text Unicode: Δ, x₀, v₀, m/s, etc.)
- * - Letter size with crisp printable high-resolution SVG coordinate grids
- * - 2 pages per worksheet (Front: Scenario & Math modeling, Back: Full-width Graph & Analysis)
+ * Design Criteria:
+ * - EXACTLY 1 PAGE PER WORKSHEET (No flipping, clean single sheet)
+ * - Graph-first pedagogy: Students read the scenario, plot the motion, and use the graph to solve the rendezvous
+ * - No confusing algebra jargon (no "formulate continuous equation")
+ * - NO legend inside the plot area (uncluttered, maximum drawing space)
+ * - High-precision SVG coordinate grid with major & minor subdivisions
+ * - Strictly No-LaTeX (plain text Unicode: Δ, x₀, v₀, m/s)
  */
 
 const fs = require('fs');
 const path = require('path');
 const puppeteer = require('puppeteer');
 
-function generateSvgGrid({
-  width = 680,
-  height = 460,
+function generateCleanGrid({
+  width = 690,
+  height = 420,
   marginLeft = 60,
-  marginBottom = 50,
-  marginRight = 30,
-  marginTop = 30,
+  marginBottom = 44,
+  marginRight = 25,
+  marginTop = 24,
   xMin = 0,
   xMax = 70,
   xMajor = 10,
@@ -29,8 +32,7 @@ function generateSvgGrid({
   yMajor = 100,
   yMinor = 20,
   yLabel = "Position x (meters)",
-  title = "Position vs. Time Graph (x vs. t)",
-  legendItems = []
+  title = "Position vs. Time Graph (x vs. t)"
 }) {
   const plotWidth = width - marginLeft - marginRight;
   const plotHeight = height - marginTop - marginBottom;
@@ -45,7 +47,7 @@ function generateSvgGrid({
     for (let x = xMin; x <= xMax; x += xMinor) {
       if (Math.abs(x % xMajor) > 0.001) {
         const px = xScale(x);
-        linesHtml += `<line x1="${px}" y1="${marginTop}" x2="${px}" y2="${marginTop + plotHeight}" stroke="#e2e8f0" stroke-width="0.75" />\n`;
+        linesHtml += `<line x1="${px.toFixed(1)}" y1="${marginTop}" x2="${px.toFixed(1)}" y2="${marginTop + plotHeight}" stroke="#e2e8f0" stroke-width="0.75" />\n`;
       }
     }
   }
@@ -55,25 +57,25 @@ function generateSvgGrid({
     for (let y = yMin; y <= yMax; y += yMinor) {
       if (Math.abs(y % yMajor) > 0.001) {
         const py = yScale(y);
-        linesHtml += `<line x1="${marginLeft}" y1="${py}" x2="${marginLeft + plotWidth}" y2="${py}" stroke="#e2e8f0" stroke-width="0.75" />\n`;
+        linesHtml += `<line x1="${marginLeft}" y1="${py.toFixed(1)}" x2="${marginLeft + plotWidth}" y2="${py.toFixed(1)}" stroke="#e2e8f0" stroke-width="0.75" />\n`;
       }
     }
   }
 
-  // Major X lines & labels
+  // Major X lines & numbers
   for (let x = xMin; x <= xMax; x += xMajor) {
     const px = xScale(x);
-    linesHtml += `<line x1="${px}" y1="${marginTop}" x2="${px}" y2="${marginTop + plotHeight}" stroke="#94a3b8" stroke-width="1.2" />\n`;
-    linesHtml += `<line x1="${px}" y1="${marginTop + plotHeight}" x2="${px}" y2="${marginTop + plotHeight + 5}" stroke="#475569" stroke-width="1.5" />\n`;
-    linesHtml += `<text x="${px}" y="${marginTop + plotHeight + 18}" font-size="11" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="middle">${x}</text>\n`;
+    linesHtml += `<line x1="${px.toFixed(1)}" y1="${marginTop}" x2="${px.toFixed(1)}" y2="${marginTop + plotHeight}" stroke="#94a3b8" stroke-width="1.25" />\n`;
+    linesHtml += `<line x1="${px.toFixed(1)}" y1="${marginTop + plotHeight}" x2="${px.toFixed(1)}" y2="${marginTop + plotHeight + 4}" stroke="#475569" stroke-width="1.5" />\n`;
+    linesHtml += `<text x="${px.toFixed(1)}" y="${marginTop + plotHeight + 16}" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="middle">${x}</text>\n`;
   }
 
-  // Major Y lines & labels
+  // Major Y lines & numbers
   for (let y = yMin; y <= yMax; y += yMajor) {
     const py = yScale(y);
-    linesHtml += `<line x1="${marginLeft}" y1="${py}" x2="${marginLeft + plotWidth}" y2="${py}" stroke="#94a3b8" stroke-width="1.2" />\n`;
-    linesHtml += `<line x1="${marginLeft - 5}" y1="${py}" x2="${marginLeft}" y2="${py}" stroke="#475569" stroke-width="1.5" />\n`;
-    linesHtml += `<text x="${marginLeft - 9}" y="${py + 4}" font-size="11" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="end">${y}</text>\n`;
+    linesHtml += `<line x1="${marginLeft}" y1="${py.toFixed(1)}" x2="${marginLeft + plotWidth}" y2="${py.toFixed(1)}" stroke="#94a3b8" stroke-width="1.25" />\n`;
+    linesHtml += `<line x1="${marginLeft - 4}" y1="${py.toFixed(1)}" x2="${marginLeft}" y2="${py.toFixed(1)}" stroke="#475569" stroke-width="1.5" />\n`;
+    linesHtml += `<text x="${marginLeft - 7}" y="${(py + 3.5).toFixed(1)}" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="end">${y}</text>\n`;
   }
 
   // Axes
@@ -81,41 +83,17 @@ function generateSvgGrid({
   const originY = yScale(yMin);
 
   linesHtml += `
-    <!-- Axes -->
-    <line x1="${originX}" y1="${marginTop - 10}" x2="${originX}" y2="${originY}" stroke="#0f172a" stroke-width="2.2" marker-end="url(#arrow-up)" />
-    <line x1="${originX}" y1="${originY}" x2="${marginLeft + plotWidth + 15}" y2="${originY}" stroke="#0f172a" stroke-width="2.2" marker-end="url(#arrow-right)" />
+    <!-- Axes with Arrowheads -->
+    <line x1="${originX}" y1="${marginTop - 8}" x2="${originX}" y2="${originY}" stroke="#0f172a" stroke-width="2.2" marker-end="url(#arrow-up)" />
+    <line x1="${originX}" y1="${originY}" x2="${marginLeft + plotWidth + 12}" y2="${originY}" stroke="#0f172a" stroke-width="2.2" marker-end="url(#arrow-right)" />
     
     <!-- Axis Labels -->
-    <text x="${marginLeft + plotWidth / 2}" y="${height - 10}" font-size="12" font-family="'Inter', Arial, sans-serif" font-weight="700" fill="#0f172a" text-anchor="middle">${xLabel}</text>
-    <text transform="rotate(-90)" x="${-(marginTop + plotHeight / 2)}" y="18" font-size="12" font-family="'Inter', Arial, sans-serif" font-weight="700" fill="#0f172a" text-anchor="middle">${yLabel}</text>
+    <text x="${marginLeft + plotWidth / 2}" y="${height - 7}" font-size="11.5" font-family="'Inter', Arial, sans-serif" font-weight="700" fill="#0f172a" text-anchor="middle">${xLabel}</text>
+    <text transform="rotate(-90)" x="${-(marginTop + plotHeight / 2)}" y="17" font-size="11.5" font-family="'Inter', Arial, sans-serif" font-weight="700" fill="#0f172a" text-anchor="middle">${yLabel}</text>
     
     <!-- Title -->
-    <text x="${marginLeft + plotWidth / 2}" y="18" font-size="13" font-family="'Inter', Arial, sans-serif" font-weight="800" fill="#0f172a" text-anchor="middle">${title}</text>
+    <text x="${marginLeft + plotWidth / 2}" y="15" font-size="12" font-family="'Inter', Arial, sans-serif" font-weight="800" fill="#0f172a" text-anchor="middle">${title}</text>
   `;
-
-  // Optional legend box
-  if (legendItems && legendItems.length > 0) {
-    const legX = marginLeft + 15;
-    const legY = marginTop + 15;
-    const legW = 160;
-    const legH = 20 + legendItems.length * 20;
-
-    let legContent = `
-      <rect x="${legX}" y="${legY}" width="${legW}" height="${legH}" rx="6" fill="#ffffff" stroke="#94a3b8" stroke-width="1.2" opacity="0.95" />
-      <text x="${legX + 10}" y="${legY + 15}" font-size="10" font-family="'Inter', Arial, sans-serif" font-weight="800" fill="#0f172a">KEY / LEGEND:</text>
-    `;
-
-    legendItems.forEach((item, idx) => {
-      const iy = legY + 32 + idx * 18;
-      legContent += `
-        <line x1="${legX + 12}" y1="${iy - 4}" x2="${legX + 32}" y2="${iy - 4}" stroke="${item.color}" stroke-width="2.5" ${item.dash ? `stroke-dasharray="${item.dash}"` : ''} />
-        <circle cx="${legX + 22}" cy="${iy - 4}" r="3" fill="${item.color}" />
-        <text x="${legX + 38}" y="${iy}" font-size="10" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#1e293b">${item.label}</text>
-      `;
-    });
-
-    linesHtml += legContent;
-  }
 
   return `
     <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" class="coordinate-grid-svg">
@@ -127,18 +105,17 @@ function generateSvgGrid({
           <path d="M 1.5 10 L 5 0 L 8.5 10 z" fill="#0f172a"/>
         </marker>
       </defs>
-      <!-- Plot Border Box -->
       <rect x="${marginLeft}" y="${marginTop}" width="${plotWidth}" height="${plotHeight}" fill="#ffffff" stroke="#94a3b8" stroke-width="1.2" />
       ${linesHtml}
     </svg>
   `;
 }
 
-// Common Shared Stylesheet
-const commonCss = `
+// Single-Page Strict Print CSS
+const singlePageCss = `
   @page {
     size: letter portrait;
-    margin: 0.35in 0.45in 0.35in 0.45in;
+    margin: 0.32in 0.42in 0.32in 0.42in;
   }
 
   * {
@@ -153,46 +130,41 @@ const commonCss = `
     background: #ffffff;
     margin: 0;
     padding: 0;
-    line-height: 1.35;
-    font-size: 9.5pt;
+    line-height: 1.3;
+    font-size: 9pt;
   }
 
-  .sheet-page {
-    page-break-after: always;
-    height: 10.1in;
-    max-height: 10.1in;
+  .single-page {
+    width: 100%;
+    height: 10.36in;
+    max-height: 10.36in;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    position: relative;
     overflow: hidden;
   }
 
-  .sheet-page:last-child {
-    page-break-after: avoid;
-  }
-
-  /* Header Box */
+  /* Header */
   .worksheet-header {
     border-bottom: 2px solid #0f172a;
-    padding-bottom: 6px;
-    margin-bottom: 8px;
+    padding-bottom: 4px;
+    margin-bottom: 6px;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
   }
 
   .header-titles h1 {
-    font-size: 14pt;
+    font-size: 13pt;
     font-weight: 900;
     color: #0f172a;
-    margin: 0 0 2px 0;
+    margin: 0 0 1px 0;
     text-transform: uppercase;
     letter-spacing: -0.3px;
   }
 
   .header-titles .sub {
-    font-size: 8.5pt;
+    font-size: 8pt;
     font-weight: 700;
     color: #0284c7;
     margin: 0;
@@ -201,19 +173,18 @@ const commonCss = `
   }
 
   .header-meta {
-    font-size: 8.5pt;
+    font-size: 8pt;
     text-align: right;
   }
 
   .student-fields {
     display: flex;
-    gap: 14px;
-    margin-top: 4px;
+    gap: 12px;
+    margin-top: 3px;
   }
 
   .field-line {
     border-bottom: 1px solid #475569;
-    min-width: 130px;
     display: inline-block;
   }
 
@@ -222,147 +193,136 @@ const commonCss = `
     color: #334155;
   }
 
-  /* Section Styling */
-  .section-box {
-    border: 1.5px solid #cbd5e1;
-    border-radius: 6px;
-    padding: 7px 10px;
-    margin-bottom: 8px;
-    background: #ffffff;
-  }
-
-  .section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 4px;
+  /* Scenario Box */
+  .scenario-container {
+    background: #f8fafc;
+    border-left: 3.5px solid #0284c7;
+    border-top: 1px solid #e2e8f0;
+    border-right: 1px solid #e2e8f0;
     border-bottom: 1px solid #e2e8f0;
-    padding-bottom: 3px;
+    padding: 6px 10px;
+    font-size: 8.5pt;
+    margin-bottom: 5px;
+    border-radius: 0 5px 5px 0;
   }
 
-  .section-title {
-    font-size: 10pt;
+  .scenario-title {
     font-weight: 800;
     color: #0f172a;
+    font-size: 9pt;
+    margin-bottom: 2px;
     text-transform: uppercase;
-    letter-spacing: -0.2px;
+  }
+
+  .telemetry-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .telemetry-pill {
+    flex: 1;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    padding: 3px 6px;
+    font-size: 8pt;
+  }
+
+  .telemetry-pill strong {
+    color: #0f172a;
+    display: block;
+    margin-bottom: 1px;
+  }
+
+  /* Task instructions bar */
+  .task-bar {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 8.2pt;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
   .badge {
     display: inline-block;
-    padding: 1px 6px;
-    border-radius: 4px;
-    font-size: 7.5pt;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 7pt;
     font-weight: 700;
     text-transform: uppercase;
   }
-
   .badge-blue { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
-  .badge-amber { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
-  .badge-emerald { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
-
-  /* Scenario Box */
-  .scenario-container {
-    background: #f8fafc;
-    border-left: 4px solid #0284c7;
-    padding: 8px 12px;
-    font-size: 9pt;
-    margin-bottom: 8px;
-    border-radius: 0 6px 6px 0;
-  }
-
-  .param-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-top: 6px;
-  }
-
-  .param-card {
-    background: #ffffff;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
-    padding: 6px 8px;
-    font-size: 8.5pt;
-  }
-
-  .param-card strong {
-    color: #0f172a;
-    display: block;
-    margin-bottom: 2px;
-  }
-
-  /* Equation & Work Boxes */
-  .math-step-box {
-    border: 1px dashed #94a3b8;
-    border-radius: 6px;
-    padding: 6px 8px;
-    margin-top: 4px;
-    background: #fafafa;
-    min-height: 52px;
-  }
-
-  .math-step-box.tall {
-    min-height: 80px;
-  }
-
-  .step-prompt {
-    font-weight: 700;
-    color: #1e293b;
-    font-size: 8.5pt;
-    margin-bottom: 2px;
-  }
-
-  /* Data Table */
-  table.data-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 6px 0;
-    font-size: 8.5pt;
-  }
-
-  table.data-table th, table.data-table td {
-    border: 1px solid #cbd5e1;
-    padding: 4px 6px;
-    text-align: center;
-  }
-
-  table.data-table th {
-    background: #f1f5f9;
-    font-weight: 700;
-    color: #0f172a;
-  }
+  .badge-green { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
 
   /* Graph Container */
   .graph-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 4px 0 6px 0;
+    margin: 2px 0 5px 0;
   }
 
-  /* Prompt list */
-  .question-item {
-    margin-bottom: 8px;
+  /* Questions Box */
+  .questions-container {
+    border: 1.5px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 6px 10px;
+    background: #ffffff;
   }
 
-  .question-item p {
-    margin: 0 0 3px 0;
-    font-weight: 600;
-    font-size: 9pt;
+  .questions-title {
+    font-size: 8.8pt;
+    font-weight: 800;
     color: #0f172a;
-  }
-
-  .write-lines {
-    border-bottom: 1px solid #94a3b8;
-    height: 20px;
-    width: 100%;
+    text-transform: uppercase;
     margin-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 2px;
   }
 
+  .q-item {
+    margin-bottom: 5px;
+    font-size: 8.5pt;
+  }
+
+  .q-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .q-prompt {
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 2px;
+  }
+
+  .answer-line {
+    border-bottom: 1px solid #94a3b8;
+    height: 18px;
+    width: 100%;
+    margin-top: 1px;
+  }
+
+  .inline-blank {
+    display: inline-block;
+    border-bottom: 1px solid #475569;
+    min-width: 80px;
+    text-align: center;
+    font-weight: 700;
+  }
+
+  /* Footer */
   .footer-bar {
     border-top: 1px solid #cbd5e1;
-    padding-top: 4px;
+    padding-top: 3px;
     font-size: 7.5pt;
     color: #64748b;
     display: flex;
@@ -372,32 +332,27 @@ const commonCss = `
 `;
 
 // =========================================================================
-// WORKSHEET 1: RESCUE SHIP & DRONE RENDEZVOUS
+// WORKSHEET 1: SINGLE-PAGE SHIP & DRONE RENDEZVOUS
 // =========================================================================
-function renderWorksheet1() {
-  const gridSvg = generateSvgGrid({
-    width: 680,
-    height: 480,
-    marginLeft: 60,
-    marginBottom: 50,
-    marginRight: 25,
-    marginTop: 30,
+function renderSinglePageWorksheet1() {
+  const gridSvg = generateCleanGrid({
+    width: 690,
+    height: 425,
+    marginLeft: 58,
+    marginBottom: 44,
+    marginRight: 20,
+    marginTop: 22,
     xMin: 0,
     xMax: 70,
     xMajor: 10,
     xMinor: 2,
-    xLabel: "Mission Elapsed Time t (seconds)",
+    xLabel: "Time Elapsed t (seconds)",
     yMin: 0,
     yMax: 800,
     yMajor: 100,
     yMinor: 20,
-    yLabel: "Position From Harbor Dock x (meters)",
-    title: "Position vs. Time Trajectory: Rescue Ship & Medical Drone",
-    legendItems: [
-      { label: "Rescue Ship: x(t) = 300 + 6.0·t", color: "#0284c7" },
-      { label: "Medical Drone: x(t) = 18.0·(t - 20)", color: "#dc2626", dash: "4,3" },
-      { label: "Rendezvous Node (t_meet, x_meet)", color: "#16a34a" }
-    ]
+    yLabel: "Position from Dock x (meters)",
+    title: "Position vs. Time: Rescue Ship & Medical Drone"
   });
 
   return `
@@ -405,188 +360,98 @@ function renderWorksheet1() {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Honors Kinematics Challenge 1: Ship & Drone Rendezvous</title>
-  <style>${commonCss}</style>
+  <title>Honors Physics: Ship & Drone Kinematic Rendezvous</title>
+  <style>${singlePageCss}</style>
 </head>
 <body>
 
-  <!-- PAGE 1: SCENARIO & MATHEMATICAL MODELING -->
-  <div class="sheet-page">
+  <div class="single-page">
     <div>
+      <!-- Header -->
       <div class="worksheet-header">
         <div class="header-titles">
           <h1>Honors Physics: Kinematic Rendezvous Challenge</h1>
-          <p class="sub">Unit 2: 1D Constant Velocity &amp; Delayed Intercept Modeling</p>
+          <p class="sub">Unit 2: Constant Velocity &amp; Graphical Intercept Modeling</p>
         </div>
         <div class="header-meta">
           <span class="badge badge-blue">HS-PS2-1 • SEP-5</span>
           <div class="student-fields">
-            <div><span class="field-label">Names:</span> <span class="field-line" style="min-width:200px;"></span></div>
-            <div><span class="field-label">Period:</span> <span class="field-line" style="min-width:40px;">0</span></div>
-            <div><span class="field-label">Date:</span> <span class="field-line" style="min-width:70px;"></span></div>
+            <div><span class="field-label">Names:</span> <span class="field-line" style="min-width:180px;"></span></div>
+            <div><span class="field-label">Period:</span> <span class="field-line" style="min-width:35px;">0</span></div>
+            <div><span class="field-label">Date:</span> <span class="field-line" style="min-width:65px;"></span></div>
           </div>
         </div>
       </div>
 
-      <!-- Mission Briefing -->
+      <!-- Scenario -->
       <div class="scenario-container">
-        <strong>MISSION DIRECTIVE: HARBOR EMERGENCY MEDICAL AIR-DROP</strong><br>
-        A marine research vessel has departed the harbor dock (designated as reference origin <strong>x = 0 m</strong>) and is steaming straight out into open waters. At mission start (<strong>t = 0 s</strong>), the vessel is already <strong>300 meters</strong> out from the dock and cruising steadily at <strong>v_ship = 6.0 m/s</strong>.<br>
-        An urgent medical distress call requires dispatching an autonomous high-speed courier drone from the harbor dock (<strong>x_drone = 0 m</strong>). The drone cruises at a uniform speed of <strong>v_drone = 18.0 m/s</strong>, but requires a <strong>20-second flight-preflight delay</strong> (system reboot and rotor spin-up) before it launches from the dock at <strong>t = 20 s</strong>.
-      </div>
-
-      <div class="param-grid">
-        <div class="param-card">
-          <strong>🚢 Marine Research Vessel Telemetry</strong>
-          • Reference Origin: Dock (x = 0 m)<br>
-          • Initial Position at t = 0 s: <strong>x₀_ship = +300 m</strong><br>
-          • Uniform Cruise Speed: <strong>v_ship = +6.0 m/s</strong><br>
-          • Launch Delay: None (in motion at t = 0 s)
-        </div>
-        <div class="param-card">
-          <strong>🚁 Autonomous Medical Drone Telemetry</strong>
-          • Reference Origin: Dock (x = 0 m)<br>
-          • Launch Position at t = 20 s: <strong>x₀_drone = 0 m</strong><br>
-          • Uniform Cruise Speed: <strong>v_drone = +18.0 m/s</strong><br>
-          • Preflight Delay: <strong>t_delay = 20.0 seconds</strong>
+        <div class="scenario-title">Mission Scenario: Emergency Harbor Air-Drop</div>
+        A marine research ship is traveling straight out to sea away from the harbor dock (dock = <strong>x = 0 m</strong>). At <strong>t = 0 s</strong>, the ship is already <strong>300 meters</strong> out from the dock, traveling at a steady speed of <strong>6.0 m/s</strong>.<br>
+        An urgent medical distress call requires dispatching an autonomous courier drone from the dock (<strong>x = 0 m</strong>). The drone flies at a steady speed of <strong>18.0 m/s</strong>, but requires a <strong>20-second preflight delay</strong> (boot &amp; rotor spin-up) before taking off at <strong>t = 20 s</strong>.
+        
+        <div class="telemetry-row">
+          <div class="telemetry-pill">
+            <strong>🚢 Research Vessel Telemetry</strong>
+            • Starts at: <strong>x₀ = 300 m</strong> at t = 0 s<br>
+            • Constant Speed: <strong>v = 6.0 m/s</strong> (gains 60 m every 10 s)
+          </div>
+          <div class="telemetry-pill">
+            <strong>🚁 Medical Drone Telemetry</strong>
+            • Starts at: <strong>x₀ = 0 m</strong> (dock)<br>
+            • Launch Delay: At rest until <strong>t = 20 s</strong>, then cruises at <strong>v = 18.0 m/s</strong> (gains 180 m every 10 s)
+          </div>
         </div>
       </div>
 
-      <!-- Part 1: Algebraic Modeling -->
-      <div class="section-box" style="margin-top:8px;">
-        <div class="section-header">
-          <span class="section-title">Part 1: Algebraic Kinematic Modeling &amp; Prediction</span>
-          <span class="badge badge-amber">Team Algebraic Proof</span>
-        </div>
-
-        <div class="step-prompt">Step 1A: Formulate the continuous Position-Time equation for the Research Vessel:</div>
-        <div class="math-step-box">
-          Write x_ship(t) in terms of t: &nbsp;&nbsp;<strong>x_ship(t) = </strong> ____________________________________________
-        </div>
-
-        <div class="step-prompt" style="margin-top:6px;">Step 1B: Formulate the piecewise Position-Time equation for the Drone (for t ≥ 20 s):</div>
-        <div class="math-step-box">
-          Factored Form: <strong>x_drone(t) = 18.0 · (t - 20)</strong> &nbsp;&nbsp;→&nbsp;&nbsp; Expanded Form: <strong>x_drone(t) = </strong> ___________________________
-        </div>
-
-        <div class="step-prompt" style="margin-top:6px;">Step 1C: Equate positions (x_ship = x_drone) to solve for exact Rendezvous Time (t_meet) and Position (x_meet):</div>
-        <div class="math-step-box tall">
-          <em>Show step-by-step algebraic isolation of time t:</em><br><br><br>
-          <strong>Rendezvous Time: t = </strong> ____________ seconds &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-          <strong>Rendezvous Position: x = </strong> ____________ meters from dock
-        </div>
+      <!-- Graphing Directives Bar -->
+      <div class="task-bar">
+        <span>✏️ <strong>Graphing Task:</strong> Plot both motions on the grid. Label the <strong>Ship</strong> line and the <strong>Drone</strong> line. Circle the intersection point.</span>
+        <span class="badge badge-green">Graph-First Analysis</span>
       </div>
 
-      <!-- Part 2: Table of Values -->
-      <div class="section-box">
-        <div class="section-header">
-          <span class="section-title">Part 2: Multi-Agent Coordinate Telemetry Table</span>
-          <span class="badge badge-blue">Plotting Data Points</span>
-        </div>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Vehicle</th>
-              <th>t = 0 s</th>
-              <th>t = 10 s</th>
-              <th>t = 20 s (Launch)</th>
-              <th>t = 30 s</th>
-              <th>t = 40 s</th>
-              <th>t = 50 s</th>
-              <th>t = 55 s (Meet)</th>
-              <th>t = 60 s</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>Ship Position x (m)</strong></td>
-              <td>300 m</td>
-              <td>360 m</td>
-              <td>420 m</td>
-              <td>480 m</td>
-              <td>540 m</td>
-              <td>600 m</td>
-              <td>_______</td>
-              <td>660 m</td>
-            </tr>
-            <tr>
-              <td><strong>Drone Position x (m)</strong></td>
-              <td><em>On Dock (0m)</em></td>
-              <td><em>On Dock (0m)</em></td>
-              <td>0 m</td>
-              <td>180 m</td>
-              <td>360 m</td>
-              <td>540 m</td>
-              <td>_______</td>
-              <td>720 m</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="footer-bar">
-      <span>Orange High School • Period 0 Honors Physics</span>
-      <span>Page 1 of 2: Mathematical Derivation</span>
-      <span>Unit 2: Kinematics &amp; Vector Intercept</span>
-    </div>
-  </div>
-
-  <!-- PAGE 2: GRAPHING GRID & CRITICAL AUDIT -->
-  <div class="sheet-page">
-    <div>
-      <div class="worksheet-header">
-        <div class="header-titles">
-          <h1>Part 3: Coordinate Trajectory Graph &amp; Flight Audit</h1>
-          <p class="sub">Visual Proof of Rendezvous &bull; Slope Analysis &bull; Battery Feasibility</p>
-        </div>
-        <div class="header-meta">
-          <span class="badge badge-emerald">Graphing &amp; Critical Thinking</span>
-        </div>
-      </div>
-
-      <!-- Full Precision Graph Area -->
+      <!-- Large Clean Grid Area -->
       <div class="graph-wrapper">
         ${gridSvg}
       </div>
 
-      <!-- Part 4: Critical Engineering Analysis -->
-      <div class="section-box">
-        <div class="section-header">
-          <span class="section-title">Part 4: Mission Engineering Audit &amp; Constraint Analysis</span>
-          <span class="badge badge-amber">Honors Synthesis</span>
+      <!-- Questions from Graph -->
+      <div class="questions-container">
+        <div class="questions-title">
+          <span>Graphical Analysis &amp; Mission Debrief</span>
+          <span style="font-size:7.5pt; color:#64748b; font-weight:600;">Answer using your graph above</span>
         </div>
 
-        <div class="question-item">
-          <p>1. Slope Comparison &amp; Visual Verification:</p>
-          <div style="font-size:8.5pt; color:#334155; margin-bottom:2px;">
-            Calculate the slope of each graphed line using (Δx / Δt). Does the intersection point on your graph exactly match your algebraic calculation from Page 1? Identify any differences:
-          </div>
-          <div class="write-lines"></div>
+        <div class="q-item">
+          <div class="q-prompt">1. Rendezvous Coordinates (From Graph):</div>
+          At what exact time and position do the two lines intersect? &nbsp;
+          <strong>Time (t):</strong> <span class="inline-blank" style="min-width:70px;"></span> seconds &nbsp;&nbsp;&nbsp;&nbsp;
+          <strong>Position (x):</strong> <span class="inline-blank" style="min-width:80px;"></span> meters from dock
         </div>
 
-        <div class="question-item">
-          <p>2. Flight Duration vs. Mission Elapsed Time:</p>
-          <div style="font-size:8.5pt; color:#334155; margin-bottom:2px;">
-            The rendezvous occurs at mission clock t = 55 seconds. How many seconds was the drone actually flying in the air? Show the subtraction and explain why elapsed mission time differs from flight duration:
-          </div>
-          <div class="write-lines"></div>
+        <div class="q-item">
+          <div class="q-prompt">2. Slope &amp; Speed Verification:</div>
+          Calculate the slope (Δx / Δt) of each graphed line to verify their speeds: &nbsp;
+          Ship Slope: <span class="inline-blank" style="min-width:60px;"></span> m/s &nbsp;&nbsp;|&nbsp;&nbsp;
+          Drone Slope (after t = 20 s): <span class="inline-blank" style="min-width:60px;"></span> m/s
         </div>
 
-        <div class="question-item">
-          <p>3. Battery Range Safety Audit (The Critical Failure Test):</p>
-          <div style="font-size:8.5pt; color:#334155; margin-bottom:2px;">
-            The drone's lithium-polymer battery pack certifies a maximum round-trip total flight distance of <strong>1,200 meters</strong> before complete depletion. Can the drone deliver the package to the ship at the rendezvous point and safely return to the dock? <strong>Prove your claim with numbers:</strong>
-          </div>
-          <div class="write-lines"></div>
-          <div class="write-lines"></div>
+        <div class="q-item">
+          <div class="q-prompt">3. Actual Drone Flight Duration:</div>
+          The clock reads your rendezvous time when they meet, but the drone was delayed until t = 20 s. How many seconds was the drone actually flying in the air? <span class="inline-blank" style="min-width:70px;"></span> seconds
+        </div>
+
+        <div class="q-item">
+          <div class="q-prompt">4. Battery Safety Audit (Honors Critical Question):</div>
+          The drone has enough battery for a maximum round-trip flight distance of <strong>1,200 meters</strong> before complete depletion. Can the drone deliver the cargo and safely return to dock? Explain using numbers:
+          <div class="answer-line"></div>
         </div>
       </div>
     </div>
 
+    <!-- Footer -->
     <div class="footer-bar">
       <span>Orange High School • Period 0 Honors Physics</span>
-      <span>Page 2 of 2: Graphing Verification &amp; Flight Safety Audit</span>
+      <span>Unit 2: Kinematics • Challenge 1</span>
       <span>Teacher: Mr. Mudry</span>
     </div>
   </div>
@@ -597,32 +462,27 @@ function renderWorksheet1() {
 }
 
 // =========================================================================
-// WORKSHEET 2: HIGHWAY SURVEILLANCE & PATROL INTERCEPT
+// WORKSHEET 2: SINGLE-PAGE HIGHWAY SURVEILLANCE INTERCEPT
 // =========================================================================
-function renderWorksheet2() {
-  const gridSvg = generateSvgGrid({
-    width: 680,
-    height: 480,
-    marginLeft: 65,
-    marginBottom: 50,
-    marginRight: 25,
-    marginTop: 30,
+function renderSinglePageWorksheet2() {
+  const gridSvg = generateCleanGrid({
+    width: 690,
+    height: 425,
+    marginLeft: 62,
+    marginBottom: 44,
+    marginRight: 20,
+    marginTop: 22,
     xMin: 0,
     xMax: 100,
     xMajor: 10,
     xMinor: 2,
     xLabel: "Time Elapsed t (seconds)",
     yMin: 0,
-    yMax: 1500,
-    yMajor: 150,
-    yMinor: 30,
+    yMax: 1400,
+    yMajor: 200,
+    yMinor: 40,
     yLabel: "Highway Position x (meters)",
-    title: "Multi-Leg Piecewise Motion: Target Car vs. Highway Patrol Intercept",
-    legendItems: [
-      { label: "Target Car: 3-Leg Piecewise Journey", color: "#dc2626" },
-      { label: "Patrol Option A: Rest Stop Intercept (v = 15.0 m/s)", color: "#0284c7", dash: "4,3" },
-      { label: "Patrol Option B: Highway End Intercept (v = 21.7 m/s)", color: "#7c3aed" }
-    ]
+    title: "Position vs. Time: Target 3-Leg Journey & Patrol Intercept Options"
   });
 
   return `
@@ -630,152 +490,81 @@ function renderWorksheet2() {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Honors Kinematics Challenge 2: Highway Surveillance Intercept</title>
-  <style>${commonCss}</style>
+  <title>Honors Physics: Tactical Highway Intercept</title>
+  <style>${singlePageCss}</style>
 </head>
 <body>
 
-  <!-- PAGE 1: SCENARIO & MATHEMATICAL MODELING -->
-  <div class="sheet-page">
+  <div class="single-page">
     <div>
+      <!-- Header -->
       <div class="worksheet-header">
         <div class="header-titles">
           <h1>Honors Physics: Tactical Highway Intercept</h1>
-          <p class="sub">Unit 2: Piecewise 1D Motion, Rest Intervals &amp; Pursuit Velocity</p>
+          <p class="sub">Unit 2: Piecewise 1D Motion, Rest Intervals &amp; Pursuit Slopes</p>
         </div>
         <div class="header-meta">
           <span class="badge badge-blue">HS-PS2-1 • Piecewise Graphs</span>
           <div class="student-fields">
-            <div><span class="field-label">Names:</span> <span class="field-line" style="min-width:200px;"></span></div>
-            <div><span class="field-label">Period:</span> <span class="field-line" style="min-width:40px;">0</span></div>
-            <div><span class="field-label">Date:</span> <span class="field-line" style="min-width:70px;"></span></div>
+            <div><span class="field-label">Names:</span> <span class="field-line" style="min-width:180px;"></span></div>
+            <div><span class="field-label">Period:</span> <span class="field-line" style="min-width:35px;">0</span></div>
+            <div><span class="field-label">Date:</span> <span class="field-line" style="min-width:65px;"></span></div>
           </div>
         </div>
       </div>
 
-      <!-- Mission Briefing -->
+      <!-- Scenario -->
       <div class="scenario-container">
-        <strong>SURVEILLANCE DOSSIER: MULTI-STAGE RECONNAISSANCE TRACKING</strong><br>
-        Highway traffic sensors and an overhead observation satellite track a suspect vehicle heading eastbound on a straight desert highway starting from coordinate <strong>x = 0 m</strong> at <strong>t = 0 s</strong>. The target's journey consists of three distinct kinematic legs:<br>
-        • <strong>Leg 1 (t = 0 to 20 s):</strong> Drives at a steady speed of <strong>15.0 m/s</strong>.<br>
-        • <strong>Leg 2 (t = 20 to 50 s):</strong> Pulls into an emergency turnout / rest stop and remains <strong>completely stationary (v = 0 m/s)</strong> for 30 seconds.<br>
-        • <strong>Leg 3 (t = 50 to 90 s):</strong> Re-enters the highway and accelerates to a new uniform cruise speed of <strong>25.0 m/s</strong> for 40 seconds.<br>
-        A Highway Patrol Interceptor is stationed at coordinate <strong>x = 0 m</strong>. Due to dispatch verification, the cruiser <strong>cannot roll until t = 30 seconds</strong>. Once dispatched, it travels at a single uniform speed.
+        <div class="scenario-title">Surveillance Dossier: Desert Highway Reconnaissance</div>
+        A target vehicle heads east on a straight highway starting from <strong>x = 0 m</strong> at <strong>t = 0 s</strong> in 3 distinct legs:<br>
+        • <strong>Leg 1 (t = 0 to 20 s):</strong> Drives at <strong>15.0 m/s</strong> (covers 15 m/s × 20 s = <strong>300 m</strong>, reaching <strong>x = 300 m</strong> at t = 20 s).<br>
+        • <strong>Leg 2 (t = 20 to 50 s):</strong> Pulls over at a rest stop and remains <strong>completely stopped (v = 0 m/s)</strong> for 30 seconds.<br>
+        • <strong>Leg 3 (t = 50 to 90 s):</strong> Re-enters the highway at <strong>25.0 m/s</strong> for 40 s (covers 25 m/s × 40 s = <strong>1,000 m</strong>, reaching <strong>x = 1,300 m</strong> at t = 90 s).<br>
+        A Highway Patrol Cruiser is at <strong>x = 0 m</strong>, but is held at the station and <strong>cannot leave until t = 30 seconds</strong>.
       </div>
 
-      <!-- Part 1: Segment Breakdown -->
-      <div class="section-box">
-        <div class="section-header">
-          <span class="section-title">Part 1: Target Vehicle Segment Telemetry Breakdown</span>
-          <span class="badge badge-amber">Displacement Calculations</span>
-        </div>
-
-        <div class="param-grid">
-          <div class="param-card">
-            <strong>Leg 1: Initial Highway Cruise (0 to 20 s)</strong>
-            • Velocity: v₁ = +15.0 m/s &nbsp;&bull;&nbsp; Duration: Δt₁ = 20 s<br>
-            • Displacement: Δx₁ = v₁ · Δt₁ = (15.0)(20) = <strong>+300 m</strong><br>
-            • Coordinate at t = 20 s: <strong>(20 s, 300 m)</strong>
-          </div>
-          <div class="param-card">
-            <strong>Leg 2: Rest Stop Turnout (20 to 50 s)</strong>
-            • Velocity: v₂ = 0.0 m/s (At Rest) &nbsp;&bull;&nbsp; Duration: Δt₂ = 30 s<br>
-            • Displacement: Δx₂ = 0 m<br>
-            • Coordinate at t = 50 s: <strong>(50 s, 300 m)</strong>
-          </div>
-        </div>
-
-        <div class="step-prompt" style="margin-top:6px;">Calculate Target Leg 3 Displacement &amp; Final Position:</div>
-        <div class="math-step-box">
-          Duration: Δt₃ = 90 s - 50 s = 40 s &nbsp;|&nbsp; Velocity: v₃ = +25.0 m/s<br>
-          Displacement: Δx₃ = (v₃) · (Δt₃) = _________________________ = ____________ meters<br>
-          Final Coordinate at t = 90 s: <strong>(90 s, ____________ m)</strong>
-        </div>
+      <!-- Graphing Directives Bar -->
+      <div class="task-bar">
+        <span>✏️ <strong>Graphing Task:</strong> 1) Plot Target's 3-leg line (0 to 90s). 2) Draw <strong>Patrol Line A</strong> (from t=30s, x=0 to catch at rest stop at t=50s). 3) Draw <strong>Patrol Line B</strong> (to catch at t=90s).</span>
+        <span class="badge badge-green">Slope as Velocity</span>
       </div>
 
-      <!-- Part 2: Cruiser Pursuit Windows -->
-      <div class="section-box">
-        <div class="section-header">
-          <span class="section-title">Part 2: Highway Patrol Pursuit Strategies</span>
-          <span class="badge badge-blue">Cruiser Dispatch: t = 30 s</span>
-        </div>
-
-        <div class="step-prompt">Strategy Alpha: Intercept the target while it is still stationary at the rest stop (at t = 50 s):</div>
-        <div class="math-step-box">
-          Available Time: Δt = 50 s - 30 s = <strong>20.0 seconds</strong> &nbsp;|&nbsp; Required Position: <strong>x = 300 meters</strong><br>
-          Required Cruiser Constant Speed: <strong>v_alpha = Δx / Δt = </strong> ____________________________ = <strong>___________ m/s</strong>
-        </div>
-
-        <div class="step-prompt" style="margin-top:6px;">Strategy Beta: Intercept the target at the exact conclusion of Leg 3 (at t = 90 s):</div>
-        <div class="math-step-box">
-          Available Time: Δt = 90 s - 30 s = <strong>60.0 seconds</strong> &nbsp;|&nbsp; Required Position: <strong>x = 1,300 meters</strong><br>
-          Required Cruiser Constant Speed: <strong>v_beta = Δx / Δt = </strong> ____________________________ = <strong>___________ m/s</strong>
-        </div>
-      </div>
-    </div>
-
-    <div class="footer-bar">
-      <span>Orange High School • Period 0 Honors Physics</span>
-      <span>Page 1 of 2: Multi-Stage Kinematic Setup</span>
-      <span>Unit 2: Kinematics &amp; Vector Intercept</span>
-    </div>
-  </div>
-
-  <!-- PAGE 2: GRAPHING GRID & TACTICAL DEBRIEF -->
-  <div class="sheet-page">
-    <div>
-      <div class="worksheet-header">
-        <div class="header-titles">
-          <h1>Part 3: Master Highway Trajectory Graph &amp; Analysis</h1>
-          <p class="sub">Plotting Multi-Segment x-t Profiles &bull; Intersection Points &bull; Average vs. Instantaneous Speed</p>
-        </div>
-        <div class="header-meta">
-          <span class="badge badge-emerald">High-Precision Graphing</span>
-        </div>
-      </div>
-
-      <!-- Full Precision Graph Area -->
+      <!-- Large Clean Grid Area -->
       <div class="graph-wrapper">
         ${gridSvg}
       </div>
 
-      <!-- Part 4: Tactical Analysis -->
-      <div class="section-box">
-        <div class="section-header">
-          <span class="section-title">Part 4: Graphical Analysis &amp; Speed Comparison</span>
-          <span class="badge badge-amber">Honors Debrief</span>
+      <!-- Questions from Graph -->
+      <div class="questions-container">
+        <div class="questions-title">
+          <span>Graphical Analysis &amp; Pursuit Strategy</span>
+          <span style="font-size:7.5pt; color:#64748b; font-weight:600;">Answer using your graph above</span>
         </div>
 
-        <div class="question-item">
-          <p>1. Slope Meaning on Position-Time Graph:</p>
-          <div style="font-size:8.5pt; color:#334155; margin-bottom:2px;">
-            Explain what the visual slope of the line represents during Leg 2 (t = 20 s to 50 s). How can a patrol officer tell instantly from an x-t graph that the target is stationary without looking at numbers?
-          </div>
-          <div class="write-lines"></div>
+        <div class="q-item">
+          <div class="q-prompt">1. Interpreting the Rest Stop (Leg 2):</div>
+          What does the visual slope of the line represent between t = 20 s and t = 50 s? How does the graph show the car is stopped?
+          <div class="answer-line"></div>
         </div>
 
-        <div class="question-item">
-          <p>2. Target Vehicle Overall Average Speed vs. Instantaneous Speeds:</p>
-          <div style="font-size:8.5pt; color:#334155; margin-bottom:2px;">
-            Calculate the target's <strong>Overall Average Speed</strong> across the entire 90-second mission (Total Distance / Total Time). Explain why this value is lower than both Leg 1 (15 m/s) and Leg 3 (25 m/s):
-          </div>
-          <div class="write-lines"></div>
-          <div class="write-lines"></div>
+        <div class="q-item">
+          <div class="q-prompt">2. Cruiser Speed Calculations (From Slopes of Lines A and B):</div>
+          • <strong>Strategy A (Catch at rest stop at t = 50 s):</strong> Cruiser travels 300 m in 20 s (from t=30 to 50s). Required speed: <span class="inline-blank" style="min-width:70px;"></span> m/s<br>
+          • <strong>Strategy B (Catch at t = 90 s):</strong> Cruiser travels 1,300 m in 60 s (from t=30 to 90s). Required speed: <span class="inline-blank" style="min-width:70px;"></span> m/s
         </div>
 
-        <div class="question-item">
-          <p>3. Speed Limit Constraint Analysis:</p>
-          <div style="font-size:8.5pt; color:#334155; margin-bottom:2px;">
-            The highway patrol interceptor has a maximum vehicle speed cap of <strong>20.0 m/s (45 mph)</strong>. Which of the two intercept strategies (Alpha or Beta) is physically possible? Defend with calculations:
-          </div>
-          <div class="write-lines"></div>
+        <div class="q-item">
+          <div class="q-prompt">3. Speed Limit Constraint Analysis:</div>
+          The patrol cruiser has a top safe speed cap of <strong>20.0 m/s (45 mph)</strong>. Which of the two strategies is physically possible? Defend with calculations:
+          <div class="answer-line"></div>
         </div>
       </div>
     </div>
 
+    <!-- Footer -->
     <div class="footer-bar">
       <span>Orange High School • Period 0 Honors Physics</span>
-      <span>Page 2 of 2: Graphing Verification &amp; Tactical Analysis</span>
+      <span>Unit 2: Kinematics • Challenge 2</span>
       <span>Teacher: Mr. Mudry</span>
     </div>
   </div>
@@ -786,16 +575,16 @@ function renderWorksheet2() {
 }
 
 // =========================================================================
-// WORKSHEET 3: MOUNTAIN RESCUE DISTANCE VS DISPLACEMENT
+// WORKSHEET 3: SINGLE-PAGE MOUNTAIN RESCUE DISTANCE VS DISPLACEMENT
 // =========================================================================
-function renderWorksheet3() {
-  const gridSvg = generateSvgGrid({
-    width: 680,
-    height: 480,
-    marginLeft: 65,
-    marginBottom: 50,
-    marginRight: 25,
-    marginTop: 30,
+function renderSinglePageWorksheet3() {
+  const gridSvg = generateCleanGrid({
+    width: 690,
+    height: 425,
+    marginLeft: 62,
+    marginBottom: 44,
+    marginRight: 20,
+    marginTop: 22,
     xMin: 0,
     xMax: 140,
     xMajor: 20,
@@ -806,12 +595,7 @@ function renderWorksheet3() {
     yMajor: 200,
     yMinor: 40,
     yLabel: "Distance Traveled d (meters)",
-    title: "Overland Mountain Rescue: Winding Road Distance vs. Drone Displacement",
-    legendItems: [
-      { label: "Ground Rover: 1,800 m Road (v = 15 m/s)", color: "#b45309" },
-      { label: "Rescue Drone: 1,000 m Air Vector (with pause)", color: "#0284c7", dash: "4,3" },
-      { label: "Target Climber Reached", color: "#16a34a" }
-    ]
+    title: "Distance vs. Time: Ground Rover vs. Autonomous Rescue Drone"
   });
 
   return `
@@ -819,142 +603,84 @@ function renderWorksheet3() {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Honors Kinematics Challenge 3: Mountain Rescue Race</title>
-  <style>${commonCss}</style>
+  <title>Honors Physics: Mountain Rescue Relay</title>
+  <style>${singlePageCss}</style>
 </head>
 <body>
 
-  <!-- PAGE 1: SCENARIO & MATHEMATICAL MODELING -->
-  <div class="sheet-page">
+  <div class="single-page">
     <div>
+      <!-- Header -->
       <div class="worksheet-header">
         <div class="header-titles">
           <h1>Honors Physics: Alpine Rescue Relay</h1>
           <p class="sub">Unit 2: Scalar Path Distance vs. Vector Displacement &bull; Race Dynamics</p>
         </div>
         <div class="header-meta">
-          <span class="badge badge-blue">HS-PS2-1 • Vectors &amp; Kinematics</span>
+          <span class="badge badge-blue">HS-PS2-1 • Distance vs Time</span>
           <div class="student-fields">
-            <div><span class="field-label">Names:</span> <span class="field-line" style="min-width:200px;"></span></div>
-            <div><span class="field-label">Period:</span> <span class="field-line" style="min-width:40px;">0</span></div>
-            <div><span class="field-label">Date:</span> <span class="field-line" style="min-width:70px;"></span></div>
+            <div><span class="field-label">Names:</span> <span class="field-line" style="min-width:180px;"></span></div>
+            <div><span class="field-label">Period:</span> <span class="field-line" style="min-width:35px;">0</span></div>
+            <div><span class="field-label">Date:</span> <span class="field-line" style="min-width:65px;"></span></div>
           </div>
         </div>
       </div>
 
-      <!-- Mission Briefing -->
+      <!-- Scenario -->
       <div class="scenario-container">
-        <strong>EMERGENCY DISPATCH: ALPINE MOUNTAIN RELIEF OPERATION</strong><br>
-        A distress beacon is activated by an injured mountaineer located at coordinates <strong>(800 m East, 600 m North)</strong> from Base Camp (designated as origin <strong>0, 0</strong>). Two emergency response units depart Base Camp at the exact same moment (<strong>t = 0 s</strong>):<br>
-        • <strong>All-Terrain Ground Rover Alpha:</strong> Must follow a treacherous, winding switchback canyon road to avoid ravines. The total odometer road distance is <strong>d_road = 1,800 meters</strong>. The rover maintains a maximum steady speed of <strong>v_rover = 15.0 m/s</strong> along the road.<br>
-        • <strong>Autonomous Sky-Crane Drone Beta:</strong> Flies straight as an arrow directly from Base Camp over the forest canopy to the climber's coordinates at a cruise speed of <strong>v_drone = 20.0 m/s</strong>. However, due to high altitude rotor heating, the drone must land on a midway ridge for a mandatory <strong>35-second thermal cooldown pause</strong> (at the 500 m mark).
+        <div class="scenario-title">Emergency Dispatch: Alpine Relief Operation</div>
+        An injured climber activates a beacon at <strong>(800 m East, 600 m North)</strong> from Base Camp (origin = 0 m). Two rescue units depart at <strong>t = 0 s</strong>:<br>
+        • <strong>Ground Rover Alpha:</strong> Must follow a curved switchback road with a total distance of <strong>1,800 meters</strong> at a steady speed of <strong>15.0 m/s</strong>.<br>
+        • <strong>Rescue Drone Beta:</strong> Flies straight over the trees. Its straight-line displacement is <strong>1,000 meters</strong> (√(800² + 600²) = 1,000 m). It cruises at <strong>20.0 m/s</strong>, but must land on a ridge for a <strong>35-second thermal cooldown pause</strong> at the 500 m mark (from t = 25 s to 60 s).
       </div>
 
-      <!-- Part 1: Vector Displacement vs Scalar Distance -->
-      <div class="section-box">
-        <div class="section-header">
-          <span class="section-title">Part 1: 2D Vector Displacement vs. 1D Scalar Distance</span>
-          <span class="badge badge-amber">Pythagorean Theorem</span>
-        </div>
-
-        <div class="step-prompt">Step 1A: Calculate the straight-line displacement magnitude (Δr) for Drone Beta:</div>
-        <div class="math-step-box">
-          Components: Δx = 800 m (East), Δy = 600 m (North)<br>
-          Δr = √[(Δx)² + (Δy)²] = √[(800)² + (600)²] = √[640,000 + 360,000] = √[1,000,000] = <strong>___________ meters</strong>
-        </div>
-
-        <div class="step-prompt" style="margin-top:6px;">Step 1B: Compare the path distances of both vehicles:</div>
-        <div class="math-step-box">
-          • Rover Alpha Total Path Distance (scalar): <strong>d = 1,800 meters</strong><br>
-          • Drone Beta Total Path Distance (vector magnitude): <strong>Δr = 1,000 meters</strong><br>
-          Why is the rover's path distance 800 meters greater than its net displacement? ___________________________________________
-        </div>
+      <!-- Graphing Directives Bar -->
+      <div class="task-bar">
+        <span>✏️ <strong>Graphing Task:</strong> 1) Plot Rover line from (0s, 0m) to (120s, 1800m). 2) Plot Drone: 0-25s (up to 500m), flat line 25-60s (pause), 60-85s (up to 1000m).</span>
+        <span class="badge badge-green">Race Telemetry</span>
       </div>
 
-      <!-- Part 2: Travel Time Derivations -->
-      <div class="section-box">
-        <div class="section-header">
-          <span class="section-title">Part 2: Step-by-Step Travel Time Calculations</span>
-          <span class="badge badge-blue">Kinematic Derivation</span>
-        </div>
-
-        <div class="step-prompt">Step 2A: Calculate Rover Alpha's total transit time to reach the climber:</div>
-        <div class="math-step-box">
-          t_rover = (Total Road Distance) / (Rover Speed) = 1,800 m / (15.0 m/s) = <strong>___________ seconds</strong> ( _______ min)
-        </div>
-
-        <div class="step-prompt" style="margin-top:6px;">Step 2B: Calculate Drone Beta's multi-stage timeline (Leg 1 → Cooldown → Leg 2):</div>
-        <div class="math-step-box tall">
-          • Leg 1 Flight (0 to 500 m): t₁ = 500 m / 20.0 m/s = <strong>25.0 seconds</strong> (Clock time: 0 to 25 s)<br>
-          • Thermal Battery Cooldown: Duration = <strong>35.0 seconds</strong> (Clock time: 25 s to 60 s)<br>
-          • Leg 2 Flight (500 to 1,000 m): t₂ = 500 m / 20.0 m/s = <strong>25.0 seconds</strong> (Clock time: 60 s to 85 s)<br>
-          <strong>Total Drone Arrival Time: t_drone = 25 s + 35 s + 25 s = </strong> <strong>___________ seconds</strong>
-        </div>
-      </div>
-    </div>
-
-    <div class="footer-bar">
-      <span>Orange High School • Period 0 Honors Physics</span>
-      <span>Page 1 of 2: Path Distance &amp; Vector Displacement Modeling</span>
-      <span>Unit 2: Kinematics &amp; Vector Intercept</span>
-    </div>
-  </div>
-
-  <!-- PAGE 2: GRAPHING GRID & RACE AUDIT -->
-  <div class="sheet-page">
-    <div>
-      <div class="worksheet-header">
-        <div class="header-titles">
-          <h1>Part 3: Distance vs. Time Graph &amp; Race Audit</h1>
-          <p class="sub">Continuous vs. Staged Motion &bull; Margin of Victory &bull; Critical Thresholds</p>
-        </div>
-        <div class="header-meta">
-          <span class="badge badge-emerald">Precision Distance Graphing</span>
-        </div>
-      </div>
-
-      <!-- Full Precision Graph Area -->
+      <!-- Large Clean Grid Area -->
       <div class="graph-wrapper">
         ${gridSvg}
       </div>
 
-      <!-- Part 4: Critical Race Analysis -->
-      <div class="section-box">
-        <div class="section-header">
-          <span class="section-title">Part 4: Mission Debrief &amp; Margin of Victory</span>
-          <span class="badge badge-amber">Team Synthesis</span>
+      <!-- Questions from Graph -->
+      <div class="questions-container">
+        <div class="questions-title">
+          <span>Graphical Analysis &amp; Margin of Victory</span>
+          <span style="font-size:7.5pt; color:#64748b; font-weight:600;">Answer using your graph above</span>
         </div>
 
-        <div class="question-item">
-          <p>1. Margin of Victory:</p>
-          <div style="font-size:8.5pt; color:#334155; margin-bottom:2px;">
-            Which vehicle delivers medical aid to the climber first? Calculate the exact margin of victory in seconds:
-          </div>
-          <div class="write-lines"></div>
+        <div class="q-item">
+          <div class="q-prompt">1. Destination Arrival Times (From Graph):</div>
+          At what time does Drone Beta reach its 1,000 m destination? <span class="inline-blank" style="min-width:60px;"></span> s &nbsp;|&nbsp;
+          At what time does Rover Alpha reach its 1,800 m destination? <span class="inline-blank" style="min-width:60px;"></span> s
         </div>
 
-        <div class="question-item">
-          <p>2. Interpreting the Flat Line on a Distance-Time Graph:</p>
-          <div style="font-size:8.5pt; color:#334155; margin-bottom:2px;">
-            On your graph, describe Drone Beta's trajectory between t = 25 s and t = 60 s. What does the zero slope represent physically, and how does distance accumulated change during this interval?
-          </div>
-          <div class="write-lines"></div>
+        <div class="q-item">
+          <div class="q-prompt">2. Margin of Victory:</div>
+          Which vehicle reaches the climber first, and by how many seconds? <span class="inline-blank" style="min-width:110px;"></span> by <span class="inline-blank" style="min-width:50px;"></span> seconds
         </div>
 
-        <div class="question-item">
-          <p>3. The Critical Breakdown Threshold (Honors Extension):</p>
-          <div style="font-size:8.5pt; color:#334155; margin-bottom:2px;">
-            Suppose high mountain winds increase the drone's thermal cooldown time. What is the <strong>maximum possible cooldown duration</strong> the drone could spend on the ridge and still arrive at the climber before the rover? <strong>Show your mathematical proof:</strong>
-          </div>
-          <div class="write-lines"></div>
-          <div class="write-lines"></div>
+        <div class="q-item">
+          <div class="q-prompt">3. Path Distance vs. Net Displacement:</div>
+          Why does the Rover travel 800 meters more distance than the Drone to reach the exact same destination?
+          <div class="answer-line"></div>
+        </div>
+
+        <div class="q-item">
+          <div class="q-prompt">4. Maximum Allowable Cooldown (Honors Critical Thinking):</div>
+          What is the maximum duration the drone could spend cooling down on the ridge and still arrive at the climber before the rover? (Show math):
+          <div class="answer-line"></div>
         </div>
       </div>
     </div>
 
+    <!-- Footer -->
     <div class="footer-bar">
       <span>Orange High School • Period 0 Honors Physics</span>
-      <span>Page 2 of 2: Graphing Verification &amp; Race Audit</span>
+      <span>Unit 2: Kinematics • Challenge 3</span>
       <span>Teacher: Mr. Mudry</span>
     </div>
   </div>
@@ -964,8 +690,95 @@ function renderWorksheet3() {
   `;
 }
 
-// Main execution runner
-async function main() {
+// =========================================================================
+// SINGLE-PAGE TEACHER MASTER KEY
+// =========================================================================
+function renderSinglePageKey() {
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Teacher Master Key: Honors Kinematics Challenges</title>
+  <style>
+    @page { size: letter portrait; margin: 0.35in 0.45in; }
+    body { font-family: "Inter", Arial, sans-serif; font-size: 8.5pt; line-height: 1.35; color: #0f172a; }
+    .page { page-break-after: always; height: 10.2in; max-height: 10.2in; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
+    .page:last-child { page-break-after: avoid; }
+    .key-header { border-bottom: 2px solid #b91c1c; padding-bottom: 4px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: flex-end; }
+    h1 { font-size: 13pt; margin: 0 0 2px 0; color: #b91c1c; text-transform: uppercase; font-weight: 900; }
+    .badge { padding: 2px 6px; border-radius: 4px; font-weight: 800; font-size: 7.5pt; background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .card { border: 1.2px solid #cbd5e1; border-radius: 6px; padding: 6px 10px; margin-bottom: 8px; background: #ffffff; }
+    .card-title { font-size: 9.5pt; font-weight: 800; color: #0f172a; margin-bottom: 4px; border-bottom: 1px solid #e2e8f0; padding-bottom: 2px; display: flex; justify-content: space-between; }
+    .ans-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 4px; padding: 4px 8px; margin: 4px 0; font-family: monospace; font-size: 8.5pt; color: #166534; }
+    .bold-lbl { font-weight: 700; color: #1e293b; }
+    .footer { border-top: 1px solid #cbd5e1; padding-top: 3px; font-size: 7.5pt; color: #64748b; display: flex; justify-content: space-between; }
+  </style>
+</head>
+<body>
+
+  <!-- SINGLE MASTER REFERENCE PAGE -->
+  <div class="page">
+    <div>
+      <div class="key-header">
+        <div>
+          <h1>TEACHER MASTER KEY: ALL 3 HONORS CHALLENGES</h1>
+          <div style="font-size: 8pt; font-weight: 700; color: #475569;">Quick-Reference Answers, Coordinates &amp; Debrief Solutions</div>
+        </div>
+        <div><span class="badge">CONFIDENTIAL • MR. MUDRY</span></div>
+      </div>
+
+      <!-- CHALLENGE 1 -->
+      <div class="card">
+        <div class="card-title"><span>Challenge 1: Ship &amp; Drone Kinematic Rendezvous</span><span>Dock Origin (x = 0)</span></div>
+        <p><span class="bold-lbl">Graphed Points:</span> Ship: (0s, 300m), (10s, 360m), (20s, 420m), (30s, 480m), (40s, 540m), (50s, 600m), (55s, 630m). Drone: (0 to 20s at 0m), (30s, 180m), (40s, 360m), (50s, 540m), (55s, 630m).</p>
+        <div class="ans-box">
+          • <strong>Rendezvous Coordinates:</strong> t = <strong>55.0 seconds</strong>, x = <strong>630.0 meters</strong> from dock.<br>
+          • <strong>Slopes:</strong> Ship = +6.0 m/s &bull; Drone (after t=20s) = (540 - 0)/(50 - 20) = +18.0 m/s.<br>
+          • <strong>Drone Flight Duration:</strong> 55 s - 20 s = <strong>35.0 seconds</strong> in the air.<br>
+          • <strong>Battery Safety Audit:</strong> Round-trip = 630 m + 630 m = <strong>1,260 m</strong>. Battery limit is 1,200 m → <strong>FAIL (Will crash 60 m short of dock)</strong>.
+        </div>
+      </div>
+
+      <!-- CHALLENGE 2 -->
+      <div class="card">
+        <div class="card-title"><span>Challenge 2: Tactical Highway Surveillance Intercept</span><span>Piecewise Motion</span></div>
+        <p><span class="bold-lbl">Graphed Points:</span> Target: (0s, 0m) → (20s, 300m) [Leg 1] → (50s, 300m) [Leg 2, flat line] → (90s, 1300m) [Leg 3].</p>
+        <div class="ans-box">
+          • <strong>Rest Stop Meaning:</strong> Zero slope = zero velocity (car is stationary / not moving).<br>
+          • <strong>Patrol Line A (Catch at Rest Stop at t=50s):</strong> Slope = (300 m - 0 m) / (50 s - 30 s) = 300 / 20 = <strong>15.0 m/s</strong>.<br>
+          • <strong>Patrol Line B (Catch at Highway End at t=90s):</strong> Slope = (1,300 m - 0 m) / (90 s - 30 s) = 1,300 / 60 = <strong>21.7 m/s</strong>.<br>
+          • <strong>Speed Limit Constraint (Cap = 20.0 m/s):</strong> Strategy A requires 15.0 m/s ≤ 20.0 m/s (<strong>VIABLE</strong>). Strategy B requires 21.7 m/s &gt; 20.0 m/s (<strong>TOO FAST / IMPOSSIBLE</strong>).
+        </div>
+      </div>
+
+      <!-- CHALLENGE 3 -->
+      <div class="card">
+        <div class="card-title"><span>Challenge 3: Alpine Mountain Rescue Relay</span><span>Distance vs. Displacement</span></div>
+        <p><span class="bold-lbl">Graphed Points:</span> Rover: (0s, 0m) → (120s, 1800m). Drone: (0s, 0m) → (25s, 500m) → (60s, 500m) [pause] → (85s, 1000m).</p>
+        <div class="ans-box">
+          • <strong>Arrival Times:</strong> Drone reaches 1,000 m at <strong>t = 85 seconds</strong> &bull; Rover reaches 1,800 m at <strong>t = 120 seconds</strong>.<br>
+          • <strong>Margin of Victory:</strong> <strong>Drone Beta wins by 35.0 seconds</strong> (120 s - 85 s).<br>
+          • <strong>Path Distance vs. Displacement:</strong> Rover travels winding switchback road (1,800 m); drone flies straight-line vector (1,000 m).<br>
+          • <strong>Maximum Allowable Cooldown:</strong> Rover takes 120 s. Drone flies for 50 s total. 120 s - 50 s = <strong>70.0 seconds max pause</strong>.
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span>Orange High School • Period 0 Honors Physics</span>
+      <span>Teacher Single-Sheet Master Key</span>
+      <span>Teacher: Mr. Mudry</span>
+    </div>
+  </div>
+
+</body>
+</html>
+  `;
+}
+
+// Build runner
+async function buildSinglePageWorksheets() {
   const outDir = path.join(__dirname, '../Unit_2/honors_worksheets');
   if (!fs.existsSync(outDir)) {
     fs.mkdirSync(outDir, { recursive: true });
@@ -974,22 +787,23 @@ async function main() {
   const worksheets = [
     {
       name: 'Worksheet_1_Ship_Drone_Rendezvous',
-      html: renderWorksheet1(),
-      title: 'Challenge 1: Ship & Drone Rendezvous'
+      html: renderSinglePageWorksheet1()
     },
     {
       name: 'Worksheet_2_Highway_Surveillance_Intercept',
-      html: renderWorksheet2(),
-      title: 'Challenge 2: Highway Surveillance Intercept'
+      html: renderSinglePageWorksheet2()
     },
     {
       name: 'Worksheet_3_Mountain_Rescue_Distance_Displacement',
-      html: renderWorksheet3(),
-      title: 'Challenge 3: Mountain Rescue Distance vs. Displacement'
+      html: renderSinglePageWorksheet3()
+    },
+    {
+      name: 'Teacher_Master_Key_All_3_Challenges',
+      html: renderSinglePageKey()
     }
   ];
 
-  console.log('🚀 Launching Puppeteer for PDF generation...');
+  console.log('🚀 Launching Puppeteer to compile Single-Page Worksheets & Key...');
   const browser = await puppeteer.launch({
     headless: true,
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu']
@@ -1000,7 +814,6 @@ async function main() {
     const pdfPath = path.join(outDir, `${ws.name}.pdf`);
 
     fs.writeFileSync(htmlPath, ws.html, 'utf8');
-    console.log(`📄 Saved HTML: ${htmlPath}`);
 
     const page = await browser.newPage();
     await page.setContent(ws.html, { waitUntil: 'networkidle0' });
@@ -1011,22 +824,22 @@ async function main() {
       printBackground: true,
       displayHeaderFooter: false,
       margin: {
-        top: '0.35in',
-        bottom: '0.35in',
-        left: '0.45in',
-        right: '0.45in'
+        top: '0.32in',
+        bottom: '0.32in',
+        left: '0.42in',
+        right: '0.42in'
       }
     });
 
-    console.log(`✅ Generated PDF: ${pdfPath}`);
     await page.close();
+    console.log(`✅ Generated Single-Page PDF: ${ws.name}.pdf`);
   }
 
   await browser.close();
-  console.log('🎉 All 3 Honors Kinematics Worksheets generated successfully!');
+  console.log('🎉 All 3 Single-Page Worksheets + Teacher Key compiled successfully!');
 }
 
-main().catch(err => {
-  console.error('❌ Error generating worksheets:', err);
+buildSinglePageWorksheets().catch(err => {
+  console.error('❌ Error compiling single-page worksheets:', err);
   process.exit(1);
 });
