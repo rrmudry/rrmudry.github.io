@@ -1,0 +1,738 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Physics: Kinematic Motion &amp; Graphing Challenges 1 &amp; 2</title>
+  <style>
+  @page {
+    size: letter portrait;
+    margin: 0.30in 0.40in 0.30in 0.40in;
+  }
+
+  * {
+    box-sizing: border-box;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #0f172a;
+    background: #ffffff;
+    margin: 0;
+    padding: 0;
+    line-height: 1.28;
+    font-size: 8.8pt;
+  }
+
+  .worksheet-page {
+    width: 100%;
+    height: 10.40in;
+    max-height: 10.40in;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    page-break-after: always;
+  }
+
+  .worksheet-page:last-child {
+    page-break-after: avoid;
+  }
+
+  /* Header */
+  .worksheet-header {
+    border-bottom: 2px solid #0f172a;
+    padding-bottom: 4px;
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .header-titles h1 {
+    font-size: 13pt;
+    font-weight: 900;
+    color: #0f172a;
+    margin: 0 0 1px 0;
+    text-transform: uppercase;
+    letter-spacing: -0.3px;
+  }
+
+  .header-titles .sub {
+    font-size: 8pt;
+    font-weight: 700;
+    color: #0284c7;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .header-meta {
+    font-size: 8pt;
+    text-align: right;
+  }
+
+  .student-fields {
+    display: flex;
+    gap: 12px;
+    margin-top: 3px;
+  }
+
+  .field-line {
+    border-bottom: 1px solid #475569;
+    display: inline-block;
+  }
+
+  .field-label {
+    font-weight: 700;
+    color: #334155;
+  }
+
+  /* Scenario Box */
+  .scenario-container {
+    background: #f8fafc;
+    border-left: 3.5px solid #0284c7;
+    border-top: 1px solid #e2e8f0;
+    border-right: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 5px 9px;
+    font-size: 8pt;
+    margin-bottom: 4px;
+    border-radius: 0 5px 5px 0;
+  }
+
+  .scenario-title {
+    font-weight: 800;
+    color: #0f172a;
+    font-size: 8.5pt;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+  }
+
+  .telemetry-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 3px;
+  }
+
+  .telemetry-pill {
+    flex: 1;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    padding: 3px 6px;
+    font-size: 7.5pt;
+    line-height: 1.25;
+  }
+
+  .telemetry-pill strong {
+    color: #0f172a;
+    display: block;
+    margin-bottom: 1px;
+  }
+
+  /* Data Table Helper */
+  .data-table-helper {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 2px;
+    font-size: 7.2pt;
+    text-align: center;
+  }
+
+  .data-table-helper th {
+    background: #e2e8f0;
+    color: #1e293b;
+    padding: 2px 4px;
+    border: 1px solid #cbd5e1;
+    font-weight: 700;
+  }
+
+  .data-table-helper td {
+    padding: 2px 4px;
+    border: 1px solid #cbd5e1;
+    font-family: monospace;
+    font-weight: 600;
+  }
+
+  /* Task instructions bar */
+  .task-bar {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    padding: 3px 6px;
+    font-size: 8pt;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 3px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 7pt;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .badge-blue { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+  .badge-green { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+
+  /* Graph Container */
+  .graph-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 0 3px 0;
+  }
+
+  /* Questions Box */
+  .questions-container {
+    border: 1.5px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 5px 9px;
+    background: #ffffff;
+  }
+
+  .questions-title {
+    font-size: 8.3pt;
+    font-weight: 800;
+    color: #0f172a;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 2px;
+  }
+
+  .q-item {
+    margin-bottom: 3.5px;
+    font-size: 8pt;
+    line-height: 1.25;
+  }
+
+  .q-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .q-prompt {
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 1px;
+  }
+
+  .answer-line {
+    border-bottom: 1px solid #94a3b8;
+    height: 15px;
+    width: 100%;
+    margin-top: 2px;
+  }
+
+  .inline-blank {
+    display: inline-block;
+    border-bottom: 1px solid #475569;
+    min-width: 70px;
+    text-align: center;
+    font-weight: 700;
+  }
+
+  /* Footer */
+  .footer-bar {
+    border-top: 1px solid #cbd5e1;
+    padding-top: 3px;
+    font-size: 7.5pt;
+    color: #64748b;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================ -->
+  <!-- PAGE 1: CHALLENGE 1 (HARBOR RESCUE BOAT & DRONE RENDEZVOUS)   -->
+  <!-- ============================================================ -->
+  <div class="worksheet-page">
+    <div>
+      <!-- Header -->
+      <div class="worksheet-header">
+        <div class="header-titles">
+          <h1>Physics: Kinematic Motion &amp; Graphing Challenge</h1>
+          <p class="sub">Unit 2: Constant Speed, Coordinate Plotting &bull; Challenge 1 of 2</p>
+        </div>
+        <div class="header-meta">
+          <span class="badge badge-blue">HS-PS2-1 • SEP-5</span>
+          <div class="student-fields">
+            <div><span class="field-label">Name:</span> <span class="field-line" style="min-width:180px;"></span></div>
+            <div><span class="field-label">Period:</span> <span class="field-line" style="min-width:40px;"></span></div>
+            <div><span class="field-label">Date:</span> <span class="field-line" style="min-width:65px;"></span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scenario with Scaffolded Plotting Table -->
+      <div class="scenario-container">
+        <div class="scenario-title">Mission Scenario 1: Harbor Coast Guard Air-Drop</div>
+        A rescue boat leaves the harbor dock (<strong>x = 0 m</strong>) and cruises straight out to sea at a steady speed of <strong>6 m/s</strong>. At <strong>t = 0 s</strong>, the boat is already <strong>300 meters</strong> out.<br>
+        A fast emergency drone is launched from the dock (<strong>x = 0 m</strong>). The drone must wait <strong>20 seconds</strong> for GPS lock, remaining on the dock (<strong>x = 0 m</strong> from t = 0 to 20 s), and then flies at a fast steady speed of <strong>18 m/s</strong> to deliver supplies.
+
+        <div class="telemetry-row">
+          <div class="telemetry-pill">
+            <strong>🚢 Rescue Boat (Steady Speed = 6 m/s)</strong>
+            Starts at 300 m at t = 0 s (+60 m every 10 s):
+            <table class="data-table-helper">
+              <tr><th>Time (s)</th><td>0</td><td>10</td><td>20</td><td>30</td><td>40</td><td>50</td><td>60</td></tr>
+              <tr><th>Pos (m)</th><td>300</td><td>360</td><td>420</td><td>480</td><td>540</td><td>600</td><td>660</td></tr>
+            </table>
+          </div>
+          <div class="telemetry-pill">
+            <strong>🚁 Supply Drone (Delayed Takeoff, Speed = 18 m/s)</strong>
+            Waits on dock (0 m) until t = 20 s, then adds +180 m every 10 s:
+            <table class="data-table-helper">
+              <tr><th>Time (s)</th><td>0</td><td>20</td><td>30</td><td>40</td><td>50</td><td>60</td></tr>
+              <tr><th>Pos (m)</th><td>0</td><td>0</td><td>180</td><td>360</td><td>540</td><td>720</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Graphing Directives Bar -->
+      <div class="task-bar">
+        <span>✏️ <strong>Graphing Step:</strong> Plot the coordinates from the tables above. Draw straight lines through the points. Circle the point where the two lines cross (meet)!</span>
+        <span class="badge badge-green">Visual Graph Analysis</span>
+      </div>
+
+      <!-- Large Clean Grid Area -->
+      <div class="graph-wrapper">
+        
+    <svg width="690" height="375" viewBox="0 0 690 375" xmlns="http://www.w3.org/2000/svg" class="coordinate-grid-svg">
+      <defs>
+        <marker id="arrow-right" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#0f172a"/>
+        </marker>
+        <marker id="arrow-up" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 1.5 10 L 5 0 L 8.5 10 z" fill="#0f172a"/>
+        </marker>
+      </defs>
+      <rect x="58" y="20" width="612" height="315" fill="#ffffff" stroke="#94a3b8" stroke-width="1.2" />
+      <line x1="75.5" y1="20" x2="75.5" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="93.0" y1="20" x2="93.0" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="110.5" y1="20" x2="110.5" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="127.9" y1="20" x2="127.9" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="162.9" y1="20" x2="162.9" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="180.4" y1="20" x2="180.4" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="197.9" y1="20" x2="197.9" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="215.4" y1="20" x2="215.4" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="250.3" y1="20" x2="250.3" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="267.8" y1="20" x2="267.8" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="285.3" y1="20" x2="285.3" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="302.8" y1="20" x2="302.8" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="337.8" y1="20" x2="337.8" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="355.3" y1="20" x2="355.3" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="372.7" y1="20" x2="372.7" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="390.2" y1="20" x2="390.2" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="425.2" y1="20" x2="425.2" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="442.7" y1="20" x2="442.7" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="460.2" y1="20" x2="460.2" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="477.7" y1="20" x2="477.7" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="512.6" y1="20" x2="512.6" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="530.1" y1="20" x2="530.1" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="547.6" y1="20" x2="547.6" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="565.1" y1="20" x2="565.1" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="600.1" y1="20" x2="600.1" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="617.5" y1="20" x2="617.5" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="635.0" y1="20" x2="635.0" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="652.5" y1="20" x2="652.5" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58" y1="327.1" x2="670" y2="327.1" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58" y1="319.3" x2="670" y2="319.3" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58" y1="311.4" x2="670" y2="311.4" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58" y1="303.5" x2="670" y2="303.5" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58" y1="287.8" x2="670" y2="287.8" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58" y1="279.9" x2="670" y2="279.9" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58" y1="272.0" x2="670" y2="272.0" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58" y1="264.1" x2="670" y2="264.1" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58" y1="248.4" x2="670" y2="248.4" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58" y1="240.5" x2="670" y2="240.5" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58" y1="232.6" x2="670" y2="232.6" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58" y1="224.8" x2="670" y2="224.8" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58" y1="209.0" x2="670" y2="209.0" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58" y1="201.1" x2="670" y2="201.1" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58" y1="193.3" x2="670" y2="193.3" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58" y1="185.4" x2="670" y2="185.4" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58" y1="169.6" x2="670" y2="169.6" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58" y1="161.8" x2="670" y2="161.8" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58" y1="153.9" x2="670" y2="153.9" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58" y1="146.0" x2="670" y2="146.0" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58" y1="130.3" x2="670" y2="130.3" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58" y1="122.4" x2="670" y2="122.4" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58" y1="114.5" x2="670" y2="114.5" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58" y1="106.6" x2="670" y2="106.6" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58" y1="90.9" x2="670" y2="90.9" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58" y1="83.0" x2="670" y2="83.0" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58" y1="75.1" x2="670" y2="75.1" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58" y1="67.3" x2="670" y2="67.3" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58" y1="51.5" x2="670" y2="51.5" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58" y1="43.6" x2="670" y2="43.6" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58" y1="35.8" x2="670" y2="35.8" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58" y1="27.9" x2="670" y2="27.9" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="58.0" y1="20" x2="58.0" y2="335" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="58.0" y1="335" x2="58.0" y2="339" stroke="#475569" stroke-width="1.5" />
+<text x="58.0" y="351" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="middle">0</text>
+<line x1="145.4" y1="20" x2="145.4" y2="335" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="145.4" y1="335" x2="145.4" y2="339" stroke="#475569" stroke-width="1.5" />
+<text x="145.4" y="351" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="middle">10</text>
+<line x1="232.9" y1="20" x2="232.9" y2="335" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="232.9" y1="335" x2="232.9" y2="339" stroke="#475569" stroke-width="1.5" />
+<text x="232.9" y="351" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="middle">20</text>
+<line x1="320.3" y1="20" x2="320.3" y2="335" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="320.3" y1="335" x2="320.3" y2="339" stroke="#475569" stroke-width="1.5" />
+<text x="320.3" y="351" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="middle">30</text>
+<line x1="407.7" y1="20" x2="407.7" y2="335" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="407.7" y1="335" x2="407.7" y2="339" stroke="#475569" stroke-width="1.5" />
+<text x="407.7" y="351" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="middle">40</text>
+<line x1="495.1" y1="20" x2="495.1" y2="335" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="495.1" y1="335" x2="495.1" y2="339" stroke="#475569" stroke-width="1.5" />
+<text x="495.1" y="351" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="middle">50</text>
+<line x1="582.6" y1="20" x2="582.6" y2="335" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="582.6" y1="335" x2="582.6" y2="339" stroke="#475569" stroke-width="1.5" />
+<text x="582.6" y="351" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="middle">60</text>
+<line x1="670.0" y1="20" x2="670.0" y2="335" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="670.0" y1="335" x2="670.0" y2="339" stroke="#475569" stroke-width="1.5" />
+<text x="670.0" y="351" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="middle">70</text>
+<line x1="58" y1="335.0" x2="670" y2="335.0" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="54" y1="335.0" x2="58" y2="335.0" stroke="#475569" stroke-width="1.5" />
+<text x="51" y="338.5" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="end">0</text>
+<line x1="58" y1="295.6" x2="670" y2="295.6" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="54" y1="295.6" x2="58" y2="295.6" stroke="#475569" stroke-width="1.5" />
+<text x="51" y="299.1" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="end">100</text>
+<line x1="58" y1="256.3" x2="670" y2="256.3" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="54" y1="256.3" x2="58" y2="256.3" stroke="#475569" stroke-width="1.5" />
+<text x="51" y="259.8" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="end">200</text>
+<line x1="58" y1="216.9" x2="670" y2="216.9" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="54" y1="216.9" x2="58" y2="216.9" stroke="#475569" stroke-width="1.5" />
+<text x="51" y="220.4" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="end">300</text>
+<line x1="58" y1="177.5" x2="670" y2="177.5" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="54" y1="177.5" x2="58" y2="177.5" stroke="#475569" stroke-width="1.5" />
+<text x="51" y="181.0" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="end">400</text>
+<line x1="58" y1="138.1" x2="670" y2="138.1" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="54" y1="138.1" x2="58" y2="138.1" stroke="#475569" stroke-width="1.5" />
+<text x="51" y="141.6" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="end">500</text>
+<line x1="58" y1="98.8" x2="670" y2="98.8" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="54" y1="98.8" x2="58" y2="98.8" stroke="#475569" stroke-width="1.5" />
+<text x="51" y="102.3" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="end">600</text>
+<line x1="58" y1="59.4" x2="670" y2="59.4" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="54" y1="59.4" x2="58" y2="59.4" stroke="#475569" stroke-width="1.5" />
+<text x="51" y="62.9" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="end">700</text>
+<line x1="58" y1="20.0" x2="670" y2="20.0" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="54" y1="20.0" x2="58" y2="20.0" stroke="#475569" stroke-width="1.5" />
+<text x="51" y="23.5" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="end">800</text>
+
+      <!-- Axes with Arrowheads -->
+      <line x1="58" y1="12" x2="58" y2="335" stroke="#0f172a" stroke-width="2.2" marker-end="url(#arrow-up)" />
+      <line x1="58" y1="335" x2="682" y2="335" stroke="#0f172a" stroke-width="2.2" marker-end="url(#arrow-right)" />
+      
+      <!-- Axis Labels -->
+      <text x="364" y="368" font-size="11.5" font-family="'Inter', Arial, sans-serif" font-weight="700" fill="#0f172a" text-anchor="middle">Time Elapsed t (seconds)</text>
+      <text transform="rotate(-90)" x="-177.5" y="17" font-size="11.5" font-family="'Inter', Arial, sans-serif" font-weight="700" fill="#0f172a" text-anchor="middle">Position from Dock x (meters)</text>
+      
+      <!-- Title -->
+      <text x="364" y="13" font-size="12" font-family="'Inter', Arial, sans-serif" font-weight="800" fill="#0f172a" text-anchor="middle">Position vs. Time: Rescue Boat & Emergency Drone</text>
+    </svg>
+  
+      </div>
+
+      <!-- Questions from Graph (Scaffolded for Conceptual / Regular Physics) -->
+      <div class="questions-container">
+        <div class="questions-title">
+          <span>Graph Analysis Questions</span>
+          <span style="font-size:7.5pt; color:#64748b; font-weight:600;">Use your graph above to find answers</span>
+        </div>
+
+        <div class="q-item">
+          <div class="q-prompt">1. The Rendezvous Point (Where Lines Cross):</div>
+          Look at where the Boat line and Drone line intersect on your graph:<br>
+          • At what <strong>Time</strong> does the drone catch up to the boat? &nbsp;<span class="inline-blank"></span> seconds<br>
+          • What is their <strong>Position</strong> (distance from dock) at that moment? &nbsp;<span class="inline-blank" style="min-width:80px;"></span> meters
+        </div>
+
+        <div class="q-item">
+          <div class="q-prompt">2. Comparing Steepness &amp; Speed:</div>
+          Which line is steeper on the graph (Boat or Drone)? <span class="inline-blank" style="min-width:65px;"></span> &nbsp;&bull;&nbsp; In physics, what does a <strong>steeper slope</strong> tell you about an object's speed?
+          <div class="answer-line"></div>
+        </div>
+
+        <div class="q-item">
+          <div class="q-prompt">3. Actual Flying Time:</div>
+          The clock reads your meeting time when they meet, but the drone was waiting on the dock for the first 20 seconds. How many seconds was the drone actually flying in the air? (Meeting Time &minus; 20 s) = <span class="inline-blank"></span> seconds
+        </div>
+
+        <div class="q-item">
+          <div class="q-prompt">4. Battery Range Check:</div>
+          The drone battery allows a total round-trip distance of <strong>1,200 meters</strong> (to the boat and back to the dock). If the drone flies out to the meeting position and immediately flies back, what is its total round-trip distance (2 &times; position)? Can it make it back safely? Explain:
+          <div class="answer-line"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-bar">
+      <span>Physics • Motion &amp; Graphing Lab</span>
+      <span>Challenge 1: Boat &amp; Drone Rendezvous &bull; Page 1 of 2</span>
+      <span>Mr. Mudry's Physics</span>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- PAGE 2: CHALLENGE 2 (HIGHWAY COURIER & PATROL INTERCEPT)      -->
+  <!-- ============================================================ -->
+  <div class="worksheet-page">
+    <div>
+      <!-- Header -->
+      <div class="worksheet-header">
+        <div class="header-titles">
+          <h1>Physics: Highway Motion &amp; Intercept Challenge</h1>
+          <p class="sub">Unit 2: Moving, Stopping &amp; Speed Calculations &bull; Challenge 2 of 2</p>
+        </div>
+        <div class="header-meta">
+          <span class="badge badge-blue">HS-PS2-1 • Motion Graphs</span>
+          <div class="student-fields">
+            <div><span class="field-label">Name:</span> <span class="field-line" style="min-width:180px;"></span></div>
+            <div><span class="field-label">Period:</span> <span class="field-line" style="min-width:40px;"></span></div>
+            <div><span class="field-label">Date:</span> <span class="field-line" style="min-width:65px;"></span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scenario with Scaffolded Plotting Table -->
+      <div class="scenario-container">
+        <div class="scenario-title">Mission Scenario 2: Highway Courier Journey &amp; Patrol Intercept</div>
+        A delivery truck drives along a straight highway in three distinct parts starting from the station (<strong>x = 0 m</strong>):<br>
+        • <strong>Part 1 (0 to 20 s):</strong> Drives forward at 15 m/s &rarr; Reaches <strong>x = 300 m</strong> at t = 20 s.<br>
+        • <strong>Part 2 (20 to 50 s):</strong> Stops at a rest area &rarr; Stays at <strong>x = 300 m</strong> for 30 seconds (velocity = 0 m/s).<br>
+        • <strong>Part 3 (50 to 90 s):</strong> Resumes driving at 25 m/s &rarr; Reaches <strong>x = 1,300 m</strong> at t = 90 s.
+
+        <div class="telemetry-row">
+          <div class="telemetry-pill">
+            <strong>🚚 Delivery Truck Coordinates Table</strong>
+            Plot these 4 key checkpoints and connect with straight lines:
+            <table class="data-table-helper">
+              <tr><th>Checkpoint</th><th>Start</th><th>Rest Stop Arrival</th><th>Rest Stop Departure</th><th>End of Highway</th></tr>
+              <tr><th>Time (s)</th><td>0 s</td><td>20 s</td><td>50 s</td><td>90 s</td></tr>
+              <tr><th>Position (m)</th><td>0 m</td><td>300 m</td><td>300 m</td><td>1,300 m</td></tr>
+            </table>
+          </div>
+          <div class="telemetry-pill">
+            <strong>🚓 Highway Patrol Intercept Options</strong>
+            A patrol car leaves the station at <strong>t = 30 s</strong> from <strong>x = 0 m</strong>.<br>
+            • <strong>Line A:</strong> Draw a straight line from (30 s, 0 m) to catch the truck at the rest stop (50 s, 300 m).<br>
+            • <strong>Line B:</strong> Draw a straight line from (30 s, 0 m) to catch the truck at the end (90 s, 1,300 m).
+          </div>
+        </div>
+      </div>
+
+      <!-- Graphing Directives Bar -->
+      <div class="task-bar">
+        <span>✏️ <strong>Graphing Step:</strong> 1) Plot the truck's 3-part journey. 2) Draw <strong>Patrol Line A</strong> (to rest stop). 3) Draw <strong>Patrol Line B</strong> (to end).</span>
+        <span class="badge badge-green">Flat Line = Stopped</span>
+      </div>
+
+      <!-- Large Clean Grid Area -->
+      <div class="graph-wrapper">
+        
+    <svg width="690" height="375" viewBox="0 0 690 375" xmlns="http://www.w3.org/2000/svg" class="coordinate-grid-svg">
+      <defs>
+        <marker id="arrow-right" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#0f172a"/>
+        </marker>
+        <marker id="arrow-up" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 1.5 10 L 5 0 L 8.5 10 z" fill="#0f172a"/>
+        </marker>
+      </defs>
+      <rect x="62" y="20" width="608" height="315" fill="#ffffff" stroke="#94a3b8" stroke-width="1.2" />
+      <line x1="74.2" y1="20" x2="74.2" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="86.3" y1="20" x2="86.3" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="98.5" y1="20" x2="98.5" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="110.6" y1="20" x2="110.6" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="135.0" y1="20" x2="135.0" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="147.1" y1="20" x2="147.1" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="159.3" y1="20" x2="159.3" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="171.4" y1="20" x2="171.4" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="195.8" y1="20" x2="195.8" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="207.9" y1="20" x2="207.9" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="220.1" y1="20" x2="220.1" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="232.2" y1="20" x2="232.2" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="256.6" y1="20" x2="256.6" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="268.7" y1="20" x2="268.7" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="280.9" y1="20" x2="280.9" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="293.0" y1="20" x2="293.0" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="317.4" y1="20" x2="317.4" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="329.5" y1="20" x2="329.5" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="341.7" y1="20" x2="341.7" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="353.8" y1="20" x2="353.8" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="378.2" y1="20" x2="378.2" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="390.3" y1="20" x2="390.3" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="402.5" y1="20" x2="402.5" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="414.6" y1="20" x2="414.6" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="439.0" y1="20" x2="439.0" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="451.1" y1="20" x2="451.1" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="463.3" y1="20" x2="463.3" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="475.4" y1="20" x2="475.4" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="499.8" y1="20" x2="499.8" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="511.9" y1="20" x2="511.9" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="524.1" y1="20" x2="524.1" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="536.2" y1="20" x2="536.2" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="560.6" y1="20" x2="560.6" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="572.7" y1="20" x2="572.7" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="584.9" y1="20" x2="584.9" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="597.0" y1="20" x2="597.0" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="621.4" y1="20" x2="621.4" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="633.5" y1="20" x2="633.5" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="645.7" y1="20" x2="645.7" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="657.8" y1="20" x2="657.8" y2="335" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="62" y1="326.0" x2="670" y2="326.0" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="62" y1="317.0" x2="670" y2="317.0" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="62" y1="308.0" x2="670" y2="308.0" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="62" y1="299.0" x2="670" y2="299.0" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="62" y1="281.0" x2="670" y2="281.0" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="62" y1="272.0" x2="670" y2="272.0" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="62" y1="263.0" x2="670" y2="263.0" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="62" y1="254.0" x2="670" y2="254.0" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="62" y1="236.0" x2="670" y2="236.0" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="62" y1="227.0" x2="670" y2="227.0" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="62" y1="218.0" x2="670" y2="218.0" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="62" y1="209.0" x2="670" y2="209.0" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="62" y1="191.0" x2="670" y2="191.0" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="62" y1="182.0" x2="670" y2="182.0" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="62" y1="173.0" x2="670" y2="173.0" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="62" y1="164.0" x2="670" y2="164.0" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="62" y1="146.0" x2="670" y2="146.0" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="62" y1="137.0" x2="670" y2="137.0" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="62" y1="128.0" x2="670" y2="128.0" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="62" y1="119.0" x2="670" y2="119.0" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="62" y1="101.0" x2="670" y2="101.0" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="62" y1="92.0" x2="670" y2="92.0" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="62" y1="83.0" x2="670" y2="83.0" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="62" y1="74.0" x2="670" y2="74.0" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="62" y1="56.0" x2="670" y2="56.0" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="62" y1="47.0" x2="670" y2="47.0" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="62" y1="38.0" x2="670" y2="38.0" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="62" y1="29.0" x2="670" y2="29.0" stroke="#e2e8f0" stroke-width="0.75" />
+<line x1="62.0" y1="20" x2="62.0" y2="335" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="62.0" y1="335" x2="62.0" y2="339" stroke="#475569" stroke-width="1.5" />
+<text x="62.0" y="351" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="middle">0</text>
+<line x1="122.8" y1="20" x2="122.8" y2="335" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="122.8" y1="335" x2="122.8" y2="339" stroke="#475569" stroke-width="1.5" />
+<text x="122.8" y="351" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="middle">10</text>
+<line x1="183.6" y1="20" x2="183.6" y2="335" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="183.6" y1="335" x2="183.6" y2="339" stroke="#475569" stroke-width="1.5" />
+<text x="183.6" y="351" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="middle">20</text>
+<line x1="244.4" y1="20" x2="244.4" y2="335" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="244.4" y1="335" x2="244.4" y2="339" stroke="#475569" stroke-width="1.5" />
+<text x="244.4" y="351" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="middle">30</text>
+<line x1="305.2" y1="20" x2="305.2" y2="335" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="305.2" y1="335" x2="305.2" y2="339" stroke="#475569" stroke-width="1.5" />
+<text x="305.2" y="351" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="middle">40</text>
+<line x1="366.0" y1="20" x2="366.0" y2="335" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="366.0" y1="335" x2="366.0" y2="339" stroke="#475569" stroke-width="1.5" />
+<text x="366.0" y="351" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="middle">50</text>
+<line x1="426.8" y1="20" x2="426.8" y2="335" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="426.8" y1="335" x2="426.8" y2="339" stroke="#475569" stroke-width="1.5" />
+<text x="426.8" y="351" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="middle">60</text>
+<line x1="487.6" y1="20" x2="487.6" y2="335" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="487.6" y1="335" x2="487.6" y2="339" stroke="#475569" stroke-width="1.5" />
+<text x="487.6" y="351" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="middle">70</text>
+<line x1="548.4" y1="20" x2="548.4" y2="335" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="548.4" y1="335" x2="548.4" y2="339" stroke="#475569" stroke-width="1.5" />
+<text x="548.4" y="351" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="middle">80</text>
+<line x1="609.2" y1="20" x2="609.2" y2="335" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="609.2" y1="335" x2="609.2" y2="339" stroke="#475569" stroke-width="1.5" />
+<text x="609.2" y="351" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="middle">90</text>
+<line x1="670.0" y1="20" x2="670.0" y2="335" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="670.0" y1="335" x2="670.0" y2="339" stroke="#475569" stroke-width="1.5" />
+<text x="670.0" y="351" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="middle">100</text>
+<line x1="62" y1="335.0" x2="670" y2="335.0" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="58" y1="335.0" x2="62" y2="335.0" stroke="#475569" stroke-width="1.5" />
+<text x="55" y="338.5" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="end">0</text>
+<line x1="62" y1="290.0" x2="670" y2="290.0" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="58" y1="290.0" x2="62" y2="290.0" stroke="#475569" stroke-width="1.5" />
+<text x="55" y="293.5" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="end">200</text>
+<line x1="62" y1="245.0" x2="670" y2="245.0" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="58" y1="245.0" x2="62" y2="245.0" stroke="#475569" stroke-width="1.5" />
+<text x="55" y="248.5" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="end">400</text>
+<line x1="62" y1="200.0" x2="670" y2="200.0" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="58" y1="200.0" x2="62" y2="200.0" stroke="#475569" stroke-width="1.5" />
+<text x="55" y="203.5" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="end">600</text>
+<line x1="62" y1="155.0" x2="670" y2="155.0" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="58" y1="155.0" x2="62" y2="155.0" stroke="#475569" stroke-width="1.5" />
+<text x="55" y="158.5" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="end">800</text>
+<line x1="62" y1="110.0" x2="670" y2="110.0" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="58" y1="110.0" x2="62" y2="110.0" stroke="#475569" stroke-width="1.5" />
+<text x="55" y="113.5" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="end">1000</text>
+<line x1="62" y1="65.0" x2="670" y2="65.0" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="58" y1="65.0" x2="62" y2="65.0" stroke="#475569" stroke-width="1.5" />
+<text x="55" y="68.5" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="end">1200</text>
+<line x1="62" y1="20.0" x2="670" y2="20.0" stroke="#94a3b8" stroke-width="1.25" />
+<line x1="58" y1="20.0" x2="62" y2="20.0" stroke="#475569" stroke-width="1.5" />
+<text x="55" y="23.5" font-size="10.5" font-family="'Inter', Arial, sans-serif" font-weight="600" fill="#334155" text-anchor="end">1400</text>
+
+      <!-- Axes with Arrowheads -->
+      <line x1="62" y1="12" x2="62" y2="335" stroke="#0f172a" stroke-width="2.2" marker-end="url(#arrow-up)" />
+      <line x1="62" y1="335" x2="682" y2="335" stroke="#0f172a" stroke-width="2.2" marker-end="url(#arrow-right)" />
+      
+      <!-- Axis Labels -->
+      <text x="366" y="368" font-size="11.5" font-family="'Inter', Arial, sans-serif" font-weight="700" fill="#0f172a" text-anchor="middle">Time Elapsed t (seconds)</text>
+      <text transform="rotate(-90)" x="-177.5" y="17" font-size="11.5" font-family="'Inter', Arial, sans-serif" font-weight="700" fill="#0f172a" text-anchor="middle">Highway Position x (meters)</text>
+      
+      <!-- Title -->
+      <text x="366" y="13" font-size="12" font-family="'Inter', Arial, sans-serif" font-weight="800" fill="#0f172a" text-anchor="middle">Position vs. Time: Delivery Truck & Highway Patrol</text>
+    </svg>
+  
+      </div>
+
+      <!-- Questions from Graph (Scaffolded for Conceptual / Regular Physics) -->
+      <div class="questions-container">
+        <div class="questions-title">
+          <span>Graph Analysis Questions</span>
+          <span style="font-size:7.5pt; color:#64748b; font-weight:600;">Use your graph and formulas to answer</span>
+        </div>
+
+        <div class="q-item">
+          <div class="q-prompt">1. Understanding the Rest Stop (Flat Line):</div>
+          What does the completely flat horizontal line between t = 20 s and t = 50 s tell you about the truck's motion? How do you know the truck is NOT moving?
+          <div class="answer-line"></div>
+        </div>
+
+        <div class="q-item">
+          <div class="q-prompt">2. Calculating Patrol Car Speeds (Speed = Distance / Time):</div>
+          • <strong>Option A (Catch at rest stop):</strong> Car travels 300 m in 20 seconds (from 30 s to 50 s).<br>
+          &nbsp;&nbsp;Speed = 300 m &divide; 20 s = <span class="inline-blank"></span> m/s<br>
+          • <strong>Option B (Catch at end):</strong> Car travels 1,300 m in 60 seconds (from 30 s to 90 s).<br>
+          &nbsp;&nbsp;Speed = 1,300 m &divide; 60 s = <span class="inline-blank"></span> m/s
+        </div>
+
+        <div class="q-item">
+          <div class="q-prompt">3. Patrol Safe Speed Limit:</div>
+          The patrol car has a maximum safe speed limit of <strong>20 m/s</strong> (about 45 mph). Which option can the patrol car safely choose (Option A or Option B)? Explain why using your speeds calculated above:
+          <div class="answer-line"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-bar">
+      <span>Physics • Motion &amp; Graphing Lab</span>
+      <span>Challenge 2: Highway Intercept &bull; Page 2 of 2</span>
+      <span>Mr. Mudry's Physics</span>
+    </div>
+  </div>
+
+</body>
+</html>
+  
