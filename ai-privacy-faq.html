@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI & Student Privacy FAQ • Mr. Mudry's Physics</title>
+  <link rel="icon" type="image/png" href="head.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #090d16;
+      --card-bg: rgba(15, 23, 42, 0.85);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --accent-cyan: #00f3ff;
+      --accent-green: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-purple: #a855f7;
+      --text-main: #f8fafc;
+      --text-sub: #cbd5e1;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(circle at 50% 0%, #172554 0%, var(--bg-dark) 65%);
+      color: var(--text-main);
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.5;
+      padding: 2.5rem 1.5rem 5rem;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1050px;
+      margin: 0 auto;
+    }
+
+    /* Header & Back Link */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--accent-cyan);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 0.5rem 1rem;
+      background: rgba(0, 243, 255, 0.08);
+      border: 1px solid rgba(0, 243, 255, 0.25);
+      border-radius: 999px;
+      transition: all 0.2s ease;
+    }
+
+    .back-link:hover {
+      background: rgba(0, 243, 255, 0.2);
+      transform: translateX(-3px);
+    }
+
+    .badge-btsn {
+      background: linear-gradient(135deg, #f59e0b, #ea580c);
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0.4rem 1.1rem;
+      border-radius: 999px;
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.35);
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      margin-bottom: 3.5rem;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.4rem, 5vw, 3.6rem);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #ffffff 40%, #38bdf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: clamp(1.15rem, 2.2vw, 1.4rem);
+      color: var(--text-sub);
+      max-width: 780px;
+      margin: 0 auto 1.5rem;
+      font-weight: 500;
+    }
+
+    .callout-summary {
+      background: rgba(16, 185, 129, 0.1);
+      border: 2px solid var(--accent-green);
+      border-radius: 20px;
+      padding: 1.5rem 2rem;
+      text-align: left;
+      display: flex;
+      gap: 1.25rem;
+      align-items: center;
+      box-shadow: 0 10px 30px rgba(16, 185, 129, 0.15);
+      margin-bottom: 3rem;
+    }
+
+    .callout-summary .icon {
+      font-size: 2.8rem;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .callout-summary h2 {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: #6ee7b7;
+      margin-bottom: 0.3rem;
+    }
+
+    .callout-summary p {
+      font-size: 1.1rem;
+      color: #e2e8f0;
+      margin: 0;
+    }
+
+    /* Key Pillars Grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+      gap: 1.75rem;
+      margin-bottom: 3.5rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 2px solid var(--card-border);
+      border-radius: 22px;
+      padding: 2.2rem 1.8rem;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(12px);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: transform 0.25s ease, border-color 0.25s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+    }
+
+    .card.cyan { border-color: rgba(0, 243, 255, 0.4); }
+    .card.green { border-color: rgba(16, 185, 129, 0.4); }
+    .card.amber { border-color: rgba(245, 158, 11, 0.4); }
+    .card.purple { border-color: rgba(168, 85, 247, 0.4); }
+
+    .card-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      line-height: 1;
+    }
+
+    .card-headline {
+      font-size: clamp(1.35rem, 2vw, 1.6rem);
+      font-weight: 800;
+      line-height: 1.25;
+      margin-bottom: 1rem;
+    }
+
+    .cyan .card-headline { color: var(--accent-cyan); }
+    .green .card-headline { color: #34d399; }
+    .amber .card-headline { color: #fbbf24; }
+    .purple .card-headline { color: #c084fc; }
+
+    .card-desc {
+      font-size: 1.1rem;
+      color: var(--text-sub);
+      line-height: 1.55;
+      flex-grow: 1;
+    }
+
+    .card-desc strong {
+      color: #ffffff;
+    }
+
+    .card-badge {
+      margin-top: 1.5rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 0.45rem 0.9rem;
+      border-radius: 8px;
+      width: fit-content;
+    }
+
+    .cyan .card-badge { background: rgba(0, 243, 255, 0.12); color: var(--accent-cyan); border: 1px solid rgba(0, 243, 255, 0.3); }
+    .green .card-badge { background: rgba(16, 185, 129, 0.12); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .amber .card-badge { background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .purple .card-badge { background: rgba(168, 85, 247, 0.12); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+
+    /* Comparison Table / Box */
+    .comparison-section {
+      background: rgba(15, 23, 42, 0.9);
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      border-radius: 24px;
+      padding: 2.5rem 2rem;
+      margin-bottom: 3.5rem;
+    }
+
+    .comparison-section h2 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 680px) {
+      .compare-grid {
+        grid-template-columns: 1fr;
+      }
+      .callout-summary {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+
+    .compare-col {
+      padding: 1.75rem;
+      border-radius: 16px;
+    }
+
+    .compare-col.never {
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .compare-col.allowed {
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .compare-col h3 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .compare-col.never h3 { color: #f87171; }
+    .compare-col.allowed h3 { color: #34d399; }
+
+    .compare-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      font-size: 1.05rem;
+    }
+
+    .compare-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    /* Footer Notes */
+    .faq-footer {
+      text-align: center;
+      font-size: 1.05rem;
+      color: #94a3b8;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .faq-footer a {
+      color: var(--accent-cyan);
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- Top Navigation Bar -->
+    <div class="top-bar">
+      <a href="index.html" class="back-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Back to Physics Home
+      </a>
+      <span class="badge-btsn">Back-to-School Night 🏫</span>
+    </div>
+
+    <!-- Hero Header -->
+    <header class="hero">
+      <h1>AI Mentor & Student Privacy</h1>
+      <p>How we harness artificial intelligence to support physics inquiry while fiercely guarding your student's personal data and privacy.</p>
+    </header>
+
+    <!-- Bottom-Line Callout Banner -->
+    <div class="callout-summary">
+      <div class="icon">🛡️</div>
+      <div>
+        <h2>The Core Guarantee</h2>
+        <p><strong>Zero student personal information</strong> (no names, no emails, no student IDs) is ever transmitted to the AI. All educational records stay strictly within our protected school database.</p>
+      </div>
+    </div>
+
+    <!-- 4 Big Key Points Grid -->
+    <div class="grid">
+
+      <!-- Point 1 -->
+      <article class="card cyan">
+        <div class="card-icon">🚫 👤</div>
+        <h2 class="card-headline">1. 100% Anonymized</h2>
+        <p class="card-desc">
+          When students chat with the physics mentor, the AI only receives the physics dialogue. <strong>Names, school emails, and student ID numbers (PII) are completely stripped beforehand.</strong>
+        </p>
+        <div class="card-badge cyan">ZERO PERSONAL INFO (PII) SHARED</div>
+      </article>
+
+      <!-- Point 2 -->
+      <article class="card green">
+        <div class="card-icon">🔒 📑</div>
+        <h2 class="card-headline">2. No Model Training</h2>
+        <p class="card-desc">
+          Unlike public consumer tools, our classroom connects via <strong>enterprise Google Cloud APIs</strong>. Student inquiries are <strong>never used to train future AI models</strong> and are never sold or shared.
+        </p>
+        <div class="card-badge green">COMMERCIAL PRIVACY TERMS</div>
+      </article>
+
+      <!-- Point 3 -->
+      <article class="card amber">
+        <div class="card-icon">👀 👨‍🏫</div>
+        <h2 class="card-headline">3. 100% Teacher Supervised</h2>
+        <p class="card-desc">
+          I have a <strong>live classroom dashboard</strong> open during every warm-up. Every student's interaction is recorded in our school database, allowing me to view transcripts and assist in real time.
+        </p>
+        <div class="card-badge amber">LIVE DASHBOARD OVERSIGHT</div>
+      </article>
+
+      <!-- Point 4 -->
+      <article class="card purple">
+        <div class="card-icon">🎯 ⏱️</div>
+        <h2 class="card-headline">4. Strict Guardrails</h2>
+        <p class="card-desc">
+          The AI is locked into a <strong>supportive physics tutor persona</strong>. It cannot chat about non-academic topics, will not give away test answers, and sessions are capped at <strong>3–5 minutes</strong>.
+        </p>
+        <div class="card-badge purple">PEDAGOGICAL GUARDRAILS</div>
+      </article>
+
+    </div>
+
+    <!-- What AI Sees vs What AI Never Sees -->
+    <section class="comparison-section">
+      <h2>What Information Leaves the Classroom?</h2>
+      <div class="compare-grid">
+
+        <!-- Never Sent -->
+        <div class="compare-col never">
+          <h3>❌ What the AI NEVER Sees</h3>
+          <ul class="compare-list">
+            <li>🚫 Student Full Name</li>
+            <li>🚫 School District Email / Login</li>
+            <li>🚫 Student ID Number</li>
+            <li>🚫 Grades & Academic Records</li>
+            <li>🚫 Physical Location / Device IP</li>
+          </ul>
+        </div>
+
+        <!-- Only What Is Sent -->
+        <div class="compare-col allowed">
+          <h3>✅ What the AI DOES See</h3>
+          <ul class="compare-list">
+            <li>✔️ Today's Physics Prompt (e.g. <em>"What keeps a satellite in orbit?"</em>)</li>
+            <li>✔️ Student's Science Thinking & Explanations</li>
+            <li>✔️ Context Needed to Offer Hints & Socratic Encouragement</li>
+          </ul>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Federal Compliance Box: FERPA & COPPA -->
+    <section class="comparison-section" style="border-color: rgba(56, 189, 248, 0.4); background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(2, 132, 199, 0.15));">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-bottom: 1.5rem;">
+        <span style="font-size: 2.2rem;">🏛️</span>
+        <h2 style="margin: 0; font-size: 1.8rem; font-weight: 900; color: #38bdf8;">Federal Student Privacy Standards</h2>
+      </div>
+
+      <div class="compare-grid">
+        <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 16px; padding: 1.5rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+            <span style="background: #0284c7; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 800; padding: 2px 8px; border-radius: 4px;">FERPA</span>
+            <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: #fff;">Family Educational Rights & Privacy Act</h3>
+          </div>
+          <p style="color: var(--text-sub); font-size: 1.05rem; line-height: 1.5;">
+            Protects student educational records. Because <strong>no educational records or student identities are ever disclosed</strong> to the generative AI service, and all student grades remain strictly within our secured school database, our system is fully FERPA-compliant.
+          </p>
+        </div>
+
+        <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 16px; padding: 1.5rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+            <span style="background: #0284c7; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 800; padding: 2px 8px; border-radius: 4px;">COPPA</span>
+            <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: #fff;">Children’s Online Privacy Protection Act</h3>
+          </div>
+          <p style="color: var(--text-sub); font-size: 1.05rem; line-height: 1.5;">
+            Prevents commercial data collection from minors. The AI mentor operates under strict enterprise API terms: <strong>no student profiling, zero targeted advertisements, and no retention or reuse</strong> of student inquiries for model training.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer Note -->
+    <div class="faq-footer">
+      <p>Have more questions tonight? Please feel free to ask me during our classroom visit or email me anytime via <a href="contact.html">the contact page</a>.</p>
+    </div>
+
+  </div>
+
+</body>
+</html>
