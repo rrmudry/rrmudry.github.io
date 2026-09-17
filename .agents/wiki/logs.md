@@ -2,6 +2,17 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-16 — Student Engagement Law: Explicit Completion vs. Genuine Fun
+
+**Pattern Created**: `student-task-engagement.md` & added workspace rule to `AGENTS.md`.
+
+**Core Rule**:
+- Never design or suggest a lesson, activity, or assignment where high school students are simply given a URL and told to "experiment," "play around with," or "practice."
+- High school students immediately disengage without structured anchors.
+- Every student activity must satisfy at least one of two design archetypes:
+  1. **Archetype A: Clear Completion Requirements & Deliverables**: Explicit "done" criteria (e.g. minimum score threshold like 85%, finite challenge levels, hard submit button to Firestore / Classroom, or companion handout).
+  2. **Archetype B: Genuinely Fun & Competitive Game Dynamics**: Head-to-head showdowns, live prediction challenges, race simulations with real-time stakes (win/loss/crash), or leaderboards where students actively compete against each other or the clock.
+
 ## 2026-09-15 — Marble Ramp Lab: Cloud State Restoration & Checks Array Guard
 
 **Pattern Updated**: `marble-ramp-graphing-lab.md` — Fixed cloud draft state merging.

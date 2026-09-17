@@ -2,6 +2,10 @@
 
 > Architecture and implementation guide for multi-agent 1D motion simulations, real-time dual-curve graph synchronizers, procedural Web Audio SFX, and competitive classroom intercept challenges.
 
+> [!WARNING]
+> **Classroom Usability Caution (Teacher Verified)**:
+> The Two-Vehicle Kinematic Intercept Challenge is **NOT suitable for independent student work** for general and conceptual high school physics students. Solving simultaneous kinematic equations ($x_A(t) = x_B(t)$) algebraically creates severe cognitive blockage and frustration, and does not work as intended for independent practice. Do NOT assign or recommend this as an independent student activity.
+
 ---
 
 ## 1. Overview & Pedagogical Purpose
