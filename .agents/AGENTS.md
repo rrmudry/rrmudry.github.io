@@ -62,4 +62,11 @@ Whenever modifying the homepage (`index.html`), updating dashboards, or deployin
 - Run `node scripts/update-timestamp.js` to refresh the `Site Updated: <span id="last-updated">...</span>` timestamp inside `partials/footer.html`.
 - This ensures the footer consistently reflects the actual deployment date and time.
 
-
+## 🎯 Student Engagement Law: Explicit Completion or Genuine Fun (No "Vague Practice")
+Never design or suggest a lesson, activity, or assignment where high school students are simply given a URL and told to "experiment," "play around with," or "practice." High school students will immediately disengage without structured anchors.
+Every student activity must satisfy at least one of these two criteria:
+1. **Clear Completion Requirements & Deliverables**:
+   - Explicit "done" criteria: e.g., "Complete all 3 tiers, earn at least 8/10 points, and click Submit to log your score in Classroom."
+   - A concrete deliverable (e.g., guided worksheet, minimum score threshold, or required submission badge).
+2. **Genuinely Fun & Competitive Game Dynamics**:
+   - Head-to-head showdowns, live prediction challenges, race simulations with real-time stakes (win/loss/near-miss), or streak/leaderboard mechanics where students are actively competing against a clock, prediction, or partner.
