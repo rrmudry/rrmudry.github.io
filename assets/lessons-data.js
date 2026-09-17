@@ -1953,7 +1953,7 @@ const lessonsData = [
     "semester": 1,
     "isFeatured": true,
     "summary": "Define acceleration as the rate of change of velocity (a = Δv / Δt = (v - v₀) / t), analyze the slope of v-t graphs, and resolve the fundamental misconception of speeding up vs. slowing down.",
-    "activity": "Acceleration Sign Detective & Curve Matching: Students investigate 6 authentic physical scenarios (a car braking at a red light, a rocket launching upward, a roller coaster rolling backward down a hill, a ball tossed into the air). Students determine the signs of velocity and acceleration, prove that 'speeding up' requires matching signs and 'slowing down' requires opposing signs, and match scenarios to corresponding parabolic x-t and linear v-t graph cards.",
+    "activity": "Period 0 Honors: Kinematics Graphing Challenges 1 & 2 (Oceanic Rendezvous & Highway Surveillance Intercept) — plot piecewise 1D motions on coordinate grids, calculate intercept coordinates and slopes. General Physics: Acceleration Sign Detective & Curve Matching scenarios.",
     "essentialQuestion": "How can an object have a negative acceleration and still be speeding up?",
     "standards": [
       "HS-PS2-1"
@@ -2080,6 +2080,14 @@ const lessonsData = [
     },
     "assignments": [
       {
+        "title": "Honors Kinematics Graphing Challenges 1 & 2 (Honors only)",
+        "url": "Unit_2/honors_worksheets/Honors_Kinematics_Graphing_Challenges_1_and_2.pdf",
+        "typeLabel": "Honors only",
+        "submission": "Turn In via Classroom (10 pts)",
+        "actionLabel": "Open Worksheet PDF",
+        "description": "Period 0 Honors: Piecewise 1D motion modeling, graphical intercept analysis, and velocity slopes."
+      },
+      {
         "title": "Acceleration Sign Detective & Curve Matching Worksheet",
         "typeLabel": "Classwork Practice",
         "submission": "In-Class Handout (Subject to Pacing)",
@@ -2108,18 +2116,12 @@ const lessonsData = [
         "url": "Unit_2/velocity_time_graph_studio/index.html",
         "typeLabel": "Interactive Visualizer",
         "description": "Compare constant speed vs. positive/negative uniform acceleration."
-      },
-      {
-        "title": "Two-Car Kinematic Intercept Challenge",
-        "url": "Unit_2/two_car_intercept/index.html",
-        "typeLabel": "Kinematic Challenge",
-        "description": "Inspect real-time vector arrows and velocity changes."
       }
     ],
     "links": {
+      "Honors Kinematics Graphing Challenges 1 & 2 (Honors only)": "Unit_2/honors_worksheets/Honors_Kinematics_Graphing_Challenges_1_and_2.pdf",
       "Velocity vs. Time Visualizer": "Unit_2/velocity_time_graph_studio/index.html",
-      "Distance vs Time App": "https://rrmudry.github.io/distance_vs_time_graphing.html",
-      "Two-Car Kinematic Intercept Challenge": "Unit_2/two_car_intercept/index.html"
+      "Distance vs Time App": "https://rrmudry.github.io/distance_vs_time_graphing.html"
     }
   },
   {
