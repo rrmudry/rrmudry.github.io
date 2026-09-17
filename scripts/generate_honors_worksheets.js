@@ -206,16 +206,16 @@ const printCss = `
     border-top: 1px solid #e2e8f0;
     border-right: 1px solid #e2e8f0;
     border-bottom: 1px solid #e2e8f0;
-    padding: 6px 10px;
-    font-size: 8.5pt;
-    margin-bottom: 5px;
+    padding: 5px 9px;
+    font-size: 8pt;
+    margin-bottom: 4px;
     border-radius: 0 5px 5px 0;
   }
 
   .scenario-title {
     font-weight: 800;
     color: #0f172a;
-    font-size: 9pt;
+    font-size: 8.5pt;
     margin-bottom: 2px;
     text-transform: uppercase;
   }
@@ -223,7 +223,7 @@ const printCss = `
   .telemetry-row {
     display: flex;
     gap: 8px;
-    margin-top: 4px;
+    margin-top: 3px;
   }
 
   .telemetry-pill {
@@ -231,8 +231,9 @@ const printCss = `
     background: #ffffff;
     border: 1px solid #cbd5e1;
     border-radius: 4px;
-    padding: 3px 6px;
-    font-size: 8pt;
+    padding: 2px 5px;
+    font-size: 7.5pt;
+    line-height: 1.25;
   }
 
   .telemetry-pill strong {
@@ -246,11 +247,11 @@ const printCss = `
     background: #f1f5f9;
     border: 1px solid #cbd5e1;
     border-radius: 4px;
-    padding: 4px 8px;
-    font-size: 8.2pt;
+    padding: 3px 6px;
+    font-size: 8pt;
     font-weight: 600;
     color: #1e293b;
-    margin-bottom: 5px;
+    margin-bottom: 4px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -272,23 +273,23 @@ const printCss = `
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 2px 0 5px 0;
+    margin: 1px 0 4px 0;
   }
 
   /* Questions Box */
   .questions-container {
     border: 1.5px solid #cbd5e1;
     border-radius: 6px;
-    padding: 6px 10px;
+    padding: 5px 9px;
     background: #ffffff;
   }
 
   .questions-title {
-    font-size: 8.8pt;
+    font-size: 8.5pt;
     font-weight: 800;
     color: #0f172a;
     text-transform: uppercase;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
     display: flex;
     justify-content: space-between;
     border-bottom: 1px solid #e2e8f0;
@@ -296,8 +297,9 @@ const printCss = `
   }
 
   .q-item {
-    margin-bottom: 5px;
-    font-size: 8.5pt;
+    margin-bottom: 4px;
+    font-size: 8.2pt;
+    line-height: 1.25;
   }
 
   .q-item:last-child {
@@ -305,16 +307,16 @@ const printCss = `
   }
 
   .q-prompt {
-    font-weight: 600;
+    font-weight: 700;
     color: #0f172a;
-    margin-bottom: 2px;
+    margin-bottom: 1px;
   }
 
   .answer-line {
     border-bottom: 1px solid #94a3b8;
-    height: 18px;
+    height: 16px;
     width: 100%;
-    margin-top: 1px;
+    margin-top: 2px;
   }
 
   .inline-blank {
@@ -341,11 +343,11 @@ function renderCombinedWorksheet() {
   // Grid 1: Ship & Drone (70s x 800m)
   const gridSvg1 = generateCleanGrid({
     width: 690,
-    height: 425,
+    height: 380,
     marginLeft: 58,
-    marginBottom: 44,
+    marginBottom: 40,
     marginRight: 20,
-    marginTop: 22,
+    marginTop: 20,
     xMin: 0,
     xMax: 70,
     xMajor: 10,
@@ -362,11 +364,11 @@ function renderCombinedWorksheet() {
   // Grid 2: Highway Intercept (100s x 1400m)
   const gridSvg2 = generateCleanGrid({
     width: 690,
-    height: 425,
+    height: 380,
     marginLeft: 62,
-    marginBottom: 44,
+    marginBottom: 40,
     marginRight: 20,
-    marginTop: 22,
+    marginTop: 20,
     xMin: 0,
     xMax: 100,
     xMajor: 10,
@@ -420,13 +422,13 @@ function renderCombinedWorksheet() {
         <div class="telemetry-row">
           <div class="telemetry-pill">
             <strong>🚢 Research Vessel Telemetry</strong>
-            • Starts at: <strong>x₀ = 300 m</strong> at t = 0 s<br>
-            • Constant Speed: <strong>v = 6.0 m/s</strong> (gains 60 m every 10 s)
+            • Initial Position: <strong>x₀ = 300 m</strong> at t = 0 s<br>
+            • Constant Velocity: <strong>v = 6.0 m/s</strong> (+60 m every 10 s)
           </div>
           <div class="telemetry-pill">
             <strong>🚁 Medical Drone Telemetry</strong>
-            • Starts at: <strong>x₀ = 0 m</strong> (dock)<br>
-            • Launch Delay: At rest until <strong>t = 20 s</strong>, then cruises at <strong>v = 18.0 m/s</strong> (gains 180 m every 10 s)
+            • Initial Position: <strong>x₀ = 0 m</strong> (dock)<br>
+            • Launch: Holds until <strong>t = 20 s</strong>, then flies at <strong>v = 18.0 m/s</strong> (+180 m every 10 s)
           </div>
         </div>
       </div>
