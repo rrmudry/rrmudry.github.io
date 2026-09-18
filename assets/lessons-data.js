@@ -2260,10 +2260,10 @@ const lessonsData = [
     ],
     "resources": [
       {
-        "title": "Two-Car Kinematic Intercept Challenge",
-        "url": "Unit_2/two_car_intercept/index.html",
-        "typeLabel": "Honors Physics Intercept Simulator",
-        "description": "Explore acceleration intercepts and collision timing."
+        "title": "Velocity vs. Time (v-t) Graph & Motion Visualizer",
+        "url": "Unit_2/velocity_time_graph_studio/index.html",
+        "typeLabel": "Interactive Visualizer",
+        "description": "Examine acceleration as slope of the v-t curve (a = Δv / Δt) and displacement as area under the curve."
       }
     ],
     "practice": [
@@ -2275,7 +2275,7 @@ const lessonsData = [
       }
     ],
     "links": {
-      "Two-Car Kinematic Intercept Challenge": "Unit_2/two_car_intercept/index.html",
+      "Velocity vs. Time Visualizer": "Unit_2/velocity_time_graph_studio/index.html",
       "Speed & Distance Studio": "Unit_2/speed_distance_time_app/index.html"
     }
   },
