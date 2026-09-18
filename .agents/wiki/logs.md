@@ -2,6 +2,17 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-17 — Official Student Handout: Graphing Speed Story (1-Page with Bubble Grid & QR Code)
+
+**Pattern Updated**: `printable-graphing-worksheets.md`.
+
+**Changes**:
+- Integrated official teacher-provided 1-page PDF (`Graphing Speed Story - Google Docs`) as the sole student-facing handout at `Unit_2/worksheets/Graphing_Speed_Story.pdf`.
+- Document contains Student ID bubble sheet, Score /10 bubble sheet, QR code, and Dual-Graph Studio unnumbered grids.
+- Overwrote `Constant_Speed_Dual_Graph_Story.pdf` with the official file to safeguard against stale links.
+- Updated `Unit_2/unit2_lessons.json`, `Unit_2/lesson.json`, `Unit_2/outline.md`, and `assets/lessons-data.js` to point exclusively to `Graphing_Speed_Story.pdf`.
+- Removed Teacher Master Key links from student-facing dashboard resources and links.
+
 ## 2026-09-17 — Unnumbered Student-Calibrated Axes on Dual-Graph Worksheet
 
 **Pattern Updated**: `printable-graphing-worksheets.md`.
