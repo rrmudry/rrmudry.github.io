@@ -142,13 +142,13 @@ This unit follows the classical and cognitive progression:
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction / Inquiry
     *   *Links:* [Distance vs Time App](https://rrmudry.github.io/distance_vs_time_graphing.html)
 
-*   **Day 15 (2026-09-18): Uniformly Accelerated Motion (UAM) & Kinematic Relationships**
-    *   *Bell-Ringer:* Autonomous Braking & Collision Avoidance (CAST Challenge): A self-driving vehicle traveling at 24.0 m/s detects a stalled vehicle 60.0 meters ahead. After a 0.50 s sensor reaction delay, the brakes apply a constant deceleration of 6.0 m/s². Determine if the vehicle stops in time.
-    *   *Focus:* Uniformly Accelerated Motion (UAM) with `a = constant`. Kinematic Model 1: `v = v₀ + at` (from `v-t` slope). Kinematic Model 2: `x = x₀ + v₀t + ½at²` (from trapezoid area under `v-t`: rectangle `v₀t` + triangle `½at²`). Average velocity under uniform acceleration: `v_avg = (v₀ + v) / 2`.
-    *   *Activity:* UAM Performance Challenge — Runway Takeoff & Emergency Braking: Students work through multi-stage motion scenarios (acceleration sprint followed by constant-velocity cruise or emergency braking). Teams calculate stopping distances, flight takeoff speeds, and sketch complete `x-t`, `v-t`, and `a-t` kinematic profiles.
-    *   *Essential Question:* How do the two core kinematic equations allow us to predict both the exact speed and final position of an accelerating object at any point in time?
-    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Performance Task / Problem Solving
-    *   *Links:* [Two-Car Kinematic Intercept Challenge](Unit_2/two_car_intercept/index.html)
+*   **Day 15 (2026-09-18): Graphing Speed Story: 3-Stage Dual-Graph Edition**
+    *   *Bell-Ringer:* Dual-Graph Alignment & Unit Cancellation (CAST Challenge): Analyze a rectangular area under a 4.0 m/s velocity line for 25.0 seconds (100.0 meters). Prove mathematically how multiplying the height unit (m/s) by the width unit (s) cancels to distance.
+    *   *Focus:* 3-Stage piecewise constant speed motion modeled across 10.0 seconds (matching Dual-Graph Studio). Slopes of x-t equal velocities; areas under v-t equal displacements.
+    *   *Activity:* Graphing Speed Story Workshop: Students invent and illustrate an original 3-section constant-speed motion journey across 10.0 seconds (matching the Dual-Graph Studio), author a short story, calculate velocities, and construct aligned Position-Time and Velocity-Time graphs on paper.
+    *   *Essential Question:* How do Position-Time and Velocity-Time graphs provide complementary visual proofs of an object's speed and displacement?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* In-Class Performance Task
+    *   *Links:* [Graphing Speed Story Worksheet](Unit_2/worksheets/Graphing_Speed_Story.pdf), [Dual-Graph Motion Studio](Unit_2/dual_graph_studio/index.html)
 
 ---
 
