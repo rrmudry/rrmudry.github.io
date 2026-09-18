@@ -27,6 +27,24 @@ To ensure zero cognitive friction between the interactive webapp and the paper a
 - **Velocity Bounds**: $v \in [-4\text{m/s}, +6\text{m/s}]$ (10 m/s span, 5 major divisions of 2 m/s, minor grid at 1 m/s) with a prominent baseline at $v = 0\text{m/s}$.
 - **1:1 Time Column Width**: $W = 690\text{px}$, Left Margin $= 52\text{px}$, Right Margin $= 18\text{px} \implies$ Plot Width $= 620\text{px}$. Each 1-second step is identically $62\text{px}$ wide on both graphs, ensuring that the start/end points of Section 1, 2, and 3 align 1:1 vertically between slope and area.
 
+---
+
+## 3. Unnumbered Student-Calibrated Axes & Scale Planner Pattern
+
+When students author their own motion story, pre-printed numbers on axes can constrain their creativity or contradict their custom distances and speeds. To support authentic student scale selection:
+- **Unnumbered Axes on Student Worksheet (`showNumbers: false`)**:
+  - Suppress numerical text labels on both axes while rendering crisp 6px tick marks at every division along the horizontal (time) and vertical (position/velocity) axes.
+  - Leave generous margins (e.g., $34\text{px}$ along the left Y-axis and $28\text{px}$ along the bottom X-axis) so students can comfortably handwrite their scale numbers ($0, 1, 2, 3...$, $0, 2, 4, 6...$, or $0, 5, 10, 15...$).
+  - **Graph 1 ($x-t$)**: Bold baseline at the bottom horizontal axis and bold vertical axis forming an $L$-coordinate frame starting at $(0,0)$.
+  - **Graph 2 ($v-t$)**: Prominent bold center baseline representing $v = 0\text{ m/s}$ with ticks across the center line, 4 divisions above ($+v$ forward), and 4 divisions below ($-v$ reverse).
+- **Scale Calibration Planner Bar**:
+  - Provide a compact calibration guide above Graph 1 prompting students to explicitly declare their scale factors before plotting:
+    - *Time Axis ($t$)*: $1\text{ block} = \text{____ s}$
+    - *Position Axis ($x$)*: $1\text{ block} = \text{____ m}$
+    - *Velocity Axis ($v$)*: $1\text{ block} = \text{____ m/s}$
+- **Teacher Master Key Retains Full Exemplar (`showNumbers: true`)**:
+  - The Teacher Master Key retains complete pre-printed numbers, slope triangles, and shaded areas matching the reference scenario (e.g. Mars Rover), allowing teachers to grade against an established standard.
+
 
 ---
 

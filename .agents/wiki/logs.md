@@ -2,6 +2,17 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-17 — Unnumbered Student-Calibrated Axes on Dual-Graph Worksheet
+
+**Pattern Updated**: `printable-graphing-worksheets.md`.
+
+**Changes**:
+- Updated `generateStudioGridSVG` in `scripts/generate_dual_graph_story_worksheet.js` to support `showNumbers: false` for the student worksheet while retaining `showNumbers: true` on the Teacher Master Key.
+- Suppressed numerical labels on both axes while generating prominent 6px ticks with generous write-in margins for student handwriting.
+- Added compact Scale Calibration Planner banner above Graph 1 on Page 2 prompting students to declare time, position, and velocity scale factors per block.
+- Rendered bold bottom-left $L$-coordinate frame on Graph 1 and bold center baseline ($v=0$) on Graph 2 with 4 divisions above and 4 divisions below.
+- Replaced hardcoded "10.0s" on Page 1 with open blanks to give students flexibility in choosing their journey parameters.
+
 ## 2026-09-17 — Constant Speed Story: 3-Stage Dual-Graph Studio Edition
 
 **Pattern Created & Updated**: `printable-graphing-worksheets.md` & added to `index.md`.
