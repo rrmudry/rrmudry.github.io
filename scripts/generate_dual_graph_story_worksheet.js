@@ -33,7 +33,8 @@ function generateStudioGridSVG({
   yLabel = "Position x (meters)",
   title = "Graph 1: Position vs. Time (x vs. t)",
   isVelocity = false,
-  titleAnchor = "end"
+  titleAnchor = "end",
+  showNumbers = true
 }) {
   const plotWidth = width - marginLeft - marginRight;
   const plotHeight = height - marginTop - marginBottom;
@@ -46,32 +47,37 @@ function generateStudioGridSVG({
 
   let gridLines = '';
 
-  // Minor vertical grid lines (every 0.5s)
-  for (let t = xMin; t <= xMax; t += 0.5) {
-    if (Math.abs(t % 1) > 0.01) {
-      const px = toPxX(t);
-      gridLines += `<line x1="${px.toFixed(1)}" y1="${marginTop}" x2="${px.toFixed(1)}" y2="${marginTop + plotHeight}" stroke="#f1f5f9" stroke-width="0.75" />\n`;
-    }
+  // Minor vertical grid lines (midpoint between major divisions)
+  for (let t = xMin + xStep / 2; t < xMax; t += xStep) {
+    const px = toPxX(t);
+    gridLines += `<line x1="${px.toFixed(1)}" y1="${marginTop}" x2="${px.toFixed(1)}" y2="${marginTop + plotHeight}" stroke="#f1f5f9" stroke-width="0.75" />\n`;
   }
 
-  // Minor horizontal grid lines (every 1 unit if step is 2)
-  if (yStep === 2) {
-    for (let y = yMin; y <= yMax; y += 1) {
-      if (Math.abs(y % 2) > 0.01) {
-        const py = toPxY(y);
-        gridLines += `<line x1="${marginLeft}" y1="${py.toFixed(1)}" x2="${marginLeft + plotWidth}" y2="${py.toFixed(1)}" stroke="#f1f5f9" stroke-width="0.75" />\n`;
-      }
-    }
+  // Minor horizontal grid lines (midpoint between major divisions)
+  for (let y = yMin + yStep / 2; y < yMax; y += yStep) {
+    const py = toPxY(y);
+    gridLines += `<line x1="${marginLeft}" y1="${py.toFixed(1)}" x2="${marginLeft + plotWidth}" y2="${py.toFixed(1)}" stroke="#f1f5f9" stroke-width="0.75" />\n`;
   }
 
-  // Major vertical grid lines (every 1s)
+  // Zero axis baseline position
+  const zeroY = toPxY(0);
+
+  // Major vertical grid lines (every 1 division)
   for (let t = xMin; t <= xMax; t += xStep) {
     const px = toPxX(t);
     gridLines += `<line x1="${px.toFixed(1)}" y1="${marginTop}" x2="${px.toFixed(1)}" y2="${marginTop + plotHeight}" stroke="#cbd5e1" stroke-width="1.1" />\n`;
-    // Tick mark below
-    gridLines += `<line x1="${px.toFixed(1)}" y1="${marginTop + plotHeight}" x2="${px.toFixed(1)}" y2="${marginTop + plotHeight + 4}" stroke="#334155" stroke-width="1.3" />\n`;
-    // Label
-    gridLines += `<text x="${px.toFixed(1)}" y="${marginTop + plotHeight + 13}" font-size="8.5" font-family="'Inter', sans-serif" font-weight="700" fill="#334155" text-anchor="middle">${t}s</text>\n`;
+    // Tick mark below the bottom axis (6px long for student write-in)
+    gridLines += `<line x1="${px.toFixed(1)}" y1="${marginTop + plotHeight}" x2="${px.toFixed(1)}" y2="${marginTop + plotHeight + 6}" stroke="#0f172a" stroke-width="1.6" />\n`;
+
+    // If velocity graph and center zero line exists, also draw ticks across the zero line
+    if (isVelocity && zeroY >= marginTop && zeroY <= marginTop + plotHeight) {
+      gridLines += `<line x1="${px.toFixed(1)}" y1="${(zeroY - 4).toFixed(1)}" x2="${px.toFixed(1)}" y2="${(zeroY + 4).toFixed(1)}" stroke="#0f172a" stroke-width="1.4" />\n`;
+    }
+
+    // Number label (ONLY if showNumbers is true!)
+    if (showNumbers) {
+      gridLines += `<text x="${px.toFixed(1)}" y="${marginTop + plotHeight + 14}" font-size="8.5" font-family="'Inter', sans-serif" font-weight="700" fill="#334155" text-anchor="middle">${t}s</text>\n`;
+    }
   }
 
   // Major horizontal grid lines
@@ -79,21 +85,28 @@ function generateStudioGridSVG({
     const py = toPxY(y);
     const isZero = (y === 0);
     const strokeColor = isZero ? '#0f172a' : '#cbd5e1';
-    const strokeWidth = isZero ? '1.8' : '1.1';
+    const strokeWidth = isZero ? '2.0' : '1.1';
 
     gridLines += `<line x1="${marginLeft}" y1="${py.toFixed(1)}" x2="${marginLeft + plotWidth}" y2="${py.toFixed(1)}" stroke="${strokeColor}" stroke-width="${strokeWidth}" />\n`;
-    // Tick mark
-    gridLines += `<line x1="${marginLeft - 4}" y1="${py.toFixed(1)}" x2="${marginLeft}" y2="${py.toFixed(1)}" stroke="#334155" stroke-width="1.3" />\n`;
-    // Label
-    const fontWeight = isZero ? '800' : '600';
-    const fillColor = isZero ? '#0f172a' : '#475569';
-    gridLines += `<text x="${marginLeft - 6}" y="${(py + 3).toFixed(1)}" font-size="8.5" font-family="'Inter', sans-serif" font-weight="${fontWeight}" fill="${fillColor}" text-anchor="end">${y}</text>\n`;
+    // Tick mark on left axis (6px long for student write-in)
+    gridLines += `<line x1="${marginLeft - 6}" y1="${py.toFixed(1)}" x2="${marginLeft}" y2="${py.toFixed(1)}" stroke="#0f172a" stroke-width="1.6" />\n`;
+
+    // Number label (ONLY if showNumbers is true!)
+    if (showNumbers) {
+      const fontWeight = isZero ? '800' : '600';
+      const fillColor = isZero ? '#0f172a' : '#475569';
+      gridLines += `<text x="${marginLeft - 8}" y="${(py + 3).toFixed(1)}" font-size="8.5" font-family="'Inter', sans-serif" font-weight="${fontWeight}" fill="${fillColor}" text-anchor="end">${y}</text>\n`;
+    }
   }
 
-  // Zero axis baseline highlight
-  const zeroY = toPxY(0);
+  // Zero axis baseline highlight (for velocity center line)
   const zeroAxisHighlight = (zeroY >= marginTop && zeroY <= marginTop + plotHeight)
-    ? `<line x1="${marginLeft}" y1="${zeroY.toFixed(1)}" x2="${marginLeft + plotWidth}" y2="${zeroY.toFixed(1)}" stroke="#0f172a" stroke-width="1.8" />\n`
+    ? `<line x1="${marginLeft}" y1="${zeroY.toFixed(1)}" x2="${marginLeft + plotWidth}" y2="${zeroY.toFixed(1)}" stroke="#0f172a" stroke-width="2.2" />\n`
+    : '';
+
+  // Bottom baseline highlight (for position-time graph)
+  const bottomAxisHighlight = (!isVelocity)
+    ? `<line x1="${marginLeft}" y1="${marginTop + plotHeight}" x2="${marginLeft + plotWidth}" y2="${marginTop + plotHeight}" stroke="#0f172a" stroke-width="2.0" />\n`
     : '';
 
   const titleX = (titleAnchor === 'start') ? (marginLeft + 6) : (marginLeft + plotWidth - 4);
@@ -103,12 +116,13 @@ function generateStudioGridSVG({
       <rect x="${marginLeft}" y="${marginTop}" width="${plotWidth}" height="${plotHeight}" fill="#ffffff" stroke="#64748b" stroke-width="1.2" />
       ${gridLines}
       ${zeroAxisHighlight}
+      ${bottomAxisHighlight}
       <!-- Left Y-Axis line -->
-      <line x1="${marginLeft}" y1="${marginTop}" x2="${marginLeft}" y2="${marginTop + plotHeight}" stroke="#0f172a" stroke-width="1.8" />
+      <line x1="${marginLeft}" y1="${marginTop}" x2="${marginLeft}" y2="${marginTop + plotHeight}" stroke="#0f172a" stroke-width="2.0" />
       
       <!-- Axis Labels -->
-      <text x="${marginLeft + plotWidth / 2}" y="${height - 3}" font-size="9.5" font-family="'Inter', sans-serif" font-weight="700" fill="#0f172a" text-anchor="middle">${xLabel}</text>
-      <text transform="rotate(-90)" x="${-(marginTop + plotHeight / 2)}" y="13" font-size="9.5" font-family="'Inter', sans-serif" font-weight="700" fill="#0f172a" text-anchor="middle">${yLabel}</text>
+      <text x="${marginLeft + plotWidth / 2}" y="${height - 4}" font-size="9.5" font-family="'Inter', sans-serif" font-weight="700" fill="#0f172a" text-anchor="middle">${xLabel}</text>
+      <text transform="rotate(-90)" x="${-(marginTop + plotHeight / 2)}" y="14" font-size="9.5" font-family="'Inter', sans-serif" font-weight="700" fill="#0f172a" text-anchor="middle">${yLabel}</text>
       
       <!-- Title Badge -->
       <text x="${titleX}" y="${marginTop + 11}" font-size="9.2" font-family="'Inter', sans-serif" font-weight="800" fill="#0284c7" text-anchor="${titleAnchor}">${title}</text>
@@ -506,6 +520,24 @@ const printCss = `
     color: #0f172a;
   }
 
+  /* Scale Planner Banner */
+  .scale-planner-banner {
+    background: #f8fafc;
+    border: 1.2px solid #cbd5e1;
+    border-radius: 4px;
+    padding: 3px 8px;
+    margin-bottom: 4px;
+    font-size: 7.5pt;
+  }
+
+  .scale-planner-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr 1fr;
+    gap: 8px;
+    margin-top: 2px;
+    font-size: 7.4pt;
+  }
+
   /* Footer */
   .footer-bar {
     border-top: 1px solid #cbd5e1;
@@ -529,12 +561,13 @@ function renderStudentWorksheet() {
     xMin: 0,
     xMax: 10,
     xStep: 1,
-    yMin: -2,
-    yMax: 18,
-    yStep: 2,
-    xLabel: "Time (seconds)",
+    yMin: 0,
+    yMax: 10,
+    yStep: 1,
+    xLabel: "Time t (seconds)",
     yLabel: "Position x (meters)",
-    title: "Graph 1: Position vs. Time (x vs. t) — Plot 3 Connected Segments"
+    title: "Graph 1: Position vs. Time (x vs. t) — 10-Division Grid (Label Axes & Plot Segments)",
+    showNumbers: false
   });
 
   const grid2 = generateStudioGridSVG({
@@ -548,12 +581,13 @@ function renderStudentWorksheet() {
     xMax: 10,
     xStep: 1,
     yMin: -4,
-    yMax: 6,
-    yStep: 2,
-    xLabel: "Time (seconds)",
+    yMax: 4,
+    yStep: 1,
+    xLabel: "Time t (seconds)",
     yLabel: "Velocity v (m/s)",
-    title: "Graph 2: Velocity vs. Time (v vs. t) — Draw Horizontal Bars & Shade Areas",
-    isVelocity: true
+    title: "Graph 2: Velocity vs. Time (v vs. t) — Center Line is v = 0 (Label Axes & Draw Bars)",
+    isVelocity: true,
+    showNumbers: false
   });
 
   return `
@@ -589,7 +623,7 @@ function renderStudentWorksheet() {
 
       <!-- Task Directive -->
       <div class="task-banner">
-        <span>✏️ <strong>Mission:</strong> Invent an original character/vehicle journey across <strong>3 distinct motion sections</strong> over <strong>10.0 seconds</strong> (like the Dual-Graph Studio). Illustrate the scene, author your narrative, and calculate the velocities in the table. On the back, prove your math with both graphs!</span>
+        <span>✏️ <strong>Mission:</strong> Invent an original character/vehicle journey across <strong>3 distinct motion sections</strong> (like the Dual-Graph Studio). Illustrate the scene, author your narrative, and calculate the velocities in the table. On the back, calibrate your axis scales and prove your math with both graphs!</span>
         <span class="badge badge-blue">HS-PS2-1 • Performance Task</span>
       </div>
 
@@ -611,7 +645,7 @@ function renderStudentWorksheet() {
       <div class="section-card">
         <div class="section-header">
           <span>Part 2: Original 3-Section Motion Narrative</span>
-          <span class="section-desc">Describe what occurs in each phase (Total Time = 10 seconds)</span>
+          <span class="section-desc">Describe what occurs in each phase of your object's motion:</span>
         </div>
         <div class="story-grid-3">
           <div class="story-sec-box">
@@ -642,7 +676,7 @@ function renderStudentWorksheet() {
 
           <div class="story-sec-box">
             <div class="story-sec-title">
-              <span>Section 3 (t₂ to 10s)</span>
+              <span>Section 3 (t₂ to t_final)</span>
               <span style="color:#0284c7;">Final Stretch</span>
             </div>
             <div style="font-size:7pt; color:#64748b;">Travels from x = <span class="blank-write" style="min-width:20px;"></span>m to x = <span class="blank-write" style="min-width:20px;"></span>m:</div>
@@ -676,8 +710,8 @@ function renderStudentWorksheet() {
               <td class="col-label"><strong>Time Interval (&Delta;t)</strong><br><span style="font-size:6.8pt; color:#64748b;">&Delta;t = t_final &minus; t_initial</span></td>
               <td>From <span class="blank-write" style="min-width:18px;"></span>s to <span class="blank-write" style="min-width:18px;"></span>s<br><strong>&Delta;t₁ = <span class="blank-write" style="min-width:25px;"></span> s</strong></td>
               <td>From <span class="blank-write" style="min-width:18px;"></span>s to <span class="blank-write" style="min-width:18px;"></span>s<br><strong>&Delta;t₂ = <span class="blank-write" style="min-width:25px;"></span> s</strong></td>
-              <td>From <span class="blank-write" style="min-width:18px;"></span>s to 10s<br><strong>&Delta;t₃ = <span class="blank-write" style="min-width:25px;"></span> s</strong></td>
-              <td style="background:#f8fafc; font-weight:800; text-align:center;">&Delta;t_total = <strong>10.0 s</strong></td>
+              <td>From <span class="blank-write" style="min-width:18px;"></span>s to <span class="blank-write" style="min-width:18px;"></span>s<br><strong>&Delta;t₃ = <span class="blank-write" style="min-width:25px;"></span> s</strong></td>
+              <td style="background:#f8fafc; font-weight:800; text-align:center;">&Delta;t_total = <strong><span class="blank-write" style="min-width:28px;"></span> s</strong></td>
             </tr>
             <tr>
               <td class="col-label"><strong>Position Coordinates</strong><br><span style="font-size:6.8pt; color:#64748b;">Initial (x_i) &rarr; Final (x_f)</span></td>
@@ -705,7 +739,7 @@ function renderStudentWorksheet() {
               <td>v₁ = <span class="blank-write" style="min-width:25px;"></span>m / <span class="blank-write" style="min-width:20px;"></span>s<br><strong>v₁ = <span class="blank-write" style="min-width:35px;"></span> m/s</strong></td>
               <td>v₂ = <span class="blank-write" style="min-width:25px;"></span>m / <span class="blank-write" style="min-width:20px;"></span>s<br><strong>v₂ = <span class="blank-write" style="min-width:35px;"></span> m/s</strong></td>
               <td>v₃ = <span class="blank-write" style="min-width:25px;"></span>m / <span class="blank-write" style="min-width:20px;"></span>s<br><strong>v₃ = <span class="blank-write" style="min-width:35px;"></span> m/s</strong></td>
-              <td style="background:#f8fafc; font-weight:700; font-size:7pt;">Average Speed:<br>v_avg = d_tot / 10s<br>= <span class="blank-write" style="min-width:30px;"></span> m/s</td>
+              <td style="background:#f8fafc; font-weight:700; font-size:7pt;">Average Speed:<br>v_avg = d_tot / &Delta;t_tot<br>= <span class="blank-write" style="min-width:30px;"></span> m/s</td>
             </tr>
           </tbody>
         </table>
@@ -736,6 +770,19 @@ function renderStudentWorksheet() {
             <div><span class="field-label">Name:</span> <span class="field-line" style="min-width:150px;"></span></div>
             <div><span class="field-label">Period:</span> <span class="field-line" style="min-width:35px;"></span></div>
           </div>
+        </div>
+      </div>
+
+      <!-- Scale Calibration Planner -->
+      <div class="scale-planner-banner">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span>📏 <strong>Axis Scale Calibration:</strong> Choose your scale to fit your story &bull; Write your numbers along the axis tick marks before plotting:</span>
+          <span style="font-size:7pt; color:#64748b;">(Aligned 10-Division Grid)</span>
+        </div>
+        <div class="scale-planner-grid">
+          <div><strong>Time Axis (t):</strong> 1 block = <span class="blank-write" style="min-width:28px;"></span> s</div>
+          <div><strong>Position Axis (x):</strong> 1 block = <span class="blank-write" style="min-width:28px;"></span> m</div>
+          <div><strong>Velocity Axis (v):</strong> 1 block = <span class="blank-write" style="min-width:28px;"></span> m/s</div>
         </div>
       </div>
 
