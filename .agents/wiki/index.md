@@ -20,4 +20,4 @@
 | [velocity-time-graphing-studio](patterns/velocity-time-graphing-studio.md) | kinematics, velocity-time, graphing, acceleration, area-displacement, vectors, strobe-trail | 2026-09-15 | Interactive velocity-time studio with constant speed, uniform acceleration, area integration, 1D motion visualizer, and strobe trails |
 | [marble-ramp-graphing-lab](patterns/marble-ramp-graphing-lab.md) | kinematics, marble-ramp, position-time, velocity-time, graphing, click-to-plot, cast | 2026-09-15 | Interactive 6-step incline lab with click-to-plot x-t & v-t graphing, slope triangles, and area under curve |
 | [student-task-engagement](patterns/student-task-engagement.md) | pedagogy, engagement, completion-criteria, gamification, high-school | 2026-09-16 | Engagement law: explicit completion requirements vs genuine fun/competition (no open-ended "practice" sandboxes) |
-
+| [printable-graphing-worksheets](patterns/printable-graphing-worksheets.md) | worksheet, printable, pdf, dual-graph, svg-grid, student-calibration, rubrics | 2026-09-17 | Open student-calibrated SVG coordinate grids, 2-page letter print budgets, vertical time alignment, and teacher master keys |

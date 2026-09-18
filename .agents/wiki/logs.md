@@ -2,6 +2,21 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-17 — Constant Speed Dual-Graph Story: Student-Calibrated Grids & Printable 2-Page Layout
+
+**Pattern Created**: `printable-graphing-worksheets.md` & added to `index.md`.
+
+**Motivation**:
+- For Day 15 (Friday, Sep 18), created an authentic student-authored dual-graph assignment similar to Day 10, replacing premature acceleration equations with a comprehensive synthesis of constant speed.
+- Students invent an original scenario, draw it, compose a word problem targeting an unknown, solve with 5-step GUESS proof, and plot both Position-Time ($x-t$) and Velocity-Time ($v-t$) graphs.
+
+**Key Architecture & Highlights**:
+- **Open Student Calibration Grids**: Pre-rendered light gray subdivisions with bracket tick notches along axes allowing students with different numbers (speeds from 1 to 30 m/s, times from 5 to 60 s) to label their own scale. A top Scale Planner table guides students through calculating unit/tick before drawing.
+- **Vertical Time Alignment**: Stacked $x-t$ and $v-t$ graphs have identical plot width and time division spacing so that the time axis coordinates align 1:1 vertically between slope and area.
+- **Strict 2-Page Print Budget**: Tuned CSS (`height: 10.36in`, `page-break-after: always`) and verified with headless Puppeteer to guarantee 0 bottom-edge cutoff across both student pages and the 1-page Teacher Master Key.
+- **Strict No-LaTeX Notation**: Plain text and Unicode symbols throughout prompt instructions and math labels.
+- **Accompanying Teacher Master Key**: 10-point holistic rubric and complete Mars Rover exemplar.
+
 ## 2026-09-16 — Student Engagement Law: Explicit Completion vs. Genuine Fun
 
 **Pattern Created**: `student-task-engagement.md` & added workspace rule to `AGENTS.md`.
