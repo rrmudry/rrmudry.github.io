@@ -1,0 +1,405 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Teacher Master Key: Constant Speed Dual-Graph Story</title>
+  <style>
+    
+  @page {
+    size: letter portrait;
+    margin: 0.32in 0.42in 0.32in 0.42in;
+  }
+
+  * {
+    box-sizing: border-box;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #0f172a;
+    background: #ffffff;
+    margin: 0;
+    padding: 0;
+    line-height: 1.25;
+    font-size: 8.5pt;
+  }
+
+  .worksheet-page {
+    width: 100%;
+    height: 10.36in;
+    max-height: 10.36in;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    page-break-after: always;
+  }
+
+  .worksheet-page:last-child {
+    page-break-after: avoid;
+  }
+
+  /* Header */
+  .worksheet-header {
+    border-bottom: 2px solid #0f172a;
+    padding-bottom: 4px;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .header-titles h1 {
+    font-size: 13pt;
+    font-weight: 900;
+    color: #0f172a;
+    margin: 0 0 1px 0;
+    text-transform: uppercase;
+    letter-spacing: -0.3px;
+  }
+
+  .header-titles .sub {
+    font-size: 7.8pt;
+    font-weight: 700;
+    color: #0284c7;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .header-meta {
+    font-size: 8pt;
+    text-align: right;
+  }
+
+  .student-fields {
+    display: flex;
+    gap: 12px;
+    margin-top: 3px;
+  }
+
+  .field-line {
+    border-bottom: 1px solid #475569;
+    display: inline-block;
+  }
+
+  .field-label {
+    font-weight: 700;
+    color: #334155;
+  }
+
+  .score-box {
+    border: 1.5px solid #0f172a;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 8pt;
+    font-weight: 800;
+    background: #f8fafc;
+    display: inline-block;
+    margin-top: 2px;
+  }
+
+  /* Directives Banner */
+  .task-banner {
+    background: #f1f5f9;
+    border-left: 3.5px solid #0284c7;
+    border-top: 1px solid #cbd5e1;
+    border-right: 1px solid #cbd5e1;
+    border-bottom: 1px solid #cbd5e1;
+    border-radius: 0 4px 4px 0;
+    padding: 4px 8px;
+    font-size: 8pt;
+    color: #1e293b;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 7pt;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .badge-blue { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+  .badge-amber { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+
+  /* Sections */
+  .section-card {
+    border: 1.5px solid #cbd5e1;
+    border-radius: 5px;
+    padding: 6px 8px;
+    margin-bottom: 6px;
+    background: #ffffff;
+  }
+
+  .section-card:last-child {
+    margin-bottom: 0;
+  }
+
+  .section-header {
+    font-weight: 800;
+    color: #0f172a;
+    font-size: 8.5pt;
+    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 2px;
+    margin-bottom: 4px;
+  }
+
+  .section-desc {
+    font-size: 7.5pt;
+    color: #64748b;
+    font-weight: normal;
+    text-transform: none;
+  }
+
+  /* Drawing Box */
+  .drawing-box {
+    border: 1.5px dashed #94a3b8;
+    border-radius: 4px;
+    height: 175px;
+    background: #fafafa;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .drawing-watermark {
+    font-size: 8pt;
+    color: #94a3b8;
+    font-style: italic;
+    text-align: center;
+    pointer-events: none;
+    line-height: 1.4;
+  }
+
+  /* Word problem writing lines */
+  .story-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 6px;
+    padding-bottom: 2px;
+  }
+
+  .story-line {
+    border-bottom: 1px dashed #94a3b8;
+    height: 16px;
+    width: 100%;
+  }
+
+  /* GUESS Table */
+  .guess-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8pt;
+  }
+
+  .guess-table td {
+    padding: 3.5px 5px;
+    border: 1px solid #cbd5e1;
+    vertical-align: middle;
+  }
+
+  .guess-letter {
+    width: 24px;
+    text-align: center;
+    font-weight: 900;
+    font-size: 9.5pt;
+    background: #f1f5f9;
+    color: #0284c7;
+  }
+
+  .guess-label {
+    width: 105px;
+    font-weight: 700;
+    color: #1e293b;
+    background: #f8fafc;
+  }
+
+  .guess-content {
+    background: #ffffff;
+  }
+
+  .blank-write {
+    display: inline-block;
+    border-bottom: 1px solid #475569;
+    min-width: 100px;
+  }
+
+  /* Scale Planner */
+  .scale-planner-grid {
+    display: flex;
+    gap: 8px;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    padding: 4px 8px;
+    margin-bottom: 5px;
+    font-size: 7.5pt;
+  }
+
+  .scale-col {
+    flex: 1;
+  }
+  .scale-col strong {
+    display: block;
+    color: #0f172a;
+    margin-bottom: 1px;
+    font-size: 7.8pt;
+  }
+
+  /* Analysis box under grid */
+  .graph-analysis-bar {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    padding: 4px 8px;
+    margin-top: 3px;
+    margin-bottom: 5px;
+    font-size: 8pt;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* Footer */
+  .footer-bar {
+    border-top: 1px solid #cbd5e1;
+    padding-top: 3px;
+    font-size: 7.2pt;
+    color: #64748b;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+    .key-header { background: #0f172a; color: #ffffff; padding: 6px 12px; border-radius: 4px; margin-bottom: 8px; }
+    .key-badge { background: #ccff00; color: #000; font-weight: 800; padding: 2px 6px; border-radius: 3px; font-size: 7.5pt; }
+    .exemplar-box { background: #f8fafc; border: 1.5px solid #0284c7; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+    .grid-preview { display: flex; gap: 10px; margin-top: 6px; }
+    .grid-preview-box { flex: 1; border: 1px solid #cbd5e1; border-radius: 4px; padding: 6px; background: #ffffff; }
+  </style>
+</head>
+<body>
+  <div class="worksheet-page" style="height: 10.36in;">
+    <div>
+      <div class="key-header" style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <h1 style="font-size:12pt; margin:0; font-weight:900; letter-spacing:0.5px;">TEACHER MASTER KEY &amp; GRADING RUBRIC</h1>
+          <p style="margin:0; font-size:8pt; color:#94a3b8;">Constant Speed Story: Dual-Graph Edition &bull; Day 15 Performance Task</p>
+        </div>
+        <div>
+          <span class="key-badge">TEACHER REFERENCE KEY</span>
+        </div>
+      </div>
+
+      <!-- Rubric Summary -->
+      <div style="background:#f1f5f9; border:1px solid #cbd5e1; border-radius:5px; padding:6px 10px; font-size:8pt; margin-bottom:8px;">
+        <strong style="color:#0f172a; text-transform:uppercase;">📊 10-Point Holistic Grading Rubric:</strong>
+        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:6px; margin-top:4px;">
+          <div style="background:#fff; border:1px solid #cbd5e1; padding:4px; border-radius:3px;">
+            <strong>1. Illustration (2 pts):</strong> Clear moving object, origin (0,0) labeled, motion direction vector arrow.
+          </div>
+          <div style="background:#fff; border:1px solid #cbd5e1; padding:4px; border-radius:3px;">
+            <strong>2. Word Problem (2 pts):</strong> Authentic constant-speed story stating 2 knowns with units and 1 clear target unknown.
+          </div>
+          <div style="background:#fff; border:1px solid #cbd5e1; padding:4px; border-radius:3px;">
+            <strong>3. GUESS Proof (3 pts):</strong> G, U, E, S, S completely filled out, algebra correct, final answer boxed with units.
+          </div>
+          <div style="background:#fff; border:1px solid #cbd5e1; padding:4px; border-radius:3px;">
+            <strong>4. Dual Graphs (3 pts):</strong> Calibrated axes, straight line on x-t (slope = v), horizontal line on v-t (area = d).
+          </div>
+        </div>
+      </div>
+
+      <!-- Worked Exemplar -->
+      <div class="exemplar-box">
+        <div style="font-weight:800; color:#0284c7; font-size:9pt; margin-bottom:4px; text-transform:uppercase;">
+          🌟 Complete Student Work Exemplar: "The Mars Rover Traverse"
+        </div>
+        
+        <div style="display:grid; grid-template-columns: 1.2fr 1fr; gap:10px; font-size:8pt;">
+          <div>
+            <p style="margin:0 0 4px 0;"><strong>Student Story / Problem:</strong><br>
+            <em>"NASA's autonomous Mars Recon Rover drives across the flat plains of Jezero Crater at a steady speed of <strong>15.0 m/s</strong> for a total time of <strong>40.0 seconds</strong>. How many meters of Martian terrain does the rover cross before its next sensor scan?"</em></p>
+            
+            <p style="margin:0 0 2px 0;"><strong>Complete GUESS Mathematical Proof:</strong></p>
+            <table style="width:100%; border-collapse:collapse; font-size:7.5pt; background:#fff; border:1px solid #cbd5e1;">
+              <tr><td style="padding:2px 4px; border:1px solid #e2e8f0; font-weight:bold; width:20px;">G</td><td style="padding:2px 4px; border:1px solid #e2e8f0;">Speed v = 15.0 m/s &bull; Time t = 40.0 s</td></tr>
+              <tr><td style="padding:2px 4px; border:1px solid #e2e8f0; font-weight:bold;">U</td><td style="padding:2px 4px; border:1px solid #e2e8f0;">Distance d = ? meters</td></tr>
+              <tr><td style="padding:2px 4px; border:1px solid #e2e8f0; font-weight:bold;">E</td><td style="padding:2px 4px; border:1px solid #e2e8f0;">d = v &bull; t</td></tr>
+              <tr><td style="padding:2px 4px; border:1px solid #e2e8f0; font-weight:bold;">S</td><td style="padding:2px 4px; border:1px solid #e2e8f0;">d = (15.0 m/s) &bull; (40.0 s)</td></tr>
+              <tr><td style="padding:2px 4px; border:1px solid #e2e8f0; font-weight:bold;">S</td><td style="padding:2px 4px; border:1px solid #e2e8f0; font-weight:bold; color:#0369a1;">d = 600 meters [Boxed]</td></tr>
+            </table>
+          </div>
+
+          <div>
+            <p style="margin:0 0 2px 0;"><strong>Scale Planning Choices:</strong></p>
+            <ul style="margin:0; padding-left:14px; font-size:7.5pt; line-height:1.4;">
+              <li><strong>Time (Horizontal):</strong> 10 blocks = 50 s (5 s per block). Point plotted at t = 40 s (8th line).</li>
+              <li><strong>Position x (Graph 1):</strong> 8 blocks = 800 m (100 m per block). Plotted from (0, 0) to (40, 600).</li>
+              <li><strong>Velocity v (Graph 2):</strong> 6 blocks = 30 m/s (5 m/s per block). Horizontal line at v = 15 m/s (3rd line).</li>
+            </ul>
+
+            <div style="background:#f8fafc; border:1px solid #cbd5e1; padding:4px 6px; border-radius:3px; margin-top:5px; font-size:7.5pt;">
+              <strong>Synthesis Answers:</strong><br>
+              1. Slope = <strong>velocity / speed</strong> (600m / 40s = 15 m/s).<br>
+              2. Area = <strong>distance / displacement</strong> (15 m/s &times; 40 s = 600 m).<br>
+              3. If 2&times; speed: Slope doubles (steeper line); Area doubles (box is twice as tall = 1,200 m).
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-preview">
+          <div class="grid-preview-box">
+            <strong style="color:#0369a1; font-size:8pt;">Graph 1: x vs. t Visual Check</strong>
+            <div style="font-size:7.2pt; color:#475569; margin-top:2px;">
+              • Line MUST be straight (not curved).<br>
+              • Starts at origin (0, 0) and ends at (40 s, 600 m).<br>
+              • Slope = Rise / Run = 600 / 40 = <strong>15.0 m/s</strong>.
+            </div>
+          </div>
+          <div class="grid-preview-box">
+            <strong style="color:#0369a1; font-size:8pt;">Graph 2: v vs. t Visual Check</strong>
+            <div style="font-size:7.2pt; color:#475569; margin-top:2px;">
+              • Line MUST be perfectly horizontal at height v = 15 m/s.<br>
+              • Extends from t = 0 to t = 40 s.<br>
+              • Shaded Rectangle Area = 15 m/s &times; 40 s = <strong>600 m</strong>.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Feedback Reminders -->
+      <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:5px; padding:6px 10px; font-size:7.8pt;">
+        <strong style="color:#0f172a;">Common Student Pitfalls to Watch For:</strong>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:3px; color:#475569;">
+          <div>&bull; <em>Curved Lines:</em> Students drawing curves instead of straight lines (constant speed = linear x-t, horizontal v-t).</div>
+          <div>&bull; <em>Slanted v-t line:</em> Students drawing a sloped line on v-t (remind: sloped v-t means accelerating!).</div>
+          <div>&bull; <em>Unit Dropping:</em> Forgetting units on Givens or final answer (e.g. writing "600" instead of "600 m").</div>
+          <div>&bull; <em>Misaligned Time Scale:</em> Using different time scales on Graph 1 and Graph 2. They should align!</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bar">
+      <span>Orange High School &bull; Physics Department</span>
+      <span>Teacher Master Key &bull; Constant Speed Dual-Graph Story</span>
+      <span>Teacher: Mr. Mudry</span>
+    </div>
+  </div>
+</body>
+</html>
+  
