@@ -148,7 +148,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Graphing Speed Story Workshop: Students invent and illustrate an original 3-section constant-speed motion journey across 10.0 seconds (matching the Dual-Graph Studio), author a short story, calculate velocities, and construct aligned Position-Time and Velocity-Time graphs on paper.
     *   *Essential Question:* How do Position-Time and Velocity-Time graphs provide complementary visual proofs of an object's speed and displacement?
     *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* In-Class Performance Task
-    *   *Links:* [Graphing Speed Story Worksheet](Unit_2/worksheets/Graphing_Speed_Story.pdf), [Dual-Graph Motion Studio](Unit_2/dual_graph_studio/index.html)
+    *   *Links:* [Graphing Speed Story Worksheet](Unit_2/worksheets/Graphing_Speed_Story.pdf), [Student Work Exemplar](assets/images/graphing_speed_story_exemplar.jpg), [Dual-Graph Motion Studio](Unit_2/dual_graph_studio/index.html)
 
 ---
 

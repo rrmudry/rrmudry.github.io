@@ -2,6 +2,16 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-17 — Authentic Student Exemplar Integration: Leo Rodriguez (Day 15 Graphing Speed Story)
+
+**Pattern Updated**: `printable-graphing-worksheets.md`.
+
+**Changes**:
+- Integrated authentic completed student exemplar (`assets/images/graphing_speed_story_exemplar.jpg`) for the Day 15 "Graphing Speed Story" assignment (Student: Leo Rodriguez, Score: 9/10).
+- Dynamically generalized `unit2-dashboard.html` modal drawer so that lesson exemplar cards use `day.exemplarTitle` and `day.exemplarDescription` when provided, falling back gracefully to Day 10 constant-speed text.
+- Day 15 pacing cards now display a crisp thumbnail preview with the `🎨 EXEMPLAR` badge on `unit2-dashboard.html`.
+- Updated `Unit_2/unit2_lessons.json`, `Unit_2/lesson.json`, `Unit_2/outline.md`, and `assets/lessons-data.js` to link directly to `assets/images/graphing_speed_story_exemplar.jpg` under resources, links, and card image preview.
+
 ## 2026-09-17 — Official Student Handout: Graphing Speed Story (1-Page with Bubble Grid & QR Code)
 
 **Pattern Updated**: `printable-graphing-worksheets.md`.
