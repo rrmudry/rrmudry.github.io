@@ -1,47 +1,32 @@
-# Pattern: Printable Graphing Worksheets & Student-Calibrated Dual Grids
+# Pattern: Printable Graphing Worksheets & 3-Stage Dual-Graph Studio Modeling
 
-> Architectural pattern for designing, rendering, and verifying printable student worksheets featuring open-ended authoring, SVG coordinate grids, and exact-page letter PDF exports.
-
----
-
-## 1. Pedagogical Rationale: Student-Authored Dual-Graph Story
-
-The **Constant Speed Story: Dual-Graph Edition** invites students to compose their own word problem and scenario, then prove their solution visually across two complementary graphs:
-1. **Front Page (Creative Story & Algebraic Proof)**:
-   - Scenario sketch/drawing box for visual grounding.
-   - Student-authored narrative word problem establishing knowns ($v$, $d$, or $t$) and a single target unknown.
-   - Structured 5-Step **GUESS** proof (Givens, Unknown, Equation, Substitute, Solve) with explicit unit tracking.
-2. **Back Page (Dual-Graph Graphical Proof)**:
-   - **Scale Planner Table**: Prevents scale errors before students draw their lines by having them calculate axis intervals (Total / Intervals = Unit per tick).
-   - **Position vs. Time ($x-t$) Graph**: Linear line with positive slope, slope calculation box proving $\text{Slope} = \Delta x / \Delta t = v$.
-   - **Velocity vs. Time ($v-t$) Graph**: Flat horizontal line at $v$, shaded rectangular box proving $\text{Area} = v \cdot \Delta t = \Delta x$.
-   - **Dual-Graph Synthesis Questions**: Connecting the visual geometry (slope and area) to physical motion.
+> Architectural pattern for designing, rendering, and verifying printable student worksheets featuring 3-stage piecewise constant speed motion, Dual-Graph Studio alignment, SVG coordinate grids, and exact-page letter PDF exports.
 
 ---
 
-## 2. Open Student-Calibrated Grids vs Hardcoded Numbers
+## 1. Pedagogical Rationale: 3-Stage Dual-Graph Motion Modeling
 
-When students invent their own scenarios, they select vastly different speeds (e.g., $2\text{ m/s}$ walking vs. $25\text{ m/s}$ car) and times ($5\text{ s}$ to $60\text{ s}$).
+The **Constant Speed Story: 3-Stage Dual-Graph Edition** invites students to compose their own multi-phase motion journey across $10.0\text{ seconds}$ (matching Level 3 of the **Dual-Graph Studio** webapp), then prove their mathematical calculations visually across two complementary graphs:
+1. **Front Page (Creative Story, 3-Stage Path & GUESS Breakdown)**:
+   - **3-Stage Scenario Drawing**: Sketching the moving object, reference origin ($x_0 = 0\text{m}$), turning/pause points, and final destination.
+   - **3-Section Narrative Grid**: Three distinct side-by-side prompt boxes: Section 1 ($0\text{s}$ to $t_1$, initial motion), Section 2 ($t_1$ to $t_2$, mid-course action/pause), and Section 3 ($t_2$ to $10\text{s}$, final stretch).
+   - **Structured 3-Stage Motion & GUESS Table**: Rows for Time Interval ($\Delta t$), Initial and Final Positions ($x_i \rightarrow x_f$), Signed Displacement ($\Delta x$), Direction checkboxes (Forward [+], Stopped [0], Backward [-]), and step-by-step GUESS Velocity calculations ($v = \Delta x / \Delta t$).
+   - **Trip Totals**: Explicit summary of Total Time ($\Delta t_{\text{total}} = 10.0\text{s}$), Net Displacement ($\Delta x_{\text{net}} = x_{\text{final}} - x_{\text{initial}}$), and Total Distance ($|\Delta x_1| + |\Delta x_2| + |\Delta x_3|$).
+2. **Back Page (Dual-Graph Graphical Proofs)**:
+   - **Position vs. Time ($x-t$) Graph**: Standardized Studio coordinates (Time: $0$ to $10\text{s}$; Position: $-2$ to $18\text{m}$, step of $2\text{m}$, with bold $x=0$ axis). Students plot 3 connected segments and verify 3 individual slopes ($m = \Delta x / \Delta t = v$).
+   - **Velocity vs. Time ($v-t$) Graph**: Stacked directly underneath with identical horizontal time width (Time: $0$ to $10\text{s}$; Velocity: $-4$ to $+6\text{m/s}$, with prominent $v = 0$ axis). Students draw 3 horizontal bars and shade the rectangular displacement areas to the zero baseline.
+   - **Dual-Graph Synthesis & Proofs**: 3-part synthesis verifying that $\sum \text{Area} = \Delta x_{\text{net}}$, interpreting negative slope/velocity, and showing dimensional unit cancellation $[(\text{m/s}) \times (\text{s}) = \text{m}]$.
 
-### The Design Challenge
-- If axis numbers are pre-printed, student values will frequently fall outside the grid bounds or cram into the bottom corner.
-- If the grid is completely blank without ticks, students draw inconsistent spacing, crooked lines, and inaccurate slopes.
+---
 
-### The Solution: Open Tick Notches
-1. **Pre-drawn SVG Grid Lines**: Standardized light gray subdivisions (`#e2e8f0`) with bold major grid lines (`#94a3b8`) and crisp axis baselines (`#1e293b`).
-2. **Open Value Boxes / Ticks**: Small bracket lines along the axes leaving write-in space for student numbers.
-3. **Aligned Horizontal Time Widths**: Both the $x-t$ and $v-t$ grids use identical horizontal coordinates (e.g., $W = 690\text{px}$, Left Margin $= 55\text{px}$, Right Margin $= 20\text{px}$, exactly 10 major time divisions). This aligns the elapsed time 1:1 vertically between the position change and the velocity duration.
+## 2. Coordinate Synchronization with Dual-Graph Studio Webapp
 
-```javascript
-// Example SVG grid generator snippet with 10 horizontal time divisions
-function generateGridSVG(width, height, xDivs, yDivs, xLabel, yLabel) {
-    const padL = 55, padR = 20, padT = 20, padB = 30;
-    const plotW = width - padL - padR;
-    const plotH = height - padT - padB;
-    // Render major gridlines, minor subdivisions, tick marks, and axis titles
-    // Leave axis number labels open for student calibration
-}
-```
+To ensure zero cognitive friction between the interactive webapp and the paper assignment:
+- **Standardized Time Bounds**: $t \in [0, 10\text{s}]$ with integer tick marks at each second.
+- **Position Bounds**: $x \in [-2\text{m}, 18\text{m}]$ (20m span, 10 major grid divisions, step of 2m) accommodating reverse motion, zero crossings, and stationary intervals.
+- **Velocity Bounds**: $v \in [-4\text{m/s}, +6\text{m/s}]$ (10 m/s span, 5 major divisions of 2 m/s, minor grid at 1 m/s) with a prominent baseline at $v = 0\text{m/s}$.
+- **1:1 Time Column Width**: $W = 690\text{px}$, Left Margin $= 52\text{px}$, Right Margin $= 18\text{px} \implies$ Plot Width $= 620\text{px}$. Each 1-second step is identically $62\text{px}$ wide on both graphs, ensuring that the start/end points of Section 1, 2, and 3 align 1:1 vertically between slope and area.
+
 
 ---
 

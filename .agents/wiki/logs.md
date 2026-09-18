@@ -2,20 +2,21 @@
 
 Append-only log tracking pattern changes across sessions.
 
-## 2026-09-17 — Constant Speed Dual-Graph Story: Student-Calibrated Grids & Printable 2-Page Layout
+## 2026-09-17 — Constant Speed Story: 3-Stage Dual-Graph Studio Edition
 
-**Pattern Created**: `printable-graphing-worksheets.md` & added to `index.md`.
+**Pattern Created & Updated**: `printable-graphing-worksheets.md` & added to `index.md`.
 
 **Motivation**:
-- For Day 15 (Friday, Sep 18), created an authentic student-authored dual-graph assignment similar to Day 10, replacing premature acceleration equations with a comprehensive synthesis of constant speed.
-- Students invent an original scenario, draw it, compose a word problem targeting an unknown, solve with 5-step GUESS proof, and plot both Position-Time ($x-t$) and Velocity-Time ($v-t$) graphs.
+- For Day 15 (Friday, Sep 18), created an authentic student-authored dual-graph assignment similar to Day 10, structured with **3 distinct motion sections across 10.0 seconds** matching Level 3 of the **Dual-Graph Studio** webapp (`Unit_2/dual_graph_studio/`).
+- Students invent an original 3-section scenario (e.g. forward, stopped, reverse over 10s), draw the journey, compose a 3-part narrative, calculate velocities for each section in a structured GUESS motion table, and plot both Position-Time ($x-t$) and Velocity-Time ($v-t$) graphs.
 
 **Key Architecture & Highlights**:
-- **Open Student Calibration Grids**: Pre-rendered light gray subdivisions with bracket tick notches along axes allowing students with different numbers (speeds from 1 to 30 m/s, times from 5 to 60 s) to label their own scale. A top Scale Planner table guides students through calculating unit/tick before drawing.
-- **Vertical Time Alignment**: Stacked $x-t$ and $v-t$ graphs have identical plot width and time division spacing so that the time axis coordinates align 1:1 vertically between slope and area.
-- **Strict 2-Page Print Budget**: Tuned CSS (`height: 10.36in`, `page-break-after: always`) and verified with headless Puppeteer to guarantee 0 bottom-edge cutoff across both student pages and the 1-page Teacher Master Key.
+- **Dual-Graph Studio Coordinate Alignment**: Direct visual synchronization with the web studio: Time $t \in [0, 10\text{s}]$, Position $x \in [-2\text{m}, 18\text{m}]$, and Velocity $v \in [-4\text{m/s}, +6\text{m/s}]$ with prominent baselines at $x = 0$ and $v = 0$.
+- **1:1 Vertical Time Alignment**: Both $x-t$ and $v-t$ grids share identical horizontal plot widths (620px across 10s, 62px per second), ensuring Section 1, 2, and 3 start/end marks align seamlessly between slope and area.
+- **Strict 2-Page Print Budget**: Tuned CSS (`height: 10.40in`, `page-break-after: always`) verified with headless Puppeteer to guarantee 0px vertical overflow across both student pages and the 1-page Teacher Master Key.
 - **Strict No-LaTeX Notation**: Plain text and Unicode symbols throughout prompt instructions and math labels.
-- **Accompanying Teacher Master Key**: 10-point holistic rubric and complete Mars Rover exemplar.
+- **Accompanying Teacher Master Key**: 10-point holistic rubric and complete worked exemplar using Studio Scenario 1 (Rover reverse $-4\text{ m/s}$ for 3s, stop 3s, forward $+3\text{ m/s}$ for 4s; $\sum\text{Area} = 0\text{m}$).
+
 
 ## 2026-09-16 — Student Engagement Law: Explicit Completion vs. Genuine Fun
 
