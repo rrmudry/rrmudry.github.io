@@ -1,6 +1,30 @@
 # Wiki Evolution Log
 
 Append-only log tracking pattern changes across sessions.
+## 2026-09-19 — Rat Rod Racers: Unified Cartoon Hot-Rod Art Engine (Garage Preview & Track Consistency)
+
+**Pattern Updated**: `modular-vehicle-physics-game.md`.
+
+**Changes**:
+- Elevated `drawRatRodCanvas()` in `rat-rod-racers/cars.js` into a unified **Cartoon Comic Hot-Rod Art Engine** with bold ink outlines (`#12121c`, 2.4-2.8px), two-tone cel-shading, gloss specular streaks, chopped windshields with diagonal comic glare slashes, chunky cartoon drag wheels with white sidewall lettering, and dynamic multi-layer cartoon flames.
+- Addressed user feedback to ensure the car in the Garage Lift Preview and the car driving down the Drag Strip track **reasonably and seamlessly match** across all 36 modular parts (chassis, engines, wheels, spoilers, exhausts, charms).
+- Synchronized `RatRodSVG.getPartSVG()` in `rat-rod-racers/assets.js` with matching cartoon vector artwork for crate unboxing drops and inventory cards.
+- Refined garage preview hydraulic lift stand geometry and car positioning to perfectly accommodate the hot-rod rake stance.
+- All automated unit tests and combination rendering suites passing with 100% clean output.
+
+## 2026-09-19 — Rat Rod Racers: Modular Vehicle Physics Drag Game
+
+**Pattern Created**: `modular-vehicle-physics-game.md` & added to `index.md`.
+
+**Changes**:
+- Built complete, modular educational drag racing web application at `rat-rod-racers/` teaching Velocity, Acceleration, Mass, Force ($F = ma$), aerodynamic drag, and tire traction limits.
+- Designed 36+ cute rat rod modular vector/SVG components across 6 categories (Chassis, Engines with animated flapping blower valves, Wheels, Aero/Spoilers, Exhausts with animated flames, and Charms with acceleration sway).
+- Created authentic SI-unit physics engine with wheel slip traction limits ($\mu \cdot m \cdot g$), aerodynamic quadratic drag, and telemetry logging.
+- Built Academic Proving Grounds ("Dyno Lab") with Newton's 2nd Law calculations, $x-t$ and $v-t$ graph interpretation, data table calibration, and bank cash rewards with streak multipliers.
+- Built Junkyard Mystery Crate Shop with 3 tiers, rarity loot tables, animated card unboxing, duplicate part fusion (Level 1-3 upgrades), and scrap recycling.
+- Built 2-lane drag strip with Christmas tree staging, reaction time tracking, dynamic canvas camera tracking, post-race timeslips, and dual-car telemetry graph viewer ($x-t$, $v-t$, $a-t$, $F_{\text{net}}-t$).
+- Fixed engine audio lifecycle to smoothly ramp down and disconnect on race finish, false start, and tab switches, preventing droning background noise.
+- Linked featured game card in `games.html` and updated site deployment timestamp.
 
 ## 2026-09-17 — Authentic Student Exemplar Integration: Leo Rodriguez (Day 15 Graphing Speed Story)
 
