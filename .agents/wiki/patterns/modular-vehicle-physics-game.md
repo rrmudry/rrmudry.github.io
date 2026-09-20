@@ -92,6 +92,9 @@ The **Modular Vehicle Physics Game** architecture models real-world 1D Newtonian
     - Bank cash, owned parts with fusion levels, equipped car specifications, race records (best ET, best trap speed, win/loss count), driver championship score, win streak, car PI, and car class.
   - Maintain student-scoped local storage keys (`rat_rod_save_${studentId}`) alongside cloud persistence for instant load times and offline resiliency.
   - Trigger debounced auto-saves (`autoSave()`) whenever parts are equipped, upgraded, scrapped, crates are opened, races finish, or dyno challenges are answered.
+- **Instant Baseline Leaderboard & Tab Panel Nesting**:
+  - In multi-tab webapps, omitting a closing `</section>` tag causes subsequent tab panels to be parsed as children of the preceding tab. When the parent tab is given `.hidden` (`display: none !important;`), the child tab is also completely hidden and appears blank/empty to the user. Always ensure all `<section class="tab-panel">` tags are strictly closed before opening the next tab panel.
+  - To prevent an empty table or spinner stall while waiting for network/Firestore requests, render an **Instant Baseline Leaderboard** immediately using local player data and the benchmark student ghost roster. Race asynchronous Firestore requests against a 3.5s timeout, updating the table seamlessly when cloud data resolves.
 - **Client-Side Leaderboard Sorting**:
   - Fetching the Firestore subcollection and performing sorting in JavaScript allows instant tab toggles between Points and 1/4-Mile ET without triggering Firestore index errors or requiring Google Cloud Console index creation.
 - **Unified Visual Consistency (Preview vs Track)**:
