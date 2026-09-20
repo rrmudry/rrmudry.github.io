@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Rat Rod Racers: Physics Drag Strip • Mr. Mudry's Physics</title>
+  <link rel="icon" type="image/png" href="../head.png">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- App Header -->
+  <header class="game-header">
+    <div class="logo-group">
+      <div class="logo-badge">⚡ RAT ROD RACERS</div>
+      <h1 class="game-title">Physics Drag Strip & Custom Garage</h1>
+    </div>
+
+    <div class="header-controls">
+      <div class="hud-pill" title="Bank Cash (Earn by doing calculations in Dyno Lab!)">
+        💰 <span class="hud-bank-val">$250</span>
+      </div>
+      <button id="btn-units" class="btn" title="Toggle Units (Imperial / Metric)">📐 MPH / FT</button>
+      <button id="btn-audio" class="btn" title="Toggle Sound">🔊 Sound</button>
+      <a href="../games.html" class="btn" title="Back to Games Hub">🏠 Hub</a>
+    </div>
+  </header>
+
+  <!-- Tab Navigation -->
+  <nav class="game-nav-tabs">
+    <button class="nav-tab-btn active" data-tab="race">🏁 Drag Strip</button>
+    <button class="nav-tab-btn" data-tab="garage">🔧 Garage & Specs</button>
+    <button class="nav-tab-btn" data-tab="crates">📦 Mystery Crates</button>
+    <button class="nav-tab-btn" data-tab="dyno">🎓 Dyno Lab (Earn Cash!)</button>
+  </nav>
+
+  <!-- Main Application Stage -->
+  <main class="main-stage">
+
+    <!-- 1. DRAG STRIP TAB -->
+    <section id="tab-race" class="tab-panel">
+      <div class="race-viewport-wrapper">
+        <canvas id="raceCanvas"></canvas>
+      </div>
+
+      <div class="race-control-bar">
+        <div class="opponent-picker">
+          <label for="opponent-select" style="font-size:13px; font-weight:700; color:var(--text-muted);">Opponent:</label>
+          <select id="opponent-select" class="styled-select"></select>
+        </div>
+
+        <div class="launch-action-zone">
+          <button id="btn-launch" class="btn btn-launch btn-ready">🚦 STAGE & START</button>
+          <div class="reaction-box">
+            Reaction: <strong id="reaction-time-display">--</strong>
+          </div>
+        </div>
+
+        <div class="share-strip">
+          <input type="text" id="input-share-code" class="styled-input" placeholder="Paste Code (ROD-...)">
+          <button id="btn-import-code" class="btn btn-sm">Load Rival</button>
+          <button id="btn-copy-code" class="btn btn-sm" title="Share your car build with classmates">📋 Copy Share Code</button>
+        </div>
+      </div>
+
+      <!-- Standards alignment box -->
+      <div style="margin-top: 20px;">
+        <div data-ngss="HS-PS2-1,HS-PS2-2"></div>
+      </div>
+    </section>
+
+    <!-- 2. GARAGE & CUSTOMIZER TAB -->
+    <section id="tab-garage" class="tab-panel hidden">
+      <div class="garage-layout">
+        <!-- Left Sidebar: Car preview & Live Physics Specs -->
+        <div class="garage-sidebar">
+          <h3>Current Rat Rod</h3>
+          <div id="garage-car-preview" class="car-lift-stage">
+            <canvas id="garagePreviewCanvas" width="320" height="180"></canvas>
+          </div>
+          <div id="garage-specs-sheet" class="specs-sheet"></div>
+        </div>
+
+        <!-- Right Area: Modular Slots & Inventory Items -->
+        <div class="garage-inventory-area">
+          <div class="slot-category-block">
+            <h3>🚗 Chassis & Frame Rails</h3>
+            <div id="inv-list-chassis" class="inv-parts-grid"></div>
+          </div>
+
+          <div class="slot-category-block">
+            <h3>🔥 Engines & Powerplants</h3>
+            <div id="inv-list-engines" class="inv-parts-grid"></div>
+          </div>
+
+          <div class="slot-category-block">
+            <h3>🛞 Wheels & Drag Tires</h3>
+            <div id="inv-list-wheels" class="inv-parts-grid"></div>
+          </div>
+
+          <div class="slot-category-block">
+            <h3>🪽 Aerodynamic Spoilers & Wings</h3>
+            <div id="inv-list-aero" class="inv-parts-grid"></div>
+          </div>
+
+          <div class="slot-category-block">
+            <h3>💨 Exhaust & Flaming Zoomies</h3>
+            <div id="inv-list-exhaust" class="inv-parts-grid"></div>
+          </div>
+
+          <div class="slot-category-block">
+            <h3>🎲 Charms, Mascots & Decals</h3>
+            <div id="inv-list-charms" class="inv-parts-grid"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. MYSTERY CRATES TAB -->
+    <section id="tab-crates" class="tab-panel hidden">
+      <div class="crates-hero-banner">
+        <img src="assets/banner.jpg" alt="Rat Rod Racers Drag Strip">
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h2>Junkyard Mystery Part Crates</h2>
+        <div class="hud-pill" style="font-size:15px;">Your Bank: <span class="hud-bank-val">$250</span></div>
+      </div>
+
+      <div id="crate-shop-container" class="crates-grid"></div>
+    </section>
+
+    <!-- 4. DYNO PROVING GROUNDS TAB (EARN CASH) -->
+    <section id="tab-dyno" class="tab-panel hidden">
+      <div class="dyno-layout">
+        <div class="dyno-card">
+          <div class="dyno-header">
+            <h2 id="dyno-challenge-title">Newton's 2nd Law Calculation</h2>
+            <div id="dyno-formula-badge" class="formula-badge">F = m · a</div>
+          </div>
+
+          <div id="dyno-visual-container" class="dyno-visual"></div>
+
+          <p id="dyno-prompt-text" class="dyno-prompt"></p>
+
+          <div class="dyno-input-row">
+            <input type="number" id="dyno-input-val" class="dyno-num-input" step="any" placeholder="Enter answer...">
+            <span id="dyno-input-unit" class="unit-label">m/s²</span>
+            <button id="btn-dyno-submit" class="btn primary">Check Answer</button>
+            <button id="btn-dyno-next" class="btn primary hidden">Next Question ➔</button>
+          </div>
+
+          <div id="dyno-feedback-box"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- RACE RESULTS & TELEMETRY MODAL -->
+  <div id="race-results-modal" class="game-modal-backdrop hidden">
+    <div class="modal-card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h2 id="modal-results-title">🏆 VICTORY!</h2>
+        <button id="btn-close-modal" class="btn btn-sm">✕ Close</button>
+      </div>
+
+      <div id="modal-slip-container"></div>
+
+      <!-- Telemetry Graph Section -->
+      <div class="telemetry-stage">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <h3 style="font-size:14px; color:var(--accent-orange);">Dual-Car Telemetry Comparison</h3>
+          <div class="tele-toolbar">
+            <button class="tele-mode-btn" data-mode="x-t">Position (x-t)</button>
+            <button class="tele-mode-btn active" data-mode="v-t">Velocity (v-t)</button>
+            <button class="tele-mode-btn" data-mode="a-t">Acceleration (a-t)</button>
+            <button class="tele-mode-btn" data-mode="f-t">Net Force (F-t)</button>
+          </div>
+        </div>
+        <canvas id="telemetryCanvas"></canvas>
+        <p style="font-size:11px; color:var(--text-muted); margin-top:6px; text-align:center;">
+          Hover across graph to inspect exact values at any point in time. Notice how the slope of the v-t curve reveals instantaneous acceleration!
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRATE UNBOXING MODAL -->
+  <div id="crate-unboxing-modal" class="game-modal-backdrop hidden">
+    <div class="modal-card" style="text-align:center;">
+      <h2>🎉 CRATE UNBOXED!</h2>
+      <p style="color:var(--text-muted); font-size:13px;">New rat rod parts have been deposited directly into your garage inventory!</p>
+
+      <div id="unboxing-cards-row" class="unboxing-cards-row"></div>
+
+      <button id="btn-close-unboxing" class="btn primary" style="padding:10px 24px;">To the Garage ➔</button>
+    </div>
+  </div>
+
+  <!-- Game Scripts (Order matters!) -->
+  <script src="physics.js"></script>
+  <script src="assets.js"></script>
+  <script src="cars.js"></script>
+  <script src="challenges.js"></script>
+  <script src="crates.js"></script>
+  <script src="inventory.js"></script>
+  <script src="telemetry.js"></script>
+  <script src="audio.js"></script>
+  <script src="game.js"></script>
+  <script src="../assets/partials.js"></script> <!-- MUST be last -->
+
+</body>
+</html>
