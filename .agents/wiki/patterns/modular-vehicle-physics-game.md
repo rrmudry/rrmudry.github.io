@@ -87,7 +87,7 @@ The **Modular Vehicle Physics Game** architecture models real-world 1D Newtonian
 * **Quick Telemetry Formula Reference**:
   - Displays plain text & Unicode formulas directly beneath the calculator:
     - Newton's 2nd Law: $a = F_{\text{net}} / m$, $F_{\text{net}} = m \cdot a$
-    - Traction Limit: $F_{\text{max}} = \mu \cdot m \cdot g$ ($g = 9.8\text{ m/s}^2$)
+    - Traction Limit: $F_{\text{max}} = \mu \cdot m \cdot g$ ($g = 10\text{ m/s}^2$)
     - Kinematic Slopes: $v = \Delta x / \Delta t$, $a = \Delta v / \Delta t$
 
 ---

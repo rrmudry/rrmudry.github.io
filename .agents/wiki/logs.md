@@ -1,6 +1,63 @@
 # Wiki Evolution Log
 
 Append-only log tracking pattern changes across sessions.
+## 2026-09-20 — Gravitational Acceleration Standardization: g = 10 m/s² (Round Numbers for Conceptual Clarity)
+
+**Pattern Updated**: `modular-vehicle-physics-game.md`, `dashboard-layout.md`.
+
+**Changes**:
+- **Standardized Acceleration of Gravity to -10 m/s² (or g = 10 m/s²)**:
+  - Replaced $9.8\text{ m/s}^2$ / $9.81\text{ m/s}^2$ with $10\text{ m/s}^2$ across Unit 2 outlines, daily lessons, elevator apparent weight challenges, motion presentations, and Rat Rod Racers telemetry/challenges.
+  - **Pedagogical Rationale**: Using $g = 10\text{ m/s}^2$ makes mathematical patterns obvious to introductory physics students: velocity changes by exactly $-10\text{ m/s}$ every second (0, -10, -20, -30 m/s), distance fallen follows round quadratic multiples ($d = \frac{1}{2}gt^2 = 5t^2 \rightarrow 5, 20, 45, 80\text{ m}$), and weight calculations yield integers ($W = m \cdot 10$).
+  - **Elevator Challenge (Day 24)**: Updated passenger mass ($70\text{ kg}$) to yield $W = 700\text{ N}$ (was $686\text{ N}$), scale reading $F_N = 840\text{ N}$ (was $826\text{ N}$), and net force $+140\text{ N}$ producing $a = 2.0\text{ m/s}^2$.
+  - **Rat Rod Racers**: Updated tire grip calculations ($F_{\text{max}} = \mu \cdot m \cdot g$ with $g = 10\text{ m/s}^2$) and physics simulation engine (`this.gravity = 10.0`, `aG = this.a / 10.0`).
+  - Refreshed site timestamp via `node scripts/update-timestamp.js`.
+
+## 2026-09-20 — Curriculum-Wide Subscript Notation Standardization (No Underlines, No LaTeX)
+
+**Pattern Updated**: `dashboard-layout.md`.
+
+**Changes**:
+- **Eliminated Underscore Subscripts across Unit 2 and Site Lesson Data**:
+  - Replaced all code-style underscore variable conventions (`v_f`, `v_avg`, `t_react`, `t_brake`, `Δx_react`, `Δx_brake`, `Δx_total`, `x_initial`, `x_final`, `F_net`, `F_g`, `F_N`, `F_T`, `F_f`, `F_app`, `F_air`, `F_impact`, `m_cart`, `m_hang`, `m_sys`, `μ_s`, `μ_k`) with proper HTML `<sub>` tags (e.g. `v<sub>f</sub>`, `v<sub>avg</sub>`, `t<sub>react</sub>`, `t<sub>brake</sub>`, `Δx<sub>total</sub>`, `F<sub>net</sub>`) and Unicode subscripts (`v₀`, `x₀`, `Δx₁`, `Δx₂`).
+  - Completely purged remaining LaTeX formatting in favor of plain text, Unicode symbols (`Δ`, `m/s²`, `½`, `·`), and native HTML subscripts across `Unit_2/unit2_lessons.json`, `Unit_2/lesson.json`, `assets/lessons-data.js`, and `Unit_2/outline.md`.
+  - Refreshed deployment timestamp via `node scripts/update-timestamp.js`.
+
+## 2026-09-20 — Unit 2 Dashboard: Week 4 Uniform Acceleration Pedagogical Progression
+
+**Pattern Updated**: `dashboard-layout.md`.
+
+**Changes**:
+- **Reconstructed Week 4 (Sep 21–25, 2026) for Gradual Acceleration Scaffolding**:
+  - Replaced abrupt jump into Free Fall and Projectiles with a deliberate 5-day progression mastering 1D uniform acceleration:
+    - **Day 16 (Mon Sep 21)**: Calculating Velocity Changes ($\Delta v = v - v_0$), Time Changes ($\Delta t$), Units ($\text{m/s}^2$), and Defining Acceleration ($a = \Delta v / \Delta t = (v - v_0)/t$) with the 4-Pod sign challenge.
+    - **Day 17 (Tue Sep 22)**: The Kinematic Velocity Equation ($v_f = v_0 + at$), isolating variables ($v_f, v_0, a, t$), and solving GUESS word problems (train braking telemetry).
+    - **Day 18 (Wed Sep 23)**: Velocity vs. Time ($v-t$) Graphing for Uniform Acceleration, reading initial velocity from $y$-intercept, calculating acceleration from slope ($m = a$), and drone launch rail telemetry.
+    - **Day 19 (Thu Sep 24)**: Calculating Distance for Accelerated Motion: Geometric Area Integration under $v-t$ curve (partitioning rectangles and triangles to derive $\Delta x = v_0 t + \frac{1}{2}at^2$) with dragster acceleration telemetry.
+    - **Day 20 (Fri Sep 25)**: Kinematic Acceleration Synthesis: 2-Stage Stopping Distance Performance Challenge (constant speed reaction time + uniform braking deceleration).
+- **Synchronized Data Repositories**:
+  - `Unit_2/unit2_lessons.json`, `Unit_2/lesson.json`, `assets/lessons-data.js`, and `Unit_2/outline.md`.
+  - Cache buster updated to `?v=20260920c` in `unit2-dashboard.html`.
+  - Deployment timestamp updated in `partials/footer.html`.
+## 2026-09-20 — Unit 2 Dashboard: Reorder Day 14 Studio Workshop & Week 4 Acceleration Sequence
+
+**Pattern Updated**: `dashboard-layout.md`.
+
+**Changes**:
+- **Reordered Day 14 Curriculum Reflection (`Unit_2/unit2_lessons.json`, `Unit_2/lesson.json`, `assets/lessons-data.js`, `Unit_2/outline.md`)**:
+  - Re-anchored Day 14 (Thu Sep 17, 2026) to reflect actual classroom instruction: "Kinematics Graphing Workshop & Mid-Unit Studio Work Day".
+  - Dedicated Day 14 assignments to Kinematics Graphing Challenges 1 & 2 (`Kinematics_Graphing_Challenges_1_and_2.pdf` and Honors edition) for Physics/Honors, and Marble Ramp Lab completion / missing work for Conceptual Physics.
+  - Added new CAST challenge bell-ringer to Day 14 focusing on constant velocity drone flight telemetry, slopes, and linear intercept time (`t = 12.0 s`, `x = 120.0 m`).
+- **Shifted Week 4 Sequence (Sep 21–25, 2026)**:
+  - **Day 16 (Mon Sep 21)**: "Introducing Acceleration: Slope of Velocity-Time (`a = Δv / Δt`)" with the original 4-pod velocity/acceleration sign CAST challenge and Acceleration Sign Detective activity.
+  - **Day 17 (Tue Sep 22)**: "Free Fall & Acceleration due to Gravity (`g = 9.8 m/s²`)".
+  - **Day 18 (Wed Sep 23)**: "Up-and-Down 1D Projectiles & Motion Symmetry" (Toss & Catch / Pop-Rocket Apogee).
+  - **Day 19 (Thu Sep 24)**: "Galileo's Incline Ramp Acceleration Lab: Diluting Gravity".
+  - **Day 20 (Fri Sep 25)**: "Kinematics Capstone: Multi-Stage Intercepts & Forensic Collision Reconstruction" (culminating synthesis before Week 5 Newton's Laws).
+  - Days 21–35 remain unchanged, perfectly aligned with the calendar starting Monday, Sep 28.
+- **Cache-Busting & Timestamp Deployment**:
+  - Incremented version query strings in `unit2-dashboard.html` (`?v=20260920`).
+  - Ran `node scripts/update-timestamp.js` to refresh footer deployment timestamp.
 ## 2026-09-20 — Rat Rod Racers: Embedded Desmos Scientific Calculator Station in Dyno Lab
 
 **Pattern Updated**: `modular-vehicle-physics-game.md`.

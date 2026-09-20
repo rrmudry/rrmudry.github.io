@@ -686,7 +686,7 @@ const QuantitiesLab = {
     { id: 'q3', text: 'Time (10 s)', type: 'scalar', icon: '⏱️', explanation: 'Flows uniformly; completely defined by magnitude in seconds.' },
     { id: 'q4', text: 'Force (10 N down)', type: 'vector', icon: '⬇️', explanation: 'A push or pull in a specific spatial direction (downward).' },
     { id: 'q5', text: 'Mass (5 kg)', type: 'scalar', icon: '⚖️', explanation: 'Quantity of matter; unchanged by spatial orientation.' },
-    { id: 'q6', text: 'Acceleration (9.8 m/s² down)', type: 'vector', icon: '🎯', explanation: 'Rate of change of velocity directed toward Earth\'s center.' },
+    { id: 'q6', text: 'Acceleration (10 m/s² down)', type: 'vector', icon: '🎯', explanation: 'Rate of change of velocity directed toward Earth\'s center.' },
     { id: 'q7', text: 'Speed (45 mph)', type: 'scalar', icon: '🏎️', explanation: 'How fast an object moves, irrespective of which direction it points.' },
     { id: 'q8', text: 'Displacement (5 m East)', type: 'vector', icon: '➡️', explanation: 'Straight-line change in position with spatial direction (East).' }
   ],

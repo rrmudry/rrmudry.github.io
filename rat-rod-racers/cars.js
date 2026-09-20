@@ -100,7 +100,7 @@ class RatRodCar {
 
     // Derived physics benchmarks for HUD & Student Learning
     this.maxTheoreticalAccel = Number((this.peakForce / this.mass).toFixed(2)); // m/s²
-    this.staticGripLimitForce = Math.round(this.mu * this.mass * 9.81); // N
+    this.staticGripLimitForce = Math.round(this.mu * this.mass * 10.0); // N (using g = 10 m/s²)
     this.burnoutRisk = this.peakForce > this.staticGripLimitForce; // Traction warning
     this.powerToWeight = Number((this.peakForce / this.mass).toFixed(2)); // N/kg
 
