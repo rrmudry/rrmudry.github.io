@@ -99,6 +99,7 @@ class RatRodGame {
     this.renderCrateShop();
     this.loadNextDynoChallenge();
     this.renderLeaderboard();
+    setTimeout(() => this.ensureDesmosCalculator(), 300);
   }
 
   _bindEvents() {
@@ -258,6 +259,33 @@ class RatRodGame {
         this.renderLeaderboard();
       });
     }
+
+    // Dyno Desmos Calculator Controls
+    const collapseCalcBtn = document.getElementById('btn-dyno-calc-collapse');
+    const calcWrapper = document.getElementById('desmos-wrapper');
+    if (collapseCalcBtn && calcWrapper) {
+      collapseCalcBtn.addEventListener('click', () => {
+        const isCollapsed = calcWrapper.classList.toggle('collapsed');
+        collapseCalcBtn.textContent = isCollapsed ? '➕' : '↕';
+        collapseCalcBtn.title = isCollapsed ? 'Expand Calculator' : 'Collapse Calculator';
+        if (!isCollapsed && this.desmosCalculator && typeof this.desmosCalculator.resize === 'function') {
+          setTimeout(() => this.desmosCalculator.resize(), 100);
+        }
+      });
+    }
+
+    const mobileCalcToggle = document.getElementById('btn-toggle-calc-mobile');
+    const calcStation = document.getElementById('dyno-calc-station');
+    if (mobileCalcToggle && calcStation) {
+      mobileCalcToggle.addEventListener('click', () => {
+        this.ensureDesmosCalculator();
+        if (calcWrapper && calcWrapper.classList.contains('collapsed')) {
+          calcWrapper.classList.remove('collapsed');
+          if (collapseCalcBtn) collapseCalcBtn.textContent = '↕';
+        }
+        calcStation.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
   }
 
   switchTab(tabName) {
@@ -284,6 +312,8 @@ class RatRodGame {
       this.renderCrateShop();
     } else if (tabName === 'leaderboard') {
       this.renderLeaderboard();
+    } else if (tabName === 'dyno') {
+      this.ensureDesmosCalculator();
     }
   }
 
@@ -1127,6 +1157,51 @@ class RatRodGame {
 
     if (nextBtn) {
       nextBtn.focus();
+    }
+  }
+
+  ensureDesmosCalculator() {
+    const container = document.getElementById('desmos-dyno-calculator');
+    if (!container) return;
+
+    if (!this.desmosCalculator) {
+      if (typeof window.Desmos !== 'undefined' && typeof window.Desmos.ScientificCalculator === 'function') {
+        try {
+          this.desmosCalculator = window.Desmos.ScientificCalculator(container, {
+            fontSize: (window.Desmos.FontSizes && window.Desmos.FontSizes.SMALL) ? window.Desmos.FontSizes.SMALL : 14,
+            keypad: true,
+            settingsMenu: false
+          });
+          window.desmosCalculator = this.desmosCalculator;
+        } catch (e) {
+          console.warn("Desmos ScientificCalculator init error:", e);
+          this._fallbackToDesmosIframe();
+        }
+      } else {
+        this._fallbackToDesmosIframe();
+      }
+    }
+
+    // Trigger resize on tick so internal canvas dimensions match after display unhide
+    if (this.desmosCalculator && typeof this.desmosCalculator.resize === 'function') {
+      setTimeout(() => {
+        try {
+          this.desmosCalculator.resize();
+        } catch (err) {}
+      }, 60);
+    }
+  }
+
+  _fallbackToDesmosIframe() {
+    const calcContainer = document.getElementById('desmos-dyno-calculator');
+    const fallbackBox = document.getElementById('desmos-fallback-frame');
+    const iframe = document.getElementById('desmos-dyno-iframe');
+    if (calcContainer) calcContainer.style.display = 'none';
+    if (fallbackBox && iframe) {
+      fallbackBox.classList.remove('hidden');
+      if (!iframe.src || iframe.src === 'about:blank' || iframe.src === window.location.href) {
+        iframe.src = 'https://www.desmos.com/scientific?embed';
+      }
     }
   }
 

@@ -1,6 +1,20 @@
 # Wiki Evolution Log
 
 Append-only log tracking pattern changes across sessions.
+## 2026-09-20 — Rat Rod Racers: Embedded Desmos Scientific Calculator Station in Dyno Lab
+
+**Pattern Updated**: `modular-vehicle-physics-game.md`.
+
+**Changes**:
+- **CAST-Aligned Desmos Scientific Calculator Station (`index.html`, `style.css`, `game.js`)**:
+  - Embedded official Desmos Scientific Calculator directly into `#tab-dyno` ("Dyno Proving Grounds"), allowing students to solve Newton's 2nd Law ($F = ma$, $a = F/m$, $m = F/a$), friction traction limits ($F_{\text{max}} = \mu mg$), and kinematic acceleration slopes without switching browser tabs.
+  - Implemented responsive two-column desktop/Chromebook layout (`.dyno-layout`, `1.15fr 0.85fr`) placing the interactive physics challenge side-by-side with the sticky calculator station.
+  - Added collapsible toggle (`↕`) to tuck the calculator away when screen real estate is needed, and a mobile jump button (`🧮 Calculator`) to instantly scroll to the calculator on narrow mobile viewports.
+  - Dual-path fallback architecture: dynamically initializes `Desmos.ScientificCalculator` via official API with automatic iframe fallback to `https://www.desmos.com/scientific?embed` if scripts are blocked.
+  - Handled hidden tab canvas zero-dimension gotcha by dispatching `this.desmosCalculator.resize()` with a 60ms delay inside `switchTab('dyno')`.
+  - Added quick-reference formula cheat sheet directly underneath the calculator adhering strictly to plain-text Unicode notation (No LaTeX).
+- Updated automated DOM verification test suite (`scratch/test-leaderboard-dom.js`) verifying Desmos API instantiation, iframe fallback fallback path, and responsive toggle events.
+
 ## 2026-09-19 — Rat Rod Racers: Fix Empty Leaderboard Tab Nesting & Instant Baseline Roster
 
 **Pattern Updated**: `modular-vehicle-physics-game.md`.

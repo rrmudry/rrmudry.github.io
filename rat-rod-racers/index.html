@@ -12,6 +12,9 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <!-- Desmos Scientific Calculator API -->
+  <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
 </head>
 <body>
 
@@ -153,10 +156,14 @@
     <!-- 4. DYNO PROVING GROUNDS TAB (EARN CASH) -->
     <section id="tab-dyno" class="tab-panel hidden">
       <div class="dyno-layout">
+        <!-- Challenge Card -->
         <div class="dyno-card">
           <div class="dyno-header">
-            <h2 id="dyno-challenge-title">Newton's 2nd Law Calculation</h2>
-            <div id="dyno-formula-badge" class="formula-badge">F = m · a</div>
+            <div>
+              <h2 id="dyno-challenge-title">Newton's 2nd Law Calculation</h2>
+              <div id="dyno-formula-badge" class="formula-badge">F = m · a</div>
+            </div>
+            <button id="btn-toggle-calc-mobile" class="btn btn-sm btn-calc-toggle" title="Jump to Desmos Calculator">🧮 Calculator</button>
           </div>
 
           <div id="dyno-visual-container" class="dyno-visual"></div>
@@ -171,6 +178,49 @@
           </div>
 
           <div id="dyno-feedback-box"></div>
+        </div>
+
+        <!-- Desmos Scientific Calculator Station -->
+        <div class="dyno-calc-card" id="dyno-calc-station">
+          <div class="dyno-calc-header">
+            <div class="dyno-calc-title">
+              <span class="dyno-calc-icon">🧮</span>
+              <div>
+                <h3>Scientific Calculator</h3>
+                <span class="dyno-calc-sub">Official CAST Physics Tool</span>
+              </div>
+            </div>
+            <div class="dyno-calc-badges">
+              <span class="calc-badge-desmos">DESMOS</span>
+              <button id="btn-dyno-calc-collapse" class="btn-calc-collapse" title="Collapse / Expand Calculator">↕</button>
+            </div>
+          </div>
+
+          <div id="desmos-wrapper" class="desmos-calc-wrapper">
+            <div id="desmos-dyno-calculator" class="desmos-mount"></div>
+            <div id="desmos-fallback-frame" class="hidden">
+              <iframe id="desmos-dyno-iframe" class="desmos-iframe" frameborder="0" title="Desmos Scientific Calculator"></iframe>
+            </div>
+          </div>
+
+          <!-- Quick Physics Formula Reference (Strictly No-LaTeX) -->
+          <div class="dyno-calc-formula-ref">
+            <div class="formula-ref-header">⚡ Dyno Telemetry Formulas</div>
+            <div class="formula-ref-grid">
+              <div class="formula-ref-item">
+                <span class="formula-ref-label">Newton's 2nd Law</span>
+                <span class="formula-ref-math"><strong>a</strong> = F_net / m &nbsp;|&nbsp; <strong>F_net</strong> = m · a</span>
+              </div>
+              <div class="formula-ref-item">
+                <span class="formula-ref-label">Tire Grip Limit</span>
+                <span class="formula-ref-math"><strong>F_max</strong> = μ · m · g &nbsp;(g = 9.8 m/s²)</span>
+              </div>
+              <div class="formula-ref-item">
+                <span class="formula-ref-label">Kinematics Slopes</span>
+                <span class="formula-ref-math"><strong>v</strong> = Δx / Δt &nbsp;|&nbsp; <strong>a</strong> = Δv / Δt</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
