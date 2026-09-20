@@ -16,7 +16,7 @@ class RatRodPhysics {
     this.nitroDuration = config.nitroDuration || 0; // seconds
 
     // Environmental constants
-    this.gravity = 9.81;                         // m/s²
+    this.gravity = 10.0;                        // m/s² (round numbers for clean conceptual physics)
     this.airDensity = 1.225;                     // kg/m³
     this.rollingCoeff = 0.015;                   // rolling resistance coefficient
     this.trackLength = 402.336;                  // 1/4 mile in meters
@@ -149,7 +149,7 @@ class RatRodPhysics {
         v: Number(this.v.toFixed(2)),
         vMph: Number((this.v * 2.23694).toFixed(1)),
         a: Number(this.a.toFixed(2)),
-        aG: Number((this.a / 9.81).toFixed(2)),
+        aG: Number((this.a / 10.0).toFixed(2)),
         fNet: Number(this.netForce.toFixed(0)),
         fDrive: Number(this.driveForce.toFixed(0)),
         fDrag: Number(this.dragForce.toFixed(0)),
@@ -184,7 +184,7 @@ class RatRodPhysics {
       v: this.v,
       vMph: this.v * 2.23694,
       a: this.a,
-      aG: this.a / 9.81,
+      aG: this.a / 10.0,
       fNet: this.netForce,
       fDrive: this.driveForce,
       fDrag: this.dragForce,

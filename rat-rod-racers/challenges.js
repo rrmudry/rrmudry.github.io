@@ -312,24 +312,24 @@ class PhysicsChallengeEngine {
     const baseReward = 140;
     const mass = [650, 750, 850, 950][Math.floor(Math.random() * 4)];
     const mu = [0.80, 0.90, 1.00, 1.10][Math.floor(Math.random() * 4)];
-    const g = 9.8; // m/s² standard
+    const g = 10; // m/s² standard for clean, predictable patterns
     const maxGrip = Math.round(mu * mass * g);
 
     return {
       id: 'friction_' + Date.now(),
       category: 'friction',
       title: "Traction Limit: Maximum Grip Force",
-      badge: "F_friction = μ · m · g",
-      prompt: `A rat rod has total mass <strong>${mass} kg</strong> and is fitted with racing tires with a static grip coefficient of <strong>μ = ${mu}</strong>. Using g = 9.8 m/s², what is the maximum drive force the tires can transfer to the asphalt before wheel spin occurs?`,
+      badge: "F<sub>friction</sub> = μ · m · g",
+      prompt: `A rat rod has total mass <strong>${mass} kg</strong> and is fitted with racing tires with a static grip coefficient of <strong>μ = ${mu}</strong>. Using g = 10 m/s², what is the maximum drive force the tires can transfer to the asphalt before wheel spin occurs?`,
       unit: "N",
       inputType: "number",
       reward: baseReward,
       tolerance: 15,
       expectedValue: maxGrip,
       solutionSteps: [
-        `Step 1: Calculate Normal Force: F_N = m · g = (${mass} kg) · (9.8 m/s²) = ${(mass * 9.8).toFixed(1)} N`,
-        `Step 2: Maximum Static Friction: F_max = μ · F_N = ${mu} · ${(mass * 9.8).toFixed(1)} N`,
-        `Step 3: F_max = <strong>${maxGrip} N</strong>`,
+        `Step 1: Calculate Normal Force: F<sub>N</sub> = m · g = (${mass} kg) · (10 m/s²) = ${mass * 10} N`,
+        `Step 2: Maximum Static Friction: F<sub>max</sub> = μ · F<sub>N</sub> = ${mu} · ${mass * 10} N`,
+        `Step 3: F<sub>max</sub> = <strong>${maxGrip} N</strong>`,
         `Note: If engine drive force exceeds this threshold, tires slip and burn rubber!`
       ]
     };

@@ -221,7 +221,8 @@ function renderGeneralWorksheet() {
   }
 
   .telemetry-pill {
-    flex: 1;
+    flex: 1 1 50%;
+    min-width: 0;
     background: #ffffff;
     border: 1px solid #cbd5e1;
     border-radius: 4px;
@@ -381,7 +382,7 @@ function renderGeneralWorksheet() {
   // Grid 2: Page 2 (Highway Patrol)
   const gridSvg2 = generateCleanGrid({
     width: 690,
-    height: 375,
+    height: 350,
     marginLeft: 62,
     marginBottom: 40,
     marginRight: 20,
@@ -532,26 +533,29 @@ function renderGeneralWorksheet() {
       <!-- Scenario with Scaffolded Plotting Table -->
       <div class="scenario-container">
         <div class="scenario-title">Mission Scenario 2: Highway Courier Journey &amp; Patrol Intercept</div>
-        A delivery truck drives along a straight highway in three distinct parts starting from the station (<strong>x = 0 m</strong>):<br>
-        • <strong>Part 1 (0 to 20 s):</strong> Drives forward at 15 m/s &rarr; Reaches <strong>x = 300 m</strong> at t = 20 s.<br>
-        • <strong>Part 2 (20 to 50 s):</strong> Stops at a rest area &rarr; Stays at <strong>x = 300 m</strong> for 30 seconds (velocity = 0 m/s).<br>
-        • <strong>Part 3 (50 to 90 s):</strong> Resumes driving at 25 m/s &rarr; Reaches <strong>x = 1,300 m</strong> at t = 90 s.
+        A delivery truck drives along a straight highway from the station (<strong>x = 0 m</strong>) in three distinct legs:<br>
+        • <strong>Leg 1 (0 to 20 s):</strong> Drives forward at 15 m/s &rarr; Reaches <strong>x = 300 m</strong> at t = 20 s.<br>
+        • <strong>Leg 2 (20 to 50 s):</strong> Stops at a rest area (speed = 0 m/s) &rarr; Remains at <strong>x = 300 m</strong> for 30 seconds.<br>
+        • <strong>Leg 3 (50 to 90 s):</strong> Resumes driving at 25 m/s &rarr; Reaches <strong>x = 1,300 m</strong> at t = 90 s.
 
         <div class="telemetry-row">
           <div class="telemetry-pill">
-            <strong>🚚 Delivery Truck Coordinates Table</strong>
-            Plot these 4 key checkpoints and connect with straight lines:
+            <strong>🚚 Delivery Truck Coordinates</strong>
+            Plot these 4 checkpoints and connect with lines:
             <table class="data-table-helper">
-              <tr><th>Checkpoint</th><th>Start</th><th>Rest Stop Arrival</th><th>Rest Stop Departure</th><th>End of Highway</th></tr>
-              <tr><th>Time (s)</th><td>0 s</td><td>20 s</td><td>50 s</td><td>90 s</td></tr>
-              <tr><th>Position (m)</th><td>0 m</td><td>300 m</td><td>300 m</td><td>1,300 m</td></tr>
+              <tr><th>Time (s)</th><td>0</td><td>20</td><td>50</td><td>90</td></tr>
+              <tr><th>Pos (m)</th><td>0</td><td>300</td><td>300</td><td>1,300</td></tr>
+              <tr><th>Status</th><td>Start</td><td>Rest In</td><td>Rest Out</td><td>Finish</td></tr>
             </table>
           </div>
           <div class="telemetry-pill">
-            <strong>🚓 Highway Patrol Intercept Options</strong>
-            A patrol car leaves the station at <strong>t = 30 s</strong> from <strong>x = 0 m</strong>.<br>
-            • <strong>Line A:</strong> Draw a straight line from (30 s, 0 m) to catch the truck at the rest stop (50 s, 300 m).<br>
-            • <strong>Line B:</strong> Draw a straight line from (30 s, 0 m) to catch the truck at the end (90 s, 1,300 m).
+            <strong>🚓 Highway Patrol Intercept Lines</strong>
+            Leaves station at <strong>t = 30 s</strong> (x = 0 m):
+            <table class="data-table-helper">
+              <tr><th>Target</th><th>Start Coordinate</th><th>Target Intercept</th></tr>
+              <tr><td><strong>Line A</strong></td><td>(30 s, 0 m)</td><td>(50 s, 300 m) &bull; Rest Stop</td></tr>
+              <tr><td><strong>Line B</strong></td><td>(30 s, 0 m)</td><td>(90 s, 1,300 m) &bull; Highway End</td></tr>
+            </table>
           </div>
         </div>
       </div>
@@ -591,6 +595,7 @@ function renderGeneralWorksheet() {
         <div class="q-item">
           <div class="q-prompt">3. Patrol Safe Speed Limit:</div>
           The patrol car has a maximum safe speed limit of <strong>20 m/s</strong> (about 45 mph). Which option can the patrol car safely choose (Option A or Option B)? Explain why using your speeds calculated above:
+          <div class="answer-line"></div>
           <div class="answer-line"></div>
         </div>
       </div>

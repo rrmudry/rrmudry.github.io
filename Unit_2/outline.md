@@ -12,9 +12,9 @@
 
 This unit follows the classical and cognitive progression:
 1. **Part 1: Describing Motion (1D Kinematics — Weeks 1, 2, 3 & 4 | Days 1–20):**  
-   Students establish coordinate frames, measure distance and displacement, calculate uniform speed (`v = d / t`), decode position-time (`x-t`) and velocity-time (`v-t`) graphs, geometrically integrate displacement as the area under `v-t`, master uniformly accelerated motion (UAM: `v = v₀ + at`, `x = x₀ + v₀t + ½at²`), analyze free fall under gravity (`g = 9.8 m/s²`), verify ramp dilution with Galileo's incline lab, solve multi-vehicle intercepts, and complete a mid-unit kinematics milestone checkpoint.
+   Students establish coordinate frames, measure distance and displacement, calculate uniform speed (`v = d / t`), decode position-time (`x-t`) and velocity-time (`v-t`) graphs, geometrically integrate displacement as the area under `v-t`, master uniformly accelerated motion (UAM: `v = v₀ + at`, `x = x₀ + v₀t + ½at²`), analyze free fall under gravity (`a = -10 m/s²`), verify ramp dilution with Galileo's incline lab, solve multi-vehicle intercepts, and complete a mid-unit kinematics milestone checkpoint.
 2. **Part 2: Explaining Motion (Newtonian Dynamics — Weeks 5, 6 & 7 | Days 21–35):**  
-   With the concept of acceleration firmly grounded, students investigate *why* acceleration occurs. They explore Inertia (Newton's 1st Law), quantify mass as resistance to acceleration, differentiate mass from gravitational weight, construct Free-Body Diagrams (FBDs), analyze mechanical equilibrium (`F_net = 0`), empirically verify Newton's 2nd Law (`F_net = m · a`) using Atwood track carts, measure static vs. kinetic friction, analyze interaction pairs (Newton's 3rd Law), resolve system boundary paradoxes, engineer vehicle crumple zones, and synthesize unit concepts in a peer gallery walk and summative examination.
+   With the concept of acceleration firmly grounded, students investigate *why* acceleration occurs. They explore Inertia (Newton's 1st Law), quantify mass as resistance to acceleration, differentiate mass from gravitational weight, construct Free-Body Diagrams (FBDs), analyze mechanical equilibrium (F<sub>net</sub> = 0), empirically verify Newton's 2nd Law (F<sub>net</sub> = m · a) using Atwood track carts, measure static vs. kinetic friction, analyze interaction pairs (Newton's 3rd Law), resolve system boundary paradoxes, engineer vehicle crumple zones, and synthesize unit concepts in a peer gallery walk and summative examination.
 
 ---
 
@@ -134,13 +134,13 @@ This unit follows the classical and cognitive progression:
     *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Lab Investigation
     *   *Links:* [Marble Ramp Lab](Unit_2/marble_ramp_lab/index.html), [Position vs. Time Graphing Studio](Unit_2/position_time_graph_studio/index.html)
 
-*   **Day 14 (2026-09-17): Introducing Acceleration: Slope of Velocity-Time (`a = Δv / Δt`)**
-    *   *Bell-Ringer:* Acceleration & Changing Motion (CAST Matrix): Evaluating 4 vehicles with given velocity and acceleration vectors. Students determine whether each vehicle is speeding up, slowing down, or moving at constant speed, and defend their reasoning.
-    *   *Focus:* Defining acceleration as the rate of change of velocity: `a = Δv / Δt = (v - v₀) / t`. Units: `(m/s) / s = m/s²`. Linear slope on a `v-t` graph equals constant acceleration. Speeding up vs. slowing down: speeding up occurs when `v` and `a` share the same sign; slowing down occurs when `v` and `a` have opposite signs. Curvature on `x-t` graphs: changing velocity creates parabolas (concave up = `a > 0`, concave down = `a < 0`).
-    *   *Activity:* Acceleration Sign Detective & Curve Matching: Students analyze real-world scenarios (ball rolling up and down an incline, car braking at a yellow light, subway pulling out of a station) to determine signs of `v` and `a`, and match physical motions to coordinated `x-t`, `v-t`, and `a-t` graph cards.
-    *   *Essential Question:* How can an object have a negative acceleration and still be speeding up?
-    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction / Inquiry
-    *   *Links:* [Distance vs Time App](https://rrmudry.github.io/distance_vs_time_graphing.html)
+*   **Day 14 (2026-09-17): Kinematics Graphing Workshop & Mid-Unit Studio Work Day**
+    *   *Bell-Ringer:* Constant Velocity Graphing & Intercept Analysis (CAST Challenge): Two delivery drones cruise along a straight transit corridor at constant speeds (Drone A at 10.0 m/s from origin, Drone B at 5.0 m/s with a 60.0 m head start). Students analyze position-time slopes, calculate the exact intercept time (t = 12.0 s), and defend the meeting position (x = 120.0 m).
+    *   *Focus:* Piecewise motion graphing on calibrated coordinate grids, multi-stage constant speed analysis, solving for spatial-temporal intercepts, and authentic lab completion.
+    *   *Activity:* Studio Workshop Day: Period 0 Honors & Periods 1–6 Physics-Regular tackle Kinematics Graphing Challenges 1 & 2 (Oceanic Rendezvous & Highway Surveillance Intercept), plotting piecewise 1D motions on calibrated coordinate grids and calculating velocity slopes and intercepts. Periods 1–6 Conceptual Physics finalize the Marble Ramp Motion & Graphing Lab, coordinate slope calculations, and missing Unit 2 coursework.
+    *   *Essential Question:* How do coordinate grids allow us to predict the exact time and location where two objects moving at constant speeds intercept?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Workshop / Guided Practice
+    *   *Links:* [Kinematics Graphing Challenges 1 & 2 (Physics-Regular)](Unit_2/worksheets/Kinematics_Graphing_Challenges_1_and_2.pdf), [Honors Kinematics Graphing Challenges 1 & 2](Unit_2/honors_worksheets/Honors_Kinematics_Graphing_Challenges_1_and_2.pdf), [Marble Ramp Lab](Unit_2/marble_ramp_lab/index.html), [Dual-Graph Motion Studio](Unit_2/dual_graph_studio/index.html)
 
 *   **Day 15 (2026-09-18): Graphing Speed Story: 3-Stage Dual-Graph Edition**
     *   *Bell-Ringer:* Dual-Graph Alignment & Unit Cancellation (CAST Challenge): Analyze a rectangular area under a 4.0 m/s velocity line for 25.0 seconds (100.0 meters). Prove mathematically how multiplying the height unit (m/s) by the width unit (s) cancels to distance.
@@ -152,51 +152,54 @@ This unit follows the classical and cognitive progression:
 
 ---
 
-### Week 4: Free Fall, Gravitational Acceleration & Incline Planes (Kinematics Milestone)
-**Goal:** Master gravitational free fall (`g = 9.8 m/s²`), verify that all objects fall at the same rate regardless of mass in a vacuum, model vertical projectile symmetry, recreate Galileo's inclined plane experiment to dilute gravity, solve multi-vehicle intercept problems, and complete the Part 1 Kinematics mastery checkpoint.
+### Week 4: Uniform Acceleration Mastery (Foundational Kinematics Progression)
+**Goal:** Master 1D uniform acceleration as a conceptual and mathematical rate of change. Calculate velocity changes (`Δv`) and time changes (`Δt`), interpret acceleration units (`m/s²`), solve the linear kinematic equation (v<sub>f</sub> = v₀ + at), graph linear slopes on velocity-time (`v-t`) coordinates, calculate displacement from geometric shaded areas (`Δx = v₀t + ½at²`), and synthesize multi-stage stopping distances.
 
-*   **Day 16 (2026-09-21): Free Fall & Gravitational Acceleration (`g = 9.8 m/s²`)**
-    *   *Bell-Ringer:* Dropping Heavy vs. Light (AI Chat): If a bowling ball and a tennis ball are dropped simultaneously in a vacuum chamber with no air resistance, which hits the ground first? Explain the physical reasoning.
-    *   *Focus:* Universal free-fall acceleration near Earth's surface (`g = 9.8 m/s²` downward). Independence of falling acceleration from object mass in a vacuum. Vacuum tube penny-and-feather demonstration. Kinematic adaptation for vertical motion (`a = -g = -9.8 m/s²`, `v = v₀ - gt`, `y = y₀ + v₀t - ½gt²`).
-    *   *Activity:* Metric Reaction Time Lab: Students catch a dropped metric ruler between thumb and forefinger, record fall distance in centimeters, and calculate human neural reaction time using `t = √(2Δy / g)`.
-    *   *Essential Question:* Why do heavy and light objects accelerate at the exact same rate when falling in the absence of air resistance?
-    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Lab / Direct Instruction
+*   **Day 16 (2026-09-21): Introducing Acceleration: Velocity Changes & Rate of Change (`a = Δv / Δt`)**
+    *   *Bell-Ringer:* Acceleration Vector Signs & Speed Changes (CAST Challenge): Evaluating 4 vehicles with given velocity and acceleration vectors (Pod Alpha, Beta, Gamma, Delta). Students determine whether each vehicle is speeding up, slowing down, or moving at constant speed, calculate velocity changes, and defend why negative acceleration does not always mean slowing down.
+    *   *Focus:* Defining acceleration as the rate of change of velocity: `a = Δv / Δt = (v - v₀) / t`. Physical meaning of units: `(m/s) / s = m/s²` (how many m/s velocity changes every second). Speeding up vs. slowing down: speeding up occurs when `v` and `a` share the same sign; slowing down occurs when `v` and `a` have opposite signs.
+    *   *Activity:* Acceleration Sign Detective & Rate of Velocity Change Workshop: Students calculate `Δv` and `a` for real-world scenarios (subway departure, braking cars, inclines), categorizing them into a 2x2 sign matrix (`v > 0, v < 0` vs `a > 0, a < 0`) to prove that speeding up requires matching signs, while opposite signs indicate slowing down.
+    *   *Essential Question:* How does the sign of acceleration combine with the sign of velocity to determine whether an object is speeding up or slowing down?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction / Guided Practice
+    *   *Links:* [Distance vs Time App](https://rrmudry.github.io/distance_vs_time_graphing.html), [Velocity vs. Time Visualizer](Unit_2/velocity_time_graph_studio/index.html)
 
-*   **Day 17 (2026-09-22): Vertical Projectiles & Motion Symmetry (Toss & Catch)**
-    *   *Bell-Ringer:* Upward Toss Velocity at Peak (CAST Challenge): A ball is thrown straight up with an initial speed of 19.6 m/s. Calculate its velocity at the peak and total round-trip hang time back to the thrower's hand.
-    *   *Focus:* Vertical projectile symmetry: time to rise equals time to fall (`t_up = t_down`). Velocity at apex is instantaneously zero (`v_top = 0`), but acceleration remains non-zero (`a = -9.8 m/s²`). Impact velocity equals launch velocity in opposite direction (`v_final = -v₀`).
-    *   *Activity:* Hang Time & Vertical Leap Workshop: Students time vertical ball tosses and standing jumps with digital stopwatches, reconstruct peak heights using kinematics, and plot full `y-t`, `v-t`, and `a-t` parabolic trajectories.
-    *   *Essential Question:* Why is the acceleration of a tossed ball still -9.8 m/s² at the exact instant it stops at the highest point of its trajectory?
-    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Workshop / Inquiry
+*   **Day 17 (2026-09-22): The Kinematic Velocity Equation: Calculating Final Velocity (v<sub>f</sub> = v₀ + at)**
+    *   *Bell-Ringer:* Kinematic Velocity & Stopping Time Telemetry (CAST Challenge): An express commuter train cruises at +30.0 m/s and applies automated braking at -2.5 m/s². Students identify that 'complete halt' means v<sub>f</sub> = 0, rearrange t = (v<sub>f</sub> - v₀) / a to calculate stopping duration (`t = 12.0 s`), and determine speed at the halfway point.
+    *   *Focus:* Algebraic manipulation of the acceleration definition into the primary linear kinematic equation: v<sub>f</sub> = v₀ + at. Using the GUESS method to isolate all four variables: final velocity (v<sub>f</sub>), initial velocity (`v₀`), acceleration (`a`), and time elapsed (`t`).
+    *   *Activity:* Kinematic Velocity Sprint: Scaffolded problem-solving workshop tackling real-world vehicular acceleration (highway merging, aircraft runway takeoff runs, and emergency braking). Students show full GUESS algebraic setups for each unknown variable.
+    *   *Essential Question:* How does algebraically rearranging the acceleration equation allow us to predict an object's future velocity or determine how long an acceleration took?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Guided Practice / Problem Solving
+    *   *Links:* [Velocity vs. Time Visualizer](Unit_2/velocity_time_graph_studio/index.html), [Distance vs Time App](https://rrmudry.github.io/distance_vs_time_graphing.html)
 
-*   **Day 18 (2026-09-23): Galileo's Incline Ramp Lab: Diluting Gravity**
-    *   *Bell-Ringer:* Diluting Free Fall (AI Chat): Galileo could not measure split-second free fall with 17th-century water clocks. How did rolling bronze balls down gentle ramps allow him to study falling acceleration?
-    *   *Focus:* Diluted acceleration along an incline: `a = g · sin(θ)`. Position proportional to time squared (`Δx ∝ t²`) under constant acceleration: odd-number rule (1, 3, 5, 7 distance ratios per time tick).
-    *   *Activity:* Incline Ramp Investigation: Rolling steel marbles down grooved track ramps at varying tilt angles (5°, 10°, 15°). Students record travel time across 25 cm, 50 cm, 75 cm, and 100 cm intervals, plot `Δx` vs `t²`, and compute acceleration from the linear slope.
-    *   *Essential Question:* How did rolling balls down an inclined plane allow Galileo to prove that falling objects gain equal increments of speed in equal intervals of time?
-    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Lab
+*   **Day 18 (2026-09-23): Velocity vs. Time Graphing: Uniform Acceleration & Slopes**
+    *   *Bell-Ringer:* Velocity-Time Slope & Acceleration Analysis (CAST Challenge): Aerial delivery drone launch rail telemetry. Students examine coordinate data forming a straight line, identify initial velocity (`v₀ = +4.0 m/s`) from the vertical intercept, and calculate acceleration slope (`m = 2.0 m/s²`).
+    *   *Focus:* Translating uniform acceleration into velocity-time (`v-t`) coordinate space: constant acceleration produces linear slopes on `v-t` graphs, where slope `m = Δv / Δt = a`. Identifying initial velocity (`v₀`) as the vertical intercept, distinguishing positive vs. negative slopes, and exploring how crossing the time axis (`v = 0`) represents directional turnaround.
+    *   *Activity:* Uniform Acceleration `v-t` Graphing Workshop: Students plot multi-point motion tables onto coordinate grids, draw linear lines of best fit, construct large slope triangles to calculate acceleration directly from rise/run, and match physical motion cards to coordinated `v-t` graphs.
+    *   *Essential Question:* Why does uniform acceleration appear as a straight line on a velocity-time graph, and what does the slope of that line tell us about the motion?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Inquiry / Graphing Studio
+    *   *Links:* [Velocity vs. Time Visualizer](Unit_2/velocity_time_graph_studio/index.html), [Dual-Graph Motion Studio](Unit_2/dual_graph_studio/index.html)
 
-*   **Day 19 (2026-09-24): Multi-Stage & Relative Motion Intercepts (Two-Car Challenge)**
-    *   *Bell-Ringer:* Police Cruiser Pursuit Intercept (CAST Challenge): A speeder passes a stationary police cruiser at a constant 30 m/s. One second later, the cruiser accelerates at 5.0 m/s². Determine when and where the cruiser intercepts the speeder.
-    *   *Focus:* Simultaneous kinematics equations: equating positions `x₁(t) = x₂(t)` to solve for intercept time. Combining constant velocity with uniformly accelerated motion. Graphical intersection on `x-t` plots.
-    *   *Activity:* Interactive Two-Car Kinematic Intercept Challenge: Students adjust speed and acceleration sliders in the simulation web app to solve chase, head-on, and traffic light sprint scenarios, verifying solutions with quadratic formulas.
-    *   *Essential Question:* How do we mathematically find the exact point in space and time where two independent moving objects meet?
-    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Simulation / Performance Task
-    *   *Links:* [Two-Car Kinematic Intercept Challenge](Unit_2/two_car_intercept/index.html)
+*   **Day 19 (2026-09-24): Calculating Distance for Accelerated Motion: Geometric Area under `v-t` (`Δx = v₀t + ½at²`)**
+    *   *Bell-Ringer:* Shaded Area Under the Velocity-Time Graph (CAST Challenge): Electric dragster accelerating from +10.0 m/s to +30.0 m/s over 4.0 s. Students partition the `v-t` trapezoid into a rectangle (`40.0 m`) and a triangle (`40.0 m`), sum them to get total displacement (`80.0 m`), and verify with average velocity v<sub>avg</sub> = 20.0 m/s.
+    *   *Focus:* Connecting graph geometry to kinematic displacement: because speed is constantly changing during uniform acceleration, we cannot use `d = v · t`. Instead, displacement equals the shaded area under the `v-t` graph: splitting trapezoids into a bottom rectangle (`v₀ · t`) and an upper triangle (`½ · a · t²`), deriving `Δx = v₀t + ½at²`.
+    *   *Activity:* Geometric Area Displacement Workshop: Students calculate displacements for accelerating vehicles by physically shading and calculating areas of triangles (`½ · base · height`) and rectangles (`base · height`) on `v-t` graphs, then verify their geometric answers using the algebraic formula `Δx = v₀t + ½at²` and average velocity Δx = ½(v₀ + v<sub>f</sub>)t.
+    *   *Essential Question:* Why does the shaded area under a velocity-time graph equal the distance traveled, even when an object's speed is continuously changing?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Direct Instruction / Guided Practice
+    *   *Links:* [Dual-Graph Motion Studio](Unit_2/dual_graph_studio/index.html), [Velocity vs. Time Visualizer](Unit_2/velocity_time_graph_studio/index.html)
 
-*   **Day 20 (2026-09-25): Autonomous Vehicle Forensic Crash Reconstruction & Kinematic Synthesis**
-    *   *Bell-Ringer:* Kinematics 3-Way Representation Synthesis (CAST Matrix): Given a multi-stage velocity-time graph, compute total displacement via area, instantaneous acceleration via slope, and select the matching position-time trajectory.
-    *   *Focus:* Forensic 1D Kinematic Reconstruction: Multi-Stage Acceleration, Reaction Latency, and Error Sensitivity Modeling. Synthesizing reaction time latencies, quadratic braking deceleration curves, and GPS telemetry.
-    *   *Activity:* Autonomous Vehicle Forensic Crash Reconstruction (DOK 4 Extended Investigation): Working in forensic engineering teams, students receive a collision case file containing timestamped GPS pings, noisy accelerometer sensor traces, and intersection traffic camera stills. Teams must: (1) partition the collision into distinct kinematic phases (pre-detection cruise, sensor-processing latency, anti-lock braking deceleration, and post-impact skid), (2) apply kinematic models to resolve initial speeds, (3) conduct parameter sensitivity analysis evaluating how pavement moisture (dry vs wet) and reaction latency (0.2s vs 0.8s) affect the collision envelope, and (4) author a formal Forensic Collision Investigation Report defending whether autonomous perception latency or human driver speeding caused the incident.
-    *   *Essential Question:* How do forensic engineers synthesize multi-stage kinematic models and sensor uncertainty to determine the true sequence and root cause of a vehicular collision?
-    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 4 | *Type:* Forensic Investigation / Performance Task
-    *   *Links:* Forensic Case Dossier *(Planned In-Class)*, [Forensic Methodology Guide](https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing), [Two-Car Intercept Simulator](Unit_2/two_car_intercept/index.html)
+*   **Day 20 (2026-09-25): Kinematic Acceleration Synthesis: 2-Stage Stopping Distance Performance Challenge**
+    *   *Bell-Ringer:* Two-Stage Stopping Distance Telemetry (CAST Challenge): Automated emergency braking telemetry. Car travels at +20.0 m/s with 0.50 s reaction time (`Δx₁ = 10.0 m` at constant speed) and brakes at -5.0 m/s² over 4.0 s (`Δx₂ = 40.0 m`). Students calculate total stopping distance (`50.0 m`) and explain why doubling initial speed quadruples braking distance.
+    *   *Focus:* Synthesizing constant velocity and uniform acceleration in an authentic vehicular engineering challenge: calculating total stopping distances. Partitioning emergency stops into Stage 1 (driver reaction at constant velocity: Δx<sub>react</sub> = v₀ · t<sub>react</sub>) and Stage 2 (uniform braking deceleration: Δx<sub>brake</sub> = ½ · v₀ · t<sub>brake</sub> = -v₀² / (2a)), and constructing aligned dual `x-t` and `v-t` graphs.
+    *   *Activity:* Forensic Highway Safety Stopping Distance Challenge: Student engineering teams analyze collision avoiding scenarios across 3 vehicle speeds (25 mph, 45 mph, 65 mph) converted to m/s. Teams compute reaction distances, braking distances, construct coordinated piecewise `x-t` and `v-t` graphs, and author an evidence-based recommendation on safe highway following intervals.
+    *   *Essential Question:* Why does doubling a vehicle's initial speed more than double its total stopping distance?
+    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 4 | *Type:* Performance Task / Engineering Challenge
+    *   *Links:* [Two-Car Kinematic Intercept Challenge](Unit_2/two_car_intercept/index.html), [Dual-Graph Motion Studio](Unit_2/dual_graph_studio/index.html)
 
 
 ---
 
 ### Week 5: Causes of Motion — Inertia, Forces & Equilibrium (Newton's 1st Law)
-**Goal:** Transition from describing motion (kinematics) to explaining why motion changes (dynamics). Explore Inertia (Newton's 1st Law), quantify mass as resistance to acceleration, differentiate mass from weight, catalog contact and field forces, construct Free-Body Diagrams (FBDs), and solve mechanical equilibrium problems (`F_net = 0`).
+**Goal:** Transition from describing motion (kinematics) to explaining why motion changes (dynamics). Explore Inertia (Newton's 1st Law), quantify mass as resistance to acceleration, differentiate mass from weight, catalog contact and field forces, construct Free-Body Diagrams (FBDs), and solve mechanical equilibrium problems (F<sub>net</sub> = 0).
 
 *   **Day 21 (2026-09-28): What Keeps Things Moving? Newton's First Law & Inertia Demos**
     *   *Bell-Ringer:* Aristotelian Motion vs. Inertia (AI Chat): In ancient Greece, Aristotle claimed that an object requires a continuous applied force to keep moving forward. Why did this misconception feel intuitive, and how does Newton's First Law overturn it?
@@ -207,8 +210,8 @@ This unit follows the classical and cognitive progression:
     *   *Links:* [PhET Forces and Motion: Basics](https://phet.colorado.edu/sims/html/forces-and-motion-basics/latest/forces-and-motion-basics_en.html), Inertia Stations Handout *(Planned In-Class)*
 
 *   **Day 22 (2026-09-29): Mass as Inertia vs. Weight (`W = m · g`)**
-    *   *Bell-Ringer:* Astronaut Wrench on the Moon (CAST Challenge): An astronaut holds a 2.0 kg wrench on Earth and on the Moon (`g_moon = 1.6 m/s²`). Compare its mass, weight, and the horizontal force needed to accelerate it at 3.0 m/s² in both environments.
-    *   *Focus:* Mass (kg) as the quantitative measure of inertia (resistance to changes in motion) vs. Weight (N) as the gravitational force acting on mass: `W = F_g = m · g`. Gravitational variation across planets; invariance of inertial mass across the universe.
+    *   *Bell-Ringer:* Astronaut Wrench on the Moon (CAST Challenge): An astronaut holds a 2.0 kg wrench on Earth and on the Moon (g<sub>moon</sub> = 1.6 m/s²). Compare its mass, weight, and the horizontal force needed to accelerate it at 3.0 m/s² in both environments.
+    *   *Focus:* Mass (kg) as the quantitative measure of inertia (resistance to changes in motion) vs. Weight (N) as the gravitational force acting on mass: W = F<sub>g</sub> = m · g. Gravitational variation across planets; invariance of inertial mass across the universe.
     *   *Activity:* Mystery Inertia Shakers: Students horizontally oscillate identical sealed cans containing cotton, sand, lead shot, and wood without lifting them. Ranking cans purely by horizontal resistance to acceleration, then verifying weights on spring scales.
     *   *Essential Question:* Why does an anvil have the exact same inertia in deep space as it does on Earth, even though its weight in space is zero Newtons?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Lab / Direct Instruction
@@ -216,15 +219,15 @@ This unit follows the classical and cognitive progression:
 
 *   **Day 23 (2026-09-30): The Force Toolkit & Free-Body Diagrams (FBDs)**
     *   *Bell-Ringer:* Book at Rest on a Table (AI Chat): A book rests on a flat table. What forces are acting on it? Why doesn't the downward gravitational pull cause the book to accelerate downward through the table surface?
-    *   *Focus:* Cataloging forces: Gravity (`F_g`), Normal force (`F_N`), Tension (`F_T`), Friction (`F_f`), Applied force (`F_app`), and Air resistance (`F_air`). Standardized Free-Body Diagram (FBD) conventions: isolated dot representing object, tail-on-dot force vectors, proper relative lengths, and axis labeling.
+    *   *Focus:* Cataloging forces: Gravity (F<sub>g</sub>), Normal force (F<sub>N</sub>), Tension (F<sub>T</sub>), Friction (F<sub>f</sub>), Applied force (F<sub>app</sub>), and Air resistance (F<sub>air</sub>). Standardized Free-Body Diagram (FBD) conventions: isolated dot representing object, tail-on-dot force vectors, proper relative lengths, and axis labeling.
     *   *Activity:* Whiteboard FBD Sprint: 8 real-world scenarios (skydiver with open chute, sled pushed across snow, elevator moving upward at constant speed, car coasting to a stop). Students construct FBDs and write net force expressions in x and y dimensions.
     *   *Essential Question:* How does an isolated Free-Body Diagram allow physicists to identify all external interactions acting on an object?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction / Practice
     *   *Links:* Mass vs Weight Lab Guide *(Planned In-Class)*
 
-*   **Day 24 (2026-10-01): Translational & Mechanical Equilibrium (`F_net = 0`)**
+*   **Day 24 (2026-10-01): Translational & Mechanical Equilibrium (F<sub>net</sub> = 0)**
     *   *Bell-Ringer:* Elevator at Constant Velocity (CAST Challenge): A 70 kg person stands on a scale inside an elevator moving upward at a steady 2.5 m/s. Calculate the scale reading in Newtons and explain why the scale does not read greater than the person's resting weight.
-    *   *Focus:* Definition of equilibrium: `ΣF = 0` (`ΣF_x = 0` and `ΣF_y = 0`). Static equilibrium (object at rest, `v = 0`, `a = 0`) vs. Dynamic equilibrium (object moving at constant velocity, `v = constant`, `a = 0`). Balanced forces produce zero acceleration.
+    *   *Focus:* Definition of equilibrium: `ΣF = 0` (ΣF<sub>x</sub> = 0 and ΣF<sub>y</sub> = 0). Static equilibrium (object at rest, `v = 0`, `a = 0`) vs. Dynamic equilibrium (object moving at constant velocity, `v = constant`, `a = 0`). Balanced forces produce zero acceleration.
     *   *Activity:* Spring Scale Equilibrium Rig: Students suspend hanging masses from dual spring scales at varying symmetrical angles, measure tension readings, resolve vertical vector components, and verify that the sum of upward tensions equals the downward weight.
     *   *Essential Question:* What is the fundamental physical equivalence between an object sitting completely motionless and an object coasting at 1,000 km/h?
     *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Lab / Activity
@@ -232,7 +235,7 @@ This unit follows the classical and cognitive progression:
 
 *   **Day 25 (2026-10-02): Static Equilibrium Challenges & Vector Balancing**
     *   *Bell-Ringer:* Traffic Light Suspended by Cables (CAST Challenge): A 150 N traffic light hangs in equilibrium from two cables making equal 45° angles with the horizontal ceiling. Calculate the tension force in each support cable.
-    *   *Focus:* Multi-directional equilibrium problem solving: resolving forces into horizontal (`F_x = F · cos(θ)`) and vertical (`F_y = F · sin(θ)`) components. Setting `ΣF_x = 0` and `ΣF_y = 0` to solve for unknown tensions and normal forces.
+    *   *Focus:* Multi-directional equilibrium problem solving: resolving forces into horizontal (F<sub>x</sub> = F · cos(θ)) and vertical (F<sub>y</sub> = F · sin(θ)) components. Setting ΣF<sub>x</sub> = 0 and ΣF<sub>y</sub> = 0 to solve for unknown tensions and normal forces.
     *   *Activity:* Cable Rigging Engineering Challenge: Teams configure ring-and-pulley force tables with 3 hanging mass cords at custom angles, calculate theoretical mass balances using vector components, and test whether the center ring floats centered on the pin.
     *   *Essential Question:* How do structural engineers utilize vector equilibrium conditions to guarantee that bridges, cranes, and suspended signs remain completely stable?
     *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Practice / Performance Task
@@ -240,45 +243,45 @@ This unit follows the classical and cognitive progression:
 
 ---
 
-### Week 6: Newton's Second Law & Friction Dynamics (`F_net = m · a`)
-**Goal:** Empirically establish and mathematically apply Newton's Second Law of Motion (`F_net = m · a`). Use modified Atwood machines to prove proportional relationships, differentiate static from kinetic friction, measure friction coefficients (`μ`), and unite dynamics with kinematics to solve multi-force stopping distance challenges.
+### Week 6: Newton's Second Law & Friction Dynamics (F<sub>net</sub> = m · a)
+**Goal:** Empirically establish and mathematically apply Newton's Second Law of Motion (F<sub>net</sub> = m · a). Use modified Atwood machines to prove proportional relationships, differentiate static from kinetic friction, measure friction coefficients (`μ`), and unite dynamics with kinematics to solve multi-force stopping distance challenges.
 
 *   **Day 26 (2026-10-05): Newton's Second Law: Unbalanced Force & Acceleration**
     *   *Bell-Ringer:* Doubling Force and Doubling Mass (AI Chat): If you double the net force pushing a shopping cart, what happens to its acceleration? What if you double the cart's mass while keeping the force constant?
-    *   *Focus:* Unbalanced net external force causes acceleration in the direction of the net force: `a = F_net / m`, leading to `F_net = m · a`. Proportionality: `a ∝ F_net` (direct linear) and `a ∝ 1/m` (inverse). Units of force: 1 Newton = 1 kg · m/s².
+    *   *Focus:* Unbalanced net external force causes acceleration in the direction of the net force: a = F<sub>net</sub> / m, leading to F<sub>net</sub> = m · a. Proportionality: a ∝ F<sub>net</sub> (direct linear) and `a ∝ 1/m` (inverse). Units of force: 1 Newton = 1 kg · m/s².
     *   *Activity:* Interactive PhET "Forces and Motion: Basics" inquiry: Students systematically vary applied force while keeping cart mass constant, then vary mass under fixed force, recording acceleration readouts and generating linearizing data tables.
     *   *Essential Question:* How does an unbalanced net force fundamentally alter the state of motion of an object?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction / Simulation
     *   *Links:* [PhET Forces and Motion: Basics](https://phet.colorado.edu/sims/html/forces-and-motion-basics/latest/forces-and-motion-basics_en.html), Newton's 2nd Law Problem Set *(Planned In-Class)*
 
-*   **Day 27 (2026-10-06): Modified Atwood Machine Lab: Proving `F_net = m · a`**
+*   **Day 27 (2026-10-06): Modified Atwood Machine Lab: Proving F<sub>net</sub> = m · a**
     *   *Bell-Ringer:* Atwood Accelerating Mass (CAST Challenge): A 0.80 kg cart on a frictionless track is pulled by a hanging 0.20 kg mass over a pulley. Calculate the net accelerating force, the total system mass, and the theoretical acceleration of the system.
-    *   *Focus:* Modified Atwood system dynamics: accelerating force is the weight of the hanging mass (`F_net = m_hang · g`), but the total accelerated mass is the entire system (`m_sys = m_cart + m_hang`). System acceleration: `a = (m_hang · g) / (m_cart + m_hang)`.
-    *   *Activity:* Modified Atwood Track Lab: Students release dynamics carts connected over low-friction pulleys to hanging slotted masses, measure cart acceleration across photogate timing flags, plot `a` vs `F_net` (confirming slope = `1/m`), and compare empirical vs theoretical acceleration.
+    *   *Focus:* Modified Atwood system dynamics: accelerating force is the weight of the hanging mass (F<sub>net</sub> = m<sub>hang</sub> · g), but the total accelerated mass is the entire system (m<sub>sys</sub> = m<sub>cart</sub> + m<sub>hang</sub>). System acceleration: a = (m<sub>hang</sub> · g) / (m<sub>cart</sub> + m<sub>hang</sub>).
+    *   *Activity:* Modified Atwood Track Lab: Students release dynamics carts connected over low-friction pulleys to hanging slotted masses, measure cart acceleration across photogate timing flags, plot `a` vs F<sub>net</sub> (confirming slope = `1/m`), and compare empirical vs theoretical acceleration.
     *   *Essential Question:* In an Atwood system, why must the net pulling force accelerate the mass of the cart AND the hanging mass together?
     *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Lab
     *   *Links:* Modified Atwood Track Lab Sheet *(Planned In-Class)*
 
-*   **Day 28 (2026-10-07): The Science of Friction: Static vs. Kinetic (`F_f = μ · F_N`)**
+*   **Day 28 (2026-10-07): The Science of Friction: Static vs. Kinetic (F<sub>f</sub> = μ · F<sub>N</sub>)**
     *   *Bell-Ringer:* Pushing a Heavy Couch (AI Chat): Why is it always much harder to get a heavy couch to start sliding across a wooden floor than it is to keep it moving once it's already sliding?
-    *   *Focus:* Microscopic origin of friction: surface roughness, contact asperities, and microscopic welding. Static friction (`F_s ≤ μ_s · F_N`) as an adaptive response up to a peak threshold; kinetic friction (`F_k = μ_k · F_N`) as a constant resisting sliding force. Normal force dependence; independence from apparent surface area.
+    *   *Focus:* Microscopic origin of friction: surface roughness, contact asperities, and microscopic welding. Static friction (F<sub>s</sub> ≤ μ<sub>s</sub> · F<sub>N</sub>) as an adaptive response up to a peak threshold; kinetic friction (F<sub>k</sub> = μ<sub>k</sub> · F<sub>N</sub>) as a constant resisting sliding force. Normal force dependence; independence from apparent surface area.
     *   *Activity:* Demonstration & Interactive Analysis: Slowly increasing tension on a heavy wood block using a force sensor until breakaway, displaying the classic static peak spike followed by the lower, flat kinetic friction plateau.
     *   *Essential Question:* What occurs at the microscopic interface between two solid surfaces when static friction breaks away into kinetic friction?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction / Demonstration
     *   *Links:* [Science of Friction Presentation](Unit_2/describing-motion-presentation/index.html), Friction Analysis Handout *(Planned In-Class)*
 
 *   **Day 29 (2026-10-08): Friction Block Inquiry Lab: Measuring Friction Coefficients**
-    *   *Bell-Ringer:* Friction Coefficient Calculation (CAST Challenge): A 4.0 kg wooden crate requires 16.0 N of horizontal force to slide across a warehouse floor at constant speed. Calculate the normal force, the kinetic friction force, and the coefficient of kinetic friction `μ_k`.
-    *   *Focus:* Measuring coefficients of friction: `μ_k = F_k / F_N` and `μ_s = F_s_max / F_N`. Effect of varying surface textures (wood, felt, sandpaper) and varying normal force (adding bar weights). Incline tilt angle method: `μ_s = tan(θ_slip)`.
-    *   *Activity:* Tabletop Friction Coefficient Lab: Teams drag multi-sided wooden friction blocks across lab benches with spring scales, log dynamic pull forces under varying added masses (0.5 kg, 1.0 kg, 1.5 kg), plot `F_f` vs `F_N`, and extract `μ_k` from the regression slope.
+    *   *Bell-Ringer:* Friction Coefficient Calculation (CAST Challenge): A 4.0 kg wooden crate requires 16.0 N of horizontal force to slide across a warehouse floor at constant speed. Calculate the normal force, the kinetic friction force, and the coefficient of kinetic friction μ<sub>k</sub>.
+    *   *Focus:* Measuring coefficients of friction: μ<sub>k</sub> = F<sub>k</sub> / F<sub>N</sub> and μ<sub>s</sub> = F<sub>s(max)</sub> / F<sub>N</sub>. Effect of varying surface textures (wood, felt, sandpaper) and varying normal force (adding bar weights). Incline tilt angle method: μ<sub>s</sub> = tan(θ<sub>slip</sub>).
+    *   *Activity:* Tabletop Friction Coefficient Lab: Teams drag multi-sided wooden friction blocks across lab benches with spring scales, log dynamic pull forces under varying added masses (0.5 kg, 1.0 kg, 1.5 kg), plot F<sub>f</sub> vs F<sub>N</sub>, and extract μ<sub>k</sub> from the regression slope.
     *   *Essential Question:* How do materials scientists determine the friction coefficient between two substances, and why is this value independent of surface area?
     *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Lab
     *   *Links:* Friction Block Lab Handout *(Planned In-Class)*
 
 *   **Day 30 (2026-10-09): Student-Designed Traction Investigation & Highway Curve Safety Specification**
-    *   *Bell-Ringer:* Emergency Braking on Wet vs. Dry Road (CAST Challenge): A 1,200 kg car traveling at 25 m/s slams on its brakes. On dry asphalt `μ_k = 0.80`; on icy wet pavement `μ_k = 0.20`. Calculate the deceleration and total stopping distance for both road conditions.
+    *   *Bell-Ringer:* Emergency Braking on Wet vs. Dry Road (CAST Challenge): A 1,200 kg car traveling at 25 m/s slams on its brakes. On dry asphalt μ<sub>k</sub> = 0.80; on icy wet pavement μ<sub>k</sub> = 0.20. Calculate the deceleration and total stopping distance for both road conditions.
     *   *Focus:* Comparative Empirical Friction Methodology, Systematic Error Reconciliation, and Highway Safety Engineering. Reconciling discrepancies between dynamic pull sensors and incline slip angles.
-    *   *Activity:* Comparative Traction Protocol & Highway Safety Specification (DOK 4 Extended Investigation): Teams act as highway safety research consultants. Rather than following a step-by-step procedure, teams must: (1) independently formulate and carry out two distinct experimental protocols to measure friction coefficients on road materials (horizontal force sensor drag vs. critical angle of incline slip where μ_s = tan θ), (2) identify and reconcile discrepancies between the methods by analyzing contact temperature, surface wear, and stick-slip chatter, and (3) synthesize empirical friction coefficients with Newton's 2nd Law and kinematics to calculate stopping distance envelopes and specify safe wet-weather speed limits for a banked mountain highway curve.
+    *   *Activity:* Comparative Traction Protocol & Highway Safety Specification (DOK 4 Extended Investigation): Teams act as highway safety research consultants. Rather than following a step-by-step procedure, teams must: (1) independently formulate and carry out two distinct experimental protocols to measure friction coefficients on road materials (horizontal force sensor drag vs. critical angle of incline slip where μ<sub>s</sub> = tan θ), (2) identify and reconcile discrepancies between the methods by analyzing contact temperature, surface wear, and stick-slip chatter, and (3) synthesize empirical friction coefficients with Newton's 2nd Law and kinematics to calculate stopping distance envelopes and specify safe wet-weather speed limits for a banked mountain highway curve.
     *   *Essential Question:* Why must materials engineers reconcile multiple experimental paradigms and error sources before establishing critical safety specifications for transportation systems?
     *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 4 | *Type:* Engineering Design / Investigation
     *   *Links:* Highway Safety Engineering Specification *(Planned In-Class)*, [Friction Methodology & Pavement Guide](https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing), [Two-Car Intercept Challenge](Unit_2/two_car_intercept/index.html)
@@ -291,7 +294,7 @@ This unit follows the classical and cognitive progression:
 
 *   **Day 31 (2026-10-12): Newton's Third Law: Action-Reaction Interaction Pairs**
     *   *Bell-Ringer:* Semi-Truck vs. Mosquito Collision (AI Chat): A massive semi-truck traveling down the highway collides with a tiny mosquito hovering in midair. Which experiences the greater impact force during the collision: the truck or the mosquito? Defend your answer using physics.
-    *   *Focus:* Forces as simultaneous mutual interactions between two bodies: `F_A_on_B = -F_B_on_A`. Equal magnitude, opposite direction, simultaneous in time, acting on different objects. Common misconceptions: confusing equal force with equal acceleration (`a = F / m`).
+    *   *Focus:* Forces as simultaneous mutual interactions between two bodies: F<sub>A on B</sub> = -F<sub>B on A</sub>. Equal magnitude, opposite direction, simultaneous in time, acting on different objects. Common misconceptions: confusing equal force with equal acceleration (`a = F / m`).
     *   *Activity:* Dual Force Sensor Collisions & Skateboard Recoil: Students pair Vernier force sensors together and record real-time force graphs during collisions, pushes, and pulls between equal and unequal cart masses. Verification of matching peak forces.
     *   *Essential Question:* When two objects of wildly different masses interact, why MUST the forces they exert on each other be exactly equal in size?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction / Inquiry
@@ -307,7 +310,7 @@ This unit follows the classical and cognitive progression:
 
 *   **Day 33 (2026-10-14): Structural Crashworthiness Engineering: Crumple Zone Impulse Optimization**
     *   *Bell-Ringer:* Bungee Jump vs. Steel Cable (AI Chat): Why would bungee jumping with an inelastic steel cable instead of an elastic rubber cord be fatal, even though both cords stop your fall over the exact same vertical distance?
-    *   *Focus:* Iterative Engineering Design: Reducing Impact Force via Deceleration Duration Extension under Physical Constraints (`F_avg · Δt = m · Δv`).
+    *   *Focus:* Iterative Engineering Design: Reducing Impact Force via Deceleration Duration Extension under Physical Constraints (F<sub>avg</sub> · Δt = m · Δv).
     *   *Activity:* Operation Safe Heeler Crashworthiness Engineering Challenge (DOK 4 Engineering Design): Teams receive client design constraints for an autonomous passenger pod: vehicle crumple depth < 15 cm, bumper mass < 150 g, structural budget < $25, and zero passenger cabin intrusion. Teams: (1) construct physical/digital baseline prototype bumpers and run collision tests with accelerometer and force sensors, (2) integrate real-time impulse curves to quantify peak g-force and deceleration duration (Δt), (3) perform iterative redesigns (comparing accordion folds, progressive honeycomb cells, and composite dampening) to optimize deceleration profiles, and (4) log collision telemetry to the cloud gradebook.
     *   *Essential Question:* How do automotive engineers manipulate structural deformation and material failure modes to minimize lethal deceleration forces within strict mass and space constraints?
     *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 4 | *Type:* Engineering Design / Lab
@@ -325,7 +328,7 @@ This unit follows the classical and cognitive progression:
 *   **Day 35 (2026-10-16): Unit 2 Summative Assessment**
     *   *Bell-Ringer:* Exam Readiness Mindset & Formula Check: Final 5-minute formula sheet review and calculator setup.
     *   *Focus:* Comprehensive summative evaluation across 1D Kinematics and Newtonian Dynamics (Days 1–34).
-    *   *Activity:* Unit 2 Summative Examination: 50-minute exam featuring conceptual multiple-choice items, graphical slope and area calculations, FBD construction and equilibrium problem solving, and multi-step `F_net = m · a` dynamics-kinematics integration (DOK 1-3).
+    *   *Activity:* Unit 2 Summative Examination: 50-minute exam featuring conceptual multiple-choice items, graphical slope and area calculations, FBD construction and equilibrium problem solving, and multi-step F<sub>net</sub> = m · a dynamics-kinematics integration (DOK 1-3).
     *   *Essential Question:* How effectively can we measure, calculate, model, and explain the motion and interactions of physical systems?
     *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Summative Assessment
     *   *Links:* Unit 2 Reference Formula Sheet *(Planned In-Class)*
