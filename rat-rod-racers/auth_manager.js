@@ -420,40 +420,73 @@ class RatRodAuthManager {
     const list = [];
     const seenIds = new Set();
 
-    // 1. Fetch real student records from Cloud Firestore
+    // 1. Fetch real student records from Cloud Firestore (with 3.5s timeout)
     if (typeof firebase !== 'undefined' && firebase.firestore) {
       try {
         const db = firebase.firestore();
-        const snap = await db.collection('student_results')
-                             .doc(RAT_ROD_ASSIGNMENT_ID)
-                             .collection('students')
-                             .get();
+        const fetchPromise = db.collection('student_results')
+                               .doc(RAT_ROD_ASSIGNMENT_ID)
+                               .collection('students')
+                               .get();
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Firestore leaderboard timeout')), 3500)
+        );
+
+        const snap = await Promise.race([fetchPromise, timeoutPromise]);
 
         snap.forEach(doc => {
           const d = doc.data();
           const studentId = doc.id;
           seenIds.add(studentId);
+          const isMe = (this.studentId === studentId);
+
+          let driverScore = typeof d.driverScore === 'number' ? d.driverScore : (typeof d.score === 'number' ? d.score : 1000);
+          let winStreak = d.winStreak || 0;
+          let racesWon = d.racesWon || 0;
+          let racesTotal = d.racesTotal || 0;
+          let bestEt = typeof d.bestEt === 'number' ? d.bestEt : null;
+          let bestTrapSpeed = typeof d.bestTrapSpeed === 'number' ? d.bestTrapSpeed : null;
+          let carPi = typeof d.carPi === 'number' ? d.carPi : (d.car?.pi || 350);
+          let carClass = d.carClass || d.car?.carClass || 'D';
+          let carName = d.car ? d.car.name : "Custom Rod";
+
+          if (isMe && this.game && this.game.inventory) {
+            const inv = this.game.inventory;
+            const pc = this.game.playerCar;
+            if (inv.driverScore && inv.driverScore > driverScore) driverScore = inv.driverScore;
+            if (typeof inv.winStreak === 'number') winStreak = inv.winStreak;
+            if (typeof inv.racesWon === 'number' && inv.racesWon > racesWon) racesWon = inv.racesWon;
+            if (typeof inv.racesTotal === 'number' && inv.racesTotal > racesTotal) racesTotal = inv.racesTotal;
+            if (inv.bestEt && (!bestEt || inv.bestEt < bestEt)) bestEt = inv.bestEt;
+            if (inv.bestTrapSpeed && (!bestTrapSpeed || inv.bestTrapSpeed > bestTrapSpeed)) bestTrapSpeed = inv.bestTrapSpeed;
+            if (pc) {
+              carPi = pc.pi || carPi;
+              carClass = pc.carClass || carClass;
+              carName = pc.name || carName;
+            }
+          }
+
           list.push({
             id: studentId,
-            name: d.studentName || studentId,
-            driver: d.studentName || studentId,
-            carName: d.car ? d.car.name : "Custom Rod",
-            driverScore: typeof d.driverScore === 'number' ? d.driverScore : (typeof d.score === 'number' ? d.score : 1000),
-            winStreak: d.winStreak || 0,
-            racesWon: d.racesWon || 0,
-            racesTotal: d.racesTotal || 0,
-            bestEt: typeof d.bestEt === 'number' ? d.bestEt : null,
-            bestTrapSpeed: typeof d.bestTrapSpeed === 'number' ? d.bestTrapSpeed : null,
-            carPi: typeof d.carPi === 'number' ? d.carPi : (d.car?.pi || 350),
-            carClass: d.carClass || d.car?.carClass || 'D',
+            name: d.studentName || (isMe && this.studentName ? this.studentName : studentId),
+            driver: d.studentName || (isMe && this.studentName ? this.studentName : studentId),
+            carName: carName,
+            driverScore: driverScore,
+            winStreak: winStreak,
+            racesWon: racesWon,
+            racesTotal: racesTotal,
+            bestEt: bestEt,
+            bestTrapSpeed: bestTrapSpeed,
+            carPi: carPi,
+            carClass: carClass,
             shareCode: d.shareCode || "",
             carData: d.car,
-            isCurrentPlayer: (this.studentId === studentId),
+            isCurrentPlayer: isMe,
             isGhost: false
           });
         });
       } catch (e) {
-        console.warn("Error fetching cloud leaderboard records:", e);
+        console.warn("Error or timeout fetching cloud leaderboard records:", e);
       }
     }
 
@@ -484,34 +517,39 @@ class RatRodAuthManager {
     }
 
     // 3. Blend in benchmark ghost roster for a vibrant, competitive field
-    if (typeof STUDENT_GHOST_ROSTER !== 'undefined') {
-      STUDENT_GHOST_ROSTER.forEach((g, idx) => {
-        const ghostId = `ghost_${idx}`;
-        const simET = g.car.pi >= 900 ? 9.24 : (g.car.pi >= 750 ? 11.45 : (g.car.pi >= 600 ? 13.82 : (g.car.pi >= 450 ? 15.60 : 17.95)));
-        const simSpeed = g.car.pi >= 900 ? 71.5 : (g.car.pi >= 750 ? 59.2 : (g.car.pi >= 600 ? 49.5 : (g.car.pi >= 450 ? 43.1 : 38.0)));
-        const simScore = g.car.pi >= 900 ? 3200 : (g.car.pi >= 750 ? 2450 : (g.car.pi >= 600 ? 1850 : (g.car.pi >= 450 ? 1420 : 1100)));
-        const simWins = g.car.pi >= 900 ? 28 : (g.car.pi >= 750 ? 19 : (g.car.pi >= 600 ? 12 : (g.car.pi >= 450 ? 7 : 3)));
+    const ghostRoster = (typeof STUDENT_GHOST_ROSTER !== 'undefined' ? STUDENT_GHOST_ROSTER : window.STUDENT_GHOST_ROSTER) || [];
+    ghostRoster.forEach((g, idx) => {
+      const ghostId = `ghost_${idx}`;
+      if (seenIds.has(ghostId)) return;
 
-        list.push({
-          id: ghostId,
-          name: g.driver,
-          driver: g.driver,
-          carName: g.name,
-          driverScore: simScore,
-          winStreak: Math.floor(simWins / 4),
-          racesWon: simWins,
-          racesTotal: simWins + 3,
-          bestEt: simET,
-          bestTrapSpeed: simSpeed,
-          carPi: g.car.pi,
-          carClass: g.car.carClass,
-          shareCode: g.car.toShareCode(),
-          carObj: g.car,
-          isCurrentPlayer: false,
-          isGhost: true
-        });
+      const gCar = g.car;
+      const gPi = gCar ? (gCar.pi || (typeof gCar.computePI === 'function' ? gCar.computePI().pi : 350)) : 350;
+      const gClass = gCar ? (gCar.carClass || (typeof gCar.computePI === 'function' ? gCar.computePI().carClass : 'D')) : 'D';
+
+      const simET = gPi >= 900 ? 9.24 : (gPi >= 750 ? 11.45 : (gPi >= 600 ? 13.82 : (gPi >= 450 ? 15.60 : 17.95)));
+      const simSpeed = gPi >= 900 ? 71.5 : (gPi >= 750 ? 59.2 : (gPi >= 600 ? 49.5 : (gPi >= 450 ? 43.1 : 38.0)));
+      const simScore = gPi >= 900 ? 3200 : (gPi >= 750 ? 2450 : (gPi >= 600 ? 1850 : (gPi >= 450 ? 1420 : 1100)));
+      const simWins = gPi >= 900 ? 28 : (gPi >= 750 ? 19 : (gPi >= 600 ? 12 : (gPi >= 450 ? 7 : 3)));
+
+      list.push({
+        id: ghostId,
+        name: g.driver,
+        driver: g.driver,
+        carName: g.name,
+        driverScore: simScore,
+        winStreak: Math.floor(simWins / 4),
+        racesWon: simWins,
+        racesTotal: simWins + 3,
+        bestEt: simET,
+        bestTrapSpeed: simSpeed,
+        carPi: gPi,
+        carClass: gClass,
+        shareCode: gCar ? gCar.toShareCode() : "",
+        carObj: gCar,
+        isCurrentPlayer: false,
+        isGhost: true
       });
-    }
+    });
 
     return list;
   }
