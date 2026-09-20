@@ -1,6 +1,24 @@
 # Wiki Evolution Log
 
 Append-only log tracking pattern changes across sessions.
+## 2026-09-19 — Rat Rod Racers: Dyno Lab Cash Anti-Exploit Patch & Student Google Auth Firestore Sync
+
+**Pattern Updated**: `modular-vehicle-physics-game.md`.
+
+**Changes**:
+- **Patched Dyno Lab Cash Exploit**:
+  - Eliminated rapid-click spamming and `Enter` key-hold infinite cash exploits on the "Check Answer" button.
+  - Implemented model-level synchronous answer locking in `challenges.js` (`answered = true`), awarding 0 cash and returning `alreadyAnswered: true` on duplicate evaluations.
+  - Implemented UI-level submission lock (`isSubmittingDyno = true`), immediate button hiding/disabling, and mapped subsequent `Enter` keydowns to advancing cleanly to the next challenge (`loadNextDynoChallenge()`).
+- **Student Google Authentication & Cloud Firestore Persistence**:
+  - Created `RatRodAuthManager` in `auth_manager.js` with Firebase Auth and Firestore support (`site-6e500`).
+  - Restricted logins to official `@orangeusd.org` accounts (plus teacher overrides).
+  - Backed up student state (bank cash, owned parts with fusion levels, equipped car specifications, race records, dyno streaks) to `student_results/Rat_Rod_Racers/students/{studentId}`.
+  - Added student-scoped `localStorage` keys (`rat_rod_save_${studentId}`) alongside Firestore cloud sync with real-time status pills (`☁️ Synced` / `🔄 Saving`).
+  - Added `#loginGateModal` with Google Sign-In and "Explore as Guest" option.
+  - Added debounced/immediate `autoSave()` hooks on part equips, upgrades, scrap recycling, crate drops, race finishes, and dyno calculations.
+- Updated automated test suite in `scratch/test-rat-rod.js` verifying anti-exploit blocking and cloud inventory restoration.
+
 ## 2026-09-19 — Rat Rod Racers: Unified Cartoon Hot-Rod Art Engine (Garage Preview & Track Consistency)
 
 **Pattern Updated**: `modular-vehicle-physics-game.md`.
