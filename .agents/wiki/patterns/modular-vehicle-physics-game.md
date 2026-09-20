@@ -52,6 +52,18 @@ The **Modular Vehicle Physics Game** architecture models real-world 1D Newtonian
 
 ## Known Pitfalls & Best Practices
 - **Audio Synthesis**: Use Web Audio API oscillators and bandpass filtered noise to synthesize rich engine rumbles, revs, and tire squeals without requiring external audio files.
+- **Dyno Lab Multi-Click Exploit Prevention**:
+  - In student economies where academic challenges award in-game currency, students will attempt rapid-fire button clicking or holding down the `Enter` key on number inputs to farm unlimited bank funds.
+  - **Triple-Lock Patch**:
+    1. **Model-Level Answer State**: Set `this.currentChallenge.answered = true` synchronously during the first evaluation in `checkAnswer()`. Return `{ alreadyAnswered: true, earnedCash: 0 }` on any subsequent evaluations of that same challenge.
+    2. **UI Submission Lock & Immediate Button Hiding**: Flag `this.isSubmittingDyno = true`, disable the input field (`inputEl.disabled = true`), and immediately hide/disable the Check Answer button while displaying the Next Question button.
+    3. **Keydown Enter Advancement**: In the `keydown` listener, test if the current challenge has already been answered. If already answered, treat `Enter` as advancing to the next challenge (`loadNextDynoChallenge()`) instead of re-submitting.
+- **Student Google Authentication & Firestore Cloud Backup**:
+  - Require sign-in through official school Google accounts (`@orangeusd.org`) using `firebase.auth.GoogleAuthProvider` with `{ hd: 'orangeusd.org', prompt: 'select_account' }`.
+  - Back up student state to `student_results/Rat_Rod_Racers/students/{studentId}`:
+    - Bank cash, owned parts with fusion levels, equipped car specifications, race records (best ET, best trap speed, win/loss count), and dyno answer streaks.
+  - Maintain student-scoped local storage keys (`rat_rod_save_${studentId}`) alongside cloud persistence for instant load times and offline resiliency.
+  - Trigger debounced auto-saves (`autoSave()`) whenever parts are equipped, upgraded, scrapped, crates are opened, races finish, or dyno challenges are answered.
 - **Unified Visual Consistency (Preview vs Track)**:
   - When students customize a vehicle in a garage preview and subsequently race it on a track, they expect the visual assets to reasonably match. Avoid relying on disparate 3/4 isometric preview images that cannot seamlessly translate onto a 2D side-view physics canvas.
   - Implement a **Unified Vector & Canvas Cartoon Drawing Engine**:
