@@ -44,6 +44,40 @@ class RatRodAuthManager {
     if (btnGuest) {
       btnGuest.onclick = () => this.continueAsGuest();
     }
+    const btnClose = document.getElementById('btnGateClose');
+    if (btnClose) {
+      btnClose.onclick = () => this.continueAsGuest();
+    }
+    const gateModal = document.getElementById('loginGateModal');
+    if (gateModal) {
+      gateModal.addEventListener('click', (e) => {
+        if (e.target === gateModal) {
+          this.continueAsGuest();
+        }
+      });
+    }
+  }
+
+  hideLoginModal() {
+    const gateModal = document.getElementById('loginGateModal');
+    if (gateModal) {
+      gateModal.classList.add('hidden');
+      gateModal.style.setProperty('display', 'none', 'important');
+    }
+    const gateError = document.getElementById('loginGateError');
+    if (gateError) {
+      gateError.classList.add('hidden');
+      gateError.style.setProperty('display', 'none', 'important');
+    }
+  }
+
+  showLoginModal() {
+    const gateModal = document.getElementById('loginGateModal');
+    if (gateModal) {
+      gateModal.classList.remove('hidden');
+      gateModal.style.removeProperty('display');
+      gateModal.style.display = 'flex';
+    }
   }
 
   initFirebase() {
@@ -74,7 +108,6 @@ class RatRodAuthManager {
     if (!firebase.auth) return;
 
     firebase.auth().onAuthStateChanged(async (user) => {
-      const gateModal = document.getElementById('loginGateModal');
       const gateError = document.getElementById('loginGateError');
 
       if (user) {
@@ -85,19 +118,18 @@ class RatRodAuthManager {
           this.studentName = user.displayName || this.studentId;
           this.isGuest = false;
 
-          if (gateModal) gateModal.classList.add('hidden');
-          if (gateError) gateError.classList.add('hidden');
-
+          this.hideLoginModal();
           this.updateAuthUI();
-          await this.loadStudentData();
+          this.loadStudentData().catch(e => console.warn("Failed to load student cloud data:", e));
         } else {
           if (gateError) {
             gateError.textContent = `Access restricted: ${email} is not an official school account. Please sign in with your @orangeusd.org Google account.`;
             gateError.classList.remove('hidden');
+            gateError.style.removeProperty('display');
           } else {
             alert('Please sign in using your official school @orangeusd.org account.');
           }
-          if (gateModal) gateModal.classList.remove('hidden');
+          this.showLoginModal();
           firebase.auth().signOut();
         }
       } else {
@@ -110,9 +142,9 @@ class RatRodAuthManager {
         const isGuestSession = sessionStorage.getItem('ratrod_guest_mode') === 'true';
         if (isGuestSession) {
           this.isGuest = true;
-          if (gateModal) gateModal.classList.add('hidden');
-        } else if (gateModal) {
-          gateModal.classList.remove('hidden');
+          this.hideLoginModal();
+        } else {
+          this.showLoginModal();
         }
       }
     });
@@ -171,15 +203,16 @@ class RatRodAuthManager {
   signOut() {
     if (typeof firebase !== 'undefined' && firebase.auth) {
       sessionStorage.removeItem('ratrod_guest_mode');
-      firebase.auth().signOut();
+      firebase.auth().signOut().then(() => {
+        this.showLoginModal();
+      });
     }
   }
 
   continueAsGuest() {
     this.isGuest = true;
     sessionStorage.setItem('ratrod_guest_mode', 'true');
-    const gateModal = document.getElementById('loginGateModal');
-    if (gateModal) gateModal.classList.add('hidden');
+    this.hideLoginModal();
     this.updateAuthUI();
   }
 
@@ -208,7 +241,7 @@ class RatRodAuthManager {
         </button>
       `;
       const loginBtn = document.getElementById('btn-google-login');
-      if (loginBtn) loginBtn.onclick = () => this.signIn();
+      if (loginBtn) loginBtn.onclick = () => this.showLoginModal();
     }
   }
 
