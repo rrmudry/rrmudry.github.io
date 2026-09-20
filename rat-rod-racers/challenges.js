@@ -339,14 +339,29 @@ class PhysicsChallengeEngine {
   checkAnswer(userVal) {
     if (!this.currentChallenge) return { success: false, msg: "No active challenge." };
 
+    // Prevent duplicate evaluation exploit
+    if (this.currentChallenge.answered) {
+      return {
+        success: false,
+        alreadyAnswered: true,
+        earnedCash: 0,
+        streak: this.streak,
+        msg: "This challenge has already been answered. Click Next Challenge to continue."
+      };
+    }
+
     const parsed = parseFloat(userVal);
     if (isNaN(parsed)) {
       return { success: false, msg: "Please enter a valid numerical value." };
     }
 
+    // Mark as answered immediately
+    this.currentChallenge.answered = true;
+
     const exp = this.currentChallenge.expectedValue;
     const tol = this.currentChallenge.tolerance || 0.1;
     const isCorrect = Math.abs(parsed - exp) <= tol;
+    this.currentChallenge.wasCorrect = isCorrect;
 
     if (isCorrect) {
       this.streak++;
