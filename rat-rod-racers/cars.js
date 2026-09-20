@@ -103,6 +103,45 @@ class RatRodCar {
     this.staticGripLimitForce = Math.round(this.mu * this.mass * 9.81); // N
     this.burnoutRisk = this.peakForce > this.staticGripLimitForce; // Traction warning
     this.powerToWeight = Number((this.peakForce / this.mass).toFixed(2)); // N/kg
+
+    // Performance Index (PI) & Class Classification
+    const piInfo = this.computePI();
+    this.pi = piInfo.pi;
+    this.carClass = piInfo.carClass;
+    this.classLabel = piInfo.classLabel;
+    this.classColor = piInfo.classColor;
+  }
+
+  // Calculate Performance Index (200 - 1000+) based on power-to-weight, traction, aero & tuning
+  computePI() {
+    const levelSum = Object.values(this.levels).reduce((sum, lvl) => sum + (lvl || 1), 0);
+    const ptw = this.peakForce / Math.max(100, this.mass);
+    const rawPI = 100 + (ptw * 55) + (this.mu * 120) - (this.cdA * 100) + (levelSum * 15);
+    const pi = Math.max(200, Math.round(rawPI));
+
+    let carClass = 'D';
+    let classLabel = 'Rookie Jalopy';
+    let classColor = '#94a3b8';
+
+    if (pi >= 900) {
+      carClass = 'S';
+      classLabel = 'Top Fuel Rail';
+      classColor = '#ffd166';
+    } else if (pi >= 750) {
+      carClass = 'A';
+      classLabel = 'Pro Mod Gasser';
+      classColor = '#ff5400';
+    } else if (pi >= 600) {
+      carClass = 'B';
+      classLabel = 'Hot Rod Custom';
+      classColor = '#10b981';
+    } else if (pi >= 450) {
+      carClass = 'C';
+      classLabel = 'Street Tuner';
+      classColor = '#00f0ff';
+    }
+
+    return { pi, carClass, classLabel, classColor };
   }
 
   // Serialize car to compact, shareable string code
@@ -280,6 +319,14 @@ const STUDENT_GHOST_ROSTER = [
     })
   }
 ];
+
+// Pre-calculate PI and Class on all benchmark ghost rivals
+STUDENT_GHOST_ROSTER.forEach(r => {
+  r.pi = r.car.pi;
+  r.carClass = r.car.carClass;
+  r.classLabel = r.car.classLabel;
+  r.classColor = r.car.classColor;
+});
 
 /**
  * 2D Canvas Composite Car Drawer
