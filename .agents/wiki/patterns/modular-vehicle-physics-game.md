@@ -76,9 +76,26 @@ The **Modular Vehicle Physics Game** architecture models real-world 1D Newtonian
   - Toggle between **Championship Points** (descending) and **Fastest 1/4-Mile ET** (ascending).
 * "Race Ghost" action button directly stages any leaderboard car (equipped parts & levels) into Lane 2 on the drag strip for immediate head-to-head racing.
 
+### 9. Embedded Desmos Scientific Calculator Station (`index.html`, `style.css`, `game.js`)
+* **Proving Grounds Side-by-Side Layout**:
+  - Two-column responsive layout on desktop/Chromebooks (`1.15fr 0.85fr`, `max-width: 1240px`).
+  - Challenge prompt, graphs, and data tables on the left; official CAST-aligned Desmos Scientific Calculator on the right.
+  - Automatically collapses to stacked format with a smooth mobile jump toggle button on narrow screens (`< 960px`).
+* **Dual Resilience (API + Embed Fallback)**:
+  - Primary: Native `Desmos.ScientificCalculator` API instance (`apiKey=dcb31709b452b1cf9dc26972add0fda6`) with compact font sizing and native dark-frame aesthetic.
+  - Fallback: Iframe embed (`https://www.desmos.com/scientific?embed`) automatically engaged if the script is blocked or offline.
+* **Quick Telemetry Formula Reference**:
+  - Displays plain text & Unicode formulas directly beneath the calculator:
+    - Newton's 2nd Law: $a = F_{\text{net}} / m$, $F_{\text{net}} = m \cdot a$
+    - Traction Limit: $F_{\text{max}} = \mu \cdot m \cdot g$ ($g = 9.8\text{ m/s}^2$)
+    - Kinematic Slopes: $v = \Delta x / \Delta t$, $a = \Delta v / \Delta t$
+
 ---
 
 ## Known Pitfalls & Best Practices
+- **Desmos Dimensioning & Resizing in Hidden Tabs**:
+  - Initializing a Desmos calculator inside a container with `display: none` can lead to 0x0 initial canvas bounds. Always trigger `desmosCalculator.resize()` inside `switchTab('dyno')` after a short 50–60ms delay when the panel becomes visible.
+  - Provide a collapsible container toggle (`#btn-dyno-calc-collapse`) so students can minimize the calculator if working on small laptop screens.
 - **Audio Synthesis**: Use Web Audio API oscillators and bandpass filtered noise to synthesize rich engine rumbles, revs, and tire squeals without requiring external audio files.
 - **Dyno Lab Multi-Click Exploit Prevention**:
   - In student economies where academic challenges award in-game currency, students will attempt rapid-fire button clicking or holding down the `Enter` key on number inputs to farm unlimited bank funds.
