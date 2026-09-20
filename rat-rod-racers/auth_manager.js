@@ -358,6 +358,8 @@ class RatRodAuthManager {
       studentName: this.studentName,
       email: this.currentUser ? this.currentUser.email : "",
       bankCash: inventory ? inventory.bankCash : 250,
+      driverScore: inventory ? (inventory.driverScore || 1000) : 1000,
+      winStreak: inventory ? (inventory.winStreak || 0) : 0,
       racesWon: inventory ? inventory.racesWon : 0,
       racesTotal: inventory ? inventory.racesTotal : 0,
       bestEt: inventory ? inventory.bestEt : null,
@@ -370,8 +372,12 @@ class RatRodAuthManager {
         mass: playerCar.mass,
         peakForce: playerCar.peakForce,
         mu: playerCar.mu,
-        cdA: playerCar.cdA
+        cdA: playerCar.cdA,
+        pi: playerCar.pi || 350,
+        carClass: playerCar.carClass || 'D'
       } : null,
+      carPi: playerCar ? (playerCar.pi || 350) : 350,
+      carClass: playerCar ? (playerCar.carClass || 'D') : 'D',
       dynoStreak: challenges ? challenges.streak : 0,
       shareCode: playerCar ? playerCar.toShareCode() : "",
       last_saved_at: (typeof firebase !== 'undefined' && firebase.firestore)
@@ -407,6 +413,107 @@ class RatRodAuthManager {
     } else {
       this.setSyncStatus('synced');
     }
+  }
+
+  // Fetch all student records & merge with benchmark ghosts for leaderboard
+  async fetchLeaderboard() {
+    const list = [];
+    const seenIds = new Set();
+
+    // 1. Fetch real student records from Cloud Firestore
+    if (typeof firebase !== 'undefined' && firebase.firestore) {
+      try {
+        const db = firebase.firestore();
+        const snap = await db.collection('student_results')
+                             .doc(RAT_ROD_ASSIGNMENT_ID)
+                             .collection('students')
+                             .get();
+
+        snap.forEach(doc => {
+          const d = doc.data();
+          const studentId = doc.id;
+          seenIds.add(studentId);
+          list.push({
+            id: studentId,
+            name: d.studentName || studentId,
+            driver: d.studentName || studentId,
+            carName: d.car ? d.car.name : "Custom Rod",
+            driverScore: typeof d.driverScore === 'number' ? d.driverScore : (typeof d.score === 'number' ? d.score : 1000),
+            winStreak: d.winStreak || 0,
+            racesWon: d.racesWon || 0,
+            racesTotal: d.racesTotal || 0,
+            bestEt: typeof d.bestEt === 'number' ? d.bestEt : null,
+            bestTrapSpeed: typeof d.bestTrapSpeed === 'number' ? d.bestTrapSpeed : null,
+            carPi: typeof d.carPi === 'number' ? d.carPi : (d.car?.pi || 350),
+            carClass: d.carClass || d.car?.carClass || 'D',
+            shareCode: d.shareCode || "",
+            carData: d.car,
+            isCurrentPlayer: (this.studentId === studentId),
+            isGhost: false
+          });
+        });
+      } catch (e) {
+        console.warn("Error fetching cloud leaderboard records:", e);
+      }
+    }
+
+    // 2. Ensure current player's latest unsaved/local score is present if not in snap
+    const myId = this.studentId || 'local_racer';
+    const hasMyRecord = list.find(r => r.id === myId || (this.studentId && r.id === this.studentId));
+    if (!hasMyRecord && this.game && this.game.inventory) {
+      const inv = this.game.inventory;
+      const pc = this.game.playerCar;
+      list.push({
+        id: myId,
+        name: (this.studentName || "You") + " (You)",
+        driver: this.studentName || "You",
+        carName: pc ? pc.name : "Your Rat Rod",
+        driverScore: inv.driverScore || 1000,
+        winStreak: inv.winStreak || 0,
+        racesWon: inv.racesWon || 0,
+        racesTotal: inv.racesTotal || 0,
+        bestEt: inv.bestEt,
+        bestTrapSpeed: inv.bestTrapSpeed,
+        carPi: pc ? pc.pi : 350,
+        carClass: pc ? pc.carClass : 'D',
+        shareCode: pc ? pc.toShareCode() : "",
+        carData: pc ? pc.toJSON() : null,
+        isCurrentPlayer: true,
+        isGhost: false
+      });
+    }
+
+    // 3. Blend in benchmark ghost roster for a vibrant, competitive field
+    if (typeof STUDENT_GHOST_ROSTER !== 'undefined') {
+      STUDENT_GHOST_ROSTER.forEach((g, idx) => {
+        const ghostId = `ghost_${idx}`;
+        const simET = g.car.pi >= 900 ? 9.24 : (g.car.pi >= 750 ? 11.45 : (g.car.pi >= 600 ? 13.82 : (g.car.pi >= 450 ? 15.60 : 17.95)));
+        const simSpeed = g.car.pi >= 900 ? 71.5 : (g.car.pi >= 750 ? 59.2 : (g.car.pi >= 600 ? 49.5 : (g.car.pi >= 450 ? 43.1 : 38.0)));
+        const simScore = g.car.pi >= 900 ? 3200 : (g.car.pi >= 750 ? 2450 : (g.car.pi >= 600 ? 1850 : (g.car.pi >= 450 ? 1420 : 1100)));
+        const simWins = g.car.pi >= 900 ? 28 : (g.car.pi >= 750 ? 19 : (g.car.pi >= 600 ? 12 : (g.car.pi >= 450 ? 7 : 3)));
+
+        list.push({
+          id: ghostId,
+          name: g.driver,
+          driver: g.driver,
+          carName: g.name,
+          driverScore: simScore,
+          winStreak: Math.floor(simWins / 4),
+          racesWon: simWins,
+          racesTotal: simWins + 3,
+          bestEt: simET,
+          bestTrapSpeed: simSpeed,
+          carPi: g.car.pi,
+          carClass: g.car.carClass,
+          shareCode: g.car.toShareCode(),
+          carObj: g.car,
+          isCurrentPlayer: false,
+          isGhost: true
+        });
+      });
+    }
+
+    return list;
   }
 }
 

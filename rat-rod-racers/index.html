@@ -24,6 +24,12 @@
 
     <div class="header-controls">
       <div id="auth-user-status"></div>
+      <div class="hud-pill hud-score-pill" title="Championship Driver Points (Earn by winning races, underdog upsets, and Dyno calculations!)">
+        🏆 <span id="hud-score-val" class="hud-score-val">1,000 pts</span>
+      </div>
+      <div class="hud-pill hud-car-class-pill" title="Current Rat Rod Performance Index (PI)">
+        🏎️ <span id="hud-car-class" class="hud-car-class-val">Class D • 280 PI</span>
+      </div>
       <div class="hud-pill" title="Bank Cash (Earn by doing calculations in Dyno Lab!)">
         💰 <span class="hud-bank-val">$250</span>
       </div>
@@ -39,6 +45,7 @@
     <button class="nav-tab-btn" data-tab="garage">🔧 Garage & Specs</button>
     <button class="nav-tab-btn" data-tab="crates">📦 Mystery Crates</button>
     <button class="nav-tab-btn" data-tab="dyno">🎓 Dyno Lab (Earn Cash!)</button>
+    <button class="nav-tab-btn" data-tab="leaderboard">🏆 Leaderboard</button>
   </nav>
 
   <!-- Main Application Stage -->
@@ -52,8 +59,14 @@
 
       <div class="race-control-bar">
         <div class="opponent-picker">
-          <label for="opponent-select" style="font-size:13px; font-weight:700; color:var(--text-muted);">Opponent:</label>
-          <select id="opponent-select" class="styled-select"></select>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <label for="opponent-select" style="font-size:13px; font-weight:700; color:var(--text-muted);">Opponent:</label>
+            <span id="matchup-diff-badge" class="matchup-badge matchup-fair" title="Matchup rating based on car Performance Index (PI)">⚖️ FAIR MATCH</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <select id="opponent-select" class="styled-select"></select>
+            <button id="btn-automatch" class="btn btn-automatch" title="Automatically pair against the closest matching rival to your car's Performance Index (PI)">⚡ Auto-Match</button>
+          </div>
         </div>
 
         <div class="launch-action-zone">
@@ -158,6 +171,49 @@
           </div>
 
           <div id="dyno-feedback-box"></div>
+        </div>
+      </div>
+    <!-- 5. LEADERBOARD & STANDINGS TAB -->
+    <section id="tab-leaderboard" class="tab-panel hidden">
+      <div class="leaderboard-layout">
+        <div class="leaderboard-header-row">
+          <div>
+            <h2>🏆 Rat Rod Racers Championship Standings</h2>
+            <p style="color:var(--text-muted); font-size:13px; margin-top:4px;">
+              Live cloud rankings across physics students. Win races, stage underdog upsets, and solve Dyno problems to climb the ranks!
+            </p>
+          </div>
+          <div class="leaderboard-controls-group">
+            <div class="lb-toggle-group">
+              <button class="lb-tab-btn active" data-mode="points">🏆 Driver Points</button>
+              <button class="lb-tab-btn" data-mode="et">⚡ Fastest 1/4-Mile ET</button>
+            </div>
+            <button id="btn-refresh-lb" class="btn btn-sm" title="Refresh standings from cloud">🔄 Refresh</button>
+          </div>
+        </div>
+
+        <div id="leaderboard-loading" class="lb-loading-state hidden">
+          <div class="spinner"></div> Loading standings from cloud...
+        </div>
+
+        <div class="leaderboard-table-wrapper">
+          <table class="leaderboard-table">
+            <thead>
+              <tr>
+                <th style="width:75px;">Rank</th>
+                <th>Driver</th>
+                <th>Rat Rod & Class</th>
+                <th>Driver Points</th>
+                <th>Best 1/4-Mile ET</th>
+                <th>Trap Speed</th>
+                <th>Record (Win %)</th>
+                <th style="text-align:center;">Challenge</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboard-table-body">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
         </div>
       </div>
     </section>

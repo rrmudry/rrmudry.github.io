@@ -8,6 +8,8 @@ const STORAGE_SAVE_KEY = 'rat_rod_racers_v1';
 class InventoryManager {
   constructor() {
     this.bankCash = 250; // Starting garage bank balance
+    this.driverScore = 1000; // Base Driver Championship Rating
+    this.winStreak = 0;
     this.racesWon = 0;
     this.racesTotal = 0;
     this.bestEt = null;
@@ -144,9 +146,52 @@ class InventoryManager {
     return false;
   }
 
-  recordRaceResult(won, et, trapSpeed) {
+  addScore(points) {
+    this.driverScore = Math.max(0, Math.round((this.driverScore || 1000) + points));
+    this.save();
+    return this.driverScore;
+  }
+
+  recordRaceResult(won, et, trapSpeed, details = {}) {
     this.racesTotal++;
-    if (won) this.racesWon++;
+    let earnedPoints = 0;
+
+    if (won) {
+      this.racesWon++;
+      this.winStreak = (this.winStreak || 0) + 1;
+
+      // Base victory points
+      earnedPoints += 30;
+
+      // Underdog bonus if opponent PI was higher
+      const oppPI = details.oppPI || 0;
+      const playerPI = details.playerPI || 0;
+      if (oppPI > playerPI) {
+        const diff = Math.min(200, oppPI - playerPI);
+        earnedPoints += Math.round(diff * 0.15); // up to +30 pts underdog bonus
+      }
+
+      // Reaction time bonus
+      const rt = details.reactionTime;
+      if (typeof rt === 'number' && rt > 0) {
+        if (rt < 0.20) earnedPoints += 25; // Perfect tree!
+        else if (rt < 0.35) earnedPoints += 15; // Quick holeshot!
+        else if (rt < 0.50) earnedPoints += 5;
+      }
+
+      // Win streak bonus
+      if (this.winStreak >= 5) earnedPoints += 20;
+      else if (this.winStreak >= 3) earnedPoints += 10;
+      else if (this.winStreak >= 2) earnedPoints += 5;
+
+    } else {
+      this.winStreak = 0;
+      // Encouraging participation points (no punitive deductions for students)
+      earnedPoints += 5;
+    }
+
+    this.driverScore = Math.max(0, (this.driverScore || 1000) + earnedPoints);
+
     if (et && (!this.bestEt || et < this.bestEt)) {
       this.bestEt = et;
     }
@@ -154,12 +199,15 @@ class InventoryManager {
       this.bestTrapSpeed = trapSpeed;
     }
     this.save();
+    return earnedPoints;
   }
 
   save() {
     try {
       const data = {
         bankCash: this.bankCash,
+        driverScore: this.driverScore,
+        winStreak: this.winStreak,
         owned: this.owned,
         racesWon: this.racesWon,
         racesTotal: this.racesTotal,
@@ -190,6 +238,8 @@ class InventoryManager {
       if (!raw) return;
       const data = JSON.parse(raw);
       if (typeof data.bankCash === 'number') this.bankCash = data.bankCash;
+      if (typeof data.driverScore === 'number') this.driverScore = data.driverScore;
+      if (typeof data.winStreak === 'number') this.winStreak = data.winStreak;
       if (data.owned) this.owned = data.owned;
       if (typeof data.racesWon === 'number') this.racesWon = data.racesWon;
       if (typeof data.racesTotal === 'number') this.racesTotal = data.racesTotal;
@@ -203,6 +253,9 @@ class InventoryManager {
   loadFromCloud(cloudData) {
     if (!cloudData) return;
     if (typeof cloudData.bankCash === 'number') this.bankCash = cloudData.bankCash;
+    if (typeof cloudData.driverScore === 'number') this.driverScore = cloudData.driverScore;
+    else if (typeof cloudData.score === 'number') this.driverScore = cloudData.score;
+    if (typeof cloudData.winStreak === 'number') this.winStreak = cloudData.winStreak;
     if (cloudData.owned && typeof cloudData.owned === 'object') {
       this.owned = cloudData.owned;
     }
@@ -214,6 +267,8 @@ class InventoryManager {
     try {
       const data = {
         bankCash: this.bankCash,
+        driverScore: this.driverScore,
+        winStreak: this.winStreak,
         owned: this.owned,
         racesWon: this.racesWon,
         racesTotal: this.racesTotal,
