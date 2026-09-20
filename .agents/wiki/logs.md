@@ -1,6 +1,26 @@
 # Wiki Evolution Log
 
 Append-only log tracking pattern changes across sessions.
+## 2026-09-19 — Rat Rod Racers: Driver Scoring System, Cloud Leaderboard & PI-Based Matchmaking
+
+**Pattern Updated**: `modular-vehicle-physics-game.md`.
+
+**Changes**:
+- **Driver Championship Scoring System (`inventory.js`)**:
+  - Implemented an authentic high school gamification scoring model tracking `driverScore` (base 1000) and `winStreak`.
+  - Added race victory points (+30 pts), underdog upset bonus (up to +30 pts for beating higher PI cars), holeshot reaction time bonuses (+5 to +25 pts), win streak bonuses (+5 to +20 pts), and Dyno Lab calculation bonus (+15 pts per physics challenge).
+  - Adopted non-punitive participation points (+5 pts) on losses to encourage students without discouragement.
+- **Performance Index (PI) & Car Classes (`cars.js`)**:
+  - Engineered dynamic PI metric ($200 - 1000+$) calculated from power-to-weight ($F_{\text{peak}} / m$), tire grip ($\mu$), aerodynamic drag area ($C_d A$), and part fusion levels.
+  - Classified vehicles into 5 tiers: Class D (Rookie Jalopy, 200–449), Class C (Street Tuner, 450–599), Class B (Hot Rod Custom, 600–749), Class A (Pro Mod Gasser, 750–899), and Class S (Top Fuel Rail, 900+).
+- **Matchmaking Against Similar-Level Racers (`game.js`)**:
+  - Built `autoMatchOpponent()` algorithm matching players against rivals with minimum PI delta ($|PI_{\text{opp}} - PI_{\text{player}}|$).
+  - Added real-time "Auto-Match Similar Rival" button and dynamic Matchup Difficulty Badge (`FAIR MATCH`, `MODERATE`, `UNDERDOG`, `ADVANTAGE`).
+- **Live Cloud Leaderboard & Ghost Staging (`auth_manager.js`, `index.html`, `style.css`)**:
+  - Implemented `fetchLeaderboard()` aggregating Firestore student entries, local user scores, and benchmark student ghosts.
+  - Enabled instant in-memory toggling between Championship Points and Fastest 1/4-Mile ET without requiring composite indexes.
+  - Added "Race Ghost" action button allowing students to immediately stage any leaderboard rival's vehicle into Lane 2 on the drag strip.
+- Updated automated test suite in `scratch/test-rat-rod.js` (Tests 8–11) with 100% pass rate.
 ## 2026-09-19 — Rat Rod Racers: Dyno Lab Cash Anti-Exploit Patch & Student Google Auth Firestore Sync
 
 **Pattern Updated**: `modular-vehicle-physics-game.md`.

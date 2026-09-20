@@ -48,6 +48,34 @@ The **Modular Vehicle Physics Game** architecture models real-world 1D Newtonian
 * Post-race timeslip (Reaction Time, 60 ft, 330 ft, 1/8 mi, 1/4 mi ET & Trap Speed).
 * Side-by-side comparative curves ($x-t$, $v-t$, $a-t$, $F_{\text{net}}-t$) with scrubbing cursor and physical annotations.
 
+### 6. Driver Scoring & Championship Points (`inventory.js`)
+* **Base Victory Points**: +30 pts for crossing the finish line first.
+* **Underdog Bonus**: +0.15 pts per PI difference (up to +30 pts) when defeating a car with a higher Performance Index.
+* **Reaction Time Holeshot Bonus**: +25 pts (< 0.20 s), +15 pts (< 0.35 s), +5 pts (< 0.50 s) for quick reaction off the green light.
+* **Win Streak Bonus**: +5 pts (2 wins), +10 pts (3 wins), +20 pts (5+ wins).
+* **Dyno Lab Academic Bonus**: +15 pts per successfully answered physics challenge.
+* **Non-Punitive High School Gamification**: +5 participation points on losses (never deduct points) and streak resets to 0.
+
+### 7. Performance Index (PI) & Dynamic Matchmaking (`cars.js`, `game.js`)
+* **PI Metric (200 to 1000+)**:
+  $PI = \text{round}\left(100 + \frac{F_{\text{peak}}}{m} \times 55 + (\mu \times 120) - (C_d A \times 100) + (\text{level\_sum} \times 15)\right)$
+* **Class Tiers**:
+  - Class D (200–449): Rookie Jalopy
+  - Class C (450–599): Street Tuner
+  - Class B (600–749): Hot Rod Custom
+  - Class A (750–899): Pro Mod Gasser
+  - Class S (900+): Top Fuel Rail
+* **Matchmaking Logic (`autoMatchOpponent`)**:
+  - Scans active opponent roster and selects the rival minimizing $|PI_{\text{opponent}} - PI_{\text{player}}|$.
+  - Visual Matchup Difficulty Badge indicates `FAIR MATCH` ($|\Delta PI| \le 40$), `MODERATE` ($|\Delta PI| \le 100$), `UNDERDOG` ($PI_{\text{opp}} > PI_{\text{player}} + 100$), or `ADVANTAGE` ($PI_{\text{player}} > PI_{\text{opp}} + 100$).
+  - One-click "Auto-Match" button allows students to instantly stage a closely-matched rival.
+
+### 8. Cloud Leaderboard & Ghost Staging (`auth_manager.js`, `game.js`)
+* Real-time query against Firestore collection `student_results/Rat_Rod_Racers/students`.
+* In-memory sorting eliminates the requirement for composite Firestore indexes:
+  - Toggle between **Championship Points** (descending) and **Fastest 1/4-Mile ET** (ascending).
+* "Race Ghost" action button directly stages any leaderboard car (equipped parts & levels) into Lane 2 on the drag strip for immediate head-to-head racing.
+
 ---
 
 ## Known Pitfalls & Best Practices
@@ -61,9 +89,11 @@ The **Modular Vehicle Physics Game** architecture models real-world 1D Newtonian
 - **Student Google Authentication & Firestore Cloud Backup**:
   - Require sign-in through official school Google accounts (`@orangeusd.org`) using `firebase.auth.GoogleAuthProvider` with `{ hd: 'orangeusd.org', prompt: 'select_account' }`.
   - Back up student state to `student_results/Rat_Rod_Racers/students/{studentId}`:
-    - Bank cash, owned parts with fusion levels, equipped car specifications, race records (best ET, best trap speed, win/loss count), and dyno answer streaks.
+    - Bank cash, owned parts with fusion levels, equipped car specifications, race records (best ET, best trap speed, win/loss count), driver championship score, win streak, car PI, and car class.
   - Maintain student-scoped local storage keys (`rat_rod_save_${studentId}`) alongside cloud persistence for instant load times and offline resiliency.
   - Trigger debounced auto-saves (`autoSave()`) whenever parts are equipped, upgraded, scrapped, crates are opened, races finish, or dyno challenges are answered.
+- **Client-Side Leaderboard Sorting**:
+  - Fetching the Firestore subcollection and performing sorting in JavaScript allows instant tab toggles between Points and 1/4-Mile ET without triggering Firestore index errors or requiring Google Cloud Console index creation.
 - **Unified Visual Consistency (Preview vs Track)**:
   - When students customize a vehicle in a garage preview and subsequently race it on a track, they expect the visual assets to reasonably match. Avoid relying on disparate 3/4 isometric preview images that cannot seamlessly translate onto a 2D side-view physics canvas.
   - Implement a **Unified Vector & Canvas Cartoon Drawing Engine**:

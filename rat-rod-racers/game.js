@@ -52,6 +52,9 @@ class RatRodGame {
     // Unit toggle: 'metric' vs 'imperial'
     this.units = 'imperial'; // high school students love mph / ft
 
+    this.leaderboardMode = 'points'; // 'points' or 'et'
+    this.lastRacePoints = 0;
+
     this._initUI();
     this._bindEvents();
     this.syncPlayerCarPhysics();
@@ -73,6 +76,8 @@ class RatRodGame {
     this.playerPhysics.nitroBoost = this.playerCar.nitroBoost;
     this.playerPhysics.nitroDuration = this.playerCar.nitroDuration;
     this.playerPhysics.reset();
+    this.updateHUD();
+    this.updateMatchupBadge();
   }
 
   syncOpponentPhysics() {
@@ -88,19 +93,8 @@ class RatRodGame {
   }
 
   _initUI() {
-    // Populate Opponent Roster Dropdown
-    const oppSelect = document.getElementById('opponent-select');
-    if (oppSelect) {
-      oppSelect.innerHTML = '';
-      this.opponentRoster.forEach((r, idx) => {
-        const opt = document.createElement('option');
-        opt.value = idx;
-        opt.textContent = `${r.name} (${r.driver})`;
-        oppSelect.appendChild(opt);
-      });
-      oppSelect.value = this.opponentIndex;
-    }
-
+    this.populateOpponentDropdown();
+    this.autoMatchOpponent(false);
     this.renderGarage();
     this.renderCrateShop();
     this.loadNextDynoChallenge();
@@ -160,7 +154,16 @@ class RatRodGame {
         this.opponentIndex = parseInt(e.target.value, 10);
         this.opponentCar = this.opponentRoster[this.opponentIndex].car;
         this.syncOpponentPhysics();
+        this.updateMatchupBadge();
         this.resetRace();
+      });
+    }
+
+    // Auto-Match Button
+    const autoMatchBtn = document.getElementById('btn-automatch');
+    if (autoMatchBtn) {
+      autoMatchBtn.addEventListener('click', () => {
+        this.autoMatchOpponent(true);
       });
     }
 
@@ -174,6 +177,7 @@ class RatRodGame {
         if (imported) {
           this.opponentCar = imported;
           this.syncOpponentPhysics();
+          this.updateMatchupBadge();
           this.resetRace();
           alert(`Successfully loaded classmate ghost: ${imported.name} (${imported.driver})!`);
         } else {
@@ -235,6 +239,24 @@ class RatRodGame {
         document.getElementById('race-results-modal').classList.add('hidden');
       });
     }
+
+    // Leaderboard Tabs (Points vs Fastest ET)
+    const lbTabBtns = document.querySelectorAll('.lb-tab-btn');
+    lbTabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        lbTabBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.leaderboardMode = btn.dataset.mode;
+        this.renderLeaderboard();
+      });
+    });
+
+    const refreshLbBtn = document.getElementById('btn-refresh-lb');
+    if (refreshLbBtn) {
+      refreshLbBtn.addEventListener('click', () => {
+        this.renderLeaderboard();
+      });
+    }
   }
 
   switchTab(tabName) {
@@ -259,6 +281,8 @@ class RatRodGame {
       this.renderGarage();
     } else if (tabName === 'crates') {
       this.renderCrateShop();
+    } else if (tabName === 'leaderboard') {
+      this.renderLeaderboard();
     }
   }
 
@@ -413,14 +437,24 @@ class RatRodGame {
     this.audio.stopEngine();
     const playerWon = (this.playerPhysics.elapsedTime || 99) < (this.opponentPhysics.elapsedTime || 99);
 
+    let earnedPoints = 0;
     if (playerWon) {
       this.audio.playVictoryFanfare();
       const prizeCash = 120;
       this.inventory.addCash(prizeCash);
-      this.inventory.recordRaceResult(true, this.playerPhysics.elapsedTime, this.playerPhysics.trapSpeed);
+      earnedPoints = this.inventory.recordRaceResult(true, this.playerPhysics.elapsedTime, this.playerPhysics.trapSpeed, {
+        oppPI: this.opponentCar?.pi || 350,
+        playerPI: this.playerCar?.pi || 350,
+        reactionTime: this.playerReactionTime
+      });
     } else {
-      this.inventory.recordRaceResult(false, this.playerPhysics.elapsedTime, this.playerPhysics.trapSpeed);
+      earnedPoints = this.inventory.recordRaceResult(false, this.playerPhysics.elapsedTime, this.playerPhysics.trapSpeed, {
+        oppPI: this.opponentCar?.pi || 350,
+        playerPI: this.playerCar?.pi || 350,
+        reactionTime: this.playerReactionTime
+      });
     }
+    this.lastRacePoints = earnedPoints;
 
     this.updateHUD();
     if (this.authManager) this.authManager.autoSave();
@@ -1063,11 +1097,13 @@ class RatRodGame {
     if (res.success) {
       this.audio.playCashSound();
       this.inventory.addCash(res.earnedCash);
+      const dynoPts = 15 + Math.min(20, (res.streak - 1) * 5);
+      this.inventory.addScore(dynoPts);
       this.updateHUD();
 
       feedbackEl.innerHTML = `
         <div class="feedback-success">
-          <h3>✅ Correct! +$${res.earnedCash} Cash Added to Bank!</h3>
+          <h3>✅ Correct! +$${res.earnedCash} Cash & +${dynoPts} Driver Points!</h3>
           ${res.multiplier > 1 ? `<p class="streak-badge">🔥 ${res.streak} Answer Streak (${res.multiplier}x Cash Multiplier!)</p>` : ''}
           <div class="solution-steps">
             ${res.steps.map(s => `<p>${s}</p>`).join('')}
@@ -1099,12 +1135,211 @@ class RatRodGame {
       el.textContent = `$${this.inventory.bankCash}`;
     });
 
+    const scoreEls = document.querySelectorAll('.hud-score-val');
+    scoreEls.forEach(el => {
+      el.textContent = `${(this.inventory.driverScore || 1000).toLocaleString()} pts`;
+    });
+
+    const carClassEls = document.querySelectorAll('.hud-car-class-val');
+    carClassEls.forEach(el => {
+      if (this.playerCar) {
+        el.textContent = `Class ${this.playerCar.carClass} • ${this.playerCar.pi} PI`;
+        el.style.color = this.playerCar.classColor || '#00f0ff';
+      }
+    });
+
     const streakEl = document.getElementById('hud-streak-val');
     if (streakEl) streakEl.textContent = `${this.challenges.streak}x`;
 
     const recordEl = document.getElementById('hud-record-val');
     if (recordEl) {
       recordEl.textContent = this.inventory.bestEt ? `${this.inventory.bestEt.toFixed(3)}s` : '--';
+    }
+
+    this.updateMatchupBadge();
+  }
+
+  // --- MATCHMAKING & LEADERBOARD METHODS ---
+
+  populateOpponentDropdown() {
+    const oppSelect = document.getElementById('opponent-select');
+    if (!oppSelect) return;
+    oppSelect.innerHTML = '';
+    this.opponentRoster.forEach((r, idx) => {
+      const opt = document.createElement('option');
+      opt.value = idx;
+      const pi = r.pi || r.car.pi;
+      const carClass = r.carClass || r.car.carClass;
+      opt.textContent = `[Class ${carClass} • ${pi} PI] ${r.name} (${r.driver})`;
+      oppSelect.appendChild(opt);
+    });
+    oppSelect.value = this.opponentIndex;
+    this.updateMatchupBadge();
+  }
+
+  updateMatchupBadge() {
+    const badge = document.getElementById('matchup-diff-badge');
+    if (!badge || !this.playerCar || !this.opponentCar) return;
+
+    const pPI = this.playerCar.pi || 350;
+    const oPI = this.opponentCar.pi || 350;
+    const diff = oPI - pPI;
+
+    if (Math.abs(diff) <= 40) {
+      badge.className = 'matchup-badge matchup-fair';
+      badge.innerHTML = `⚖️ FAIR MATCH (Δ ${Math.abs(diff)} PI)`;
+      badge.title = 'Closely matched speed & traction! A pure driver skill showdown.';
+    } else if (diff > 40) {
+      badge.className = 'matchup-badge matchup-underdog';
+      badge.innerHTML = `🔥 UNDERDOG (+${diff} PI)`;
+      badge.title = `Tough rival! Winning earns high underdog bonus driver points.`;
+    } else {
+      badge.className = 'matchup-badge matchup-advantage';
+      badge.innerHTML = `🟢 ADVANTAGE (${diff} PI)`;
+      badge.title = 'Your vehicle has superior power and traction in this matchup.';
+    }
+  }
+
+  autoMatchOpponent(notify = false) {
+    if (!this.playerCar || !this.opponentRoster || !this.opponentRoster.length) return;
+    const pPI = this.playerCar.pi || 350;
+
+    // Find rival whose PI is closest to the player's PI
+    let bestIdx = 0;
+    let minDiff = Infinity;
+
+    this.opponentRoster.forEach((r, idx) => {
+      const oPI = r.pi || r.car.pi || 350;
+      const diff = Math.abs(oPI - pPI);
+      if (diff < minDiff) {
+        minDiff = diff;
+        bestIdx = idx;
+      }
+    });
+
+    this.opponentIndex = bestIdx;
+    this.opponentCar = this.opponentRoster[bestIdx].car;
+    const oppSelect = document.getElementById('opponent-select');
+    if (oppSelect) oppSelect.value = bestIdx;
+
+    this.syncOpponentPhysics();
+    this.updateMatchupBadge();
+    this.resetRace();
+
+    if (notify) {
+      const rival = this.opponentRoster[bestIdx];
+      const badge = document.getElementById('matchup-diff-badge');
+      if (badge) {
+        badge.style.transform = 'scale(1.2)';
+        setTimeout(() => badge.style.transform = 'scale(1)', 300);
+      }
+    }
+  }
+
+  async renderLeaderboard() {
+    const tableBody = document.getElementById('leaderboard-table-body');
+    const loadingEl = document.getElementById('leaderboard-loading');
+    if (!tableBody) return;
+
+    if (loadingEl) loadingEl.classList.remove('hidden');
+
+    let records = [];
+    if (this.authManager && typeof this.authManager.fetchLeaderboard === 'function') {
+      records = await this.authManager.fetchLeaderboard();
+    }
+
+    if (loadingEl) loadingEl.classList.add('hidden');
+
+    // Sort according to active leaderboard tab
+    if (this.leaderboardMode === 'et') {
+      records.sort((a, b) => (a.bestEt || 999) - (b.bestEt || 999));
+    } else {
+      records.sort((a, b) => (b.driverScore || 1000) - (a.driverScore || 1000));
+    }
+
+    tableBody.innerHTML = '';
+
+    if (records.length === 0) {
+      tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:28px; color:var(--text-muted);">No leaderboard records recorded yet. Set the first record!</td></tr>`;
+      return;
+    }
+
+    records.forEach((r, idx) => {
+      const rank = idx + 1;
+      let rankBadge = `#${rank}`;
+      let rankClass = 'rank-normal';
+      if (rank === 1) { rankBadge = '🥇 1st'; rankClass = 'rank-gold'; }
+      else if (rank === 2) { rankBadge = '🥈 2nd'; rankClass = 'rank-silver'; }
+      else if (rank === 3) { rankBadge = '🥉 3rd'; rankClass = 'rank-bronze'; }
+
+      const isYou = r.isCurrentPlayer;
+      const row = document.createElement('tr');
+      row.className = `lb-row ${isYou ? 'lb-row-you' : ''}`;
+
+      const etDisplay = r.bestEt ? `${Number(r.bestEt).toFixed(3)}s` : '--';
+      const speedMph = r.bestTrapSpeed ? (r.bestTrapSpeed * 2.23694).toFixed(1) + ' mph' : '--';
+      const winRate = r.racesTotal > 0 ? Math.round((r.racesWon / r.racesTotal) * 100) + '%' : '--';
+
+      row.innerHTML = `
+        <td class="lb-cell-rank"><span class="rank-pill ${rankClass}">${rankBadge}</span></td>
+        <td class="lb-cell-driver">
+          <strong>${r.name}</strong>
+          ${isYou ? '<span class="you-badge">YOU</span>' : ''}
+          ${r.isGhost ? '<span class="ghost-badge">BENCHMARK</span>' : ''}
+        </td>
+        <td class="lb-cell-car">
+          <span>${r.carName}</span>
+          <span class="car-class-badge class-${(r.carClass || 'D').toLowerCase()}">Class ${r.carClass || 'D'} • ${r.carPi || 350} PI</span>
+        </td>
+        <td class="lb-cell-score"><strong>${(r.driverScore || 1000).toLocaleString()}</strong> pts</td>
+        <td class="lb-cell-et">${etDisplay}</td>
+        <td class="lb-cell-speed">${speedMph}</td>
+        <td class="lb-cell-record">${r.racesWon}W / ${r.racesTotal}R (${winRate})</td>
+        <td class="lb-cell-action" style="text-align:center;">
+          ${!isYou ? `<button class="btn btn-sm btn-race-ghost" data-id="${r.id}">⚔️ Race Ghost</button>` : `<span class="you-indicator">★ Your Car</span>`}
+        </td>
+      `;
+
+      const raceBtn = row.querySelector('.btn-race-ghost');
+      if (raceBtn) {
+        raceBtn.addEventListener('click', () => {
+          this.stageRivalFromLeaderboard(r);
+        });
+      }
+
+      tableBody.appendChild(row);
+    });
+  }
+
+  stageRivalFromLeaderboard(rivalRecord) {
+    let opponentCar = null;
+    if (rivalRecord.carObj) {
+      opponentCar = rivalRecord.carObj;
+    } else if (rivalRecord.shareCode) {
+      opponentCar = RatRodCar.fromShareCode(rivalRecord.shareCode);
+    } else if (rivalRecord.carData && rivalRecord.carData.parts) {
+      opponentCar = new RatRodCar({
+        name: rivalRecord.carName,
+        driver: rivalRecord.driver,
+        parts: rivalRecord.carData.parts,
+        levels: rivalRecord.carData.levels
+      });
+    }
+
+    if (!opponentCar) {
+      alert("Unable to stage this rival build.");
+      return;
+    }
+
+    this.opponentCar = opponentCar;
+    this.syncOpponentPhysics();
+    this.updateMatchupBadge();
+    this.resetRace();
+    this.switchTab('race');
+
+    const launchBtn = document.getElementById('btn-launch');
+    if (launchBtn) {
+      launchBtn.textContent = `⚔️ STAGE: VS ${rivalRecord.driver.toUpperCase()}`;
     }
   }
 }
