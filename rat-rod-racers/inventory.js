@@ -166,7 +166,15 @@ class InventoryManager {
         bestEt: this.bestEt,
         bestTrapSpeed: this.bestTrapSpeed
       };
-      localStorage.setItem(STORAGE_SAVE_KEY, JSON.stringify(data));
+      const studentId = (window.game && window.game.authManager && window.game.authManager.studentId)
+        ? window.game.authManager.studentId
+        : null;
+      const key = studentId ? `rat_rod_save_${studentId}` : STORAGE_SAVE_KEY;
+      localStorage.setItem(key, JSON.stringify(data));
+
+      if (window.game && window.game.authManager) {
+        window.game.authManager.autoSave();
+      }
     } catch (e) {
       console.warn("Unable to save inventory to localStorage:", e);
     }
@@ -174,7 +182,11 @@ class InventoryManager {
 
   load() {
     try {
-      const raw = localStorage.getItem(STORAGE_SAVE_KEY);
+      const studentId = (window.game && window.game.authManager && window.game.authManager.studentId)
+        ? window.game.authManager.studentId
+        : null;
+      const key = studentId ? `rat_rod_save_${studentId}` : STORAGE_SAVE_KEY;
+      const raw = localStorage.getItem(key) || localStorage.getItem(STORAGE_SAVE_KEY);
       if (!raw) return;
       const data = JSON.parse(raw);
       if (typeof data.bankCash === 'number') this.bankCash = data.bankCash;
@@ -185,6 +197,36 @@ class InventoryManager {
       if (data.bestTrapSpeed) this.bestTrapSpeed = data.bestTrapSpeed;
     } catch (e) {
       console.warn("Unable to load inventory from localStorage:", e);
+    }
+  }
+
+  loadFromCloud(cloudData) {
+    if (!cloudData) return;
+    if (typeof cloudData.bankCash === 'number') this.bankCash = cloudData.bankCash;
+    if (cloudData.owned && typeof cloudData.owned === 'object') {
+      this.owned = cloudData.owned;
+    }
+    if (typeof cloudData.racesWon === 'number') this.racesWon = cloudData.racesWon;
+    if (typeof cloudData.racesTotal === 'number') this.racesTotal = cloudData.racesTotal;
+    if (cloudData.bestEt) this.bestEt = cloudData.bestEt;
+    if (cloudData.bestTrapSpeed) this.bestTrapSpeed = cloudData.bestTrapSpeed;
+    this._ensureStarterKit();
+    try {
+      const data = {
+        bankCash: this.bankCash,
+        owned: this.owned,
+        racesWon: this.racesWon,
+        racesTotal: this.racesTotal,
+        bestEt: this.bestEt,
+        bestTrapSpeed: this.bestTrapSpeed
+      };
+      const studentId = (window.game && window.game.authManager && window.game.authManager.studentId)
+        ? window.game.authManager.studentId
+        : null;
+      const key = studentId ? `rat_rod_save_${studentId}` : STORAGE_SAVE_KEY;
+      localStorage.setItem(key, JSON.stringify(data));
+    } catch (e) {
+      console.warn("Unable to cache cloud inventory to localStorage:", e);
     }
   }
 }

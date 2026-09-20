@@ -7,6 +7,11 @@
   <link rel="icon" type="image/png" href="../head.png">
   <link rel="stylesheet" href="../assets/theme.css">
   <link rel="stylesheet" href="style.css">
+
+  <!-- Firebase Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -18,6 +23,7 @@
     </div>
 
     <div class="header-controls">
+      <div id="auth-user-status"></div>
       <div class="hud-pill" title="Bank Cash (Earn by doing calculations in Dyno Lab!)">
         💰 <span class="hud-bank-val">$250</span>
       </div>
@@ -199,6 +205,25 @@
     </div>
   </div>
 
+  <!-- Mandatory Google Login Gate Modal -->
+  <div id="loginGateModal" class="login-gate-modal-backdrop hidden">
+    <div class="login-gate-card">
+      <div class="gate-badge-icon">⚡</div>
+      <h2>Rat Rod Racers</h2>
+      <p class="gate-subtitle">
+        Sign in with your official school Google account (<span class="school-domain">@orangeusd.org</span>) to back up your custom hot rods, garage inventory, and drag times live to Cloud Firestore.
+      </p>
+      <div id="loginGateError" class="login-gate-error hidden"></div>
+      <button id="btnGateSignIn" class="btn-google-gate">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="google-icon" alt="Google">
+        <span>Sign in with Google</span>
+      </button>
+      <button id="btnContinueGuest" class="btn-guest-link">
+        Explore as Guest (preview mode)
+      </button>
+    </div>
+  </div>
+
   <!-- Game Scripts (Order matters!) -->
   <script src="physics.js"></script>
   <script src="assets.js"></script>
@@ -208,6 +233,7 @@
   <script src="inventory.js"></script>
   <script src="telemetry.js"></script>
   <script src="audio.js"></script>
+  <script src="auth_manager.js"></script>
   <script src="game.js"></script>
   <script src="../assets/partials.js"></script> <!-- MUST be last -->
 

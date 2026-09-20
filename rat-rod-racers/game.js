@@ -6,6 +6,7 @@
 
 class RatRodGame {
   constructor() {
+    window.game = this;
     this.canvas = document.getElementById('raceCanvas');
     this.ctx = this.canvas ? this.canvas.getContext('2d') : null;
 
@@ -14,6 +15,8 @@ class RatRodGame {
     this.inventory = new InventoryManager();
     this.challenges = new PhysicsChallengeEngine();
     this.crates = new CrateShopEngine(this.inventory);
+    this.authManager = typeof RatRodAuthManager !== 'undefined' ? new RatRodAuthManager(this) : null;
+    this.isSubmittingDyno = false;
 
     // Player car
     this.playerCar = new RatRodCar({
@@ -199,7 +202,14 @@ class RatRodGame {
     if (dynoSubmit && dynoInput) {
       dynoSubmit.addEventListener('click', () => this.submitDynoAnswer());
       dynoInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') this.submitDynoAnswer();
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          if (this.challenges.currentChallenge && this.challenges.currentChallenge.answered) {
+            this.loadNextDynoChallenge();
+          } else {
+            this.submitDynoAnswer();
+          }
+        }
       });
     }
 
@@ -413,6 +423,7 @@ class RatRodGame {
     }
 
     this.updateHUD();
+    if (this.authManager) this.authManager.autoSave();
 
     const launchBtn = document.getElementById('btn-launch');
     if (launchBtn) {
@@ -874,6 +885,7 @@ class RatRodGame {
           this.playerCar.equip(carSlotKey, partId, entry.level);
           this.syncPlayerCarPhysics();
           this.renderGarage();
+          if (this.authManager) this.authManager.autoSave();
         });
 
         // Upgrade / Fuse
@@ -887,6 +899,7 @@ class RatRodGame {
             this.syncPlayerCarPhysics();
             this.renderGarage();
             this.updateHUD();
+            if (this.authManager) this.authManager.autoSave();
           }
         });
 
@@ -898,6 +911,7 @@ class RatRodGame {
             this.syncPlayerCarPhysics();
             this.renderGarage();
             this.updateHUD();
+            if (this.authManager) this.authManager.autoSave();
           }
         });
 
@@ -929,6 +943,7 @@ class RatRodGame {
           const results = this.crates.openCrate(crate.id);
           this.showCrateUnboxingModal(crate, results);
           this.updateHUD();
+          if (this.authManager) this.authManager.autoSave();
         } else {
           alert(`Not enough funds! Complete calculations in the Dyno Lab to earn more cash.`);
         }
@@ -975,6 +990,7 @@ class RatRodGame {
 
   // --- DYNO LAB PROVING GROUNDS ---
   loadNextDynoChallenge() {
+    this.isSubmittingDyno = false;
     const challenge = this.challenges.generateChallenge();
     const titleEl = document.getElementById('dyno-challenge-title');
     const badgeEl = document.getElementById('dyno-formula-badge');
@@ -991,6 +1007,7 @@ class RatRodGame {
     if (feedbackEl) feedbackEl.innerHTML = '';
     if (inputEl) {
       inputEl.value = '';
+      inputEl.disabled = false;
       inputEl.focus();
     }
 
@@ -1001,15 +1018,46 @@ class RatRodGame {
     const nextBtn = document.getElementById('btn-dyno-next');
     if (nextBtn) nextBtn.classList.add('hidden');
     const submitBtn = document.getElementById('btn-dyno-submit');
-    if (submitBtn) submitBtn.classList.remove('hidden');
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('hidden');
+    }
   }
 
   submitDynoAnswer() {
+    if (this.isSubmittingDyno) return;
+
+    // If current question was already evaluated, advance rather than re-submitting
+    const current = this.challenges.currentChallenge;
+    if (!current || current.answered) {
+      this.loadNextDynoChallenge();
+      return;
+    }
+
     const inputEl = document.getElementById('dyno-input-val');
     if (!inputEl) return;
     const val = inputEl.value;
+    if (val === '' || isNaN(Number(val))) return;
+
+    this.isSubmittingDyno = true;
+    inputEl.disabled = true;
+
+    const submitBtn = document.getElementById('btn-dyno-submit');
+    const nextBtn = document.getElementById('btn-dyno-next');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.classList.add('hidden');
+    }
+    if (nextBtn) {
+      nextBtn.classList.remove('hidden');
+    }
 
     const res = this.challenges.checkAnswer(val);
+    if (res.alreadyAnswered) {
+      this.isSubmittingDyno = false;
+      return;
+    }
+
     const feedbackEl = document.getElementById('dyno-feedback-box');
 
     if (res.success) {
@@ -1037,10 +1085,12 @@ class RatRodGame {
       `;
     }
 
-    const nextBtn = document.getElementById('btn-dyno-next');
-    if (nextBtn) nextBtn.classList.remove('hidden');
-    const submitBtn = document.getElementById('btn-dyno-submit');
-    if (submitBtn) submitBtn.classList.add('hidden');
+    if (this.authManager) this.authManager.autoSave();
+    this.isSubmittingDyno = false;
+
+    if (nextBtn) {
+      nextBtn.focus();
+    }
   }
 
   updateHUD() {
