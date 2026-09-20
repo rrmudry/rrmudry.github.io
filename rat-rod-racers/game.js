@@ -98,6 +98,7 @@ class RatRodGame {
     this.renderGarage();
     this.renderCrateShop();
     this.loadNextDynoChallenge();
+    this.renderLeaderboard();
   }
 
   _bindEvents() {
@@ -1236,25 +1237,118 @@ class RatRodGame {
     }
   }
 
+  getBaselineLeaderboard() {
+    const list = [];
+    const inv = this.inventory;
+    const pc = this.playerCar;
+    const auth = this.authManager;
+    const myName = (auth && auth.studentName) ? auth.studentName : "You";
+    const myId = (auth && auth.studentId) ? auth.studentId : "local_racer";
+
+    list.push({
+      id: myId,
+      name: myName + " (You)",
+      driver: myName,
+      carName: pc ? pc.name : "Your Rat Rod",
+      driverScore: inv ? (inv.driverScore || 1000) : 1000,
+      winStreak: inv ? (inv.winStreak || 0) : 0,
+      racesWon: inv ? (inv.racesWon || 0) : 0,
+      racesTotal: inv ? (inv.racesTotal || 0) : 0,
+      bestEt: inv ? inv.bestEt : null,
+      bestTrapSpeed: inv ? inv.bestTrapSpeed : null,
+      carPi: pc ? pc.pi : 350,
+      carClass: pc ? pc.carClass : 'D',
+      shareCode: pc ? pc.toShareCode() : "",
+      carData: pc ? pc.toJSON() : null,
+      isCurrentPlayer: true,
+      isGhost: false
+    });
+
+    const ghostRoster = (typeof STUDENT_GHOST_ROSTER !== 'undefined' ? STUDENT_GHOST_ROSTER : window.STUDENT_GHOST_ROSTER) || [];
+    ghostRoster.forEach((g, idx) => {
+      const gCar = g.car;
+      const gPi = gCar ? (gCar.pi || 350) : 350;
+      const gClass = gCar ? (gCar.carClass || 'D') : 'D';
+      const simET = gPi >= 900 ? 9.24 : (gPi >= 750 ? 11.45 : (gPi >= 600 ? 13.82 : (gPi >= 450 ? 15.60 : 17.95)));
+      const simSpeed = gPi >= 900 ? 71.5 : (gPi >= 750 ? 59.2 : (gPi >= 600 ? 49.5 : (gPi >= 450 ? 43.1 : 38.0)));
+      const simScore = gPi >= 900 ? 3200 : (gPi >= 750 ? 2450 : (gPi >= 600 ? 1850 : (gPi >= 450 ? 1420 : 1100)));
+      const simWins = gPi >= 900 ? 28 : (gPi >= 750 ? 19 : (gPi >= 600 ? 12 : (gPi >= 450 ? 7 : 3)));
+
+      list.push({
+        id: `ghost_${idx}`,
+        name: g.driver,
+        driver: g.driver,
+        carName: g.name,
+        driverScore: simScore,
+        winStreak: Math.floor(simWins / 4),
+        racesWon: simWins,
+        racesTotal: simWins + 3,
+        bestEt: simET,
+        bestTrapSpeed: simSpeed,
+        carPi: gPi,
+        carClass: gClass,
+        shareCode: gCar ? gCar.toShareCode() : "",
+        carObj: gCar,
+        isCurrentPlayer: false,
+        isGhost: true
+      });
+    });
+
+    return list;
+  }
+
   async renderLeaderboard() {
     const tableBody = document.getElementById('leaderboard-table-body');
     const loadingEl = document.getElementById('leaderboard-loading');
     if (!tableBody) return;
 
+    // 1. Instantly display cached records or baseline so board is NEVER blank
+    if (!this._cachedLeaderboard || !this._cachedLeaderboard.length) {
+      this._cachedLeaderboard = this.getBaselineLeaderboard();
+    }
+    this._drawLeaderboardTable(this._cachedLeaderboard);
+
     if (loadingEl) loadingEl.classList.remove('hidden');
 
     let records = [];
     if (this.authManager && typeof this.authManager.fetchLeaderboard === 'function') {
-      records = await this.authManager.fetchLeaderboard();
+      try {
+        records = await this.authManager.fetchLeaderboard();
+      } catch (e) {
+        console.warn("Leaderboard fetch error:", e);
+      }
     }
 
     if (loadingEl) loadingEl.classList.add('hidden');
 
+    if (records && records.length) {
+      this._cachedLeaderboard = records;
+      this._drawLeaderboardTable(this._cachedLeaderboard);
+    }
+  }
+
+  _drawLeaderboardTable(rawRecords) {
+    const tableBody = document.getElementById('leaderboard-table-body');
+    if (!tableBody) return;
+
+    const records = [...rawRecords];
+
     // Sort according to active leaderboard tab
     if (this.leaderboardMode === 'et') {
-      records.sort((a, b) => (a.bestEt || 999) - (b.bestEt || 999));
+      records.sort((a, b) => {
+        const etA = (a.bestEt && a.bestEt > 0) ? a.bestEt : 999;
+        const etB = (b.bestEt && b.bestEt > 0) ? b.bestEt : 999;
+        if (etA !== etB) return etA - etB;
+        return (b.driverScore || 1000) - (a.driverScore || 1000);
+      });
     } else {
-      records.sort((a, b) => (b.driverScore || 1000) - (a.driverScore || 1000));
+      records.sort((a, b) => {
+        const scoreDiff = (b.driverScore || 1000) - (a.driverScore || 1000);
+        if (scoreDiff !== 0) return scoreDiff;
+        const etA = (a.bestEt && a.bestEt > 0) ? a.bestEt : 999;
+        const etB = (b.bestEt && b.bestEt > 0) ? b.bestEt : 999;
+        return etA - etB;
+      });
     }
 
     tableBody.innerHTML = '';
@@ -1276,8 +1370,8 @@ class RatRodGame {
       const row = document.createElement('tr');
       row.className = `lb-row ${isYou ? 'lb-row-you' : ''}`;
 
-      const etDisplay = r.bestEt ? `${Number(r.bestEt).toFixed(3)}s` : '--';
-      const speedMph = r.bestTrapSpeed ? (r.bestTrapSpeed * 2.23694).toFixed(1) + ' mph' : '--';
+      const etDisplay = (r.bestEt && r.bestEt > 0) ? `${Number(r.bestEt).toFixed(3)}s` : '--';
+      const speedMph = (r.bestTrapSpeed && r.bestTrapSpeed > 0) ? (r.bestTrapSpeed * 2.23694).toFixed(1) + ' mph' : '--';
       const winRate = r.racesTotal > 0 ? Math.round((r.racesWon / r.racesTotal) * 100) + '%' : '--';
 
       row.innerHTML = `
@@ -1347,3 +1441,5 @@ class RatRodGame {
 window.addEventListener('DOMContentLoaded', () => {
   window.ratRodGame = new RatRodGame();
 });
+
+window.RatRodGame = RatRodGame;

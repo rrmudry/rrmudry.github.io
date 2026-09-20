@@ -1,6 +1,20 @@
 # Wiki Evolution Log
 
 Append-only log tracking pattern changes across sessions.
+## 2026-09-19 — Rat Rod Racers: Fix Empty Leaderboard Tab Nesting & Instant Baseline Roster
+
+**Pattern Updated**: `modular-vehicle-physics-game.md`.
+
+**Changes**:
+- **Fixed Tab Panel Nesting in `index.html`**:
+  - Found that `<section id="tab-dyno">` was missing a closing `</section>` tag, causing the browser DOM parser to nest `<section id="tab-leaderboard">` directly inside `tab-dyno`.
+  - When switching to the Leaderboard tab, `tab-dyno` received the `.hidden` class (`display: none !important;`), hiding `tab-leaderboard` and causing the entire leaderboard screen to appear completely blank/empty.
+  - Closed `tab-dyno` properly and validated tag balance across the entire DOM tree with zero mismatches.
+- **Instant Baseline Leaderboard & Firestore Timeout Guard (`game.js`, `auth_manager.js`)**:
+  - Added `getBaselineLeaderboard()` and `_drawLeaderboardTable()` to populate the table synchronously on page load and tab switch, guaranteeing that the leaderboard is never blank while waiting for network requests.
+  - Added a 3.5s timeout promise to Firestore queries in `fetchLeaderboard()`, preventing hanging or silent network freezes on unauthenticated or slow connections.
+  - Pre-load leaderboard in `_initUI()` and exported `window.RatRodGame`.
+- Created automated test `scratch/test-leaderboard-dom.js` validating tab switching and DOM table row rendering.
 ## 2026-09-19 — Rat Rod Racers: Driver Scoring System, Cloud Leaderboard & PI-Based Matchmaking
 
 **Pattern Updated**: `modular-vehicle-physics-game.md`.
