@@ -2312,6 +2312,12 @@ const lessonsData = [
     ],
     "resources": [
       {
+        "title": "Uniformly Accelerated Motion Presentation",
+        "url": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQCOlkcQtc2tTKqjqMe3uyK-AUaz1fF9YlaAylKVL9R24Ro?e=RGCAIg",
+        "typeLabel": "PowerPoint Presentation",
+        "description": "Direct instruction slide deck covering acceleration definition, vector signs, (m/s)/s rate interpretation, and GUESS problem solving."
+      },
+      {
         "title": "Acceleration Rate & Sign Studio",
         "url": "Unit_2/acceleration_studio/index.html",
         "typeLabel": "Mastery Studio",
@@ -2345,6 +2351,7 @@ const lessonsData = [
       }
     ],
     "links": {
+      "Uniformly Accelerated Motion Presentation": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQCOlkcQtc2tTKqjqMe3uyK-AUaz1fF9YlaAylKVL9R24Ro?e=RGCAIg",
       "Acceleration Rate & Sign Studio": "Unit_2/acceleration_studio/index.html",
       "Velocity vs. Time Visualizer": "Unit_2/velocity_time_graph_studio/index.html",
       "Distance vs Time App": "https://rrmudry.github.io/distance_vs_time_graphing.html"
