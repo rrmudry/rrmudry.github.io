@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acceleration Rate & Sign Studio | Unit 2 Kinematics</title>
+  <meta name="description" content="Master 1D uniform acceleration: vector signs, interpreting m/s² as (m/s)/s, signed velocity changes (Δv = v - v₀), elapsed time (Δt), and directional reversals.">
+  <link rel="icon" type="image/svg+xml" href="../../assets/unit2-favicon.svg">
+
+  <!-- Google Fonts: Space Grotesk, Outfit, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700;800&display=swap" rel="stylesheet">
+
+  <!-- Firebase Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <!-- Firebase App Initialization -->
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  </script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Global App Toast Notification -->
+  <div class="app-global-toast" id="appGlobalToast" style="display: none;"></div>
+
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand-wrap">
+        <div class="brand-icon">⚡</div>
+        <div class="brand-info">
+          <h1>
+            Acceleration Rate & Sign Studio
+            <span class="ngss-badge" data-ngss-code="HS-PS2-1" title="Click to view NGSS HS-PS2-1 details">HS-PS2-1</span>
+          </h1>
+          <p>Rate of Change of Velocity: a = Δv / Δt • Physical Units ((m/s)/s) • Vector Signs</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div id="authWidget" class="auth-widget">
+          <!-- Populated by auth.js -->
+        </div>
+        <button id="btnSoundToggle" class="btn-tool" title="Toggle Sound FX">
+          <span>🔊</span> Sound
+        </button>
+        <button id="btnThemeToggle" class="btn-tool" title="Toggle Dark/Light Mode">
+          <span>☀️</span> Light
+        </button>
+        <a href="../unit2-dashboard.html" class="btn-tool" title="Return to Unit 2 Dashboard">
+          <span>🏠</span> Unit 2
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="app-nav" role="tablist">
+    <div class="nav-container">
+      <button class="tab-button active" data-tab="tab-sandbox">
+        <span>🚀</span> Vector Track & Sign Matrix
+      </button>
+      <button class="tab-button" data-tab="tab-tier1">
+        <span>🔍</span> Tier 1: Sign Detective <span class="tab-score-pill">25 pts</span>
+      </button>
+      <button class="tab-button locked" data-tab="tab-tier2">
+        <span>⏱️</span> Tier 2: Speed Each Second <span class="tab-score-pill">🔒 Locked</span>
+      </button>
+      <button class="tab-button locked" data-tab="tab-tier3">
+        <span>📐</span> Tier 3: GUESS Sprint <span class="tab-score-pill">🔒 Locked</span>
+      </button>
+      <button class="tab-button locked" data-tab="tab-tier4">
+        <span>🚨</span> Tier 4: Braking & Reversal <span class="tab-score-pill">🔒 Locked</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Content Layout -->
+  <main class="main-layout">
+
+    <!-- Score Progress & Submission Bar -->
+    <div class="mastery-progress-card">
+      <div class="progress-info">
+        <div class="progress-title">Kinematic Acceleration Mastery</div>
+        <div class="progress-subtitle">Complete all 4 tiers (≥80 pts) to unlock your Specialist Badge & submit score</div>
+      </div>
+      <div class="progress-bar-wrap">
+        <div id="scoreFill" class="progress-bar-fill"></div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <span id="scoreBadge" class="score-badge">0 / 100 PTS</span>
+        <button id="btnClaimCert" class="btn-primary" style="display: none; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-color: #34d399;">
+          <span>🏆</span> Claim Badge & Cert
+        </button>
+      </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- TAB 1: VECTOR TRACK & 2X2 SIGN MATRIX EXPLORER                      -->
+    <!-- =================================================================== -->
+    <section id="tab-sandbox" class="tab-content active">
+      <div class="grid-2">
+
+        <!-- Left: Canvas Track & Telemetry HUD -->
+        <div class="glass-card">
+          <div class="card-title">
+            <span>🏎️ 1D Coordinate Track & Real-Time Vectors</span>
+            <span id="motionStatus" class="motion-status-pill status-speeding">Speeding Up (+x Right)</span>
+          </div>
+
+          <!-- Canvas Simulation Box -->
+          <div class="canvas-wrapper">
+            <canvas id="simCanvas"></canvas>
+          </div>
+
+          <!-- Telemetry HUD -->
+          <div class="telemetry-hud">
+            <div class="hud-tile">
+              <span class="hud-label">Time Elapsed (t)</span>
+              <span id="telTime" class="hud-value val-time">0.0 s</span>
+            </div>
+            <div class="hud-tile">
+              <span class="hud-label">Velocity (v)</span>
+              <span id="telVel" class="hud-value val-vel">+10.0 m/s</span>
+            </div>
+            <div class="hud-tile">
+              <span class="hud-label">Acceleration (a)</span>
+              <span id="telAcc" class="hud-value val-acc">+2.0 m/s²</span>
+            </div>
+            <div class="hud-tile">
+              <span class="hud-label">Position (x)</span>
+              <span id="telPos" class="hud-value val-pos">0.0 m</span>
+            </div>
+          </div>
+
+          <!-- Simulation Sliders -->
+          <div style="margin-top: 1.1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="slider-group">
+              <div class="slider-label-row">
+                <span class="slider-label">Initial Velocity (v₀):</span>
+                <span id="valV0" class="slider-val">+10.0 m/s</span>
+              </div>
+              <input type="range" id="sliderV0" min="-30" max="30" step="1" value="10" class="range-slider">
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-label-row">
+                <span class="slider-label">Acceleration (a):</span>
+                <span id="valA" class="slider-val">+3.0 m/s²</span>
+              </div>
+              <input type="range" id="sliderA" min="-10" max="10" step="0.5" value="3" class="range-slider">
+            </div>
+          </div>
+
+          <!-- Controls Row -->
+          <div class="sim-controls-row">
+            <div class="btn-group">
+              <button id="btnPlaySim" class="btn-primary">
+                <span>▶</span> Play Motion
+              </button>
+              <button id="btnResetSim" class="btn-secondary">
+                <span>⏮</span> Reset Track
+              </button>
+              <button id="btnClearStrobes" class="btn-secondary" title="Clear purple 1.0s strobe dots">
+                <span>🧹</span> Clear Dots
+              </button>
+            </div>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">
+              Strobe interval: <strong>1.0 s</strong> • Green Arrow: <strong>v</strong> • Cyan Arrow: <strong>a</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: The 2x2 Sign Matrix -->
+        <div class="glass-card" style="position: relative;">
+          <div class="card-title">
+            <span>🧭 The 2x2 Velocity-Acceleration Sign Matrix</span>
+          </div>
+
+          <!-- Sequential Matrix Observation Gate Header -->
+          <div class="matrix-gate-banner" id="matrixGateBanner">
+            <div class="matrix-gate-info-row">
+              <div class="matrix-gate-title">
+                <span>⏱️ Sequential Observation Gate:</span>
+                <span class="matrix-gate-sub">Observe each quadrant for 10s to unlock the next!</span>
+              </div>
+              <div class="matrix-gate-status" id="matrixGateProgressText">1/4 Unlocked</div>
+            </div>
+            <div class="matrix-gate-track">
+              <div class="matrix-gate-fill" id="matrixGateOverallFill" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <div class="sign-matrix-grid">
+            <!-- Quadrant 1: +v, +a -->
+            <div class="matrix-card speed-up active" id="matrixCard0" data-quadrant="0" data-v0="10" data-a="3">
+              <div class="matrix-card-header">
+                <div class="matrix-card-header-left">
+                  <span class="matrix-tag">+v and +a</span>
+                  <span style="font-size: 0.85rem;">🚀</span>
+                </div>
+                <span class="matrix-timer-badge counting" id="matrixBadge0">⏳ 10.0s</span>
+              </div>
+              <div style="font-weight: 700; font-size: 0.9rem; color: #34d399; margin-bottom: 0.25rem;">
+                Speeding Up (+x Right)
+              </div>
+              <p class="matrix-desc">
+                Moving Right (+v) and pushed Rightward (+a). Thrust helps motion ➔ speed increases (+10, +13, +16 m/s)!
+              </p>
+              <div class="matrix-vectors">
+                <span class="vec-badge vec-vel">v ➔</span>
+                <span class="vec-badge vec-acc">a ➔</span>
+              </div>
+              <div class="card-timer-track">
+                <div class="card-timer-fill" id="matrixTimerFill0" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <!-- Quadrant 2: +v, -a -->
+            <div class="matrix-card slow-down locked" id="matrixCard1" data-quadrant="1" data-v0="16" data-a="-4">
+              <div class="matrix-card-header">
+                <div class="matrix-card-header-left">
+                  <span class="matrix-tag">+v and -a</span>
+                  <span style="font-size: 0.85rem;">🛑</span>
+                </div>
+                <span class="matrix-timer-badge locked" id="matrixBadge1">🔒 Locked</span>
+              </div>
+              <div style="font-weight: 700; font-size: 0.9rem; color: #fb7185; margin-bottom: 0.25rem;">
+                Slowing Down (+x Right)
+              </div>
+              <p class="matrix-desc">
+                Moving Right (+v) but pulled Leftward (-a). Reverse thrust fights motion ➔ speed drops (+16, +12, +8 m/s)!
+              </p>
+              <div class="matrix-vectors">
+                <span class="vec-badge vec-vel">v ➔</span>
+                <span class="vec-badge vec-acc">⬅ a</span>
+              </div>
+              <div class="card-timer-track">
+                <div class="card-timer-fill" id="matrixTimerFill1" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <!-- Quadrant 3: -v, -a -->
+            <div class="matrix-card speed-up locked" id="matrixCard2" data-quadrant="2" data-v0="-8" data-a="-3">
+              <div class="matrix-card-header">
+                <div class="matrix-card-header-left">
+                  <span class="matrix-tag">-v and -a</span>
+                  <span style="font-size: 0.85rem;">🚀</span>
+                </div>
+                <span class="matrix-timer-badge locked" id="matrixBadge2">🔒 Locked</span>
+              </div>
+              <div style="font-weight: 700; font-size: 0.9rem; color: #34d399; margin-bottom: 0.25rem;">
+                Speeding Up (-x Left)
+              </div>
+              <p class="matrix-desc">
+                Moving Left (-v) and pushed Leftward (-a). Negative signs match! Speed magnitude increases (-8, -11, -14 m/s)!
+              </p>
+              <div class="matrix-vectors">
+                <span class="vec-badge vec-vel">⬅ v</span>
+                <span class="vec-badge vec-acc">⬅ a</span>
+              </div>
+              <div class="card-timer-track">
+                <div class="card-timer-fill" id="matrixTimerFill2" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <!-- Quadrant 4: -v, +a -->
+            <div class="matrix-card slow-down locked" id="matrixCard3" data-quadrant="3" data-v0="-15" data-a="5">
+              <div class="matrix-card-header">
+                <div class="matrix-card-header-left">
+                  <span class="matrix-tag">-v and +a</span>
+                  <span style="font-size: 0.85rem;">🛑</span>
+                </div>
+                <span class="matrix-timer-badge locked" id="matrixBadge3">🔒 Locked</span>
+              </div>
+              <div style="font-weight: 700; font-size: 0.9rem; color: #fb7185; margin-bottom: 0.25rem;">
+                Slowing Down (-x Left)
+              </div>
+              <p class="matrix-desc">
+                Moving Left (-v) but pulled Rightward (+a). Opposite signs fight ➔ pod slows toward zero (-15, -10, -5, 0 m/s)!
+              </p>
+              <div class="matrix-vectors">
+                <span class="vec-badge vec-vel">⬅ v</span>
+                <span class="vec-badge vec-acc">a ➔</span>
+              </div>
+              <div class="card-timer-track">
+                <div class="card-timer-fill" id="matrixTimerFill3" style="width: 0%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Toast Feedback Pill -->
+          <div class="matrix-toast" id="matrixToast" style="display: none;"></div>
+
+          <!-- The Golden Rule Callout -->
+          <div style="margin-top: 1rem; background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: var(--radius-md); padding: 0.9rem;">
+            <div style="font-size: 0.82rem; font-weight: 700; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.3rem;">
+              🔑 The Golden Rule of Acceleration Signs:
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-main); line-height: 1.5;">
+              • <strong>Matching Signs (both + or both -)</strong>: The object is <strong>SPEEDING UP</strong>.<br>
+              • <strong>Opposite Signs (+ / - or - / +)</strong>: The object is <strong>SLOWING DOWN</strong>.<br>
+              • Negative acceleration does <em>NOT</em> mean slowing down—it only means the rate of change is directed toward the negative direction!
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 2: TIER 1 - SIGN DETECTIVE                                      -->
+    <!-- =================================================================== -->
+    <section id="tab-tier1" class="tab-content">
+      <div class="challenge-card">
+        <div class="challenge-badge">TIER 1: SIGN DETECTIVE (25 POINTS)</div>
+        <div id="tier1QuestionBox">
+          <!-- Populated by challenges.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 3: TIER 2 - HOW SPEED CHANGES EACH SECOND                       -->
+    <!-- =================================================================== -->
+    <section id="tab-tier2" class="tab-content">
+      <div class="challenge-card">
+        <div id="tier2Box">
+          <!-- Populated by challenges.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 4: TIER 3 - GUESS TELEMETRY SPRINT                              -->
+    <!-- =================================================================== -->
+    <section id="tab-tier3" class="tab-content">
+      <div class="challenge-card">
+        <div id="tier3Box">
+          <!-- Populated by challenges.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 5: TIER 4 - POD HAZARD INTERCEPT & REVERSAL                     -->
+    <!-- =================================================================== -->
+    <section id="tab-tier4" class="tab-content">
+      <div class="challenge-card">
+        <div id="tier4Box">
+          <!-- Populated by challenges.js -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mandatory Login Gate Overlay (@orangeusd.org or Guest Mode) -->
+  <div id="loginGateModal" class="modal-backdrop">
+    <div class="modal-content login-gate-modal-content">
+      <div class="login-gate-icon">⚡</div>
+      
+      <div class="login-gate-header">
+        <span class="login-gate-tag">Physics Unit 2 • Kinematics</span>
+        <h2 class="login-gate-title">Acceleration Rate & Sign Studio</h2>
+        <p class="login-gate-desc">
+          Sign in with your official school Google account to save your progress, unlock advanced tiers, and sync your mastery grade directly to the gradebook.
+        </p>
+      </div>
+
+      <div class="login-gate-domain-badge">
+        <span>🔒</span>
+        <span>Requires <strong>@orangeusd.org</strong> Account</span>
+      </div>
+
+      <div class="login-gate-actions">
+        <button id="btnGateGoogleLogin" class="btn-gate-google">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="google-svg-icon" alt="Google">
+          <span>Sign In with School Google Account</span>
+        </button>
+
+        <button id="btnGateGuestLogin" class="btn-gate-guest">
+          <span>👤 Continue as Guest</span>
+          <span class="guest-warning-subtext">(Progress will NOT be saved)</span>
+        </button>
+
+        <div id="loginGateError" class="login-gate-error" style="display: none;"></div>
+      </div>
+
+      <div class="login-gate-footer">
+        <span>Standard: <strong>HS-PS2-1</strong></span>
+        <span>•</span>
+        <span>4-Tier Mastery Scaffold</span>
+        <span>•</span>
+        <span>Cloud Grade Sync</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Certificate of Mastery & Completion Popup Modal -->
+  <div id="certModal" class="modal-backdrop">
+    <div class="modal-content cert-modal-content">
+      
+      <!-- Close button (screen only) -->
+      <button id="btnCloseCertX" class="cert-modal-close no-print" title="Close Certificate">&times;</button>
+
+      <!-- Cloud Save Confirmation Box (Screen Only) -->
+      <div id="certCloudSyncBox" class="cert-cloud-box no-print">
+        <!-- Dynamically populated by JS: either confirmed cloud save OR guest warning -->
+      </div>
+
+      <!-- The Official Certificate Document (Printer-Friendly, Pure White Background) -->
+      <div class="cert-document" id="certDocument">
+        <div class="cert-border-outer">
+          <div class="cert-border-inner">
+
+            <!-- Top Header & Physics Laboratory Crest -->
+            <div class="cert-header">
+              <div class="cert-crest">
+                <svg class="cert-crest-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="50" cy="50" r="46" stroke="#1e293b" stroke-width="2.5" stroke-dasharray="4 2"/>
+                  <circle cx="50" cy="50" r="41" stroke="#0f172a" stroke-width="1.5"/>
+                  <ellipse cx="50" cy="50" rx="32" ry="12" stroke="#0284c7" stroke-width="1.5" transform="rotate(30 50 50)"/>
+                  <ellipse cx="50" cy="50" rx="32" ry="12" stroke="#0284c7" stroke-width="1.5" transform="rotate(-30 50 50)"/>
+                  <ellipse cx="50" cy="50" rx="32" ry="12" stroke="#0284c7" stroke-width="1.5" transform="rotate(90 50 50)"/>
+                  <circle cx="50" cy="50" r="5" fill="#0f172a"/>
+                </svg>
+              </div>
+              <div class="cert-dept-titles">
+                <div class="cert-school-name">Orange High School • Science Department</div>
+                <div class="cert-lab-division">Physics Laboratory • 1D Kinematics Division</div>
+                <div class="cert-award-type">Official Certificate of Quantitative Mastery</div>
+              </div>
+            </div>
+
+            <!-- Certificate Divider Line -->
+            <div class="cert-divider-line"></div>
+
+            <!-- Recipient Section -->
+            <div class="cert-recipient-section">
+              <div class="cert-recipient-prefix">This official honors certificate is proudly awarded to</div>
+              <div id="certStudentNameDisplay" class="cert-recipient-name">Physics Scholar</div>
+              <div class="cert-recipient-meta">
+                <span>Student ID: <strong id="certStudentIdDisplay">—</strong></span>
+                <span class="cert-bullet">•</span>
+                <span>Course: <strong>Physics (NGSS HS-PS2-1)</strong></span>
+                <span class="cert-bullet">•</span>
+                <span id="certAuthStatusPill" class="cert-auth-pill">Verified School Record</span>
+              </div>
+            </div>
+
+            <!-- Formal Mastery Citation -->
+            <div class="cert-citation">
+              For demonstrating authentic, 100% quantitative mastery in <strong>Uniform 1D Acceleration</strong>:
+              calculating discrete rates of velocity change (<strong>a = Δv / Δt</strong>), interpreting physical vector signs and rate accumulation (<strong>(m/s)/s = m/s²</strong>), solving signed velocity differentials (<strong>Δv = v<sub>f</sub> - v₀</strong>), and successfully executing autonomous high-speed pod braking and directional reversals.
+            </div>
+
+            <!-- 4-Tier Competency Grid -->
+            <div class="cert-tiers-grid">
+              <div class="cert-tier-cell">
+                <span class="cert-tier-num">Tier 1</span>
+                <span class="cert-tier-title">Sign Detective</span>
+                <span id="certTier1Status" class="cert-tier-score">Mastered ✓ • 25 pts</span>
+              </div>
+              <div class="cert-tier-cell">
+                <span class="cert-tier-num">Tier 2</span>
+                <span class="cert-tier-title">Rate per Second</span>
+                <span id="certTier2Status" class="cert-tier-score">Mastered ✓ • 25 pts</span>
+              </div>
+              <div class="cert-tier-cell">
+                <span class="cert-tier-num">Tier 3</span>
+                <span class="cert-tier-title">GUESS Sprint</span>
+                <span id="certTier3Status" class="cert-tier-score">Mastered ✓ • 25 pts</span>
+              </div>
+              <div class="cert-tier-cell">
+                <span class="cert-tier-num">Tier 4</span>
+                <span class="cert-tier-title">Braking & Reversal</span>
+                <span id="certTier4Status" class="cert-tier-score">Mastered ✓ • 25 pts</span>
+              </div>
+            </div>
+
+            <!-- Signatures & Official Validation Footer -->
+            <div class="cert-footer-section">
+              <div class="cert-sign-col">
+                <div class="cert-sig-line">
+                  <span class="cert-signature-script">Ryan Mudry, M.Ed.</span>
+                </div>
+                <div class="cert-sign-title">Physics Instructor • Science Dept</div>
+              </div>
+
+              <div class="cert-seal-col">
+                <div class="cert-official-seal">
+                  <div class="cert-seal-star">★ ★ ★</div>
+                  <div class="cert-seal-text">OFFICIAL MASTERY SEAL</div>
+                  <div class="cert-seal-score" id="certScoreSealDisplay">100%</div>
+                  <div class="cert-seal-sub">NGSS HS-PS2-1</div>
+                </div>
+              </div>
+
+              <div class="cert-meta-col">
+                <div class="cert-meta-row">Date: <strong id="certDateDisplay">September 20, 2026</strong></div>
+                <div class="cert-meta-row">Verification ID: <strong id="certHashDisplay">ACCEL-2026-X8F2</strong></div>
+                <div class="cert-meta-row">Standard: <strong>NGSS HS-PS2-1</strong></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Controls (Screen Only) -->
+      <div class="cert-modal-actions no-print">
+        <button id="btnPrintCert" class="btn-primary" style="padding: 0.65rem 1.4rem; font-size: 0.95rem;">
+          <span>🖨️</span> Print Official Certificate
+        </button>
+        <button id="btnCloseCert" class="btn-secondary" style="padding: 0.65rem 1.2rem; font-size: 0.95rem;">
+          Close
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Tier 1 Flight Motion Simulation Modal -->
+  <div id="tier1SimModal" class="modal-backdrop">
+    <div class="modal-content tier1-sim-modal-content">
+      <div class="modal-header">
+        <div>
+          <h3 id="tier1ModalTitle" style="font-family: var(--font-display); font-size: 1.15rem; color: var(--accent-cyan); display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+            <span>🚀</span> <span id="tier1ModalPodName">Pod Alpha</span> Flight Simulation
+          </h3>
+          <div id="tier1ModalParams" style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">
+            Initial Velocity: <span id="tier1ModalV0" style="color: #4ade80; font-weight: 700;">+14.0 m/s</span> • Acceleration: <span id="tier1ModalA" style="color: #38bdf8; font-weight: 700;">+3.0 m/s²</span>
+          </div>
+        </div>
+        <button id="btnCloseTier1Sim" style="background: rgba(255,255,255,0.1); border: 1px solid var(--border-subtle); color: var(--text-main); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; transition: all 0.15s ease;">
+          ✕
+        </button>
+      </div>
+
+      <!-- Result Banner (Correct / Incorrect) -->
+      <div id="tier1ModalResultBanner" class="tier1-modal-result-banner"></div>
+
+      <!-- Simulation Canvas -->
+      <div class="tier1-sim-canvas-wrap">
+        <canvas id="tier1SimCanvas"></canvas>
+      </div>
+
+      <!-- Live Readout Strip -->
+      <div class="tier1-sim-telemetry-bar">
+        <div class="sim-tel-item">
+          <span class="sim-tel-label">Time</span>
+          <span id="tier1SimTelTime" class="sim-tel-val">0.0 s</span>
+        </div>
+        <div class="sim-tel-item">
+          <span class="sim-tel-label">Velocity</span>
+          <span id="tier1SimTelVel" class="sim-tel-val" style="color: #4ade80;">+14.0 m/s</span>
+        </div>
+        <div class="sim-tel-item">
+          <span class="sim-tel-label">Acceleration</span>
+          <span id="tier1SimTelAcc" class="sim-tel-val" style="color: #38bdf8;">+3.0 m/s²</span>
+        </div>
+        <div class="sim-tel-item">
+          <span class="sim-tel-label">Motion State</span>
+          <span id="tier1SimTelStatus" class="sim-tel-val" style="color: #fde047;">Speeding Up</span>
+        </div>
+      </div>
+
+      <!-- Modal Footer Controls -->
+      <div class="tier1-modal-controls">
+        <div style="display: flex; gap: 0.5rem;">
+          <button id="btnPlayTier1Sim" class="btn-primary" style="padding: 0.45rem 1rem; font-size: 0.85rem;">
+            <span>⏸</span> Pause
+          </button>
+          <button id="btnResetTier1Sim" class="btn-secondary" style="padding: 0.45rem 1rem; font-size: 0.85rem;">
+            <span>🔄</span> Restart
+          </button>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+          <button id="btnModalNextPod" class="btn-primary" style="display: none; padding: 0.45rem 1.1rem; font-size: 0.85rem;">
+            Next Pod ➔
+          </button>
+          <button id="btnModalGoTier2" class="btn-primary" style="display: none; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-color: #34d399; padding: 0.45rem 1.1rem; font-size: 0.85rem;">
+            🚀 Go to Tier 2 ➔
+          </button>
+          <button id="btnCloseTier1SimBottom" class="btn-secondary" style="padding: 0.45rem 1.1rem; font-size: 0.85rem;">
+            Return to Questions
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- App Footer -->
+  <footer class="app-footer">
+    <p>Orange High School Science Department • Physics Unit 2: Kinematics in 1D • Standard: <a href="#ngss">NGSS HS-PS2-1</a></p>
+  </footer>
+
+  <!-- Application Scripts -->
+  <script src="js/simulation.js"></script>
+  <script src="js/challenges.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
