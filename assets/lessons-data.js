@@ -2308,14 +2308,6 @@ const lessonsData = [
         "url": "Unit_2/acceleration_studio/index.html",
         "description": "Complete all 4 tiers (Sign Detective, Speed Each Second, GUESS Telemetry Sprint, and Pod Hazard Intercept) to earn the Kinematic Acceleration Specialist badge.",
         "status": "active"
-      },
-      {
-        "title": "Acceleration Sign Detective & Rate of Change Problem Set",
-        "typeLabel": "Classwork Practice",
-        "submission": "In-Class Handout (Subject to Pacing)",
-        "actionLabel": "In-Class Activity Notice",
-        "description": "Calculate velocity changes (Δv), elapsed times (Δt), and acceleration rates (a = Δv / Δt) across 8 real-world scenarios.",
-        "status": "planned"
       }
     ],
     "resources": [
