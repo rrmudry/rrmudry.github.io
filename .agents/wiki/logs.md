@@ -1927,7 +1927,7 @@ Append-only log tracking pattern changes across sessions.
   - Confirms Firestore backup status for authenticated `@orangeusd.org` students with an emerald `CONFIRMED ✓` badge, student ID, and reassurance that no manual turn-in is required.
   - Warns students in Guest Mode (`UNSAVED`) that their grade was not recorded and provides a one-click `Sign In with @orangeusd.org` button to save their progress.
 - **Printer-Friendly Official Certificate (`#certDocument`)**:
-  - Designed with an authentic classical double engraved border (`3px double #0f172a`), official Orange High School Science Department header, vector physics atom crest, 4-tier competency grid (25 pts each), official verification hash code (`ACCEL-[ID]-[HASH]`), and formal instructor signature line (`Ryan Mudry, M.Ed.`).
+  - Designed with an authentic classical double engraved border (`3px double #0f172a`), official Orange High School Science Department header, vector physics atom crest, 4-tier competency grid (25 pts each), official verification hash code (`ACCEL-[ID]-[HASH]`), and formal instructor signature line (`Ryan Mudry, M.S.`).
   - Strict `@media print` rules enforce pure white background (`background: #ffffff !important`), 0 toner waste, zero gradients, and total suppression of all non-print screen elements (`.no-print`, header, nav, buttons, close icons).
 - **Verification**:
   - Tested with Puppeteer suite (`scratch/test_completion_cert.js`) validating authenticated Firestore confirmation, guest mode warning banner, print CSS zero-ink compliance (`rgb(255, 255, 255)`), PDF generation, and Tier 4 auto-popup with 0 console errors.
