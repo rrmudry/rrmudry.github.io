@@ -1,7 +1,200 @@
 # Wiki Evolution Log
 
 Append-only log tracking pattern changes across sessions.
+
+## 2026-09-20 — Acceleration Studio: Tier 3 Acceleration-Exclusive Calculations & 3-in-a-Row Mastery Loop
+
+**Pattern Updated**: `acceleration-rate-studio.md`.
+
+**Changes**:
+- **Exclusively Focused Tier 3 on Acceleration Calculations**:
+  - Removed all peripheral questions asking for $\Delta t$ or $\Delta v$.
+  - All questions in Tier 3 are dedicated solely to calculating acceleration $a$ ($a = \Delta v / \Delta t$) with metric units $m/s²$.
+  - Procedurally generates 4 distinct directional archetypes per round (`Speeding Up Moving Right (+a)`, `Slowing Down Moving Right (-a)`, `Speeding Up Moving Left (-a)`, `Slowing Down Moving Left (+a)`) with clean integer values.
+- **Implemented 3-in-a-Row Mastery System (Matching Tiers 1 and 2)**:
+  - Requires students to achieve **3 consecutive correct problems** to earn 25 PTS and unlock Tier 4.
+  - Added an inline streak banner (`.tier3-streak-banner`) in the top challenge badge header displaying `Streak: X / 3 🔥` and 3 responsive dot indicators.
+  - Incorrect answers immediately reset the streak counter to 0 with diagnostic guidance reminding students of the 3-in-a-row requirement.
+  - Reaching 3 in a row triggers `AudioEngine.playUnlockPing()`, updates the banner to `✓ 3/3 MASTERED`, awards 25 PTS, unlocks Tier 4, and surfaces a direct `🚀 Go to Tier 4 ➔` button.
+- **Round Failure Regeneration Loop**:
+  - Completing a 4-question round without achieving 3 in a row triggers automatic generation of a fresh round of randomized acceleration problems with an informative round notice and toast notification.
+- **Chromebook 1280x768 Zero-Scroll Compliance**:
+  - Compact inline header alignment and tight padding maintain exact `scrollHeight = 768px` with zero vertical scrollbars.
+- **Automated Verification**:
+  - Executed automated Puppeteer tests (`test_tier3_acceleration_mastery.js` and `test_tier3_regeneration.js`): verified 100% exclusive acceleration questions, 0->1 streak increment, 1->0 error reset, 3-in-a-row mastery unlocking Tier 4 (+25 PTS), round regeneration on failure, 0 console errors, and exact 768px scrollHeight.
+
+## 2026-09-20 — Acceleration Studio: Tier 3 Question Bank Expansion & Tier 4 Wording Simplification
+
+**Pattern Updated**: `acceleration-rate-studio.md`.
+
+**Changes**:
+- **Expanded Tier 3 Question Bank (10 Practice Problems)**:
+  - Expanded `this.tier3Problems` from 4 problems to 10 diverse, accessible quantitative problems covering all three formula rearrangements:
+    - $a = \Delta v / \Delta t$ (4 problems: subway launch, cart reverse thrusters, leftward mining shuttle, and speed limit transitions).
+    - $\Delta t = \Delta v / a$ (3 problems: highway braking to halt, maglev launch sprint, and leftward buffer braking).
+    - $\Delta v = a \cdot \Delta t$ (3 problems: cargo drone boost, retro-rocket drop, and hyperloop boost).
+  - Maintained full property sets (`id`, `title`, `prompt`, `given`, `givenText`, `targetVar`, `unknownText`, `formula`, `correctVal`, `targetVal`, `tolerance`, `unit`, `correctUnit`, `hint`) preventing `undefined` display bugs.
+- **Added Non-Destructive Navigation to Tier 3**:
+  - Added header controls featuring `[◀ Prev]` button, `<select id="t3_selectProblem">` jump menu, and `[Next ▶]` button for jumping to any of the 10 practice problems.
+  - Solving any problem awards 25 PTS and unlocks Tier 4, while preserving ability to solve remaining practice problems.
+- **Simplified Tier 4 Wording for Below-Grade-Level Readers**:
+  - Replaced intimidating prose (*"An autonomous passenger pod is hurtling rightward toward the terminal buffer... To prevent an emergency collision, the onboard navigation computer must fire retro-thrusters to bring the pod to a dead halt..."*) with clean, accessible high school language:
+    - Title: `Safety Barrier Braking Challenge`.
+    - Prompt: *"A test pod moves right at <strong>v₀ = +24.0 m/s</strong>. A safety barrier ahead closes in <strong>Δt = 6.0 seconds</strong>. The pod must brake to a complete stop (<strong>v<sub>f</sub> = 0 m/s</strong>) right when the barrier closes."*
+    - Question 1: *"1. Braking Acceleration (a) to stop in 6.0 s:"* (Hint: `a = (vf - v₀) / Δt = (0 - 24.0) / 6.0 = -4.0 m/s²`).
+    - Question 2: *"2. Reversal: If brakes push for 8.0 s total, what is the final velocity?"* (Hint: `Pod stops at 6.0 s (v = 0), then speeds up to the left for 2 more seconds.`).
+    - Actions: `🚀 Test Braking Run` and `Reset Pod`.
+  - Updated tab button label in `index.html` to `Tier 4: Braking & Reversal`.
+- **Strict Chromebook 1280x768 Zero-Scroll Compliance**:
+  - Scaled Tier 4 canvas height to 98px and fine-tuned card/feedback padding so both Tier 3 and Tier 4 measure exactly `scrollHeight = 768px` on standard 1280x768 screens.
+- **Automated Verification**:
+  - Executed Puppeteer test (`test_tier3_expanded_and_tier4.js`): verified all 10 problems with valid G.U.E.S.S. values, dropdown and Prev/Next problem switching, solution verification and scoring (+25 PTS), simplified Tier 4 wording, 2.5s retro-thrust braking simulation and reversal, score completion (100/100 PTS), 0 console errors, and exact 768px scrollHeight.
+
+## 2026-09-20 — Acceleration Studio: Tier 2 Three-in-a-Row Mastery & Dynamic Problem Generation System
+
+**Pattern Updated**: `acceleration-rate-studio.md`.
+
+**Changes**:
+- **Mirrored Tier 1's 3-in-a-Row Mastery Requirement**:
+  - Configured Tier 2 to require **3 consecutive correct problems** to achieve mastery (+25 PTS, unlocking Tier 3).
+  - Added live 3-dot streak banner (`.tier2-streak-banner`) tracking progress from `0 / 3` to `3 / 3 MASTERED` with responsive gold and emerald indicators.
+  - Incorrect values immediately reset the streak to 0 with diagnostic feedback reminding students of the 3-in-a-row unlock requirement.
+- **Dynamic 4-Archetype Problem Generation (`generateTier2Problems()`)**:
+  - Implemented procedural generation across all 4 Cartesian 1D kinematic archetypes (`+v/+a`, `+v/-a`, `-v/-a`, `-v/+a`) with clean integer values avoiding decimal arithmetic traps and ensuring consistent velocity directions across the 3-second simulation.
+- **Round Failure Regeneration Loop**:
+  - At the conclusion of a 4-problem round without 3 in a row, dynamically generates a fresh set of randomized problems, increments round number, displays a left-column round notice, and shows a global floating toast notification.
+- **Direct Navigation Button**:
+  - Once Tier 2 is mastered, dynamically injects the emerald `🚀 Go to Tier 3 ➔` button in the action bar, switching directly to `tab-tier3`.
+- **Chromebook Zero-Scroll Compliance**:
+  - Optimized left/right column balance so that initial load, active flight, and round notices all maintain `scrollHeight = 768px` on standard 1280x768 viewports.
+- **Automated Verification**:
+  - Executed Puppeteer test (`test_tier2_streak.js`): verified initial 0/3 streak, increment to 1/3, reset to 0/3 on error, 3-in-a-row mastery unlocking Tier 3 (+25 PTS, score 50/100), direct button navigation, round regeneration, and 0 console errors.
+
+## 2026-09-20 — Acceleration Studio: Tier 2 Text De-Cluttering & Integrated Mini Flight Track Animation
+
+**Pattern Updated**: `acceleration-rate-studio.md`.
+
+**Changes**:
+- **Eliminated "How to Calculate" Text Clutter**:
+  - Removed the verbose middle column from the Tier 2 table (`Start at +20, then add (-4) [or minus 4]`), reducing cognitive load and visual intimidation for students reading below grade level.
+  - Replaced text clutter with an ultra-clean 2-column data table (`Time` and `Velocity`).
+  - Embedded sleek visual step-rate badges between rows (`⬇ Change: -4.0 m/s each second`) to intuitively communicate rate of change without algebraic notation.
+- **Integrated Live Mini Flight Track Animation**:
+  - Built an integrated interactive canvas (`#tier2TrackCanvas`, 122px height) into the left column of the Tier 2 card running `MotionSimulator`.
+  - Added playback controls (`▶ Run Flight (3s)` and `🔄 Reset`) with a live telemetry strip (`Time`, `Velocity (v)`, `Acceleration (a)`).
+  - The vehicle pod accelerates across the metric track for 3.0 seconds, dropping purple strobe marks with timestamp tags (`0s, 1s, 2s, 3s`) and velocity values directly onto the track before automatically pausing at 3.0 seconds.
+- **Chromebook 1280x768 Compact No-Scroll Optimization**:
+  - Balanced 2-column grid (`grid-template-columns: 1.15fr 1fr`) and micro-tuned card padding so that initial load, active flight, and diagnostic/success feedback all fit comfortably within `document.documentElement.scrollHeight = 768px` (zero vertical scrollbar).
+- **Automated Verification**:
+  - Tested via Puppeteer (`scratch/test_tier2.js`): verified canvas rendering, 3.0-second auto-stop, table submissions, score updates, Tier 3 unlock, and 768px scrollHeight. 0 console errors.
+
+## 2026-09-20 — Acceleration Studio: Strict Sequential Tier Locking & Adaptive 3-in-a-Row Mastery Loop
+
+**Pattern Updated**: `acceleration-rate-studio.md`.
+
+**Changes**:
+- **Strict Sequential Tier Locking**:
+  - Locked Tier 2, Tier 3, and Tier 4 sequentially behind mastery of their immediate predecessors (Tier 1 ➔ Tier 2 ➔ Tier 3 ➔ Tier 4).
+  - Configured locked tab buttons with `.locked` CSS styling and `🔒 Locked` pill badges.
+  - Intercepted click events on locked tabs: plays WebAudio error chime (`AudioEngine.playError()`), triggers a horizontal shake animation (`.tab-shake`), and displays an informative floating toast (`#appGlobalToast`) explaining the unlock requirements.
+  - Dynamic unlocking (`updateTabLockStates()`): when mastery conditions are met, `.locked` is removed, the score pill reveals `25 pts`, a pulsing glow (`.ready-pulse`) highlights the unlocked tier, and an unlock celebration toast appears.
+- **Adaptive Question Regeneration & 3-in-a-Row Mastery Loop**:
+  - Implemented procedural question generation (`generateTier1Questions()`) covering the 4 primary 1D kinematic archetypes (`+v/+a`, `+v/-a`, `-v/-a`, `-v/+a`) with randomized pod names and values.
+  - Required students to achieve **3 correct answers in a row** to earn 25 PTS and unlock Tier 2.
+  - Incorrect answers immediately reset the live streak counter to 0.
+  - If a student completes a 4-question round without answering 3 out of 4 correctly or without achieving 3 in a row, a brand new procedural round is generated dynamically and a notification informs them of their progress.
+  - Added a direct `🚀 Go to Tier 2 ➔` button in both the card and the simulation modal upon achieving 3 in a row.
+- **Automated Verification**:
+  - Created and executed headless Puppeteer tests (`test_tier_locks_and_streak.js` and `test_tier1_regeneration.js`) verifying strict lock enforcement, shake/toast handling, error streak resets, round regeneration, and unlock state transitions. All tests passed with 0 console errors.
+
+## 2026-09-20 — Acceleration Studio: Tier 2 Reading Level Optimization & Strict Right/Left Directional Convention
+
+**Pattern Updated**: `acceleration-rate-studio.md`.
+
+**Changes**:
+- **Strict 1D Cartesian Directional Standard (Eliminated East/West)**:
+  - Audited and eliminated all occurrences of "East", "Eastward", "West", "Westbound", and "Westward" across `challenges.js`, `index.html`, and `style.css`.
+  - Replaced compass terminology with explicit Cartesian vectors: **Right (+)** and **Left (-)** to prevent mental mapping conflicts during 1D kinematics problem solving.
+- **Low Reading Level & Cognitive Load Optimization for Tier 2**:
+  - Renamed tab from confusing academic title `Tier 2: (m/s)/s Ticker Tape` to plain language `Tier 2: Speed Each Second`.
+  - Renamed badge to `TIER 2: HOW SPEED CHANGES EACH SECOND (MISSION X OF 3)`.
+  - Replaced abstract function formulas (`v(0) + a`) in table calculation columns with concrete math steps: `Start at +5, then add (+3)` and `Take velocity at 1 s, then add (+3)`.
+  - Added integer arithmetic scaffolding for negative acceleration: `add -4 (or subtract 4) each second` to prevent struggling students from getting tripped up by negative addition.
+  - Simplified $\Delta v$ label with clear formula reminder: `Total change in velocity after 3 seconds: Δv = [ ] m/s (Velocity at 3 s minus Starting velocity v₀)`.
+- **Chromebook Compact No-Scroll Layout for Tier 2**:
+  - Extended compact card styling (`#tab-tier2 .challenge-card`) and tightened `.ticker-table` vertical cell padding (`0.4rem 0.6rem`).
+  - Validated via headless Puppeteer: card and feedback fit within standard 1280x768 viewports without scrolling.
+
+
+## 2026-09-20 — Acceleration Studio: Automatic Flight Modal on Check Answer & Pre-Answer Simulation Gating
+
+**Pattern Updated**: `acceleration-rate-studio.md`.
+
+**Changes**:
+- **Strict Pre-Answer Simulation Gating**:
+  - Completely removed the pre-answer simulation launch button from the Telemetry HUD.
+  - Students cannot view the flight simulation until they commit their predictions and click "Check Answers".
+- **Automatic Modal Trigger on "Check Answers"**:
+  - Clicking "Check Answers" automatically displays the interactive flight motion popup modal (`#tier1SimModal`).
+  - Modal features a prominent result banner:
+    - **Correct**: Emerald banner (`🎉 Correct Prediction!`) with physical reasoning, live simulation, and direct `Next Pod ➔` button.
+    - **Incorrect**: Rose banner (`❌ Not Quite Right — Observe the Flight Simulation Below:`) detailing which specific direction or motion property was mismatched, accompanied by the live simulation showing the vectors in action and a `Try Again 🔄` button.
+  - Once answered, students can also re-launch the simulation via a "Re-watch Flight Simulation" button in the feedback banner.
+
+
+## 2026-09-20 — Acceleration Studio: Tier 1 No-Scroll Layout Optimization for Student Laptops
+
+**Pattern Updated**: `acceleration-rate-studio.md`.
+
+**Changes**:
+- **Eliminated Vertical Scrolling on Tier 1 (Sign Detective)**:
+  - Re-architected single-column vertical flow into a responsive two-column grid layout (`grid-template-columns: 1fr 1.35fr`).
+  - Left column houses a compact 2x2 Telemetry HUD (vehicle name, velocity, acceleration, active status) and a high-readability "Quick Sign Rule" summary card.
+  - Right column houses 3 scaffolded questions with 2-column and 3-column button grids, inline submit and next buttons, and compact diagnostic feedback.
+  - Compacted `.mastery-progress-card` padding and margin to fit within standard Chromebook viewports (1280x768 and 1366x768).
+  - Validated via Puppeteer: `scrollHeight = 768px` on a 768px viewport (both initial and with feedback rendered), achieving zero vertical scrollbar and a 0px vertical overflow.
+
+
+## 2026-09-20 — Acceleration Studio: Sequential 10-Second Sign Matrix Observation Gate
+
+**Pattern Updated**: `acceleration-rate-studio.md`.
+
+**Changes**:
+- **Enforced 10-Second Sequential Sign Matrix Gate (Productive Friction)**:
+  - Required students to actively observe each quadrant of the 2x2 Velocity-Acceleration Sign Matrix for at least 10.0 seconds before unlocking the subsequent quadrant.
+  - Progression order: Top-Left (`+v, +a`) ➔ Top-Right (`+v, -a`) ➔ Bottom-Left (`-v, -a`) ➔ Bottom-Right (`-v, +a`).
+  - Active countdown timer badge (`⏳ 10.0s` ... `0.0s`), glowing card-bottom progress fill line, and overall progress tracking bar (`1/4 Studied`).
+  - Pausing the simulation or switching tabs automatically pauses observation accumulation to enforce authentic viewing.
+  - Clicking locked cards triggers tactile shake animation (`cardShake`), audio error cue, and toast notification indicating required remaining observation seconds.
+  - Unlocking each quadrant plays an upbeat chime (`playUnlockPing()`) and pulses the newly available quadrant (`ready-pulse`).
+  - Progress saved in `sessionStorage` so students retain unlock progress during classroom sessions while having full freedom to revisit unlocked quadrants.
+
+## 2026-09-20 — Day 16 Acceleration Studio: Decomposed Learning Goals & 4-Tier Webapp
+
+**Pattern Created**: `acceleration-rate-studio.md`.
+**Pattern Updated**: `index.md`.
+
+**Changes**:
+- **Decomposed Day 16 Learning Goals (Low Floor ➔ High Ceiling)**:
+  - **Level 1 (Low Floor - Conceptual)**: Vector Signs & 2x2 Matrix. Shatters the misconception that negative acceleration always means slowing down. Proves matching signs = speeding up, opposite signs = slowing down.
+  - **Level 2 (Bridge - Concrete Units)**: The physical meaning of units—deconstructing `m/s²` as `(m/s) per second` via discrete second-by-second ticker-tape accumulation tables (`v(t+1) = v(t) + a`).
+  - **Level 3 (Target Proficiency - GUESS Calculations)**: Computing signed velocity differences (`Δv = v<sub>f</sub> - v₀`), elapsed time (`Δt`), and rate of change (`a = Δv / Δt`) with double-negative arithmetic.
+  - **Level 4 (High Ceiling - Synthesis)**: Directional reversal and instantaneous rest (`v = 0`), calculating turnaround times (`t = -v₀ / a`), and proving acceleration remains non-zero even when instantaneous velocity is zero.
+- **Engineered New Webapp: Acceleration Rate & Sign Studio (`Unit_2/acceleration_studio/`)**:
+  - `index.html`: Dark cyber-HUD theme, responsive layout, NGSS declarative badge (`HS-PS2-1`), and printable Certificate of Mastery modal.
+  - `style.css`: Glassmorphic styling, glowing vector badges, telemetry meters, and print media rules.
+  - `js/simulation.js`: 1D metric coordinate canvas, dynamic green velocity and cyan acceleration arrows, strobe/ticker-tape trail, and zero-crossing turnaround detection.
+  - `js/challenges.js`: 4-tier challenge engine (Sign Detective, (m/s)/s Ticker Tape, GUESS Sprint, and Autonomous Pod Emergency Braking Intercept) with 100-point scoring.
+  - `js/auth.js`: Google Sign-In domain filter (`@orangeusd.org`), Firestore high-score retention, and parent doc registration (`unit2_day16_acceleration_studio`).
+  - `js/app.js`: Web Audio API sound synthesizer (tones, clicks, thrust whines, braking crashes), 2x2 matrix presets, and slider controllers.
+  - **Single Celestial Sun Resolution**: Inpainted out repeating sun pixels in `layers/parallax-mountain-bg.png` so the cloud/sky gradient tiles seamlessly across any viewport width, and added a single celestial sun with atmospheric corona glow behind the mountain layers (`layers 1-4`). Eliminates multiple suns on wide responsive screens.
+- **Curriculum & Site Synchronization**:
+  - Linked new webapp into `Unit_2/outline.md`, `Unit_2/unit2_lessons.json`, `Unit_2/lesson.json`, and `assets/lessons-data.js`.
+  - Incremented cachebuster to `?v=20260920d` in `unit2-dashboard.html`.
+  - Refreshed footer deployment timestamp via `node scripts/update-timestamp.js`.
+
 ## 2026-09-20 — Gravitational Acceleration Standardization: g = 10 m/s² (Round Numbers for Conceptual Clarity)
+
 
 **Pattern Updated**: `modular-vehicle-physics-game.md`, `dashboard-layout.md`.
 
@@ -1702,5 +1895,39 @@ Append-only log tracking pattern changes across sessions.
 **Tooling & Artifacts**:
 - `sync-classroom/generate-bellringer-pdf.js`: Automated Puppeteer-based PDF rendering pipeline utilizing Inter typography, vector SVG data visualizers, custom KPI cards, and print CSS layout controls.
 - `admin/reports/Unit_2_Bell_Ringer_Audit_Report.pdf`: 5-page Letter PDF formatted with zero overflow or orphaned lines.
-- `admin/reports/Unit_2_Bell_Ringer_Audit_Report.html`: Standalone web view for online review.
+## 2026-09-20 — Acceleration Rate & Sign Studio: Mandatory @orangeusd.org Login Gate, Guest Mode & Cloud Progress Backup
 
+**Motivation**: Added mandatory student authentication gate, guest mode option, and continuous Cloud Firestore progress backup and restoration for the Acceleration Rate & Sign Studio (`Unit_2/acceleration_studio/`).
+
+**Key Architectural Changes**:
+- **Mandatory Activity Entry Gate (`#loginGateModal`)**:
+  - Automatically activates upon initial page load if student is unauthenticated and has not chosen Guest Mode for the active session.
+  - Prompts student to sign in with their `@orangeusd.org` school Google account or choose "Continue as Guest (Progress will NOT be saved)".
+- **Domain Enforcement**:
+  - Enforces `@orangeusd.org` and `@student.orangeusd.org` domain check (with instructor override `rmudry@orangeusd.org` and `ryan.mudry@gmail.com`).
+  - Unauthorized accounts (e.g. personal `@gmail.com`) are rejected with clear error alert in `#loginGateError` and immediately signed out.
+- **Guest Mode (`isGuest`)**:
+  - Bypasses Firestore saves (`if (this.isGuest) return;`) while granting full interactive play across all tiers.
+  - Header auth widget displays `👤 Guest Mode (Unsaved)` warning pill and a `Sign In` button for on-demand account linking.
+- **Continuous Cloud Progress Backup & State Restoration**:
+  - Saved under `student_results/unit2_day16_acceleration_studio/students/{studentId}` with parent document metadata for gradebook discoverability.
+  - State payload stores `tierScores`, `tierCompleted`, and streaks (`tier1Streak`, `tier2Streak`, `tier3Streak`).
+  - Restores previous progress seamlessly on login/reload via `challenges.restoreState()`, unlocking previously mastered tiers.
+- **Verification**:
+  - End-to-end headless Puppeteer suite (`scratch/test_auth_guest_firestore.js`) verified startup gating, guest mode bypass of Firestore writes, unauthorized domain rejection, and authenticated cloud progress restore with 0 console errors and exact 1280x768 viewport budget preservation.
+
+## 2026-09-20 — Acceleration Rate & Sign Studio: Completion Screen Popup & Printer-Friendly Certificate
+
+**Motivation**: Added an automatic completion screen popup, Cloud Firestore grade confirmation banner, and an official, ink-efficient certificate of mastery for students completing the 4-tier scaffold in the Acceleration Rate & Sign Studio (`Unit_2/acceleration_studio/`).
+
+**Key Architectural Changes**:
+- **Automatic Completion Popup (`#certModal`)**:
+  - Automatically triggers `openCompletionModal()` 1.2s after completing the Tier 4 braking and directional reversal challenge (or on demand via the score bar's `🏆 Claim Badge & Cert` button).
+- **Cloud Save Confirmation Indicator (`#certCloudSyncBox`)**:
+  - Confirms Firestore backup status for authenticated `@orangeusd.org` students with an emerald `CONFIRMED ✓` badge, student ID, and reassurance that no manual turn-in is required.
+  - Warns students in Guest Mode (`UNSAVED`) that their grade was not recorded and provides a one-click `Sign In with @orangeusd.org` button to save their progress.
+- **Printer-Friendly Official Certificate (`#certDocument`)**:
+  - Designed with an authentic classical double engraved border (`3px double #0f172a`), official Orange High School Science Department header, vector physics atom crest, 4-tier competency grid (25 pts each), official verification hash code (`ACCEL-[ID]-[HASH]`), and formal instructor signature line (`Ryan Mudry, M.Ed.`).
+  - Strict `@media print` rules enforce pure white background (`background: #ffffff !important`), 0 toner waste, zero gradients, and total suppression of all non-print screen elements (`.no-print`, header, nav, buttons, close icons).
+- **Verification**:
+  - Tested with Puppeteer suite (`scratch/test_completion_cert.js`) validating authenticated Firestore confirmation, guest mode warning banner, print CSS zero-ink compliance (`rgb(255, 255, 255)`), PDF generation, and Tier 4 auto-popup with 0 console errors.
