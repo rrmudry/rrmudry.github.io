@@ -227,5 +227,5 @@ Unit_2/acceleration_studio/
 - **Printer-Friendly Zero-Toner Certificate Architecture (`@media print`)**:
   - **Pure White Canvas (`background: #ffffff !important`)**: Strips all dark backgrounds, glow filters, box shadows, and gradients. Uses 0 background ink or toner.
   - **Engraved Double Border (`3px double #0f172a`)**: Classical diploma framing with inner hairline border (`1px solid #1e293b`).
-  - **Authentic Physics Laboratory Branding**: Official Orange High School Science Department seal with vector physics orbital crest, course standard (`NGSS HS-PS2-1`), student verification code (`ACCEL-[ID]-[HASH]`), and formal instructor signature line (`Ryan Mudry, M.Ed.`).
+  - **Authentic Physics Laboratory Branding**: Official Orange High School Science Department seal with vector physics orbital crest, course standard (`NGSS HS-PS2-1`), student verification code (`ACCEL-[ID]-[HASH]`), and formal instructor signature line (`Ryan Mudry, M.S.`).
   - **Full Suppression of Non-Print UI**: Headers, navigation bars, modal controls, buttons, close icons, and the cloud save notification box are strictly hidden via `.no-print` (`display: none !important`), ensuring an immaculately formatted 1-page Letter printout (`page-break-inside: avoid`).
