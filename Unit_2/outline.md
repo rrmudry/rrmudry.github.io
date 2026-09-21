@@ -166,7 +166,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Acceleration Rate & Sign Studio: Interactive 4-tier web application featuring live dual-vector vehicle simulation, 2x2 sign matrix exploration, discrete (m/s)/s ticker-tape tables, GUESS rate telemetry sprints, and autonomous pod emergency braking test runs.
     *   *Essential Question:* How does the sign of acceleration combine with the sign of velocity to determine whether an object is speeding up or slowing down?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction / Guided Practice
-    *   *Links:* [Acceleration Rate & Sign Studio](Unit_2/acceleration_studio/index.html), [Velocity vs. Time Visualizer](Unit_2/velocity_time_graph_studio/index.html), [Distance vs Time App](https://rrmudry.github.io/distance_vs_time_graphing.html)
+    *   *Links:* [Uniformly Accelerated Motion Presentation](https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQCOlkcQtc2tTKqjqMe3uyK-AUaz1fF9YlaAylKVL9R24Ro?e=RGCAIg), [Acceleration Rate & Sign Studio](Unit_2/acceleration_studio/index.html), [Velocity vs. Time Visualizer](Unit_2/velocity_time_graph_studio/index.html), [Distance vs Time App](https://rrmudry.github.io/distance_vs_time_graphing.html)
 
 *   **Day 17 (2026-09-22): The Kinematic Velocity Equation: Calculating Final Velocity (v<sub>f</sub> = v₀ + at)**
     *   *Bell-Ringer:* Kinematic Velocity & Stopping Time Telemetry (CAST Challenge): An express commuter train cruises at +30.0 m/s and applies automated braking at -2.5 m/s². Students identify that 'complete halt' means v<sub>f</sub> = 0, rearrange t = (v<sub>f</sub> - v₀) / a to calculate stopping duration (`t = 12.0 s`), and determine speed at the halfway point.
