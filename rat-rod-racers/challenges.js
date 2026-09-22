@@ -360,7 +360,8 @@ class PhysicsChallengeEngine {
 
     const exp = this.currentChallenge.expectedValue;
     const tol = this.currentChallenge.tolerance || 0.1;
-    const isCorrect = Math.abs(parsed - exp) <= tol;
+    const diff = Math.abs(parsed - exp);
+    const isCorrect = diff <= tol;
     this.currentChallenge.wasCorrect = isCorrect;
 
     if (isCorrect) {
@@ -370,22 +371,28 @@ class PhysicsChallengeEngine {
       else if (this.streak >= 3) multiplier = 1.5;
       else if (this.streak >= 2) multiplier = 1.25;
 
-      const earned = Math.round(this.currentChallenge.reward * multiplier);
+      const earned = Math.round((this.currentChallenge.reward || 100) * multiplier);
       return {
         success: true,
+        correct: true,
+        diff: diff,
         earnedCash: earned,
         streak: this.streak,
         multiplier: multiplier,
-        steps: this.currentChallenge.solutionSteps
+        steps: this.currentChallenge.solutionSteps || [],
+        solutionSteps: this.currentChallenge.solutionSteps || []
       };
     } else {
       this.streak = 0;
       return {
         success: false,
+        correct: false,
+        diff: diff,
         earnedCash: 0,
         streak: 0,
         expected: exp,
-        steps: this.currentChallenge.solutionSteps
+        steps: this.currentChallenge.solutionSteps || [],
+        solutionSteps: this.currentChallenge.solutionSteps || []
       };
     }
   }
