@@ -2,6 +2,20 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-22 — Day 17 Bell-Ringer Update: Constant Speed Highway Cruise Telemetry
+
+**Pattern Updated**: `cast-aligned-webapp-design.md`.
+
+**Changes**:
+- **Updated Day 17 Bell-Ringer across Central Curricula**:
+  - Replaced the stopping train acceleration challenge with a constant speed telemetry challenge across `Unit_2/unit2_lessons.json`, `Unit_2/lesson.json`, `assets/lessons-data.js`, and `Unit_2/outline.md`.
+  - Configured 3 CAST challenge components:
+    1. Cloze dropdown identifying that constant speed implies $a = 0\text{ m/s}^2$ and position change uses $\Delta x = v \cdot t$.
+    2. Quantitative calculation for distance traveled ($25.0\text{ m/s} \times 16.0\text{ s} = 400.0\text{ m}$).
+    3. AI Mentor reasoning chat exploring why constant velocity covers equal increments per second and produces a linear slope on position vs. time graphs.
+  - Included single-prompt `promptQuestion` and `explanation` attributes for seamless fallback support in `Bell-Ringer/teacher.html`.
+
+
 ## 2026-09-21 — Unit Conversion Practice MaxPoints Scoring Fix & Classroom Grade Rescale
 
 **Pattern Updated**: `classroom-sync-engine.md`.
