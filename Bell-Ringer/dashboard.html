@@ -400,6 +400,7 @@
                 syncServerClock();
                 const email = user.email.toLowerCase();
                 const isAdmin = email === "rmudry@orangeusd.org" || 
+                                email === "ryan.mudry@orangeusd.org" ||
                                 email === "ryan.mudry@gmail.com" || 
                                 email === "ryanmudry@gmail.com";
                 
@@ -788,9 +789,28 @@
             const emptyEl = document.getElementById('empty-state');
             gridEl.innerHTML = '';
 
-            if (roster.length === 0) {
+            // Merge roster with any non-roster submissions matching currentPeriod (e.g. teacher testing as student)
+            const activeRoster = [...roster];
+            const rosterIds = new Set(roster.map(s => String(s.student_id || '').toLowerCase()));
+
+            Object.values(submissions).forEach(sub => {
+                const subId = String(sub.studentId || '').toLowerCase();
+                const subPeriod = sub.class_period !== undefined && sub.class_period !== null ? String(sub.class_period) : null;
+                if (subPeriod === String(currentPeriod) && !rosterIds.has(subId)) {
+                    const isTeacher = ['rmudry', 'ryan.mudry', 'ryanmudry'].some(t => subId === t || subId.startsWith(t));
+                    activeRoster.push({
+                        student_id: sub.studentId,
+                        first_name: isTeacher ? "👨‍🏫 Test" : (sub.studentName ? sub.studentName.split(' ')[0] : sub.studentId),
+                        last_name: isTeacher ? "Teacher" : (sub.studentName ? (sub.studentName.split(' ').slice(1).join(' ') || '') : ''),
+                        class_period: currentPeriod,
+                        isTestAccount: isTeacher
+                    });
+                }
+            });
+
+            if (activeRoster.length === 0) {
                 emptyEl.classList.remove('hidden');
-                updateCounters(0, 0, 0);
+                updateCounters(0, 0, 0, 0);
                 return;
             }
             emptyEl.classList.add('hidden');
@@ -799,7 +819,7 @@
             let numVerified = 0;
             let numRevision = 0;
 
-            roster.forEach(student => {
+            activeRoster.forEach(student => {
                 const sId = student.student_id;
                 const submission = submissions[sId];
                 
@@ -848,41 +868,47 @@
                             statusIcon = '✅';
                             statusLabel = `${comp}/${tot} done`;
                             numVerified++;
-                            progressDisplayHTML = `<span class="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">✓ ${comp}/${tot} parts</span>`;
+                        } else {
+                            tileClass = 'tile-fail';
+                            statusIcon = '⚠️';
+                            statusLabel = `${comp}/${tot} rev`;
+                            numRevision++;
+                        }
+                    } else if (activeActivityType === 'connections') {
+                        if (score === undefined) {
+                            tileClass = 'tile-submitted';
+                            statusIcon = '🧩';
+                            const solvedCount = (submission.solvedCategories && Array.isArray(submission.solvedCategories)) ? submission.solvedCategories.length : 0;
+                            statusLabel = `${solvedCount}/4 Solved`;
+                            progressDisplayHTML = `<span class="text-[10px] font-semibold text-amber-400 uppercase tracking-widest">🧩 ${solvedCount}/4 Solved</span>`;
+                        } else if (score === "1" || score === 1) {
+                            tileClass = 'tile-success';
+                            statusIcon = '✅';
+                            statusLabel = 'Complete';
+                            numVerified++;
                         } else {
                             tileClass = 'tile-fail';
                             statusIcon = '⚠️';
                             statusLabel = 'Revision';
                             numRevision++;
-                            progressDisplayHTML = `<span class="text-[10px] font-bold text-red-400 uppercase tracking-widest">0/${tot} parts</span>`;
                         }
                     } else {
+                        // free_response
                         if (score === undefined) {
                             tileClass = 'tile-submitted';
                             statusIcon = '⏳';
-                            statusLabel = 'Analyzing';
+                            statusLabel = 'Submitted';
                         } else if (score === "1" || score === 1) {
                             tileClass = 'tile-success';
                             statusIcon = '✅';
-                            statusLabel = 'Verified';
+                            statusLabel = 'Grade 1';
                             numVerified++;
                         } else if (score === "0" || score === 0) {
                             tileClass = 'tile-fail';
                             statusIcon = '⚠️';
-                            statusLabel = 'Revision';
+                            statusLabel = 'Grade 0';
                             numRevision++;
                         }
-                    }
-
-                    // Render connections live grid progress squares
-                    if (activeActivityType === 'connections') {
-                        let progressSquares = '';
-                        const catColorClasses = ['bg-yellow-500', 'bg-green-500', 'bg-blue-500', 'bg-purple-500'];
-                        for (let idx = 0; idx < 4; idx++) {
-                            const solved = submission.solvedCategories && submission.solvedCategories.includes(idx);
-                            progressSquares += `<span class="w-3 h-3 rounded-sm ${solved ? catColorClasses[idx] + ' shadow-inner animate-pulse' : 'bg-slate-900 border border-white/10'} inline-block"></span>`;
-                        }
-                        progressDisplayHTML = `<div class="flex gap-1.5">${progressSquares}</div>`;
                     }
                 }
 
@@ -892,7 +918,8 @@
 
                 // Render student tile
                 const card = document.createElement('div');
-                card.className = `rounded-2xl p-4 flex flex-col justify-between h-28 relative cursor-pointer hover:scale-[1.02] hover:shadow-xl transition-all ${tileClass}`;
+                const testAccountRing = student.isTestAccount ? 'ring-2 ring-amber-400/60 shadow-amber-500/20' : '';
+                card.className = `rounded-2xl p-4 flex flex-col justify-between h-28 relative cursor-pointer hover:scale-[1.02] hover:shadow-xl transition-all ${tileClass} ${testAccountRing}`;
                 card.onclick = () => openStudentModal(student, submission);
                 
                 // Add a comment indicator if student completed follow-up
@@ -900,9 +927,16 @@
                     ? `<span class="text-sm cursor-help animate-pulse" title="Follow-up response submitted">💬</span>` 
                     : '';
 
+                const testBadge = student.isTestAccount
+                    ? `<span class="text-[9px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.5 rounded font-mono font-bold uppercase tracking-wider ml-1">Test</span>`
+                    : '';
+
                 card.innerHTML = `
                     <div>
-                        <p class="text-xs text-slate-400 font-bold tracking-wider truncate uppercase">${student.last_name}, ${student.first_name}</p>
+                        <div class="flex items-center justify-between">
+                            <p class="text-xs text-slate-400 font-bold tracking-wider truncate uppercase">${student.last_name}, ${student.first_name}</p>
+                            ${testBadge}
+                        </div>
                         <p class="text-[10px] text-slate-500 font-mono mt-0.5 uppercase tracking-tight">${student.student_id}</p>
                     </div>
                     <div class="flex items-center justify-between border-t border-white/5 pt-2">
@@ -917,12 +951,13 @@
                 gridEl.appendChild(card);
             });
 
-            updateCounters(numSubmitted, numVerified, numRevision);
+            updateCounters(numSubmitted, numVerified, numRevision, activeRoster.length);
         }
 
-        function updateCounters(submitted, verified, revision) {
+        function updateCounters(submitted, verified, revision, totalCount) {
             document.getElementById('stat-submitted').innerText = submitted;
-            document.getElementById('stat-total-roster').innerText = `/ ${roster.length}`;
+            const total = totalCount !== undefined ? totalCount : roster.length;
+            document.getElementById('stat-total-roster').innerText = `/ ${total}`;
             document.getElementById('stat-verified').innerText = verified;
             document.getElementById('stat-revision').innerText = revision;
         }
