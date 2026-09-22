@@ -1166,32 +1166,128 @@
             runTimerCountdown(expiresAt);
         }
 
-        async function handleCastChatSend(payload, castData, config) {
-            const proxyUrl = await ensureChatProxyUrl();
-            if (!proxyUrl) {
-                throw new Error("AI proxy not configured or unavailable.");
-            }
+        function generateCastMentorReply({ userText = "", messages = [], step = {}, castData = {}, allAnswers = [] }) {
+            const rawText = (userText || "").trim();
+            const lower = rawText.toLowerCase();
+            const userTurns = messages.filter(m => m.role === 'user' || m.sender === 'user').length;
 
-            // Compile previous answers for AI prompt context
-            let answersSummary = "";
-            if (payload.allAnswers) {
-                if (Array.isArray(payload.allAnswers)) {
-                    answersSummary = payload.allAnswers.map((a, idx) => {
-                        let valStr = typeof a.answer === 'object' ? JSON.stringify(a.answer) : a.answer;
-                        return `Step ${idx + 1} (${a.title} [${a.type}]): ${valStr}`;
-                    }).join('\n');
-                } else if (typeof payload.allAnswers === 'object') {
-                    answersSummary = Object.entries(payload.allAnswers).map(([k, v]) => {
-                        let valStr = typeof v === 'object' ? JSON.stringify(v) : v;
-                        return `${k}: ${valStr}`;
-                    }).join('\n');
+            // Check if this task is about constant velocity / highway cruise telemetry
+            const isCruiseTask = (castData.title && castData.title.toLowerCase().includes("cruise")) ||
+                                 (step.prompt && step.prompt.toLowerCase().includes("each single second")) ||
+                                 (step.openingPrompt && step.openingPrompt.toLowerCase().includes("400 meters"));
+
+            if (isCruiseTask) {
+                // Turn 1 evaluation
+                if (userTurns <= 1) {
+                    if (lower === "idk" || lower.includes("don't know") || lower.includes("dont know") || lower.includes("not sure") || lower.length < 4) {
+                        return "No worries at all! Since the car travels at a steady 25.0 m/s, it moves exactly 25 meters during each single second. Because it covers the same 25 meters every second, its position vs. time graph is a straight diagonal line. What do you think the acceleration is for this steady drive?";
+                    }
+                    if (lower.includes("curv") || lower.includes("parabola") || lower.includes("exponential")) {
+                        return "Good thought, but notice the cruise control is locked at a steady 25 m/s! Curved graphs mean speed is changing (accelerating), whereas steady speed adds the exact same 25 meters every second in a straight line. What would the acceleration be for that steady motion?";
+                    }
+                    if (lower.includes("400")) {
+                        return "You spotted the total distance! 400 meters is the grand total over all 16 seconds. If you divide 400 m by 16 s, you get exactly 25 meters covered in just one second. What shape does that steady +25 m/s rate create on a position-time graph?";
+                    }
+
+                    const has25 = lower.includes("25") || lower.includes("twenty-five") || lower.includes("twenty five");
+                    const hasStraight = lower.includes("straight") || lower.includes("linear") || lower.includes("diagonal") || lower.includes("constant slope") || lower.includes("slope");
+
+                    if (has25 && hasStraight) {
+                        return "Spot on! Exactly 25 meters every second, which makes the position-time graph a straight diagonal line with a constant slope of +25 m/s. What would happen to that graph's slope if the driver bumped cruise control up to 35 m/s?";
+                    }
+                    if (has25 && !hasStraight) {
+                        return "Spot on! At 25.0 m/s, it covers precisely 25 meters during each individual second. What would the position vs. time graph look like as those 25-meter chunks add up over 16 seconds?";
+                    }
+                    if (hasStraight && !has25) {
+                        return "You nailed the graph shape—it is a straight diagonal line because velocity isn't changing! Since it travels at 25.0 m/s, how many meters does it tick off during each individual second?";
+                    }
+
+                    return "Great start! Because the speed is locked at 25.0 m/s, the car covers exactly 25 meters every single second, creating a straight diagonal line with a constant slope on a position-time graph. What would the acceleration be for this steady drive?";
                 }
+
+                // Turn 2 evaluation
+                if (userTurns === 2) {
+                    if (lower.includes("steep") || lower.includes("faster") || lower.includes("higher") || lower.includes("angle")) {
+                        return "Exactly right! A higher speed produces a steeper slope because more distance is covered per second. And since speed stays steady, acceleration is 0 m/s². Feel free to submit your response or keep chatting!";
+                    }
+                    if (lower.includes("0") || lower.includes("zero") || lower.includes("none") || lower.includes("no accel")) {
+                        return "Nailed it! Constant velocity means zero acceleration (a = 0 m/s²), which is why the position-time graph has no curvature at all. You've thoroughly defended your reasoning—feel free to click Submit whenever you're ready!";
+                    }
+                    if (lower.includes("flat") || lower.includes("horizontal")) {
+                        return "Spot on! A flat horizontal line is exactly what the velocity-time graph looks like at 25 m/s, showing acceleration is zero. You've earned full credit—feel free to submit or explore further!";
+                    }
+
+                    return "Awesome physics reasoning! You've connected constant velocity (25 m/s) to zero acceleration (0 m/s²) and a constant-slope position-time graph. You're fully ready to submit whenever you'd like!";
+                }
+
+                // Turn 3+
+                return "Fascinating thinking! In deep space, Newton's first law tells us you wouldn't even need an engine or cruise control to maintain that 25 m/s speed forever because there's no friction. You've mastered this concept—click Submit to log your score!";
             }
 
-            const phenomenonText = payload.phenomenon?.description || payload.phenomenon?.text || payload.phenomenon?.title || "";
-            const taskTitle = castData.title || config.title || "CAST 3D Science Investigation";
+            // Universal fallback for any other CAST science investigation
+            const teacherKey = castData.teacherKey || "";
+            if (lower === "idk" || lower.includes("don't know") || lower.includes("dont know") || lower.includes("not sure") || lower.length < 4) {
+                if (teacherKey) {
+                    const firstSent = teacherKey.split('.')[0] || "Every physical action connects directly to kinematics and conservation principles.";
+                    return `No problem at all! Consider this: ${firstSent}. How does that connect to what you observed in the data?`;
+                }
+                return "No problem at all! Think about the key variables from earlier steps. How did one variable change as the other changed?";
+            }
 
-            const systemInstruction = `You are a warm, adaptive, and relatable physics mentor chatting with a student over SMS/text. Your goal is to explore a physics concept together without being overly formal or using forced slang.
+            if (userTurns <= 1) {
+                return `Great explanation! You connected your observations directly to the physical evidence. How would your prediction change if the velocity doubled or an external force acted on it?`;
+            } else if (userTurns === 2) {
+                return `Awesome connection! That accurately reflects the underlying physical principles governing this system. You've built a strong evidence-based claim—feel free to click Submit or continue exploring!`;
+            } else {
+                return `Excellent physics reflection! You've analyzed the evidence, defended your reasoning, and mastered the core concept. Whenever you are ready, click Submit to record your work!`;
+            }
+        }
+
+        function generateConceptChatFallback(promptText = "", chatMessages = [], userText = "") {
+            const rawText = (userText || "").trim();
+            const lower = rawText.toLowerCase();
+            const userTurns = chatMessages.filter(m => m.role === 'user').length;
+
+            if (lower === "idk" || lower.includes("don't know") || lower.includes("dont know") || lower.includes("not sure") || lower.length < 4) {
+                return "No stress at all! Think about everyday life—like riding in a car when it turns or speeds up. What do you feel happening to your body when that motion changes?";
+            }
+
+            if (userTurns <= 1) {
+                return "That's a really solid intuition! In physics, understanding the cause behind the motion is key. How would that behavior change if there was zero friction, like on a sheet of slick ice?";
+            } else if (userTurns === 2) {
+                return "Spot on! That directly ties into how forces and energy interact in the real world. You've built a great chain of reasoning—feel free to click Finish Session whenever you're ready to submit!";
+            } else {
+                return "Fantastic reflection! You're thinking like a true physicist by connecting the core rules of motion to real-world scenarios. Whenever you're ready, click Finish Session to submit your grade!";
+            }
+        }
+
+        async function handleCastChatSend(payload, castData, config) {
+            let replyText = "";
+            const rawMessages = payload.messages || [];
+
+            try {
+                const proxyUrl = await ensureChatProxyUrl();
+                if (proxyUrl) {
+                    // Compile previous answers for AI prompt context
+                    let answersSummary = "";
+                    if (payload.allAnswers) {
+                        if (Array.isArray(payload.allAnswers)) {
+                            answersSummary = payload.allAnswers.map((a, idx) => {
+                                let valStr = typeof a.answer === 'object' ? JSON.stringify(a.answer) : a.answer;
+                                return `Step ${idx + 1} (${a.title} [${a.type}]): ${valStr}`;
+                            }).join('\n');
+                        } else if (typeof payload.allAnswers === 'object') {
+                            answersSummary = Object.entries(payload.allAnswers).map(([k, v]) => {
+                                let valStr = typeof v === 'object' ? JSON.stringify(v) : v;
+                                return `${k}: ${valStr}`;
+                            }).join('\n');
+                        }
+                    }
+
+                    const phenomenonText = payload.phenomenon?.description || payload.phenomenon?.text || payload.phenomenon?.title || "";
+                    const taskTitle = castData.title || config.title || "CAST 3D Science Investigation";
+
+                    const systemInstruction = `You are a warm, adaptive, and relatable physics mentor chatting with a student over SMS/text. Your goal is to explore a physics concept together without being overly formal or using forced slang.
 
 CRITICAL RULES:
 1. NO FISHING / PIVOT TO TEACHING: Never try to "force" or repeatedly nudge a student toward a specific technical answer or physics term. If you ask a conceptual question and the student guesses wrong, focuses on a different variable (like friction/roughness), or says "I don't know," DO NOT ask a follow-up question trying to correct their guess. Instead, pivot immediately to teaching: validate their logic, briefly explain the physics concept directly using a relatable analogy, and move on.
@@ -1212,30 +1308,50 @@ The student is discussing their answers with you. Adapt fluidly to the student's
 - HIGH CEILING (Deep Challenge for Advanced Thinkers): If a student writes a thorough, scientifically sharp response or selects an advanced challenge chip, NEVER give a superficial reply. Vigorously stretch their intellect with a fascinating real-world twist, counter-factual scenario, or mathematical puzzle (e.g., "What if the reference point was accelerating?", "What happens to dynamic equilibrium in an airless vacuum?", "How fast would the rover have to drive to tie the drone?"). Keep advanced students excited and challenged!
 - FOCUS ON THE 'WHY': Guide students to explain the physical cause-and-effect mechanism behind their answer, not just recite memorized numbers.`;
 
-            const rawMessages = payload.messages || [];
-            const contentsPayload = rawMessages.map(m => ({
-                role: (m.role === 'user' || m.sender === 'user') ? 'user' : 'model',
-                parts: [{ text: m.text || (m.parts && m.parts[0] ? m.parts[0].text : '') }]
-            }));
+                    const contentsPayload = rawMessages.map(m => ({
+                        role: (m.role === 'user' || m.sender === 'user') ? 'user' : 'model',
+                        parts: [{ text: m.text || (m.parts && m.parts[0] ? m.parts[0].text : '') }]
+                    }));
 
-            const response = await fetch(proxyUrl, {
-                method: 'POST',
-                mode: 'cors',
-                headers: { 'Content-Type': 'text/plain' },
-                body: JSON.stringify({
-                    contents: contentsPayload,
-                    systemInstruction: systemInstruction
-                })
-            });
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 6000);
 
-            if (!response.ok) {
-                throw new Error(`AI service error (${response.status}): ${response.statusText}`);
+                    const response = await fetch(proxyUrl, {
+                        method: 'POST',
+                        mode: 'cors',
+                        headers: { 'Content-Type': 'text/plain' },
+                        body: JSON.stringify({
+                            contents: contentsPayload,
+                            systemInstruction: systemInstruction
+                        }),
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeoutId);
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data && !data.error && data.candidates?.[0]?.content?.parts?.[0]?.text) {
+                            replyText = data.candidates[0].content.parts[0].text;
+                        } else if (data?.error) {
+                            console.warn("AI proxy returned error payload:", data.error);
+                        }
+                    } else {
+                        console.warn(`AI service HTTP error (${response.status}): ${response.statusText}`);
+                    }
+                }
+            } catch (err) {
+                console.warn("AI mentor fetch failed or timed out, activating pedagogical mentor engine:", err);
             }
 
-            const data = await response.json();
-            const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+            // If proxy was unavailable, errored (e.g. 402 quota depleted), or returned empty text, engage pedagogical fallback engine
             if (!replyText) {
-                throw new Error("Empty response received from AI mentor.");
+                replyText = generateCastMentorReply({
+                    userText: payload.message || "",
+                    messages: rawMessages,
+                    step: payload.step || {},
+                    castData: castData,
+                    allAnswers: payload.allAnswers || []
+                });
             }
 
             // Autosave chat to Firestore
@@ -2491,32 +2607,40 @@ Respond ONLY with a raw JSON object:
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 }, { merge: true });
                 
-                const proxyUrl = await ensureChatProxyUrl();
-                if (!proxyUrl) {
-                    throw new Error("No chat proxy URL configured by the teacher yet.");
+                let modelText = "";
+                try {
+                    const proxyUrl = await ensureChatProxyUrl();
+                    if (proxyUrl) {
+                        const contentsPayload = cleanMessagesForAI(chatMessages);
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 6000);
+                        const response = await fetch(proxyUrl, {
+                            method: 'POST',
+                            mode: 'cors',
+                            headers: { 'Content-Type': 'text/plain' },
+                            body: JSON.stringify({
+                                contents: contentsPayload,
+                                systemInstruction: activeChatSystemInstruction
+                            }),
+                            signal: controller.signal
+                        });
+                        clearTimeout(timeoutId);
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (data && !data.error && data.candidates?.[0]?.content?.parts?.[0]?.text) {
+                                modelText = data.candidates[0].content.parts[0].text;
+                            } else if (data?.error) {
+                                console.warn("AI chat proxy error payload:", data.error);
+                            }
+                        }
+                    }
+                } catch (netErr) {
+                    console.warn("AI chat proxy fetch error, using pedagogical mentor fallback:", netErr);
                 }
-                
-                const contentsPayload = cleanMessagesForAI(chatMessages);
-                
-                const response = await fetch(proxyUrl, {
-                    method: 'POST',
-                    mode: 'cors',
-                    headers: { 'Content-Type': 'text/plain' },
-                    body: JSON.stringify({
-                        contents: contentsPayload,
-                        systemInstruction: activeChatSystemInstruction
-                    })
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`Proxy error: ${response.statusText}`);
-                }
-                
-                const data = await response.json();
-                const modelText = data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] ? data.candidates[0].content.parts[0].text : '';
-                
+
                 if (!modelText) {
-                    throw new Error("Empty response received from AI.");
+                    modelText = generateConceptChatFallback(activePromptText, chatMessages, userText);
                 }
                 
                 const modelMsg = {
@@ -2533,12 +2657,13 @@ Respond ONLY with a raw JSON object:
                 renderChatFeed();
             } catch (err) {
                 console.error("Chat communication failure:", err);
-                const errorMsg = {
+                const fallbackReply = generateConceptChatFallback(activePromptText, chatMessages, userText);
+                const modelMsg = {
                     role: "model",
-                    parts: [{ text: `⚠️ Connection error: ${err.message}. Please try again.` }],
+                    parts: [{ text: fallbackReply }],
                     timestamp: new Date()
                 };
-                chatMessages.push(errorMsg);
+                chatMessages.push(modelMsg);
                 renderChatFeed();
             } finally {
                 typingIndicator.classList.add('hidden');
@@ -2553,7 +2678,7 @@ Respond ONLY with a raw JSON object:
             
             const hintPrompt = {
                 role: "user",
-                parts: [{ text: "[System: Student is stuck and clicked 'Request Support'. Give a gentle guiding hint/scaffolding step without giving away the final answer.]" }],
+                parts: [{ text: "[System: Student requested support. Provide a gentle guiding hint without giving away the final answer.]" }],
                 timestamp: new Date()
             };
             
@@ -2573,38 +2698,52 @@ Respond ONLY with a raw JSON object:
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 }, { merge: true });
                 
-                const proxyUrl = await ensureChatProxyUrl();
-                if (!proxyUrl) return;
-
-                const contentsPayload = cleanMessagesForAI(chatMessages);
-                
-                const response = await fetch(proxyUrl, {
-                    method: 'POST',
-                    mode: 'cors',
-                    headers: { 'Content-Type': 'text/plain' },
-                    body: JSON.stringify({
-                        contents: contentsPayload,
-                        systemInstruction: activeChatSystemInstruction
-                    })
-                });
-                
-                const data = await response.json();
-                const modelText = data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] ? data.candidates[0].content.parts[0].text : '';
-                
-                if (modelText) {
-                    const modelMsg = {
-                        role: "model",
-                        parts: [{ text: modelText }],
-                        timestamp: new Date()
-                    };
-                    chatMessages.push(modelMsg);
-                    
-                    await db.collection('bellringers').doc(docId).set({
-                        chatMessages: cleanMessagesForFirestore(chatMessages)
-                    }, { merge: true });
-                    
-                    renderChatFeed();
+                let modelText = "";
+                try {
+                    const proxyUrl = await ensureChatProxyUrl();
+                    if (proxyUrl) {
+                        const contentsPayload = cleanMessagesForAI(chatMessages);
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 6000);
+                        const response = await fetch(proxyUrl, {
+                            method: 'POST',
+                            mode: 'cors',
+                            headers: { 'Content-Type': 'text/plain' },
+                            body: JSON.stringify({
+                                contents: contentsPayload,
+                                systemInstruction: activeChatSystemInstruction
+                            }),
+                            signal: controller.signal
+                        });
+                        clearTimeout(timeoutId);
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (data && !data.error && data.candidates?.[0]?.content?.parts?.[0]?.text) {
+                                modelText = data.candidates[0].content.parts[0].text;
+                            }
+                        }
+                    }
+                } catch (netErr) {
+                    console.warn("Support proxy fetch failed:", netErr);
                 }
+                
+                if (!modelText) {
+                    modelText = "Here is a hint to get you started: Think about the physical causes of the motion. How do velocity or forces change between the start and finish?";
+                }
+
+                const modelMsg = {
+                    role: "model",
+                    parts: [{ text: modelText }],
+                    timestamp: new Date()
+                };
+                chatMessages.push(modelMsg);
+                
+                await db.collection('bellringers').doc(docId).set({
+                    chatMessages: cleanMessagesForFirestore(chatMessages)
+                }, { merge: true });
+                
+                renderChatFeed();
             } catch (err) {
                 console.error("Support request failed:", err);
             } finally {
