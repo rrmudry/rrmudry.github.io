@@ -281,13 +281,17 @@ class AuthManager {
       try {
         const db = firebase.firestore();
 
-        // 1. Ensure parent document exists for gradebook discovery
-        await db.collection('student_results').doc(ASSIGNMENT_ID).set({
-          assignment_name: ASSIGNMENT_NAME,
-          unit: 'Unit 2: Kinematics in 1D',
-          standards: ['HS-PS2-1'],
-          updated_at: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
+        // 1. Ensure parent document exists for gradebook discovery (isolated try/catch so student doc write is never blocked)
+        try {
+          await db.collection('student_results').doc(ASSIGNMENT_ID).set({
+            assignment_name: ASSIGNMENT_NAME,
+            unit: 'Unit 2: Kinematics in 1D',
+            standards: ['HS-PS2-1'],
+            updated_at: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
+        } catch (parentErr) {
+          console.warn("Parent document metadata update note:", parentErr.message);
+        }
 
         // 2. Write student progress document
         const currentScore = studioState ? (studioState.totalScore || 0) : 0;
