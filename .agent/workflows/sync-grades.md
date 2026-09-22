@@ -74,11 +74,16 @@ cd sync-classroom
 npm run sync -- --force
 ```
 
-### 6. Pull Grades from Google Classroom to Firestore
-If you scan bubble sheets, grade assignments, or input scores directly in Google Classroom, pull them down to Firestore so they are immediately available in the Admin Data Export tool (`admin/data_export.html`):
+### 7. Bell-Ringer Gradebook Sync (Weekly & Retroactive)
+To sync Bell-Ringer grades (which uses the automatic "half-ass" filter to disallow zero-effort bypasses like 0-turn chats or 0% CAST submissions):
 ```bash
 cd sync-classroom
-npm run pull                             # Pull all coursework with grades into Firestore
-npm run pull -- "Constant Speed Story"   # Pull a specific assignment
-npm run pull:dry                         # Preview without writing to Firestore
+
+# Weekly sync (Mon–Fri, 4 pts/day = 20 pts/week)
+npm run bellringer:weekly:dry              # Preview current week
+npm run bellringer:weekly                  # Push & return current week grades
+
+# Retroactive cumulative sync (Weeks 1–5, 80 pts, 10 genuine = 100%)
+npm run bellringer:dry                     # Preview cumulative grades
+npm run bellringer:sync                    # Push & return cumulative grades
 ```

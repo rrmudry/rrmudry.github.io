@@ -2,7 +2,44 @@
 
 Append-only log tracking pattern changes across sessions.
 
-## 2026-09-20 — Acceleration Studio: Tier 3 Acceleration-Exclusive Calculations & 3-in-a-Row Mastery Loop
+## 2026-09-21 — Scaffolded Word Problem Practice Standard Established
+
+**Pattern Created**: `scaffolded-word-problem-engine.md`.
+
+**Changes**:
+- **Codified Canonical Word Problem Practice Standard**:
+  - Analyzed and standardized `https://rrmudry.github.io/physics_speed_calculator/dist/index.html` as the official benchmark for all physics word problem practice.
+  - Formulated the 3-Tier Scaffold Ladder: Tier 1 (identification & formula structure with 0 arithmetic), Tier 2 (embedded Desmos tool computation with telemetry verification), Tier 3 (evaluated mastery quiz & certification).
+  - Documented core technical pillars: Dual-modality drag/tap input, Web Speech API TTS with unit expansion, zero-asset Web Audio synthesis, tamper-resistant certificate generation (`MUD-{LAB_ID}-{studentId}-{level}-{score}-{CHECKSUM}`), and dual-path Firestore synchronization (`physics_labs` + `student_results`).
+  - Added extensible formula configuration blueprint for upcoming units (`a = Δv/Δt`, `F = ma`, `p = mv`, `W = Fd`, `KE = ½mv²`).
+
+## 2026-09-21 — Bell-Ringer Quality Grading & Automated Google Classroom Sync
+
+**Pattern Updated**: `bell-ringer-config.md`.
+
+**Changes**:
+- **Built Quality & Effort Evaluation Engine ("Half-Ass Filter")**:
+  - Implemented multi-criteria quality scoring in `sync-classroom/sync-bellringers.js` across all 4 activity types:
+    - `cast_challenge`: Requires `percentComplete >= 50%` or `completedSteps >= 2` (filters out students submitting 0% or blank).
+    - `concept_chat`: Requires >= 2 user chat turns or substantive single message >= 15 chars (filters out students bypassing the chat by clicking "Finish Session" with 0 turns).
+    - `free_response`: Requires >= 15 chars and not matching explicit opt-outs (`"idk"`, `"i don't know"`, or Gemini `effortScore: 0`).
+    - `connections`: Requires >= 1 solved category.
+- **Fairness Cushion Pattern**:
+  - For cumulative Weeks 1–5 grading: 10 genuine submissions = 100% full credit (80/80 pts), providing 3–5 free drop days for excused absences, field trips, or block schedules.
+  - Submissions failing the quality filter receive 0 points for that day.
+- **Google Classroom API Unturned-in Submission Gotcha**:
+  - Discovered and resolved `Precondition check failed` error: Google Classroom rejects `studentSubmissions.return` calls when `sub.state === 'CREATED'`. Script patches both `draftGrade` and `assignedGrade`, and only invokes `.return()` when `sub.state === 'TURNED_IN'`.
+- **Roster Pagination Bug Fixed (`courses.students.list` 30-item cap)**:
+  - Discovered that Google Classroom API silently ignores `pageSize: 100` and caps `courses.students.list` at 30 students per page.
+  - Previously caused students 31–38 in Period 4 (including Anahi Naranjo) and students 31–42 in Period 5 to be truncated and marked unmatched.
+  - Implemented `do ... while (pageToken)` pagination loops in `sync-bellringers.js` and `sync-cli.js`, ensuring 100% full-class rosters sync cleanly.
+- **Automated Assignment Registry & Roster Sync**:
+  - Created coursework `Bell-Ringer Check-In: Weeks 1–5` across all 7 periods (80 pts, Unit 2: Motion topic).
+  - Registered IDs in `assignment_registry/bell_ringer_weeks_1_5`.
+  - Wrote 183 student records to `student_results/bell_ringer_weeks_1_5`.
+  - Pushed and returned grades to 155 active students in Google Classroom.
+- **Weekly Grading Support**:
+  - Added `--weekly` mode (4 pts/day = 20 pts/week) with `npm run bellringer:weekly` and `npm run bellringer:weekly:dry`.
 
 **Pattern Updated**: `acceleration-rate-studio.md`.
 
@@ -1931,3 +1968,9 @@ Append-only log tracking pattern changes across sessions.
   - Strict `@media print` rules enforce pure white background (`background: #ffffff !important`), 0 toner waste, zero gradients, and total suppression of all non-print screen elements (`.no-print`, header, nav, buttons, close icons).
 - **Verification**:
   - Tested with Puppeteer suite (`scratch/test_completion_cert.js`) validating authenticated Firestore confirmation, guest mode warning banner, print CSS zero-ink compliance (`rgb(255, 255, 255)`), PDF generation, and Tier 4 auto-popup with 0 console errors.
+
+## 2026-09-21: Assignment Registry System
+- **NEW**: Created `assignment-registry.md` wiki pattern documenting the `assignment_registry` Firestore collection schema, deployment workflow, sync resolution order, and known pitfalls.
+- **UPDATED**: `classroom-gradebook-sync.md` — Added Section 11 documenting registry-first lookup and unified deployment script.
+- **UPDATED**: `firebase-auth-gotchas.md` — Added cross-reference to `assignment_registry` in the Rule for Future Interactive Webapps.
+- **UPDATED**: `wiki/index.md` — Added assignment-registry entry to the pattern table.

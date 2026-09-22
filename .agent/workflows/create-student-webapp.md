@@ -107,13 +107,47 @@ async function submitScore(studentId, rawPoints, maxPoints) {
 
 To connect the new webapp grades to your Google Classroom gradebook:
 
-1. **Deploy to Classroom**: Open your [Sync Dashboard](http://localhost:3000) and fill out the *Deploy Classroom Coursework* form using the exact `ASSIGNMENT_ID` as the title. This registers the assignment in the Firestore `assignments` collection and creates the coursework across your active Google Classroom courses.
-2. **Grade Sync**: When the assignment window closes, select the assignment in the *Firestore Grade Synchronization* dropdown, enter the target Google Classroom Coursework ID, and click **Sync All Scores**. The tool automatically scales the Firestore percentage grades to match the Classroom assignment's `maxPoints`.
+### Step 1: Deploy to Classroom via `deploy-assignment.js`
+
+After the webapp is built and tested, deploy the Google Classroom assignment using the unified deployment script. This creates the coursework across all 7 periods AND writes the `assignment_registry` document that permanently links the webapp's `ASSIGNMENT_ID` to Google Classroom coursework IDs.
+
+```bash
+cd sync-classroom
+
+# Deploy with CLI args
+npm run deploy -- \
+  --id "unit2_day16_acceleration_studio" \
+  --title "Acceleration Studio Practice" \
+  --points 10 \
+  --topic "Unit 2: Motion" \
+  --url "https://rrmudry.github.io/Unit_2/acceleration_studio/index.html" \
+  --due "2026-09-21T18:00:00-07:00"
+
+# Or preview first with --dry-run
+npm run deploy:dry -- --id "my_assignment" --title "My Assignment"
+
+# Or deploy from a JSON config file
+npm run deploy -- --config assignments/my-assignment.json
+```
+
+### Step 2: Grade Sync (Automatic)
+
+Once the `assignment_registry` document exists, `npm run sync` automatically resolves the correct Google Classroom coursework ID for each period — **no string matching, no aliases, no manual configuration needed**.
+
+```bash
+npm run sync                          # Sync ALL assignments
+npm run sync:dry                      # Preview only
+npm run sync -- "Assignment Title"    # Sync a specific assignment
+```
+
+### Key Rules
+- The webapp's `ASSIGNMENT_ID` constant **must exactly match** the `--id` passed to `deploy-assignment.js`
+- Always deploy before students start working (so the Classroom assignment exists)
+- Never create assignments manually in the Google Classroom UI (they become unowned by the API project and can't be synced)
 
 ---
 
 ## 🎨 2D Character & Sprite Asset Generation
 When creating games, kinematics simulations, or interactive webapps requiring 2D characters with standing, walking, running, jumping, crawling, or crouching animations:
 - Use [Sprite Gen Studio](https://rrmudry.github.io/Sprite_Gen/) to generate customized pixel-art/vector sprite sheets, master animation atlases, and CSS/engine coordinates.
-
 

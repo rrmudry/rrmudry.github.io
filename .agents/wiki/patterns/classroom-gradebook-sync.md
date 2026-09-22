@@ -87,5 +87,23 @@
      - When an oversized legacy grade is detected, it bypasses preservation, recalculates the scaled score (e.g. 10/10, 3.3/10), updates `draftGrade` and `assignedGrade`, and returns the submission.
   3. **UI Deploy Default**: The deployment form in `sync-classroom/public/index.html` and `server.js` defaults `maxPoints` to 10 to prevent accidental 100-point creation in the future.
 
+## 11. Assignment Registry: Single Source of Truth
+- **The Problem (Solved)**:
+  - Before the registry, `sync-cli.js` relied on fragile string matching (`findMatchingCourseWork()`) to connect Firestore assignment IDs to Google Classroom coursework. Name mismatches between webapp `ASSIGNMENT_ID` constants (e.g. `unit2_day16_acceleration_studio`) and Classroom titles (e.g. `"Acceleration Studio Practice"`) caused grade sync failures.
+- **The Solution: `assignment_registry` collection**:
+  - A Firestore collection where each document is keyed by `ASSIGNMENT_ID` and contains a `coursework` map of `courseId → courseworkId`.
+  - `sync-cli.js` now checks the registry **first** for a direct coursework ID lookup. If found, no string matching is needed. Legacy string matching is preserved as a fallback for older assignments.
+  - See [`assignment-registry.md`](patterns/assignment-registry.md) for full schema and workflow details.
+- **Unified Deployment Script (`deploy-assignment.js`)**:
+  - Replaces per-assignment `post-*.js` scripts. Creates coursework across all 7 periods and writes the registry document atomically.
+  - Usage: `npm run deploy -- --id "my_id" --title "My Title" --points 10 --topic "Unit 2: Motion" --url "https://..."`
 
+## 12. Google Classroom Roster Pagination Gotcha (`pageSize: 100` Silently Caps at 30)
+- **The Pitfall**:
+  - Calling `classroom.courses.students.list({ courseId, pageSize: 100 })` ignores `pageSize: 100` and silently caps results at **30 students per page**.
+  - Any course with > 30 enrolled students (e.g. Period 4 with 38 students, Period 5 with 42 students) truncates students on page 2 (students 31+).
+  - This previously caused students sorted late in the alphabet or on page 2 (like Anahi Naranjo, David Banuelos Ulloa, etc.) to be marked as "unmatched/errors" during sync runs.
+- **The Solution**:
+  - Always implement a `do ... while (pageToken)` loop requesting `pageToken: pageToken || undefined` and re-querying until `nextPageToken` is falsy.
+  - Fixed across `sync-classroom/sync-cli.js` and `sync-classroom/sync-bellringers.js`.
 
