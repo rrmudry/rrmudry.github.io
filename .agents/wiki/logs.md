@@ -2,6 +2,25 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-21 — Desmos Scientific Calculator Result Extraction & Paste Architecture Fix
+
+**Pattern Updated**: `scaffolded-word-problem-engine.md`.
+
+**Changes**:
+- **Root-Cause Resolution of Stale / Incorrect Paste Result Bug**:
+  - Identified why `pasteDesmosResult()` pasted `36` instead of the most recent calculation `44` when students chained operations with `ans`:
+    1. Desmos Scientific Calculator uses `\ans` in LaTeX. The previous regex-based LaTeX parser stripped unknown characters, converting `\ans` into `as`, triggering a JavaScript reference error and falling through to older expressions.
+    2. `Desmos.ScientificCalculator` does not use the graphing `HelperExpression` API. Instead, its internal state machine evaluates expressions inside `desmosCalculator.controller.model`.
+- **Robust Multi-Tiered Result Extraction**:
+  - Implemented 3-tier fallback in `getDesmosLatestCalculation()`:
+    - **Tier 1 (Controller Model)**: Reads `model.getExpressionOrder()` in reverse and retrieves `model.getExpressionValue(id)` (or `model._evaluations[id].value`). Directly captures the true calculated value from Desmos's internal math engine, natively resolving `\ans`, chained calculations, fractions, and powers.
+    - **Tier 2 (DOM Display Text)**: Scrapes `.dcg-basic-expression-value` elements to extract the visual `= [value]` result shown on the calculator interface.
+    - **Tier 3 (State / Regex Parser)**: Clean fallback for static expressions.
+- **Hooked `onEvaluationUpdate` for Instant Telemetry**:
+  - Wrapped `model.onEvaluationUpdate` so asynchronous evaluations immediately refresh all header badges (`RESULT: 44`) and telemetry readiness states in real time.
+- **Automated Puppeteer Verification**:
+  - Verified the exact user calculation (`2.4 * 15 = 36`, followed by `ans + 8 = 44`) in a headless browser: Desmos header badge and pasted input box both registered `44` with 100% accuracy.
+
 ## 2026-09-21 — Kinematics Question Bank Terminology Audit & Physics Precision
 
 **Pattern Updated**: `scaffolded-word-problem-engine.md`.
