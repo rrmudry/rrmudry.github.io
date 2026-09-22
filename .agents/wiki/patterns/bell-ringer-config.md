@@ -103,7 +103,46 @@ The classroom dashboard shows color-coded tiles per student:
 - **Green (flash animation)**: Verified good-faith attempt → student may proceed to lab tables
 - **Red**: Low effort / revision needed → student can resubmit before lockout
 
+## Grading & Google Classroom Sync Architecture
+
+Bell-Ringers can be graded cumulatively or on a weekly cadence using `sync-classroom/sync-bellringers.js`.
+
+### Quality & Effort Evaluation Engine ("The Half-Ass Filter")
+To ensure students who cut corners do not receive participation credit, each submission is evaluated by activity type:
+
+| Activity Type | Genuine Effort (Earns Points) | Low Effort / Half-Assing (0 Credit) |
+|---|---|---|
+| **CAST Challenge** | `percentComplete >= 50%` or `completedSteps >= 2` | 0% completed, blank fields, or 0 steps answered |
+| **Concept Chat** | >= 2 user chat turns (or 1 substantive message >= 15 chars) | 0 chat turns (bypassing to finish) or single-word replies (`"ok"`, `"idk"`) |
+| **Free Response** | Genuine attempt >= 15 chars (scientific vocabulary or formula) | Blank, `< 15` chars, explicit opt-out (`"idk"`), or Gemini effortScore 0 |
+| **Connections** | At least 1 category solved | 0 categories solved with no real attempt |
+
+### Fairness Cushion Pattern
+Due to block schedules (e.g. Thu/Fri alternate periods) and excused absences, different periods have different total possible sessions.
+- **Retroactive Cumulative Model**: 10 genuine bell-ringers = 100% full credit (80/80 pts across Weeks 1–5). This builds in 3–5 free drop days per student.
+- **Weekly Model**: 4 points per day = 20 points per week.
+
+### CLI Sync Commands
+```bash
+# Preview retroactive grade (Weeks 1–5, 80 pts, 10 genuine = 100%)
+npm run bellringer:dry
+
+# Push retroactive grade to Google Classroom across all 7 periods
+npm run bellringer:sync
+
+# Preview current weekly grade (Mon–Fri, 20 pts)
+npm run bellringer:weekly:dry
+
+# Push current weekly grade
+npm run bellringer:weekly
+```
+
+### Data Storage & Registry Linkage
+- Aggregated student grades are recorded in `student_results/{assignmentId}/students/{studentId}`.
+- Coursework IDs are tracked in `assignment_registry/{assignmentId}` across all courses.
+
 ## Known Pitfalls
+- **Unturned-in Submissions Return Gotcha**: Google Classroom API throws `Precondition check failed` if `courses.courseWork.studentSubmissions.return` is called on a submission with `state: 'CREATED'`. Always patch `draftGrade` and `assignedGrade`, and only call `.return()` if `sub.state === 'TURNED_IN'`.
 - **Concept chat persona**: NEVER modify the AI mentor persona rules in AGENTS.md. They were carefully tuned to prevent "Socratic fishing" and keep conversations flowing.
 - **Timer sync**: The timer uses `timerExpiresAt` server timestamp, not client-side countdown. All clients read this timestamp and compute remaining time locally to stay synchronized.
 - **Period "all"**: When `targetPeriod` is `"all"`, every authenticated student gets access regardless of period.
@@ -114,6 +153,7 @@ The classroom dashboard shows color-coded tiles per student:
 
 ## Evidence
 - Full system documented in `Bell-Ringer/README.md` (98 lines)
+- Grading CLI implemented in `sync-classroom/sync-bellringers.js`
 - Activity types from Firestore schema and teacher.html configuration
 - Persona rules from `.agents/AGENTS.md` (lines 30-43)
 - Fair connections rules from `.agents/rules/fair-connections.md`
