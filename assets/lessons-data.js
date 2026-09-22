@@ -2483,6 +2483,12 @@ const lessonsData = [
     ],
     "resources": [
       {
+        "title": "Kinematic Velocity Calculator",
+        "url": "kinematic_velocity_calculator/dist/index.html",
+        "typeLabel": "Interactive Web Tool",
+        "description": "Scaffolded word problem practice solving for vf, vo, a, and t using Desmos."
+      },
+      {
         "title": "Velocity vs. Time Visualizer",
         "url": "Unit_2/velocity_time_graph_studio/index.html",
         "typeLabel": "Interactive Web Tool",
@@ -2497,6 +2503,12 @@ const lessonsData = [
     ],
     "practice": [
       {
+        "title": "Kinematic Velocity Calculator",
+        "url": "kinematic_velocity_calculator/dist/index.html",
+        "typeLabel": "Practice Tool",
+        "description": "Scaffolded 3-tier linear kinematic word problem mastery practice."
+      },
+      {
         "title": "Velocity vs. Time Visualizer",
         "url": "Unit_2/velocity_time_graph_studio/index.html",
         "typeLabel": "Practice Tool",
@@ -2504,6 +2516,7 @@ const lessonsData = [
       }
     ],
     "links": {
+      "Kinematic Velocity Calculator": "kinematic_velocity_calculator/dist/index.html",
       "Velocity vs. Time Visualizer": "Unit_2/velocity_time_graph_studio/index.html",
       "Distance vs Time App": "https://rrmudry.github.io/distance_vs_time_graphing.html"
     }

@@ -174,7 +174,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Kinematic Velocity Sprint: Scaffolded problem-solving workshop tackling real-world vehicular acceleration (highway merging, aircraft runway takeoff runs, and emergency braking). Students show full GUESS algebraic setups for each unknown variable.
     *   *Essential Question:* How does algebraically rearranging the acceleration equation allow us to predict an object's future velocity or determine how long an acceleration took?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Guided Practice / Problem Solving
-    *   *Links:* [Velocity vs. Time Visualizer](Unit_2/velocity_time_graph_studio/index.html), [Distance vs Time App](https://rrmudry.github.io/distance_vs_time_graphing.html)
+    *   *Links:* [Kinematic Velocity Calculator](kinematic_velocity_calculator/dist/index.html), [Velocity vs. Time Visualizer](Unit_2/velocity_time_graph_studio/index.html), [Distance vs Time App](https://rrmudry.github.io/distance_vs_time_graphing.html)
 
 *   **Day 18 (2026-09-23): Velocity vs. Time Graphing: Uniform Acceleration & Slopes**
     *   *Bell-Ringer:* Velocity-Time Slope & Acceleration Analysis (CAST Challenge): Aerial delivery drone launch rail telemetry. Students examine coordinate data forming a straight line, identify initial velocity (`v₀ = +4.0 m/s`) from the vertical intercept, and calculate acceleration slope (`m = 2.0 m/s²`).

@@ -197,6 +197,69 @@ const EXCLUDED_ASSIGNMENT_IDS = new Set([
 }
 
 // ---------------------------------------------------------------------
+// 4b. Assignment Registry Cache & Lookup
+// ---------------------------------------------------------------------
+let _registryCache = null;
+
+async function loadAssignmentRegistry() {
+  if (_registryCache) return _registryCache;
+  _registryCache = new Map();
+  try {
+    const snap = await db.collection('assignment_registry').get();
+    snap.forEach(doc => {
+      _registryCache.set(doc.id, doc.data());
+    });
+    if (_registryCache.size > 0) {
+      console.log(`📋 Loaded ${_registryCache.size} entries from assignment_registry.`);
+    }
+  } catch (e) {
+    console.warn('Warning: Could not load assignment_registry:', e.message);
+  }
+  return _registryCache;
+}
+
+/**
+ * Registry-first coursework resolution.
+ * Returns { id, maxPoints, title } if found in registry, or null to fall through to legacy matching.
+ */
+function getCourseworkFromRegistry(assignmentId, courseId, registry) {
+  if (!registry || registry.size === 0) return null;
+
+  // Direct lookup by assignment ID
+  let regEntry = registry.get(assignmentId);
+
+  // Fallback: try alternate ID forms (spaces ↔ underscores)
+  if (!regEntry) {
+    const altId = assignmentId.includes('_') ? assignmentId.replace(/_/g, ' ') : assignmentId.replace(/ /g, '_');
+    regEntry = registry.get(altId);
+  }
+
+  // Fallback: search by title match across all registry entries
+  if (!regEntry) {
+    const normId = assignmentId.toLowerCase().replace(/[^a-z0-9]/g, '');
+    for (const [, entry] of registry) {
+      const normTitle = (entry.title || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      const normEntryId = (entry.assignmentId || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      if (normTitle === normId || normEntryId === normId) {
+        regEntry = entry;
+        break;
+      }
+    }
+  }
+
+  if (!regEntry || !regEntry.coursework) return null;
+
+  const cwId = regEntry.coursework[courseId];
+  if (!cwId) return null;
+
+  return {
+    id: cwId,
+    maxPoints: regEntry.maxPoints !== undefined ? regEntry.maxPoints : 10,
+    title: regEntry.title || assignmentId
+  };
+}
+
+// ---------------------------------------------------------------------
 // 5. Helper: Fetch Roster Map
 // ---------------------------------------------------------------------
 async function fetchRosterMap() {
@@ -231,52 +294,55 @@ async function fetchAssignmentScores(assignmentId, rosterMap) {
   const students = [];
   const seenIds = new Set();
 
-  // 1. Check physics_labs (Speed Calculator only)
+  // 1. Check physics_labs (Speed Calculator & Kinematic Velocity Calculator)
   const isSpeedCalc = assignmentId === 'physics_speed_calculator' || assignmentId === 'speed_calculator';
+  const isKinematicVelocity = assignmentId === 'kinematic_velocity_calculator' || assignmentId === 'kinematic_velocity';
 
-  if (isSpeedCalc) {
+  if (isSpeedCalc || isKinematicVelocity) {
     try {
       const labsSnap = await db.collection('physics_labs').get();
       labsSnap.forEach(doc => {
         const data = doc.data();
         const sId = String(data.studentId || doc.id).trim();
         if (!seenIds.has(sId)) {
-          seenIds.add(sId);
-          const rosterInfo = rosterMap.get(sId) || {};
-          const rawPeriod = (data.class_period !== undefined && data.class_period !== null && data.class_period !== 'N/A' && data.class_period !== '')
-            ? data.class_period
-            : (rosterInfo.period !== undefined && rosterInfo.period !== null && rosterInfo.period !== 'N/A' && rosterInfo.period !== '' ? rosterInfo.period : '---');
-          const cleanPeriod = (rawPeriod !== undefined && rawPeriod !== null && rawPeriod !== '') ? String(rawPeriod) : '---';
+          const labObj = isSpeedCalc ? (data.speed_calculator || {}) : (data.kinematic_velocity || {});
+          if (labObj.answered !== undefined || labObj.currentLevel !== undefined || isSpeedCalc) {
+            seenIds.add(sId);
+            const rosterInfo = rosterMap.get(sId) || {};
+            const rawPeriod = (data.class_period !== undefined && data.class_period !== null && data.class_period !== 'N/A' && data.class_period !== '')
+              ? data.class_period
+              : (rosterInfo.period !== undefined && rosterInfo.period !== null && rosterInfo.period !== 'N/A' && rosterInfo.period !== '' ? rosterInfo.period : '---');
+            const cleanPeriod = (rawPeriod !== undefined && rawPeriod !== null && rawPeriod !== '') ? String(rawPeriod) : '---';
 
-          const sc = data.speed_calculator || {};
-          const isCompleted = !!(sc.completed !== undefined ? sc.completed : data.completed);
-          const currentLvl = sc.currentLevel !== undefined ? sc.currentLevel : (data.currentLevel || 1);
-          const scoreLvl3 = sc.score !== undefined ? sc.score : (data.score || 0);
-          const answered = sc.answered !== undefined ? sc.answered : (data.answered || 0);
+            const isCompleted = !!(labObj.completed !== undefined ? labObj.completed : data.completed);
+            const currentLvl = labObj.currentLevel !== undefined ? labObj.currentLevel : (data.currentLevel || 1);
+            const scoreLvl3 = labObj.score !== undefined ? labObj.score : (data.score || 0);
+            const answered = labObj.answered !== undefined ? labObj.answered : (data.answered || 0);
 
-          let pct = 0;
-          if (isCompleted) {
-            pct = 100;
-          } else if (currentLvl === 3) {
-            pct = Math.round((scoreLvl3 / 6) * 100);
-          } else if (currentLvl === 2) {
-            pct = 70;
-          } else if (answered > 0) {
-            pct = 50;
-          } else {
-            pct = 0;
+            let pct = 0;
+            if (isCompleted) {
+              pct = 100;
+            } else if (currentLvl === 3) {
+              pct = Math.round((scoreLvl3 / 6) * 100);
+            } else if (currentLvl === 2) {
+              pct = 70;
+            } else if (answered > 0) {
+              pct = 50;
+            } else {
+              pct = 0;
+            }
+
+            students.push({
+              studentId: sId,
+              name: data.displayName || rosterInfo.name || `Student ${sId}`,
+              email: rosterInfo.email || `${sId}@orangeusd.org`,
+              period: cleanPeriod,
+              rawPercentage: pct
+            });
           }
-
-          students.push({
-            studentId: sId,
-            name: data.displayName || rosterInfo.name || `Student ${sId}`,
-            email: rosterInfo.email || `${sId}@orangeusd.org`,
-            period: cleanPeriod,
-            rawPercentage: pct
-          });
         }
       });
-      return students;
+      if (students.length > 0) return students;
     } catch (e) {}
   }
 
@@ -533,23 +599,39 @@ async function syncAssignment({
       continue;
     }
 
-    // Fetch coursework list from cache or Classroom API
-    let cwList = courseWorkCache.get(course.id);
-    if (!cwList) {
-      try {
-        const cwRes = await classroom.courses.courseWork.list({
-          courseId: course.id,
-          pageSize: 100
-        });
-        cwList = cwRes.data.courseWork || [];
-        courseWorkCache.set(course.id, cwList);
-      } catch (e) {
-        console.warn(`Warning: Could not list coursework for Period ${p}:`, e.message);
-        cwList = [];
-      }
+    // --- REGISTRY-FIRST coursework resolution ---
+    // Try assignment_registry for a direct courseId→courseworkId lookup (no string matching)
+    const registry = await loadAssignmentRegistry();
+    let matchingCw = null;
+    let resolvedVia = 'none';
+
+    const regResult = getCourseworkFromRegistry(assignment.id, course.id, registry);
+    if (regResult) {
+      matchingCw = regResult;  // { id, maxPoints, title }
+      resolvedVia = 'registry';
     }
 
-    const matchingCw = findMatchingCourseWork(assignment, cwList);
+    // FALLBACK: Legacy string matching against Classroom coursework titles
+    if (!matchingCw) {
+      let cwList = courseWorkCache.get(course.id);
+      if (!cwList) {
+        try {
+          const cwRes = await classroom.courses.courseWork.list({
+            courseId: course.id,
+            pageSize: 100
+          });
+          cwList = cwRes.data.courseWork || [];
+          courseWorkCache.set(course.id, cwList);
+        } catch (e) {
+          console.warn(`Warning: Could not list coursework for Period ${p}:`, e.message);
+          cwList = [];
+        }
+      }
+
+      matchingCw = findMatchingCourseWork(assignment, cwList);
+      if (matchingCw) resolvedVia = 'string-match';
+    }
+
     if (!matchingCw) {
       periodSummaries.push({
         period: `P${p}`,
@@ -568,7 +650,7 @@ async function syncAssignment({
     const maxPts = matchingCw.maxPoints !== undefined ? matchingCw.maxPoints : 10;
     console.log(`\n------------------------------------------------------------------------`);
     console.log(`📁 Period ${p}: ${course.name}`);
-    console.log(`   Coursework: "${matchingCw.title}" (ID: ${matchingCw.id}, Max Points: ${maxPts})`);
+    console.log(`   Coursework: "${matchingCw.title || assignment.name}" (ID: ${matchingCw.id}, Max Points: ${maxPts}) [via ${resolvedVia}]`);
     console.log(`   Students to sync: ${pStudents.length}`);
 
     // Pre-cache enrolled students for this course
@@ -576,15 +658,23 @@ async function syncAssignment({
     if (!classroomStudentMap) {
       classroomStudentMap = new Map();
       try {
-        const sRes = await classroom.courses.students.list({ courseId: course.id, pageSize: 100 });
-        (sRes.data.students || []).forEach(st => {
-          const prof = st.profile || {};
-          const email = (prof.emailAddress || '').toLowerCase().trim();
-          const fullName = (prof.name ? prof.name.fullName : '').toLowerCase().trim();
-          const uid = st.userId;
-          if (email) classroomStudentMap.set(email, uid);
-          if (fullName) classroomStudentMap.set(fullName, uid);
-        });
+        let pageToken = null;
+        do {
+          const sRes = await classroom.courses.students.list({
+            courseId: course.id,
+            pageSize: 100,
+            pageToken: pageToken || undefined
+          });
+          (sRes.data.students || []).forEach(st => {
+            const prof = st.profile || {};
+            const email = (prof.emailAddress || '').toLowerCase().trim();
+            const fullName = (prof.name ? prof.name.fullName : '').toLowerCase().trim();
+            const uid = st.userId;
+            if (email) classroomStudentMap.set(email, uid);
+            if (fullName) classroomStudentMap.set(fullName, uid);
+          });
+          pageToken = sRes.data.nextPageToken;
+        } while (pageToken);
       } catch (e) {
         console.warn(`Warning: Could not list students for course ${course.id}:`, e.message);
       }
@@ -1052,9 +1142,19 @@ async function main() {
   let targets = [];
   const isSyncAll = isExplicitAll || !targetQuery;
 
+  // Pre-load assignment registry for registry-first resolution
+  const registry = await loadAssignmentRegistry();
+
   if (isSyncAll) {
     // Sync all assignments that have scores and match active Classroom coursework
+    // Registry-first: check registry for coursework links, then fall back to string matching
     targets = allAssignments.filter(a => {
+      // Check registry first
+      for (const course of Array.from(periodCourses.values())) {
+        const regResult = getCourseworkFromRegistry(a.id, course.id, registry);
+        if (regResult) return true;
+      }
+      // Fallback: legacy string matching
       const match = findMatchingCourseWork(a, allClassroomCourseWork);
       return !!match;
     });
