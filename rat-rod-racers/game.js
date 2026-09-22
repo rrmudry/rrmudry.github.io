@@ -1,8 +1,66 @@
 /**
  * Rat Rod Racers - Main Game Controller & Orchestrator
- * Manages game loop, 2D drag strip track rendering, Christmas tree staging,
- * race states, timeslip calculations, garage customizer, crate shop, and dyno lab.
+ * Based on rat_rod_part_balance_synergy_design_document.md
+ * Manages game loop, 5 Track Environments, Jalopy Budget Cap (20 pts),
+ * Archetype matrix, 5-slot customizer, mystery crates, and dyno proving grounds.
  */
+
+const formatStudentDriverName = (typeof window !== 'undefined' && typeof window.formatStudentDriverName === 'function')
+  ? window.formatStudentDriverName
+  : function(rawName, isGhost = false) {
+      if (isGhost) return rawName;
+      if (!rawName || typeof rawName !== 'string') return 'Racer';
+      let str = rawName.trim();
+      if (!str) return 'Racer';
+      let suffix = '';
+      const parenMatch = str.match(/\s*(\([^)]+\))\s*$/);
+      if (parenMatch) {
+        suffix = ' ' + parenMatch[1].trim();
+        str = str.replace(/\s*(\([^)]+\))\s*$/, '').trim();
+      }
+      if (str.includes('@')) {
+        const emailPrefix = str.split('@')[0];
+        if (emailPrefix.includes('.')) {
+          const parts = emailPrefix.split('.').filter(Boolean);
+          const first = parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
+          const lastInitial = parts[parts.length - 1].charAt(0).toUpperCase();
+          return `${first} ${lastInitial}.${suffix}`;
+        } else {
+          str = emailPrefix;
+        }
+      }
+      if (str.includes(',')) {
+        const commaParts = str.split(',').map(s => s.trim()).filter(Boolean);
+        if (commaParts.length >= 2) {
+          const lastName = commaParts[0];
+          const firstNamePart = commaParts[1];
+          const firstTokens = firstNamePart.split(/\s+/).filter(Boolean);
+          const first = firstTokens[0] || '';
+          const lastInitial = lastName.charAt(0).toUpperCase();
+          if (first && lastInitial) return `${first} ${lastInitial}.${suffix}`;
+        }
+      }
+      const tokens = str.split(/\s+/).filter(Boolean);
+      if (tokens.length <= 1) return `${tokens[0] || 'Racer'}${suffix}`;
+      const lastToken = tokens[tokens.length - 1];
+
+      // If last token is purely numeric (e.g. 'Racer 42'), do not abbreviate as an initial
+      if (/^\d+$/.test(lastToken)) {
+        return `${tokens.join(' ')}${suffix}`;
+      }
+
+      if (/^[A-Za-z]\.?$/.test(lastToken)) {
+        const cleanInitial = lastToken.replace('.', '').toUpperCase();
+        const rest = tokens.slice(0, -1).join(' ');
+        return `${rest} ${cleanInitial}.${suffix}`;
+      }
+      if (/^[A-Za-z]/.test(lastToken)) {
+        const firstName = tokens[0];
+        const lastInitial = lastToken.charAt(0).toUpperCase();
+        return `${firstName} ${lastInitial}.${suffix}`;
+      }
+      return `${tokens.join(' ')}${suffix}`;
+    };
 
 class RatRodGame {
   constructor() {
@@ -18,27 +76,33 @@ class RatRodGame {
     this.authManager = typeof RatRodAuthManager !== 'undefined' ? new RatRodAuthManager(this) : null;
     this.isSubmittingDyno = false;
 
-    // Player car
+    // Track Environment Selection (Section 5)
+    this.selectedTrack = 'airfield'; // 'airfield', 'bonneville', 'dirt_oval', 'quarry', 'mountain'
+
+    // Player car with 5 slots
     this.playerCar = new RatRodCar({
       name: "Rusty Rocket",
       driver: "You",
       number: 77
     });
 
-    // Opponent car
+    // Opponent car & roster
     this.opponentRoster = STUDENT_GHOST_ROSTER;
     this.opponentIndex = 0;
     this.opponentCar = this.opponentRoster[0].car;
 
-    // Physics engines
+    // Physics simulation engines
     this.playerPhysics = new RatRodPhysics();
     this.opponentPhysics = new RatRodPhysics();
 
     // Telemetry viewer
     this.telemetryViewer = new TelemetryViewer('telemetryCanvas');
 
-    // State
-    this.activeTab = 'race'; // 'race', 'garage', 'crates', 'dyno'
+    // Racing State
+    this.activeTab = 'race'; // 'race', 'garage', 'crates', 'dyno', 'leaderboard'
+    if (typeof document !== 'undefined' && document.body) {
+      document.body.dataset.activeTab = this.activeTab;
+    }
     this.raceState = 'IDLE'; // 'IDLE', 'COUNTDOWN', 'RACING', 'FINISHED'
     this.countdownTimer = 0;
     this.treeStep = 0; // 0: off, 1: stage, 2: amber1, 3: amber2, 4: amber3, 5: green, 6: red
@@ -49,10 +113,10 @@ class RatRodGame {
     this.lastTime = 0;
     this.cameraX = 0;
 
-    // Unit toggle: 'metric' vs 'imperial'
-    this.units = 'imperial'; // high school students love mph / ft
+    // Units toggle
+    this.units = 'imperial'; // 'imperial' (mph / ft) or 'metric' (m/s / m)
 
-    this.leaderboardMode = 'points'; // 'points' or 'et'
+    this.leaderboardMode = 'points';
     this.lastRacePoints = 0;
 
     this._initUI();
@@ -68,33 +132,121 @@ class RatRodGame {
 
   syncPlayerCarPhysics() {
     this.playerCar.recomputeStats();
-    this.playerPhysics.mass = this.playerCar.mass;
-    this.playerPhysics.peakForce = this.playerCar.peakForce;
-    this.playerPhysics.frictionCoeff = this.playerCar.mu;
-    this.playerPhysics.cdA = this.playerCar.cdA;
-    this.playerPhysics.powerBand = this.playerCar.powerBand;
-    this.playerPhysics.nitroBoost = this.playerCar.nitroBoost;
-    this.playerPhysics.nitroDuration = this.playerCar.nitroDuration;
+    const c = this.playerCar;
+    this.playerPhysics.configure({
+      mass: c.mass,
+      frontBias: c.frontWeightBias,
+      hCG: c.hCG,
+      wheelbase: c.wheelbase,
+      peakForce: c.peakForce,
+      powerBand: c.powerBand,
+      blowerSurge: c.blowerSurge,
+      turboLag: c.turboLag,
+      boostCreep: c.boostCreep,
+      tractorChug: c.tractorChug,
+      immuneToHeat: c.immuneToHeat,
+      ignoreDebris: c.ignoreDebris,
+      heatRate: c.heatRate,
+      critTemp: c.critTemp,
+      heatCapacity: c.heatCapacity,
+      radiatorArea: c.radiatorArea,
+      grilleAirflow: c.grilleAirflow,
+      suspTravel: c.suspTravel,
+      suspKappa: c.suspKappa,
+      roughnessTol: c.roughnessTol,
+      mu: c.mu,
+      tireType: c.tireType,
+      cdA: c.cdA
+    });
+
+    const trackData = TRACK_ENVIRONMENTS[this.selectedTrack] || TRACK_ENVIRONMENTS.airfield;
+    this.playerPhysics.setTrack(trackData);
     this.playerPhysics.reset();
+
     this.updateHUD();
     this.updateMatchupBadge();
+    this.updateBudgetWarning();
   }
 
   syncOpponentPhysics() {
     this.opponentCar.recomputeStats();
-    this.opponentPhysics.mass = this.opponentCar.mass;
-    this.opponentPhysics.peakForce = this.opponentCar.peakForce;
-    this.opponentPhysics.frictionCoeff = this.opponentCar.mu;
-    this.opponentPhysics.cdA = this.opponentCar.cdA;
-    this.opponentPhysics.powerBand = this.opponentCar.powerBand;
-    this.opponentPhysics.nitroBoost = this.opponentCar.nitroBoost;
-    this.opponentPhysics.nitroDuration = this.opponentCar.nitroDuration;
+    const c = this.opponentCar;
+    this.opponentPhysics.configure({
+      mass: c.mass,
+      frontBias: c.frontWeightBias,
+      hCG: c.hCG,
+      wheelbase: c.wheelbase,
+      peakForce: c.peakForce,
+      powerBand: c.powerBand,
+      blowerSurge: c.blowerSurge,
+      turboLag: c.turboLag,
+      boostCreep: c.boostCreep,
+      tractorChug: c.tractorChug,
+      immuneToHeat: c.immuneToHeat,
+      ignoreDebris: c.ignoreDebris,
+      heatRate: c.heatRate,
+      critTemp: c.critTemp,
+      heatCapacity: c.heatCapacity,
+      radiatorArea: c.radiatorArea,
+      grilleAirflow: c.grilleAirflow,
+      suspTravel: c.suspTravel,
+      suspKappa: c.suspKappa,
+      roughnessTol: c.roughnessTol,
+      mu: c.mu,
+      tireType: c.tireType,
+      cdA: c.cdA
+    });
+
+    const trackData = TRACK_ENVIRONMENTS[this.selectedTrack] || TRACK_ENVIRONMENTS.airfield;
+    this.opponentPhysics.setTrack(trackData);
     this.opponentPhysics.reset();
+  }
+
+  updateBudgetWarning() {
+    const banner = document.getElementById('budget-warning-banner');
+    const overPtsEl = document.getElementById('budget-over-pts');
+    const launchBtn = document.getElementById('btn-launch');
+    const isValid = this.playerCar.isBudgetValid;
+
+    if (banner) {
+      if (!isValid) {
+        banner.classList.remove('hidden');
+        if (overPtsEl) overPtsEl.textContent = this.playerCar.jalopyPoints;
+      } else {
+        banner.classList.add('hidden');
+      }
+    }
+
+    if (launchBtn && this.raceState === 'IDLE') {
+      if (!isValid) {
+        launchBtn.textContent = '⚠️ OVER BUDGET - CANNOT RACE';
+        launchBtn.classList.add('btn-overbudget');
+        launchBtn.classList.remove('btn-ready');
+      } else {
+        launchBtn.textContent = '🚦 STAGE & START';
+        launchBtn.classList.remove('btn-overbudget');
+        launchBtn.classList.add('btn-ready');
+      }
+    }
+  }
+
+  updateTrackBadge() {
+    const track = TRACK_ENVIRONMENTS[this.selectedTrack] || TRACK_ENVIRONMENTS.airfield;
+    const optBadge = document.getElementById('track-optimal-badge');
+    const loreText = document.getElementById('track-lore-text');
+
+    if (optBadge) {
+      optBadge.textContent = `Optimal: ${track.optimalArchetype}`;
+    }
+    if (loreText) {
+      loreText.textContent = track.decidingFactor || track.lore;
+    }
   }
 
   _initUI() {
     this.populateOpponentDropdown();
     this.autoMatchOpponent(false);
+    this.updateTrackBadge();
     this.renderGarage();
     this.renderCrateShop();
     this.loadNextDynoChallenge();
@@ -134,7 +286,46 @@ class RatRodGame {
       });
     }
 
-    // Race Controls
+    // Ambient Background Dimmer Preset Cycle Button (Auto / Dark / Vibrant)
+    const dimBtn = document.getElementById('btn-bg-dim');
+    if (dimBtn) {
+      const savedDim = localStorage.getItem('ratrod_bg_dim') || 'auto';
+      document.body.dataset.bgDim = savedDim;
+      this._updateDimmerButtonText(dimBtn, savedDim);
+
+      dimBtn.addEventListener('click', () => {
+        const current = document.body.dataset.bgDim || 'auto';
+        let next = 'auto';
+        if (current === 'auto') next = 'dark';
+        else if (current === 'dark') next = 'vibrant';
+        else next = 'auto';
+
+        document.body.dataset.bgDim = next;
+        localStorage.setItem('ratrod_bg_dim', next);
+        this._updateDimmerButtonText(dimBtn, next);
+      });
+    }
+
+    // Dyno jump shortcut from Crates hero banner
+    const dynoJumpBtn = document.getElementById('btn-dyno-jump');
+    if (dynoJumpBtn) {
+      dynoJumpBtn.addEventListener('click', () => this.switchTab('dyno'));
+    }
+
+    // Track Environment Selector Change
+    const trackSelect = document.getElementById('track-select');
+    if (trackSelect) {
+      trackSelect.addEventListener('change', (e) => {
+        this.selectedTrack = e.target.value;
+        const trackData = TRACK_ENVIRONMENTS[this.selectedTrack] || TRACK_ENVIRONMENTS.airfield;
+        this.playerPhysics.setTrack(trackData);
+        this.opponentPhysics.setTrack(trackData);
+        this.updateTrackBadge();
+        this.resetRace();
+      });
+    }
+
+    // Launch Button
     const launchBtn = document.getElementById('btn-launch');
     if (launchBtn) {
       launchBtn.addEventListener('click', () => this.handleLaunchButton());
@@ -181,7 +372,7 @@ class RatRodGame {
           this.syncOpponentPhysics();
           this.updateMatchupBadge();
           this.resetRace();
-          alert(`Successfully loaded classmate ghost: ${imported.name} (${imported.driver})!`);
+          alert(`Successfully loaded classmate ghost: ${imported.name} (${formatStudentDriverName(imported.driver, false)})!`);
         } else {
           alert("Invalid share code. Format should look like 'ROD-...'");
         }
@@ -242,7 +433,7 @@ class RatRodGame {
       });
     }
 
-    // Leaderboard Tabs (Points vs Fastest ET)
+    // Leaderboard Tabs
     const lbTabBtns = document.querySelectorAll('.lb-tab-btn');
     lbTabBtns.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -260,7 +451,7 @@ class RatRodGame {
       });
     }
 
-    // Dyno Desmos Calculator Controls
+    // Dyno Calculator Collapse / Toggle
     const collapseCalcBtn = document.getElementById('btn-dyno-calc-collapse');
     const calcWrapper = document.getElementById('desmos-wrapper');
     if (collapseCalcBtn && calcWrapper) {
@@ -290,6 +481,9 @@ class RatRodGame {
 
   switchTab(tabName) {
     this.activeTab = tabName;
+    if (typeof document !== 'undefined' && document.body) {
+      document.body.dataset.activeTab = tabName;
+    }
     const tabBtns = document.querySelectorAll('.nav-tab-btn');
     tabBtns.forEach(b => b.classList.toggle('active', b.dataset.tab === tabName));
 
@@ -320,12 +514,19 @@ class RatRodGame {
   handleLaunchButton() {
     this.audio.resume();
 
+    // Check Jalopy Budget validity before allowing stage or race
+    if (!this.playerCar.isBudgetValid) {
+      alert(`Your Rat Rod exceeds the 20-Point Jalopy Budget (${this.playerCar.jalopyPoints} / 20 pts)!\nGo to the Garage and swap to cheaper parts to make your rig legal.`);
+      this.switchTab('garage');
+      return;
+    }
+
     if (this.raceState === 'IDLE') {
       this.startCountdown();
     } else if (this.raceState === 'COUNTDOWN') {
-      // Triggered before Green light! False start / Red light foul
+      // False start / red light foul
       this.playerFoul = true;
-      this.treeStep = 6; // Red foul light
+      this.treeStep = 6; // Red light
       this.raceState = 'FINISHED';
       this.audio.stopEngine();
       this.audio.playTireSqueal(0.5);
@@ -347,7 +548,7 @@ class RatRodGame {
   startCountdown() {
     this.raceState = 'COUNTDOWN';
     this.countdownTimer = 0;
-    this.treeStep = 1; // Pre-stage & Stage on
+    this.treeStep = 1; // Stage on
     this.playerReacted = false;
     this.playerFoul = false;
     this.playerReactionTime = null;
@@ -376,9 +577,14 @@ class RatRodGame {
 
     const launchBtn = document.getElementById('btn-launch');
     if (launchBtn) {
-      launchBtn.textContent = '🚦 STAGE & START';
-      launchBtn.classList.remove('btn-waiting', 'btn-racing');
-      launchBtn.classList.add('btn-ready');
+      if (!this.playerCar.isBudgetValid) {
+        launchBtn.textContent = '⚠️ OVER BUDGET - CANNOT RACE';
+        launchBtn.classList.add('btn-overbudget');
+      } else {
+        launchBtn.textContent = '🚦 STAGE & START';
+        launchBtn.classList.remove('btn-waiting', 'btn-racing', 'btn-overbudget', 'btn-danger');
+        launchBtn.classList.add('btn-ready');
+      }
     }
 
     const reactLabel = document.getElementById('reaction-time-display');
@@ -440,23 +646,23 @@ class RatRodGame {
 
     // Racing Simulation
     if (this.raceState === 'RACING') {
-      // Step player physics (begins rolling forward after reaction time or default bot reaction)
+      // Step player physics
       if (this.playerReacted) {
         this.playerPhysics.step(dt);
       }
 
-      // Step opponent ghost (with realistic 0.22s reaction time)
-      const oppElapsedSinceGreen = (performance.now() - this.greenTimestamp) / 1000;
-      if (oppElapsedSinceGreen >= 0.22) {
+      // Step opponent physics with realistic reaction time
+      const oppElapsed = (performance.now() - this.greenTimestamp) / 1000;
+      if (oppElapsed >= 0.22) {
         this.opponentPhysics.step(dt);
       }
 
-      // Update engine audio pitch based on player speed
+      // Update engine audio pitch
       const playerSpeed = this.playerPhysics.v;
-      const rpmRatio = Math.min(1.0, playerSpeed / 45);
+      const rpmRatio = Math.min(1.0, playerSpeed / 48);
       this.audio.updateEngine(rpmRatio);
 
-      // Check for finish
+      // Check for race finish
       if (this.playerPhysics.finished && this.opponentPhysics.finished) {
         this.finishRace();
       }
@@ -471,7 +677,7 @@ class RatRodGame {
     let earnedPoints = 0;
     if (playerWon) {
       this.audio.playVictoryFanfare();
-      const prizeCash = 120;
+      const prizeCash = 140;
       this.inventory.addCash(prizeCash);
       earnedPoints = this.inventory.recordRaceResult(true, this.playerPhysics.elapsedTime, this.playerPhysics.trapSpeed, {
         oppPI: this.opponentCar?.pi || 350,
@@ -497,7 +703,6 @@ class RatRodGame {
       launchBtn.classList.add('btn-ready');
     }
 
-    // Display Timeslip & Telemetry
     this.showRaceResultsModal(playerWon);
   }
 
@@ -519,7 +724,12 @@ class RatRodGame {
     const oTrap = this.opponentPhysics.trapSpeed ?
       (this.units === 'imperial' ? (this.opponentPhysics.trapSpeed * 2.23694).toFixed(1) + ' mph' : this.opponentPhysics.trapSpeed.toFixed(1) + ' m/s') : '--';
 
+    const track = TRACK_ENVIRONMENTS[this.selectedTrack] || TRACK_ENVIRONMENTS.airfield;
+
     const slipHtml = `
+      <div style="background:rgba(255,190,11,0.08); border:1px solid rgba(255,190,11,0.25); border-radius:6px; padding:6px 12px; margin-bottom:12px; font-size:12px; text-align:center;">
+        Track: <strong>${track.name}</strong> • ${track.badge}
+      </div>
       <div class="timeslip-grid">
         <div class="slip-col">
           <h4>YOUR RAT ROD</h4>
@@ -533,7 +743,7 @@ class RatRodGame {
         <div class="slip-divider">VS</div>
         <div class="slip-col">
           <h4>${this.opponentCar.name}</h4>
-          <p>Driver: <em>${this.opponentCar.driver}</em></p>
+          <p>Driver: <em>${formatStudentDriverName(this.opponentCar.driver, this.opponentCar.isGhost)}</em></p>
           <p>60 ft: <strong>${this.opponentPhysics.split60ft ? this.opponentPhysics.split60ft.toFixed(3) + 's' : '--'}</strong></p>
           <p>330 ft: <strong>${this.opponentPhysics.split330ft ? this.opponentPhysics.split330ft.toFixed(3) + 's' : '--'}</strong></p>
           <p>1/8 mi (660 ft): <strong>${this.opponentPhysics.split660ft ? this.opponentPhysics.split660ft.toFixed(3) + 's' : '--'}</strong></p>
@@ -546,7 +756,7 @@ class RatRodGame {
     const slipContainer = document.getElementById('modal-slip-container');
     if (slipContainer) slipContainer.innerHTML = slipHtml;
 
-    // Load Telemetry into Graph
+    // Load Telemetry data into Graph
     this.telemetryViewer.setData(this.playerPhysics.telemetry, this.opponentPhysics.telemetry);
 
     modal.classList.remove('hidden');
@@ -570,12 +780,12 @@ class RatRodGame {
     const ctx = this.ctx;
     ctx.clearRect(0, 0, w, h);
 
-    // Track scaling: 1 meter = 4 pixels
+    // Track scaling: 1 meter = 3.5 pixels
     const ppm = 3.5;
     const playerX = this.playerPhysics.x * ppm;
     const opponentX = this.opponentPhysics.x * ppm;
 
-    // Smooth camera tracking: center on leading car
+    // Smooth camera tracking
     const leadX = Math.max(playerX, opponentX);
     const targetCamX = Math.max(0, leadX - w * 0.4);
     this.cameraX += (targetCamX - this.cameraX) * 0.12;
@@ -583,10 +793,10 @@ class RatRodGame {
     ctx.save();
     ctx.translate(-this.cameraX, 0);
 
-    // 1. Render Sky & Distant Sunset Parallax
+    // 1. Render Sky & Track Environmental Background
     this._renderEnvironment(ctx, w, h);
 
-    // 2. Render Drag Strip Track & Distance Marks
+    // 2. Render Track Road Surface & Distance Marks
     this._renderTrack(ctx, w, h, ppm);
 
     // 3. Render Christmas Tree Staging Gantry
@@ -599,8 +809,8 @@ class RatRodGame {
       a: this.opponentPhysics.a,
       wheelAngle: oppWheelAngle,
       isSlipping: this.opponentPhysics.isSlipping,
-      nitroActive: this.opponentPhysics.nitroActive
-    }, { scale: 0.85, idle: this.raceState === 'IDLE' });
+      isOverheating: this.opponentPhysics.isOverheating
+    }, { scale: 0.88, idle: this.raceState === 'IDLE' });
 
     // 5. Render Player Car (Lane 1 - Lower Lane)
     const pWheelAngle = (this.playerPhysics.x / 0.5) % (Math.PI * 2);
@@ -609,69 +819,127 @@ class RatRodGame {
       a: this.playerPhysics.a,
       wheelAngle: pWheelAngle,
       isSlipping: this.playerPhysics.isSlipping,
-      nitroActive: this.playerPhysics.nitroActive
+      isOverheating: this.playerPhysics.isOverheating
     }, { scale: 1.0, idle: this.raceState === 'IDLE' });
 
     ctx.restore();
 
-    // 6. Live HUD overlay on Canvas (Speedometer, Acceleration, G-Force)
+    // 6. Live HUD overlay on Canvas (Speed, Accel, Temperature & Wheelspin Alert)
     this._renderCanvasHUD(ctx, w, h);
   }
 
   _renderEnvironment(ctx, w, h) {
+    const track = TRACK_ENVIRONMENTS[this.selectedTrack] || TRACK_ENVIRONMENTS.airfield;
     const stripEnd = 402.336 * 3.5 + 400;
 
-    // Sunset gradient sky
+    // Atmospheric Sky Gradient
     const skyGrad = ctx.createLinearGradient(0, 0, 0, 200);
-    skyGrad.addColorStop(0, '#1a1423');
-    skyGrad.addColorStop(0.5, '#3d1a24');
-    skyGrad.addColorStop(1, '#9b4b2a');
+    const colors = track.skyColors || ['#1a1423', '#3d1a24', '#9b4b2a'];
+    skyGrad.addColorStop(0, colors[0]);
+    skyGrad.addColorStop(0.5, colors[1]);
+    skyGrad.addColorStop(1, colors[2]);
     ctx.fillStyle = skyGrad;
     ctx.fillRect(this.cameraX - 100, 0, w + 200, 200);
 
-    // Distant mountain ridge
-    ctx.fillStyle = '#17111e';
-    ctx.beginPath();
-    ctx.moveTo(this.cameraX - 100, 200);
-    for (let x = this.cameraX - 100; x < this.cameraX + w + 100; x += 120) {
-      ctx.lineTo(x + 60, 140 + Math.sin(x * 0.005) * 30);
-    }
-    ctx.lineTo(this.cameraX + w + 100, 200);
-    ctx.closePath();
-    ctx.fill();
-
-    // Grandstands & Cheering crowd banner
-    ctx.fillStyle = '#2c223b';
-    ctx.fillRect(this.cameraX - 100, 160, w + 200, 40);
-
-    // Decorative festival bunting / flags
-    for (let f = 0; f < stripEnd; f += 60) {
-      ctx.fillStyle = f % 120 === 0 ? '#ff7b00' : '#00f0ff';
+    if (this.selectedTrack === 'bonneville') {
+      // Mirages & distant stark white mountain peaks
+      ctx.fillStyle = '#3a4b68';
       ctx.beginPath();
-      ctx.moveTo(f, 150);
-      ctx.lineTo(f + 25, 150);
-      ctx.lineTo(f + 12, 165);
+      ctx.moveTo(this.cameraX - 100, 200);
+      for (let x = this.cameraX - 100; x < this.cameraX + w + 100; x += 150) {
+        ctx.lineTo(x + 75, 155 + Math.sin(x * 0.003) * 18);
+      }
+      ctx.lineTo(this.cameraX + w + 100, 200);
       ctx.closePath();
       ctx.fill();
+
+    } else if (this.selectedTrack === 'mountain') {
+      // Pine forest ridgeline
+      ctx.fillStyle = '#1c2e1f';
+      ctx.beginPath();
+      ctx.moveTo(this.cameraX - 100, 200);
+      for (let x = this.cameraX - 100; x < this.cameraX + w + 100; x += 40) {
+        ctx.lineTo(x + 20, 130 + Math.sin(x * 0.02) * 25);
+      }
+      ctx.lineTo(this.cameraX + w + 100, 200);
+      ctx.closePath();
+      ctx.fill();
+
+    } else if (this.selectedTrack === 'quarry') {
+      // Rocky cut limestone cliffs
+      ctx.fillStyle = '#383d3b';
+      ctx.beginPath();
+      ctx.moveTo(this.cameraX - 100, 200);
+      for (let x = this.cameraX - 100; x < this.cameraX + w + 100; x += 90) {
+        ctx.lineTo(x + 45, 120 + Math.sin(x * 0.01) * 35);
+      }
+      ctx.lineTo(this.cameraX + w + 100, 200);
+      ctx.closePath();
+      ctx.fill();
+
+    } else {
+      // Default distant ridge & grandstand
+      ctx.fillStyle = '#17111e';
+      ctx.beginPath();
+      ctx.moveTo(this.cameraX - 100, 200);
+      for (let x = this.cameraX - 100; x < this.cameraX + w + 100; x += 120) {
+        ctx.lineTo(x + 60, 140 + Math.sin(x * 0.005) * 30);
+      }
+      ctx.lineTo(this.cameraX + w + 100, 200);
+      ctx.closePath();
+      ctx.fill();
+
+      // Grandstands
+      ctx.fillStyle = '#2c223b';
+      ctx.fillRect(this.cameraX - 100, 160, w + 200, 40);
+
+      // Decorative flags
+      for (let f = 0; f < stripEnd; f += 60) {
+        ctx.fillStyle = f % 120 === 0 ? '#ff7b00' : '#00f0ff';
+        ctx.beginPath();
+        ctx.moveTo(f, 150);
+        ctx.lineTo(f + 25, 150);
+        ctx.lineTo(f + 12, 165);
+        ctx.closePath();
+        ctx.fill();
+      }
     }
   }
 
   _renderTrack(ctx, w, h, ppm) {
+    const track = TRACK_ENVIRONMENTS[this.selectedTrack] || TRACK_ENVIRONMENTS.airfield;
     const trackStart = 0;
     const trackEnd = 402.336 * ppm + 400;
 
-    // Safety concrete barrier
+    // Safety barrier / Guardrail
     ctx.fillStyle = '#ced4da';
     ctx.fillRect(trackStart - 50, 195, trackEnd + 100, 15);
     ctx.fillStyle = '#343a40';
     ctx.fillRect(trackStart - 50, 210, trackEnd + 100, 4);
 
-    // Asphalt road surface
-    ctx.fillStyle = '#1a1c23';
+    // Track surface ground
+    ctx.fillStyle = track.groundColor || '#1a1c23';
     ctx.fillRect(trackStart - 50, 214, trackEnd + 100, 175);
 
-    // Lane divider line (dashed white)
-    ctx.strokeStyle = '#f8f9fa';
+    // Surface texture for dirt / salt / gravel
+    if (this.selectedTrack === 'dirt_oval') {
+      ctx.strokeStyle = '#3b2416';
+      ctx.lineWidth = 1.8;
+      for (let dy = 230; dy <= 370; dy += 25) {
+        ctx.beginPath();
+        ctx.moveTo(trackStart - 50, dy);
+        ctx.lineTo(trackEnd + 50, dy);
+        ctx.stroke();
+      }
+    } else if (this.selectedTrack === 'bonneville') {
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+      for (let sx = 0; sx < trackEnd; sx += 80) {
+        ctx.fillRect(sx, 220 + (sx % 120), 40, 2);
+      }
+    }
+
+    // Lane divider line (dashed)
+    ctx.strokeStyle = track.stripeColor || '#f8f9fa';
     ctx.lineWidth = 2.5;
     ctx.setLineDash([16, 16]);
     ctx.beginPath();
@@ -691,8 +959,6 @@ class RatRodGame {
 
     markers.forEach(m => {
       const mx = 60 + m.d * ppm;
-
-      // Track hash line
       ctx.strokeStyle = m.d === 402.336 ? '#ffbe0b' : '#6c757d';
       ctx.lineWidth = m.d === 402.336 ? 4 : 2;
       ctx.beginPath();
@@ -700,7 +966,6 @@ class RatRodGame {
       ctx.lineTo(mx, 389);
       ctx.stroke();
 
-      // Signboard atop track
       ctx.fillStyle = m.d === 402.336 ? '#ffbe0b' : '#343a40';
       ctx.fillRect(mx - 35, 175, 70, 20);
       ctx.fillStyle = m.d === 402.336 ? '#111' : '#ffd166';
@@ -709,11 +974,10 @@ class RatRodGame {
       ctx.fillText(m.label, mx, 189);
     });
 
-    // Checkered Finish Line Overhead Gantry (at 1/4 mile)
+    // Overhead Checkered Finish Line Gantry
     const finishX = 60 + 402.336 * ppm;
     ctx.fillStyle = '#e5e5e5';
     ctx.fillRect(finishX - 8, 120, 16, 95);
-    // Checkered banner
     for (let row = 0; row < 2; row++) {
       for (let col = 0; col < 6; col++) {
         ctx.fillStyle = (row + col) % 2 === 0 ? '#000' : '#fff';
@@ -727,28 +991,23 @@ class RatRodGame {
   }
 
   _renderChristmasTree(ctx, x, y) {
-    // Tree vertical pole
     ctx.fillStyle = '#1e1e24';
     ctx.fillRect(x - 6, y - 85, 12, 110);
 
-    // Bulbs (Stage, Amber1, Amber2, Amber3, Green, Red)
     const bulbs = [
-      { yOffset: -75, active: this.treeStep >= 1, color: '#ffd166' }, // Pre-Stage / Stage
-      { yOffset: -58, active: this.treeStep >= 2 && this.treeStep <= 4, color: '#ff9e00' }, // Amber 1
-      { yOffset: -41, active: this.treeStep >= 3 && this.treeStep <= 4, color: '#ff9e00' }, // Amber 2
-      { yOffset: -24, active: this.treeStep === 4, color: '#ff9e00' }, // Amber 3
-      { yOffset: -7, active: this.treeStep === 5, color: '#00f0ff' }, // Green!
-      { yOffset: 10, active: this.treeStep === 6, color: '#ff0055' } // Red Foul
+      { yOffset: -75, active: this.treeStep >= 1, color: '#ffd166' },
+      { yOffset: -58, active: this.treeStep >= 2 && this.treeStep <= 4, color: '#ff9e00' },
+      { yOffset: -41, active: this.treeStep >= 3 && this.treeStep <= 4, color: '#ff9e00' },
+      { yOffset: -24, active: this.treeStep === 4, color: '#ff9e00' },
+      { yOffset: -7, active: this.treeStep === 5, color: '#00f0ff' },
+      { yOffset: 10, active: this.treeStep === 6, color: '#ff0055' }
     ];
 
     bulbs.forEach(b => {
-      // Left bulb
       ctx.fillStyle = b.active ? b.color : '#333';
       ctx.beginPath(); ctx.arc(x - 14, y + b.yOffset, 6, 0, Math.PI * 2); ctx.fill();
-      // Right bulb
       ctx.beginPath(); ctx.arc(x + 14, y + b.yOffset, 6, 0, Math.PI * 2); ctx.fill();
 
-      // Glow effect if active
       if (b.active) {
         ctx.fillStyle = b.color;
         ctx.globalAlpha = 0.35;
@@ -763,35 +1022,44 @@ class RatRodGame {
     const pState = this.playerPhysics.getState();
     const speed = this.units === 'imperial' ? (pState.vMph).toFixed(1) + ' MPH' : (pState.v).toFixed(1) + ' M/S';
     const accel = this.units === 'imperial' ? (pState.a * 3.28084).toFixed(1) + ' ft/s²' : (pState.a).toFixed(1) + ' m/s²';
+    const tempF = Math.round(pState.temp);
 
-    // HUD Glass Panel Top Left
-    ctx.fillStyle = 'rgba(18, 21, 28, 0.85)';
+    // Panel box
+    ctx.fillStyle = 'rgba(18, 21, 28, 0.88)';
     ctx.strokeStyle = '#3b4252';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.roundRect(15, 15, 240, 80, 8);
+    ctx.roundRect(15, 15, 255, 96, 8);
     ctx.fill();
     ctx.stroke();
 
     ctx.fillStyle = '#00f0ff';
-    ctx.font = 'bold 16px monospace';
+    ctx.font = 'bold 15px monospace';
     ctx.textAlign = 'left';
-    ctx.fillText(`SPEED: ${speed}`, 28, 40);
+    ctx.fillText(`SPEED: ${speed}`, 26, 38);
 
     ctx.fillStyle = '#ffd166';
-    ctx.font = '12px monospace';
-    ctx.fillText(`ACCEL (F/m): ${accel}`, 28, 62);
-    ctx.fillText(`FORCE: ${pState.fNet} N | MASS: ${this.playerCar.mass} kg`, 28, 80);
+    ctx.font = '11px monospace';
+    ctx.fillText(`ACCEL (F/m): ${accel}`, 26, 58);
+    ctx.fillText(`FORCE: ${pState.fNet} N | MASS: ${this.playerCar.mass} kg`, 26, 75);
 
-    // Traction Slip Alert
+    // Temperature with color shifting
+    let tempColor = '#00f0ff';
+    if (tempF > 225) tempColor = '#ff3366';
+    else if (tempF > 200) tempColor = '#ffbe0b';
+
+    ctx.fillStyle = tempColor;
+    ctx.fillText(`ENGINE TEMP: ${tempF}°F ${pState.isOverheating ? '🔥 OVERHEAT (-Power)!' : ''}`, 26, 92);
+
+    // Traction Wheelspin Alert
     if (pState.isSlipping) {
       ctx.fillStyle = '#ff3366';
       ctx.font = 'bold 12px sans-serif';
-      ctx.fillText(`⚠️ WHEEL SLIP! (F_drive > μ·m·g)`, 28, 110);
+      ctx.fillText(`⚠️ WHEELSPIN! (-${pState.fSpin} N loss)`, 26, 126);
     }
   }
 
-  // Render Live 2D Car Preview on Garage Lift
+  // --- GARAGE WORKSHOP PREVIEW & SPECS ---
   renderGaragePreview() {
     const canvas = document.getElementById('garagePreviewCanvas');
     if (!canvas) return;
@@ -800,7 +1068,7 @@ class RatRodGame {
     const h = canvas.height;
     ctx.clearRect(0, 0, w, h);
 
-    // 1. Garage Workshop Spotlight & Atmospheric Vignette
+    // Spotlight vignette
     const spotGrad = ctx.createRadialGradient(w / 2, 25, 10, w / 2, 90, 140);
     spotGrad.addColorStop(0, 'rgba(255, 190, 11, 0.18)');
     spotGrad.addColorStop(0.6, 'rgba(255, 190, 11, 0.05)');
@@ -808,83 +1076,94 @@ class RatRodGame {
     ctx.fillStyle = spotGrad;
     ctx.fillRect(0, 0, w, h);
 
-    // Subtle workshop brick/panel lines
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.035)';
-    ctx.lineWidth = 1;
-    for (let x = 15; x < w; x += 30) {
-      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 145); ctx.stroke();
-    }
-
-    // 2. Hydraulic Lift Stand
+    // Lift Stand
     const beamY = 138;
-    // Hydraulic Ground Base & Shadow
     ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
     ctx.beginPath();
     ctx.ellipse(w / 2, 175, 90, 5, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Center Hydraulic Ram & Chrome Piston
+    // Hydraulic cylinder
     ctx.fillStyle = '#222530';
     ctx.fillRect(w / 2 - 14, beamY + 8, 28, 35);
     ctx.strokeStyle = '#12121c';
     ctx.lineWidth = 2;
     ctx.strokeRect(w / 2 - 14, beamY + 8, 28, 35);
-    // Chrome ram ring
-    ctx.fillStyle = '#ced4da';
-    ctx.fillRect(w / 2 - 16, beamY + 6, 32, 4);
 
-    // Heavy Yellow Industrial Lift Beam with Hazard Stripes
+    // Yellow Beam with hazard stripes
     ctx.fillStyle = '#ffbe0b';
     ctx.fillRect(w / 2 - 115, beamY, 230, 8);
     ctx.strokeRect(w / 2 - 115, beamY, 230, 8);
-    // Hazard Chevrons on Beam
     ctx.fillStyle = '#14141c';
     for (let bx = w / 2 - 110; bx < w / 2 + 110; bx += 20) {
       ctx.beginPath();
-      ctx.moveTo(bx, beamY);
-      ctx.lineTo(bx + 6, beamY);
-      ctx.lineTo(bx + 2, beamY + 8);
-      ctx.lineTo(bx - 4, beamY + 8);
+      ctx.moveTo(bx, beamY); ctx.lineTo(bx + 6, beamY);
+      ctx.lineTo(bx + 2, beamY + 8); ctx.lineTo(bx - 4, beamY + 8);
       ctx.closePath();
       ctx.fill();
     }
 
-    // Heavy Rubber Lift Pads under Tires
-    // Rear pad
+    // Pads
     ctx.fillStyle = '#1e1f29';
-    ctx.fillRect(w / 2 - 74, beamY - 4, 38, 5);
-    ctx.strokeRect(w / 2 - 74, beamY - 4, 38, 5);
-    // Front riser pad (accommodates hot rod rake stance)
-    ctx.fillStyle = '#1e1f29';
-    ctx.fillRect(w / 2 + 45, beamY - 9, 32, 10);
-    ctx.strokeRect(w / 2 + 45, beamY - 9, 32, 10);
+    ctx.fillRect(w / 2 - 74, beamY - 4, 38, 5); ctx.strokeRect(w / 2 - 74, beamY - 4, 38, 5);
+    ctx.fillRect(w / 2 + 45, beamY - 9, 32, 10); ctx.strokeRect(w / 2 + 45, beamY - 9, 32, 10);
 
-    // 3. Complete Assembled Rat Rod Car with all 6 equipped parts
-    // Perfectly grounded on the lift pads!
+    // Complete assembled rat rod on lift
     drawRatRodCanvas(ctx, this.playerCar, w / 2, 104, {
-      v: 0,
-      a: 0,
-      wheelAngle: 0,
-      isSlipping: false,
-      nitroActive: false
+      v: 0, a: 0, wheelAngle: 0, isSlipping: false, isOverheating: false
     }, { scale: 1.25, idle: true });
   }
 
-  // --- GARAGE & CUSTOMIZER RENDERING ---
   renderGarage() {
     this.renderGaragePreview();
 
+    // Update Jalopy Budget Meter (Section 6.1)
+    const ratio = Math.min(100, (this.playerCar.jalopyPoints / 20) * 100);
+    const ratioText = document.getElementById('garage-budget-ratio');
+    const fillEl = document.getElementById('garage-budget-bar-fill');
+    const statusEl = document.getElementById('garage-budget-status');
+
+    if (ratioText) {
+      ratioText.textContent = `${this.playerCar.jalopyPoints} / 20 pts`;
+      ratioText.style.color = this.playerCar.isBudgetValid ? 'var(--accent-cyan)' : 'var(--accent-red)';
+    }
+    if (fillEl) {
+      fillEl.style.width = ratio + '%';
+      fillEl.style.background = this.playerCar.isBudgetValid ? 'linear-gradient(90deg, #00f0ff, #10b981)' : 'linear-gradient(90deg, #ff5400, #ff0055)';
+    }
+    if (statusEl) {
+      statusEl.className = this.playerCar.isBudgetValid ? 'budget-status-valid' : 'budget-status-invalid';
+      statusEl.textContent = this.playerCar.isBudgetValid ?
+        `✅ Build Legal (Under 20 pt Jalopy Ceiling)` :
+        `⚠️ OVER BUDGET (+${this.playerCar.budgetDeficit} pts) — Must swap to cheaper parts!`;
+    }
+
+    // Specs Sheet
     const statsContainer = document.getElementById('garage-specs-sheet');
     if (statsContainer) {
       this.playerCar.recomputeStats();
       const p = this.playerCar;
+      const affinity = p.archetypeAffinity;
+
       statsContainer.innerHTML = `
+        <div class="spec-row" style="background:rgba(255,255,255,0.03); padding:4px 6px; border-radius:4px;">
+          <span>Archetype Affinity:</span>
+          <strong style="color:var(--accent-amber);">${affinity.primary} (${affinity.highestPct}%)</strong>
+        </div>
+        <div class="spec-row">
+          <span>Jalopy Points:</span>
+          <strong style="color:${p.isBudgetValid ? '#00f0ff' : '#ff3366'}">${p.jalopyPoints} / 20 pts</strong>
+        </div>
         <div class="spec-row">
           <span>Total Mass (m):</span>
           <strong>${p.mass} kg</strong>
         </div>
         <div class="spec-row">
-          <span>Engine Drive Force (F):</span>
+          <span>Weight Distribution:</span>
+          <strong>Front ${Math.round(p.frontWeightBias * 100)}% / Rear ${Math.round(p.rearWeightBias * 100)}%</strong>
+        </div>
+        <div class="spec-row">
+          <span>Drive Force (F):</span>
           <strong>${p.peakForce} N</strong>
         </div>
         <div class="spec-row">
@@ -896,46 +1175,55 @@ class RatRodGame {
           <strong>${p.mu} (Grip Limit: ${p.staticGripLimitForce} N)</strong>
         </div>
         <div class="spec-row">
-          <span>Drag Area (CdA):</span>
-          <strong>${p.cdA} m²</strong>
-        </div>
-        <div class="spec-row">
           <span>Traction Balance:</span>
           <strong style="color:${p.burnoutRisk ? '#ff5555' : '#00f0ff'}">
             ${p.burnoutRisk ? '⚠️ High Wheelspin Risk' : '✅ Full Traction Hook'}
           </strong>
         </div>
+        <div class="spec-row">
+          <span>Cooling Capacity:</span>
+          <strong>${p.radiatorArea}x Radiator Area</strong>
+        </div>
+        <div class="spec-row">
+          <span>Drag Area (CdA):</span>
+          <strong>${p.cdA} m²</strong>
+        </div>
       `;
     }
 
-    // Render Slots & Inventory Parts
-    const slots = ['chassis', 'engines', 'wheels', 'aero', 'exhaust', 'charms'];
+    // Render Inventory Cards across 5 Canonical Slots
+    const slots = ['powertrain', 'chassis', 'suspension', 'wheels', 'ancillary'];
     slots.forEach(slot => {
       const listEl = document.getElementById(`inv-list-${slot}`);
       if (!listEl) return;
       listEl.innerHTML = '';
 
       const ownedInSlot = this.inventory.owned[slot] || {};
-      const catalog = RAT_ROD_ASSETS[slot];
-      const carSlotKey = (slot === 'engines' ? 'engine' : (slot === 'charms' ? 'charm' : slot));
+      const catalog = RAT_ROD_ASSETS[slot] || {};
 
       Object.keys(ownedInSlot).forEach(partId => {
         const part = catalog[partId];
         if (!part) return;
         const entry = ownedInSlot[partId];
-        const isEquipped = (this.playerCar.parts[carSlotKey] === partId);
+        const isEquipped = (this.playerCar.parts[slot] === partId);
 
         const card = document.createElement('div');
-        card.className = `inv-part-card rarity-${part.rarity} ${isEquipped ? 'equipped' : ''}`;
+        card.className = `inv-part-card rarity-${part.rarity || 'common'} ${isEquipped ? 'equipped' : ''}`;
         card.innerHTML = `
           <div class="part-header">
             <span class="part-name">${part.name}</span>
-            <span class="part-lvl">Lvl ${entry.level}</span>
+            <span class="part-cost-badge">⚡ ${part.cost} pts</span>
+          </div>
+          <div class="part-archetype-tag archetype-${(part.archetype || 'Balanced').toLowerCase().replace(/[^a-z]/g, '')}">
+            ${part.archetype || 'Balanced'}
           </div>
           <div class="part-svg-wrap">
             ${RatRodSVG.getPartSVG(part, 80)}
           </div>
-          <div class="part-count">Copies: ${entry.count}</div>
+          <div class="part-trait-box">
+            <strong>${part.trait || 'Standard'}</strong>: ${part.traitDesc || part.lore || ''}
+          </div>
+          <div class="part-count">Level ${entry.level} • Copies: ${entry.count}</div>
           <div class="part-actions">
             <button class="btn btn-sm ${isEquipped ? 'btn-equipped' : 'btn-equip'}">
               ${isEquipped ? 'Equipped' : 'Equip'}
@@ -945,9 +1233,9 @@ class RatRodGame {
           </div>
         `;
 
-        // Equip
+        // Equip Part
         card.querySelector('.btn-equip')?.addEventListener('click', () => {
-          this.playerCar.equip(carSlotKey, partId, entry.level);
+          this.playerCar.equip(slot, partId, entry.level);
           this.syncPlayerCarPhysics();
           this.renderGarage();
           if (this.authManager) this.authManager.autoSave();
@@ -959,7 +1247,7 @@ class RatRodGame {
           alert(res.msg);
           if (res.success) {
             if (isEquipped) {
-              this.playerCar.levels[carSlotKey] = res.newLevel;
+              this.playerCar.levels[slot] = res.newLevel;
             }
             this.syncPlayerCarPhysics();
             this.renderGarage();
@@ -968,7 +1256,7 @@ class RatRodGame {
           }
         });
 
-        // Scrap
+        // Scrap / Recycle
         card.querySelector('.btn-scrap')?.addEventListener('click', () => {
           const res = this.inventory.scrapPart(slot, partId);
           alert(res.msg);
@@ -1027,12 +1315,15 @@ class RatRodGame {
 
     results.forEach((res, idx) => {
       const card = document.createElement('div');
-      card.className = `unboxing-card rarity-${res.part.rarity}`;
+      card.className = `unboxing-card rarity-${res.part.rarity || 'common'}`;
       card.innerHTML = `
-        <div class="card-badge">${res.part.rarity.toUpperCase()}</div>
+        <div class="card-badge">${(res.part.rarity || 'common').toUpperCase()}</div>
         ${RatRodSVG.getPartSVG(res.part, 110)}
         <h4>${res.part.name}</h4>
-        <p class="card-lore">${res.part.lore}</p>
+        <div style="font-size:11px; font-weight:700; color:var(--accent-amber); margin:4px 0;">
+          ⚡ ${res.part.cost || 2} pts • ${res.part.archetype || 'Custom'}
+        </div>
+        <p class="card-lore">${res.part.lore || res.part.traitDesc || ''}</p>
         <div class="card-status">${res.isNew ? '✨ NEW PART!' : '🔄 DUPLICATE'}</div>
       `;
       cardsContainer.appendChild(card);
@@ -1053,7 +1344,7 @@ class RatRodGame {
     }
   }
 
-  // --- DYNO LAB PROVING GROUNDS ---
+  // --- DYNO PROVING GROUNDS ---
   loadNextDynoChallenge() {
     this.isSubmittingDyno = false;
     const challenge = this.challenges.generateChallenge();
@@ -1092,7 +1383,6 @@ class RatRodGame {
   submitDynoAnswer() {
     if (this.isSubmittingDyno) return;
 
-    // If current question was already evaluated, advance rather than re-submitting
     const current = this.challenges.currentChallenge;
     if (!current || current.answered) {
       this.loadNextDynoChallenge();
@@ -1100,53 +1390,51 @@ class RatRodGame {
     }
 
     const inputEl = document.getElementById('dyno-input-val');
-    if (!inputEl) return;
-    const val = inputEl.value;
-    if (val === '' || isNaN(Number(val))) return;
-
-    this.isSubmittingDyno = true;
-    inputEl.disabled = true;
-
+    const feedbackEl = document.getElementById('dyno-feedback-box');
     const submitBtn = document.getElementById('btn-dyno-submit');
     const nextBtn = document.getElementById('btn-dyno-next');
-    if (submitBtn) {
-      submitBtn.disabled = true;
-      submitBtn.classList.add('hidden');
-    }
-    if (nextBtn) {
-      nextBtn.classList.remove('hidden');
-    }
 
-    const res = this.challenges.checkAnswer(val);
-    if (res.alreadyAnswered) {
-      this.isSubmittingDyno = false;
+    if (!inputEl) return;
+    const rawVal = parseFloat(inputEl.value);
+    if (isNaN(rawVal)) {
+      alert("Please enter a valid numeric value.");
       return;
     }
 
-    const feedbackEl = document.getElementById('dyno-feedback-box');
+    this.isSubmittingDyno = true;
+    inputEl.disabled = true;
+    if (submitBtn) submitBtn.classList.add('hidden');
+    if (nextBtn) nextBtn.classList.remove('hidden');
 
-    if (res.success) {
-      this.audio.playCashSound();
-      this.inventory.addCash(res.earnedCash);
-      const dynoPts = 15 + Math.min(20, (res.streak - 1) * 5);
-      this.inventory.addScore(dynoPts);
+    const result = this.challenges.checkAnswer(rawVal);
+
+    if (result.correct) {
+      this.audio.playDynoSuccess();
+      this.inventory.addCash(result.earnedCash);
+      this.inventory.addScore(15);
       this.updateHUD();
 
       feedbackEl.innerHTML = `
-        <div class="feedback-success">
-          <h3>✅ Correct! +$${res.earnedCash} Cash & +${dynoPts} Driver Points!</h3>
-          ${res.multiplier > 1 ? `<p class="streak-badge">🔥 ${res.streak} Answer Streak (${res.multiplier}x Cash Multiplier!)</p>` : ''}
+        <div class="dyno-feedback-card correct">
+          <div class="fb-title">✅ EXCELLENT CALCULATION! +$${result.earnedCash} Cash (${result.streak}x Streak)</div>
+          <p class="fb-text">Your telemetry calibration hooked cleanly into the Dyno database.</p>
           <div class="solution-steps">
-            ${res.steps.map(s => `<p>${s}</p>`).join('')}
+            <strong>Physics Solution:</strong>
+            <ul>${result.solutionSteps.map(s => `<li>${s}</li>`).join('')}</ul>
           </div>
         </div>
       `;
     } else {
+      this.audio.playDynoFail();
+      this.updateHUD();
+
       feedbackEl.innerHTML = `
-        <div class="feedback-error">
-          <h3>❌ Not Quite! (Expected: ${res.expected})</h3>
+        <div class="dyno-feedback-card wrong">
+          <div class="fb-title">❌ CALCULATION ERROR (Off by ${result.diff.toFixed(2)})</div>
+          <p class="fb-text">Review Newton's laws below and calibrate your working.</p>
           <div class="solution-steps">
-            ${res.steps.map(s => `<p>${s}</p>`).join('')}
+            <strong>Correct Procedure:</strong>
+            <ul>${result.solutionSteps.map(s => `<li>${s}</li>`).join('')}</ul>
           </div>
         </div>
       `;
@@ -1182,7 +1470,6 @@ class RatRodGame {
       }
     }
 
-    // Trigger resize on tick so internal canvas dimensions match after display unhide
     if (this.desmosCalculator && typeof this.desmosCalculator.resize === 'function') {
       setTimeout(() => {
         try {
@@ -1206,6 +1493,12 @@ class RatRodGame {
   }
 
   updateHUD() {
+    const budgetVal = document.getElementById('hud-budget-val');
+    if (budgetVal && this.playerCar) {
+      budgetVal.textContent = `${this.playerCar.jalopyPoints} / 20 pts`;
+      budgetVal.style.color = this.playerCar.isBudgetValid ? 'var(--accent-cyan)' : 'var(--accent-red)';
+    }
+
     const bankEls = document.querySelectorAll('.hud-bank-val');
     bankEls.forEach(el => {
       el.textContent = `$${this.inventory.bankCash}`;
@@ -1224,18 +1517,23 @@ class RatRodGame {
       }
     });
 
-    const streakEl = document.getElementById('hud-streak-val');
-    if (streakEl) streakEl.textContent = `${this.challenges.streak}x`;
-
-    const recordEl = document.getElementById('hud-record-val');
-    if (recordEl) {
-      recordEl.textContent = this.inventory.bestEt ? `${this.inventory.bestEt.toFixed(3)}s` : '--';
-    }
-
     this.updateMatchupBadge();
+    this.updateBudgetWarning();
   }
 
-  // --- MATCHMAKING & LEADERBOARD METHODS ---
+  _updateDimmerButtonText(btn, mode) {
+    if (!btn) return;
+    if (mode === 'dark') {
+      btn.textContent = '🖼️ BG: Dark';
+      btn.title = 'Background: Extra Dark (maximum high-contrast focus)';
+    } else if (mode === 'vibrant') {
+      btn.textContent = '🖼️ BG: Vibrant';
+      btn.title = 'Background: Vibrant (richer hot rod banner atmosphere)';
+    } else {
+      btn.textContent = '🖼️ BG: Auto';
+      btn.title = 'Background: Auto (dimmed for most pages/tabs, vibrant in Crates)';
+    }
+  }
 
   populateOpponentDropdown() {
     const oppSelect = document.getElementById('opponent-select');
@@ -1246,7 +1544,8 @@ class RatRodGame {
       opt.value = idx;
       const pi = r.pi || r.car.pi;
       const carClass = r.carClass || r.car.carClass;
-      opt.textContent = `[Class ${carClass} • ${pi} PI] ${r.name} (${r.driver})`;
+      const driverDisplay = formatStudentDriverName(r.driver, true);
+      opt.textContent = `[Class ${carClass} • ${pi} PI] ${r.name} (${driverDisplay})`;
       oppSelect.appendChild(opt);
     });
     oppSelect.value = this.opponentIndex;
@@ -1280,7 +1579,6 @@ class RatRodGame {
     if (!this.playerCar || !this.opponentRoster || !this.opponentRoster.length) return;
     const pPI = this.playerCar.pi || 350;
 
-    // Find rival whose PI is closest to the player's PI
     let bestIdx = 0;
     let minDiff = Infinity;
 
@@ -1301,15 +1599,6 @@ class RatRodGame {
     this.syncOpponentPhysics();
     this.updateMatchupBadge();
     this.resetRace();
-
-    if (notify) {
-      const rival = this.opponentRoster[bestIdx];
-      const badge = document.getElementById('matchup-diff-badge');
-      if (badge) {
-        badge.style.transform = 'scale(1.2)';
-        setTimeout(() => badge.style.transform = 'scale(1)', 300);
-      }
-    }
   }
 
   getBaselineLeaderboard() {
@@ -1317,7 +1606,8 @@ class RatRodGame {
     const inv = this.inventory;
     const pc = this.playerCar;
     const auth = this.authManager;
-    const myName = (auth && auth.studentName) ? auth.studentName : "You";
+    const rawMyName = (auth && auth.studentName) ? auth.studentName : "You";
+    const myName = formatStudentDriverName(rawMyName, false);
     const myId = (auth && auth.studentId) ? auth.studentId : "local_racer";
 
     list.push({
@@ -1377,7 +1667,6 @@ class RatRodGame {
     const loadingEl = document.getElementById('leaderboard-loading');
     if (!tableBody) return;
 
-    // 1. Instantly display cached records or baseline so board is NEVER blank
     if (!this._cachedLeaderboard || !this._cachedLeaderboard.length) {
       this._cachedLeaderboard = this.getBaselineLeaderboard();
     }
@@ -1408,7 +1697,6 @@ class RatRodGame {
 
     const records = [...rawRecords];
 
-    // Sort according to active leaderboard tab
     if (this.leaderboardMode === 'et') {
       records.sort((a, b) => {
         const etA = (a.bestEt && a.bestEt > 0) ? a.bestEt : 999;
@@ -1445,6 +1733,11 @@ class RatRodGame {
       const row = document.createElement('tr');
       row.className = `lb-row ${isYou ? 'lb-row-you' : ''}`;
 
+      let displayName = formatStudentDriverName(r.name || r.driver, r.isGhost);
+      if (isYou) {
+        displayName = displayName.replace(/\s*\(You\)\s*$/i, '');
+      }
+
       const etDisplay = (r.bestEt && r.bestEt > 0) ? `${Number(r.bestEt).toFixed(3)}s` : '--';
       const speedMph = (r.bestTrapSpeed && r.bestTrapSpeed > 0) ? (r.bestTrapSpeed * 2.23694).toFixed(1) + ' mph' : '--';
       const winRate = r.racesTotal > 0 ? Math.round((r.racesWon / r.racesTotal) * 100) + '%' : '--';
@@ -1452,7 +1745,7 @@ class RatRodGame {
       row.innerHTML = `
         <td class="lb-cell-rank"><span class="rank-pill ${rankClass}">${rankBadge}</span></td>
         <td class="lb-cell-driver">
-          <strong>${r.name}</strong>
+          <strong>${displayName}</strong>
           ${isYou ? '<span class="you-badge">YOU</span>' : ''}
           ${r.isGhost ? '<span class="ghost-badge">BENCHMARK</span>' : ''}
         </td>
@@ -1508,7 +1801,8 @@ class RatRodGame {
 
     const launchBtn = document.getElementById('btn-launch');
     if (launchBtn) {
-      launchBtn.textContent = `⚔️ STAGE: VS ${rivalRecord.driver.toUpperCase()}`;
+      const rivalName = formatStudentDriverName(rivalRecord.driver || rivalRecord.name, rivalRecord.isGhost);
+      launchBtn.textContent = `⚔️ STAGE: VS ${rivalName.toUpperCase()}`;
     }
   }
 }

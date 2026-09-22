@@ -1,6 +1,12 @@
 /**
  * Rat Rod Racers - Interactive Telemetry Graphing Viewer
- * Renders Dual-Car Comparative Curves: Position (x-t), Velocity (v-t), Acceleration (a-t), Net Force (F_net-t).
+ * Renders Dual-Car Comparative Curves:
+ * - Position (x-t)
+ * - Velocity (v-t)
+ * - Acceleration (a-t)
+ * - Net Force (F_net-t)
+ * - Engine Temperature (T-t) with Overheat Threshold
+ * - Wheelspin Loss (F_spin-t)
  * Interactive scrub inspection tooltips & physical slope/area annotations.
  */
 
@@ -10,9 +16,9 @@ class TelemetryViewer {
     this.ctx = this.canvas ? this.canvas.getContext('2d') : null;
     this.playerData = [];
     this.opponentData = [];
-    this.mode = 'v-t'; // 'x-t', 'v-t', 'a-t', 'f-t'
+    this.mode = 'v-t'; // 'x-t', 'v-t', 'a-t', 'f-t', 'temp', 'wheelspin'
     this.hoverT = null;
-    this.units = 'metric'; // 'metric' or 'imperial'
+    this.units = 'imperial'; // 'imperial' or 'metric'
 
     if (this.canvas) {
       this._initEvents();
@@ -39,7 +45,7 @@ class TelemetryViewer {
     this.canvas.addEventListener('mousemove', (e) => {
       const rect = this.canvas.getBoundingClientRect();
       const mouseX = e.clientX - rect.left;
-      const padLeft = 60;
+      const padLeft = 65;
       const padRight = 30;
       const w = this.canvas.width - padLeft - padRight;
 
@@ -79,7 +85,12 @@ class TelemetryViewer {
       case 'a-t':
         return this.units === 'imperial' ? entry.a * 3.28084 : entry.a; // ft/s² or m/s²
       case 'f-t':
-        return entry.fNet; // N
+        return entry.fNet || 0; // N
+      case 'temp':
+        const tempF = entry.temp !== undefined ? entry.temp : 85;
+        return this.units === 'imperial' ? tempF : (tempF - 32) * (5 / 9); // °F or °C
+      case 'wheelspin':
+        return entry.fSpin || 0; // N
       default:
         return entry.v;
     }
@@ -91,6 +102,8 @@ class TelemetryViewer {
       case 'v-t': return this.units === 'imperial' ? 'Velocity v (mph)' : 'Velocity v (m/s)';
       case 'a-t': return this.units === 'imperial' ? 'Acceleration a (ft/s²)' : 'Acceleration a (m/s²)';
       case 'f-t': return 'Net Force F_net (N)';
+      case 'temp': return this.units === 'imperial' ? 'Engine Temp (°F)' : 'Engine Temp (°C)';
+      case 'wheelspin': return 'Wheelspin Excess Loss (N)';
       default: return '';
     }
   }
@@ -98,7 +111,6 @@ class TelemetryViewer {
   render() {
     if (!this.ctx || !this.canvas) return;
 
-    // Handle high DPI scaling
     const w = this.canvas.clientWidth || 600;
     const h = this.canvas.clientHeight || 280;
     if (this.canvas.width !== w || this.canvas.height !== h) {
@@ -109,7 +121,7 @@ class TelemetryViewer {
     const ctx = this.ctx;
     ctx.clearRect(0, 0, w, h);
 
-    const padLeft = 65;
+    const padLeft = 68;
     const padRight = 30;
     const padTop = 30;
     const padBottom = 40;
@@ -128,6 +140,11 @@ class TelemetryViewer {
       const val = this._getValue(o, this.mode);
       if (val > yMax) yMax = val;
     });
+
+    if (this.mode === 'temp') {
+      const critLine = this.units === 'imperial' ? 225 : (225 - 32) * (5 / 9);
+      yMax = Math.max(yMax, critLine * 1.15);
+    }
     yMax = Math.ceil(yMax * 1.15);
 
     // 1. Draw Grid Lines
@@ -166,6 +183,27 @@ class TelemetryViewer {
       ctx.fillText(tVal + 's', xPos, padTop + plotH + 18);
     }
 
+    // Critical Overheat Threshold Line if viewing temperature
+    if (this.mode === 'temp') {
+      const critVal = this.units === 'imperial' ? 225 : (225 - 32) * (5 / 9);
+      const critY = padTop + plotH - (critVal / yMax) * plotH;
+
+      ctx.save();
+      ctx.strokeStyle = '#e63946';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([6, 6]);
+      ctx.beginPath();
+      ctx.moveTo(padLeft, critY);
+      ctx.lineTo(padLeft + plotW, critY);
+      ctx.stroke();
+
+      ctx.fillStyle = '#e63946';
+      ctx.font = 'bold 9px monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText(`🔥 OVERHEAT THRESHOLD (${Math.round(critVal)}°)`, padLeft + plotW - 6, critY - 4);
+      ctx.restore();
+    }
+
     // Axes
     ctx.strokeStyle = '#495057';
     ctx.lineWidth = 2;
@@ -199,68 +237,52 @@ class TelemetryViewer {
     }
 
     // 5. Legend
-    ctx.textAlign = 'left';
-    ctx.font = 'bold 11px sans-serif';
-    // Player
+    ctx.font = 'bold 11px monospace';
     ctx.fillStyle = '#00f0ff';
-    ctx.fillRect(padLeft + 10, 10, 14, 4);
-    ctx.fillText("Your Rat Rod", padLeft + 30, 15);
-    // Opponent
+    ctx.textAlign = 'left';
+    ctx.fillText("■ YOUR CAR", padLeft + 12, padTop + 16);
+
     ctx.fillStyle = '#ff7b00';
-    ctx.fillRect(padLeft + 130, 10, 14, 4);
-    ctx.fillText("Opponent Ghost", padLeft + 150, 15);
+    ctx.fillText("■ OPPONENT GHOST", padLeft + 115, padTop + 16);
   }
 
   _drawCurve(ctx, data, color, padLeft, padTop, plotW, plotH, tMax, yMax) {
-    if (!data || data.length === 0) return;
+    if (!data || data.length < 2) return;
 
+    ctx.save();
     ctx.strokeStyle = color;
     ctx.lineWidth = 2.5;
+    ctx.lineJoin = 'round';
     ctx.beginPath();
 
-    for (let i = 0; i < data.length; i++) {
-      const entry = data[i];
-      const val = this._getValue(entry, this.mode);
-      const xPos = padLeft + (entry.t / tMax) * plotW;
-      const yPos = padTop + plotH - (val / yMax) * plotH;
+    data.forEach((pt, i) => {
+      const val = this._getValue(pt, this.mode);
+      const x = padLeft + (pt.t / tMax) * plotW;
+      const y = padTop + plotH - (Math.max(0, val) / yMax) * plotH;
 
-      if (i === 0) ctx.moveTo(xPos, yPos);
-      else ctx.lineTo(xPos, yPos);
-    }
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+
     ctx.stroke();
 
-    // End point mark
-    const last = data[data.length - 1];
-    const valLast = this._getValue(last, this.mode);
-    const xEnd = padLeft + (last.t / tMax) * plotW;
-    const yEnd = padTop + plotH - (valLast / yMax) * plotH;
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.arc(xEnd, yEnd, 4, 0, Math.PI * 2);
+    // Fill underneath curve slightly
+    const lastPt = data[data.length - 1];
+    const lastX = padLeft + (lastPt.t / tMax) * plotW;
+    ctx.lineTo(lastX, padTop + plotH);
+    ctx.lineTo(padLeft, padTop + plotH);
+    ctx.closePath();
+    ctx.fillStyle = color === '#00f0ff' ? 'rgba(0, 240, 255, 0.08)' : 'rgba(255, 123, 0, 0.06)';
     ctx.fill();
-  }
-
-  _findClosest(data, t) {
-    if (!data || data.length === 0) return null;
-    let closest = data[0];
-    let minDiff = Math.abs(data[0].t - t);
-    for (let i = 1; i < data.length; i++) {
-      const diff = Math.abs(data[i].t - t);
-      if (diff < minDiff) {
-        minDiff = diff;
-        closest = data[i];
-      }
-    }
-    return closest;
+    ctx.restore();
   }
 
   _drawScrubTooltip(ctx, padLeft, padTop, plotW, plotH, tMax, yMax) {
-    const t = this.hoverT;
-    const xPos = padLeft + (t / tMax) * plotW;
+    const xPos = padLeft + (this.hoverT / tMax) * plotW;
 
     // Vertical cursor line
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = '#f8f9fa';
+    ctx.lineWidth = 1.2;
     ctx.setLineDash([4, 4]);
     ctx.beginPath();
     ctx.moveTo(xPos, padTop);
@@ -268,49 +290,66 @@ class TelemetryViewer {
     ctx.stroke();
     ctx.setLineDash([]);
 
-    const pEntry = this._findClosest(this.playerData, t);
-    const oEntry = this._findClosest(this.opponentData, t);
+    // Find nearest telemetry points
+    const pPt = this._findNearestPoint(this.playerData, this.hoverT);
+    const oPt = this._findNearestPoint(this.opponentData, this.hoverT);
 
-    const pVal = pEntry ? this._getValue(pEntry, this.mode) : 0;
-    const oVal = oEntry ? this._getValue(oEntry, this.mode) : 0;
+    const pVal = this._getValue(pPt, this.mode);
+    const oVal = this._getValue(oPt, this.mode);
 
-    // Dots on curves
-    if (pEntry) {
-      const yP = padTop + plotH - (pVal / yMax) * plotH;
-      ctx.fillStyle = '#00f0ff';
-      ctx.beginPath(); ctx.arc(xPos, yP, 5, 0, Math.PI * 2); ctx.fill();
+    // Tooltip Box
+    const boxW = 160;
+    const boxH = 68;
+    let boxX = xPos + 12;
+    if (boxX + boxW > padLeft + plotW) {
+      boxX = xPos - boxW - 12;
     }
-    if (oEntry) {
-      const yO = padTop + plotH - (oVal / yMax) * plotH;
-      ctx.fillStyle = '#ff7b00';
-      ctx.beginPath(); ctx.arc(xPos, yO, 5, 0, Math.PI * 2); ctx.fill();
-    }
-
-    // Tooltip box
-    const boxW = 140;
-    const boxH = 65;
-    let boxX = xPos + 10;
-    if (boxX + boxW > padLeft + plotW) boxX = xPos - boxW - 10;
     const boxY = padTop + 20;
 
-    ctx.fillStyle = 'rgba(18, 21, 28, 0.92)';
-    ctx.strokeStyle = '#3b4252';
+    ctx.fillStyle = 'rgba(18, 22, 32, 0.94)';
+    ctx.strokeStyle = '#495057';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.roundRect(boxX, boxY, boxW, boxH, 6);
     ctx.fill();
     ctx.stroke();
 
-    ctx.fillStyle = '#ffd166';
     ctx.font = 'bold 11px monospace';
+    ctx.fillStyle = '#fff';
     ctx.textAlign = 'left';
-    ctx.fillText(`Time: ${t.toFixed(2)}s`, boxX + 10, boxY + 18);
+    ctx.fillText(`Time: ${this.hoverT.toFixed(2)}s`, boxX + 10, boxY + 18);
 
     ctx.fillStyle = '#00f0ff';
-    ctx.fillText(`You: ${pVal.toFixed(1)}`, boxX + 10, boxY + 36);
+    ctx.fillText(`You: ${pVal.toFixed(1)} ${this._getShortUnit()}`, boxX + 10, boxY + 36);
 
     ctx.fillStyle = '#ff7b00';
-    ctx.fillText(`Rival: ${oVal.toFixed(1)}`, boxX + 10, boxY + 54);
+    ctx.fillText(`Ghost: ${oVal.toFixed(1)} ${this._getShortUnit()}`, boxX + 10, boxY + 54);
+  }
+
+  _getShortUnit() {
+    switch (this.mode) {
+      case 'x-t': return this.units === 'imperial' ? 'ft' : 'm';
+      case 'v-t': return this.units === 'imperial' ? 'mph' : 'm/s';
+      case 'a-t': return this.units === 'imperial' ? 'ft/s²' : 'm/s²';
+      case 'f-t': return 'N';
+      case 'temp': return '°';
+      case 'wheelspin': return 'N';
+      default: return '';
+    }
+  }
+
+  _findNearestPoint(data, t) {
+    if (!data || data.length === 0) return null;
+    let best = data[0];
+    let minDiff = Math.abs(best.t - t);
+    for (let i = 1; i < data.length; i++) {
+      const diff = Math.abs(data[i].t - t);
+      if (diff < minDiff) {
+        minDiff = diff;
+        best = data[i];
+      }
+    }
+    return best;
   }
 }
 
