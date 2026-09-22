@@ -5,62 +5,62 @@
  * Archetype matrix, 5-slot customizer, mystery crates, and dyno proving grounds.
  */
 
-const formatStudentDriverName = (typeof window !== 'undefined' && typeof window.formatStudentDriverName === 'function')
-  ? window.formatStudentDriverName
-  : function(rawName, isGhost = false) {
-      if (isGhost) return rawName;
-      if (!rawName || typeof rawName !== 'string') return 'Racer';
-      let str = rawName.trim();
-      if (!str) return 'Racer';
-      let suffix = '';
-      const parenMatch = str.match(/\s*(\([^)]+\))\s*$/);
-      if (parenMatch) {
-        suffix = ' ' + parenMatch[1].trim();
-        str = str.replace(/\s*(\([^)]+\))\s*$/, '').trim();
+if (typeof formatStudentDriverName === 'undefined') {
+  var formatStudentDriverName = function(rawName, isGhost = false) {
+    if (isGhost) return rawName;
+    if (!rawName || typeof rawName !== 'string') return 'Racer';
+    let str = rawName.trim();
+    if (!str) return 'Racer';
+    let suffix = '';
+    const parenMatch = str.match(/\s*(\([^)]+\))\s*$/);
+    if (parenMatch) {
+      suffix = ' ' + parenMatch[1].trim();
+      str = str.replace(/\s*(\([^)]+\))\s*$/, '').trim();
+    }
+    if (str.includes('@')) {
+      const emailPrefix = str.split('@')[0];
+      if (emailPrefix.includes('.')) {
+        const parts = emailPrefix.split('.').filter(Boolean);
+        const first = parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
+        const lastInitial = parts[parts.length - 1].charAt(0).toUpperCase();
+        return `${first} ${lastInitial}.${suffix}`;
+      } else {
+        str = emailPrefix;
       }
-      if (str.includes('@')) {
-        const emailPrefix = str.split('@')[0];
-        if (emailPrefix.includes('.')) {
-          const parts = emailPrefix.split('.').filter(Boolean);
-          const first = parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
-          const lastInitial = parts[parts.length - 1].charAt(0).toUpperCase();
-          return `${first} ${lastInitial}.${suffix}`;
-        } else {
-          str = emailPrefix;
-        }
+    }
+    if (str.includes(',')) {
+      const commaParts = str.split(',').map(s => s.trim()).filter(Boolean);
+      if (commaParts.length >= 2) {
+        const lastName = commaParts[0];
+        const firstNamePart = commaParts[1];
+        const firstTokens = firstNamePart.split(/\s+/).filter(Boolean);
+        const first = firstTokens[0] || '';
+        const lastInitial = lastName.charAt(0).toUpperCase();
+        if (first && lastInitial) return `${first} ${lastInitial}.${suffix}`;
       }
-      if (str.includes(',')) {
-        const commaParts = str.split(',').map(s => s.trim()).filter(Boolean);
-        if (commaParts.length >= 2) {
-          const lastName = commaParts[0];
-          const firstNamePart = commaParts[1];
-          const firstTokens = firstNamePart.split(/\s+/).filter(Boolean);
-          const first = firstTokens[0] || '';
-          const lastInitial = lastName.charAt(0).toUpperCase();
-          if (first && lastInitial) return `${first} ${lastInitial}.${suffix}`;
-        }
-      }
-      const tokens = str.split(/\s+/).filter(Boolean);
-      if (tokens.length <= 1) return `${tokens[0] || 'Racer'}${suffix}`;
-      const lastToken = tokens[tokens.length - 1];
+    }
+    const tokens = str.split(/\s+/).filter(Boolean);
+    if (tokens.length <= 1) return `${tokens[0] || 'Racer'}${suffix}`;
+    const lastToken = tokens[tokens.length - 1];
 
-      // If last token is purely numeric (e.g. 'Racer 42'), do not abbreviate as an initial
-      if (/^\d+$/.test(lastToken)) {
-        return `${tokens.join(' ')}${suffix}`;
-      }
-
-      if (/^[A-Za-z]\.?$/.test(lastToken)) {
-        const cleanInitial = lastToken.replace('.', '').toUpperCase();
-        const rest = tokens.slice(0, -1).join(' ');
-        return `${rest} ${cleanInitial}.${suffix}`;
-      }
-      if (/^[A-Za-z]/.test(lastToken)) {
-        const firstName = tokens[0];
-        const lastInitial = lastToken.charAt(0).toUpperCase();
-        return `${firstName} ${lastInitial}.${suffix}`;
-      }
+    // If last token is purely numeric (e.g. 'Racer 42'), do not abbreviate as an initial
+    if (/^\d+$/.test(lastToken)) {
       return `${tokens.join(' ')}${suffix}`;
-    };
+    }
+
+    if (/^[A-Za-z]\.?$/.test(lastToken)) {
+      const cleanInitial = lastToken.replace('.', '').toUpperCase();
+      const rest = tokens.slice(0, -1).join(' ');
+      return `${rest} ${cleanInitial}.${suffix}`;
+    }
+    if (/^[A-Za-z]/.test(lastToken)) {
+      const firstName = tokens[0];
+      const lastInitial = lastToken.charAt(0).toUpperCase();
+      return `${firstName} ${lastInitial}.${suffix}`;
+    }
+    return `${tokens.join(' ')}${suffix}`;
+  };
+}
 
 class RatRodGame {
   constructor() {
