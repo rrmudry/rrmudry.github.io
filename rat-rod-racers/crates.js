@@ -1,6 +1,7 @@
 /**
  * Rat Rod Racers - Mystery Part Crates & Unboxing Engine
  * Junkyard Scraps, Tuner Speed Crates, and Legendary Relic Crates.
+ * 5 Canonical Slots: Powertrain, Chassis, Suspension, Wheels, Ancillary
  */
 
 const CRATE_TIERS = {
@@ -18,7 +19,7 @@ const CRATE_TIERS = {
     name: "Tuner's Speed Crate",
     cost: 400,
     partCount: 3,
-    description: "Packed with hot rod carburetors, drag wings, and competition rubber. Guaranteed Rare or better!",
+    description: "Packed with hot rod carburetors, drag slicks, and dropped axles. Guaranteed Rare or better!",
     icon: "🧰",
     rarityWeights: { common: 0.35, rare: 0.48, epic: 0.14, legendary: 0.03 },
     guaranteedMinRarity: 'rare'
@@ -28,7 +29,7 @@ const CRATE_TIERS = {
     name: "Legendary Relic Crate",
     cost: 900,
     partCount: 4,
-    description: "The holy grail of speed! Towering blowers, nitrous systems, and forged drag hardware. High Epic/Legendary rates!",
+    description: "The holy grail of speed! Towering blowers, turbo diesels, and solid lake rigs. High Epic/Legendary rates!",
     icon: "🏆",
     rarityWeights: { common: 0.0, rare: 0.45, epic: 0.40, legendary: 0.15 },
     guaranteedMinRarity: 'epic'
@@ -40,11 +41,11 @@ class CrateShopEngine {
     this.inventory = inventoryManager;
   }
 
-  // Roll a random part from all categories matching the target rarity
+  // Roll a random part from the 5 canonical slots matching target rarity
   rollPart(targetRarity = null, allowedRarities = null) {
-    const categories = ['chassis', 'engines', 'wheels', 'aero', 'exhaust', 'charms'];
+    const categories = ['powertrain', 'chassis', 'suspension', 'wheels', 'ancillary'];
     const chosenCat = categories[Math.floor(Math.random() * categories.length)];
-    const pool = Object.values(RAT_ROD_ASSETS[chosenCat]);
+    const pool = Object.values(RAT_ROD_ASSETS[chosenCat] || {});
 
     let filtered = pool;
     if (targetRarity) {
@@ -71,7 +72,6 @@ class CrateShopEngine {
       let chosenRarity = 'common';
 
       if (i === 0 && crate.guaranteedMinRarity) {
-        // Guaranteed minimum rarity for first card
         if (crate.guaranteedMinRarity === 'epic') {
           chosenRarity = Math.random() < 0.28 ? 'legendary' : 'epic';
         } else {

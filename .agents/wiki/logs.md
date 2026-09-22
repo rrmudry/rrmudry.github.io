@@ -2,6 +2,36 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-22 — Rat Rod Racers: Part Balancing, Synergy Math & 5-Slot Archetype Overhaul
+
+**Pattern Updated**: `modular-vehicle-physics-game.md`.
+
+**Changes**:
+- **5 Canonical Slots & Jalopy Budget Cap**:
+  - Replaced 6 ad-hoc slots with the 5 core slots from the design document: `powertrain` (ENG-01 to ENG-06), `chassis` (BOD-01 to BOD-05), `suspension` (SUS-01 to SUS-05), `wheels` (TIR-01 to TIR-05), and `ancillary` (ANC-01 to ANC-05).
+  - Enforced a hard 20-point Jalopy Budget Cap across vehicles, preventing over-budget rigs from staging and rewarding clever horizontal tradeoffs.
+  - Implemented automatic backward-compatibility migration for legacy player inventory saves.
+- **Coupled Non-Linear Physics Simulation (`physics.js`)**:
+  - Implemented dynamic longitudinal weight transfer (`ΔW = a · h_CG / L · m`), rear axle normal force, and effective friction scaling.
+  - Added non-linear exponential wheelspin penalty equation (`F_wheelspin = ΔF_excess · (1 - e^(-λ · ΔF_excess))`), actively penalizing overpowered cars on skinny tires with thrust drop below the grip limit.
+  - Added differential thermal accumulation (`dT/dt`) with speed/radiator cooling and non-linear power degradation curve when temperature exceeds critical threshold (225°F).
+  - Added surface roughness chassis bottoming drag and incline gravitational resistance (`F_grade = m · g · sin(θ)`).
+- **Five Canonical Track Environments & Visual Atmospheres**:
+  - Implemented track selection across Abandoned Airfield Drag, Bonneville Salt Flats, Dead Man's Dirt Strip, Quarry Incline Drag, and Smokey Mountain Pass.
+  - Added procedural track backgrounds (salt bed mirages, dirt track ruts, quarry cliffs, pine mountain passes) and environmental coefficients (grip, roughness, grade, air density).
+- **Archetype Ghost Roster & Telemetry Viewer**:
+  - Updated benchmark classmate ghost roster to embody the 5 distinct archetypes (Blown Gasser, Salt Speedster, Mud-Runner, Chop Rattler, Diesel Bruiser) plus Rookie benchmark.
+  - Expanded dual-car telemetry graph viewer with Engine Temperature (`T-t`) with overheat line and Wheelspin Loss (`F_spin-t`) curves.
+  - Added animated steam from radiator on overheat and tire smoke on wheelspin in canvas drawer.
+- **FERPA Student Name Privacy Sanitization**:
+  - Implemented `formatStudentDriverName` across `auth_manager.js` and `game.js` to strip full student last names on all public leaderboard tables, opponent dropdown menus, and ghost challenge staging buttons.
+  - Automatically abbreviates names to First Name + Last Initial (e.g., `Johnathan Smith` -> `Johnathan S.`, `Smith, Jane (Period 2)` -> `Jane S. (Period 2)`, `john.smith@orangeusd.org` -> `John S.`), keeping single first names and archetype ghosts intact.
+- **Ambient Banner Background & Adaptive Tab Dimming**:
+  - Rendered `assets/banner.jpg` globally via fixed background compositor layer (`.app-bg-fixed > .app-bg-image + .app-bg-overlay`) with radial/linear dark vignette overlays and frosted glass headers.
+  - Implemented tab-adaptive dimming (`body[data-active-tab="..."]`): heavily dimmed on academic/dense tabs (`race`, `garage`, `dyno`, `leaderboard` with 0.13–0.18 opacity and soft blur) to preserve high contrast for math and telemetry, and more vibrant on showcase tabs (`crates` at 0.38 opacity).
+  - Added optional header dimmer preset button (`🖼️ BG: Auto / Dark / Vibrant`) persisted in `localStorage`.
+  - Upgraded Crates hero section from duplicate nested image to a sleek glassmorphic banner header.
+
 ## 2026-09-22 — Bell-Ringer: Resilient Physics AI Mentor & CAST Reasoning Chat Fallback Engine
 
 **Pattern Updated**: `bell-ringer-config.md`, `cast-aligned-webapp-design.md`.

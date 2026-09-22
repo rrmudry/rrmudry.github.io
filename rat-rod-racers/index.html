@@ -16,7 +16,13 @@
   <!-- Desmos Scientific Calculator API -->
   <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
 </head>
-<body>
+<body data-active-tab="race" data-bg-dim="auto">
+
+  <!-- Fixed Ambient Banner Background Layer -->
+  <div class="app-bg-fixed" aria-hidden="true">
+    <div class="app-bg-image"></div>
+    <div class="app-bg-overlay"></div>
+  </div>
 
   <!-- App Header -->
   <header class="game-header">
@@ -27,6 +33,9 @@
 
     <div class="header-controls">
       <div id="auth-user-status"></div>
+      <div class="hud-pill hud-budget-pill" title="Jalopy Budget Cap (Max 20 Points Ceiling across all 5 slots!)">
+        ⚡ <span id="hud-budget-val" class="hud-budget-val">11 / 20 pts</span>
+      </div>
       <div class="hud-pill hud-score-pill" title="Championship Driver Points (Earn by winning races, underdog upsets, and Dyno calculations!)">
         🏆 <span id="hud-score-val" class="hud-score-val">1,000 pts</span>
       </div>
@@ -36,6 +45,7 @@
       <div class="hud-pill" title="Bank Cash (Earn by doing calculations in Dyno Lab!)">
         💰 <span class="hud-bank-val">$250</span>
       </div>
+      <button id="btn-bg-dim" class="btn" title="Cycle Background Dimming (Auto / Extra Dark / Vibrant)">🖼️ BG: Auto</button>
       <button id="btn-units" class="btn" title="Toggle Units (Imperial / Metric)">📐 MPH / FT</button>
       <button id="btn-audio" class="btn" title="Toggle Sound">🔊 Sound</button>
       <a href="../games.html" class="btn" title="Back to Games Hub">🏠 Hub</a>
@@ -56,8 +66,31 @@
 
     <!-- 1. DRAG STRIP TAB -->
     <section id="tab-race" class="tab-panel">
+      <!-- Track Environment Selector Bar (Section 5) -->
+      <div class="track-environment-bar">
+        <div class="track-picker-group">
+          <label for="track-select" class="track-picker-label">🏁 Track Environment:</label>
+          <select id="track-select" class="styled-select track-select">
+            <option value="airfield">Abandoned Airfield Drag (Rubbered Asphalt)</option>
+            <option value="bonneville">Bonneville Salt Flats (Hard Salt Bed)</option>
+            <option value="dirt_oval">Dead Man's Dirt Strip (Rutted Clay)</option>
+            <option value="quarry">Quarry Incline Drag (+7.5° Uphill Gravel)</option>
+            <option value="mountain">Smokey Mountain Pass (Undulating Tarmac)</option>
+          </select>
+        </div>
+        <div id="track-details-badge" class="track-details-badge">
+          <span id="track-optimal-badge" class="badge-optimal">Optimal: Blown Gasser</span>
+          <span id="track-lore-text" class="track-lore-text">Peak launch traction makes raw power king.</span>
+        </div>
+      </div>
+
       <div class="race-viewport-wrapper">
         <canvas id="raceCanvas"></canvas>
+      </div>
+
+      <!-- Over-Budget Alert Warning Banner -->
+      <div id="budget-warning-banner" class="budget-warning-banner hidden">
+        ⚠️ <strong>OVER JALOPY BUDGET (<span id="budget-over-pts">22</span> / 20 pts)</strong> — You must swap to lighter/cheaper parts before this car is legal to race!
       </div>
 
       <div class="race-control-bar">
@@ -92,48 +125,56 @@
       </div>
     </section>
 
-    <!-- 2. GARAGE & CUSTOMIZER TAB -->
+    <!-- 2. GARAGE & CUSTOMIZER TAB (5 Slots Architecture) -->
     <section id="tab-garage" class="tab-panel hidden">
       <div class="garage-layout">
-        <!-- Left Sidebar: Car preview & Live Physics Specs -->
+        <!-- Left Sidebar: Car preview, Jalopy Budget Meter & Live Physics Specs -->
         <div class="garage-sidebar">
           <h3>Current Rat Rod</h3>
           <div id="garage-car-preview" class="car-lift-stage">
             <canvas id="garagePreviewCanvas" width="320" height="180"></canvas>
           </div>
+
+          <!-- Jalopy Budget Cap Meter (Section 6.1) -->
+          <div class="budget-meter-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <span style="font-weight:800; font-size:12px; letter-spacing:0.5px;">⚡ JALOPY BUDGET CAP</span>
+              <strong id="garage-budget-ratio" style="font-size:13px; color:var(--accent-cyan);">11 / 20 pts</strong>
+            </div>
+            <div class="budget-progress-track">
+              <div id="garage-budget-bar-fill" class="budget-progress-fill" style="width: 55%;"></div>
+            </div>
+            <div id="garage-budget-status" class="budget-status-valid">✅ Build Legal (Under 20 pt ceiling)</div>
+          </div>
+
           <div id="garage-specs-sheet" class="specs-sheet"></div>
         </div>
 
-        <!-- Right Area: Modular Slots & Inventory Items -->
+        <!-- Right Area: 5 Canonical Slots & Inventory Items -->
         <div class="garage-inventory-area">
           <div class="slot-category-block">
-            <h3>🚗 Chassis & Frame Rails</h3>
+            <h3>⚡ Powertrain & Powerplants (PWR / TRQ / Heat)</h3>
+            <div id="inv-list-powertrain" class="inv-parts-grid"></div>
+          </div>
+
+          <div class="slot-category-block">
+            <h3>🚗 Chassis & Body Rails (Aero / CG / Flex)</h3>
             <div id="inv-list-chassis" class="inv-parts-grid"></div>
           </div>
 
           <div class="slot-category-block">
-            <h3>🔥 Engines & Powerplants</h3>
-            <div id="inv-list-engines" class="inv-parts-grid"></div>
+            <h3>🔩 Suspension & Axles (Traction / Travel / Spool)</h3>
+            <div id="inv-list-suspension" class="inv-parts-grid"></div>
           </div>
 
           <div class="slot-category-block">
-            <h3>🛞 Wheels & Drag Tires</h3>
+            <h3>🛞 Tires & Wheels (Grip / Tread / Contact)</h3>
             <div id="inv-list-wheels" class="inv-parts-grid"></div>
           </div>
 
           <div class="slot-category-block">
-            <h3>🪽 Aerodynamic Spoilers & Wings</h3>
-            <div id="inv-list-aero" class="inv-parts-grid"></div>
-          </div>
-
-          <div class="slot-category-block">
-            <h3>💨 Exhaust & Flaming Zoomies</h3>
-            <div id="inv-list-exhaust" class="inv-parts-grid"></div>
-          </div>
-
-          <div class="slot-category-block">
-            <h3>🎲 Charms, Mascots & Decals</h3>
-            <div id="inv-list-charms" class="inv-parts-grid"></div>
+            <h3>⚙️ Ancillary, Cooling & Quirks</h3>
+            <div id="inv-list-ancillary" class="inv-parts-grid"></div>
           </div>
         </div>
       </div>
@@ -142,12 +183,16 @@
     <!-- 3. MYSTERY CRATES TAB -->
     <section id="tab-crates" class="tab-panel hidden">
       <div class="crates-hero-banner">
-        <img src="assets/banner.jpg" alt="Rat Rod Racers Drag Strip">
-      </div>
-
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-        <h2>Junkyard Mystery Part Crates</h2>
-        <div class="hud-pill" style="font-size:15px;">Your Bank: <span class="hud-bank-val">$250</span></div>
+        <div class="crates-hero-content">
+          <span class="crates-hero-tag">⚡ SCRAPYARD SURPLUS CRATES</span>
+          <h2>Junkyard Mystery Part Crates</h2>
+          <p>Unbox randomized speed parts, heavy blowers, cheater slicks, and chopped bodies across 4 rarity tiers!</p>
+        </div>
+        <div class="crates-hero-bank-card">
+          <span class="bank-label">Your Available Cash:</span>
+          <span class="hud-bank-val bank-val-lg">$250</span>
+          <button id="btn-dyno-jump" class="btn btn-sm btn-jump-dyno" title="Jump to Dyno Lab calculations to earn more cash">🎓 Earn Cash in Dyno Lab ➔</button>
+        </div>
       </div>
 
       <div id="crate-shop-container" class="crates-grid"></div>
@@ -213,7 +258,7 @@
               </div>
               <div class="formula-ref-item">
                 <span class="formula-ref-label">Tire Grip Limit</span>
-                <span class="formula-ref-math"><strong>F<sub>max</sub></strong> = μ · m · g &nbsp;(g = 10 m/s²)</span>
+                <span class="formula-ref-math"><strong>F<sub>max</sub></strong> = μ · W<sub>rear</sub> · g &nbsp;(g = 10 m/s²)</span>
               </div>
               <div class="formula-ref-item">
                 <span class="formula-ref-label">Kinematics Slopes</span>
@@ -284,18 +329,20 @@
 
       <!-- Telemetry Graph Section -->
       <div class="telemetry-stage">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
           <h3 style="font-size:14px; color:var(--accent-orange);">Dual-Car Telemetry Comparison</h3>
           <div class="tele-toolbar">
             <button class="tele-mode-btn" data-mode="x-t">Position (x-t)</button>
             <button class="tele-mode-btn active" data-mode="v-t">Velocity (v-t)</button>
             <button class="tele-mode-btn" data-mode="a-t">Acceleration (a-t)</button>
             <button class="tele-mode-btn" data-mode="f-t">Net Force (F-t)</button>
+            <button class="tele-mode-btn" data-mode="temp">Engine Temp (T-t)</button>
+            <button class="tele-mode-btn" data-mode="wheelspin">Wheelspin (F_spin-t)</button>
           </div>
         </div>
         <canvas id="telemetryCanvas"></canvas>
         <p style="font-size:11px; color:var(--text-muted); margin-top:6px; text-align:center;">
-          Hover across graph to inspect exact values at any point in time. Notice how the slope of the v-t curve reveals instantaneous acceleration!
+          Hover across curves to inspect exact physics values. Notice how excessive torque causes severe wheelspin loss off the launch!
         </p>
       </div>
     </div>

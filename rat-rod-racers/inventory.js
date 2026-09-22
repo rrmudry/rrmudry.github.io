@@ -1,6 +1,7 @@
 /**
  * Rat Rod Racers - Inventory, Upgrade Fusion & Scrap Recycling Manager
- * Handles player bank cash, owned parts catalog, part leveling, and localStorage persistence.
+ * 5 Canonical Slots: Powertrain, Chassis, Suspension, Wheels, Ancillary
+ * Handles player bank cash, owned parts catalog, leveling, and localStorage persistence.
  */
 
 const STORAGE_SAVE_KEY = 'rat_rod_racers_v1';
@@ -15,33 +16,35 @@ class InventoryManager {
     this.bestEt = null;
     this.bestTrapSpeed = null;
 
-    // Owned parts: owned[category][partId] = { count: 1, level: 1 }
+    // 5 Canonical Slots: owned[category][partId] = { count: 1, level: 1 }
     this.owned = {
+      powertrain: {},
       chassis: {},
-      engines: {},
+      suspension: {},
       wheels: {},
-      aero: {},
-      exhaust: {},
-      charms: {}
+      ancillary: {}
     };
 
     this.load();
     this._ensureStarterKit();
   }
 
-  // Ensure beginner parts are owned
+  // Ensure starter parts are available
   _ensureStarterKit() {
     const starters = [
-      { cat: 'chassis', id: 'roadster_32' },
-      { cat: 'engines', id: 'lawnmower_twin' },
-      { cat: 'engines', id: 'flathead_v8' },
-      { cat: 'wheels', id: 'rusty_steelies' },
-      { cat: 'aero', id: 'clean_bobtail' },
-      { cat: 'exhaust', id: 'rusty_pipe' },
-      { cat: 'charms', id: 'fuzzy_dice' }
+      { cat: 'powertrain', id: 'ENG-06' }, // Stock Farm Truck Flathead
+      { cat: 'powertrain', id: 'ENG-03' }, // Screaming Slant-6
+      { cat: 'chassis', id: 'BOD-02' },    // Highboy '29 Roadster
+      { cat: 'chassis', id: 'BOD-05' },    // Gutted Touring Tub
+      { cat: 'suspension', id: 'SUS-02' }, // Split-Wishbone Dropped I-Beam
+      { cat: 'suspension', id: 'SUS-05' }, // Truck Leaves
+      { cat: 'wheels', id: 'TIR-02' },     // Skinny Vintage Firestones
+      { cat: 'wheels', id: 'TIR-03' },     // Hand-Grooved Ag Mud Tires
+      { cat: 'ancillary', id: 'ANC-03' }   // Straight Lakester Pipes
     ];
 
     starters.forEach(s => {
+      if (!this.owned[s.cat]) this.owned[s.cat] = {};
       if (!this.owned[s.cat][s.id]) {
         this.owned[s.cat][s.id] = { count: 1, level: 1 };
       }
@@ -50,10 +53,14 @@ class InventoryManager {
   }
 
   hasPart(cat, id) {
+    if (cat === 'engines') cat = 'powertrain';
+    if (cat === 'charms' || cat === 'exhaust' || cat === 'aero') cat = 'ancillary';
     return !!(this.owned[cat] && this.owned[cat][id] && this.owned[cat][id].count > 0);
   }
 
   getPartLevel(cat, id) {
+    if (cat === 'engines') cat = 'powertrain';
+    if (cat === 'charms' || cat === 'exhaust' || cat === 'aero') cat = 'ancillary';
     if (this.owned[cat] && this.owned[cat][id]) {
       return this.owned[cat][id].level || 1;
     }
@@ -61,6 +68,8 @@ class InventoryManager {
   }
 
   getPartCount(cat, id) {
+    if (cat === 'engines') cat = 'powertrain';
+    if (cat === 'charms' || cat === 'exhaust' || cat === 'aero') cat = 'ancillary';
     if (this.owned[cat] && this.owned[cat][id]) {
       return this.owned[cat][id].count || 0;
     }
@@ -68,6 +77,9 @@ class InventoryManager {
   }
 
   addPart(cat, id) {
+    if (cat === 'engines') cat = 'powertrain';
+    if (cat === 'charms' || cat === 'exhaust' || cat === 'aero') cat = 'ancillary';
+
     if (!this.owned[cat]) this.owned[cat] = {};
     if (!this.owned[cat][id]) {
       this.owned[cat][id] = { count: 1, level: 1 };
@@ -78,8 +90,10 @@ class InventoryManager {
   }
 
   // Upgrade / Fuse duplicate parts to level up
-  // Requires: at least 2 copies of part (count >= 2), current level < 3, and bank cash for fee
   upgradePart(cat, id) {
+    if (cat === 'engines') cat = 'powertrain';
+    if (cat === 'charms' || cat === 'exhaust' || cat === 'aero') cat = 'ancillary';
+
     const entry = this.owned[cat] && this.owned[cat][id];
     if (!entry) return { success: false, msg: "Part not found in inventory." };
     if (entry.level >= 3) return { success: false, msg: "Part is already at Master Level 3!" };
@@ -104,6 +118,9 @@ class InventoryManager {
 
   // Recycle / Scrap duplicate part for immediate cash recovery
   scrapPart(cat, id) {
+    if (cat === 'engines') cat = 'powertrain';
+    if (cat === 'charms' || cat === 'exhaust' || cat === 'aero') cat = 'ancillary';
+
     const entry = this.owned[cat] && this.owned[cat][id];
     if (!entry || entry.count <= 0) {
       return { success: false, msg: "No copies available to scrap." };
@@ -240,48 +257,59 @@ class InventoryManager {
       if (typeof data.bankCash === 'number') this.bankCash = data.bankCash;
       if (typeof data.driverScore === 'number') this.driverScore = data.driverScore;
       if (typeof data.winStreak === 'number') this.winStreak = data.winStreak;
-      if (data.owned) this.owned = data.owned;
+
+      if (data.owned) {
+        // Migrate legacy 6-slot data into 5-slot structure
+        this.owned.powertrain = data.owned.powertrain || data.owned.engines || {};
+        this.owned.chassis = data.owned.chassis || {};
+        this.owned.suspension = data.owned.suspension || {};
+        this.owned.wheels = data.owned.wheels || {};
+        this.owned.ancillary = data.owned.ancillary || data.owned.exhaust || data.owned.charms || {};
+
+        // Migrate legacy item IDs if present
+        const idMap = {
+          'lawnmower_twin': { cat: 'powertrain', id: 'ENG-06' },
+          'flathead_v8': { cat: 'powertrain', id: 'ENG-01' },
+          'junkyard_turbo': { cat: 'powertrain', id: 'ENG-03' },
+          'blown_blower': { cat: 'powertrain', id: 'ENG-02' },
+          'electric_arc': { cat: 'powertrain', id: 'ENG-05' },
+          'nitrous_beast': { cat: 'powertrain', id: 'ENG-04' },
+          'roadster_32': { cat: 'chassis', id: 'BOD-02' },
+          'scrappy_pickup': { cat: 'chassis', id: 'BOD-04' },
+          'bubbly_bug': { cat: 'chassis', id: 'BOD-03' },
+          'iron_coffin': { cat: 'chassis', id: 'BOD-01' },
+          'milk_truck': { cat: 'chassis', id: 'BOD-04' },
+          'bone_shaker': { cat: 'chassis', id: 'BOD-01' },
+          'wire_spokes': { cat: 'wheels', id: 'TIR-02' },
+          'rusty_steelies': { cat: 'wheels', id: 'TIR-02' },
+          'whitewall_cruisers': { cat: 'wheels', id: 'TIR-04' },
+          'mud_boggers': { cat: 'wheels', id: 'TIR-03' },
+          'fat_drag_slicks': { cat: 'wheels', id: 'TIR-01' },
+          'gold_racing_mags': { cat: 'wheels', id: 'TIR-04' },
+          'rusty_pipe': { cat: 'ancillary', id: 'ANC-03' },
+          'flaming_zoomies': { cat: 'ancillary', id: 'ANC-03' },
+          'fuzzy_dice': { cat: 'ancillary', id: 'ANC-04' }
+        };
+
+        // Scan and map
+        for (const [legacyId, mapping] of Object.entries(idMap)) {
+          for (const c of ['powertrain', 'chassis', 'suspension', 'wheels', 'ancillary']) {
+            if (this.owned[c] && this.owned[c][legacyId]) {
+              const oldEntry = this.owned[c][legacyId];
+              delete this.owned[c][legacyId];
+              if (!this.owned[mapping.cat]) this.owned[mapping.cat] = {};
+              this.owned[mapping.cat][mapping.id] = oldEntry;
+            }
+          }
+        }
+      }
+
       if (typeof data.racesWon === 'number') this.racesWon = data.racesWon;
       if (typeof data.racesTotal === 'number') this.racesTotal = data.racesTotal;
       if (data.bestEt) this.bestEt = data.bestEt;
       if (data.bestTrapSpeed) this.bestTrapSpeed = data.bestTrapSpeed;
     } catch (e) {
       console.warn("Unable to load inventory from localStorage:", e);
-    }
-  }
-
-  loadFromCloud(cloudData) {
-    if (!cloudData) return;
-    if (typeof cloudData.bankCash === 'number') this.bankCash = cloudData.bankCash;
-    if (typeof cloudData.driverScore === 'number') this.driverScore = cloudData.driverScore;
-    else if (typeof cloudData.score === 'number') this.driverScore = cloudData.score;
-    if (typeof cloudData.winStreak === 'number') this.winStreak = cloudData.winStreak;
-    if (cloudData.owned && typeof cloudData.owned === 'object') {
-      this.owned = cloudData.owned;
-    }
-    if (typeof cloudData.racesWon === 'number') this.racesWon = cloudData.racesWon;
-    if (typeof cloudData.racesTotal === 'number') this.racesTotal = cloudData.racesTotal;
-    if (cloudData.bestEt) this.bestEt = cloudData.bestEt;
-    if (cloudData.bestTrapSpeed) this.bestTrapSpeed = cloudData.bestTrapSpeed;
-    this._ensureStarterKit();
-    try {
-      const data = {
-        bankCash: this.bankCash,
-        driverScore: this.driverScore,
-        winStreak: this.winStreak,
-        owned: this.owned,
-        racesWon: this.racesWon,
-        racesTotal: this.racesTotal,
-        bestEt: this.bestEt,
-        bestTrapSpeed: this.bestTrapSpeed
-      };
-      const studentId = (window.game && window.game.authManager && window.game.authManager.studentId)
-        ? window.game.authManager.studentId
-        : null;
-      const key = studentId ? `rat_rod_save_${studentId}` : STORAGE_SAVE_KEY;
-      localStorage.setItem(key, JSON.stringify(data));
-    } catch (e) {
-      console.warn("Unable to cache cloud inventory to localStorage:", e);
     }
   }
 }

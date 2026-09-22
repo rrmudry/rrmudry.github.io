@@ -4,6 +4,83 @@
  * drag strip records, and dyno statistics to Cloud Firestore.
  */
 
+function formatStudentDriverName(rawName, isGhost = false) {
+  if (isGhost) return rawName;
+  if (!rawName || typeof rawName !== 'string') return 'Racer';
+  let str = rawName.trim();
+  if (!str) return 'Racer';
+
+  let suffix = '';
+  const parenMatch = str.match(/\s*(\([^)]+\))\s*$/);
+  if (parenMatch) {
+    suffix = ' ' + parenMatch[1].trim();
+    str = str.replace(/\s*(\([^)]+\))\s*$/, '').trim();
+  }
+
+  // Handle email addresses (e.g. john.smith@orangeusd.org)
+  if (str.includes('@')) {
+    const emailPrefix = str.split('@')[0];
+    if (emailPrefix.includes('.')) {
+      const parts = emailPrefix.split('.').filter(Boolean);
+      const first = parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
+      const lastInitial = parts[parts.length - 1].charAt(0).toUpperCase();
+      return `${first} ${lastInitial}.${suffix}`;
+    } else {
+      str = emailPrefix;
+    }
+  }
+
+  // Handle 'Last, First' roster format (e.g. Smith, John)
+  if (str.includes(',')) {
+    const commaParts = str.split(',').map(s => s.trim()).filter(Boolean);
+    if (commaParts.length >= 2) {
+      const lastName = commaParts[0];
+      const firstNamePart = commaParts[1];
+      const firstTokens = firstNamePart.split(/\s+/).filter(Boolean);
+      const first = firstTokens[0] || '';
+      const lastInitial = lastName.charAt(0).toUpperCase();
+      if (first && lastInitial) {
+        return `${first} ${lastInitial}.${suffix}`;
+      }
+    }
+  }
+
+  const tokens = str.split(/\s+/).filter(Boolean);
+  if (tokens.length <= 1) {
+    return `${tokens[0] || 'Racer'}${suffix}`;
+  }
+
+  const lastToken = tokens[tokens.length - 1];
+
+  // If last token is purely numeric (e.g. 'Racer 42'), do not abbreviate as an initial
+  if (/^\d+$/.test(lastToken)) {
+    return `${tokens.join(' ')}${suffix}`;
+  }
+
+  // If already ends in an initial like 'John S.' or 'John S'
+  if (/^[A-Za-z]\.?$/.test(lastToken)) {
+    const cleanInitial = lastToken.replace('.', '').toUpperCase();
+    const rest = tokens.slice(0, -1).join(' ');
+    return `${rest} ${cleanInitial}.${suffix}`;
+  }
+
+  // If last token begins with an alphabetic character, extract the initial
+  if (/^[A-Za-z]/.test(lastToken)) {
+    const firstName = tokens[0];
+    const lastInitial = lastToken.charAt(0).toUpperCase();
+    return `${firstName} ${lastInitial}.${suffix}`;
+  }
+
+  return `${tokens.join(' ')}${suffix}`;
+}
+
+if (typeof window !== 'undefined') {
+  window.formatStudentDriverName = formatStudentDriverName;
+}
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { formatStudentDriverName };
+}
+
 const RAT_ROD_ASSIGNMENT_ID = "Rat_Rod_Racers";
 
 const RAT_ROD_FIREBASE_CONFIG = {
@@ -301,7 +378,7 @@ class RatRodAuthManager {
           if (cloudData.car.parts) this.game.playerCar.parts = cloudData.car.parts;
           if (cloudData.car.levels) this.game.playerCar.levels = cloudData.car.levels;
           if (cloudData.car.name) this.game.playerCar.name = cloudData.car.name;
-          this.game.playerCar.driver = this.studentName;
+          this.game.playerCar.driver = formatStudentDriverName(this.studentName, false);
           this.game.syncPlayerCarPhysics();
         }
 
@@ -466,10 +543,13 @@ class RatRodAuthManager {
             }
           }
 
+          const rawDriver = d.studentName || (isMe && this.studentName ? this.studentName : studentId);
+          const sanitizedDriver = formatStudentDriverName(rawDriver, false);
+
           list.push({
             id: studentId,
-            name: d.studentName || (isMe && this.studentName ? this.studentName : studentId),
-            driver: d.studentName || (isMe && this.studentName ? this.studentName : studentId),
+            name: sanitizedDriver + (isMe ? " (You)" : ""),
+            driver: sanitizedDriver,
             carName: carName,
             driverScore: driverScore,
             winStreak: winStreak,
@@ -496,10 +576,12 @@ class RatRodAuthManager {
     if (!hasMyRecord && this.game && this.game.inventory) {
       const inv = this.game.inventory;
       const pc = this.game.playerCar;
+      const rawMyName = this.studentName || "You";
+      const sanitizedMyName = formatStudentDriverName(rawMyName, false);
       list.push({
         id: myId,
-        name: (this.studentName || "You") + " (You)",
-        driver: this.studentName || "You",
+        name: sanitizedMyName + " (You)",
+        driver: sanitizedMyName,
         carName: pc ? pc.name : "Your Rat Rod",
         driverScore: inv.driverScore || 1000,
         winStreak: inv.winStreak || 0,
@@ -555,4 +637,10 @@ class RatRodAuthManager {
   }
 }
 
-window.RatRodAuthManager = RatRodAuthManager;
+if (typeof window !== 'undefined') {
+  window.RatRodAuthManager = RatRodAuthManager;
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { RatRodAuthManager, formatStudentDriverName };
+}
