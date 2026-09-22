@@ -2382,19 +2382,21 @@ const lessonsData = [
     },
     "bellRinger": {
       "type": "cast_challenge",
-      "title": "Kinematic Velocity & Stopping Time Telemetry",
+      "title": "Constant Speed Highway Cruise Telemetry",
       "defaultDuration": 4,
+      "promptQuestion": "An electric vehicle cruises down a straight, flat highway with adaptive cruise control locked at a constant velocity of +25.0 m/s for 16.0 seconds. What is the vehicle's acceleration, and how far does it travel during this time interval?",
+      "explanation": "Because the vehicle travels at a constant velocity without changing speed or direction, its acceleration is 0.0 m/s². The distance traveled at constant speed is Δx = v · t = (25.0 m/s)(16.0 s) = 400.0 meters (covering exactly 25.0 meters each second).",
       "standards": {
         "dci": "HS-PS2.A: Forces & Motion",
         "sep": "SEP-5: Using Mathematics & Computational Thinking",
         "ccc": "CCC-2: Cause and Effect"
       },
       "phenomenon": {
-        "title": "High-Speed Commuter Rail Telemetry",
-        "description": "An express commuter train cruises into a station approach sector at +30.0 m/s. The automated braking system applies a uniform deceleration of -2.5 m/s² until the train comes to a complete halt at the platform (v<sub>f</sub> = 0 m/s).",
+        "title": "Autonomous Highway Cruise Telemetry",
+        "description": "An electric vehicle travels along a straight, flat stretch of interstate with adaptive cruise control locked at a steady velocity of +25.0 m/s for 16.0 seconds. Telemetry sensors monitor speed, acceleration, and position change.",
         "stimulus": {
           "type": "data_table",
-          "title": "Commuter Rail Braking Log",
+          "title": "Highway Cruise Telemetry Log",
           "headers": [
             "Parameter",
             "Symbol",
@@ -2403,22 +2405,22 @@ const lessonsData = [
           ],
           "rows": [
             {
-              "col_0": "Initial Velocity",
-              "col_1": "v₀",
-              "col_2": "+30.0 m/s",
-              "col_3": "Approach speed before brakes engage"
+              "col_0": "Cruise Velocity",
+              "col_1": "v",
+              "col_2": "+25.0 m/s",
+              "col_3": "Constant speed locked by cruise control"
             },
             {
-              "col_0": "Braking Acceleration",
+              "col_0": "Acceleration",
               "col_1": "a",
-              "col_2": "-2.5 m/s²",
-              "col_3": "Uniform rate of velocity reduction"
+              "col_2": "0.0 m/s²",
+              "col_3": "Zero rate of velocity change (constant speed)"
             },
             {
-              "col_0": "Final Velocity",
-              "col_1": "v<sub>f</sub>",
-              "col_2": "0.0 m/s",
-              "col_3": "Complete stop at passenger platform"
+              "col_0": "Elapsed Time",
+              "col_1": "t",
+              "col_2": "16.0 s",
+              "col_3": "Duration of steady cruise observation"
             }
           ]
         }
@@ -2427,24 +2429,24 @@ const lessonsData = [
         {
           "stepId": "step_1",
           "type": "cloze_dropdown",
-          "title": "Part 1: Identifying Kinematic Clues & Formulas",
-          "prompt": "Identify the kinematic parameters and the rearranged formula needed to find stopping time:",
-          "text": "The phrase 'comes to a complete halt' means that final velocity v<sub>f</sub> equals [blank1]. To solve for the elapsed braking time t from v<sub>f</sub> = v₀ + at, the rearranged formula is [blank2].",
+          "title": "Part 1: Identifying Constant Speed Properties & Formulas",
+          "prompt": "Identify the kinematic characteristics of constant speed motion and the formula used to find distance traveled:",
+          "text": "When an object moves at a constant velocity in a straight line, its acceleration is [blank1]. To calculate the distance traveled (Δx) during a time interval t at constant speed v, the formula is [blank2].",
           "blanks": {
             "blank1": {
-              "correct": "0.0 m/s",
+              "correct": "0.0 m/s²",
               "options": [
-                "0.0 m/s",
-                "+30.0 m/s",
-                "-2.5 m/s"
+                "0.0 m/s²",
+                "+25.0 m/s²",
+                "9.8 m/s²"
               ]
             },
             "blank2": {
-              "correct": "t = (v<sub>f</sub> - v₀) / a",
+              "correct": "Δx = v · t",
               "options": [
-                "t = (v<sub>f</sub> - v₀) / a",
-                "t = v<sub>f</sub> + v₀ · a",
-                "t = a / (v<sub>f</sub> - v₀)"
+                "Δx = v · t",
+                "Δx = v / t",
+                "Δx = ½ · a · t²"
               ]
             }
           }
@@ -2452,24 +2454,24 @@ const lessonsData = [
         {
           "stepId": "step_2",
           "type": "data_calculation",
-          "title": "Part 2: Calculating Stopping Time",
-          "prompt": "Calculate the time in seconds (t) required for the train to stop: t = (0 - 30.0 m/s) / (-2.5 m/s²).",
-          "inputLabel": "Stopping Time",
-          "unit": "s",
-          "targetValue": 12,
-          "tolerance": 0.1,
-          "hint": "t = (-30.0) / (-2.5) = 12.0 seconds."
+          "title": "Part 2: Calculating Distance Traveled",
+          "prompt": "Calculate the distance in meters (Δx) traveled by the vehicle cruising at a constant speed of 25.0 m/s for 16.0 seconds: Δx = (25.0 m/s) · (16.0 s).",
+          "inputLabel": "Distance Traveled",
+          "unit": "m",
+          "targetValue": 400,
+          "tolerance": 1,
+          "hint": "Δx = v · t = (25.0 m/s) · (16.0 s) = 400.0 meters."
         },
         {
           "stepId": "step_3",
           "type": "ai_reasoning_chat",
-          "title": "Part 3: Velocity Equation Reasoning with AI Mentor",
-          "prompt": "Discuss your reasoning with the AI Physics Mentor: Explain what the train's velocity is at t = 6.0 seconds (halfway through the stop) and why the velocity changes by equal amounts in equal times.",
-          "openingPrompt": "The train takes 12.0 seconds to come to a stop! What is the train's velocity at t = 6.0 seconds (halfway through the stop), and how does the formula v<sub>f</sub> = v₀ + at predict this?",
+          "title": "Part 3: Constant Speed Reasoning with AI Mentor",
+          "prompt": "Discuss your reasoning with the AI Physics Mentor: Explain how much distance the vehicle covers during EACH single second of travel, and what a position vs. time graph would look like for this motion.",
+          "openingPrompt": "The vehicle covers 400 meters in 16.0 seconds at a constant speed of 25.0 m/s! How much distance does the vehicle cover during each individual second of travel, and what does this look like on a position vs. time graph?",
           "minTurns": 1
         }
       ],
-      "teacherKey": "Step 1: 0.0 m/s, t = (v<sub>f</sub> - v₀) / a. Step 2: 12.0 s ((-30.0) / (-2.5)). Step 3: Claim: At t = 6.0 s, the train's velocity is +15.0 m/s. Evidence: v<sub>f</sub> = v₀ + at = 30.0 m/s + (-2.5 m/s²)(6.0 s) = 30.0 - 15.0 = 15.0 m/s. Reasoning: Uniform acceleration means velocity changes by the exact same decrement (-2.5 m/s) during each second of travel. Since 6.0 s is exactly half of the 12.0 s stopping time, the train has lost exactly half of its initial speed."
+      "teacherKey": "Step 1: 0.0 m/s², Δx = v · t. Step 2: 400 m ((25.0 m/s) · (16.0 s)). Step 3: Claim: The vehicle travels exactly 25.0 meters during each individual second, producing a straight line with a constant slope of +25 m/s on a position vs. time graph. Evidence: The velocity is constant at +25.0 m/s, meaning the rate of change of position is constant (Δx/Δt = 25.0 m/s). In 1 s it covers 25 m, in 2 s it covers 50 m, in 16 s it covers 400 m. Reasoning: Constant speed in a straight line means acceleration is zero (a = 0 m/s²). Because slope on a position-time graph represents velocity (slope = Δx/Δt), constant velocity produces a straight line with constant slope (no curvature)."
     },
     "assignments": [
       {
