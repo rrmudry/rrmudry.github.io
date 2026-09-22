@@ -2,6 +2,24 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-21 — Unit Conversion Practice MaxPoints Scoring Fix & Classroom Grade Rescale
+
+**Pattern Updated**: `classroom-sync-engine.md`.
+
+**Changes**:
+- **Resolved CourseWork MaxPoints Mismatch & Legacy Oversized Grades**:
+  - Identified root cause where Google Classroom coursework `Unit Conversion Practice` was created with `maxPoints: 10`, but Firestore `assignment_registry` had `maxPoints: 100`.
+  - When `sync-cli.js` previously pushed student raw percentage scores (0–100), scores like 100, 33, 17 were entered as out of 10 in Google Classroom (e.g. 100/10), distorting student grades in Classroom and Aeries.
+- **Hardened `sync-cli.js`**:
+  - Updated coursework resolution in `sync-classroom/sync-cli.js` so `matchingCw.maxPoints` dynamically and authoritatively pulls from Google Classroom's live coursework object if it exists, overriding any inaccurate Firestore registry max points.
+- **Corrected Firestore Registries**:
+  - Updated `assignment_registry/Unit_Conversion_Practice` and `graded_assignments/Unit_Conversion_Practice` in Firestore to set `maxPoints: 10`.
+- **Rescaled and Returned Submissions**:
+  - Created and executed `sync-classroom/rescale-unit-conversion.js` across Periods 0–6.
+  - Successfully rescaled all 131 oversized student grades (e.g., 100 -> 10/10, 33 -> 3.3/10, 17 -> 1.7/10, 50 -> 5/10) and returned them via Classroom API.
+  - Dry-run verification confirmed 0 oversized submissions remaining across all periods.
+
+
 ## 2026-09-21 — Day 17 Graded Assignment Deployment: Kinematic Velocity Calculator
 
 **Pattern Updated**: `scaffolded-word-problem-engine.md`.
