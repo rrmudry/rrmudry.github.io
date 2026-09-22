@@ -2,6 +2,18 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-21 — Kinematics Question Bank Terminology Audit & Physics Precision
+
+**Pattern Updated**: `scaffolded-word-problem-engine.md`.
+
+**Changes**:
+- **Comprehensive 50-Question Terminology Audit in `questions.js`**:
+  - Eliminated physical misnomers where acceleration ($m/s^2$) was colloquially referred to as a force or energy rate (e.g. replaced "with power rating" with "with a constant acceleration of", replaced "magnetic resistance" with "magnetic braking deceleration", and replaced "parachute drag" with "decelerating with parachutes").
+  - Fixed ambiguous variable prompt phrasing (e.g., replaced "what is its speed through the arrestor?" with "What is its final velocity?", replaced run-on questions like "How many seconds does this sprint take?" with concise targets like "What is the elapsed time?").
+  - Standardized all `unknownText` noun phrases across Level 1 and Level 2 (`"its final velocity"`, `"its initial velocity"`, `"its acceleration"`, `"the elapsed time"`) so slot drag-and-drop targets match formal physics vocabulary.
+  - Hardened `loadQuestion(idx = state.currentQuestionIndex || 0)` default parameter in `build-html.js` against undefined argument calls.
+  - Rebuilt `dist/index.html` and verified full question bank integrity (all 50 mathematical relations $v_f = v_o + at$ intact).
+
 ## 2026-09-21 — Kinematic Velocity Zero-Wrap Formula Layout & Instant Preview Mode
 
 **Pattern Updated**: `scaffolded-word-problem-engine.md`.

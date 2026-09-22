@@ -1604,8 +1604,8 @@ const htmlContent = `<!DOCTYPE html>
 
     let selectedDragItem = null;
 
-    function loadQuestion(idx) {
-      if (idx >= state.deck.length) {
+    function loadQuestion(idx = state.currentQuestionIndex || 0) {
+      if (typeof idx !== 'number' || isNaN(idx) || idx < 0 || idx >= state.deck.length) {
         state.deck = shuffleArray(state.deck);
         state.currentQuestionIndex = 0;
         idx = 0;
