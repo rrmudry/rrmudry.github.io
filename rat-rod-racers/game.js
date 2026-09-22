@@ -1407,40 +1407,58 @@ class RatRodGame {
     if (nextBtn) nextBtn.classList.remove('hidden');
 
     const result = this.challenges.checkAnswer(rawVal);
+    const isCorrect = Boolean(result && (result.correct || result.success));
 
-    if (result.correct) {
-      this.audio.playDynoSuccess();
-      this.inventory.addCash(result.earnedCash);
+    if (isCorrect) {
+      const earnedCash = (result && typeof result.earnedCash === 'number') ? result.earnedCash : (current.reward || 100);
+      const streakVal = (result && result.streak) || 1;
+      const stepsList = (result && (result.solutionSteps || result.steps)) || current.solutionSteps || [];
+
+      if (this.audio && typeof this.audio.playDynoSuccess === 'function') {
+        this.audio.playDynoSuccess();
+      }
+      this.inventory.addCash(earnedCash);
       this.inventory.addScore(15);
       this.updateHUD();
 
-      feedbackEl.innerHTML = `
-        <div class="dyno-feedback-card correct">
-          <div class="fb-title">✅ EXCELLENT CALCULATION! +$${result.earnedCash} Cash (${result.streak}x Streak)</div>
-          <p class="fb-text">Your telemetry calibration hooked cleanly into the Dyno database.</p>
-          <div class="solution-steps">
-            <strong>Physics Solution:</strong>
-            <ul>${result.solutionSteps.map(s => `<li>${s}</li>`).join('')}</ul>
+      if (feedbackEl) {
+        feedbackEl.innerHTML = `
+          <div class="dyno-feedback-card feedback-success correct">
+            <div class="fb-title">✅ EXCELLENT CALCULATION! +$${earnedCash} Cash (${streakVal}x Streak)</div>
+            <p class="fb-text">Your telemetry calibration hooked cleanly into the Dyno database. Bank balance: <strong>$${this.inventory.bankCash}</strong></p>
+            <div class="solution-steps">
+              <strong>Physics Solution:</strong>
+              <ul>${stepsList.map(s => `<li>${s}</li>`).join('')}</ul>
+            </div>
           </div>
-        </div>
-      `;
+        `;
+      }
     } else {
-      this.audio.playDynoFail();
+      const diffVal = (result && typeof result.diff === 'number') ? result.diff : Math.abs(rawVal - (current.expectedValue || 0));
+      const stepsList = (result && (result.solutionSteps || result.steps)) || current.solutionSteps || [];
+
+      if (this.audio && typeof this.audio.playDynoFail === 'function') {
+        this.audio.playDynoFail();
+      }
       this.updateHUD();
 
-      feedbackEl.innerHTML = `
-        <div class="dyno-feedback-card wrong">
-          <div class="fb-title">❌ CALCULATION ERROR (Off by ${result.diff.toFixed(2)})</div>
-          <p class="fb-text">Review Newton's laws below and calibrate your working.</p>
-          <div class="solution-steps">
-            <strong>Correct Procedure:</strong>
-            <ul>${result.solutionSteps.map(s => `<li>${s}</li>`).join('')}</ul>
+      if (feedbackEl) {
+        feedbackEl.innerHTML = `
+          <div class="dyno-feedback-card feedback-error wrong">
+            <div class="fb-title">❌ CALCULATION ERROR (Off by ${diffVal.toFixed(2)})</div>
+            <p class="fb-text">Review Newton's laws below and calibrate your working.</p>
+            <div class="solution-steps">
+              <strong>Correct Procedure:</strong>
+              <ul>${stepsList.map(s => `<li>${s}</li>`).join('')}</ul>
+            </div>
           </div>
-        </div>
-      `;
+        `;
+      }
     }
 
-    if (this.authManager) this.authManager.autoSave();
+    if (this.authManager && typeof this.authManager.autoSave === 'function') {
+      this.authManager.autoSave();
+    }
     this.isSubmittingDyno = false;
 
     if (nextBtn) {
