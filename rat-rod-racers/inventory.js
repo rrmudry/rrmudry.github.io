@@ -245,6 +245,66 @@ class InventoryManager {
     }
   }
 
+  applyData(data) {
+    if (!data) return;
+    if (typeof data.bankCash === 'number') this.bankCash = data.bankCash;
+    if (typeof data.driverScore === 'number') this.driverScore = data.driverScore;
+    if (typeof data.winStreak === 'number') this.winStreak = data.winStreak;
+
+    if (data.owned && typeof data.owned === 'object') {
+      // Migrate legacy 6-slot data into 5-slot structure
+      this.owned.powertrain = Object.assign({}, this.owned.powertrain, data.owned.powertrain || data.owned.engines || {});
+      this.owned.chassis = Object.assign({}, this.owned.chassis, data.owned.chassis || {});
+      this.owned.suspension = Object.assign({}, this.owned.suspension, data.owned.suspension || {});
+      this.owned.wheels = Object.assign({}, this.owned.wheels, data.owned.wheels || {});
+      this.owned.ancillary = Object.assign({}, this.owned.ancillary, data.owned.ancillary || data.owned.exhaust || data.owned.charms || {});
+
+      // Migrate legacy item IDs if present
+      const idMap = {
+        'lawnmower_twin': { cat: 'powertrain', id: 'ENG-06' },
+        'flathead_v8': { cat: 'powertrain', id: 'ENG-01' },
+        'junkyard_turbo': { cat: 'powertrain', id: 'ENG-03' },
+        'blown_blower': { cat: 'powertrain', id: 'ENG-02' },
+        'electric_arc': { cat: 'powertrain', id: 'ENG-05' },
+        'nitrous_beast': { cat: 'powertrain', id: 'ENG-04' },
+        'roadster_32': { cat: 'chassis', id: 'BOD-02' },
+        'scrappy_pickup': { cat: 'chassis', id: 'BOD-04' },
+        'bubbly_bug': { cat: 'chassis', id: 'BOD-03' },
+        'iron_coffin': { cat: 'chassis', id: 'BOD-01' },
+        'milk_truck': { cat: 'chassis', id: 'BOD-04' },
+        'bone_shaker': { cat: 'chassis', id: 'BOD-01' },
+        'wire_spokes': { cat: 'wheels', id: 'TIR-02' },
+        'rusty_steelies': { cat: 'wheels', id: 'TIR-02' },
+        'whitewall_cruisers': { cat: 'wheels', id: 'TIR-04' },
+        'mud_boggers': { cat: 'wheels', id: 'TIR-03' },
+        'fat_drag_slicks': { cat: 'wheels', id: 'TIR-01' },
+        'gold_racing_mags': { cat: 'wheels', id: 'TIR-04' },
+        'rusty_pipe': { cat: 'ancillary', id: 'ANC-03' },
+        'flaming_zoomies': { cat: 'ancillary', id: 'ANC-03' },
+        'fuzzy_dice': { cat: 'ancillary', id: 'ANC-04' }
+      };
+
+      // Scan and map
+      for (const [legacyId, mapping] of Object.entries(idMap)) {
+        for (const c of ['powertrain', 'chassis', 'suspension', 'wheels', 'ancillary']) {
+          if (this.owned[c] && this.owned[c][legacyId]) {
+            const oldEntry = this.owned[c][legacyId];
+            delete this.owned[c][legacyId];
+            if (!this.owned[mapping.cat]) this.owned[mapping.cat] = {};
+            this.owned[mapping.cat][mapping.id] = oldEntry;
+          }
+        }
+      }
+    }
+
+    if (typeof data.racesWon === 'number') this.racesWon = data.racesWon;
+    if (typeof data.racesTotal === 'number') this.racesTotal = data.racesTotal;
+    if (data.bestEt) this.bestEt = data.bestEt;
+    if (data.bestTrapSpeed) this.bestTrapSpeed = data.bestTrapSpeed;
+
+    this._ensureStarterKit();
+  }
+
   load() {
     try {
       const studentId = (window.game && window.game.authManager && window.game.authManager.studentId)
@@ -254,62 +314,36 @@ class InventoryManager {
       const raw = localStorage.getItem(key) || localStorage.getItem(STORAGE_SAVE_KEY);
       if (!raw) return;
       const data = JSON.parse(raw);
-      if (typeof data.bankCash === 'number') this.bankCash = data.bankCash;
-      if (typeof data.driverScore === 'number') this.driverScore = data.driverScore;
-      if (typeof data.winStreak === 'number') this.winStreak = data.winStreak;
-
-      if (data.owned) {
-        // Migrate legacy 6-slot data into 5-slot structure
-        this.owned.powertrain = data.owned.powertrain || data.owned.engines || {};
-        this.owned.chassis = data.owned.chassis || {};
-        this.owned.suspension = data.owned.suspension || {};
-        this.owned.wheels = data.owned.wheels || {};
-        this.owned.ancillary = data.owned.ancillary || data.owned.exhaust || data.owned.charms || {};
-
-        // Migrate legacy item IDs if present
-        const idMap = {
-          'lawnmower_twin': { cat: 'powertrain', id: 'ENG-06' },
-          'flathead_v8': { cat: 'powertrain', id: 'ENG-01' },
-          'junkyard_turbo': { cat: 'powertrain', id: 'ENG-03' },
-          'blown_blower': { cat: 'powertrain', id: 'ENG-02' },
-          'electric_arc': { cat: 'powertrain', id: 'ENG-05' },
-          'nitrous_beast': { cat: 'powertrain', id: 'ENG-04' },
-          'roadster_32': { cat: 'chassis', id: 'BOD-02' },
-          'scrappy_pickup': { cat: 'chassis', id: 'BOD-04' },
-          'bubbly_bug': { cat: 'chassis', id: 'BOD-03' },
-          'iron_coffin': { cat: 'chassis', id: 'BOD-01' },
-          'milk_truck': { cat: 'chassis', id: 'BOD-04' },
-          'bone_shaker': { cat: 'chassis', id: 'BOD-01' },
-          'wire_spokes': { cat: 'wheels', id: 'TIR-02' },
-          'rusty_steelies': { cat: 'wheels', id: 'TIR-02' },
-          'whitewall_cruisers': { cat: 'wheels', id: 'TIR-04' },
-          'mud_boggers': { cat: 'wheels', id: 'TIR-03' },
-          'fat_drag_slicks': { cat: 'wheels', id: 'TIR-01' },
-          'gold_racing_mags': { cat: 'wheels', id: 'TIR-04' },
-          'rusty_pipe': { cat: 'ancillary', id: 'ANC-03' },
-          'flaming_zoomies': { cat: 'ancillary', id: 'ANC-03' },
-          'fuzzy_dice': { cat: 'ancillary', id: 'ANC-04' }
-        };
-
-        // Scan and map
-        for (const [legacyId, mapping] of Object.entries(idMap)) {
-          for (const c of ['powertrain', 'chassis', 'suspension', 'wheels', 'ancillary']) {
-            if (this.owned[c] && this.owned[c][legacyId]) {
-              const oldEntry = this.owned[c][legacyId];
-              delete this.owned[c][legacyId];
-              if (!this.owned[mapping.cat]) this.owned[mapping.cat] = {};
-              this.owned[mapping.cat][mapping.id] = oldEntry;
-            }
-          }
-        }
-      }
-
-      if (typeof data.racesWon === 'number') this.racesWon = data.racesWon;
-      if (typeof data.racesTotal === 'number') this.racesTotal = data.racesTotal;
-      if (data.bestEt) this.bestEt = data.bestEt;
-      if (data.bestTrapSpeed) this.bestTrapSpeed = data.bestTrapSpeed;
+      this.applyData(data);
     } catch (e) {
       console.warn("Unable to load inventory from localStorage:", e);
+    }
+  }
+
+  loadFromCloud(cloudData) {
+    if (!cloudData) return;
+    try {
+      this.applyData(cloudData);
+
+      // Cache cloud data to localStorage
+      const studentId = (window.game && window.game.authManager && window.game.authManager.studentId)
+        ? window.game.authManager.studentId
+        : null;
+      const key = studentId ? `rat_rod_save_${studentId}` : STORAGE_SAVE_KEY;
+      const data = {
+        bankCash: this.bankCash,
+        driverScore: this.driverScore,
+        winStreak: this.winStreak,
+        owned: this.owned,
+        racesWon: this.racesWon,
+        racesTotal: this.racesTotal,
+        bestEt: this.bestEt,
+        bestTrapSpeed: this.bestTrapSpeed
+      };
+      localStorage.setItem(key, JSON.stringify(data));
+      console.log(`Inventory successfully synced from cloud for student: ${studentId || 'guest'}, Bank: $${this.bankCash}`);
+    } catch (e) {
+      console.warn("Unable to process cloud data in InventoryManager:", e);
     }
   }
 }
