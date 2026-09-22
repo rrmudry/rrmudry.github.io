@@ -151,6 +151,14 @@ npm run bellringer:weekly
 - **Unsupported field value: undefined**: Passing `undefined` to `db.collection().set()` throws an immediate exception and halts document creation. Ensure all optional fields default to `null` or are omitted.
 - **Timer Expiry Auto-Submit**: CAST 3D tasks require explicit auto-submission hooks (`activeCastEngine.submitAll()`) on countdown timer expiration so students' partially completed work is automatically saved if the timer runs out.
 
+## Teacher Student-Simulation Mode
+Teachers can log in to `Bell-Ringer/index.html` with authorized accounts (`rmudry@orangeusd.org`, `ryan.mudry@orangeusd.org`, `ryan.mudry@gmail.com`, `ryanmudry@gmail.com`) and complete the activity as a student for any period:
+- **Period Switching**: The top navigation displays an interactive "Test Period" selector (`Period 0` through `Period 6`) that updates `studentPeriod` and syncs with `localStorage`.
+- **Period Gate Bypass**: Teachers are never blocked by the "wrong period" waiting screen.
+- **Timer Bypass & Preview**: When the countdown is inactive or expired, teachers can click "Enter & Complete Activity" to preview and submit work in an open 15-minute window.
+- **Classroom Dashboard Sync**: Test submissions automatically render on `Bell-Ringer/dashboard.html` when matching `currentPeriod`, styled with a gold `Test` indicator.
+- **One-Click Reset**: Teachers can click `↺ Reset` to wipe today's test record from Firestore and start fresh.
+
 ## Evidence
 - Full system documented in `Bell-Ringer/README.md` (98 lines)
 - Grading CLI implemented in `sync-classroom/sync-bellringers.js`

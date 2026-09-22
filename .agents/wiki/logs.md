@@ -2,6 +2,23 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-22 — Bell-Ringer: Teacher Student-Simulation Mode for Any Period
+
+**Pattern Updated**: `bell-ringer-config.md`.
+
+**Changes**:
+- **Teacher Account Authorization**:
+  - Expanded `isTeacherAdmin` in `Bell-Ringer/index.html` and `dashboard.html` to recognize all authorized teacher accounts (`rmudry@orangeusd.org`, `ryan.mudry@orangeusd.org`, `ryan.mudry@gmail.com`, `ryanmudry@gmail.com`).
+- **Student Simulation Mode for Any Period**:
+  - Added interactive "Test Period" selector in navbar (Periods 0-6), syncing with URL query params (`?period=X`) and `localStorage`.
+  - Period access gate restriction now cleanly bypassed for teachers so they are never blocked by period mismatch or unassigned roster messages.
+  - Added `#teacher-waiting-controls` to the waiting panel: allows teachers to launch "Enter & Complete Activity" even when the timer countdown is inactive on the main screen.
+  - Granted a 15-minute open preview window during teacher simulation mode if the timer countdown has expired or is inactive, enabling full completion and testing across all activity types (Free Response, Connections, Concept Chat, CAST 3D).
+  - Test submissions record `class_period: studentPeriod` to Firestore.
+  - Added one-click `↺ Reset Test` button in the navbar and waiting panel to delete today's test record and restart cleanly.
+- **Classroom Dashboard Sync**:
+  - Updated `renderStudentGrid()` in `Bell-Ringer/dashboard.html` to merge non-roster test submissions matching `currentPeriod`, displaying a distinct `👨‍🏫 Test` badge on the grid.
+
 ## 2026-09-22 — Day 17 Bell-Ringer Update: Constant Speed Highway Cruise Telemetry
 
 **Pattern Updated**: `cast-aligned-webapp-design.md`.
