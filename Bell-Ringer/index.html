@@ -1132,6 +1132,22 @@
 
         function initCastChallenge(config) {
             const castData = config.castData || config;
+            // Prevent accidental formula substitution or answer leakage in calculation steps
+            if (castData && Array.isArray(castData.steps)) {
+                castData.steps.forEach(step => {
+                    if (step.type === 'data_calculation' || step.stepId === 'step_2') {
+                        if (step.prompt) {
+                            step.prompt = step.prompt.replace(/:\s*Δx\s*=\s*.*$/i, '.').trim();
+                        }
+                        if (step.hint) {
+                            step.hint = 'Δx = v · t';
+                        }
+                        if (step.formulaHint) {
+                            step.formulaHint = 'Δx = v · t';
+                        }
+                    }
+                });
+            }
             const titleEl = document.getElementById('cast-challenge-title');
             if (titleEl && (castData.title || config.title)) {
                 titleEl.innerText = castData.title || config.title;

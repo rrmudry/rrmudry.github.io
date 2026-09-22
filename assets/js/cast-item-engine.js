@@ -200,7 +200,7 @@
                 <!-- Step Prompt Text -->
                 ${currentStep?.prompt ? `
                   <div class="text-sm sm:text-base text-slate-100 leading-relaxed font-medium">
-                    ${escapeHtml(currentStep.prompt)}
+                    ${escapeHtml(this.cleanPromptText(currentStep.prompt))}
                   </div>
                 ` : ''}
 
@@ -284,6 +284,12 @@
 
       // Render Active TEI Step
       this.renderActiveStep();
+    }
+
+    cleanPromptText(prompt) {
+      if (!prompt) return '';
+      // Strip accidental answer or calculation leaks in prompts like ": Δx = (25.0 m/s) · (16.0 s)."
+      return prompt.replace(/:\s*Δ[a-zA-Z]\s*=\s*.*$/i, '.').trim();
     }
 
     formatItemTypeLabel(type) {
@@ -536,7 +542,13 @@
     // --- Format 2: Data Analysis & Mathematical Calculations ---
     renderMathData(step, container, stepState, stepKey) {
       const currentVal = (stepState.value !== undefined) ? stepState.value : '';
-      const formulaHint = step.formulaHint || step.hint;
+      let formulaHint = step.formulaHint || step.hint || '';
+      if (formulaHint && typeof formulaHint === 'string') {
+        const eqParts = formulaHint.split('=');
+        if (eqParts.length > 2) {
+          formulaHint = `${eqParts[0].trim()} = ${eqParts[1].trim()}`;
+        }
+      }
       const unit = step.unit || '';
 
       container.innerHTML = `
