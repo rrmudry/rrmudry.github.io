@@ -1,11 +1,12 @@
-// Script to generate kinematic_velocity_calculator/dist/index.html
-const fs = require('fs');
-const path = require('path');
+// 50 Standardized Curated Physics Word Problems for vf = vo + at
+// Strict NGSS/CAST Terminology: Acceleration, Initial Velocity, Final Velocity, Elapsed Time.
+// Mathematically verified for vf = vo + at across all 50 questions.
 
-// 50 Curated Physics Word Problems for vf = vo + at
-// Evenly distributed across solving for vf, vo, a, and t
 const QUESTIONS = [
-  // --- LEVEL 1: Questions 1 to 20 ---
+  // =========================================================================
+  // LEVEL 1: Variable Identification & Formula Anatomy (Questions 1 to 20)
+  // =========================================================================
+
   // Solve for vf (Q1 - Q5)
   {
     id: 1,
@@ -20,64 +21,64 @@ const QUESTIONS = [
   },
   {
     id: 2,
-    textParts: ["A commercial passenger jet rolls onto the runway at ", { variable: "vo" }, " and fires its engines at ", { variable: "a" }, " for ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
+    textParts: ["A commercial passenger jet rolls onto the runway at an initial velocity of ", { variable: "vo" }, " and accelerates at ", { variable: "a" }, " for ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q2v1", value: 10, unit: "m/s", variable: "vo" },
       { id: "q2v2", value: 3, unit: "m/s²", variable: "a" },
       { id: "q2v3", value: 20, unit: "s", variable: "t" }
     ],
     solveFor: "vf",
-    unknownText: "its takeoff speed"
+    unknownText: "its final takeoff velocity"
   },
   {
     id: 3,
-    textParts: ["A commuter train cruises at ", { variable: "vo" }, " before braking with an acceleration of ", { variable: "a" }, " for ", { variable: "t" }, ". Find ", { isUnknown: true }, "."],
+    textParts: ["A commuter train travels at an initial velocity of ", { variable: "vo" }, " before decelerating at ", { variable: "a" }, " for ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q3v1", value: 28, unit: "m/s", variable: "vo" },
       { id: "q3v2", value: -3.5, unit: "m/s²", variable: "a" },
       { id: "q3v3", value: 6, unit: "s", variable: "t" }
     ],
     solveFor: "vf",
-    unknownText: "its speed after braking"
+    unknownText: "its final velocity"
   },
   {
     id: 4,
-    textParts: ["A cyclist coasting at ", { variable: "vo" }, " pedals downhill, accelerating at ", { variable: "a" }, " for ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
+    textParts: ["A cyclist coasting at an initial velocity of ", { variable: "vo" }, " accelerates downhill at ", { variable: "a" }, " for ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q4v1", value: 6, unit: "m/s", variable: "vo" },
       { id: "q4v2", value: 1.5, unit: "m/s²", variable: "a" },
       { id: "q4v3", value: 8, unit: "s", variable: "t" }
     ],
     solveFor: "vf",
-    unknownText: "their velocity at the bottom"
+    unknownText: "their final velocity"
   },
   {
     id: 5,
-    textParts: ["A subway car departs a station from rest at ", { variable: "vo" }, ", speeding up at ", { variable: "a" }, " for ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
+    textParts: ["A subway train departs a station from rest at ", { variable: "vo" }, ", accelerating at ", { variable: "a" }, " for ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q5v1", value: 0, unit: "m/s", variable: "vo" },
       { id: "q5v2", value: 2.2, unit: "m/s²", variable: "a" },
       { id: "q5v3", value: 10, unit: "s", variable: "t" }
     ],
     solveFor: "vf",
-    unknownText: "its speed leaving the tunnel"
+    unknownText: "its final velocity"
   },
 
   // Solve for vo (Q6 - Q10)
   {
     id: 6,
-    textParts: ["An emergency braking test stops a car completely at ", { variable: "vf" }, " after decelerating at ", { variable: "a" }, " for ", { variable: "t" }, ". What was ", { isUnknown: true }, "?"],
+    textParts: ["A test car decelerates at ", { variable: "a" }, " for ", { variable: "t" }, " to come to a complete stop at a final velocity of ", { variable: "vf" }, ". What was ", { isUnknown: true }, "?"],
     values: [
       { id: "q6v1", value: 0, unit: "m/s", variable: "vf" },
       { id: "q6v2", value: -5, unit: "m/s²", variable: "a" },
       { id: "q6v3", value: 6, unit: "s", variable: "t" }
     ],
     solveFor: "vo",
-    unknownText: "the initial driving speed"
+    unknownText: "its initial velocity"
   },
   {
     id: 7,
-    textParts: ["A sprinter crosses the 100m finish line at ", { variable: "vf" }, " after accelerating at ", { variable: "a" }, " over the last ", { variable: "t" }, ". What was ", { isUnknown: true }, "?"],
+    textParts: ["A sprinter crosses the finish line at a final velocity of ", { variable: "vf" }, " after accelerating at ", { variable: "a" }, " for ", { variable: "t" }, ". What was ", { isUnknown: true }, "?"],
     values: [
       { id: "q7v1", value: 11.5, unit: "m/s", variable: "vf" },
       { id: "q7v2", value: 0.8, unit: "m/s²", variable: "a" },
@@ -88,42 +89,42 @@ const QUESTIONS = [
   },
   {
     id: 8,
-    textParts: ["A landing aircraft slows down to a taxi speed of ", { variable: "vf" }, " after braking at ", { variable: "a" }, " for ", { variable: "t" }, ". Determine ", { isUnknown: true }, "."],
+    textParts: ["A landing aircraft slows to a final taxi velocity of ", { variable: "vf" }, " after decelerating at ", { variable: "a" }, " for ", { variable: "t" }, ". What was ", { isUnknown: true }, "?"],
     values: [
       { id: "q8v1", value: 15, unit: "m/s", variable: "vf" },
       { id: "q8v2", value: -4, unit: "m/s²", variable: "a" },
       { id: "q8v3", value: 12, unit: "s", variable: "t" }
     ],
     solveFor: "vo",
-    unknownText: "its touchdown velocity"
+    unknownText: "its initial touchdown velocity"
   },
   {
     id: 9,
-    textParts: ["A drone reaches a top speed of ", { variable: "vf" }, " after engaging boosters at ", { variable: "a" }, " for ", { variable: "t" }, ". What was ", { isUnknown: true }, "?"],
+    textParts: ["A drone reaches a final velocity of ", { variable: "vf" }, " after accelerating at ", { variable: "a" }, " for ", { variable: "t" }, ". What was ", { isUnknown: true }, "?"],
     values: [
       { id: "q9v1", value: 24, unit: "m/s", variable: "vf" },
       { id: "q9v2", value: 3.5, unit: "m/s²", variable: "a" },
       { id: "q9v3", value: 4, unit: "s", variable: "t" }
     ],
     solveFor: "vo",
-    unknownText: "its speed before the boost"
+    unknownText: "its initial velocity"
   },
   {
     id: 10,
-    textParts: ["A roller coaster car slows to ", { variable: "vf" }, " at the peak of a loop after decelerating at ", { variable: "a" }, " for ", { variable: "t" }, ". Find ", { isUnknown: true }, "."],
+    textParts: ["A roller coaster car slows to a final velocity of ", { variable: "vf" }, " at the peak of a loop after decelerating at ", { variable: "a" }, " for ", { variable: "t" }, ". What was ", { isUnknown: true }, "?"],
     values: [
       { id: "q10v1", value: 8, unit: "m/s", variable: "vf" },
       { id: "q10v2", value: -2.5, unit: "m/s²", variable: "a" },
       { id: "q10v3", value: 4, unit: "s", variable: "t" }
     ],
     solveFor: "vo",
-    unknownText: "its speed entering the climb"
+    unknownText: "its initial velocity"
   },
 
   // Solve for a (Q11 - Q15)
   {
     id: 11,
-    textParts: ["An electric sports car accelerates from rest at ", { variable: "vo" }, " to a speed of ", { variable: "vf" }, " in ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
+    textParts: ["An electric sports car accelerates from rest at ", { variable: "vo" }, " to a final velocity of ", { variable: "vf" }, " in ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q11v1", value: 0, unit: "m/s", variable: "vo" },
       { id: "q11v2", value: 27, unit: "m/s", variable: "vf" },
@@ -134,190 +135,193 @@ const QUESTIONS = [
   },
   {
     id: 12,
-    textParts: ["A delivery van traveling at ", { variable: "vo" }, " brakes to a complete halt at ", { variable: "vf" }, " in ", { variable: "t" }, ". Calculate ", { isUnknown: true }, "."],
+    textParts: ["A delivery van traveling at an initial velocity of ", { variable: "vo" }, " decelerates to a complete stop at ", { variable: "vf" }, " in ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q12v1", value: 20, unit: "m/s", variable: "vo" },
       { id: "q12v2", value: 0, unit: "m/s", variable: "vf" },
       { id: "q12v3", value: 5, unit: "s", variable: "t" }
     ],
     solveFor: "a",
-    unknownText: "its braking acceleration"
+    unknownText: "its acceleration"
   },
   {
     id: 13,
-    textParts: ["A motorcycle increases its speed from ", { variable: "vo" }, " to ", { variable: "vf" }, " on a highway entrance ramp in ", { variable: "t" }, ". Find ", { isUnknown: true }, "."],
+    textParts: ["A motorcycle increases its velocity from an initial ", { variable: "vo" }, " to a final velocity of ", { variable: "vf" }, " in ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q13v1", value: 12, unit: "m/s", variable: "vo" },
       { id: "q13v2", value: 30, unit: "m/s", variable: "vf" },
       { id: "q13v3", value: 6, unit: "s", variable: "t" }
     ],
     solveFor: "a",
-    unknownText: "its rate of acceleration"
+    unknownText: "its acceleration"
   },
   {
     id: 14,
-    textParts: ["A sled sliding across rough snow slows from ", { variable: "vo" }, " to ", { variable: "vf" }, " over ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
+    textParts: ["A sled sliding across rough snow slows from an initial velocity of ", { variable: "vo" }, " to a final velocity of ", { variable: "vf" }, " in ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q14v1", value: 14, unit: "m/s", variable: "vo" },
       { id: "q14v2", value: 2, unit: "m/s", variable: "vf" },
       { id: "q14v3", value: 6, unit: "s", variable: "t" }
     ],
     solveFor: "a",
-    unknownText: "the snow friction acceleration"
+    unknownText: "its acceleration"
   },
   {
     id: 15,
-    textParts: ["A high-speed maglev train launches from rest at ", { variable: "vo" }, " and reaches cruising velocity of ", { variable: "vf" }, " in ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
+    textParts: ["A high-speed maglev train launches from rest at ", { variable: "vo" }, " and reaches a cruising velocity of ", { variable: "vf" }, " in ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q15v1", value: 0, unit: "m/s", variable: "vo" },
       { id: "q15v2", value: 80, unit: "m/s", variable: "vf" },
       { id: "q15v3", value: 40, unit: "s", variable: "t" }
     ],
     solveFor: "a",
-    unknownText: "its acceleration rate"
+    unknownText: "its acceleration"
   },
 
   // Solve for t (Q16 - Q20)
   {
     id: 16,
-    textParts: ["A car cruising at ", { variable: "vo" }, " accelerates at ", { variable: "a" }, " to overtake a truck, reaching ", { variable: "vf" }, ". ", { isUnknown: true }, "?"],
+    textParts: ["A car cruising at an initial velocity of ", { variable: "vo" }, " accelerates at ", { variable: "a" }, " to reach a final velocity of ", { variable: "vf" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q16v1", value: 18, unit: "m/s", variable: "vo" },
       { id: "q16v2", value: 28, unit: "m/s", variable: "vf" },
       { id: "q16v3", value: 2.5, unit: "m/s²", variable: "a" }
     ],
     solveFor: "t",
-    unknownText: "How many seconds did this take"
+    unknownText: "the elapsed time"
   },
   {
     id: 17,
-    textParts: ["A city bus traveling at ", { variable: "vo" }, " applies brakes at ", { variable: "a" }, " to stop at ", { variable: "vf" }, ". ", { isUnknown: true }, "?"],
+    textParts: ["A city bus traveling at an initial velocity of ", { variable: "vo" }, " decelerates at ", { variable: "a" }, " to come to a stop at ", { variable: "vf" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q17v1", value: 15, unit: "m/s", variable: "vo" },
       { id: "q17v2", value: 0, unit: "m/s", variable: "vf" },
       { id: "q17v3", value: -3, unit: "m/s²", variable: "a" }
     ],
     solveFor: "t",
-    unknownText: "How long until the bus stops"
+    unknownText: "the time to stop"
   },
   {
     id: 18,
-    textParts: ["A rocket sled starts from rest at ", { variable: "vo" }, " and ignites thrusters with an acceleration of ", { variable: "a" }, " to reach ", { variable: "vf" }, ". Compute ", { isUnknown: true }, "."],
+    textParts: ["A rocket sled starts from rest at ", { variable: "vo" }, " and accelerates at ", { variable: "a" }, " to reach a final velocity of ", { variable: "vf" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q18v1", value: 0, unit: "m/s", variable: "vo" },
       { id: "q18v2", value: 120, unit: "m/s", variable: "vf" },
       { id: "q18v3", value: 20, unit: "m/s²", variable: "a" }
     ],
     solveFor: "t",
-    unknownText: "the burn time"
+    unknownText: "the elapsed time"
   },
   {
     id: 19,
-    textParts: ["A motorboat slowing down from ", { variable: "vo" }, " to an idle speed of ", { variable: "vf" }, " decelerates at ", { variable: "a" }, ". ", { isUnknown: true }, "?"],
+    textParts: ["A motorboat slows from an initial velocity of ", { variable: "vo" }, " to an idle velocity of ", { variable: "vf" }, " by decelerating at ", { variable: "a" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q19v1", value: 16, unit: "m/s", variable: "vo" },
       { id: "q19v2", value: 4, unit: "m/s", variable: "vf" },
       { id: "q19v3", value: -2, unit: "m/s²", variable: "a" }
     ],
     solveFor: "t",
-    unknownText: "How long does it take to slow down"
+    unknownText: "the elapsed time"
   },
   {
     id: 20,
-    textParts: ["A cheetah stalking prey accelerates from rest at ", { variable: "vo" }, " at an explosive ", { variable: "a" }, " until reaching top sprint speed of ", { variable: "vf" }, ". Find ", { isUnknown: true }, "."],
+    textParts: ["A cheetah accelerates from rest at ", { variable: "vo" }, " with a constant acceleration of ", { variable: "a" }, " until reaching a top velocity of ", { variable: "vf" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q20v1", value: 0, unit: "m/s", variable: "vo" },
       { id: "q20v2", value: 30, unit: "m/s", variable: "vf" },
       { id: "q20v3", value: 7.5, unit: "m/s²", variable: "a" }
     ],
     solveFor: "t",
-    unknownText: "the sprint acceleration time"
+    unknownText: "the elapsed time"
   },
 
-  // --- LEVEL 2: Questions 21 to 40 ---
+  // =========================================================================
+  // LEVEL 2: Tool-Aided Computation (Questions 21 to 40)
+  // =========================================================================
+
   // Solve for vf (Q21 - Q25)
   {
     id: 21,
-    textParts: ["A mountain coaster enters a steep descent at ", { variable: "vo" }, " and gravity accelerates it at ", { variable: "a" }, " for ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
+    textParts: ["A mountain coaster enters a steep descent with an initial velocity of ", { variable: "vo" }, " and accelerates at ", { variable: "a" }, " for ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q21v1", value: 5.5, unit: "m/s", variable: "vo" },
       { id: "q21v2", value: 3.2, unit: "m/s²", variable: "a" },
       { id: "q21v3", value: 4.5, unit: "s", variable: "t" }
     ],
     solveFor: "vf",
-    unknownText: "its final speed"
+    unknownText: "its final velocity"
   },
   {
     id: 22,
-    textParts: ["An emergency medical helicopter accelerates from a slow hover at ", { variable: "vo" }, " with forward thrust acceleration of ", { variable: "a" }, " for ", { variable: "t" }, ". Calculate ", { isUnknown: true }, "."],
+    textParts: ["A medical helicopter moves from a forward hover at an initial velocity of ", { variable: "vo" }, " and accelerates at ", { variable: "a" }, " for ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q22v1", value: 8, unit: "m/s", variable: "vo" },
       { id: "q22v2", value: 2.4, unit: "m/s²", variable: "a" },
       { id: "q22v3", value: 15, unit: "s", variable: "t" }
     ],
     solveFor: "vf",
-    unknownText: "its speed after 15 seconds"
+    unknownText: "its final velocity"
   },
   {
     id: 23,
-    textParts: ["A runaway cart rolling at ", { variable: "vo" }, " hits a sand arrestor bed that decelerates it at ", { variable: "a" }, " for ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
+    textParts: ["A runaway cart rolling at an initial velocity of ", { variable: "vo" }, " enters a sand arrestor bed that decelerates it at ", { variable: "a" }, " for ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q23v1", value: 18.5, unit: "m/s", variable: "vo" },
       { id: "q23v2", value: -4.2, unit: "m/s²", variable: "a" },
       { id: "q23v3", value: 3, unit: "s", variable: "t" }
     ],
     solveFor: "vf",
-    unknownText: "its speed through the arrestor"
+    unknownText: "its final velocity"
   },
   {
     id: 24,
-    textParts: ["A hydroplane boat glides at ", { variable: "vo" }, " then throttles forward at ", { variable: "a" }, " for ", { variable: "t" }, ". Find ", { isUnknown: true }, "."],
+    textParts: ["A hydroplane glides with an initial velocity of ", { variable: "vo" }, " and then accelerates at ", { variable: "a" }, " for ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q24v1", value: 14, unit: "m/s", variable: "vo" },
       { id: "q24v2", value: 5.6, unit: "m/s²", variable: "a" },
       { id: "q24v3", value: 3.5, unit: "s", variable: "t" }
     ],
     solveFor: "vf",
-    unknownText: "its velocity after the throttle"
+    unknownText: "its final velocity"
   },
   {
     id: 25,
-    textParts: ["A skydiver deploys a parachute while falling at ", { variable: "vo" }, ". The canopy exerts a braking deceleration of ", { variable: "a" }, " for ", { variable: "t" }, ". Determine ", { isUnknown: true }, "."],
+    textParts: ["A skydiver falls at an initial velocity of ", { variable: "vo" }, " before opening a parachute that decelerates them at ", { variable: "a" }, " for ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q25v1", value: 52, unit: "m/s", variable: "vo" },
       { id: "q25v2", value: -18, unit: "m/s²", variable: "a" },
       { id: "q25v3", value: 2.5, unit: "s", variable: "t" }
     ],
     solveFor: "vf",
-    unknownText: "their speed after opening"
+    unknownText: "their final velocity"
   },
 
   // Solve for vo (Q26 - Q30)
   {
     id: 26,
-    textParts: ["A freight truck skids to a complete halt at ", { variable: "vf" }, " after emergency air-brakes decelerate it at ", { variable: "a" }, " for ", { variable: "t" }, ". What was ", { isUnknown: true }, "?"],
+    textParts: ["A freight truck decelerates at ", { variable: "a" }, " for ", { variable: "t" }, " to come to a complete stop at ", { variable: "vf" }, ". What was ", { isUnknown: true }, "?"],
     values: [
       { id: "q26v1", value: 0, unit: "m/s", variable: "vf" },
       { id: "q26v2", value: -3.8, unit: "m/s²", variable: "a" },
       { id: "q26v3", value: 6.5, unit: "s", variable: "t" }
     ],
     solveFor: "vo",
-    unknownText: "the initial highway speed"
+    unknownText: "its initial velocity"
   },
   {
     id: 27,
-    textParts: ["An electric scooter reaches top speed of ", { variable: "vf" }, " after accelerating at ", { variable: "a" }, " for ", { variable: "t" }, ". What was ", { isUnknown: true }, "?"],
+    textParts: ["An electric scooter reaches a top velocity of ", { variable: "vf" }, " after accelerating at ", { variable: "a" }, " for ", { variable: "t" }, ". What was ", { isUnknown: true }, "?"],
     values: [
       { id: "q27v1", value: 9.5, unit: "m/s", variable: "vf" },
       { id: "q27v2", value: 1.2, unit: "m/s²", variable: "a" },
       { id: "q27v3", value: 5, unit: "s", variable: "t" }
     ],
     solveFor: "vo",
-    unknownText: "its initial speed"
+    unknownText: "its initial velocity"
   },
   {
     id: 28,
-    textParts: ["A ski racer reaches the timing gate at ", { variable: "vf" }, " after accelerating down a slope at ", { variable: "a" }, " for ", { variable: "t" }, ". Find ", { isUnknown: true }, "."],
+    textParts: ["A ski racer reaches the finish gate at a final velocity of ", { variable: "vf" }, " after accelerating down a slope at ", { variable: "a" }, " for ", { variable: "t" }, ". What was ", { isUnknown: true }, "?"],
     values: [
       { id: "q28v1", value: 34, unit: "m/s", variable: "vf" },
       { id: "q28v2", value: 2.8, unit: "m/s²", variable: "a" },
@@ -328,31 +332,31 @@ const QUESTIONS = [
   },
   {
     id: 29,
-    textParts: ["A ferry boat slows down to dock at ", { variable: "vf" }, " after reversing engines at ", { variable: "a" }, " for ", { variable: "t" }, ". What was ", { isUnknown: true }, "?"],
+    textParts: ["A ferry boat slows to a docking velocity of ", { variable: "vf" }, " after decelerating at ", { variable: "a" }, " for ", { variable: "t" }, ". What was ", { isUnknown: true }, "?"],
     values: [
       { id: "q29v1", value: 1.5, unit: "m/s", variable: "vf" },
       { id: "q29v2", value: -0.6, unit: "m/s²", variable: "a" },
       { id: "q29v3", value: 10, unit: "s", variable: "t" }
     ],
     solveFor: "vo",
-    unknownText: "its harbor approach speed"
+    unknownText: "its initial velocity"
   },
   {
     id: 30,
-    textParts: ["A passenger car merges onto the interstate at ", { variable: "vf" }, " after steady ramp acceleration of ", { variable: "a" }, " over ", { variable: "t" }, ". Find ", { isUnknown: true }, "."],
+    textParts: ["A car merges onto the freeway at a final velocity of ", { variable: "vf" }, " after accelerating on the on-ramp at ", { variable: "a" }, " for ", { variable: "t" }, ". What was ", { isUnknown: true }, "?"],
     values: [
       { id: "q30v1", value: 29, unit: "m/s", variable: "vf" },
       { id: "q30v2", value: 2.2, unit: "m/s²", variable: "a" },
       { id: "q30v3", value: 8, unit: "s", variable: "t" }
     ],
     solveFor: "vo",
-    unknownText: "its initial ramp speed"
+    unknownText: "its initial velocity"
   },
 
   // Solve for a (Q31 - Q35)
   {
     id: 31,
-    textParts: ["A dragster launches from rest at ", { variable: "vo" }, " and rockets to ", { variable: "vf" }, " across a test strip in ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
+    textParts: ["A dragster launches from rest at ", { variable: "vo" }, " and reaches a final velocity of ", { variable: "vf" }, " in ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q31v1", value: 0, unit: "m/s", variable: "vo" },
       { id: "q31v2", value: 48, unit: "m/s", variable: "vf" },
@@ -363,228 +367,230 @@ const QUESTIONS = [
   },
   {
     id: 32,
-    textParts: ["A high-speed train traveling at ", { variable: "vo" }, " applies dynamic brakes to slow to ", { variable: "vf" }, " before a curved bridge in ", { variable: "t" }, ". Find ", { isUnknown: true }, "."],
+    textParts: ["A train traveling at an initial velocity of ", { variable: "vo" }, " decelerates to a final velocity of ", { variable: "vf" }, " in ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q32v1", value: 65, unit: "m/s", variable: "vo" },
       { id: "q32v2", value: 25, unit: "m/s", variable: "vf" },
       { id: "q32v3", value: 20, unit: "s", variable: "t" }
     ],
     solveFor: "a",
-    unknownText: "its braking deceleration"
+    unknownText: "its acceleration"
   },
   {
     id: 33,
-    textParts: ["A downhill skateboarder accelerates from ", { variable: "vo" }, " to ", { variable: "vf" }, " in ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
+    textParts: ["A downhill skateboarder increases velocity from ", { variable: "vo" }, " to a final velocity of ", { variable: "vf" }, " in ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q33v1", value: 4, unit: "m/s", variable: "vo" },
       { id: "q33v2", value: 16.6, unit: "m/s", variable: "vf" },
       { id: "q33v3", value: 4.5, unit: "s", variable: "t" }
     ],
     solveFor: "a",
-    unknownText: "their downhill acceleration"
+    unknownText: "their acceleration"
   },
   {
     id: 34,
-    textParts: ["An aircraft carrier steam catapult flings a jet from rest at ", { variable: "vo" }, " to flyaway speed of ", { variable: "vf" }, " in ", { variable: "t" }, ". Compute ", { isUnknown: true }, "."],
+    textParts: ["An aircraft carrier catapult launches a jet from rest at ", { variable: "vo" }, " to a takeoff velocity of ", { variable: "vf" }, " in ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q34v1", value: 0, unit: "m/s", variable: "vo" },
       { id: "q34v2", value: 75, unit: "m/s", variable: "vf" },
       { id: "q34v3", value: 2.5, unit: "s", variable: "t" }
     ],
     solveFor: "a",
-    unknownText: "the catapult launch acceleration"
+    unknownText: "its acceleration"
   },
   {
     id: 35,
-    textParts: ["A police cruiser speeds up from patrol speed of ", { variable: "vo" }, " to pursuit speed of ", { variable: "vf" }, " in ", { variable: "t" }, ". Determine ", { isUnknown: true }, "."],
+    textParts: ["A police cruiser accelerates from an initial patrol velocity of ", { variable: "vo" }, " to a pursuit velocity of ", { variable: "vf" }, " in ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q35v1", value: 16, unit: "m/s", variable: "vo" },
       { id: "q35v2", value: 37, unit: "m/s", variable: "vf" },
       { id: "q35v3", value: 6, unit: "s", variable: "t" }
     ],
     solveFor: "a",
-    unknownText: "the pursuit acceleration"
+    unknownText: "its acceleration"
   },
 
   // Solve for t (Q36 - Q40)
   {
     id: 36,
-    textParts: ["A sports sedan accelerating from rest at ", { variable: "vo" }, " with power rating ", { variable: "a" }, " reaches freeway velocity of ", { variable: "vf" }, ". ", { isUnknown: true }, "?"],
+    textParts: ["A sports sedan accelerates from rest at ", { variable: "vo" }, " with a constant acceleration of ", { variable: "a" }, " to reach a freeway velocity of ", { variable: "vf" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q36v1", value: 0, unit: "m/s", variable: "vo" },
       { id: "q36v2", value: 27, unit: "m/s", variable: "vf" },
       { id: "q36v3", value: 4.5, unit: "m/s²", variable: "a" }
     ],
     solveFor: "t",
-    unknownText: "How many seconds does this sprint take"
+    unknownText: "the elapsed time"
   },
   {
     id: 37,
-    textParts: ["A heavy cargo truck cruising at ", { variable: "vo" }, " decelerates at ", { variable: "a" }, " to safely halt at a weigh station at ", { variable: "vf" }, ". ", { isUnknown: true }, "?"],
+    textParts: ["A cargo truck cruising at an initial velocity of ", { variable: "vo" }, " decelerates at ", { variable: "a" }, " to come to a stop at ", { variable: "vf" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q37v1", value: 24, unit: "m/s", variable: "vo" },
       { id: "q37v2", value: 0, unit: "m/s", variable: "vf" },
       { id: "q37v3", value: -3.2, unit: "m/s²", variable: "a" }
     ],
     solveFor: "t",
-    unknownText: "How long until the truck halts"
+    unknownText: "the time to stop"
   },
   {
     id: 38,
-    textParts: ["A high-speed elevator ascends from ", { variable: "vo" }, " accelerating at ", { variable: "a" }, " until reaching cruising speed of ", { variable: "vf" }, ". Find ", { isUnknown: true }, "."],
+    textParts: ["An elevator ascends from an initial velocity of ", { variable: "vo" }, " with an acceleration of ", { variable: "a" }, " to reach a cruising velocity of ", { variable: "vf" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q38v1", value: 1.5, unit: "m/s", variable: "vo" },
       { id: "q38v2", value: 9.5, unit: "m/s", variable: "vf" },
       { id: "q38v3", value: 1.6, unit: "m/s²", variable: "a" }
     ],
     solveFor: "t",
-    unknownText: "the acceleration duration"
+    unknownText: "the elapsed time"
   },
   {
     id: 39,
-    textParts: ["A roller coaster plunge car brakes from ", { variable: "vo" }, " to terminal dock speed of ", { variable: "vf" }, " with magnetic resistance of ", { variable: "a" }, ". Calculate ", { isUnknown: true }, "."],
+    textParts: ["A roller coaster car with an initial velocity of ", { variable: "vo" }, " slows to a docking velocity of ", { variable: "vf" }, " by decelerating at ", { variable: "a" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q39v1", value: 32, unit: "m/s", variable: "vo" },
       { id: "q39v2", value: 4, unit: "m/s", variable: "vf" },
       { id: "q39v3", value: -7, unit: "m/s²", variable: "a" }
     ],
     solveFor: "t",
-    unknownText: "the braking duration"
+    unknownText: "the braking time"
   },
   {
     id: 40,
-    textParts: ["A remote rover on Mars accelerates from ", { variable: "vo" }, " to scientific survey speed of ", { variable: "vf" }, " using gentle electric drive motors at ", { variable: "a" }, ". ", { isUnknown: true }, "?"],
+    textParts: ["A planetary rover accelerates from an initial velocity of ", { variable: "vo" }, " to a survey velocity of ", { variable: "vf" }, " with an acceleration of ", { variable: "a" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q40v1", value: 0.2, unit: "m/s", variable: "vo" },
       { id: "q40v2", value: 1.4, unit: "m/s", variable: "vf" },
       { id: "q40v3", value: 0.15, unit: "m/s²", variable: "a" }
     ],
     solveFor: "t",
-    unknownText: "How long does the speed adjustment take"
+    unknownText: "the elapsed time"
   },
 
-  // --- LEVEL 3: Mastery Quiz (Questions 41 to 50) ---
+  // =========================================================================
+  // LEVEL 3: Mastery Challenge & Certification (Questions 41 to 50)
+  // =========================================================================
+
   {
     id: 41,
-    textParts: ["A hypersonic test sled fires auxiliary thrusters at ", { variable: "a" }, " for ", { variable: "t" }, ", boosting from an initial ", { variable: "vo" }, ". What is ", { isUnknown: true }, "?"],
+    textParts: ["A hypersonic test sled with an initial velocity of ", { variable: "vo" }, " accelerates at ", { variable: "a" }, " for ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q41v1", value: 85, unit: "m/s", variable: "vo" },
       { id: "q41v2", value: 35, unit: "m/s²", variable: "a" },
       { id: "q41v3", value: 4, unit: "s", variable: "t" }
     ],
     solveFor: "vf",
-    unknownText: "its final peak velocity"
+    unknownText: "its final velocity"
   },
   {
     id: 42,
-    textParts: ["A landing lunar descent module fires retro-rockets at ", { variable: "a" }, " for ", { variable: "t" }, " to touch down gently at ", { variable: "vf" }, ". Determine ", { isUnknown: true }, "."],
+    textParts: ["A lunar descent module decelerates at ", { variable: "a" }, " for ", { variable: "t" }, " to touch down gently at a final velocity of ", { variable: "vf" }, ". What was ", { isUnknown: true }, "?"],
     values: [
       { id: "q42v1", value: 1, unit: "m/s", variable: "vf" },
       { id: "q42v2", value: -2.8, unit: "m/s²", variable: "a" },
       { id: "q42v3", value: 12, unit: "s", variable: "t" }
     ],
     solveFor: "vo",
-    unknownText: "its initial approach speed"
+    unknownText: "its initial velocity"
   },
   {
     id: 43,
-    textParts: ["A Formula 1 car accelerates from ", { variable: "vo" }, " out of a chicane to ", { variable: "vf" }, " down the straightaway in ", { variable: "t" }, ". Calculate ", { isUnknown: true }, "."],
+    textParts: ["A race car accelerates from an initial velocity of ", { variable: "vo" }, " to a straightaway velocity of ", { variable: "vf" }, " in ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q43v1", value: 22, unit: "m/s", variable: "vo" },
       { id: "q43v2", value: 76, unit: "m/s", variable: "vf" },
       { id: "q43v3", value: 4.5, unit: "s", variable: "t" }
     ],
     solveFor: "a",
-    unknownText: "its straightaway acceleration"
+    unknownText: "its acceleration"
   },
   {
     id: 44,
-    textParts: ["A runaway locomotive rolls at ", { variable: "vo" }, ". Emergency automatic sand buffers decelerate it at ", { variable: "a" }, " until it halts at ", { variable: "vf" }, ". ", { isUnknown: true }, "?"],
+    textParts: ["A locomotive rolling at an initial velocity of ", { variable: "vo" }, " decelerates at ", { variable: "a" }, " until coming to a stop at ", { variable: "vf" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q44v1", value: 36, unit: "m/s", variable: "vo" },
       { id: "q44v2", value: 0, unit: "m/s", variable: "vf" },
       { id: "q44v3", value: -4.5, unit: "m/s²", variable: "a" }
     ],
     solveFor: "t",
-    unknownText: "How long until the train stops"
+    unknownText: "the time to stop"
   },
   {
     id: 45,
-    textParts: ["An aircraft accelerates from rest at ", { variable: "vo" }, " down an alpine runway with acceleration of ", { variable: "a" }, " for ", { variable: "t" }, ". Find ", { isUnknown: true }, "."],
+    textParts: ["An aircraft accelerates from rest at ", { variable: "vo" }, " with a constant acceleration of ", { variable: "a" }, " for ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q45v1", value: 0, unit: "m/s", variable: "vo" },
       { id: "q45v2", value: 4.8, unit: "m/s²", variable: "a" },
       { id: "q45v3", value: 15, unit: "s", variable: "t" }
     ],
     solveFor: "vf",
-    unknownText: "its liftoff speed"
+    unknownText: "its final takeoff velocity"
   },
   {
     id: 46,
-    textParts: ["A downhill mountain biker finishes a rock garden at ", { variable: "vf" }, " after accelerating at ", { variable: "a" }, " for ", { variable: "t" }, ". What was ", { isUnknown: true }, "?"],
+    textParts: ["A downhill mountain biker reaches the bottom of a trail at a final velocity of ", { variable: "vf" }, " after accelerating at ", { variable: "a" }, " for ", { variable: "t" }, ". What was ", { isUnknown: true }, "?"],
     values: [
       { id: "q46v1", value: 18.2, unit: "m/s", variable: "vf" },
       { id: "q46v2", value: 2.4, unit: "m/s²", variable: "a" },
       { id: "q46v3", value: 3.5, unit: "s", variable: "t" }
     ],
     solveFor: "vo",
-    unknownText: "their entry speed"
+    unknownText: "their initial velocity"
   },
   {
     id: 47,
-    textParts: ["A magnetic levitation vehicle accelerates from ", { variable: "vo" }, " to ", { variable: "vf" }, " in ", { variable: "t" }, ". Compute ", { isUnknown: true }, "."],
+    textParts: ["A maglev vehicle accelerates uniformly from an initial velocity of ", { variable: "vo" }, " to a cruising velocity of ", { variable: "vf" }, " in ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q47v1", value: 15, unit: "m/s", variable: "vo" },
       { id: "q47v2", value: 87, unit: "m/s", variable: "vf" },
       { id: "q47v3", value: 18, unit: "s", variable: "t" }
     ],
     solveFor: "a",
-    unknownText: "its uniform acceleration"
+    unknownText: "its acceleration"
   },
   {
     id: 48,
-    textParts: ["A stunt motorcycle launches at ", { variable: "vo" }, " onto a friction ramp that decelerates it at ", { variable: "a" }, " until reaching landing speed of ", { variable: "vf" }, ". ", { isUnknown: true }, "?"],
+    textParts: ["A stunt motorcycle traveling at an initial velocity of ", { variable: "vo" }, " decelerates on a landing ramp at ", { variable: "a" }, " to reach a final velocity of ", { variable: "vf" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q48v1", value: 28, unit: "m/s", variable: "vo" },
       { id: "q48v2", value: 7, unit: "m/s", variable: "vf" },
       { id: "q48v3", value: -6, unit: "m/s²", variable: "a" }
     ],
     solveFor: "t",
-    unknownText: "How many seconds did the deceleration take"
+    unknownText: "the elapsed time"
   },
   {
     id: 49,
-    textParts: ["A suborbital space capsule re-enters the upper atmosphere at ", { variable: "vo" }, " and experiences atmospheric braking of ", { variable: "a" }, " for ", { variable: "t" }, ". Determine ", { isUnknown: true }, "."],
+    textParts: ["A space capsule enters the atmosphere at an initial velocity of ", { variable: "vo" }, " and decelerates at ", { variable: "a" }, " for ", { variable: "t" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q49v1", value: 1200, unit: "m/s", variable: "vo" },
       { id: "q49v2", value: -28, unit: "m/s²", variable: "a" },
       { id: "q49v3", value: 25, unit: "s", variable: "t" }
     ],
     solveFor: "vf",
-    unknownText: "its final speed after re-entry"
+    unknownText: "its final velocity"
   },
   {
     id: 50,
-    textParts: ["A jet dragster brakes with parachutes from ", { variable: "vo" }, " to a slow roll of ", { variable: "vf" }, " with parachute drag of ", { variable: "a" }, ". Calculate ", { isUnknown: true }, "."],
+    textParts: ["A jet dragster with an initial velocity of ", { variable: "vo" }, " slows to a final velocity of ", { variable: "vf" }, " by decelerating at ", { variable: "a" }, ". What is ", { isUnknown: true }, "?"],
     values: [
       { id: "q50v1", value: 110, unit: "m/s", variable: "vo" },
       { id: "q50v2", value: 10, unit: "m/s", variable: "vf" },
       { id: "q50v3", value: -20, unit: "m/s²", variable: "a" }
     ],
     solveFor: "t",
-    unknownText: "the parachute braking time"
+    unknownText: "the braking time"
   }
 ];
 
-// Verify questions integrity
+// Verification of Question Bank Integrity
 console.log(`Loaded ${QUESTIONS.length} questions.`);
 let counts = { vf: 0, vo: 0, a: 0, t: 0 };
-QUESTIONS.forEach((q, idx) => {
+QUESTIONS.forEach((q) => {
   counts[q.solveFor]++;
   if (q.values.length !== 3) {
-    console.error(`Question ${q.id} has invalid values count: ${q.values.length}`);
+    throw new Error(`Question ${q.id} has invalid values count: ${q.values.length}`);
   }
-  // Check exact computation
   let vfVal = null, voVal = null, aVal = null, tVal = null;
   q.values.forEach(v => {
     if (v.variable === 'vf') vfVal = v.value;
@@ -598,8 +604,9 @@ QUESTIONS.forEach((q, idx) => {
   if (q.solveFor === 'a') computed = (vfVal - voVal) / tVal;
   if (q.solveFor === 't') computed = (vfVal - voVal) / aVal;
   if (isNaN(computed) || !isFinite(computed)) {
-    console.error(`Question ${q.id} math failed: computed ${computed}`);
+    throw new Error(`Question ${q.id} math failed: computed ${computed}`);
   }
 });
 console.log('Solve-for distribution:', counts);
+
 module.exports = { QUESTIONS };
