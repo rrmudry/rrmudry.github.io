@@ -605,29 +605,36 @@ async function syncAssignment({
     let matchingCw = null;
     let resolvedVia = 'none';
 
+    // Ensure we have coursework list from Classroom
+    let cwList = courseWorkCache.get(course.id);
+    if (!cwList) {
+      try {
+        const cwRes = await classroom.courses.courseWork.list({
+          courseId: course.id,
+          pageSize: 100
+        });
+        cwList = cwRes.data.courseWork || [];
+        courseWorkCache.set(course.id, cwList);
+      } catch (e) {
+        console.warn(`Warning: Could not list coursework for Period ${p}:`, e.message);
+        cwList = [];
+      }
+    }
+
     const regResult = getCourseworkFromRegistry(assignment.id, course.id, registry);
     if (regResult) {
-      matchingCw = regResult;  // { id, maxPoints, title }
+      matchingCw = Object.assign({}, regResult); // { id, maxPoints, title }
       resolvedVia = 'registry';
+      // Cross-reference Classroom coursework to ensure maxPoints is authoritative
+      const realCw = cwList.find(c => c.id === regResult.id);
+      if (realCw && typeof realCw.maxPoints === 'number') {
+        matchingCw.maxPoints = realCw.maxPoints;
+        if (realCw.title) matchingCw.title = realCw.title;
+      }
     }
 
     // FALLBACK: Legacy string matching against Classroom coursework titles
     if (!matchingCw) {
-      let cwList = courseWorkCache.get(course.id);
-      if (!cwList) {
-        try {
-          const cwRes = await classroom.courses.courseWork.list({
-            courseId: course.id,
-            pageSize: 100
-          });
-          cwList = cwRes.data.courseWork || [];
-          courseWorkCache.set(course.id, cwList);
-        } catch (e) {
-          console.warn(`Warning: Could not list coursework for Period ${p}:`, e.message);
-          cwList = [];
-        }
-      }
-
       matchingCw = findMatchingCourseWork(assignment, cwList);
       if (matchingCw) resolvedVia = 'string-match';
     }
