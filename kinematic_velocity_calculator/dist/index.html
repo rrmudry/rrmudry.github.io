@@ -919,11 +919,24 @@
             keypad: true,
             settingsMenu: false
           });
+          window.desmosCalculator = desmosCalculator;
           desmosLoaded = true;
 
           desmosCalculator.observeEvent('change', () => {
             onDesmosChange();
           });
+
+          // Also hook onEvaluationUpdate on model if present so async evaluations immediately update UI
+          try {
+            const model = desmosCalculator.controller && desmosCalculator.controller.model;
+            if (model && typeof model.onEvaluationUpdate === 'function') {
+              const origOnEval = model.onEvaluationUpdate.bind(model);
+              model.onEvaluationUpdate = function(...args) {
+                origOnEval(...args);
+                onDesmosChange();
+              };
+            }
+          } catch (e) {}
 
           onDesmosChange();
         } catch (err) {
@@ -966,32 +979,62 @@
       }
     }
 
-    function evaluateExpressionItem(item) {
-      if (!item || !item.latex) return null;
-      if (desmosCalculator && typeof desmosCalculator.HelperExpression === 'function') {
-        try {
-          const helper = desmosCalculator.HelperExpression({ latex: item.latex });
-          if (typeof helper.numericValue === 'number' && !isNaN(helper.numericValue) && isFinite(helper.numericValue)) {
-            return helper.numericValue;
-          }
-        } catch (e) {}
-      }
-      return evaluateLatex(item.latex);
-    }
-
+    // Comprehensive extraction of the latest calculated result from Desmos Scientific Calculator
     function getDesmosLatestCalculation() {
-      const list = getDesmosExpressions();
-      for (let i = list.length - 1; i >= 0; i--) {
-        const item = list[i];
-        if (!item || !item.latex) continue;
-        const val = evaluateExpressionItem(item);
-        if (val !== null && !isNaN(val) && isFinite(val)) {
-          return {
-            latex: item.latex,
-            value: val
-          };
+      if (!desmosCalculator) return null;
+
+      // Tier 1: Desmos internal controller model (handles ans, fractions, trig, parenthesized operations)
+      try {
+        const model = desmosCalculator.controller && desmosCalculator.controller.model;
+        if (model && typeof model.getExpressionOrder === 'function') {
+          const order = model.getExpressionOrder();
+          for (let i = order.length - 1; i >= 0; i--) {
+            const id = order[i];
+            let val = null;
+            if (typeof model.getExpressionValue === 'function') {
+              val = model.getExpressionValue(id);
+            }
+            if ((val === null || val === undefined || isNaN(val)) && model._evaluations && model._evaluations[id]) {
+              val = model._evaluations[id].value;
+            }
+            if (typeof val === 'number' && !isNaN(val) && isFinite(val)) {
+              const latex = typeof model.getExpressionLatex === 'function' ? model.getExpressionLatex(id) : '';
+              return { id, latex, value: val };
+            }
+          }
         }
+      } catch (e) {
+        console.warn("Desmos model evaluation check:", e);
       }
+
+      // Tier 2: DOM display elements (.dcg-basic-expression-value)
+      try {
+        const domValues = document.querySelectorAll('.dcg-basic-expression-value');
+        for (let i = domValues.length - 1; i >= 0; i--) {
+          const text = (domValues[i].innerText || '').trim();
+          const m = text.match(/=s*([+-]?d+(?:.d+)?)/);
+          if (m) {
+            const val = parseFloat(m[1]);
+            if (!isNaN(val) && isFinite(val)) {
+              return { id: 'dom-' + i, latex: '', value: val };
+            }
+          }
+        }
+      } catch (e) {}
+
+      // Tier 3: getState fallback with regex parser
+      try {
+        const list = getDesmosExpressions();
+        for (let i = list.length - 1; i >= 0; i--) {
+          const item = list[i];
+          if (!item || !item.latex) continue;
+          const val = evaluateLatex(item.latex);
+          if (val !== null && !isNaN(val) && isFinite(val)) {
+            return { latex: item.latex, value: val };
+          }
+        }
+      } catch (e) {}
+
       return null;
     }
 
@@ -1095,31 +1138,50 @@
     function verifyDesmosWork(q, exactVal) {
       if (!state || state.currentLevel < 2) return true;
       const calc = getDesmosLatestCalculation();
-      if (!calc || typeof calc.value !== 'number' || isNaN(calc.value)) {
-        return false;
+      if (calc && typeof calc.value === 'number' && !isNaN(calc.value)) {
+        const delta = Math.abs(calc.value - exactVal);
+        if (delta <= TOLERANCE || (exactVal !== 0 && delta / Math.abs(exactVal) <= 0.05)) {
+          return true;
+        }
       }
 
-      // 1. Check if latest evaluated result is within tolerance of exact answer
-      const delta = Math.abs(calc.value - exactVal);
-      if (delta <= TOLERANCE || (exactVal !== 0 && delta / Math.abs(exactVal) <= 0.05)) {
-        return true;
-      }
-
-      // 2. Check all expressions in Desmos state
-      if (desmosCalculator) {
+      // Scan all expressions in Desmos model
+      if (desmosCalculator && desmosCalculator.controller && desmosCalculator.controller.model) {
         try {
-          const list = getDesmosExpressions();
-          for (let item of list) {
-            if (!item || !item.latex) continue;
-            const evaluated = evaluateExpressionItem(item);
-            if (evaluated !== null && !isNaN(evaluated)) {
-              if (Math.abs(evaluated - exactVal) <= TOLERANCE || (exactVal !== 0 && Math.abs(evaluated - exactVal) / Math.abs(exactVal) <= 0.05)) {
-                return true;
+          const model = desmosCalculator.controller.model;
+          if (typeof model.getExpressionOrder === 'function') {
+            const order = model.getExpressionOrder();
+            for (let id of order) {
+              let val = typeof model.getExpressionValue === 'function' ? model.getExpressionValue(id) : null;
+              if ((val === null || val === undefined || isNaN(val)) && model._evaluations && model._evaluations[id]) {
+                val = model._evaluations[id].value;
+              }
+              if (typeof val === 'number' && !isNaN(val)) {
+                if (Math.abs(val - exactVal) <= TOLERANCE || (exactVal !== 0 && Math.abs(val - exactVal) / Math.abs(exactVal) <= 0.05)) {
+                  return true;
+                }
               }
             }
           }
         } catch (e) {}
       }
+
+      // Check DOM display values
+      try {
+        const domValues = document.querySelectorAll('.dcg-basic-expression-value');
+        for (let el of domValues) {
+          const text = (el.innerText || '').trim();
+          const m = text.match(/=s*([+-]?d+(?:.d+)?)/);
+          if (m) {
+            const val = parseFloat(m[1]);
+            if (!isNaN(val)) {
+              if (Math.abs(val - exactVal) <= TOLERANCE || (exactVal !== 0 && Math.abs(val - exactVal) / Math.abs(exactVal) <= 0.05)) {
+                return true;
+              }
+            }
+          }
+        }
+      } catch (e) {}
 
       return false;
     }
