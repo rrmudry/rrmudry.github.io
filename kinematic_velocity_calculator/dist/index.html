@@ -105,6 +105,25 @@
       box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
     }
 
+    /* Fixed slot dimensions preventing wrapping under all viewport conditions */
+    .equation-slot {
+      width: 78px;
+      height: 78px;
+      flex-shrink: 0;
+    }
+    @media (min-width: 640px) {
+      .equation-slot {
+        width: 104px;
+        height: 94px;
+      }
+    }
+    @media (min-width: 768px) {
+      .equation-slot {
+        width: 120px;
+        height: 100px;
+      }
+    }
+
     .glow-neon {
       box-shadow: 0 0 20px rgba(0, 243, 255, 0.25);
       border-color: var(--accent-neon);
@@ -238,13 +257,24 @@
         </div>
         
         <div class="space-y-4 pt-2">
-          <button id="btn-google-signin" type="button" onclick="handleGoogleSignIn()" class="w-full bg-white text-slate-900 py-4 rounded-2xl font-black uppercase tracking-widest hover:scale-[1.02] hover:bg-slate-100 transition-all flex items-center justify-center gap-3 shadow-2xl">
+          <button id="btn-google-signin" type="button" onclick="handleGoogleSignIn()" class="w-full bg-white text-slate-900 py-4 rounded-2xl font-black uppercase tracking-widest hover:scale-[1.02] hover:bg-slate-100 transition-all flex items-center justify-center gap-3 shadow-2xl cursor-pointer">
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5" alt="Google">
             Sign In with Google
           </button>
           <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] leading-relaxed">
             Use your school-issued <span class="text-sky-400">@orangeusd.org</span> account
           </p>
+
+          <div class="relative flex py-1 items-center">
+            <div class="flex-grow border-t border-white/10"></div>
+            <span class="flex-shrink mx-3 text-[10px] uppercase tracking-widest text-slate-500 font-bold">Or Instant Preview</span>
+            <div class="flex-grow border-t border-white/10"></div>
+          </div>
+
+          <button id="btn-guest-preview" type="button" onclick="startGuestMode()" class="w-full bg-slate-800/90 hover:bg-slate-700 text-sky-300 border border-sky-500/30 hover:border-sky-400/50 py-3.5 rounded-2xl font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2.5 hover:scale-[1.02] shadow-lg cursor-pointer">
+            <i data-lucide="eye" class="w-4 h-4 text-sky-400"></i>
+            <span>Teacher Preview / Test Mode (No Login)</span>
+          </button>
         </div>
         <p id="register-error" class="text-rose-400 text-xs font-bold uppercase tracking-wider hidden">Access denied &mdash; use your @orangeusd.org school account</p>
         <p id="register-status" class="text-sky-400 text-[10px] font-bold uppercase tracking-widest animate-pulse hidden">Connecting&hellip;</p>
@@ -296,100 +326,95 @@
       <!-- Workspace Layout Container (collapsible sidebar) -->
       <div class="flex flex-col lg:flex-row gap-4 items-start w-full">
          
-         <!-- Main Interaction Area -->
-         <div class="flex-grow w-full min-w-0">
+         <!-- Main Interaction Area (Full Width Column) -->
+         <div class="flex-grow w-full min-w-0 flex flex-col gap-3.5">
 
-            <!-- Main Interaction Board -->
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-stretch">
+            <!-- Card 1: Word Problem Card & TTS Button -->
+            <div class="glass rounded-xl p-4 sm:p-5 border border-white/5 flex flex-col justify-center relative min-h-[95px]">
+              <button onclick="readQuestionAloud()" id="btn-tts" class="absolute top-3 right-3 p-1.5 rounded-full transition-all duration-200 bg-slate-800/80 text-slate-400 hover:text-white border border-white/5" title="Read Aloud">
+                <i data-lucide="volume-2" class="w-4 h-4"></i>
+              </button>
               
-              <!-- LEFT PANEL: Question Card & Badges -->
-              <div class="md:col-span-7 flex flex-col gap-3">
-                
-                <!-- Word Problem Card -->
-                <div class="glass rounded-xl p-4 border border-white/5 flex-grow flex flex-col justify-center relative min-h-[110px]">
-                  <!-- Audio Speech Button -->
-                  <button onclick="readQuestionAloud()" id="btn-tts" class="absolute top-3 right-3 p-1.5 rounded-full transition-all duration-200 bg-slate-800/80 text-slate-400 hover:text-white border border-white/5" title="Read Aloud">
-                    <i data-lucide="volume-2" class="w-4 h-4"></i>
-                  </button>
+              <p id="question-text" class="text-base sm:text-lg font-semibold leading-relaxed text-slate-100 pr-8 text-center">
+                <!-- Inline values and unknown will be rendered here dynamically -->
+              </p>
+            </div>
+
+            <!-- Card 2: Full-Width Equation Arranging Board (NEVER WRAPS) -->
+            <div class="glass rounded-xl p-3 sm:p-4 border border-white/5 flex flex-col items-center justify-center w-full shadow-lg">
+              
+              <!-- Equation Scroll Container: Strictly horizontal with flex-nowrap -->
+              <div class="w-full flex items-center justify-center overflow-x-auto py-2 px-1">
+                <div class="flex items-center justify-center gap-1.5 sm:gap-2.5 md:gap-3.5 font-mono flex-nowrap shrink-0 select-none">
                   
-                  <p id="question-text" class="text-base md:text-lg font-semibold leading-relaxed text-slate-100 pr-8 text-center">
-                    <!-- Inline values and unknown will be rendered here dynamically -->
-                  </p>
-                </div>
-      
-                <!-- Selection helper text -->
-                <div id="selection-helper" class="text-center text-[10px] text-slate-400 font-semibold h-3.5 select-none">
-                  <!-- Selected item details -->
-                </div>
-      
-                <!-- Equation Arranging Board: v_f = v_o + a * t -->
-                <div class="glass rounded-xl p-4 border border-white/5 flex flex-col items-center justify-center">
-                  
-                  <!-- Standard Kinematic Formula Template: v_f = v_o + a * t -->
-                  <div class="flex items-center justify-center gap-1.5 sm:gap-2.5 text-2xl sm:text-3xl font-mono text-slate-500 flex-wrap py-2">
-                    
-                    <!-- vf Slot (Final Velocity) -->
-                    <div 
-                      data-slot="vf" 
-                      class="drag-target w-24 h-20 sm:w-28 sm:h-24 bg-slate-950/80 rounded-xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-sm font-semibold select-none cursor-pointer transition-all"
-                      onclick="handleSlotClick(this)"
-                    >
-                      <span class="text-slate-500 text-xl sm:text-3xl font-mono select-none">v<sub>f</sub></span>
-                      <span class="text-[8px] sm:text-[9px] text-slate-600 font-sans tracking-wider uppercase font-semibold select-none mt-0.5">final vel</span>
-                    </div>
-      
-                    <span class="font-sans text-slate-400 font-bold select-none text-xl sm:text-2xl px-0.5">=</span>
-      
-                    <!-- vo Slot (Initial Velocity) -->
-                    <div 
-                      data-slot="vo" 
-                      class="drag-target w-24 h-20 sm:w-28 sm:h-24 bg-slate-950/80 rounded-xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-sm font-semibold select-none cursor-pointer transition-all"
-                      onclick="handleSlotClick(this)"
-                    >
-                      <span class="text-slate-500 text-xl sm:text-3xl font-mono select-none">v<sub>o</sub></span>
-                      <span class="text-[8px] sm:text-[9px] text-slate-600 font-sans tracking-wider uppercase font-semibold select-none mt-0.5">initial vel</span>
-                    </div>
-
-                    <span class="font-sans text-slate-400 font-bold select-none text-xl sm:text-2xl px-0.5">+</span>
-
-                    <!-- a Slot (Acceleration) -->
-                    <div 
-                      data-slot="a" 
-                      class="drag-target w-24 h-20 sm:w-28 sm:h-24 bg-slate-950/80 rounded-xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-sm font-semibold select-none cursor-pointer transition-all"
-                      onclick="handleSlotClick(this)"
-                    >
-                      <span class="text-slate-500 text-xl sm:text-3xl font-mono select-none">a</span>
-                      <span class="text-[8px] sm:text-[9px] text-slate-600 font-sans tracking-wider uppercase font-semibold select-none mt-0.5">accel</span>
-                    </div>
-
-                    <span class="font-sans text-slate-400 font-bold select-none text-xl sm:text-2xl px-0.5">&middot;</span>
-
-                    <!-- t Slot (Time) -->
-                    <div 
-                      data-slot="t" 
-                      class="drag-target w-24 h-20 sm:w-28 sm:h-24 bg-slate-950/80 rounded-xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-sm font-semibold select-none cursor-pointer transition-all"
-                      onclick="handleSlotClick(this)"
-                    >
-                      <span class="text-slate-500 text-xl sm:text-3xl font-mono select-none">t</span>
-                      <span class="text-[8px] sm:text-[9px] text-slate-600 font-sans tracking-wider uppercase font-semibold select-none mt-0.5">time</span>
-                    </div>
-
+                  <!-- vf Slot (Final Velocity) -->
+                  <div 
+                    data-slot="vf" 
+                    class="drag-target equation-slot bg-slate-950/80 rounded-xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-sm font-semibold select-none cursor-pointer transition-all"
+                    onclick="handleSlotClick(this)"
+                  >
+                    <span class="text-slate-500 text-lg sm:text-2xl md:text-3xl font-mono select-none">v<sub>f</sub></span>
+                    <span class="text-[7.5px] sm:text-[9px] text-slate-600 font-sans tracking-wider uppercase font-semibold select-none mt-0.5">final vel</span>
                   </div>
-      
+
+                  <span class="font-sans text-slate-400 font-bold select-none text-lg sm:text-2xl md:text-3xl px-0.5 shrink-0">=</span>
+
+                  <!-- vo Slot (Initial Velocity) -->
+                  <div 
+                    data-slot="vo" 
+                    class="drag-target equation-slot bg-slate-950/80 rounded-xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-sm font-semibold select-none cursor-pointer transition-all"
+                    onclick="handleSlotClick(this)"
+                  >
+                    <span class="text-slate-500 text-lg sm:text-2xl md:text-3xl font-mono select-none">v<sub>o</sub></span>
+                    <span class="text-[7.5px] sm:text-[9px] text-slate-600 font-sans tracking-wider uppercase font-semibold select-none mt-0.5">initial vel</span>
+                  </div>
+
+                  <span class="font-sans text-slate-400 font-bold select-none text-lg sm:text-2xl md:text-3xl px-0.5 shrink-0">+</span>
+
+                  <!-- a Slot (Acceleration) -->
+                  <div 
+                    data-slot="a" 
+                    class="drag-target equation-slot bg-slate-950/80 rounded-xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-sm font-semibold select-none cursor-pointer transition-all"
+                    onclick="handleSlotClick(this)"
+                  >
+                    <span class="text-slate-500 text-lg sm:text-2xl md:text-3xl font-mono select-none">a</span>
+                    <span class="text-[7.5px] sm:text-[9px] text-slate-600 font-sans tracking-wider uppercase font-semibold select-none mt-0.5">accel</span>
+                  </div>
+
+                  <span class="font-sans text-slate-400 font-bold select-none text-lg sm:text-2xl md:text-3xl px-0.5 shrink-0">&middot;</span>
+
+                  <!-- t Slot (Time) -->
+                  <div 
+                    data-slot="t" 
+                    class="drag-target equation-slot bg-slate-950/80 rounded-xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-sm font-semibold select-none cursor-pointer transition-all"
+                    onclick="handleSlotClick(this)"
+                  >
+                    <span class="text-slate-500 text-lg sm:text-2xl md:text-3xl font-mono select-none">t</span>
+                    <span class="text-[7.5px] sm:text-[9px] text-slate-600 font-sans tracking-wider uppercase font-semibold select-none mt-0.5">time</span>
+                  </div>
+
                 </div>
-      
               </div>
-      
-              <!-- RIGHT PANEL: Action Panel / Visual Feedback -->
-              <div class="md:col-span-5 flex flex-col gap-3">
+
+              <!-- Selection helper text -->
+              <div id="selection-helper" class="text-center text-[10px] sm:text-[11px] text-slate-400 font-semibold h-4 select-none mt-1">
+                <!-- Selected item details -->
+              </div>
+            </div>
+
+            <!-- Card 3: Action Controls & Feedback Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-3.5 items-stretch">
+              
+              <!-- LEFT: Feedback Message Box & Desmos Telemetry (md:col-span-7) -->
+              <div class="md:col-span-7 flex flex-col gap-3">
                 
                 <!-- Feedback Message box -->
                 <div id="feedback-box" class="glass rounded-xl p-3 text-center font-bold text-xs min-h-[48px] flex items-center justify-center border border-white/5">
                   Place the given values and unknown term into the equation, then check your work.
                 </div>
-      
+
                 <!-- Calculation input helper (For Level 2 & 3) -->
-                <div id="calc-input-helper" class="glass rounded-xl p-4 border border-white/5 flex flex-col hidden">
+                <div id="calc-input-helper" class="glass rounded-xl p-3.5 border border-white/5 flex flex-col hidden">
                   <div class="flex items-center justify-between gap-2">
                     <div>
                       <span class="text-[9px] text-sky-400 uppercase tracking-widest block font-bold">Calculation Telemetry</span>
@@ -400,24 +425,24 @@
                     </span>
                   </div>
                   
-                  <div class="my-2.5 flex flex-col gap-2">
+                  <div class="my-2.5 flex flex-col sm:flex-row gap-2">
                     <input 
                       type="number" 
                       step="0.01" 
                       id="manual-user-answer" 
-                      placeholder="Enter or paste result..." 
+                      placeholder="Enter result..." 
                       oninput="syncManualInput(this.value)"
-                      class="w-full bg-slate-950/85 text-white py-2.5 px-3 rounded-xl border border-white/10 text-center font-bold tracking-wide text-lg focus:border-sky-500 focus:outline-none transition-all mono placeholder:font-normal placeholder:text-slate-600"
+                      class="flex-1 bg-slate-950/85 text-white py-2.5 px-3 rounded-xl border border-white/10 text-center font-bold tracking-wide text-lg focus:border-sky-500 focus:outline-none transition-all mono placeholder:font-normal placeholder:text-slate-600"
                     >
                     <button 
                       id="btn-paste-desmos-input"
                       type="button" 
                       onclick="pasteDesmosResult()" 
-                      class="w-full py-2.5 px-3 bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-500 hover:to-cyan-500 text-white rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md hover:scale-[1.01] active:scale-95 border border-sky-400/30 cursor-pointer"
+                      class="sm:w-auto px-4 py-2.5 bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-500 hover:to-cyan-500 text-white rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md hover:scale-[1.01] active:scale-95 border border-sky-400/30 cursor-pointer shrink-0"
                       title="Paste latest calculated value from Desmos"
                     >
                       <i data-lucide="clipboard-paste" class="w-4 h-4 text-cyan-200"></i>
-                      <span>Paste from Desmos</span>
+                      <span>Paste Desmos</span>
                     </button>
                   </div>
 
@@ -425,32 +450,34 @@
                     Use the Desmos calculator on the right to compute your answer.
                   </div>
                 </div>
-      
-                <!-- Workspace Actions Buttons -->
+
+              </div>
+
+              <!-- RIGHT: Action Buttons & Utilities (md:col-span-5) -->
+              <div class="md:col-span-5 flex flex-col gap-2 justify-between">
                 <div class="flex flex-col gap-2">
-                  <button id="btn-check-answer" onclick="checkCurrentAnswer()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-black py-2.5 px-4 rounded-xl transition-all shadow-lg text-xs uppercase tracking-wider">
+                  <button id="btn-check-answer" onclick="checkCurrentAnswer()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-black py-2.5 px-4 rounded-xl transition-all shadow-lg text-xs uppercase tracking-wider cursor-pointer">
                     Check Answer
                   </button>
-                  <button onclick="resetWorkspace()" class="w-full bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold py-2.5 px-4 rounded-xl transition-all border border-white/5 text-xs uppercase tracking-wider">
+                  <button onclick="resetWorkspace()" class="w-full bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold py-2.5 px-4 rounded-xl transition-all border border-white/5 text-xs uppercase tracking-wider cursor-pointer">
                     Reset Workspace
                   </button>
-                  <button id="btn-next-question" onclick="nextQuestion()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2.5 px-4 rounded-xl transition-all shadow-lg text-xs uppercase tracking-wider hidden">
+                  <button id="btn-next-question" onclick="nextQuestion()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2.5 px-4 rounded-xl transition-all shadow-lg text-xs uppercase tracking-wider hidden cursor-pointer">
                     Next Question
                   </button>
                 </div>
-      
+                
                 <!-- Utility Bar: Help & Calculator buttons -->
                 <div class="grid grid-cols-2 gap-2 mt-1">
-                  <button onclick="toggleHelpModal(true)" class="bg-slate-900 hover:bg-slate-800 text-slate-300 py-2.5 rounded-xl border border-white/5 font-semibold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-1.5">
+                  <button onclick="toggleHelpModal(true)" class="bg-slate-900 hover:bg-slate-800 text-slate-300 py-2.5 rounded-xl border border-white/5 font-semibold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 cursor-pointer">
                     <i data-lucide="help-circle" class="w-4 h-4"></i> Help Guide
                   </button>
-                  <button onclick="toggleCalculatorModal(true)" class="bg-slate-900 hover:bg-slate-800 text-slate-300 py-2.5 rounded-xl border border-white/5 font-semibold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-1.5">
+                  <button onclick="toggleCalculatorModal(true)" class="bg-slate-900 hover:bg-slate-800 text-slate-300 py-2.5 rounded-xl border border-white/5 font-semibold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 cursor-pointer">
                     <i data-lucide="calculator" class="w-4 h-4"></i> Calculator
                   </button>
                 </div>
-      
               </div>
-      
+
             </div>
 
          </div>
@@ -1213,6 +1240,9 @@
       } else if (status === 'saved') {
         text.innerText = 'Auto-Saved';
         el.className = 'flex items-center gap-1.5 text-[10px] text-emerald-400 bg-emerald-950/70 border border-emerald-500/30 px-2.5 py-1 rounded-lg transition-all font-mono';
+      } else if (status === 'preview') {
+        text.innerText = 'Preview Mode';
+        el.className = 'flex items-center gap-1.5 text-[10px] text-sky-400 bg-sky-950/70 border border-sky-500/30 px-2.5 py-1 rounded-lg transition-all font-mono';
       } else if (status === 'error') {
         text.innerText = 'Sync Offline';
         el.className = 'flex items-center gap-1.5 text-[10px] text-rose-400 bg-rose-950/70 border border-rose-500/30 px-2.5 py-1 rounded-lg transition-all font-mono';
@@ -1229,9 +1259,39 @@
       }
     }
 
+    function startGuestMode() {
+      state.studentId = 'teacher_preview';
+      state.displayName = 'Teacher Preview';
+      state.photoURL = '';
+      state.unlockedLevels = [1, 2, 3];
+      state.currentLevel = 1;
+      state.answered = 0;
+      state.streak = 0;
+      state.score = 0;
+      state.completed = false;
+      state.completedAt = '';
+      state.certificateId = '';
+      hudInitialize();
+      updateCloudStatus('preview');
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
-      showSection('view-register');
+
+      // Auto-detect preview mode: local file, localhost, or query parameters (?preview, ?test, ?guest)
+      const urlParams = new URLSearchParams(window.location.search);
+      const isAutoPreview = window.location.protocol === 'file:' ||
+                            window.location.hostname === 'localhost' ||
+                            window.location.hostname === '127.0.0.1' ||
+                            urlParams.has('preview') ||
+                            urlParams.has('test') ||
+                            urlParams.has('guest');
+
+      if (isAutoPreview) {
+        startGuestMode();
+      } else {
+        showSection('view-register');
+      }
 
       // Firebase Auth observer
       fbAuth.onAuthStateChanged(async user => {
@@ -1256,8 +1316,11 @@
           await loadProgressFromFirestore(prefix);
           hudInitialize();
         } else {
-          showSection('view-register');
-          document.getElementById('register-status').classList.add('hidden');
+          // If in preview mode, do not kick back to login screen
+          if (state.studentId !== 'teacher_preview') {
+            showSection('view-register');
+            document.getElementById('register-status').classList.add('hidden');
+          }
         }
       });
 
@@ -1288,6 +1351,10 @@
 
     async function saveState() {
       if (!state.studentId) return;
+      if (state.studentId === 'teacher_preview') {
+        updateCloudStatus('preview');
+        return;
+      }
       updateCloudStatus('saving');
       try {
         // 1. Save to physics_labs for student lab resumption
@@ -1420,7 +1487,10 @@
           currentQuestionIndex: 0
         };
         speech.cancel();
-        fbAuth.signOut();
+        showSection('view-register');
+        if (fbAuth.currentUser) {
+          fbAuth.signOut();
+        }
       }
     }
 
@@ -1796,13 +1866,13 @@
                 >
               </div>
             `;
-            slotEl.className = "drag-target w-24 h-20 sm:w-28 sm:h-24 bg-slate-900 border-2 border-slate-700 rounded-xl flex flex-col items-center justify-center transition-all scale-102";
+            slotEl.className = "drag-target equation-slot bg-slate-900 border-2 border-slate-700 rounded-xl flex flex-col items-center justify-center transition-all scale-102";
           } else {
             slotEl.innerHTML = `
               <span class="text-[8px] sm:text-[9px] text-slate-400 block select-none uppercase tracking-wider">${displayLabel}</span>
               <span class="text-xs font-bold text-center px-1 truncate max-w-full">${q.unknownText}</span>
             `;
-            slotEl.className = `drag-target w-24 h-20 sm:w-28 sm:h-24 ${color} border-2 rounded-xl flex flex-col items-center justify-center transition-all scale-102`;
+            slotEl.className = `drag-target equation-slot ${color} border-2 rounded-xl flex flex-col items-center justify-center transition-all scale-102`;
           }
         } else if (item) {
           let color = "bg-sky-950/90 border-sky-500 text-sky-400";
@@ -1816,13 +1886,13 @@
             <span class="text-sm sm:text-base font-black mono mt-0.5">${item.value}</span>
             <span class="text-[9px] text-slate-400 mono">${item.unit}</span>
           `;
-          slotEl.className = `drag-target w-24 h-20 sm:w-28 sm:h-24 ${color} border-2 rounded-xl flex flex-col items-center justify-center transition-all scale-102`;
+          slotEl.className = `drag-target equation-slot ${color} border-2 rounded-xl flex flex-col items-center justify-center transition-all scale-102`;
         } else {
           slotEl.innerHTML = `
             <span class="text-slate-500 text-xl sm:text-3xl font-mono select-none">${displayLabel}</span>
             <span class="text-[8px] sm:text-[9px] text-slate-600 font-sans tracking-wider uppercase font-semibold select-none mt-0.5">${subLabel}</span>
           `;
-          slotEl.className = "drag-target w-24 h-20 sm:w-28 sm:h-24 bg-slate-950/80 rounded-xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-slate-500 select-none cursor-pointer transition-all";
+          slotEl.className = "drag-target equation-slot bg-slate-950/80 rounded-xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-slate-500 select-none cursor-pointer transition-all";
         }
       };
 
@@ -1961,7 +2031,7 @@
           <span class="text-sm sm:text-base font-extrabold text-emerald-400 mono">≈ ${exactVal.toFixed(2)}</span>
           <span class="text-[9px] text-slate-400 mono">${unit}</span>
         `;
-        unknownSlotEl.className = "drag-target w-24 h-20 sm:w-28 sm:h-24 bg-emerald-950/20 border-2 border-emerald-500 rounded-xl flex flex-col items-center justify-center transition-all scale-105";
+        unknownSlotEl.className = "drag-target equation-slot bg-emerald-950/20 border-2 border-emerald-500 rounded-xl flex flex-col items-center justify-center transition-all scale-105";
  
         feedbackBox.innerText = "Correct! Formula arranged perfectly!";
         feedbackBox.className = "glass rounded-xl p-3 text-center font-bold text-emerald-400 text-xs min-h-[48px] flex items-center justify-center border border-emerald-500/20";

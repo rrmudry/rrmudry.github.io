@@ -141,16 +141,38 @@ const FORMULA_CONFIG = {
 
 ---
 
+### D. Zero-Wrap Formula Slot Architecture
+- **Full-Width Dedicated Card**: Equation slots must NEVER be constrained inside narrow multi-column layouts (e.g. `col-span-7`) alongside calculators or action buttons. They must reside in a dedicated full-width card across the workspace.
+- **Strict `flex-nowrap` & Fixed Slot Sizing**:
+  - Container uses `flex items-center justify-center flex-nowrap shrink-0 overflow-x-auto`.
+  - Slots use fixed responsive dimensions (`.equation-slot`: `78px` mobile, `104px` sm, `120px` md) with `flex-shrink: 0`.
+  - Prevents terms like `[ t ]` from wrapping onto a second line under all viewport dimensions.
+
+### E. Developer & Teacher Instant Preview Mode
+- **Zero-Friction Testing (No Google Sign-In Required)**:
+  - Commit/push cycles to GitHub Pages are slow. Provide immediate preview access via:
+    1. Local protocols (`file:`, `localhost`, `127.0.0.1`).
+    2. URL query parameters (`?preview=true`, `?test=true`, `?guest=true`).
+    3. Prominent UI button on the sign-in screen (`#btn-guest-preview`: "Teacher Preview / Test Mode (No Login)").
+  - **Behavior in Preview Mode**:
+    - Unlocks all 3 tiers (`state.unlockedLevels = [1, 2, 3]`) for instant inspection.
+    - Sets HUD to `Student: Teacher Preview` and `Preview Mode`.
+    - Guards `saveState()` to skip Firestore network writes, avoiding `FirebaseError: Missing or insufficient permissions`.
+
+---
+
 ## 5. Checklist for Deploying New Word Problem Apps
 
-- [ ] Gated Google Sign-In with `@orangeusd.org` domain restriction.
+- [ ] Gated Google Sign-In with `@orangeusd.org` domain restriction AND Instant Teacher Preview bypass.
+- [ ] Dedicated full-width equation board with `flex-nowrap` preventing slot wrapping across all viewports.
 - [ ] 3-tier scaffold ladder: Tier 1 (identification), Tier 2 (Desmos calc), Tier 3 (evaluated mastery).
 - [ ] Minimum 6 questions with required 4-streak for progression.
 - [ ] Dual-input support: HTML5 drag-and-drop + click-to-select/click-to-place.
 - [ ] Embedded Desmos Scientific Calculator with calculation telemetry verification.
 - [ ] Web Speech API TTS with physical unit expansion.
 - [ ] Web Audio native synthesizer for clicks, success, error, and streak cues.
-- [ ] Real-time auto-saving with visible HUD cloud status indicator (`Saving...` / `Auto-Saved`).
+- [ ] Real-time auto-saving with visible HUD cloud status indicator (`Saving...` / `Auto-Saved` / `Preview Mode`).
 - [ ] Certificate modal with verification token and print-ready CSS.
 - [ ] Assignment registered in `assignment_registry` and synced via `sync-classroom`.
 - [ ] Strict compliance with the No-LaTeX math notation rule.
+
