@@ -370,7 +370,11 @@ class RatRodAuthManager {
 
         // 1. Restore Inventory & Bank
         if (this.game && this.game.inventory) {
-          this.game.inventory.loadFromCloud(cloudData);
+          if (typeof this.game.inventory.loadFromCloud === 'function') {
+            this.game.inventory.loadFromCloud(cloudData);
+          } else if (typeof this.game.inventory.applyData === 'function') {
+            this.game.inventory.applyData(cloudData);
+          }
         }
 
         // 2. Restore Player Car
