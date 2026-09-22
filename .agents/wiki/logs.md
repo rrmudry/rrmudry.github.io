@@ -2,6 +2,20 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-21 — Kinematic Velocity Zero-Wrap Formula Layout & Instant Preview Mode
+
+**Pattern Updated**: `scaffolded-word-problem-engine.md`.
+
+**Changes**:
+- **Zero-Wrap Formula Slot Architecture**:
+  - Solved equation wrapping bug where the 4th term `[ t ]` was forced onto a second line under `[ vo ]` when constrained within multi-column containers.
+  - Re-architected the Equation Board into a dedicated full-width card with `flex-nowrap`, `.equation-slot` with `flex-shrink: 0`, and `overflow-x-auto`.
+  - Mathematically verified on Puppeteer across desktop (1280px), tablet (768px), and mobile (375px) viewports: all 4 slots maintain identical `y` coordinates with strictly zero vertical wrapping.
+- **Instant Developer & Teacher Preview Bypass**:
+  - Eliminated the slow GitHub commit/push cycle previously required to test and review webapps without Google Sign-In.
+  - Added multi-path instant bypass: auto-activates when running locally (`file:`, `localhost`, `127.0.0.1`), via URL query parameters (`?preview=true`, `?test=true`, `?guest=true`), or via a dedicated button on the sign-in screen ("Teacher Preview / Test Mode (No Login)").
+  - Instantly unlocks all 3 tiers (`Level 1`, `Level 2`, `Level 3`) for inspection, displays `Student: Teacher Preview` in HUD, and safely handles state without unauthorized Firestore network writes.
+
 ## 2026-09-21 — Scaffolded Word Problem Practice Standard Established
 
 **Pattern Created**: `scaffolded-word-problem-engine.md`.
