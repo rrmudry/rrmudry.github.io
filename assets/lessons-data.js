@@ -2455,12 +2455,12 @@ const lessonsData = [
           "stepId": "step_2",
           "type": "data_calculation",
           "title": "Part 2: Calculating Distance Traveled",
-          "prompt": "Calculate the distance in meters (Δx) traveled by the vehicle cruising at a constant speed of 25.0 m/s for 16.0 seconds: Δx = (25.0 m/s) · (16.0 s).",
+          "prompt": "Calculate the distance in meters (Δx) traveled by the vehicle cruising at a constant speed of 25.0 m/s for 16.0 seconds.",
           "inputLabel": "Distance Traveled",
           "unit": "m",
           "targetValue": 400,
           "tolerance": 1,
-          "hint": "Δx = v · t = (25.0 m/s) · (16.0 s) = 400.0 meters."
+          "hint": "Δx = v · t"
         },
         {
           "stepId": "step_3",
