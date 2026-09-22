@@ -1,994 +1,878 @@
 /**
  * Rat Rod Racers - Modular Asset & Rendering Pipeline
- * "Cute Rat Rod Vibe" - Whimsical, rusty, charming, exposed blowers,
- * bouncing flapper caps, fat slicks, flaming zoomies, and modular SVG/Canvas graphics.
+ * Based on rat_rod_part_balance_synergy_design_document.md
+ * 5 Canonical Slots: Powertrain, Chassis & Body, Suspension & Axles, Tires & Wheels, and Ancillary & Quirks.
+ * Bold Ink Outlines, Two-Tone Cel Shading, and authentic Rat Rod quirks.
  */
 
 const RAT_ROD_ASSETS = {
-  // 1. CHASSIS / FRAMES
-  chassis: {
-    roadster_32: {
-      id: 'roadster_32',
-      name: "'32 Highboy Roadster",
-      category: 'chassis',
-      rarity: 'common',
-      mass: 550,
-      cdA: 0.38,
-      lore: "A classic chopped open-cockpit roadster with exposed frame rails and rusty chrome cowl.",
-      color: '#a04822',
-      accent: '#d48834',
-      renderType: 'roadster'
+  // 1. POWERTRAIN SLOT
+  powertrain: {
+    'ENG-01': {
+      id: 'ENG-01',
+      name: "Stroker 383 V8 (Dual Quads)",
+      category: 'powertrain',
+      archetype: 'Balanced',
+      rarity: 'rare',
+      cost: 4, // Jalopy Points
+      mass: 260,
+      peakForce: 3000,
+      powerBand: 1.05,
+      frontBiasShift: 0.05,
+      heatRate: 13.0,
+      durability: 75,
+      trait: "Reliable Workhorse",
+      traitDesc: "+10% cooling efficiency at mid RPM.",
+      type: 'stroker',
+      lore: "Small-block chevy bored and stroked with twin Edelbrock carburetors on a high-rise manifold."
     },
-    scrappy_pickup: {
-      id: 'scrappy_pickup',
-      name: "'48 Scrappy Step-Side",
-      category: 'chassis',
+    'ENG-02': {
+      id: 'ENG-02',
+      name: "6-71 Blown 454 Big Block",
+      category: 'powertrain',
+      archetype: 'Blown Gasser',
+      rarity: 'epic',
+      cost: 7, // High Point Cost
+      mass: 340,
+      peakForce: 4400,
+      powerBand: 1.30,
+      frontBiasShift: 0.12,
+      heatRate: 23.0,
+      durability: 60,
+      blowerSurge: true,
+      trait: "Blower Surge",
+      traitDesc: "Explosive throttle response; violent wheelspin below 35 mph.",
+      type: 'blower',
+      lore: "Polished Roots blower sitting atop an iron 454. Whines ferociously with twin three-hole butterflies!"
+    },
+    'ENG-03': {
+      id: 'ENG-03',
+      name: "Screaming Slant-6 (Triple Webers)",
+      category: 'powertrain',
+      archetype: 'Chop Rattler',
       rarity: 'common',
-      mass: 680,
-      cdA: 0.44,
-      lore: "Bolted together from old barn tin and weathered oak bed planks. High mass, solid bite.",
+      cost: 3,
+      mass: 190,
+      peakForce: 2300,
+      powerBand: 0.95,
+      frontBiasShift: -0.03,
+      heatRate: 9.0,
+      durability: 85,
+      trait: "Free Rev",
+      traitDesc: "Instant throttle blip; high-RPM agility with low heat buildup.",
+      type: 'slant6',
+      lore: "Leaning tower of power with three side-draft Italian carburetors. Light, nimble, revs to 7,000 RPM."
+    },
+    'ENG-04': {
+      id: 'ENG-04',
+      name: "12-Valve 5.9L Turbo Diesel",
+      category: 'powertrain',
+      archetype: 'Diesel Bruiser',
+      rarity: 'epic',
+      cost: 6,
+      mass: 480,
+      peakForce: 3800,
+      powerBand: 1.45,
+      frontBiasShift: 0.22,
+      heatRate: 8.0,
+      durability: 98,
+      turboLag: 1.5,
+      immuneToHeat: true,
+      trait: "Rolling Coal",
+      traitDesc: "1.5s turbo spool lag off green light; immune to engine overheating degradation.",
+      type: 'diesel',
+      lore: "Cast iron industrial tractor engine. Pours dense black smoke while delivering mountain-moving low-end torque."
+    },
+    'ENG-05': {
+      id: 'ENG-05',
+      name: "Twin-Turbo Flathead V8",
+      category: 'powertrain',
+      archetype: 'Salt Speedster',
+      rarity: 'legendary',
+      cost: 5,
+      mass: 230,
+      peakForce: 4000,
+      powerBand: 1.18,
+      frontBiasShift: 0.02,
+      heatRate: 21.0,
+      durability: 50,
+      boostCreep: true,
+      trait: "Boost Creep",
+      traitDesc: "Exponential top-end boost past 80 mph; runs hot without high-speed airflow.",
+      type: 'twinturbo',
+      lore: "Vintage Ford flathead block modernized with twin Garrett turbos plumbed with polished stainless steel."
+    },
+    'ENG-06': {
+      id: 'ENG-06',
+      name: "Stock Farm Truck Flathead",
+      category: 'powertrain',
+      archetype: 'Mud-Runner',
+      rarity: 'common',
+      cost: 2,
+      mass: 240,
+      peakForce: 1950,
+      powerBand: 0.90,
+      frontBiasShift: 0.04,
+      heatRate: 10.0,
+      durability: 90,
+      tractorChug: true,
+      trait: "Tractor Chug",
+      traitDesc: "Generates maximum torque at low launch RPM without breaking traction.",
+      type: 'farmtruck',
+      lore: "Yanked out of a 1946 hay baler truck. Starts on the first crank, purrs like an iron tractor."
+    }
+  },
+
+  // 2. CHASSIS & BODY SLOT
+  chassis: {
+    'BOD-01': {
+      id: 'BOD-01',
+      name: "Chopped '32 5-Window Coupe",
+      category: 'chassis',
+      archetype: 'Salt Speedster',
+      rarity: 'rare',
+      cost: 5,
+      aeroScore: 88,
+      cdA: 0.25,
+      hCG: 0.35,
+      mass: 180,
+      durability: 60,
+      flex: 'Med',
+      trait: "Wind Slicer",
+      traitDesc: "-25% aerodynamic drag; chopped roof channels air cleanly.",
+      color: '#1a1d2e',
+      accent: '#00f0ff',
+      renderType: 'coupe32',
+      lore: "Heavily channeled steel coupe with a 4-inch roof slice and recessed belly pan."
+    },
+    'BOD-02': {
+      id: 'BOD-02',
+      name: "Highboy '29 Model A Roadster",
+      category: 'chassis',
+      archetype: 'Blown Gasser',
+      rarity: 'common',
+      cost: 3,
+      aeroScore: 45,
+      cdA: 0.42,
+      hCG: 0.65,
+      mass: 130,
+      durability: 50,
+      flex: 'High',
+      trait: "Skeleton Frame",
+      traitDesc: "Ultra lightweight; high center of gravity transfers massive launch weight to rear tires.",
+      color: '#a04822',
+      accent: '#ffbe0b',
+      renderType: 'roadster29',
+      lore: "Minimalist open cockpit roadster perched atop bare highboy frame rails."
+    },
+    'BOD-03': {
+      id: 'BOD-03',
+      name: "Z'd & Channeled Rusty Sedan",
+      category: 'chassis',
+      archetype: 'Chop Rattler',
+      rarity: 'rare',
+      cost: 4,
+      aeroScore: 70,
+      cdA: 0.33,
+      hCG: 0.30,
+      mass: 210,
+      durability: 70,
+      flex: 'Low',
+      trait: "Belly Drag",
+      traitDesc: "Ultra-low center of gravity eliminates roll; vulnerable to rough ground.",
+      color: '#6b3a2a',
+      accent: '#e63946',
+      renderType: 'sedan',
+      lore: "Severe 8-inch kick-up frame lets this rusty 2-door sedan scrape the pavement."
+    },
+    'BOD-04': {
+      id: 'BOD-04',
+      name: "Reinforced C-Channel Delivery Van",
+      category: 'chassis',
+      archetype: 'Diesel Bruiser',
+      rarity: 'rare',
+      cost: 4,
+      aeroScore: 30,
+      cdA: 0.52,
+      hCG: 0.58,
+      mass: 420,
+      durability: 100,
+      flex: 'None',
+      trait: "Battering Ram",
+      traitDesc: "Cast steel I-beam frame completely immune to frame flex; heavy drag.",
+      color: '#343a40',
+      accent: '#ff6b1a',
+      renderType: 'deliveryvan',
+      lore: "Industrial delivery truck cab reinforced with structural steel gussets."
+    },
+    'BOD-05': {
+      id: 'BOD-05',
+      name: "Gutted Touring Tub with Skid Plate",
+      category: 'chassis',
+      archetype: 'Mud-Runner',
+      rarity: 'common',
+      cost: 3,
+      aeroScore: 50,
+      cdA: 0.40,
+      hCG: 0.46,
+      mass: 170,
+      durability: 85,
+      flex: 'Med',
+      ignoreDebris: true,
+      trait: "Scraping Shield",
+      traitDesc: "Full-length 1/4-inch aluminum belly skid plate completely ignores rough terrain drag.",
       color: '#3b5a45',
       accent: '#8b6f47',
-      renderType: 'pickup'
-    },
-    bubbly_bug: {
-      id: 'bubbly_bug',
-      name: "'63 Bubbly Buggy",
-      category: 'chassis',
-      rarity: 'rare',
-      mass: 420,
-      cdA: 0.32,
-      lore: "Curved beetle shell with chopped fenders and playful round lines. Ultra-lightweight flyer!",
-      color: '#348aa7',
-      accent: '#e0a96d',
-      renderType: 'buggy'
-    },
-    iron_coffin: {
-      id: 'iron_coffin',
-      name: "The Iron Coffin Dragster",
-      category: 'chassis',
-      rarity: 'epic',
-      mass: 380,
-      cdA: 0.26,
-      lore: "Long-wheelbase vintage rail tube chassis. Minimal frontal area slices through air like a knife.",
-      color: '#2b2d42',
-      accent: '#ef233c',
-      renderType: 'dragster'
-    },
-    milk_truck: {
-      id: 'milk_truck',
-      name: "'51 Milk Truck Gasser",
-      category: 'chassis',
-      rarity: 'rare',
-      mass: 720,
-      cdA: 0.48,
-      lore: "Nose-high vintage delivery van. Heavy iron body gives massive rear traction off the launch.",
-      color: '#d6cfc7',
-      accent: '#c94a29',
-      renderType: 'milktruck'
-    },
-    bone_shaker: {
-      id: 'bone_shaker',
-      name: "The Bone-Shaker Coupe",
-      category: 'chassis',
-      rarity: 'legendary',
-      mass: 480,
-      cdA: 0.30,
-      lore: "Forged from scrap iron with a grinning radiator face and brass-riveted roof. Pure rat rod royalty.",
-      color: '#1a1a24',
-      accent: '#fca311',
-      renderType: 'boneshaker'
+      renderType: 'touringtub',
+      lore: "Open touring tub salvaged from an orchard with a hardened diamond-plate skid pan."
     }
   },
 
-  // 2. ENGINES / POWERPLANTS
-  engines: {
-    lawnmower_twin: {
-      id: 'lawnmower_twin',
-      name: "Junkyard Twin Spitter",
-      category: 'engines',
-      rarity: 'common',
-      mass: 65,
-      peakForce: 1200,
-      powerBand: 0.9,
-      lore: "Pulled from an old ride-on mower. Sputters, pops, but surprisingly peppy for a shoestring budget.",
-      type: 'twin'
-    },
-    flathead_v8: {
-      id: 'flathead_v8',
-      name: "Rusty Flathead V8",
-      category: 'engines',
-      rarity: 'common',
-      mass: 190,
-      peakForce: 2400,
-      powerBand: 1.0,
-      lore: "Cast iron Detroit heritage with twin Stromberg carbs and copper coolant tubes.",
-      type: 'flathead'
-    },
-    junkyard_turbo: {
-      id: 'junkyard_turbo',
-      name: "Whistling Junkyard Turbo-6",
-      category: 'engines',
+  // 3. SUSPENSION & AXLES SLOT
+  suspension: {
+    'SUS-01': {
+      id: 'SUS-01',
+      name: "Suicide Front Leaf + Welded Spool",
+      category: 'suspension',
+      archetype: 'Blown Gasser',
       rarity: 'rare',
-      mass: 140,
-      peakForce: 3100,
-      powerBand: 1.1,
-      lore: "Spools up with a ferocious high-pitched whistle. Lightweight block with big boost.",
-      type: 'turbo'
+      cost: 4,
+      tractionBias: '100% Straight',
+      rollStiffness: 0.85,
+      suspTravel: 0.22,
+      roughnessTol: 0.25,
+      suspKappa: 0.55,
+      trait: "Crude Lock",
+      traitDesc: "Maximum straight-line launch traction; zero axle slip.",
+      type: 'suicide_leaf',
+      lore: "Spring mounted ahead of the crossmember with a fully welded rear spool for drag strip hookup."
     },
-    blown_blower: {
-      id: 'blown_blower',
-      name: "Blown Blower Monster 427",
-      category: 'engines',
+    'SUS-02': {
+      id: 'SUS-02',
+      name: "Split-Wishbone Dropped I-Beam",
+      category: 'suspension',
+      archetype: 'Chop Rattler',
+      rarity: 'common',
+      cost: 3,
+      tractionBias: 'Asphalt Biased',
+      rollStiffness: 0.55,
+      suspTravel: 0.45,
+      roughnessTol: 0.50,
+      suspKappa: 0.38,
+      trait: "Vintage Track",
+      traitDesc: "Predictable lateral roll and smooth road damping.",
+      type: 'dropped_ibeam',
+      lore: "Drilled 4-inch dropped front axle with split wishbones welded to the chassis rails."
+    },
+    'SUS-03': {
+      id: 'SUS-03',
+      name: "Long-Travel Heavy Buggy Springs",
+      category: 'suspension',
+      archetype: 'Mud-Runner',
+      rarity: 'rare',
+      cost: 3,
+      tractionBias: 'Dirt / Mud Biased',
+      rollStiffness: 0.30,
+      suspTravel: 0.85,
+      roughnessTol: 0.92,
+      suspKappa: 0.28,
+      trait: "Mud Articulation",
+      traitDesc: "Absorbs violent dirt ruts and mud bumps without bottoming out.",
+      type: 'buggy_springs',
+      lore: "High-arch transverse buggy leaves designed to flex over deep mud furrows and rocks."
+    },
+    'SUS-04': {
+      id: 'SUS-04',
+      name: "Double-Z Solid Rig (Zero Springs)",
+      category: 'suspension',
+      archetype: 'Salt Speedster',
       rarity: 'epic',
-      mass: 250,
-      peakForce: 4200,
-      powerBand: 1.25,
-      lore: "Massive 6-71 Roots blower with animated red butterfly scoop flaps and a whining gilmer belt!",
-      type: 'blower'
+      cost: 4,
+      tractionBias: 'Mirror-Flat Smooth',
+      rollStiffness: 1.00,
+      suspTravel: 0.02,
+      roughnessTol: 0.05,
+      suspKappa: 0.15,
+      trait: "Skate Board",
+      traitDesc: "Zero suspension travel; loses traction instantly if track has any bumps.",
+      type: 'solid_rig',
+      lore: "Axles welded directly to the frame rails. Pure rigid dry-lake racing geometry."
     },
-    electric_arc: {
-      id: 'electric_arc',
-      name: "Tesla Arc Spark-Plant",
-      category: 'engines',
-      rarity: 'epic',
-      mass: 170,
-      peakForce: 3800,
-      powerBand: 1.35,
-      lore: "Coils hum with static electricity. Delivers instant full-torque thrust from zero RPM!",
-      type: 'electric'
-    },
-    nitrous_beast: {
-      id: 'nitrous_beast',
-      name: "Fire-Breathing Nitrous Big-Block",
-      category: 'engines',
-      rarity: 'legendary',
-      mass: 280,
-      peakForce: 5400,
-      powerBand: 1.4,
-      nitroBoost: 1800,
-      nitroDuration: 3.5,
-      lore: "Braided stainless lines plumbed into an iron mountain. Press NITRO for explosive jet-thrust!",
-      type: 'nitrous'
+    'SUS-05': {
+      id: 'SUS-05',
+      name: "Re-arched Truck Leaves & Open Diff",
+      category: 'suspension',
+      archetype: 'Diesel Bruiser',
+      rarity: 'common',
+      cost: 2,
+      tractionBias: 'Heavy Tow Versatile',
+      rollStiffness: 0.60,
+      suspTravel: 0.65,
+      roughnessTol: 0.80,
+      suspKappa: 0.32,
+      trait: "Workhorse Axle",
+      traitDesc: "Heavy load carrying durability over broken incline roads.",
+      type: 'truck_leaves',
+      lore: "Multi-leaf steel spring packs from an old flatbed with a massive cast Dana 60 rear end."
     }
   },
 
-  // 3. WHEELS & TIRES
+  // 4. TIRES & WHEELS SLOT
   wheels: {
-    wire_spokes: {
-      id: 'wire_spokes',
-      name: "Vintage Wire Spokes",
+    'TIR-01': {
+      id: 'TIR-01',
+      name: "Pie-Crust Cheater Slicks",
       category: 'wheels',
-      rarity: 'common',
-      mass: 28,
-      mu: 0.72,
-      lore: "Delicate bicycle-style spoke wheels. Low mass, but will break traction under heavy throttle.",
-      type: 'spokes'
-    },
-    rusty_steelies: {
-      id: 'rusty_steelies',
-      name: "Rusty Solid Steelies",
-      category: 'wheels',
-      rarity: 'common',
-      mass: 42,
-      mu: 0.84,
-      lore: "Classic stamped iron wheels with surface rust patina. Dependable everyday grip.",
-      type: 'steelies'
-    },
-    whitewall_cruisers: {
-      id: 'whitewall_cruisers',
-      name: "Retro Whitewall Cruisers",
-      category: 'wheels',
+      archetype: 'Blown Gasser',
       rarity: 'rare',
-      mass: 38,
-      mu: 0.90,
-      lore: "Glossy painted red rims wrapped in pristine wide white-wall rubber. Stylish and balanced.",
-      type: 'whitewalls'
-    },
-    mud_boggers: {
-      id: 'mud_boggers',
-      name: "Scrapyard Knobby Boggers",
-      category: 'wheels',
-      rarity: 'rare',
-      mass: 64,
-      mu: 0.98,
-      lore: "Heavy deep-tread tractor rubber. Grips like glue on launch, though rolling mass is high.",
-      type: 'knobby'
-    },
-    fat_drag_slicks: {
-      id: 'fat_drag_slicks',
-      name: "Fat Drag Slicks (Mickey Thoms)",
-      category: 'wheels',
-      rarity: 'epic',
-      mass: 46,
-      mu: 1.15,
-      lore: "Massive wrinkle-wall racing slicks with bold white lettering. Huge static grip prevents burnout!",
-      type: 'slicks'
-    },
-    gold_racing_mags: {
-      id: 'gold_racing_mags',
-      name: "Gold Star Forged Alloys",
-      category: 'wheels',
-      rarity: 'legendary',
-      mass: 24,
+      cost: 4,
       mu: 1.25,
-      lore: "Ultra-lightweight forged magnesium wheels with sticky competition compound rubber.",
-      type: 'goldmags'
+      tireType: 'slicks',
+      width: 'Extra Wide',
+      sidewall: 'High Wrinkle',
+      mass: 48,
+      trait: "Asphalt Hookup",
+      traitDesc: "Immense grip on dry rubbered asphalt; spins helplessly in wet clay.",
+      type: 'slicks',
+      lore: "Cheater slicks with vintage pie-crust shoulder ribs that wrinkle up on hard launches."
+    },
+    'TIR-02': {
+      id: 'TIR-02',
+      name: "Skinny Vintage Firestones",
+      category: 'wheels',
+      archetype: 'Chop Rattler',
+      rarity: 'common',
+      cost: 1,
+      mu: 0.82,
+      tireType: 'firestones',
+      width: 'Narrow',
+      sidewall: 'High Bias',
+      mass: 28,
+      trait: "Low Rolling Resistance",
+      traitDesc: "Featherweight rotational mass; limited peak launch friction.",
+      type: 'firestones',
+      lore: "Classic 4-ply skinny bias-ply tires mounted on weathered black steel rims."
+    },
+    'TIR-03': {
+      id: 'TIR-03',
+      name: "Hand-Grooved Ag Mud Tires",
+      category: 'wheels',
+      archetype: 'Mud-Runner',
+      rarity: 'rare',
+      cost: 3,
+      mu: 1.05,
+      tireType: 'knobby',
+      width: 'Wide Lug',
+      sidewall: 'Massive',
+      mass: 62,
+      trait: "Tractor Claw",
+      traitDesc: "Maximum clawing traction in dirt and mud; creates heavy vibration above 50 mph.",
+      type: 'knobby',
+      lore: "Deep chevron tractor treads hand-siped with a hot iron blade for deep earth digging."
+    },
+    'TIR-04': {
+      id: 'TIR-04',
+      name: "Salt Disk Shod Racing Dunlops",
+      category: 'wheels',
+      archetype: 'Salt Speedster',
+      rarity: 'epic',
+      cost: 4,
+      mu: 0.88,
+      tireType: 'salt',
+      width: 'Medium Low-Profile',
+      sidewall: 'Stiff',
+      mass: 32,
+      cdAMod: -0.03,
+      trait: "Salt Slicer",
+      traitDesc: "Polished aluminum spun moon wheel covers slice aerodynamic drag on salt flats.",
+      type: 'salt',
+      lore: "Hard compound dry lake tires fitted with mirror-finish aluminum wheel disks."
+    },
+    'TIR-05': {
+      id: 'TIR-05',
+      name: "Dual Rear Commercial Duallys",
+      category: 'wheels',
+      archetype: 'Diesel Bruiser',
+      rarity: 'rare',
+      cost: 3,
+      mu: 1.10,
+      tireType: 'duallys',
+      width: 'Double Wide',
+      sidewall: 'Heavy Commercial',
+      mass: 88,
+      trait: "Unbreakable Bite",
+      traitDesc: "Four massive rear contact patches conquer steep gravel grades under heavy weight.",
+      type: 'duallys',
+      lore: "Twin steel dual wheels bolted to each side of a 1-ton axle hub with heavy lug nuts."
     }
   },
 
-  // 4. AERO & SPOILERS
-  aero: {
-    clean_bobtail: {
-      id: 'clean_bobtail',
-      name: "Clean Bobtail (No Wing)",
-      category: 'aero',
+  // 5. ANCILLARY, COOLING, & QUIRK SLOT
+  ancillary: {
+    'ANC-01': {
+      id: 'ANC-01',
+      name: "Beer-Keg Fuel Tank on Grille",
+      category: 'ancillary',
+      archetype: 'Blown Gasser',
       rarity: 'common',
-      mass: 0,
-      cdA: 0.0,
-      lore: "Pure classic hot rod simplicity. Zero added weight, standard air resistance.",
-      type: 'none'
+      cost: 2,
+      mass: 25,
+      frontBiasShift: 0.08,
+      radAreaMult: 0.85,
+      forceMult: 1.0,
+      trait: "Wheelie Counter",
+      traitDesc: "Shifts +8% weight over front axle to prevent wheelies; blocks 15% radiator airflow.",
+      type: 'beerkeg',
+      lore: "Stainless aluminum beer keg strapped ahead of the radiator with leather belts."
     },
-    iron_ducktail: {
-      id: 'iron_ducktail',
-      name: "Rusty Iron Ducktail",
-      category: 'aero',
+    'ANC-02': {
+      id: 'ANC-02',
+      name: "Chopped Farm Tractor Radiator",
+      category: 'ancillary',
+      archetype: 'Mud-Runner',
+      rarity: 'rare',
+      cost: 3,
+      mass: 65,
+      radAreaMult: 2.20,
+      grilleAirflowMult: 1.35,
+      cdAMod: 0.04,
+      forceMult: 1.0,
+      trait: "Cooling Colossus",
+      traitDesc: "Massive 2.2x cooling surface area eliminates overheating; adds 65 kg of front weight.",
+      type: 'tractor_rad',
+      lore: "Huge copper core radiator salvaged from a combine harvester with a brass overflow tube."
+    },
+    'ANC-03': {
+      id: 'ANC-03',
+      name: "Straight Lakester Pipes with Cutouts",
+      category: 'ancillary',
+      archetype: 'Salt Speedster',
       rarity: 'common',
+      cost: 2,
       mass: 8,
-      cdA: -0.02,
-      lore: "Curved sheet metal lip riveted to the deck. Smooths rear turbulence slightly.",
-      type: 'ducktail'
+      radAreaMult: 1.0,
+      forceMult: 1.08,
+      trait: "Lakester Bark",
+      traitDesc: "Zero exhaust backpressure provides +8% engine power output.",
+      type: 'lakester_pipes',
+      lore: "Conical megaphone header pipes jutting straight out past the frame rails with quick-release caps."
     },
-    highway_sign: {
-      id: 'highway_sign',
-      name: "Salvaged 'Speed Limit 25' Wing",
-      category: 'aero',
+    'ANC-04': {
+      id: 'ANC-04',
+      name: "Lead Ballast in Rear Trunk",
+      category: 'ancillary',
+      archetype: 'Chop Rattler',
       rarity: 'rare',
+      cost: 3,
+      mass: 90,
+      frontBiasShift: -0.14,
+      radAreaMult: 1.0,
+      forceMult: 1.0,
+      trait: "Lead Sinker",
+      traitDesc: "Adds 90 kg directly over rear axle; increases launch traction compliance.",
+      type: 'lead_ballast',
+      lore: "Heavy scrap lead sash weights melted and poured into the trunk floor pan for traction."
+    },
+    'ANC-05': {
+      id: 'ANC-05',
+      name: "Exposed Belt Drive Siren",
+      category: 'ancillary',
+      archetype: 'Diesel Bruiser',
+      rarity: 'rare',
+      cost: 1,
       mass: 12,
-      cdA: -0.03,
-      lore: "Bent yellow aluminum highway sign bolted to scrap struts. Adorable and functional downforce!",
-      type: 'highwaysign'
-    },
-    plywood_airdam: {
-      id: 'plywood_airdam',
-      name: "Scrap Plywood Front Air Dam",
-      category: 'aero',
-      rarity: 'rare',
-      mass: 14,
-      cdA: -0.04,
-      lore: "Low-slung front plywood blade keeps air from lifting the front wheels at high speeds.",
-      type: 'airdam'
-    },
-    dual_blade_wing: {
-      id: 'dual_blade_wing',
-      name: "Dual-Blade Aluminum Drag Wing",
-      category: 'aero',
-      rarity: 'epic',
-      mass: 16,
-      cdA: -0.06,
-      lore: "Wind-tunnel shaped aluminum wing with turnbuckle tensioners. Slices high-speed air drag.",
-      type: 'dragwing'
-    },
-    roof_chopper_wing: {
-      id: 'roof_chopper_wing',
-      name: "Sprint-Car Roof Chopper",
-      category: 'aero',
-      rarity: 'legendary',
-      mass: 20,
-      cdA: -0.09,
-      lore: "Giant towering top wing mounted over the cab. Maximum high-speed downforce and aerodynamic slicing.",
-      type: 'roofwing'
-    }
-  },
-
-  // 5. EXHAUST SYSTEMS
-  exhaust: {
-    rusty_pipe: {
-      id: 'rusty_pipe',
-      name: "Straight Rusty Tailpipe",
-      category: 'exhaust',
-      rarity: 'common',
-      mass: 6,
-      lore: "A simple rusty iron pipe extending out the back. Sputters with authentic rat rod attitude.",
-      type: 'straight'
-    },
-    flapper_stacks: {
-      id: 'flapper_stacks',
-      name: "Twin Stacks with Bouncing Flappers",
-      category: 'exhaust',
-      rarity: 'rare',
-      mass: 12,
-      lore: "Tractor-style vertical stacks with hinged rain caps that bounce open rhythmically with exhaust pulses!",
-      type: 'flappers'
-    },
-    chrome_lake_pipes: {
-      id: 'chrome_lake_pipes',
-      name: "Chrome Rocker Lake Pipes",
-      category: 'exhaust',
-      rarity: 'rare',
-      mass: 14,
-      lore: "Low chrome pipes running the full length of the frame. Produces a deep, throaty rumble.",
-      type: 'lakepipes'
-    },
-    cherry_glasspacks: {
-      id: 'cherry_glasspacks',
-      name: "Dual Cherry Bomb Glasspacks",
-      category: 'exhaust',
-      rarity: 'rare',
-      mass: 10,
-      lore: "Cherry red resonator mufflers that crackle and pop on deceleration with visible sparks.",
-      type: 'glasspacks'
-    },
-    flaming_zoomies: {
-      id: 'flaming_zoomies',
-      name: "Four-Into-One Flaming Zoomies",
-      category: 'exhaust',
-      rarity: 'epic',
-      mass: 16,
-      lore: "Swept-up dragster header pipes shooting bright orange flame jets and smoke rings on full throttle!",
-      type: 'zoomies'
-    },
-    nitrous_purge_horns: {
-      id: 'nitrous_purge_horns',
-      name: "Twin Nitrous Purge Stacks",
-      category: 'exhaust',
-      rarity: 'legendary',
-      mass: 18,
-      lore: "Vents high-pressure frosty white nitrous plumes into the sky before shooting massive blue exhaust flames!",
-      type: 'purgehorns'
-    }
-  },
-
-  // 6. CHARMS & DECALS
-  charms: {
-    fuzzy_dice: {
-      id: 'fuzzy_dice',
-      name: "Bouncing Fuzzy Mirror Dice",
-      category: 'charms',
-      rarity: 'common',
-      mass: 0.2,
-      lore: "Plush polka-dot dice hanging from the rearview mirror that swing back dynamically with acceleration!",
-      type: 'dice'
-    },
-    rust_rivets: {
-      id: 'rust_rivets',
-      name: "Patchwork Rust & Brass Rivets",
-      category: 'charms',
-      rarity: 'common',
-      mass: 2,
-      lore: "Industrial weathered plates and brass dome rivets for maximum authentic rat rod grit.",
-      type: 'rivets'
-    },
-    hot_rod_flames: {
-      id: 'hot_rod_flames',
-      name: "Sunset Hot Rod Flames",
-      category: 'charms',
-      rarity: 'rare',
-      mass: 0,
-      lore: "Hand-painted classic yellow-to-red flame licks streaming across the hood and doors.",
-      type: 'flames'
-    },
-    lucky_seven: {
-      id: 'lucky_seven',
-      name: "Lucky No. 7 Race Roundel",
-      category: 'charms',
-      rarity: 'rare',
-      mass: 0,
-      lore: "Vintage distressed circular racing number. Adds +100 to intimidation and style points.",
-      type: 'seven'
-    },
-    skull_mascot: {
-      id: 'skull_mascot',
-      name: "Flaming Skull Hood Mascot",
-      category: 'charms',
-      rarity: 'epic',
-      mass: 3,
-      lore: "Cast iron winged skull mascot perched right atop the radiator shell with glowing red gem eyes.",
-      type: 'skull'
-    },
-    shark_mouth: {
-      id: 'shark_mouth',
-      name: "Flying Tiger Shark-Teeth Grille",
-      category: 'charms',
-      rarity: 'legendary',
-      mass: 0,
-      lore: "WWII fighter nose art painted on the radiator shell. Grinning sharp teeth ready to eat the asphalt!",
-      type: 'shark'
+      radAreaMult: 1.0,
+      forceMult: 0.98,
+      trait: "Air Raid Screamer",
+      traitDesc: "High-pitched mechanical siren sounds off on throttle; 2% drag on crankshaft.",
+      type: 'belt_siren',
+      lore: "Vintage fire truck friction siren driven directly off the water pump belt pulley."
     }
   }
 };
 
+// Aliases for backward compatibility with older slot names
+RAT_ROD_ASSETS.engines = RAT_ROD_ASSETS.powertrain;
+
 /**
- * Procedural SVG Generator for Parts and Assembled Cars
+ * Track Environmental Characteristics & Matchup Matrix (Section 5)
+ */
+const TRACK_ENVIRONMENTS = {
+  airfield: {
+    id: 'airfield',
+    name: "Abandoned Airfield Drag",
+    badge: "Wide Rubbered Asphalt",
+    surfaceGrip: 1.10,
+    roughness: 0.05,
+    gradeAngle: 0.0,
+    airDensity: 1.225,
+    trackLength: 402.336,
+    optimalArchetype: "Blown Gasser",
+    worstArchetype: "Mud-Runner",
+    decidingFactor: "Peak launch traction makes raw power king; mud lugs scrub high speed.",
+    lore: "Wide decommissioned military runway coated in sticky VHT traction resin. Built for flat-out acceleration.",
+    skyColors: ['#1a1423', '#3d1a24', '#9b4b2a'],
+    groundColor: '#1a1c23',
+    stripeColor: '#ffbe0b'
+  },
+  bonneville: {
+    id: 'bonneville',
+    name: "Bonneville Salt Flats",
+    badge: "Hard Packed White Salt",
+    surfaceGrip: 0.82,
+    roughness: 0.02,
+    gradeAngle: 0.0,
+    airDensity: 1.160, // slightly thinner desert salt air
+    trackLength: 402.336,
+    optimalArchetype: "Salt Speedster",
+    worstArchetype: "Blown Gasser",
+    decidingFactor: "High-speed aerodynamic resistance and engine thermal runaway; chopped roofs rule.",
+    lore: "Mirror-flat crystalline salt extending to the horizon under a blazing sun. High speeds demand sleek aerodynamics.",
+    skyColors: ['#0d2b45', '#203c56', '#544e68'],
+    groundColor: '#eae7dc',
+    stripeColor: '#8d99ae'
+  },
+  dirt_oval: {
+    id: 'dirt_oval',
+    name: "Dead Man's Dirt Strip",
+    badge: "Rutted Clay & Mud Furrows",
+    surfaceGrip: 0.55,
+    roughness: 0.85,
+    gradeAngle: 0.0,
+    airDensity: 1.225,
+    trackLength: 402.336,
+    optimalArchetype: "Mud-Runner",
+    worstArchetype: "Salt Speedster",
+    decidingFactor: "Violent ruts break rigid axles; high-travel buggy springs articulate smoothly.",
+    lore: "Deep rutted clay track carved through farm country. Low-slung cars bottom out and scrape violently.",
+    skyColors: ['#281912', '#4a2818', '#8a4b2a'],
+    groundColor: '#4a3325',
+    stripeColor: '#d4a373'
+  },
+  quarry: {
+    id: 'quarry',
+    name: "Quarry Incline Drag",
+    badge: "+7.5° Uphill Loose Gravel",
+    surfaceGrip: 0.75,
+    roughness: 0.50,
+    gradeAngle: 0.131, // approx 7.5 degrees uphill
+    airDensity: 1.225,
+    trackLength: 402.336,
+    optimalArchetype: "Diesel Bruiser",
+    worstArchetype: "Chop Rattler",
+    decidingFactor: "Relentless low-RPM torque and massive weight keep tires digging uphill where light cars bog.",
+    lore: "Steep gravel service road inside an open-pit limestone quarry. Heavy gravity pulls against cars off the line.",
+    skyColors: ['#1f2421', '#2f3e46', '#52796f'],
+    groundColor: '#5c574f',
+    stripeColor: '#ffbe0b'
+  },
+  mountain: {
+    id: 'mountain',
+    name: "Smokey Mountain Pass",
+    badge: "Narrow Undulating Tarmac",
+    surfaceGrip: 0.95,
+    roughness: 0.30,
+    gradeAngle: 0.035, // slight uphill roll
+    airDensity: 1.200,
+    trackLength: 402.336,
+    optimalArchetype: "Chop Rattler",
+    worstArchetype: "Diesel Bruiser",
+    decidingFactor: "Technical undulating transitions reward low roll inertia; heavy diesels understeer.",
+    lore: "Old mountain highway with quick elevation dips and switchback curves framed by towering pine trees.",
+    skyColors: ['#132a13', '#31572c', '#4f772d'],
+    groundColor: '#2b2d35',
+    stripeColor: '#ffd166'
+  }
+};
+
+/**
+ * Procedural Cartoon SVG Generator for Parts & Icons
  */
 const RatRodSVG = {
-  // Get SVG markup for a single part card / icon
   getPartSVG(part, size = 120) {
     if (!part) return '';
     const cat = part.category;
     let content = '';
 
     switch (cat) {
+      case 'powertrain':
+      case 'engines':
+        content = this._powertrainSVG(part);
+        break;
       case 'chassis':
         content = this._chassisSVG(part);
         break;
-      case 'engines':
-        content = this._engineSVG(part);
+      case 'suspension':
+        content = this._suspensionSVG(part);
         break;
       case 'wheels':
-        content = this._wheelSVG(part);
+        content = this._wheelsSVG(part);
         break;
-      case 'aero':
-        content = this._aeroSVG(part);
-        break;
-      case 'exhaust':
-        content = this._exhaustSVG(part);
-        break;
+      case 'ancillary':
       case 'charms':
-        content = this._charmSVG(part);
+      case 'exhaust':
+      case 'aero':
+        content = this._ancillarySVG(part);
         break;
       default:
-        content = `<rect width="100" height="100" fill="#333" rx="8"/>`;
+        content = `<rect x="10" y="10" width="80" height="80" rx="8" fill="#444"/>`;
     }
 
     return `
-      <svg viewBox="0 0 160 110" width="${size}" height="${Math.round(size * 0.6875)}" xmlns="http://www.w3.org/2000/svg" class="part-svg part-${part.rarity}">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="${size}" height="${size}" class="part-svg-preview">
         <defs>
-          <filter id="glow-${part.id}" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.5"/>
-          </filter>
+          <radialGradient id="cardGlow_${part.id || 'p'}" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="rgba(255,255,255,0.12)" />
+            <stop offset="100%" stop-color="rgba(0,0,0,0)" />
+          </radialGradient>
         </defs>
+        <circle cx="50" cy="50" r="46" fill="url(#cardGlow_${part.id || 'p'})" />
         ${content}
       </svg>
     `;
   },
 
+  _powertrainSVG(part) {
+    const type = part.type || 'stroker';
+    if (type === 'blower') {
+      // Massive 6-71 Roots blower with animated red butterfly flaps
+      return `
+        <rect x="25" y="44" width="50" height="34" rx="4" fill="#a82828" stroke="#12121c" stroke-width="2.5" />
+        <rect x="20" y="32" width="60" height="15" rx="3" fill="#ced4da" stroke="#12121c" stroke-width="2.5" />
+        <path d="M 28 32 L 35 15 L 65 15 L 72 32 Z" fill="#e63946" stroke="#12121c" stroke-width="2.5" />
+        <ellipse cx="40" cy="22" rx="4" ry="2.5" fill="#12121c" />
+        <ellipse cx="50" cy="22" rx="4" ry="2.5" fill="#12121c" />
+        <ellipse cx="60" cy="22" rx="4" ry="2.5" fill="#12121c" />
+        <circle cx="16" cy="40" r="7" fill="#495057" stroke="#12121c" stroke-width="2" />
+        <circle cx="16" cy="62" r="7" fill="#495057" stroke="#12121c" stroke-width="2" />
+        <rect x="13" y="40" width="6" height="22" fill="#111" />
+      `;
+    } else if (type === 'diesel') {
+      // 12-Valve Cummins Turbo Diesel with dual exhaust stacks
+      return `
+        <rect x="22" y="38" width="56" height="42" rx="4" fill="#2b2d42" stroke="#12121c" stroke-width="2.6" />
+        <rect x="28" y="28" width="44" height="12" rx="2" fill="#8d99ae" stroke="#12121c" stroke-width="2" />
+        <circle cx="76" cy="45" r="10" fill="#ced4da" stroke="#12121c" stroke-width="2.5" />
+        <path d="M 76 35 A 10 10 0 0 1 86 45 L 86 52 L 76 52 Z" fill="#ffbe0b" />
+        <rect x="28" y="12" width="7" height="18" fill="#111" stroke="#12121c" stroke-width="2" />
+        <rect x="40" y="12" width="7" height="18" fill="#111" stroke="#12121c" stroke-width="2" />
+        <path d="M 32 10 Q 30 4 34 2" stroke="#666" stroke-width="3" stroke-linecap="round" fill="none" />
+      `;
+    } else if (type === 'twinturbo') {
+      // Twin-Turbo Flathead with twin snail housings
+      return `
+        <rect x="26" y="45" width="48" height="34" rx="4" fill="#c94a29" stroke="#12121c" stroke-width="2.5" />
+        <path d="M 22 52 A 9 9 0 1 1 31 61 L 22 61 Z" fill="#ced4da" stroke="#12121c" stroke-width="2" />
+        <path d="M 78 52 A 9 9 0 1 0 69 61 L 78 61 Z" fill="#ced4da" stroke="#12121c" stroke-width="2" />
+        <path d="M 32 46 Q 50 30 68 46" stroke="#48cae4" stroke-width="5" stroke-linecap="round" fill="none" />
+        <rect x="42" y="32" width="16" height="14" rx="2" fill="#ffbe0b" stroke="#12121c" stroke-width="2" />
+      `;
+    } else if (type === 'slant6') {
+      // Leaning tower of power with three Weber carbs
+      return `
+        <path d="M 30 76 L 46 36 L 74 36 L 58 76 Z" fill="#4a5568" stroke="#12121c" stroke-width="2.5" />
+        <circle cx="48" cy="28" r="5" fill="#ffbe0b" stroke="#12121c" stroke-width="2" />
+        <circle cx="60" cy="28" r="5" fill="#ffbe0b" stroke="#12121c" stroke-width="2" />
+        <circle cx="72" cy="28" r="5" fill="#ffbe0b" stroke="#12121c" stroke-width="2" />
+        <rect x="22" y="68" width="14" height="6" fill="#e2e8f0" stroke="#12121c" stroke-width="1.8" />
+      `;
+    } else if (type === 'farmtruck') {
+      // Honest green flathead with oil bath air cleaner
+      return `
+        <rect x="26" y="44" width="48" height="36" rx="4" fill="#3b5a45" stroke="#12121c" stroke-width="2.5" />
+        <circle cx="50" cy="30" r="14" fill="#2b2d42" stroke="#12121c" stroke-width="2.5" />
+        <circle cx="50" cy="30" r="5" fill="#ffbe0b" />
+        <path d="M 28 50 L 16 50 L 16 68 L 26 68" stroke="#12121c" stroke-width="3" fill="none" />
+      `;
+    } else {
+      // Stroker 383 V8 with dual carbs and chrome finned valve covers
+      return `
+        <rect x="25" y="45" width="50" height="35" rx="4" fill="#e76f51" stroke="#12121c" stroke-width="2.5" />
+        <rect x="35" y="32" width="12" height="14" rx="2" fill="#f4a261" stroke="#12121c" stroke-width="2" />
+        <rect x="53" y="32" width="12" height="14" rx="2" fill="#f4a261" stroke="#12121c" stroke-width="2" />
+        <ellipse cx="41" cy="28" rx="8" ry="4" fill="#ced4da" stroke="#12121c" stroke-width="2" />
+        <ellipse cx="59" cy="28" rx="8" ry="4" fill="#ced4da" stroke="#12121c" stroke-width="2" />
+      `;
+    }
+  },
+
   _chassisSVG(part) {
     const col = part.color || '#a04822';
-    const acc = part.accent || '#d48834';
-    const darkCol = '#1a1a24';
+    const acc = part.accent || '#ffbe0b';
+    const type = part.renderType || 'roadster29';
 
-    switch (part.renderType) {
-      case 'pickup':
-        return `
-          <g filter="url(#glow-${part.id})">
-            <!-- Boxed Frame Rail with Lightening Holes -->
-            <rect x="12" y="70" width="136" height="10" rx="2" fill="#22232e" stroke="#12121c" stroke-width="2.4"/>
-            <circle cx="40" cy="75" r="2.8" fill="#0d0e14" stroke="#495057" stroke-width="0.8"/>
-            <circle cx="75" cy="75" r="2.8" fill="#0d0e14" stroke="#495057" stroke-width="0.8"/>
-            <circle cx="110" cy="75" r="2.8" fill="#0d0e14" stroke="#495057" stroke-width="0.8"/>
-
-            <!-- Wooden Slat Stake Bed -->
-            <rect x="16" y="48" width="28" height="22" fill="#8a5a36" stroke="#12121c" stroke-width="2.4"/>
-            <line x1="16" y1="55" x2="44" y2="55" stroke="#3e2411" stroke-width="1.6"/>
-            <line x1="16" y1="62" x2="44" y2="62" stroke="#3e2411" stroke-width="1.6"/>
-            <rect x="14" y="42" width="32" height="6" rx="1" fill="${acc}" stroke="#12121c" stroke-width="2.0"/>
-
-            <!-- Cab Body with Cel Shading -->
-            <path d="M 44 70 L 44 38 Q 54 22 84 22 L 92 22 Q 98 22 102 38 L 106 70 Z" fill="${col}" stroke="#12121c" stroke-width="2.8" stroke-linejoin="round"/>
-            <!-- Lower Cab Shadow -->
-            <path d="M 44 70 L 44 56 Q 75 60 106 58 L 106 70 Z" fill="rgba(0,0,0,0.3)"/>
-            <!-- Gloss highlight -->
-            <path d="M 56 25 L 82 25" stroke="rgba(255,255,255,0.75)" stroke-width="2.2" stroke-linecap="round"/>
-            <!-- Visor -->
-            <rect x="74" y="24" width="24" height="4" rx="1" fill="${acc}" stroke="#12121c" stroke-width="1.6"/>
-
-            <!-- Chopped Windshield with Comic Glare -->
-            <rect x="52" y="32" width="34" height="14" fill="#12121c"/>
-            <rect x="54" y="33" width="30" height="12" fill="#a2d2ff"/>
-            <line x1="58" y1="43" x2="66" y2="34" stroke="rgba(255,255,255,0.9)" stroke-width="2"/>
-            <line x1="68" y1="43" x2="76" y2="34" stroke="rgba(255,255,255,0.9)" stroke-width="2"/>
-
-            <!-- Hood & Radiator -->
-            <rect x="104" y="46" width="30" height="24" fill="${col}" stroke="#12121c" stroke-width="2.6"/>
-            <rect x="132" y="42" width="8" height="28" rx="2" fill="#ced4da" stroke="#12121c" stroke-width="2.2"/>
-            <!-- Bullet Headlamp with Yellow Glow -->
-            <circle cx="136" cy="40" r="5.5" fill="#ced4da" stroke="#12121c" stroke-width="2"/>
-            <circle cx="136" cy="40" r="3.5" fill="#ffea79"/>
-            <circle cx="134" cy="38" r="1.2" fill="#fff"/>
-          </g>
-        `;
-      case 'buggy':
-        return `
-          <g filter="url(#glow-${part.id})">
-            <rect x="15" y="70" width="130" height="10" rx="2" fill="#22232e" stroke="#12121c" stroke-width="2.4"/>
-            <!-- Curved Beetle Dome -->
-            <path d="M 28 70 Q 38 20 80 20 Q 122 20 134 70 Z" fill="${col}" stroke="#12121c" stroke-width="2.8" stroke-linejoin="round"/>
-            <path d="M 28 70 Q 55 52 134 70 Z" fill="rgba(0,0,0,0.3)"/>
-            <path d="M 52 23 Q 80 22 105 23" stroke="rgba(255,255,255,0.75)" stroke-width="2.4" stroke-linecap="round" fill="none"/>
-            <!-- Split Bubble Windows -->
-            <path d="M 44 48 A 13 13 0 0 1 70 48 Z" fill="#a2d2ff" stroke="#12121c" stroke-width="2"/>
-            <path d="M 74 48 A 13 13 0 0 1 100 48 Z" fill="#a2d2ff" stroke="#12121c" stroke-width="2"/>
-            <line x1="48" y1="46" x2="56" y2="38" stroke="rgba(255,255,255,0.9)" stroke-width="1.8"/>
-            <line x1="78" y1="46" x2="86" y2="38" stroke="rgba(255,255,255,0.9)" stroke-width="1.8"/>
-            <!-- Bug Eyes -->
-            <circle cx="132" cy="54" r="6.5" fill="#ced4da" stroke="#12121c" stroke-width="2.2"/>
-            <circle cx="132" cy="54" r="4.2" fill="#ffea79"/>
-            <circle cx="130" cy="52" r="1.5" fill="#fff"/>
-          </g>
-        `;
-      case 'dragster':
-        return `
-          <g filter="url(#glow-${part.id})">
-            <!-- Orange Tubular Rail Frame -->
-            <line x1="12" y1="72" x2="148" y2="72" stroke="#fca311" stroke-width="5" stroke-linecap="round"/>
-            <line x1="12" y1="72" x2="148" y2="72" stroke="#12121c" stroke-width="2" stroke-linecap="round"/>
-            <!-- Roll cage -->
-            <path d="M 24 70 L 34 32 L 52 32 L 60 70" stroke="#e0e1dd" stroke-width="4" stroke-linejoin="round" fill="none"/>
-            <path d="M 24 70 L 34 32 L 52 32 L 60 70" stroke="#12121c" stroke-width="2" stroke-linejoin="round" fill="none"/>
-            <!-- Driver Helmet -->
-            <circle cx="44" cy="45" r="7" fill="#dc3545" stroke="#12121c" stroke-width="2"/>
-            <line x1="44" y1="45" x2="50" y2="45" stroke="#111" stroke-width="2"/>
-            <!-- Pointed Alloy Nose with Heat Bluing -->
-            <polygon points="112,62 148,72 112,76" fill="${col}" stroke="#12121c" stroke-width="2.4"/>
-            <polygon points="132,68 148,72 132,74" fill="#00b4d8" opacity="0.6"/>
-          </g>
-        `;
-      case 'milktruck':
-        return `
-          <g filter="url(#glow-${part.id})">
-            <rect x="15" y="70" width="130" height="10" rx="2" fill="#22232e" stroke="#12121c" stroke-width="2.4"/>
-            <!-- Gasser Delivery Body -->
-            <path d="M 20 70 L 20 25 Q 20 18 30 18 L 96 18 L 104 46 L 134 50 L 136 70 Z" fill="${col}" stroke="#12121c" stroke-width="2.8" stroke-linejoin="round"/>
-            <rect x="20" y="52" width="116" height="18" fill="rgba(0,0,0,0.3)"/>
-            <line x1="32" y1="21" x2="90" y2="21" stroke="rgba(255,255,255,0.75)" stroke-width="2.2" stroke-linecap="round"/>
-            <!-- Visor -->
-            <rect x="85" y="22" width="22" height="4" rx="1" fill="${acc}" stroke="#12121c" stroke-width="1.6"/>
-            <!-- Windshield -->
-            <rect x="92" y="26" width="14" height="18" fill="#a2d2ff" stroke="#12121c" stroke-width="1.8"/>
-            <line x1="94" y1="40" x2="102" y2="28" stroke="rgba(255,255,255,0.9)" stroke-width="1.8"/>
-            <!-- Milk Emblem -->
-            <circle cx="55" cy="38" r="9" fill="#fff" stroke="#12121c" stroke-width="1.6"/>
-            <text x="55" y="41" font-size="7" font-weight="900" text-anchor="middle" fill="#0d6efd">MILK</text>
-            <!-- Gasser Nose -->
-            <rect x="132" y="48" width="8" height="22" rx="2" fill="#ced4da" stroke="#12121c" stroke-width="2"/>
-          </g>
-        `;
-      case 'boneshaker':
-        return `
-          <g filter="url(#glow-${part.id})">
-            <rect x="15" y="70" width="130" height="10" rx="2" fill="#181822" stroke="#12121c" stroke-width="2.4"/>
-            <!-- Bone Shaker Coupe Body -->
-            <path d="M 32 70 L 32 44 L 60 25 L 94 25 L 102 48 L 130 52 L 132 70 Z" fill="${col}" stroke="#12121c" stroke-width="2.8" stroke-linejoin="round"/>
-            <rect x="32" y="54" width="100" height="16" fill="rgba(0,0,0,0.35)"/>
-            <line x1="62" y1="27" x2="92" y2="27" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"/>
-            <!-- Amber Slit Windshield -->
-            <polygon points="64,30 92,30 96,44 64,44" fill="#ffbe0b" stroke="#12121c" stroke-width="1.8"/>
-            <line x1="68" y1="40" x2="76" y2="33" stroke="rgba(255,255,255,0.9)" stroke-width="1.6"/>
-            <!-- Brass Rivets -->
-            <circle cx="42" cy="44" r="1.5" fill="#fca311"/>
-            <circle cx="52" cy="35" r="1.5" fill="#fca311"/>
-            <circle cx="78" cy="27" r="1.5" fill="#fca311"/>
-            <!-- 3D Cartoon Skull Radiator Grille -->
-            <circle cx="132" cy="56" r="8" fill="#f8f9fa" stroke="#12121c" stroke-width="2.2"/>
-            <rect x="128" y="60" width="8" height="6" fill="#f8f9fa" stroke="#12121c" stroke-width="2"/>
-            <circle cx="130" cy="55" r="2" fill="#12121c"/>
-            <circle cx="134" cy="55" r="2" fill="#12121c"/>
-            <rect x="129" y="62" width="1.5" height="3" fill="#12121c"/>
-            <rect x="132" y="62" width="1.5" height="3" fill="#12121c"/>
-            <rect x="135" y="62" width="1.5" height="3" fill="#12121c"/>
-          </g>
-        `;
-      default: // roadster_32
-        return `
-          <g filter="url(#glow-${part.id})">
-            <!-- Boxed Frame Rail with Lightening Holes -->
-            <rect x="12" y="70" width="136" height="10" rx="2" fill="#22232e" stroke="#12121c" stroke-width="2.4"/>
-            <circle cx="40" cy="75" r="2.8" fill="#0d0e14" stroke="#495057" stroke-width="0.8"/>
-            <circle cx="75" cy="75" r="2.8" fill="#0d0e14" stroke="#495057" stroke-width="0.8"/>
-            <circle cx="110" cy="75" r="2.8" fill="#0d0e14" stroke="#495057" stroke-width="0.8"/>
-            <!-- Roadster Cab -->
-            <path d="M 36 70 L 36 42 Q 48 30 78 30 L 88 30 Q 96 30 102 46 L 130 50 L 132 70 Z" fill="${col}" stroke="#12121c" stroke-width="2.8" stroke-linejoin="round"/>
-            <path d="M 36 70 L 36 54 Q 75 58 132 58 L 132 70 Z" fill="rgba(0,0,0,0.3)"/>
-            <line x1="48" y1="32" x2="84" y2="32" stroke="rgba(255,255,255,0.75)" stroke-width="2.2" stroke-linecap="round"/>
-            <!-- Framed Windshield with Glare -->
-            <polygon points="84,30 96,14 100,14 98,30" fill="#a2d2ff" stroke="#12121c" stroke-width="2.2"/>
-            <line x1="88" y1="26" x2="96" y2="16" stroke="rgba(255,255,255,0.9)" stroke-width="1.8"/>
-            <!-- Chrome Radiator Grille -->
-            <rect x="130" y="44" width="8" height="26" rx="2" fill="#ced4da" stroke="#12121c" stroke-width="2.2"/>
-            <line x1="132" y1="48" x2="136" y2="48" stroke="#12121c" stroke-width="1.5"/>
-            <line x1="132" y1="54" x2="136" y2="54" stroke="#12121c" stroke-width="1.5"/>
-            <line x1="132" y1="60" x2="136" y2="60" stroke="#12121c" stroke-width="1.5"/>
-            <!-- Radiator Cap Glint -->
-            <circle cx="134" cy="42" r="2.5" fill="#f8f9fa"/>
-          </g>
-        `;
+    if (type === 'coupe32') {
+      return `
+        <path d="M 12 62 L 28 62 L 35 48 L 62 48 L 74 62 L 88 62 L 88 72 L 12 72 Z" fill="${col}" stroke="#12121c" stroke-width="2.5" />
+        <path d="M 38 49 L 45 36 L 68 36 L 70 49 Z" fill="#121420" stroke="#12121c" stroke-width="2.5" />
+        <line x1="56" y1="36" x2="56" y2="49" stroke="#12121c" stroke-width="2" />
+        <rect x="18" y="70" width="64" height="5" fill="#222" />
+        <circle cx="82" cy="54" r="3.5" fill="${acc}" />
+      `;
+    } else if (type === 'sedan') {
+      return `
+        <path d="M 10 65 L 26 65 L 30 42 L 72 42 L 78 65 L 90 65 L 90 74 L 10 74 Z" fill="${col}" stroke="#12121c" stroke-width="2.5" />
+        <rect x="34" y="46" width="16" height="14" fill="#1a1c23" stroke="#12121c" stroke-width="2" />
+        <rect x="54" y="46" width="16" height="14" fill="#1a1c23" stroke="#12121c" stroke-width="2" />
+        <rect x="14" y="72" width="72" height="5" fill="#2b2d42" />
+      `;
+    } else if (type === 'deliveryvan') {
+      return `
+        <path d="M 12 72 L 12 36 L 60 36 L 75 52 L 88 52 L 88 72 Z" fill="${col}" stroke="#12121c" stroke-width="2.5" />
+        <path d="M 61 40 L 71 52 L 61 52 Z" fill="#00f0ff" stroke="#12121c" stroke-width="2" />
+        <line x1="42" y1="38" x2="42" y2="70" stroke="#12121c" stroke-width="2.5" />
+        <circle cx="82" cy="60" r="3.5" fill="${acc}" />
+      `;
+    } else if (type === 'touringtub') {
+      return `
+        <path d="M 14 62 L 32 62 L 36 50 L 64 50 L 70 62 L 86 62 L 84 72 L 16 72 Z" fill="${col}" stroke="#12121c" stroke-width="2.5" />
+        <rect x="12" y="72" width="76" height="5" rx="2" fill="#adb5bd" stroke="#12121c" stroke-width="2" />
+        <circle cx="48" cy="46" r="3" fill="#ffbe0b" />
+      `;
+    } else {
+      // Roadster 29 Highboy
+      return `
+        <path d="M 14 64 L 32 64 L 40 48 L 62 48 L 72 64 L 88 64 L 88 72 L 14 72 Z" fill="${col}" stroke="#12121c" stroke-width="2.5" />
+        <path d="M 44 48 L 48 38 L 56 38 L 58 48 Z" fill="#121420" stroke="#12121c" stroke-width="2" />
+        <circle cx="50" cy="44" r="3" fill="${acc}" />
+        <rect x="18" y="70" width="64" height="6" fill="#12121c" />
+      `;
     }
   },
 
-  _engineSVG(part) {
-    switch (part.type) {
-      case 'twin':
-        return `
-          <g filter="url(#glow-${part.id})">
-            <!-- Lawnmower Twin: Cooling fins, pull start & round air cleaner -->
-            <rect x="42" y="45" width="48" height="40" rx="4" fill="#495057" stroke="#12121c" stroke-width="2.4"/>
-            <!-- Cooling fins -->
-            <line x1="46" y1="52" x2="86" y2="52" stroke="#ced4da" stroke-width="2"/>
-            <line x1="46" y1="58" x2="86" y2="58" stroke="#ced4da" stroke-width="2"/>
-            <line x1="46" y1="64" x2="86" y2="64" stroke="#ced4da" stroke-width="2"/>
-            <!-- Pull start shroud -->
-            <circle cx="66" cy="72" r="11" fill="#dc3545" stroke="#12121c" stroke-width="2"/>
-            <circle cx="66" cy="72" r="4.5" fill="#12121c"/>
-            <!-- Round teardrop air cleaner -->
-            <circle cx="98" cy="48" r="10" fill="#ced4da" stroke="#12121c" stroke-width="2.2"/>
-            <!-- Spark Plug with wire -->
-            <rect x="76" y="32" width="6" height="13" fill="#f8f9fa" stroke="#12121c" stroke-width="1.5"/>
-            <circle cx="79" cy="30" r="3" fill="#ffd166"/>
-          </g>
-        `;
-      case 'blower':
-        return `
-          <g filter="url(#glow-${part.id})">
-            <!-- 6-71 Supercharger: Ribbed aluminum casing, toothed belt & red scoop -->
-            <polygon points="35,85 120,85 114,56 42,56" fill="#343a40" stroke="#12121c" stroke-width="2.6"/>
-            <!-- Supercharger Casing with Ribs -->
-            <rect x="48" y="36" width="64" height="24" rx="3" fill="#d0d5dd" stroke="#12121c" stroke-width="2.4"/>
-            <line x1="48" y1="42" x2="112" y2="42" stroke="#98a2b3" stroke-width="2"/>
-            <line x1="48" y1="48" x2="112" y2="48" stroke="#98a2b3" stroke-width="2"/>
-            <line x1="48" y1="54" x2="112" y2="54" stroke="#98a2b3" stroke-width="2"/>
-
-            <!-- Toothed Gilmer Belt & Pulleys -->
-            <rect x="110" y="40" width="10" height="38" rx="2" fill="#14141d" stroke="#12121c" stroke-width="2"/>
-            <circle cx="115" cy="46" r="8" fill="#ced4da" stroke="#12121c" stroke-width="2"/>
-            <circle cx="115" cy="72" r="10" fill="#ced4da" stroke="#12121c" stroke-width="2"/>
-
-            <!-- Aggressive Red Scoop -->
-            <path d="M 44 36 L 36 12 L 102 12 L 94 36 Z" fill="#e63946" stroke="#12121c" stroke-width="2.6" stroke-linejoin="round"/>
-            <rect x="40" y="14" width="58" height="6" fill="#12121c"/>
-            <!-- Dual Gold Butterfly Valves -->
-            <ellipse cx="54" cy="22" rx="5" ry="7" fill="#ffbe0b" stroke="#d48834" stroke-width="1.8"/>
-            <ellipse cx="72" cy="22" rx="5" ry="7" fill="#ffbe0b" stroke="#d48834" stroke-width="1.8"/>
-            <ellipse cx="90" cy="22" rx="5" ry="7" fill="#ffbe0b" stroke="#d48834" stroke-width="1.8"/>
-          </g>
-        `;
-      case 'turbo':
-        return `
-          <g filter="url(#glow-${part.id})">
-            <!-- V6 Block -->
-            <rect x="42" y="55" width="70" height="30" rx="4" fill="#343a40" stroke="#12121c" stroke-width="2.4"/>
-            <!-- Snail Compressor Housing -->
-            <circle cx="95" cy="46" r="16" fill="#ced4da" stroke="#12121c" stroke-width="2.6"/>
-            <!-- Spiral inking -->
-            <path d="M 95 38 A 8 8 0 1 1 88 50" stroke="#495057" stroke-width="2.5" fill="none"/>
-            <circle cx="95" cy="46" r="6" fill="#12121c"/>
-
-            <!-- High-Flow Blue Cone Filter -->
-            <polygon points="112,42 142,30 142,62" fill="#0d6efd" stroke="#12121c" stroke-width="2.4"/>
-            <line x1="116" y1="41" x2="138" y2="34" stroke="#0a58ca" stroke-width="1.8"/>
-            <line x1="116" y1="46" x2="138" y2="46" stroke="#0a58ca" stroke-width="1.8"/>
-            <line x1="116" y1="51" x2="138" y2="58" stroke="#0a58ca" stroke-width="1.8"/>
-            <!-- Chrome Clamp -->
-            <rect x="108" y="38" width="5" height="16" rx="1" fill="#ced4da" stroke="#12121c" stroke-width="1.5"/>
-          </g>
-        `;
-      case 'electric':
-        return `
-          <g filter="url(#glow-${part.id})">
-            <!-- Battery Cell Block with Hazard Stripes -->
-            <rect x="38" y="50" width="80" height="36" rx="5" fill="#1b263b" stroke="#12121c" stroke-width="2.4"/>
-            <rect x="42" y="74" width="72" height="6" fill="#ffbe0b"/>
-            <!-- Copper Bus Bars with Bolts -->
-            <rect x="52" y="32" width="14" height="22" rx="2" fill="#b87333" stroke="#12121c" stroke-width="2"/>
-            <rect x="76" y="32" width="14" height="22" rx="2" fill="#b87333" stroke="#12121c" stroke-width="2"/>
-            <circle cx="59" cy="38" r="2" fill="#ffd166"/>
-            <circle cx="83" cy="38" r="2" fill="#ffd166"/>
-            <!-- Crackling Cyan Comic Lightning Bolt -->
-            <path d="M 58 24 L 66 36 L 72 20 L 80 34 L 92 18" stroke="#00f0ff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-            <path d="M 58 24 L 66 36 L 72 20 L 80 34 L 92 18" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-          </g>
-        `;
-      case 'nitrous':
-        return `
-          <g filter="url(#glow-${part.id})">
-            <!-- Big Block -->
-            <polygon points="38,85 120,85 114,48 44,48" fill="#212529" stroke="#12121c" stroke-width="2.6"/>
-            <!-- Triple Gold Velocity Stacks -->
-            <path d="M 56 48 L 52 20 L 66 20 L 62 48 Z" fill="#ffbe0b" stroke="#12121c" stroke-width="2.2"/>
-            <ellipse cx="59" cy="20" rx="6" ry="2" fill="#dc3545"/>
-            <path d="M 74 48 L 70 20 L 84 20 L 80 48 Z" fill="#ffbe0b" stroke="#12121c" stroke-width="2.2"/>
-            <ellipse cx="77" cy="20" rx="6" ry="2" fill="#dc3545"/>
-            <path d="M 92 48 L 88 20 L 102 20 L 98 48 Z" fill="#ffbe0b" stroke="#12121c" stroke-width="2.2"/>
-            <ellipse cx="95" cy="20" rx="6" ry="2" fill="#dc3545"/>
-
-            <!-- Glossy Blue Nitrous Bottle with Gauge -->
-            <rect x="16" y="38" width="18" height="44" rx="6" fill="#0077b6" stroke="#12121c" stroke-width="2.4"/>
-            <rect x="21" y="32" width="8" height="7" rx="2" fill="#ced4da" stroke="#12121c" stroke-width="1.8"/>
-            <circle cx="25" cy="46" r="4.5" fill="#f8f9fa" stroke="#12121c" stroke-width="1.5"/>
-            <line x1="25" y1="46" x2="27" y2="44" stroke="#dc3545" stroke-width="1.5"/>
-          </g>
-        `;
-      default: // flathead_v8
-        return `
-          <g filter="url(#glow-${part.id})">
-            <!-- Cast Iron V8 Block -->
-            <polygon points="40,85 115,85 110,50 45,50" fill="#6c584c" stroke="#12121c" stroke-width="2.6"/>
-            <!-- Finned Edelbrock Heads -->
-            <rect x="46" y="42" width="60" height="10" rx="2" fill="#ced4da" stroke="#12121c" stroke-width="2"/>
-            <!-- Twin Stromberg 97 Carbs with Velocity Horns -->
-            <rect x="58" y="28" width="12" height="14" fill="#adc178" stroke="#12121c" stroke-width="2"/>
-            <circle cx="64" cy="24" r="5" fill="#ffd166" stroke="#12121c" stroke-width="1.8"/>
-            <rect x="80" y="28" width="12" height="14" fill="#adc178" stroke="#12121c" stroke-width="2"/>
-            <circle cx="86" cy="24" r="5" fill="#ffd166" stroke="#12121c" stroke-width="1.8"/>
-            <!-- Coolant Tube -->
-            <path d="M 52 48 Q 74 38 98 48" stroke="#b87333" stroke-width="4" stroke-linecap="round" fill="none"/>
-          </g>
-        `;
+  _suspensionSVG(part) {
+    const type = part.type || 'dropped_ibeam';
+    if (type === 'suicide_leaf') {
+      return `
+        <line x1="15" y1="52" x2="85" y2="52" stroke="#12121c" stroke-width="4" stroke-linecap="round" />
+        <path d="M 22 52 Q 50 36 78 52" stroke="#adb5bd" stroke-width="3" fill="none" />
+        <circle cx="20" cy="52" r="5" fill="#ffbe0b" stroke="#12121c" stroke-width="2" />
+        <circle cx="80" cy="52" r="5" fill="#ffbe0b" stroke="#12121c" stroke-width="2" />
+        <rect x="44" y="32" width="12" height="24" fill="#343a40" stroke="#12121c" stroke-width="2" />
+      `;
+    } else if (type === 'buggy_springs') {
+      return `
+        <path d="M 18 64 Q 50 20 82 64" stroke="#495057" stroke-width="5" fill="none" stroke-linecap="round" />
+        <path d="M 24 64 Q 50 28 76 64" stroke="#6c757d" stroke-width="3" fill="none" stroke-linecap="round" />
+        <rect x="42" y="36" width="16" height="16" fill="#ffbe0b" stroke="#12121c" stroke-width="2" />
+      `;
+    } else if (type === 'solid_rig') {
+      return `
+        <rect x="22" y="44" width="56" height="12" fill="#12121c" stroke="#ced4da" stroke-width="2" />
+        <line x1="28" y1="44" x2="40" y2="28" stroke="#12121c" stroke-width="5" />
+        <line x1="72" y1="44" x2="60" y2="28" stroke="#12121c" stroke-width="5" />
+        <circle cx="26" cy="50" r="4" fill="#e63946" />
+        <circle cx="74" cy="50" r="4" fill="#e63946" />
+      `;
+    } else {
+      // Dropped I-beam
+      return `
+        <path d="M 16 46 L 28 46 L 36 62 L 64 62 L 72 46 L 84 46" stroke="#12121c" stroke-width="5" fill="none" stroke-linejoin="round" />
+        <circle cx="42" cy="62" r="3" fill="#ffbe0b" />
+        <circle cx="50" cy="62" r="3" fill="#ffbe0b" />
+        <circle cx="58" cy="62" r="3" fill="#ffbe0b" />
+      `;
     }
   },
 
-  _wheelSVG(part) {
-    const isSlick = part.type === 'slicks';
-    const isMags = part.type === 'goldmags';
-    const isWhite = part.type === 'whitewalls';
-    const isKnobby = part.type === 'knobby';
-    const isSpoke = part.type === 'spokes';
-
-    return `
-      <g filter="url(#glow-${part.id})">
-        <!-- Chunky Comic Black Rubber Tire -->
-        <circle cx="55" cy="55" r="42" fill="#161722" stroke="#12121c" stroke-width="3"/>
-        
-        <!-- Comic Outer Tread Notches -->
-        <circle cx="55" cy="55" r="41" stroke="#0d0e14" stroke-width="3.5" stroke-dasharray="8,6" fill="none"/>
-
-        <!-- Whitewall Ring or Slicks Sidewall -->
-        ${isWhite ? `
-          <circle cx="55" cy="55" r="33" fill="#f8f9fa" stroke="#12121c" stroke-width="2"/>
-        ` : ''}
-
-        ${isSlick ? `
-          <path d="M 30 36 Q 55 22 80 36" stroke="rgba(255,255,255,0.9)" stroke-width="2.5" fill="none"/>
-          <text x="55" y="32" font-size="6" font-weight="900" text-anchor="middle" fill="#ffd166">RAT ROD</text>
-        ` : ''}
-
-        <!-- Deep-Dish Rim with Inner Drop Shadow -->
-        <circle cx="55" cy="55" r="25" fill="#101118"/>
-        <circle cx="55" cy="55" r="23" fill="${isMags ? '#d4a373' : isWhite ? '#dc3545' : isSpoke ? '#ced4da' : '#495057'}" stroke="#12121c" stroke-width="2.2"/>
-
-        ${isMags ? `
-          <!-- 5-Spoke Gold Racing Mag -->
-          <circle cx="55" cy="55" r="16" fill="#e9c46a"/>
-          <circle cx="55" cy="55" r="7" fill="#101118"/>
-        ` : ''}
-
-        ${isSpoke ? `
-          <!-- Wire Spokes -->
-          <line x1="55" y1="34" x2="55" y2="76" stroke="#fff" stroke-width="1.8"/>
-          <line x1="34" y1="55" x2="76" y2="55" stroke="#fff" stroke-width="1.8"/>
-          <line x1="40" y1="40" x2="70" y2="70" stroke="#fff" stroke-width="1.8"/>
-          <line x1="70" y1="40" x2="40" y2="70" stroke="#fff" stroke-width="1.8"/>
-        ` : ''}
-
-        <!-- Bullet Knock-Off Center Cap with Star Glint -->
-        <circle cx="55" cy="55" r="8" fill="#f8f9fa" stroke="#12121c" stroke-width="1.8"/>
-        <circle cx="53" cy="53" r="1.5" fill="#fff"/>
-
-        <!-- Front Skinny Runner Wheel Preview -->
-        <circle cx="125" cy="62" r="27" fill="#161722" stroke="#12121c" stroke-width="2.4"/>
-        <circle cx="125" cy="62" r="26" stroke="#0d0e14" stroke-width="2.5" stroke-dasharray="6,4" fill="none"/>
-        <circle cx="125" cy="62" r="15" fill="${isMags ? '#d4a373' : isWhite ? '#dc3545' : '#495057'}" stroke="#12121c" stroke-width="1.8"/>
-        <circle cx="125" cy="62" r="5" fill="#f8f9fa" stroke="#12121c" stroke-width="1.4"/>
-      </g>
-    `;
-  },
-
-  _aeroSVG(part) {
-    switch (part.type) {
-      case 'highwaysign':
-        return `
-          <g filter="url(#glow-${part.id})">
-            <!-- Steel Struts with Bolts -->
-            <line x1="45" y1="85" x2="65" y2="30" stroke="#ced4da" stroke-width="3.5" stroke-linecap="round"/>
-            <line x1="45" y1="85" x2="65" y2="30" stroke="#12121c" stroke-width="1.8" stroke-linecap="round"/>
-            <line x1="95" y1="85" x2="85" y2="30" stroke="#ced4da" stroke-width="3.5" stroke-linecap="round"/>
-            <line x1="95" y1="85" x2="85" y2="30" stroke="#12121c" stroke-width="1.8" stroke-linecap="round"/>
-            <!-- Bent Yellow Highway "25 MPH" Sign -->
-            <polygon points="32,28 118,18 122,54 36,64" fill="#ffd166" stroke="#12121c" stroke-width="2.6" stroke-linejoin="round"/>
-            <text x="44" y="44" font-size="9" font-weight="bold" fill="#12121c">SPEED</text>
-            <text x="48" y="56" font-size="13" font-weight="900" fill="#12121c">25</text>
-            <!-- Rust Streaks & Bolt Heads -->
-            <circle cx="38" cy="34" r="2" fill="#ced4da" stroke="#12121c" stroke-width="1"/>
-            <circle cx="114" cy="24" r="2" fill="#ced4da" stroke="#12121c" stroke-width="1"/>
-          </g>
-        `;
-      case 'dragwing':
-        return `
-          <g filter="url(#glow-${part.id})">
-            <!-- Sprint-Car Aluminum Dual Blade Drag Wing -->
-            <line x1="35" y1="85" x2="65" y2="28" stroke="#6c757d" stroke-width="4"/>
-            <line x1="35" y1="85" x2="65" y2="28" stroke="#12121c" stroke-width="1.8"/>
-            <line x1="85" y1="85" x2="95" y2="28" stroke="#6c757d" stroke-width="4"/>
-            <line x1="85" y1="85" x2="95" y2="28" stroke="#12121c" stroke-width="1.8"/>
-            <!-- Spill Endplates -->
-            <polygon points="50,18 124,14 128,52 54,56" fill="#ced4da" stroke="#12121c" stroke-width="2.6"/>
-            <polygon points="40,24 114,20 118,58 44,62" fill="#495057" stroke="#12121c" stroke-width="2.6"/>
-            <line x1="42" y1="36" x2="114" y2="32" stroke="#ffbe0b" stroke-width="3"/>
-          </g>
-        `;
-      case 'roofwing':
-        return `
-          <g filter="url(#glow-${part.id})">
-            <!-- Sprint-Car Top Roof Wing -->
-            <polygon points="22,18 138,8 132,56 16,64" fill="#0077b6" stroke="#12121c" stroke-width="2.8" stroke-linejoin="round"/>
-            <polygon points="32,16 128,10 124,50 24,56" fill="#0096c7"/>
-            <text x="40" y="38" font-size="14" font-weight="900" fill="#ffffff">HOT ROD</text>
-            <!-- Heavy Mounting Struts -->
-            <line x1="48" y1="64" x2="48" y2="90" stroke="#ced4da" stroke-width="3.5"/>
-            <line x1="48" y1="64" x2="48" y2="90" stroke="#12121c" stroke-width="1.8"/>
-            <line x1="102" y1="60" x2="102" y2="90" stroke="#ced4da" stroke-width="3.5"/>
-            <line x1="102" y1="60" x2="102" y2="90" stroke="#12121c" stroke-width="1.8"/>
-          </g>
-        `;
-      case 'airdam':
-        return `
-          <g filter="url(#glow-${part.id})">
-            <!-- Scrap Plywood Air Dam with Brackets -->
-            <polygon points="20,62 140,62 130,86 30,86" fill="#8d6e63" stroke="#12121c" stroke-width="2.6"/>
-            <!-- Stitched Pop Rivets -->
-            <circle cx="45" cy="74" r="2.5" fill="#fca311" stroke="#12121c" stroke-width="1"/>
-            <circle cx="80" cy="74" r="2.5" fill="#fca311" stroke="#12121c" stroke-width="1"/>
-            <circle cx="115" cy="74" r="2.5" fill="#fca311" stroke="#12121c" stroke-width="1"/>
-            <!-- Strut Rods -->
-            <line x1="45" y1="36" x2="45" y2="62" stroke="#fca311" stroke-width="2.5"/>
-            <line x1="115" y1="36" x2="115" y2="62" stroke="#fca311" stroke-width="2.5"/>
-          </g>
-        `;
-      case 'ducktail':
-        return `
-          <g filter="url(#glow-${part.id})">
-            <path d="M 28 75 Q 80 64 128 38 L 136 48 Q 85 75 35 86 Z" fill="#6c584c" stroke="#12121c" stroke-width="2.6"/>
-            <circle cx="50" cy="72" r="2" fill="#fca311"/>
-            <circle cx="80" cy="62" r="2" fill="#fca311"/>
-            <circle cx="110" cy="50" r="2" fill="#fca311"/>
-          </g>
-        `;
-      default:
-        return `
-          <g filter="url(#glow-${part.id})">
-            <rect x="28" y="44" width="104" height="22" rx="4" fill="#343a40" stroke="#6c757d" stroke-dasharray="4,4" stroke-width="2"/>
-            <text x="45" y="58" font-size="10" font-weight="bold" fill="#adb5bd">Clean Bobtail (No Wing)</text>
-          </g>
-        `;
+  _wheelsSVG(part) {
+    const type = part.type || 'slicks';
+    if (type === 'slicks') {
+      // Extra wide wrinkle drag slick with white lettering
+      return `
+        <circle cx="50" cy="50" r="38" fill="#1c1f26" stroke="#12121c" stroke-width="3" />
+        <circle cx="50" cy="50" r="22" fill="#ffbe0b" stroke="#12121c" stroke-width="2.5" />
+        <circle cx="50" cy="50" r="9" fill="#12121c" />
+        <text x="50" y="22" font-size="6" font-family="sans-serif" font-weight="900" fill="#fff" text-anchor="middle">MICKEY</text>
+        <text x="50" y="82" font-size="6" font-family="sans-serif" font-weight="900" fill="#fff" text-anchor="middle">THOMS</text>
+      `;
+    } else if (type === 'knobby') {
+      // Deep-lug tractor mud tire
+      return `
+        <circle cx="50" cy="50" r="38" fill="#2b2d42" stroke="#12121c" stroke-width="3" />
+        <circle cx="50" cy="50" r="22" fill="#8d99ae" stroke="#12121c" stroke-width="2.5" />
+        <circle cx="50" cy="50" r="8" fill="#12121c" />
+        <!-- Tractor lugs -->
+        <path d="M 46 12 L 54 12 L 52 18 L 48 18 Z" fill="#ffbe0b" />
+        <path d="M 80 46 L 80 54 L 74 52 L 74 48 Z" fill="#ffbe0b" />
+        <path d="M 46 82 L 54 82 L 52 76 L 48 76 Z" fill="#ffbe0b" />
+        <path d="M 12 46 L 12 54 L 18 52 L 18 48 Z" fill="#ffbe0b" />
+      `;
+    } else if (type === 'salt') {
+      // Spun aluminum racing moon disk
+      return `
+        <circle cx="50" cy="50" r="36" fill="#1c1f26" stroke="#12121c" stroke-width="3" />
+        <circle cx="50" cy="50" r="26" fill="#e9ecef" stroke="#12121c" stroke-width="2.5" />
+        <path d="M 32 32 Q 50 24 68 32 Q 50 68 32 32" fill="rgba(255,255,255,0.4)" />
+        <circle cx="50" cy="50" r="4" fill="#343a40" />
+      `;
+    } else if (type === 'duallys') {
+      // Double wide commercial dual wheels
+      return `
+        <rect x="22" y="24" width="22" height="52" rx="6" fill="#1c1f26" stroke="#12121c" stroke-width="2.5" />
+        <rect x="52" y="24" width="22" height="52" rx="6" fill="#1c1f26" stroke="#12121c" stroke-width="2.5" />
+        <rect x="36" y="44" width="26" height="12" fill="#495057" stroke="#12121c" stroke-width="2" />
+        <circle cx="63" cy="50" r="6" fill="#ffbe0b" stroke="#12121c" stroke-width="1.8" />
+      `;
+    } else {
+      // Skinny Vintage Firestones with red steelies
+      return `
+        <circle cx="50" cy="50" r="34" fill="#212529" stroke="#12121c" stroke-width="3" />
+        <circle cx="50" cy="50" r="20" fill="#dc3545" stroke="#12121c" stroke-width="2" />
+        <circle cx="50" cy="50" r="8" fill="#ced4da" stroke="#12121c" stroke-width="1.8" />
+      `;
     }
   },
 
-  _exhaustSVG(part) {
-    switch (part.type) {
-      case 'zoomies':
-        return `
-          <g filter="url(#glow-${part.id})">
-            <!-- 4 Swept Zoomies with Heat Wrap -->
-            <path d="M 32 82 Q 52 82 68 28" stroke="#ced4da" stroke-width="7" stroke-linecap="round" fill="none"/>
-            <path d="M 32 82 Q 52 82 68 28" stroke="#12121c" stroke-width="2.2" stroke-linecap="round" fill="none"/>
-            <path d="M 48 82 Q 68 82 84 28" stroke="#ced4da" stroke-width="7" stroke-linecap="round" fill="none"/>
-            <path d="M 48 82 Q 68 82 84 28" stroke="#12121c" stroke-width="2.2" stroke-linecap="round" fill="none"/>
-            <path d="M 64 82 Q 84 82 100 28" stroke="#ced4da" stroke-width="7" stroke-linecap="round" fill="none"/>
-            <path d="M 64 82 Q 84 82 100 28" stroke="#12121c" stroke-width="2.2" stroke-linecap="round" fill="none"/>
-
-            <!-- Multi-Layer Cartoon Flames -->
-            <!-- Outer Crimson Flame -->
-            <polygon points="68,26 62,8 74,16 80,4 86,20 76,26" fill="#d90429" stroke="#12121c" stroke-width="2"/>
-            <!-- Mid Neon Yellow Flame -->
-            <polygon points="69,24 65,12 73,16 77,9 81,19 75,24" fill="#ffb703"/>
-            <!-- Inner White Hot Spike -->
-            <polygon points="70,22 68,15 72,17 75,13 77,18 73,22" fill="#ffffff"/>
-
-            <polygon points="100,26 94,8 106,16 112,4 118,20 108,26" fill="#d90429" stroke="#12121c" stroke-width="2"/>
-            <polygon points="101,24 97,12 105,16 109,9 113,19 107,24" fill="#ffb703"/>
-          </g>
-        `;
-      case 'flappers':
-        return `
-          <g filter="url(#glow-${part.id})">
-            <!-- Vertical Tractor Stacks with Bouncing Rain Caps -->
-            <rect x="52" y="28" width="9" height="56" fill="#343a40" stroke="#12121c" stroke-width="2.4"/>
-            <rect x="84" y="28" width="9" height="56" fill="#343a40" stroke="#12121c" stroke-width="2.4"/>
-            <!-- Bouncing Red Flapper Caps -->
-            <line x1="50" y1="26" x2="66" y2="18" stroke="#e63946" stroke-width="4" stroke-linecap="round"/>
-            <line x1="50" y1="26" x2="66" y2="18" stroke="#12121c" stroke-width="1.8" stroke-linecap="round"/>
-            <line x1="82" y1="26" x2="98" y2="18" stroke="#e63946" stroke-width="4" stroke-linecap="round"/>
-            <line x1="82" y1="26" x2="98" y2="18" stroke="#12121c" stroke-width="1.8" stroke-linecap="round"/>
-            <!-- Cartoon Smoke Rings -->
-            <circle cx="62" cy="12" r="5" stroke="rgba(220,225,230,0.8)" stroke-width="2.2" fill="none"/>
-            <circle cx="94" cy="10" r="6" stroke="rgba(220,225,230,0.8)" stroke-width="2.2" fill="none"/>
-          </g>
-        `;
-      case 'lakepipes':
-        return `
-          <g filter="url(#glow-${part.id})">
-            <!-- Rocker Chrome Lake Pipes with Turnouts -->
-            <path d="M 18 64 L 126 64 Q 138 64 142 52" stroke="#ced4da" stroke-width="9" stroke-linecap="round" fill="none"/>
-            <path d="M 18 64 L 126 64 Q 138 64 142 52" stroke="#12121c" stroke-width="2.4" stroke-linecap="round" fill="none"/>
-            <rect x="38" y="58" width="12" height="12" rx="2" fill="#e63946" stroke="#12121c" stroke-width="1.8"/>
-            <rect x="70" y="58" width="12" height="12" rx="2" fill="#e63946" stroke="#12121c" stroke-width="1.8"/>
-            <rect x="102" y="58" width="12" height="12" rx="2" fill="#e63946" stroke="#12121c" stroke-width="1.8"/>
-          </g>
-        `;
-      case 'purgehorns':
-        return `
-          <g filter="url(#glow-${part.id})">
-            <!-- Nitrous Purge Nozzles with Frosty Plumes -->
-            <path d="M 58 75 L 74 34" stroke="#00f0ff" stroke-width="6" stroke-linecap="round"/>
-            <path d="M 58 75 L 74 34" stroke="#12121c" stroke-width="2" stroke-linecap="round"/>
-            <path d="M 86 75 L 96 34" stroke="#00f0ff" stroke-width="6" stroke-linecap="round"/>
-            <path d="M 86 75 L 96 34" stroke="#12121c" stroke-width="2" stroke-linecap="round"/>
-            <!-- Frosty Vapor Plumes -->
-            <ellipse cx="76" cy="18" rx="8" ry="15" fill="#00f0ff" opacity="0.7"/>
-            <ellipse cx="76" cy="18" rx="5" ry="10" fill="#ffffff" opacity="0.9"/>
-            <ellipse cx="98" cy="16" rx="8" ry="15" fill="#00f0ff" opacity="0.7"/>
-            <ellipse cx="98" cy="16" rx="5" ry="10" fill="#ffffff" opacity="0.9"/>
-          </g>
-        `;
-      default:
-        return `
-          <g filter="url(#glow-${part.id})">
-            <path d="M 28 75 Q 80 75 132 64" stroke="#6c584c" stroke-width="7" stroke-linecap="round" fill="none"/>
-            <path d="M 28 75 Q 80 75 132 64" stroke="#12121c" stroke-width="2.2" stroke-linecap="round" fill="none"/>
-            <circle cx="134" cy="64" r="5" fill="#ff7b00"/>
-            <circle cx="134" cy="64" r="2.5" fill="#ffd166"/>
-          </g>
-        `;
-    }
-  },
-
-  _charmSVG(part) {
-    switch (part.type) {
-      case 'dice':
-        return `
-          <g filter="url(#glow-${part.id})">
-            <line x1="75" y1="12" x2="62" y2="44" stroke="#ffffff" stroke-width="2"/>
-            <line x1="75" y1="12" x2="88" y2="54" stroke="#ffffff" stroke-width="2"/>
-            <!-- White Plush Fuzzy Dice with Comic Pips -->
-            <rect x="48" y="44" width="24" height="24" rx="4" fill="#f8f9fa" stroke="#12121c" stroke-width="2.4"/>
-            <circle cx="60" cy="56" r="3" fill="#dc3545"/>
-            <rect x="74" y="54" width="24" height="24" rx="4" fill="#f8f9fa" stroke="#12121c" stroke-width="2.4"/>
-            <circle cx="81" cy="61" r="2.5" fill="#12121c"/>
-            <circle cx="91" cy="71" r="2.5" fill="#12121c"/>
-          </g>
-        `;
-      case 'flames':
-        return `
-          <g filter="url(#glow-${part.id})">
-            <path d="M 18 60 Q 60 38 86 62 Q 106 32 142 58 Q 112 76 80 68 Q 48 82 18 60 Z" fill="#ff7b00" stroke="#12121c" stroke-width="2.6" stroke-linejoin="round"/>
-            <path d="M 28 60 Q 64 45 86 63 Q 102 40 132 59 Q 106 70 80 66 Q 54 75 28 60 Z" fill="#ffd000"/>
-          </g>
-        `;
-      case 'shark':
-        return `
-          <g filter="url(#glow-${part.id})">
-            <!-- Grinning Shark Teeth with Red Gums -->
-            <ellipse cx="80" cy="55" rx="52" ry="26" fill="#dc3545" stroke="#12121c" stroke-width="2.8"/>
-            <path d="M 38 55 L 46 44 L 54 55 L 62 44 L 70 55 L 78 44 L 86 55 L 94 44 L 102 55 L 110 44 L 118 55" stroke="#12121c" stroke-width="3" fill="#ffffff"/>
-            <path d="M 38 55 L 46 66 L 54 55 L 62 66 L 70 55 L 78 66 L 86 55 L 94 66 L 102 55 L 110 66 L 118 55" stroke="#12121c" stroke-width="3" fill="#ffffff"/>
-            <!-- Fierce Eye -->
-            <circle cx="106" cy="34" r="7.5" fill="#ffffff" stroke="#12121c" stroke-width="2"/>
-            <circle cx="106" cy="34" r="3.8" fill="#12121c"/>
-          </g>
-        `;
-      case 'skull':
-        return `
-          <g filter="url(#glow-${part.id})">
-            <!-- Winged Skull Mascot with Glowing Eyes -->
-            <path d="M 32 45 Q 60 28 75 52 Q 90 28 118 45 Q 90 62 75 56 Q 60 62 32 45 Z" fill="#adb5bd" stroke="#12121c" stroke-width="2.4"/>
-            <circle cx="75" cy="48" r="15" fill="#f8f9fa" stroke="#12121c" stroke-width="2.4"/>
-            <circle cx="70" cy="46" r="3.8" fill="#ffbe0b" stroke="#12121c" stroke-width="1.5"/>
-            <circle cx="80" cy="46" r="3.8" fill="#ffbe0b" stroke="#12121c" stroke-width="1.5"/>
-            <rect x="70" y="55" width="10" height="7" rx="1" fill="#ced4da" stroke="#12121c" stroke-width="1.8"/>
-            <line x1="73" y1="55" x2="73" y2="62" stroke="#12121c" stroke-width="1.5"/>
-            <line x1="77" y1="55" x2="77" y2="62" stroke="#12121c" stroke-width="1.5"/>
-          </g>
-        `;
-      default:
-        return `
-          <g filter="url(#glow-${part.id})">
-            <circle cx="75" cy="55" r="28" fill="#f8f9fa" stroke="#12121c" stroke-width="3"/>
-            <text x="75" y="66" font-size="28" font-weight="900" text-anchor="middle" fill="#dc3545">7</text>
-          </g>
-        `;
+  _ancillarySVG(part) {
+    const type = part.type || 'lakester_pipes';
+    if (type === 'beerkeg') {
+      // Beer keg fuel tank with brass bung
+      return `
+        <rect x="25" y="32" width="50" height="36" rx="10" fill="#ced4da" stroke="#12121c" stroke-width="2.8" />
+        <line x1="36" y1="32" x2="36" y2="68" stroke="#6c757d" stroke-width="2" />
+        <line x1="64" y1="32" x2="64" y2="68" stroke="#6c757d" stroke-width="2" />
+        <circle cx="50" cy="50" r="6" fill="#ffbe0b" stroke="#12121c" stroke-width="2" />
+      `;
+    } else if (type === 'tractor_rad') {
+      // Massive farm tractor radiator
+      return `
+        <rect x="24" y="20" width="52" height="60" rx="4" fill="#3b5a45" stroke="#12121c" stroke-width="2.8" />
+        <rect x="30" y="30" width="40" height="42" fill="#d4a373" stroke="#12121c" stroke-width="2" />
+        <!-- Mesh lines -->
+        <line x1="30" y1="38" x2="70" y2="38" stroke="#12121c" stroke-width="1" />
+        <line x1="30" y1="46" x2="70" y2="46" stroke="#12121c" stroke-width="1" />
+        <line x1="30" y1="54" x2="70" y2="54" stroke="#12121c" stroke-width="1" />
+        <line x1="30" y1="62" x2="70" y2="62" stroke="#12121c" stroke-width="1" />
+        <rect x="45" y="14" width="10" height="7" rx="2" fill="#ffd166" stroke="#12121c" stroke-width="2" />
+      `;
+    } else if (type === 'lead_ballast') {
+      // Lead ballast weight block with stamped weight
+      return `
+        <rect x="22" y="36" width="56" height="32" rx="3" fill="#6c757d" stroke="#12121c" stroke-width="2.8" />
+        <text x="50" y="58" font-size="14" font-family="monospace" font-weight="900" fill="#ffd166" text-anchor="middle">90 KG</text>
+        <circle cx="28" cy="42" r="3" fill="#222" />
+        <circle cx="72" cy="42" r="3" fill="#222" />
+      `;
+    } else if (type === 'belt_siren') {
+      // Exposed siren horn with belt pulley
+      return `
+        <path d="M 35 40 L 72 26 L 72 74 L 35 60 Z" fill="#dc3545" stroke="#12121c" stroke-width="2.8" />
+        <ellipse cx="72" cy="50" rx="6" ry="24" fill="#ffbe0b" stroke="#12121c" stroke-width="2" />
+        <circle cx="28" cy="50" r="10" fill="#2b2d42" stroke="#12121c" stroke-width="2.5" />
+      `;
+    } else {
+      // Lakester pipes with open dumps
+      return `
+        <path d="M 20 62 L 50 62 L 78 40" stroke="#ced4da" stroke-width="9" stroke-linecap="round" fill="none" />
+        <path d="M 20 62 L 50 62 L 78 40" stroke="#12121c" stroke-width="2" stroke-linecap="round" fill="none" />
+        <ellipse cx="78" cy="40" rx="5" ry="7" fill="#ffbe0b" stroke="#12121c" stroke-width="2" />
+        <path d="M 78 35 Q 86 25 80 18" stroke="#ff5500" stroke-width="3" stroke-linecap="round" fill="none" />
+      `;
     }
   }
 };
 
 window.RAT_ROD_ASSETS = RAT_ROD_ASSETS;
+window.TRACK_ENVIRONMENTS = TRACK_ENVIRONMENTS;
 window.RatRodSVG = RatRodSVG;
