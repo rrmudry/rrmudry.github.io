@@ -2,6 +2,20 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-21 — Day 17 Graded Assignment Deployment: Kinematic Velocity Calculator
+
+**Pattern Updated**: `scaffolded-word-problem-engine.md`.
+
+**Changes**:
+- **Promoted Kinematic Velocity Calculator to Day 17 Active Graded Assignment**:
+  - Replaced the placeholder "planned in class" handout preview (`The vf = vo + at Kinematic Velocity Equation Problem Set`, `status: "planned"`) with the live, graded webapp (`Kinematic Velocity Calculator`, `url: "kinematic_velocity_calculator/dist/index.html"`, `status: "active"`).
+  - Updated all central curriculum sources: `Unit_2/unit2_lessons.json`, `Unit_2/lesson.json`, `assets/lessons-data.js`, and `Unit_2/outline.md`.
+- **Eliminated "Planned in Class" Preview Notice**:
+  - Pacing list on `unit2-dashboard.html` now renders Day 17 with the prominent amber `GRADED` pill and active launcher (`📝 Kinematic Velocity Calculator ↗`).
+  - Modal drawer now displays the full interactive card with `Auto-Saved ✓` / `Online Firestore Grade Sync` instead of the informational popup button (`📋 PLANNED · IN-CLASS`).
+- **Verified via Puppeteer**:
+  - Automated test verified that `unit2-dashboard.html` displays the active assignment card and no planned notice on Day 17 in both the pacing list and modal drawer.
+
 ## 2026-09-21 — Desmos Scientific Calculator Result Extraction & Paste Architecture Fix
 
 **Pattern Updated**: `scaffolded-word-problem-engine.md`.
