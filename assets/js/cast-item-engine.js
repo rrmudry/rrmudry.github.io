@@ -952,7 +952,7 @@
               console.error("AI reasoning chat error:", err);
               if (typingDot) typingDot.classList.add('hidden');
               // Safe fallback so student turn is never blocked or lost
-              const fallbackReply = "Spot on thinking! Because velocity is constant at +25.0 m/s, the vehicle covers exactly 25 meters during each single second, producing a straight diagonal line with constant slope on a position-time graph. What would the acceleration be for that steady motion?";
+              const fallbackReply = "Sorry, the AI mentor is on vacation. Don't worry, your participation is noted. Thank you.";
               stepState.chatMessages.push({
                 role: 'model',
                 text: fallbackReply,
