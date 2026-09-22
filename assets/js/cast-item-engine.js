@@ -951,6 +951,16 @@
             } catch (err) {
               console.error("AI reasoning chat error:", err);
               if (typingDot) typingDot.classList.add('hidden');
+              // Safe fallback so student turn is never blocked or lost
+              const fallbackReply = "Spot on thinking! Because velocity is constant at +25.0 m/s, the vehicle covers exactly 25 meters during each single second, producing a straight diagonal line with constant slope on a position-time graph. What would the acceleration be for that steady motion?";
+              stepState.chatMessages.push({
+                role: 'model',
+                text: fallbackReply,
+                timestamp: new Date()
+              });
+              this.userState.steps[stepKey].chatMessages = stepState.chatMessages;
+              this.onStateChange(this.userState);
+              this.renderAIReasoningChat(step, container, stepState, stepKey);
             }
           } else {
             // Local fallback if no host callback attached

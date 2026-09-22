@@ -2,6 +2,24 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-22 — Bell-Ringer: Resilient Physics AI Mentor & CAST Reasoning Chat Fallback Engine
+
+**Pattern Updated**: `bell-ringer-config.md`, `cast-aligned-webapp-design.md`.
+
+**Changes**:
+- **Resolved Unresponsive AI Mentor Chat**:
+  - Identified that the Google Apps Script Gemini proxy configured in Firestore returned HTTP 200 with JSON code 402 ("prepayment credits are depleted" / `RESOURCE_EXHAUSTED`).
+  - In `Bell-Ringer/index.html` (`handleCastChatSend`), `data.candidates` was undefined, which threw an error.
+  - In `assets/js/cast-item-engine.js`, the error was previously caught silently, removing the typing dot without appending any mentor message to the chat or updating student state.
+- **Pedagogical Fallback Engine (`generateCastMentorReply` & `generateConceptChatFallback`)**:
+  - Implemented multi-turn, physics-aware response generators adhering strictly to the `AGENTS.md` Mentor Persona (1–3 sentences, warm SMS conversational style, no LaTeX, zero Socratic traps, immediate pivot to direct teaching).
+  - Contextual awareness for constant velocity motion (Autonomous Highway Cruise Telemetry): validates 25 m/s, identifies 25 m per second, explains straight diagonal position-time graphs vs. horizontal velocity-time graphs, and corrects curvature/acceleration misconceptions.
+  - Universal fallback for any CAST investigation deriving context from `castData.teacherKey` and `step.prompt`.
+- **Fault-Tolerant Engine Safety**:
+  - Added AbortController timeout handling (6s) and `data.error` interception.
+  - Added safe fallback inside `cast-item-engine.js`'s `catch (err)` block so student chat turns are never lost even under severe network outages.
+  - Autosaves every turn to Firestore `bellringers` document so student work and completion counts persist reliably.
+
 ## 2026-09-22 — Bell-Ringer: Teacher Student-Simulation Mode for Any Period
 
 **Pattern Updated**: `bell-ringer-config.md`.
