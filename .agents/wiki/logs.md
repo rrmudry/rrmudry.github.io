@@ -2,6 +2,18 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-22 — Pull-Back Toy Motion Lab: Stopwatch Split/Lap Simplification
+
+**Pattern Updated**: `cast-aligned-webapp-design.md`.
+
+**Changes**:
+- **Simplified In-App & Fullscreen Stopwatch (`Unit_2/pull_back_toy_lab/`)**:
+  - Removed Split/Lap button, lap time list, and split keyboard shortcut (`L`) from the in-app card stopwatch in Step 1.
+  - Removed Split Mark button, live splits strip, last-split badge, and "Apply Splits to Table" from the fullscreen overlay HUD.
+  - Cleaned up `js/stopwatch.js` into a lightweight, high-precision Start/Pause/Resume and Reset timer with Spacebar and Escape key bindings.
+  - Centered controls in fullscreen mode for large, high-visibility tap targets when filming a video alongside the track.
+  - Removed obsolete `#btn-stopwatch-lap` rules from `style.css`.
+
 ## 2026-09-22 — Pull-Back Toy Motion Lab: Velocity vs. Time (v vs. t) Graph Generator
 
 **Pattern Updated**: `cast-aligned-webapp-design.md`.
