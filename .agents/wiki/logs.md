@@ -2,6 +2,22 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-22 — Pull-Back Toy Motion Lab: Velocity vs. Time (v vs. t) Graph Generator
+
+**Pattern Updated**: `cast-aligned-webapp-design.md`.
+
+**Changes**:
+- **Interactive Dual Motion Graph Switcher (`Unit_2/pull_back_toy_lab/`)**:
+  - Added `.graph-tabs` pill switcher in Step 3 card header: `[📈 Distance (x-t)]` and `[⚡ Velocity (v-t)]`.
+  - Implemented `renderVelocityGraph()` in `js/lab_engine.js`:
+    - Synchronized time domain ($0 \le t \le \max(2.0, t_5 \cdot 1.25)$) with dynamic velocity scale up to peak speed.
+    - Plots each interval speed $v_i = \Delta x / \Delta t$ at the interval's midpoint time $t_{\text{mid}} = (t_{i-1} + t_i) / 2$, demonstrating that average speed equals instantaneous speed at midpoint in uniform acceleration.
+    - Renders the linear acceleration line $v(t) = a \cdot t$ passing through $(0, 0)$ and $(t_{\text{total}}, v_f)$ with an explicit slope callout: `Slope = a = XX.X cm/s² (Uniform Accel)`.
+    - Renders the shaded triangular displacement area under the velocity curve with callout badge: `Area = Δx = 100 cm (Displacement)` computed via $\frac{1}{2} \cdot \text{base} \cdot \text{height} = 100\text{ cm}$.
+    - Anchors initial velocity at $(0, 0)$ ($v_0 = 0$) and final velocity at $(t_{\text{total}}, v_f)$.
+  - Added dynamic legend badge switcher and adaptive physics guidance description.
+  - Fully integrated with high-contrast light mode (`#ffffff` canvas, emerald `#047857` area shading, purple `#7e22ce` slope line, sky blue `#0284c7` interval points) and dark mode.
+
 ## 2026-09-22 — Pull-Back Toy Motion Lab: Step 2 Compact Data Table Sizing (Zero Side-Scrolling)
 
 **Pattern Updated**: `cast-aligned-webapp-design.md`.
