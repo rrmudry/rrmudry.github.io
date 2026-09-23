@@ -725,15 +725,31 @@ class PullBackLabEngine {
     });
   }
 
+  getNiceVelocityAxis(rawMax) {
+    const minCap = 80;
+    const effectiveMax = Math.max(minCap, rawMax || minCap);
+    const targetTicks = 5;
+    const rawStep = effectiveMax / targetTicks;
+    const exponent = Math.floor(Math.log10(rawStep));
+    const power = Math.pow(10, exponent);
+    const fraction = rawStep / power;
+
+    let niceFraction;
+    if (fraction <= 1.4) niceFraction = 1;
+    else if (fraction <= 2.8) niceFraction = 2;
+    else if (fraction <= 6.0) niceFraction = 5;
+    else niceFraction = 10;
+
+    const step = niceFraction * power;
+    const max = Math.ceil(effectiveMax / step) * step;
+    const ticks = [];
+    for (let v = 0; v <= max + step * 0.001; v += step) {
+      ticks.push(Math.round(v));
+    }
+    return { step, max, ticks };
+  }
+
   renderVelocityGraph(ctx, width, height, isLight) {
-    const padLeft = 60;
-    const padBottom = 40;
-    const padTop = 25;
-    const padRight = 30;
-
-    const plotW = width - padLeft - padRight;
-    const plotH = height - padTop - padBottom;
-
     // Time domain: 0 to max(2.0, t5 * 1.25)
     const t5 = this.times[5] || 1.5;
     const maxTime = Math.max(2.0, Math.ceil(t5 * 1.25 * 10) / 10);
@@ -762,8 +778,20 @@ class PullBackLabEngine {
 
     if (vFinal > peakSpeed) peakSpeed = vFinal;
 
-    // Velocity domain (clean round increments)
-    const maxVelocity = Math.max(80.0, Math.ceil((peakSpeed * 1.25) / 20) * 20);
+    // Smart velocity scale with 4-6 clean, round intervals
+    const niceAxis = this.getNiceVelocityAxis(peakSpeed * 1.15);
+    const maxVelocity = niceAxis.max;
+    const vTicks = niceAxis.ticks;
+
+    // Dynamic padding so multi-digit numbers never collide with the rotated axis label
+    const maxDigits = String(maxVelocity).length;
+    const padLeft = maxDigits >= 4 ? 74 : (maxDigits >= 3 ? 66 : 58);
+    const padBottom = 40;
+    const padTop = 32;
+    const padRight = 30;
+
+    const plotW = width - padLeft - padRight;
+    const plotH = height - padTop - padBottom;
 
     const toX = (t) => padLeft + (t / maxTime) * plotW;
     const toY = (v) => padTop + plotH - (v / maxVelocity) * plotH;
@@ -788,17 +816,18 @@ class PullBackLabEngine {
       ctx.fillText(t.toFixed(1), xPos, padTop + plotH + 18);
     }
 
-    // Horizontal velocity gridlines
-    const vStep = maxVelocity <= 120 ? 20 : 25;
+    // Horizontal velocity gridlines (clean nice ticks)
     ctx.textAlign = 'right';
-    for (let v = 0; v <= maxVelocity + 0.01; v += vStep) {
+    ctx.fillStyle = isLight ? '#0f172a' : '#94a3b8';
+    ctx.font = 'bold 11px "JetBrains Mono", monospace';
+    for (const v of vTicks) {
       const yPos = toY(v);
       ctx.beginPath();
       ctx.moveTo(padLeft, yPos);
       ctx.lineTo(padLeft + plotW, yPos);
       ctx.stroke();
 
-      ctx.fillText(`${v}`, padLeft - 10, yPos + 4);
+      ctx.fillText(`${v}`, padLeft - 8, yPos + 4);
     }
 
     // 2. Axis Lines
@@ -834,11 +863,11 @@ class PullBackLabEngine {
       ctx.save();
       const areaGrad = ctx.createLinearGradient(0, y5, 0, y0);
       if (isLight) {
-        areaGrad.addColorStop(0, 'rgba(5, 150, 105, 0.25)');
-        areaGrad.addColorStop(1, 'rgba(5, 150, 105, 0.06)');
+        areaGrad.addColorStop(0, 'rgba(5, 150, 105, 0.22)');
+        areaGrad.addColorStop(1, 'rgba(5, 150, 105, 0.05)');
       } else {
-        areaGrad.addColorStop(0, 'rgba(16, 185, 129, 0.30)');
-        areaGrad.addColorStop(1, 'rgba(16, 185, 129, 0.05)');
+        areaGrad.addColorStop(0, 'rgba(16, 185, 129, 0.25)');
+        areaGrad.addColorStop(1, 'rgba(16, 185, 129, 0.04)');
       }
       ctx.fillStyle = areaGrad;
       ctx.beginPath();
@@ -855,35 +884,33 @@ class PullBackLabEngine {
       ctx.stroke();
       ctx.restore();
 
-      // Area Callout Badge inside triangle
+      // Area Callout Pill placed at the top-right header space (so it never blocks data points!)
       ctx.save();
-      const badgeX = x0 + (x5 - x0) * 0.62;
-      const badgeY = y0 - (y0 - y5) * 0.32;
       ctx.font = 'bold 11px "JetBrains Mono", monospace';
-      const areaText = 'Area = Δx = 100 cm (Displacement)';
-      const subText = `½ · (${t5.toFixed(2)}s) · (${vFinal.toFixed(1)} cm/s) = 100 cm`;
-      const badgeW = Math.max(ctx.measureText(areaText).width, ctx.measureText(subText).width) + 16;
-      const badgeH = 34;
+      const areaText = width >= 500
+        ? '📐 Area = Δx = 100 cm (Displacement)'
+        : 'Area Δx = 100 cm';
+      const areaTextW = ctx.measureText(areaText).width;
+      const areaPillX = padLeft + plotW - areaTextW - 14;
+      const areaPillY = padTop - 26;
 
       if (isLight) {
         ctx.fillStyle = '#ecfdf5';
-        ctx.fillRect(badgeX - badgeW / 2, badgeY - badgeH / 2, badgeW, badgeH);
+        ctx.fillRect(areaPillX, areaPillY, areaTextW + 10, 19);
         ctx.strokeStyle = '#6ee7b7';
         ctx.lineWidth = 1;
-        ctx.strokeRect(badgeX - badgeW / 2, badgeY - badgeH / 2, badgeW, badgeH);
+        ctx.strokeRect(areaPillX, areaPillY, areaTextW + 10, 19);
         ctx.fillStyle = '#065f46';
       } else {
-        ctx.fillStyle = 'rgba(6, 78, 59, 0.85)';
-        ctx.fillRect(badgeX - badgeW / 2, badgeY - badgeH / 2, badgeW, badgeH);
+        ctx.fillStyle = 'rgba(6, 78, 59, 0.75)';
+        ctx.fillRect(areaPillX, areaPillY, areaTextW + 10, 19);
         ctx.strokeStyle = 'rgba(52, 211, 153, 0.4)';
         ctx.lineWidth = 1;
-        ctx.strokeRect(badgeX - badgeW / 2, badgeY - badgeH / 2, badgeW, badgeH);
+        ctx.strokeRect(areaPillX, areaPillY, areaTextW + 10, 19);
         ctx.fillStyle = '#6ee7b7';
       }
-      ctx.textAlign = 'center';
-      ctx.fillText(areaText, badgeX, badgeY - 3);
-      ctx.font = '9px "JetBrains Mono", monospace';
-      ctx.fillText(subText, badgeX, badgeY + 11);
+      ctx.textAlign = 'left';
+      ctx.fillText(areaText, areaPillX + 5, areaPillY + 13);
       ctx.restore();
     }
 
@@ -913,13 +940,33 @@ class PullBackLabEngine {
       }
       ctx.restore();
 
-      // Slope Callout near line
+      // Slope Callout Pill placed at the top-left header space
       ctx.save();
       ctx.font = 'bold 11px "JetBrains Mono", monospace';
-      ctx.fillStyle = isLight ? '#6b21a8' : '#e9d5ff';
+      const slopeText = width >= 500
+        ? `📈 Slope = a = ${accel.toFixed(1)} cm/s² (Uniform Accel)`
+        : `Slope a = ${accel.toFixed(1)} cm/s²`;
+      const slopeTextW = ctx.measureText(slopeText).width;
+      const slopePillX = padLeft + 6;
+      const slopePillY = padTop - 26;
+
+      if (isLight) {
+        ctx.fillStyle = '#f5f3ff';
+        ctx.fillRect(slopePillX, slopePillY, slopeTextW + 10, 19);
+        ctx.strokeStyle = '#c4b5fd';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(slopePillX, slopePillY, slopeTextW + 10, 19);
+        ctx.fillStyle = '#6b21a8';
+      } else {
+        ctx.fillStyle = 'rgba(88, 28, 135, 0.6)';
+        ctx.fillRect(slopePillX, slopePillY, slopeTextW + 10, 19);
+        ctx.strokeStyle = 'rgba(192, 132, 252, 0.4)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(slopePillX, slopePillY, slopeTextW + 10, 19);
+        ctx.fillStyle = '#e9d5ff';
+      }
       ctx.textAlign = 'left';
-      const slopeText = `Slope = a = ${accel.toFixed(1)} cm/s² (Uniform Accel)`;
-      ctx.fillText(slopeText, padLeft + 10, padTop + 16);
+      ctx.fillText(slopeText, slopePillX + 5, slopePillY + 13);
       ctx.restore();
     }
 
@@ -971,6 +1018,11 @@ class PullBackLabEngine {
         ctx.strokeRect(xPos - textW / 2 - 3, yPos - 19, textW + 6, 12);
         ctx.fillStyle = '#0f172a';
       } else {
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.8)';
+        ctx.fillRect(xPos - textW / 2 - 3, yPos - 19, textW + 6, 12);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(xPos - textW / 2 - 3, yPos - 19, textW + 6, 12);
         ctx.fillStyle = '#e2e8f0';
       }
       ctx.textAlign = 'center';
@@ -1013,28 +1065,33 @@ class PullBackLabEngine {
       ctx.arc(xEnd, yEnd, 3.5, 0, Math.PI * 2);
       ctx.fill();
 
-      // Label for vf
+      // Label for vf (positioned to the right of the dot if room exists, so it doesn't cross the acceleration line)
       const vfLabel = `vf = ${vFinal.toFixed(1)} cm/s`;
-      ctx.font = 'bold 10.5px "JetBrains Mono", monospace';
+      ctx.font = 'bold 10px "JetBrains Mono", monospace';
       const vfTextW = ctx.measureText(vfLabel).width;
+
+      const hasRoomRight = (xEnd + vfTextW + 18) <= (padLeft + plotW);
+      const pillX = hasRoomRight ? (xEnd + 8) : (xEnd - vfTextW - 14);
+      const textX = hasRoomRight ? (xEnd + 12) : (xEnd - 10);
+      const textAlign = hasRoomRight ? 'left' : 'right';
 
       if (isLight) {
         ctx.fillStyle = '#fef3c7';
-        ctx.fillRect(xEnd - vfTextW - 12, yEnd - 12, vfTextW + 8, 16);
+        ctx.fillRect(pillX, yEnd - 9, vfTextW + 8, 18);
         ctx.strokeStyle = '#fcd34d';
         ctx.lineWidth = 1;
-        ctx.strokeRect(xEnd - vfTextW - 12, yEnd - 12, vfTextW + 8, 16);
+        ctx.strokeRect(pillX, yEnd - 9, vfTextW + 8, 18);
         ctx.fillStyle = '#b45309';
       } else {
-        ctx.fillStyle = 'rgba(245, 158, 11, 0.2)';
-        ctx.fillRect(xEnd - vfTextW - 12, yEnd - 12, vfTextW + 8, 16);
-        ctx.strokeStyle = 'rgba(245, 158, 11, 0.5)';
+        ctx.fillStyle = 'rgba(245, 158, 11, 0.25)';
+        ctx.fillRect(pillX, yEnd - 9, vfTextW + 8, 18);
+        ctx.strokeStyle = 'rgba(245, 158, 11, 0.6)';
         ctx.lineWidth = 1;
-        ctx.strokeRect(xEnd - vfTextW - 12, yEnd - 12, vfTextW + 8, 16);
+        ctx.strokeRect(pillX, yEnd - 9, vfTextW + 8, 18);
         ctx.fillStyle = '#fcd34d';
       }
-      ctx.textAlign = 'right';
-      ctx.fillText(vfLabel, xEnd - 8, yEnd);
+      ctx.textAlign = textAlign;
+      ctx.fillText(vfLabel, textX, yEnd + 4);
       ctx.restore();
     }
   }
