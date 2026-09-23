@@ -2,6 +2,16 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-22 — Pull-Back Toy Motion Lab: Fullscreen Timer Relocated to Stopwatch Card
+
+**Pattern Updated**: `cast-aligned-webapp-design.md`.
+
+**Changes**:
+- **Consolidated Stopwatch Tooling (`Unit_2/pull_back_toy_lab/`)**:
+  - Moved `#btn-stopwatch-expand` ("⛶ Fullscreen Timer") from the Step 1 protocol card header into the `.stopwatch-card` inner header next to "⏱️ In-App Split Stopwatch".
+  - Cleaned up Step 1 protocol header to provide uninterrupted title spacing.
+  - Added subtle keyboard shortcut hint row (`Space: Start/Stop • L: Split`) below the primary stopwatch buttons.
+
 ## 2026-09-22 — Pull-Back Toy Motion Lab: Step 3 Header & Graph Legend Wrapping Fix
 
 **Pattern Updated**: `cast-aligned-webapp-design.md`.
