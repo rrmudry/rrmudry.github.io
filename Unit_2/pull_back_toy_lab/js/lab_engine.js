@@ -81,6 +81,7 @@ class PullBackLabEngine {
 
   goToStep(step) {
     if (step < 1 || step > this.totalSteps) return;
+    if (window.labTTS) window.labTTS.stop();
     this.currentStep = step;
     this.updateStepperUI();
     if (window.labSound) window.labSound.playClick();

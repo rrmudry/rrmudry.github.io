@@ -2,6 +2,22 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-22 — Pull-Back Toy Motion Lab: Text-to-Speech Audio Reader for Step 1 Protocol
+
+**Pattern Updated**: `cast-aligned-webapp-design.md`.
+
+**Changes**:
+- **Accessible Text-to-Speech Engine (`Unit_2/pull_back_toy_lab/js/tts.js`)**:
+  - Implemented client-side `LabTTS` class wrapping browser-native `window.speechSynthesis` and `SpeechSynthesisUtterance`.
+  - Added voice discovery and priority sorting (Google, Natural, and English system voices) with `onvoiceschanged` async lifecycle binding for Chromebook compatibility.
+  - Curated natural phonetic transcripts across all 5 stages of Step 1 to pronounce physics notation cleanly (e.g., "centimeters" instead of "c-m", "t-zero" instead of raw Unicode symbols, and "x equals 0.0 centimeters").
+- **Interactive UI Read-Aloud Controls (`index.html` & `style.css`)**:
+  - Added prominent `🔊 Listen` / `⏹️ Stop` action buttons to each of the 5 Stage headers in Step 1.
+  - Added inline mini speaker buttons (`🔊`) directly on every checklist item, with `e.stopPropagation()` and `e.preventDefault()` to ensure clicking the audio button never accidentally toggles the checklist checkbox.
+  - Styled with glowing pulse animations (`@keyframes pulse-tts`) and active state switching when speech is playing.
+  - Full high-contrast light mode support (`#0369a1` on `#e0f2fe`) for bright classroom environments.
+  - Integrated into stepper navigation (`goToStep` in `lab_engine.js`) so advancing or switching stages immediately cancels ongoing speech.
+
 ## 2026-09-22 — Pull-Back Toy Motion Lab: Readability Typography Overhaul & High-Contrast Sizing
 
 **Pattern Updated**: `cast-aligned-webapp-design.md`.
