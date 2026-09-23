@@ -530,11 +530,12 @@ function _drawChassisCanvas(ctx, chassis, car) {
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
 
-  if (type === 'custom_image' || chassis.dataUrl) {
+  const src = chassis.imageSrc || chassis.dataUrl;
+  if (type === 'custom_image' || src) {
     // Custom user-drawn body from Designer Studio
-    if (!chassis._cachedImg && chassis.dataUrl) {
+    if (!chassis._cachedImg && src) {
       chassis._cachedImg = new Image();
-      chassis._cachedImg.src = chassis.dataUrl;
+      chassis._cachedImg.src = src;
     }
     if (chassis._cachedImg && chassis._cachedImg.complete) {
       ctx.save();

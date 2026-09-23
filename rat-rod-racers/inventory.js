@@ -36,6 +36,7 @@ class InventoryManager {
       { cat: 'powertrain', id: 'ENG-03' }, // Screaming Slant-6
       { cat: 'chassis', id: 'BOD-02' },    // Highboy '29 Roadster
       { cat: 'chassis', id: 'BOD-05' },    // Gutted Touring Tub
+      { cat: 'chassis', id: 'BOD-06' },    // Jalopy Special #2
       { cat: 'suspension', id: 'SUS-02' }, // Split-Wishbone Dropped I-Beam
       { cat: 'suspension', id: 'SUS-05' }, // Truck Leaves
       { cat: 'wheels', id: 'TIR-02' },     // Skinny Vintage Firestones

@@ -225,6 +225,28 @@ const RAT_ROD_ASSETS = {
       accent: '#8b6f47',
       renderType: 'touringtub',
       lore: "Open touring tub salvaged from an orchard with a hardened diamond-plate skid pan."
+    },
+    'BOD-06': {
+      id: 'BOD-06',
+      name: "Jalopy Special #2",
+      category: 'chassis',
+      archetype: 'Diesel Bruiser',
+      rarity: 'epic',
+      cost: 4,
+      aeroScore: 56,
+      cdA: 0.32,
+      hCG: 0.40,
+      mass: 250,
+      durability: 80,
+      flex: 'Med',
+      trait: "Handmade Steel",
+      traitDesc: "Crafted in the custom chassis lab with tailored aerodynamic proportions.",
+      color: '#e38963',
+      accent: '#ffbe0b',
+      renderType: 'custom_image',
+      imageSrc: 'assets/jalopy_special_2.png',
+      dataUrl: 'assets/jalopy_special_2.png',
+      lore: "Custom hand-hammered steel body tailored in the chassis studio for heavy diesel torque."
     }
   },
 
@@ -493,6 +515,7 @@ const RAT_ROD_ASSETS = {
 
 // Aliases for backward compatibility with older slot names
 RAT_ROD_ASSETS.engines = RAT_ROD_ASSETS.powertrain;
+RAT_ROD_ASSETS.chassis['BOD-CUSTOM'] = RAT_ROD_ASSETS.chassis['BOD-06'];
 
 /**
  * Track Environmental Characteristics & Matchup Matrix (Section 5)
@@ -700,9 +723,10 @@ const RatRodSVG = {
     const col = part.color || '#a04822';
     const acc = part.accent || '#ffbe0b';
     const type = part.renderType || 'roadster29';
-    if (type === 'custom_image' && part.dataUrl) {
+    const src = part.imageSrc || part.dataUrl;
+    if (type === 'custom_image' && src) {
       return `
-        <image href="${part.dataUrl}" x="5" y="25" width="90" height="45" preserveAspectRatio="xMidYMid meet" />
+        <image href="${src}" x="5" y="25" width="90" height="45" preserveAspectRatio="xMidYMid meet" />
       `;
     } else if (type === 'coupe32') {
       return `

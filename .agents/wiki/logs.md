@@ -2,6 +2,18 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-22 — Rat Rod Racers: Added "Jalopy Special #2" to Core Chassis Catalog & Starter Fleet
+
+**Pattern Updated**: `modular-vehicle-physics-game.md`.
+
+**Changes**:
+- **Added BOD-06 "Jalopy Special #2"**:
+  - Saved transparent high-res PNG asset (`rat-rod-racers/assets/jalopy_special_2.png`).
+  - Added official catalog part definition in `RAT_ROD_ASSETS.chassis['BOD-06']` and alias `BOD-CUSTOM`.
+  - Added to `_ensureStarterKit` in `inventory.js` so every player immediately has it unlocked in their garage.
+  - Added template preset in `designer.html` and `designer.js` so users can load and customize Jalopy Special #2 in the studio.
+  - Supported `imageSrc` along with `dataUrl` in `cars.js` and `assets.js` SVG renderers.
+
 ## 2026-09-22 — Rat Rod Racers: Custom Car Body Designer Studio & Rig Alignment Pipeline
 
 **Pattern Updated**: `modular-vehicle-physics-game.md`.
