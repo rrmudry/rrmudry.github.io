@@ -597,11 +597,26 @@
         <!-- REAL-TIME GRAPH CARD -->
         <div class="glass-card p-5 sm:p-6">
           <div class="flex flex-wrap items-center justify-between gap-2.5 mb-2.5">
-            <h2 class="font-display text-lg sm:text-xl font-extrabold text-sky-300 flex items-center gap-2">
+            <h2 class="font-display text-base sm:text-lg md:text-xl font-extrabold text-sky-300 flex items-center gap-2">
               <span>📈</span>
-              <span>Step 3: Distance vs. Time <span class="whitespace-nowrap text-sky-300 font-extrabold">(x vs. t)</span> Graph</span>
+              <span id="graph-heading-text">Step 3: Distance vs. Time <span class="whitespace-nowrap text-sky-300 font-extrabold">(x vs. t)</span> Graph</span>
             </h2>
-            <div class="flex items-center gap-2 text-xs sm:text-sm flex-wrap shrink-0">
+            
+            <!-- Graph Mode Switcher Tabs -->
+            <div class="graph-tabs">
+              <button type="button" id="btn-graph-mode-xt" class="graph-tab-btn active" title="View Position vs. Time Parabolic Curve">
+                <span>📈 Distance (x-t)</span>
+              </button>
+              <button type="button" id="btn-graph-mode-vt" class="graph-tab-btn" title="View Velocity vs. Time Linear Acceleration">
+                <span>⚡ Velocity (v-t)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Dynamic Legend Badges -->
+          <div id="graph-legend-container" class="flex items-center gap-2 text-xs sm:text-sm flex-wrap mb-2.5">
+            <!-- Position (x-t) Badges -->
+            <div id="legend-xt-group" class="flex items-center gap-2 flex-wrap">
               <span class="graph-legend-badge points">
                 <span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span> Plotted Points
               </span>
@@ -609,8 +624,21 @@
                 <span class="w-3.5 h-0.5 bg-amber-400 rounded-full"></span> Secant (v<sub>avg</sub>)
               </span>
             </div>
+            <!-- Velocity (v-t) Badges (hidden by default) -->
+            <div id="legend-vt-group" class="hidden flex items-center gap-2 flex-wrap">
+              <span class="graph-legend-badge points">
+                <span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span> Interval Speeds (Δx/Δt)
+              </span>
+              <span class="graph-legend-badge linear">
+                <span class="w-3.5 h-0.5 bg-purple-400 rounded-full"></span> Accel Line (v = at)
+              </span>
+              <span class="graph-legend-badge area">
+                <span class="w-2.5 h-2.5 rounded-sm bg-emerald-400"></span> Area = 100 cm (Δx)
+              </span>
+            </div>
           </div>
-          <p class="text-sm sm:text-base text-slate-300 mb-3 leading-relaxed">
+
+          <p id="graph-description" class="text-sm sm:text-base text-slate-300 mb-3 leading-relaxed">
             Watch the curve update in real time as you enter your measured times. Notice the characteristic parabolic curve of uniform acceleration from rest!
           </p>
 
