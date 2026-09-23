@@ -2,6 +2,18 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-22 — Pull-Back Toy Motion Lab: Step 3 Header & Graph Legend Wrapping Fix
+
+**Pattern Updated**: `cast-aligned-webapp-design.md`.
+
+**Changes**:
+- **Resolved Header & Legend Awkward Text Wrapping (`Unit_2/pull_back_toy_lab/`)**:
+  - Replaced rigid `flex items-center justify-between` in Step 3 card with responsive `flex flex-wrap items-center justify-between gap-2.5 mb-2.5`.
+  - Created `.graph-legend-badge` components (`points` and `secant`) with `white-space: nowrap`, dedicated pill backgrounds, soft borders, and high-contrast light-mode overrides (`#0369a1` on `#e0f2fe` for points, `#b45309` on `#fef3c7` for secant line).
+  - Protected `(x vs. t)` from splitting across lines with `<span class="whitespace-nowrap">`.
+  - Added global `white-space: nowrap` to `sub, sup` in `style.css` to prevent subscript symbols from disassociating from their parent variables or wrapping independently.
+  - Added `flex-wrap` and `whitespace-nowrap` guards to Step 2, table headers, Step 4, and calculation formula titles.
+
 ## 2026-09-22 — Pull-Back Toy Motion Lab: Text-to-Speech Audio Reader for Step 1 Protocol
 
 **Pattern Updated**: `cast-aligned-webapp-design.md`.
