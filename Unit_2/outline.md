@@ -176,13 +176,13 @@ This unit follows the classical and cognitive progression:
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Guided Practice / Problem Solving
     *   *Links:* [Kinematic Velocity Calculator](kinematic_velocity_calculator/dist/index.html), [Velocity vs. Time Visualizer](Unit_2/velocity_time_graph_studio/index.html), [Distance vs Time App](https://rrmudry.github.io/distance_vs_time_graphing.html)
 
-*   **Day 18 (2026-09-23): Velocity vs. Time Graphing: Uniform Acceleration & Slopes**
+*   **Day 18 (2026-09-23): Graphing Pull-Back Toy Motion Lab: Uniform Acceleration from Rest**
     *   *Bell-Ringer:* Velocity-Time Slope & Acceleration Analysis (CAST Challenge): Aerial delivery drone launch rail telemetry. Students examine coordinate data forming a straight line, identify initial velocity (`v₀ = +4.0 m/s`) from the vertical intercept, and calculate acceleration slope (`m = 2.0 m/s²`).
-    *   *Focus:* Translating uniform acceleration into velocity-time (`v-t`) coordinate space: constant acceleration produces linear slopes on `v-t` graphs, where slope `m = Δv / Δt = a`. Identifying initial velocity (`v₀`) as the vertical intercept, distinguishing positive vs. negative slopes, and exploring how crossing the time axis (`v = 0`) represents directional turnaround.
-    *   *Activity:* Uniform Acceleration `v-t` Graphing Workshop: Students plot multi-point motion tables onto coordinate grids, draw linear lines of best fit, construct large slope triangles to calculate acceleration directly from rise/run, and match physical motion cards to coordinated `v-t` graphs.
-    *   *Essential Question:* Why does uniform acceleration appear as a straight line on a velocity-time graph, and what does the slope of that line tell us about the motion?
-    *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Inquiry / Graphing Studio
-    *   *Links:* [Velocity vs. Time Visualizer](Unit_2/velocity_time_graph_studio/index.html), [Dual-Graph Motion Studio](Unit_2/dual_graph_studio/index.html)
+    *   *Focus:* Gathering Distance-Time Data for a Pull-Back Car, Graphing x vs. t, and Calculating v_avg, v_f, and Acceleration. Students investigate the kinematics of pull-back cars accelerating from rest across a 1.0-meter track marked at 20 cm increments. Using slow-motion video telemetry with an in-frame stopwatch, students record position-time data, plot the characteristic curved x vs. t motion profile, and calculate average speed (`v_avg = Δx / Δt`), final speed (`v_f = 2 · v_avg`), and uniform acceleration (`a = v_f / t`).
+    *   *Activity:* Graphing Pull-Back Toy Motion Lab: Hands-on metric track setup, dual-shot video recording, data table completion, real-time x vs. t curve plotting, and step-by-step kinematic calculation verification via the interactive lab companion.
+    *   *Essential Question:* How can we use position-time measurements of an object accelerating from rest to determine its average velocity, final velocity, and acceleration?
+    *   *Standards:* `HS-PS2-1`, `HS-PS2-2` | *DOK:* 3 | *Type:* Hands-On Laboratory / Data Analysis
+    *   *Links:* [Pull-Back Toy Motion Lab](Unit_2/pull_back_toy_lab/index.html), [Lab Setup Video](https://drive.google.com/file/d/1AzjHUlsL2X34YtQUKrtjvGBCyjtupQ-k/view), [Velocity vs. Time Visualizer](Unit_2/velocity_time_graph_studio/index.html), [Dual-Graph Motion Studio](Unit_2/dual_graph_studio/index.html)
 
 *   **Day 19 (2026-09-24): Calculating Distance for Accelerated Motion: Geometric Area under `v-t` (`Δx = v₀t + ½at²`)**
     *   *Bell-Ringer:* Shaded Area Under the Velocity-Time Graph (CAST Challenge): Electric dragster accelerating from +10.0 m/s to +30.0 m/s over 4.0 s. Students partition the `v-t` trapezoid into a rectangle (`40.0 m`) and a triangle (`40.0 m`), sum them to get total displacement (`80.0 m`), and verify with average velocity v<sub>avg</sub> = 20.0 m/s.

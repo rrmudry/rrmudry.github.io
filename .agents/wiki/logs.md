@@ -2,6 +2,18 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-23 — Daily Update: Unit 2 Day 18 & 19 Curriculum Harmonization & Deployment
+
+**Pattern Updated**: `cast-aligned-webapp-design.md`, `dashboard-layout.md`.
+
+**Changes**:
+- **Curriculum Synchronization (`Unit_2/lesson.json`, `Unit_2/unit2_lessons.json`, `Unit_2/outline.md`, `assets/lessons-data.js`)**:
+  - Harmonized Day 18 (Graphing Pull-Back Toy Motion Lab: Uniform Acceleration from Rest) across all four curriculum stores with dual NGSS alignment (`HS-PS2-1`, `HS-PS2-2`), lab setup video walkthrough links, and interactive companion webapp links.
+  - Verified Day 19 (Calculating Distance for Accelerated Motion: Geometric Area under v-t) standards (`HS-PS2-1`), 3-step CAST Challenge Bell-Ringer, and Dual-Graph Motion Studio links.
+  - Performed site-wide NGSS standards audit confirming 100% of all 139 lessons have explicit `standards: [...]` arrays and 0 LaTeX syntax errors.
+- **Site Deployment**:
+  - Refreshed site footer deployment timestamp via `node scripts/update-timestamp.js`.
+
 ## 2026-09-22 — Unit 2 Day 18: Lab Setup Demonstration Video Integration
 
 **Pattern Updated**: `cast-aligned-webapp-design.md`.
