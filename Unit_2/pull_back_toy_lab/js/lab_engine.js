@@ -286,10 +286,12 @@ class PullBackLabEngine {
         const deltaT = tCurrent - tPrev;
         const speed = (deltaX / deltaT).toFixed(1);
         cell.textContent = `${speed} cm/s`;
-        cell.className = 'py-2 text-right font-mono font-bold text-sky-400';
+        cell.className = (i === 5)
+          ? 'py-2 px-1 text-right font-mono font-black text-amber-300 whitespace-nowrap text-xs sm:text-sm'
+          : 'py-2 px-1 text-right font-mono font-bold text-sky-400 whitespace-nowrap text-xs sm:text-sm';
       } else {
         cell.textContent = '--';
-        cell.className = 'py-2 text-right font-mono text-slate-500';
+        cell.className = 'py-2 px-1 text-right font-mono text-slate-400 font-semibold whitespace-nowrap text-xs sm:text-sm';
       }
     }
   }
