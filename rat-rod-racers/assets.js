@@ -699,9 +699,11 @@ const RatRodSVG = {
   _chassisSVG(part) {
     const col = part.color || '#a04822';
     const acc = part.accent || '#ffbe0b';
-    const type = part.renderType || 'roadster29';
-
-    if (type === 'coupe32') {
+    if (type === 'custom_image' && part.dataUrl) {
+      return `
+        <image href="${part.dataUrl}" x="5" y="25" width="90" height="45" preserveAspectRatio="xMidYMid meet" />
+      `;
+    } else if (type === 'coupe32') {
       return `
         <path d="M 12 62 L 28 62 L 35 48 L 62 48 L 74 62 L 88 62 L 88 72 L 12 72 Z" fill="${col}" stroke="#12121c" stroke-width="2.5" />
         <path d="M 38 49 L 45 36 L 68 36 L 70 49 Z" fill="#121420" stroke="#12121c" stroke-width="2.5" />

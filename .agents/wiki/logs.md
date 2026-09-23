@@ -2,6 +2,28 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-22 — Rat Rod Racers: Custom Car Body Designer Studio & Rig Alignment Pipeline
+
+**Pattern Updated**: `modular-vehicle-physics-game.md`.
+
+**Changes**:
+- **Interactive Car Body Designer Studio (`rat-rod-racers/designer.html`)**:
+  - Developed full in-browser drawing environment tailored for custom rat rod vehicle chassis bodies.
+  - Implemented dual drawing tools: freehand Ink Brush with comic smoothing and point-by-point Poly Panel vector tool for clean geometric automotive body lines, plus Straight Line, Flood Fill (Bucket), Eraser, Eyedropper, and 30-step Undo/Redo.
+  - Curated Hot Rod color palette (Ink Black, Rust Oxide, Candy Red, Flamin' Orange, Gasser Gold, Primer Gray, etc.) with native color picker and hex support.
+- **In-Game Physics Alignment Rig & Clearance Guides**:
+  - Overlay math accurately maps in-game coordinate origin `(0, 0)` to canvas space (`scale = 5.2`, origin `[400, 230]`).
+  - Displays front/rear axle centers (`x = ±32, y = +10`) with tire cutout safety envelopes to prevent clipping.
+  - Displays chassis ladder frame baseline (`y = +8`), ground level (`y = +26`), exposed engine clearance envelope (`x = 10..36`), and door roundel decal guide (`[0, -4]`).
+- **Live Assembled Rig Mini Viewport**:
+  - Mini-canvas renders custom drawn body mounted onto the active vehicle chassis with rotating wheels and configurable engines (Roots Blower, Cummins Diesel Stacks, Twin Turbos, etc.).
+- **Starter Silhouette Templates**:
+  - Built-in trace silhouettes: '32 5-Window Coupe, '29 Roadster, Z'd Sedan, Delivery Van, Belly Tank Lakester, Willys Gasser Coupe.
+- **Direct Game Integration & Multi-Format Export**:
+  - Added "🏎️ Save to Garage & Race" button saving to `localStorage` (`ratrod_custom_chassis`) and launching `index.html?equip_custom=1`.
+  - Added transparent PNG (512×256) and SVG export, plus code snippet modal for permanent inclusion into `assets.js`.
+  - Updated `cars.js` (`_drawChassisCanvas`), `assets.js` (`RatRodSVG._chassisSVG`), and `game.js` (`_loadCustomChassis`) to render custom user bodies seamlessly.
+
 ## 2026-09-22 — Rat Rod Racers: Part Balancing, Synergy Math & 5-Slot Archetype Overhaul
 
 **Pattern Updated**: `modular-vehicle-physics-game.md`.

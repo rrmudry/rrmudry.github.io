@@ -530,7 +530,20 @@ function _drawChassisCanvas(ctx, chassis, car) {
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
 
-  if (type === 'coupe32') {
+  if (type === 'custom_image' || chassis.dataUrl) {
+    // Custom user-drawn body from Designer Studio
+    if (!chassis._cachedImg && chassis.dataUrl) {
+      chassis._cachedImg = new Image();
+      chassis._cachedImg.src = chassis.dataUrl;
+    }
+    if (chassis._cachedImg && chassis._cachedImg.complete) {
+      ctx.save();
+      // Studio canvas is 800x400 with origin at (400, 230) and scale 5.2
+      ctx.scale(1.0 / 5.2, 1.0 / 5.2);
+      ctx.drawImage(chassis._cachedImg, -400, -230);
+      ctx.restore();
+    }
+  } else if (type === 'coupe32') {
     // Channeled '32 5-window coupe with chopped top
     ctx.beginPath();
     ctx.moveTo(-45, 8);
