@@ -2,6 +2,20 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-22 — Pull-Back Toy Motion Lab: Dynamic Velocity Axis Scaling & Callout Layout Fix
+
+**Pattern Updated**: `cast-aligned-webapp-design.md`.
+
+**Changes**:
+- **Smart Dynamic Velocity Axis Scaling (`Unit_2/pull_back_toy_lab/js/lab_engine.js`)**:
+  - Implemented `getNiceVelocityAxis(rawMax)` using standard 1-2-5 decade partitioning to guarantee between 4 and 7 clean, round tick marks (e.g. intervals of 20, 50, 100, 200).
+  - Eliminated the runaway tick bug where small fixed steps (`vStep = 25`) generated 30+ overlapping labels when speeds exceeded 600 cm/s.
+  - Added dynamic left-padding calculation (`padLeft = 58..74px`) based on number digits to prevent collisions with the rotated `Velocity v (cm/s)` axis title.
+- **Relocated Callouts to Top Plot Header Space**:
+  - Relocated the green Displacement Area badge (`Area = Δx = 100 cm`) to the top-right header space, eliminating occlusion of student interval data points in the lower triangle.
+  - Formatted the purple Acceleration Slope badge (`Slope = a = ...`) and green Area badge as cohesive, responsive HUD pills at `y = padTop - 26px`.
+  - Shifted the final velocity $v_f$ callout to the right of the anchor dot whenever plot width permits, preventing it from crossing over the acceleration slope line.
+
 ## 2026-09-22 — Pull-Back Toy Motion Lab: Stopwatch Split/Lap Simplification
 
 **Pattern Updated**: `cast-aligned-webapp-design.md`.
