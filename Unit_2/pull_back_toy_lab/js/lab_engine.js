@@ -24,6 +24,7 @@ class PullBackLabEngine {
     };
 
     this.desmosCalculator = null;
+    this.activeGraphMode = 'xt'; // 'xt' (distance) or 'vt' (velocity)
     this.init();
   }
 
@@ -468,6 +469,15 @@ class PullBackLabEngine {
     if (!this.canvas) return;
     this.ctx = this.canvas.getContext('2d');
 
+    const btnXt = document.getElementById('btn-graph-mode-xt');
+    const btnVt = document.getElementById('btn-graph-mode-vt');
+    if (btnXt) {
+      btnXt.addEventListener('click', () => this.setGraphMode('xt'));
+    }
+    if (btnVt) {
+      btnVt.addEventListener('click', () => this.setGraphMode('vt'));
+    }
+
     // Handle high DPI
     const resize = () => {
       const rect = this.canvas.getBoundingClientRect();
@@ -480,6 +490,37 @@ class PullBackLabEngine {
 
     window.addEventListener('resize', resize);
     setTimeout(resize, 50);
+  }
+
+  setGraphMode(mode) {
+    if (this.activeGraphMode === mode) return;
+    this.activeGraphMode = mode;
+
+    const btnXt = document.getElementById('btn-graph-mode-xt');
+    const btnVt = document.getElementById('btn-graph-mode-vt');
+    const legendXt = document.getElementById('legend-xt-group');
+    const legendVt = document.getElementById('legend-vt-group');
+    const heading = document.getElementById('graph-heading-text');
+    const desc = document.getElementById('graph-description');
+
+    if (mode === 'xt') {
+      if (btnXt) btnXt.classList.add('active');
+      if (btnVt) btnVt.classList.remove('active');
+      if (legendXt) legendXt.classList.remove('hidden');
+      if (legendVt) legendVt.classList.add('hidden');
+      if (heading) heading.innerHTML = 'Step 3: Distance vs. Time <span class="whitespace-nowrap text-sky-300 font-extrabold">(x vs. t)</span> Graph';
+      if (desc) desc.textContent = 'Watch the curve update in real time as you enter your measured times. Notice the characteristic parabolic curve of uniform acceleration from rest!';
+    } else {
+      if (btnXt) btnXt.classList.remove('active');
+      if (btnVt) btnVt.classList.add('active');
+      if (legendXt) legendXt.classList.add('hidden');
+      if (legendVt) legendVt.classList.remove('hidden');
+      if (heading) heading.innerHTML = 'Step 3: Velocity vs. Time <span class="whitespace-nowrap text-sky-300 font-extrabold">(v vs. t)</span> Graph';
+      if (desc) desc.textContent = 'Notice how velocity increases linearly over time! The constant slope of this line is the car\'s acceleration (a), and the shaded triangular area beneath equals the total 100 cm distance traveled.';
+    }
+
+    if (window.labSound) window.labSound.playClick();
+    this.renderGraph();
   }
 
   renderGraph() {
@@ -498,6 +539,14 @@ class PullBackLabEngine {
       ctx.fillRect(0, 0, width, height);
     }
 
+    if (this.activeGraphMode === 'vt') {
+      this.renderVelocityGraph(ctx, width, height, isLight);
+    } else {
+      this.renderPositionGraph(ctx, width, height, isLight);
+    }
+  }
+
+  renderPositionGraph(ctx, width, height, isLight) {
     const padLeft = 60;
     const padBottom = 40;
     const padTop = 25;
@@ -674,6 +723,320 @@ class PullBackLabEngine {
       ctx.fillText(coordText, xPos, yPos - 11);
       ctx.restore();
     });
+  }
+
+  renderVelocityGraph(ctx, width, height, isLight) {
+    const padLeft = 60;
+    const padBottom = 40;
+    const padTop = 25;
+    const padRight = 30;
+
+    const plotW = width - padLeft - padRight;
+    const plotH = height - padTop - padBottom;
+
+    // Time domain: 0 to max(2.0, t5 * 1.25)
+    const t5 = this.times[5] || 1.5;
+    const maxTime = Math.max(2.0, Math.ceil(t5 * 1.25 * 10) / 10);
+
+    // Collect valid interval speeds and midpoint times
+    const intervalPoints = [];
+    let peakSpeed = 0;
+
+    for (let i = 1; i <= 5; i++) {
+      const tPrev = this.times[i - 1];
+      const tCurr = this.times[i];
+      if (tPrev !== null && tCurr !== null && tCurr > tPrev) {
+        const deltaX = this.distances[i] - this.distances[i - 1]; // 20 cm
+        const deltaT = tCurr - tPrev;
+        const v = deltaX / deltaT;
+        const tMid = +((tPrev + tCurr) / 2).toFixed(3);
+        intervalPoints.push({ index: i, tMid, v: +v.toFixed(1), deltaT });
+        if (v > peakSpeed) peakSpeed = v;
+      }
+    }
+
+    // Final velocity vf = 2 * v_avg = 2 * (100 / t5)
+    const vFinal = (this.calcValues.vFinal && this.calcValues.vFinal > 0)
+      ? this.calcValues.vFinal
+      : (t5 > 0 ? (2 * 100 / t5) : 80);
+
+    if (vFinal > peakSpeed) peakSpeed = vFinal;
+
+    // Velocity domain (clean round increments)
+    const maxVelocity = Math.max(80.0, Math.ceil((peakSpeed * 1.25) / 20) * 20);
+
+    const toX = (t) => padLeft + (t / maxTime) * plotW;
+    const toY = (v) => padTop + plotH - (v / maxVelocity) * plotH;
+
+    // 1. Gridlines
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = isLight ? '#cbd5e1' : 'rgba(255, 255, 255, 0.08)';
+
+    // Vertical time gridlines
+    const tStep = maxTime <= 2.5 ? 0.2 : 0.5;
+    ctx.fillStyle = isLight ? '#0f172a' : '#94a3b8';
+    ctx.font = 'bold 11px "JetBrains Mono", monospace';
+    ctx.textAlign = 'center';
+
+    for (let t = 0; t <= maxTime + 0.01; t += tStep) {
+      const xPos = toX(t);
+      ctx.beginPath();
+      ctx.moveTo(xPos, padTop);
+      ctx.lineTo(xPos, padTop + plotH);
+      ctx.stroke();
+
+      ctx.fillText(t.toFixed(1), xPos, padTop + plotH + 18);
+    }
+
+    // Horizontal velocity gridlines
+    const vStep = maxVelocity <= 120 ? 20 : 25;
+    ctx.textAlign = 'right';
+    for (let v = 0; v <= maxVelocity + 0.01; v += vStep) {
+      const yPos = toY(v);
+      ctx.beginPath();
+      ctx.moveTo(padLeft, yPos);
+      ctx.lineTo(padLeft + plotW, yPos);
+      ctx.stroke();
+
+      ctx.fillText(`${v}`, padLeft - 10, yPos + 4);
+    }
+
+    // 2. Axis Lines
+    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = isLight ? '#0f172a' : 'rgba(255, 255, 255, 0.4)';
+    ctx.beginPath();
+    // Y axis
+    ctx.moveTo(padLeft, padTop);
+    ctx.lineTo(padLeft, padTop + plotH);
+    // X axis
+    ctx.lineTo(padLeft + plotW, padTop + plotH);
+    ctx.stroke();
+
+    // Axis Labels
+    ctx.font = 'bold 13px "Outfit", sans-serif';
+    ctx.fillStyle = isLight ? '#0369a1' : '#38bdf8';
+    ctx.textAlign = 'center';
+    ctx.fillText('Time t (seconds)', padLeft + plotW / 2, height - 6);
+
+    ctx.save();
+    ctx.translate(16, padTop + plotH / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText('Velocity v (cm/s)', 0, 0);
+    ctx.restore();
+
+    // 3. Shaded Displacement Area (Triangle under v = at curve to t5)
+    if (this.times[5] && this.times[5] > 0 && vFinal > 0) {
+      const x0 = toX(0);
+      const y0 = toY(0);
+      const x5 = toX(t5);
+      const y5 = toY(vFinal);
+
+      ctx.save();
+      const areaGrad = ctx.createLinearGradient(0, y5, 0, y0);
+      if (isLight) {
+        areaGrad.addColorStop(0, 'rgba(5, 150, 105, 0.25)');
+        areaGrad.addColorStop(1, 'rgba(5, 150, 105, 0.06)');
+      } else {
+        areaGrad.addColorStop(0, 'rgba(16, 185, 129, 0.30)');
+        areaGrad.addColorStop(1, 'rgba(16, 185, 129, 0.05)');
+      }
+      ctx.fillStyle = areaGrad;
+      ctx.beginPath();
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(x5, y0);
+      ctx.lineTo(x5, y5);
+      ctx.closePath();
+      ctx.fill();
+
+      // Shaded area dashed border
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = isLight ? 'rgba(5, 150, 105, 0.5)' : 'rgba(16, 185, 129, 0.5)';
+      ctx.setLineDash([4, 4]);
+      ctx.stroke();
+      ctx.restore();
+
+      // Area Callout Badge inside triangle
+      ctx.save();
+      const badgeX = x0 + (x5 - x0) * 0.62;
+      const badgeY = y0 - (y0 - y5) * 0.32;
+      ctx.font = 'bold 11px "JetBrains Mono", monospace';
+      const areaText = 'Area = Δx = 100 cm (Displacement)';
+      const subText = `½ · (${t5.toFixed(2)}s) · (${vFinal.toFixed(1)} cm/s) = 100 cm`;
+      const badgeW = Math.max(ctx.measureText(areaText).width, ctx.measureText(subText).width) + 16;
+      const badgeH = 34;
+
+      if (isLight) {
+        ctx.fillStyle = '#ecfdf5';
+        ctx.fillRect(badgeX - badgeW / 2, badgeY - badgeH / 2, badgeW, badgeH);
+        ctx.strokeStyle = '#6ee7b7';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(badgeX - badgeW / 2, badgeY - badgeH / 2, badgeW, badgeH);
+        ctx.fillStyle = '#065f46';
+      } else {
+        ctx.fillStyle = 'rgba(6, 78, 59, 0.85)';
+        ctx.fillRect(badgeX - badgeW / 2, badgeY - badgeH / 2, badgeW, badgeH);
+        ctx.strokeStyle = 'rgba(52, 211, 153, 0.4)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(badgeX - badgeW / 2, badgeY - badgeH / 2, badgeW, badgeH);
+        ctx.fillStyle = '#6ee7b7';
+      }
+      ctx.textAlign = 'center';
+      ctx.fillText(areaText, badgeX, badgeY - 3);
+      ctx.font = '9px "JetBrains Mono", monospace';
+      ctx.fillText(subText, badgeX, badgeY + 11);
+      ctx.restore();
+    }
+
+    // 4. Linear Acceleration Line (v = at)
+    const accel = (this.calcValues.accel && this.calcValues.accel > 0)
+      ? this.calcValues.accel
+      : (t5 > 0 ? (vFinal / t5) : null);
+
+    if (t5 > 0 && vFinal > 0 && accel) {
+      ctx.save();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = isLight ? '#7e22ce' : '#c084fc';
+      ctx.beginPath();
+      ctx.moveTo(toX(0), toY(0));
+      ctx.lineTo(toX(t5), toY(vFinal));
+      ctx.stroke();
+
+      // Dash extension to edge of graph
+      if (t5 < maxTime) {
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = isLight ? 'rgba(126, 34, 206, 0.4)' : 'rgba(192, 132, 252, 0.4)';
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(toX(t5), toY(vFinal));
+        ctx.lineTo(toX(maxTime), toY(accel * maxTime));
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // Slope Callout near line
+      ctx.save();
+      ctx.font = 'bold 11px "JetBrains Mono", monospace';
+      ctx.fillStyle = isLight ? '#6b21a8' : '#e9d5ff';
+      ctx.textAlign = 'left';
+      const slopeText = `Slope = a = ${accel.toFixed(1)} cm/s² (Uniform Accel)`;
+      ctx.fillText(slopeText, padLeft + 10, padTop + 16);
+      ctx.restore();
+    }
+
+    // 5. Connect Interval Speeds if points exist
+    if (intervalPoints.length > 1) {
+      ctx.save();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = isLight ? 'rgba(2, 132, 199, 0.5)' : 'rgba(56, 189, 248, 0.5)';
+      ctx.beginPath();
+      ctx.moveTo(toX(0), toY(0));
+      intervalPoints.forEach((pt) => {
+        ctx.lineTo(toX(pt.tMid), toY(pt.v));
+      });
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // 6. Draw Interval Speed Coordinate Dots (at midpoint times)
+    intervalPoints.forEach((pt) => {
+      const xPos = toX(pt.tMid);
+      const yPos = toY(pt.v);
+
+      ctx.save();
+      if (!isLight) {
+        ctx.shadowColor = '#38bdf8';
+        ctx.shadowBlur = 8;
+      }
+      ctx.fillStyle = '#0284c7';
+      ctx.beginPath();
+      ctx.arc(xPos, yPos, 5.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(xPos, yPos, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Label pill
+      const coordText = `v${pt.index}=${pt.v}`;
+      ctx.font = 'bold 9.5px "JetBrains Mono", monospace';
+      const textW = ctx.measureText(coordText).width;
+
+      if (isLight) {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+        ctx.fillRect(xPos - textW / 2 - 3, yPos - 19, textW + 6, 12);
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(xPos - textW / 2 - 3, yPos - 19, textW + 6, 12);
+        ctx.fillStyle = '#0f172a';
+      } else {
+        ctx.fillStyle = '#e2e8f0';
+      }
+      ctx.textAlign = 'center';
+      ctx.fillText(coordText, xPos, yPos - 10);
+      ctx.restore();
+    });
+
+    // 7. Initial Velocity point at (0, 0)
+    const x0 = toX(0);
+    const y0 = toY(0);
+    ctx.save();
+    ctx.fillStyle = isLight ? '#0284c7' : '#38bdf8';
+    ctx.beginPath();
+    ctx.arc(x0, y0, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.font = 'bold 10px "JetBrains Mono", monospace';
+    ctx.fillStyle = isLight ? '#0f172a' : '#cbd5e1';
+    ctx.textAlign = 'left';
+    ctx.fillText('v₀ = 0', x0 + 8, y0 - 6);
+    ctx.restore();
+
+    // 8. Final Velocity Anchor Point at (t5, vf)
+    if (this.times[5] && this.times[5] > 0 && vFinal > 0) {
+      const xEnd = toX(t5);
+      const yEnd = toY(vFinal);
+
+      ctx.save();
+      if (!isLight) {
+        ctx.shadowColor = '#f59e0b';
+        ctx.shadowBlur = 10;
+      }
+      ctx.fillStyle = '#f59e0b';
+      ctx.beginPath();
+      ctx.arc(xEnd, yEnd, 7, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(xEnd, yEnd, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Label for vf
+      const vfLabel = `vf = ${vFinal.toFixed(1)} cm/s`;
+      ctx.font = 'bold 10.5px "JetBrains Mono", monospace';
+      const vfTextW = ctx.measureText(vfLabel).width;
+
+      if (isLight) {
+        ctx.fillStyle = '#fef3c7';
+        ctx.fillRect(xEnd - vfTextW - 12, yEnd - 12, vfTextW + 8, 16);
+        ctx.strokeStyle = '#fcd34d';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(xEnd - vfTextW - 12, yEnd - 12, vfTextW + 8, 16);
+        ctx.fillStyle = '#b45309';
+      } else {
+        ctx.fillStyle = 'rgba(245, 158, 11, 0.2)';
+        ctx.fillRect(xEnd - vfTextW - 12, yEnd - 12, vfTextW + 8, 16);
+        ctx.strokeStyle = 'rgba(245, 158, 11, 0.5)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(xEnd - vfTextW - 12, yEnd - 12, vfTextW + 8, 16);
+        ctx.fillStyle = '#fcd34d';
+      }
+      ctx.textAlign = 'right';
+      ctx.fillText(vfLabel, xEnd - 8, yEnd);
+      ctx.restore();
+    }
   }
 
   // -------------------------------------------------------------
