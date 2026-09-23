@@ -244,6 +244,7 @@ class RatRodGame {
   }
 
   _initUI() {
+    this._loadCustomChassis();
     this.populateOpponentDropdown();
     this.autoMatchOpponent(false);
     this.updateTrackBadge();
@@ -252,6 +253,29 @@ class RatRodGame {
     this.loadNextDynoChallenge();
     this.renderLeaderboard();
     setTimeout(() => this.ensureDesmosCalculator(), 300);
+  }
+
+  _loadCustomChassis() {
+    try {
+      const saved = localStorage.getItem('ratrod_custom_chassis');
+      if (saved) {
+        const custom = JSON.parse(saved);
+        if (custom && custom.id && custom.dataUrl) {
+          RAT_ROD_ASSETS.chassis[custom.id] = custom;
+          if (!this.inventory.owned.chassis) this.inventory.owned.chassis = {};
+          if (!this.inventory.owned.chassis[custom.id]) {
+            this.inventory.owned.chassis[custom.id] = { count: 1, level: 1 };
+          }
+          const urlParams = new URLSearchParams(window.location.search);
+          if (urlParams.get('equip_custom') === '1') {
+            this.playerCar.equip('chassis', custom.id, 1);
+            this.syncPlayerCarPhysics();
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Could not load custom chassis from localStorage", e);
+    }
   }
 
   _bindEvents() {
