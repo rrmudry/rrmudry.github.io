@@ -2652,6 +2652,12 @@ const lessonsData = [
     ],
     "resources": [
       {
+        "title": "Pull-Back Toy Lab Setup Video",
+        "url": "https://drive.google.com/file/d/1AzjHUlsL2X34YtQUKrtjvGBCyjtupQ-k/view",
+        "typeLabel": "Demonstration Video",
+        "description": "Video walkthrough showing the metric track setup, stopwatch placement in frame, and phone camera angle."
+      },
+      {
         "title": "Graphing Pull-Back Toy Handout (PDF)",
         "url": "https://rrmudry.github.io/Unit_2/pull_back_toy_lab/index.html",
         "typeLabel": "Lab Activity Guide",
@@ -2680,6 +2686,7 @@ const lessonsData = [
     ],
     "links": {
       "Pull-Back Toy Motion Lab": "Unit_2/pull_back_toy_lab/index.html",
+      "Lab Setup Video": "https://drive.google.com/file/d/1AzjHUlsL2X34YtQUKrtjvGBCyjtupQ-k/view",
       "Velocity vs. Time Visualizer": "Unit_2/velocity_time_graph_studio/index.html",
       "Dual-Graph Motion Studio": "Unit_2/dual_graph_studio/index.html"
     }

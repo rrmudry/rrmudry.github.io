@@ -2,6 +2,17 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-22 — Unit 2 Day 18: Lab Setup Demonstration Video Integration
+
+**Pattern Updated**: `cast-aligned-webapp-design.md`.
+
+**Changes**:
+- **Unit 2 Curriculum Data (`Unit_2/unit2_lessons.json` & `assets/lessons-data.js`)**:
+  - Added "Pull-Back Toy Lab Setup Video" (`https://drive.google.com/file/d/1AzjHUlsL2X34YtQUKrtjvGBCyjtupQ-k/view`, type: "Demonstration Video") to the Day 18 `resources` array and `links` dictionary.
+  - Ensures the video resource is visible across both the Unit 2 Dashboard (`unit2-dashboard.html`) and the site-wide lesson explorer.
+- **Pull-Back Toy Lab Webapp (`Unit_2/pull_back_toy_lab/index.html`)**:
+  - Embedded a direct `🎬 Watch Setup Video Protocol ↗` button in Stage 2 of Step 1 directly below the camera framing diagram, giving students immediate access to the video walkthrough while preparing their phone camera and metric track setup.
+
 ## 2026-09-22 — Pull-Back Toy Motion Lab: Real-Time Firestore Progress Backup & Cloud Sync Indicator
 
 **Pattern Updated**: `cast-aligned-webapp-design.md`.
