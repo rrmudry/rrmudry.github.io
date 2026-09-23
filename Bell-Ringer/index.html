@@ -1137,13 +1137,8 @@
                 castData.steps.forEach(step => {
                     if (step.type === 'data_calculation' || step.stepId === 'step_2') {
                         if (step.prompt) {
-                            step.prompt = step.prompt.replace(/:\s*Δx\s*=\s*.*$/i, '.').trim();
-                        }
-                        if (step.hint) {
-                            step.hint = 'Δx = v · t';
-                        }
-                        if (step.formulaHint) {
-                            step.formulaHint = 'Δx = v · t';
+                            // Strip any leaked calculation substitution like ": slope = (16.0 - 4.0)..." or ": Δx = (25.0)..."
+                            step.prompt = step.prompt.replace(/:\s*(?:[a-zA-Z_Δ]+|\w+)\s*=\s*[\(\d].*$/i, '.').trim();
                         }
                     }
                 });

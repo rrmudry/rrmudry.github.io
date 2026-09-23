@@ -542,11 +542,13 @@
     // --- Format 2: Data Analysis & Mathematical Calculations ---
     renderMathData(step, container, stepState, stepKey) {
       const currentVal = (stepState.value !== undefined) ? stepState.value : '';
-      let formulaHint = step.formulaHint || step.hint || '';
-      if (formulaHint && typeof formulaHint === 'string') {
-        const eqParts = formulaHint.split('=');
-        if (eqParts.length > 2) {
+      let formulaHint = step.formulaHint || '';
+      if (!formulaHint && step.hint && typeof step.hint === 'string') {
+        const eqParts = step.hint.split('=');
+        if (eqParts.length >= 2) {
           formulaHint = `${eqParts[0].trim()} = ${eqParts[1].trim()}`;
+        } else {
+          formulaHint = step.hint.trim();
         }
       }
       const unit = step.unit || '';
