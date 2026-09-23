@@ -811,6 +811,18 @@
   }
 
   function loadTemplateSilhouette(key) {
+    if (key === 'jalopy2') {
+      state.activeTemplate = 'jalopy2';
+      templateCtx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+      const img = new Image();
+      img.onload = () => {
+        templateCtx.drawImage(img, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        showToast('Loaded JALOPY SPECIAL #2 template', '📐');
+      };
+      img.src = 'assets/jalopy_special_2.png';
+      return;
+    }
+
     const pts = TEMPLATES[key];
     if (!pts) return;
     state.activeTemplate = key;
@@ -838,6 +850,18 @@
   }
 
   function bakeTemplateToDrawingLayer(pts) {
+    if (state.activeTemplate === 'jalopy2') {
+      saveState();
+      const img = new Image();
+      img.onload = () => {
+        drawCtx.drawImage(img, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        triggerRigUpdate();
+        showToast('Baked Jalopy Special #2 to drawing layer!', '✏️');
+      };
+      img.src = 'assets/jalopy_special_2.png';
+      return;
+    }
+
     saveState();
     drawCtx.save();
     drawCtx.fillStyle = state.color;
