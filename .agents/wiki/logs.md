@@ -13,6 +13,7 @@ Append-only log tracking pattern changes across sessions.
   - Enlarged stepper tab pills (`0.875rem`, `padding: 0.55rem 0.95rem`) with numbered badges.
   - Enlarged table headers, cell fonts, and data inputs (`.lab-input` to `1.05rem font-bold w-24`).
   - Strengthened light-mode typography overrides in `style.css` so student instructions remain dark, crisp (`#0f172a` / `#1e293b`), and easy to read under bright fluorescent classroom lighting.
+  - Replaced all pseudo-subscript underscores (`v_avg`, `v_f`, `t_raw`, `t_total`) with standard HTML `<sub>` subscripts (`v<sub>avg</sub>`, `v<sub>f</sub>`, `t<sub>raw</sub>`, `t<sub>total</sub>`) across headers, data tables, graph legends, calculation cards, and feedback alerts, accompanied by a clean CSS baseline normalization reset for `sub` and `sup`.
 
 ## 2026-09-22 — Rat Rod Racers: Added "Jalopy Special #2" to Core Chassis Catalog & Starter Fleet
 
