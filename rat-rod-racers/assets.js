@@ -699,6 +699,7 @@ const RatRodSVG = {
   _chassisSVG(part) {
     const col = part.color || '#a04822';
     const acc = part.accent || '#ffbe0b';
+    const type = part.renderType || 'roadster29';
     if (type === 'custom_image' && part.dataUrl) {
       return `
         <image href="${part.dataUrl}" x="5" y="25" width="90" height="45" preserveAspectRatio="xMidYMid meet" />
