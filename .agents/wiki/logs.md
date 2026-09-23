@@ -2,6 +2,19 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-22 — Pull-Back Toy Motion Lab: Step 2 Compact Data Table Sizing (Zero Side-Scrolling)
+
+**Pattern Updated**: `cast-aligned-webapp-design.md`.
+
+**Changes**:
+- **Eliminated Horizontal Table Overflow (`Unit_2/pull_back_toy_lab/`)**:
+  - Reduced Data Table card padding to `p-3 sm:p-4 md:p-5`, reclaiming 16px–24px of horizontal room inside the 6-column split layout.
+  - Replaced oversized 96px (`w-24`) table inputs with `.table-time-input` (68px–74px width, `0.25rem 0.35rem` padding, centered monospace numbers).
+  - Shortened verbose column headers to crisp, student-friendly labels (`Mark`, `Dist (x)`, `Raw (t_raw)`, `Zeroed (Δt)`, `Speed`).
+  - Compacted `.zeroed-time-cell` badge padding (`0.2rem 0.4rem`) and set table cells to `py-2 px-1` with `whitespace-nowrap`.
+  - Updated `computeIntervalSpeeds()` in `js/lab_engine.js` to preserve compact padding and styling when dynamically injecting speed values.
+  - Total table footprint reduced from >565px to ~355px, allowing all 5 columns to fit comfortably on 11-inch Chromebooks without requiring students to side-scroll.
+
 ## 2026-09-22 — Pull-Back Toy Motion Lab: Fullscreen Timer Relocated to Stopwatch Card
 
 **Pattern Updated**: `cast-aligned-webapp-design.md`.
