@@ -2,6 +2,18 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-22 — Pull-Back Toy Motion Lab: Readability Typography Overhaul & High-Contrast Sizing
+
+**Pattern Updated**: `cast-aligned-webapp-design.md`.
+
+**Changes**:
+- **Classroom Chromebook Typography Overhaul (`Unit_2/pull_back_toy_lab/`)**:
+  - Replaced all sub-12px (`text-xs` / `text-[11px]`) text across instructions, step panels, checklists, and table explanations with bold, legible typography (`text-sm sm:text-base` and `text-base sm:text-lg`).
+  - Enlarged interactive checklist cards (`padding: 0.7rem 0.95rem; font-size: 0.95rem;`) and scaled checkboxes to `1.35rem` to eliminate student difficulty reading on 11-inch classroom Chromebooks.
+  - Enlarged stepper tab pills (`0.875rem`, `padding: 0.55rem 0.95rem`) with numbered badges.
+  - Enlarged table headers, cell fonts, and data inputs (`.lab-input` to `1.05rem font-bold w-24`).
+  - Strengthened light-mode typography overrides in `style.css` so student instructions remain dark, crisp (`#0f172a` / `#1e293b`), and easy to read under bright fluorescent classroom lighting.
+
 ## 2026-09-22 — Rat Rod Racers: Added "Jalopy Special #2" to Core Chassis Catalog & Starter Fleet
 
 **Pattern Updated**: `modular-vehicle-physics-game.md`.
