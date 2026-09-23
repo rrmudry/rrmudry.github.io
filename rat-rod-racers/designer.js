@@ -1064,11 +1064,15 @@
         0, 0, 512, 256
       );
 
+      const safeName = (document.getElementById('bodyNameInput').value.trim() || 'custom_body')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/^_+|_+$/g, '');
       const link = document.createElement('a');
-      link.download = `ratrod_body_${Date.now()}.png`;
+      link.download = `${safeName}.png`;
       link.href = exportCanvas.toDataURL('image/png');
       link.click();
-      showToast('Downloaded transparent PNG', '⬇️');
+      showToast(`Downloaded ${safeName}.png`, '⬇️');
     });
 
     // 3. Export SVG
@@ -1087,9 +1091,10 @@
     });
 
     // 4. Export Code Snippet
+    let fullExportSnippet = '';
     btnExportCode.addEventListener('click', () => {
       const data = getCustomChassisMetadata();
-      const code = `// Add this to RAT_ROD_ASSETS.chassis in assets.js:
+      fullExportSnippet = `// Add this to RAT_ROD_ASSETS.chassis in assets.js:
 '${data.id}': {
   id: '${data.id}',
   name: "${data.name}",
@@ -1108,9 +1113,32 @@
   color: '${data.color}',
   accent: '#ffbe0b',
   renderType: 'custom_image',
-  dataUrl: "${data.dataUrl.substring(0, 60)}..." // Full dataUrl stored
+  dataUrl: "${data.dataUrl}"
 }`;
-      codeSnippetContent.textContent = code;
+
+      // In the modal preview, show a shortened preview so it doesn't freeze the DOM, but copy the full snippet
+      const previewCode = `// Add this to RAT_ROD_ASSETS.chassis in assets.js:
+'${data.id}': {
+  id: '${data.id}',
+  name: "${data.name}",
+  category: 'chassis',
+  archetype: '${data.archetype}',
+  rarity: 'epic',
+  cost: 4,
+  aeroScore: ${data.aeroScore},
+  cdA: ${data.cdA},
+  hCG: ${data.hCG},
+  mass: ${data.mass},
+  durability: 80,
+  flex: 'Med',
+  trait: "${data.trait}",
+  traitDesc: "${data.traitDesc}",
+  color: '${data.color}',
+  accent: '#ffbe0b',
+  renderType: 'custom_image',
+  dataUrl: "${data.dataUrl.substring(0, 60)}... [${Math.round(data.dataUrl.length / 1024)} KB base64 payload]"
+}`;
+      codeSnippetContent.textContent = previewCode;
       codeModal.classList.remove('hidden');
     });
 
@@ -1119,8 +1147,8 @@
     });
 
     btnCopyCode.addEventListener('click', () => {
-      navigator.clipboard.writeText(codeSnippetContent.textContent).then(() => {
-        showToast('Copied code to clipboard!', '📋');
+      navigator.clipboard.writeText(fullExportSnippet).then(() => {
+        showToast('Copied full code snippet to clipboard!', '📋');
       });
     });
 
