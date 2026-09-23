@@ -169,17 +169,21 @@ class PrecisionStopwatch {
     if (window.labSound) window.labSound.playClick();
 
     const lapNum = this.laps.length;
-    const markerText = lapNum <= 5 ? ` [${(lapNum * 20)} cm]` : '';
+    const markerIndex = lapNum - 1; // 0: Start(0cm), 1: 20cm, 2: 40cm, 3: 60cm, 4: 80cm, 5: 100cm
+    let markerLabel = "";
+    if (markerIndex === 0) markerLabel = "Start (0 cm)";
+    else if (markerIndex >= 1 && markerIndex <= 5) markerLabel = `Mark ${markerIndex} (${markerIndex * 20} cm)`;
+    else markerLabel = `Split #${lapNum}`;
 
     // Card lap list update
     if (this.lapsList) {
       const lapEl = document.createElement('div');
       lapEl.className = 'flex justify-between items-center py-1 border-b border-white/5 font-mono text-xs';
       lapEl.innerHTML = `
-        <span class="text-slate-400">Mark #${lapNum}${markerText}</span>
+        <span class="text-slate-400 font-bold">${markerLabel}</span>
         <div class="flex items-center gap-2">
           <span class="font-bold text-sky-400">${currentSeconds} s</span>
-          ${lapNum <= 5 ? `<button class="px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 hover:bg-sky-500/40 text-[10px]" onclick="window.labEngine.insertStopwatchTime(${lapNum}, ${currentSeconds})">Use</button>` : ''}
+          ${markerIndex <= 5 ? `<button class="px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 hover:bg-sky-500/40 text-[10px]" onclick="window.labEngine.insertStopwatchTime(${markerIndex}, ${currentSeconds})">Use</button>` : ''}
         </div>
       `;
       this.lapsList.prepend(lapEl);
@@ -190,7 +194,7 @@ class PrecisionStopwatch {
 
     // Show last split badge
     if (this.fsLastSplitBadge && this.fsLastSplitVal) {
-      this.fsLastSplitVal.textContent = `${currentSeconds} s (Mark ${lapNum})`;
+      this.fsLastSplitVal.textContent = `${currentSeconds} s (${markerLabel})`;
       this.fsLastSplitBadge.classList.remove('hidden');
     }
   }
@@ -198,14 +202,16 @@ class PrecisionStopwatch {
   renderFullscreenSplits() {
     if (!this.fsSplitsStrip) return;
     if (this.laps.length === 0) {
-      this.fsSplitsStrip.innerHTML = `<span class="text-slate-400 font-bold">Marks:</span> <span class="text-slate-500">No marks recorded yet. Tap "Split Mark" (or press 'L') as the car crosses 20, 40, 60, 80, 100 cm.</span>`;
+      this.fsSplitsStrip.innerHTML = `<span class="text-slate-400 font-bold">Marks:</span> <span class="text-slate-500">No marks recorded yet. Tap "Split Mark" (or press 'L') at Start release, then at 20, 40, 60, 80, 100 cm.</span>`;
       return;
     }
 
     let html = `<span class="text-slate-300 font-bold mr-1">Marks:</span>`;
     this.laps.forEach((timeVal, idx) => {
-      const mIdx = idx + 1;
-      const mDist = mIdx <= 5 ? `${mIdx * 20}cm` : `M${mIdx}`;
+      let mDist = "";
+      if (idx === 0) mDist = "Start 0cm";
+      else if (idx <= 5) mDist = `${idx * 20}cm`;
+      else mDist = `S${idx + 1}`;
       html += `
         <span class="px-2.5 py-1 rounded-lg bg-sky-500/20 text-sky-300 border border-sky-500/30 font-mono font-bold">
           ${mDist}: ${timeVal}s
@@ -221,9 +227,9 @@ class PrecisionStopwatch {
       return;
     }
 
-    const count = Math.min(this.laps.length, 5);
-    for (let i = 1; i <= count; i++) {
-      window.labEngine.insertStopwatchTime(i, this.laps[i - 1]);
+    const count = Math.min(this.laps.length, 6);
+    for (let i = 0; i < count; i++) {
+      window.labEngine.insertStopwatchTime(i, this.laps[i]);
     }
     if (window.labSound) window.labSound.playSuccess();
     this.closeFullscreen();
