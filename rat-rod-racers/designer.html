@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rat Rod Car Body Designer Studio • Mr. Mudry's Physics</title>
+  <link rel="icon" type="image/png" href="../head.png">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="designer.css">
+</head>
+<body>
+
+  <!-- Studio Header -->
+  <header class="designer-header">
+    <div class="brand-group">
+      <span class="brand-badge">⚡ CHASSIS STUDIO</span>
+      <div>
+        <h1 class="brand-title">Rat Rod Car Body Designer</h1>
+        <div class="brand-subtitle">Sketch, trace, and rig custom bodies aligned to in-game physics axles</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button id="btn-undo" class="btn btn-icon" title="Undo (Ctrl+Z)">↩️ Undo</button>
+      <button id="btn-redo" class="btn btn-icon" title="Redo (Ctrl+Y)">↪️ Redo</button>
+      <button id="btn-clear" class="btn btn-icon" title="Clear Canvas">🗑️ Clear</button>
+      <div style="width:1px; height:24px; background:var(--border-color); margin: 0 4px;"></div>
+      <a href="index.html" class="btn" title="Return to Rat Rod Racers Game">🏁 Back to Game</a>
+      <a href="../games.html" class="btn" title="Back to Games Hub">🏠 Hub</a>
+    </div>
+  </header>
+
+  <!-- Studio Main Workspace -->
+  <main class="studio-layout">
+
+    <!-- 1. LEFT TOOLS SIDEBAR -->
+    <aside class="studio-tools-sidebar">
+      
+      <!-- Tool Picker -->
+      <div class="tool-section">
+        <span class="section-label">Drawing Tools</span>
+        <div class="tool-grid">
+          <button class="tool-btn active" data-tool="brush" title="Freehand ink brush with comic outline">
+            <span class="icon">🖌️</span>
+            <span>Ink Brush</span>
+          </button>
+          <button class="tool-btn" data-tool="polygon" title="Point-by-point automotive panel vector tool">
+            <span class="icon">📐</span>
+            <span>Poly Panel</span>
+          </button>
+          <button class="tool-btn" data-tool="line" title="Straight line tool">
+            <span class="icon">📏</span>
+            <span>Line</span>
+          </button>
+          <button class="tool-btn" data-tool="bucket" title="Flood fill enclosed regions">
+            <span class="icon">🪣</span>
+            <span>Fill Bucket</span>
+          </button>
+          <button class="tool-btn" data-tool="eraser" title="Erase strokes">
+            <span class="icon">🧹</span>
+            <span>Eraser</span>
+          </button>
+          <button class="tool-btn" data-tool="eyedropper" title="Pick color from canvas">
+            <span class="icon">🧪</span>
+            <span>Eyedropper</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Stroke Width Slider -->
+      <div class="tool-section">
+        <div class="slider-group">
+          <div class="slider-header">
+            <span>Stroke Thickness:</span>
+            <span id="brushSizeVal" class="val">4 px</span>
+          </div>
+          <input type="range" id="brushSize" min="1" max="24" value="4">
+        </div>
+      </div>
+
+      <!-- Color Palette & Swatches -->
+      <div class="tool-section">
+        <span class="section-label">Color & Finish</span>
+        <div class="color-picker-row">
+          <div class="color-preview-box" id="colorPreviewBox" style="background-color: #a04822;">
+            <input type="color" id="nativeColorPicker" value="#a04822">
+          </div>
+          <input type="text" id="hexColorInput" class="color-hex-input" value="#A04822" maxlength="7">
+        </div>
+
+        <div class="color-swatches-grid">
+          <!-- Hot Rod Classic Swatches -->
+          <button class="swatch-btn" style="background:#12121c;" data-color="#12121c" title="Ink Outline Black"></button>
+          <button class="swatch-btn" style="background:#a04822;" data-color="#a04822" title="Rust Oxide Orange"></button>
+          <button class="swatch-btn" style="background:#d90429;" data-color="#d90429" title="Candy Apple Red"></button>
+          <button class="swatch-btn" style="background:#ff6b1a;" data-color="#ff6b1a" title="Flamin' Orange"></button>
+          <button class="swatch-btn" style="background:#ffbe0b;" data-color="#ffbe0b" title="Gasser Gold"></button>
+          <button class="swatch-btn" style="background:#2b2d42;" data-color="#2b2d42" title="Primer Dark Gray"></button>
+          <button class="swatch-btn" style="background:#495057;" data-color="#495057" title="Industrial Steel"></button>
+          <button class="swatch-btn" style="background:#ced4da;" data-color="#ced4da" title="Bare Aluminum"></button>
+          <button class="swatch-btn" style="background:#00f0ff;" data-color="#00f0ff" title="Salt Flat Cyan"></button>
+          <button class="swatch-btn" style="background:#3b5a45;" data-color="#3b5a45" title="Farm Truck Green"></button>
+        </div>
+      </div>
+
+      <!-- Guides & Rig Display Options -->
+      <div class="tool-section">
+        <span class="section-label">Alignment Overlays</span>
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <label style="font-size:12px; display:flex; align-items:center; gap:8px; cursor:pointer;">
+            <input type="checkbox" id="chk-show-wheels" checked>
+            <span>🛞 Front & Rear Wheels (Cutouts)</span>
+          </label>
+          <label style="font-size:12px; display:flex; align-items:center; gap:8px; cursor:pointer;">
+            <input type="checkbox" id="chk-show-frame" checked>
+            <span>🔩 Frame Rails & Ground Line</span>
+          </label>
+          <label style="font-size:12px; display:flex; align-items:center; gap:8px; cursor:pointer;">
+            <input type="checkbox" id="chk-show-engine" checked>
+            <span>⚡ Engine Bay Clearance Guide</span>
+          </label>
+          <label style="font-size:12px; display:flex; align-items:center; gap:8px; cursor:pointer;">
+            <input type="checkbox" id="chk-show-grid" checked>
+            <span>📏 Measurement Grid & Axes</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Template Trace Opacity -->
+      <div class="tool-section">
+        <div class="slider-group">
+          <div class="slider-header">
+            <span>Template Trace Ghost:</span>
+            <span id="templateOpacityVal" class="val">35%</span>
+          </div>
+          <input type="range" id="templateOpacity" min="0" max="100" value="35">
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- 2. CENTER DRAWING STAGE -->
+    <section class="studio-canvas-stage">
+      
+      <!-- Stage HUD Control Bar -->
+      <div class="stage-hud-bar">
+        <div class="hud-group">
+          <span style="font-size:12px; font-weight:700; color:var(--accent-orange);">CAR FACING: ➔ RIGHT</span>
+          <span style="font-size:11px; color:var(--text-muted);">Rear Axle: [-32, +10] • Front Axle: [+32, +10]</span>
+        </div>
+        <div class="hud-group">
+          <button id="btn-finish-poly" class="btn btn-sm btn-cyan hidden" title="Finish and close current polygon shape">✓ Finish Polygon</button>
+          <button id="btn-cancel-poly" class="btn btn-sm hidden" title="Cancel current polygon">✕ Cancel</button>
+        </div>
+      </div>
+
+      <!-- Viewport with Stacked Canvas Layers -->
+      <div class="canvas-viewport-container" id="canvasContainer">
+        <!-- 1. Checkerboard Transparency BG -->
+        <div class="checkerboard-bg"></div>
+
+        <!-- 2. Ghost Template Layer -->
+        <canvas id="templateCanvas" class="layer-canvas" width="800" height="400"></canvas>
+
+        <!-- 3. Active User Drawing Canvas Layer -->
+        <canvas id="drawingCanvas" class="layer-canvas" width="800" height="400"></canvas>
+
+        <!-- 4. Interactive Rig Alignment Overlay Layer -->
+        <canvas id="overlayCanvas" class="layer-canvas" width="800" height="400"></canvas>
+
+        <!-- Cursor Coordinate Status -->
+        <div id="canvasCoordPill" class="canvas-status-pill">X: 0, Y: 0 (In-Game Space)</div>
+      </div>
+
+      <div style="font-size:11px; color:var(--text-muted); margin-top:10px;">
+        💡 <strong>Tip:</strong> Draw within the frame bounds. Leave clearance around the front and rear wheels or draw sculpted fender wells!
+      </div>
+    </section>
+
+    <!-- 3. RIGHT SIDEBAR: LIVE RIG & EXPORT -->
+    <aside class="studio-inspector-sidebar">
+      
+      <!-- Live Assembled Rig Preview -->
+      <div class="inspector-card">
+        <h4>🏎️ Live Assembled Rig</h4>
+        <div class="rig-preview-stage">
+          <canvas id="rigPreviewCanvas" width="308" height="140"></canvas>
+        </div>
+        <div class="rig-controls-bar">
+          <select id="rig-engine-select" class="form-select" style="flex:1;">
+            <option value="blower">6-71 Blown V8</option>
+            <option value="diesel">Cummins Diesel Stacks</option>
+            <option value="twinturbo">Twin-Turbo Flathead</option>
+            <option value="stroker">Stroker 383 V8</option>
+            <option value="slant6">Slant-6 Webers</option>
+          </select>
+          <select id="rig-wheels-select" class="form-select" style="flex:1;">
+            <option value="slicks">Pie-Crust Slicks</option>
+            <option value="knobby">Mud Luggers</option>
+            <option value="salt_discs">Moon Salt Discs</option>
+            <option value="duallys">Rear Duallys</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Body Specs & Physics Tuning -->
+      <div class="inspector-card">
+        <h4>⚡ Chassis Identity & Specs</h4>
+        <div class="form-row">
+          <label class="form-label" for="bodyNameInput">Body Name:</label>
+          <input type="text" id="bodyNameInput" class="form-input" value="Custom Jalopy Special">
+        </div>
+        <div class="form-row">
+          <label class="form-label" for="bodyArchetypeSelect">Archetype Synergy:</label>
+          <select id="bodyArchetypeSelect" class="form-select">
+            <option value="Salt Speedster">Salt Speedster (-Aero Drag)</option>
+            <option value="Blown Gasser">Blown Gasser (+Launch Weight Transfer)</option>
+            <option value="Chop Rattler">Chop Rattler (Low CG)</option>
+            <option value="Diesel Bruiser">Diesel Bruiser (Heavy Cast Steel)</option>
+            <option value="Mud-Runner">Mud-Runner (Skid Plate Armor)</option>
+          </select>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <div class="form-row">
+            <label class="form-label" for="bodyMassInput">Body Mass (kg):</label>
+            <input type="number" id="bodyMassInput" class="form-input" value="160" min="80" max="500">
+          </div>
+          <div class="form-row">
+            <label class="form-label" for="bodyDragInput">Drag cdA:</label>
+            <input type="number" id="bodyDragInput" class="form-input" value="0.32" step="0.01" min="0.20" max="0.65">
+          </div>
+        </div>
+      </div>
+
+      <!-- Starter Silhouette Templates -->
+      <div class="inspector-card">
+        <h4>📐 Starter Templates</h4>
+        <div class="template-grid">
+          <div class="template-card" data-template="coupe32">
+            <span class="name">'32 Coupe</span>
+            <span class="tag">Chopped 5-Window</span>
+          </div>
+          <div class="template-card" data-template="roadster29">
+            <span class="name">'29 Roadster</span>
+            <span class="tag">Highboy Skeleton</span>
+          </div>
+          <div class="template-card" data-template="sedan">
+            <span class="name">Z'd Sedan</span>
+            <span class="tag">Slammed 2-Door</span>
+          </div>
+          <div class="template-card" data-template="deliveryvan">
+            <span class="name">Delivery Van</span>
+            <span class="tag">Heavy Industrial</span>
+          </div>
+          <div class="template-card" data-template="lakester">
+            <span class="name">Belly Tank</span>
+            <span class="tag">Salt Speedster</span>
+          </div>
+          <div class="template-card" data-template="gasser">
+            <span class="name">Willys Gasser</span>
+            <span class="tag">Nose-High Coupe</span>
+          </div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+          <button id="btn-trace-to-draw" class="btn btn-sm" title="Bake current template onto drawing layer">✏️ Trace to Layer</button>
+          <button id="btn-hide-template" class="btn btn-sm" title="Clear ghost template">✕ Clear Template</button>
+        </div>
+      </div>
+
+      <!-- Export & Game Actions -->
+      <div class="inspector-card">
+        <h4>💾 Save & Export</h4>
+        <div class="export-actions-grid">
+          <button id="btn-save-garage" class="btn btn-primary" title="Save custom body directly to your in-game garage!">
+            🏎️ Save to Garage & Race!
+          </button>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+            <button id="btn-export-png" class="btn" title="Download transparent 512x256 PNG">⬇️ PNG (512px)</button>
+            <button id="btn-export-svg" class="btn" title="Download SVG vector">⬇️ SVG</button>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+            <button id="btn-export-code" class="btn" title="View JavaScript code snippet">📋 Code Snippet</button>
+            <label class="btn" style="cursor:pointer;" title="Upload sketch/PNG to trace">
+              📂 Import File
+              <input type="file" id="file-import-input" accept="image/*" style="display:none;">
+            </label>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+  </main>
+
+  <!-- Modal Code Snippet Dialog -->
+  <div id="codeModal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">📋 Chassis Code Snippet</h3>
+        <button id="btn-close-modal" class="modal-close">&times;</button>
+      </div>
+      <p style="font-size:12px; color:var(--text-muted);">
+        You can paste this definition into <code>assets.js</code> under <code>RAT_ROD_ASSETS.chassis</code>, or simply use <strong>"Save to Garage & Race"</strong> to drive it immediately!
+      </p>
+      <div id="codeSnippetContent" class="code-snippet-box"></div>
+      <div style="display:flex; justify-content:flex-end; gap:8px;">
+        <button id="btn-copy-code" class="btn btn-cyan">📋 Copy to Clipboard</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notice -->
+  <div id="toastNotice" class="toast-notice hidden">
+    <span id="toastIcon">✨</span>
+    <span id="toastMsg">Saved custom body!</span>
+  </div>
+
+  <!-- Scripts -->
+  <script src="assets.js"></script>
+  <script src="cars.js"></script>
+  <script src="designer.js"></script>
+</body>
+</html>
