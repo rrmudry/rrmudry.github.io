@@ -1244,11 +1244,19 @@ class PullBackLabEngine {
     try {
       localStorage.setItem('pull_back_toy_draft', JSON.stringify(draft));
     } catch (e) {}
+
+    // Synchronize incremental draft progress to Firestore in real time
+    if (window.labAuth && typeof window.labAuth.autoSaveDraft === 'function') {
+      window.labAuth.autoSaveDraft(draft);
+    }
   }
 
   loadLocalDraft() {
     try {
-      const raw = localStorage.getItem('pull_back_toy_draft');
+      const userKey = (window.labAuth && window.labAuth.studentId)
+        ? `pull_back_toy_draft_${window.labAuth.studentId}`
+        : 'pull_back_toy_draft';
+      const raw = localStorage.getItem(userKey) || localStorage.getItem('pull_back_toy_draft');
       if (raw) {
         const draft = JSON.parse(raw);
         this.restoreSavedState(draft);

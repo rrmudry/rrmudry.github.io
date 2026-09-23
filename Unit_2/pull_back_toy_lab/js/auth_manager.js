@@ -115,6 +115,82 @@ class LabAuthManager {
     }
   }
 
+  updateSaveIndicator(statusText, isError = false) {
+    const indicator = document.getElementById('firestore-save-indicator');
+    const textEl = document.getElementById('save-status-text');
+    const dotEl = document.getElementById('save-status-dot');
+    if (!indicator || !textEl) return;
+
+    indicator.classList.remove('hidden');
+    textEl.textContent = statusText;
+
+    if (isError) {
+      if (dotEl) dotEl.className = 'w-1.5 h-1.5 rounded-full bg-rose-400';
+      indicator.className = 'hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-rose-950/80 border border-rose-700/60 font-mono text-[10px] text-rose-300 transition-all shadow-sm';
+    } else if (statusText.includes("Saving")) {
+      if (dotEl) dotEl.className = 'w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping';
+      indicator.className = 'hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-900/80 border border-slate-700/60 font-mono text-[10px] text-amber-300 transition-all shadow-sm';
+    } else {
+      if (dotEl) dotEl.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400';
+      indicator.className = 'hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-900/80 border border-slate-700/60 font-mono text-[10px] text-emerald-300 transition-all shadow-sm';
+    }
+  }
+
+  async autoSaveDraft(draftData) {
+    if (!draftData) return;
+
+    // Always back up to local storage immediately
+    try {
+      const storageKey = this.studentId ? `pull_back_toy_draft_${this.studentId}` : 'pull_back_toy_draft_guest';
+      localStorage.setItem(storageKey, JSON.stringify(draftData));
+      localStorage.setItem('pull_back_toy_draft', JSON.stringify(draftData));
+    } catch (e) {
+      console.warn("Local draft error:", e);
+    }
+
+    if (!this.studentId || typeof firebase === 'undefined' || !firebase.firestore) {
+      return;
+    }
+
+    // Debounce cloud write to preserve quota & responsiveness
+    if (this._saveTimeout) clearTimeout(this._saveTimeout);
+    this.updateSaveIndicator("Saving...");
+
+    this._saveTimeout = setTimeout(async () => {
+      try {
+        const db = firebase.firestore();
+        await this.ensureParentDocument(db);
+
+        const docRef = db.collection('student_results')
+                         .doc(ASSIGNMENT_ID)
+                         .collection('students')
+                         .doc(this.studentId);
+
+        const draftPayload = {
+          student_id: this.studentId,
+          student_name: this.studentName,
+          email: this.currentUser ? this.currentUser.email : "",
+          last_saved_at: firebase.firestore.FieldValue.serverTimestamp(),
+          isCompleted: this.isCompleted || false,
+          labState: draftData
+        };
+
+        // Lift key student metrics to top level of doc for rapid gradebook inspection
+        if (draftData.rawTimes) draftPayload.rawTimes = draftData.rawTimes;
+        if (draftData.times) draftPayload.times = draftData.times;
+        if (draftData.currentStep) draftPayload.currentStep = draftData.currentStep;
+        if (draftData.calcValues) draftPayload.calcValues = draftData.calcValues;
+        if (draftData.calcStatus) draftPayload.calcStatus = draftData.calcStatus;
+
+        await docRef.set(draftPayload, { merge: true });
+        this.updateSaveIndicator("Cloud Saved ✓");
+      } catch (err) {
+        console.warn("Firestore auto-save notice:", err);
+        this.updateSaveIndicator("Offline (Local Saved)", true);
+      }
+    }, 600);
+  }
+
   async loadStudentLabData() {
     if (!this.studentId || typeof firebase === 'undefined' || !firebase.firestore) return;
 
@@ -135,13 +211,19 @@ class LabAuthManager {
             statusBadge.textContent = "Turned In ✓ (10/10)";
             statusBadge.className = "px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
           }
+          this.updateSaveIndicator("Turned In (10/10) ✓");
+        } else {
+          this.updateSaveIndicator("Cloud Synced ✓");
         }
         if (window.labEngine && data.labState) {
           window.labEngine.restoreSavedState(data.labState);
         }
+      } else {
+        this.updateSaveIndicator("Cloud Connected");
       }
     } catch (e) {
       console.warn("Could not load student lab data:", e);
+      this.updateSaveIndicator("Sync Error", true);
     }
   }
 
@@ -186,14 +268,21 @@ class LabAuthManager {
         await scoreRef.set({
           student_id: this.studentId,
           student_name: this.studentName,
+          email: this.currentUser ? this.currentUser.email : "",
           score: percentageScore,
           last_attempt_score: percentageScore,
           isCompleted: true,
           verifiedVia: 'pull_back_calculations_verified',
           labState: labReport,
+          rawTimes: labReport.rawTimes || null,
+          times: labReport.times || null,
+          calcValues: labReport.calcValues || null,
+          calcStatus: labReport.calcStatus || null,
           timestamp: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
 
+        this.isCompleted = true;
+        this.updateSaveIndicator("Submitted (10/10) ✓");
         console.log(`✓ Lab grade successfully recorded for ${this.studentName} (${this.studentId}): 100%`);
         return true;
       }
@@ -201,6 +290,7 @@ class LabAuthManager {
     } catch (err) {
       console.error("Error submitting lab grade to Firestore:", err);
       alert("Error submitting score to database: " + err.message);
+      this.updateSaveIndicator("Submit Error", true);
       return false;
     }
   }
