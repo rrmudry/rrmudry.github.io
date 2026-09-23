@@ -2,6 +2,21 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-22 — Pull-Back Toy Motion Lab: Real-Time Firestore Progress Backup & Cloud Sync Indicator
+
+**Pattern Updated**: `cast-aligned-webapp-design.md`.
+
+**Changes**:
+- **Real-Time In-Progress Firestore Auto-Save (`Unit_2/pull_back_toy_lab/js/auth_manager.js`)**:
+  - Implemented `autoSaveDraft(draftData)` with 600ms debouncing, writing real-time state (`rawTimes`, `times`, `currentStep`, `calcValues`, `calcStatus`) directly into Firestore document `student_results/unit2_day18_pull_back_toy_lab/students/{studentId}` as students work.
+  - Lifted student metrics (`rawTimes`, `times`, `calcValues`, `calcStatus`) to the document root for instantaneous teacher gradebook inspection and headless CLI sync compatibility (`sync-cli.js`).
+  - Added dual redundancy with immediate `localStorage` mirroring (`pull_back_toy_draft_{studentId}`).
+- **Engine Auto-Save Hook (`Unit_2/pull_back_toy_lab/js/lab_engine.js`)**:
+  - Connected `saveLocalDraft()` directly to `window.labAuth.autoSaveDraft(draft)` on every table time input, calculation verification, and step transition.
+  - Enhanced `loadLocalDraft()` and `loadStudentLabData()` to restore in-progress state seamlessly across devices upon Google sign-in.
+- **Visual Cloud Sync Indicator (`Unit_2/pull_back_toy_lab/index.html` & `style.css`)**:
+  - Added `#firestore-save-indicator` pill in the app header (`Saving...` -> `Cloud Saved ✓` / `Cloud Synced ✓` / `Turned In (10/10) ✓`), giving students and teachers immediate visual confirmation that work is safely backed up to the cloud.
+
 ## 2026-09-22 — Pull-Back Toy Motion Lab: Dynamic Velocity Axis Scaling & Callout Layout Fix
 
 **Pattern Updated**: `cast-aligned-webapp-design.md`.
