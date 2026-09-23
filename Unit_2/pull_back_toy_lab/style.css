@@ -1,0 +1,230 @@
+/* Graphing Pull-Back Toy Motion Lab - Style System */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700;800&display=swap');
+
+:root {
+  --bg-deep: #0b0f19;
+  --bg-card: rgba(17, 24, 39, 0.85);
+  --bg-card-hover: rgba(31, 41, 55, 0.95);
+  --border-subtle: rgba(255, 255, 255, 0.1);
+  --border-focus: #38bdf8;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --accent-sky: #38bdf8;
+  --accent-emerald: #10b981;
+  --accent-amber: #f59e0b;
+  --accent-rose: #f43f5e;
+  --accent-purple: #a855f7;
+  --accent-orange: #f97316;
+  --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+  --cyan-glow: 0 0 20px rgba(56, 189, 248, 0.4);
+  --amber-glow: 0 0 20px rgba(245, 158, 11, 0.4);
+}
+
+html.light {
+  --bg-deep: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f1f5f9;
+  --border-subtle: #cbd5e1;
+  --border-focus: #0284c7;
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --accent-sky: #0284c7;
+  --accent-emerald: #059669;
+  --accent-amber: #d97706;
+  --accent-rose: #e11d48;
+  --accent-purple: #7c3aed;
+  --accent-orange: #ea580c;
+  --shadow-card: 0 4px 16px -2px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+  --cyan-glow: 0 0 16px rgba(2, 132, 199, 0.3);
+  --amber-glow: 0 0 16px rgba(217, 119, 6, 0.3);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--bg-deep);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Background Subtle Mesh */
+body {
+  background-image: 
+    radial-gradient(ellipse 80% 50% at 50% -15%, rgba(56, 189, 248, 0.15), transparent 70%),
+    radial-gradient(circle at 10% 40%, rgba(249, 115, 22, 0.08), transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.08), transparent 40%);
+}
+
+html.light body {
+  background-image: 
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(2, 132, 199, 0.08), transparent 70%),
+    radial-gradient(circle at 10% 40%, rgba(234, 88, 12, 0.05), transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(5, 150, 105, 0.05), transparent 40%);
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.font-display {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+/* Glass Card */
+.glass-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 1rem;
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card-hover:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-focus);
+}
+
+/* Safety Alert Banner */
+.safety-banner {
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.18), rgba(245, 158, 11, 0.18));
+  border: 1.5px solid rgba(239, 68, 68, 0.4);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  animation: pulse-border 3s ease-in-out infinite;
+}
+
+@keyframes pulse-border {
+  0%, 100% { border-color: rgba(239, 68, 68, 0.4); }
+  50% { border-color: rgba(245, 158, 11, 0.7); }
+}
+
+/* Inputs */
+.lab-input {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1.5px solid var(--border-subtle);
+  color: var(--text-primary);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  padding: 0.45rem 0.65rem;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+html.light .lab-input {
+  background: #ffffff;
+  border-color: #cbd5e1;
+}
+
+.lab-input:focus {
+  outline: none;
+  border-color: var(--accent-sky);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+}
+
+.lab-input.valid {
+  border-color: var(--accent-emerald) !important;
+  background: rgba(16, 185, 129, 0.08) !important;
+}
+
+.lab-input.invalid {
+  border-color: var(--accent-rose) !important;
+  background: rgba(244, 63, 94, 0.08) !important;
+}
+
+/* Interactive Checkboxes */
+.checklist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s ease;
+}
+
+.checklist-item:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.checklist-item input[type="checkbox"] {
+  margin-top: 0.2rem;
+  width: 1.15rem;
+  height: 1.15rem;
+  accent-color: #0284c7;
+  cursor: pointer;
+}
+
+/* Desmos Calculator Slide-Out Drawer */
+#desmos-drawer {
+  position: fixed;
+  top: 0;
+  right: -520px;
+  width: 500px;
+  max-width: 95vw;
+  height: 100vh;
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  border-left: 1px solid var(--border-subtle);
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+#desmos-drawer.open {
+  right: 0;
+}
+
+/* Stopwatch HUD */
+.stopwatch-hud {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  color: var(--accent-sky);
+  text-shadow: var(--cyan-glow);
+}
+
+/* Pulse animation for active timing */
+@keyframes timing-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.timing-dot {
+  animation: timing-pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
+}

@@ -2528,24 +2528,25 @@ const lessonsData = [
     "day": 18,
     "date": "2026-09-23",
     "unit": 2,
-    "title": "Velocity vs. Time Graphing: Uniform Acceleration & Slopes",
-    "topic": "Plotting Uniform Acceleration on v-t Coordinates, Calculating Slope (m = a), and Reading Initial Velocities",
+    "title": "Graphing Pull-Back Toy Motion Lab: Uniform Acceleration from Rest",
+    "topic": "Gathering Distance-Time Data for a Pull-Back Car, Graphing x vs. t, and Calculating v_avg, v_f, and Acceleration",
     "dok": 3,
-    "type": "Inquiry / Graphing Studio",
+    "type": "Hands-On Laboratory / Data Analysis",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Translate uniform acceleration into velocity-time (v-t) coordinate space: understand that constant acceleration produces linear slopes on v-t graphs, where slope m = Δv / Δt = a. Students identify initial velocity (v₀) as the vertical intercept, distinguish positive vs. negative slopes, and explore how crossing the time axis (v = 0) represents directional turnaround.",
-    "activity": "Uniform Acceleration v-t Graphing Workshop: Students plot multi-point motion tables onto coordinate grids, draw linear lines of best fit, construct large slope triangles to calculate acceleration directly from rise/run, and match physical motion cards (accelerating car, braking truck, reversing cart) to coordinated v-t graphs.",
-    "essentialQuestion": "Why does uniform acceleration appear as a straight line on a velocity-time graph, and what does the slope of that line tell us about the motion?",
+    "summary": "Students investigate the kinematics of pull-back cars accelerating from rest across a 1.0-meter track marked at 20 cm increments. Using slow-motion video telemetry with an in-frame stopwatch, students record position-time data, plot the characteristic curved x vs. t motion profile, and calculate average speed (v_avg = Δx / Δt), final speed (v_f = 2 · v_avg), and uniform acceleration (a = v_f / t).",
+    "activity": "Graphing Pull-Back Toy Motion Lab: Hands-on metric track setup, dual-shot video recording, data table completion, real-time x vs. t curve plotting, and step-by-step kinematic calculation verification via the interactive lab companion.",
+    "essentialQuestion": "How can we use position-time measurements of an object accelerating from rest to determine its average velocity, final velocity, and acceleration?",
     "standards": [
-      "HS-PS2-1"
+      "HS-PS2-1",
+      "HS-PS2-2"
     ],
     "wicor": {
-      "Writing": "Annotating v-t graph intervals with CER statements explaining what the slope and vertical intercept represent physically.",
-      "Inquiry": "Investigating how changing the slope of a v-t graph alters the rate at which an object speeds up or slows down.",
-      "Collaboration": "Partner graphing sprints: plotting data points, cross-checking slope triangle coordinates (t₁, v₁) and (t₂, v₂).",
-      "Organization": "Calibrating v-t graph axes with uniform scale increments and drawing clear slope calculation callouts.",
-      "Reading": "Reading coordinate values from complex multi-segment piecewise v-t motion curves."
+      "Writing": "Documenting kinematic calculations (v_avg, v_f, a) with units and describing the parabolic shape of the position-time curve.",
+      "Inquiry": "Analyzing slow-motion video frames to capture precise line-crossing timestamps and testing the constant acceleration assumption over the first meter.",
+      "Collaboration": "Lab group roles: track calibration, car release, timer operation, and camera recording.",
+      "Organization": "Constructing an organized 5-interval data table (0–100 cm) and plotting scaled coordinate graphs.",
+      "Reading": "Interpreting video stopwatch timestamps down to hundredths of a second and reading graphical slope values."
     },
     "bellRinger": {
       "type": "cast_challenge",
@@ -2641,15 +2642,21 @@ const lessonsData = [
     },
     "assignments": [
       {
-        "title": "Uniform Acceleration v-t Graphing & Slope Calculation Worksheet",
-        "typeLabel": "Classwork Practice",
-        "submission": "In-Class Handout (Subject to Pacing)",
-        "actionLabel": "In-Class Activity Notice",
-        "description": "Plot 3 uniform acceleration datasets, construct linear slope triangles, calculate acceleration rates, and analyze directional turnarounds.",
-        "status": "planned"
+        "title": "Pull-Back Toy Motion Lab",
+        "url": "Unit_2/pull_back_toy_lab/index.html",
+        "typeLabel": "Hands-On Lab Activity & Report",
+        "submission": "Cloud Auto-Saved ✓ (10 pts)",
+        "actionLabel": "Open Lab Companion",
+        "description": "Measure 5 distance intervals (0–100 cm), plot the x vs. t curve, and verify v_avg, v_f, and acceleration calculations."
       }
     ],
     "resources": [
+      {
+        "title": "Graphing Pull-Back Toy Handout (PDF)",
+        "url": "https://rrmudry.github.io/Unit_2/pull_back_toy_lab/index.html",
+        "typeLabel": "Lab Activity Guide",
+        "description": "Official laboratory procedure, safety rules, and data collection protocol."
+      },
       {
         "title": "Velocity vs. Time Visualizer",
         "url": "Unit_2/velocity_time_graph_studio/index.html",
@@ -2665,13 +2672,14 @@ const lessonsData = [
     ],
     "practice": [
       {
-        "title": "Velocity vs. Time Visualizer",
-        "url": "Unit_2/velocity_time_graph_studio/index.html",
-        "typeLabel": "Practice Tool",
-        "description": "Plot customized acceleration slopes and inspect instantaneous velocity."
+        "title": "Pull-Back Toy Motion Lab Companion",
+        "url": "Unit_2/pull_back_toy_lab/index.html",
+        "typeLabel": "Lab Companion",
+        "description": "Interactive data table with real-time x vs. t plotting and diagnostic calculation verification."
       }
     ],
     "links": {
+      "Pull-Back Toy Motion Lab": "Unit_2/pull_back_toy_lab/index.html",
       "Velocity vs. Time Visualizer": "Unit_2/velocity_time_graph_studio/index.html",
       "Dual-Graph Motion Studio": "Unit_2/dual_graph_studio/index.html"
     }
