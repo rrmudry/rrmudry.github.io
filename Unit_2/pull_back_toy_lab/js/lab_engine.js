@@ -359,7 +359,7 @@ class PullBackLabEngine {
       input.classList.add('invalid');
       const rawT0 = this.rawTimes[0] !== null ? `${this.rawTimes[0]}s` : 't₀';
       const rawT5 = this.rawTimes[5] !== null ? `${this.rawTimes[5]}s` : 't₅';
-      this.showFeedback(feedback, 'error', `⚠️ Not quite. Use v_avg = Δx / Δt. Total distance is 100 cm and zeroed elapsed time is ${tFinalZeroed.toFixed(2)} s (${rawT5} − ${rawT0}). (Expected ~${expectedCm.toFixed(1)} cm/s).`);
+      this.showFeedback(feedback, 'error', `⚠️ Not quite. Use v<sub>avg</sub> = Δx / Δt. Total distance is 100 cm and zeroed elapsed time is ${tFinalZeroed.toFixed(2)} s (${rawT5} − ${rawT0}). (Expected ~${expectedCm.toFixed(1)} cm/s).`);
       if (window.labSound) window.labSound.playWarning();
     }
     this.saveLocalDraft();
@@ -392,13 +392,13 @@ class PullBackLabEngine {
       this.calcValues.vFinal = userVal;
       input.classList.remove('invalid');
       input.classList.add('valid');
-      this.showFeedback(feedback, 'success', `✅ Spot on! Because the car starts from rest (v₀ = 0), v_f = 2 · v_avg = ${userVal}.`);
+      this.showFeedback(feedback, 'success', `✅ Spot on! Because the car starts from rest (v₀ = 0), v<sub>f</sub> = 2 · v<sub>avg</sub> = ${userVal}.`);
       if (window.labSound) window.labSound.playSuccess();
     } else {
       this.calcStatus.vFinal = false;
       input.classList.remove('valid');
       input.classList.add('invalid');
-      this.showFeedback(feedback, 'error', `⚠️ Hint: v_avg = (v₀ + v_f) / 2. Since v₀ = 0, v_f = 2 · v_avg. Multiply your average speed (${this.calcValues.vAvg}) by 2!`);
+      this.showFeedback(feedback, 'error', `⚠️ Hint: v<sub>avg</sub> = (v₀ + v<sub>f</sub>) / 2. Since v₀ = 0, v<sub>f</sub> = 2 · v<sub>avg</sub>. Multiply your average speed (${this.calcValues.vAvg}) by 2!`);
       if (window.labSound) window.labSound.playWarning();
     }
     this.saveLocalDraft();
@@ -432,14 +432,14 @@ class PullBackLabEngine {
       this.calcValues.accel = userVal;
       input.classList.remove('invalid');
       input.classList.add('valid');
-      this.showFeedback(feedback, 'success', `✅ Outstanding! Acceleration a = ${userVal} (v_f / Δt = ${this.calcValues.vFinal} / ${tFinalZeroed.toFixed(2)} s).`);
+      this.showFeedback(feedback, 'success', `✅ Outstanding! Acceleration a = ${userVal} (v<sub>f</sub> / Δt = ${this.calcValues.vFinal} / ${tFinalZeroed.toFixed(2)} s).`);
       if (window.labSound) window.labSound.playSuccess();
       this.renderGraph();
     } else {
       this.calcStatus.accel = false;
       input.classList.remove('valid');
       input.classList.add('invalid');
-      this.showFeedback(feedback, 'error', `⚠️ Check your math: a = (v_f - v₀) / Δt = ${this.calcValues.vFinal} / ${tFinalZeroed.toFixed(2)} s. (Expected ~${expected.toFixed(1)}).`);
+      this.showFeedback(feedback, 'error', `⚠️ Check your math: a = (v<sub>f</sub> − v₀) / Δt = ${this.calcValues.vFinal} / ${tFinalZeroed.toFixed(2)} s. (Expected ~${expected.toFixed(1)}).`);
       if (window.labSound) window.labSound.playWarning();
     }
     this.saveLocalDraft();
@@ -448,7 +448,7 @@ class PullBackLabEngine {
 
   showFeedback(el, type, msg) {
     if (!el) return;
-    el.textContent = msg;
+    el.innerHTML = msg;
     el.classList.remove('hidden', 'text-emerald-400', 'text-rose-400', 'text-amber-400');
     if (type === 'success') {
       el.classList.add('text-emerald-400');
