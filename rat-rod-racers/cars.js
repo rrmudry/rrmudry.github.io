@@ -541,7 +541,7 @@ function _drawChassisCanvas(ctx, chassis, car) {
       ctx.save();
       // Studio canvas is 800x400 with origin at (400, 230) and scale 5.2
       ctx.scale(1.0 / 5.2, 1.0 / 5.2);
-      ctx.drawImage(chassis._cachedImg, -400, -230);
+      ctx.drawImage(chassis._cachedImg, -400, -230, 800, 400);
       ctx.restore();
     }
   } else if (type === 'coupe32') {
