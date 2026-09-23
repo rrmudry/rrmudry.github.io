@@ -1,13 +1,29 @@
 /**
- * PrecisionStopwatch - High-accuracy digital stopwatch engine
+ * PrecisionStopwatch - High-accuracy digital stopwatch engine with Fullscreen HUD
  * Pull-Back Toy Motion Lab
  */
 class PrecisionStopwatch {
   constructor(displayId, controls = {}) {
     this.displayEl = document.getElementById(displayId);
+    this.fsDisplayEl = document.getElementById('stopwatch-fullscreen-display');
+    this.fsModal = document.getElementById('stopwatch-fullscreen-modal');
+
     this.btnToggle = document.getElementById(controls.toggleBtnId || 'btn-stopwatch-toggle');
     this.btnReset = document.getElementById(controls.resetBtnId || 'btn-stopwatch-reset');
     this.btnLap = document.getElementById(controls.lapBtnId || 'btn-stopwatch-lap');
+    this.btnExpand = document.getElementById('btn-stopwatch-expand');
+
+    // Fullscreen controls
+    this.btnFsToggle = document.getElementById('btn-fs-toggle');
+    this.btnFsLap = document.getElementById('btn-fs-lap');
+    this.btnFsReset = document.getElementById('btn-fs-reset');
+    this.btnFsExit = document.getElementById('btn-fs-exit');
+    this.btnFsTheme = document.getElementById('btn-fs-theme');
+    this.btnFsApply = document.getElementById('btn-fs-apply-table');
+    this.fsSplitsStrip = document.getElementById('fs-splits-strip');
+    this.fsLastSplitBadge = document.getElementById('fs-last-split-badge');
+    this.fsLastSplitVal = document.getElementById('fs-last-split-val');
+
     this.lapsList = document.getElementById(controls.lapsListId || 'stopwatch-laps-list');
 
     this.isRunning = false;
@@ -20,17 +36,61 @@ class PrecisionStopwatch {
   }
 
   init() {
-    if (this.btnToggle) {
-      this.btnToggle.addEventListener('click', () => this.toggle());
-    }
-    if (this.btnReset) {
-      this.btnReset.addEventListener('click', () => this.reset());
-    }
-    if (this.btnLap) {
-      this.btnLap.addEventListener('click', () => this.recordLap());
+    // Card buttons
+    if (this.btnToggle) this.btnToggle.onclick = () => this.toggle();
+    if (this.btnReset) this.btnReset.onclick = () => this.reset();
+    if (this.btnLap) this.btnLap.onclick = () => this.recordLap();
+    if (this.btnExpand) this.btnExpand.onclick = () => this.openFullscreen();
+
+    // Fullscreen buttons
+    if (this.btnFsToggle) this.btnFsToggle.onclick = () => this.toggle();
+    if (this.btnFsReset) this.btnFsReset.onclick = () => this.reset();
+    if (this.btnFsLap) this.btnFsLap.onclick = () => this.recordLap();
+    if (this.btnFsExit) this.btnFsExit.onclick = () => this.closeFullscreen();
+    if (this.btnFsApply) this.btnFsApply.onclick = () => this.applySplitsToTable();
+    if (this.btnFsTheme) {
+      this.btnFsTheme.onclick = () => {
+        document.documentElement.classList.toggle('light');
+        if (window.labEngine) window.labEngine.renderGraph();
+      };
     }
 
+    // Spacebar to start/stop
+    window.addEventListener('keydown', (e) => {
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
+      if (e.code === 'Space') {
+        e.preventDefault();
+        this.toggle();
+      } else if (e.code === 'KeyL') {
+        e.preventDefault();
+        this.recordLap();
+      } else if (e.code === 'Escape' && this.fsModal && !this.fsModal.classList.contains('hidden')) {
+        this.closeFullscreen();
+      }
+    });
+
     this.updateDisplay(0);
+  }
+
+  openFullscreen() {
+    if (this.fsModal) {
+      this.fsModal.classList.remove('hidden');
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      }
+      this.renderFullscreenSplits();
+      if (window.labSound) window.labSound.playClick();
+    }
+  }
+
+  closeFullscreen() {
+    if (this.fsModal) {
+      this.fsModal.classList.add('hidden');
+      if (document.fullscreenElement && document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
+      if (window.labSound) window.labSound.playClick();
+    }
   }
 
   toggle() {
@@ -47,11 +107,7 @@ class PrecisionStopwatch {
     this.startTime = performance.now() - this.elapsedTime;
     if (window.labSound) window.labSound.playBeep();
 
-    if (this.btnToggle) {
-      this.btnToggle.innerHTML = `<span>⏸️ Pause</span>`;
-      this.btnToggle.classList.remove('bg-emerald-600', 'hover:bg-emerald-500');
-      this.btnToggle.classList.add('bg-amber-600', 'hover:bg-amber-500');
-    }
+    this.updateToggleButtons(true);
 
     const tick = () => {
       if (!this.isRunning) return;
@@ -68,11 +124,7 @@ class PrecisionStopwatch {
     cancelAnimationFrame(this.animFrameId);
     if (window.labSound) window.labSound.playBeep();
 
-    if (this.btnToggle) {
-      this.btnToggle.innerHTML = `<span>▶️ Resume</span>`;
-      this.btnToggle.classList.remove('bg-amber-600', 'hover:bg-amber-500');
-      this.btnToggle.classList.add('bg-emerald-600', 'hover:bg-emerald-500');
-    }
+    this.updateToggleButtons(false);
   }
 
   reset() {
@@ -81,12 +133,32 @@ class PrecisionStopwatch {
     this.laps = [];
     this.updateDisplay(0);
     if (this.lapsList) this.lapsList.innerHTML = '';
+    this.renderFullscreenSplits();
+    if (this.fsLastSplitBadge) this.fsLastSplitBadge.classList.add('hidden');
     if (window.labSound) window.labSound.playClick();
+  }
 
+  updateToggleButtons(isRunning) {
+    // Card button
     if (this.btnToggle) {
-      this.btnToggle.innerHTML = `<span>▶️ Start</span>`;
-      this.btnToggle.classList.remove('bg-amber-600', 'hover:bg-amber-500');
-      this.btnToggle.classList.add('bg-emerald-600', 'hover:bg-emerald-500');
+      if (isRunning) {
+        this.btnToggle.innerHTML = `<span>⏸️ Pause</span>`;
+        this.btnToggle.className = 'px-4 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs transition-all shadow-sm';
+      } else {
+        this.btnToggle.innerHTML = `<span>▶️ ${this.elapsedTime > 0 ? 'Resume' : 'Start'}</span>`;
+        this.btnToggle.className = 'px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all shadow-sm';
+      }
+    }
+
+    // Fullscreen button
+    if (this.btnFsToggle) {
+      if (isRunning) {
+        this.btnFsToggle.innerHTML = `<span>⏸️ Pause Timer</span>`;
+        this.btnFsToggle.className = 'py-4 sm:py-5 px-6 rounded-2xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xl sm:text-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3';
+      } else {
+        this.btnFsToggle.innerHTML = `<span>▶️ ${this.elapsedTime > 0 ? 'Resume Timer' : 'Start Timer'}</span>`;
+        this.btnFsToggle.className = 'py-4 sm:py-5 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xl sm:text-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3';
+      }
     }
   }
 
@@ -96,9 +168,11 @@ class PrecisionStopwatch {
     this.laps.push(currentSeconds);
     if (window.labSound) window.labSound.playClick();
 
+    const lapNum = this.laps.length;
+    const markerText = lapNum <= 5 ? ` [${(lapNum * 20)} cm]` : '';
+
+    // Card lap list update
     if (this.lapsList) {
-      const lapNum = this.laps.length;
-      const markerText = lapNum <= 5 ? ` [${(lapNum * 20)} cm]` : '';
       const lapEl = document.createElement('div');
       lapEl.className = 'flex justify-between items-center py-1 border-b border-white/5 font-mono text-xs';
       lapEl.innerHTML = `
@@ -110,16 +184,61 @@ class PrecisionStopwatch {
       `;
       this.lapsList.prepend(lapEl);
     }
+
+    // Fullscreen strip update
+    this.renderFullscreenSplits();
+
+    // Show last split badge
+    if (this.fsLastSplitBadge && this.fsLastSplitVal) {
+      this.fsLastSplitVal.textContent = `${currentSeconds} s (Mark ${lapNum})`;
+      this.fsLastSplitBadge.classList.remove('hidden');
+    }
+  }
+
+  renderFullscreenSplits() {
+    if (!this.fsSplitsStrip) return;
+    if (this.laps.length === 0) {
+      this.fsSplitsStrip.innerHTML = `<span class="text-slate-400 font-bold">Marks:</span> <span class="text-slate-500">No marks recorded yet. Tap "Split Mark" (or press 'L') as the car crosses 20, 40, 60, 80, 100 cm.</span>`;
+      return;
+    }
+
+    let html = `<span class="text-slate-300 font-bold mr-1">Marks:</span>`;
+    this.laps.forEach((timeVal, idx) => {
+      const mIdx = idx + 1;
+      const mDist = mIdx <= 5 ? `${mIdx * 20}cm` : `M${mIdx}`;
+      html += `
+        <span class="px-2.5 py-1 rounded-lg bg-sky-500/20 text-sky-300 border border-sky-500/30 font-mono font-bold">
+          ${mDist}: ${timeVal}s
+        </span>
+      `;
+    });
+    this.fsSplitsStrip.innerHTML = html;
+  }
+
+  applySplitsToTable() {
+    if (this.laps.length === 0) {
+      alert("No split times recorded yet! Run the timer and tap 'Split Mark' at each distance marker.");
+      return;
+    }
+
+    const count = Math.min(this.laps.length, 5);
+    for (let i = 1; i <= count; i++) {
+      window.labEngine.insertStopwatchTime(i, this.laps[i - 1]);
+    }
+    if (window.labSound) window.labSound.playSuccess();
+    this.closeFullscreen();
   }
 
   updateDisplay(ms) {
-    if (!this.displayEl) return;
     const totalSec = ms / 1000;
     const minutes = Math.floor(totalSec / 60);
     const seconds = Math.floor(totalSec % 60);
     const hundredths = Math.floor((ms % 1000) / 10);
 
     const pad = (n) => String(n).padStart(2, '0');
-    this.displayEl.textContent = `${pad(minutes)}:${pad(seconds)}.${pad(hundredths)}`;
+    const timeStr = `${pad(minutes)}:${pad(seconds)}.${pad(hundredths)}`;
+
+    if (this.displayEl) this.displayEl.textContent = timeStr;
+    if (this.fsDisplayEl) this.fsDisplayEl.textContent = timeStr;
   }
 }

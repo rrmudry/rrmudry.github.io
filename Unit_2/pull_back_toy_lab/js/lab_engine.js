@@ -321,7 +321,14 @@ class PullBackLabEngine {
     const width = rect.width;
     const height = rect.height;
 
+    const isLight = document.documentElement.classList.contains('light');
+
     ctx.clearRect(0, 0, width, height);
+
+    if (isLight) {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, width, height);
+    }
 
     const padLeft = 60;
     const padBottom = 40;
@@ -331,7 +338,7 @@ class PullBackLabEngine {
     const plotW = width - padLeft - padRight;
     const plotH = height - padTop - padBottom;
 
-    // Time domain: 0 to max(2.0, t5 * 1.2)
+    // Time domain: 0 to max(2.0, t5 * 1.25)
     const t5 = this.times[5] || 1.5;
     const maxTime = Math.max(2.0, Math.ceil(t5 * 1.25 * 10) / 10);
     const maxDist = 100.0; // cm
@@ -341,12 +348,12 @@ class PullBackLabEngine {
 
     // Draw Gridlines
     ctx.lineWidth = 1;
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
+    ctx.strokeStyle = isLight ? '#cbd5e1' : 'rgba(255, 255, 255, 0.08)';
 
     // Vertical time gridlines
     const tStep = maxTime <= 2.5 ? 0.2 : 0.5;
-    ctx.fillStyle = '#94a3b8';
-    ctx.font = '11px "JetBrains Mono", monospace';
+    ctx.fillStyle = isLight ? '#0f172a' : '#94a3b8';
+    ctx.font = 'bold 11px "JetBrains Mono", monospace';
     ctx.textAlign = 'center';
 
     for (let t = 0; t <= maxTime + 0.01; t += tStep) {
@@ -372,8 +379,8 @@ class PullBackLabEngine {
     }
 
     // Axis Lines
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = isLight ? '#0f172a' : 'rgba(255, 255, 255, 0.4)';
     ctx.beginPath();
     // Y axis
     ctx.moveTo(padLeft, padTop);
@@ -383,8 +390,8 @@ class PullBackLabEngine {
     ctx.stroke();
 
     // Axis Labels
-    ctx.font = 'bold 12px "Outfit", sans-serif';
-    ctx.fillStyle = '#38bdf8';
+    ctx.font = 'bold 13px "Outfit", sans-serif';
+    ctx.fillStyle = isLight ? '#0369a1' : '#38bdf8';
     ctx.textAlign = 'center';
     ctx.fillText('Time t (seconds)', padLeft + plotW / 2, height - 6);
 
@@ -398,9 +405,9 @@ class PullBackLabEngine {
     const accel = this.calcValues.accel;
     if (accel && accel > 0) {
       ctx.save();
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
-      ctx.setLineDash([4, 4]);
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = isLight ? '#0284c7' : 'rgba(56, 189, 248, 0.5)';
+      ctx.setLineDash([5, 5]);
       ctx.beginPath();
       for (let px = 0; px <= plotW; px += 4) {
         const t = (px / plotW) * maxTime;
@@ -415,8 +422,8 @@ class PullBackLabEngine {
       ctx.restore();
 
       // Legend note
-      ctx.font = '10px "JetBrains Mono", monospace';
-      ctx.fillStyle = 'rgba(56, 189, 248, 0.8)';
+      ctx.font = 'bold 11px "JetBrains Mono", monospace';
+      ctx.fillStyle = isLight ? '#0369a1' : 'rgba(56, 189, 248, 0.9)';
       ctx.textAlign = 'left';
       ctx.fillText(`Theoretical Curve: x = ½at² (a = ${accel.toFixed(1)} cm/s²)`, padLeft + 10, padTop + 16);
     }
@@ -424,8 +431,8 @@ class PullBackLabEngine {
     // Average Speed Secant Line (from (0,0) to (t5, 100))
     if (this.times[5] && this.times[5] > 0) {
       ctx.save();
-      ctx.lineWidth = 1.5;
-      ctx.strokeStyle = 'rgba(245, 158, 11, 0.5)';
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = isLight ? '#b45309' : 'rgba(245, 158, 11, 0.6)';
       ctx.beginPath();
       ctx.moveTo(toX(0), toY(0));
       ctx.lineTo(toX(this.times[5]), toY(100));
@@ -443,11 +450,11 @@ class PullBackLabEngine {
       }
     }
 
-    // Connect student points with smooth line
+    // Connect student points with solid bold line
     if (validPoints.length > 1) {
       ctx.save();
-      ctx.lineWidth = 3;
-      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 3.5;
+      ctx.strokeStyle = isLight ? '#0284c7' : '#38bdf8';
       ctx.beginPath();
       validPoints.forEach((pt, idx) => {
         const xPos = toX(pt.t);
@@ -459,14 +466,16 @@ class PullBackLabEngine {
       ctx.restore();
     }
 
-    // Draw Coordinate Dots with Glow
+    // Draw Coordinate Dots with readable label pill
     validPoints.forEach((pt) => {
       const xPos = toX(pt.t);
       const yPos = toY(pt.d);
 
       ctx.save();
-      ctx.shadowColor = '#38bdf8';
-      ctx.shadowBlur = 10;
+      if (!isLight) {
+        ctx.shadowColor = '#38bdf8';
+        ctx.shadowBlur = 10;
+      }
       ctx.fillStyle = '#0284c7';
       ctx.beginPath();
       ctx.arc(xPos, yPos, 6, 0, Math.PI * 2);
@@ -478,11 +487,23 @@ class PullBackLabEngine {
       ctx.arc(xPos, yPos, 3, 0, Math.PI * 2);
       ctx.fill();
 
-      // Coordinate text above dot
+      // Coordinate text pill above dot
+      const coordText = `(${pt.t}s, ${pt.d}cm)`;
       ctx.font = 'bold 10px "JetBrains Mono", monospace';
-      ctx.fillStyle = '#e2e8f0';
+      const textW = ctx.measureText(coordText).width;
+
+      if (isLight) {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+        ctx.fillRect(xPos - textW / 2 - 3, yPos - 21, textW + 6, 13);
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(xPos - textW / 2 - 3, yPos - 21, textW + 6, 13);
+        ctx.fillStyle = '#0f172a';
+      } else {
+        ctx.fillStyle = '#e2e8f0';
+      }
       ctx.textAlign = 'center';
-      ctx.fillText(`(${pt.t}s, ${pt.d}cm)`, xPos, yPos - 10);
+      ctx.fillText(coordText, xPos, yPos - 11);
       ctx.restore();
     });
   }
