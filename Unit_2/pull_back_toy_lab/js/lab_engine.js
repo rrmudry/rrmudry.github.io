@@ -1262,8 +1262,6 @@ document.addEventListener('DOMContentLoaded', () => {
   window.labEngine = new PullBackLabEngine();
   window.labStopwatch = new PrecisionStopwatch('stopwatch-display', {
     toggleBtnId: 'btn-stopwatch-toggle',
-    resetBtnId: 'btn-stopwatch-reset',
-    lapBtnId: 'btn-stopwatch-lap',
-    lapsListId: 'stopwatch-laps-list'
+    resetBtnId: 'btn-stopwatch-reset'
   });
 });
