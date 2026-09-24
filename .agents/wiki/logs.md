@@ -2,6 +2,19 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-23 — Differentiated Curriculum Pacing: Period 0 Honors vs. Periods 1–6 (Days 18 & 19)
+
+**Pattern Updated**: `dashboard-layout.md`, `cast-aligned-webapp-design.md`.
+
+**Changes**:
+- **Day 18 Progress Documentation**:
+  - Recorded section pacing divergence: Period 0 (Honors Physics) completed the full hands-on Pull-Back Toy Motion Lab and calculation verification.
+  - Periods 1–6 utilized the instructional block to finalize the Kinematic Velocity Calculator (Day 17) and Acceleration Rate & Sign Studio (Day 16).
+- **Day 19 Differentiated Motion Pathways**:
+  - Period 0 (Honors Physics): Advances to geometric displacement under the velocity-time graph, deriving Δx = v₀t + ½at² and verifying with average velocity.
+  - Periods 1–6: Conducts the hands-on Pull-Back Toy Motion Lab with metric track calibration, slow-motion video telemetry, and x vs. t plotting.
+  - Updated all 4 central curriculum files (`assets/lessons-data.js`, `Unit_2/unit2_lessons.json`, `Unit_2/lesson.json`, `Unit_2/outline.md`) with differentiated titles, summaries, activities, dual NGSS standards (`HS-PS2-1`, `HS-PS2-2`), and section-targeted assignments and resources.
+
 ## 2026-09-23 — Graphing Speed Story: Google Classroom Deployment & Grade Sync
 
 **Pattern Updated**: `classroom-gradebook-sync.md`, `assignment-registry.md`.
